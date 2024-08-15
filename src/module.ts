@@ -41,17 +41,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     nuxt.options.runtimeConfig.public.myModule = { ...options, rootDir: nuxt.options.rootDir }
 
-    // Do not add the extension since the `.ts` will be transpiled to `.mjs` after `npm run prepack`
-    addPlugin({
-      src: resolver.resolve('./runtime/02.loadPageTranslations.client'),
-      mode: 'client',
-    })
-
-    addPlugin({
-      src: resolver.resolve('./runtime/02.loadPageTranslations.server'),
-      mode: 'server',
-    })
-
     addPlugin(resolver.resolve('./runtime/01.plugin'))
 
     addTypeTemplate({
@@ -115,6 +104,7 @@ export default defineNuxtModule<ModuleOptions>({
         if (locale !== options.defaultLocale) {
           pages.forEach((page) => {
             routes.push(`/${locale}${page}`)
+            routes.push(`/_nuxt/locales/${page}/${locale}/data.json`)
           })
         }
       })
@@ -124,7 +114,12 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.prerender.routes = routes
     })
 
+    nuxt.hook('nitro:build:before', async (nitro) => {
+
+    })
+
     nuxt.hook('prerender:routes', async (prerenderRoutes) => {
+
       const routesSet = prerenderRoutes.routes
       const additionalRoutes = new Set<string>()
 
@@ -150,11 +145,6 @@ export default defineNuxtModule<ModuleOptions>({
       middleware: true,
       // route: '/*',
       handler: resolver.resolve('./server/middleware/i18n'),
-    })
-
-    addServerHandler({
-      route: '/_nuxt/locales/:page/:locale/data.json',
-      handler: resolver.resolve('./server/middleware/i18n_loader'),
     })
   },
 })

@@ -1,6 +1,6 @@
 import type { RouteLocationRaw, RouteRecordName } from 'vue-router'
 import { defineNuxtPlugin, useState } from '#app'
-import { useRoute, useRouter } from '#imports'
+import { useRoute, useRouter, watch } from '#imports'
 
 // Интерфейс для переводов, поддерживающий разные типы данных
 interface Translations {
@@ -11,6 +11,19 @@ interface PluralTranslations {
   singular: string
   plural: string
 }
+
+interface State {
+  locale: string
+  translations: { [key: string]: Translations }
+  defaultLocale: string
+  rootDir: string
+  translationDir: string
+  locales: string[]
+}
+
+// Кэш для хранения уже найденных переводов
+const localeCache: { [key: string]: Translations } = {}
+const translationCache: Record<string, unknown> = {}
 
 // Функция для клонирования объектов и массивов
 function deepClone<T>(value: T): T {
@@ -23,7 +36,7 @@ function deepClone<T>(value: T): T {
   return value
 }
 
-// Функция для получения перевода любого типа
+// Функция для получения перевода любого типа с кэшированием
 function getTranslation<T = unknown>(translations: Translations, key: string, defaultValue?: T): T {
   const result = key.split('.').reduce<Translations | T | undefined>((acc, part) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -37,11 +50,15 @@ function getTranslation<T = unknown>(translations: Translations, key: string, de
   }, translations)
 
   // Если результат является объектом или массивом, клонируем его, чтобы избежать утечек
+  let finalResult: T
   if (result && (typeof result === 'object' || Array.isArray(result))) {
-    return deepClone(result) as T
+    finalResult = deepClone(result) as T
+  }
+  else {
+    finalResult = (result as T) ?? defaultValue ?? (key as unknown as T)
   }
 
-  return (result as T) ?? defaultValue ?? (key as unknown as T)
+  return finalResult
 }
 
 // Функция для получения перевода с числом (singular/plural)
@@ -59,11 +76,54 @@ function pluralize(count: number, singular: string, plural: string): string {
   return count === 1 ? singular : plural
 }
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
   const route = useRoute()
   // Используем состояние для хранения переводов и локали
-  const i18nState = useState('i18n', () => nuxtApp.ssrContext?.event.context.i18n || {})
+  const i18nState = useState<State>('i18n', () => nuxtApp.ssrContext?.event.context.i18n || {})
+
+  const loadTranslations = async () => {
+    const locale = i18nState.value.locale
+    const rootDir = i18nState.value.rootDir
+    const translationDir = i18nState.value.translationDir
+    const routeName = (route.name as string).replace(`localized-`, '')
+    if (localeCache[`${locale}:${routeName}`]) {
+      return
+    }
+
+    let result: { [key: string]: Translations } = {}
+
+    try {
+      const translations = await import(`~/${translationDir}/${locale}.json`)
+      result = { ...translations.default }
+    }
+    catch (error: unknown) {
+      return { error: `Translations ${locale} not found` }
+    }
+
+    try {
+      const translations = await import(`~/${translationDir}/pages/${routeName}_${locale}.json`)
+      result = { ...result, ...translations.default }
+    }
+    catch (error: unknown) {
+      return { error: `Translations ${routeName}_${locale}} not found` }
+    }
+
+    console.log('loadTranslations')
+    // const { data: translations } = await useFetch<Translations>(`/_nuxt/locales/${routeName}/${locale}/data.json`)
+    localeCache[`${locale}:${routeName}`] = result || {}
+  }
+
+  let init = false
+  watch(route, async () => {
+    if (!init) {
+      return
+    }
+    await loadTranslations()
+  }, { immediate: true })
+
+  await loadTranslations()
+  init = true
 
   // Предоставляем метод для получения текущей локали
   nuxtApp.provide('getLocale', () => {
@@ -77,12 +137,36 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Предоставляем метод для перевода ключа
   nuxtApp.provide('t', (key: string, defaultValue?: string) => {
-    return getTranslation(i18nState.value.translations, key, defaultValue)
+    // Если перевод уже есть в кэше, возвращаем его
+    const cacheKey = i18nState.value.locale + ':' + key
+    if (translationCache[cacheKey]) {
+      console.log('cache', Date.now())
+      return translationCache[cacheKey] as string
+    }
+    console.log('serch', Date.now())
+
+    const locale = i18nState.value.locale
+    const routeName = (route.name as string).replace(`localized-`, '')
+    if (!localeCache[`${locale}:${routeName}`]) {
+      return
+    }
+
+    const value = getTranslation(localeCache[`${locale}:${routeName}`], key, defaultValue)
+
+    // Сохраняем результат в кэш для будущего использования
+    translationCache[cacheKey] = value
+
+    return value
   })
 
   // Метод для перевода с учетом количества
   nuxtApp.provide('tc', (key: string, count: number, defaultValue?: string) => {
-    const translation = getPluralTranslation(i18nState.value.translations, key)
+    const locale = i18nState.value.locale
+    const routeName = (route.name as string).replace(`localized-`, '')
+    if (!localeCache[`${locale}:${routeName}`]) {
+      return
+    }
+    const translation = getPluralTranslation(localeCache[`${locale}:${routeName}`], key)
 
     if (translation) {
       return pluralize(count, translation.singular, translation.plural)
@@ -95,8 +179,10 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Метод для слияния новых переводов с существующими
   nuxtApp.provide('mergeTranslations', (newTranslations: Translations) => {
-    i18nState.value.translations = {
-      ...i18nState.value.translations,
+    const routeName = (route.name as string).replace(`localized-`, '')
+    const locale = i18nState.value.locale
+    localeCache[`${locale}:${routeName}`] = {
+      ...localeCache[`${locale}:${routeName}`],
       ...newTranslations,
     }
   })
@@ -111,7 +197,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   })
 
-  nuxtApp.provide('switchLocale', async (locale: string) => {
+  nuxtApp.provide('switchLocale', (locale: string) => {
     if (!i18nState.value.locales.includes(locale)) {
       console.warn(`Locale ${locale} is not available`)
       return

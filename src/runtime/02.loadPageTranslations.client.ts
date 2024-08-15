@@ -4,7 +4,6 @@ import { defineNuxtPlugin, useRoute, watch } from '#imports'
 const translationCache: Record<string, Record<string, unknown>> = {}
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  console.log(1111, nuxtApp)
   const { $mergeTranslations, $getLocale } = nuxtApp
   const route = useRoute()
 

@@ -5,7 +5,6 @@ import { useRuntimeConfig } from '#imports'
 import type { ModuleOptionsExtend } from '~/src/module'
 
 export default defineEventHandler(async (event) => {
-  console.log(1111, event.context.params)
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
   const { rootDir, translationDir } = config.public.myModule as ModuleOptionsExtend

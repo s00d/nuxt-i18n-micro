@@ -1,5 +1,5 @@
 import type { RouteLocationRaw, RouteRecordName } from 'vue-router'
-import { defineNuxtPlugin, useState } from '#app'
+import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter, watch } from '#imports'
 
 // Интерфейс для переводов, поддерживающий разные типы данных
@@ -21,9 +21,17 @@ interface State {
   locales: string[]
 }
 
-// Кэш для хранения уже найденных переводов
-const localeCache: { [key: string]: Translations } = {}
-const translationCache: Record<string, unknown> = {}
+function interpolate(template: string, params: Record<string, string | number | boolean>): string {
+  return template.replace(/\{(\w+)\}/g, (_, match) => {
+    return params[match] !== undefined ? String(params[match]) : `{${match}}`
+  })
+}
+
+// Кэш для хранения переводов общего файла (locale.json)
+const generalLocaleCache: { [key: string]: Translations } = {}
+
+// Кэш для хранения переводов для страниц (routeName_locale.json)
+const routeLocaleCache: { [key: string]: Translations } = {}
 
 // Функция для клонирования объектов и массивов
 function deepClone<T>(value: T): T {
@@ -37,7 +45,17 @@ function deepClone<T>(value: T): T {
 }
 
 // Функция для получения перевода любого типа с кэшированием
-function getTranslation<T = unknown>(translations: Translations, key: string, defaultValue?: T): T {
+function getTranslation<T = unknown>(translations: Translations, key: string): Translations | null | string | number | boolean {
+  if (Object.prototype.hasOwnProperty.call(translations, key)) {
+    const value = translations[key]
+    // If the value is an object or an array, clone it to avoid mutation
+    if (typeof value === 'object' && value !== null) {
+      return deepClone(value) as Translations
+    }
+
+    return value
+  }
+
   const result = key.split('.').reduce<Translations | T | undefined>((acc, part) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
@@ -50,68 +68,59 @@ function getTranslation<T = unknown>(translations: Translations, key: string, de
   }, translations)
 
   // Если результат является объектом или массивом, клонируем его, чтобы избежать утечек
-  let finalResult: T
+  let finalResult: Translations | null
   if (result && (typeof result === 'object' || Array.isArray(result))) {
-    finalResult = deepClone(result) as T
+    finalResult = deepClone(result) as Translations
   }
   else {
-    finalResult = (result as T) ?? defaultValue ?? (key as unknown as T)
+    finalResult = (result as T) ?? null
   }
 
   return finalResult
 }
 
 // Функция для получения перевода с числом (singular/plural)
-function getPluralTranslation(translations: Translations, key: string): PluralTranslations | undefined {
-  const result = getTranslation<PluralTranslations>(translations, key)
-  if (result && typeof result === 'object' && 'singular' in result && 'plural' in result) {
-    return result as PluralTranslations
+function getPluralTranslation(translations: Translations, key: string): string | null {
+  const translation = getTranslation<string>(translations, key)
+
+  if (!translation || typeof translation !== 'string') {
+    return null
   }
 
-  return undefined
+  return translation
 }
 
-// Функция для множественного числа
-function pluralize(count: number, singular: string, plural: string): string {
-  return count === 1 ? singular : plural
-}
-
-export default defineNuxtPlugin(async (nuxtApp) => {
+export default defineNuxtPlugin(async (_nuxtApp) => {
   const router = useRouter()
   const route = useRoute()
-  // Используем состояние для хранения переводов и локали
-  const i18nState = useState<State>('i18n', () => nuxtApp.ssrContext?.event.context.i18n || {})
+  const config = useRuntimeConfig()
+
+  const i18nConfig: State = config.public.myModule as State
 
   const loadTranslations = async () => {
-    const locale = i18nState.value.locale
-    const rootDir = i18nState.value.rootDir
-    const translationDir = i18nState.value.translationDir
+    const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+    const translationDir = i18nConfig.translationDir
     const routeName = (route.name as string).replace(`localized-`, '')
-    if (localeCache[`${locale}:${routeName}`]) {
-      return
+
+    if (!generalLocaleCache[locale]) {
+      try {
+        const translations = await import(`~/${translationDir}/${locale}.json`)
+        generalLocaleCache[locale] = { ...translations.default }
+      }
+      catch {
+        return { error: `Translations ${locale} not found` }
+      }
     }
 
-    let result: { [key: string]: Translations } = {}
-
-    try {
-      const translations = await import(`~/${translationDir}/${locale}.json`)
-      result = { ...translations.default }
+    if (!routeLocaleCache[`${locale}:${routeName}`]) {
+      try {
+        const translations = await import(`~/${translationDir}/pages/${routeName}_${locale}.json`)
+        routeLocaleCache[`${locale}:${routeName}`] = { ...translations.default }
+      }
+      catch {
+        return { error: `Translations ${routeName}_${locale} not found` }
+      }
     }
-    catch (error: unknown) {
-      return { error: `Translations ${locale} not found` }
-    }
-
-    try {
-      const translations = await import(`~/${translationDir}/pages/${routeName}_${locale}.json`)
-      result = { ...result, ...translations.default }
-    }
-    catch (error: unknown) {
-      return { error: `Translations ${routeName}_${locale}} not found` }
-    }
-
-    console.log('loadTranslations')
-    // const { data: translations } = await useFetch<Translations>(`/_nuxt/locales/${routeName}/${locale}/data.json`)
-    localeCache[`${locale}:${routeName}`] = result || {}
   }
 
   let init = false
@@ -125,145 +134,131 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   await loadTranslations()
   init = true
 
-  // Предоставляем метод для получения текущей локали
-  nuxtApp.provide('getLocale', () => {
-    return i18nState.value.locale
-  })
+  return {
+    provide: {
+      getLocale: () => {
+        return (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+      },
+      getLocales: () => {
+        return i18nConfig.locales || []
+      },
+      t: <T extends Record<string, string | number | boolean>>(
+        key: string,
+        params?: T,
+        defaultValue?: string,
+      ): string | number | boolean | Translations | PluralTranslations | unknown[] | null => {
+        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+        const routeName = (route.name as string).replace(`localized-`, '')
 
-  // Предоставляем метод для получения списка всех доступных локалей
-  nuxtApp.provide('getLocales', () => {
-    return i18nState.value.locales || []
-  })
+        let value: string | number | boolean | Translations | PluralTranslations | unknown[] | null = null
 
-  // Предоставляем метод для перевода ключа
-  nuxtApp.provide('t', (key: string, defaultValue?: string) => {
-    // Если перевод уже есть в кэше, возвращаем его
-    const cacheKey = i18nState.value.locale + ':' + key
-    if (translationCache[cacheKey]) {
-      console.log('cache', Date.now())
-      return translationCache[cacheKey] as string
-    }
-    console.log('serch', Date.now())
+        if (routeLocaleCache[`${locale}:${routeName}`]) {
+          value = getTranslation(routeLocaleCache[`${locale}:${routeName}`], key)
+        }
+        if (!value && generalLocaleCache[locale]) {
+          value = getTranslation(generalLocaleCache[locale], key)
+        }
 
-    const locale = i18nState.value.locale
-    const routeName = (route.name as string).replace(`localized-`, '')
-    if (!localeCache[`${locale}:${routeName}`]) {
-      return
-    }
+        if (!value && defaultValue) {
+          value = defaultValue
+        }
 
-    const value = getTranslation(localeCache[`${locale}:${routeName}`], key, defaultValue)
+        if (typeof value === 'string' && params) {
+          value = interpolate(value, params)
+        }
 
-    // Сохраняем результат в кэш для будущего использования
-    translationCache[cacheKey] = value
+        return value
+      },
+      tc: (key: string, count: number, defaultValue?: string) => {
+        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+        const routeName = (route.name as string).replace(`localized-`, '')
 
-    return value
-  })
+        let translation: string | null = null
 
-  // Метод для перевода с учетом количества
-  nuxtApp.provide('tc', (key: string, count: number, defaultValue?: string) => {
-    const locale = i18nState.value.locale
-    const routeName = (route.name as string).replace(`localized-`, '')
-    if (!localeCache[`${locale}:${routeName}`]) {
-      return
-    }
-    const translation = getPluralTranslation(localeCache[`${locale}:${routeName}`], key)
+        if (routeLocaleCache[`${locale}:${routeName}`]) {
+          translation = getPluralTranslation(routeLocaleCache[`${locale}:${routeName}`], key)
+        }
+        if (!translation && generalLocaleCache[locale]) {
+          translation = getPluralTranslation(generalLocaleCache[locale], key)
+        }
 
-    if (translation) {
-      return pluralize(count, translation.singular, translation.plural)
-    }
+        if (!translation) {
+          translation = defaultValue || key
+        }
 
-    // Если translation — это строка, используем ее как singular и добавляем "s" для plural
-    const defaultTranslation = defaultValue || key
-    return pluralize(count, defaultTranslation, `${defaultTranslation}s`)
-  })
+        const forms = translation.split('|')
+        let result: string
 
-  // Метод для слияния новых переводов с существующими
-  nuxtApp.provide('mergeTranslations', (newTranslations: Translations) => {
-    const routeName = (route.name as string).replace(`localized-`, '')
-    const locale = i18nState.value.locale
-    localeCache[`${locale}:${routeName}`] = {
-      ...localeCache[`${locale}:${routeName}`],
-      ...newTranslations,
-    }
-  })
-
-  // Метод для смены локали
-  nuxtApp.provide('setLocale', (locale: string) => {
-    if (i18nState.value.locales.includes(locale)) {
-      i18nState.value.locale = locale
-    }
-    else {
-      console.warn(`Locale ${locale} is not available`)
-    }
-  })
-
-  nuxtApp.provide('switchLocale', (locale: string) => {
-    if (!i18nState.value.locales.includes(locale)) {
-      console.warn(`Locale ${locale} is not available`)
-      return
-    }
-
-    const { defaultLocale } = i18nState.value
-    const currentLocale = route.params.locale || defaultLocale
-
-    // Получаем текущее имя маршрута
-    let routeName = route.name as string
-
-    // Убираем текущую локаль из имени маршрута, если она есть
-    if (currentLocale !== defaultLocale) {
-      routeName = routeName.replace(`localized-`, '')
-    }
-
-    // Формируем новое имя маршрута в зависимости от выбранной локали
-    const newRouteName = locale === defaultLocale ? routeName : `localized-${routeName}`
-
-    // Обновляем параметры маршрута, заменяя старую локаль на новую
-    const newParams = { ...route.params }
-    delete newParams.locale
-    if (locale !== defaultLocale) {
-      newParams.locale = locale
-    }
-
-    // Формируем новый URL для перенаправления
-    // Перенаправляем на новый URL с перезагрузкой страницы
-    window.location.href = router.resolve({ name: newRouteName, params: newParams }).fullPath
-  })
-
-  nuxtApp.provide('localeRoute', (to: RouteLocationRaw): RouteLocationRaw => {
-    const { defaultLocale } = i18nState.value
-    const currentLocale = route.params.locale || defaultLocale
-    const router = useRouter()
-
-    let resolvedRoute = router.resolve(to)
-
-    // If 'to' is an object with a 'name' property, resolve it directly
-    if (typeof to === 'object' && 'name' in to) {
-      resolvedRoute = router.resolve({ name: to.name, params: to.params, query: to.query, hash: to.hash })
-      delete resolvedRoute.params.locale
-
-      // Apply locale-specific logic to the resolved route's name
-      if (resolvedRoute.name) {
-        if (currentLocale === defaultLocale) {
-          resolvedRoute.name = (resolvedRoute.name as string).replace(`localized-`, '') as RouteRecordName
+        // Determine which form to use based on the count
+        if (count === 0 && forms.length > 2) {
+          result = forms[0].trim() // Case for "no apples"
+        }
+        else if (count === 1 && forms.length > 1) {
+          result = forms[1].trim() // Case for "one apple"
         }
         else {
-          resolvedRoute.name = (`localized-${resolvedRoute.name.toString()}` as string) as RouteRecordName
-          resolvedRoute.params.locale = currentLocale
+          result = forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim() // Case for "multiple apples"
         }
-      }
-    }
 
-    // If we resolved a route, return the modified route object
-    if (resolvedRoute) {
-      return router.resolve({
-        name: resolvedRoute.name as RouteRecordName,
-        params: resolvedRoute.params,
-        query: resolvedRoute.query,
-        hash: resolvedRoute.hash,
-      })
-    }
+        // Replace {count} placeholder with the actual count
+        return result.replace('{count}', count.toString())
+      },
+      mergeTranslations: (newTranslations: Translations) => {
+        const routeName = (route.name as string).replace(`localized-`, '')
+        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+        routeLocaleCache[`${locale}:${routeName}`] = {
+          ...generalLocaleCache[locale],
+          ...newTranslations,
+        }
+      },
+      switchLocale: (locale: string) => {
+        if (!i18nConfig.locales.includes(locale)) {
+          console.warn(`Locale ${locale} is not available`)
+          return
+        }
 
-    // If 'to' is neither a string nor an object with a name or path, return it unchanged
-    return to
-  })
+        const { defaultLocale } = i18nConfig
+        const currentLocale = route.params.locale || defaultLocale
+
+        let routeName = route.name as string
+
+        if (currentLocale !== defaultLocale) {
+          routeName = routeName.replace(`localized-`, '')
+        }
+
+        const newRouteName = locale === defaultLocale ? routeName : `localized-${routeName}`
+
+        const newParams = { ...route.params }
+        delete newParams.locale
+        if (locale !== defaultLocale) {
+          newParams.locale = locale
+        }
+
+        window.location.href = router.resolve({ name: newRouteName, params: newParams }).fullPath
+      },
+      localeRoute: (to: RouteLocationRaw): RouteLocationRaw => {
+        const { defaultLocale } = i18nConfig
+        const currentLocale = route.params.locale || defaultLocale
+
+        let resolvedRoute = router.resolve(to)
+
+        if (typeof to === 'object' && 'name' in to) {
+          resolvedRoute = router.resolve({ name: to.name, params: to.params, query: to.query, hash: to.hash })
+          delete resolvedRoute.params.locale
+
+          if (resolvedRoute.name) {
+            if (currentLocale === defaultLocale) {
+              resolvedRoute.name = (resolvedRoute.name as string).replace(`localized-`, '') as RouteRecordName
+            }
+            else {
+              resolvedRoute.name = (`localized-${resolvedRoute.name.toString()}` as string) as RouteRecordName
+              resolvedRoute.params.locale = currentLocale
+            }
+          }
+        }
+
+        return resolvedRoute
+      },
+    },
+  }
 })

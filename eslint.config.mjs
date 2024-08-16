@@ -17,6 +17,7 @@ export default createConfigForNuxt({
 })
   .append({
     rules: {
-      'vue/no-v-html': 'off', // Disable the no-v-html rule
+      'vue/no-v-html': 'off',
+      'vue/multi-word-component-names': 'off',
     },
   })

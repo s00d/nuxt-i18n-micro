@@ -1,5 +1,5 @@
 import path from 'node:path'
-import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
@@ -64,7 +64,16 @@ export default defineNuxtModule<ModuleOptions>({
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    nuxt.options.runtimeConfig.public.i18nConfig = { ...options, rootDir: nuxt.options.rootDir, plural: options.plural?.toString() }
+    nuxt.options.runtimeConfig.public.i18nConfig = {
+      ...options,
+      rootDir: nuxt.options.rootDir,
+      plural: options.plural!,
+      locales: options.locales ?? [],
+      mata: options.mata ?? true,
+      defaultLocale: options.defaultLocale ?? 'en',
+      translationDir: options.translationDir ?? 'locales',
+      autoDetectLanguage: options.autoDetectLanguage ?? true,
+    }
 
     addPlugin({
       src: resolver.resolve('./runtime/01.plugin'),

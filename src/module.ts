@@ -1,3 +1,5 @@
+import path from 'node:path'
+import { existsSync, writeFileSync } from 'node:fs'
 import { addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
@@ -24,7 +26,7 @@ export interface ModuleOptions {
   mata?: boolean
   defaultLocale?: string
   translationDir?: string
-  autoDetectLanguage?: boolean,
+  autoDetectLanguage?: boolean
   plural?: string
 }
 
@@ -67,7 +69,7 @@ export default defineNuxtModule<ModuleOptions>({
         return forms[1].trim() // Case for "one apple"
       }
       return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
-    }`
+    }`,
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -93,7 +95,7 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin({
         src: resolver.resolve('./runtime/04.auto-detect'),
         mode: 'client',
-        order: 3
+        order: 3,
       })
     }
 
@@ -102,16 +104,21 @@ export default defineNuxtModule<ModuleOptions>({
       .map(locale => locale.code) // Извлечение поля code из каждого объекта Locale
       .join('|') // Объединение всех code в строку, разделенную символом '|'
 
+    const pagesDir = path.resolve(nuxt.options.rootDir, options.translationDir!, 'pages')
+
     extendPages((pages) => {
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
-      // Получаем все страницы приложения
-      const pagesList = nuxt.options.generate.routes || []
 
       const newRoutes = pages.map((page) => {
         options.locales!.forEach((locale) => {
           if (locale.code !== options.defaultLocale) {
             pages.forEach((page) => {
-              pagesList.push(`/${locale}${page}`)
+              const filePath = path.join(pagesDir, `${page.name}_${locale.code}.json`)
+
+              // Check if the file exists; if not, create it with an empty object
+              if (!existsSync(filePath)) {
+                writeFileSync(filePath, JSON.stringify({}), 'utf-8')
+              }
             })
           }
         })
@@ -128,48 +135,48 @@ export default defineNuxtModule<ModuleOptions>({
       pages.push(...newRoutes)
     })
 
-    // nuxt.hook('nitro:config', (nitroConfig) => {
-    //   const routes = nitroConfig.prerender?.routes || []
-    //
-    //   nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
-    //   // Получаем все страницы приложения
-    //   const pages = nuxt.options.generate.routes || []
-    //
-    //   // Генерируем маршруты для всех локалей, кроме дефолтной
-    //   options.locales!.forEach((locale) => {
-    //     if (locale.code !== options.defaultLocale) {
-    //       pages.forEach((page) => {
-    //         routes.push(`/${locale}${page}`)
-    //       })
-    //     }
-    //   })
-    //
-    //   // Обновляем опцию routes в конфигурации Nitro
-    //   nitroConfig.prerender = nitroConfig.prerender || {}
-    //   nitroConfig.prerender.routes = routes
-    // })
+    nuxt.hook('nitro:config', (nitroConfig) => {
+      const routes = nitroConfig.prerender?.routes || []
 
-    nuxt.hook('prerender:routes', async (prerenderRoutes) => {
-      const routesSet = prerenderRoutes.routes
-      const additionalRoutes = new Set<string>()
+      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
+      // Получаем все страницы приложения
+      const pages = nuxt.options.generate.routes || []
 
-      // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
-      routesSet.forEach((route) => {
-        options.locales!.forEach((locale) => {
-          if (locale.code !== options.defaultLocale) {
-            if (route === '/') {
-              additionalRoutes.add(`/${locale.code}`)
-            }
-            else {
-              additionalRoutes.add(`/${locale.code}${route}`)
-            }
-          }
-        })
+      // Генерируем маршруты для всех локалей, кроме дефолтной
+      options.locales!.forEach((locale) => {
+        if (locale.code !== options.defaultLocale) {
+          pages.forEach((page) => {
+            routes.push(`/${locale}${page}`)
+          })
+        }
       })
 
-      // Добавляем новые локализованные маршруты к существующим
-      additionalRoutes.forEach(route => routesSet.add(route))
+      // Обновляем опцию routes в конфигурации Nitro
+      nitroConfig.prerender = nitroConfig.prerender || {}
+      nitroConfig.prerender.routes = routes
     })
+
+    // nuxt.hook('prerender:routes', async (prerenderRoutes) => {
+    //   const routesSet = prerenderRoutes.routes
+    //   const additionalRoutes = new Set<string>()
+    //
+    //   // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
+    //   routesSet.forEach((route) => {
+    //     options.locales!.forEach((locale) => {
+    //       if (locale.code !== options.defaultLocale) {
+    //         if (route === '/') {
+    //           additionalRoutes.add(`/${locale.code}`)
+    //         }
+    //         else {
+    //           additionalRoutes.add(`/${locale.code}${route}`)
+    //         }
+    //       }
+    //     })
+    //   })
+    //
+    //   // Добавляем новые локализованные маршруты к существующим
+    //   additionalRoutes.forEach(route => routesSet.add(route))
+    // })
 
     // Setup DevTools integration
     if (nuxt.options.dev)

@@ -12,7 +12,11 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const i18nConfig: State = config.public.myModule as State
 
-  nuxtApp.hook('app:rendered', (context) => {
+  if (!i18nConfig.mata) {
+    return
+  }
+
+  nuxtApp.hook('app:rendered', (_context) => {
     const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
     const locales = i18nConfig.locales || []
     const currentIso = locales.find(l => l.code === locale)?.iso || locale
@@ -35,12 +39,25 @@ export default defineNuxtPlugin((nuxtApp) => {
       ],
       link: [
         { id: 'i18n-can', rel: 'canonical', href: ogUrl },
-        ...locales.map(loc => ({
-          id: `i18n-alternate-${loc.iso || loc.code}`,
-          rel: 'alternate',
-          href: `${baseUrl}/${loc.code}${route.fullPath}`, // Формирование URL для альтернативных языков
-          hreflang: loc.iso || loc.code, // Используем iso или code как hreflang
-        })),
+        ...locales.flatMap((loc) => {
+          const links = [
+            {
+              id: `i18n-alternate-${loc.code}`,
+              rel: 'alternate',
+              href: `${baseUrl}/${loc.code}${route.fullPath}`,
+              hreflang: loc.code,
+            },
+          ]
+          if (loc.iso) {
+            links.push({
+              id: `i18n-alternate-${loc.iso}`,
+              rel: 'alternate',
+              href: `${baseUrl}/${loc.code}${route.fullPath}`,
+              hreflang: loc.iso,
+            })
+          }
+          return links
+        }),
       ],
     })
   })

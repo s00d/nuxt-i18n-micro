@@ -8,6 +8,7 @@ export interface Locale {
 // Module options TypeScript interface definition
 export interface ModuleOptions {
   locales?: Locale[]
+  mata?: boolean
   defaultLocale?: string
   translationDir?: string
 }
@@ -38,6 +39,7 @@ export default defineNuxtModule<ModuleOptions>({
       { code: 'de', iso: 'de_DE' },
       { code: 'ru', iso: 'ru_RU' },
     ],
+    mata: true,
     defaultLocale: 'en',
     translationDir: 'locales',
   },

@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { existsSync, writeFileSync } from 'node:fs'
+import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
 import { addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
@@ -101,16 +101,20 @@ export default defineNuxtModule<ModuleOptions>({
 
       const newRoutes = pages.map((page) => {
         options.locales!.forEach((locale) => {
-          if (locale.code !== options.defaultLocale) {
-            pages.forEach((page) => {
-              const filePath = path.join(pagesDir, `${page.name}_${locale.code}.json`)
+          pages.forEach((page) => {
+            const filePath = path.join(pagesDir, `${page.name}/${locale.code}.json`)
+            const fileDir = path.dirname(filePath) // Get the directory of the file
 
-              // Check if the file exists; if not, create it with an empty object
-              if (!existsSync(filePath)) {
-                writeFileSync(filePath, JSON.stringify({}), 'utf-8')
-              }
-            })
-          }
+            // Ensure the directory exists
+            if (!existsSync(fileDir)) {
+              mkdirSync(fileDir, { recursive: true }) // Create the directory if it doesn't exist
+            }
+
+            // Check if the file exists; if not, create it with an empty object
+            if (!existsSync(filePath)) {
+              writeFileSync(filePath, JSON.stringify({}), 'utf-8')
+            }
+          })
         })
         return {
           ...page,

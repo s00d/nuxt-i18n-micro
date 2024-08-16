@@ -25,7 +25,9 @@ export default defineNuxtConfig({
       },
     }),
   ],
-  myModule: {},
+  i18n: {
+
+  },
   devtools: { enabled: true },
   compatibilityDate: '2024-08-14',
 })

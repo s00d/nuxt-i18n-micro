@@ -16,6 +16,7 @@ interface PluralTranslations {
 interface State extends ModuleOptions {
   translations: { [key: string]: Translations }
   rootDir: string
+  pluralString: string
 }
 
 // Кэш для хранения переводов
@@ -178,6 +179,8 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   const initialLocale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
   const initialRouteName = (route.name as string).replace(`localized-`, '')
 
+  const plural = new Function('return ' + i18nConfig.plural)()
+
   await loadTranslations(initialLocale, initialRouteName, i18nConfig.translationDir!)
 
   let init = false
@@ -233,14 +236,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
           translation = defaultValue || key
         }
 
-        const forms = translation!.toString().split('|')
-        if (count === 0 && forms.length > 2) {
-          return forms[0].trim() // Case for "no apples"
-        }
-        if (count === 1 && forms.length > 1) {
-          return forms[1].trim() // Case for "one apple"
-        }
-        return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString()) // Case for "multiple apples"
+        return plural(translation!.toString(), count, locale) as string
       },
       mergeTranslations: (newTranslations: Translations) => {
         const routeName = (route.name as string).replace(`localized-`, '')

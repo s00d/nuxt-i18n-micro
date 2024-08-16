@@ -10,6 +10,8 @@ export interface ClientFunctions {
   showNotification: (message: string) => void
 }
 
+export type Plural = (translation: string, count: number, _locale: string) => string
+
 export interface Locale {
   code: string
   iso?: string
@@ -22,6 +24,8 @@ export interface ModuleOptions {
   mata?: boolean
   defaultLocale?: string
   translationDir?: string
+  autoDetectLanguage?: boolean,
+  plural?: string
 }
 
 declare module '@nuxt/schema' {
@@ -41,7 +45,7 @@ declare module '@nuxt/schema' {
 export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-i18n-micro',
-    configKey: 'i18nConfig',
+    configKey: 'i18n',
   },
   // Default configuration options of the Nuxt module
   defaults: {
@@ -53,11 +57,22 @@ export default defineNuxtModule<ModuleOptions>({
     mata: true,
     defaultLocale: 'en',
     translationDir: 'locales',
+    autoDetectLanguage: true,
+    plural: `function (translation, count, _locale) {
+      const forms = translation.toString().split('|')
+      if (count === 0 && forms.length > 2) {
+        return forms[0].trim() // Case for "no apples"
+      }
+      if (count === 1 && forms.length > 1) {
+        return forms[1].trim() // Case for "one apple"
+      }
+      return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
+    }`
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    nuxt.options.runtimeConfig.public.i18nConfig = { ...options, rootDir: nuxt.options.rootDir }
+    nuxt.options.runtimeConfig.public.i18nConfig = { ...options, rootDir: nuxt.options.rootDir, plural: options.plural?.toString() }
 
     addPlugin({
       src: resolver.resolve('./runtime/01.plugin'),
@@ -73,6 +88,14 @@ export default defineNuxtModule<ModuleOptions>({
       src: resolver.resolve('./runtime/03.define'),
       order: 2,
     })
+
+    if (options.autoDetectLanguage) {
+      addPlugin({
+        src: resolver.resolve('./runtime/04.auto-detect'),
+        mode: 'client',
+        order: 3
+      })
+    }
 
     const localeRegex = options.locales!
       .filter(locale => locale.code !== options.defaultLocale) // Фильтрация локалей, исключая дефолтную

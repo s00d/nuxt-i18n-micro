@@ -95,7 +95,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   const route = useRoute()
   const config = useRuntimeConfig()
 
-  const i18nConfig: State = config.public.myModule as State
+  const i18nConfig: State = config.public.i18nConfig as State
 
   const registerI18nModule = async (translations: Translations, locale: string) => {
     dynamicTranslationsCaches.push({ [locale]: translations })

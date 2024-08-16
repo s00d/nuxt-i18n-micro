@@ -18,21 +18,21 @@ export interface ModuleOptions {
 declare module '@nuxt/schema' {
   interface ConfigSchema {
     publicRuntimeConfig?: {
-      myModule?: ModuleOptions
+      i18nConfig?: ModuleOptions
     }
   }
   interface NuxtConfig {
-    myModule?: ModuleOptions
+    i18nConfig?: ModuleOptions
   }
   interface NuxtOptions {
-    myModule?: ModuleOptions
+    i18nConfig?: ModuleOptions
   }
 }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'my-module',
-    configKey: 'myModule',
+    name: 'nuxt-i18n-micro',
+    configKey: 'i18nConfig',
   },
   // Default configuration options of the Nuxt module
   defaults: {
@@ -48,7 +48,7 @@ export default defineNuxtModule<ModuleOptions>({
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
-    nuxt.options.runtimeConfig.public.myModule = { ...options, rootDir: nuxt.options.rootDir }
+    nuxt.options.runtimeConfig.public.i18nConfig = { ...options, rootDir: nuxt.options.rootDir }
 
     addPlugin({
       src: resolver.resolve('./runtime/01.plugin'),

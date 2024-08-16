@@ -10,7 +10,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
   const config = useRuntimeConfig()
 
-  const i18nConfig: State = config.public.myModule as State
+  const i18nConfig: State = config.public.i18nConfig as State
 
   if (!i18nConfig.mata) {
     return

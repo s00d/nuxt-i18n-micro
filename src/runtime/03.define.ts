@@ -11,7 +11,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
   const route = useRoute()
   const router = useRouter()
 
-  const i18nConfig: State = config.public.myModule as State
+  const i18nConfig: State = config.public.i18nConfig as State
 
   // Функция для определения i18n маршрута
   const defineI18nRoute = (routeDefinition: { locales?: string[] }) => {

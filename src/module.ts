@@ -3,6 +3,7 @@ import { defineNuxtModule, addPlugin, createResolver, extendPages } from '@nuxt/
 export interface Locale {
   code: string
   iso?: string
+  dir?: 'rtl' | 'ltr'
 }
 
 // Module options TypeScript interface definition

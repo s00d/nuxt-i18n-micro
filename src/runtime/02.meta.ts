@@ -20,6 +20,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
     const locales = i18nConfig.locales || []
     const currentIso = locales.find(l => l.code === locale)?.iso || locale
+    const currentDir = locales.find(l => l.code === locale)?.dir || 'ltr'
     // const ogUrl = `${context.event.req.protocol}://${context.event.req.headers.host}${context.event.req.url}`
     const baseUrl = config.public.baseURL || 'http://localhost:3000'
     const ogUrl = `${baseUrl}${route.fullPath}`
@@ -27,6 +28,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     useHead({
       htmlAttrs: {
         lang: currentIso,
+        dir: currentDir,
       },
       meta: [
         { id: 'i18n-og', property: 'og:locale', content: currentIso },

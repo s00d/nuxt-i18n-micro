@@ -15,6 +15,8 @@ export default createConfigForNuxt({
     ],
   },
 })
-  .append(
-    // your custom flat config here...
-  )
+  .append({
+    rules: {
+      'vue/no-v-html': 'off', // Disable the no-v-html rule
+    },
+  })

@@ -1,13 +1,12 @@
-import { defineNuxtPlugin, useCookie, navigateTo } from '#app'
-import type {ModuleOptions} from "~/src/module";
-import {useRoute, useRouter} from "#imports";
+import { defineNuxtPlugin, useCookie } from '#app'
+import type { ModuleOptions } from '~/src/module'
+import { useRoute, useRouter } from '#imports'
 
 interface State extends ModuleOptions {
   rootDir: string
 }
 
-
-export default defineNuxtPlugin(async ({  $config, redirect }) => {
+export default defineNuxtPlugin(async ({ $config }) => {
   const i18nConfig = $config.public.i18nConfig as State
   const userLocaleCookie = useCookie('user-locale')
   const supportedLocales = i18nConfig.locales?.map(locale => locale.code) ?? []
@@ -54,8 +53,9 @@ export default defineNuxtPlugin(async ({  $config, redirect }) => {
     // Set the locale in the cookie for future visits
     userLocaleCookie.value = detectedLocale
 
-    location.href = router.resolve({name: newRouteName, params: newParams }).href
-  } else {
+    location.href = router.resolve({ name: newRouteName, params: newParams }).href
+  }
+  else {
     // Set the default locale in the cookie if no match found
     userLocaleCookie.value = defaultLocale
   }

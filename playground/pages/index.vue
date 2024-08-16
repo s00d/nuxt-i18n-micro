@@ -16,10 +16,15 @@
     </div>
 
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'page' })">Go to Page</NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'page' })">
+        Go to Page
+      </NuxtLink>
     </div>
 
-    <div v-for="key in generatedKeys" :key="key">
+    <div
+      v-for="key in generatedKeys"
+      :key="key"
+    >
       <p>{{ key }}: {{ $t(key) }}</p>
     </div>
   </div>
@@ -28,7 +33,7 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $defineI18nRoute } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
 
 function generateRandomPrefix(maxKeys = 10) {
   return `key${Math.floor(Math.random() * maxKeys)}`

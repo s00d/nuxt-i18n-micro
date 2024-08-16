@@ -41,11 +41,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
   // Default configuration options of the Nuxt module
   defaults: {
-    locales: [
-      { code: 'en', iso: 'en_EN' },
-      { code: 'de', iso: 'de_DE' },
-      { code: 'ru', iso: 'ru_RU' },
-    ],
+    locales: [],
     mata: true,
     defaultLocale: 'en',
     translationDir: 'locales',
@@ -65,7 +61,6 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
-      ...options,
       rootDir: nuxt.options.rootDir,
       plural: options.plural!,
       locales: options.locales ?? [],

@@ -1,5 +1,10 @@
 {
   "private": true,
   "name": "basic",
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  }
 }

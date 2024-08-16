@@ -26,7 +26,15 @@ export default defineNuxtConfig({
     }),
   ],
   i18n: {
-
+    locales: [
+      { code: 'en', iso: 'en_EN' },
+      { code: 'de', iso: 'de_DE' },
+      { code: 'ru', iso: 'ru_RU' },
+    ],
+    mata: true,
+    defaultLocale: 'en',
+    translationDir: 'locales',
+    autoDetectLanguage: true,
   },
   devtools: { enabled: true },
   compatibilityDate: '2024-08-14',

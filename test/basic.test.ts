@@ -10,6 +10,9 @@ describe('ssr', async () => {
   it('renders the index page', async () => {
     // Get response to a server-rendered page with `$fetch`.
     const html = await $fetch('/')
-    expect(html).toContain('<div>basic</div>')
+    expect(html).toContain('<div>en</div>')
+
+    const html_de = await $fetch('/de/')
+    expect(html_de).toContain('<div>de</div>')
   })
 })

@@ -1,14 +1,15 @@
-import { defineNuxtModule, addPlugin, createResolver, addServerHandler, extendPages } from '@nuxt/kit'
+import { defineNuxtModule, addPlugin, createResolver, extendPages } from '@nuxt/kit'
+
+export interface Locale {
+  code: string
+  iso?: string
+}
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
-  locales?: string[]
+  locales?: Locale[]
   defaultLocale?: string
   translationDir?: string
-}
-
-export interface ModuleOptionsExtend extends ModuleOptions {
-  rootDir?: string
 }
 
 declare module '@nuxt/schema' {
@@ -32,7 +33,11 @@ export default defineNuxtModule<ModuleOptions>({
   },
   // Default configuration options of the Nuxt module
   defaults: {
-    locales: ['en', 'ru', 'de'],
+    locales: [
+      { code: 'en', iso: 'en_EN' },
+      { code: 'de', iso: 'de_DE' },
+      { code: 'ru', iso: 'ru_RU' },
+    ],
     defaultLocale: 'en',
     translationDir: 'locales',
   },
@@ -46,7 +51,12 @@ export default defineNuxtModule<ModuleOptions>({
       order: 1,
     })
 
-    const localeRegex = options.locales!.filter(locale => locale !== options.defaultLocale).join('|')
+    addPlugin({
+      src: resolver.resolve('./runtime/02.meta'),
+      order: 2,
+    })
+
+    const localeRegex = options.locales!.filter(locale => locale.code !== options.defaultLocale).join('|')
 
     extendPages((pages) => {
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
@@ -55,7 +65,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       const newRoutes = pages.map((page) => {
         options.locales!.forEach((locale) => {
-          if (locale !== options.defaultLocale) {
+          if (locale.code !== options.defaultLocale) {
             pages.forEach((page) => {
               pagesList.push(`/${locale}${page}`)
             })
@@ -84,7 +94,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       // Генерируем маршруты для всех локалей, кроме дефолтной
       options.locales!.forEach((locale) => {
-        if (locale !== options.defaultLocale) {
+        if (locale.code !== options.defaultLocale) {
           pages.forEach((page) => {
             routes.push(`/${locale}${page}`)
           })

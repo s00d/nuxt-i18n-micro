@@ -1,6 +1,7 @@
 import type { RouteLocationRaw, RouteRecordName } from 'vue-router'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter, watch } from '#imports'
+import type { ModuleOptions } from '~/src/module'
 
 // Интерфейс для переводов, поддерживающий разные типы данных
 interface Translations {
@@ -12,13 +13,9 @@ interface PluralTranslations {
   plural: string
 }
 
-interface State {
-  locale: string
+interface State extends ModuleOptions {
   translations: { [key: string]: Translations }
-  defaultLocale: string
   rootDir: string
-  translationDir: string
-  locales: string[]
 }
 
 function interpolate(template: string, params: Record<string, string | number | boolean>): string {
@@ -212,7 +209,9 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
         }
       },
       switchLocale: (locale: string) => {
-        if (!i18nConfig.locales.includes(locale)) {
+        const checkLocale = i18nConfig.locales?.find(l => l.code === locale)
+
+        if (!checkLocale) {
           console.warn(`Locale ${locale} is not available`)
           return
         }
@@ -252,7 +251,6 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
             }
             else {
               resolvedRoute.name = (`localized-${resolvedRoute.name.toString()}` as string) as RouteRecordName
-              resolvedRoute.params.locale = currentLocale
             }
           }
         }

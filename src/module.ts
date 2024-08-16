@@ -65,7 +65,10 @@ export default defineNuxtModule<ModuleOptions>({
       order: 2,
     })
 
-    const localeRegex = options.locales!.filter(locale => locale.code !== options.defaultLocale).join('|')
+    const localeRegex = options.locales!
+      .filter(locale => locale.code !== options.defaultLocale) // Фильтрация локалей, исключая дефолтную
+      .map(locale => locale.code) // Извлечение поля code из каждого объекта Locale
+      .join('|') // Объединение всех code в строку, разделенную символом '|'
 
     extendPages((pages) => {
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
@@ -89,30 +92,51 @@ export default defineNuxtModule<ModuleOptions>({
           },
         }
       })
-
       // Добавляем новые маршруты
       pages.push(...newRoutes)
     })
 
-    nuxt.hook('nitro:config', (nitroConfig) => {
-      const routes = nitroConfig.prerender?.routes || []
+    // nuxt.hook('nitro:config', (nitroConfig) => {
+    //   const routes = nitroConfig.prerender?.routes || []
+    //
+    //   nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
+    //   // Получаем все страницы приложения
+    //   const pages = nuxt.options.generate.routes || []
+    //
+    //   // Генерируем маршруты для всех локалей, кроме дефолтной
+    //   options.locales!.forEach((locale) => {
+    //     if (locale.code !== options.defaultLocale) {
+    //       pages.forEach((page) => {
+    //         routes.push(`/${locale}${page}`)
+    //       })
+    //     }
+    //   })
+    //
+    //   // Обновляем опцию routes в конфигурации Nitro
+    //   nitroConfig.prerender = nitroConfig.prerender || {}
+    //   nitroConfig.prerender.routes = routes
+    // })
 
-      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
-      // Получаем все страницы приложения
-      const pages = nuxt.options.generate.routes || []
+    nuxt.hook('prerender:routes', async (prerenderRoutes) => {
+      const routesSet = prerenderRoutes.routes
+      const additionalRoutes = new Set<string>()
 
-      // Генерируем маршруты для всех локалей, кроме дефолтной
-      options.locales!.forEach((locale) => {
-        if (locale.code !== options.defaultLocale) {
-          pages.forEach((page) => {
-            routes.push(`/${locale}${page}`)
-          })
-        }
+      // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
+      routesSet.forEach((route) => {
+        options.locales!.forEach((locale) => {
+          if (locale.code !== options.defaultLocale) {
+            if (route === '/') {
+              additionalRoutes.add(`/${locale.code}`)
+            }
+            else {
+              additionalRoutes.add(`/${locale.code}${route}`)
+            }
+          }
+        })
       })
 
-      // Обновляем опцию routes в конфигурации Nitro
-      nitroConfig.prerender = nitroConfig.prerender || {}
-      nitroConfig.prerender.routes = routes
+      // Добавляем новые локализованные маршруты к существующим
+      additionalRoutes.forEach(route => routesSet.add(route))
     })
   },
 })

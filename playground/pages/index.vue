@@ -24,5 +24,9 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $defineI18nRoute } = useNuxtApp()
+
+// $defineI18nRoute({
+//   locales: ['en', 'ru'],
+// })
 </script>

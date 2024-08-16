@@ -18,6 +18,10 @@
     <div>
       <NuxtLink :to="$localeRoute({ name: 'page' })">Go to Page</NuxtLink>
     </div>
+
+    <div v-for="key in generatedKeys" :key="key">
+      <p>{{ key }}: {{ $t(key) }}</p>
+    </div>
   </div>
 </template>
 
@@ -25,6 +29,33 @@
 import { useNuxtApp } from '#imports'
 
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $defineI18nRoute } = useNuxtApp()
+
+function generateRandomPrefix(maxKeys = 10) {
+  return `key${Math.floor(Math.random() * maxKeys)}`
+}
+
+// Function to generate keys with random prefix up to a certain depth
+function generateKeys(depth, maxKeys = 10) {
+  const keys = []
+  const generate = (currentKey, currentDepth) => {
+    if (currentDepth === 0) {
+      keys.push(currentKey)
+      return
+    }
+    for (let i = 0; i < maxKeys; i++) {
+      const newKey = `key${i}`
+      generate(`${currentKey}.${newKey}`, currentDepth - 1)
+    }
+  }
+
+  // Start with a randomly generated prefix
+  const prefix = generateRandomPrefix(maxKeys)
+  generate(prefix, depth)
+  return keys
+}
+
+// Generate keys up to the maximum depth defined in your translation structure
+const generatedKeys = generateKeys(4)
 
 // $defineI18nRoute({
 //   locales: ['en', 'ru'],

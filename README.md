@@ -1,9 +1,19 @@
 # Nuxt I18n Micro
 
-[![npm version][npm-version-src]][npm-version-href]  
-[![npm downloads][npm-downloads-src]][npm-downloads-href]  
-[![License][license-src]][license-href]  
-[![Nuxt][nuxt-src]][nuxt-href]
+<div class="links">
+    <a href="https://www.npmjs.com/package/nuxt-i18n-micro" target="_blank">
+        <img src="https://img.shields.io/npm/v/nuxt-i18n-micro/latest?style=for-the-badge" alt="npm version">
+    </a>
+    <a href="https://www.npmjs.com/package/nuxt-i18n-micro" target="_blank">
+        <img src="https://img.shields.io/npm/dw/nuxt-i18n-micro?style=for-the-badge" alt="npm downloads">
+    </a>
+    <a href="https://www.npmjs.com/package/nuxt-i18n-micro" target="_blank">
+        <img src="https://img.shields.io/npm/l/nuxt-i18n-micro?style=for-the-badge" alt="License">
+    </a>
+    <a href="https://nuxt.com" target="_blank">
+        <img src="https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js&style=for-the-badge" alt="Nuxt">
+    </a>
+</div>
 
 `Nuxt I18n Micro` is a fast, simple, and lightweight internationalization (i18n) module for Nuxt. Despite its compact size, it's designed with large projects in mind, offering significant performance improvements over traditional i18n solutions like `nuxt-i18n`. The module was built from the ground up to be highly efficient, focusing on minimizing build times, reducing server load, and shrinking bundle sizes.
 

@@ -1,4 +1,5 @@
 import { defineNuxtModule, addPlugin, createResolver, extendPages } from '@nuxt/kit'
+import type { HookResult } from '@nuxt/schema'
 
 export interface Locale {
   code: string
@@ -59,6 +60,11 @@ export default defineNuxtModule<ModuleOptions>({
       order: 2,
     })
 
+    addPlugin({
+      src: resolver.resolve('./runtime/03.define'),
+      order: 2,
+    })
+
     const localeRegex = options.locales!.filter(locale => locale.code !== options.defaultLocale).join('|')
 
     extendPages((pages) => {
@@ -110,3 +116,14 @@ export default defineNuxtModule<ModuleOptions>({
     })
   },
 })
+
+export interface ModuleHooks {
+  'i18n:register': (
+    registerModule: (translations: unknown, locale: string) => void
+  ) => HookResult
+}
+
+declare module '@nuxt/schema' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface NuxtHooks extends ModuleHooks {}
+}

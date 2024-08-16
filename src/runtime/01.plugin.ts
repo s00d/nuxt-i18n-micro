@@ -30,6 +30,9 @@ const generalLocaleCache: { [key: string]: Translations } = {}
 // Кэш для хранения переводов для страниц (routeName_locale.json)
 const routeLocaleCache: { [key: string]: Translations } = {}
 
+// Массив для хранения нескольких наборов динамически загруженных переводов
+const dynamicTranslationsCaches: { [key: string]: Translations }[] = []
+
 // Функция для клонирования объектов и массивов
 function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -94,6 +97,14 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 
   const i18nConfig: State = config.public.myModule as State
 
+  const registerI18nModule = async (translations: Translations, locale: string) => {
+    dynamicTranslationsCaches.push({ [locale]: translations })
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  await _nuxtApp.callHook('i18n:register', registerI18nModule)
+
   const loadTranslations = async () => {
     const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
     const translationDir = i18nConfig.translationDir
@@ -156,6 +167,14 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
           value = getTranslation(generalLocaleCache[locale], key)
         }
 
+        if (!value) {
+          // Проверка во всех динамических переводах
+          for (const translations of dynamicTranslationsCaches) {
+            value = getTranslation(translations[locale] ?? {}, key)
+            if (value) break
+          }
+        }
+
         if (!value && defaultValue) {
           value = defaultValue
         }
@@ -177,6 +196,14 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
         }
         if (!translation && generalLocaleCache[locale]) {
           translation = getPluralTranslation(generalLocaleCache[locale], key)
+        }
+
+        if (!translation) {
+          // Проверка во всех динамических переводах
+          for (const translations of dynamicTranslationsCaches) {
+            translation = getPluralTranslation(translations[locale] ?? {}, key)
+            if (translation) break
+          }
         }
 
         if (!translation) {
@@ -237,7 +264,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
       },
       localeRoute: (to: RouteLocationRaw): RouteLocationRaw => {
         const { defaultLocale } = i18nConfig
-        const currentLocale = route.params.locale || defaultLocale
+        const currentLocale = (route.params.locale || defaultLocale)!.toString()
 
         let resolvedRoute = router.resolve(to)
 
@@ -251,6 +278,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
             }
             else {
               resolvedRoute.name = (`localized-${resolvedRoute.name.toString()}` as string) as RouteRecordName
+              resolvedRoute.params.locale = currentLocale
             }
           }
         }

@@ -18,7 +18,7 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build",
+    "prepack": "nuxi generate client && nuxt-module-build build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -27,13 +27,17 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit"
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
+    "client:build": "nuxi generate client",
+    "client:dev": "nuxi dev client --port 3300"
   },
   "dependencies": {
     "@nuxt/kit": "^3.12.4"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.3.9",
+    "@nuxt/devtools-kit": "^1.3.9",
+    "@nuxt/devtools-ui-kit": "^1.3.9",
     "@nuxt/eslint-config": "^0.5.0",
     "@nuxt/module-builder": "^0.8.3",
     "@nuxt/schema": "^3.12.4",

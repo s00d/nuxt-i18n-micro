@@ -1,5 +1,14 @@
-import { defineNuxtModule, addPlugin, createResolver, extendPages } from '@nuxt/kit'
+import { addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
+import { setupDevToolsUI } from './devtools'
+
+export interface ServerFunctions {
+  getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>
+}
+
+export interface ClientFunctions {
+  showNotification: (message: string) => void
+}
 
 export interface Locale {
   code: string
@@ -138,6 +147,10 @@ export default defineNuxtModule<ModuleOptions>({
       // Добавляем новые локализованные маршруты к существующим
       additionalRoutes.forEach(route => routesSet.add(route))
     })
+
+    // Setup DevTools integration
+    if (nuxt.options.dev)
+      setupDevToolsUI(options, resolver.resolve)
   },
 })
 

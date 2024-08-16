@@ -4,16 +4,6 @@ import { addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
 
-export interface ServerFunctions {
-  getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>
-}
-
-export interface ClientFunctions {
-  showNotification: (message: string) => void
-}
-
-export type Plural = (translation: string, count: number, _locale: string) => string
-
 export interface Locale {
   code: string
   iso?: string

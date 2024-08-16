@@ -20,7 +20,6 @@ export default defineNuxtPlugin(async ({ $config }) => {
   const router = useRouter()
   const route = useRoute()
 
-  console.log(navigator)
   const browserLanguages = navigator.languages || [navigator.language]
   let detectedLocale = defaultLocale
 

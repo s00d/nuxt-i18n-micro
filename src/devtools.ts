@@ -52,9 +52,6 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
 
         const localeFiles = fs.readdirSync(localesDir)
         const pageFiles = fs.readdirSync(pagesDir)
-
-        console.log(1111, pageFiles)
-
         const locales = options.locales?.map(locale => locale.code) || []
 
         return locales.map((locale) => {

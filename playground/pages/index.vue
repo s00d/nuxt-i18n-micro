@@ -15,11 +15,16 @@
       </button>
     </div>
 
+    <p id="localized-route">
+      {{ $localeRoute({ name: 'page' }, 'de').path }}
+    </p>
+
     <div>
       <NuxtLink :to="$localeRoute({ name: 'page' })">
         Go to Page
       </NuxtLink>
     </div>
+    <a href="/">test</a>
 
     <div
       v-for="key in generatedKeys"

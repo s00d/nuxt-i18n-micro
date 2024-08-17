@@ -144,24 +144,18 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
   const { defaultLocale } = i18nConfig
   const currentLocale = (locale || route.params.locale || defaultLocale)!.toString()
 
-  let resolvedRoute = router.resolve(to)
+  const selectRoute = router.resolve(to)
 
-  if (typeof to === 'object' && 'name' in to) {
-    resolvedRoute = router.resolve({ name: to.name, params: to.params, query: to.query, hash: to.hash })
-    delete resolvedRoute.params.locale
+  const routeName = (selectRoute.name as string).replace(`localized-`, '')
+  const newRouteName = currentLocale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
+  const newParams = { ...route.params }
+  delete newParams.locale
 
-    if (resolvedRoute.name) {
-      const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
-
-      resolvedRoute.name = currentLocale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
-
-      if (defaultLocale !== currentLocale || i18nConfig.includeDefaultLocaleRoute) {
-        resolvedRoute.params.locale = currentLocale
-      }
-    }
+  if (currentLocale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
+    newParams.locale = currentLocale
   }
 
-  return resolvedRoute
+  return router.resolve({ name: newRouteName, params: newParams })
 }
 
 export default defineNuxtPlugin(async (_nuxtApp) => {

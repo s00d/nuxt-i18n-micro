@@ -34,6 +34,7 @@ coverage
 .nyc_output
 
 # VSCode
+.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -54,3 +55,4 @@ coverage
 Network Trash Folder
 Temporary Items
 .apdisk
+test-results

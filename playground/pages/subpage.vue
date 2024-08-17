@@ -27,12 +27,8 @@
         Go to Index
       </NuxtLink>
       |
-      <NuxtLink :to="$localeRoute({ name: 'subpage' })">
-        Go to subpage
-      </NuxtLink>
-      |
-      <NuxtLink :to="$localeRoute({ name: 'subpage' }, 'en')">
-        Go to subpage en
+      <NuxtLink :to="$localeRoute({ name: 'page' })">
+        Go to Page
       </NuxtLink>
     </div>
   </div>

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import { addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addPlugin, addTypeTemplate, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
 
@@ -17,6 +17,7 @@ export interface ModuleOptions {
   defaultLocale?: string
   translationDir?: string
   autoDetectLanguage?: boolean
+  includeDefaultLocaleRoute?: boolean
   plural?: string
 }
 
@@ -46,6 +47,7 @@ export default defineNuxtModule<ModuleOptions>({
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,
+    includeDefaultLocaleRoute: false,
     plural: `function (translation, count, _locale) {
       const forms = translation.toString().split('|')
       if (count === 0 && forms.length > 2) {
@@ -68,6 +70,7 @@ export default defineNuxtModule<ModuleOptions>({
       defaultLocale: options.defaultLocale ?? 'en',
       translationDir: options.translationDir ?? 'locales',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
+      includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
     }
 
     addPlugin({
@@ -93,8 +96,15 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
+    if (options.includeDefaultLocaleRoute) {
+      addPlugin({
+        src: resolver.resolve('./runtime/05.default-locale-redirect'),
+        order: 4,
+      })
+    }
+
     const localeRegex = options.locales!
-      .filter(locale => locale.code !== options.defaultLocale) // Фильтрация локалей, исключая дефолтную
+      .filter(locale => locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) // Фильтрация локалей, исключая дефолтную
       .map(locale => locale.code) // Извлечение поля code из каждого объекта Locale
       .join('|') // Объединение всех code в строку, разделенную символом '|'
 
@@ -142,7 +152,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       // Генерируем маршруты для всех локалей, кроме дефолтной
       options.locales!.forEach((locale) => {
-        if (locale.code !== options.defaultLocale) {
+        if (locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) {
           pages.forEach((page) => {
             routes.push(`/${locale}${page}`)
           })
@@ -175,6 +185,41 @@ export default defineNuxtModule<ModuleOptions>({
     //   // Добавляем новые локализованные маршруты к существующим
     //   additionalRoutes.forEach(route => routesSet.add(route))
     // })
+
+    addTypeTemplate({
+      filename: 'types/i18n.d.ts',
+      getContents() {
+        return `
+          interface PluralTranslations {
+            singular: string;
+            plural: string;
+          }
+
+          interface Translations {
+            [key: string]: string | number | boolean | Translations | PluralTranslations | unknown[] | null;
+          }
+
+          declare module '#app' {
+            interface NuxtApp {
+              $getLocale: () => string;
+              $getLocales: () => string[];
+              $t: <T extends Record<string, string | number | boolean>>(
+                key: string,
+                params?: T,
+                defaultValue?: string
+              ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null;
+              $tc: (key: string, count: number, defaultValue?: string) => string;
+              $mergeTranslations: (newTranslations: Translations) => void;
+              $switchLocale: (locale: string) => void;
+              $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw;
+              $loadPageTranslations: (locale: string, routeName: string) => Promise<void>;
+            }
+          }
+
+          export {};
+        `
+      },
+    })
 
     // Setup DevTools integration
     if (nuxt.options.dev)

@@ -1,4 +1,4 @@
-import type { RouteLocationNormalizedLoaded, RouteLocationRaw, Router, RouteRecordName } from 'vue-router'
+import type { RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter, watch } from '#imports'
 import type { ModuleOptions } from '~/src/module'
@@ -125,30 +125,24 @@ function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, rout
   }
 
   const { defaultLocale } = i18nConfig
-  const currentLocale = route.params.locale || defaultLocale
-  let routeName = route.name as string
+  const routeName = (route.name as string).replace(`localized-`, '')
 
-  if (currentLocale !== defaultLocale) {
-    routeName = routeName.replace(`localized-`, '')
-  }
-
-  const newRouteName = locale === defaultLocale ? routeName : `localized-${routeName}`
+  const newRouteName = locale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
   const newParams = { ...route.params }
   delete newParams.locale
 
-  if (locale !== defaultLocale) {
+  if (locale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
     newParams.locale = locale
   }
-
   window.location.href = router.resolve({ name: newRouteName, params: newParams }).fullPath
 }
 
 /**
  * Получение локализованного маршрута.
  */
-function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLocationNormalizedLoaded, i18nConfig: State): RouteLocationRaw {
+function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLocationNormalizedLoaded, i18nConfig: State, locale?: string): RouteLocationRaw {
   const { defaultLocale } = i18nConfig
-  const currentLocale = (route.params.locale || defaultLocale)!.toString()
+  const currentLocale = (locale || route.params.locale || defaultLocale)!.toString()
 
   let resolvedRoute = router.resolve(to)
 
@@ -157,11 +151,11 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
     delete resolvedRoute.params.locale
 
     if (resolvedRoute.name) {
-      resolvedRoute.name = currentLocale === defaultLocale
-        ? (resolvedRoute.name as string).replace(`localized-`, '') as RouteRecordName
-        : (`localized-${resolvedRoute.name.toString()}` as string) as RouteRecordName
+      const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
 
-      if (defaultLocale !== currentLocale) {
+      resolvedRoute.name = currentLocale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
+
+      if (defaultLocale !== currentLocale || i18nConfig.includeDefaultLocaleRoute) {
         resolvedRoute.params.locale = currentLocale
       }
     }
@@ -246,8 +240,8 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
       switchLocale: (locale: string) => {
         switchLocale(locale, route, router, i18nConfig)
       },
-      localeRoute: (to: RouteLocationRaw): RouteLocationRaw => {
-        return getLocalizedRoute(to, router, route, i18nConfig)
+      localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
+        return getLocalizedRoute(to, router, route, i18nConfig, locale)
       },
     },
   }

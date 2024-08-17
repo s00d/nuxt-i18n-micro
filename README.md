@@ -233,6 +233,7 @@ The module accepts the following options in the Nuxt configuration:
 - **translationDir**: The directory where translation files are stored (e.g., `'locales'`).
 - **autoDetectLanguage**: If `true`, automatically detects the user's preferred language and redirects accordingly.
 - **plural**: A custom function for handling pluralization.
+- **includeDefaultLocaleRoute**: A boolean. If enabled, all routes without a locale prefix will redirect to the default locale route.
 
 ## Conclusion
 

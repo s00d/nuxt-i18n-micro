@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div id="locale">{{ $t('key0') }}</div>
+    <div id="locale">
+      {{ $t('key0') }}
+    </div>
   </div>
 </template>
 

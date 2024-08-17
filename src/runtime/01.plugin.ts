@@ -191,6 +191,10 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
         params?: T,
         defaultValue?: string,
       ): string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null => {
+        if (!key) {
+          console.log(`$t: key not exist`)
+          return ''
+        }
         const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
         const routeName = (route.name as string).replace(`localized-`, '')
 
@@ -211,6 +215,10 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
         return value
       },
       tc: (key: string, count: number, defaultValue?: string): string => {
+        if (!key) {
+          console.log(`$tc: key not exist`)
+          return ''
+        }
         const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
         const routeName = (route.name as string).replace(`localized-`, '')
 

@@ -1,5 +1,5 @@
+import type { ModuleOptions } from '../module'
 import { defineNuxtPlugin, useCookie } from '#app'
-import type { ModuleOptions } from '~/src/module'
 import { useRoute, useRouter } from '#imports'
 
 interface State extends ModuleOptions {

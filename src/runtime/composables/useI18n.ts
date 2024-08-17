@@ -1,5 +1,5 @@
 import { useNuxtApp } from '#imports'
-import type { PluginsInjections } from '~/src/runtime/01.plugin'
+import type { PluginsInjections } from '../01.plugin'
 
 export function useI18n(): PluginsInjections {
   const nuxtApp = useNuxtApp()

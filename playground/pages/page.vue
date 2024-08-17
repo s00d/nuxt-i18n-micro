@@ -41,5 +41,5 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-// const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useNuxtApp()
 </script>

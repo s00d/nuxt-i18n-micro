@@ -160,7 +160,7 @@ Switches to the given locale and redirects the user to the appropriate localized
 $switchLocale('fr')
 ```
 
-### `$localeRoute(to: RouteLocationRaw): RouteLocationRaw`
+### `$localeRoute(to: RouteLocationRaw, locale?: string): RouteLocationRaw`
 Generates a localized route object based on the target route.
 
 ```typescript

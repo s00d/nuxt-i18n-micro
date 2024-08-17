@@ -39,10 +39,8 @@
 import { useI18n } from '#imports'
 
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
-const i18n = useI18n()
 
 function generateRandomPrefix(maxKeys = 10) {
-  i18n.$t()
   return `key${Math.floor(Math.random() * maxKeys)}`
 }
 

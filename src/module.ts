@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import { addPlugin, addServerHandler, addTypeTemplate, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addPlugin, addServerHandler, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
 
@@ -185,58 +185,6 @@ export default defineNuxtModule<ModuleOptions>({
     //   // Добавляем новые локализованные маршруты к существующим
     //   additionalRoutes.forEach(route => routesSet.add(route))
     // })
-
-    addTypeTemplate({
-      filename: 'types/i18n.d.ts',
-      getContents() {
-        return `
-          interface PluralTranslations {
-            singular: string;
-            plural: string;
-          }
-
-          interface Translations {
-            [key: string]: string | number | boolean | Translations | PluralTranslations | unknown[] | null;
-          }
-
-          declare module '#app' {
-            interface NuxtApp {
-              $getLocale: () => string;
-              $getLocales: () => string[];
-              $t: <T extends Record<string, string | number | boolean>>(
-                key: string,
-                params?: T,
-                defaultValue?: string
-              ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null;
-              $tc: (key: string, count: number, defaultValue?: string) => string;
-              $mergeTranslations: (newTranslations: Translations) => void;
-              $switchLocale: (locale: string) => void;
-              $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw;
-              $loadPageTranslations: (locale: string, routeName: string) => Promise<void>;
-            }
-          }
-
-          declare module 'vue/types/vue' {
-            interface Vue {
-              $getLocale: () => string;
-              $getLocales: () => string[];
-              $t: <T extends Record<string, string | number | boolean>>(
-                key: string,
-                params?: T,
-                defaultValue?: string
-              ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null;
-              $tc: (key: string, count: number, defaultValue?: string) => string;
-              $mergeTranslations: (newTranslations: Translations) => void;
-              $switchLocale: (locale: string) => void;
-              $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw;
-              $loadPageTranslations: (locale: string, routeName: string) => Promise<void>;
-            }
-          }
-
-          export {};
-        `
-      },
-    })
 
     // Setup DevTools integration
     if (nuxt.options.dev)

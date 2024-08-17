@@ -1,6 +1,6 @@
+import type { ModuleOptions } from '../module'
 import { useHead, defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute } from '#imports'
-import type { ModuleOptions } from '../module'
 
 interface State extends ModuleOptions {
   rootDir: string

@@ -1,7 +1,7 @@
 import type { RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router'
+import type { ModuleOptions } from '../module'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
-import type { ModuleOptions } from '../module'
 
 // Интерфейс для переводов, поддерживающий разные типы данных
 interface Translations {

@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.1.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.1...v1.1.2)
+
+### 🩹 Fixes
+
+- Change default-locale-redirect to middleware fix: getLocalizedRoute with locale add: tests ([b4defbf](https://github.com/s00d/nuxt-i18n-micro/commit/b4defbf))
+- Deps ([88aad84](https://github.com/s00d/nuxt-i18n-micro/commit/88aad84))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.1.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.0...v1.1.1)

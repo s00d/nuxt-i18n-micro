@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useRoute, useRouter, watch } from '#imports'
+import { useRoute, useRouter } from '#imports'
 import type { ModuleOptions } from '~/src/module'
 
 // Интерфейс для переводов, поддерживающий разные типы данных
@@ -94,7 +94,9 @@ async function loadTranslations(locale: string, routeName: string, translationDi
     }
 
     if (!routeLocaleCache[`${locale}:${routeName}`]) {
+      console.log(111, `~/${translationDir}/pages/${routeName}/${locale}.json`)
       const translations = await import(`~/${translationDir}/pages/${routeName}/${locale}.json`)
+      console.log(111, translations.default)
       routeLocaleCache[`${locale}:${routeName}`] = { ...translations.default }
     }
   }
@@ -175,18 +177,18 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 
   const plural = new Function('return ' + i18nConfig.plural)()
 
-  await loadTranslations(initialLocale, initialRouteName, i18nConfig.translationDir!)
+  router.beforeEach(async (to, from, next) => {
+    const locale = (to.params?.locale ?? i18nConfig.defaultLocale).toString()
+    const routeName = (to.name as string).replace(`localized-`, '')
 
-  let init = false
-  watch(route, async () => {
-    if (!init) {
-      init = true
-      return
+    if (!routeLocaleCache[`${locale}:${routeName}`]) {
+      await loadTranslations(locale, routeName, i18nConfig.translationDir!)
     }
-    const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-    const routeName = (route.name as string).replace(`localized-`, '')
-    await loadTranslations(locale, routeName, i18nConfig.translationDir!)
-  }, { immediate: true })
+
+    next()
+  })
+
+  await loadTranslations(initialLocale, initialRouteName, i18nConfig.translationDir!)
 
   return {
     provide: {

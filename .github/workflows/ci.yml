@@ -20,7 +20,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npx nypm@latest i
+        run: npm install
 
       - name: Lint
         run: npm run lint
@@ -36,7 +36,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npx nypm@latest i
+        run: npm install
 
       - name: Install playwright
         run: npx playwright install

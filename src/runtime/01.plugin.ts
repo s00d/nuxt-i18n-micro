@@ -242,18 +242,18 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 })
 
 interface PluginsInjections {
-  $getLocale: () => string;
-  $getLocales: () => string[];
+  $getLocale: () => string
+  $getLocales: () => string[]
   $t: <T extends Record<string, string | number | boolean>>(
     key: string,
     params?: T,
     defaultValue?: string
-  ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null;
-  $tc: (key: string, count: number, defaultValue?: string) => string;
-  $mergeTranslations: (newTranslations: Translations) => void;
-  $switchLocale: (locale: string) => void;
-  $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw;
-  $loadPageTranslations: (locale: string, routeName: string) => Promise<void>;
+  ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null
+  $tc: (key: string, count: number, defaultValue?: string) => string
+  $mergeTranslations: (newTranslations: Translations) => void
+  $switchLocale: (locale: string) => void
+  $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw
+  $loadPageTranslations: (locale: string, routeName: string) => Promise<void>
 }
 
 declare module '#app' {

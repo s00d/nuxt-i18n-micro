@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import { addPlugin, addServerHandler, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addImportsDir, addPlugin, addServerHandler, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
 
@@ -95,6 +95,8 @@ export default defineNuxtModule<ModuleOptions>({
         order: 3,
       })
     }
+
+    addImportsDir(resolver.resolve('./runtime/composables'))
 
     if (options.includeDefaultLocaleRoute) {
       addServerHandler({

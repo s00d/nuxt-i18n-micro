@@ -176,6 +176,25 @@ $mergeTranslations({
 })
 ```
 
+## useNuxtApp
+
+```ts
+import { useNuxtApp } from '#imports'
+
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
+```
+
+## Composable
+
+```ts
+import { useI18n } from '#imports'
+
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
+// or
+const i18n = useI18n()
+
+```
+
 ## Example
 
 ```vue
@@ -212,9 +231,9 @@ $mergeTranslations({
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+  import { useI18n } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useNuxtApp()
+  const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useI18n()
 </script>
 
 ```

@@ -241,7 +241,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   }
 })
 
-interface PluginsInjections {
+export interface PluginsInjections {
   $getLocale: () => string
   $getLocales: () => string[]
   $t: <T extends Record<string, string | number | boolean>>(

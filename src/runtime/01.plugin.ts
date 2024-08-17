@@ -272,3 +272,8 @@ declare module '@vue/runtime-core' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ComponentCustomProperties extends PluginsInjections {}
 }
+
+declare module 'vue' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface ComponentCustomProperties extends PluginsInjections {}
+}

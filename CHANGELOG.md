@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.1.9
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.8...v1.1.9)
+
+### 🩹 Fixes
+
+- DefineI18nRoute redirect ([e692026](https://github.com/s00d/nuxt-i18n-micro/commit/e692026))
+- Route locale ([283bb8a](https://github.com/s00d/nuxt-i18n-micro/commit/283bb8a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.1.8
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.7...v1.1.8)

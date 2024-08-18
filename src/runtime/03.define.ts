@@ -22,8 +22,16 @@ export default defineNuxtPlugin((_nuxtApp) => {
     // Проверяем, если текущая локаль не входит в допустимые локали
     if (locales && !locales.includes(currentLocale)) {
       // Если локаль не допустима, перенаправляем на дефолтную локаль
-      const defaultRouteName = i18nConfig.defaultLocale !== i18nConfig.defaultLocale ? `localized-${name?.toString}` : name
+      let defaultRouteName = name?.toString().replace('localized-', '')
       const resolvedRoute = router.resolve({ name: defaultRouteName })
+      const newParams = { ...route.params }
+      delete newParams.locale
+
+      if (i18nConfig.includeDefaultLocaleRoute) {
+        defaultRouteName = `localized-${defaultRouteName}`
+        newParams.locale = i18nConfig.defaultLocale!
+      }
+
       return router.push(resolvedRoute)
     }
   }

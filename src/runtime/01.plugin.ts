@@ -134,7 +134,7 @@ function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, rout
   if (locale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
     newParams.locale = locale
   }
-  window.location.href = router.resolve({ name: newRouteName, params: newParams }).fullPath
+  router.push({ name: newRouteName, params: newParams })
 }
 
 /**

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.8
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.7...v1.1.8)
+
+### 🩹 Fixes
+
+- Eslint conflict ([5714fd9](https://github.com/s00d/nuxt-i18n-micro/commit/5714fd9))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.1.7
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.6...v1.1.7)

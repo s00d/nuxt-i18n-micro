@@ -18,6 +18,7 @@ export interface ModuleOptions {
   translationDir?: string
   autoDetectLanguage?: boolean
   includeDefaultLocaleRoute?: boolean
+  cache?: boolean
   plural?: string
 }
 
@@ -48,6 +49,7 @@ export default defineNuxtModule<ModuleOptions>({
     translationDir: 'locales',
     autoDetectLanguage: true,
     includeDefaultLocaleRoute: false,
+    cache: false,
     plural: `function (translation, count, _locale) {
       const forms = translation.toString().split('|')
       if (count === 0 && forms.length > 2) {
@@ -71,6 +73,7 @@ export default defineNuxtModule<ModuleOptions>({
       translationDir: options.translationDir ?? 'locales',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
       includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
+      cache: options.cache ?? false,
     }
 
     addPlugin({

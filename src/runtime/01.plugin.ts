@@ -26,6 +26,8 @@ const generalLocaleCache: { [key: string]: Translations } = {}
 const routeLocaleCache: { [key: string]: Translations } = {}
 const dynamicTranslationsCaches: { [key: string]: Translations }[] = []
 
+const translationCache = { map: new Map<string, unknown>() }
+
 /**
  * Клонирование объектов и массивов.
  */
@@ -43,30 +45,25 @@ function deepClone<T>(value: T): T {
  * Получение перевода по ключу с кэшированием.
  */
 function getTranslation<T = unknown>(translations: Translations, key: string): T | null {
-  // if (Object.prototype.hasOwnProperty.call(translations, key)) {
-  //   const value = translations[key]
-  //   // If the value is an object or an array, clone it to avoid mutation
-  //   if (typeof value === 'object' && value !== null) {
-  //     return deepClone(value) as T
-  //   }
-  //
-  //   return value as T
-  // }
+  const parts = key.split('.')
+  let value: string | number | boolean | Translations | PluralTranslations | unknown | null = translations
 
-  const value = key.split('.').reduce<Translations | T | undefined>((acc, part) => {
-    if (typeof acc === 'object' && acc !== null && part in acc) {
+  for (let i = 0; i < parts.length; i++) {
+    if (value && typeof value === 'object' && parts[i] in value) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      return acc[part] as Translations | T
+      value = value[parts[i]]
     }
-    return undefined
-  }, translations)
+    else {
+      return null
+    }
+  }
 
-  if (value && typeof value === 'object') {
+  if (typeof value === 'object' && value !== null) {
     return deepClone(value) as T
   }
 
-  return (value as T) ?? null
+  return value as T ?? null
 }
 
 /**
@@ -95,7 +92,9 @@ async function loadTranslations(locale: string, routeName: string, translationDi
       generalLocaleCache[locale] = { ...translations.default }
     }
 
+    console.log(111, `${locale}:${routeName}`)
     if (!routeLocaleCache[`${locale}:${routeName}`]) {
+      console.log('load')
       const translations = await import(`~/${translationDir}/pages/${routeName}/${locale}.json`)
       routeLocaleCache[`${locale}:${routeName}`] = { ...translations.default }
     }
@@ -187,7 +186,10 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 
   return {
     provide: {
-      getLocale: () => (route.params?.locale ?? i18nConfig.defaultLocale).toString(),
+      getLocale: () => {
+        const route = useRoute()
+        return (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+      },
       getLocales: () => i18nConfig.locales || [],
       t: <T extends Record<string, string | number | boolean>>(
         key: string,
@@ -198,7 +200,14 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
           console.log(`$t: key not exist`)
           return ''
         }
+        const route = useRoute()
         const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+        const cacheKey = locale + ':' + key
+
+        if (i18nConfig.cache && translationCache.map.has(cacheKey)) {
+          return translationCache.map.get(cacheKey) as string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null
+        }
+
         const routeName = (route.name as string).replace(`localized-`, '')
 
         let value = getTranslation(routeLocaleCache[`${locale}:${routeName}`] ?? {}, key)
@@ -209,13 +218,17 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 
         if (!value) {
           if (isDev && import.meta.client) {
-            console.warn(`Not found '${key}' key in '${locale}' locale messages.`);
+            console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
           }
           value = defaultValue || key
         }
 
         if (typeof value === 'string' && params) {
           value = interpolate(value, params)
+        }
+
+        if (i18nConfig.cache) {
+          translationCache.map.set(cacheKey, value)
         }
 
         return value
@@ -225,7 +238,12 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
           console.log(`$tc: key not exist`)
           return ''
         }
+        const route = useRoute()
         const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+        const cacheKey = locale + ':' + key + ':' + count
+        if (i18nConfig.cache && translationCache.map.has(cacheKey)) {
+          return translationCache.map.get(cacheKey) as string
+        }
         const routeName = (route.name as string).replace(`localized-`, '')
 
         let translation = getPluralTranslation(routeLocaleCache[`${locale}:${routeName}`] ?? {}, key)
@@ -236,22 +254,31 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 
         if (!translation) {
           if (isDev && import.meta.client) {
-            console.warn(`Not found '${key}' key in '${locale}' locale messages.`);
+            console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
           }
           translation = defaultValue || key
         }
 
-        return plural(translation!.toString(), count, locale) as string
+        const value = plural(translation!.toString(), count, locale) as string
+
+        if (i18nConfig.cache) {
+          translationCache.map.set(cacheKey, value)
+        }
+
+        return value
       },
       mergeTranslations: (newTranslations: Translations) => {
+        const route = useRoute()
         const routeName = (route.name as string).replace(`localized-`, '')
         const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
         mergeTranslations(routeName, locale, newTranslations)
       },
       switchLocale: (locale: string) => {
+        const route = useRoute()
         switchLocale(locale, route, router, i18nConfig)
       },
       localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
+        const route = useRoute()
         return getLocalizedRoute(to, router, route, i18nConfig, locale)
       },
     },

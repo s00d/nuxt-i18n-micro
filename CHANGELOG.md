@@ -8,6 +8,7 @@
 ### 🩹 Fixes
 
 - Eslint conflict ([5714fd9](https://github.com/s00d/nuxt-i18n-micro/commit/5714fd9))
+- switchLocale change to router ([39487ad](https://github.com/s00d/nuxt-i18n-micro/commit/39487ad))
 
 ### ❤️ Contributors
 

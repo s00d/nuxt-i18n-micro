@@ -1,4 +1,4 @@
-import type { RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router'
+import type { NavigationFailure, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router'
 import type { ModuleOptions } from '../module'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
@@ -116,12 +116,13 @@ function mergeTranslations(routeName: string, locale: string, newTranslations: T
 /**
  * Переключение текущей локали и перенаправление на новый локализованный маршрут.
  */
-function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, router: Router, i18nConfig: State): void {
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, router: Router, i18nConfig: State): Promise<NavigationFailure | null | undefined | void> {
   const checkLocale = i18nConfig.locales?.find(l => l.code === locale)
 
   if (!checkLocale) {
     console.warn(`Locale ${locale} is not available`)
-    return
+    return Promise.reject(`Locale ${locale} is not available`)
   }
 
   const { defaultLocale } = i18nConfig
@@ -134,7 +135,7 @@ function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, rout
   if (locale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
     newParams.locale = locale
   }
-  router.push({ name: newRouteName, params: newParams })
+  return router.push({ name: newRouteName, params: newParams })
 }
 
 /**

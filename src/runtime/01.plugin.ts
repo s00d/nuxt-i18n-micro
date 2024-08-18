@@ -3,6 +3,8 @@ import type { ModuleOptions } from '../module'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 // Интерфейс для переводов, поддерживающий разные типы данных
 interface Translations {
   [key: string]: string | number | boolean | Translations | PluralTranslations | unknown[] | null
@@ -206,6 +208,9 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
           }, null as unknown)
 
         if (!value) {
+          if (isDev && import.meta.client) {
+            console.warn(`Not found '${key}' key in '${locale}' locale messages.`);
+          }
           value = defaultValue || key
         }
 
@@ -230,6 +235,9 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
           }, null as unknown)
 
         if (!translation) {
+          if (isDev && import.meta.client) {
+            console.warn(`Not found '${key}' key in '${locale}' locale messages.`);
+          }
           translation = defaultValue || key
         }
 

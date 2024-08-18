@@ -93,7 +93,6 @@ async function loadTranslations(locale: string, routeName: string, translationDi
     }
 
     if (!routeLocaleCache[`${locale}:${routeName}`]) {
-      console.log('load')
       const translations = await import(`~/${translationDir}/pages/${routeName}/${locale}.json`)
       routeLocaleCache[`${locale}:${routeName}`] = { ...translations.default }
     }

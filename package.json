@@ -1,6 +1,6 @@
 {
   "name": "nuxt-i18n-micro",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Nuxt I18n Micro is a lightweight, high-performance internationalization module for Nuxt, designed to handle multi-language support with minimal overhead, fast build times, and efficient runtime performance.",
   "repository": "s00d/nuxt-i18n-micro",
   "license": "MIT",
@@ -70,7 +70,7 @@
     "@playwright/test": "^1.46.1",
     "@types/node": "^20.14.11",
     "changelogen": "^0.5.5",
-    "eslint": "^9.7.0",
+    "eslint": "^8.56.0",
     "execa": "^9.3.0",
     "nuxt": "^3.12.4",
     "typescript": "latest",

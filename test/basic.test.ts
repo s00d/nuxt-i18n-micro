@@ -70,3 +70,27 @@ test('test locale switching on page', async ({ page, goto }) => {
   // Verify the localized route generation after switching locale
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
 })
+
+test('test locale switching on locale-test page', async ({ page }) => {
+  // Navigate to the /locale-test route in English
+  await page.goto('/locale-test', { waitUntil: 'networkidle' })
+
+  // Verify the URL and content in English
+  await expect(page).toHaveURL('/locale-test')
+  await expect(page.locator('h1')).toHaveText('Locale Test Page')
+  await expect(page.locator('#content')).toHaveText('This is a content area.')
+  await expect(page.locator('#username')).toHaveText('Hello, John!')
+  await expect(page.locator('#plural')).toHaveText('You have 2 items.')
+  await expect(page.locator('#html-content')).toHaveText('Bold Text with HTML content.')
+
+  // Switch to German locale
+  await page.click('#link-de')
+
+  // Verify the URL and content in German
+  await expect(page).toHaveURL('/de/locale-test')
+  await expect(page.locator('h1')).toHaveText('Sprachtestseite')
+  await expect(page.locator('#content')).toHaveText('Dies ist ein Inhaltsbereich.')
+  await expect(page.locator('#username')).toHaveText('Hallo, John!')
+  await expect(page.locator('#plural')).toHaveText('Sie haben 2 Artikel.')
+  await expect(page.locator('#html-content')).toHaveText('Fetter Text mit HTML-Inhalt.')
+})

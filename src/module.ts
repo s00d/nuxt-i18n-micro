@@ -1,6 +1,14 @@
 import path from 'node:path'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import { addImportsDir, addPlugin, addServerHandler, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import {
+  addImportsDir,
+  addPlugin,
+  addPrerenderRoutes,
+  addServerHandler,
+  createResolver,
+  defineNuxtModule,
+  extendPages,
+} from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
 
@@ -61,7 +69,7 @@ export default defineNuxtModule<ModuleOptions>({
       return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
     }`,
   },
-  setup(options, nuxt) {
+  setup: function (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
@@ -77,25 +85,27 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     addPlugin({
-      src: resolver.resolve('./runtime/01.plugin'),
+      src: resolver.resolve('./runtime/plugins/01.plugin'),
       order: 1,
     })
 
-    addPlugin({
-      src: resolver.resolve('./runtime/02.meta'),
-      order: 2,
-    })
+    if (options.mata) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/02.meta'),
+        order: 2,
+      })
+    }
 
     addPlugin({
-      src: resolver.resolve('./runtime/03.define'),
-      order: 2,
+      src: resolver.resolve('./runtime/plugins/03.define'),
+      order: 3,
     })
 
     if (options.autoDetectLanguage) {
       addPlugin({
-        src: resolver.resolve('./runtime/04.auto-detect'),
+        src: resolver.resolve('./runtime/plugins/04.auto-detect'),
         mode: 'client',
-        order: 3,
+        order: 4,
       })
     }
 
@@ -104,9 +114,14 @@ export default defineNuxtModule<ModuleOptions>({
     if (options.includeDefaultLocaleRoute) {
       addServerHandler({
         middleware: true,
-        handler: resolver.resolve('./runtime/server/middleware/i18n-redirect.ts'),
+        handler: resolver.resolve('./runtime/server/middleware/i18n-redirect'),
       })
     }
+
+    addServerHandler({
+      route: '/_locales/:page/:locale/data.json',
+      handler: resolver.resolve('./runtime/server/middleware/i18n-loader'),
+    })
 
     const localeRegex = options.locales!
       .filter(locale => locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) // Фильтрация локалей, исключая дефолтную
@@ -116,7 +131,7 @@ export default defineNuxtModule<ModuleOptions>({
     const pagesDir = path.resolve(nuxt.options.rootDir, options.translationDir!, 'pages')
 
     extendPages((pages) => {
-      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
+      const pagesNames = pages.map(page => page.name)
 
       const newRoutes = pages.map((page) => {
         options.locales!.forEach((locale) => {
@@ -144,8 +159,20 @@ export default defineNuxtModule<ModuleOptions>({
           },
         }
       })
+
       // Добавляем новые маршруты
       pages.push(...newRoutes)
+
+      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
+
+      if (nuxt.options?._generate) {
+        options.locales?.forEach((locale) => {
+          pagesNames.forEach((name) => {
+            addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
+          })
+          addPrerenderRoutes(`/_locales/general/${locale.code}/data.json`)
+        })
+      }
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
@@ -159,7 +186,7 @@ export default defineNuxtModule<ModuleOptions>({
       options.locales!.forEach((locale) => {
         if (locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) {
           pages.forEach((page) => {
-            routes.push(`/${locale}${page}`)
+            routes.push(`/${locale.code}${page}`)
           })
         }
       })
@@ -169,31 +196,10 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.prerender.routes = routes
     })
 
-    // nuxt.hook('prerender:routes', async (prerenderRoutes) => {
-    //   const routesSet = prerenderRoutes.routes
-    //   const additionalRoutes = new Set<string>()
-    //
-    //   // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
-    //   routesSet.forEach((route) => {
-    //     options.locales!.forEach((locale) => {
-    //       if (locale.code !== options.defaultLocale) {
-    //         if (route === '/') {
-    //           additionalRoutes.add(`/${locale.code}`)
-    //         }
-    //         else {
-    //           additionalRoutes.add(`/${locale.code}${route}`)
-    //         }
-    //       }
-    //     })
-    //   })
-    //
-    //   // Добавляем новые локализованные маршруты к существующим
-    //   additionalRoutes.forEach(route => routesSet.add(route))
-    // })
-
     // Setup DevTools integration
-    if (nuxt.options.dev)
+    if (nuxt.options.dev) {
       setupDevToolsUI(options, resolver.resolve)
+    }
   },
 })
 

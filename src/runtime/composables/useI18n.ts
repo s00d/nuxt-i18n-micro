@@ -1,4 +1,4 @@
-import type { PluginsInjections } from '../01.plugin'
+import type { PluginsInjections } from '../plugins/01.plugin'
 import { useNuxtApp } from '#imports'
 
 export function useI18n(): PluginsInjections {
@@ -8,6 +8,7 @@ export function useI18n(): PluginsInjections {
     $getLocale: nuxtApp.$getLocale,
     $getLocales: nuxtApp.$getLocales,
     $t: nuxtApp.$t,
+    $has: nuxtApp.$has,
     $tc: nuxtApp.$tc,
     $mergeTranslations: nuxtApp.$mergeTranslations,
     $switchLocale: nuxtApp.$switchLocale,

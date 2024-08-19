@@ -250,7 +250,6 @@ const i18n = useI18n()
       {{ $tc('apples', 10) }}
     </div>
 
-    <!-- Ссылки для переключения локалей -->
     <div>
       <button
         v-for="locale in $getLocales()"

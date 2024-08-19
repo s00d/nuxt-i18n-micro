@@ -2,7 +2,7 @@ import type { NavigationFailure, RouteLocationNormalizedLoaded, RouteLocationRaw
 import type { ModuleOptions } from '../../module'
 import { useTranslationHelper } from '../translationHelper'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useFetch, useRoute, useRouter } from '#imports'
+import { useRoute, useRouter } from '#imports'
 
 const i18nHelper = useTranslationHelper()
 
@@ -127,23 +127,21 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const locale = (to.params?.locale ?? i18nConfig.defaultLocale).toString()
       const routeName = (to.name as string).replace(`localized-`, '')
       if (!i18nHelper.hasPageTranslation(locale, routeName)) {
-        const resp = await fetch(`/_locales/${routeName}/${locale}/data.json`)
-        if (resp.ok) {
-          await i18nHelper!.loadPageTranslations(locale, routeName, await resp.json())
-        }
+        const data: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json`)
+        await i18nHelper!.loadPageTranslations(locale, routeName, data ?? {})
       }
     }
     next()
   })
 
-  const { data } = await useFetch<Translations>(`/_locales/general/${initialLocale}/data.json`)
-  await i18nHelper!.loadTranslations(initialLocale, initialRouteName, data.value ?? {})
+  const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json`)
+  await i18nHelper!.loadTranslations(initialLocale, initialRouteName, data ?? {})
 
   if (import.meta.server) {
     const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
     const routeName = (route.name as string).replace(`localized-`, '')
-    const { data } = await useFetch<Translations>(`/_locales/${routeName}/${locale}/data.json`)
-    await i18nHelper!.loadPageTranslations(initialLocale, initialRouteName, data.value ?? {})
+    const data: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json`)
+    await i18nHelper!.loadPageTranslations(initialLocale, initialRouteName, data ?? {})
   }
 
   return {

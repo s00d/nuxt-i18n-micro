@@ -8,6 +8,7 @@ import {
   createResolver,
   defineNuxtModule,
   extendPages,
+  addComponentsDir,
 } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { setupDevToolsUI } from './devtools'
@@ -69,7 +70,7 @@ export default defineNuxtModule<ModuleOptions>({
       return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
     }`,
   },
-  setup: function (options, nuxt) {
+  setup: async function (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
@@ -121,6 +122,12 @@ export default defineNuxtModule<ModuleOptions>({
     addServerHandler({
       route: '/_locales/:page/:locale/data.json',
       handler: resolver.resolve('./runtime/server/middleware/i18n-loader'),
+    })
+
+    await addComponentsDir({
+      path: resolver.resolve('./runtime/components'),
+      pathPrefix: false,
+      extensions: ['vue'],
     })
 
     const localeRegex = options.locales!

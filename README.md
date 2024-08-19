@@ -176,6 +176,46 @@ $mergeTranslations({
 })
 ```
 
+## `$defineI18nRoute(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>> })`
+Defines route behavior based on the current locale. This method can be used to control access to specific routes based on available locales or to provide translations for specific locales.
+
+- `locales`: This property determines which locales are available for the route. It can be either:
+  - An array of strings, where each string represents an available locale (e.g., `['en', 'fr', 'de']`).
+  - An object where each key is a locale code, and the value is either an object containing translations or an empty object if you do not wish to provide translations for that locale.
+
+### Example 1: Controlling Access Based on Locales
+
+```typescript
+import { useNuxtApp } from '#imports'
+
+const { $defineI18nRoute } = useNuxtApp()
+
+$defineI18nRoute({
+  locales: ['en', 'fr', 'de'] // Only these locales are allowed for this route
+})
+```
+
+### Example 2: Providing Translations for Locales
+
+```typescript
+import { useNuxtApp } from '#imports'
+
+const { $defineI18nRoute } = useNuxtApp()
+
+$defineI18nRoute({
+  locales: {
+    en: { greeting: 'Hello', farewell: 'Goodbye' },
+    fr: { greeting: 'Bonjour', farewell: 'Au revoir' },
+    de: { greeting: 'Hallo', farewell: { aaa: { bbb: "Auf Wiedersehen" } } },
+    ru: {} // Russian locale is allowed but no translations are provided
+  }
+})
+```
+
+### Explanation:
+- **Locales Array**: If you only want to specify which locales are allowed for a route, pass an array of locale codes. The user will only be able to access this route if the current locale is in this list.
+- **Locales Object**: If you want to provide specific translations for each locale, pass an object where each key is a locale code. The value should be an object with key-value pairs for translations. If you do not wish to provide translations for a locale but still want to allow access, pass an empty object (`{}`) for that locale.
+
 ## useNuxtApp
 
 ```ts
@@ -300,6 +340,139 @@ To further optimize performance, `Nuxt I18n Micro` supports caching and pre-rend
 - **Caching**: Once a translation file is loaded, it is stored in the cache, reducing the need for subsequent requests.
 - **Pre-rendering**: During the build process, the module can pre-render translation files for all configured locales and routes, which are then served directly from the server without the need for runtime requests.
 
+
+Certainly! Here's an updated section for your README that includes the description of the `<i18n-t>` component, along with explanations for each prop and examples of usage.
+
+---
+
+## `<i18n-t>` Component
+
+The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible and powerful tool designed to handle translations within your Nuxt application. It supports various features such as interpolation, pluralization, and dynamic HTML rendering.
+
+### Component Props
+
+- **`keypath`** (`string`, required): The translation key used to look up the corresponding translation string from the locale files.
+
+- **`plural`** (`number | null`, optional): The count used for pluralization. If provided, the component will use the `$tc` method for translating based on the pluralization rules defined for the locale.
+
+- **`tag`** (`string`, optional, default: `'span'`): The HTML tag used to wrap the translated content. You can specify any valid HTML tag, such as `div`, `p`, `h1`, etc.
+
+- **`scope`** (`string`, optional, default: `'global'`): Specifies the scope of the translation. This prop is useful if you have different translation scopes in your application, although the default is set to `'global'`.
+
+- **`params`** (`Record<string, string | number | boolean>`, optional, default: `() => ({})`): An object containing key-value pairs to be interpolated into the translation string. This is useful for dynamic translations where certain values need to be inserted into the text.
+
+- **`defaultValue`** (`string`, optional, default: `''`): A fallback translation that will be displayed if the `keypath` does not match any key in the translation files.
+
+- **`html`** (`boolean`, optional, default: `false`): A flag indicating whether the translation contains HTML. When set to `true`, the translated string will be rendered as raw HTML.
+
+- **`locale`** (`string`, optional): The locale to use for this translation. If not provided, the component will use the current locale set by the application.
+
+- **`wrap`** (`boolean`, optional, default: `true`): Determines if the translated content should be wrapped in the specified `tag`. If set to `false`, the component will not wrap the translation in an HTML element.
+
+- **`customPluralRule`** (`(value: string, count: number, locale: string) => string`, optional): A custom function for handling pluralization. This allows you to override the default pluralization behavior with your custom logic.
+
+- **`hideIfEmpty`** (`boolean`, optional, default: `false`): If `true`, the component will not render anything if the translation string is empty. This is useful for conditional rendering based on the presence of a translation.
+
+### Examples of Usage
+
+#### Basic Usage
+
+```vue
+<i18n-t keypath="welcomeMessage"></i18n-t>
+```
+
+This will render the translation associated with the key `welcomeMessage` using the current locale.
+
+#### Pluralization
+
+```vue
+<i18n-t keypath="apples" :plural="10" tag="div"></i18n-t>
+```
+
+This will handle the pluralization for the translation key `apples` and render it inside a `div` element.
+
+#### Interpolation with Parameters
+
+```vue
+<i18n-t keypath="greeting" :params="{ name: 'John' }"></i18n-t>
+```
+
+Assuming the translation string is `"Hello, {name}!"`, this will render `"Hello, John!"`.
+
+#### Rendering with HTML Content
+
+```vue
+<i18n-t keypath="richText" :html="true"></i18n-t>
+```
+
+If `richText` contains HTML content like `"<strong>Welcome</strong> to our site!"`, setting `html` to `true` will render the HTML directly.
+
+#### Using a Custom Locale
+
+```vue
+<i18n-t keypath="welcomeMessage" locale="fr"></i18n-t>
+```
+
+This will render the translation in French, overriding the application's current locale.
+
+#### Conditional Rendering
+
+```vue
+<i18n-t keypath="optionalMessage" :hideIfEmpty="true"></i18n-t>
+```
+
+This will render nothing if the translation for `optionalMessage` is empty.
+
+#### Custom Pluralization Rule
+
+```vue
+<i18n-t
+  keypath="items"
+  :plural="itemCount"
+  :customPluralRule="(value, count, locale) => {
+    return count === 1 ? 'One item' : value.replace('{count}', `${count}`)
+  }"></i18n-t>
+```
+
+This uses a custom function to handle the pluralization, bypassing the default logic.
+
+### Advanced Example
+
+```vue
+<i18n-t
+  keypath="notifications"
+  :plural="unreadCount"
+  tag="p"
+  :params="{ username: 'Alice' }"
+  defaultValue="You have no notifications"
+  :html="false"
+  locale="en"
+  :wrap="true"
+  :hideIfEmpty="false">
+</i18n-t>
+```
+
+### Slot Usage Example
+
+Here's how you can use the slot and access the `translation` within it:
+
+```vue
+<i18n-t keypath="welcomeMessage">
+  <template #default="{ translation }">
+    <strong>{{ translation }}</strong>
+  </template>
+</i18n-t>
+```
+
+### Explanation:
+
+- **Slot Prop `translation`**:
+  - The component now provides `translation` as a slot prop, which can be accessed in the parent component’s slot content.
+  - In this example, the translation is wrapped in a `<strong>` tag, allowing you to apply custom styling or further modify how the translation is displayed.
+
+---
+
+The `<i18n-t>` component provides a powerful and flexible way to handle translations in your Nuxt application, accommodating a wide range of use cases from simple text translations to complex pluralization and HTML rendering scenarios.
 
 ## Conclusion
 

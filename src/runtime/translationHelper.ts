@@ -128,7 +128,7 @@ export function useTranslationHelper() {
     loadTranslations: async (locale: string, routeName: string, translations: Translations): Promise<void> => {
       try {
         if (!generalLocaleCache[locale]) {
-          generalLocaleCache[`${locale}:${routeName}`] = { ...translations }
+          generalLocaleCache[locale] = { ...translations }
           serverTranslationInit[`${locale}:index`] = true
         }
       }

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.11
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.10...v1.1.11)
+
+### 🩹 Fixes
+
+- Locale routes ([060e88d](https://github.com/s00d/nuxt-i18n-micro/commit/060e88d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.1.10
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.9...v1.1.10)

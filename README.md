@@ -37,16 +37,16 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 #### Build Time and Resource Consumption
 
 **Nuxt I18n**:
-- **Total size**: 54.7 MB (3.29 MB gzip)
-- **Max CPU Usage**: 394.0%
-- **Max Memory Usage**: 8746 MB
-- **Elapsed Time**: 0h 1m 30s
+- **Total size**: 54.7 MB (3.31 MB gzip)
+- **Max CPU Usage**: 391.4%
+- **Max Memory Usage**: 8305 MB
+- **Elapsed Time**: 0h 1m 31s
 
 **Nuxt I18n Micro**:
-- **Total size**: 22.4 MB (2.9 MB gzip) — **59% smaller**
-- **Max CPU Usage**: 305.3% — **23% lower**
-- **Max Memory Usage**: 3247 MB — **63% less memory**
-- **Elapsed Time**: 0h 0m 17s — **81% faster**
+- **Total size**: 1.93 MB (473 kB gzip) — **96% smaller**
+- **Max CPU Usage**: 220.1% — **44% lower**
+- **Max Memory Usage**: 655 MB — **92% less memory**
+- **Elapsed Time**: 0h 0m 5s — **94% faster**
 
 #### Server Performance (10k Requests)
 

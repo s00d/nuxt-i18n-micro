@@ -53,7 +53,7 @@ export function useTranslationHelper() {
     },
     margeTranslation(locale: string, routeName: string, newTranslations: Translations) {
       if (!routeLocaleCache[`${locale}:${routeName}`]) {
-        console.error(`marge: route ${routeName} not loaded`)
+        console.error(`marge: route ${locale}:${routeName} not loaded`)
       }
       routeLocaleCache[`${locale}:${routeName}`] = {
         ...generalLocaleCache[locale],

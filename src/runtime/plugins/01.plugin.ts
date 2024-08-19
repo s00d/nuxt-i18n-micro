@@ -212,7 +212,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         const route = useRoute()
         const routeName = (route.name as string).replace(`localized-`, '')
         const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-        i18nHelper.margeTranslation(routeName, locale, newTranslations)
+        i18nHelper.margeTranslation(locale, routeName, newTranslations)
       },
       switchLocale: (locale: string) => {
         const route = useRoute()

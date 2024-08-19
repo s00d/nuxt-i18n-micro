@@ -256,24 +256,6 @@ declare module 'nuxt/dist/app/nuxt' {
   interface NuxtApp extends PluginsInjections {}
 }
 
-declare module '@vue/runtime-core' {
-  interface ComponentCustomProperties {
-    $getLocale: () => string
-    $getLocales: () => string[]
-    $t: <T extends Record<string, string | number | boolean>>(
-      key: string,
-      params?: T,
-      defaultValue?: string
-    ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null
-    $tc: (key: string, count: number, defaultValue?: string) => string
-    $has: (key: string) => boolean
-    $mergeTranslations: (newTranslations: Translations) => void
-    $switchLocale: (locale: string) => void
-    $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw
-    $loadPageTranslations: (locale: string, routeName: string) => Promise<void>
-  }
-}
-
 declare module 'vue' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ComponentCustomProperties extends PluginsInjections {}

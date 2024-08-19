@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.1.12
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.11...v1.1.12)
+
+### 🩹 Fixes
+
+- Locale routes ([9c7d3ca](https://github.com/s00d/nuxt-i18n-micro/commit/9c7d3ca))
+- Change to $fetch ([c86bd19](https://github.com/s00d/nuxt-i18n-micro/commit/c86bd19))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.1.11
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.10...v1.1.11)

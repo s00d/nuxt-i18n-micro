@@ -165,14 +165,12 @@ export default defineNuxtModule<ModuleOptions>({
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
-      if (nuxt.options?._generate) {
-        options.locales?.forEach((locale) => {
-          pagesNames.forEach((name) => {
-            addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
-          })
-          addPrerenderRoutes(`/_locales/general/${locale.code}/data.json`)
+      options.locales?.forEach((locale) => {
+        pagesNames.forEach((name) => {
+          addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
         })
-      }
+        addPrerenderRoutes(`/_locales/general/${locale.code}/data.json`)
+      })
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.1.16
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.15...v1.1.16)
+
+### 🩹 Fixes
+
+- **types:** DefineI18nRoute ([621282e](https://github.com/s00d/nuxt-i18n-micro/commit/621282e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.1.15
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.14...v1.1.15)

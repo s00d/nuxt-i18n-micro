@@ -257,6 +257,49 @@ The module accepts the following options in the Nuxt configuration:
 - **autoDetectLanguage**: If `true`, automatically detects the user's preferred language and redirects accordingly.
 - **plural**: A custom function for handling pluralization.
 - **includeDefaultLocaleRoute**: A boolean. If enabled, all routes without a locale prefix will redirect to the default locale route.
+- **cache**: (In development) A boolean option designed to optimize performance when working with large JSON translation files. When enabled, it caches translations specific to the current page, reducing search times and minimizing client-side load. This cached data is then sent to the client, resulting in faster page loads and improved user experience.
+
+## Locale Loading in Nuxt I18n Micro
+
+The `Nuxt I18n Micro` module provides an efficient way to manage internationalization (i18n) in your Nuxt application, with a focus on performance and simplicity. One of the key features of this module is how it handles the loading of locale-specific translations. Below is an explanation of how this process works.
+
+### How Locale Loading Works
+
+In `Nuxt I18n Micro`, translations are loaded dynamically based on the user's selected locale. The module uses a specific route pattern (`/_locales/:page/:locale/data.json`) to fetch the translation files for each page and locale. This approach is designed to minimize the initial load time and only load the necessary translations for the current page and locale.
+
+#### Route Structure
+
+The translations are organized into JSON files located in the `locales` directory. These files are split into:
+
+- **Global Files**: Located at `locales/{locale}.json` (e.g., `locales/en.json`). These files contain translations shared across the entire application, such as menu items or common UI elements.
+- **Page-Specific Files**: Located at `locales/pages/{routeName}/{locale}.json` (e.g., `locales/pages/index/en.json`). These files contain translations specific to individual pages.
+
+#### Dynamic Locale Routes
+
+To accommodate the dynamic nature of translation loading, `Nuxt I18n Micro` extends the default routing configuration by adding locale-specific routes. This means that for each page, a localized version of the route is generated. For example, if your application has an `index` page and supports English (`en`) and French (`fr`), the following routes would be generated:
+
+- `/en/index`
+- `/fr/index`
+
+This structure allows the module to load the appropriate translations based on the user's selected locale.
+
+### Loading Translations via _locales Route
+
+Given the way Vite and Nuxt handle modules, the `Nuxt I18n Micro` module uses a special route (`/_locales/:page/:locale/data.json`) to fetch translations. This is necessary because, during the build process, Vite may not bundle all translation files directly into the application. Instead, the module dynamically loads these files from the server as needed.
+
+When a user navigates to a page, the module will:
+
+1. Check if the necessary translation file for the current page and locale is already loaded in the cache.
+2. If not, it will send a request to the `_locales` route to fetch the required translation file.
+3. Once the translation file is loaded, it is cached for future use, ensuring that the translations are readily available when the user navigates to another part of the application.
+
+### Caching and Pre-rendering
+
+To further optimize performance, `Nuxt I18n Micro` supports caching and pre-rendering of translation files:
+
+- **Caching**: Once a translation file is loaded, it is stored in the cache, reducing the need for subsequent requests.
+- **Pre-rendering**: During the build process, the module can pre-render translation files for all configured locales and routes, which are then served directly from the server without the need for runtime requests.
+
 
 ## Conclusion
 

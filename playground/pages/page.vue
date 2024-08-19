@@ -1,6 +1,14 @@
 <template>
   <div>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
+    <i18n-t
+      keypath="key1.key1.key1.key1.key1"
+      tag="h1"
+    >
+      <template #default="{ translation }">
+        <strong>{{ translation.replace('page', 'page replace') }}</strong> <i>!!!</i>
+      </template>
+    </i18n-t>
     <p>Current Locale: {{ $getLocale() }}</p>
 
     <div>

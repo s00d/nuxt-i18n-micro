@@ -3,6 +3,9 @@
     <p>{{ $t('key2.key2.key2.key2.key2') }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
 
+    <div>page  translate: {{ $t('greeting') }}</div>
+
+    <hr>
     <!-- Welcome and general information -->
     <div>
       {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
@@ -147,5 +150,13 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $defineI18nRoute } = useNuxtApp()
+
+$defineI18nRoute({
+  locales: {
+    en: { greeting: 'Hello', farewell: 'Goodbye' },
+    ru: { greeting: 'Привет', farewell: 'До свидания' },
+    de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
+  },
+})
 </script>

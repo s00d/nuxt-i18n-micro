@@ -1,4 +1,5 @@
 import type { ModuleOptions } from '../../module'
+import type { Translations } from '../plugins/01.plugin'
 import { defineNuxtPlugin, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
@@ -6,11 +7,8 @@ interface State extends ModuleOptions {
   rootDir: string
 }
 
-// Рекурсивный тип для переводов
-type TranslationObject = string | { [key: string]: TranslationObject }
-
 // Тип для локалей
-type LocalesObject = Record<string, TranslationObject>
+type LocalesObject = Record<string, Translations>
 
 export default defineNuxtPlugin((_nuxtApp) => {
   const config = useRuntimeConfig()

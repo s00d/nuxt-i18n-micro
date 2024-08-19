@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.1.14
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.13...v1.1.14)
+
+### 🩹 Fixes
+
+- MergeTranslations ([321d2d9](https://github.com/s00d/nuxt-i18n-micro/commit/321d2d9))
+
+### 📖 Documentation
+
+- Add $defineI18nRoute info, i18n-t info ([ff9f58f](https://github.com/s00d/nuxt-i18n-micro/commit/ff9f58f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.1.13
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.12...v1.1.13)

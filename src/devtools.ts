@@ -51,7 +51,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
         const pagesDir = path.join(nuxt.options.rootDir, options.translationDir || 'locales', 'pages')
 
         const localeFiles = fs.readdirSync(localesDir)
-        const pageFiles = fs.readdirSync(pagesDir)
+        const pageDirs = fs.readdirSync(pagesDir).filter(file => fs.lstatSync(path.join(pagesDir, file)).isDirectory())
         const locales = options.locales?.map(locale => locale.code) || []
 
         return locales.map((locale) => {
@@ -64,11 +64,13 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
           }, {} as Record<string, unknown>)
 
           // Get page-specific locale files
-          const pageLocaleFiles = pageFiles.filter(file => file.endsWith(`_${locale}.json`))
-          pageLocaleFiles.forEach((file) => {
-            const filePath = path.join(pagesDir, file)
-            content[file] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-            files.push(file)
+          pageDirs.forEach((dir) => {
+            const pageLocaleFilePath = path.join(pagesDir, dir, `${locale}.json`)
+            if (fs.existsSync(pageLocaleFilePath)) {
+              const fileKey = path.join(dir, `${locale}.json`)
+              content[fileKey] = JSON.parse(fs.readFileSync(pageLocaleFilePath, 'utf-8'))
+              files.push(fileKey)
+            }
           })
 
           return { locale, files, content }

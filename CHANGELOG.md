@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v1.1.13
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.12...v1.1.13)
+
+### 🩹 Fixes
+
+- Only augment `vue`, not sub-packages ([ba2d170](https://github.com/s00d/nuxt-i18n-micro/commit/ba2d170))
+- Devtools files path ([c2e65ac](https://github.com/s00d/nuxt-i18n-micro/commit/c2e65ac))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Bobbie Goede <bobbiegoede@gmail.com>
+
 ## v1.1.12
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.11...v1.1.12)

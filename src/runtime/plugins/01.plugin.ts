@@ -1,5 +1,5 @@
 import type { NavigationFailure, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router'
-import type { ModuleOptions } from '../../module'
+import type { Locale, ModuleOptions } from '../../module'
 import { useTranslationHelper } from '../translationHelper'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
@@ -228,7 +228,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
 export interface PluginsInjections {
   $getLocale: () => string
-  $getLocales: () => string[]
+  $getLocales: () => Locale[]
   $t: <T extends Record<string, string | number | boolean>>(
     key: string,
     params?: T,
@@ -247,8 +247,11 @@ declare module '#app' {
   interface NuxtApp extends PluginsInjections {}
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
+declare module '@vue/runtime-core' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface ComponentCustomProperties extends PluginsInjections {}
+}
+
 declare module 'nuxt/dist/app/nuxt' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface NuxtApp extends PluginsInjections {}

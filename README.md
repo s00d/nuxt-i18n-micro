@@ -340,6 +340,8 @@ This parameter allows you to create links between different pages' locale files.
 
 For example, if you have a page with a slug (`dir1-slug`) and a main page (`index`), you can set up `routesLocaleLinks` so that `dir1-slug` will use the locale file of `index`, avoiding the need to maintain duplicate translation files.
 
+**Note**: `dir1-slug` and `index` refer to the names of the routes, which you can inspect in the devtools.
+
 Example:
 
 ```typescript
@@ -352,7 +354,7 @@ export default defineNuxtConfig({
 })
 ```
 
-In this example, the page `dir1-slug` will load its translations from the `index` page's locale file.
+In this example, the page with the route name `dir1-slug` will load its translations from the locale file associated with the `index` route.
 
 ### **cache**: `boolean`
 

@@ -140,23 +140,32 @@ export default defineNuxtModule<ModuleOptions>({
     extendPages((pages) => {
       const pagesNames = pages.map(page => page.name)
 
-      const newRoutes = pages.map((page) => {
-        options.locales!.forEach((locale) => {
-          pages.forEach((page) => {
-            const filePath = path.join(pagesDir, `${page.name}/${locale.code}.json`)
-            const fileDir = path.dirname(filePath) // Get the directory of the file
+      function ensureFileExists(filePath: string) {
+        const fileDir = path.dirname(filePath) // Get the directory of the file
 
-            // Ensure the directory exists
-            if (!existsSync(fileDir)) {
-              mkdirSync(fileDir, { recursive: true }) // Create the directory if it doesn't exist
-            }
+        // Ensure the directory exists
+        if (!existsSync(fileDir)) {
+          mkdirSync(fileDir, { recursive: true }) // Create the directory if it doesn't exist
+        }
 
-            // Check if the file exists; if not, create it with an empty object
-            if (!existsSync(filePath)) {
-              writeFileSync(filePath, JSON.stringify({}), 'utf-8')
-            }
-          })
+        // Check if the file exists; if not, create it with an empty object
+        if (!existsSync(filePath)) {
+          writeFileSync(filePath, JSON.stringify({}), 'utf-8')
+        }
+      }
+
+      options.locales!.forEach((locale) => {
+        // Process global translation files
+        const globalFilePath = path.join(nuxt.options.rootDir, options.translationDir!, `${locale.code}.json`)
+        ensureFileExists(globalFilePath)
+
+        // Process page-specific translation files
+        pages.forEach((page) => {
+          const pageFilePath = path.join(pagesDir, `${page.name}/${locale.code}.json`)
+          ensureFileExists(pageFilePath)
         })
+      })
+      const newRoutes = pages.map((page) => {
         return {
           ...page,
           path: `/:locale(${localeRegex})${page.path}`,

@@ -297,11 +297,17 @@ locales: [
 ```
 
 **meta**: A boolean indicating whether to automatically generate SEO-related meta tags (like `alternate` links).
+
 **defaultLocale**: The default locale code (e.g., `'en'`).
+
 **translationDir**: The directory where translation files are stored (e.g., `'locales'`).
+
 **autoDetectLanguage**: If `true`, automatically detects the user's preferred language and redirects accordingly.
+
 **plural**: A custom function for handling pluralization.
+
 **includeDefaultLocaleRoute**: A boolean. If enabled, all routes without a locale prefix will redirect to the default locale route.
+
 **cache**: (In development) A boolean option designed to optimize performance when working with large JSON translation files. When enabled, it caches translations specific to the current page, reducing search times and minimizing client-side load. This cached data is then sent to the client, resulting in faster page loads and improved user experience.
 
 ## Locale Loading in Nuxt I18n Micro

@@ -7,6 +7,7 @@
     "@nuxt/kit": "^3.12.4",
     "nuxt": "latest",
     "vue": "3.4.37",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "json-editor-vue": "^0.15.2"
   }
 }

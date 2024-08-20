@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div v-for="file in files" :key="file">
+    <div
+      v-for="file in files"
+      :key="file"
+    >
       <button
         block
         w-full

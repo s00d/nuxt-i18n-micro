@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v1.5.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.4.0...v1.5.0)
+
+### 🚀 Enhancements
+
+- **i18n): add routesLocaleLinks to link locale files across different routes feat(i18n): add baseURL handling to support CDN usage feat(i18n): add dateBuild to locale fetching for translation updates after rebuilds test(i18n): add tests for routesLocaleLinks functionality docs(i18n:** Update README with routesLocaleLinks documentation ([ae88fe4](https://github.com/s00d/nuxt-i18n-micro/commit/ae88fe4))
+- **i18n): add routesLocaleLinks to link locale files across different routes feat(i18n): add baseURL handling to support CDN usage feat(i18n): add dateBuild to locale fetching for translation updates after rebuilds test(i18n): add tests for routesLocaleLinks functionality docs(i18n:** Update README with routesLocaleLinks documentation ([e62dd6c](https://github.com/s00d/nuxt-i18n-micro/commit/e62dd6c))
+
+### 🩹 Fixes
+
+- Add global types ([9865479](https://github.com/s00d/nuxt-i18n-micro/commit/9865479))
+
+### 📖 Documentation
+
+- Cleanup ([7274212](https://github.com/s00d/nuxt-i18n-micro/commit/7274212))
+- Add note ([3848314](https://github.com/s00d/nuxt-i18n-micro/commit/3848314))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.4.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.3.1...v1.4.0)

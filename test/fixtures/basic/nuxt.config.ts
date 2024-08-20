@@ -14,6 +14,9 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,
+    routesLocaleLinks: {
+      'dir1-slug': 'index',
+    },
   },
 
   compatibilityDate: '2024-08-16',

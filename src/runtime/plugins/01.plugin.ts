@@ -111,30 +111,38 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
 
-  const initialLocale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-  const initialRouteName = (route.name as string).replace(`localized-`, '')
-
   const plural = new Function('return ' + i18nConfig.plural)()
 
   router.beforeEach(async (to, from, next) => {
     if (import.meta.client) {
       const locale = (to.params?.locale ?? i18nConfig.defaultLocale).toString()
-      const routeName = (to.name as string).replace(`localized-`, '')
-      if (!i18nHelper.hasPageTranslation(locale, routeName)) {
-        const data: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json`)
-        await i18nHelper!.loadPageTranslations(locale, routeName, data ?? {})
+      const initialRouteName = (to.name as string).replace(`localized-`, '')
+      let routeName = initialRouteName
+      if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[routeName]) {
+        routeName = i18nConfig.routesLocaleLinks[routeName]
+      }
+
+      if (!i18nHelper.hasPageTranslation(locale, initialRouteName)) {
+        const data: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
+        await i18nHelper!.loadPageTranslations(locale, initialRouteName, data ?? {})
       }
     }
     next()
   })
 
-  const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json`)
+  const initialLocale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+  const initialRouteName = (route.name as string).replace(`localized-`, '')
+
+  const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
   await i18nHelper!.loadTranslations(initialLocale, initialRouteName, data ?? {})
 
   if (import.meta.server) {
     const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-    const routeName = (route.name as string).replace(`localized-`, '')
-    const data: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json`)
+    let routeName = initialRouteName
+    if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[routeName]) {
+      routeName = i18nConfig.routesLocaleLinks[routeName]
+    }
+    const data: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
     await i18nHelper!.loadPageTranslations(initialLocale, initialRouteName, data ?? {})
   }
 

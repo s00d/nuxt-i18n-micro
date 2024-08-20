@@ -276,17 +276,31 @@ const i18n = useI18n()
 </script>
 
 ```
+Вот обновленный раздел `README.md` с описанием работы параметра `routesLocaleLinks` и улучшенным оформлением параметров модуля.
 
 ## Module Options
 
 The module accepts the following options in the Nuxt configuration:
 
-**locales**: An array of locale objects. Each locale should have the following properties:
+### **locales**: `Locale[]`
 
-- **code**: *(string, required)* A unique identifier for the locale, such as `'en'` for English or `'fr'` for French.
-- **iso**: *(string, optional)* The ISO code for the locale, which is typically used for setting the `lang` attribute in HTML or for other internationalization purposes (e.g., `'en-US'`, `'fr-FR'`).
-- **dir**: *(string, optional)* The text direction for the locale. It can be either `'rtl'` for right-to-left languages (like Arabic or Hebrew) or `'ltr'` for left-to-right languages (like English or French). This is useful for ensuring that text is displayed correctly depending on the language's writing system.
-- **disabled**: *(boolean, optional)* A flag indicating whether this locale should be disabled or excluded from certain layers or operations. When `disabled` is set to `true`, this locale will be ignored in situations where only active or enabled locales are considered. This can be particularly useful when working with different layers of content or features in a multi-locale application, allowing developers to temporarily or permanently exclude specific locales from being processed, displayed, or made available to users without removing them entirely from the configuration.
+```typescript
+interface Locale {
+  code: string
+  disabled?: boolean
+  iso?: string
+  dir?: 'rtl' | 'ltr'
+}
+```
+
+An array of locale objects. Each locale should have the following properties:
+
+- **`code`**: *(string, required)* A unique identifier for the locale, such as `'en'` for English or `'fr'` for French.
+- **`iso`**: *(string, optional)* The ISO code for the locale, which is typically used for setting the `lang` attribute in HTML or for other internationalization purposes (e.g., `'en-US'`, `'fr-FR'`).
+- **`dir`**: *(string, optional)* The text direction for the locale. It can be either `'rtl'` for right-to-left languages (like Arabic or Hebrew) or `'ltr'` for left-to-right languages (like English or French).
+- **`disabled`**: *(boolean, optional)* A flag indicating whether this locale should be disabled or excluded from certain layers or operations.
+
+Example:
 
 ```typescript
 locales: [
@@ -296,19 +310,61 @@ locales: [
 ]
 ```
 
-**meta**: A boolean indicating whether to automatically generate SEO-related meta tags (like `alternate` links).
+### **meta**: `boolean`
 
-**defaultLocale**: The default locale code (e.g., `'en'`).
+Indicates whether to automatically generate SEO-related meta tags (like `alternate` links).
 
-**translationDir**: The directory where translation files are stored (e.g., `'locales'`).
+### **defaultLocale**: `string`
 
-**autoDetectLanguage**: If `true`, automatically detects the user's preferred language and redirects accordingly.
+The default locale code. For example, `'en'`.
 
-**plural**: A custom function for handling pluralization.
+### **translationDir**: `string`
 
-**includeDefaultLocaleRoute**: A boolean. If enabled, all routes without a locale prefix will redirect to the default locale route.
+The directory where translation files are stored. Default value is `'locales'`.
 
-**cache**: (In development) A boolean option designed to optimize performance when working with large JSON translation files. When enabled, it caches translations specific to the current page, reducing search times and minimizing client-side load. This cached data is then sent to the client, resulting in faster page loads and improved user experience.
+### **autoDetectLanguage**: `boolean`
+
+If `true`, the module automatically detects the user's preferred language and redirects accordingly.
+
+### **plural**: `function`
+
+A custom function for handling pluralization logic.
+
+### **includeDefaultLocaleRoute**: `boolean`
+
+If `true`, all routes without a locale prefix will redirect to the default locale route.
+
+### **routesLocaleLinks**: `Record<string, string>`
+
+This parameter allows you to create links between different pages' locale files. It is particularly useful in cases where you have similar pages (e.g., a main page and a page with a slug) and want them to share the same translation file.
+
+For example, if you have a page with a slug (`dir1-slug`) and a main page (`index`), you can set up `routesLocaleLinks` so that `dir1-slug` will use the locale file of `index`, avoiding the need to maintain duplicate translation files.
+
+Example:
+
+```typescript
+import MyModule from '../../../src/module'
+
+export default defineNuxtConfig({
+  modules: [
+    MyModule,
+  ],
+
+  i18n: {
+    routesLocaleLinks: {
+      'dir1-slug': 'index',
+    },
+  },
+
+  compatibilityDate: '2024-08-16',
+})
+```
+
+In this example, the page `dir1-slug` will load its translations from the `index` page's locale file.
+
+### **cache**: `boolean`
+
+(In development) This option is designed to optimize performance when working with large JSON translation files. When enabled, it caches translations specific to the current page, reducing search times and minimizing client-side load.
 
 ## Locale Loading in Nuxt I18n Micro
 

@@ -36,6 +36,11 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,
+    routesLocaleLinks: {
+      'dir1-slug': 'dir1',
+      'dir1-subdir-hash-subhash': 'dir1-subdir',
+      'dir1-subdir-slug-id-key': 'dir1-subdir',
+    },
   },
   devtools: { enabled: true },
   compatibilityDate: '2024-08-14',

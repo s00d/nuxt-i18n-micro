@@ -15,6 +15,14 @@ test('test index', async ({ page, goto }) => {
   await expect(page.locator('#locale')).toHaveText('de')
 })
 
+test('test links', async ({ page, goto }) => {
+  await goto('/dir1/test', { waitUntil: 'hydration' })
+  await expect(page.locator('#test_link')).toHaveText('link in en')
+
+  await goto('/de/dir1/test', { waitUntil: 'hydration' })
+  await expect(page.locator('#test_link')).toHaveText('link in de')
+})
+
 test('test plugin methods output on page', async ({ page, goto }) => {
   // Navigate to the /page route
   await goto('/page', { waitUntil: 'hydration' })

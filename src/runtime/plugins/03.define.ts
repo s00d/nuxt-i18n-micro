@@ -1,11 +1,7 @@
-import type { ModuleOptions } from '../../module'
+import type { ModuleOptionsExtend } from '../../module'
 import type { Translations } from '../plugins/01.plugin'
 import { defineNuxtPlugin, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
-
-interface State extends ModuleOptions {
-  rootDir: string
-}
 
 // Тип для локалей
 type LocalesObject = Record<string, Translations>
@@ -15,7 +11,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
   const route = useRoute()
   const router = useRouter()
 
-  const i18nConfig: State = config.public.i18nConfig as State
+  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
 
   // Функция нормализации, которая объединяет массивы и объекты в единый массив строк
   const normalizeLocales = (locales?: string[] | LocalesObject): LocalesObject => {

@@ -1,4 +1,3 @@
-// devtools.ts
 import * as fs from 'node:fs'
 import path from 'node:path'
 import { useNuxt } from '@nuxt/kit'
@@ -8,6 +7,7 @@ import type { ModuleOptions } from './module'
 
 export interface ServerFunctions {
   getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>
+  saveTranslationContent: (locale: string, file: string, content: Record<string, unknown>) => Promise<void>
 }
 
 export interface ClientFunctions {
@@ -46,35 +46,59 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   // Setup DevTools integration
   onDevToolsInitialized(async () => {
     extendServerRpc<ClientFunctions, ServerFunctions>('nuxt-i18n-micro', {
+      async saveTranslationContent(locale, file, content) {
+        const filePath = path.resolve(file)
+        if (fs.existsSync(filePath)) {
+          fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
+        }
+        else {
+          throw new Error(`File not found: ${filePath}`)
+        }
+      },
       async getLocalesAndTranslations() {
-        const localesDir = path.join(nuxt.options.rootDir, options.translationDir || 'locales')
-        const pagesDir = path.join(nuxt.options.rootDir, options.translationDir || 'locales', 'pages')
+        const rootDirs = nuxt.options.runtimeConfig.public.i18nConfig?.rootDirs || [nuxt.options.rootDir]
+        const localesData: { locale: string, files: string[], content: Record<string, unknown> }[] = []
 
-        const localeFiles = fs.readdirSync(localesDir)
-        const pageDirs = fs.readdirSync(pagesDir).filter(file => fs.lstatSync(path.join(pagesDir, file)).isDirectory())
-        const locales = options.locales?.map(locale => locale.code) || []
+        for (const rootDir of rootDirs) {
+          const localesDir = path.join(rootDir, options.translationDir || 'locales')
+          const pagesDir = path.join(rootDir, options.translationDir || 'locales', 'pages')
 
-        return locales.map((locale) => {
-          // Get main locale files
-          const files = localeFiles.filter(file => file.startsWith(locale))
-          const content = files.reduce((acc, file) => {
-            const filePath = path.join(localesDir, file)
-            acc[file] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-            return acc
-          }, {} as Record<string, unknown>)
+          if (!fs.existsSync(localesDir)) continue
 
-          // Get page-specific locale files
-          pageDirs.forEach((dir) => {
-            const pageLocaleFilePath = path.join(pagesDir, dir, `${locale}.json`)
-            if (fs.existsSync(pageLocaleFilePath)) {
-              const fileKey = path.join(dir, `${locale}.json`)
-              content[fileKey] = JSON.parse(fs.readFileSync(pageLocaleFilePath, 'utf-8'))
-              files.push(fileKey)
+          const localeFiles = fs.readdirSync(localesDir)
+          const pageDirs = fs.existsSync(pagesDir) ? fs.readdirSync(pagesDir).filter(file => fs.lstatSync(path.join(pagesDir, file)).isDirectory()) : []
+          const locales = options.locales?.map(locale => locale.code) || []
+
+          locales.forEach((locale) => {
+            const localeData = localesData.find(data => data.locale === locale)
+            const files = localeFiles
+              .filter(file => file.startsWith(locale))
+              .map(file => path.join(localesDir, file))
+            const content: Record<string, unknown> = localeData?.content || {}
+
+            files.forEach((filePath) => {
+              content[filePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+            })
+
+            pageDirs.forEach((dir) => {
+              const pageLocaleFilePath = path.join(pagesDir, dir, `${locale}.json`)
+              if (fs.existsSync(pageLocaleFilePath)) {
+                content[pageLocaleFilePath] = JSON.parse(fs.readFileSync(pageLocaleFilePath, 'utf-8'))
+                files.push(pageLocaleFilePath)
+              }
+            })
+
+            if (localeData) {
+              localeData.files.push(...files)
+              localeData.content = { ...localeData.content, ...content }
+            }
+            else {
+              localesData.push({ locale, files, content })
             }
           })
+        }
 
-          return { locale, files, content }
-        })
+        return localesData
       },
     })
 

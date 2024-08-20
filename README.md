@@ -281,22 +281,28 @@ const i18n = useI18n()
 
 The module accepts the following options in the Nuxt configuration:
 
-- **locales**: An array of locale objects. Each locale should have a `code`, and optionally, `iso` and `dir` (for RTL/LTR).
-  - Example:
-    ```typescript
-    locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'ar', iso: 'ar-SA', dir: 'rtl' }
-    ]
-    ```
-- **meta**: A boolean indicating whether to automatically generate SEO-related meta tags (like `alternate` links).
-- **defaultLocale**: The default locale code (e.g., `'en'`).
-- **translationDir**: The directory where translation files are stored (e.g., `'locales'`).
-- **autoDetectLanguage**: If `true`, automatically detects the user's preferred language and redirects accordingly.
-- **plural**: A custom function for handling pluralization.
-- **includeDefaultLocaleRoute**: A boolean. If enabled, all routes without a locale prefix will redirect to the default locale route.
-- **cache**: (In development) A boolean option designed to optimize performance when working with large JSON translation files. When enabled, it caches translations specific to the current page, reducing search times and minimizing client-side load. This cached data is then sent to the client, resulting in faster page loads and improved user experience.
+**locales**: An array of locale objects. Each locale should have the following properties:
+
+- **code**: *(string, required)* A unique identifier for the locale, such as `'en'` for English or `'fr'` for French.
+- **iso**: *(string, optional)* The ISO code for the locale, which is typically used for setting the `lang` attribute in HTML or for other internationalization purposes (e.g., `'en-US'`, `'fr-FR'`).
+- **dir**: *(string, optional)* The text direction for the locale. It can be either `'rtl'` for right-to-left languages (like Arabic or Hebrew) or `'ltr'` for left-to-right languages (like English or French). This is useful for ensuring that text is displayed correctly depending on the language's writing system.
+- **disabled**: *(boolean, optional)* A flag indicating whether this locale should be disabled or excluded from certain layers or operations. When `disabled` is set to `true`, this locale will be ignored in situations where only active or enabled locales are considered. This can be particularly useful when working with different layers of content or features in a multi-locale application, allowing developers to temporarily or permanently exclude specific locales from being processed, displayed, or made available to users without removing them entirely from the configuration.
+
+```typescript
+locales: [
+  { code: 'en', iso: 'en' },
+  { code: 'fr' },
+  { code: 'ar', iso: 'ar-SA', dir: 'rtl' }
+]
+```
+
+**meta**: A boolean indicating whether to automatically generate SEO-related meta tags (like `alternate` links).
+**defaultLocale**: The default locale code (e.g., `'en'`).
+**translationDir**: The directory where translation files are stored (e.g., `'locales'`).
+**autoDetectLanguage**: If `true`, automatically detects the user's preferred language and redirects accordingly.
+**plural**: A custom function for handling pluralization.
+**includeDefaultLocaleRoute**: A boolean. If enabled, all routes without a locale prefix will redirect to the default locale route.
+**cache**: (In development) A boolean option designed to optimize performance when working with large JSON translation files. When enabled, it caches translations specific to the current page, reducing search times and minimizing client-side load. This cached data is then sent to the client, resulting in faster page loads and improved user experience.
 
 ## Locale Loading in Nuxt I18n Micro
 
@@ -472,6 +478,55 @@ Here's how you can use the slot and access the `translation` within it:
 ---
 
 The `<i18n-t>` component provides a powerful and flexible way to handle translations in your Nuxt application, accommodating a wide range of use cases from simple text translations to complex pluralization and HTML rendering scenarios.
+
+
+### Layers
+
+In `Nuxt I18n Micro`, you can use the concept of layers to manage localization settings in your application. This approach allows you to configure internationalization flexibly depending on the context, and it also enables you to create and extend locale configurations across different parts of your application.
+
+#### Primary Configuration Layer
+
+The primary configuration layer (`i18n`) sets the default localization settings used throughout the application. In this layer, you define the main locales, the order in which they are used, SEO settings, behavior for detecting the user's language, and other relevant parameters.
+
+Example of a basic configuration in the primary layer:
+
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en_EN' },
+      { code: 'de', iso: 'de_DE' },
+    ],
+    meta: true, // Enable automatic SEO meta tags generation
+    defaultLocale: 'en', // Default language
+    translationDir: 'locales', // Directory for translation files
+    autoDetectLanguage: true, // Automatically detect the user's language
+  },
+})
+```
+
+#### Extending and Modifying Settings in Child Layers
+
+Child layers allow you to extend or modify the configuration set in the primary layer. This is particularly useful if you need to adapt localization settings for specific contexts or sections of your application while retaining the overall base configuration.
+
+Example of using a child layer:
+
+```typescript
+export default defineNuxtConfig({
+  extends: '../basic', // Inherit the base configuration layer
+  i18n: {
+    locales: [
+      { code: 'ru', iso: 'ru_RU' }, // Add a new locale for Russian
+      { code: 'de', disabled: true }, // Disable the locale for German
+    ],
+  },
+})
+```
+
+In this example:
+- We extend the base configuration layer using `extends: '../basic'`.
+- In the child layer, we add a new locale `ru` for Russian.
+- We disable the `de` locale by setting `disabled: true`.
 
 ## Conclusion
 

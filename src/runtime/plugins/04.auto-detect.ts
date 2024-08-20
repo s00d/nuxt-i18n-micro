@@ -1,13 +1,9 @@
-import type { ModuleOptions } from '../../module'
+import type { ModuleOptionsExtend } from '../../module'
 import { defineNuxtPlugin, useCookie } from '#app'
 import { useRoute, useRouter } from '#imports'
 
-interface State extends ModuleOptions {
-  rootDir: string
-}
-
 export default defineNuxtPlugin(async ({ $config }) => {
-  const i18nConfig = $config.public.i18nConfig as State
+  const i18nConfig = $config.public.i18nConfig as ModuleOptionsExtend
   const userLocaleCookie = useCookie('user-locale')
   const supportedLocales = i18nConfig.locales?.map(locale => locale.code) ?? []
   const defaultLocale = i18nConfig.defaultLocale || 'en'

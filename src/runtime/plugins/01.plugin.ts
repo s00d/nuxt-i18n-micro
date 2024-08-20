@@ -1,5 +1,5 @@
 import type { NavigationFailure, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router'
-import type { Locale, ModuleOptions } from '../../module'
+import type { Locale, ModuleOptionsExtend } from '../../module'
 import { useTranslationHelper } from '../translationHelper'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
@@ -18,12 +18,6 @@ interface PluralTranslations {
   plural: string
 }
 
-interface State extends ModuleOptions {
-  translations: { [key: string]: Translations }
-  rootDir: string
-  pluralString: string
-}
-
 /**
  * Интерполяция строки с параметрами.
  */
@@ -37,7 +31,7 @@ function interpolate(template: string, params: Record<string, string | number | 
  * Переключение текущей локали и перенаправление на новый локализованный маршрут.
  */
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, router: Router, i18nConfig: State): Promise<NavigationFailure | null | undefined | void> {
+function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, router: Router, i18nConfig: ModuleOptionsExtend): Promise<NavigationFailure | null | undefined | void> {
   const checkLocale = i18nConfig.locales?.find(l => l.code === locale)
 
   if (!checkLocale) {
@@ -61,7 +55,7 @@ function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, rout
 /**
  * Получение локализованного маршрута.
  */
-function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLocationNormalizedLoaded, i18nConfig: State, locale?: string): RouteLocationRaw {
+function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLocationNormalizedLoaded, i18nConfig: ModuleOptionsExtend, locale?: string): RouteLocationRaw {
   const { defaultLocale } = i18nConfig
   const currentLocale = (locale || route.params.locale || defaultLocale)!.toString()
 
@@ -115,7 +109,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const route = useRoute()
   const config = useRuntimeConfig()
-  const i18nConfig: State = config.public.i18nConfig as State
+  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
 
   const initialLocale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
   const initialRouteName = (route.name as string).replace(`localized-`, '')
@@ -169,7 +163,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
         if (!value) {
           if (isDev && import.meta.client) {
-            // console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
+            console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
           }
           value = defaultValue || key
         }
@@ -252,6 +246,8 @@ declare module '@vue/runtime-core' {
   interface ComponentCustomProperties extends PluginsInjections {}
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 declare module 'nuxt/dist/app/nuxt' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface NuxtApp extends PluginsInjections {}

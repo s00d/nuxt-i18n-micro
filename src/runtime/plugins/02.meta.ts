@@ -1,16 +1,12 @@
-import type { ModuleOptions } from '../../module'
+import type { ModuleOptionsExtend } from '../../module'
 import { useHead, defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute } from '#imports'
-
-interface State extends ModuleOptions {
-  rootDir: string
-}
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
   const config = useRuntimeConfig()
 
-  const i18nConfig: State = config.public.i18nConfig as State
+  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
 
   if (!i18nConfig.mata) {
     return

@@ -343,20 +343,12 @@ For example, if you have a page with a slug (`dir1-slug`) and a main page (`inde
 Example:
 
 ```typescript
-import MyModule from '../../../src/module'
-
 export default defineNuxtConfig({
-  modules: [
-    MyModule,
-  ],
-
   i18n: {
     routesLocaleLinks: {
       'dir1-slug': 'index',
     },
   },
-
-  compatibilityDate: '2024-08-16',
 })
 ```
 

@@ -51,6 +51,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
       if (i18nConfig.includeDefaultLocaleRoute) {
         defaultRouteName = `localized-${defaultRouteName}`
         newParams.locale = i18nConfig.defaultLocale!
+        newParams.name = defaultRouteName
       }
 
       return router.push(resolvedRoute)

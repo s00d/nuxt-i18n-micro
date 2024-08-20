@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import {
+  addComponentsDir,
   addImportsDir,
   addPlugin,
   addPrerenderRoutes,
@@ -8,7 +9,6 @@ import {
   createResolver,
   defineNuxtModule,
   extendPages,
-  addComponentsDir,
 } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { watch } from 'chokidar'
@@ -29,6 +29,7 @@ export interface ModuleOptions {
   translationDir?: string
   autoDetectLanguage?: boolean
   includeDefaultLocaleRoute?: boolean
+  routesLocaleLinks?: Record<string, string>
   cache?: boolean
   plural?: string
 }
@@ -37,6 +38,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   rootDir: string
   pluralString: string
   rootDirs: string[]
+  dateBuild: number
+  baseURL: string
 }
 
 declare module '@nuxt/schema' {
@@ -66,6 +69,7 @@ export default defineNuxtModule<ModuleOptions>({
     translationDir: 'locales',
     autoDetectLanguage: true,
     includeDefaultLocaleRoute: false,
+    routesLocaleLinks: {},
     cache: false,
     plural: `function (translation, count, _locale) {
       const forms = translation.toString().split('|')
@@ -107,7 +111,10 @@ export default defineNuxtModule<ModuleOptions>({
       translationDir: options.translationDir ?? 'locales',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
       includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
+      routesLocaleLinks: options.routesLocaleLinks ?? {},
       cache: options.cache ?? false,
+      dateBuild: Date.now(),
+      baseURL: nuxt.options.app.baseURL,
     }
 
     addPlugin({
@@ -163,7 +170,9 @@ export default defineNuxtModule<ModuleOptions>({
     const pagesDir = path.resolve(nuxt.options.rootDir, options.translationDir!, 'pages')
 
     extendPages((pages) => {
-      const pagesNames = pages.map(page => page.name)
+      const pagesNames = pages
+        .map(page => page.name)
+        .filter(name => name && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
 
       function ensureFileExists(filePath: string) {
         const fileDir = path.dirname(filePath) // Get the directory of the file
@@ -185,23 +194,21 @@ export default defineNuxtModule<ModuleOptions>({
         ensureFileExists(globalFilePath)
 
         // Process page-specific translation files
-        pages.forEach((page) => {
-          const pageFilePath = path.join(pagesDir, `${page.name}/${locale.code}.json`)
+        pagesNames.forEach((name) => {
+          const pageFilePath = path.join(pagesDir, `${name}/${locale.code}.json`)
           ensureFileExists(pageFilePath)
         })
       })
-      const newRoutes = pages.map((page) => {
-        return {
-          ...page,
-          path: `/:locale(${localeRegex})${page.path}`,
-          name: `localized-${page.name}`,
-          meta: {
-            ...page.meta,
-          },
-        }
-      })
 
-      // Добавляем новые маршруты
+      const newRoutes = pages.map(page => ({
+        ...page,
+        path: `/:locale(${localeRegex})${page.path}`,
+        name: `localized-${page.name}`,
+        meta: {
+          ...page.meta,
+        },
+      }))
+
       pages.push(...newRoutes)
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []

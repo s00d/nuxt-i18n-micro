@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v1.2.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.16...v1.2.0)
+
+### 🚀 Enhancements
+
+- **devtools:** Use devtools uikit ([f244ef5](https://github.com/s00d/nuxt-i18n-micro/commit/f244ef5))
+
+### 🩹 Fixes
+
+- **types:** Augment `@vue/runtime-core` and fix $getLocales return type ([546ae33](https://github.com/s00d/nuxt-i18n-micro/commit/546ae33))
+- Create locales files ([9dfcb87](https://github.com/s00d/nuxt-i18n-micro/commit/9dfcb87))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Artem Zhirov ([@azhirov](http://github.com/azhirov))
+- Osama Haikal <ee.osamahaikal@gmail.com>
+
 ## v1.1.16
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.15...v1.1.16)

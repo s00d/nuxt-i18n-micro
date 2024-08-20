@@ -11,10 +11,12 @@ import {
   addComponentsDir,
 } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
+import { watch } from 'chokidar'
 import { setupDevToolsUI } from './devtools'
 
 export interface Locale {
   code: string
+  disabled?: boolean
   iso?: string
   dir?: 'rtl' | 'ltr'
 }
@@ -31,17 +33,23 @@ export interface ModuleOptions {
   plural?: string
 }
 
+export interface ModuleOptionsExtend extends ModuleOptions {
+  rootDir: string
+  pluralString: string
+  rootDirs: string[]
+}
+
 declare module '@nuxt/schema' {
   interface ConfigSchema {
     publicRuntimeConfig?: {
-      i18nConfig?: ModuleOptions
+      i18nConfig?: ModuleOptionsExtend
     }
   }
   interface NuxtConfig {
-    i18nConfig?: ModuleOptions
+    i18nConfig?: ModuleOptionsExtend
   }
   interface NuxtOptions {
-    i18nConfig?: ModuleOptions
+    i18nConfig?: ModuleOptionsExtend
   }
 }
 
@@ -73,10 +81,27 @@ export default defineNuxtModule<ModuleOptions>({
   setup: async function (options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
+    const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
+
+    const locales = (options.locales ?? [])
+      .reduce((acc, locale) => {
+        const existingLocale = acc.find(l => l.code === locale.code)
+        if (existingLocale) {
+          // Объединяем свойства объекта
+          Object.assign(existingLocale, locale)
+        }
+        else {
+          acc.push(locale)
+        }
+        return acc
+      }, [] as Locale[])
+      .filter(locale => !locale.disabled)
+
     nuxt.options.runtimeConfig.public.i18nConfig = {
       rootDir: nuxt.options.rootDir,
+      rootDirs: rootDirs,
       plural: options.plural!,
-      locales: options.locales ?? [],
+      locales: locales ?? [],
       mata: options.mata ?? true,
       defaultLocale: options.defaultLocale ?? 'en',
       translationDir: options.translationDir ?? 'locales',
@@ -130,7 +155,7 @@ export default defineNuxtModule<ModuleOptions>({
       extensions: ['vue'],
     })
 
-    const localeRegex = options.locales!
+    const localeRegex = locales
       .filter(locale => locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) // Фильтрация локалей, исключая дефолтную
       .map(locale => locale.code) // Извлечение поля code из каждого объекта Locale
       .join('|') // Объединение всех code в строку, разделенную символом '|'
@@ -154,7 +179,7 @@ export default defineNuxtModule<ModuleOptions>({
         }
       }
 
-      options.locales!.forEach((locale) => {
+      locales.forEach((locale) => {
         // Process global translation files
         const globalFilePath = path.join(nuxt.options.rootDir, options.translationDir!, `${locale.code}.json`)
         ensureFileExists(globalFilePath)
@@ -181,7 +206,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
-      options.locales?.forEach((locale) => {
+      locales.forEach((locale) => {
         pagesNames.forEach((name) => {
           addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
         })
@@ -197,7 +222,7 @@ export default defineNuxtModule<ModuleOptions>({
       const pages = nuxt.options.generate.routes || []
 
       // Генерируем маршруты для всех локалей, кроме дефолтной
-      options.locales!.forEach((locale) => {
+      locales.forEach((locale) => {
         if (locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) {
           pages.forEach((page) => {
             routes.push(`/${locale.code}${page}`)
@@ -208,6 +233,27 @@ export default defineNuxtModule<ModuleOptions>({
       // Обновляем опцию routes в конфигурации Nitro
       nitroConfig.prerender = nitroConfig.prerender || {}
       nitroConfig.prerender.routes = routes
+    })
+
+    nuxt.hook('nitro:build:before', async (_nitro) => {
+      const isProd = nuxt.options.dev === false
+      if (!isProd) {
+        const translationPath = path.resolve(nuxt.options.rootDir, options.translationDir!)
+
+        console.log('ℹ add file watcher', translationPath)
+
+        const watcherEvent = async (path: string) => {
+          watcher.close()
+          console.log('↻ update store item', path)
+          nuxt.callHook('restart')
+        }
+
+        const watcher = watch(translationPath, { depth: 1, persistent: true }).on('change', watcherEvent)
+
+        nuxt.hook('close', () => {
+          watcher.close()
+        })
+      }
     })
 
     // Setup DevTools integration

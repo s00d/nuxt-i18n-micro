@@ -1,32 +1,32 @@
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
-import type { ModuleOptions } from '../../../module'
+import type { ModuleOptionsExtend } from '../../../module'
+import type { Translations } from '../../plugins/01.plugin'
 import { useRuntimeConfig } from '#imports'
-
-export interface ModuleOptionsExtend extends ModuleOptions {
-  rootDir?: string
-}
 
 export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
-  const { rootDir, translationDir } = config.public.i18nConfig as ModuleOptionsExtend
+  const { rootDirs, translationDir } = config.public.i18nConfig as ModuleOptionsExtend
 
   let path = `${locale}.json`
   if (page !== 'general') {
     path = `pages/${page}/${locale}.json`
   }
 
-  const translationPath = resolve(rootDir!, translationDir!, path)
+  let translations: Translations = {}
 
-  try {
-    const fileContent = await readFile(translationPath, 'utf-8')
-    return JSON.parse(fileContent)
+  for (const i in rootDirs) {
+    const translationPath = resolve(rootDirs[i], translationDir!, path)
+
+    try {
+      const fileContent = await readFile(translationPath, 'utf-8')
+      const content = JSON.parse(fileContent) as Translations
+      translations = { ...translations, ...content }
+    }
+    catch { /* empty */ }
   }
-  catch (error: unknown) {
-    console.log('error', error)
-    event.node.res.statusCode = 404
-    return { error: 'Translations not found' }
-  }
+
+  return translations
 })

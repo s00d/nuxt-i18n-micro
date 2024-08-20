@@ -265,19 +265,3 @@ declare module 'vue' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ComponentCustomProperties extends PluginsInjections {}
 }
-
-declare global {
-  const $getLocale: () => string
-  const $getLocales: () => Locale[]
-  const $t: <T extends Record<string, string | number | boolean>>(
-    key: string,
-    params?: T,
-    defaultValue?: string
-  ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null
-  const $tc: (key: string, count: number, defaultValue?: string) => string
-  const $has: (key: string) => boolean
-  const $mergeTranslations: (newTranslations: Translations) => void
-  const $switchLocale: (locale: string) => void
-  const $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw
-  const $loadPageTranslations: (locale: string, routeName: string) => Promise<void>
-}

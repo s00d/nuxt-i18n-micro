@@ -7,7 +7,11 @@
 
 ### 🚀 Enhancements
 
-- **i18n): add routesLocaleLinks to link locale files across different routes feat(i18n): add baseURL handling to support CDN usage feat(i18n): add dateBuild to locale fetching for translation updates after rebuilds test(i18n): add tests for routesLocaleLinks functionality docs(i18n:** Update README with routesLocaleLinks documentation ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
+- add routesLocaleLinks to link locale files across different routes ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
+- add baseURL handling to support CDN usage ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
+- add dateBuild to locale fetching for translation updates after rebuilds ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
+-  add tests for routesLocaleLinks functionality ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
+- update README with routesLocaleLinks documentation ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
 
 ### ❤️ Contributors
 

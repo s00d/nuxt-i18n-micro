@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.3.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.2.0...v1.3.0)
+
+### 🚀 Enhancements
+
+- Add layer support and tests, revamp DevTools UI, update documentation ([6e099e1](https://github.com/s00d/nuxt-i18n-micro/commit/6e099e1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.2.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.16...v1.2.0)

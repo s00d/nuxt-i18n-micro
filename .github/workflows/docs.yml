@@ -1,5 +1,8 @@
 name: docs
 
+permissions:
+  contents: write
+
 on:
   # trigger deployment on every push to main branch
   push:
@@ -34,7 +37,7 @@ jobs:
 
 
       # run build script
-      - name: Build VuePress site
+      - name: Build VitePress site
         run: npm run docs:build
 
       # please check out the docs of the workflow for more details

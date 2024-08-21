@@ -1,5 +1,8 @@
 <template>
-  <NuxtLink :to="$localeRoute(to)" :class="{ active: isActive }">
+  <NuxtLink
+    :to="$localeRoute(to)"
+    :class="{ active: isActive }"
+  >
     <slot>Go to Page</slot>
   </NuxtLink>
 </template>

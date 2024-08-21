@@ -8,6 +8,8 @@ export default defineConfig({
   description: 'Fast, simple, and lightweight i18n for Nuxt',
   lastUpdated: true,
   cleanUrls: true,
+  base: process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/',
+
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [

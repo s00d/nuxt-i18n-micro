@@ -117,8 +117,6 @@ export default defineNuxtConfig({
 
 That's it! You're now ready to use **Nuxt I18n Micro** in your Nuxt app.
 
-Конечно! Вот как можно оформить раздел "Folder Structure" так, чтобы он выглядел более визуально привлекательным и похожим на структуру папок:
-
 ## 🗂 Folder Structure
 
 Translations are organized into **global** and **page-specific** files:

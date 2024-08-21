@@ -27,7 +27,7 @@ jobs:
 
       # run build script
       - name: install deps
-        run: npm i && cd client && npm i
+        run: npm i
 
       - name: install deps
         run: npm run prepack

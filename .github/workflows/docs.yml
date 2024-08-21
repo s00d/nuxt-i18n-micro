@@ -32,13 +32,19 @@ jobs:
       - name: install deps
         run: npm i
 
-      - name: install deps
+      - name: prepack
         run: npm run prepack
 
 
       # run build script
       - name: Build VitePress site
         run: npm run docs:build
+
+      - name: add nojekyll
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
+        run: |-
+          > docs/.vitepress/dist/.nojekyll
 
       # please check out the docs of the workflow for more details
       # @see https://github.com/crazy-max/ghaction-github-pages

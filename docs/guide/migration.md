@@ -99,29 +99,15 @@ If you are using `<nuxt-link>` for navigation, replace it with `<NuxtLink>` to e
 
 ```vue
 <NuxtLink :to="$localeRoute({ name: 'index' })">Home</NuxtLink>
+<!-- or -->
+<i18n-link :to="{ name: 'index' }">Home</i18n-link>
 ```
 
-### 5. 🔧 Update VueI18n Usage
-
-Replace any direct usage of `vue-i18n` with the corresponding methods from `Nuxt I18n Micro`. This includes methods like `$t`, `$tc`, `$d`, and `$n`.
-
-**Before:**
-
-```vue
-<p>{{ $t('welcome') }}</p>
-```
-
-**After:**
-
-```vue
-<p>{{ $t('welcome') }}</p>
-```
-
-### 6. 🛠️ Handle SEO Configurations
+### 5. 🛠️ Handle SEO Configurations
 
 Ensure that your SEO configurations are updated to take advantage of `Nuxt I18n Micro`’s automatic meta tag generation. Remove any redundant SEO configurations that were specific to `nuxt-i18n`.
 
-### 7. 🧪 Test Your Application
+### 6. 🧪 Test Your Application
 
 After completing the migration steps, thoroughly test your application to ensure that all translations are loading correctly and that navigation between locales works as expected. Pay special attention to SEO-related tags and ensure that they are generated as intended.
 

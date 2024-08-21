@@ -36,6 +36,7 @@ export default defineConfig({
           { text: 'Events', link: '/api/events' },
         ],
       },
+      { text: 'Examples', link: '/examples' },
       {
         text: 'Components',
         items: [

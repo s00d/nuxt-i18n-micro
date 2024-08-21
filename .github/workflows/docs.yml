@@ -22,12 +22,12 @@ jobs:
         with:
           # choose node.js version to use
           node-version: 20
-          # cache deps for pnpm
+          # cache deps for npm
           cache: npm
 
       # run build script
       - name: install deps
-        run: npm i
+        run: npm i && cd client && npm i
 
       - name: install deps
         run: npm run prepack

@@ -2,17 +2,17 @@
 outline: deep
 ---
 
-## Layers in `Nuxt I18n Micro`
+# 🗂️ Layers in `Nuxt I18n Micro`
 
-### Introduction to Layers
+## 📖 Introduction to Layers
 
 Layers in `Nuxt I18n Micro` allow you to manage and customize localization settings flexibly across different parts of your application. By defining different layers, you can adjust the configuration for various contexts, such as overriding settings for specific sections of your site or creating reusable base configurations that can be extended by other parts of your application.
 
-### Primary Configuration Layer
+## 🛠️ Primary Configuration Layer
 
 The **Primary Configuration Layer** is where you set up the default localization settings for your entire application. This layer is essential as it defines the global configuration, including the supported locales, default language, and other critical i18n settings.
 
-#### Example: Defining the Primary Configuration Layer
+### 📄 Example: Defining the Primary Configuration Layer
 
 Here’s an example of how you might define the primary configuration layer in your `nuxt.config.ts` file:
 
@@ -32,11 +32,11 @@ export default defineNuxtConfig({
 })
 ```
 
-### Child Layers
+## 🌱 Child Layers
 
 Child layers are used to extend or override the primary configuration for specific parts of your application. For instance, you might want to add additional locales or modify the default locale for a particular section of your site. Child layers are especially useful in modular applications where different parts of the application might have different localization requirements.
 
-#### Example: Extending the Primary Layer in a Child Layer
+### 📄 Example: Extending the Primary Layer in a Child Layer
 
 Suppose you have a section of your site that needs to support additional locales, or you want to disable a particular locale in a certain context. Here’s how you can achieve that by extending the primary configuration layer:
 
@@ -71,20 +71,15 @@ export default defineNuxtConfig({
 })
 ```
 
-In this example:
-- The `extended/nuxt.config.ts` file extends the primary configuration from `basic/nuxt.config.ts`.
-- It adds a new locale (`de` for German) and overrides the default locale to `fr` (French).
-- It also disables automatic language detection specifically for this section.
-
-### Using Layers in a Modular Application
+### 🌐 Using Layers in a Modular Application
 
 In a larger, modular Nuxt application, you might have multiple sections, each requiring its own i18n settings. By leveraging layers, you can maintain a clean and scalable configuration structure.
 
-#### Example: Layered Configuration in a Modular Application
+### 📄 Example: Layered Configuration in a Modular Application
 
 Imagine you have an e-commerce site with distinct sections like the main website, admin panel, and customer support portal. Each section might need a different set of locales or other i18n settings.
 
-**Primary Layer (Global Configuration):**
+#### **Primary Layer (Global Configuration):**
 
 ```typescript
 // nuxt.config.ts
@@ -102,7 +97,7 @@ export default defineNuxtConfig({
 })
 ```
 
-**Child Layer for Admin Panel:**
+#### **Child Layer for Admin Panel:**
 
 ```typescript
 // admin/nuxt.config.ts
@@ -120,7 +115,7 @@ export default defineNuxtConfig({
 })
 ```
 
-**Child Layer for Customer Support Portal:**
+#### **Child Layer for Customer Support Portal:**
 
 ```typescript
 // support/nuxt.config.ts
@@ -143,14 +138,8 @@ In this modular example:
 - The admin panel adds Spanish (`es`) as a locale and disables meta tag generation.
 - The support portal adds German (`de`) as a locale and defaults to German for the user interface.
 
-### Best Practices for Using Layers
+## 📝 Best Practices for Using Layers
 
-- **Keep the Primary Layer Simple:** The primary layer should contain the most commonly used settings that apply globally across your application. Keep it straightforward to ensure consistency.
-- **Use Child Layers for Specific Customizations:** Only override or extend settings in child layers when necessary. This approach avoids unnecessary complexity in your configuration.
-- **Document Your Layers:** Clearly document the purpose and specifics of each layer in your project. This will help maintain clarity and make it easier for others (or future you) to understand the configuration.
-
-### Conclusion
-
-Layers in `Nuxt I18n Micro` provide a flexible and powerful way to manage localization settings across different parts of your application. By leveraging layers, you can create modular, scalable, and maintainable configurations that adapt to the unique needs of various sections of your project. Whether you’re building a simple site or a complex application, using layers effectively can help streamline your i18n strategy.
-
-For more details and updates, visit the [Nuxt I18n Micro GitHub repository](https://github.com/s00d/nuxt-i18n-micro).
+- **🔧 Keep the Primary Layer Simple:** The primary layer should contain the most commonly used settings that apply globally across your application. Keep it straightforward to ensure consistency.
+- **⚙️ Use Child Layers for Specific Customizations:** Only override or extend settings in child layers when necessary. This approach avoids unnecessary complexity in your configuration.
+- **📚 Document Your Layers:** Clearly document the purpose and specifics of each layer in your project. This will help maintain clarity and make it easier for others (or future you) to understand the configuration.

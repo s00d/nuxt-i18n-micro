@@ -2,9 +2,9 @@
 outline: deep
 ---
 
-# Methods
+# 🛠️ Methods
 
-## `$getLocale()`
+## 🌍 `$getLocale()`
 
 Returns the current locale code.
 
@@ -12,7 +12,7 @@ Returns the current locale code.
 const locale = $getLocale()
 ```
 
-## `$getLocales()`
+## 🌍 `$getLocales()`
 
 Returns an array of all available locales configured in the module.
 
@@ -20,7 +20,7 @@ Returns an array of all available locales configured in the module.
 const locales = $getLocales()
 ```
 
-## `$t(key: string, params?: Record<string, any>, defaultValue?: string)`
+## 🔍 `$t(key: string, params?: Record<string, any>, defaultValue?: string)`
 
 Fetches a translation for the given key. Optionally interpolates parameters.
 
@@ -28,7 +28,7 @@ Fetches a translation for the given key. Optionally interpolates parameters.
 const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 ```
 
-## `$tc(key: string, count: number, defaultValue?: string)`
+## 🔢 `$tc(key: string, count: number, defaultValue?: string)`
 
 Fetches a pluralized translation for the given key based on the count.
 
@@ -36,7 +36,7 @@ Fetches a pluralized translation for the given key based on the count.
 const appleCountMessage = $tc('apples', 10)
 ```
 
-## `$switchLocale(locale: string)`
+## 🔄 `$switchLocale(locale: string)`
 
 Switches to the given locale and redirects the user to the appropriate localized route.
 
@@ -44,7 +44,7 @@ Switches to the given locale and redirects the user to the appropriate localized
 $switchLocale('fr')
 ```
 
-## `$localeRoute(to: RouteLocationRaw, locale?: string): RouteLocationRaw`
+## 🌐 `$localeRoute(to: RouteLocationRaw, locale?: string): RouteLocationRaw`
 
 Generates a localized route object based on the target route.
 
@@ -52,7 +52,7 @@ Generates a localized route object based on the target route.
 const localizedRoute = $localeRoute({ name: 'index' })
 ```
 
-## `$mergeTranslations(newTranslations: Translations)`
+## 🗂️ `$mergeTranslations(newTranslations: Translations)`
 
 Merges new translations into the existing translation cache for the current route and locale.
 
@@ -62,7 +62,7 @@ $mergeTranslations({
 })
 ```
 
-## `$defineI18nRoute(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>> })`
+## 🚦 `$defineI18nRoute(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>> })`
 
 Defines route behavior based on the current locale. This method can be used to control access to specific routes based on available locales or to provide translations for specific locales.
 
@@ -99,12 +99,12 @@ $defineI18nRoute({
 })
 ```
 
-### Explanation:
+### 📝 Explanation:
 
 - **Locales Array**: If you only want to specify which locales are allowed for a route, pass an array of locale codes. The user will only be able to access this route if the current locale is in this list.
 - **Locales Object**: If you want to provide specific translations for each locale, pass an object where each key is a locale code. The value should be an object with key-value pairs for translations. If you do not wish to provide translations for a locale but still want to allow access, pass an empty object (`{}`) for that locale.
 
-## Example Usage in a Component
+## 💻 Example Usage in a Component
 
 Here's an example of how to use these methods in a Nuxt component:
 
@@ -145,4 +145,26 @@ import { useI18n } from '#imports'
 
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useI18n()
 </script>
+```
+
+## 🛠️ `useNuxtApp`
+
+**Example:**
+
+```typescript
+import { useNuxtApp } from '#imports'
+
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
+```
+
+## 🧩 `useI18n` Composable
+
+**Example:**
+
+```typescript
+import { useI18n } from '#imports'
+
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
+// or
+const i18n = useI18n()
 ```

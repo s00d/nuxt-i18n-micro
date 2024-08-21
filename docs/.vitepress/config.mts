@@ -11,13 +11,39 @@ export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/',
 
   themeConfig: {
+    search: {
+      provider: 'local',
+    },
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'API', link: '/api/methods', activeMatch: '/api/' },
-      { text: 'Configuration', link: '/configuration/setup', activeMatch: '/configuration/' },
-      { text: 'Components', link: '/components/i18n-t', activeMatch: '/components/' },
+      {
+        text: 'Guide',
+        items: [
+          { text: 'Getting Started', link: '/guide/getting-started' },
+          { text: 'Performance', link: '/guide/performance' },
+          { text: 'Folder Structure', link: '/guide/folder-structure' },
+          { text: 'Layers', link: '/guide/layers' },
+          { text: 'SEO', link: '/guide/seo' },
+          { text: 'Migration', link: '/guide/migration' },
+          { text: 'Contribution', link: '/guide/contribution' },
+        ],
+      },
+      {
+        text: 'API',
+        items: [
+          { text: 'Methods', link: '/api/methods' },
+          { text: 'Events', link: '/api/events' },
+        ],
+      },
+      {
+        text: 'Components',
+        items: [
+          { text: 'i18n-t Component', link: '/components/i18n-t' },
+          { text: 'i18n-switcher Component', link: '/components/i18n-switcher' },
+          { text: 'i18n-link Component', link: '/components/i18n-link' },
+        ],
+      },
       {
         text: pkg.version,
         items: [
@@ -64,16 +90,6 @@ export default defineConfig({
           ],
         },
       ],
-      '/configuration/': [
-        {
-          text: 'Configuration',
-          base: '/configuration',
-          items: [
-            { text: 'Setup', link: '/setup' },
-            { text: 'Module Options', link: '/options' },
-          ],
-        },
-      ],
       '/components/': [
         {
           text: 'Components',
@@ -81,6 +97,7 @@ export default defineConfig({
           items: [
             { text: 'i18n-t Component', link: '/i18n-t' },
             { text: 'ii18n-switcher Component', link: '/i18n-switcher' },
+            { text: 'i18n-link Component', link: '/i18n-link' },
           ],
         },
       ],

@@ -2,121 +2,113 @@
 outline: deep
 ---
 
-# `<i18n-switcher>` Component
+# 🌍 `<i18n-switcher>` Component
 
-The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a dropdown interface for switching between different locales in your application. This component is highly customizable and allows for seamless integration with your application's existing design.
+The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dropdown interface for switching between different locales in your application. This component is highly customizable, allowing seamless integration with your application's design and layout.
 
-### Props
+## ⚙️ Props
 
-#### `wrapperClass` (`string`, optional, default: `'locale-switcher'`)
-The `wrapperClass` prop defines the CSS class applied to the wrapper `<div>` that contains the locale switcher.
+### `wrapperClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'locale-switcher'`
+- **Description**: Defines the CSS class applied to the wrapper `<div>` that contains the locale switcher.
 - **Example**:
-```vue
-<i18n-switcher wrapperClass="my-custom-wrapper"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher wrapperClass="my-custom-wrapper"></i18n-switcher>
+  ```
 
-#### `buttonClass` (`string`, optional, default: `'locale-button'`)
-The `buttonClass` prop specifies the CSS class applied to the button element that toggles the dropdown menu.
+### `buttonClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'locale-button'`
+- **Description**: Specifies the CSS class applied to the button element that toggles the dropdown menu.
 - **Example**:
-```vue
-<i18n-switcher buttonClass="my-custom-button"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher buttonClass="my-custom-button"></i18n-switcher>
+  ```
 
-#### `dropdownClass` (`string`, optional, default: `'locale-dropdown'`)
-The `dropdownClass` prop sets the CSS class for the `<ul>` element that contains the list of locales.
+### `dropdownClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'locale-dropdown'`
+- **Description**: Sets the CSS class for the `<ul>` element that contains the list of locales.
 - **Example**:
-```vue
-<i18n-switcher dropdownClass="my-custom-dropdown"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher dropdownClass="my-custom-dropdown"></i18n-switcher>
+  ```
 
-#### `itemClass` (`string`, optional, default: `'locale-item'`)
-The `itemClass` prop applies a CSS class to each `<li>` element representing a locale option.
+### `itemClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'locale-item'`
+- **Description**: Applies a CSS class to each `<li>` element representing a locale option.
 - **Example**:
-```vue
-<i18n-switcher itemClass="my-custom-item"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher itemClass="my-custom-item"></i18n-switcher>
+  ```
 
-#### `linkClass` (`string`, optional, default: `'locale-link'`)
-The `linkClass` prop specifies the CSS class applied to the `<NuxtLink>` elements used to switch between locales.
+### `linkClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'locale-link'`
+- **Description**: Specifies the CSS class applied to the `<NuxtLink>` elements used to switch between locales.
 - **Example**:
-```vue
-<i18n-switcher linkClass="my-custom-link"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher linkClass="my-custom-link"></i18n-switcher>
+  ```
 
-#### `activeClass` (`string`, optional, default: `'active'`)
-The `activeClass` prop sets the CSS class for the currently active locale, usually to highlight or indicate the selected option.
+### `activeClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'active'`
+- **Description**: Sets the CSS class for the currently active locale, usually to highlight or indicate the selected option.
 - **Example**:
-```vue
-<i18n-switcher activeClass="my-active-class"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher activeClass="my-active-class"></i18n-switcher>
+  ```
 
-#### `disabledClass` (`string`, optional, default: `'disabled'`)
-The `disabledClass` prop applies a CSS class to disable the link for the current locale, preventing users from selecting it.
+### `disabledClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'disabled'`
+- **Description**: Applies a CSS class to disable the link for the current locale, preventing users from selecting it.
 - **Example**:
-```vue
-<i18n-switcher disabledClass="my-disabled-class"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher disabledClass="my-disabled-class"></i18n-switcher>
+  ```
 
-#### `iconClass` (`string`, optional, default: `'dropdown-icon'`)
-The `iconClass` prop defines the CSS class for the icon that indicates the dropdown state, flipping when the dropdown is opened or closed.
+### `iconClass`
 
 - **Type**: `string`
-- **Optional**: Yes
 - **Default**: `'dropdown-icon'`
+- **Description**: Defines the CSS class for the icon that indicates the dropdown state, flipping when the dropdown is opened or closed.
 - **Example**:
-```vue
-<i18n-switcher iconClass="my-icon-class"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher iconClass="my-icon-class"></i18n-switcher>
+  ```
 
-#### `customLabels` (`Record<string, string>`, optional)
-The `customLabels` prop allows you to define custom labels for each locale, which will be displayed instead of the locale codes.
+### `customLabels`
 
 - **Type**: `Record<string, string>`
-- **Optional**: Yes
 - **Default**: `{}`
+- **Description**: Allows you to define custom labels for each locale, which will be displayed instead of the locale codes.
 - **Example**:
-```vue
-<i18n-switcher :customLabels="{ en: 'English', fr: 'Français' }"></i18n-switcher>
-```
+  ```vue
+  <i18n-switcher :customLabels="{ en: 'English', fr: 'Français' }"></i18n-switcher>
+  ```
 
-### Example Usages
+## 🛠️ Example Usages
 
-#### Basic Usage
+### Basic Usage
 
 ```vue
 <i18n-switcher></i18n-switcher>
 ```
-This will render a locale switcher with default styling and behavior.
 
-#### Custom Labels and Styling
+This renders a locale switcher with default styling and behavior.
+
+### Custom Labels and Styling
 
 ```vue
 <i18n-switcher
@@ -131,17 +123,18 @@ This will render a locale switcher with default styling and behavior.
   :customLabels="{ en: 'English', fr: 'Français' }"
 />
 ```
+
 This example demonstrates a fully customized locale switcher with custom labels and CSS classes.
 
-### Styles
+## 🎨 Styles Overview
 
-The component comes with basic styles that can be easily overridden by passing custom classes via props. Here’s a brief overview:
+The `<i18n-switcher>` component comes with basic styles that can easily be overridden by passing custom classes via props. Here’s a brief overview of the default styling:
 
-- **Wrapper**: `locale-switcher` (controls the positioning of the dropdown)
-- **Button**: `locale-button` (styles the dropdown toggle button)
-- **Dropdown**: `locale-dropdown` (styles the dropdown list)
-- **Items**: `locale-item` (styles each item in the list)
-- **Links**: `locale-link` (styles the links inside each item)
-- **Icon**: `dropdown-icon` (styles the dropdown indicator icon)
+- **Wrapper**: `.locale-switcher` — Controls the positioning of the dropdown.
+- **Button**: `.locale-button` — Styles the dropdown toggle button.
+- **Dropdown**: `.locale-dropdown` — Styles the dropdown list.
+- **Items**: `.locale-item` — Styles each item in the list.
+- **Links**: `.locale-link` — Styles the links inside each item.
+- **Icon**: `.dropdown-icon` — Styles the dropdown indicator icon.
 
-You can customize these classes to match your design requirements.
+You can customize these classes to match your design requirements, ensuring that the locale switcher integrates seamlessly into your application's UI.

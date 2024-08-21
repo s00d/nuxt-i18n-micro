@@ -83,5 +83,8 @@
     "vitest": "^2.0.3",
     "vue-tsc": "2.0.22"
   },
+  "workspaces": [
+    "client"
+  ],
   "packageManager": "yarn@3.7.0+sha256.7bf0c78a106332886ea4e59641fd819b1af953edcd72c4d93a32b1c71000ee67"
 }

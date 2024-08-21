@@ -20,9 +20,9 @@
     </p>
 
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'page' })">
+      <i18n-link :to="{ name: 'page' }">
         Go to Page
-      </NuxtLink>
+      </i18n-link>
     </div>
 
     <a href="/">test</a>

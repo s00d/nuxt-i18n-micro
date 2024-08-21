@@ -56,6 +56,15 @@ export function useTranslationHelper() {
         console.error(`marge: route ${locale}:${routeName} not loaded`)
       }
       routeLocaleCache[`${locale}:${routeName}`] = {
+        ...routeLocaleCache[`${locale}:${routeName}`],
+        ...newTranslations,
+      }
+    },
+    margeGlobalTranslation(locale: string, newTranslations: Translations) {
+      if (!generalLocaleCache[`${locale}`]) {
+        console.error(`marge: route ${locale} not loaded`)
+      }
+      generalLocaleCache[locale] = {
         ...generalLocaleCache[locale],
         ...newTranslations,
       }
@@ -125,7 +134,7 @@ export function useTranslationHelper() {
         console.error(`Error loading translations for ${locale} and ${routeName}:`, error)
       }
     },
-    loadTranslations: async (locale: string, routeName: string, translations: Translations): Promise<void> => {
+    loadTranslations: async (locale: string, translations: Translations): Promise<void> => {
       try {
         if (!generalLocaleCache[locale]) {
           generalLocaleCache[locale] = { ...translations }

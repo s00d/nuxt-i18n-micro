@@ -24,7 +24,14 @@
         Go to Page
       </NuxtLink>
     </div>
+
     <a href="/">test</a>
+
+    <div>
+      <i18n-switcher
+        :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }"
+      />
+    </div>
 
     <div
       v-for="key in generatedKeys"

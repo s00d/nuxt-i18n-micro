@@ -76,6 +76,14 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
 export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
 
+  const registerI18nModule = (translations: Translations, locale: string) => {
+    i18nHelper.margeGlobalTranslation(locale, translations)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  await nuxtApp.callHook('i18n:register', registerI18nModule)
+
   if (!nuxtApp.payload.data.translations) {
     nuxtApp.payload.data.translations = {}
   }
@@ -134,7 +142,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const initialRouteName = (route.name as string).replace(`localized-`, '')
 
   const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
-  await i18nHelper!.loadTranslations(initialLocale, initialRouteName, data ?? {})
+  await i18nHelper!.loadTranslations(initialLocale, data ?? {})
 
   if (import.meta.server) {
     const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
@@ -254,14 +262,12 @@ declare module '@vue/runtime-core' {
   interface ComponentCustomProperties extends PluginsInjections {}
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-declare module 'nuxt/dist/app/nuxt' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface NuxtApp extends PluginsInjections {}
-}
-
 declare module 'vue' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ComponentCustomProperties extends PluginsInjections {}
+}
+
+declare module '#app/nuxt' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface NuxtApp extends PluginsInjections {}
 }

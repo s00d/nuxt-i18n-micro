@@ -76,13 +76,19 @@ export default defineNuxtConfig({
 Move your translation files to the `locales` directory. Ensure they are in JSON format and organized by locale. For example:
 
 ```plaintext
-/locales
-  /pages
-    /index
-      en.json
-      fr.json
-  en.json
-  fr.json
+  /locales
+  ├── /pages
+  │   ├── /index
+  │   │   ├── en.json
+  │   │   ├── fr.json
+  │   │   └── ar.json
+  │   ├── /about
+  │   │   ├── en.json
+  │   │   ├── fr.json
+  │   │   └── ar.json
+  ├── en.json
+  ├── fr.json
+  └── ar.json
 ```
 
 ### 4. 🔗 Replace `<nuxt-link>` with `<NuxtLink>`

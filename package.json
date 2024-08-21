@@ -52,7 +52,11 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "client:build": "nuxi generate client",
     "client:dev": "nuxi dev client --port 3300",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@nuxt/devtools-kit": "^1.3.9",
@@ -75,8 +79,9 @@
     "execa": "^9.3.0",
     "nuxt": "^3.12.4",
     "typescript": "latest",
+    "vitepress": "^1.3.3",
     "vitest": "^2.0.3",
-    "vue-tsc": "^2.0.26"
+    "vue-tsc": "2.0.22"
   },
   "packageManager": "yarn@3.7.0+sha256.7bf0c78a106332886ea4e59641fd819b1af953edcd72c4d93a32b1c71000ee67"
 }

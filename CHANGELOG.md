@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v1.6.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.5.1...v1.6.0)
+
+### 🚀 Enhancements
+
+- **components:** Add i18n-link ([a791bfa](https://github.com/s00d/nuxt-i18n-micro/commit/a791bfa))
+
+### 📖 Documentation
+
+- Add vuepress docs ([3b25bd0](https://github.com/s00d/nuxt-i18n-micro/commit/3b25bd0))
+- Add vuepress docs ([ef9a196](https://github.com/s00d/nuxt-i18n-micro/commit/ef9a196))
+- Update ([3375b67](https://github.com/s00d/nuxt-i18n-micro/commit/3375b67))
+- Update ([68da550](https://github.com/s00d/nuxt-i18n-micro/commit/68da550))
+- Update ([896842f](https://github.com/s00d/nuxt-i18n-micro/commit/896842f))
+- Update ([57fbf8a](https://github.com/s00d/nuxt-i18n-micro/commit/57fbf8a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.5.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.5.0...v1.5.1)

@@ -23,7 +23,7 @@ features:
   - title: 🔄 Dynamic Routing
     details: 🗺️ Efficient regex-based routing that generates only two routes regardless of the number of locales.
   - title: 📂 Streamlined Translation Loading
-    details: 🔧 Supports only JSON files, with auto-generated page-specific translations in `dev` mode.
+    details: 🔧 Supports only JSON files, with auto-generated page-specific translations.
   - title: 🌐 Seamless Nuxt Integration
     details: 🛠️ Seamless integration with Nuxt.js, making it easy to add powerful i18n features to your application.
 ---

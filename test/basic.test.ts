@@ -23,6 +23,26 @@ test('test links', async ({ page, goto }) => {
   await expect(page.locator('#test_link')).toHaveText('link in de')
 })
 
+test('test language detection and redirect based on navigator.languages', async ({ page, goto }) => {
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'en-US,en;q=0.9',
+  })
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'languages', {
+      get: () => ['en-US', 'en'],
+    })
+  })
+
+  // Переходим на главную страницу
+  await goto('/ru/page', { waitUntil: 'hydration' })
+
+  const currentURL = page.url()
+
+  expect(new URL(currentURL).pathname).toBe('/page')
+
+  await expect(page.locator('#content')).toHaveText('Page content in en')
+})
+
 test('test plugin methods output on page', async ({ page, goto }) => {
   // Navigate to the /page route
   await goto('/page', { waitUntil: 'hydration' })
@@ -31,7 +51,7 @@ test('test plugin methods output on page', async ({ page, goto }) => {
   await expect(page.locator('#locale')).toHaveText('Current Locale: en')
 
   // Verify the list of locales
-  await expect(page.locator('#locales')).toHaveText('en, de')
+  await expect(page.locator('#locales')).toHaveText('en, de, ru')
 
   // Verify the translation for a key
   await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content

@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v1.6.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.6.0...v1.6.1)
+
+### 🩹 Fixes
+
+- Memory leak ([c465d22](https://github.com/s00d/nuxt-i18n-micro/commit/c465d22))
+
+### 📖 Documentation
+
+- Update ([b4028b7](https://github.com/s00d/nuxt-i18n-micro/commit/b4028b7))
+- **migrations:** Fix ([f2840bd](https://github.com/s00d/nuxt-i18n-micro/commit/f2840bd))
+- **migrations:** Update locales strict ([14f1b06](https://github.com/s00d/nuxt-i18n-micro/commit/14f1b06))
+- **migrations:** Add Multi Domain Locales ([c53d42b](https://github.com/s00d/nuxt-i18n-micro/commit/c53d42b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.6.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.5.1...v1.6.0)

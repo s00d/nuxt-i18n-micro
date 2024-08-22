@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     locales: [
       { code: 'en', iso: 'en_EN' },
       { code: 'de', iso: 'de_DE' },
+      { code: 'ru', iso: 'ru_RU' },
     ],
     mata: true,
     defaultLocale: 'en',

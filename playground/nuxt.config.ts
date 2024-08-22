@@ -32,7 +32,7 @@ export default defineNuxtConfig({
       { code: 'ru', iso: 'ru_RU' },
     ],
     mata: true,
-    cache: true,
+    cache: false,
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,

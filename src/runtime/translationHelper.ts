@@ -125,10 +125,8 @@ export function useTranslationHelper() {
     },
     loadPageTranslations: async (locale: string, routeName: string, translations: Translations): Promise<void> => {
       try {
-        if (!routeLocaleCache[`${locale}:${routeName}`]) {
-          routeLocaleCache[`${locale}:${routeName}`] = { ...translations }
-          serverTranslationInit[`${locale}:${routeName}`] = true
-        }
+        routeLocaleCache[`${locale}:${routeName}`] = { ...translations }
+        serverTranslationInit[`${locale}:${routeName}`] = true
       }
       catch (error) {
         console.error(`Error loading translations for ${locale} and ${routeName}:`, error)
@@ -136,10 +134,8 @@ export function useTranslationHelper() {
     },
     loadTranslations: async (locale: string, translations: Translations): Promise<void> => {
       try {
-        if (!generalLocaleCache[locale]) {
-          generalLocaleCache[locale] = { ...translations }
-          serverTranslationInit[`${locale}:index`] = true
-        }
+        generalLocaleCache[locale] = { ...translations }
+        serverTranslationInit[`${locale}:index`] = true
       }
       catch (error) {
         console.error(`Error loading translations for general ${locale}:`, error)

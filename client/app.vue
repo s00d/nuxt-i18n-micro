@@ -173,7 +173,7 @@ const importTranslations = (event: Event) => {
         const content = JSON.parse(e.target?.result as string)
         selectedFileContent.value = content
       }
-      catch (err) {
+      catch {
         console.error('Invalid JSON file')
       }
     }

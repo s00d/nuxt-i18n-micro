@@ -2,9 +2,9 @@
 outline: deep
 ---
 
-# 🌐 `<i18n-t>` Component
+# 🌍 `<i18n-t>` Component
 
-The `<i18n-t>` component is a powerful tool in the `Nuxt I18n Micro` module, designed to handle translations within your application. It offers various features such as interpolation, pluralization, dynamic HTML rendering, and more, making it highly flexible for internationalizing your content.
+The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation component that supports dynamic content insertion via slots. It allows you to interpolate translations with custom Vue components or HTML content, enabling advanced localization scenarios.
 
 ## ⚙️ Props
 
@@ -12,20 +12,20 @@ The `<i18n-t>` component is a powerful tool in the `Nuxt I18n Micro` module, des
 
 - **Type**: `string`
 - **Required**: Yes
-- **Description**: The `keypath` prop specifies the translation key to use. This key is looked up in the translation files based on the current locale.
+- **Description**: Defines the key path to the translation string in your localization files.
 - **Example**:
   ```vue
-  <i18n-t keypath="welcomeMessage"></i18n-t>
+  <i18n-t keypath="feedback.text" />
   ```
 
 ### `plural`
 
-- **Type**: `number | null`
+- **Type**: `number | string`
 - **Optional**: Yes
-- **Description**: Specifies the count for pluralization. When provided, the component uses the `$tc` method to fetch the appropriate pluralized translation based on the locale’s pluralization rules.
+- **Description**: Specifies a number for pluralization rules.
 - **Example**:
   ```vue
-  <i18n-t keypath="apples" :plural="10"></i18n-t>
+  <i18n-t keypath="items" :plural="itemCount" />
   ```
 
 ### `tag`
@@ -33,40 +33,27 @@ The `<i18n-t>` component is a powerful tool in the `Nuxt I18n Micro` module, des
 - **Type**: `string`
 - **Optional**: Yes
 - **Default**: `'span'`
-- **Description**: Specifies the HTML tag used to wrap the translated content. You can customize this to any valid HTML tag, such as `div`, `p`, `h1`, etc.
+- **Description**: Specifies the HTML tag to wrap the translated content.
 - **Example**:
   ```vue
-  <i18n-t keypath="welcomeMessage" tag="h1"></i18n-t>
-  ```
-
-### `scope`
-
-- **Type**: `string`
-- **Optional**: Yes
-- **Default**: `'global'`
-- **Description**: Defines the scope of the translation. By default, it is set to `'global'`, meaning the translation key will be searched in the global scope.
-- **Example**:
-  ```vue
-  <i18n-t keypath="welcomeMessage" scope="page"></i18n-t>
+  <i18n-t keypath="feedback.text" tag="div" />
   ```
 
 ### `params`
 
 - **Type**: `Record<string, string | number | boolean>`
 - **Optional**: Yes
-- **Default**: `() => ({})`
-- **Description**: An object containing key-value pairs that are interpolated into the translation string. Useful for dynamic content where values need to be inserted into the translated text.
+- **Description**: Provides parameters for interpolating dynamic values in the translation.
 - **Example**:
   ```vue
-  <i18n-t keypath="greeting" :params="{ name: 'John' }"></i18n-t>
+  <i18n-t keypath="user.greeting" :params="{ name: userName }" />
   ```
 
 ### `defaultValue`
 
 - **Type**: `string`
 - **Optional**: Yes
-- **Default**: `''`
-- **Description**: Provides a fallback translation that will be displayed if the specified `keypath` does not match any key in the translation files.
+- **Description**: The default value to use if the translation key is not found.
 - **Example**:
   ```vue
   <i18n-t keypath="nonExistentKey" defaultValue="Fallback text"></i18n-t>
@@ -77,33 +64,23 @@ The `<i18n-t>` component is a powerful tool in the `Nuxt I18n Micro` module, des
 - **Type**: `boolean`
 - **Optional**: Yes
 - **Default**: `false`
-- **Description**: Determines whether the translation contains HTML content. When set to `true`, the translated string is rendered as raw HTML.
+- **Description**: Enables the rendering of the translation as raw HTML. 
 - **Example**:
   ```vue
-  <i18n-t keypath="richText" :html="true"></i18n-t>
+  <i18n-t keypath="feedback.text" html />
   ```
 
-### `locale`
-
-- **Type**: `string`
-- **Optional**: Yes
-- **Description**: Allows you to override the current locale for this specific translation. If not provided, the component will use the application’s current locale.
-- **Example**:
-  ```vue
-  <i18n-t keypath="welcomeMessage" locale="fr"></i18n-t>
-  ```
-
-### `wrap`
+### `hideIfEmpty`
 
 - **Type**: `boolean`
 - **Optional**: Yes
-- **Default**: `true`
-- **Description**: Controls whether the translated content should be wrapped in the specified HTML `tag`. If set to `false`, the component will not wrap the translation in an HTML element.
+- **Default**: `false`
+- **Description**: If `true`, the component will not render anything if the translation is empty.
 - **Example**:
   ```vue
-  <i18n-t keypath="welcomeMessage" :wrap="false"></i18n-t>
+  <i18n-t keypath="optionalMessage" :hideIfEmpty="true"></i18n-t>
   ```
-
+  
 ### `customPluralRule`
 
 - **Type**: `(value: string, count: number, locale: string) => string`
@@ -120,57 +97,52 @@ The `<i18n-t>` component is a powerful tool in the `Nuxt I18n Micro` module, des
   ></i18n-t>
   ```
 
-### `hideIfEmpty`
-
-- **Type**: `boolean`
-- **Optional**: Yes
-- **Default**: `false`
-- **Description**: Determines whether the component should render anything if the translation string is empty. Useful for conditional rendering based on the presence of a translation.
-- **Example**:
-  ```vue
-  <i18n-t keypath="optionalMessage" :hideIfEmpty="true"></i18n-t>
-  ```
-
-## 🛠️ Examples of Usage
+## 🛠️ Example Usages
 
 ### Basic Usage
 
-Render a simple translation string using the `keypath`.
-
 ```vue
-<i18n-t keypath="welcomeMessage"></i18n-t>
+<i18n-t keypath="feedback.text" />
 ```
 
-### With Pluralization
+This renders the translation for `feedback.text` within a `<span>` tag.
 
-Handle pluralized translation strings by specifying the `plural` prop.
+### Using Slots for Dynamic Content
+
+The `<i18n-t>` component supports the use of slots to dynamically insert Vue components or other content into specific parts of the translation.
 
 ```vue
-<i18n-t keypath="apples" :plural="10" tag="div"></i18n-t>
+<i18n-t keypath="feedback.text">
+  <template #link>
+    <nuxt-link :to="{ name: 'index' }">
+      <i18n-t keypath="feedback.link" />
+    </nuxt-link>
+  </template>
+</i18n-t>
 ```
 
-### With Interpolation
+In this example, the `{link}` placeholder in the `feedback.text` translation string is replaced by the `<nuxt-link>` component, which itself contains another translation component.
 
-Interpolate dynamic values into the translation string using the `params` prop.
+### Pluralization
 
 ```vue
-<i18n-t keypath="greeting" :params="{ name: 'John' }"></i18n-t>
+<i18n-t keypath="items.count" :plural="itemCount" />
 ```
 
-### Rendering with HTML Content
+This automatically applies pluralization rules based on the `itemCount` value.
 
-Render translations that contain HTML content by setting the `html` prop to `true`.
+## 🚀 Additional Features
 
-```vue
-<i18n-t keypath="richText" :html="true"></i18n-t>
-```
+### Default Slot
 
-### Using a Custom Locale
-
-Override the current application locale for a specific translation.
+If no specific slot is provided, the translation can be customized via the default slot, which provides the entire translated string:
 
 ```vue
-<i18n-t keypath="welcomeMessage" locale="fr"></i18n-t>
+<i18n-t keypath="welcome.message">
+  <template #default="{ translation }">
+    {{ translation.replace('Nuxt', 'Vue') }}
+  </template>
+</i18n-t>
 ```
 
 ### Conditional Rendering

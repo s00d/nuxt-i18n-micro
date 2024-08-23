@@ -9,20 +9,9 @@
     "init": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxtjs/i18n": "^8.4.0",
-    "@nuxtjs/robots": "^4.0.2",
-    "@unhead/ssr": "^1.9.16",
-    "ioredis": "^5.4.1",
-    "mitt": "^3.0.1",
-    "nuxt": "^3.12.4",
-    "unhead": "^1.9.16",
-    "vue": "^3.4.38",
-    "vue-bundle-renderer": "^2.1.0",
-    "vue-router": "^4.4.3"
-  },
-  "packageManager": "yarn@3.7.0+sha256.7bf0c78a106332886ea4e59641fd819b1af953edcd72c4d93a32b1c71000ee67",
-  "devDependencies": {
-    "autocannon": "^7.15.0",
-    "k6": "^0.0.0"
+    "@nuxtjs/i18n": "^8.5.0",
+    "@unhead/ssr": "^1.10.0",
+    "nuxt": "^3.13.0",
+    "unhead": "^1.10.0"
   }
 }

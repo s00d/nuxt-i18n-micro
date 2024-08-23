@@ -29,11 +29,28 @@
               />
             </template>
             <template #right>
+              <div
+                v-if="selectedFileContent"
+                class="actions"
+              >
+                <NButton @click="exportTranslations">
+                  Export Translations
+                </NButton>
+                <NButton @click="importTranslationsClick">
+                  Import Translations
+                </NButton>
+                <input
+                  v-show="false"
+                  ref="file"
+                  type="file"
+                  @change="importTranslations"
+                >
+              </div>
               <JsonEditorVue
                 v-if="selectedFileContent"
                 v-model="selectedFileContent"
                 v-bind="$attrs"
-                style="overflow: auto;height: 100%"
+                style="overflow: auto;height: 90%"
                 :main-menu-bar="false"
                 :navigation-bar="false"
                 :status-bar="false"
@@ -81,6 +98,7 @@ export interface LocaleData {
 
 const RPC_NAMESPACE = 'nuxt-i18n-micro'
 
+const file = ref<HTMLButtonElement | null>(null)
 const isLoading = ref(true)
 const selectedLocale = ref<string>('')
 const selectedFile = ref<string>('')
@@ -130,4 +148,36 @@ onDevtoolsClientConnected(async (client) => {
     }
   }, { deep: true })
 })
+
+const exportTranslations = async () => {
+  const blob = new Blob([JSON.stringify(selectedFileContent.value, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'translations.json'
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+const importTranslationsClick = () => {
+  file.value?.click()
+}
+
+const importTranslations = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files.length > 0) {
+    const file = input.files[0]
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const content = JSON.parse(e.target?.result as string)
+        selectedFileContent.value = content
+      }
+      catch (err) {
+        console.error('Invalid JSON file')
+      }
+    }
+    reader.readAsText(file)
+  }
+}
 </script>

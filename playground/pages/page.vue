@@ -9,6 +9,15 @@
         <strong>{{ translation.replace('page', 'page replace') }}</strong> <i>!!!</i>
       </template>
     </i18n-t>
+
+    <i18n-t keypath="feedback.text">
+      <template #link>
+        <nuxt-link :to="{ name: 'index' }">
+          <i18n-t keypath="feedback.link" />
+        </nuxt-link>
+      </template>
+    </i18n-t>
+
     <p>Current Locale: {{ $getLocale() }}</p>
 
     <div>

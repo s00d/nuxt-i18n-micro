@@ -1,61 +1,110 @@
-<template>
-  <component
-    :is="tag"
-    v-if="!hideIfEmpty || translation"
-  >
-    <slot
-      v-if="!html"
-      :translation="translation"
-    >
-      {{ translation }}
-    </slot>
-    <span
-      v-else
-      v-html="translation"
-    />
-  </component>
-</template>
-
-<script lang="ts" setup>
-import { computed } from 'vue'
+<script lang="ts">
+import { h, defineComponent } from 'vue'
+import type { VNode } from 'vue'
 import { useNuxtApp } from '#app'
 
-interface Props {
-  keypath: string
-  plural?: number | null
-  tag?: string
-  scope?: string
-  params?: Record<string, string | number | boolean>
-  defaultValue?: string
-  html?: boolean
-  locale?: string
-  wrap?: boolean
-  customPluralRule?: (value: string, count: number, locale: string) => string
-  hideIfEmpty?: boolean
-}
+export default defineComponent({
+  name: 'I18nT',
+  props: {
+    keypath: {
+      type: String,
+      required: true,
+    },
+    plural: {
+      type: [Number, String],
+    },
+    tag: {
+      type: String,
+      default: 'span',
+    },
+    params: {
+      type: Object,
+      default: () => ({}),
+    },
+    defaultValue: {
+      type: String,
+      default: '',
+    },
+    html: {
+      type: Boolean,
+      default: false,
+    },
+    hideIfEmpty: {
+      type: Boolean,
+      default: false,
+    },
+    customPluralRule: {
+      type: Function,
+      default: null,
+    },
+  },
+  setup(props, { slots, attrs }) {
+    return () => {
+      const options: Record<string, unknown> = {}
 
-const props = withDefaults(defineProps<Props>(), {
-  plural: null,
-  tag: 'span',
-  scope: 'global',
-  params: () => ({}),
-  defaultValue: '',
-  html: false,
-  locale: undefined,
-  wrap: true,
-  hideIfEmpty: false,
-})
+      if (props.plural !== undefined) {
+        if (props.customPluralRule) {
+          return props.customPluralRule(
+            useNuxtApp().$t(props.keypath, { ...props.params, ...options }),
+            props.plural,
+            useNuxtApp().$getLocale(),
+          )
+        }
+        else {
+          return useNuxtApp().$tc(props.keypath, Number.parseInt(props.plural.toString()))
+        }
+      }
 
-const nuxtApp = useNuxtApp()
+      const translation = (useNuxtApp().$t(props.keypath, { ...props.params, ...options }) ?? '').toString()
 
-const translation = computed<string>(() => {
-  const localeToUse = props.locale || nuxtApp.$getLocale()
-  const translation = props.plural !== null
-    ? props.customPluralRule
-      ? props.customPluralRule(nuxtApp.$t(props.keypath, props.params), props.plural, localeToUse)
-      : nuxtApp.$tc(props.keypath, props.plural)
-    : nuxtApp.$t(props.keypath, props.params) as string
+      if (props.hideIfEmpty && !translation.trim()) {
+        return props.defaultValue ?? null
+      }
 
-  return translation || props.defaultValue || props.keypath
+      if (props.html) {
+        return h(props.tag, { ...attrs, innerHTML: translation })
+      }
+
+      if (slots.default) {
+        return h(
+          props.tag,
+          attrs,
+          slots.default({ translation }),
+        )
+      }
+
+      const children: (string | VNode)[] = []
+      let lastIndex = 0
+
+      for (const [slotName, slotFn] of Object.entries(slots)) {
+        const placeholder = `{${slotName}}`
+        const index = translation.indexOf(placeholder, lastIndex)
+
+        if (index !== -1) {
+          if (index > lastIndex) {
+            children.push(translation.slice(lastIndex, index))
+          }
+
+          children.push(h(slotFn!))
+
+          lastIndex = index + placeholder.length
+        }
+      }
+
+      if (lastIndex < translation.length) {
+        children.push(translation.slice(lastIndex))
+      }
+
+      if (slots.default) {
+        return h(
+          props.tag,
+          attrs,
+          slots.default({ children }),
+        )
+      }
+
+      return h(props.tag, attrs, children)
+    }
+  },
 })
 </script>

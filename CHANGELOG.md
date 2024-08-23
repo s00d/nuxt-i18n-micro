@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v1.7.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.6.1...v1.7.0)
+
+### 🚀 Enhancements
+
+- **devtools:** Add import/export ([5219fea](https://github.com/s00d/nuxt-i18n-micro/commit/5219fea))
+- **i1tn-t:** Add Dynamic Content ([fa025ca](https://github.com/s00d/nuxt-i18n-micro/commit/fa025ca))
+
+### 💅 Refactors
+
+- **playground:** Add more examples ([934c48e](https://github.com/s00d/nuxt-i18n-micro/commit/934c48e))
+- Clear ([1f6b193](https://github.com/s00d/nuxt-i18n-micro/commit/1f6b193))
+
+### 📖 Documentation
+
+- **i1tn-t:** Add Dynamic Content ([a0661be](https://github.com/s00d/nuxt-i18n-micro/commit/a0661be))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.6.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.6.0...v1.6.1)

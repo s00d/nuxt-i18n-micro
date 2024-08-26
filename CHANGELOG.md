@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.8.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.7.0...v1.8.0)
+
+### 🚀 Enhancements
+
+- **cache:** Complite integration && test && docs && refactor ([0d27649](https://github.com/s00d/nuxt-i18n-micro/commit/0d27649))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.7.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.6.1...v1.7.0)

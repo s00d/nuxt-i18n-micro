@@ -66,6 +66,7 @@ Next, install the project dependencies using npm.
 
 ```bash
 npm install
+npm run prepack && cd playground && npm run prepare && cd ..
 ```
 
 ### 3. 🖥️ Run the Development Server

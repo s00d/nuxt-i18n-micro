@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     :to="$localeRoute(to)"
-    :class="{ active: isActive }"
+    :style="activeStyle"
   >
     <slot>Go to Page</slot>
   </NuxtLink>
@@ -15,7 +15,7 @@ const { $localeRoute } = useNuxtApp()
 
 interface Props {
   to: NuxtLinkProps
-  activeClass?: string
+  activeStyle?: Partial<CSSStyleDeclaration>
 }
 
 const props = defineProps<Props>()
@@ -30,11 +30,14 @@ const isActive = computed(() => {
 
   return route.path === newPath.path
 })
-</script>
 
-<style scoped>
-.active {
-  font-weight: bold;
-  color: #42b983;
-}
-</style>
+// Define the active styles
+const activeStyle = computed(() => {
+  return isActive.value
+    ? {
+        fontWeight: 'bold',
+        ...props.activeStyle, // Merge with any custom active styles passed as props
+      }
+    : {}
+})
+</script>

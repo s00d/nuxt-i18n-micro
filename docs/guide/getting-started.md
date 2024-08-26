@@ -69,11 +69,11 @@ Translation files are organized into global and page-specific directories:
 - **Global Files**: Contain translations shared across the entire app.
 - **Page-Specific Files**: Contain translations unique to specific pages.
 
-# ⚙️ Module Configuration Options
+## ⚙️ Module Configuration Options
 
 The `Nuxt I18n Micro` module provides a range of customizable options to fine-tune your internationalization setup:
 
-## 🌍 `locales`: `Locale[]`
+### 🌍 `locales`: `Locale[]`
 
 Defines the locales available in your application. Each locale object includes:
 
@@ -92,7 +92,7 @@ locales: [
 ]
 ```
 
-## 🌐 `defaultLocale`: `string`
+### 🌐 `defaultLocale`: `string`
 
 Sets the default locale if no specific locale is selected by the user.
 
@@ -102,7 +102,7 @@ Example:
 defaultLocale: 'en'
 ```
 
-## 🗂 `translationDir`: `string`
+### 🗂 `translationDir`: `string`
 
 Specifies the directory where translation files are stored.
 
@@ -113,7 +113,7 @@ Specifies the directory where translation files are stored.
 translationDir: 'i18n' // Custom directory for translation files
 ```
 
-## 🔍 `meta`: `boolean`
+### 🔍 `meta`: `boolean`
 
 Automatically generates SEO-related meta tags, such as `alternate` links for different locales.
 
@@ -124,7 +124,18 @@ Automatically generates SEO-related meta tags, such as `alternate` links for dif
 meta: true // Enable automatic SEO meta tags generation
 ```
 
-## 🌍 `autoDetectLanguage`: `boolean`
+### 🔗 `metaBaseUrl`: `string`
+
+Sets the base URL for generating SEO-related meta tags like canonical and alternate URLs.
+
+- **Default**: `'/'`
+- **Example**:
+
+```typescript
+metaBaseUrl: 'https://example.com' // Custom base URL for meta tags
+```
+
+### 🌍 `autoDetectLanguage`: `boolean`
 
 Automatically detects the user's preferred language based on browser settings and redirects to the appropriate locale.
 
@@ -135,7 +146,7 @@ Automatically detects the user's preferred language based on browser settings an
 autoDetectLanguage: true // Enable automatic language detection and redirection
 ```
 
-## 🔢 `plural`: `function`
+### 🔢 `plural`: `function`
 
 Custom function for handling pluralization in translations based on count and locale.
 
@@ -147,7 +158,7 @@ plural: (count, options) => {
 }
 ```
 
-## 🚦 `includeDefaultLocaleRoute`: `boolean`
+### 🚦 `includeDefaultLocaleRoute`: `boolean`
 
 Automatically redirects routes without a locale prefix to the default locale.
 
@@ -158,7 +169,7 @@ Automatically redirects routes without a locale prefix to the default locale.
 includeDefaultLocaleRoute: true // Ensure consistency across routes by redirecting to the default locale
 ```
 
-## 🔗 `routesLocaleLinks`: `Record<string, string>`
+### 🔗 `routesLocaleLinks`: `Record<string, string>`
 
 Creates links between different pages' locale files to share translations, reducing duplication. This is particularly useful when similar pages (like a main page and a page with a slug) should use the same translation file, avoiding redundancy.
 
@@ -171,15 +182,43 @@ routesLocaleLinks: {
 }
 ```
 
-In this example, the translations for a dynamic route like `products/[id]` will be linked to the `products` translation file, so both routes will share the same translations.
+### 🔄 Caching Mechanism
 
-## 🗃 `cache`: `boolean` <Badge type="danger" text="In development" />
+One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again. This caching mechanism drastically reduces the time needed to fetch translations and significantly lowers the server's resource consumption.
 
-Optimizes performance by caching translations specific to the current page. When enabled, the module caches translations, reducing client-side load and improving navigation performance.
+However, it's important to note that **caching is only effective after the page has been accessed at least once**. Once the translations for a specific page and locale are cached, all subsequent requests will benefit from faster load times and reduced server load.
 
-- **Default**: `false`
+---
+
+### 🧠 How It Works:
+
+- **First Request**: On the first visit to a page, translations are fetched from the corresponding translation files and stored in the cache.
+- **Subsequent Requests**: On all subsequent visits to the same page (within the same session or until the cache is invalidated), translations are retrieved from the cache, resulting in faster response times and lower CPU and memory usage.
+
+This caching strategy is particularly beneficial for high-traffic applications, where the same pages are frequently accessed by users. By minimizing the need to repeatedly load and process translation files, `Nuxt I18n Micro` ensures that your application remains responsive and efficient, even under heavy load.
+
+### 🧩 `define`: `boolean`
+
+Enables or disables the addition of a special `define` plugin that allows you to use Nuxt's runtime configuration for overriding settings in your translation files.
+
+- **Default**: `true`
 - **Example**:
 
 ```typescript
-cache: true // Enable caching for better performance
+define: false // Disable the define plugin
 ```
+
+## 🔄 Caching Mechanism
+
+One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again. This caching mechanism drastically reduces the time needed to fetch translations and significantly lowers the server's resource consumption.
+
+However, it's important to note that **caching is only effective after the page has been accessed at least once**. Once the translations for a specific page and locale are cached, all subsequent requests will benefit from faster load times and reduced server load.
+
+---
+
+### 🧠 How It Works:
+
+- **First Request**: On the first visit to a page, translations are fetched from the corresponding translation files and stored in the cache.
+- **Subsequent Requests**: On all subsequent visits to the same page (within the same session or until the cache is invalidated), translations are retrieved from the cache, resulting in faster response times and lower CPU and memory usage.
+
+This caching strategy is particularly beneficial for high-traffic applications, where the same pages are frequently accessed by users. By minimizing the need to repeatedly load and process translation files, `Nuxt I18n Micro` ensures that your application remains responsive and efficient, even under heavy load.

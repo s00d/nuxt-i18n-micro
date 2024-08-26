@@ -5,10 +5,8 @@ import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
 const i18nHelper = useTranslationHelper()
-
 const isDev = process.env.NODE_ENV !== 'production'
 
-// Интерфейс для переводов, поддерживающий разные типы данных
 export interface Translations {
   [key: string]: string | number | boolean | Translations | PluralTranslations | unknown[] | null
 }
@@ -18,55 +16,48 @@ interface PluralTranslations {
   plural: string
 }
 
-/**
- * Интерполяция строки с параметрами.
- */
 function interpolate(template: string, params: Record<string, string | number | boolean>): string {
-  return template.replace(/\{(\w+)\}/g, (_, match) => {
-    return params[match] !== undefined ? String(params[match]) : `{${match}}`
-  })
+  return template.replace(/\{(\w+)\}/g, (_, match) => params[match] !== undefined ? String(params[match]) : `{${match}}`)
 }
 
-/**
- * Переключение текущей локали и перенаправление на новый локализованный маршрут.
- */
-// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, router: Router, i18nConfig: ModuleOptionsExtend): Promise<NavigationFailure | null | undefined | void> {
-  const checkLocale = i18nConfig.locales?.find(l => l.code === locale)
+// Вспомогательная функция для получения текущей локали
+function getCurrentLocale(route: RouteLocationNormalizedLoaded, i18nConfig: ModuleOptionsExtend): string {
+  return (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+}
 
+// Вспомогательная функция для получения имени маршрута
+function getRouteName(route: RouteLocationNormalizedLoaded): string {
+  return (route?.name ?? '').toString().replace('localized-', '')
+}
+
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | null | undefined> {
+  const checkLocale = i18nConfig.locales?.find(l => l.code === locale)
   if (!checkLocale) {
     console.warn(`Locale ${locale} is not available`)
     return Promise.reject(`Locale ${locale} is not available`)
   }
 
-  const { defaultLocale } = i18nConfig
-  const routeName = (route.name as string).replace(`localized-`, '')
-
-  const newRouteName = locale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
+  const routeName = getRouteName(route)
+  const newRouteName = locale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
   const newParams = { ...route.params }
   delete newParams.locale
 
-  if (locale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
+  if (locale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
     newParams.locale = locale
   }
   return router.push({ name: newRouteName, params: newParams })
 }
 
-/**
- * Получение локализованного маршрута.
- */
 function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLocationNormalizedLoaded, i18nConfig: ModuleOptionsExtend, locale?: string): RouteLocationRaw {
-  const { defaultLocale } = i18nConfig
-  const currentLocale = (locale || route.params.locale || defaultLocale)!.toString()
-
+  const currentLocale = (locale || getCurrentLocale(route, i18nConfig))
   const selectRoute = router.resolve(to)
-
-  const routeName = (selectRoute.name as string).replace(`localized-`, '')
-  const newRouteName = currentLocale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
+  const routeName = (selectRoute.name as string).replace('localized-', '')
+  const newRouteName = currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
   const newParams = { ...route.params }
   delete newParams.locale
 
-  if (currentLocale !== defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
+  if (currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
     newParams.locale = currentLocale
   }
 
@@ -74,10 +65,8 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
 }
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const router = useRouter()
-
   const registerI18nModule = (translations: Translations, locale: string) => {
-    i18nHelper.margeGlobalTranslation(locale, translations)
+    i18nHelper.mergeGlobalTranslation(locale, translations)
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -88,150 +77,115 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     nuxtApp.payload.data.translations = {}
   }
 
-  if (import.meta.server) {
-    nuxtApp.hook('app:rendered', async () => {
-      if (import.meta.server) {
-        const route = useRoute()
-        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-
-        const routeName = (route?.name ?? '').toString().replace(`localized-`, '')
-
-        const cacheKey = `${locale}:${routeName}`
-        nuxtApp.payload.data.translations[cacheKey] = i18nHelper.getCache(locale, routeName) ?? new Map<string, Translations | unknown>()
-      }
-    })
-  }
-  else {
-    router.beforeEach(async (to, from, next) => {
-      const locale = (to.params?.locale ?? i18nConfig.defaultLocale).toString()
-      const routeName = (to.name as string).replace(`localized-`, '')
-      const cacheKey = `${locale}:${routeName}`
-
-      if (nuxtApp.payload.data.translations) {
-        i18nHelper.setCache(locale, routeName, nuxtApp.payload.data.translations[cacheKey] || new Map<string, Translations | unknown>())
-      }
-
-      next()
-    })
-  }
-
   const route = useRoute()
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
 
   const plural = new Function('return ' + i18nConfig.plural)()
 
-  router.beforeEach(async (to, from, next) => {
-    if (import.meta.client) {
-      const locale = (to.params?.locale ?? i18nConfig.defaultLocale).toString()
-      const initialRouteName = (to.name as string).replace(`localized-`, '')
-      let routeName = initialRouteName
-      if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[routeName]) {
-        routeName = i18nConfig.routesLocaleLinks[routeName]
+  // if (import.meta.server) {
+  //   nuxtApp.hook('app:rendered', async () => {
+  //     const locale = getCurrentLocale(route, i18nConfig)
+  //     const routeName = getRouteName(route)
+  //     const cacheKey = `${locale}:${routeName}`
+  //     nuxtApp.payload.data.translations[cacheKey] = i18nHelper.getCache(locale, routeName) ?? new Map<string, Translations | unknown>()
+  //   })
+  // }
+  // else {
+  //   router.beforeEach(async (to, from, next) => {
+  //     const locale = getCurrentLocale(to, i18nConfig)
+  //     const routeName = getRouteName(to)
+  //     const cacheKey = `${locale}:${routeName}`
+  //
+  //     if (nuxtApp.payload.data.translations) {
+  //       i18nHelper.setCache(locale, routeName, nuxtApp.payload.data.translations[cacheKey] || new Map<string, Translations | unknown>())
+  //     }
+  //
+  //     next()
+  //   })
+  // }
+
+  const initialLocale = getCurrentLocale(route, i18nConfig)
+  if (!i18nHelper.hasGeneralTranslation(initialLocale)) {
+    const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
+    await i18nHelper.loadTranslations(initialLocale, data ?? {})
+  }
+
+  const loadTranslationsIfNeeded = async (locale: string, routeName: string) => {
+    if (!i18nHelper.hasPageTranslation(locale, routeName)) {
+      let fRouteName = routeName
+      if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[fRouteName]) {
+        fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
       }
 
-      if (!i18nHelper.hasPageTranslation(locale, initialRouteName)) {
-        const data: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
-        await i18nHelper!.loadPageTranslations(locale, initialRouteName, data ?? {})
-      }
+      const data: Translations = await $fetch(`/_locales/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
+      await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
+    }
+  }
+
+  if (import.meta.server) {
+    const locale = getCurrentLocale(route, i18nConfig)
+    const initialRouteName = getRouteName(route)
+    await loadTranslationsIfNeeded(locale, initialRouteName)
+  }
+  useRouter().beforeEach(async (to, from, next) => {
+    if (import.meta.client) {
+      const locale = getCurrentLocale(to, i18nConfig)
+      const routeName = getRouteName(to)
+      // if (!i18nHelper.hasCache(locale, routeName)) {
+      await loadTranslationsIfNeeded(locale, routeName)
+      // }
     }
     next()
   })
 
-  const initialLocale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-  const initialRouteName = (route.name as string).replace(`localized-`, '')
+  // Оптимизация методов, предоставляемых через `provide`
+  const getTranslation = (
+    key: string,
+    params?: Record<string, string | number | boolean>,
+    defaultValue?: string,
+  ) => {
+    if (!key) return ''
 
-  if (!i18nHelper!.hasGeneralTranslation(initialLocale)) {
-    const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
-    await i18nHelper!.loadTranslations(initialLocale, data ?? {})
-  }
-  if (import.meta.server) {
-    const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-    let routeName = initialRouteName
-    if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[routeName]) {
-      routeName = i18nConfig.routesLocaleLinks[routeName]
+    const locale = getCurrentLocale(useRoute(), i18nConfig)
+    const routeName = getRouteName(useRoute())
+    let value = i18nHelper.getTranslation(locale, routeName, key)
+
+    if (!value) {
+      if (isDev && import.meta.client) {
+        console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
+      }
+      value = defaultValue || key
     }
-    if (!i18nHelper!.hasPageTranslation(initialLocale, routeName)) {
-      const pageData: Translations = await $fetch(`/_locales/${routeName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
-      await i18nHelper!.loadPageTranslations(initialLocale, initialRouteName, pageData ?? {})
-    }
+
+    return typeof value === 'string' && params ? interpolate(value, params) : value
   }
 
   return {
     provide: {
-      getLocale: () => {
-        const route = useRoute()
-        return (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-      },
+      getLocale: () => getCurrentLocale(useRoute(), i18nConfig),
       getLocales: () => i18nConfig.locales || [],
-      t: <T extends Record<string, string | number | boolean>>(
-        key: string,
-        params?: T,
-        defaultValue?: string,
-      ): string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null => {
-        if (!key) {
-          console.log(`$t: key not exist`)
-          return ''
-        }
-
-        const route = useRoute()
-        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-        const routeName = (route.name as string).replace(`localized-`, '')
-
-        let value = i18nHelper!.getTranslation(locale, routeName, key, !!i18nConfig.cache)
-
-        if (!value) {
-          if (isDev && import.meta.client) {
-            console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
-          }
-          value = defaultValue || key
-        }
-
-        if (typeof value === 'string' && params) {
-          value = interpolate(value, params)
-        }
-
-        return value
-      },
+      t: getTranslation,
       tc: (key: string, count: number, defaultValue?: string): string => {
-        if (!key) {
-          console.log(`$tc: key not exist`)
-          return ''
-        }
-        const route = useRoute()
-        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-        const routeName = (route.name as string).replace(`localized-`, '')
-
-        let translation = i18nHelper!.getTranslation(locale, routeName, key, !!i18nConfig.cache)
-
-        if (!translation) {
-          if (isDev && import.meta.client) {
-            console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
-          }
-          translation = defaultValue || key
-        }
-
-        return plural(translation!.toString(), count, locale) as string
+        const translation = getTranslation(key, {}, defaultValue)
+        return plural(translation?.toString(), count, getCurrentLocale(useRoute(), i18nConfig)) as string
       },
       has: (key: string): boolean => {
-        const route = useRoute()
-        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-        const routeName = (route.name as string).replace(`localized-`, '')
-        const translation = i18nHelper!.getTranslation(locale, routeName, key, !!i18nConfig.cache)
-
-        return !!translation
+        return !!getTranslation(key)
       },
       mergeTranslations: (newTranslations: Translations) => {
         const route = useRoute()
-        const routeName = (route.name as string).replace(`localized-`, '')
-        const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-        i18nHelper.margeTranslation(locale, routeName, newTranslations)
+        const routeName = getRouteName(route)
+        const locale = getCurrentLocale(route, i18nConfig)
+        i18nHelper.mergeTranslation(locale, routeName, newTranslations)
       },
       switchLocale: (locale: string) => {
+        const router = useRouter()
         const route = useRoute()
         switchLocale(locale, route, router, i18nConfig)
       },
       localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
+        const router = useRouter()
         const route = useRoute()
         return getLocalizedRoute(to, router, route, i18nConfig, locale)
       },

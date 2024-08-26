@@ -11,7 +11,7 @@ export default defineNuxtConfig({
       { code: 'de', iso: 'de_DE' },
       { code: 'ru', iso: 'ru_RU' },
     ],
-    mata: true,
+    meta: true,
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,

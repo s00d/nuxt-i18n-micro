@@ -31,6 +31,14 @@
 </template>
 
 <script setup>
+const head = useLocaleHead({
+  addDirAttribute: true,
+  identifierAttribute: 'id',
+  addSeoAttributes: true,
+})
+
+useHead(head)
+
 const { locale, availableLocales, setLocale } = useI18n()
 const router = useRouter()
 const localeRoute = useLocalePath()

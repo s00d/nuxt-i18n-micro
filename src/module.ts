@@ -10,7 +10,7 @@ import {
   defineNuxtModule,
   extendPages,
 } from '@nuxt/kit'
-import type { HookResult } from '@nuxt/schema'
+import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
 import { setupDevToolsUI } from './devtools'
 
@@ -18,19 +18,20 @@ export interface Locale {
   code: string
   disabled?: boolean
   iso?: string
-  dir?: 'rtl' | 'ltr'
+  dir?: 'ltr' | 'rtl' | 'auto'
 }
 
 // Module options TypeScript interface definition
 export interface ModuleOptions {
   locales?: Locale[]
-  mata?: boolean
+  meta?: boolean
+  metaBaseUrl?: string
+  define?: boolean
   defaultLocale?: string
   translationDir?: string
   autoDetectLanguage?: boolean
   includeDefaultLocaleRoute?: boolean
   routesLocaleLinks?: Record<string, string>
-  cache?: boolean
   plural?: string
 }
 
@@ -64,13 +65,13 @@ export default defineNuxtModule<ModuleOptions>({
   // Default configuration options of the Nuxt module
   defaults: {
     locales: [],
-    mata: true,
+    meta: true,
+    define: true,
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,
     includeDefaultLocaleRoute: false,
     routesLocaleLinks: {},
-    cache: false,
     plural: `function (translation, count, _locale) {
       const forms = translation.toString().split('|')
       if (count === 0 && forms.length > 2) {
@@ -82,7 +83,7 @@ export default defineNuxtModule<ModuleOptions>({
       return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
     }`,
   },
-  setup: async function (options, nuxt) {
+  async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
@@ -106,13 +107,14 @@ export default defineNuxtModule<ModuleOptions>({
       rootDirs: rootDirs,
       plural: options.plural!,
       locales: locales ?? [],
-      mata: options.mata ?? true,
+      meta: options.meta ?? true,
+      metaBaseUrl: options.metaBaseUrl ?? undefined,
+      define: options.define ?? true,
       defaultLocale: options.defaultLocale ?? 'en',
       translationDir: options.translationDir ?? 'locales',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
       includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
       routesLocaleLinks: options.routesLocaleLinks ?? {},
-      cache: options.cache ?? false,
       dateBuild: Date.now(),
       baseURL: nuxt.options.app.baseURL,
     }
@@ -122,17 +124,19 @@ export default defineNuxtModule<ModuleOptions>({
       order: 1,
     })
 
-    if (options.mata) {
+    if (options.meta) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/02.meta'),
         order: 2,
       })
     }
 
-    addPlugin({
-      src: resolver.resolve('./runtime/plugins/03.define'),
-      order: 3,
-    })
+    if (options.define) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/03.define'),
+        order: 3,
+      })
+    }
 
     if (options.autoDetectLanguage) {
       addPlugin({
@@ -200,14 +204,27 @@ export default defineNuxtModule<ModuleOptions>({
         })
       })
 
-      const newRoutes = pages.map(page => ({
-        ...page,
-        path: `/:locale(${localeRegex})${page.path}`,
-        name: `localized-${page.name}`,
-        meta: {
-          ...page.meta,
-        },
-      }))
+      const newRoutes: NuxtPage[] = []
+      for (let i = 0; i < pages.length; i++) {
+        const page = pages[i]
+
+        if (page.redirect && !page.file) {
+          continue
+        }
+
+        const newRoute = {
+          file: page.file,
+          meta: { ...page.meta },
+          alias: page.alias,
+          redirect: page.redirect,
+          children: page.children,
+          mode: page.mode,
+          path: `/:locale(${localeRegex})${page.path}`,
+          name: `localized-${page.name}`,
+        }
+
+        newRoutes.push(newRoute)
+      }
 
       pages.push(...newRoutes)
 

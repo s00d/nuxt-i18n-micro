@@ -1,24 +1,24 @@
 <template>
-  <div :class="wrapperClass">
+  <div :style="[wrapperStyle, customWrapperStyle]">
     <button
-      :class="buttonClass"
+      :style="[buttonStyle, customButtonStyle]"
       @click="toggleDropdown"
     >
       {{ currentLocaleLabel }}
-      <span :class="[iconClass, dropdownOpen ? 'open' : '']">&#9662;</span>
+      <span :style="[iconStyle, dropdownOpen ? openIconStyle : {}, customIconStyle]">&#9662;</span>
     </button>
     <ul
       v-if="dropdownOpen"
-      :class="dropdownClass"
+      :style="[dropdownStyle, customDropdownStyle]"
     >
       <li
         v-for="locale in locales"
         :key="locale.code"
-        :class="[itemClass, locale.code === currentLocale ? activeClass : '']"
+        :style="[itemStyle, customItemStyle]"
       >
         <NuxtLink
           :to="getLocaleLink(locale)"
-          :class="[linkClass, locale.code === currentLocale ? disabledClass : '']"
+          :style="[linkStyle, locale.code === currentLocale ? activeLinkStyle : {}, locale.code === currentLocale ? disabledLinkStyle : {}, customLinkStyle]"
           :hreflang="locale.iso || locale.code"
         >
           {{ localeLabel(locale) }}
@@ -30,6 +30,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
+import type { CSSProperties } from 'vue'
 import { useNuxtApp } from '#app'
 import { useRoute } from '#imports'
 
@@ -40,27 +41,27 @@ interface Locale {
 }
 
 interface Props {
-  wrapperClass?: string
-  buttonClass?: string
-  dropdownClass?: string
-  itemClass?: string
-  linkClass?: string
-  activeClass?: string
-  disabledClass?: string
-  iconClass?: string
   customLabels?: Record<string, string>
+  customWrapperStyle?: CSSProperties
+  customButtonStyle?: CSSProperties
+  customDropdownStyle?: CSSProperties
+  customItemStyle?: CSSProperties
+  customLinkStyle?: CSSProperties
+  customActiveLinkStyle?: CSSProperties
+  customDisabledLinkStyle?: CSSProperties
+  customIconStyle?: CSSProperties
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  wrapperClass: 'locale-switcher',
-  buttonClass: 'locale-button',
-  dropdownClass: 'locale-dropdown',
-  itemClass: 'locale-item',
-  linkClass: 'locale-link',
-  activeClass: 'active',
-  disabledClass: 'disabled',
-  iconClass: 'dropdown-icon',
   customLabels: () => ({}),
+  customWrapperStyle: () => ({}),
+  customButtonStyle: () => ({}),
+  customDropdownStyle: () => ({}),
+  customItemStyle: () => ({}),
+  customLinkStyle: () => ({}),
+  customActiveLinkStyle: () => ({}),
+  customDisabledLinkStyle: () => ({}),
+  customIconStyle: () => ({}),
 })
 
 const { $localeRoute, $getLocales, $getLocale } = useNuxtApp()
@@ -80,80 +81,70 @@ const currentLocaleLabel = computed(() => localeLabel({ code: currentLocale.valu
 
 const getLocaleLink = (locale: Locale) => {
   const route = useRoute()
-
   const routeName = (route?.name ?? '').toString().replace(`localized-`, '')
 
   return $localeRoute({ name: routeName }, locale.code)
 }
+
+// Default Styles
+const wrapperStyle: CSSProperties = {
+  position: 'relative',
+  display: 'inline-block',
+}
+
+const buttonStyle: CSSProperties = {
+  padding: '4px 12px',
+  fontSize: '16px',
+  cursor: 'pointer',
+  backgroundColor: '#fff',
+  border: '1px solid #333',
+  transition: 'background-color 0.3s ease',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+}
+
+const dropdownStyle: CSSProperties = {
+  position: 'absolute',
+  top: '100%',
+  left: '0',
+  zIndex: '10',
+  backgroundColor: '#fff',
+  border: '1px solid #333',
+  listStyle: 'none',
+  padding: '0',
+  margin: '4px 0 0 0',
+}
+
+const itemStyle: CSSProperties = {
+  margin: '0',
+  padding: '0',
+}
+
+const linkStyle: CSSProperties = {
+  display: 'block',
+  padding: '8px 12px',
+  color: '#333',
+  textDecoration: 'none',
+  transition: 'background-color 0.3s ease',
+}
+
+const activeLinkStyle: CSSProperties = {
+  fontWeight: 'bold',
+  color: '#007bff',
+}
+
+const disabledLinkStyle: CSSProperties = {
+  cursor: 'not-allowed',
+  color: '#aaa',
+}
+
+const iconStyle: CSSProperties = {
+  marginLeft: '8px',
+  transition: 'transform 0.3s ease',
+}
+
+const openIconStyle: CSSProperties = {
+  transform: 'rotate(180deg)',
+}
 </script>
-
-<style scoped>
-.locale-switcher {
-  position: relative;
-  display: inline-block;
-}
-
-.locale-button {
-  padding: 4px 12px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #fff;
-  border: 1px solid #333;
-  transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.locale-button:hover {
-  background-color: #f0f0f0;
-}
-
-.locale-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 10;
-  background-color: #fff;
-  border: 1px solid #333;
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0 0;
-}
-
-.locale-item {
-  margin: 0;
-  padding: 0;
-}
-
-.locale-link {
-  display: block;
-  padding: 8px 12px;
-  color: #333;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
-}
-
-.locale-link:hover {
-  background-color: #f0f0f0;
-}
-
-.locale-link.disabled {
-  cursor: not-allowed;
-  color: #aaa;
-}
-
-.locale-link.active {
-  font-weight: bold;
-  color: #007bff;
-}
-
-.dropdown-icon {
-  margin-left: 8px;
-  transition: transform 0.3s ease;
-}
-
-.dropdown-icon.open {
-  transform: rotate(180deg);
-}
-</style>

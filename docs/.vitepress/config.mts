@@ -22,6 +22,7 @@ export default defineConfig({
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Performance', link: '/guide/performance' },
+          { text: 'Performance Test Results', link: '/guide/performance-results' },
           { text: 'Folder Structure', link: '/guide/folder-structure' },
           { text: 'Layers', link: '/guide/layers' },
           { text: 'SEO', link: '/guide/seo' },
@@ -41,9 +42,16 @@ export default defineConfig({
       {
         text: 'Components',
         items: [
-          { text: 'i18n-t Component', link: '/components/i18n-t' },
-          { text: 'i18n-switcher Component', link: '/components/i18n-switcher' },
-          { text: 'i18n-link Component', link: '/components/i18n-link' },
+          { text: 'i18n-t', link: '/components/i18n-t' },
+          { text: 'i18n-switcher', link: '/components/i18n-switcher' },
+          { text: 'i18n-link', link: '/components/i18n-link' },
+        ],
+      },
+      {
+        text: 'Composables',
+        items: [
+          { text: 'useI18n', link: '/composables/useI18n' },
+          { text: 'useLocaleHead', link: '/composables/useLocaleHead' },
         ],
       },
       {
@@ -101,6 +109,16 @@ export default defineConfig({
             { text: 'i18n-t Component', link: '/i18n-t' },
             { text: 'ii18n-switcher Component', link: '/i18n-switcher' },
             { text: 'i18n-link Component', link: '/i18n-link' },
+          ],
+        },
+      ],
+      '/composables/': [
+        {
+          text: 'Composables',
+          base: '/composables',
+          items: [
+            { text: 'useI18n', link: '/useI18n' },
+            { text: 'useLocaleHead', link: '/useLocaleHead' },
           ],
         },
       ],

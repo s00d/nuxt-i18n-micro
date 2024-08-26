@@ -1,11 +1,11 @@
 import type { Translations } from './plugins/01.plugin'
 
-const generalLocaleCache: { [key: string]: Translations } = {}
-const routeLocaleCache: { [key: string]: Translations } = {}
-const dynamicTranslationsCaches: { [key: string]: Translations }[] = []
+const generalLocaleCache: Record<string, Translations> = {}
+const routeLocaleCache: Record<string, Translations> = {}
+const dynamicTranslationsCaches: Record<string, Translations>[] = []
 
-const serverTranslationCache: { [index: string]: Map<string, Translations | unknown> } = { }
-const serverTranslationInit: { [index: string]: boolean } = { }
+const serverTranslationCache: Record<string, Map<string, Translations | unknown>> = {}
+const serverTranslationInit: Record<string, boolean> = {}
 
 function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -20,11 +20,9 @@ function deepClone<T>(value: T): T {
 function findTranslation<T = unknown>(translations: Translations | null, parts: string[]): T | null {
   let value: string | number | boolean | Translations | unknown | null = translations
 
-  for (let i = 0; i < parts.length; i++) {
-    if (value && typeof value === 'object' && parts[i] in value) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      value = value[parts[i]]
+  for (const part of parts) {
+    if (value && typeof value === 'object' && part in value) {
+      value = (value as Translations)[part]
     }
     else {
       return null
@@ -35,23 +33,24 @@ function findTranslation<T = unknown>(translations: Translations | null, parts: 
     return deepClone(value) as T
   }
 
-  return value as T ?? null
+  return (value as T) ?? null
 }
 
 export function useTranslationHelper() {
   return {
     hasCache(locale: string, page: string) {
-      return serverTranslationInit[`${locale}:${page}`] ?? false
+      return (serverTranslationCache[`${locale}:${page}`] ?? new Map<string, Translations | unknown>()).size > 0
     },
     getCache(locale: string, routeName: string) {
       return serverTranslationCache[`${locale}:${routeName}`]
     },
     setCache(locale: string, routeName: string, cache: Map<string, Translations | unknown>) {
+      const cacheKey = `${locale}:${routeName}`
       serverTranslationCache[`${locale}:${routeName}`] = cache
       serverTranslationInit[`${locale}:index`] = true
-      serverTranslationInit[`${locale}:${routeName}`] = true
+      serverTranslationInit[cacheKey] = true
     },
-    margeTranslation(locale: string, routeName: string, newTranslations: Translations) {
+    mergeTranslation(locale: string, routeName: string, newTranslations: Translations) {
       if (!routeLocaleCache[`${locale}:${routeName}`]) {
         console.error(`marge: route ${locale}:${routeName} not loaded`)
       }
@@ -60,7 +59,7 @@ export function useTranslationHelper() {
         ...newTranslations,
       }
     },
-    margeGlobalTranslation(locale: string, newTranslations: Translations) {
+    mergeGlobalTranslation(locale: string, newTranslations: Translations) {
       if (!generalLocaleCache[`${locale}`]) {
         console.error(`marge: route ${locale} not loaded`)
       }
@@ -75,45 +74,27 @@ export function useTranslationHelper() {
     hasPageTranslation(locale: string, routeName: string) {
       return !!routeLocaleCache[`${locale}:${routeName}`]
     },
-    getTranslation: <T = unknown>(locale: string, routeName: string, key: string, useCache: boolean): T | null => {
+    getTranslation: <T = unknown>(locale: string, routeName: string, key: string): T | null => {
       const cacheKey = `${locale}:${routeName}`
-      if (useCache && serverTranslationCache[cacheKey]) {
-        const cached = serverTranslationCache[cacheKey].get(key)
-        if (cached) {
-          return cached as T
-        }
+      const cached = serverTranslationCache[cacheKey]?.get(key)
+      if (cached) {
+        return cached as T
       }
 
       const parts = key.split('.')
+      let result: T | null = null
 
-      let result: null | T = null
-
-      if (dynamicTranslationsCaches.length) {
-        for (const dynamicCache of dynamicTranslationsCaches) {
-          const value = findTranslation<T>(dynamicCache[locale], parts)
-          if (value !== null) {
-            result = value
-          }
-        }
+      for (const dynamicCache of dynamicTranslationsCaches) {
+        result = findTranslation<T>(dynamicCache[locale] || null, parts)
+        if (result !== null) break
       }
 
       if (!result) {
-        // First, try to find the translation in the route-specific cache
-        const value = findTranslation<T>(routeLocaleCache[`${locale}:${routeName}`], parts)
-        if (value !== null) {
-          result = value
-        }
+        result = findTranslation<T>(routeLocaleCache[cacheKey] || null, parts)
+        ?? findTranslation<T>(generalLocaleCache[locale] || null, parts)
       }
 
-      if (!result) {
-        const value = findTranslation<T>(generalLocaleCache[locale], parts)
-
-        if (value !== null) {
-          return value
-        }
-      }
-
-      if (useCache && result) {
+      if (result) {
         if (!serverTranslationCache[cacheKey]) {
           serverTranslationCache[cacheKey] = new Map<string, Translations>()
         }
@@ -123,23 +104,14 @@ export function useTranslationHelper() {
 
       return result
     },
-    loadPageTranslations: async (locale: string, routeName: string, translations: Translations): Promise<void> => {
-      try {
-        routeLocaleCache[`${locale}:${routeName}`] = { ...translations }
-        serverTranslationInit[`${locale}:${routeName}`] = true
-      }
-      catch (error) {
-        console.error(`Error loading translations for ${locale} and ${routeName}:`, error)
-      }
+    async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
+      const cacheKey = `${locale}:${routeName}`
+      routeLocaleCache[cacheKey] = { ...translations }
+      serverTranslationInit[cacheKey] = true
     },
-    loadTranslations: async (locale: string, translations: Translations): Promise<void> => {
-      try {
-        generalLocaleCache[locale] = { ...translations }
-        serverTranslationInit[`${locale}:index`] = true
-      }
-      catch (error) {
-        console.error(`Error loading translations for general ${locale}:`, error)
-      }
+    async loadTranslations(locale: string, translations: Translations): Promise<void> {
+      generalLocaleCache[locale] = { ...translations }
+      serverTranslationInit[`${locale}:index`] = true
     },
   }
 }

@@ -105,7 +105,9 @@ That's it! You're now ready to use Nuxt I18n Micro in your Nuxt app.
 
 [Plugin Methods](https://s00d.github.io/nuxt-i18n-micro/api/methods)
 
-[Plugin Methods](https://s00d.github.io/nuxt-i18n-micro/api/methods)
+[Performanc](https://s00d.github.io/nuxt-i18n-micro/guide/performance)
+
+[Performance Test Results](https://s00d.github.io/nuxt-i18n-micro/guide/performance-results)
 
 [Components](https://s00d.github.io/nuxt-i18n-micro/components/i18n-t)
 

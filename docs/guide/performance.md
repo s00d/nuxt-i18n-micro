@@ -22,14 +22,14 @@ We conducted a series of tests to demonstrate the performance improvements that 
 - **Total Size**: 54.7 MB (3.31 MB gzip)
 - **Max CPU Usage**: 391.4%
 - **Max Memory Usage**: 8305 MB
-- **Elapsed Time**: 0h 1m 31s
+- **Elapsed Time**: 1m 31s
 :::
 
 ::: tip **Nuxt I18n Micro**
 - **Total Size**: 1.93 MB (473 kB gzip) — **96% smaller**
 - **Max CPU Usage**: 220.1% — **44% lower**
 - **Max Memory Usage**: 655 MB — **92% less memory**
-- **Elapsed Time**: 0h 0m 5s — **94% faster**
+- **Elapsed Time**: 0m 5s — **94% faster**
 :::
 
 ### 🌐 Server Performance Under Load
@@ -86,3 +86,5 @@ Here are a few tips to ensure you get the best performance out of `Nuxt I18n Mic
 - 🗂️ **Use Page-Specific Translations**: Organize your translation files by page to avoid loading unnecessary data.
 - 💾 **Enable Caching**: Make use of the caching features to reduce server load and improve response times.
 - 🏁 **Leverage Pre-rendering**: Pre-render your translations to speed up page loads and reduce runtime overhead.
+
+For detailed results of the performance tests, please refer to the [Performance Test Results](/guide/performance-results).

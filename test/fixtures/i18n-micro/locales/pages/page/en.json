@@ -1,0 +1,17 @@
+{
+  "welcome": "Welcome, {username}! You have {unreadCount} unread messages.",
+  "apples": "no apples | one apple | {count} apples",
+  "feedback": {
+    "text":  "test link: {link}",
+    "link":  "click"
+  },
+  "key1": {
+    "key1": {
+      "key1": {
+        "key1": {
+          "key1": "page en"
+        }
+      }
+    }
+  }
+}

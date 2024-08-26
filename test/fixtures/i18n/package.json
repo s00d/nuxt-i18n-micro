@@ -8,10 +8,8 @@
     "generate": "nuxi generate",
     "init": "nuxt prepare"
   },
-  "dependencies": {
+  "devDependencies": {
     "@nuxtjs/i18n": "^8.5.0",
-    "@unhead/ssr": "^1.10.0",
-    "nuxt": "^3.13.0",
-    "unhead": "^1.10.0"
+    "nuxt": "^3.13.0"
   }
 }

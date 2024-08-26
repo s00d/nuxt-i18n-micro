@@ -1,62 +1,34 @@
 import type { ModuleOptionsExtend } from '../../module'
+import { useLocaleHead } from '../composables/useLocaleHead'
 import { useHead, defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useRoute } from '#imports'
+import { useRequestURL } from '#imports'
+
+const host = process.env.HOST ?? 'localhost'
+const port = process.env.PORT ?? 'host'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const route = useRoute()
   const config = useRuntimeConfig()
 
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
 
-  if (!i18nConfig.mata) {
+  const schema = port === '443' ? 'https' : 'http'
+  const defaultUrl = port === '80' || port === '443' ? `${schema}://${host}` : `${schema}://${host}:${port}`
+
+  if (!i18nConfig.meta) {
     return
   }
 
   nuxtApp.hook('app:rendered', (_context) => {
-    const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-    const locales = i18nConfig.locales || []
-    const currentIso = locales.find(l => l.code === locale)?.iso || locale
-    const currentDir = locales.find(l => l.code === locale)?.dir || 'ltr'
-    // const ogUrl = `${context.event.req.protocol}://${context.event.req.headers.host}${context.event.req.url}`
-    const baseUrl = config.public.baseURL || 'http://localhost:3000'
-    const ogUrl = `${baseUrl}${route.fullPath}`
+    const url = useRequestURL()
+    const baseUrl = (i18nConfig.metaBaseUrl || url.origin || defaultUrl).toString()
 
-    useHead({
-      htmlAttrs: {
-        lang: currentIso,
-        dir: currentDir,
-      },
-      meta: [
-        { id: 'i18n-og', property: 'og:locale', content: currentIso },
-        { id: 'i18n-og-url', property: 'og:url', content: ogUrl },
-        ...locales.filter(l => l.code !== locale).map(loc => ({
-          id: `i18n-og-alt-${loc.iso || loc.code}`,
-          property: 'og:locale:alternate',
-          content: loc.iso || loc.code,
-        })),
-      ],
-      link: [
-        { id: 'i18n-can', rel: 'canonical', href: ogUrl },
-        ...locales.flatMap((loc) => {
-          const links = [
-            {
-              id: `i18n-alternate-${loc.code}`,
-              rel: 'alternate',
-              href: `${baseUrl}/${loc.code}${route.fullPath}`,
-              hreflang: loc.code,
-            },
-          ]
-          if (loc.iso) {
-            links.push({
-              id: `i18n-alternate-${loc.iso}`,
-              rel: 'alternate',
-              href: `${baseUrl}/${loc.code}${route.fullPath}`,
-              hreflang: loc.iso,
-            })
-          }
-          return links
-        }),
-      ],
+    const head = useLocaleHead({
+      addDirAttribute: true,
+      identifierAttribute: 'id',
+      addSeoAttributes: true,
+      baseUrl,
     })
+
+    useHead(head)
   })
 })

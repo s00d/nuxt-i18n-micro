@@ -6,20 +6,7 @@
     <div>
       {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
     </div>
-    <div>
-      <i18n-t
-        keypath="apples"
-        :plural="10"
-        tag="div"
-        scope="global"
-      >
-        <template #count>
-          10
-        </template>
-      </i18n-t>
-    </div>
 
-    <!-- Links for switching locales -->
     <div>
       <button
         v-for="value in locales"
@@ -40,6 +27,14 @@
 </template>
 
 <script setup>
+const head = useLocaleHead({
+  addDirAttribute: true,
+  identifierAttribute: 'id',
+  addSeoAttributes: true,
+})
+
+useHead(head)
+
 const { locale, availableLocales, setLocale } = useI18n()
 
 const router = useRouter()

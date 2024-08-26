@@ -47,7 +47,7 @@
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "playwright test",
+    "test": "playwright test --grep-invert \"test/performance\\.test\\.ts\"",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "client:build": "nuxi generate client",
@@ -60,10 +60,12 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.13.0",
     "@nuxt/devtools-kit": "^1.3.14",
+    "@nuxt/kit": "^3.13.0",
     "chokidar": "^3.6.0",
-    "sirv": "^2.0.4"
+    "ps-node": "^0.1.6",
+    "sirv": "^2.0.4",
+    "ufo": "^1.5.4"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.3.14",
@@ -73,18 +75,26 @@
     "@nuxt/schema": "^3.13.0",
     "@nuxt/test-utils": "^3.14.1",
     "@playwright/test": "^1.46.1",
+    "@types/cheerio": "^0.22.35",
     "@types/node": "^20.14.11",
+    "@types/pidusage": "^2.0.5",
+    "@types/ps-node": "^0.1.3",
+    "axios": "^1.7.5",
     "changelogen": "^0.5.5",
+    "cheerio": "^1.0.0",
     "eslint": "^8.56.0",
     "execa": "^9.3.1",
     "nuxt": "^3.13.0",
+    "pidusage": "^3.0.2",
     "typescript": "latest",
-    "vitepress": "^1.3.3",
+    "vitepress": "^1.3.4",
     "vitest": "^2.0.5",
     "vue-tsc": "2.0.22"
   },
   "workspaces": [
-    "client"
+    "client",
+    "playground",
+    "test/playground/**/*"
   ],
   "packageManager": "yarn@3.7.0+sha256.7bf0c78a106332886ea4e59641fd819b1af953edcd72c4d93a32b1c71000ee67"
 }

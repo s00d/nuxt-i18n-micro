@@ -42,7 +42,6 @@ export default defineNuxtPlugin((_nuxtApp) => {
       nuxtApp.$mergeTranslations(translation)
     }
     else {
-      // Если локаль не допустима, перенаправляем на дефолтную локаль
       let defaultRouteName = name?.toString().replace('localized-', '')
       const resolvedRoute = router.resolve({ name: defaultRouteName })
       const newParams = { ...route.params }

@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "my-module-playground",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=16000\" nuxi build",
+    "generate": "nuxi generate",
+    "init": "nuxt prepare"
+  },
+  "devDependencies": {
+    "nuxt-i18n-micro": "../../../src/module",
+    "nuxt": "^3.13.0"
+  }
+}

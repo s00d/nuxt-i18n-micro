@@ -19,15 +19,14 @@ The `<i18n-link>` component in `Nuxt I18n Micro` is a versatile link component t
   <i18n-link :to="{ name: 'index' }">Home</i18n-link>
   ```
 
-### `activeClass`
+### `activeStyle`
 
-- **Type**: `string`
+- **Type**: `Partial<CSSStyleDeclaration>`
 - **Optional**: Yes
-- **Default**: `'active'`
-- **Description**: Specifies the CSS class applied when the link matches the current route. This is useful for highlighting the active link in navigation menus.
+- **Description**: Allows you to customize the inline styles applied to the link when it matches the current route. This can be useful for highlighting the active link in navigation menus without relying on CSS classes.
 - **Example**:
   ```vue
-  <i18n-link to="/about" activeClass="current">About Us</i18n-link>
+  <i18n-link to="/about" :activeStyle="{ fontWeight: 'bold', color: 'red' }">About Us</i18n-link>
   ```
 
 ## 🛠️ Example Usages
@@ -40,13 +39,13 @@ The `<i18n-link>` component in `Nuxt I18n Micro` is a versatile link component t
 
 This example creates a link to the `/about` page, localized to the current locale.
 
-### Active Link Styling
+### Active Link Styling with Inline Styles
 
 ```vue
-<i18n-link to="/about" activeClass="current">About Us</i18n-link>
+<i18n-link to="/about" :activeStyle="{ fontWeight: 'bold' }">About Us</i18n-link>
 ```
 
-The link will have the `current` class applied when the user is on the `/about` page, allowing you to style the active link differently.
+The link will have bold text when the user is on the `/about` page, allowing you to style the active link directly with inline styles.
 
 ### External Links Handling
 
@@ -60,11 +59,22 @@ This link will open `https://example.com` in a new tab with `rel="noopener noref
 
 ## 🎨 Styles
 
-The component includes basic styles for the active link:
+The component now uses inline styles for the active state instead of a class. You can customize these styles using the `activeStyle` prop.
 
-- **Active Link**: `.active` (default style for active links)
+### Default Active Styles
 
-You can customize these styles by overriding the `activeClass` prop or applying additional classes as needed.
+- **Font Weight**: `bold`
+- **Color**: Inherits the browser's default color (if no `color` is specified in `activeStyle`).
+
+You can override these by providing custom styles through the `activeStyle` prop.
+
+### Custom Active Styles
+
+```vue
+<i18n-link to="/about" :activeStyle="{ fontWeight: 'bold', color: '#42b983' }">About Us</i18n-link>
+```
+
+In this example, the link will be bold and green when active.
 
 ## 🚀 Additional Features
 
@@ -77,10 +87,6 @@ You can pass custom content inside the link using slots, making the component fl
   <span>About Us</span>
 </i18n-link>
 ```
-
-### Loading State
-
-The component can display a loading state when the link is clicked and navigation is in progress.
 
 ### Accessibility Enhancements
 

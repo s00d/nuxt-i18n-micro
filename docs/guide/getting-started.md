@@ -223,15 +223,15 @@ Here's the section for the `disableWatcher` option:
 
 ### 👀 `disableWatcher`: `boolean`
 
-The `disableWatcher` option allows you to disable the file watcher for translation files. By default, `Nuxt I18n Micro` sets up a file watcher that monitors changes in translation files during development. This helps in updating the application without needing a full restart when translation files are modified.
+The `disableWatcher` option disables the automatic creation of locale files. By default, `Nuxt I18n Micro` monitors changes in translation files and automatically creates necessary locale files during development. This feature ensures that your translation setup remains up-to-date without manual intervention.
 
-However, in production environments, or when you want to reduce server load by avoiding unnecessary file monitoring, you can disable this feature by setting `disableWatcher` to `true`.
+However, if you prefer to manage locale files manually, or in production environments where file creation should be controlled, you can disable this feature by setting `disableWatcher` to `true`.
 
 - **Default**: `false`
 - **Example**:
 
 ```typescript
-disableWatcher: true // Disables the file watcher for translation files
+disableWatcher: true // Disables the automatic creation of locale files
 ```
 
 ### 📂 How It Works

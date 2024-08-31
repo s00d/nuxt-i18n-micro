@@ -334,6 +334,28 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
+    nuxt.hook('prerender:routes', async (prerenderRoutes) => {
+      const routesSet = prerenderRoutes.routes
+      const additionalRoutes = new Set<string>()
+
+      // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
+      routesSet.forEach((route) => {
+        options.locales!.forEach((locale) => {
+          if (locale.code !== options.defaultLocale) {
+            if (route === '/') {
+              additionalRoutes.add(`/${locale.code}`)
+            }
+            else {
+              additionalRoutes.add(`/${locale.code}${route}`)
+            }
+          }
+        })
+      })
+
+      // Добавляем новые локализованные маршруты к существующим
+      additionalRoutes.forEach(route => routesSet.add(route))
+    })
+
     // Setup DevTools integration
     if (nuxt.options.dev) {
       setupDevToolsUI(options, resolver.resolve)

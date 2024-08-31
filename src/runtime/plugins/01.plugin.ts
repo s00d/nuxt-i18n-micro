@@ -74,6 +74,7 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
   if (router.hasRoute(`localized-${routeName}-${currentLocale}`)) {
     const newParams = { ...route.params }
     newParams.locale = currentLocale
+
     return router.resolve({
       params: newParams,
       name: `localized-${routeName}-${currentLocale}`,
@@ -119,7 +120,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const plural = new Function('return ' + i18nConfig.plural)()
 
   const initialLocale = getCurrentLocale(route, i18nConfig)
-  if (!i18nHelper.hasGeneralTranslation(initialLocale)) {
+  if (import.meta.server && !i18nHelper.hasGeneralTranslation(initialLocale)) {
     const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
     await i18nHelper.loadTranslations(initialLocale, data ?? {})
   }
@@ -142,6 +143,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     await loadTranslationsIfNeeded(locale, initialRouteName)
   }
   useRouter().beforeEach(async (to, from, next) => {
+    if (import.meta.client) {
+      const locale = getCurrentLocale(to, i18nConfig)
+      const data: Translations = await $fetch(`/_locales/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
+      await i18nHelper.loadTranslations(locale, data ?? {})
+    }
+
     if (import.meta.client && !i18nConfig.disablePageLocales) {
       const locale = getCurrentLocale(to, i18nConfig)
       const routeName = getRouteName(to, locale)

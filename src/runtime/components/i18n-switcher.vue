@@ -66,7 +66,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { $localeRoute, $getLocales, $getLocale } = useNuxtApp()
 const locales = ref($getLocales())
-const currentLocale = ref($getLocale())
+const currentLocale = computed(() => $getLocale())
 const dropdownOpen = ref(false)
 
 const toggleDropdown = () => {
@@ -81,7 +81,10 @@ const currentLocaleLabel = computed(() => localeLabel({ code: currentLocale.valu
 
 const getLocaleLink = (locale: Locale) => {
   const route = useRoute()
-  const routeName = (route?.name ?? '').toString().replace(`localized-`, '')
+  const routeName = (route?.name ?? '').toString()
+    .replace(`localized-`, '')
+    .replace(new RegExp(`-${currentLocale.value}$`), '')
+    .replace(new RegExp(`-${locale}$`), '')
 
   return $localeRoute({ name: routeName }, locale.code)
 }

@@ -181,20 +181,32 @@ export default defineNuxtModule<ModuleOptions>({
 
     extendPages((pages) => {
       const customPaths: { [key: string]: { [locale: string]: string } } = {}
-      for (const page of pages) {
-        if (page.file) {
-          // Read the content of the page file
-          const filePath = path.resolve(nuxt.options.rootDir, page.file)
-          const fileContent = readFileSync(filePath, 'utf-8')
 
-          // Extract the defineI18nRoute call from the file content
-          const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent, filePath)
+      function extractCustomPaths(pages: NuxtPage[], parentPath = '') {
+        for (const page of pages) {
+          if (page.file) {
+            // Read the content of the page file
+            const filePath = path.resolve(nuxt.options.rootDir, page.file)
+            const fileContent = readFileSync(filePath, 'utf-8')
 
-          if (i18nRouteConfig && i18nRouteConfig.localeRoutes) {
-            customPaths[page.path] = i18nRouteConfig.localeRoutes
+            // Extract the defineI18nRoute call from the file content
+            const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent, filePath)
+
+            if (i18nRouteConfig && i18nRouteConfig.localeRoutes) {
+              const fullPath = parentPath ? `${parentPath}/${page.path}` : page.path
+              customPaths[fullPath] = i18nRouteConfig.localeRoutes
+            }
+          }
+
+          // Recursively check children for custom paths, passing the combined parent and current route name
+          if (page.children && page.children.length > 0) {
+            const fullParentName = parentPath ? `${parentPath}/${page.path}` : page.path
+            extractCustomPaths(page.children, fullParentName)
           }
         }
       }
+
+      extractCustomPaths(pages)
 
       const pagesNames = pages
         .map(page => page.name)
@@ -246,19 +258,6 @@ export default defineNuxtModule<ModuleOptions>({
           }
         })
 
-        const newRoute = {
-          file: page.file,
-          meta: { ...page.meta },
-          alias: page.alias,
-          redirect: page.redirect,
-          children: page.children,
-          mode: page.mode,
-          path: `/:locale(${modLocaleRegex.join('|')})${page.path}`,
-          name: `localized-${page.name}`,
-        }
-
-        newRoutes.push(newRoute)
-
         if (customPaths[page.path]) {
           locales.forEach((locale) => {
             if (customPaths[page.path][locale.code]) {
@@ -276,6 +275,66 @@ export default defineNuxtModule<ModuleOptions>({
             }
           })
         }
+
+        if (!modLocaleRegex.length && !page.children?.length) {
+          continue
+        }
+
+        function localizeChildren(routes: NuxtPage[], parentPath = ''): NuxtPage[] {
+          if (!parentPath.startsWith('/')) {
+            parentPath = '/' + parentPath
+          }
+          return routes.map((route) => {
+            // Combine parent and current path to find custom paths
+            const fullPath = parentPath ? `${parentPath}/${route.path}` : route.path
+            const customLocalePaths = customPaths[fullPath]
+
+            // Process children recursively
+            const localizedChildren = route.children ? localizeChildren(route.children, fullPath) : []
+
+            // Generate the localized route paths if custom paths exist
+            const localizedRoutes = locales.map((locale) => {
+              // If a custom path exists for this locale, use it; otherwise, use the default path
+              let path = customLocalePaths && customLocalePaths[locale.code]
+                ? `${customLocalePaths[locale.code]}`
+                : `${fullPath}`
+
+              if (path.startsWith('/')) {
+                path = path.slice(1) // Removes the leading '/'
+              }
+
+              return {
+                ...route,
+                name: `localized-${route.name}-${locale.code}`,
+                path,
+                children: localizedChildren, // Use localized children
+              }
+            })
+
+            // If there are custom paths, return localized routes for each locale; otherwise, just return the localized route
+            if (customLocalePaths) {
+              return localizedRoutes
+            }
+            return {
+              ...route,
+              name: `localized-${route.name}`,
+              children: localizedChildren, // Use localized children
+            }
+          }).flat() // Flatten in case custom localized routes were generated
+        }
+
+        const newRoute = {
+          file: page.file,
+          meta: { ...page.meta },
+          alias: page.alias,
+          redirect: page.redirect,
+          children: page.children ? localizeChildren(page.children, page.name) : [],
+          mode: page.mode,
+          path: `/:locale(${modLocaleRegex.join('|')})${page.path}`,
+          name: `localized-${page.name}`,
+        }
+
+        newRoutes.push(newRoute)
       }
 
       pages.push(...newRoutes)
@@ -410,12 +469,15 @@ function extractDefineI18nRouteConfig(content: string, path: string): DefineI18n
 
 function validateDefineI18nRouteConfig(obj: DefineI18nRouteConfig): obj is DefineI18nRouteConfig {
   if (typeof obj !== 'object' || obj === null) return false
-  if (!obj.locales || typeof obj.locales !== 'object') return false
 
-  // Check that locales is an object of objects containing string values
-  for (const localeKey in obj.locales) {
-    const translations = obj.locales[localeKey]
-    if (typeof translations !== 'object' || translations === null) return false
+  if (obj.locales) {
+    if (typeof obj.locales !== 'object') return false
+
+    // Check that locales is an object of objects containing string values
+    for (const localeKey in obj.locales) {
+      const translations = obj.locales[localeKey]
+      if (typeof translations !== 'object' || translations === null) return false
+    }
   }
 
   // Check that localeRoutes, if present, is an object of strings

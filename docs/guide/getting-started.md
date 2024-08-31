@@ -219,6 +219,29 @@ When `disablePageLocales` is enabled, the module will only use the translations 
 
 This setup is ideal for applications where the majority of the content is shared across pages or when consistency in translations is critical across the entire application. By disabling page-specific translations, you ensure that all translations are centralized, making it easier to maintain and update.
 
+Here's the section for the `disableWatcher` option:
+
+### 👀 `disableWatcher`: `boolean`
+
+The `disableWatcher` option allows you to disable the file watcher for translation files. By default, `Nuxt I18n Micro` sets up a file watcher that monitors changes in translation files during development. This helps in updating the application without needing a full restart when translation files are modified.
+
+However, in production environments, or when you want to reduce server load by avoiding unnecessary file monitoring, you can disable this feature by setting `disableWatcher` to `true`.
+
+- **Default**: `false`
+- **Example**:
+
+```typescript
+disableWatcher: true // Disables the file watcher for translation files
+```
+
+### 📂 How It Works
+
+When the file watcher is enabled, any changes to translation files will trigger a restart or update of the translation cache, ensuring that the latest translations are always in use. Disabling the watcher is useful when:
+- You want to optimize performance in production.
+- Translation files are not expected to change frequently.
+- You need to reduce overhead associated with file monitoring.
+
+By setting `disableWatcher: true`, the module will skip setting up the watcher, which can help in environments where filesystem access is limited or where stability is prioritized over real-time updates.
 
 ### 🔄 Caching Mechanism
 

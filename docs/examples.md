@@ -333,3 +333,58 @@ const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
   }
 }
 ```
+
+
+## 🌟 Using `$tc` for Pluralization
+
+The `$tc` function in `Nuxt I18n Micro` handles pluralization based on the count and locale settings. This is useful for dynamically adjusting messages that involve counts, such as items, notifications, or other entities that can vary in number.
+
+### Example: Using `$tc` for Pluralization
+
+In the following example, we display a message indicating the number of apples using `$tc`. The translation key handles multiple plural forms based on the count provided.
+
+```vue
+<template>
+  <div>
+    <!-- Display a pluralized message about the number of apples -->
+    <p>{{ $tc('apples', 0) }}</p>  <!-- Outputs: no apples -->
+    <p>{{ $tc('apples', 1) }}</p>  <!-- Outputs: one apple -->
+    <p>{{ $tc('apples', 10) }}</p> <!-- Outputs: 10 apples -->
+  </div>
+</template>
+
+<script setup>
+import { useNuxtApp } from '#imports'
+
+const { $tc } = useNuxtApp()
+</script>
+```
+
+### Example JSON for Pluralization
+
+Here's how you can define the translation in your JSON file to handle different plural forms:
+
+```json
+{
+  "apples": "no apples | one apple | {count} apples"
+}
+```
+
+### Explanation
+
+- **`$tc('apples', 0)`**: Returns the first form, used when the count is zero (`"no apples"`).
+- **`$tc('apples', 1)`**: Returns the second form, used when the count is one (`"one apple"`).
+- **`$tc('apples', 10)`**: Returns the third form with the count value, used when the count is two or more (`"10 apples"`).
+
+### Additional Example with More Complex Pluralization
+
+If your application needs to handle more complex pluralization rules (e.g., specific cases for zero, one, two, few, many, other), you can extend the translation strings accordingly:
+
+```json
+{
+  "apples": "no apples | one apple | two apples | a few apples | many apples | {count} apples"
+}
+```
+
+- **`$tc('apples', 2)`**: Could be set up to return `"two apples"`.
+- **`$tc('apples', 3)`**: Could return `"a few apples"`, depending on the rules defined for the count.

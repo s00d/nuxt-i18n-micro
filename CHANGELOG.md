@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.11.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.10.1...v1.11.0)
+
+### 🚀 Enhancements
+
+- Add tn and td ([1444a0c](https://github.com/s00d/nuxt-i18n-micro/commit/1444a0c))
+
+### 📖 Documentation
+
+- Add $tc example ([8048dae](https://github.com/s00d/nuxt-i18n-micro/commit/8048dae))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.10.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.10.0...v1.10.1)

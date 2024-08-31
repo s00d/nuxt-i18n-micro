@@ -388,3 +388,54 @@ If your application needs to handle more complex pluralization rules (e.g., spec
 
 - **`$tc('apples', 2)`**: Could be set up to return `"two apples"`.
 - **`$tc('apples', 3)`**: Could return `"a few apples"`, depending on the rules defined for the count.
+
+
+## 🌐 Using `$tn` for Number Formatting
+
+The `$tn` function formats numbers according to the current locale using the `Intl.NumberFormat` API. This is useful for displaying numbers in a way that matches the user's regional settings, such as currency, percentages, or other number formats.
+
+### Example: Using `$tn` for Number Formatting
+
+```vue
+<template>
+  <div>
+    <!-- Format a number as currency -->
+    <p>{{ $tn(1234567.89, { style: 'currency', currency: 'USD' }) }}</p> <!-- Outputs: $1,234,567.89 in 'en-US' locale -->
+
+    <!-- Format a number with custom options -->
+    <p>{{ $tn(0.567, { style: 'percent', minimumFractionDigits: 1 }) }}</p> <!-- Outputs: 56.7% in 'en-US' locale -->
+  </div>
+</template>
+
+<script setup>
+import { useNuxtApp } from '#imports'
+
+const { $tn } = useNuxtApp()
+</script>
+```
+
+### Example JSON for Number Formatting (No JSON needed for number formatting directly)
+
+## 🗓️ Using `$td` for Date and Time Formatting
+
+The `$td` function formats dates and times according to the current locale using the `Intl.DateTimeFormat` API. This is useful for displaying dates and times in formats that are familiar to the user based on their locale settings.
+
+### Example: Using `$td` for Date and Time Formatting
+
+```vue
+<template>
+  <div>
+    <!-- Format a date with full options -->
+    <p>{{ $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p> <!-- Outputs: "Friday, September 1, 2023" in 'en-US' locale -->
+
+    <!-- Format a date with time -->
+    <p>{{ $td(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}</p> <!-- Outputs: "10:15:30 AM" in 'en-US' locale -->
+  </div>
+</template>
+
+<script setup>
+import { useNuxtApp } from '#imports'
+
+const { $td } = useNuxtApp()
+</script>
+```

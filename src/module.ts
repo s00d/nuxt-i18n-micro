@@ -188,7 +188,7 @@ export default defineNuxtModule<ModuleOptions>({
           const fileContent = readFileSync(filePath, 'utf-8')
 
           // Extract the defineI18nRoute call from the file content
-          const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent)
+          const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent, filePath)
 
           if (i18nRouteConfig && i18nRouteConfig.localeRoutes) {
             customPaths[page.path] = i18nRouteConfig.localeRoutes
@@ -363,23 +363,46 @@ export default defineNuxtModule<ModuleOptions>({
   },
 })
 
-function extractDefineI18nRouteConfig(content: string): DefineI18nRouteConfig | null {
+function cleanObjectString(objectString: string): string {
+  // Replace single quotes with double quotes
+  let cleanedString = objectString.replace(/'/g, '"')
+  // Add double quotes around keys if not already quoted
+  cleanedString = cleanedString.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
+  // Remove trailing commas
+  cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1')
+  // Remove multiple consecutive commas
+  cleanedString = cleanedString.replace(/,+/g, ',')
+  // Remove commas at the start of objects or arrays
+  cleanedString = cleanedString.replace(/(\{|\[)\s*,/g, '$1')
+  // Remove commas before closing brackets or braces
+  cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1')
+  // Trim leading and trailing whitespace
+  cleanedString = cleanedString.trim()
+  // Check if the object starts and ends correctly
+  if (!cleanedString.startsWith('{') || !cleanedString.endsWith('}')) {
+    throw new Error('Invalid object format after cleaning')
+  }
+
+  return cleanedString
+}
+
+function extractDefineI18nRouteConfig(content: string, path: string): DefineI18nRouteConfig | null {
   const match = content.match(/\$defineI18nRoute\((\{[\s\S]*?\})\)/)
   if (match && match[1]) {
     try {
-      // Parse the configuration object from the matched string
-      const configObject = eval(`(${match[1]})`) as DefineI18nRouteConfig // Use a safer parser if available
-
+      const cleanedString = cleanObjectString(match[1])
+      // Use JSON.parse after cleaning the string
+      const configObject = JSON.parse(cleanedString) as DefineI18nRouteConfig
       // Validate parsed object
       if (validateDefineI18nRouteConfig(configObject)) {
         return configObject
       }
       else {
-        console.error('Invalid defineI18nRoute configuration format:', configObject)
+        console.error('Invalid defineI18nRoute configuration format:', configObject, 'in file: ', path)
       }
     }
     catch (error) {
-      console.error('Failed to parse defineI18nRoute configuration:', error)
+      console.error('Failed to parse defineI18nRoute configuration:', error, 'in file: ', path)
     }
   }
   return null

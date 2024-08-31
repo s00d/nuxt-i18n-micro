@@ -8,6 +8,8 @@ export function useI18n(): PluginsInjections {
     $getLocale: nuxtApp.$getLocale,
     $getLocales: nuxtApp.$getLocales,
     $t: nuxtApp.$t,
+    $tn: nuxtApp.$tn,
+    $td: nuxtApp.$td,
     $has: nuxtApp.$has,
     $tc: nuxtApp.$tc,
     $mergeTranslations: nuxtApp.$mergeTranslations,

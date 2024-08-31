@@ -36,6 +36,41 @@ Fetches a pluralized translation for the given key based on the count.
 const appleCountMessage = $tc('apples', 10)
 ```
 
+
+## 🔢 `$tn(value: number, options?: Intl.NumberFormatOptions): string`
+
+Formats a number according to the current locale using `Intl.NumberFormat`.
+
+- **`value`**: The number to format.
+- **`options`**: (Optional) `Intl.NumberFormatOptions` to customize the formatting.
+
+```typescript
+const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
+// Output: "$1,234,567.89" in the 'en-US' locale
+```
+
+### Use Cases:
+
+- Formatting numbers as currency, percentages, or decimals in the appropriate locale format.
+- Customizing the number format using `Intl.NumberFormatOptions` such as currency, minimum fraction digits, etc.
+
+## 📅 `$td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string`
+
+Formats a date according to the current locale using `Intl.DateTimeFormat`.
+
+- **`value`**: The date to format, which can be a `Date` object, a timestamp, or a date string.
+- **`options`**: (Optional) `Intl.DateTimeFormatOptions` to customize the formatting.
+
+```typescript
+const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+// Output: "Friday, September 1, 2023" in the 'en-US' locale
+```
+
+### Use Cases:
+
+- Displaying dates in a format that aligns with the user's locale, including long or short date formats.
+- Customizing date output using options like weekday names, time formats, and timezone settings.
+
 ## 🔄 `$switchLocale(locale: string)`
 
 Switches to the given locale and redirects the user to the appropriate localized route.

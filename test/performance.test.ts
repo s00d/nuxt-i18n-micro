@@ -3,9 +3,83 @@ import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import { dirname, join, relative } from 'node:path'
-import axios from 'axios'
 import { test } from '@nuxt/test-utils/playwright'
-import * as cheerio from 'cheerio'
+
+interface ArtillerySummary {
+  min: number
+  max: number
+  count: number
+  mean: number
+  p50: number
+  median: number
+  p75: number
+  p90: number
+  p95: number
+  p99: number
+  p999: number
+}
+
+interface ArtilleryCounters {
+  [key: string]: number | undefined
+  'vusers.created_by_name.0': number
+  'vusers.created': number
+  'http.requests': number
+  'http.codes.200': number
+  'http.responses': number
+  'http.downloaded_bytes': number
+  'vusers.failed': number
+  'vusers.completed': number
+}
+
+interface ArtilleryRates {
+  [key: string]: number | undefined
+  'http.request_rate': number
+}
+
+interface ArtilleryAggregate {
+  counters: ArtilleryCounters
+  rates: ArtilleryRates
+  firstCounterAt: number
+  firstHistogramAt: number
+  lastCounterAt: number
+  lastHistogramAt: number
+  firstMetricAt: number
+  lastMetricAt: number
+  period: number
+  summaries: {
+    [key: string]: ArtillerySummary
+  }
+  histograms: {
+    [key: string]: ArtillerySummary
+  }
+}
+
+interface ArtilleryResult {
+  aggregate: ArtilleryAggregate
+  intermediate?: ArtilleryIntermediate[]
+}
+
+interface ArtilleryIntermediate {
+  counters: {
+    [key: string]: number
+  }
+  rates: {
+    [key: string]: number | null
+  }
+  firstCounterAt: number
+  firstHistogramAt: number
+  lastCounterAt: number
+  lastHistogramAt: number
+  firstMetricAt: number
+  lastMetricAt: number
+  period: string
+  summaries: {
+    [key: string]: ArtillerySummary
+  }
+  histograms: {
+    [key: string]: ArtillerySummary
+  }
+}
 
 interface PerformanceResult {
   buildTime: number
@@ -23,54 +97,6 @@ interface PerformanceResult {
   errorRate?: number
   successRequests?: Record<string, number>
   failedRequests?: Record<string, number>
-}
-
-async function downloadPageAndResources(url: string) {
-  try {
-    // Загружаем основную страницу
-    const response = await axios.get(url)
-    // console.log(`Main page loaded successfully: ${url}`)
-
-    // Парсим HTML-код
-    const $ = cheerio.load(response.data)
-
-    // Извлекаем все ссылки на ресурсы, игнорируя rel="alternate"
-    const resourceUrls: string[] = []
-    $('link[href], script[src], img[src]').each((_, element) => {
-      const src = $(element).attr('href') || $(element).attr('src')
-      const rel = $(element).attr('rel')
-
-      // Игнорируем ссылки с rel="alternate"
-      if (src && rel !== 'alternate' && rel !== 'canonical') {
-        const resourceUrl = new URL(src, url).href
-        resourceUrls.push(resourceUrl)
-      }
-    })
-
-    // Загружаем все ресурсы
-    await Promise.all(resourceUrls.map(async (resourceUrl) => {
-      try {
-        await axios.get(resourceUrl, { responseType: 'arraybuffer' }) // Загружаем как бинарные данные
-        // console.log(`Resource loaded successfully: ${resourceUrl}`)
-      }
-      catch (error) {
-        if (error instanceof Error) {
-          console.error(`Resource request to ${resourceUrl} failed: ${error.message}`)
-        }
-        else {
-          console.error(`Resource request to ${resourceUrl} failed: ${String(error)}`)
-        }
-      }
-    }))
-  }
-  catch (error) {
-    if (error instanceof Error) {
-      console.error(`Initial request to ${url} failed: ${error.message}`)
-    }
-    else {
-      console.error(`Initial request to ${url} failed: ${String(error)}`)
-    }
-  }
 }
 
 // Получаем текущий каталог, эквивалентный __dirname
@@ -95,9 +121,10 @@ outline: deep
 
 ## Project Information
 
-- **i18n-micro Path**: ./test/fixtures/i18n-micro
-- **i18n Path**: ./test/fixtures/i18n
-- **Test Script Location**: ./${relativePath}
+- **[i18n-micro Path](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
+- **[i18n Path](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
+- **[Test Script Location](https://github.com/s00d/nuxt-i18n-micro/tree/main/${relativePath})**: ./${relativePath}
+
 
 ### Description:
 This performance test compares two implementations of internationalization: **i18n-micro** and **i18n**.
@@ -125,7 +152,10 @@ The performance tests conducted for \`Nuxt I18n Micro\` and \`nuxt-i18n\` are de
 1. **Build Time**: Measures the time required to build the project, focusing on how efficiently each module handles large translation files.
 2. **CPU Usage**: Tracks the CPU load during the build and stress tests to assess the impact on server resources.
 3. **Memory Usage**: Monitors memory consumption to determine how each module manages memory, especially under high load.
-4. **Stress Testing**: Simulates 10,000 requests to evaluate the server's ability to handle concurrent requests, measuring response times, error rates, and overall throughput.
+4. **Stress Testing**: Simulates a series of requests to evaluate the server's ability to handle concurrent traffic. The test is divided into two phases:
+   - **Warm-up Phase**: Over 6 seconds, one request per second is sent to each of the specified URLs, with a maximum of 6 users, to ensure that the server is ready for the main test.
+   - **Main Test Phase**: For 60 seconds, the server is subjected to 60 requests per second, spread across various endpoints, to measure response times, error rates, and overall throughput under load.
+
 
 ### 🛠 Why This Approach?
 
@@ -270,7 +300,76 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
   }
 }
 
-async function stressTestServer(directory: string): Promise<PerformanceResult> {
+async function runArtilleryTest(configPath: string): Promise<ArtilleryResult> {
+  return new Promise((resolve, reject) => {
+    exec(`npx artillery run ${configPath} --output artillery-output.json`, (error, stdout) => {
+      if (error) {
+        console.error(`Artillery test failed: ${error.message}`)
+        return reject(error)
+      }
+      console.log(`Artillery test completed successfully:\n${stdout}`)
+      fs.readFile('artillery-output.json', 'utf8', (err, data) => {
+        if (err) {
+          console.error(`Error reading Artillery output: ${err.message}`)
+          return reject(err)
+        }
+        resolve(JSON.parse(data))
+      })
+    })
+  })
+}
+
+function logAndWriteComparisonResults(name1: string, name2: string, result1: PerformanceResult, result2: PerformanceResult) {
+  const comparisons = {
+    maxMemoryUsedDifference: result2.maxMemoryUsed - result1.maxMemoryUsed,
+    minMemoryUsedDifference: result2.minMemoryUsed - result1.minMemoryUsed,
+    avgMemoryUsedDifference: result2.avgMemoryUsed - result1.avgMemoryUsed,
+    maxCpuUsageDifference: result2.maxCpuUsage - result1.maxCpuUsage,
+    minCpuUsageDifference: result2.minCpuUsage - result1.minCpuUsage,
+    avgCpuUsageDifference: result2.avgCpuUsage - result1.avgCpuUsage,
+    stressTestTimeDifference: (result2.stressTestTime || 0) - (result1.stressTestTime || 0),
+    responseTimeAvgDifference: (result2.responseTimeAvg || 0) - (result1.responseTimeAvg || 0),
+    responseTimeMinDifference: (result2.responseTimeMin || 0) - (result1.responseTimeMin || 0),
+    responseTimeMaxDifference: (result2.responseTimeMax || 0) - (result1.responseTimeMax || 0),
+    requestsPerSecondDifference: (result2.requestsPerSecond || 0) - (result1.requestsPerSecond || 0),
+    errorRateDifference: (result2.errorRate || 0) - (result1.errorRate || 0),
+  }
+
+  console.log(`
+Comparison between ${name1} and ${name2}:
+- Max Memory Used Difference: ${comparisons.maxMemoryUsedDifference.toFixed(2)} MB
+- Min Memory Used Difference: ${comparisons.minMemoryUsedDifference.toFixed(2)} MB
+- Avg Memory Used Difference: ${comparisons.avgMemoryUsedDifference.toFixed(2)} MB
+- Max CPU Usage Difference: ${comparisons.maxCpuUsageDifference.toFixed(2)}%
+- Min CPU Usage Difference: ${comparisons.minCpuUsageDifference.toFixed(2)}%
+- Avg CPU Usage Difference: ${comparisons.avgCpuUsageDifference.toFixed(2)}%
+- Stress Test Time Difference: ${comparisons.stressTestTimeDifference.toFixed(2)} seconds
+- Average Response Time Difference: ${comparisons.responseTimeAvgDifference.toFixed(2)} ms
+- Min Response Time Difference: ${comparisons.responseTimeMinDifference.toFixed(2)} ms
+- Max Response Time Difference: ${comparisons.responseTimeMaxDifference.toFixed(2)} ms
+- Requests Per Second Difference: ${comparisons.requestsPerSecondDifference.toFixed(2)}
+- Error Rate Difference: ${comparisons.errorRateDifference.toFixed(2)}%
+  `)
+
+  writeToMarkdown(`
+## Comparison between ${name1} and ${name2}
+
+- **Max Memory Used Difference**: ${comparisons.maxMemoryUsedDifference.toFixed(2)} MB
+- **Min Memory Used Difference**: ${comparisons.minMemoryUsedDifference.toFixed(2)} MB
+- **Avg Memory Used Difference**: ${comparisons.avgMemoryUsedDifference.toFixed(2)} MB
+- **Max CPU Usage Difference**: ${comparisons.maxCpuUsageDifference.toFixed(2)}%
+- **Min CPU Usage Difference**: ${comparisons.minCpuUsageDifference.toFixed(2)}%
+- **Avg CPU Usage Difference**: ${comparisons.avgCpuUsageDifference.toFixed(2)}%
+- **Stress Test Time Difference**: ${comparisons.stressTestTimeDifference.toFixed(2)} seconds
+- **Average Response Time Difference**: ${comparisons.responseTimeAvgDifference.toFixed(2)} ms
+- **Min Response Time Difference**: ${comparisons.responseTimeMinDifference.toFixed(2)} ms
+- **Max Response Time Difference**: ${comparisons.responseTimeMaxDifference.toFixed(2)} ms
+- **Requests Per Second Difference**: ${comparisons.requestsPerSecondDifference.toFixed(2)}
+- **Error Rate Difference**: ${comparisons.errorRateDifference.toFixed(2)}%
+  `)
+}
+
+async function stressTestServerWithArtillery(directory: string, artilleryConfigPath: string): Promise<PerformanceResult> {
   console.log(`Starting server for stress test in ${directory}...`)
 
   const childProcess = spawn('node', ['.output/server/index.mjs'], {
@@ -279,6 +378,7 @@ async function stressTestServer(directory: string): Promise<PerformanceResult> {
     detached: true,
   })
   const pid = childProcess.pid!
+
   let maxCpuUsage = 0
   let minCpuUsage = Infinity
   let totalCpuUsage = 0
@@ -286,13 +386,6 @@ async function stressTestServer(directory: string): Promise<PerformanceResult> {
   let minMemoryUsed = Infinity
   let totalMemoryUsage = 0
   let cpuUsageSamples = 0
-  let totalResponseTime = 0
-  let responseTimeSamples = 0
-  let responseTimeMin = Infinity
-  let responseTimeMax = 0
-  let errorCount = 0
-  const successRequests: Record<string, number> = {}
-  const failedRequests: Record<string, number> = {}
 
   const monitorInterval = setInterval(() => {
     try {
@@ -305,174 +398,106 @@ async function stressTestServer(directory: string): Promise<PerformanceResult> {
       minMemoryUsed = Math.min(minMemoryUsed, memory)
       totalMemoryUsage += memory
       cpuUsageSamples++
-
-      console.log(`[Stress Test] Current CPU: ${cpu}%, Current Memory: ${memory} MB`)
     }
     catch (error) {
       console.error('Error retrieving process usage during stress test:', error)
     }
-  }, 100)
+  }, 1000)
 
-  const stressTestStartTime = performance.now() // Время начала стресс-теста
+  try {
+    await new Promise<void>((resolve, reject) => {
+      childProcess.stdout.on('data', (data) => {
+        console.log(`[Server stdout]: ${data}`)
+      })
 
-  await new Promise<void>((resolve, reject) => {
-    childProcess.stdout.on('data', (data) => {
-      console.log(`[Server stdout]: ${data}`)
-    })
+      childProcess.stderr.on('data', (data) => {
+        console.error(`[Server stderr]: ${data}`)
+      })
 
-    childProcess.stderr.on('data', (data) => {
-      console.error(`[Server stderr]: ${data}`)
-    })
-
-    childProcess.on('error', (error) => {
-      console.error(`Error starting server: ${error}`)
-      reject(error)
-    })
-
-    // Даем серверу немного времени на старт
-    setTimeout(async () => {
-      console.log(`Sending 1000 requests to 127.0.0.1:10000...`)
-      try {
-        const urls = [
-          'http://127.0.0.1:10000/page',
-          'http://127.0.0.1:10000/ru/page',
-          'http://127.0.0.1:10000/de/page',
-          'http://127.0.0.1:10000/de',
-          'http://127.0.0.1:10000/ru',
-          'http://127.0.0.1:10000/',
-        ]
-
-        // Предварительные запросы
-        console.log('Sending initial requests to warm up the server...')
-        await Promise.all(
-          urls.map(url => downloadPageAndResources(url)),
-        )
-        console.log('Initial requests completed. Starting performance test...')
-
-        const maxConcurrentRequests = 100 // Лимит параллельных запросов
-        const totalRequestsPerUrl = 1000 // Общее количество запросов на каждый URL
-
-        const sendLimitedRequests = async (url: string) => {
-          successRequests[url] = 0
-          failedRequests[url] = 0
-
-          const sendRequest = async () => {
-            try {
-              const startTime = performance.now() // Или Date.now()
-              await downloadPageAndResources(url)
-              const endTime = performance.now() // Или Date.now()
-
-              const responseTime = endTime - startTime // Время отклика в миллисекундах
-
-              totalResponseTime += responseTime
-              responseTimeSamples++
-              responseTimeMin = Math.min(responseTimeMin, responseTime)
-              responseTimeMax = Math.max(responseTimeMax, responseTime)
-              successRequests[url]++
-            }
-            catch (error) {
-              if (error instanceof Error) {
-                console.error(`Request to ${url} failed: ${error.message}`)
-              }
-              else {
-                console.error(`Request to ${url} failed: ${String(error)}`)
-              }
-              errorCount++
-              failedRequests[url]++
-            }
-          }
-
-          const requestQueue = []
-          for (let i = 0; i < totalRequestsPerUrl; i++) {
-            requestQueue.push(sendRequest)
-          }
-
-          for (let i = 0; i < requestQueue.length; i += maxConcurrentRequests) {
-            const chunk = requestQueue.slice(i, i + maxConcurrentRequests)
-            await Promise.all(chunk.map(req => req()))
-            console.log(`Completed ${Math.min(i + maxConcurrentRequests, totalRequestsPerUrl)} requests to ${url}`)
-          }
-        }
-
-        for (const url of urls) {
-          console.log(`Sending requests to ${url}...`)
-          await sendLimitedRequests(url)
-        }
-
-        resolve()
-      }
-      catch (error) {
-        if (error instanceof Error) {
-          console.error(`Overall request failed: ${error.message}`)
-        }
-        else {
-          console.error(`Overall request failed: ${String(error)}`)
-        }
+      childProcess.on('error', (error) => {
+        console.error(`Error starting server: ${error}`)
         reject(error)
-      }
-    }, 5000)
-  })
+      })
 
-  const stressTestEndTime = performance.now() // Время окончания стресс-теста
-  const stressTestTime = (stressTestEndTime - stressTestStartTime) / 1000 // Время в секундах
-  const avgCpuUsage = totalCpuUsage / cpuUsageSamples
-  const avgMemoryUsed = totalMemoryUsage / cpuUsageSamples
-  const avgResponseTime = totalResponseTime / responseTimeSamples
-  const requestsPerSecond = responseTimeSamples / stressTestTime
-  const errorRate = (errorCount / (responseTimeSamples + errorCount)) * 100
+      // Даем серверу время на старт перед запуском Artillery теста
+      setTimeout(resolve, 5000)
+    })
 
-  clearInterval(monitorInterval)
-  process.kill(-pid) // Убиваем серверный процесс вместе с его дочерними процессами
+    // Запуск Artillery и сбор результатов
+    const artilleryResults = await runArtilleryTest(artilleryConfigPath)
 
-  console.log(`Max CPU usage during stress test: ${maxCpuUsage.toFixed(2)}%`)
-  console.log(`Min CPU usage during stress test: ${minCpuUsage.toFixed(2)}%`)
-  console.log(`Average CPU usage during stress test: ${avgCpuUsage.toFixed(2)}%`)
-  console.log(`Max Memory usage during stress test: ${maxMemoryUsed.toFixed(2)} MB`)
-  console.log(`Min Memory usage during stress test: ${minMemoryUsed.toFixed(2)} MB`)
-  console.log(`Average Memory usage during stress test: ${avgMemoryUsed.toFixed(2)} MB`)
-  console.log(`Stress test completed in: ${stressTestTime.toFixed(2)} seconds`)
-  console.log(`Average Response Time: ${avgResponseTime.toFixed(2)} ms`)
-  console.log(`Min Response Time: ${responseTimeMin.toFixed(2)} ms`)
-  console.log(`Max Response Time: ${responseTimeMax.toFixed(2)} ms`)
-  console.log(`Requests per Second: ${requestsPerSecond.toFixed(2)}`)
-  console.log(`Error Rate: ${errorRate.toFixed(2)}%`)
+    // Остановка мониторинга и сервера
+    clearInterval(monitorInterval)
+    process.kill(-pid)
 
-  for (const url of Object.keys(successRequests)) {
-    console.log(`${url} - Success: ${successRequests[url]}, Failed: ${failedRequests[url]}`)
-  }
+    const avgCpuUsage = cpuUsageSamples > 0 ? totalCpuUsage / cpuUsageSamples : 0
+    const avgMemoryUsed = cpuUsageSamples > 0 ? totalMemoryUsage / cpuUsageSamples : 0
 
-  writeToMarkdown(`
-## Stress Test for ${directory}
+    const summary = artilleryResults.aggregate
 
-- **Max CPU Usage During Stress Test**: ${maxCpuUsage.toFixed(2)}%
-- **Min CPU Usage During Stress Test**: ${minCpuUsage.toFixed(2)}%
-- **Average CPU Usage During Stress Test**: ${avgCpuUsage.toFixed(2)}%
-- **Max Memory Usage During Stress Test**: ${maxMemoryUsed.toFixed(2)} MB
-- **Min Memory Usage During Stress Test**: ${minMemoryUsed.toFixed(2)} MB
-- **Average Memory Usage During Stress Test**: ${avgMemoryUsed.toFixed(2)} MB
+    // const stressTestTime = summary.period ? summary.period / 1000 : 0 // Время в секундах
+    const stressTestTime = (summary.lastMetricAt - summary.firstMetricAt) / 1000
+    const avgResponseTime = summary.summaries['http.response_time']?.mean || 0
+    const responseTimeMin = summary.summaries['http.response_time']?.min || 0
+    const responseTimeMax = summary.summaries['http.response_time']?.max || 0
+    const requestsPerSecond = summary.rates['http.request_rate'] || 0
+    const errorRate
+      = summary.counters['http.codes.500'] && summary.counters['http.requests']
+        ? (summary.counters['http.codes.500'] / summary.counters['http.requests']) * 100
+        : 0
+
+    console.log(`
+Stress Test Results:
+- Max CPU usage: ${maxCpuUsage.toFixed(2)}%
+- Min CPU usage: ${minCpuUsage.toFixed(2)}%
+- Average CPU usage: ${avgCpuUsage.toFixed(2)}%
+- Max Memory usage: ${maxMemoryUsed.toFixed(2)} MB
+- Min Memory usage: ${minMemoryUsed.toFixed(2)} MB
+- Average Memory usage: ${avgMemoryUsed.toFixed(2)} MB
+- Stress Test Time: ${stressTestTime.toFixed(2)} seconds
+- Average Response Time: ${avgResponseTime.toFixed(2)} ms
+- Min Response Time: ${responseTimeMin.toFixed(2)} ms
+- Max Response Time: ${responseTimeMax.toFixed(2)} ms
+- Requests per Second: ${requestsPerSecond.toFixed(2)}
+- Error Rate: ${errorRate.toFixed(2)}%
+    `)
+
+    writeToMarkdown(`
+## Stress Test with Artillery for ${directory}
+
+- **Max CPU Usage**: ${maxCpuUsage.toFixed(2)}%
+- **Min CPU Usage**: ${minCpuUsage.toFixed(2)}%
+- **Average CPU Usage**: ${avgCpuUsage.toFixed(2)}%
+- **Max Memory Usage**: ${maxMemoryUsed.toFixed(2)} MB
+- **Min Memory Usage**: ${minMemoryUsed.toFixed(2)} MB
+- **Average Memory Usage**: ${avgMemoryUsed.toFixed(2)} MB
 - **Stress Test Time**: ${stressTestTime.toFixed(2)} seconds
 - **Average Response Time**: ${avgResponseTime.toFixed(2)} ms
 - **Min Response Time**: ${responseTimeMin.toFixed(2)} ms
 - **Max Response Time**: ${responseTimeMax.toFixed(2)} ms
 - **Requests per Second**: ${requestsPerSecond.toFixed(2)}
 - **Error Rate**: ${errorRate.toFixed(2)}%
-`)
+    `)
 
-  return {
-    buildTime: stressTestTime,
-    maxCpuUsage,
-    minCpuUsage,
-    avgCpuUsage,
-    maxMemoryUsed,
-    minMemoryUsed,
-    avgMemoryUsed,
-    responseTimeAvg: avgResponseTime,
-    responseTimeMin,
-    responseTimeMax,
-    requestsPerSecond,
-    errorRate,
-    successRequests,
-    failedRequests,
+    return {
+      buildTime: stressTestTime,
+      maxCpuUsage,
+      minCpuUsage,
+      avgCpuUsage,
+      maxMemoryUsed,
+      minMemoryUsed,
+      avgMemoryUsed,
+      responseTimeAvg: avgResponseTime,
+      responseTimeMin,
+      responseTimeMax,
+      requestsPerSecond,
+      errorRate,
+    }
+  }
+  catch (error) {
+    clearInterval(monitorInterval)
+    process.kill(-pid)
+    throw error
   }
 }
 
@@ -523,63 +548,12 @@ test('compare build performance and stress test', async () => {
 - **CPU Usage Difference**: ${cpuDifference.toFixed(2)}%
 `)
 
-  const i18nStressResults = await stressTestServer('./test/fixtures/i18n')
-  const i18nNextStressResults = await stressTestServer('./test/fixtures/i18n-micro')
+  const artilleryConfigPath = './artillery-config.yml' // Убедитесь, что путь корректный
 
-  const stressTestTimeDifference = i18nNextStressResults.buildTime! - i18nStressResults.buildTime!
-  const stressTestMemoryDifference = i18nNextStressResults.maxMemoryUsed - i18nStressResults.maxMemoryUsed
-  const stressTestCpuDifference = i18nNextStressResults.maxCpuUsage - i18nStressResults.maxCpuUsage
+  const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', artilleryConfigPath)
+  const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', artilleryConfigPath)
 
-  const totalSuccessRequestsNext = Object.values(i18nNextStressResults.successRequests!).reduce((acc, value) => acc + value, 0)
-  const totalFailedRequestsNext = Object.values(i18nNextStressResults.failedRequests!).reduce((acc, value) => acc + value, 0)
-  const totalSuccessRequests = Object.values(i18nStressResults.successRequests!).reduce((acc, value) => acc + value, 0)
-  const totalFailedRequests = Object.values(i18nStressResults.failedRequests!).reduce((acc, value) => acc + value, 0)
-
-  const totalSuccessDifference = totalSuccessRequestsNext - totalSuccessRequests
-  const totalFailedDifference = totalFailedRequestsNext - totalFailedRequests
-
-  const avgRequestTimeNext = i18nNextStressResults.responseTimeAvg!
-  const avgRequestTime = i18nStressResults.responseTimeAvg!
-  const avgRequestTimeDifference = avgRequestTimeNext - avgRequestTime
-
-  const specificRoute = 'http://127.0.0.1:10000/page' // Выбираем роут для анализа
-
-  const totalRequestsNextForSpecificRoute = i18nNextStressResults.successRequests![specificRoute] + i18nNextStressResults.failedRequests![specificRoute]
-  const totalRequestsForSpecificRoute = i18nStressResults.successRequests![specificRoute] + i18nStressResults.failedRequests![specificRoute]
-
-  const avgTotalRequestTimeNextForSpecificRoute = (i18nNextStressResults.buildTime! / totalRequestsNextForSpecificRoute) * 1000
-  const avgTotalRequestTimeForSpecificRoute = (i18nStressResults.buildTime! / totalRequestsForSpecificRoute) * 1000
-  const avgTotalRequestTimeDifferenceForSpecificRoute = avgTotalRequestTimeNextForSpecificRoute - avgTotalRequestTimeForSpecificRoute
-
-  writeToMarkdown(`
-## Stress Test Comparison
-
-- **i18n-micro Stress Test**: Max Memory: ${i18nNextStressResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextStressResults.maxCpuUsage.toFixed(2)}%, Time: ${i18nNextStressResults.buildTime!.toFixed(2)} seconds
-- **i18n Stress Test**: Max Memory: ${i18nStressResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nStressResults.maxCpuUsage.toFixed(2)}%, Time: ${i18nStressResults.buildTime!.toFixed(2)} seconds
-
-- **Time Difference**: ${stressTestTimeDifference.toFixed(2)} seconds
-- **Memory Difference**: ${stressTestMemoryDifference.toFixed(2)} MB
-- **CPU Usage Difference**: ${stressTestCpuDifference.toFixed(2)}%
-- **Response Time Difference**: ${avgRequestTimeDifference.toFixed(2)} ms
-- **Error Rate Difference**: ${(i18nNextStressResults.errorRate! - i18nStressResults.errorRate!).toFixed(2)}%
-
-### Total Requests Comparison
-
-- **Total Successful Requests Difference**: ${totalSuccessDifference}
-- **Total Failed Requests Difference**: ${totalFailedDifference}
-
-### Average Request Time Comparison
-
-- **Average Request Time (i18n-micro)**: ${avgRequestTimeNext.toFixed(2)} ms
-- **Average Request Time (i18n)**: ${avgRequestTime.toFixed(2)} ms
-- **Average Request Time Difference**: ${avgRequestTimeDifference.toFixed(2)} ms
-
-### Average Total Time Per 1000 Requests (for ${specificRoute})
-
-- **Average Time per 1000 Requests (i18n-micro) for ${specificRoute}**: ${avgTotalRequestTimeNextForSpecificRoute.toFixed(2)} ms
-- **Average Time per 1000 Requests (i18n) for ${specificRoute}**: ${avgTotalRequestTimeForSpecificRoute.toFixed(2)} ms
-- **Average Time per 1000 Requests Difference for ${specificRoute}**: ${avgTotalRequestTimeDifferenceForSpecificRoute.toFixed(2)} ms
-`)
+  logAndWriteComparisonResults('i18n', 'i18n-micro', i18nStressResults, i18nNextStressResults)
 
   addTestLogicExplanation()
 })

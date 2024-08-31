@@ -182,6 +182,44 @@ routesLocaleLinks: {
 }
 ```
 
+
+### 🧩 `define`: `boolean`
+
+Enables or disables the addition of a special `define` plugin that allows you to use Nuxt's runtime configuration for overriding settings in your translation files.
+
+- **Default**: `true`
+- **Example**:
+
+```typescript
+define: false // Disable the define plugin
+```
+
+## 🔄 `disablePageLocales`: `boolean`
+
+The `disablePageLocales` option allows you to disable page-specific translations, limiting the module to only use global translation files. This can be particularly useful for projects where page-specific translations are not necessary or to simplify the translation management process by consolidating all translations into global files.
+
+- **Default**: `false`
+
+- **Example**:
+
+```typescript
+disablePageLocales: true // Disable page-specific translations, using only global translations
+```
+
+### 📂 Folder Structure with `disablePageLocales: true`
+
+When `disablePageLocales` is enabled, the module will only use the translations defined in the global files located directly under the `locales` directory. Page-specific translation files (located in `/locales/pages`) will be ignored.
+
+```
+  /locales
+  ├── en.json
+  ├── fr.json
+  └── ar.json
+```
+
+This setup is ideal for applications where the majority of the content is shared across pages or when consistency in translations is critical across the entire application. By disabling page-specific translations, you ensure that all translations are centralized, making it easier to maintain and update.
+
+
 ### 🔄 Caching Mechanism
 
 One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again. This caching mechanism drastically reduces the time needed to fetch translations and significantly lowers the server's resource consumption.
@@ -196,17 +234,6 @@ However, it's important to note that **caching is only effective after the page 
 - **Subsequent Requests**: On all subsequent visits to the same page (within the same session or until the cache is invalidated), translations are retrieved from the cache, resulting in faster response times and lower CPU and memory usage.
 
 This caching strategy is particularly beneficial for high-traffic applications, where the same pages are frequently accessed by users. By minimizing the need to repeatedly load and process translation files, `Nuxt I18n Micro` ensures that your application remains responsive and efficient, even under heavy load.
-
-### 🧩 `define`: `boolean`
-
-Enables or disables the addition of a special `define` plugin that allows you to use Nuxt's runtime configuration for overriding settings in your translation files.
-
-- **Default**: `true`
-- **Example**:
-
-```typescript
-define: false // Disable the define plugin
-```
 
 ## 🔄 Caching Mechanism
 

@@ -67,6 +67,9 @@ $defineI18nRoute({
       },
     },
   },
+  localeRoutes: {
+    de: '/locale-page-modify',
+  },
 })
 
 const itemCount = 2

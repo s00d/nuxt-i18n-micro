@@ -30,7 +30,10 @@ export default defineNuxtPlugin((_nuxtApp) => {
   }
 
   // Функция для определения i18n маршрута
-  const defineI18nRoute = (routeDefinition: { locales?: string[] | Record<string, Record<string, string>> }) => {
+  const defineI18nRoute = (routeDefinition: {
+    locales?: string[] | Record<string, Record<string, string>>
+    localeRoutes?: Record<string, string>
+  }) => {
     const currentLocale = (route.params.locale || i18nConfig.defaultLocale!).toString()
     const normalizedLocales = normalizeLocales(routeDefinition.locales)
     const { name } = route

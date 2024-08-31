@@ -57,3 +57,4 @@ Temporary Items
 .apdisk
 test-results
 docs/.vitepress/cache
+artillery-output.json

@@ -1,5 +1,8 @@
 <template>
   <div>
+    <h2 id="ok">
+      ok
+    </h2>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
 
     <p>Current Locale: {{ $getLocale() }}</p>

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.10.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.10.0...v1.10.1)
+
+### 🩹 Fixes
+
+- Prerender ([a26af34](https://github.com/s00d/nuxt-i18n-micro/commit/a26af34))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.10.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.9.0...v1.10.0)

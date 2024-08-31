@@ -91,6 +91,14 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
   return router.resolve({ name: newRouteName, params: newParams })
 }
 
+function formatNumber(value: number, locale: string, options?: Intl.NumberFormatOptions): string {
+  return new Intl.NumberFormat(locale, options).format(value)
+}
+
+function formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string {
+  return new Intl.DateTimeFormat(locale, options).format(new Date(value))
+}
+
 export default defineNuxtPlugin(async (nuxtApp) => {
   const registerI18nModule = (translations: Translations, locale: string) => {
     i18nHelper.mergeGlobalTranslation(locale, translations)
@@ -173,6 +181,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         const translation = getTranslation(key, {}, defaultValue)
         return plural(translation?.toString(), count, getCurrentLocale(useRoute(), i18nConfig)) as string
       },
+      tn: (value: number, options?: Intl.NumberFormatOptions) => {
+        const locale = getCurrentLocale(useRoute(), i18nConfig)
+        return formatNumber(value, locale, options)
+      },
+      td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
+        const locale = getCurrentLocale(useRoute(), i18nConfig)
+        return formatDate(value, locale, options)
+      },
       has: (key: string): boolean => {
         return !!getTranslation(key)
       },
@@ -205,6 +221,8 @@ export interface PluginsInjections {
     defaultValue?: string
   ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null
   $tc: (key: string, count: number, defaultValue?: string) => string
+  $tn: (value: number, options?: Intl.NumberFormatOptions) => string
+  $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   $has: (key: string) => boolean
   $mergeTranslations: (newTranslations: Translations) => void
   $switchLocale: (locale: string) => void

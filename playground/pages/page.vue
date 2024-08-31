@@ -27,6 +27,14 @@
       {{ $tc('apples', 10) }}
     </div>
 
+    <!-- Formatted number and date examples -->
+    <div>
+      Formatted Number: {{ $tn(1234567.89) }}
+    </div>
+    <div>
+      Formatted Date: {{ $td('2023-12-31') }}
+    </div>
+
     <!-- Ссылки для переключения локалей -->
     <div>
       <button
@@ -58,5 +66,5 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $tn, $td } = useNuxtApp()
 </script>

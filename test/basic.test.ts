@@ -149,11 +149,14 @@ test('test locale switching on locale-test page', async ({ page }) => {
   await expect(page.locator('#plural')).toHaveText('You have 2 items.')
   await expect(page.locator('#html-content')).toHaveText('Bold Text with HTML content.')
 
+  const linkDe = page.locator('#link-de')
+  await expect(linkDe).toHaveAttribute('href', '/de/locale-page-modify')
+
   // Switch to German locale
-  await page.click('#link-de')
+  await linkDe.click()
 
   // Verify the URL and content in German
-  await expect(page).toHaveURL('/de/locale-test')
+  await expect(page).toHaveURL('/de/locale-page-modify')
   await expect(page.locator('h1')).toHaveText('Sprachtestseite')
   await expect(page.locator('#content')).toHaveText('Dies ist ein Inhaltsbereich.')
   await expect(page.locator('#username')).toHaveText('Hallo, John!')

@@ -62,13 +62,44 @@ $mergeTranslations({
 })
 ```
 
-## 🚦 `$defineI18nRoute(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>> })`
+Here's the updated documentation for the `$defineI18nRoute` function with the added description for the `localeRoutes` property:
 
-Defines route behavior based on the current locale. This method can be used to control access to specific routes based on available locales or to provide translations for specific locales.
+---
 
-- `locales`: This property determines which locales are available for the route. It can be either:
-  - An array of strings, where each string represents an available locale (e.g., `['en', 'fr', 'de']`).
-  - An object where each key is a locale code, and the value is either an object containing translations or an empty object if you do not wish to provide translations for that locale.
+## 🚦 `$defineI18nRoute(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>>, localeRoutes?: Record<string, string> })`
+
+Defines route behavior based on the current locale. This method can be used to control access to specific routes based on available locales, provide translations for specific locales, or set custom routes for different locales.
+
+- **`locales`**: This property determines which locales are available for the route. It can be either:
+  - An **array of strings**, where each string represents an available locale (e.g., `['en', 'fr', 'de']`).
+  - An **object** where each key is a locale code, and the value is either an object containing translations or an empty object if you do not wish to provide translations for that locale.
+
+- **`localeRoutes`**: This property allows you to define custom routes for specific locales. Each key represents a locale code, and the corresponding value is the custom route path for that locale. This is useful for handling scenarios where certain locales require different route structures or paths.
+
+  Example:
+
+  ```typescript
+  $defineI18nRoute({
+    locales: {
+      en: { greeting: 'Hello', farewell: 'Goodbye' },
+      ru: { greeting: 'Привет', farewell: 'До свидания' },
+      de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
+    },
+    localeRoutes: {
+      ru: '/localesubpage', // Custom route path for the Russian locale
+    },
+  })
+  ```
+
+### Use Cases:
+
+- **Controlling Access**: By specifying available locales, you can control which routes are accessible based on the current locale, ensuring that users only see content relevant to their language.
+
+- **Providing Translations**: The `locales` object allows for providing specific translations for each route, enhancing the user experience by delivering content in the user's preferred language.
+
+- **Custom Routing**: The `localeRoutes` property offers flexibility in defining different paths for specific locales, which can be particularly useful in cases where certain languages or regions require unique navigational flows or URLs.
+
+This function offers a flexible way to manage routing and localization in your Nuxt application, making it easy to tailor the user experience based on the language and region settings of your audience.
 
 ### Example 1: Controlling Access Based on Locales
 

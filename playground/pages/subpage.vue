@@ -158,5 +158,8 @@ $defineI18nRoute({
     ru: { greeting: 'Привет', farewell: 'До свидания' },
     de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
   },
+  localeRoutes: {
+    ru: '/localesubpage',
+  },
 })
 </script>

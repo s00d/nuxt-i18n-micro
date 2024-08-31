@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import {
   addComponentsDir,
   addImportsDir,
@@ -21,6 +21,11 @@ export interface Locale {
   dir?: 'ltr' | 'rtl' | 'auto'
 }
 
+interface DefineI18nRouteConfig {
+  locales?: Record<string, Record<string, string>>
+  localeRoutes?: Record<string, string>
+}
+
 // Module options TypeScript interface definition
 export interface ModuleOptions {
   locales?: Locale[]
@@ -33,6 +38,7 @@ export interface ModuleOptions {
   includeDefaultLocaleRoute?: boolean
   routesLocaleLinks?: Record<string, string>
   plural?: string
+  disablePageLocales?: boolean
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {
@@ -70,6 +76,7 @@ export default defineNuxtModule<ModuleOptions>({
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,
+    disablePageLocales: false,
     includeDefaultLocaleRoute: false,
     routesLocaleLinks: {},
     plural: `function (translation, count, _locale) {
@@ -169,11 +176,26 @@ export default defineNuxtModule<ModuleOptions>({
     const localeRegex = locales
       .filter(locale => locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) // Фильтрация локалей, исключая дефолтную
       .map(locale => locale.code) // Извлечение поля code из каждого объекта Locale
-      .join('|') // Объединение всех code в строку, разделенную символом '|'
 
     const pagesDir = path.resolve(nuxt.options.rootDir, options.translationDir!, 'pages')
 
     extendPages((pages) => {
+      const customPaths: { [key: string]: { [locale: string]: string } } = {}
+      for (const page of pages) {
+        if (page.file) {
+          // Read the content of the page file
+          const filePath = path.resolve(nuxt.options.rootDir, page.file)
+          const fileContent = readFileSync(filePath, 'utf-8')
+
+          // Extract the defineI18nRoute call from the file content
+          const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent)
+
+          if (i18nRouteConfig && i18nRouteConfig.localeRoutes) {
+            customPaths[page.path] = i18nRouteConfig.localeRoutes
+          }
+        }
+      }
+
       const pagesNames = pages
         .map(page => page.name)
         .filter(name => name && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
@@ -197,11 +219,13 @@ export default defineNuxtModule<ModuleOptions>({
         const globalFilePath = path.join(nuxt.options.rootDir, options.translationDir!, `${locale.code}.json`)
         ensureFileExists(globalFilePath)
 
-        // Process page-specific translation files
-        pagesNames.forEach((name) => {
-          const pageFilePath = path.join(pagesDir, `${name}/${locale.code}.json`)
-          ensureFileExists(pageFilePath)
-        })
+        if (!options.disablePageLocales) {
+          // Process page-specific translation files
+          pagesNames.forEach((name) => {
+            const pageFilePath = path.join(pagesDir, `${name}/${locale.code}.json`)
+            ensureFileExists(pageFilePath)
+          })
+        }
       })
 
       const newRoutes: NuxtPage[] = []
@@ -212,6 +236,16 @@ export default defineNuxtModule<ModuleOptions>({
           continue
         }
 
+        let modLocaleRegex = localeRegex
+        locales.forEach((locale) => {
+          if (customPaths[page.path] && customPaths[page.path][locale.code]) {
+            modLocaleRegex = modLocaleRegex.filter((locale) => {
+              // Remove locale from regex if it has a custom path
+              return !Object.values(customPaths).some(paths => paths[locale])
+            })
+          }
+        })
+
         const newRoute = {
           file: page.file,
           meta: { ...page.meta },
@@ -219,11 +253,29 @@ export default defineNuxtModule<ModuleOptions>({
           redirect: page.redirect,
           children: page.children,
           mode: page.mode,
-          path: `/:locale(${localeRegex})${page.path}`,
+          path: `/:locale(${modLocaleRegex.join('|')})${page.path}`,
           name: `localized-${page.name}`,
         }
 
         newRoutes.push(newRoute)
+
+        if (customPaths[page.path]) {
+          locales.forEach((locale) => {
+            if (customPaths[page.path][locale.code]) {
+              const newRoute = {
+                file: page.file,
+                meta: { ...page.meta },
+                alias: page.alias,
+                redirect: page.redirect,
+                children: page.children,
+                mode: page.mode,
+                path: `/:locale(${locale.code})${customPaths[page.path][locale.code]}`,
+                name: `localized-${page.name}-${locale.code}`,
+              }
+              newRoutes.push(newRoute)
+            }
+          })
+        }
       }
 
       pages.push(...newRoutes)
@@ -231,9 +283,11 @@ export default defineNuxtModule<ModuleOptions>({
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
       locales.forEach((locale) => {
-        pagesNames.forEach((name) => {
-          addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
-        })
+        if (!options.disablePageLocales) {
+          pagesNames.forEach((name) => {
+            addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
+          })
+        }
         addPrerenderRoutes(`/_locales/general/${locale.code}/data.json`)
       })
     })
@@ -286,6 +340,50 @@ export default defineNuxtModule<ModuleOptions>({
     }
   },
 })
+
+function extractDefineI18nRouteConfig(content: string): DefineI18nRouteConfig | null {
+  const match = content.match(/\$defineI18nRoute\((\{[\s\S]*?\})\)/)
+  if (match && match[1]) {
+    try {
+      // Parse the configuration object from the matched string
+      const configObject = eval(`(${match[1]})`) as DefineI18nRouteConfig // Use a safer parser if available
+
+      // Validate parsed object
+      if (validateDefineI18nRouteConfig(configObject)) {
+        return configObject
+      }
+      else {
+        console.error('Invalid defineI18nRoute configuration format:', configObject)
+      }
+    }
+    catch (error) {
+      console.error('Failed to parse defineI18nRoute configuration:', error)
+    }
+  }
+  return null
+}
+
+function validateDefineI18nRouteConfig(obj: DefineI18nRouteConfig): obj is DefineI18nRouteConfig {
+  if (typeof obj !== 'object' || obj === null) return false
+  if (!obj.locales || typeof obj.locales !== 'object') return false
+
+  // Check that locales is an object of objects containing string values
+  for (const localeKey in obj.locales) {
+    const translations = obj.locales[localeKey]
+    if (typeof translations !== 'object' || translations === null) return false
+  }
+
+  // Check that localeRoutes, if present, is an object of strings
+  if (obj.localeRoutes) {
+    if (typeof obj.localeRoutes !== 'object') return false
+
+    for (const routeKey in obj.localeRoutes) {
+      if (typeof obj.localeRoutes[routeKey] !== 'string') return false
+    }
+  }
+
+  return true
+}
 
 export interface ModuleHooks {
   'i18n:register': (

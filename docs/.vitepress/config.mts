@@ -29,6 +29,7 @@ export default defineConfig({
           { text: 'Migration', link: '/guide/migration' },
           { text: 'Contribution', link: '/guide/contribution' },
           { text: 'Multi Domain Locales', link: '/guide/multi-domain-locales' },
+          { text: 'Custom Localized Routes', link: '/guide/custom-locale-routes' },
         ],
       },
       {
@@ -88,6 +89,7 @@ export default defineConfig({
             { text: 'Migration', link: '/migration' },
             { text: 'Contribution', link: '/contribution' },
             { text: 'Multi Domain Locales', link: '/multi-domain-locales' },
+            { text: 'Custom Localized Routes', link: '/custom-locale-routes' },
           ],
         },
       ],

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.11.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.11.0...v1.11.1)
+
+### 🩹 Fixes
+
+- Children routes ([3a79596](https://github.com/s00d/nuxt-i18n-micro/commit/3a79596))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.11.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.10.1...v1.11.0)

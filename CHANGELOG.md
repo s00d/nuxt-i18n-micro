@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.12.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.11.1...v1.12.0)
+
+### 🚀 Enhancements
+
+- Add disableWatcher ([f17bd65](https://github.com/s00d/nuxt-i18n-micro/commit/f17bd65))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.11.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.11.0...v1.11.1)

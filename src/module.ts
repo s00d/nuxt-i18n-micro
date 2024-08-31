@@ -229,19 +229,21 @@ export default defineNuxtModule<ModuleOptions>({
         }
       }
 
-      locales.forEach((locale) => {
-        // Process global translation files
-        const globalFilePath = path.join(nuxt.options.rootDir, options.translationDir!, `${locale.code}.json`)
-        ensureFileExists(globalFilePath)
+      if (!options.disableWatcher) {
+        locales.forEach((locale) => {
+          // Process global translation files
+          const globalFilePath = path.join(nuxt.options.rootDir, options.translationDir!, `${locale.code}.json`)
+          ensureFileExists(globalFilePath)
 
-        if (!options.disablePageLocales) {
-          // Process page-specific translation files
-          pagesNames.forEach((name) => {
-            const pageFilePath = path.join(pagesDir, `${name}/${locale.code}.json`)
-            ensureFileExists(pageFilePath)
-          })
-        }
-      })
+          if (!options.disablePageLocales) {
+            // Process page-specific translation files
+            pagesNames.forEach((name) => {
+              const pageFilePath = path.join(pagesDir, `${name}/${locale.code}.json`)
+              ensureFileExists(pageFilePath)
+            })
+          }
+        })
+      }
 
       const newRoutes: NuxtPage[] = []
       for (let i = 0; i < pages.length; i++) {
@@ -375,28 +377,26 @@ export default defineNuxtModule<ModuleOptions>({
       nitroConfig.prerender.routes = routes
     })
 
-    if (!options.disableWatcher) {
-      nuxt.hook('nitro:build:before', async (_nitro) => {
-        const isProd = nuxt.options.dev === false
-        if (!isProd) {
-          const translationPath = path.resolve(nuxt.options.rootDir, options.translationDir!)
+    nuxt.hook('nitro:build:before', async (_nitro) => {
+      const isProd = nuxt.options.dev === false
+      if (!isProd) {
+        const translationPath = path.resolve(nuxt.options.rootDir, options.translationDir!)
 
-          console.log('ℹ add file watcher', translationPath)
+        console.log('ℹ add file watcher', translationPath)
 
-          const watcherEvent = async (path: string) => {
-            watcher.close()
-            console.log('↻ update store item', path)
-            nuxt.callHook('restart')
-          }
-
-          const watcher = watch(translationPath, { depth: 1, persistent: true }).on('change', watcherEvent)
-
-          nuxt.hook('close', () => {
-            watcher.close()
-          })
+        const watcherEvent = async (path: string) => {
+          watcher.close()
+          console.log('↻ update store item', path)
+          nuxt.callHook('restart')
         }
-      })
-    }
+
+        const watcher = watch(translationPath, { depth: 1, persistent: true }).on('change', watcherEvent)
+
+        nuxt.hook('close', () => {
+          watcher.close()
+        })
+      }
+    })
 
     nuxt.hook('prerender:routes', async (prerenderRoutes) => {
       const routesSet = prerenderRoutes.routes

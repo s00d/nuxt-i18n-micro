@@ -17,6 +17,16 @@ export default defineEventHandler(async (event: H3Event) => {
 
   const pathParts = event.path.split('/').filter(Boolean)
   const localeCode = pathParts[0]
+
+  // Check if the last part of the path has a file extension (e.g., data.json?v=123456)
+  const lastPart = pathParts[pathParts.length - 1]
+  const hasFileExtension = /\.[^/?]+(?:\?.*)?$/.test(lastPart)
+
+  // If the last part contains a file extension, do not perform redirection
+  if (hasFileExtension) {
+    return
+  }
+
   // If the locale is missing or invalid, redirect to the route with the defaultLocale
   const locale = locales.find((loc: Locale) => loc.code === localeCode)
 

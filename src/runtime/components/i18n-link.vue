@@ -14,7 +14,7 @@ import type { NuxtLinkProps } from '#app/components/nuxt-link'
 const { $localeRoute } = useNuxtApp()
 
 interface Props {
-  to: NuxtLinkProps
+  to: NuxtLinkProps | string
   activeStyle?: Partial<CSSStyleDeclaration>
 }
 

@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.12.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.1...v1.12.2)
+
+### 🩹 Fixes
+
+- I18n-link types ([f74e339](https://github.com/s00d/nuxt-i18n-micro/commit/f74e339))
+- Children routes for locales path ([1f2c270](https://github.com/s00d/nuxt-i18n-micro/commit/1f2c270))
+
+### ✅ Tests
+
+- Add tests for locales path ([1a38dd8](https://github.com/s00d/nuxt-i18n-micro/commit/1a38dd8))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.12.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.0...v1.12.1)

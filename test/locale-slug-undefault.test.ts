@@ -68,7 +68,6 @@ test('Test Locale Path', async ({ page, goto }) => {
   await expect(page).toHaveURL('/en/change-activity/book-activity/skiing')
 })
 
-
 test('Test Locale Path de', async ({ page, goto }) => {
   // Test main activity page
   await goto('/activity', { waitUntil: 'hydration' })

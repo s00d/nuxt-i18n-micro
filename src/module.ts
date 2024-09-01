@@ -258,88 +258,103 @@ export default defineNuxtModule<ModuleOptions>({
           if (customPaths[page.path] && customPaths[page.path][locale.code]) {
             modLocaleRegex = modLocaleRegex.filter((locale) => {
               // Remove locale from regex if it has a custom path
-              return !Object.values(customPaths).some(paths => paths[locale])
+              return !customPaths[page.path][locale]
             })
           }
         })
 
-        if (customPaths[page.path]) {
-          locales.forEach((locale) => {
-            if (customPaths[page.path][locale.code]) {
-              const newRoute = {
-                file: page.file,
-                meta: { ...page.meta },
-                alias: page.alias,
-                redirect: page.redirect,
-                children: page.children,
-                mode: page.mode,
-                path: `/:locale(${locale.code})${customPaths[page.path][locale.code]}`,
-                name: `localized-${page.name}-${locale.code}`,
-              }
-              newRoutes.push(newRoute)
-            }
-          })
-        }
+        function localizeChildren(routes: NuxtPage[], parentPath = '', currentLocales: string[] = [], modifyName = true, addLocalePrefix = false): NuxtPage[] {
+          return routes.flatMap((route) => {
+            // Define the full path only based on the route itself, ignoring the parentPath
+            const routePath = route.path.startsWith('/') ? route.path.slice(1) : route.path
+            const customLocalePaths = customPaths[`${parentPath}/${routePath}`]
 
-        if (!modLocaleRegex.length && !page.children?.length) {
-          continue
-        }
+            // Process children recursively, without adding locale prefix for children
+            const localizedChildren = route.children ? localizeChildren(route.children, '', currentLocales, modifyName, false) : []
 
-        function localizeChildren(routes: NuxtPage[], parentPath = ''): NuxtPage[] {
-          if (!parentPath.startsWith('/')) {
-            parentPath = '/' + parentPath
-          }
-          return routes.map((route) => {
-            // Combine parent and current path to find custom paths
-            const fullPath = parentPath ? `${parentPath}/${route.path}` : route.path
-            const customLocalePaths = customPaths[fullPath]
+            return currentLocales.map((locale) => {
+              // Use custom path if available, otherwise use default routePath
+              let path = customLocalePaths && customLocalePaths[locale]
+                ? customLocalePaths[locale] // Use custom locale path if defined
+                : routePath // Fallback to default routePath
 
-            // Process children recursively
-            const localizedChildren = route.children ? localizeChildren(route.children, fullPath) : []
-
-            // Generate the localized route paths if custom paths exist
-            const localizedRoutes = locales.map((locale) => {
-              // If a custom path exists for this locale, use it; otherwise, use the default path
-              let path = customLocalePaths && customLocalePaths[locale.code]
-                ? `${customLocalePaths[locale.code]}`
-                : `${fullPath}`
-
+              // Make sure the path does not start with a double slash
               if (path.startsWith('/')) {
                 path = path.slice(1) // Removes the leading '/'
               }
 
+              const isDefault = locale === options.defaultLocale && !options.includeDefaultLocaleRoute
+              const routeName = modifyName && !isDefault ? `localized-${route.name}-${locale}` : route.name
+
+              // Only add locale prefix if it is the top-level route, not for children
+              const finalPath = addLocalePrefix && !isDefault ? `/:locale(${locale})/${path}` : path
+
               return {
                 ...route,
-                name: `localized-${route.name}-${locale.code}`,
-                path,
+                name: routeName,
+                path: finalPath,
                 children: localizedChildren, // Use localized children
               }
             })
-
-            // If there are custom paths, return localized routes for each locale; otherwise, just return the localized route
-            if (customLocalePaths) {
-              return localizedRoutes
-            }
-            return {
-              ...route,
-              name: `localized-${route.name}`,
-              children: localizedChildren, // Use localized children
-            }
-          }).flat() // Flatten in case custom localized routes were generated
+          })
         }
 
-        const newRoute = {
-          file: page.file,
-          meta: { ...page.meta },
-          alias: page.alias,
-          redirect: page.redirect,
-          children: page.children ? localizeChildren(page.children, page.name) : [],
-          mode: page.mode,
-          path: `/:locale(${modLocaleRegex.join('|')})${page.path}`,
-          name: `localized-${page.name}`,
+        const children = [...page.children ?? []]
+
+        if (modLocaleRegex.length) {
+          const newRoute = {
+            file: page.file,
+            meta: { ...page.meta },
+            alias: page.alias,
+            redirect: page.redirect,
+            children: page.children ? localizeChildren(children, page.path, modLocaleRegex) : [],
+            mode: page.mode,
+            path: `/:locale(${modLocaleRegex.join('|')})${page.path}`,
+            name: `localized-${page.name}`,
+          }
+          newRoutes.push(newRoute)
         }
 
-        newRoutes.push(newRoute)
+        if (customPaths[page.path]) {
+          locales.forEach((locale) => {
+            if (customPaths[page.path][locale.code]) {
+              if (locale.code === options.defaultLocale && !options.includeDefaultLocaleRoute) {
+                // Если локаль дефолтная и опция includeDefaultLocaleRoute отключена, добавляем детей в текущий маршрут
+                if (page.children) {
+                  page.children = localizeChildren(children, `/${page.name}`, [locale.code], false, false)
+                }
+              }
+              else {
+                // Создаем новый маршрут для других локалей
+                const newRoute = {
+                  file: page.file,
+                  meta: { ...page.meta },
+                  alias: page.alias,
+                  redirect: page.redirect,
+                  children: page.children ? localizeChildren(children, page.path, [locale.code], true, false) : [],
+                  mode: page.mode,
+                  path: `/:locale(${locale.code})${customPaths[page.path][locale.code]}`, // Use custom path for the locale
+                  name: `localized-${page.name}-${locale.code}`,
+                }
+
+                newRoutes.push(newRoute)
+              }
+            }
+          })
+        }
+
+        if (!options.includeDefaultLocaleRoute) {
+          if (customPaths[page.path]) {
+            page.path = customPaths[page.path][options.defaultLocale as string] ?? page.path
+          }
+          if (page.children?.length) {
+            // page.children = [...(page.children ?? []), ...localizeChildren(page.children, page.name, localeRegex)]
+            page.children = [
+              ...children,
+              ...localizeChildren(children, `/${page.name}`, locales.filter(locale => locale.code === options.defaultLocale).map(locale => locale.code), false),
+            ]
+          }
+        }
       }
 
       pages.push(...newRoutes)
@@ -427,36 +442,12 @@ export default defineNuxtModule<ModuleOptions>({
   },
 })
 
-function cleanObjectString(objectString: string): string {
-  // Replace single quotes with double quotes
-  let cleanedString = objectString.replace(/'/g, '"')
-  // Add double quotes around keys if not already quoted
-  cleanedString = cleanedString.replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
-  // Remove trailing commas
-  cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1')
-  // Remove multiple consecutive commas
-  cleanedString = cleanedString.replace(/,+/g, ',')
-  // Remove commas at the start of objects or arrays
-  cleanedString = cleanedString.replace(/(\{|\[)\s*,/g, '$1')
-  // Remove commas before closing brackets or braces
-  cleanedString = cleanedString.replace(/,(\s*[}\]])/g, '$1')
-  // Trim leading and trailing whitespace
-  cleanedString = cleanedString.trim()
-  // Check if the object starts and ends correctly
-  if (!cleanedString.startsWith('{') || !cleanedString.endsWith('}')) {
-    throw new Error('Invalid object format after cleaning')
-  }
-
-  return cleanedString
-}
-
 function extractDefineI18nRouteConfig(content: string, path: string): DefineI18nRouteConfig | null {
-  const match = content.match(/\$defineI18nRoute\((\{[\s\S]*?\})\)/)
+  const match = content.match(/^[ \t]*\$defineI18nRoute\((\{[\s\S]*?\})\)/m)
   if (match && match[1]) {
     try {
-      const cleanedString = cleanObjectString(match[1])
-      // Use JSON.parse after cleaning the string
-      const configObject = JSON.parse(cleanedString) as DefineI18nRouteConfig
+      const parsedObject = Function('"use strict";return (' + match[1] + ')')()
+      const configObject = parsedObject as DefineI18nRouteConfig
       // Validate parsed object
       if (validateDefineI18nRouteConfig(configObject)) {
         return configObject

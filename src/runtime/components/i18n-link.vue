@@ -8,13 +8,13 @@
 </template>
 
 <script lang="ts" setup>
+import type { RouteLocationRaw } from 'vue-router'
 import { useNuxtApp, computed, useRoute, useRouter } from '#imports'
-import type { NuxtLinkProps } from '#app/components/nuxt-link'
 
 const { $localeRoute } = useNuxtApp()
 
 interface Props {
-  to: NuxtLinkProps | string
+  to: RouteLocationRaw | string
   activeStyle?: Partial<CSSStyleDeclaration>
 }
 

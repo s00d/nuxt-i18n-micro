@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.12.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.2...v1.12.3)
+
+### ✅ Tests
+
+- Add tests for locales path ([1542de5](https://github.com/s00d/nuxt-i18n-micro/commit/1542de5))
+- Cleanup ([48c44a2](https://github.com/s00d/nuxt-i18n-micro/commit/48c44a2))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.12.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.1...v1.12.2)

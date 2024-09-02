@@ -3,7 +3,7 @@ import path from 'node:path'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { Resolver } from '@nuxt/kit'
-import type { ModuleOptions } from './module'
+import type { ModuleOptions } from './types'
 
 export interface ServerFunctions {
   getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>

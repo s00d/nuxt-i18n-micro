@@ -1,54 +1,18 @@
 import path from 'node:path'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import {
   addComponentsDir,
   addImportsDir,
   addPlugin,
-  addPrerenderRoutes,
   addServerHandler,
   createResolver,
-  defineNuxtModule,
-  extendPages,
+  defineNuxtModule, extendPages,
 } from '@nuxt/kit'
-import type { HookResult, NuxtPage } from '@nuxt/schema'
+import type { HookResult } from '@nuxt/schema'
 import { watch } from 'chokidar'
 import { setupDevToolsUI } from './devtools'
-
-export interface Locale {
-  code: string
-  disabled?: boolean
-  iso?: string
-  dir?: 'ltr' | 'rtl' | 'auto'
-}
-
-interface DefineI18nRouteConfig {
-  locales?: Record<string, Record<string, string>>
-  localeRoutes?: Record<string, string>
-}
-
-// Module options TypeScript interface definition
-export interface ModuleOptions {
-  locales?: Locale[]
-  meta?: boolean
-  metaBaseUrl?: string
-  define?: boolean
-  defaultLocale?: string
-  translationDir?: string
-  autoDetectLanguage?: boolean
-  disableWatcher?: boolean
-  includeDefaultLocaleRoute?: boolean
-  routesLocaleLinks?: Record<string, string>
-  plural?: string
-  disablePageLocales?: boolean
-}
-
-export interface ModuleOptionsExtend extends ModuleOptions {
-  rootDir: string
-  pluralString: string
-  rootDirs: string[]
-  dateBuild: number
-  baseURL: string
-}
+import { PageManager } from './page-manager'
+import type { ModuleOptions, ModuleOptionsExtend } from './types'
+import { LocaleManager } from './locale-manager'
 
 declare module '@nuxt/schema' {
   interface ConfigSchema {
@@ -97,25 +61,14 @@ export default defineNuxtModule<ModuleOptions>({
 
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
-    const locales = (options.locales ?? [])
-      .reduce((acc, locale) => {
-        const existingLocale = acc.find(l => l.code === locale.code)
-        if (existingLocale) {
-          // Объединяем свойства объекта
-          Object.assign(existingLocale, locale)
-        }
-        else {
-          acc.push(locale)
-        }
-        return acc
-      }, [] as Locale[])
-      .filter(locale => !locale.disabled)
+    const localeManager = new LocaleManager(options, rootDirs)
+    const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!)
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
       rootDir: nuxt.options.rootDir,
       rootDirs: rootDirs,
       plural: options.plural!,
-      locales: locales ?? [],
+      locales: localeManager.locales ?? [],
       meta: options.meta ?? true,
       metaBaseUrl: options.metaBaseUrl ?? undefined,
       define: options.define ?? true,
@@ -176,210 +129,25 @@ export default defineNuxtModule<ModuleOptions>({
       extensions: ['vue'],
     })
 
-    const localeRegex = locales
-      .filter(locale => locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) // Фильтрация локалей, исключая дефолтную
-      .map(locale => locale.code) // Извлечение поля code из каждого объекта Locale
-
-    const pagesDir = path.resolve(nuxt.options.rootDir, options.translationDir!, 'pages')
-
     extendPages((pages) => {
-      const customPaths: { [key: string]: { [locale: string]: string } } = {}
-
-      function extractCustomPaths(pages: NuxtPage[], parentPath = '') {
-        for (const page of pages) {
-          if (page.file) {
-            // Read the content of the page file
-            const filePath = path.resolve(nuxt.options.rootDir, page.file)
-            const fileContent = readFileSync(filePath, 'utf-8')
-
-            // Extract the defineI18nRoute call from the file content
-            const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent, filePath)
-
-            if (i18nRouteConfig && i18nRouteConfig.localeRoutes) {
-              const fullPath = parentPath ? `${parentPath}/${page.path}` : page.path
-              customPaths[fullPath] = i18nRouteConfig.localeRoutes
-            }
-          }
-
-          // Recursively check children for custom paths, passing the combined parent and current route name
-          if (page.children && page.children.length > 0) {
-            const fullParentName = parentPath ? `${parentPath}/${page.path}` : page.path
-            extractCustomPaths(page.children, fullParentName)
-          }
-        }
-      }
-
-      extractCustomPaths(pages)
-
-      const pagesNames = pages
-        .map(page => page.name)
-        .filter(name => name && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
-
-      function ensureFileExists(filePath: string) {
-        const fileDir = path.dirname(filePath) // Get the directory of the file
-
-        // Ensure the directory exists
-        if (!existsSync(fileDir)) {
-          mkdirSync(fileDir, { recursive: true }) // Create the directory if it doesn't exist
-        }
-
-        // Check if the file exists; if not, create it with an empty object
-        if (!existsSync(filePath)) {
-          writeFileSync(filePath, JSON.stringify({}), 'utf-8')
-        }
-      }
-
       if (!options.disableWatcher) {
-        locales.forEach((locale) => {
-          // Process global translation files
-          const globalFilePath = path.join(nuxt.options.rootDir, options.translationDir!, `${locale.code}.json`)
-          ensureFileExists(globalFilePath)
+        const pagesNames = pages
+          .map(page => page.name)
+          .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
 
-          if (!options.disablePageLocales) {
-            // Process page-specific translation files
-            pagesNames.forEach((name) => {
-              const pageFilePath = path.join(pagesDir, `${name}/${locale.code}.json`)
-              ensureFileExists(pageFilePath)
-            })
-          }
-        })
+        localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
       }
 
-      const newRoutes: NuxtPage[] = []
-      for (let i = 0; i < pages.length; i++) {
-        const page = pages[i]
-
-        if (page.redirect && !page.file) {
-          continue
-        }
-
-        let modLocaleRegex = localeRegex
-        locales.forEach((locale) => {
-          if (customPaths[page.path] && customPaths[page.path][locale.code]) {
-            modLocaleRegex = modLocaleRegex.filter((locale) => {
-              // Remove locale from regex if it has a custom path
-              return !customPaths[page.path][locale]
-            })
-          }
-        })
-
-        function localizeChildren(routes: NuxtPage[], parentPath = '', currentLocales: string[] = [], modifyName = true, addLocalePrefix = false): NuxtPage[] {
-          return routes.flatMap((route) => {
-            // Define the full path only based on the route itself, ignoring the parentPath
-            const routePath = route.path.startsWith('/') ? route.path.slice(1) : route.path
-            const customLocalePaths = customPaths[`${parentPath}/${routePath}`]
-
-            // Process children recursively, without adding locale prefix for children
-            const localizedChildren = route.children ? localizeChildren(route.children, '', currentLocales, modifyName, false) : []
-
-            return currentLocales.map((locale) => {
-              // Use custom path if available, otherwise use default routePath
-              let path = customLocalePaths && customLocalePaths[locale]
-                ? customLocalePaths[locale] // Use custom locale path if defined
-                : routePath // Fallback to default routePath
-
-              // Make sure the path does not start with a double slash
-              if (path.startsWith('/')) {
-                path = path.slice(1) // Removes the leading '/'
-              }
-
-              const isDefault = locale === options.defaultLocale && !options.includeDefaultLocaleRoute
-              const routeName = modifyName && !isDefault ? `localized-${route.name}-${locale}` : route.name
-
-              // Only add locale prefix if it is the top-level route, not for children
-              const finalPath = addLocalePrefix && !isDefault ? `/:locale(${locale})/${path}` : path
-
-              return {
-                ...route,
-                name: routeName,
-                path: finalPath,
-                children: localizedChildren, // Use localized children
-              }
-            })
-          })
-        }
-
-        const children = [...page.children ?? []]
-
-        if (modLocaleRegex.length) {
-          const newRoute = {
-            file: page.file,
-            meta: { ...page.meta },
-            alias: page.alias,
-            redirect: page.redirect,
-            children: page.children ? localizeChildren(children, page.path, modLocaleRegex) : [],
-            mode: page.mode,
-            path: `/:locale(${modLocaleRegex.join('|')})${page.path}`,
-            name: `localized-${page.name}`,
-          }
-          newRoutes.push(newRoute)
-        }
-
-        if (customPaths[page.path]) {
-          locales.forEach((locale) => {
-            if (customPaths[page.path][locale.code]) {
-              if (locale.code === options.defaultLocale && !options.includeDefaultLocaleRoute) {
-                // Если локаль дефолтная и опция includeDefaultLocaleRoute отключена, добавляем детей в текущий маршрут
-                if (page.children) {
-                  page.children = localizeChildren(children, `/${page.name}`, [locale.code], false, false)
-                }
-              }
-              else {
-                // Создаем новый маршрут для других локалей
-                const newRoute = {
-                  file: page.file,
-                  meta: { ...page.meta },
-                  alias: page.alias,
-                  redirect: page.redirect,
-                  children: page.children ? localizeChildren(children, page.path, [locale.code], true, false) : [],
-                  mode: page.mode,
-                  path: `/:locale(${locale.code})${customPaths[page.path][locale.code]}`, // Use custom path for the locale
-                  name: `localized-${page.name}-${locale.code}`,
-                }
-
-                newRoutes.push(newRoute)
-              }
-            }
-          })
-        }
-
-        if (!options.includeDefaultLocaleRoute) {
-          if (customPaths[page.path]) {
-            page.path = customPaths[page.path][options.defaultLocale as string] ?? page.path
-          }
-          if (page.children?.length) {
-            // page.children = [...(page.children ?? []), ...localizeChildren(page.children, page.name, localeRegex)]
-            page.children = [
-              ...children,
-              ...localizeChildren(children, `/${page.name}`, locales.filter(locale => locale.code === options.defaultLocale).map(locale => locale.code), false),
-            ]
-          }
-        }
-      }
-
-      pages.push(...newRoutes)
-
-      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
-
-      locales.forEach((locale) => {
-        if (!options.disablePageLocales) {
-          pagesNames.forEach((name) => {
-            addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
-          })
-        }
-        addPrerenderRoutes(`/_locales/general/${locale.code}/data.json`)
-      })
+      pageManager.extendPages(pages, options, nuxt.options.rootDir)
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
       const routes = nitroConfig.prerender?.routes || []
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
-      // Получаем все страницы приложения
       const pages = nuxt.options.generate.routes || []
 
-      // Генерируем маршруты для всех локалей, кроме дефолтной
-      locales.forEach((locale) => {
+      localeManager.locales.forEach((locale) => {
         if (locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) {
           pages.forEach((page) => {
             routes.push(`/${locale.code}${page}`)
@@ -387,7 +155,6 @@ export default defineNuxtModule<ModuleOptions>({
         }
       })
 
-      // Обновляем опцию routes в конфигурации Nitro
       nitroConfig.prerender = nitroConfig.prerender || {}
       nitroConfig.prerender.routes = routes
     })
@@ -441,52 +208,6 @@ export default defineNuxtModule<ModuleOptions>({
     }
   },
 })
-
-function extractDefineI18nRouteConfig(content: string, path: string): DefineI18nRouteConfig | null {
-  const match = content.match(/^[ \t]*\$defineI18nRoute\((\{[\s\S]*?\})\)/m)
-  if (match && match[1]) {
-    try {
-      const parsedObject = Function('"use strict";return (' + match[1] + ')')()
-      const configObject = parsedObject as DefineI18nRouteConfig
-      // Validate parsed object
-      if (validateDefineI18nRouteConfig(configObject)) {
-        return configObject
-      }
-      else {
-        console.error('Invalid defineI18nRoute configuration format:', configObject, 'in file: ', path)
-      }
-    }
-    catch (error) {
-      console.error('Failed to parse defineI18nRoute configuration:', error, 'in file: ', path)
-    }
-  }
-  return null
-}
-
-function validateDefineI18nRouteConfig(obj: DefineI18nRouteConfig): obj is DefineI18nRouteConfig {
-  if (typeof obj !== 'object' || obj === null) return false
-
-  if (obj.locales) {
-    if (typeof obj.locales !== 'object') return false
-
-    // Check that locales is an object of objects containing string values
-    for (const localeKey in obj.locales) {
-      const translations = obj.locales[localeKey]
-      if (typeof translations !== 'object' || translations === null) return false
-    }
-  }
-
-  // Check that localeRoutes, if present, is an object of strings
-  if (obj.localeRoutes) {
-    if (typeof obj.localeRoutes !== 'object') return false
-
-    for (const routeKey in obj.localeRoutes) {
-      if (typeof obj.localeRoutes[routeKey] !== 'string') return false
-    }
-  }
-
-  return true
-}
 
 export interface ModuleHooks {
   'i18n:register': (

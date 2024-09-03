@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.12.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.3...v1.12.4)
+
+### 🩹 Fixes
+
+- Types ([a8e9cef](https://github.com/s00d/nuxt-i18n-micro/commit/a8e9cef))
+- Types ([14546fd](https://github.com/s00d/nuxt-i18n-micro/commit/14546fd))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.12.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.2...v1.12.3)

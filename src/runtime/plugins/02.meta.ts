@@ -1,4 +1,4 @@
-import type { ModuleOptionsExtend } from '../../module'
+import type { ModuleOptionsExtend } from '../../types'
 import { useLocaleHead } from '../composables/useLocaleHead'
 import { useHead, defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRequestURL } from '#imports'

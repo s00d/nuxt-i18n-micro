@@ -6,9 +6,9 @@ import type {
   Router,
 } from 'vue-router'
 import { useTranslationHelper } from '../translationHelper'
+import type { ModuleOptionsExtend, Locale } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
-import type { ModuleOptionsExtend, Locale } from '../../types'
 
 const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'

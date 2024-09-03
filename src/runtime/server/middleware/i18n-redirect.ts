@@ -1,7 +1,6 @@
 import { defineEventHandler, sendRedirect } from 'h3'
 import type { H3Event } from 'h3'
-import type { Locale } from 'nuxt-i18n-micro'
-import type { ModuleOptions } from '../../../module'
+import type { ModuleOptions, Locale } from '../../../types'
 import { useRuntimeConfig } from '#imports'
 
 export default defineEventHandler(async (event: H3Event) => {

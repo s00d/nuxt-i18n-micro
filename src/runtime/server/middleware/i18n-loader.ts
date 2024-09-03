@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
-import type { ModuleOptionsExtend } from '../../../module'
+import type { ModuleOptionsExtend } from '../../../types'
 import type { Translations } from '../../plugins/01.plugin'
 import { useRuntimeConfig } from '#imports'
 

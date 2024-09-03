@@ -1,4 +1,4 @@
-import type { ModuleOptionsExtend } from '../../module'
+import type { ModuleOptionsExtend } from '../../types'
 import type { Translations } from '../plugins/01.plugin'
 import { defineNuxtPlugin, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'

@@ -1,4 +1,4 @@
-import type { ModuleOptionsExtend } from '../../module'
+import type { ModuleOptionsExtend } from '../../types'
 import { defineNuxtPlugin, useCookie } from '#app'
 import { useRoute, useRouter } from '#imports'
 

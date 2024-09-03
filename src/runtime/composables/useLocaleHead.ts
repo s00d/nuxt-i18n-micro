@@ -1,5 +1,5 @@
 import { joinURL } from 'ufo'
-import type { ModuleOptionsExtend } from '../../module'
+import type { ModuleOptionsExtend } from '../../types'
 import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
 
 interface MetaLink {

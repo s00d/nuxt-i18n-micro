@@ -5,10 +5,10 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import type { Locale, ModuleOptionsExtend } from '../../module'
 import { useTranslationHelper } from '../translationHelper'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
+import type { ModuleOptionsExtend, Locale } from '../../types'
 
 const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'

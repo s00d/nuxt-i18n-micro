@@ -42,13 +42,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const currentLocale = (currentPath.value.params.locale ?? defaultLocale)
 
     if (detectedLocale === currentLocale) {
-      return;
+      return
     }
 
     const resolvedRoute = router.resolve(currentPath.value)
 
     const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
-
 
     const newRouteName = detectedLocale === defaultLocale ? routeName : `localized-${routeName}`
     const newParams = { ...route.params }

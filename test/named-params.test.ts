@@ -38,6 +38,9 @@ test('test navigation links and buttons', async ({ page, goto }) => {
 
   // Navigate back to the main page
   await goto('/', { waitUntil: 'hydration' })
+
+  await page.click('#link6')
+  await expect(page).toHaveURL('/en/page/id-123')
 })
 
 test('test navigation links and buttons de', async ({ page, goto }) => {
@@ -76,4 +79,9 @@ test('test navigation links and buttons de', async ({ page, goto }) => {
   // Test Button 5
   await page.click('#link5')
   await expect(page).toHaveURL('/de/page/my-id') // Assuming this is the expected URL for navigateWorking()
+
+  await goto('/de', { waitUntil: 'hydration' })
+
+  await page.click('#link6')
+  await expect(page).toHaveURL('/de/page/id-123')
 })

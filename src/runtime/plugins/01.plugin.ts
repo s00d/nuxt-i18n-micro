@@ -66,13 +66,37 @@ function switchLocale(locale: string, route: RouteLocationNormalizedLoaded | Rou
   return router.push({ name: newRouteName, params: newParams })
 }
 
-function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLocationNormalizedLoaded, i18nConfig: ModuleOptionsExtend, locale?: string): RouteLocationRaw {
-  const currentLocale = (locale || getCurrentLocale(route, i18nConfig))
+function getLocalizedRoute(
+  to: RouteLocationRaw,
+  router: Router,
+  route: RouteLocationNormalizedLoaded,
+  i18nConfig: ModuleOptionsExtend,
+  locale?: string,
+): RouteLocationRaw {
+  const currentLocale = locale || getCurrentLocale(route, i18nConfig)
   const selectRoute = router.resolve(to)
-
   const routeName = getRouteName(selectRoute, currentLocale)
+
+  // Helper function to handle parameters based on the type of 'to'
+  const resolveParams = (to: RouteLocationRaw) => {
+    const params
+      = typeof to === 'object' && 'params' in to && typeof to.params === 'object'
+        ? { ...to.params }
+        : {}
+
+    if (typeof to === 'string') {
+      const resolved = router.resolve(to)
+      if (resolved && resolved.params) {
+        Object.assign(params, resolved.params)
+      }
+    }
+
+    return params
+  }
+
+  // Check if the localized route exists
   if (router.hasRoute(`localized-${routeName}-${currentLocale}`)) {
-    const newParams = typeof to === 'object' && 'params' in to && typeof to.params === 'object' ? { ...to.params } : {}
+    const newParams = resolveParams(to)
     newParams.locale = currentLocale
 
     return router.resolve({
@@ -81,8 +105,13 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
     })
   }
 
-  const newRouteName = currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
-  const newParams = typeof to === 'object' && 'params' in to && typeof to.params === 'object' ? { ...to.params } : {}
+  // Determine the new route name based on locale and configuration
+  const newRouteName
+    = currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute
+      ? `localized-${routeName}`
+      : routeName
+
+  const newParams = resolveParams(to)
   delete newParams.locale
 
   if (currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.12.5
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.4...v1.12.5)
+
+### 🩹 Fixes
+
+- Locale cache ([8d3dc05](https://github.com/s00d/nuxt-i18n-micro/commit/8d3dc05))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.12.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.3...v1.12.4)

@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v1.12.6
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.5...v1.12.6)
+
+### 🩹 Fixes
+
+- AutoDetect server ([57d6baa](https://github.com/s00d/nuxt-i18n-micro/commit/57d6baa))
+- AutoDetect server ([4b7cbc4](https://github.com/s00d/nuxt-i18n-micro/commit/4b7cbc4))
+- Autodetect ([fa8d9a3](https://github.com/s00d/nuxt-i18n-micro/commit/fa8d9a3))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.12.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.4...v1.12.5)

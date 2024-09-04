@@ -18,6 +18,7 @@ export interface ModuleOptions {
   defaultLocale?: string
   translationDir?: string
   autoDetectLanguage?: boolean
+  autoDetectPath?: string
   disableWatcher?: boolean
   includeDefaultLocaleRoute?: boolean
   routesLocaleLinks?: Record<string, string>

@@ -6,6 +6,20 @@
     <div id="replace">
       {{ $t('key1') }}
     </div>
+
+    <div id="layer">
+      {{ $t('layer') }}
+    </div>
+    <div id="basic_layer">
+      {{ $t('basic_layer') }}
+    </div>
+
+    <div id="basic">
+      {{ $t('basic') }}
+    </div>
+    <div id="page_layer">
+      {{ $t('page_layer') }}
+    </div>
   </div>
 </template>
 

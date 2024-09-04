@@ -18,7 +18,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
   const route = useRoute()
 
-  console.log(1111, route.path, autoDetectPath)
   if (autoDetectPath !== '*' && route.path !== autoDetectPath) {
     // Skip auto-detection for routes that don't match the specified path
     return

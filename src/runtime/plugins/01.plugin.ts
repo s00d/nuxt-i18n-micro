@@ -186,7 +186,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
         const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig)
         const selectedRoute = route ?? useRoute()
-        return getRouteName(selectedRoute, selectedLocale);
+        return getRouteName(selectedRoute, selectedLocale)
       },
       t: getTranslation,
       tc: (key: string, count: number, defaultValue?: string): string => {

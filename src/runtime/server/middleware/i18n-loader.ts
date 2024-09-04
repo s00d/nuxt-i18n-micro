@@ -1,14 +1,15 @@
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
-import type { ModuleOptionsExtend } from '../../../types'
+import type { ModuleOptionsExtend, ModulePrivateOptionsExtend } from '../../../types'
 import type { Translations } from '../../plugins/01.plugin'
 import { useRuntimeConfig } from '#imports'
 
 export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
-  const { rootDirs, translationDir } = config.public.i18nConfig as ModuleOptionsExtend
+  const { rootDirs } = config.i18nConfig as ModulePrivateOptionsExtend
+  const { translationDir } = config.public.i18nConfig as ModuleOptionsExtend
 
   let path = `${locale}.json`
   if (page !== 'general') {

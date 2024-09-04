@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { readFileSync } from 'node:fs'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale, ModuleOptions } from './types'
+import type { Locale } from './types'
 import {
   extractDefineI18nRouteConfig,
   normalizePath,
@@ -33,7 +33,7 @@ export class PageManager {
     return this.locales.find(locale => locale.code === defaultLocaleCode) || { code: defaultLocaleCode }
   }
 
-  public extendPages(pages: NuxtPage[], options: ModuleOptions, rootDir: string) {
+  public extendPages(pages: NuxtPage[], rootDir: string) {
     this.localizedPaths = this.extractLocalizedPaths(pages, rootDir)
 
     const additionalRoutes: NuxtPage[] = []

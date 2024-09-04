@@ -27,9 +27,12 @@ export interface ModuleOptions {
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {
-  rootDir: string
   plural: string
-  rootDirs: string[]
   dateBuild: number
   baseURL: string
+}
+
+export interface ModulePrivateOptionsExtend extends ModuleOptions {
+  rootDir: string
+  rootDirs: string[]
 }

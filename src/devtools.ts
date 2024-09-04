@@ -56,7 +56,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
         }
       },
       async getLocalesAndTranslations() {
-        const rootDirs = nuxt.options.runtimeConfig.public.i18nConfig?.rootDirs || [nuxt.options.rootDir]
+        const rootDirs = nuxt.options.runtimeConfig.i18nConfig?.rootDirs || [nuxt.options.rootDir]
         const localesData: { locale: string, files: string[], content: Record<string, unknown> }[] = []
 
         for (const rootDir of rootDirs) {

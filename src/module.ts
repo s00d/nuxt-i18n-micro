@@ -13,11 +13,12 @@ import type { HookResult } from '@nuxt/schema'
 import { watch } from 'chokidar'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
-import type { ModuleOptions, ModuleOptionsExtend } from './types'
+import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend } from './types'
 import { LocaleManager } from './locale-manager'
 
 declare module '@nuxt/schema' {
   interface ConfigSchema {
+    i18nConfig?: ModulePrivateOptionsExtend
     publicRuntimeConfig?: {
       i18nConfig?: ModuleOptionsExtend
     }
@@ -68,8 +69,6 @@ export default defineNuxtModule<ModuleOptions>({
     const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!)
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
-      rootDir: nuxt.options.rootDir,
-      rootDirs: rootDirs,
       plural: options.plural!,
       locales: localeManager.locales ?? [],
       meta: options.meta ?? true,
@@ -84,6 +83,10 @@ export default defineNuxtModule<ModuleOptions>({
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       dateBuild: Date.now(),
       baseURL: nuxt.options.app.baseURL,
+    }
+    nuxt.options.runtimeConfig.i18nConfig = {
+      rootDir: nuxt.options.rootDir,
+      rootDirs: rootDirs,
     }
 
     addPlugin({
@@ -142,7 +145,7 @@ export default defineNuxtModule<ModuleOptions>({
         localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
       }
 
-      pageManager.extendPages(pages, options, nuxt.options.rootDir)
+      pageManager.extendPages(pages, nuxt.options.rootDir)
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
@@ -201,7 +204,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
       routesSet.forEach((route) => {
-        options.locales!.forEach((locale) => {
+        localeManager.locales!.forEach((locale) => {
           if (locale.code !== options.defaultLocale) {
             if (route === '/') {
               additionalRoutes.add(`/${locale.code}`)

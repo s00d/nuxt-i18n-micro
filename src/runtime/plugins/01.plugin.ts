@@ -183,6 +183,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     provide: {
       getLocale: () => getCurrentLocale(useRoute(), i18nConfig),
       getLocales: () => i18nConfig.locales || [],
+      getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
+        const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig)
+        const selectedRoute = route ?? useRoute()
+        return getRouteName(selectedRoute, selectedLocale);
+      },
       t: getTranslation,
       tc: (key: string, count: number, defaultValue?: string): string => {
         const translation = getTranslation(key, {}, defaultValue)
@@ -222,6 +227,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 export interface PluginsInjections {
   $getLocale: () => string
   $getLocales: () => Locale[]
+  $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
   $t: <T extends Record<string, string | number | boolean>>(
     key: string,
     params?: T,

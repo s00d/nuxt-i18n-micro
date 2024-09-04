@@ -20,6 +20,13 @@ Returns an array of all available locales configured in the module.
 const locales = $getLocales()
 ```
 
+## 🔍 `$getRouteName(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string): string`
+
+Retrieves the base route name without any locale-specific prefixes or suffixes. This method is useful when you want to work with the original route names, excluding localization modifications.
+
+- **`route`**: (Optional) The route object from which to extract the name. If not provided, the current route is used.
+- **`locale`**: (Optional) The locale code to consider when extracting the route name. If not provided, the current locale is used.
+
 ## 🔍 `$t(key: string, params?: Record<string, any>, defaultValue?: string)`
 
 Fetches a translation for the given key. Optionally interpolates parameters.
@@ -97,9 +104,6 @@ $mergeTranslations({
 })
 ```
 
-Here's the updated documentation for the `$defineI18nRoute` function with the added description for the `localeRoutes` property:
-
----
 
 ## 🚦 `$defineI18nRoute(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>>, localeRoutes?: Record<string, string> })`
 

@@ -2,6 +2,7 @@
   <div>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
+    <p>Current route without locale: {{ $getRouteName() }}</p>
 
     <!-- Ссылки для переключения локалей -->
     <div>

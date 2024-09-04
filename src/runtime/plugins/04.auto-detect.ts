@@ -24,7 +24,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     return
   }
 
-
   const acceptLanguage = headers?.['accept-language'] ?? ''
   const browserLanguages = acceptLanguage ? acceptLanguage.split(',').map(lang => lang.split(';')[0]) : [defaultLocale]
   let detectedLocale = defaultLocale
@@ -58,7 +57,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // Set the locale in the cookie for future visits
     userLocaleCookie.value = detectedLocale
 
-    await navigateTo(router.resolve({ name: newRouteName, params: newParams }).href, { redirectCode: 301, external: true });
+    await navigateTo(router.resolve({ name: newRouteName, params: newParams }).href, { redirectCode: 301, external: true })
   }
   else {
     // Set the default locale in the cookie if no match found

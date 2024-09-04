@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.13.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.0...v1.13.1)
+
+### 🩹 Fixes
+
+- RootDirs private and fix locale generate ([66a8948](https://github.com/s00d/nuxt-i18n-micro/commit/66a8948))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.13.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.6...v1.13.0)

@@ -53,5 +53,12 @@ function navigateBrokenDefaultNuxtPageNaming() {
     >
       Navigate
     </button>
+
+    <NuxtLink
+      id="link6"
+      :to="$localeRoute('/page/id-123')"
+    >
+      Navigate
+    </NuxtLink>
   </div>
 </template>

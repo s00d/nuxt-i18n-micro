@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.13.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.2...v1.13.3)
+
+### 🩹 Fixes
+
+- Routes links ([ccd93b8](https://github.com/s00d/nuxt-i18n-micro/commit/ccd93b8))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.13.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.1...v1.13.2)

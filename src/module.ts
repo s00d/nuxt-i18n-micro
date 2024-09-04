@@ -3,6 +3,7 @@ import {
   addComponentsDir,
   addImportsDir,
   addPlugin,
+  addPrerenderRoutes,
   addServerHandler,
   createResolver,
   defineNuxtModule, extendPages,
@@ -130,15 +131,26 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     extendPages((pages) => {
-      if (!options.disableWatcher) {
-        const pagesNames = pages
-          .map(page => page.name)
-          .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
+      const pagesNames = pages
+        .map(page => page.name)
+        .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
 
+      if (!options.disableWatcher) {
         localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
       }
 
       pageManager.extendPages(pages, options, nuxt.options.rootDir)
+
+      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
+
+      localeManager.locales.forEach((locale) => {
+        if (!options.disablePageLocales) {
+          pagesNames.forEach((name) => {
+            addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
+          })
+        }
+        addPrerenderRoutes(`/_locales/general/${locale.code}/data.json`)
+      })
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {

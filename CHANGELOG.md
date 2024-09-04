@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.13.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.6...v1.13.0)
+
+### 🚀 Enhancements
+
+- Add $getRouteName ([56781e1](https://github.com/s00d/nuxt-i18n-micro/commit/56781e1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.12.6
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.12.5...v1.12.6)

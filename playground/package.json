@@ -7,8 +7,5 @@
     "build": "nuxi build",
     "prepare": "nuxt prepare",
     "generate": "nuxi generate"
-  },
-  "dependencies": {
-    "nuxt-i18n-micro": "^1.12.3"
   }
 }

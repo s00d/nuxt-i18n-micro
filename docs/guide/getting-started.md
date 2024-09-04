@@ -146,6 +146,17 @@ Automatically detects the user's preferred language based on browser settings an
 autoDetectLanguage: true // Enable automatic language detection and redirection
 ```
 
+### 🔍 `autoDetectPath`: `string`
+
+The `autoDetectPath` option specifies the route path(s) on which the locale auto-detection and switching should occur. By default, it is set to `"*"`, which means that locale detection will be performed on any route throughout the application. However, you can specify an exact path to restrict locale detection and switching to a specific route.
+
+- **Default**: `"*"` — The locale detection and switching will occur on all routes.
+- **Example**:
+
+```typescript
+autoDetectPath: '/' // Locale detection will only happen on the home route
+```
+
 ### 🔢 `plural`: `function`
 
 Custom function for handling pluralization in translations based on count and locale.

@@ -41,6 +41,7 @@ export default defineNuxtModule<ModuleOptions>({
     define: true,
     defaultLocale: 'en',
     translationDir: 'locales',
+    autoDetectPath: '*',
     autoDetectLanguage: true,
     disablePageLocales: false,
     disableWatcher: false,
@@ -77,6 +78,7 @@ export default defineNuxtModule<ModuleOptions>({
       defaultLocale: options.defaultLocale ?? 'en',
       translationDir: options.translationDir ?? 'locales',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
+      autoDetectPath: options.autoDetectPath ?? '*',
       includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       dateBuild: Date.now(),
@@ -105,7 +107,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (options.autoDetectLanguage) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/04.auto-detect'),
-        mode: 'client',
+        mode: 'server',
         order: 4,
       })
     }

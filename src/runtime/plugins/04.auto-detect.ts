@@ -1,12 +1,14 @@
 import type { ModuleOptionsExtend } from '../../types'
-import { defineNuxtPlugin, useCookie } from '#app'
+import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo } from '#app'
 import { useRoute, useRouter } from '#imports'
 
-export default defineNuxtPlugin(async ({ $config }) => {
-  const i18nConfig = $config.public.i18nConfig as ModuleOptionsExtend
+export default defineNuxtPlugin(async (nuxtApp) => {
+  const i18nConfig = nuxtApp.$config.public.i18nConfig as ModuleOptionsExtend
   const userLocaleCookie = useCookie('user-locale')
+  const headers = useRequestHeaders(['accept-language'])
   const supportedLocales = i18nConfig.locales?.map(locale => locale.code) ?? []
   const defaultLocale = i18nConfig.defaultLocale || 'en'
+  const autoDetectPath = i18nConfig.autoDetectPath || '*'
 
   if (userLocaleCookie.value) {
     // User already has a locale set in the cookie
@@ -16,7 +18,15 @@ export default defineNuxtPlugin(async ({ $config }) => {
   const router = useRouter()
   const route = useRoute()
 
-  const browserLanguages = navigator.languages || [navigator.language]
+  console.log(1111, route.path, autoDetectPath)
+  if (autoDetectPath !== '*' && route.path !== autoDetectPath) {
+    // Skip auto-detection for routes that don't match the specified path
+    return
+  }
+
+
+  const acceptLanguage = headers?.['accept-language'] ?? ''
+  const browserLanguages = acceptLanguage ? acceptLanguage.split(',').map(lang => lang.split(';')[0]) : [defaultLocale]
   let detectedLocale = defaultLocale
 
   for (const language of browserLanguages) {
@@ -48,7 +58,7 @@ export default defineNuxtPlugin(async ({ $config }) => {
     // Set the locale in the cookie for future visits
     userLocaleCookie.value = detectedLocale
 
-    location.href = router.resolve({ name: newRouteName, params: newParams }).href
+    await navigateTo(router.resolve({ name: newRouteName, params: newParams }).href, { redirectCode: 301, external: true });
   }
   else {
     // Set the default locale in the cookie if no match found

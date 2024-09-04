@@ -7,6 +7,7 @@ export function useI18n(): PluginsInjections {
   return {
     $getLocale: nuxtApp.$getLocale,
     $getLocales: nuxtApp.$getLocales,
+    $getRouteName: nuxtApp.$getRouteName,
     $t: nuxtApp.$t,
     $tn: nuxtApp.$tn,
     $td: nuxtApp.$td,

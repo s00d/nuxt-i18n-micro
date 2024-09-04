@@ -23,6 +23,7 @@ export interface ModuleOptions {
   routesLocaleLinks?: Record<string, string>
   plural?: string
   disablePageLocales?: boolean
+  localeCookie?: string
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

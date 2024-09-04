@@ -4,7 +4,7 @@ import { useRoute, useRouter } from '#imports'
 
 export default defineNuxtPlugin(async ({ $config }) => {
   const i18nConfig = $config.public.i18nConfig as ModuleOptionsExtend
-  const userLocaleCookie = useCookie('user-locale')
+  const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale')
   const supportedLocales = i18nConfig.locales?.map(locale => locale.code) ?? []
   const defaultLocale = i18nConfig.defaultLocale || 'en'
 

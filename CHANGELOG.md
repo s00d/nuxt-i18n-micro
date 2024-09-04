@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.13.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.1...v1.13.2)
+
+### 🩹 Fixes
+
+- Routes redirects and routes links ([0bfb87f](https://github.com/s00d/nuxt-i18n-micro/commit/0bfb87f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.13.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.0...v1.13.1)

@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     meta: true,
     defaultLocale: 'en',
     translationDir: 'locales',
-    autoDetectLanguage: true,
+    autoDetectLanguage: false,
     includeDefaultLocaleRoute: true,
     routesLocaleLinks: {
       'dir1-slug': 'index',

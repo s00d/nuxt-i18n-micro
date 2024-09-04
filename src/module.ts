@@ -6,7 +6,8 @@ import {
   addPrerenderRoutes,
   addServerHandler,
   createResolver,
-  defineNuxtModule, extendPages,
+  defineNuxtModule,
+  extendPages,
 } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { watch } from 'chokidar'

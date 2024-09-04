@@ -25,6 +25,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const acceptLanguage = headers?.['accept-language'] ?? ''
   const browserLanguages = acceptLanguage ? acceptLanguage.split(',').map(lang => lang.split(';')[0]) : [defaultLocale]
+
   let detectedLocale = defaultLocale
 
   for (const language of browserLanguages) {
@@ -38,11 +39,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (supportedLocales.includes(detectedLocale)) {
     const currentPath = router.currentRoute
 
+    const currentLocale = (currentPath.value.params.locale ?? defaultLocale)
+
+    if (detectedLocale === currentLocale) {
+      return;
+    }
+
     const resolvedRoute = router.resolve(currentPath.value)
 
     const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
 
-    const { defaultLocale } = i18nConfig
 
     const newRouteName = detectedLocale === defaultLocale ? routeName : `localized-${routeName}`
     const newParams = { ...route.params }

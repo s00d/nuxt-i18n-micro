@@ -40,7 +40,7 @@ function getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolv
 }
 
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-function switchLocale(locale: string, route: RouteLocationNormalizedLoaded, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | null | undefined> {
+function switchLocale(locale: string, route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | null | undefined> {
   const checkLocale = i18nConfig.locales?.find(l => l.code === locale)
   if (!checkLocale) {
     console.warn(`Locale ${locale} is not available`)
@@ -72,7 +72,7 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
 
   const routeName = getRouteName(selectRoute, currentLocale)
   if (router.hasRoute(`localized-${routeName}-${currentLocale}`)) {
-    const newParams = { ...route.params }
+    const newParams = typeof to === 'object' && 'params' in to && typeof to.params === 'object' ? { ...to.params } : {}
     newParams.locale = currentLocale
 
     return router.resolve({
@@ -82,7 +82,7 @@ function getLocalizedRoute(to: RouteLocationRaw, router: Router, route: RouteLoc
   }
 
   const newRouteName = currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
-  const newParams = { ...route.params }
+  const newParams = typeof to === 'object' && 'params' in to && typeof to.params === 'object' ? { ...to.params } : {}
   delete newParams.locale
 
   if (currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
@@ -227,7 +227,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 export interface PluginsInjections {
   $getLocale: () => string
   $getLocales: () => Locale[]
-  $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
+  $getRouteName: (route?: RouteLocationRaw, locale?: string) => string
   $t: <T extends Record<string, string | number | boolean>>(
     key: string,
     params?: T,

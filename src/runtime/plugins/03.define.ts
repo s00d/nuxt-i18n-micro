@@ -1,6 +1,6 @@
 import type { ModuleOptionsExtend } from '../../types'
 import type { Translations } from '../plugins/01.plugin'
-import { defineNuxtPlugin, useNuxtApp, useRuntimeConfig } from '#app'
+import { defineNuxtPlugin, navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
 // Тип для локалей
@@ -29,41 +29,46 @@ export default defineNuxtPlugin((_nuxtApp) => {
     return {}
   }
 
+  useRouter().beforeEach(async (to, from, next) => {
+    if (i18nConfig.includeDefaultLocaleRoute) {
+      const currentLocale = (to.params.locale || i18nConfig.defaultLocale!).toString()
+      const { name } = to
+
+      let defaultRouteName = name?.toString()
+        .replace('localized-', '')
+        .replace(new RegExp(`-${currentLocale}$`), '')
+
+      if (!to.params.locale) {
+        if (router.hasRoute(`localized-${to.name?.toString()}-${currentLocale}`)) {
+          defaultRouteName = `localized-${to.name?.toString()}-${currentLocale}`
+        }
+        else {
+          defaultRouteName = `localized-${to.name?.toString()}`
+        }
+
+        const newParams = { ...to.params }
+        newParams.locale = i18nConfig.defaultLocale!
+        newParams.name = defaultRouteName
+
+        await navigateTo({ name: defaultRouteName, params: newParams }, { redirectCode: 301, external: true })
+      }
+    }
+    next()
+  })
+
   // Функция для определения i18n маршрута
-  const defineI18nRoute = (routeDefinition: {
+  const defineI18nRoute = async (routeDefinition: {
     locales?: string[] | Record<string, Record<string, string>>
     localeRoutes?: Record<string, string>
   }) => {
     const currentLocale = (route.params.locale || i18nConfig.defaultLocale!).toString()
     const normalizedLocales = normalizeLocales(routeDefinition.locales)
-    const { name } = route
 
     // Если текущая локаль есть в объекте locales
     if (!Object.values(normalizedLocales).length || normalizedLocales[currentLocale]) {
       const translation = normalizedLocales[currentLocale]
       const nuxtApp = useNuxtApp()
       nuxtApp.$mergeTranslations(translation)
-    }
-    else {
-      let defaultRouteName = name?.toString()
-        .replace('localized-', '')
-        .replace(new RegExp(`-${currentLocale}$`), '')
-      const resolvedRoute = router.resolve({ name: defaultRouteName })
-      const newParams = { ...route.params }
-      delete newParams.locale
-
-      if (i18nConfig.includeDefaultLocaleRoute) {
-        if (router.hasRoute(`localized-${defaultRouteName}-${currentLocale}`)) {
-          defaultRouteName = `localized-${defaultRouteName}-${currentLocale}`
-        }
-        else {
-          defaultRouteName = `localized-${defaultRouteName}`
-        }
-        newParams.locale = i18nConfig.defaultLocale!
-        newParams.name = defaultRouteName
-      }
-
-      return router.push(resolvedRoute)
     }
   }
 

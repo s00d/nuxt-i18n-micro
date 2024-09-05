@@ -27,7 +27,7 @@ function interpolate(template: string, params: Record<string, string | number | 
 }
 
 // Вспомогательная функция для получения текущей локали
-function getCurrentLocale(route: RouteLocationNormalizedLoaded, i18nConfig: ModuleOptionsExtend): string {
+function getCurrentLocale(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, i18nConfig: ModuleOptionsExtend): string {
   return (route.params?.locale ?? i18nConfig.defaultLocale).toString()
 }
 
@@ -40,28 +40,29 @@ function getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolv
 }
 
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-function switchLocale(locale: string, route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | null | undefined> {
-  const checkLocale = i18nConfig.locales?.find(l => l.code === locale)
+function switchLocale(fromLocale: string, toLocale: string, route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | null | undefined> {
+  const checkLocale = i18nConfig.locales?.find(l => l.code === toLocale)
   if (!checkLocale) {
-    console.warn(`Locale ${locale} is not available`)
-    return Promise.reject(`Locale ${locale} is not available`)
+    console.warn(`Locale ${toLocale} is not available`)
+    return Promise.reject(`Locale ${toLocale} is not available`)
   }
 
-  const routeName = getRouteName(route, locale)
-  if (router.hasRoute(`localized-${routeName}-${locale}`)) {
+  const routeName = getRouteName(route, fromLocale)
+
+  if (router.hasRoute(`localized-${routeName}-${toLocale}`)) {
     const newParams = { ...route.params }
-    newParams.locale = locale
+    newParams.locale = toLocale
     return router.push({
       params: newParams,
-      name: `localized-${routeName}-${locale}`,
+      name: `localized-${routeName}-${toLocale}`,
     })
   }
-  const newRouteName = locale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
+  const newRouteName = toLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
   const newParams = { ...route.params }
   delete newParams.locale
 
-  if (locale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
-    newParams.locale = locale
+  if (toLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
+    newParams.locale = toLocale
   }
   return router.push({ name: newRouteName, params: newParams })
 }
@@ -134,17 +135,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     nuxtApp.payload.data.translations = {}
   }
 
-  const route = useRoute()
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
 
   const plural = new Function('return ' + i18nConfig.plural)()
-
-  const initialLocale = getCurrentLocale(route, i18nConfig)
-  if (import.meta.server && !i18nHelper.hasGeneralTranslation(initialLocale)) {
-    const data: Translations = await $fetch(`/_locales/general/${initialLocale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
-    await i18nHelper.loadTranslations(initialLocale, data ?? {})
-  }
 
   const loadTranslationsIfNeeded = async (locale: string, routeName: string) => {
     if (!i18nHelper.hasPageTranslation(locale, routeName)) {
@@ -158,19 +152,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  if (import.meta.server && !i18nConfig.disablePageLocales) {
-    const locale = getCurrentLocale(route, i18nConfig)
-    const initialRouteName = getRouteName(route, locale)
-    await loadTranslationsIfNeeded(locale, initialRouteName)
-  }
   useRouter().beforeEach(async (to, from, next) => {
     const locale = getCurrentLocale(to, i18nConfig)
-    if (import.meta.client) {
+    if (!i18nHelper.hasGeneralTranslation(locale)) {
       const data: Translations = await $fetch(`/_locales/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
       await i18nHelper.loadTranslations(locale, data ?? {})
     }
 
-    if (import.meta.client && !i18nConfig.disablePageLocales) {
+    if (!i18nConfig.disablePageLocales) {
       const routeName = getRouteName(to, locale)
       await loadTranslationsIfNeeded(locale, routeName)
     }
@@ -237,10 +226,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         const routeName = getRouteName(route, locale)
         i18nHelper.mergeTranslation(locale, routeName, newTranslations)
       },
-      switchLocale: (locale: string) => {
+      switchLocale: (toLocale: string) => {
         const router = useRouter()
         const route = useRoute()
-        switchLocale(locale, route, router, i18nConfig)
+
+        const fromLocale = getCurrentLocale(route, i18nConfig)
+        switchLocale(fromLocale, toLocale, route, router, i18nConfig)
       },
       localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
         const router = useRouter()

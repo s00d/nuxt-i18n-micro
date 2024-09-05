@@ -82,11 +82,10 @@ test.describe('PageManager', () => {
       },
     ]
 
-    const options = {} // Add any module options if needed
     const rootDir = '/mocked/root/dir' // Mocked root directory path
 
     // Extend pages
-    pageManager.extendPages(pages, options, rootDir)
+    pageManager.extendPages(pages, rootDir)
 
     // Фильтрация оригинальных страниц
     const originalPages = pages.filter(page => !page.path.includes('/:locale'))
@@ -145,11 +144,10 @@ test.describe('PageManager', () => {
       children: [{ path: 'skiing', name: 'Skiing' }],
     }]
 
-    const options = {} // Add any module options if needed
     const rootDir = '/mocked/root/dir' // Mocked root directory path
 
     // Extend pages
-    pageManager.extendPages(pages, options, rootDir)
+    pageManager.extendPages(pages, rootDir)
 
     // Check if the route for the default locale is adjusted correctly
     expect(pages[0].path).toBe('/activity')
@@ -182,11 +180,10 @@ test('should include default locale routes when includeDefaultLocaleRoute is tru
     children: [{ path: 'skiing', name: 'Skiing' }],
   }]
 
-  const options = {} // Добавьте любые параметры модуля, если нужно
   const rootDir = '/mocked/root/dir' // Мокированный путь к корневой директории
 
   // Расширяем страницы
-  pageManagerWithDefaultLocale.extendPages(pages, options, rootDir)
+  pageManagerWithDefaultLocale.extendPages(pages, rootDir)
   // Проверяем корректность обработки маршрута для дефолтной локали
   expect(pages[0].path).toBe('/activity')
   expect(pages[1].path).toBe('/:locale(en|de|ru)/activity')

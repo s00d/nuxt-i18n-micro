@@ -1,6 +1,7 @@
 <template>
   <div :style="[wrapperStyle, customWrapperStyle]">
     <button
+      class="language-switcher"
       :style="[buttonStyle, customButtonStyle]"
       @click="toggleDropdown"
     >
@@ -17,10 +18,11 @@
         :style="[itemStyle, customItemStyle]"
       >
         <NuxtLink
-          @click="toggleDropdown"
+          :class="`switcher-locale-${locale.code}`"
           :to="getLocaleLink(locale)"
           :style="[linkStyle, locale.code === currentLocale ? activeLinkStyle : {}, locale.code === currentLocale ? disabledLinkStyle : {}, customLinkStyle]"
           :hreflang="locale.iso || locale.code"
+          @click="toggleDropdown"
         >
           {{ localeLabel(locale) }}
         </NuxtLink>

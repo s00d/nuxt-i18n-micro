@@ -50,8 +50,8 @@ export function useTranslationHelper() {
       serverTranslationInit[`${locale}:index`] = true
       serverTranslationInit[cacheKey] = true
     },
-    mergeTranslation(locale: string, routeName: string, newTranslations: Translations) {
-      if (!routeLocaleCache[`${locale}:${routeName}`]) {
+    mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false) {
+      if (!force && !routeLocaleCache[`${locale}:${routeName}`]) {
         console.error(`marge: route ${locale}:${routeName} not loaded`)
       }
       routeLocaleCache[`${locale}:${routeName}`] = {
@@ -59,8 +59,8 @@ export function useTranslationHelper() {
         ...newTranslations,
       }
     },
-    mergeGlobalTranslation(locale: string, newTranslations: Translations) {
-      if (!generalLocaleCache[`${locale}`]) {
+    mergeGlobalTranslation(locale: string, newTranslations: Translations, force = false) {
+      if (!force && !generalLocaleCache[`${locale}`]) {
         console.error(`marge: route ${locale} not loaded`)
       }
       generalLocaleCache[locale] = {

@@ -130,14 +130,6 @@ function formatDate(value: Date | number | string, locale: string, options?: Int
 }
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const registerI18nModule = (translations: Translations, locale: string) => {
-    i18nHelper.mergeGlobalTranslation(locale, translations)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  await nuxtApp.callHook('i18n:register', registerI18nModule)
-
   if (!nuxtApp.payload.data.translations) {
     nuxtApp.payload.data.translations = {}
   }
@@ -172,17 +164,23 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     await loadTranslationsIfNeeded(locale, initialRouteName)
   }
   useRouter().beforeEach(async (to, from, next) => {
+    const locale = getCurrentLocale(to, i18nConfig)
     if (import.meta.client) {
-      const locale = getCurrentLocale(to, i18nConfig)
       const data: Translations = await $fetch(`/_locales/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
       await i18nHelper.loadTranslations(locale, data ?? {})
     }
 
     if (import.meta.client && !i18nConfig.disablePageLocales) {
-      const locale = getCurrentLocale(to, i18nConfig)
       const routeName = getRouteName(to, locale)
       await loadTranslationsIfNeeded(locale, routeName)
     }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
+      const routeName = getRouteName(to, locale)
+      i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
+    }, locale)
     next()
   })
 

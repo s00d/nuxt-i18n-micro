@@ -229,7 +229,8 @@ export default defineNuxtModule<ModuleOptions>({
 
 export interface ModuleHooks {
   'i18n:register': (
-    registerModule: (translations: unknown, locale: string) => void
+    registerModule: (translations: unknown, locale?: string) => void,
+    locale: string
   ) => HookResult
 }
 

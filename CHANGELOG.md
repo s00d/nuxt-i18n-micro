@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.14.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.14.0...v1.14.1)
+
+### 🩹 Fixes
+
+- Restore redirect for missing locales in defineI18nRoute ([a4cee76](https://github.com/s00d/nuxt-i18n-micro/commit/a4cee76))
+- Optimize load locale logic to load main locale only once per page ([fd5a747](https://github.com/s00d/nuxt-i18n-micro/commit/fd5a747))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.14.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.3...v1.14.0)

@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.14.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.3...v1.14.0)
+
+### 🚀 Enhancements
+
+- Update i18n:register hook logic and add documentation ([dec1187](https://github.com/s00d/nuxt-i18n-micro/commit/dec1187))
+
+### 🩹 Fixes
+
+- ToggleDropdown ([a1fc1cf](https://github.com/s00d/nuxt-i18n-micro/commit/a1fc1cf))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.13.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.13.2...v1.13.3)

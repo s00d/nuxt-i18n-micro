@@ -64,11 +64,36 @@ export default defineNuxtPlugin((_nuxtApp) => {
     const currentLocale = (route.params.locale || i18nConfig.defaultLocale!).toString()
     const normalizedLocales = normalizeLocales(routeDefinition.locales)
 
-    // Если текущая локаль есть в объекте locales
-    if (!Object.values(normalizedLocales).length || normalizedLocales[currentLocale]) {
-      const translation = normalizedLocales[currentLocale]
-      const nuxtApp = useNuxtApp()
-      nuxtApp.$mergeTranslations(translation)
+    if (Object.values(normalizedLocales).length) {
+      // Если текущая локаль есть в объекте locales
+      if (normalizedLocales[currentLocale]) {
+        const translation = normalizedLocales[currentLocale]
+        const nuxtApp = useNuxtApp()
+        nuxtApp.$mergeTranslations(translation)
+      }
+
+      // Если текущей локали есть в объекте locales
+      if (!normalizedLocales[currentLocale]) {
+        let defaultRouteName = route.name?.toString()
+          .replace('localized-', '')
+          .replace(new RegExp(`-${currentLocale}$`), '')
+        const resolvedRoute = router.resolve({ name: defaultRouteName })
+        const newParams = { ...route.params }
+        delete newParams.locale
+
+        if (i18nConfig.includeDefaultLocaleRoute) {
+          if (router.hasRoute(`localized-${defaultRouteName}-${currentLocale}`)) {
+            defaultRouteName = `localized-${defaultRouteName}-${currentLocale}`
+          }
+          else {
+            defaultRouteName = `localized-${defaultRouteName}`
+          }
+          newParams.locale = i18nConfig.defaultLocale!
+          newParams.name = defaultRouteName
+        }
+
+        return router.push(resolvedRoute)
+      }
     }
   }
 

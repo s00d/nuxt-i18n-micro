@@ -17,6 +17,7 @@
         :style="[itemStyle, customItemStyle]"
       >
         <NuxtLink
+          @click="toggleDropdown"
           :to="getLocaleLink(locale)"
           :style="[linkStyle, locale.code === currentLocale ? activeLinkStyle : {}, locale.code === currentLocale ? disabledLinkStyle : {}, customLinkStyle]"
           :hreflang="locale.iso || locale.code"

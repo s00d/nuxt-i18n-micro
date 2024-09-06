@@ -7,5 +7,6 @@ export default defineNuxtConfig({
       { code: 'ru', iso: 'ru_RU' },
       { code: 'de', disabled: true },
     ],
+    fallbackLocale: 'en',
   },
 })

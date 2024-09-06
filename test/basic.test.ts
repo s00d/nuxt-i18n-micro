@@ -128,7 +128,7 @@ test('test locale switching on page', async ({ page, goto }) => {
   await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
 
   // Verify the pluralization for items after switching locale
-  await expect(page.locator('#plural')).toHaveText('2 items') // Replace with actual pluralization result in German
+  await expect(page.locator('#plural')).toHaveText('2 Artikel') // Replace with actual pluralization result in German
 
   // Verify the localized route generation after switching locale
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
@@ -159,4 +159,52 @@ test('test locale switching on locale-test page', async ({ page }) => {
   await expect(page.locator('#username')).toHaveText('Hallo, John!')
   await expect(page.locator('#plural')).toHaveText('Sie haben 2 Artikel.')
   await expect(page.locator('#html-content')).toHaveText('Fetter Text mit HTML-Inhalt.')
+})
+
+test('test locale switching via links', async ({ page, goto }) => {
+  await goto('/page', { waitUntil: 'hydration' })
+
+  await expect(page.locator('#locale')).toHaveText('Current Locale: en')
+
+  await page.click('#link-de')
+  await expect(page).toHaveURL('/de/page')
+  await expect(page.locator('#locale')).toHaveText('Current Locale: de')
+
+  await page.click('#link-en')
+  await expect(page).toHaveURL('/page')
+  await expect(page.locator('#locale')).toHaveText('Current Locale: en')
+})
+
+test('test localized content changes on navigation', async ({ page, goto }) => {
+  await goto('/locale-test', { waitUntil: 'hydration' })
+
+  await expect(page.locator('h1')).toHaveText('Locale Test Page')
+  await expect(page.locator('#content')).toHaveText('This is a content area.')
+
+  await page.click('#link-de')
+  await expect(page).toHaveURL('/de/locale-page-modify')
+  await expect(page.locator('h1')).toHaveText('Sprachtestseite')
+  await expect(page.locator('#content')).toHaveText('Dies ist ein Inhaltsbereich.')
+})
+
+test('test translation features: pluralization and parameters', async ({ page, goto }) => {
+  await goto('/', { waitUntil: 'hydration' })
+  await goto('/page', { waitUntil: 'hydration' })
+
+  await expect(page.locator('#plural')).toHaveText('2 items')
+
+  await page.click('#link-de')
+  await expect(page.locator('#plural')).toHaveText('2 Artikel')
+
+  await goto('/locale-test', { waitUntil: 'hydration' })
+  await expect(page.locator('#username')).toHaveText('Hello, John!')
+  await page.click('#link-de')
+  await expect(page.locator('#username')).toHaveText('Hallo, John!')
+})
+
+test('test handling of missing locale data', async ({ page, goto }) => {
+  await goto('/', { waitUntil: 'hydration' })
+  await goto('/ru/page', { waitUntil: 'hydration' })
+
+  await expect(page.locator('#translation')).toHaveText('page.example')
 })

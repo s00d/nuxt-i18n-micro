@@ -5,28 +5,64 @@ import type { ModuleOptionsExtend, ModulePrivateOptionsExtend } from '../../../t
 import type { Translations } from '../../plugins/01.plugin'
 import { useRuntimeConfig } from '#imports'
 
+// Рекурсивная функция для глубокого слияния объектов
+function deepMerge(target: Translations, source: Translations): Translations {
+  for (const key of Object.keys(source)) {
+    if (source[key] instanceof Object && key in target) {
+      Object.assign(source[key], deepMerge(target[key] as Translations, source[key] as Translations))
+    }
+  }
+  // Сливаем объекты на верхнем уровне
+  return { ...target, ...source }
+}
+
+function isEmptyObject(obj: Translations): boolean {
+  for (const _ in obj) {
+    return false
+  }
+  return true
+}
+
 export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
   const { rootDirs } = config.i18nConfig as ModulePrivateOptionsExtend
-  const { translationDir } = config.public.i18nConfig as ModuleOptionsExtend
+  const { translationDir, fallbackLocale } = config.public.i18nConfig as ModuleOptionsExtend
 
-  let path = `${locale}.json`
-  if (page !== 'general') {
-    path = `pages/${page}/${locale}.json`
+  const getTranslationPath = (locale: string, page: string) => {
+    return page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
   }
+
+  const paths: string[] = []
+  if (fallbackLocale && fallbackLocale !== locale) {
+    rootDirs.forEach((dir) => {
+      paths.push(resolve(dir, translationDir!, getTranslationPath(fallbackLocale, page)))
+    })
+  }
+  rootDirs.forEach((dir) => {
+    paths.push(resolve(dir, translationDir!, getTranslationPath(locale, page)))
+  })
 
   let translations: Translations = {}
 
-  for (const i in rootDirs) {
-    const translationPath = resolve(rootDirs[i], translationDir!, path)
-
+  // Чтение и мержинг файлов переводов
+  for (const translationPath of paths) {
     try {
       const fileContent = await readFile(translationPath, 'utf-8')
       const content = JSON.parse(fileContent) as Translations
-      translations = { ...translations, ...content }
+
+      // Если translations пустой, просто присваиваем значение
+      if (isEmptyObject(translations)) {
+        translations = content
+      }
+      else {
+        // Иначе выполняем глубокое слияние
+        translations = deepMerge(translations, content)
+      }
     }
-    catch { /* empty */ }
+    catch {
+      // Игнорируем ошибки чтения файлов, продолжаем с оставшимися
+    }
   }
 
   return translations

@@ -245,7 +245,7 @@ However, if you prefer to manage locale files manually, or in production environ
 disableWatcher: true // Disables the automatic creation of locale files
 ```
 
-### 📂 How It Works
+#### 📂 How It Works
 
 When the file watcher is enabled, any changes to translation files will trigger a restart or update of the translation cache, ensuring that the latest translations are always in use. Disabling the watcher is useful when:
 - You want to optimize performance in production.
@@ -254,30 +254,50 @@ When the file watcher is enabled, any changes to translation files will trigger 
 
 By setting `disableWatcher: true`, the module will skip setting up the watcher, which can help in environments where filesystem access is limited or where stability is prioritized over real-time updates.
 
-### 🔄 Caching Mechanism
+### 🌐 `fallbackLocale`: `string | undefined`
+
+The `fallbackLocale` option allows you to specify a fallback locale that will be used when the current locale does not have a specific translation available. This can be particularly useful in scenarios where you have partial translations for some locales and want to provide a more seamless user experience by falling back to a default language when necessary.
+
+- **Default**: `undefined` — No fallback locale is used by default.
+- **Type**: Can be a string specifying a locale code (e.g., `'en'`) or `undefined`.
+
+#### How It Works:
+
+- When `fallbackLocale` is set to a valid locale string, the module will attempt to merge translations from the specified fallback locale into the current locale during the translation fetch process.
+- If the current locale lacks certain translations, the missing keys will be filled in with the corresponding translations from the fallback locale, ensuring more comprehensive coverage.
+
+#### Example:
+
+```typescript
+i18n: {
+  locales: [
+    { code: 'en', iso: 'en-US', dir: 'ltr' },
+    { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+    { code: 'es', iso: 'es-ES', dir: 'ltr' }
+  ],
+  defaultLocale: 'en',
+  translationDir: 'locales',
+  fallbackLocale: 'en', // Use English as a fallback locale
+}
+```
+
+### Use Case:
+
+If the application is set to French (`fr`) and a specific translation key is missing in the French translation file, the module will automatically look for that key in the fallback locale (`en` in this example).
+
+### Important Notes:
+
+- If `fallbackLocale` is set to `undefined`, the module will not attempt to use any fallback locale, and missing translations will remain untranslated.
+- The fallback mechanism is only triggered when there are missing keys in the current locale. It does not override existing translations in the current locale.
+
+
+# 🔄 Caching Mechanism
 
 One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again. This caching mechanism drastically reduces the time needed to fetch translations and significantly lowers the server's resource consumption.
 
 However, it's important to note that **caching is only effective after the page has been accessed at least once**. Once the translations for a specific page and locale are cached, all subsequent requests will benefit from faster load times and reduced server load.
 
----
-
-### 🧠 How It Works:
-
-- **First Request**: On the first visit to a page, translations are fetched from the corresponding translation files and stored in the cache.
-- **Subsequent Requests**: On all subsequent visits to the same page (within the same session or until the cache is invalidated), translations are retrieved from the cache, resulting in faster response times and lower CPU and memory usage.
-
-This caching strategy is particularly beneficial for high-traffic applications, where the same pages are frequently accessed by users. By minimizing the need to repeatedly load and process translation files, `Nuxt I18n Micro` ensures that your application remains responsive and efficient, even under heavy load.
-
-## 🔄 Caching Mechanism
-
-One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again. This caching mechanism drastically reduces the time needed to fetch translations and significantly lowers the server's resource consumption.
-
-However, it's important to note that **caching is only effective after the page has been accessed at least once**. Once the translations for a specific page and locale are cached, all subsequent requests will benefit from faster load times and reduced server load.
-
----
-
-### 🧠 How It Works:
+## 🧠 How It Works:
 
 - **First Request**: On the first visit to a page, translations are fetched from the corresponding translation files and stored in the cache.
 - **Subsequent Requests**: On all subsequent visits to the same page (within the same session or until the cache is invalidated), translations are retrieved from the cache, resulting in faster response times and lower CPU and memory usage.

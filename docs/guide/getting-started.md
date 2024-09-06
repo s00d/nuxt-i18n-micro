@@ -297,6 +297,7 @@ If the application is set to French (`fr`) and a specific translation key is mis
 - If `fallbackLocale` is set to `undefined`, the module will not attempt to use any fallback locale, and missing translations will remain untranslated.
 - The fallback mechanism is only triggered when there are missing keys in the current locale. It does not override existing translations in the current locale.
 
+---
 
 # 🔄 Caching Mechanism
 

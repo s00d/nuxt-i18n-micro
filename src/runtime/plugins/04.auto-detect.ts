@@ -42,6 +42,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const currentLocale = (currentPath.value.params.locale ?? defaultLocale)
 
     if (detectedLocale === currentLocale) {
+      userLocaleCookie.value = detectedLocale
       return
     }
 

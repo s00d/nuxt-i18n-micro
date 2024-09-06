@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.15.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.14.1...v1.15.0)
+
+### 🚀 Enhancements
+
+- Add fallbackLocale ([5681d42](https://github.com/s00d/nuxt-i18n-micro/commit/5681d42))
+- Add localeCookie ([4b3c636](https://github.com/s00d/nuxt-i18n-micro/commit/4b3c636))
+
+### 🩹 Fixes
+
+- Auto-update if detectedLocale === currentLocale ([9d0276d](https://github.com/s00d/nuxt-i18n-micro/commit/9d0276d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.14.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.14.0...v1.14.1)

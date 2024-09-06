@@ -49,6 +49,7 @@ export default defineNuxtModule<ModuleOptions>({
     disableWatcher: false,
     includeDefaultLocaleRoute: false,
     fallbackLocale: undefined,
+    localeCookie: 'user-locale',
     routesLocaleLinks: {},
     plural: `function (translation, count, _locale) {
       const forms = translation.toString().split('|')
@@ -78,6 +79,7 @@ export default defineNuxtModule<ModuleOptions>({
       disableWatcher: options.disableWatcher ?? false,
       defaultLocale: options.defaultLocale ?? 'en',
       translationDir: options.translationDir ?? 'locales',
+      localeCookie: options.localeCookie ?? 'user-locale',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
       autoDetectPath: options.autoDetectPath ?? '*',
       includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,

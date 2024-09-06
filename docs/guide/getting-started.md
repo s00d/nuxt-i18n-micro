@@ -254,6 +254,13 @@ When the file watcher is enabled, any changes to translation files will trigger 
 
 By setting `disableWatcher: true`, the module will skip setting up the watcher, which can help in environments where filesystem access is limited or where stability is prioritized over real-time updates.
 
+### 🍪 `localeCookie`: `string`
+
+The `localeCookie` option specifies the name of the cookie that will be used to store the user's selected locale. This is particularly useful when `autoDetectLanguage` is enabled, as it allows the application to remember the user's language preference across sessions by saving it in a cookie.
+
+- **Default**: `'user-locale'` — The default cookie name is `user-locale`.
+- **Type**: `string`
+
 ### 🌐 `fallbackLocale`: `string | undefined`
 
 The `fallbackLocale` option allows you to specify a fallback locale that will be used when the current locale does not have a specific translation available. This can be particularly useful in scenarios where you have partial translations for some locales and want to provide a more seamless user experience by falling back to a default language when necessary.

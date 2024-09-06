@@ -25,6 +25,7 @@ export interface ModuleOptions {
   plural?: string
   disablePageLocales?: boolean
   fallbackLocale?: string
+  localeCookie?: string
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

@@ -12,7 +12,7 @@ function deepClone<T>(value: T): T {
     return value.slice() as T
   }
   else if (typeof value === 'object' && value !== null) {
-    return { ...value } as T
+    return JSON.parse(JSON.stringify(value)) as T
   }
   return value
 }

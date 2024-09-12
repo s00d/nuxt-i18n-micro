@@ -3,6 +3,9 @@
     <div id="locale">
       {{ $t('key0') }}
     </div>
+    <p class="text_escaping">
+      {{ $t('text_escaping') }}
+    </p>
   </div>
 </template>
 

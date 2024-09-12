@@ -15,6 +15,11 @@ test('test index', async ({ page, goto }) => {
   await expect(page.locator('#locale')).toHaveText('de')
 })
 
+test('test text escaping', async ({ page, goto }) => {
+  await goto('/', { waitUntil: 'hydration' })
+  await expect(page.locator('.text_escaping')).toHaveText('test {text_escaping} } { { ')
+})
+
 test('test head', async ({ page, goto, baseURL }) => {
   // Test for the default locale (English)
   await goto('/', { waitUntil: 'hydration' })

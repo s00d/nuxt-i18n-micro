@@ -23,7 +23,13 @@ interface PluralTranslations {
 }
 
 function interpolate(template: string, params: Record<string, string | number | boolean>): string {
-  return template.replace(/\{(\w+)\}/g, (_, match) => params[match] !== undefined ? String(params[match]) : `{${match}}`)
+  let result = template
+
+  for (const key in params) {
+    result = result.split(`{${key}}`).join(String(params[key]))
+  }
+
+  return result
 }
 
 // Вспомогательная функция для получения текущей локали

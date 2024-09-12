@@ -20,6 +20,8 @@
 
     <p>Current Locale: {{ $getLocale() }}</p>
 
+    <p>text escaping: {{ $t('text_escaping') }}</p>
+
     <div>
       {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
     </div>

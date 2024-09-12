@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.15.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.0...v1.15.1)
+
+### 🩹 Fixes
+
+- DeepClone memory leak ([50fa1c6](https://github.com/s00d/nuxt-i18n-micro/commit/50fa1c6))
+- Interpolate logics ([7cb174b](https://github.com/s00d/nuxt-i18n-micro/commit/7cb174b))
+
+### ✅ Tests
+
+- Add text escaping ([2637e5e](https://github.com/s00d/nuxt-i18n-micro/commit/2637e5e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.15.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.14.1...v1.15.0)

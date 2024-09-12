@@ -1,10 +1,11 @@
 {
-  "welcome": "Welcome, {username}! You have {unreadCount} unread messages.",
+  "welcome": "Welcome, {username}! You have {unreadCount} unread messages.  {username}  {username}  {username}",
   "apples": "no apples | one apple | {count} apples",
   "feedback": {
     "text":  "test link: {link}",
     "link":  "click"
   },
+  "text_escaping": "test {text_escaping} } { { ",
   "key1": {
     "key1": {
       "key1": {

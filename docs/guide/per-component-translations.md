@@ -1,3 +1,7 @@
+---
+outline: deep
+---
+
 ## 📖 Per-Component Translations in `Nuxt I18n Micro`
 
 ### Overview

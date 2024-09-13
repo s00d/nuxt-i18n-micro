@@ -9,7 +9,7 @@ const serverTranslationInit: Record<string, boolean> = {}
 
 function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
-    return value.slice() as T
+    return JSON.parse(JSON.stringify(value)) as T
   }
   else if (typeof value === 'object' && value !== null) {
     return JSON.parse(JSON.stringify(value)) as T

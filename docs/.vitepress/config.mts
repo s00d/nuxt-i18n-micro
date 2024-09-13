@@ -30,6 +30,7 @@ export default defineConfig({
           { text: 'Contribution', link: '/guide/contribution' },
           { text: 'Multi Domain Locales', link: '/guide/multi-domain-locales' },
           { text: 'Custom Localized Routes', link: '/guide/custom-locale-routes' },
+          { text: 'Per Component Translations', link: '/guide/per-component-translations' },
         ],
       },
       {
@@ -90,6 +91,7 @@ export default defineConfig({
             { text: 'Contribution', link: '/contribution' },
             { text: 'Multi Domain Locales', link: '/multi-domain-locales' },
             { text: 'Custom Localized Routes', link: '/custom-locale-routes' },
+            { text: 'Per Component Translations', link: '/per-component-translations' },
           ],
         },
       ],

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.15.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.1...v1.15.2)
+
+### 🩹 Fixes
+
+- DeepClone memory leak ([3d8145a](https://github.com/s00d/nuxt-i18n-micro/commit/3d8145a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.15.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.0...v1.15.1)

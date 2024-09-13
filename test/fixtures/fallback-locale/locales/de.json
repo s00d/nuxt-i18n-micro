@@ -1,5 +1,13 @@
 {
   "generic": {
     "welcome": "Willkommen auf der Seite!"
-  }
+  },
+  "arr": [
+    "dddd"
+  ],
+  "arr_obj": [
+    {
+      "key": "vvvv"
+    }
+  ]
 }

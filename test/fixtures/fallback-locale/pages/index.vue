@@ -14,5 +14,11 @@
       class="title"
       v-text="$t('generic.title')"
     />
+    <p class="arr">
+      {{ $t('arr') }}
+    </p>
+    <p class="arr_obj">
+      {{ $t('arr_obj') }}
+    </p>
   </div>
 </template>

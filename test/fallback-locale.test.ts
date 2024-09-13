@@ -18,6 +18,8 @@ test('verify fallbackLocale functionality and content update when switching', as
   // Check the text inside the div with id 'text'
   await expect(page.locator('.welcome')).toHaveText('Welcome to the page!') // Adjust expected text as needed
   await expect(page.locator('.title')).toHaveText('Page Title!') // Adjust expected text as needed
+  await expect(page.locator('.arr')).toHaveText('[ "aaaa", "bbbb", "cccc" ]') // Adjust expected text as needed
+  await expect(page.locator('.arr_obj')).toHaveText('[ { "key1": "val" }, { "key2": "val2" } ]') // Adjust expected text as needed
 
   // Click on the language switcher to show language options using a class
   await page.click('.language-switcher') // Assuming the switcher has a class 'language-switcher'
@@ -41,4 +43,6 @@ test('verify fallbackLocale functionality and content update when switching', as
 
   await expect(page.locator('.welcome')).toHaveText('Willkommen auf der Seite!') // Adjust expected text as needed
   await expect(page.locator('.title')).toHaveText('Page Title!') // Adjust expected text as needed
+  await expect(page.locator('.arr')).toHaveText('[ "dddd" ]') // Adjust expected text as needed
+  await expect(page.locator('.arr_obj')).toHaveText('[ { "key": "vvvv" } ]') // Adjust expected text as needed
 })

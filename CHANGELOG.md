@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v1.15.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.2...v1.15.3)
+
+### 🩹 Fixes
+
+- Fallback-locale array merge and drop __proto__,constructor ([7f72208](https://github.com/s00d/nuxt-i18n-micro/commit/7f72208))
+
+### 📖 Documentation
+
+- Per Component Translations ([484daad](https://github.com/s00d/nuxt-i18n-micro/commit/484daad))
+- Per Component Translations ([d0071cc](https://github.com/s00d/nuxt-i18n-micro/commit/d0071cc))
+- Per Component Translations ([f0b40bc](https://github.com/s00d/nuxt-i18n-micro/commit/f0b40bc))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.15.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.1...v1.15.2)

@@ -2,5 +2,18 @@
   "generic": {
     "welcome": "Welcome to the page!",
     "title": "Page Title!"
-  }
+  },
+  "arr": [
+    "aaaa",
+    "bbbb",
+    "cccc"
+  ],
+  "arr_obj": [
+    {
+      "key1": "val"
+    },
+    {
+      "key2": "val2"
+    }
+  ]
 }

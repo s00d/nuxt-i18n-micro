@@ -8,7 +8,14 @@ import { useRuntimeConfig } from '#imports'
 // Рекурсивная функция для глубокого слияния объектов
 function deepMerge(target: Translations, source: Translations): Translations {
   for (const key of Object.keys(source)) {
-    if (source[key] instanceof Object && key in target) {
+    if (key === '__proto__' || key === 'constructor') {
+      continue
+    }
+    if (Array.isArray(source[key])) {
+      // Если значение — массив, берём массив из source
+      target[key] = source[key]
+    }
+    else if (source[key] instanceof Object && key in target) {
       Object.assign(source[key], deepMerge(target[key] as Translations, source[key] as Translations))
     }
   }

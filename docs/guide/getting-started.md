@@ -164,7 +164,7 @@ Custom function for handling pluralization in translations based on count and lo
 Example:
 
 ```typescript
-plural: (ranslation: unknown, count: number, locale: string) => {
+plural: (translation: unknown, count: number, locale: string) => {
   const forms = translation!.toString().split('|')
   if (count === 0 && forms.length > 2) {
     return forms[0].trim() // Case for "no apples"

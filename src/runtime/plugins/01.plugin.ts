@@ -143,8 +143,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
-
-  const plural = new Function('return ' + i18nConfig.plural)()
+  const plural = new Function('return ' + i18nConfig.plural.toString())()
 
   const loadTranslationsIfNeeded = async (locale: string, routeName: string) => {
     if (!i18nHelper.hasPageTranslation(locale, routeName)) {

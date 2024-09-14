@@ -10,6 +10,8 @@ export interface DefineI18nRouteConfig {
   localeRoutes?: Record<string, string>
 }
 
+export type PluralFunc = (translation: unknown, count: number, locale: string) => string
+
 export interface ModuleOptions {
   locales?: Locale[]
   meta?: boolean
@@ -22,7 +24,7 @@ export interface ModuleOptions {
   disableWatcher?: boolean
   includeDefaultLocaleRoute?: boolean
   routesLocaleLinks?: Record<string, string>
-  plural?: string
+  plural?: string | PluralFunc
   disablePageLocales?: boolean
   fallbackLocale?: string
   localeCookie?: string

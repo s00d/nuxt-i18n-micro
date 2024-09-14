@@ -70,8 +70,11 @@ export default defineNuxtModule<ModuleOptions>({
     const localeManager = new LocaleManager(options, rootDirs)
     const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!)
 
+    let plural = options.plural!
+    if (typeof plural !== 'string') plural = plural.toString()
+
     nuxt.options.runtimeConfig.public.i18nConfig = {
-      plural: options.plural!,
+      plural: plural,
       locales: localeManager.locales ?? [],
       meta: options.meta ?? true,
       metaBaseUrl: options.metaBaseUrl ?? undefined,

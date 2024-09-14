@@ -157,15 +157,22 @@ The `autoDetectPath` option specifies the route path(s) on which the locale auto
 autoDetectPath: '/' // Locale detection will only happen on the home route
 ```
 
-### 🔢 `plural`: `function`
+### 🔢 `plural`: (translation: unknown, count: number, locale: string) => string
 
 Custom function for handling pluralization in translations based on count and locale.
 
 Example:
 
 ```typescript
-plural: (count, options) => {
-  return count === 1 ? options.one : options.other;
+plural: (ranslation: unknown, count: number, locale: string) => {
+  const forms = translation!.toString().split('|')
+  if (count === 0 && forms.length > 2) {
+    return forms[0].trim() // Case for "no apples"
+  }
+  if (count === 1 && forms.length > 1) {
+    return forms[1].trim() // Case for "one apple"
+  }
+  return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
 }
 ```
 

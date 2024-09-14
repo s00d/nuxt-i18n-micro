@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.15.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.3...v1.15.4)
+
+### 🩹 Fixes
+
+- Plural function ([b325992](https://github.com/s00d/nuxt-i18n-micro/commit/b325992))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.15.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.2...v1.15.3)

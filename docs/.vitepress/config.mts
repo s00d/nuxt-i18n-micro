@@ -31,6 +31,7 @@ export default defineConfig({
           { text: 'Multi Domain Locales', link: '/guide/multi-domain-locales' },
           { text: 'Custom Localized Routes', link: '/guide/custom-locale-routes' },
           { text: 'Per Component Translations', link: '/guide/per-component-translations' },
+          { text: 'Crowdin Integration', link: '/guide/crowdin' },
         ],
       },
       {
@@ -92,6 +93,7 @@ export default defineConfig({
             { text: 'Multi Domain Locales', link: '/multi-domain-locales' },
             { text: 'Custom Localized Routes', link: '/custom-locale-routes' },
             { text: 'Per Component Translations', link: '/per-component-translations' },
+            { text: 'Crowdin Integration', link: '/crowdin' },
           ],
         },
       ],

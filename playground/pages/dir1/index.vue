@@ -3,6 +3,7 @@
     <p>{{ $t('key2') }}</p>
 
     <test-component />
+    <test-sub-component />
   </div>
 </template>
 

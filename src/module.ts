@@ -8,6 +8,7 @@ import {
   createResolver,
   defineNuxtModule,
   extendPages,
+  useLogger,
 } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
 import { watch } from 'chokidar'
@@ -63,6 +64,7 @@ export default defineNuxtModule<ModuleOptions>({
     }`,
   },
   async setup(options, nuxt) {
+    const logger = useLogger('nuxt-i18n-micro')
     const resolver = createResolver(import.meta.url)
 
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
@@ -189,11 +191,11 @@ export default defineNuxtModule<ModuleOptions>({
       if (!isProd) {
         const translationPath = path.resolve(nuxt.options.rootDir, options.translationDir!)
 
-        console.log('ℹ add file watcher', translationPath)
+        logger.log('ℹ add file watcher: ' + translationPath)
 
         const watcherEvent = async (path: string) => {
           watcher.close()
-          console.log('↻ update store item', path)
+          logger.log('↻ update store item: ' + path)
           nuxt.callHook('restart')
         }
 

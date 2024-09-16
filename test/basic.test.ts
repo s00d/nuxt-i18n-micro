@@ -97,7 +97,11 @@ test('test plugin methods output on page', async ({ page, goto }) => {
   await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
 
   // Verify the pluralization for items
-  await expect(page.locator('#plural')).toHaveText('2 items') // Replace with actual pluralization result
+  await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result
+
+  await expect(page.locator('#plural-component')).toHaveText('5 apples') // Replace with actual pluralization result
+  await expect(page.locator('#plural-component-custom')).toHaveText('5 apples') // Replace with actual pluralization result
+  await expect(page.locator('#plural-component-custom-zero')).toHaveText('no apples') // Replace with actual pluralization result
 
   // Verify the localized route generation
   await expect(page.locator('#localized-route')).toHaveText('/de/page')

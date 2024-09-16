@@ -1,57 +1,59 @@
 <script lang="ts">
 import { h, defineComponent } from 'vue'
-import type { VNode } from 'vue'
+import type { VNode, PropType } from 'vue'
+import type { PluralFunc } from '../../types'
 import { useNuxtApp } from '#app'
 
 export default defineComponent({
   name: 'I18nT',
   props: {
     keypath: {
-      type: String,
+      type: String as PropType<string>,
       required: true,
     },
     plural: {
-      type: [Number, String],
+      type: [Number, String] as PropType<number | string>,
     },
     tag: {
-      type: String,
+      type: String as PropType<string>,
       default: 'span',
     },
     params: {
-      type: Object,
+      type: Object as PropType<Record<string, string | number | boolean>>,
       default: () => ({}),
     },
     defaultValue: {
-      type: String,
+      type: String as PropType<string>,
       default: '',
     },
     html: {
-      type: Boolean,
+      type: Boolean as PropType<boolean>,
       default: false,
     },
     hideIfEmpty: {
-      type: Boolean,
+      type: Boolean as PropType<boolean>,
       default: false,
     },
     customPluralRule: {
-      type: Function,
+      type: Function as PropType<PluralFunc>,
       default: null,
     },
   },
   setup(props, { slots, attrs }) {
     return () => {
-      const options: Record<string, unknown> = {}
+      const options: Record<string, string | number | boolean> = {}
 
       if (props.plural !== undefined) {
         if (props.customPluralRule) {
-          return props.customPluralRule(
-            useNuxtApp().$t(props.keypath, { ...props.params, ...options }),
-            props.plural,
+          return h(props.tag, { ...attrs, innerHTML: props.customPluralRule(
+            props.keypath,
+            Number.parseInt((props.plural).toString()),
             useNuxtApp().$getLocale(),
-          )
+            useNuxtApp().$t,
+          ) })
         }
         else {
-          return useNuxtApp().$tc(props.keypath, Number.parseInt(props.plural.toString()))
+          return h(props.tag, { ...attrs, innerHTML: useNuxtApp().$tc(props.keypath, Number.parseInt(props.plural.toString())) })
         }
       }
 

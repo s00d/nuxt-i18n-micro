@@ -10,7 +10,8 @@ export interface DefineI18nRouteConfig {
   localeRoutes?: Record<string, string>
 }
 
-export type PluralFunc = (translation: unknown, count: number, locale: string) => string
+export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+export type PluralFunc = (key: string, count: number, locale: string, getter: Getter) => string | null
 
 export interface ModuleOptions {
   locales?: Locale[]

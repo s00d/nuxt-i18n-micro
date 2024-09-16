@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v1.16.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.4...v1.16.0)
+
+### 🚀 Enhancements
+
+- **i18n:** Modified pluralization logic ([5664f0e](https://github.com/s00d/nuxt-i18n-micro/commit/5664f0e))
+
+### 🩹 Fixes
+
+- UseLogger ([7c8b74f](https://github.com/s00d/nuxt-i18n-micro/commit/7c8b74f))
+
+### 📖 Documentation
+
+- Plural ([732f88d](https://github.com/s00d/nuxt-i18n-micro/commit/732f88d))
+- Crowdin ([9899373](https://github.com/s00d/nuxt-i18n-micro/commit/9899373))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.15.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.3...v1.15.4)

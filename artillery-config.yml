@@ -1,32 +1,33 @@
-execution:
-  - scenario: test_scenario
-    concurrency: 6  # Maximum number of users during warm-up phase
-    ramp-up: 0s
-    hold-for: 6s  # Duration of the warm-up phase
-    iterations: 1  # One iteration per URL in the warm-up phase
-
-  - scenario: test_scenario
-    concurrency: 60  # Number of users during the main test phase
-    ramp-up: 1s
-    hold-for: 60s  # Duration of the main test phase
-    iterations: 0  # Infinite iterations during the main test phase
+config:
+  target: "http://127.0.0.1:10000"  # Укажите целевой URL для тестирования
+  phases:
+    - duration: 6
+      arrivalRate: 6  # Максимальное количество пользователей в фазе разогрева
+    - duration: 60
+      arrivalRate: 60  # Основная фаза теста с количеством пользователей 60
 
 scenarios:
-  test_scenario:
-    requests:
-      - url: "http://127.0.0.1:10000/"
-      - url: "http://127.0.0.1:10000/ru"
-      - url: "http://127.0.0.1:10000/de"
-      - url: "http://127.0.0.1:10000/page"
-      - url: "http://127.0.0.1:10000/ru/page"
-      - url: "http://127.0.0.1:10000/de/page"
-    parallel-requests: 6  # Execute all requests simultaneously
+  - name: test_scenario
+    flow:
+      - get:
+          url: "/"  # Использует target из секции config
+      - get:
+          url: "/ru"
+      - get:
+          url: "/de"
+      - get:
+          url: "/page"
+      - get:
+          url: "/ru/page"
+      - get:
+          url: "/de/page"
+    parallel-requests: 6  # Выполнять все запросы одновременно
 
 modules:
-  console:  # Enables console output during the test
+  console:  # Включает вывод в консоль во время теста
     disable: false
 
 reporting:
   - module: final-stats
   - module: json
-    filename: results.json  # Output test results in JSON format
+    filename: results.json  # Вывод результатов теста в формате JSON

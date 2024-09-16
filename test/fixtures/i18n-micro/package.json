@@ -9,7 +9,6 @@
     "init": "nuxt prepare"
   },
   "devDependencies": {
-    "nuxt-i18n-micro": "../../../src/module",
-    "nuxt": "^3.13.0"
+    "nuxt-i18n-micro": "../../../src/module"
   }
 }

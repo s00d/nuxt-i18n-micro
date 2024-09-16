@@ -119,7 +119,7 @@ test('test locale switching on page', async ({ page, goto }) => {
   await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
 
   // Verify the pluralization for items after switching locale
-  await expect(page.locator('#plural')).toHaveText('2 items') // Replace with actual pluralization result in German
+  await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result in German
 
   // Verify the localized route generation after switching locale
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
@@ -137,7 +137,7 @@ test('test locale switching on page', async ({ page, goto }) => {
   await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
 
   // Verify the pluralization for items after switching locale
-  await expect(page.locator('#plural')).toHaveText('2 Artikel') // Replace with actual pluralization result in German
+  await expect(page.locator('#plural')).toHaveText('2 Äpfel') // Replace with actual pluralization result in German
 
   // Verify the localized route generation after switching locale
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
@@ -200,10 +200,10 @@ test('test translation features: pluralization and parameters', async ({ page, g
   await goto('/', { waitUntil: 'hydration' })
   await goto('/page', { waitUntil: 'hydration' })
 
-  await expect(page.locator('#plural')).toHaveText('2 items')
+  await expect(page.locator('#plural')).toHaveText('2 apples')
 
   await page.click('#link-de')
-  await expect(page.locator('#plural')).toHaveText('2 Artikel')
+  await expect(page.locator('#plural')).toHaveText('2 Äpfel')
 
   await goto('/locale-test', { waitUntil: 'hydration' })
   await expect(page.locator('#username')).toHaveText('Hello, John!')

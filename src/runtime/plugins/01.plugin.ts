@@ -6,7 +6,7 @@ import type {
   Router,
 } from 'vue-router'
 import { useTranslationHelper } from '../translationHelper'
-import type { ModuleOptionsExtend, Locale } from '../../types'
+import type { ModuleOptionsExtend, Locale, PluralFunc } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
@@ -143,7 +143,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
-  const plural = new Function('return ' + i18nConfig.plural.toString())()
+  const plural: PluralFunc = new Function('return ' + i18nConfig.plural.toString())()
 
   const loadTranslationsIfNeeded = async (locale: string, routeName: string) => {
     if (!i18nHelper.hasPageTranslation(locale, routeName)) {
@@ -211,8 +211,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       },
       t: getTranslation,
       tc: (key: string, count: number, defaultValue?: string): string => {
-        const translation = getTranslation(key, {}, defaultValue)
-        return plural(translation?.toString(), count, getCurrentLocale(useRoute(), i18nConfig)) as string
+        const currentLocale = getCurrentLocale(useRoute(), i18nConfig)
+        return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
       },
       tn: (value: number, options?: Intl.NumberFormatOptions) => {
         const locale = getCurrentLocale(useRoute(), i18nConfig)

@@ -91,8 +91,12 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
   <i18n-t
     keypath="items"
     :plural="itemCount"
-    :customPluralRule="(value, count, locale) => {
-      return count === 1 ? 'One item' : `${count} items`;
+    :customPluralRule="(key, count, locale, getTranslation) => {
+      const translation = getTranslation(key, {})
+      if (!translation) {
+        return null
+      }
+      return count === 1 ? 'no items' : `${count} ${translation}`;
     }"
   ></i18n-t>
   ```
@@ -161,7 +165,7 @@ Use a custom function to handle pluralization.
 <i18n-t
   keypath="items"
   :plural="itemCount"
-  :customPluralRule="(value, count, locale) => {
+  :customPluralRule="(key, value, count, locale) => {
     return count === 1 ? 'One item' : `${count} items`;
   }}"
 ></i18n-t>

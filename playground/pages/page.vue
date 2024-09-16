@@ -29,6 +29,20 @@
       {{ $tc('apples', 10) }}
     </div>
 
+    <div>
+      $tc plural
+      {{ $tc('apples', 10) }}
+    </div>
+
+    <div>
+      i18n-t plural
+      <i18n-t
+        keypath="apples"
+        :plural="appleCount"
+        :custom-plural-rule="customPluralRule"
+      />
+    </div>
+
     <!-- Formatted number and date examples -->
     <div>
       Formatted Number: {{ $tn(1234567.89) }}
@@ -40,12 +54,12 @@
     <!-- Ссылки для переключения локалей -->
     <div>
       <button
-        v-for="locale in $getLocales()"
-        :key="locale"
-        :disabled="locale === $getLocale()"
-        @click="$switchLocale(locale.code)"
+        v-for="val in $getLocales()"
+        :key="val.code"
+        :disabled="val.code === locale"
+        @click="$switchLocale(val.code)"
       >
-        Switch to {{ locale.code }}
+        Switch to {{ val.code }}
       </button>
     </div>
 
@@ -65,8 +79,30 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useNuxtApp } from '#imports'
 
+type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $tn, $td } = useNuxtApp()
+
+// Количество яблок
+const appleCount = ref(5)
+const locale = computed(() => $getLocale())
+
+// Кастомное правило множественных форм
+const customPluralRule = (key: string, count: number, _locale: string, t: Getter) => {
+  const translation = t(key)
+  if (!translation) {
+    return null
+  }
+  const forms = translation.toString().split('|')
+  if (count === 0 && forms.length > 2) {
+    return forms[0].trim() // Case for "no apples"
+  }
+  if (count === 1 && forms.length > 1) {
+    return forms[1].trim() // Case for "one apple"
+  }
+  return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
+}
 </script>

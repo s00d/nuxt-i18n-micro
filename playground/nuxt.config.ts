@@ -41,8 +41,12 @@ export default defineNuxtConfig({
       'dir1-subdir-hash-subhash': 'dir1-subdir',
       'dir1-subdir-slug-id-key': 'dir1-subdir',
     },
-    plural: (translation: unknown, count: number, _locale: string) => {
-      const forms = translation!.toString().split('|')
+    plural: (key, count, _locale, getTranslation) => {
+      const translation = getTranslation(key, {})
+      if (!translation) {
+        return null
+      }
+      const forms = translation.toString().split('|')
       if (count === 0 && forms.length > 2) {
         return forms[0].trim() // Case for "no apples"
       }

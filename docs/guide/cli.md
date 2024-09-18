@@ -115,7 +115,7 @@ For example:
 i18n-micro translate --service openai --token YOUR_OPENAI_API_KEY --options openaiModel:gpt-3.5-turbo,max_tokens:1000
 ```
 
-#### extract
+### extract
 
 **Description**: Extracts translation keys from your codebase and organizes them by scope.
 
@@ -137,7 +137,7 @@ i18n-micro extract
 
 This command scans your project files, extracts translation keys used in components, pages, layouts, etc., and generates translation files in the specified translation directory (default is `locales`).
 
-#### sync
+### sync
 
 **Description**: Synchronizes translation files across locales, ensuring all locales have the same keys.
 
@@ -155,7 +155,7 @@ i18n-micro sync
 
 This command synchronizes the translation files based on the reference locale (the first locale specified in your `nuxt.config.js`), adding missing keys and ensuring consistency.
 
-#### validate
+### validate
 
 **Description**: Validates translation files for missing or extra keys compared to the reference locale.
 
@@ -173,7 +173,7 @@ i18n-micro validate
 
 This command checks for missing or extra keys in your translation files and reports any discrepancies.
 
-#### clean
+### clean
 
 **Description**: Removes unused translation keys from translation files.
 
@@ -191,7 +191,7 @@ i18n-micro clean
 
 This command removes translation keys that are no longer used in your codebase from the translation files.
 
-#### import
+### import
 
 **Description**: Converts PO files back to JSON format and saves them in the translation directory.
 
@@ -213,7 +213,7 @@ i18n-micro import --potsDir pots
 
 This command converts PO files to JSON and saves them in the specified translation directory.
 
-#### export
+### export
 
 **Description**: Exports translations to PO files for external translation management.
 

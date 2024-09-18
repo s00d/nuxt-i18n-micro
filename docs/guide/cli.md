@@ -37,7 +37,7 @@ Ensure that your project is set up with `nuxt-i18n` and has the necessary config
 
 ## 📋 Commands
 
-### `stats` Command
+### 📊 `stats` Command
 
 **Description**: The `stats` command is used to display translation statistics for each locale in your Nuxt.js project. It helps you understand the progress of your translations by showing how many keys are translated compared to the total number of keys available.
 
@@ -57,9 +57,8 @@ i18n-micro stats [options]
 i18n-micro stats --full
 ```
 
-This command will output the number of translated keys and the percentage of completion for each locale, helping you keep track of the translation progress across your project.
 
-### `translate` Command
+### 🌍 `translate` Command
 
 **Description**: The `translate` command automatically translates missing keys using external translation services. This command simplifies the translation process by leveraging APIs from services like Google Translate, DeepL, and others to fill in missing translations.
 
@@ -115,7 +114,7 @@ For example:
 i18n-micro translate --service openai --token YOUR_OPENAI_API_KEY --options openaiModel:gpt-3.5-turbo,max_tokens:1000
 ```
 
-### extract
+### 🛠️ `extract` Command
 
 **Description**: Extracts translation keys from your codebase and organizes them by scope.
 
@@ -135,9 +134,7 @@ i18n-micro extract [options]
 i18n-micro extract
 ```
 
-This command scans your project files, extracts translation keys used in components, pages, layouts, etc., and generates translation files in the specified translation directory (default is `locales`).
-
-### sync
+### 🔄 `sync` Command
 
 **Description**: Synchronizes translation files across locales, ensuring all locales have the same keys.
 
@@ -153,9 +150,7 @@ i18n-micro sync [options]
 i18n-micro sync
 ```
 
-This command synchronizes the translation files based on the reference locale (the first locale specified in your `nuxt.config.js`), adding missing keys and ensuring consistency.
-
-### validate
+### ✅ `validate` Command
 
 **Description**: Validates translation files for missing or extra keys compared to the reference locale.
 
@@ -171,9 +166,7 @@ i18n-micro validate [options]
 i18n-micro validate
 ```
 
-This command checks for missing or extra keys in your translation files and reports any discrepancies.
-
-### clean
+### 🧹 `clean` Command
 
 **Description**: Removes unused translation keys from translation files.
 
@@ -189,9 +182,7 @@ i18n-micro clean [options]
 i18n-micro clean
 ```
 
-This command removes translation keys that are no longer used in your codebase from the translation files.
-
-### import
+### 📤 `import` Command
 
 **Description**: Converts PO files back to JSON format and saves them in the translation directory.
 
@@ -211,9 +202,7 @@ i18n-micro import [options]
 i18n-micro import --potsDir pots
 ```
 
-This command converts PO files to JSON and saves them in the specified translation directory.
-
-### export
+### 📥 `export` Command
 
 **Description**: Exports translations to PO files for external translation management.
 
@@ -233,10 +222,7 @@ i18n-micro export [options]
 i18n-micro export --potsDir pots
 ```
 
-This command converts your JSON translation files to PO files, which can be used with external translation tools.
-
-
-### export-csv
+### 🗂️ `export-csv` Command
 
 **Description**: The `export-csv` command exports translation keys and values from JSON files, including their file paths, into a CSV format. This command is useful for teams who prefer working with translation data in spreadsheet software.
 
@@ -257,9 +243,7 @@ i18n-micro export-csv [options]
 i18n-micro export-csv --csvDir csv_files
 ```
 
-This command creates CSV files for each locale, making it easy to distribute translation files to teams who work with spreadsheets or external translation tools.
-
-### import-csv
+### 📑 `import-csv` Command
 
 **Description**: The `import-csv` command imports translation data from CSV files, updating the corresponding JSON files. This is useful for applying bulk translation updates from spreadsheets.
 
@@ -280,9 +264,7 @@ i18n-micro import-csv [options]
 i18n-micro import-csv --csvDir csv_files
 ```
 
-This command reads the translations from CSV files and updates the relevant JSON translation files in your project, allowing teams to integrate translations from external tools.
-
-### diff
+### 🧾 `diff` Command
 
 **Description**: Compares translation files between the default locale and other locales within the same directory (including subdirectories). The command identifies missing keys and their values in the default locale compared to other locales, making it easier to track translation progress or discrepancies.
 
@@ -298,9 +280,7 @@ i18n-micro diff [options]
 i18n-micro diff
 ```
 
-This command is useful for comparing translations in the default locale against other locales, helping identify missing or outdated keys and values across the translation files. It can also be used to ensure consistency between the default locale and all other locales within the directory.
-
-### `check-duplicates` Command
+### 🔍 `check-duplicates` Command
 
 **Description**: The `check-duplicates` command checks for duplicate translation values within each locale across all translation files, including both global and page-specific translations. It ensures that different keys within the same language do not share identical translation values, helping maintain clarity and consistency in your translations.
 
@@ -324,7 +304,7 @@ i18n-micro check-duplicates
 This command helps ensure that translation keys maintain unique values, preventing accidental repetition within the same locale.
 
 
-### `replace-values` Command
+### 🔄 `replace-values` Command
 
 **Description**: The `replace-values` command allows you to perform bulk replacements of translation values across all locales. It supports both simple text replacements and advanced replacements using regular expressions (regex). You can also use capturing groups in regex patterns and reference them in the replacement string, making it ideal for more complex replacement scenarios.
 

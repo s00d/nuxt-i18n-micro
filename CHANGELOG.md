@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.16.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.16.0...v1.16.1)
+
+### 📖 Documentation
+
+- Add cli info ([1066708](https://github.com/s00d/nuxt-i18n-micro/commit/1066708))
+
+### ✅ Tests
+
+- HashMode ([7efe490](https://github.com/s00d/nuxt-i18n-micro/commit/7efe490))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.16.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.15.4...v1.16.0)

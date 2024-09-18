@@ -7,7 +7,7 @@ import type {
 } from 'vue-router'
 import { useTranslationHelper } from '../translationHelper'
 import type { ModuleOptionsExtend, Locale, PluralFunc } from '../../types'
-import { defineNuxtPlugin, useRuntimeConfig } from '#app'
+import { defineNuxtPlugin, navigateTo, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
 const i18nHelper = useTranslationHelper()
@@ -46,7 +46,7 @@ function getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolv
 }
 
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-function switchLocale(fromLocale: string, toLocale: string, route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | null | undefined> {
+function switchLocale(fromLocale: string, toLocale: string, route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | false> | false | void | RouteLocationRaw {
   const checkLocale = i18nConfig.locales?.find(l => l.code === toLocale)
   if (!checkLocale) {
     console.warn(`Locale ${toLocale} is not available`)
@@ -55,21 +55,50 @@ function switchLocale(fromLocale: string, toLocale: string, route: RouteLocation
 
   const routeName = getRouteName(route, fromLocale)
 
+  // eslint-disable-next-line
+  const isHashMode = (router.options as any)?.hashMode as boolean
+
   if (router.hasRoute(`localized-${routeName}-${toLocale}`)) {
     const newParams = { ...route.params }
     newParams.locale = toLocale
+
+    // Если включен hashMode, добавляем хеш в URL
+    if (isHashMode) {
+      return navigateTo(
+        toLocale !== i18nConfig.defaultLocale
+          ? `/${toLocale}/#/${toLocale}${route.fullPath.split('#')[1] || ''}`
+          : `/#/${route.fullPath.split('#')[1] || ''}`,
+        { redirectCode: 200, external: true },
+      )
+    }
+
     return router.push({
       params: newParams,
       name: `localized-${routeName}-${toLocale}`,
     })
   }
-  const newRouteName = toLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute ? `localized-${routeName}` : routeName
+
+  const newRouteName
+    = toLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute
+      ? `localized-${routeName}`
+      : routeName
   const newParams = { ...route.params }
   delete newParams.locale
 
   if (toLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
     newParams.locale = toLocale
   }
+
+  // Если включен hashMode, корректно строим ссылку с хешем
+  if (isHashMode) {
+    return navigateTo(
+      toLocale !== i18nConfig.defaultLocale
+        ? `/${toLocale}/#/${toLocale}${route.fullPath.split('#')[1] || ''}`
+        : `/#/${route.fullPath.split('#')[1] || ''}`,
+      { redirectCode: 200, external: true },
+    )
+  }
+
   return router.push({ name: newRouteName, params: newParams })
 }
 

@@ -32,6 +32,7 @@ export default defineConfig({
           { text: 'Custom Localized Routes', link: '/guide/custom-locale-routes' },
           { text: 'Per Component Translations', link: '/guide/per-component-translations' },
           { text: 'Crowdin Integration', link: '/guide/crowdin' },
+          { text: 'CLI Tool', link: '/guide/cli' },
         ],
       },
       {
@@ -94,6 +95,7 @@ export default defineConfig({
             { text: 'Custom Localized Routes', link: '/custom-locale-routes' },
             { text: 'Per Component Translations', link: '/per-component-translations' },
             { text: 'Crowdin Integration', link: '/crowdin' },
+            { text: 'CLI Tool', link: '/cli' },
           ],
         },
       ],

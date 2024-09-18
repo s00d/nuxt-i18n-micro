@@ -24,13 +24,19 @@ export class PageManager {
 
   constructor(locales: Locale[], defaultLocaleCode: string, includeDefaultLocaleRoute: boolean) {
     this.locales = locales
-    this.defaultLocale = this.findDefaultLocale(defaultLocaleCode)
+    this.defaultLocale = this.findLocaleByCode(defaultLocaleCode) || { code: defaultLocaleCode }
     this.includeDefaultLocaleRoute = includeDefaultLocaleRoute
-    this.activeLocaleCodes = this.calculateActiveLocaleCodes()
+    this.activeLocaleCodes = this.computeActiveLocaleCodes()
   }
 
-  private findDefaultLocale(defaultLocaleCode: string): Locale {
-    return this.locales.find(locale => locale.code === defaultLocaleCode) || { code: defaultLocaleCode }
+  private findLocaleByCode(code: string): Locale | undefined {
+    return this.locales.find(locale => locale.code === code)
+  }
+
+  private computeActiveLocaleCodes(): string[] {
+    return this.locales
+      .filter(locale => locale.code !== this.defaultLocale.code || this.includeDefaultLocaleRoute)
+      .map(locale => locale.code)
   }
 
   public extendPages(pages: NuxtPage[], rootDir: string) {
@@ -40,12 +46,6 @@ export class PageManager {
     pages.forEach(page => this.localizePage(page, additionalRoutes))
 
     pages.push(...additionalRoutes)
-  }
-
-  private calculateActiveLocaleCodes(): string[] {
-    return this.locales
-      .filter(locale => locale.code !== this.defaultLocale.code || this.includeDefaultLocaleRoute)
-      .map(locale => locale.code)
   }
 
   private extractLocalizedPaths(

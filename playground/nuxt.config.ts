@@ -5,7 +5,7 @@ import { startSubprocess } from '@nuxt/devtools-kit'
 
 export default defineNuxtConfig({
   modules: [
-    'nuxt-i18n-micro',
+    '../src/module',
     defineNuxtModule({
       setup(_, nuxt) {
         if (!nuxt.options.dev)

@@ -96,6 +96,7 @@ export default defineNuxtModule<ModuleOptions>({
       fallbackLocale: options.fallbackLocale ?? undefined,
       dateBuild: Date.now(),
       baseURL: nuxt.options.app.baseURL,
+      hashMode: nuxt.options?.router?.options?.hashMode ?? false,
     }
     nuxt.options.runtimeConfig.i18nConfig = {
       rootDir: nuxt.options.rootDir,

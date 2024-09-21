@@ -58,3 +58,5 @@ Temporary Items
 test-results
 docs/.vitepress/cache
 artillery-output.json
+combined.cjs
+combined.md

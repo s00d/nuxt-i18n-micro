@@ -39,7 +39,7 @@ export function validateDefineI18nRouteConfig(obj: DefineI18nRouteConfig): boole
   return true
 }
 
-export const normalizePath = (routePath: string): string => path.posix.normalize(routePath).replace(/\/+$/, '')
+export const normalizePath = (routePath: string): string => path.posix.join(path.posix.normalize(routePath).replace(/\/+$/, ''))
 
 export const cloneArray = <T>(array: T[]): T[] => [...array]
 

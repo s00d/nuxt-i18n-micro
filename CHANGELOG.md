@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.18.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.17.0...v1.18.0)
+
+### 🚀 Enhancements
+
+- Windows path ([cadd8b9](https://github.com/s00d/nuxt-i18n-micro/commit/cadd8b9))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.17.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.16.1...v1.17.0)

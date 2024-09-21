@@ -1,11 +1,13 @@
+// src/runtime/server/middleware/i18n-redirect.ts
+
 import { defineEventHandler, sendRedirect } from 'h3'
 import type { H3Event } from 'h3'
-import type { ModuleOptions, Locale } from '../../../types'
+import type { Locale, ModuleOptionsExtend } from '../../../types'
 import { useRuntimeConfig } from '#imports'
 
 export default defineEventHandler(async (event: H3Event) => {
   const config = useRuntimeConfig()
-  const i18nConfig = config.public.i18nConfig as ModuleOptions
+  const i18nConfig = config.public.i18nConfig as ModuleOptionsExtend
 
   // Ensure defaultLocale is defined
   if (!i18nConfig.defaultLocale) {

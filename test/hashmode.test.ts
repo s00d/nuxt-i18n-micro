@@ -20,13 +20,15 @@ test('test language detection and locale handling in hash mode', async ({ page, 
   }])
   await goto('/', { waitUntil: 'networkidle' })
   // Navigate to the URL with hash indicating the locale
-  await goto('/de/#/de', { waitUntil: 'networkidle' })
+  await page.click('#link-de')
+
+  await page.waitForTimeout(500)
 
   // Get the current URL
   const currentURL = page.url()
 
   // Verify that the current URL contains the correct hash with the locale
-  expect(currentURL).toContain('/de/#/de')
+  expect(currentURL).toContain('/#/de')
 
   // Check that the locale displayed on the page matches the expected value
   await expect(page.locator('#locale')).toHaveText('de')

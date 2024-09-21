@@ -196,7 +196,7 @@ Here's an example of how to use these methods in a Nuxt component:
         v-for="locale in $getLocales()"
         :key="locale"
         :disabled="locale === $getLocale()"
-        @click="$switchLocale(locale.code)"
+        @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}
       </button>

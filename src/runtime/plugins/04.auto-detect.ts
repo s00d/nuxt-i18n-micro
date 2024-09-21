@@ -5,6 +5,7 @@ import { useRoute, useRouter } from '#imports'
 export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig = nuxtApp.$config.public.i18nConfig as ModuleOptionsExtend
   const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale')
+  const hashCookie = useCookie('hash-locale')
   const headers = useRequestHeaders(['accept-language'])
   const supportedLocales = i18nConfig.locales?.map(locale => locale.code) ?? []
   const defaultLocale = i18nConfig.defaultLocale || 'en'
@@ -43,6 +44,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (detectedLocale === currentLocale) {
       userLocaleCookie.value = detectedLocale
+      if (i18nConfig.hashMode) {
+        hashCookie.value = detectedLocale
+      }
       return
     }
 
@@ -61,11 +65,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     // Set the locale in the cookie for future visits
     userLocaleCookie.value = detectedLocale
+    if (i18nConfig.hashMode) {
+      hashCookie.value = detectedLocale
+    }
 
     await navigateTo(router.resolve({ name: newRouteName, params: newParams }).href, { redirectCode: 301, external: true })
   }
   else {
     // Set the default locale in the cookie if no match found
     userLocaleCookie.value = defaultLocale
+    if (i18nConfig.hashMode) {
+      hashCookie.value = detectedLocale
+    }
   }
 })

@@ -41,7 +41,7 @@ This example demonstrates how to switch locales programmatically using buttons:
         v-for="locale in $getLocales()"
         :key="locale.code"
         :disabled="locale.code === $getLocale()"
-        @click="$switchLocale(locale.code)"
+        @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ $t(locale.code) }}
       </button>
@@ -281,7 +281,7 @@ Here's a complex structure demonstrating multiple translation uses within a sing
         v-for="locale in $getLocales()"
         :key="locale.code"
         :disabled="locale.code === $getLocale()"
-        @click="$switchLocale(locale.code)"
+        @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}
       </button>

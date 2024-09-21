@@ -12,7 +12,7 @@
         v-for="locale in $getLocales()"
         :key="locale.code"
         :disabled="locale.code === $getLocale()"
-        @click="$switchLocale(locale.code)"
+        @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}
       </button>

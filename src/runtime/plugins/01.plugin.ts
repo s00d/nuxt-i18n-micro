@@ -7,8 +7,8 @@ import type {
 } from 'vue-router'
 import { useTranslationHelper } from '../translationHelper'
 import type { ModuleOptionsExtend, Locale, PluralFunc } from '../../types'
-import { defineNuxtPlugin, navigateTo, useRuntimeConfig } from '#app'
-import { useRoute, useRouter } from '#imports'
+import { defineNuxtPlugin, useRuntimeConfig } from '#app'
+import { useRoute, useRouter, useCookie } from '#imports'
 
 const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'
@@ -33,7 +33,14 @@ function interpolate(template: string, params: Record<string, string | number | 
 }
 
 // Вспомогательная функция для получения текущей локали
-function getCurrentLocale(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, i18nConfig: ModuleOptionsExtend): string {
+function getCurrentLocale(
+  route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+  i18nConfig: ModuleOptionsExtend,
+  hashLocale: string | null | undefined,
+): string {
+  if (i18nConfig.hashMode && hashLocale) {
+    return hashLocale
+  }
   return (route.params?.locale ?? i18nConfig.defaultLocale).toString()
 }
 
@@ -45,8 +52,13 @@ function getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolv
     .replace(new RegExp(`-${locale}$`), '')
 }
 
-// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-function switchLocale(fromLocale: string, toLocale: string, route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, router: Router, i18nConfig: ModuleOptionsExtend): Promise<void | NavigationFailure | false> | false | void | RouteLocationRaw {
+function switchLocale(
+  fromLocale: string,
+  toLocale: string,
+  route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+  router: Router,
+  i18nConfig: ModuleOptionsExtend,
+): Promise<void | NavigationFailure | false> | false | void | RouteLocationRaw {
   const checkLocale = i18nConfig.locales?.find(l => l.code === toLocale)
   if (!checkLocale) {
     console.warn(`Locale ${toLocale} is not available`)
@@ -55,21 +67,14 @@ function switchLocale(fromLocale: string, toLocale: string, route: RouteLocation
 
   const routeName = getRouteName(route, fromLocale)
 
-  // eslint-disable-next-line
-  const isHashMode = (router.options as any)?.hashMode as boolean
-
   if (router.hasRoute(`localized-${routeName}-${toLocale}`)) {
     const newParams = { ...route.params }
     newParams.locale = toLocale
 
     // Если включен hashMode, добавляем хеш в URL
-    if (isHashMode) {
-      return navigateTo(
-        toLocale !== i18nConfig.defaultLocale
-          ? `/${toLocale}/#/${toLocale}${route.fullPath.split('#')[1] || ''}`
-          : `/#/${route.fullPath.split('#')[1] || ''}`,
-        { redirectCode: 200, external: true },
-      )
+    if (i18nConfig.hashMode) {
+      const userLocaleCookie = useCookie('hash-locale')
+      userLocaleCookie.value = toLocale
     }
 
     return router.push({
@@ -90,13 +95,10 @@ function switchLocale(fromLocale: string, toLocale: string, route: RouteLocation
   }
 
   // Если включен hashMode, корректно строим ссылку с хешем
-  if (isHashMode) {
-    return navigateTo(
-      toLocale !== i18nConfig.defaultLocale
-        ? `/${toLocale}/#/${toLocale}${route.fullPath.split('#')[1] || ''}`
-        : `/#/${route.fullPath.split('#')[1] || ''}`,
-      { redirectCode: 200, external: true },
-    )
+  if (i18nConfig.hashMode) {
+    const userLocaleCookie = useCookie('hash-locale')
+
+    userLocaleCookie.value = toLocale
   }
 
   return router.push({ name: newRouteName, params: newParams })
@@ -108,8 +110,9 @@ function getLocalizedRoute(
   route: RouteLocationNormalizedLoaded,
   i18nConfig: ModuleOptionsExtend,
   locale?: string,
+  hashLocale?: string | null,
 ): RouteLocationRaw {
-  const currentLocale = locale || getCurrentLocale(route, i18nConfig)
+  const currentLocale = locale || getCurrentLocale(route, i18nConfig, hashLocale)
   const selectRoute = router.resolve(to)
   const routeName = getRouteName(selectRoute, currentLocale)
 
@@ -169,7 +172,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (!nuxtApp.payload.data.translations) {
     nuxtApp.payload.data.translations = {}
   }
-
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
   const plural: PluralFunc = new Function('return ' + i18nConfig.plural.toString())()
@@ -187,7 +189,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   useRouter().beforeEach(async (to, from, next) => {
-    const locale = getCurrentLocale(to, i18nConfig)
+    const hashLocale = i18nConfig.hashMode ? nuxtApp.runWithContext(() => (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString()).toString() : null
+    const locale = getCurrentLocale(to, i18nConfig, hashLocale)
+
     if (!i18nHelper.hasGeneralTranslation(locale)) {
       const data: Translations = await $fetch(`/_locales/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
       await i18nHelper.loadTranslations(locale, data ?? {})
@@ -207,7 +211,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     next()
   })
 
-  // Оптимизация методов, предоставляемых через `provide`
   const getTranslation = (
     key: string,
     params?: Record<string, string | number | boolean>,
@@ -215,7 +218,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   ) => {
     if (!key) return ''
 
-    const locale = getCurrentLocale(useRoute(), i18nConfig)
+    const hashLocale = i18nConfig.hashMode ? (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString() : null
+    const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
     const routeName = getRouteName(useRoute(), locale)
     let value = i18nHelper.getTranslation(locale, routeName, key)
 
@@ -229,26 +233,32 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     return typeof value === 'string' && params ? interpolate(value, params) : value
   }
 
+  let hashLocale: string | null = null
+  if (i18nConfig.hashMode) {
+    hashLocale = useCookie('hash-locale').value ?? i18nConfig.defaultLocale!
+  }
+
   return {
     provide: {
-      getLocale: () => getCurrentLocale(useRoute(), i18nConfig),
+      getLocale: () => getCurrentLocale(useRoute(), i18nConfig, hashLocale),
+      // getLocale: () => getCurrentLocale(useRoute(), i18nConfig, i18nConfig.hashMode ? (hashLocale.value ?? i18nConfig.defaultLocale!).toString() : null),
       getLocales: () => i18nConfig.locales || [],
       getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
-        const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig)
+        const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig, hashLocale)
         const selectedRoute = route ?? useRoute()
         return getRouteName(selectedRoute, selectedLocale)
       },
       t: getTranslation,
       tc: (key: string, count: number, defaultValue?: string): string => {
-        const currentLocale = getCurrentLocale(useRoute(), i18nConfig)
+        const currentLocale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
         return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
       },
       tn: (value: number, options?: Intl.NumberFormatOptions) => {
-        const locale = getCurrentLocale(useRoute(), i18nConfig)
+        const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
         return formatNumber(value, locale, options)
       },
       td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
-        const locale = getCurrentLocale(useRoute(), i18nConfig)
+        const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
         return formatDate(value, locale, options)
       },
       has: (key: string): boolean => {
@@ -256,7 +266,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       },
       mergeTranslations: (newTranslations: Translations) => {
         const route = useRoute()
-        const locale = getCurrentLocale(route, i18nConfig)
+        const locale = getCurrentLocale(route, i18nConfig, hashLocale)
         const routeName = getRouteName(route, locale)
         i18nHelper.mergeTranslation(locale, routeName, newTranslations)
       },
@@ -264,13 +274,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         const router = useRouter()
         const route = useRoute()
 
-        const fromLocale = getCurrentLocale(route, i18nConfig)
+        const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale)
+        if (i18nConfig.hashMode) {
+          hashLocale = toLocale
+        }
         switchLocale(fromLocale, toLocale, route, router, i18nConfig)
       },
       localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
         const router = useRouter()
         const route = useRoute()
-        return getLocalizedRoute(to, router, route, i18nConfig, locale)
+        return getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
       },
     },
   }

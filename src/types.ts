@@ -35,6 +35,7 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   plural: string
   dateBuild: number
   baseURL: string
+  hashMode: boolean
 }
 
 export interface ModulePrivateOptionsExtend extends ModuleOptions {

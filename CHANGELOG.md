@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v1.17.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.16.1...v1.17.0)
+
+### 🚀 Enhancements
+
+- **hashmode:** New route logic ([4207cd6](https://github.com/s00d/nuxt-i18n-micro/commit/4207cd6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
+## v1.17.0-1726909148.4207cd6
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.16.1...v1.17.0-1726909148.4207cd6)
+
+### 🚀 Enhancements
+
+- **hashmode:** New route logic ([4207cd6](https://github.com/s00d/nuxt-i18n-micro/commit/4207cd6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.16.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.16.0...v1.16.1)

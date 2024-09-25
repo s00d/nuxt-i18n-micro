@@ -2,11 +2,25 @@ import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import type { DefineI18nRouteConfig, Locale } from './types'
 
+function normalizeLocales(localesArray: string[]): Record<string, object> {
+  const localesObject: Record<string, object> = {}
+  for (const locale of localesArray) {
+    localesObject[locale] = {} // Присваиваем пустой объект как значение для каждого ключа
+  }
+  return localesObject
+}
+
 export function extractDefineI18nRouteConfig(content: string, filePath: string): DefineI18nRouteConfig | null {
   const match = content.match(/^[ \t]*\$defineI18nRoute\((\{[\s\S]*?\})\)/m)
   if (match && match[1]) {
     try {
       const parsedObject = Function('"use strict";return (' + match[1] + ')')()
+
+      // Добавляем нормализацию массивов в объекты
+      if (parsedObject.locales && Array.isArray(parsedObject.locales)) {
+        parsedObject.locales = normalizeLocales(parsedObject.locales)
+      }
+
       if (validateDefineI18nRouteConfig(parsedObject)) {
         return parsedObject
       }

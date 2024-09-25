@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.19.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.19.0...v1.19.1)
+
+### 🩹 Fixes
+
+- File watcher depth 2 ([3b92d5f](https://github.com/s00d/nuxt-i18n-micro/commit/3b92d5f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.19.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.18.1...v1.19.0)

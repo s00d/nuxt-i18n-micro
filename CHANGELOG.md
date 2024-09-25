@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.19.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.19.1...v1.19.2)
+
+### 🩹 Fixes
+
+- Add normalizeLocales to defineNuxtPlugin ([99a657a](https://github.com/s00d/nuxt-i18n-micro/commit/99a657a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.19.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.19.0...v1.19.1)

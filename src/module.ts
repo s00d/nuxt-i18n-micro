@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path, { normalize } from 'node:path'
 import {
   addComponentsDir,
   addImportsDir,
@@ -12,7 +12,6 @@ import {
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
-import { normalizePath } from 'vite'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend } from './types'
@@ -178,7 +177,7 @@ export default defineNuxtModule<ModuleOptions>({
         const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
           if (!page.path) return // Пропускаем страницы без пути
 
-          const fullPath = normalizePath(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
+          const fullPath = normalize(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
 
           // Проверяем наличие динамического сегмента :locale
           const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)

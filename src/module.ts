@@ -1,4 +1,4 @@
-import path, { normalize } from 'node:path'
+import path from 'node:path'
 import {
   addComponentsDir,
   addImportsDir,
@@ -177,7 +177,7 @@ export default defineNuxtModule<ModuleOptions>({
         const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
           if (!page.path) return // Пропускаем страницы без пути
 
-          const fullPath = normalize(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
+          const fullPath = path.posix.normalize(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
 
           // Проверяем наличие динамического сегмента :locale
           const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)

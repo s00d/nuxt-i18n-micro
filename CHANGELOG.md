@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v1.19.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.18.1...v1.19.0)
+
+### 🚀 Enhancements
+
+- Add cloudflare_pages ([2412b87](https://github.com/s00d/nuxt-i18n-micro/commit/2412b87))
+
+### 🩹 Fixes
+
+- Update deps ([eda1fde](https://github.com/s00d/nuxt-i18n-micro/commit/eda1fde))
+- Update deps ([f74b851](https://github.com/s00d/nuxt-i18n-micro/commit/f74b851))
+- Update deps ([e5cae79](https://github.com/s00d/nuxt-i18n-micro/commit/e5cae79))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.18.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.18.0...v1.18.1)

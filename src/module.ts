@@ -249,7 +249,7 @@ export default defineNuxtModule<ModuleOptions>({
           nuxt.callHook('restart')
         }
 
-        const watcher = watch(translationPath, { depth: 1, persistent: true }).on('change', watcherEvent)
+        const watcher = watch(translationPath, { depth: 2, persistent: true }).on('change', watcherEvent)
 
         nuxt.hook('close', () => {
           watcher.close()

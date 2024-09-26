@@ -168,9 +168,6 @@ The chosen testing methodology is designed to reflect the scenarios that develop
 `)
 }
 
-// Инициализация файла
-initializeMarkdown()
-
 test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/i18n-micro', import.meta.url)),
@@ -503,6 +500,8 @@ Stress Test Results:
 
 test('compare build performance and stress test', async () => {
   test.setTimeout(1600000)
+
+  initializeMarkdown()
 
   const i18nResults = await measureBuildPerformance('./test/fixtures/i18n')
   const i18nNextResults = await measureBuildPerformance('./test/fixtures/i18n-micro')

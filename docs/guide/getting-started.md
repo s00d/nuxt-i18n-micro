@@ -308,6 +308,43 @@ i18n: {
 }
 ```
 
+### 🌐 `globalLocaleRoutes`
+
+Allows you to define custom localized routes for specific pages. You can specify a custom path for each locale for a given page, or disable localization for certain pages entirely.
+
+**Type**: `Record<string, Record<string, string> | false>`
+
+- **Key** (`string`): The name of the page you want to customize or disable localization for.
+- **Value**:
+  - **`Record<string, string>`**: A set of locale codes with corresponding custom paths for the page.
+  - **`false`**: Disable localization for this page entirely. The page will not be localized, and it will remain accessible only through its default path.
+
+This option gives you the flexibility to localize certain pages differently while leaving others unaffected by localization.
+
+**Example**:
+
+```typescript
+globalLocaleRoutes: {
+  page2: {
+    en: '/custom-page2-en',
+    de: '/custom-page2-de',
+    ru: '/custom-page2-ru',
+  },
+  unlocalized: false, // Unlocalized page should not be localized
+}
+```
+
+### Usage:
+
+In the example above:
+- **`page2`**: Custom localized paths are defined for the page `page2` in English (`en`), German (`de`), and Russian (`ru`). Instead of following the standard localization pattern (like `/en/page2`), each locale will have a completely custom URL, such as `/custom-page2-en` for English, `/custom-page2-de` for German, and `/custom-page2-ru` for Russian.
+- **`unlocalized`**: This page will not be localized, so it remains accessible only at `/unlocalized`, without any locale prefixes or custom paths.
+
+### Benefits:
+
+- **Control over URL structure**: Customize the URL for each locale, which can be helpful for SEO or branding purposes.
+- **Flexible localization**: Disable localization for pages where it is unnecessary, keeping the URL structure simple and consistent for those specific routes.
+
 ---
 
 # 🔄 Caching Mechanism

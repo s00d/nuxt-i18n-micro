@@ -52,6 +52,7 @@ export default defineNuxtModule<ModuleOptions>({
     fallbackLocale: undefined,
     localeCookie: 'user-locale',
     routesLocaleLinks: {},
+    globalLocaleRoutes: {},
     plural: (key, count, _locale, getTranslation) => {
       const translation = getTranslation(key, {})
       if (!translation) {
@@ -75,7 +76,7 @@ export default defineNuxtModule<ModuleOptions>({
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
     const localeManager = new LocaleManager(options, rootDirs)
-    const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!)
+    const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!, options.globalLocaleRoutes)
 
     let plural = options.plural!
     if (typeof plural !== 'string') plural = plural.toString()

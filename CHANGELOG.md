@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.20.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.19.2...v1.20.0)
+
+### 🚀 Enhancements
+
+- Added global configuration for custom routes via globalLocaleRoutes ([d303499](https://github.com/s00d/nuxt-i18n-micro/commit/d303499))
+
+### 📖 Documentation
+
+- Update documentation structure ([3c5ad7c](https://github.com/s00d/nuxt-i18n-micro/commit/3c5ad7c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.19.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.19.1...v1.19.2)

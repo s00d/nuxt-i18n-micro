@@ -337,13 +337,8 @@ globalLocaleRoutes: {
 ### Usage:
 
 In the example above:
-- **`page2`**: Custom localized paths are defined for the page `page2` in English (`en`), German (`de`), and Russian (`ru`). Instead of following the standard localization pattern (like `/en/page2`), each locale will have a completely custom URL, such as `/custom-page2-en` for English, `/custom-page2-de` for German, and `/custom-page2-ru` for Russian.
+- **`page2`**: Custom localized paths are defined for the page `page2` in English (`en`), German (`de`), and Russian (`ru`). Instead of following the standard localization pattern (like `/en/page2`), each locale will have a completely custom URL, such as `/en/custom-page2-en` for English, `/de/custom-page2-de` for German, and `/ru/custom-page2-ru` for Russian.
 - **`unlocalized`**: This page will not be localized, so it remains accessible only at `/unlocalized`, without any locale prefixes or custom paths.
-
-### Benefits:
-
-- **Control over URL structure**: Customize the URL for each locale, which can be helpful for SEO or branding purposes.
-- **Flexible localization**: Disable localization for pages where it is unnecessary, keeping the URL structure simple and consistent for those specific routes.
 
 ---
 

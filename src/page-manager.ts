@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { readFileSync } from 'node:fs'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale } from './types'
+import type { GlobalLocaleRoutes, Locale } from './types'
 import {
   extractDefineI18nRouteConfig,
   normalizePath,
@@ -21,12 +21,14 @@ export class PageManager {
   includeDefaultLocaleRoute: boolean
   localizedPaths: { [key: string]: { [locale: string]: string } } = {}
   activeLocaleCodes: string[]
+  globalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
 
-  constructor(locales: Locale[], defaultLocaleCode: string, includeDefaultLocaleRoute: boolean) {
+  constructor(locales: Locale[], defaultLocaleCode: string, includeDefaultLocaleRoute: boolean, globalLocaleRoutes: GlobalLocaleRoutes) {
     this.locales = locales
     this.defaultLocale = this.findLocaleByCode(defaultLocaleCode) || { code: defaultLocaleCode }
     this.includeDefaultLocaleRoute = includeDefaultLocaleRoute
     this.activeLocaleCodes = this.computeActiveLocaleCodes()
+    this.globalLocaleRoutes = globalLocaleRoutes || {}
   }
 
   private findLocaleByCode(code: string): Locale | undefined {
@@ -43,7 +45,24 @@ export class PageManager {
     this.localizedPaths = this.extractLocalizedPaths(pages, rootDir)
 
     const additionalRoutes: NuxtPage[] = []
-    pages.forEach(page => this.localizePage(page, additionalRoutes))
+    pages.forEach((page) => {
+      const customRoute = this.globalLocaleRoutes[page.name ?? ''] ?? null
+
+      // If globalLocaleRoutes for this page is false, skip localization
+      if (customRoute === false) {
+        return
+      }
+
+      // Check if the page has custom routes in globalLocaleRoutes
+      if (customRoute && typeof customRoute === 'object') {
+        // Add routes based on custom globalLocaleRoutes
+        this.addCustomGlobalLocalizedRoutes(page, customRoute, additionalRoutes)
+      }
+      else {
+        // Default behavior: localize the page as usual
+        this.localizePage(page, additionalRoutes)
+      }
+    })
 
     pages.push(...additionalRoutes)
   }
@@ -56,15 +75,26 @@ export class PageManager {
     const localizedPaths: { [key: string]: { [locale: string]: string } } = {}
 
     pages.forEach((page) => {
-      if (page.file) {
-        const filePath = path.resolve(rootDir, page.file)
-        const fileContent = readFileSync(filePath, 'utf-8')
-        const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent, filePath)
+      const pageName = page.name ?? ''
+      const globalLocalePath = this.globalLocaleRoutes[pageName]
 
-        if (i18nRouteConfig?.localeRoutes) {
-          const normalizedFullPath = normalizePath(path.join(parentPath, page.path))
-          localizedPaths[normalizedFullPath] = i18nRouteConfig.localeRoutes
+      if (!globalLocalePath) {
+        // Fallback to extracting localized paths from the page file content (existing functionality)
+        if (page.file) {
+          const filePath = path.resolve(rootDir, page.file)
+          const fileContent = readFileSync(filePath, 'utf-8')
+          const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent, filePath)
+
+          if (i18nRouteConfig?.localeRoutes) {
+            const normalizedFullPath = normalizePath(path.join(parentPath, page.path))
+            localizedPaths[normalizedFullPath] = i18nRouteConfig.localeRoutes
+          }
         }
+      }
+      else if (typeof globalLocalePath === 'object') {
+        // Use globalLocaleRoutes if defined
+        const normalizedFullPath = normalizePath(path.join(parentPath, page.path))
+        localizedPaths[normalizedFullPath] = globalLocalePath
       }
 
       if (page.children?.length) {
@@ -74,6 +104,27 @@ export class PageManager {
     })
 
     return localizedPaths
+  }
+
+  private addCustomGlobalLocalizedRoutes(
+    page: NuxtPage,
+    customRoutePaths: Record<string, string>,
+    additionalRoutes: NuxtPage[],
+  ) {
+    this.locales.forEach((locale) => {
+      const customPath = customRoutePaths[locale.code]
+      if (!customPath) return
+
+      const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, this.includeDefaultLocaleRoute)
+      if (isDefaultLocale) {
+        // Modify the page path if it's the default locale
+        page.path = normalizePath(customPath)
+      }
+      else {
+        // Create a new localized route for this locale
+        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath))
+      }
+    })
   }
 
   private localizePage(

@@ -23,7 +23,7 @@ test.describe('PageManager', () => {
   let pageManager: PageManager
 
   test.beforeAll(() => {
-    pageManager = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute)
+    pageManager = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute, undefined)
   })
 
   test('should correctly calculate active locale codes', async () => {
@@ -172,7 +172,7 @@ test.describe('PageManager', () => {
 test('should include default locale routes when includeDefaultLocaleRoute is true', async () => {
   // Устанавливаем флаг includeDefaultLocaleRoute в true
   const includeDefaultLocaleRoute = true
-  const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute)
+  const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute, undefined)
 
   const pages: NuxtPage[] = [{
     path: '/activity',
@@ -197,4 +197,57 @@ test('should include default locale routes when includeDefaultLocaleRoute is tru
       { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
     ]),
   )
+})
+
+test('should handle globalLocaleRoutes correctly', async () => {
+  const globalLocaleRoutes = {
+    activity: {
+      en: '/custom-activity-en',
+      de: '/custom-activity-de',
+      ru: '/custom-activity-ru',
+    },
+    unlocalized: false, // Unlocalized page should not be localized
+  }
+
+  // Creating a new PageManager instance with globalLocaleRoutes
+  const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute, globalLocaleRoutes)
+
+  const pages: NuxtPage[] = [{
+    path: '/activity',
+    name: 'activity',
+    children: [{ path: 'skiing', name: 'Skiing' }],
+  }, {
+    path: '/unlocalized',
+    name: 'unlocalized',
+  }]
+
+  const rootDir = '/mocked/root/dir' // Mocked root directory path
+
+  // Extend pages with globalLocaleRoutes
+  pageManagerWithGlobalRoutes.extendPages(pages, rootDir)
+
+  const expectedPages = [
+    {
+      path: '/custom-activity-en',
+      name: 'activity',
+      children: [{ path: 'skiing', name: 'Skiing' }],
+    },
+    {
+      path: '/unlocalized',
+      name: 'unlocalized',
+    },
+    {
+      path: '/:locale(de)/custom-activity-de',
+      name: 'localized-activity-de',
+      children: [{ path: 'skiing', name: 'localized-Skiing-de', children: [] }],
+    },
+    {
+      path: '/:locale(ru)/custom-activity-ru',
+      name: 'localized-activity-ru',
+      children: [{ path: 'skiing', name: 'localized-Skiing-ru', children: [] }],
+    },
+  ]
+
+  // Assert that the pages array matches the expected structure
+  expect(pages).toEqual(expectedPages)
 })

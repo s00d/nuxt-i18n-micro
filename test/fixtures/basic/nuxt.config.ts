@@ -18,6 +18,14 @@ export default defineNuxtConfig({
     routesLocaleLinks: {
       'dir1-slug': 'index',
     },
+    globalLocaleRoutes: {
+      page2: {
+        en: '/custom-page2-en',
+        de: '/custom-page2-de',
+        ru: '/custom-page2-ru',
+      },
+      unlocalized: false, // Unlocalized page should not be localized
+    },
   },
 
   compatibilityDate: '2024-08-16',

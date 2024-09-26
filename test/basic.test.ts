@@ -217,3 +217,32 @@ test('test handling of missing locale data', async ({ page, goto }) => {
 
   await expect(page.locator('#translation')).toHaveText('page.example')
 })
+
+test('Test globalLocaleRoutes for page2 and unlocalized', async ({ page, goto }) => {
+  // Test custom locale route for 'page2' in English
+  await goto('/custom-page2-en', { waitUntil: 'hydration' })
+
+  // Check that the custom route for English was applied and the content is correct
+  await expect(page).toHaveURL('/custom-page2-en')
+
+  // Test custom locale route for 'page2' in German
+  await goto('/de/custom-page2-de', { waitUntil: 'hydration' })
+
+  // Check that the custom route for German was applied and the content is correct
+  await expect(page).toHaveURL('/de/custom-page2-de')
+
+  // Test custom locale route for 'page2' in Russian
+  await goto('/ru/custom-page2-ru', { waitUntil: 'hydration' })
+
+  // Check that the custom route for Russian was applied and the content is correct
+  await expect(page).toHaveURL('/ru/custom-page2-ru')
+
+  // Test that the 'unlocalized' page is not affected by localization
+  await goto('/unlocalized', { waitUntil: 'hydration' })
+
+  // Check that the unlocalized page remains the same and isn't localized
+  await expect(page).toHaveURL('/unlocalized')
+
+  const response = await page.goto('/de/unlocalized', { waitUntil: 'networkidle' })
+  expect(response?.status()).toBe(404)
+})

@@ -13,6 +13,8 @@ export interface DefineI18nRouteConfig {
 export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 export type PluralFunc = (key: string, count: number, locale: string, getter: Getter) => string | null
 
+export type GlobalLocaleRoutes = Record<string, Record<string, string> | false | boolean> | null | undefined
+
 export interface ModuleOptions {
   locales?: Locale[]
   meta?: boolean
@@ -29,6 +31,7 @@ export interface ModuleOptions {
   disablePageLocales?: boolean
   fallbackLocale?: string
   localeCookie?: string
+  globalLocaleRoutes?: GlobalLocaleRoutes
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

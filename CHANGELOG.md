@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.20.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.0...v1.20.1)
+
+### 🩹 Fixes
+
+- InitializeMarkdown test ([7765599](https://github.com/s00d/nuxt-i18n-micro/commit/7765599))
+- Add i18n to provide ([80b65b1](https://github.com/s00d/nuxt-i18n-micro/commit/80b65b1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.20.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.19.2...v1.20.0)

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.20.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.2...v1.20.3)
+
+### 🩹 Fixes
+
+- Add loadTranslationsIfNeeded catch ([6a36189](https://github.com/s00d/nuxt-i18n-micro/commit/6a36189))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.20.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.1...v1.20.2)

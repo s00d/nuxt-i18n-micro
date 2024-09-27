@@ -238,54 +238,60 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     hashLocale = useCookie('hash-locale').value ?? i18nConfig.defaultLocale!
   }
 
-  return {
-    provide: {
-      getLocale: () => getCurrentLocale(useRoute(), i18nConfig, hashLocale),
-      // getLocale: () => getCurrentLocale(useRoute(), i18nConfig, i18nConfig.hashMode ? (hashLocale.value ?? i18nConfig.defaultLocale!).toString() : null),
-      getLocales: () => i18nConfig.locales || [],
-      getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
-        const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig, hashLocale)
-        const selectedRoute = route ?? useRoute()
-        return getRouteName(selectedRoute, selectedLocale)
-      },
-      t: getTranslation,
-      tc: (key: string, count: number, defaultValue?: string): string => {
-        const currentLocale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
-        return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
-      },
-      tn: (value: number, options?: Intl.NumberFormatOptions) => {
-        const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
-        return formatNumber(value, locale, options)
-      },
-      td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
-        const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
-        return formatDate(value, locale, options)
-      },
-      has: (key: string): boolean => {
-        return !!getTranslation(key)
-      },
-      mergeTranslations: (newTranslations: Translations) => {
-        const route = useRoute()
-        const locale = getCurrentLocale(route, i18nConfig, hashLocale)
-        const routeName = getRouteName(route, locale)
-        i18nHelper.mergeTranslation(locale, routeName, newTranslations)
-      },
-      switchLocale: (toLocale: string) => {
-        const router = useRouter()
-        const route = useRoute()
-
-        const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale)
-        if (i18nConfig.hashMode) {
-          hashLocale = toLocale
-        }
-        switchLocale(fromLocale, toLocale, route, router, i18nConfig)
-      },
-      localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
-        const router = useRouter()
-        const route = useRoute()
-        return getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
-      },
+  const provideData = {
+    i18n: undefined,
+    getLocale: () => getCurrentLocale(useRoute(), i18nConfig, hashLocale),
+    getLocales: () => i18nConfig.locales || [],
+    getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
+      const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const selectedRoute = route ?? useRoute()
+      return getRouteName(selectedRoute, selectedLocale)
     },
+    t: getTranslation,
+    tc: (key: string, count: number, defaultValue?: string): string => {
+      const currentLocale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
+    },
+    tn: (value: number, options?: Intl.NumberFormatOptions) => {
+      const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      return formatNumber(value, locale, options)
+    },
+    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
+      const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      return formatDate(value, locale, options)
+    },
+    has: (key: string): boolean => {
+      return !!getTranslation(key)
+    },
+    mergeTranslations: (newTranslations: Translations) => {
+      const route = useRoute()
+      const locale = getCurrentLocale(route, i18nConfig, hashLocale)
+      const routeName = getRouteName(route, locale)
+      i18nHelper.mergeTranslation(locale, routeName, newTranslations)
+    },
+    switchLocale: (toLocale: string) => {
+      const router = useRouter()
+      const route = useRoute()
+
+      const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale)
+      if (i18nConfig.hashMode) {
+        hashLocale = toLocale
+      }
+      switchLocale(fromLocale, toLocale, route, router, i18nConfig)
+    },
+    localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
+      const router = useRouter()
+      const route = useRoute()
+      return getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
+    },
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  provideData.i18n = provideData
+
+  return {
+    provide: provideData,
   }
 })
 

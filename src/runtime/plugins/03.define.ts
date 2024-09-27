@@ -1,3 +1,4 @@
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import type { ModuleOptionsExtend } from '../../types'
 import type { Translations } from '../plugins/01.plugin'
 import { defineNuxtPlugin, navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
@@ -6,12 +7,13 @@ import { useRoute, useRouter } from '#imports'
 // Тип для локалей
 type LocalesObject = Record<string, Translations>
 
-export default defineNuxtPlugin((_nuxtApp) => {
+export default defineNuxtPlugin(async (_nuxtApp) => {
   const config = useRuntimeConfig()
   const route = useRoute()
   const router = useRouter()
 
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
+  const globalLocaleRoutes = i18nConfig.globalLocaleRoutes ?? {}
 
   // Функция нормализации, которая объединяет массивы и объекты в единый массив строк
   const normalizeLocales = (locales?: string[] | LocalesObject): LocalesObject => {
@@ -29,29 +31,44 @@ export default defineNuxtPlugin((_nuxtApp) => {
     return {}
   }
 
-  useRouter().beforeEach(async (to, from, next) => {
-    if (i18nConfig.includeDefaultLocaleRoute) {
-      const currentLocale = (to.params.locale || i18nConfig.defaultLocale!).toString()
-      const { name } = to
+  // Логика для редиректа по умолчанию, используем как на сервере, так и на клиенте
+  const handleRedirect = async (to: RouteLocationNormalizedLoaded) => {
+    const currentLocale = (to.params.locale || i18nConfig.defaultLocale!).toString()
+    const { name } = to
 
-      let defaultRouteName = name?.toString()
-        .replace('localized-', '')
-        .replace(new RegExp(`-${currentLocale}$`), '')
+    let defaultRouteName = name?.toString()
+      .replace('localized-', '')
+      .replace(new RegExp(`-${currentLocale}$`), '')
 
-      if (!to.params.locale) {
-        if (router.hasRoute(`localized-${to.name?.toString()}-${currentLocale}`)) {
-          defaultRouteName = `localized-${to.name?.toString()}-${currentLocale}`
-        }
-        else {
-          defaultRouteName = `localized-${to.name?.toString()}`
-        }
-
-        const newParams = { ...to.params }
-        newParams.locale = i18nConfig.defaultLocale!
-        newParams.name = defaultRouteName
-
-        await navigateTo({ name: defaultRouteName, params: newParams }, { redirectCode: 301, external: true })
+    if (!to.params.locale) {
+      const name = to.name?.toString() ?? ''
+      if (globalLocaleRoutes[name] === false) {
+        return
       }
+
+      if (router.hasRoute(`localized-${to.name?.toString()}-${currentLocale}`)) {
+        defaultRouteName = `localized-${to.name?.toString()}-${currentLocale}`
+      }
+      else {
+        defaultRouteName = `localized-${to.name?.toString()}`
+      }
+
+      const newParams = { ...to.params }
+      newParams.locale = i18nConfig.defaultLocale!
+
+      return navigateTo({ name: defaultRouteName, params: newParams }, { redirectCode: 301, external: true })
+    }
+  }
+
+  if (import.meta.server) {
+    if (i18nConfig.includeDefaultLocaleRoute) {
+      await handleRedirect(route)
+    }
+  }
+
+  router.beforeEach(async (to, from, next) => {
+    if (i18nConfig.includeDefaultLocaleRoute) {
+      await handleRedirect(to)
     }
     next()
   })
@@ -72,7 +89,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
         nuxtApp.$mergeTranslations(translation)
       }
 
-      // Если текущей локали есть в объекте locales
+      // Если текущей локали нет в объекте locales
       if (!normalizedLocales[currentLocale]) {
         let defaultRouteName = route.name?.toString()
           .replace('localized-', '')
@@ -82,6 +99,10 @@ export default defineNuxtPlugin((_nuxtApp) => {
         delete newParams.locale
 
         if (i18nConfig.includeDefaultLocaleRoute) {
+          const name = route.name?.toString() ?? ''
+          if (globalLocaleRoutes[name] === false) {
+            return
+          }
           if (router.hasRoute(`localized-${defaultRouteName}-${currentLocale}`)) {
             defaultRouteName = `localized-${defaultRouteName}-${currentLocale}`
           }

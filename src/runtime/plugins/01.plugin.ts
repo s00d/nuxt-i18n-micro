@@ -177,15 +177,19 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const plural: PluralFunc = new Function('return ' + i18nConfig.plural.toString())()
 
   const loadTranslationsIfNeeded = async (locale: string, routeName: string) => {
-    if (!i18nHelper.hasPageTranslation(locale, routeName)) {
-      let fRouteName = routeName
-      if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[fRouteName]) {
-        fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
-      }
+    try {
+      if (!i18nHelper.hasPageTranslation(locale, routeName)) {
+        let fRouteName = routeName
+        if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[fRouteName]) {
+          fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
+        }
 
-      const data: Translations = await $fetch(`/_locales/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
-      await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
+        const data: Translations = await $fetch(`/_locales/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
+        await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
+      }
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    catch (_error) { /* empty */ }
   }
 
   useRouter().beforeEach(async (to, from, next) => {
@@ -240,7 +244,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const provideData = {
     i18n: undefined,
+    __micro: true,
     getLocale: () => getCurrentLocale(useRoute(), i18nConfig, hashLocale),
+    defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
       const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig, hashLocale)
@@ -298,6 +304,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 export interface PluginsInjections {
   $getLocale: () => string
   $getLocales: () => Locale[]
+  $defaultLocale: () => string
   $getRouteName: (route?: RouteLocationRaw, locale?: string) => string
   $t: <T extends Record<string, string | number | boolean>>(
     key: string,

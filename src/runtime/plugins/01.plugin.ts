@@ -144,6 +144,15 @@ function getLocalizedRoute(
     })
   }
 
+  if (i18nConfig.includeDefaultLocaleRoute) {
+    const globalLocaleRoutes = i18nConfig.globalLocaleRoutes ?? {}
+    if (globalLocaleRoutes[routeName] == false) {
+      const newParams = resolveParams(to)
+      delete newParams.locale
+      return router.resolve({ name: routeName, params: newParams })
+    }
+  }
+
   // Determine the new route name based on locale and configuration
   const newRouteName
     = currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute

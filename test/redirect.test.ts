@@ -5,6 +5,10 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/redirect', import.meta.url)),
   },
+  // launchOptions: {
+  //   headless: false, // Показывать браузер
+  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  // },
 })
 
 test('test language detection and redirect based on navigator.languages', async ({ page, goto }) => {

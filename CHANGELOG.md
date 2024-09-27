@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.20.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.1...v1.20.2)
+
+### 🩹 Fixes
+
+- I18n plugin order ([0787bf2](https://github.com/s00d/nuxt-i18n-micro/commit/0787bf2))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.20.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.0...v1.20.1)

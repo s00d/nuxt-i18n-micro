@@ -13,7 +13,6 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   const router = useRouter()
 
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
-  const globalLocaleRoutes = i18nConfig.globalLocaleRoutes ?? {}
 
   // Функция нормализации, которая объединяет массивы и объекты в единый массив строк
   const normalizeLocales = (locales?: string[] | LocalesObject): LocalesObject => {
@@ -41,16 +40,15 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
       .replace(new RegExp(`-${currentLocale}$`), '')
 
     if (!to.params.locale) {
-      const name = to.name?.toString() ?? ''
-      if (globalLocaleRoutes[name] === false) {
-        return
-      }
-
       if (router.hasRoute(`localized-${to.name?.toString()}-${currentLocale}`)) {
         defaultRouteName = `localized-${to.name?.toString()}-${currentLocale}`
       }
       else {
         defaultRouteName = `localized-${to.name?.toString()}`
+      }
+
+      if (!router.hasRoute(defaultRouteName)) {
+        return
       }
 
       const newParams = { ...to.params }
@@ -99,16 +97,17 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
         delete newParams.locale
 
         if (i18nConfig.includeDefaultLocaleRoute) {
-          const name = route.name?.toString() ?? ''
-          if (globalLocaleRoutes[name] === false) {
-            return
-          }
           if (router.hasRoute(`localized-${defaultRouteName}-${currentLocale}`)) {
             defaultRouteName = `localized-${defaultRouteName}-${currentLocale}`
           }
           else {
             defaultRouteName = `localized-${defaultRouteName}`
           }
+
+          if (!router.hasRoute(defaultRouteName)) {
+            return
+          }
+
           newParams.locale = i18nConfig.defaultLocale!
           newParams.name = defaultRouteName
         }

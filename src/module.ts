@@ -99,7 +99,7 @@ export default defineNuxtModule<ModuleOptions>({
       dateBuild: Date.now(),
       baseURL: nuxt.options.app.baseURL,
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
-      globalLocaleRoutes: options.globalLocaleRoutes ?? {},
+      globalLocaleRoutes: undefined,
     }
     nuxt.options.runtimeConfig.i18nConfig = {
       rootDir: nuxt.options.rootDir,
@@ -134,13 +134,6 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     addImportsDir(resolver.resolve('./runtime/composables'))
-
-    // if (options.includeDefaultLocaleRoute) {
-    //   addServerHandler({
-    //     middleware: true,
-    //     handler: resolver.resolve('./runtime/server/middleware/i18n-redirect'),
-    //   })
-    // }
 
     addServerHandler({
       route: '/_locales/:page/:locale/data.json',

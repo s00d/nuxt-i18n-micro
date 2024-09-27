@@ -107,7 +107,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     addPlugin({
       src: resolver.resolve('./runtime/plugins/01.plugin'),
-      order: 1,
+      order: 0,
     })
 
     if (options.meta) {

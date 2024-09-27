@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.20.5
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.4...v1.20.5)
+
+### 🩹 Fixes
+
+- Update globalLocaleRoutes logic ([d64b101](https://github.com/s00d/nuxt-i18n-micro/commit/d64b101))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.20.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.3...v1.20.4)

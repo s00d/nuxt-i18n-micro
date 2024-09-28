@@ -125,6 +125,41 @@ const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month:
 - Displaying dates in a format that aligns with the user's locale, including long or short date formats.
 - Customizing date output using options like weekday names, time formats, and timezone settings.
 
+## 🔄 `$switchLocaleRoute`
+
+Return current route with the given locale
+
+**Type**: `(locale: string) => RouteLocationRaw`
+
+**Parameters**:
+- **locale**: `string` — Target locale.
+
+**Example**:
+
+```typescript
+// on /en/news
+const routeFr = $switchLocaleRoute('fr')
+// Output: A route object with the new locale applied, e.g., { name: 'localized-news', params: { locale: 'fr' } }
+```
+
+## 🔄 `$switchLocalePath`
+
+Return url of current route with the given locale
+
+**Type**: `(locale: string) => string`
+
+**Parameters**:
+- **locale**: `string` — Target locale.
+
+**Example**:
+
+```typescript
+// on /en/news
+const routeFr = $switchLocaleRoute('fr')
+window.location.href = routeFr
+// Output: url with new locale applied, e.g., '/fr/nouvelles'
+```
+
 ## 🔄 `$switchLocale`
 
 Switches to the given locale and redirects the user to the appropriate localized route.
@@ -139,6 +174,56 @@ Switches to the given locale and redirects the user to the appropriate localized
 ```typescript
 $switchLocale('fr')
 // Output: Redirects the user to the French version of the route
+```
+## 🔄 `$setI18nRouteParams`
+
+set localized versions of params for all switchLocale* methods and returns passed value
+MUST be called inside useAsyncData
+
+**Type**: `(value: Record<LocaleCode, Record<string, string>> | null) => Record<LocaleCode, Record<string, string>> | null`
+
+**Parameters**:
+- **value**: `Record<LocaleCode, Record<string, string>> | null` — params of current route for other locale
+
+**Example**:
+
+```typescript
+// in pages/news/[id].vue
+// for en/news/1-first-article
+const { $switchLocaleRoute, $setI18nRouteParams, $defineI18nRoute } = useI18n();
+// OR
+const { $switchLocaleRoute, $setI18nRouteParams, $defineI18nRoute } = useNuxtApp();
+$defineI18nRoute({
+  localeRoutes: {
+    en: '/news/:id()',
+    fr: '/nouvelles/:id()',
+    de: '/Nachricht/:id()',
+  },
+})
+const { data: news } = await useAsyncData(`news-${params.id}`, async () => {
+  let response = await $fetch("/api/getNews", {
+    query: {
+      id: params.id,
+    },
+  });
+  if (response?.localeSlugs) {
+    response.localeSlugs = {
+      en: {
+        id: '1-first-article'
+      }
+      fr: {
+        id: '1-premier-article'
+      }
+      de: {
+        id: '1-erster-Artikel'
+      }
+    }
+    $setI18nRouteParams(response?.localeSlugs);
+  }
+  return response;
+});
+$switchLocalePath('fr') // === 'fr/nouvelles/1-premier-article'
+$switchLocalePath('de') // === 'de/Nachricht/1-erster-Artikel'
 ```
 
 ## 🌐 `$localeRoute`
@@ -156,6 +241,23 @@ Generates a localized route object based on the target route.
 ```typescript
 const localizedRoute = $localeRoute({ name: 'index' })
 // Output: A route object with the current locale applied, e.g., { name: 'index', params: { locale: 'fr' } }
+```
+
+## 🔄 `$localePath`
+
+Return url based on the target route
+
+**Type**: `(to: RouteLocationRaw, locale?: string) => string`
+
+**Parameters**:
+- **to**: `RouteLocationRaw` — The target route object.
+- **locale**: `string | undefined` — Optional. The locale for the generated route.
+
+**Example**:
+
+```typescript
+const localizedRoute = $localeRoute({ name: 'news' })
+// Output: url with new locale applied, e.g., '/en/nouvelles'
 ```
 
 ## 🗂️ `$mergeTranslations`

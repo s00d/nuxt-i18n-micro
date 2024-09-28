@@ -41,6 +41,25 @@ export default defineNuxtConfig({
       'dir1-subdir-hash-subhash': 'dir1-subdir',
       'dir1-subdir-slug-id-key': 'dir1-subdir',
     },
+    includeDefaultLocaleRoute: true,
+    globalLocaleRoutes: {
+      // pages/page.vue
+      'page': {
+        en: '/pageEN',
+        de: '/seite',
+        ru: '/stranitsa',
+      },
+
+      // pages/dir1/[slug].vue
+      'dir1-slug': {
+        en: '/dir-one/:slug()',
+        de: '/dir-eins/:slug()',
+        ru: '/dir-odin/:slug()',
+      },
+
+      // pages/unlocalized.vue
+      'unlocalized': false,
+    },
     plural: (key, count, _locale, getTranslation) => {
       const translation = getTranslation(key, {})
       if (!translation) {

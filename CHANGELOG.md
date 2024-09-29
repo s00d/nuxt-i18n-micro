@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v1.21.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.5...v1.21.0)
+
+### 🚀 Enhancements
+
+- SwitchLocale improvements ([35545a9](https://github.com/s00d/nuxt-i18n-micro/commit/35545a9))
+
+### 🩹 Fixes
+
+- Lint ([594dc3c](https://github.com/s00d/nuxt-i18n-micro/commit/594dc3c))
+- Types ([7f62c66](https://github.com/s00d/nuxt-i18n-micro/commit/7f62c66))
+- Lint ([de63792](https://github.com/s00d/nuxt-i18n-micro/commit/de63792))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Dmitry Istomin <dmitry.i@monolith.co.il>
+
 ## v1.20.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.20.4...v1.20.5)

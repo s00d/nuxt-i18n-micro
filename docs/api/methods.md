@@ -230,7 +230,7 @@ $switchLocalePath('de') // === 'de/Nachricht/1-erster-Artikel'
 
 Generates a localized route object based on the target route.
 
-**Type**: `(to: RouteLocationRaw, locale?: string) => RouteLocationRaw`
+**Type**: `(to: RouteLocationRaw, locale?: string) => RouteLocationResolved`
 
 **Parameters**:
 - **to**: `RouteLocationRaw` — The target route object.

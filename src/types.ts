@@ -1,19 +1,22 @@
+export type LocaleCode = string
+
 export interface Locale {
-  code: string
+  code: LocaleCode
   disabled?: boolean
   iso?: string
   dir?: 'ltr' | 'rtl' | 'auto'
 }
 
 export interface DefineI18nRouteConfig {
-  locales?: Record<string, Record<string, string>>
-  localeRoutes?: Record<string, string>
+  locales?: Record<LocaleCode, Record<string, string>>
+  localeRoutes?: Record<LocaleCode, string>
 }
+export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 
 export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 export type PluralFunc = (key: string, count: number, locale: string, getter: Getter) => string | null
 
-export type GlobalLocaleRoutes = Record<string, Record<string, string> | false | boolean> | null | undefined
+export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
 
 export interface ModuleOptions {
   locales?: Locale[]

@@ -5,6 +5,10 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
   },
+  // launchOptions: {
+  //   headless: false, // Показывать браузер
+  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  // },
 })
 
 test('test index', async ({ page, goto }) => {
@@ -245,4 +249,133 @@ test('Test globalLocaleRoutes for page2 and unlocalized', async ({ page, goto })
 
   const response = await page.goto('/de/unlocalized', { waitUntil: 'networkidle' })
   expect(response?.status()).toBe(404)
+})
+
+test('test navigation and locale switching on news page', async ({ page, goto }) => {
+  // Переход на страницу /news/1
+  await goto('/news/1', { waitUntil: 'hydration' })
+
+  // Проверяем наличие id и данных news
+  await expect(page.locator('.news-id')).toHaveText('id: 1')
+  await expect(page.locator('.news-data')).toBeVisible()
+
+  // Проверяем переходы по ссылкам
+  await page.click('.link-article-1')
+  await expect(page).toHaveURL('/articles/1')
+
+  await goto('/news/1', { waitUntil: 'hydration' }) // Возвращаемся на страницу /news/1
+  await page.click('.link-news-4')
+  await expect(page).toHaveURL('/news/4')
+
+  // Проверяем переключение локалей
+  await page.click('.locale-en')
+  await expect(page).toHaveURL('/news/4')
+
+  await page.click('.locale-ru')
+  await expect(page).toHaveURL('/ru/news/4')
+
+  await page.click('.locale-de')
+  await expect(page).toHaveURL('/de/news/4')
+})
+
+test('test query parameters and hash on news page', async ({ page, goto }) => {
+  await goto('/news/2?a=b#tada', { waitUntil: 'hydration' })
+
+  // Проверяем, что id и query параметры корректно отображаются
+  await expect(page.locator('.news-id')).toHaveText('id: 2')
+  await expect(page).toHaveURL('/news/2?a=b#tada')
+
+  // Проверяем, что localeRoute корректно работает с query и hash
+  await page.click('.link-news-2')
+  await expect(page).toHaveURL('/news/2?a=b')
+})
+
+test('test navigation and locale switching on articles page', async ({ page, goto }) => {
+  // Navigate to the /articles/1 page
+  await goto('/articles/1', { waitUntil: 'hydration' })
+
+  // Check the presence of the id and article data
+  await expect(page.locator('.article-id')).toHaveText('id: 1')
+  await expect(page.locator('.article-data')).toBeVisible()
+
+  // Check the link transition to the news
+  await page.click('.link-news-1')
+  await expect(page).toHaveURL('/news/1')
+
+  // Check locale switching
+  await goto('/articles/1', { waitUntil: 'hydration' }) // Return to /articles/1
+  await page.click('.locale-en')
+  await expect(page).toHaveURL('/articles/1')
+
+  await page.click('.locale-ru')
+  await expect(page).toHaveURL('/ru/articles/1')
+
+  await page.click('.locale-de')
+  await expect(page).toHaveURL('/de/articles/1')
+})
+
+test('test locale switching and content on locale-conf page', async ({ page, goto }) => {
+  await goto('/', { waitUntil: 'hydration' })
+  await goto('/locale-conf', { waitUntil: 'hydration' })
+
+  await page.waitForTimeout(500)
+
+  // Check the page title in English
+  const titleEn = await page.locator('h1').textContent()
+  expect(titleEn).toBe('Locale Test Page')
+
+  // Check the page content in English
+  const contentEn = await page.locator('#content').textContent()
+  expect(contentEn).toBe('This is a content area.')
+
+  const greetingEn = await page.locator('#username').textContent()
+  expect(greetingEn).toBe('Hello, John!')
+
+  const pluralEn = await page.locator('#plural').textContent()
+  expect(pluralEn).toBe('You have 2 items.')
+
+  const htmlContentEn = await page.locator('#html-content').innerHTML()
+  expect(htmlContentEn).toContain('<strong>Bold Text</strong> with HTML content.')
+
+  const localeRouteEn = await page.locator('.locale-route-data:nth-of-type(1)').textContent()
+  expect(localeRouteEn).toContain('"fullPath": "/locale-conf"')
+  expect(localeRouteEn).toContain('"name": "locale-conf"')
+  expect(localeRouteEn).toContain('"href": "/locale-conf"')
+
+  // Check the first $switchLocaleRoute link in English
+  const switchLocaleRouteEn = await page.locator('#locale-en').getAttribute('href')
+  expect(switchLocaleRouteEn).toContain('/locale-conf')
+
+  // Check the second $switchLocaleRoute link in German
+  const switchLocaleRouteDe = await page.locator('#locale-de').getAttribute('href')
+  expect(switchLocaleRouteDe).toContain('/de/locale-conf-modif')
+
+  // Click on the element
+  await page.click('#locale-de')
+
+  await expect(page).toHaveURL('/de/locale-conf-modify')
+
+  // Check the page title in German
+  const titleDe = await page.locator('h1').textContent()
+  expect(titleDe).toBe('Sprachtestseite')
+
+  // Check the page content in German
+  const contentDe = await page.locator('#content').textContent()
+  expect(contentDe).toBe('Dies ist ein Inhaltsbereich.')
+
+  const greetingDe = await page.locator('#username').textContent()
+  expect(greetingDe).toBe('Hallo, John!')
+
+  const pluralDe = await page.locator('#plural').textContent()
+  expect(pluralDe).toBe('Sie haben 2 Artikel.')
+
+  const htmlContentDe = await page.locator('#html-content').innerHTML()
+  expect(htmlContentDe).toContain('<strong>Fetter Text</strong> mit HTML-Inhalt.')
+
+  const switchLocaleRouteEnN = await page.locator('#locale-en').getAttribute('href')
+  expect(switchLocaleRouteEnN).toContain('/locale-conf')
+
+  // Check the second $switchLocaleRoute link in German
+  const switchLocaleRouteDeN = await page.locator('#locale-de').getAttribute('href')
+  expect(switchLocaleRouteDeN).toContain('/de/locale-conf-modif')
 })

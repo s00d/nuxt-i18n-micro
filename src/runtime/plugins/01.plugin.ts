@@ -1,7 +1,7 @@
 import type {
   NavigationFailure,
   RouteLocationNormalizedLoaded,
-  RouteLocationRaw,
+  RouteLocationRaw, RouteLocationResolved,
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
@@ -59,7 +59,6 @@ function switchLocaleRoute(fromLocale: string,
   i18nConfig: ModuleOptionsExtend,
   i18nRouteParams: I18nRouteParams,
 ): RouteLocationRaw {
-
   const routeName = getRouteName(route, fromLocale)
   if (router.hasRoute(`localized-${routeName}-${toLocale}`)) {
     // const newParams = { ...route.params }
@@ -130,7 +129,7 @@ function getLocalizedRoute(
   i18nConfig: ModuleOptionsExtend,
   locale?: string,
   hashLocale?: string | null,
-): RouteLocationRaw {
+): RouteLocationResolved {
   const currentLocale = locale || getCurrentLocale(route, i18nConfig, hashLocale)
   const selectRoute = router.resolve(to)
   const routeName = getRouteName(selectRoute, currentLocale)
@@ -353,7 +352,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
       switchLocale(fromLocale, toLocale, route, router, i18nConfig, i18nRouteParams.value)
     },
-    localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationRaw => {
+    localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationResolved => {
       const router = useRouter()
       const route = useRoute()
       return getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
@@ -361,7 +360,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     localePath: (to: RouteLocationRaw, locale?: string): string => {
       const router = useRouter()
       const route = useRoute()
-      let localeRoute = getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
+      const localeRoute = getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
       if (typeof localeRoute === 'string') {
         return localeRoute
       }
@@ -403,7 +402,7 @@ export interface PluginsInjections {
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   $switchLocalePath: (locale: string) => string
   $switchLocale: (locale: string) => void
-  $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationRaw
+  $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationResolved
   $localePath: (to: RouteLocationRaw, locale?: string) => string
   $loadPageTranslations: (locale: string, routeName: string) => Promise<void>
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams

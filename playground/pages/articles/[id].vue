@@ -1,24 +1,36 @@
 <template>
   <div>
-    <div>id: {{ params.id }}</div>
-    <div>articles: {{ articles }}</div>
+    <div class="article-id">
+      id: {{ params.id }}
+    </div>
+    <div class="article-data">
+      articles: {{ articles }}
+    </div>
 
-    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '1' } })">
+    <NuxtLink
+      class="link-news-1"
+      :to="$localeRoute({ name: 'articles-id', params: { id: '1' } })"
+    >
       news-1
     </NuxtLink>
 
-    <div>
-      <NuxtLink :to="$switchLocaleRoute('en')">
+    <div class="locale-switcher">
+      <NuxtLink
+        class="locale-en"
+        :to="$switchLocaleRoute('en')"
+      >
         en
       </NuxtLink>
-    </div>
-    <div>
-      <NuxtLink :to="$switchLocaleRoute('ru')">
+      <NuxtLink
+        class="locale-ru"
+        :to="$switchLocaleRoute('ru')"
+      >
         ru
       </NuxtLink>
-    </div>
-    <div>
-      <NuxtLink :to="$switchLocaleRoute('de')">
+      <NuxtLink
+        class="locale-de"
+        :to="$switchLocaleRoute('de')"
+      >
         de
       </NuxtLink>
     </div>
@@ -32,12 +44,11 @@ const { $switchLocaleRoute } = useI18n()
 const { data: articles } = await useAsyncData(
   `articles-${params.id}`,
   async () => {
-    const response = await $fetch('/api/getArticles', {
+    return await $fetch('/api/getArticles', {
       query: {
         id: params.id,
       },
     })
-    return response
   },
 )
 </script>

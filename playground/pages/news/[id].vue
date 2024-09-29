@@ -21,18 +21,10 @@
       "
     >news-2</NuxtLink>
     <div>
-      <pre>
-        {{
-          $localeRoute({
-            name: "news-id",
-            params: { id: "2" },
-            hash: "#tada",
-            query: { a: "b" },
-          }).fullPath
-        }}
-      </pre>
+      <pre>{{ newsLink.fullPath }}</pre>
     </div>
-    {{ router.resolve("/en/news/2") }}
+
+    <div>{{ router.resolve("/en/news/2") }}</div>
 
     <div>
       <NuxtLink :to="$switchLocaleRoute('en')">
@@ -55,11 +47,18 @@
 <script lang="ts" setup>
 const { params } = useRoute()
 const router = useRouter()
-const { $switchLocaleRoute, $setI18nRouteParams } = useI18n()
+const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n()
 
-definePageMeta({
-  middleware: ['my-middleware'],
-})
+const newsLink = computed(() => $localeRoute({
+  name: 'news-id',
+  params: { id: '2' },
+  hash: '#tada',
+  query: { a: 'b' },
+}))
+
+// definePageMeta({
+//   middleware: ['my-middleware'],
+// })
 
 const { data: news } = await useAsyncData(`articles-${params.id}`, async () => {
   const response = await $fetch<{ metadata: { [key: string]: { id: string } } }>('/api/getNews', {

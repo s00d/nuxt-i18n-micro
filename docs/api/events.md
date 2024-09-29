@@ -37,7 +37,7 @@ nuxt.hook('i18n:register', async (register: (translations: unknown, locale?: str
 });
 ```
 
-### 🛠️ Explanation:
+### 🛠️ Explanation
 
 - **Triggering the Event**:
   - The event is hooked into the `i18n:register` lifecycle event provided by `Nuxt I18n Micro`.

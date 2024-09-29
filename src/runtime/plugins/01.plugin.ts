@@ -1,7 +1,8 @@
 import type {
   NavigationFailure,
   RouteLocationNormalizedLoaded,
-  RouteLocationRaw, RouteLocationResolved,
+  RouteLocationRaw,
+  RouteLocationResolved,
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'

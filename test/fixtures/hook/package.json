@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "basic",
+  "name": "hook",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

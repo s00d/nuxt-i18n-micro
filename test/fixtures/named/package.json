@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "basic",
+  "name": "named",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

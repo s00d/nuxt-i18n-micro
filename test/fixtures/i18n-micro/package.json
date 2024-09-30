@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "my-module-playground",
+  "name": "i18n-micro",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

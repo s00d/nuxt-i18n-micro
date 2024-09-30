@@ -159,13 +159,15 @@ export default defineNuxtModule<ModuleOptions>({
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
+      const prerenderRoutes: string[] = []
+
       localeManager.locales.forEach((locale) => {
         if (!options.disablePageLocales) {
           pagesNames.forEach((name) => {
-            addPrerenderRoutes(`/_locales/${name}/${locale.code}/data.json`)
+            prerenderRoutes.push(`/_locales/${name}/${locale.code}/data.json`)
           })
         }
-        addPrerenderRoutes(`/_locales/general/${locale.code}/data.json`)
+        prerenderRoutes.push(`/_locales/general/${locale.code}/data.json`)
       })
 
       if (isCloudflarePages) {
@@ -179,7 +181,6 @@ export default defineNuxtModule<ModuleOptions>({
 
           if (localeSegmentMatch) {
             const availableLocales = localeSegmentMatch[1].split('|') // Достаем локали из сегмента, например "de|ru|en"
-
             localeManager.locales.forEach((locale) => {
               const localeCode = locale.code
 
@@ -190,14 +191,14 @@ export default defineNuxtModule<ModuleOptions>({
                 // Заменяем сегмент :locale(de|ru|en) на текущую локаль
                 localizedPath = localizedPath.replace(/:locale\([^)]+\)/, localeCode)
 
-                // Добавляем prerender для локализованного пути
-                addPrerenderRoutes(localizedPath)
+                // Добавляем локализованный путь в массив
+                prerenderRoutes.push(localizedPath)
               }
             })
           }
           else {
-            // Если в пути нет динамического сегмента локали, то просто добавляем его в prerender
-            addPrerenderRoutes(fullPath)
+            // Если в пути нет динамического сегмента локали, то просто добавляем его в массив
+            prerenderRoutes.push(fullPath)
           }
 
           // Рекурсивно обрабатываем детей, если они есть
@@ -206,11 +207,13 @@ export default defineNuxtModule<ModuleOptions>({
           }
         }
 
-        // Пройдемся по страницам и добавим prerender для каждого пути с локалями
+        // Пройдемся по страницам и добавим пути для каждого локализованного пути
         pages.forEach((page) => {
           processPageWithChildren(page) // Обрабатываем каждую страницу рекурсивно
         })
       }
+
+      addPrerenderRoutes(prerenderRoutes)
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {

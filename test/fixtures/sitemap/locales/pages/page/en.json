@@ -1,0 +1,8 @@
+{
+  "page": {
+    "content": "Page content in en",
+    "example": "Page example in en",
+    "items": "{count} items",
+    "apples": "no apples | one apple | {count} apples"
+  }
+}

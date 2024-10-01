@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "undefault",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  },
+  "devDependencies": {
+    "@nuxtjs/sitemap": "^6.1.1"
+  }
+}

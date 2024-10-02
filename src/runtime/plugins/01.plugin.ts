@@ -247,7 +247,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const routeName = getRouteName(to, locale)
       i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
     }, locale)
-    next()
+    if (next) {
+      next()
+    }
   })
 
   const getTranslation = (

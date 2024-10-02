@@ -68,7 +68,9 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
     if (i18nConfig.includeDefaultLocaleRoute) {
       await handleRedirect(to)
     }
-    next()
+    if (next) {
+      next()
+    }
   })
 
   // Функция для определения i18n маршрута

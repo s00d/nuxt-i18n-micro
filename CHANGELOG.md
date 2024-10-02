@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.21.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.21.3...v1.21.4)
+
+### 🩹 Fixes
+
+- Next in router ([5933b4b](https://github.com/s00d/nuxt-i18n-micro/commit/5933b4b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.21.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.21.2...v1.21.3)

@@ -6,6 +6,9 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
+import type {
+  ComponentCustomProperties as _ComponentCustomProperties,
+} from 'vue'
 import { useTranslationHelper } from '../translationHelper'
 import type { ModuleOptionsExtend, Locale, PluralFunc, I18nRouteParams } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
@@ -409,24 +412,4 @@ export interface PluginsInjections {
   $localePath: (to: RouteLocationRaw, locale?: string) => string
   $loadPageTranslations: (locale: string, routeName: string) => Promise<void>
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
-}
-
-declare module '#app' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface NuxtApp extends PluginsInjections { }
-}
-
-declare module '@vue/runtime-core' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface ComponentCustomProperties extends PluginsInjections { }
-}
-
-declare module 'vue' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface ComponentCustomProperties extends PluginsInjections { }
-}
-
-declare module '#app/nuxt' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface NuxtApp extends PluginsInjections { }
 }

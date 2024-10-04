@@ -44,6 +44,7 @@
 </template>
 
 <script setup>
+const { $localeRoute } = useNuxtApp()
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []

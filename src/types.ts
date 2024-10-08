@@ -24,6 +24,7 @@ export interface ModuleOptions {
   metaBaseUrl?: string
   define?: boolean
   defaultLocale?: string
+  apiBaseUrl?: string
   translationDir?: string
   autoDetectLanguage?: boolean
   autoDetectPath?: string
@@ -42,6 +43,7 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   dateBuild: number
   baseURL: string
   hashMode: boolean
+  apiBaseUrl: string
 }
 
 export interface ModulePrivateOptionsExtend extends ModuleOptions {

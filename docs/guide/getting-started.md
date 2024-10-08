@@ -280,6 +280,21 @@ Disables the automatic creation of locale files during development.
 disableWatcher: true // Disables the automatic creation of locale files
 ```
 
+### 🔗 `apiBaseUrl`
+
+Defines the base URL that the server will use to fetch cached translations. By default, this is set to `_locales`, but you can change it to any custom path, such as `api/_locales`, if you want to load translations from a different endpoint.
+
+**Type**: `string`  
+**Default**: `'_locales'`
+
+**Example**:
+
+```typescript
+apiBaseUrl: 'api/_locales' // Custom URL for fetching cached translations
+```
+
+When set, the module will use the specified URL to request cached translations instead of using the default `_locales`.
+
 ### 🍪 `localeCookie`
 
 Specifies the name of the cookie used to store the user's selected locale.

@@ -51,6 +51,7 @@ export default defineNuxtModule<ModuleOptions>({
     includeDefaultLocaleRoute: false,
     fallbackLocale: undefined,
     localeCookie: 'user-locale',
+    apiBaseUrl: '_locales',
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
     plural: (key, count, _locale, getTranslation) => {
@@ -81,6 +82,8 @@ export default defineNuxtModule<ModuleOptions>({
     let plural = options.plural!
     if (typeof plural !== 'string') plural = plural.toString()
 
+    const apiBaseUrl = (options.apiBaseUrl ?? '_locales').replace(/^\/+/, '')
+
     nuxt.options.runtimeConfig.public.i18nConfig = {
       plural: plural,
       locales: localeManager.locales ?? [],
@@ -100,6 +103,7 @@ export default defineNuxtModule<ModuleOptions>({
       baseURL: nuxt.options.app.baseURL,
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
       globalLocaleRoutes: undefined,
+      apiBaseUrl: apiBaseUrl,
     }
     nuxt.options.runtimeConfig.i18nConfig = {
       rootDir: nuxt.options.rootDir,
@@ -136,7 +140,7 @@ export default defineNuxtModule<ModuleOptions>({
     addImportsDir(resolver.resolve('./runtime/composables'))
 
     addServerHandler({
-      route: '/_locales/:page/:locale/data.json',
+      route: `/${apiBaseUrl}/:page/:locale/data.json`,
       handler: resolver.resolve('./runtime/server/middleware/i18n-loader'),
     })
 
@@ -164,10 +168,10 @@ export default defineNuxtModule<ModuleOptions>({
       localeManager.locales.forEach((locale) => {
         if (!options.disablePageLocales) {
           pagesNames.forEach((name) => {
-            prerenderRoutes.push(`/_locales/${name}/${locale.code}/data.json`)
+            prerenderRoutes.push(`/${apiBaseUrl}/${name}/${locale.code}/data.json`)
           })
         }
-        prerenderRoutes.push(`/_locales/general/${locale.code}/data.json`)
+        prerenderRoutes.push(`/${apiBaseUrl}/general/${locale.code}/data.json`)
       })
 
       if (isCloudflarePages) {
@@ -225,7 +229,9 @@ export default defineNuxtModule<ModuleOptions>({
       localeManager.locales.forEach((locale) => {
         if (locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) {
           pages.forEach((page) => {
-            routes.push(`/${locale.code}${page}`)
+            if (!/\.[a-z0-9]+$/i.test(page) || page.startsWith(`/${apiBaseUrl}`)) {
+              routes.push(`/${locale.code}${page}`)
+            }
           })
         }
       })
@@ -261,16 +267,18 @@ export default defineNuxtModule<ModuleOptions>({
 
       // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
       routesSet.forEach((route) => {
-        localeManager.locales!.forEach((locale) => {
-          if (locale.code !== options.defaultLocale) {
-            if (route === '/') {
-              additionalRoutes.add(`/${locale.code}`)
+        if (!/\.[a-z0-9]+$/i.test(route) || route.startsWith(`/${apiBaseUrl}`)) {
+          localeManager.locales!.forEach((locale) => {
+            if (locale.code !== options.defaultLocale) {
+              if (route === '/') {
+                additionalRoutes.add(`/${locale.code}`)
+              }
+              else {
+                additionalRoutes.add(`/${locale.code}${route}`)
+              }
             }
-            else {
-              additionalRoutes.add(`/${locale.code}${route}`)
-            }
-          }
-        })
+          })
+        }
       })
 
       // Добавляем новые локализованные маршруты к существующим

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.22.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.21.5...v1.22.0)
+
+### 🚀 Enhancements
+
+- Add apiBaseUrl and fix extend path ([09b4d48](https://github.com/s00d/nuxt-i18n-micro/commit/09b4d48))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.21.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.21.4...v1.21.5)

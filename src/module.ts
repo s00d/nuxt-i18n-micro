@@ -229,7 +229,7 @@ export default defineNuxtModule<ModuleOptions>({
       localeManager.locales.forEach((locale) => {
         if (locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) {
           pages.forEach((page) => {
-            if (!/\.[a-z0-9]+$/i.test(page) || page.startsWith(`/${apiBaseUrl}`)) {
+            if (!/\.[a-z0-9]+$/i.test(page)) {
               routes.push(`/${locale.code}${page}`)
             }
           })
@@ -267,7 +267,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
       routesSet.forEach((route) => {
-        if (!/\.[a-z0-9]+$/i.test(route) || route.startsWith(`/${apiBaseUrl}`)) {
+        if (!/\.[a-z0-9]+$/i.test(route)) {
           localeManager.locales!.forEach((locale) => {
             if (locale.code !== options.defaultLocale) {
               if (route === '/') {

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.22.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.22.0...v1.22.1)
+
+### 🩹 Fixes
+
+- Cleanup ([071d563](https://github.com/s00d/nuxt-i18n-micro/commit/071d563))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.22.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.21.5...v1.22.0)

@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "undefault",
+  "name": "sitemap",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

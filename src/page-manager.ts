@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs'
 import type { NuxtPage } from '@nuxt/schema'
 import type { GlobalLocaleRoutes, Locale } from './types'
 import {
-  extractDefineI18nRouteConfig,
   normalizePath,
   isLocaleDefault,
   isPageRedirectOnly,
@@ -12,6 +11,7 @@ import {
   shouldAddLocalePrefix,
   buildFullPath,
   removeLeadingSlash,
+  extractLocaleRoutes,
 } from './utils'
 
 // Класс PageManager
@@ -83,11 +83,11 @@ export class PageManager {
         if (page.file) {
           const filePath = path.resolve(rootDir, page.file)
           const fileContent = readFileSync(filePath, 'utf-8')
-          const i18nRouteConfig = extractDefineI18nRouteConfig(fileContent, filePath)
+          const localeRoutes = extractLocaleRoutes(fileContent, filePath)
 
-          if (i18nRouteConfig?.localeRoutes) {
+          if (localeRoutes) {
             const normalizedFullPath = normalizePath(path.join(parentPath, page.path))
-            localizedPaths[normalizedFullPath] = i18nRouteConfig.localeRoutes
+            localizedPaths[normalizedFullPath] = localeRoutes
           }
         }
       }

@@ -152,9 +152,11 @@ import { useNuxtApp } from '#imports'
 
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $defineI18nRoute } = useNuxtApp()
 
+const locale_en = { greeting: 'Hello', farewell: 'Goodbye' }
+
 $defineI18nRoute({
   locales: {
-    en: { greeting: 'Hello', farewell: 'Goodbye' },
+    en: locale_en,
     ru: { greeting: 'Привет', farewell: 'До свидания' },
     de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
   },

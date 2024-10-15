@@ -1,54 +1,40 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
-import type { DefineI18nRouteConfig, Locale } from './types'
+import type { Locale, LocaleCode } from './types'
 
-function normalizeLocales(localesArray: string[]): Record<string, object> {
-  const localesObject: Record<string, object> = {}
-  for (const locale of localesArray) {
-    localesObject[locale] = {} // Присваиваем пустой объект как значение для каждого ключа
-  }
-  return localesObject
-}
+export function extractLocaleRoutes(content: string, filePath: string): Record<string, string> | null {
+  // Ищем вызов defineI18nRoute (с долларом или без)
+  const defineMatch = content.match(/\$?\bdefineI18nRoute\s*\(\s*\{[\s\S]*?\}\s*\)/)
+  if (defineMatch) {
+    // Ищем блок localeRoutes внутри вызова defineI18nRoute
+    const localeRoutesMatch = defineMatch[0].match(/localeRoutes:\s*(\{[\s\S]*?\})/)
 
-export function extractDefineI18nRouteConfig(content: string, filePath: string): DefineI18nRouteConfig | null {
-  const match = content.match(/^[ \t]*\$defineI18nRoute\((\{[\s\S]*?\})\)/m)
-  if (match && match[1]) {
-    try {
-      const parsedObject = Function('"use strict";return (' + match[1] + ')')()
+    if (localeRoutesMatch && localeRoutesMatch[1]) {
+      try {
+        // Парсим найденный блок localeRoutes
+        const parsedLocaleRoutes = Function('"use strict";return (' + localeRoutesMatch[1] + ')')()
 
-      // Добавляем нормализацию массивов в объекты
-      if (parsedObject.locales && Array.isArray(parsedObject.locales)) {
-        parsedObject.locales = normalizeLocales(parsedObject.locales)
+        if (typeof parsedLocaleRoutes === 'object' && parsedLocaleRoutes !== null) {
+          if (validateDefineI18nRouteConfig(parsedLocaleRoutes)) {
+            return parsedLocaleRoutes
+          }
+        }
+        else {
+          console.error('localeRoutes found but it is not a valid object in file:', filePath)
+        }
       }
-
-      if (validateDefineI18nRouteConfig(parsedObject)) {
-        return parsedObject
+      catch (error) {
+        console.error('Failed to parse localeRoutes:', error, 'in file:', filePath)
       }
-      else {
-        console.error('Invalid defineI18nRoute configuration format:', parsedObject, 'in file: ', filePath)
-      }
-    }
-    catch (error) {
-      console.error('Failed to parse defineI18nRoute configuration:', error, 'in file: ', filePath)
     }
   }
   return null
 }
 
-export function validateDefineI18nRouteConfig(obj: DefineI18nRouteConfig): boolean {
-  if (typeof obj !== 'object' || obj === null) return false
-  if (obj.locales) {
-    if (typeof obj.locales !== 'object') return false
-    for (const localeKey in obj.locales) {
-      const translations = obj.locales[localeKey]
-      if (typeof translations !== 'object' || translations === null) return false
-    }
-  }
-  if (obj.localeRoutes) {
-    if (typeof obj.localeRoutes !== 'object') return false
-    for (const routeKey in obj.localeRoutes) {
-      if (typeof obj.localeRoutes[routeKey] !== 'string') return false
-    }
+export function validateDefineI18nRouteConfig(obj: Record<LocaleCode, Record<string, string>>): boolean {
+  if (typeof obj !== 'object') return false
+  for (const routeKey in obj.localeRoutes) {
+    if (typeof obj.localeRoutes[routeKey] !== 'string') return false
   }
   return true
 }

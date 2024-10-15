@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v1.22.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.22.1...v1.22.2)
+
+### 🩹 Fixes
+
+- Rollback ([24b8950](https://github.com/s00d/nuxt-i18n-micro/commit/24b8950))
+- Rollback ([177073f](https://github.com/s00d/nuxt-i18n-micro/commit/177073f))
+- Types ([8e79a31](https://github.com/s00d/nuxt-i18n-micro/commit/8e79a31))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.22.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.22.0...v1.22.1)

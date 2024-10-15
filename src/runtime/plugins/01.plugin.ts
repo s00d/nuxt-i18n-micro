@@ -394,8 +394,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 export interface PluginsInjections {
   $getLocale: () => string
   $getLocales: () => Locale[]
-  $defaultLocale: () => string
-  $getRouteName: (route?: RouteLocationRaw, locale?: string) => string
+  $defaultLocale: () => string | undefined
+  $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
   $t: <T extends Record<string, string | number | boolean>>(
     key: string,
     params?: T,
@@ -411,6 +411,5 @@ export interface PluginsInjections {
   $switchLocale: (locale: string) => void
   $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationResolved
   $localePath: (to: RouteLocationRaw, locale?: string) => string
-  $loadPageTranslations: (locale: string, routeName: string) => Promise<void>
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
 }

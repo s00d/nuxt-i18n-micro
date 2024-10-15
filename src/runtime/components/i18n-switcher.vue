@@ -6,7 +6,9 @@
       @click="toggleDropdown"
     >
       {{ currentLocaleLabel }}
-      <span :style="[iconStyle, dropdownOpen ? openIconStyle : {}, customIconStyle]">&#9662;</span>
+      <span
+        :style="[iconStyle, dropdownOpen ? openIconStyle : {}, customIconStyle]"
+      >&#9662;</span>
     </button>
     <ul
       v-if="dropdownOpen"
@@ -20,7 +22,12 @@
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
           :to="getLocaleLink(locale)"
-          :style="[linkStyle, locale.code === currentLocale ? activeLinkStyle : {}, locale.code === currentLocale ? disabledLinkStyle : {}, customLinkStyle]"
+          :style="[
+            linkStyle,
+            locale.code === currentLocale.code ? activeLinkStyle : {},
+            locale.code === currentLocale.code ? disabledLinkStyle : {},
+            customLinkStyle,
+          ]"
           :hreflang="locale.iso || locale.code"
           @click="toggleDropdown"
         >
@@ -77,14 +84,22 @@ const toggleDropdown = () => {
 }
 
 const localeLabel = (locale: Locale) => {
-  return props.customLabels[locale.code] || locale.code.toUpperCase()
+  return (
+    (props.customLabels[locale.code] || locale.displayName)
+    ?? console.warn(
+      '[i18n-switcher] Either define a custom label for the locale or provide a displayName in the nuxt.config.ts[i18n]',
+    )
+  )
 }
 
-const currentLocaleLabel = computed(() => localeLabel({ code: currentLocale.value }))
+const currentLocaleLabel = computed(() =>
+  localeLabel({ ...currentLocale.value }),
+)
 
 const getLocaleLink = (locale: Locale) => {
   const route = useRoute()
-  const routeName = (route?.name ?? '').toString()
+  const routeName = (route?.name ?? '')
+    .toString()
     .replace(`localized-`, '')
     .replace(new RegExp(`-${currentLocale.value}$`), '')
     .replace(new RegExp(`-${locale}$`), '')

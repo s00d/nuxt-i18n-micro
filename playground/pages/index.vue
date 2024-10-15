@@ -2,6 +2,8 @@
   <div>
     <p>{{ $t("key1.key1.key1.key1.key1") }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
+    <p>Current locale code: {{ $getLocaleCode() }}</p>
+    <p>Current locale display name: {{ $getLocale().displayName }}</p>
     <p>Current route without locale: {{ $getRouteName() }}</p>
 
     <!-- Ссылки для переключения локалей -->
@@ -10,7 +12,7 @@
       <button
         v-for="locale in $getLocales()"
         :key="locale.code"
-        :disabled="locale.code === $getLocale()"
+        :disabled="locale.code === $getLocaleCode()"
         @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}

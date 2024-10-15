@@ -37,7 +37,7 @@ function interpolate(template: string, params: Record<string, string | number | 
 }
 
 // Вспомогательная функция для получения текущей локали
-function getCurrentLocale(
+function getCurrentLocaleCode(
   route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
   i18nConfig: ModuleOptionsExtend,
   hashLocale: string | null | undefined,
@@ -134,7 +134,7 @@ function getLocalizedRoute(
   locale?: string,
   hashLocale?: string | null,
 ): RouteLocationResolved {
-  const currentLocale = locale || getCurrentLocale(route, i18nConfig, hashLocale)
+  const currentLocale = locale || getCurrentLocaleCode(route, i18nConfig, hashLocale)
   const selectRoute = router.resolve(to)
   const routeName = getRouteName(selectRoute, currentLocale)
 
@@ -233,7 +233,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   useRouter().beforeEach(async (to, from, next) => {
     const hashLocale = i18nConfig.hashMode ? nuxtApp.runWithContext(() => (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString()).toString() : null
-    const locale = getCurrentLocale(to, i18nConfig, hashLocale)
+    const locale = getCurrentLocaleCode(to, i18nConfig, hashLocale)
 
     if (!i18nHelper.hasGeneralTranslation(locale)) {
       const data: Translations = await $fetch(`/${apiBaseUrl}/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
@@ -264,7 +264,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (!key) return ''
 
     const hashLocale = i18nConfig.hashMode ? (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString() : null
-    const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+    const locale = getCurrentLocaleCode(useRoute(), i18nConfig, hashLocale)
     const routeName = getRouteName(useRoute(), locale)
     let value = i18nHelper.getTranslation(locale, routeName, key)
 
@@ -292,25 +292,26 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const provideData = {
     i18n: undefined,
     __micro: true,
-    getLocale: () => getCurrentLocale(useRoute(), i18nConfig, hashLocale),
     defaultLocale: () => i18nConfig.defaultLocale,
+    getLocaleCode: () => getCurrentLocaleCode(useRoute(), i18nConfig, hashLocale),
+    getLocale: () => i18nConfig.locales.find((locale: Locale) => locale.code == getCurrentLocaleCode(useRoute(), i18nConfig, hashLocale)),
     getLocales: () => i18nConfig.locales || [],
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
-      const selectedLocale = locale ?? getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const selectedLocale = locale ?? getCurrentLocaleCode(useRoute(), i18nConfig, hashLocale)
       const selectedRoute = route ?? useRoute()
       return getRouteName(selectedRoute, selectedLocale)
     },
     t: getTranslation,
     tc: (key: string, count: number, defaultValue?: string): string => {
-      const currentLocale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const currentLocale = getCurrentLocaleCode(useRoute(), i18nConfig, hashLocale)
       return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {
-      const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const locale = getCurrentLocaleCode(useRoute(), i18nConfig, hashLocale)
       return formatNumber(value, locale, options)
     },
     td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
-      const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const locale = getCurrentLocaleCode(useRoute(), i18nConfig, hashLocale)
       return formatDate(value, locale, options)
     },
     has: (key: string): boolean => {
@@ -318,7 +319,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
     mergeTranslations: (newTranslations: Translations) => {
       const route = useRoute()
-      const locale = getCurrentLocale(route, i18nConfig, hashLocale)
+      const locale = getCurrentLocaleCode(route, i18nConfig, hashLocale)
       const routeName = getRouteName(route, locale)
       i18nHelper.mergeTranslation(locale, routeName, newTranslations)
     },
@@ -326,7 +327,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const router = useRouter()
       const route = useRoute()
 
-      const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale)
+      const fromLocale = getCurrentLocaleCode(route, i18nConfig, hashLocale)
       if (i18nConfig.hashMode) {
         hashLocale = toLocale
       }
@@ -336,7 +337,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const router = useRouter()
       const route = useRoute()
 
-      const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale)
+      const fromLocale = getCurrentLocaleCode(route, i18nConfig, hashLocale)
       if (i18nConfig.hashMode) {
         hashLocale = toLocale
       }
@@ -353,7 +354,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const router = useRouter()
       const route = useRoute()
 
-      const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale)
+      const fromLocale = getCurrentLocaleCode(route, i18nConfig, hashLocale)
       if (i18nConfig.hashMode) {
         hashLocale = toLocale
       }
@@ -392,9 +393,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 })
 
 export interface PluginsInjections {
-  $getLocale: () => string
-  $getLocales: () => Locale[]
   $defaultLocale: () => string
+  $getLocaleCode: () => string
+  $getLocale: () => Locale
+  $getLocales: () => Locale[]
   $getRouteName: (route?: RouteLocationRaw, locale?: string) => string
   $t: <T extends Record<string, string | number | boolean>>(
     key: string,

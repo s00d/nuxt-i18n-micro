@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.23.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.23.0...v1.23.1)
+
+### 🩹 Fixes
+
+- ExtractDefineI18nRouteConfig change to extractLocaleRoutes ([3047dd3](https://github.com/s00d/nuxt-i18n-micro/commit/3047dd3))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.23.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.22.2...v1.23.0)

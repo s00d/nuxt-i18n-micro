@@ -14,7 +14,7 @@ import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
-import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend } from './types'
+import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
 import { LocaleManager } from './locale-manager'
 
 declare module '@nuxt/schema' {
@@ -303,3 +303,5 @@ declare module '@nuxt/schema' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface NuxtHooks extends ModuleHooks {}
 }
+
+export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode }

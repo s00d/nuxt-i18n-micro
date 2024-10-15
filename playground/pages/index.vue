@@ -20,6 +20,10 @@
       {{ $localeRoute({ name: 'page' }, 'de').path }}
     </p>
 
+    <p id="localized-route-2">
+      {{ localeRoute({ name: 'page' }, 'de').path }}
+    </p>
+
     <div>
       <i18n-link :to="{ name: 'page' }">
         Go to Page
@@ -44,7 +48,7 @@
 </template>
 
 <script setup>
-const { $localeRoute } = useNuxtApp()
+const { $localeRoute, localeRoute, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName } = useI18n()
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []

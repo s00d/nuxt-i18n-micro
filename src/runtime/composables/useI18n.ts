@@ -1,10 +1,16 @@
 import type { PluginsInjections } from '../plugins/01.plugin'
 import { useNuxtApp } from '#imports'
 
-export function useI18n(): PluginsInjections {
+type RemoveDollarSign<T> = {
+  [K in keyof T as K extends `$${infer Rest}` ? Rest : K]: T[K]
+}
+
+export type PluginsInjectionsWithAliases = PluginsInjections & RemoveDollarSign<PluginsInjections>
+
+export function useI18n(): PluginsInjectionsWithAliases {
   const nuxtApp = useNuxtApp()
 
-  return {
+  const injections = {
     $defaultLocale: nuxtApp.$defaultLocale,
     $getLocale: nuxtApp.$getLocale,
     $getLocales: nuxtApp.$getLocales,
@@ -21,6 +27,14 @@ export function useI18n(): PluginsInjections {
     $switchLocale: nuxtApp.$switchLocale,
     $localeRoute: nuxtApp.$localeRoute,
     $localePath: nuxtApp.$localePath,
-    $loadPageTranslations: nuxtApp.$loadPageTranslations,
   } as const
+
+  const noDollarInjections = Object.fromEntries(
+    Object.entries(injections).map(([key, value]) => [key.slice(1), value]),
+  )
+
+  return {
+    ...injections,
+    ...noDollarInjections,
+  } as PluginsInjectionsWithAliases
 }

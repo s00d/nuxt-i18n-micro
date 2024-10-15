@@ -6,6 +6,8 @@ outline: deep
 
 The `useI18n` composable in `Nuxt I18n Micro` is designed to provide an easy and efficient way to access internationalization functionalities within your Nuxt application. It offers a variety of methods to handle localization, translation, and route management based on the current locale.
 
+**All methods can be accessed both with and without the `$` prefix** for convenience.
+
 ## ⚙️ Return Values
 
 The `useI18n` composable returns an object containing several key methods and properties for managing internationalization:

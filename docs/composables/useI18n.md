@@ -12,100 +12,100 @@ The `useI18n` composable returns an object containing several key methods and pr
 
 ### `$getLocale`
 
-- **Type**: `() => string`
-- **Description**: Returns the current locale of the application.
-- **Example**:
-  ```js
-  const { $getLocale } = useI18n()
-  const locale = $getLocale()
-  console.log(locale) // e.g., 'en'
-  ```
+-   **Type**: `() => Locale`
+-   **Description**: Returns the current locale of the application.
+-   **Example**:
+    ```js
+    const { $getLocale } = useI18n()
+    const locale = $getLocale()
+    console.log(locale) // e.g., '{ code: 'en', iso: 'en-US' }'
+    ```
 
 ### `$getLocales`
 
-- **Type**: `() => Locale[]`
-- **Description**: Returns an array of all available locales in the application.
-- **Example**:
-  ```js
-  const { $getLocales } = useI18n()
-  const locales = $getLocales()
-  console.log(locales) // e.g., [{ code: 'en', iso: 'en-US' }, { code: 'fr', iso: 'fr-FR' }]
-  ```
+-   **Type**: `() => Locale[]`
+-   **Description**: Returns an array of all available locales in the application.
+-   **Example**:
+    ```js
+    const { $getLocales } = useI18n()
+    const locales = $getLocales()
+    console.log(locales) // e.g., [{ code: 'en', iso: 'en-US' }, { code: 'fr', iso: 'fr-FR' }]
+    ```
 
 ### `$t`
 
-- **Type**: `<T extends Record<string, string | number | boolean>>(key: string, params?: T, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null`
-- **Description**: Translates a given key to the corresponding localized string, optionally replacing placeholders with provided parameters and falling back to a default value if the key is not found.
-- **Example**:
-  ```js
-  const { $t } = useI18n()
-  const greeting = $t('hello', { name: 'John' }, 'Hello!')
-  console.log(greeting) // e.g., 'Hello, John'
-  ```
+-   **Type**: `<T extends Record<string, string | number | boolean>>(key: string, params?: T, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null`
+-   **Description**: Translates a given key to the corresponding localized string, optionally replacing placeholders with provided parameters and falling back to a default value if the key is not found.
+-   **Example**:
+    ```js
+    const { $t } = useI18n()
+    const greeting = $t('hello', { name: 'John' }, 'Hello!')
+    console.log(greeting) // e.g., 'Hello, John'
+    ```
 
 ### `$tc`
 
-- **Type**: `(key: string, count: number, defaultValue?: string) => string`
-- **Description**: Translates a given key with pluralization based on the provided count, optionally falling back to a default value if the key is not found.
-- **Example**:
-  ```js
-  const { $tc } = useI18n()
-  const message = $tc('apples', 3, '3 apples')
-  console.log(message) // e.g., '3 apples'
-  ```
+-   **Type**: `(key: string, count: number, defaultValue?: string) => string`
+-   **Description**: Translates a given key with pluralization based on the provided count, optionally falling back to a default value if the key is not found.
+-   **Example**:
+    ```js
+    const { $tc } = useI18n()
+    const message = $tc('apples', 3, '3 apples')
+    console.log(message) // e.g., '3 apples'
+    ```
 
 ### `$has`
 
-- **Type**: `(key: string) => boolean`
-- **Description**: Checks if a translation key exists for the current locale.
-- **Example**:
-  ```js
-  const { $has } = useI18n()
-  const exists = $has('hello')
-  console.log(exists) // e.g., true
-  ```
+-   **Type**: `(key: string) => boolean`
+-   **Description**: Checks if a translation key exists for the current locale.
+-   **Example**:
+    ```js
+    const { $has } = useI18n()
+    const exists = $has('hello')
+    console.log(exists) // e.g., true
+    ```
 
 ### `$mergeTranslations`
 
-- **Type**: `(newTranslations: Translations) => void`
-- **Description**: Merges additional translations into the existing ones for the current locale.
-- **Example**:
-  ```js
-  const { $mergeTranslations } = useI18n()
-  $mergeTranslations({
-    hello: 'Hello World',
-  })
-  ```
+-   **Type**: `(newTranslations: Translations) => void`
+-   **Description**: Merges additional translations into the existing ones for the current locale.
+-   **Example**:
+    ```js
+    const { $mergeTranslations } = useI18n()
+    $mergeTranslations({
+        hello: 'Hello World'
+    })
+    ```
 
 ### `$switchLocale`
 
-- **Type**: `(locale: string) => void`
-- **Description**: Switches the application's locale to the specified locale.
-- **Example**:
-  ```js
-  const { $switchLocale } = useI18n()
-  $switchLocale('fr')
-  ```
+-   **Type**: `(locale: string) => void`
+-   **Description**: Switches the application's locale to the specified locale.
+-   **Example**:
+    ```js
+    const { $switchLocale } = useI18n()
+    $switchLocale('fr')
+    ```
 
 ### `$localeRoute`
 
-- **Type**: `(to: RouteLocationRaw, locale?: string) => RouteLocationRaw`
-- **Description**: Generates a localized route based on the specified route and optionally the specified locale.
-- **Example**:
-  ```js
-  const { $localeRoute } = useI18n()
-  const route = $localeRoute('/about', 'fr')
-  ```
+-   **Type**: `(to: RouteLocationRaw, locale?: string) => RouteLocationRaw`
+-   **Description**: Generates a localized route based on the specified route and optionally the specified locale.
+-   **Example**:
+    ```js
+    const { $localeRoute } = useI18n()
+    const route = $localeRoute('/about', 'fr')
+    ```
 
 ### `$loadPageTranslations`
 
-- **Type**: `(locale: string, routeName: string) => Promise<void>`
-- **Description**: Loads translations for the specified page and locale, enabling lazy-loading of translations.
-- **Example**:
-  ```js
-  const { $loadPageTranslations } = useI18n()
-  await $loadPageTranslations('fr', 'home')
-  ```
+-   **Type**: `(locale: string, routeName: string) => Promise<void>`
+-   **Description**: Loads translations for the specified page and locale, enabling lazy-loading of translations.
+-   **Example**:
+    ```js
+    const { $loadPageTranslations } = useI18n()
+    await $loadPageTranslations('fr', 'home')
+    ```
 
 ## 🛠️ Example Usages
 
@@ -114,8 +114,8 @@ The `useI18n` composable returns an object containing several key methods and pr
 Retrieve the current locale of the application.
 
 ```js
-const { $getLocale } = useI18n()
-const locale = $getLocale()
+const { $getLocaleCode } = useI18n()
+const locale = $getLocaleCode()
 ```
 
 ### Translation with Parameters

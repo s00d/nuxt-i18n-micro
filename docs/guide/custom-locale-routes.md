@@ -18,17 +18,17 @@ Here’s an example of how you might define custom routes for specific locales u
 
 ```typescript
 $defineI18nRoute({
-  localeRoutes: {
-    ru: '/localesubpage', // Custom route path for the Russian locale
-    de: '/lokaleseite',   // Custom route path for the German locale
-  },
+    localeRoutes: {
+        ru: '/localesubpage', // Custom route path for the Russian locale
+        de: '/lokaleseite' // Custom route path for the German locale
+    }
 })
 ```
 
 ### 🔄 How `localeRoutes` Work
 
-- **Default Behavior**: Without `localeRoutes`, all locales use a common route structure defined by the primary path.
-- **Custom Behavior**: With `localeRoutes`, specific locales can have their own routes, overriding the default path with locale-specific routes defined in the configuration.
+-   **Default Behavior**: Without `localeRoutes`, all locales use a common route structure defined by the primary path.
+-   **Custom Behavior**: With `localeRoutes`, specific locales can have their own routes, overriding the default path with locale-specific routes defined in the configuration.
 
 ## 🌱 Use Cases for `localeRoutes`
 
@@ -38,45 +38,45 @@ Here’s a simple Vue component demonstrating the use of `$defineI18nRoute` with
 
 ```vue
 <template>
-  <div>
-    <!-- Display greeting message based on the current locale -->
-    <p>{{ $t('greeting') }}</p>
-
-    <!-- Navigation links -->
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })">
-        Go to Index
-      </NuxtLink>
-      |
-      <NuxtLink :to="$localeRoute({ name: 'about' })">
-        Go to About Page
-      </NuxtLink>
+        <!-- Display greeting message based on the current locale -->
+        <p>{{ $t('greeting') }}</p>
+
+        <!-- Navigation links -->
+        <div>
+            <NuxtLink :to="$localeRoute({ name: 'index' })">
+                Go to Index
+            </NuxtLink>
+            |
+            <NuxtLink :to="$localeRoute({ name: 'about' })">
+                Go to About Page
+            </NuxtLink>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $defineI18nRoute } = useNuxtApp()
+const { $switchLocale, $localeRoute, $t, $defineI18nRoute } = useNuxtApp()
 
 // Define translations and custom routes for specific locales
 $defineI18nRoute({
-  localeRoutes: {
-    ru: '/localesubpage', // Custom route path for Russian locale
-  },
+    localeRoutes: {
+        ru: '/localesubpage' // Custom route path for Russian locale
+    }
 })
 </script>
 ```
 
 ### 🛠️ Using `localeRoutes` in Different Contexts
 
-- **Landing Pages**: Use custom routes to localize URLs for landing pages, ensuring they align with marketing campaigns.
-- **Documentation Sites**: Provide distinct routes for each locale to better match the localized content structure.
-- **E-commerce Sites**: Tailor product or category URLs per locale for improved SEO and user experience.
+-   **Landing Pages**: Use custom routes to localize URLs for landing pages, ensuring they align with marketing campaigns.
+-   **Documentation Sites**: Provide distinct routes for each locale to better match the localized content structure.
+-   **E-commerce Sites**: Tailor product or category URLs per locale for improved SEO and user experience.
 
 ## 📝 Best Practices for Using `localeRoutes`
 
-- **🚀 Use for Relevant Locales**: Apply `localeRoutes` primarily where the URL structure significantly impacts the user experience or SEO. Avoid overuse for minor differences.
-- **🔧 Maintain Consistency**: Keep a consistent routing pattern across locales unless there's a strong reason to deviate. This approach helps in maintaining clarity and reducing complexity.
-- **📚 Document Custom Routes**: Clearly document any custom routes you define with `localeRoutes`, especially in modular applications, to ensure team members understand the routing logic.
+-   **🚀 Use for Relevant Locales**: Apply `localeRoutes` primarily where the URL structure significantly impacts the user experience or SEO. Avoid overuse for minor differences.
+-   **🔧 Maintain Consistency**: Keep a consistent routing pattern across locales unless there's a strong reason to deviate. This approach helps in maintaining clarity and reducing complexity.
+-   **📚 Document Custom Routes**: Clearly document any custom routes you define with `localeRoutes`, especially in modular applications, to ensure team members understand the routing logic.

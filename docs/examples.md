@@ -12,17 +12,17 @@ Here's a basic setup to get started with `Nuxt I18n Micro`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
-  i18n: {
-    locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'de', iso: 'de-DE', dir: 'ltr' },
-    ],
-    defaultLocale: 'en',
-    translationDir: 'locales',
-    meta: true,
-  },
+    modules: ['nuxt-i18n-micro'],
+    i18n: {
+        locales: [
+            { code: 'en', iso: 'en-US', dir: 'ltr', displayName: 'English' },
+            { code: 'fr', iso: 'fr-FR', dir: 'ltr', displayName: 'French' },
+            { code: 'de', iso: 'de-DE', dir: 'ltr', displayName: 'German' }
+        ],
+        defaultLocale: 'en',
+        translationDir: 'locales',
+        meta: true
+    }
 })
 ```
 
@@ -34,25 +34,25 @@ This example demonstrates how to switch locales programmatically using buttons:
 
 ```vue
 <template>
-  <div>
-    <p>Current Locale: {{ $getLocale() }}</p>
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        :disabled="locale.code === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
-        Switch to {{ $t(locale.code) }}
-      </button>
+        <p>Current Locale: {{ $getLocaleCode() }}</p>
+        <div>
+            <button
+                v-for="locale in $getLocales()"
+                :key="locale.code"
+                :disabled="locale.code === $getLocaleCode()"
+                @click="() => $switchLocale(locale.code)"
+            >
+                Switch to {{ $t(locale.code) }}
+            </button>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
+const { $getLocaleCode, $switchLocale, $getLocales, $t } = useNuxtApp()
 </script>
 ```
 
@@ -60,9 +60,9 @@ const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
 
 ```json
 {
-  "en": "English",
-  "fr": "Français",
-  "de": "Deutsch"
+    "en": "English",
+    "fr": "Français",
+    "de": "Deutsch"
 }
 ```
 
@@ -72,11 +72,11 @@ The `<i18n-switcher>` component provides a dropdown for locale switching with cu
 
 ```vue
 <template>
-  <div>
-    <i18n-switcher
-      :custom-labels="{ en: 'English', fr: 'Français', de: 'Deutsch' }"
-    />
-  </div>
+    <div>
+        <i18n-switcher
+            :custom-labels="{ en: 'English', fr: 'Français', de: 'Deutsch' }"
+        />
+    </div>
 </template>
 ```
 
@@ -86,16 +86,16 @@ The `<i18n-link>` component automatically handles locale-specific routing:
 
 ```vue
 <template>
-  <div>
-    <i18n-link to="/about">{{ $t('about') }}</i18n-link>
-    <i18n-link :to="{ name: 'index' }">{{ $t('home') }}</i18n-link>
-  </div>
+    <div>
+        <i18n-link to="/about">{{ $t('about') }}</i18n-link>
+        <i18n-link :to="{ name: 'index' }">{{ $t('home') }}</i18n-link>
+    </div>
 </template>
 
 <script setup>
-  import { useNuxtApp } from '#imports'
+import { useNuxtApp } from '#imports'
 
-  const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
+const { $getLocaleCode, $switchLocale, $getLocales, $t } = useNuxtApp()
 </script>
 ```
 
@@ -103,8 +103,8 @@ The `<i18n-link>` component automatically handles locale-specific routing:
 
 ```json
 {
-  "about": "About Us",
-  "home": "Home"
+    "about": "About Us",
+    "home": "Home"
 }
 ```
 
@@ -112,9 +112,9 @@ The `<i18n-link>` component automatically handles locale-specific routing:
 
 ```vue
 <template>
-  <div>
-    <i18n-link to="/about" activeClass="current">About Us</i18n-link>
-  </div>
+    <div>
+        <i18n-link to="/about" activeClass="current">About Us</i18n-link>
+    </div>
 </template>
 ```
 
@@ -132,14 +132,13 @@ This example fetches an array of keys from a specific translation path (in this 
 
 ```vue
 <template>
-  <div>
-    <div
-      v-for="key in $t('dynamic')"
-      :key="key"
-    >
-      <p>{{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span></p>
+    <div>
+        <div v-for="key in $t('dynamic')" :key="key">
+            <p>
+                {{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span>
+            </p>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -153,10 +152,10 @@ const { $t, $has } = useNuxtApp()
 
 ```json
 {
-  "dynamic": ["key1", "key2", "key3"],
-  "key1": "This is the first key's value",
-  "key2": "This is the second key's value",
-  "key3": "This is the third key's value"
+    "dynamic": ["key1", "key2", "key3"],
+    "key1": "This is the first key's value",
+    "key2": "This is the second key's value",
+    "key3": "This is the third key's value"
 }
 ```
 
@@ -166,11 +165,11 @@ In this example, we handle an object stored within your translation file. We fet
 
 ```vue
 <template>
-  <div>
-    <div v-for="(value, key) in $t('dynamicObject')" :key="key">
-      <p>{{ key }}: {{ value }}</p>
+    <div>
+        <div v-for="(value, key) in $t('dynamicObject')" :key="key">
+            <p>{{ key }}: {{ value }}</p>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -184,11 +183,11 @@ const { $t } = useNuxtApp()
 
 ```json
 {
-  "dynamicObject": {
-    "title": "Welcome to our site",
-    "description": "This is a brief description of our services.",
-    "footerNote": "Thank you for visiting!"
-  }
+    "dynamicObject": {
+        "title": "Welcome to our site",
+        "description": "This is a brief description of our services.",
+        "footerNote": "Thank you for visiting!"
+    }
 }
 ```
 
@@ -198,11 +197,12 @@ The `<i18n-t>` component is useful for rendering translations with dynamic conte
 
 ```vue
 <template>
-  <i18n-t keypath="greeting" tag="h1">
-    <template #default="{ translation }">
-      <strong>{{ translation.replace('page', 'page replace') }}</strong> <i>!!!</i>
-    </template>
-  </i18n-t>
+    <i18n-t keypath="greeting" tag="h1">
+        <template #default="{ translation }">
+            <strong>{{ translation.replace('page', 'page replace') }}</strong>
+            <i>!!!</i>
+        </template>
+    </i18n-t>
 </template>
 ```
 
@@ -210,7 +210,7 @@ The `<i18n-t>` component is useful for rendering translations with dynamic conte
 
 ```json
 {
-  "greeting": "Welcome to the page"
+    "greeting": "Welcome to the page"
 }
 ```
 
@@ -218,7 +218,10 @@ The `<i18n-t>` component is useful for rendering translations with dynamic conte
 
 ```vue
 <template>
-  <i18n-t keypath="welcome" :params="{ username: 'Alice', unreadCount: 5 }"></i18n-t>
+    <i18n-t
+        keypath="welcome"
+        :params="{ username: 'Alice', unreadCount: 5 }"
+    ></i18n-t>
 </template>
 ```
 
@@ -226,7 +229,7 @@ The `<i18n-t>` component is useful for rendering translations with dynamic conte
 
 ```json
 {
-  "welcome": "Hello {username}, you have {unreadCount} unread messages."
+    "welcome": "Hello {username}, you have {unreadCount} unread messages."
 }
 ```
 
@@ -236,63 +239,71 @@ Here's a complex structure demonstrating multiple translation uses within a sing
 
 ```vue
 <template>
-  <div>
-    <h1>{{ $t('mainHeader') }}</h1>
-
-    <nav>
-      <ul>
-        <li><a href="#">{{ $t('nav.home') }}</a></li>
-        <li><a href="#">{{ $t('nav.about') }}</a></li>
-        <li><a href="#">{{ $t('nav.services') }}</a></li>
-        <li><a href="#">{{ $t('nav.contact') }}</a></li>
-      </ul>
-    </nav>
-
-    <section>
-      <h2>{{ $t('section1.header') }}</h2>
-      <p>{{ $t('section1.intro') }}</p>
-
-      <div>
-        <h3>{{ $t('section1.subsection1.header') }}</h3>
-        <p>{{ $t('section1.subsection1.content') }}</p>
-      </div>
-
-      <div>
-        <h3>{{ $t('section1.subsection2.header') }}</h3>
-        <ul>
-          <li>{{ $t('section1.subsection2.item1') }}</li>
-          <li>{{ $t('section1.subsection2.item2') }}</li>
-          <li>{{ $t('section1.subsection2.item3') }}</li>
-        </ul>
-      </div>
-    </section>
-
-    <footer>
-      <h4>{{ $t('footer.contact.header') }}</h4>
-      <address>
-        {{ $t('footer.contact.address') }}<br>
-        {{ $t('footer.contact.city') }}<br>
-        {{ $t('footer.contact.phone') }}
-      </address>
-    </footer>
-
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        :disabled="locale.code === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
-        Switch to {{ locale.code }}
-      </button>
+        <h1>{{ $t('mainHeader') }}</h1>
+
+        <nav>
+            <ul>
+                <li>
+                    <a href="#">{{ $t('nav.home') }}</a>
+                </li>
+                <li>
+                    <a href="#">{{ $t('nav.about') }}</a>
+                </li>
+                <li>
+                    <a href="#">{{ $t('nav.services') }}</a>
+                </li>
+                <li>
+                    <a href="#">{{ $t('nav.contact') }}</a>
+                </li>
+            </ul>
+        </nav>
+
+        <section>
+            <h2>{{ $t('section1.header') }}</h2>
+            <p>{{ $t('section1.intro') }}</p>
+
+            <div>
+                <h3>{{ $t('section1.subsection1.header') }}</h3>
+                <p>{{ $t('section1.subsection1.content') }}</p>
+            </div>
+
+            <div>
+                <h3>{{ $t('section1.subsection2.header') }}</h3>
+                <ul>
+                    <li>{{ $t('section1.subsection2.item1') }}</li>
+                    <li>{{ $t('section1.subsection2.item2') }}</li>
+                    <li>{{ $t('section1.subsection2.item3') }}</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer>
+            <h4>{{ $t('footer.contact.header') }}</h4>
+            <address>
+                {{ $t('footer.contact.address') }}<br />
+                {{ $t('footer.contact.city') }}<br />
+                {{ $t('footer.contact.phone') }}
+            </address>
+        </footer>
+
+        <div>
+            <button
+                v-for="locale in $getLocales()"
+                :key="locale.code"
+                :disabled="locale.code === $getLocaleCode()"
+                @click="() => $switchLocale(locale.code)"
+            >
+                Switch to {{ locale.code }}
+            </button>
+        </div>
     </div>
-  </div>
 </template>
 
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
+const { $getLocaleCode, $switchLocale, $getLocales, $t } = useNuxtApp()
 </script>
 ```
 
@@ -300,40 +311,37 @@ const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
 
 ```json
 {
-  "mainHeader": "Welcome to Our Services",
-  "nav": {
-    "home": "Home",
-    "about": "About Us",
-    "services": "Services",
-    "contact": "Contact"
-  },
-  "section1": {
-    "header": "Our Expertise",
-    "intro": "We provide a wide range of services to meet your needs.",
-    "subsection1": {
-      "header": "Consulting",
-      "content": "Our team offers expert consulting services in various domains."
+    "mainHeader": "Welcome to Our Services",
+    "nav": {
+        "home": "Home",
+        "about": "About Us",
+        "services": "Services",
+        "contact": "Contact"
     },
-    "subsection2": {
-      "header": "Development",
-      "item1":
-
- "Web Development",
-      "item2": "Mobile Apps",
-      "item3": "Custom Software"
+    "section1": {
+        "header": "Our Expertise",
+        "intro": "We provide a wide range of services to meet your needs.",
+        "subsection1": {
+            "header": "Consulting",
+            "content": "Our team offers expert consulting services in various domains."
+        },
+        "subsection2": {
+            "header": "Development",
+            "item1": "Web Development",
+            "item2": "Mobile Apps",
+            "item3": "Custom Software"
+        }
+    },
+    "footer": {
+        "contact": {
+            "header": "Contact Us",
+            "address": "123 Main Street",
+            "city": "Anytown, USA",
+            "phone": "+1 (555) 123-4567"
+        }
     }
-  },
-  "footer": {
-    "contact": {
-      "header": "Contact Us",
-      "address": "123 Main Street",
-      "city": "Anytown, USA",
-      "phone": "+1 (555) 123-4567"
-    }
-  }
 }
 ```
-
 
 ## 🌟 Using `$tc` for Pluralization
 
@@ -345,12 +353,15 @@ In the following example, we display a message indicating the number of apples u
 
 ```vue
 <template>
-  <div>
-    <!-- Display a pluralized message about the number of apples -->
-    <p>{{ $tc('apples', 0) }}</p>  <!-- Outputs: no apples -->
-    <p>{{ $tc('apples', 1) }}</p>  <!-- Outputs: one apple -->
-    <p>{{ $tc('apples', 10) }}</p> <!-- Outputs: 10 apples -->
-  </div>
+    <div>
+        <!-- Display a pluralized message about the number of apples -->
+        <p>{{ $tc('apples', 0) }}</p>
+        <!-- Outputs: no apples -->
+        <p>{{ $tc('apples', 1) }}</p>
+        <!-- Outputs: one apple -->
+        <p>{{ $tc('apples', 10) }}</p>
+        <!-- Outputs: 10 apples -->
+    </div>
 </template>
 
 <script setup>
@@ -366,15 +377,15 @@ Here's how you can define the translation in your JSON file to handle different 
 
 ```json
 {
-  "apples": "no apples | one apple | {count} apples"
+    "apples": "no apples | one apple | {count} apples"
 }
 ```
 
 ### Explanation
 
-- **`$tc('apples', 0)`**: Returns the first form, used when the count is zero (`"no apples"`).
-- **`$tc('apples', 1)`**: Returns the second form, used when the count is one (`"one apple"`).
-- **`$tc('apples', 10)`**: Returns the third form with the count value, used when the count is two or more (`"10 apples"`).
+-   **`$tc('apples', 0)`**: Returns the first form, used when the count is zero (`"no apples"`).
+-   **`$tc('apples', 1)`**: Returns the second form, used when the count is one (`"one apple"`).
+-   **`$tc('apples', 10)`**: Returns the third form with the count value, used when the count is two or more (`"10 apples"`).
 
 ### Additional Example with More Complex Pluralization
 
@@ -382,13 +393,12 @@ If your application needs to handle more complex pluralization rules (e.g., spec
 
 ```json
 {
-  "apples": "no apples | one apple | two apples | a few apples | many apples | {count} apples"
+    "apples": "no apples | one apple | two apples | a few apples | many apples | {count} apples"
 }
 ```
 
-- **`$tc('apples', 2)`**: Could be set up to return `"two apples"`.
-- **`$tc('apples', 3)`**: Could return `"a few apples"`, depending on the rules defined for the count.
-
+-   **`$tc('apples', 2)`**: Could be set up to return `"two apples"`.
+-   **`$tc('apples', 3)`**: Could return `"a few apples"`, depending on the rules defined for the count.
 
 ## 🌐 Using `$tn` for Number Formatting
 
@@ -398,13 +408,15 @@ The `$tn` function formats numbers according to the current locale using the `In
 
 ```vue
 <template>
-  <div>
-    <!-- Format a number as currency -->
-    <p>{{ $tn(1234567.89, { style: 'currency', currency: 'USD' }) }}</p> <!-- Outputs: $1,234,567.89 in 'en-US' locale -->
+    <div>
+        <!-- Format a number as currency -->
+        <p>{{ $tn(1234567.89, { style: 'currency', currency: 'USD' }) }}</p>
+        <!-- Outputs: $1,234,567.89 in 'en-US' locale -->
 
-    <!-- Format a number with custom options -->
-    <p>{{ $tn(0.567, { style: 'percent', minimumFractionDigits: 1 }) }}</p> <!-- Outputs: 56.7% in 'en-US' locale -->
-  </div>
+        <!-- Format a number with custom options -->
+        <p>{{ $tn(0.567, { style: 'percent', minimumFractionDigits: 1 }) }}</p>
+        <!-- Outputs: 56.7% in 'en-US' locale -->
+    </div>
 </template>
 
 <script setup>
@@ -424,13 +436,32 @@ The `$td` function formats dates and times according to the current locale using
 
 ```vue
 <template>
-  <div>
-    <!-- Format a date with full options -->
-    <p>{{ $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p> <!-- Outputs: "Friday, September 1, 2023" in 'en-US' locale -->
+    <div>
+        <!-- Format a date with full options -->
+        <p>
+            {{
+                $td(new Date(), {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                })
+            }}
+        </p>
+        <!-- Outputs: "Friday, September 1, 2023" in 'en-US' locale -->
 
-    <!-- Format a date with time -->
-    <p>{{ $td(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}</p> <!-- Outputs: "10:15:30 AM" in 'en-US' locale -->
-  </div>
+        <!-- Format a date with time -->
+        <p>
+            {{
+                $td(new Date(), {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                })
+            }}
+        </p>
+        <!-- Outputs: "10:15:30 AM" in 'en-US' locale -->
+    </div>
 </template>
 
 <script setup>

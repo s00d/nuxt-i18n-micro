@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.23.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.22.2...v1.23.0)
+
+### 🚀 Enhancements
+
+- Export non-dollar-prefixed functions from useI18n #35 ([#35](https://github.com/s00d/nuxt-i18n-micro/issues/35))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.22.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.22.1...v1.22.2)

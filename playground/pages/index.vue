@@ -1,10 +1,11 @@
 <template>
   <div>
-    <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
+    <p>{{ $t("key1.key1.key1.key1.key1") }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
     <p>Current route without locale: {{ $getRouteName() }}</p>
 
     <!-- Ссылки для переключения локалей -->
+    <h1>Switch locale</h1>
     <div>
       <button
         v-for="locale in $getLocales()"
@@ -15,30 +16,43 @@
         Switch to {{ locale.code }}
       </button>
     </div>
-
+    <h1>localized route</h1>
     <p id="localized-route">
-      {{ $localeRoute({ name: 'page' }, 'de').path }}
+      {{ $localeRoute({ name: "page" }, "de").path }}
     </p>
 
+    <h1>Display name</h1>
+    <p
+      v-for="(locale, index) of $getLocales()"
+      :key="index"
+    >
+      {{ locale.displayName }}
+    </p>
+    <h1>Tests for {{ "<a></a>" }} and {{ "<nuxt-link></nuxt-link>" }} tags</h1>
     <div>
-      <i18n-link :to="{ name: 'page' }">
-        Go to Page
+      <i18n-link
+        style="margin-right: 24px"
+        :to="{ name: 'page' }"
+      >
+        NuxtLink
       </i18n-link>
+
+      <a href="/">tag a</a>
     </div>
 
-    <a href="/">test</a>
-
-    <div>
+    <h1>Dynamic translation by passing variables</h1>
+    <p>
       <i18n-switcher
         :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }"
       />
-    </div>
-
+    </p>
     <div
       v-for="key in generatedKeys"
       :key="key"
     >
-      <p>{{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span></p>
+      <p>
+        {{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span>
+      </p>
     </div>
   </div>
 </template>

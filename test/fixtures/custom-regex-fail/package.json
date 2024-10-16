@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "cookie",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  }
+}

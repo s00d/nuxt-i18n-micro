@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
 import type { ModuleOptionsExtend, ModulePrivateOptionsExtend } from '../../../types'
 import type { Translations } from '../../plugins/01.plugin'
-import { useRuntimeConfig } from '#imports'
+import { useRuntimeConfig, createError } from '#imports'
 
 // Рекурсивная функция для глубокого слияния объектов
 function deepMerge(target: Translations, source: Translations): Translations {
@@ -34,8 +34,14 @@ export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
   const { rootDirs } = config.i18nConfig as ModulePrivateOptionsExtend
-  const { translationDir, fallbackLocale } = config.public.i18nConfig as ModuleOptionsExtend
+  const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as ModuleOptionsExtend
 
+  if (customRegexMatcher && locales && !locales.map(l => l.code).includes(locale)) {
+    // return 404 if route not matching route
+    throw createError({
+      statusCode: 404,
+    })
+  }
   const getTranslationPath = (locale: string, page: string) => {
     return page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
   }

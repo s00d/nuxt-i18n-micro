@@ -58,7 +58,13 @@ export const isLocaleDefault = (locale: string | Locale, defaultLocale: Locale, 
   return localeCode === defaultLocale.code && !includeDefaultLocaleRoute
 }
 
-export const buildFullPath = (locale: string | string[], basePath: string): string => {
-  const localeParam = Array.isArray(locale) ? locale.join('|') : locale
+export const buildFullPath = (locale: string | string[], basePath: string, customRegex?: string | RegExp): string => {
+  const regexString = normalizeRegex(customRegex?.toString())
+  const localeParam = Array.isArray(locale) ? regexString ? regexString : locale.join('|') : locale
   return normalizePath(path.posix.join('/', `:locale(${localeParam})`, basePath))
+}
+
+const normalizeRegex = (toNorm?: string): string | undefined => {
+  if (typeof toNorm === 'undefined') return undefined
+  return toNorm.startsWith('/') && toNorm.endsWith('/') ? toNorm?.slice(1, -1) : toNorm
 }

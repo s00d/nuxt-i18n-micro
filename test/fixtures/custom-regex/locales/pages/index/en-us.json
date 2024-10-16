@@ -1,0 +1,6 @@
+{
+  "key1": "text in en",
+  "test_link": "link in en",
+  "basic_layer": "page basic text",
+  "text_escaping": "test {text_escaping} } { { "
+}

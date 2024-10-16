@@ -68,6 +68,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
       return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
     },
+    customRegexMatcher: undefined,
   },
   async setup(options, nuxt) {
     const isCloudflarePages = nuxt.options.nitro.preset === 'cloudflare_pages' || process.env.NITRO_PRESET === 'cloudflare-pages'
@@ -104,6 +105,15 @@ export default defineNuxtModule<ModuleOptions>({
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
       globalLocaleRoutes: undefined,
       apiBaseUrl: apiBaseUrl,
+      customRegexMatcher: options.customRegexMatcher,
+    }
+
+    // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error
+    if (typeof options.customRegexMatcher !== 'undefined') {
+      const localeCodes = localeManager.locales.map(l => l.code)
+      if (!localeCodes.every(code => code.match(options.customRegexMatcher as string | RegExp))) {
+        throw new Error('Nuxt-18n-micro: Some locale codes does not match customRegexMatcher')
+      }
     }
     nuxt.options.runtimeConfig.i18nConfig = {
       rootDir: nuxt.options.rootDir,
@@ -159,7 +169,7 @@ export default defineNuxtModule<ModuleOptions>({
         localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
       }
 
-      pageManager.extendPages(pages, nuxt.options.rootDir)
+      pageManager.extendPages(pages, nuxt.options.rootDir, options.customRegexMatcher)
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 

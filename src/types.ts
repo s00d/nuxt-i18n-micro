@@ -36,6 +36,7 @@ export interface ModuleOptions {
   fallbackLocale?: string
   localeCookie?: string
   globalLocaleRoutes?: GlobalLocaleRoutes
+  customRegexMatcher?: string | RegExp
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

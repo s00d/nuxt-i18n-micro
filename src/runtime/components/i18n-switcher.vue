@@ -36,12 +36,7 @@ import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
 import { useNuxtApp } from '#app'
 import { useRoute } from '#imports'
-
-interface Locale {
-  code: string
-  iso?: string
-  dir?: 'rtl' | 'ltr'
-}
+import type { Locale } from '~/src/types'
 
 interface Props {
   customLabels?: Record<string, string>

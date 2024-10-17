@@ -36,6 +36,8 @@ export default defineEventHandler(async (event) => {
   const { rootDirs } = config.i18nConfig as ModulePrivateOptionsExtend
   const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as ModuleOptionsExtend
 
+  console.log(555, translationDir)
+
   if (customRegexMatcher && locales && !locales.map(l => l.code).includes(locale)) {
     // return 404 if route not matching route
     throw createError({
@@ -49,10 +51,12 @@ export default defineEventHandler(async (event) => {
   const paths: string[] = []
   if (fallbackLocale && fallbackLocale !== locale) {
     rootDirs.forEach((dir) => {
+      paths.push(resolve(dir, 'dist', translationDir!, getTranslationPath(fallbackLocale, page)))
       paths.push(resolve(dir, translationDir!, getTranslationPath(fallbackLocale, page)))
     })
   }
   rootDirs.forEach((dir) => {
+    paths.push(resolve(dir, 'dist', translationDir!, getTranslationPath(locale, page)))
     paths.push(resolve(dir, translationDir!, getTranslationPath(locale, page)))
   })
 

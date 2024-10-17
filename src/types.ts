@@ -5,6 +5,7 @@ export interface Locale {
   disabled?: boolean
   iso?: string
   dir?: 'ltr' | 'rtl' | 'auto'
+  displayName: string
 }
 
 export interface DefineI18nRouteConfig {

@@ -36,6 +36,7 @@ export interface ModuleOptions {
   disablePageLocales?: boolean
   fallbackLocale?: string
   localeCookie?: string
+  debug?: boolean
   globalLocaleRoutes?: GlobalLocaleRoutes
   customRegexMatcher?: string | RegExp
 }
@@ -51,4 +52,5 @@ export interface ModuleOptionsExtend extends ModuleOptions {
 export interface ModulePrivateOptionsExtend extends ModuleOptions {
   rootDir: string
   rootDirs: string[]
+  debug: boolean
 }

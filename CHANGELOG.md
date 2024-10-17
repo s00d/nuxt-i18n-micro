@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.25.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.24.0...v1.25.0)
+
+### 🚀 Enhancements
+
+- **i18n:** Add `$ts` function for guaranteed string return ([dde551c](https://github.com/s00d/nuxt-i18n-micro/commit/dde551c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.24.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.23.1...v1.24.0)

@@ -15,9 +15,9 @@ export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'de', iso: 'de-DE', dir: 'ltr' },
+      { code: 'en', iso: 'en-US', dir: 'ltr', disabled: false, displayName: 'English' },
+      { code: 'fr', iso: 'fr-FR', dir: 'ltr', disabled: false, displayName: 'Français' },
+      { code: 'de', iso: 'de-DE', dir: 'ltr', disabled: false, displayName: 'Deutsch' },
     ],
     defaultLocale: 'en',
     translationDir: 'locales',

@@ -46,10 +46,27 @@ Retrieves the base route name without any locale-specific prefixes or suffixes.
 const routeName = $getRouteName(routeObject, 'fr')
 // Output: 'index' (assuming the base route name is 'index')
 ```
-
 ## 🔍 `$t`
 
 Fetches a translation for the given key. Optionally interpolates parameters.
+
+**Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | unknown | null`
+
+**Parameters**:
+- **key**: `string` — The translation key.
+- **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation.
+- **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
+
+**Example**:
+
+```typescript
+const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
+// Output: "Welcome, Alice! You have 5 unread messages."
+```
+
+## 🔍 `$ts`
+
+A variant of `$t` that always returns a string. Fetches a translation for the given key and optionally interpolates parameters.
 
 **Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string`
 
@@ -61,7 +78,7 @@ Fetches a translation for the given key. Optionally interpolates parameters.
 **Example**:
 
 ```typescript
-const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
+const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 // Output: "Welcome, Alice! You have 5 unread messages."
 ```
 

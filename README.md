@@ -1,17 +1,7 @@
-<div class="links">
-    <a href="https://www.npmjs.com/package/nuxt-i18n-micro" target="_blank">
-        <img src="https://img.shields.io/npm/v/nuxt-i18n-micro/latest?style=for-the-badge" alt="npm version">
-    </a>
-    <a href="https://www.npmjs.com/package/nuxt-i18n-micro" target="_blank">
-        <img src="https://img.shields.io/npm/dw/nuxt-i18n-micro?style=for-the-badge" alt="npm downloads">
-    </a>
-    <a href="https://www.npmjs.com/package/nuxt-i18n-micro" target="_blank">
-        <img src="https://img.shields.io/npm/l/nuxt-i18n-micro?style=for-the-badge" alt="License">
-    </a>
-    <a href="https://nuxt.com" target="_blank">
-        <img src="https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js&style=for-the-badge" alt="Nuxt">
-    </a>
-</div>
+[![npm version](https://img.shields.io/npm/v/nuxt-i18n-micro/latest?style=for-the-badge)](https://www.npmjs.com/package/nuxt-i18n-micro)
+[![npm downloads](https://img.shields.io/npm/dw/nuxt-i18n-micro?style=for-the-badge)](https://www.npmjs.com/package/nuxt-i18n-micro)
+[![License](https://img.shields.io/npm/l/nuxt-i18n-micro?style=for-the-badge)](https://www.npmjs.com/package/nuxt-i18n-micro)
+[![Nuxt](https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js&style=for-the-badge)](https://nuxt.com)
 
 <p align="center">
 <img src="https://github.com/s00d/nuxt-i18n-micro/blob/main/logo.png?raw=true" alt="logo">

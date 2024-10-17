@@ -1,4 +1,5 @@
 import path from 'node:path'
+import fs from 'node:fs'
 import {
   addComponentsDir,
   addImportsDir,
@@ -247,6 +248,22 @@ export default defineNuxtModule<ModuleOptions>({
 
       nitroConfig.prerender = nitroConfig.prerender || {}
       nitroConfig.prerender.routes = routes
+    })
+
+    nuxt.hook('nitro:build:public-assets', (nitro) => {
+      const isProd = nuxt.options.dev === false
+      if (isProd) {
+        const publicDir = path.join((nitro.options.output.publicDir ?? './dist'), options.translationDir ?? 'locales')
+        const translationDir = path.join(nuxt.options.rootDir, options.translationDir ?? 'locales')
+
+        try {
+          fs.cpSync(translationDir, publicDir, { recursive: true })
+          logger.log(`Translations copied successfully to ${translationDir} directory`)
+        }
+        catch (err) {
+          logger.error('Error copying translations:', err)
+        }
+      }
     })
 
     nuxt.hook('nitro:build:before', async (_nitro) => {

@@ -16,6 +16,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $getLocales: nuxtApp.$getLocales,
     $getRouteName: nuxtApp.$getRouteName,
     $t: nuxtApp.$t,
+    $ts: nuxtApp.$ts,
     $tn: nuxtApp.$tn,
     $td: nuxtApp.$td,
     $has: nuxtApp.$has,

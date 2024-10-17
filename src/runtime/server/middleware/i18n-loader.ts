@@ -48,12 +48,10 @@ export default defineEventHandler(async (event) => {
 
   const paths: string[] = []
   if (fallbackLocale && fallbackLocale !== locale) {
-    paths.push(resolve('./', translationDir!, getTranslationPath(fallbackLocale, page)))
     rootDirs.forEach((dir) => {
       paths.push(resolve(dir, translationDir!, getTranslationPath(fallbackLocale, page)))
     })
   }
-  paths.push(resolve('./', translationDir!, getTranslationPath(locale, page)))
   rootDirs.forEach((dir) => {
     paths.push(resolve(dir, translationDir!, getTranslationPath(locale, page)))
   })

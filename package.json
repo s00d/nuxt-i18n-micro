@@ -45,7 +45,6 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
     "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
-    "publish": "npm run release",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "playwright test --grep-invert \"test/performance\\.test\\.ts\"",

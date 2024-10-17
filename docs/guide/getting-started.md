@@ -134,7 +134,7 @@ Automatically generates SEO-related meta tags, such as `alternate` links for dif
 meta: true // Enable automatic SEO meta tags generation
 ```
 
-### 🔍 `debug`
+### 🐛 `debug`
 
 Enables logging and debugging information during the generation process to help with troubleshooting.
 

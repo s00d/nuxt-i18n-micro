@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
 import type { ModuleOptionsExtend, ModulePrivateOptionsExtend } from '../../../types'
 import type { Translations } from '../../plugins/01.plugin'
-import { useRuntimeConfig, createError } from '#imports'
+import { useRuntimeConfig, createError, useStorage } from '#imports'
 
 // Рекурсивная функция для глубокого слияния объектов
 function deepMerge(target: Translations, source: Translations): Translations {
@@ -46,24 +46,39 @@ export default defineEventHandler(async (event) => {
     return page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
   }
 
-  const paths: string[] = []
+  const paths: { translationPath: string; name: string }[] = []
   if (fallbackLocale && fallbackLocale !== locale) {
     rootDirs.forEach((dir) => {
-      paths.push(resolve(dir, translationDir!, getTranslationPath(fallbackLocale, page)))
+      paths.push({
+        translationPath: resolve(dir, translationDir!, getTranslationPath(fallbackLocale, page)),
+        name: `_locales/${getTranslationPath(fallbackLocale, page)}`,
+      })
     })
   }
   rootDirs.forEach((dir) => {
-    paths.push(resolve(dir, translationDir!, getTranslationPath(locale, page)))
+    paths.push({
+      translationPath: resolve(dir, translationDir!, getTranslationPath(locale, page)),
+      name: `_locales/${getTranslationPath(locale, page)}`,
+    })
   })
 
   let translations: Translations = {}
+  const serverStorage = await useStorage('assets:server')
 
   // Чтение и мержинг файлов переводов
-  for (const translationPath of paths) {
+  for (const { translationPath, name } of paths) {
     try {
-      const fileContent = await readFile(translationPath, 'utf-8')
-      const content = JSON.parse(fileContent) as Translations
-
+      console.log(translationPath, name)
+      // check if it exists in server assets
+      const isThereAsset = await serverStorage.hasItem(name)
+      // we prefer server assets storage when in production
+      // if in dev ore while prerendering we fetch from user content
+      const fileContent = (isThereAsset && !import.meta.prerender) ? await serverStorage.getItemRaw<string>(name) : await readFile(translationPath, 'utf-8')
+      const content = JSON.parse(fileContent!) as Translations
+      if (!isThereAsset && import.meta.prerender) {
+        // write to server assets while building
+        await serverStorage.setItem(name, fileContent)
+      }
       // Если translations пустой, просто присваиваем значение
       if (isEmptyObject(translations)) {
         translations = content

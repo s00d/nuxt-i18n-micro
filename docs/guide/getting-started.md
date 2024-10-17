@@ -215,6 +215,20 @@ Automatically redirects routes without a locale prefix to the default locale.
 includeDefaultLocaleRoute: true // Ensure consistency across routes by redirecting to the default locale
 ```
 
+### 🚦 `customRegexMatcher`
+
+I18n-micro meticulously checks each locale via vue-router route regex.
+If you have **a lot** of locales, you can improve pattern matching performances via a custom regex matcher.
+
+**Type**: `string | RegExp`  
+**Default**: `false`
+
+**Example**:
+
+```typescript
+customRegexMatcher: '[a-z]-[A-Z]'// This matches locales in isoCode (e.g: '/en-US', 'de-DE' etc)
+```
+
 ### 🔗 `routesLocaleLinks`
 
 Creates links between different pages' locale files to share translations, reducing duplication.

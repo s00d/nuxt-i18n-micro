@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v1.25.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.2...v1.25.3)
+
+### 🩹 Fixes
+
+- Add translation assets to dist ([8ce39a9](https://github.com/s00d/nuxt-i18n-micro/commit/8ce39a9))
+- Add translation assets to dist ([7e1ede8](https://github.com/s00d/nuxt-i18n-micro/commit/7e1ede8))
+- Add translation assets to dist ([6398eab](https://github.com/s00d/nuxt-i18n-micro/commit/6398eab))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.25.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.1...v1.25.2)

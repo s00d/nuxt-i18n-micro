@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v1.24.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.23.1...v1.24.0)
+
+### 🚀 Enhancements
+
+- Custom locale pattern matcher ([1ab8688](https://github.com/s00d/nuxt-i18n-micro/commit/1ab8688))
+- Add a new property to the type Locale ([bd75224](https://github.com/s00d/nuxt-i18n-micro/commit/bd75224))
+
+### 🩹 Fixes
+
+- Mark displayName as an optional property ([126cba7](https://github.com/s00d/nuxt-i18n-micro/commit/126cba7))
+- Tests ([c12f76a](https://github.com/s00d/nuxt-i18n-micro/commit/c12f76a))
+- Workspaces ([43f9ba3](https://github.com/s00d/nuxt-i18n-micro/commit/43f9ba3))
+
+### 🏡 Chore
+
+- Update lock-file ([8efc92a](https://github.com/s00d/nuxt-i18n-micro/commit/8efc92a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Liuqi <liuqi6602@163.com>
+- Rigo-m <matteo.rigoni@atoms.retex.com>
+
 ## v1.23.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.23.0...v1.23.1)

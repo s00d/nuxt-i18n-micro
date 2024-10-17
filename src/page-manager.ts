@@ -46,6 +46,10 @@ export class PageManager {
 
     const additionalRoutes: NuxtPage[] = []
     pages.forEach((page) => {
+      if (!page.name) {
+        console.warn(`[nuxt-i18n-next] Page name is missing for the file: ${page.file}`)
+        return
+      }
       const customRoute = this.globalLocaleRoutes[page.name ?? ''] ?? null
 
       // If globalLocaleRoutes for this page is false, skip localization

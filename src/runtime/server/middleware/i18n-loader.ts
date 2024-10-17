@@ -33,7 +33,7 @@ function isEmptyObject(obj: Translations): boolean {
 export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
-  const { rootDirs } = config.i18nConfig as ModulePrivateOptionsExtend
+  const { rootDirs, debug } = config.i18nConfig as ModulePrivateOptionsExtend
   const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as ModuleOptionsExtend
 
   if (customRegexMatcher && locales && !locales.map(l => l.code).includes(locale)) {
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
     return page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
   }
 
-  const paths: { translationPath: string; name: string }[] = []
+  const paths: { translationPath: string, name: string }[] = []
   if (fallbackLocale && fallbackLocale !== locale) {
     rootDirs.forEach((dir) => {
       paths.push({
@@ -68,7 +68,9 @@ export default defineEventHandler(async (event) => {
   // Чтение и мержинг файлов переводов
   for (const { translationPath, name } of paths) {
     try {
-      console.log(translationPath, name)
+      if (debug) {
+        console.log('[nuxt-i18n-micro] load locale', translationPath, name)
+      }
       // check if it exists in server assets
       const isThereAsset = await serverStorage.hasItem(name)
       // we prefer server assets storage when in production
@@ -88,8 +90,10 @@ export default defineEventHandler(async (event) => {
         translations = deepMerge(translations, content)
       }
     }
-    catch {
-      // Игнорируем ошибки чтения файлов, продолжаем с оставшимися
+    catch (e) {
+      if (debug) {
+        console.error('[nuxt-i18n-micro] load locale error', e)
+      }
     }
   }
 

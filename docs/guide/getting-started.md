@@ -134,6 +134,19 @@ Automatically generates SEO-related meta tags, such as `alternate` links for dif
 meta: true // Enable automatic SEO meta tags generation
 ```
 
+### 🔍 `debug`
+
+Enables logging and debugging information during the generation process to help with troubleshooting.
+
+**Type**: `boolean`  
+**Default**: `false`
+
+**Example**:
+
+```typescript
+debug: true // Enable logging and debugging information
+```
+
 ### 🔗 `metaBaseUrl`
 
 Sets the base URL for generating SEO-related meta tags like canonical and alternate URLs.

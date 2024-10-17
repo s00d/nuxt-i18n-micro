@@ -1,3 +1,0 @@
-[build]
-publish = "dist/"
-command = "mkdir -p .netlify/functions/locales && cp -r locales/* .netlify/functions/locales && npm run build"

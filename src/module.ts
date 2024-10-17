@@ -42,6 +42,7 @@ export default defineNuxtModule<ModuleOptions>({
   defaults: {
     locales: [],
     meta: true,
+    debug: false,
     define: true,
     defaultLocale: 'en',
     translationDir: 'locales',
@@ -118,6 +119,7 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.options.runtimeConfig.i18nConfig = {
       rootDir: nuxt.options.rootDir,
       rootDirs: rootDirs,
+      debug: options.debug ?? false,
     }
 
     addPlugin({

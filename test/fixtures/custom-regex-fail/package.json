@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "cookie",
+  "name": "custom-regex-fail",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

@@ -1,6 +1,86 @@
 # Changelog
 
 
+## v1.25.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.3...v1.25.4)
+
+## v1.25.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.2...v1.25.3)
+
+### 🩹 Fixes
+
+- Add translation assets to dist ([8ce39a9](https://github.com/s00d/nuxt-i18n-micro/commit/8ce39a9))
+- Add translation assets to dist ([7e1ede8](https://github.com/s00d/nuxt-i18n-micro/commit/7e1ede8))
+- Add translation assets to dist ([6398eab](https://github.com/s00d/nuxt-i18n-micro/commit/6398eab))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
+## v1.25.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.1...v1.25.2)
+
+### 🩹 Fixes
+
+- Add translation assets to dist ([36549b4](https://github.com/s00d/nuxt-i18n-micro/commit/36549b4))
+- Add translation assets to dist ([fc5d3b0](https://github.com/s00d/nuxt-i18n-micro/commit/fc5d3b0))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
+## v1.25.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.0...v1.25.1)
+
+### 🩹 Fixes
+
+- Add translation assets to dist ([77bd6ed](https://github.com/s00d/nuxt-i18n-micro/commit/77bd6ed))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
+## v1.25.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.24.0...v1.25.0)
+
+### 🚀 Enhancements
+
+- **i18n:** Add `$ts` function for guaranteed string return ([dde551c](https://github.com/s00d/nuxt-i18n-micro/commit/dde551c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
+## v1.24.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.23.1...v1.24.0)
+
+### 🚀 Enhancements
+
+- Custom locale pattern matcher ([1ab8688](https://github.com/s00d/nuxt-i18n-micro/commit/1ab8688))
+- Add a new property to the type Locale ([bd75224](https://github.com/s00d/nuxt-i18n-micro/commit/bd75224))
+
+### 🩹 Fixes
+
+- Mark displayName as an optional property ([126cba7](https://github.com/s00d/nuxt-i18n-micro/commit/126cba7))
+- Tests ([c12f76a](https://github.com/s00d/nuxt-i18n-micro/commit/c12f76a))
+- Workspaces ([43f9ba3](https://github.com/s00d/nuxt-i18n-micro/commit/43f9ba3))
+
+### 🏡 Chore
+
+- Update lock-file ([8efc92a](https://github.com/s00d/nuxt-i18n-micro/commit/8efc92a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Liuqi <liuqi6602@163.com>
+- Rigo-m <matteo.rigoni@atoms.retex.com>
+
 ## v1.23.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.23.0...v1.23.1)

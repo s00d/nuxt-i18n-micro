@@ -48,6 +48,7 @@ export default defineEventHandler(async (event) => {
 
   const paths: { translationPath: string; name: string }[] = []
   if (fallbackLocale && fallbackLocale !== locale) {
+    paths.push(resolve(process.cwd(), translationDir!, getTranslationPath(fallbackLocale, page)))
     rootDirs.forEach((dir) => {
       paths.push({
         translationPath: resolve(dir, translationDir!, getTranslationPath(fallbackLocale, page)),
@@ -55,6 +56,7 @@ export default defineEventHandler(async (event) => {
       })
     })
   }
+  paths.push(resolve(process.cwd(), translationDir!, getTranslationPath(locale, page)))
   rootDirs.forEach((dir) => {
     paths.push({
       translationPath: resolve(dir, translationDir!, getTranslationPath(locale, page)),

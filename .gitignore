@@ -60,3 +60,4 @@ docs/.vitepress/cache
 artillery-output.json
 combined.cjs
 combined.md
+test/fixtures/*/server/assets/

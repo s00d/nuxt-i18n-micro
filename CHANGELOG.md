@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.26.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.5...v1.26.0)
+
+### 🚀 Enhancements
+
+- Add debug option ([0696b02](https://github.com/s00d/nuxt-i18n-micro/commit/0696b02))
+
+### 🏡 Chore
+
+- Testing server assets ([81c08b0](https://github.com/s00d/nuxt-i18n-micro/commit/81c08b0))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Rigo-m <matteo.rigoni@atoms.retex.com>
+
 ## v1.25.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.25.4...v1.25.5)

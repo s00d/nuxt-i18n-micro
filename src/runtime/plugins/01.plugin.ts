@@ -6,9 +6,6 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import type {
-  ComponentCustomProperties as _ComponentCustomProperties,
-} from 'vue'
 import { useTranslationHelper } from '../translationHelper'
 import type { ModuleOptionsExtend, Locale, PluralFunc, I18nRouteParams } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
@@ -17,16 +14,20 @@ import { useRoute, useRouter, useCookie, useState } from '#imports'
 const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'
 
-export interface Translations {
-  [key: string]: string | number | boolean | Translations | PluralTranslations | unknown[] | null
-}
-
 interface PluralTranslations {
   singular: string
   plural: string
 }
 
-function interpolate(template: string, params: Record<string, string | number | boolean>): string {
+type Translation = string | number | boolean | Translations | PluralTranslations | unknown | null
+
+export interface Translations {
+  [key: string]: Translation
+}
+
+type Params = Record<string, string | number | boolean>
+
+function interpolate(template: string, params: Params): string {
   let result = template
 
   for (const key in params) {
@@ -258,9 +259,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const getTranslation = (
     key: string,
-    params?: Record<string, string | number | boolean>,
+    params?: Params,
     defaultValue?: string,
-  ) => {
+  ): Translation => {
     if (!key) return ''
 
     const hashLocale = i18nConfig.hashMode ? (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString() : null
@@ -301,6 +302,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return getRouteName(selectedRoute, selectedLocale)
     },
     t: getTranslation,
+    ts: (key: string, params?: Params, defaultValue?: string): string => {
+      const value = getTranslation(key, params, defaultValue)
+      if (isDev && import.meta.client) {
+        console.warn(`Bad format: '${key}'`)
+      }
+      return value?.toString() ?? defaultValue ?? key
+    },
     tc: (key: string, count: number, defaultValue?: string): string => {
       const currentLocale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
       return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
@@ -396,11 +404,8 @@ export interface PluginsInjections {
   $getLocales: () => Locale[]
   $defaultLocale: () => string | undefined
   $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
-  $t: <T extends Record<string, string | number | boolean>>(
-    key: string,
-    params?: T,
-    defaultValue?: string
-  ) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null
+  $t: (key: string, params?: Params, defaultValue?: string) => Translation
+  $ts: (key: string, params?: Params, defaultValue?: string) => string
   $tc: (key: string, count: number, defaultValue?: string) => string
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string

@@ -41,7 +41,7 @@ export class PageManager {
       .map(locale => locale.code)
   }
 
-  public extendPages(pages: NuxtPage[], rootDir: string) {
+  public extendPages(pages: NuxtPage[], rootDir: string, customRegex?: string | RegExp) {
     this.localizedPaths = this.extractLocalizedPaths(pages, rootDir)
 
     const additionalRoutes: NuxtPage[] = []
@@ -56,11 +56,11 @@ export class PageManager {
       // Check if the page has custom routes in globalLocaleRoutes
       if (customRoute && typeof customRoute === 'object') {
         // Add routes based on custom globalLocaleRoutes
-        this.addCustomGlobalLocalizedRoutes(page, customRoute, additionalRoutes)
+        this.addCustomGlobalLocalizedRoutes(page, customRoute, additionalRoutes, customRegex)
       }
       else {
         // Default behavior: localize the page as usual
-        this.localizePage(page, additionalRoutes)
+        this.localizePage(page, additionalRoutes, customRegex)
       }
     })
 
@@ -110,6 +110,7 @@ export class PageManager {
     page: NuxtPage,
     customRoutePaths: Record<string, string>,
     additionalRoutes: NuxtPage[],
+    customRegex?: string | RegExp,
   ) {
     this.locales.forEach((locale) => {
       const customPath = customRoutePaths[locale.code]
@@ -122,7 +123,7 @@ export class PageManager {
       }
       else {
         // Create a new localized route for this locale
-        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath))
+        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex))
       }
     })
   }
@@ -130,6 +131,7 @@ export class PageManager {
   private localizePage(
     page: NuxtPage,
     additionalRoutes: NuxtPage[],
+    customRegex?: string | RegExp,
   ) {
     if (isPageRedirectOnly(page)) return
 
@@ -138,7 +140,7 @@ export class PageManager {
     const localeCodesWithoutCustomPaths = this.filterLocaleCodesWithoutCustomPaths(normalizedFullPath)
 
     if (localeCodesWithoutCustomPaths.length) {
-      additionalRoutes.push(this.createLocalizedRoute(page, localeCodesWithoutCustomPaths, originalChildren, false))
+      additionalRoutes.push(this.createLocalizedRoute(page, localeCodesWithoutCustomPaths, originalChildren, false, '', customRegex))
     }
 
     this.addCustomLocalizedRoutes(page, normalizedFullPath, originalChildren, additionalRoutes)
@@ -198,6 +200,7 @@ export class PageManager {
     fullPath: string,
     originalChildren: NuxtPage[],
     additionalRoutes: NuxtPage[],
+    customRegex?: string | RegExp,
   ) {
     this.locales.forEach((locale) => {
       const customPath = this.localizedPaths[fullPath]?.[locale.code]
@@ -208,7 +211,7 @@ export class PageManager {
         page.children = this.createLocalizedChildren(originalChildren, '', [locale.code], false)
       }
       else {
-        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath))
+        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex))
       }
     })
   }
@@ -244,8 +247,9 @@ export class PageManager {
     originalChildren: NuxtPage[],
     isCustom: boolean,
     customPath: string = '',
+    customRegex?: string | RegExp,
   ): NuxtPage {
-    const routePath = this.buildRoutePath(localeCodes, page.path, customPath, isCustom)
+    const routePath = this.buildRoutePath(localeCodes, page.path, customPath, isCustom, customRegex)
     const routeName = buildRouteName(page.name ?? '', localeCodes[0], isCustom)
 
     return {
@@ -299,12 +303,13 @@ export class PageManager {
     originalPath: string,
     customPath: string,
     isCustom: boolean,
+    customRegex?: string | RegExp,
   ): string {
     if (isCustom) {
       return (this.includeDefaultLocaleRoute || !localeCodes.includes(this.defaultLocale.code))
-        ? buildFullPath(localeCodes, customPath)
+        ? buildFullPath(localeCodes, customPath, customRegex)
         : normalizePath(customPath)
     }
-    return buildFullPath(localeCodes, originalPath)
+    return buildFullPath(localeCodes, originalPath, customRegex)
   }
 }

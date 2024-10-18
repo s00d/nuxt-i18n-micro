@@ -34,9 +34,9 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
+import type { Locale } from '../../types'
 import { useNuxtApp } from '#app'
 import { useRoute } from '#imports'
-import type { Locale } from '~/src/types'
 
 interface Props {
   customLabels?: Record<string, string>

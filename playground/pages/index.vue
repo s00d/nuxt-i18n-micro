@@ -24,6 +24,10 @@
       {{ localeRoute({ name: 'page' }, 'de').path }}
     </p>
 
+    <button @click="$switchRoute('/page')">
+      switchRoute
+    </button>
+
     <div>
       <i18n-link :to="{ name: 'page' }">
         Go to Page
@@ -48,7 +52,7 @@
 </template>
 
 <script setup>
-const { $localeRoute, localeRoute, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName } = useI18n()
+const { $localeRoute, localeRoute, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName, $switchRoute } = useI18n()
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []

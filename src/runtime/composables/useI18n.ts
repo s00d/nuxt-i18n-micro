@@ -26,6 +26,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $switchLocaleRoute: nuxtApp.$switchLocaleRoute,
     $switchLocalePath: nuxtApp.$switchLocalePath,
     $switchLocale: nuxtApp.$switchLocale,
+    $switchRoute: nuxtApp.$switchRoute,
     $localeRoute: nuxtApp.$localeRoute,
     $localePath: nuxtApp.$localePath,
   } as const

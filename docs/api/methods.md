@@ -192,6 +192,49 @@ Switches to the given locale and redirects the user to the appropriate localized
 $switchLocale('fr')
 // Output: Redirects the user to the French version of the route
 ```
+
+## 🔄 `switchRoute`
+
+Switches the route to a new specified destination and changes the locale if needed, redirecting the user to the appropriate localized route.
+
+**Type**: `(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void`
+
+**Parameters**:
+- **route**: `RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string` — The route to which you want to switch. It can be:
+  - A `RouteLocationNormalizedLoaded` or `RouteLocationResolvedGeneric` object.
+  - A string representing the route path.
+- **toLocale** (optional): `string` — The locale to switch to for the target route. If not provided, the current locale is used.
+
+**Description**:
+This method facilitates seamless switching between routes, accommodating the current locale configuration. Depending on the input, it resolves the intended route and determines the appropriate locale for redirecting the user to a localized route.
+
+**Examples**:
+
+- **String Path**:
+  ```typescript
+  // Switches to the given path with the current locale
+  switchRoute('/about')
+  ```
+
+- **String Path with Locale**:
+  ```typescript
+  // Switches to the given path with French locale
+  switchRoute('/about', 'fr')
+  ```
+
+- **Named Route**:
+  ```typescript
+  // Switches to a named route with the current locale
+  switchRoute({ name: 'page' })
+  ```
+
+- **Named Route with Locale**:
+  ```typescript
+  // Switches to a named route and changes the locale to Spanish
+  switchRoute({ name: 'page' }, 'es')
+  ```
+
+
 ## 🔄 `$setI18nRouteParams`
 
 set localized versions of params for all switchLocale* methods and returns passed value

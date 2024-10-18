@@ -84,7 +84,7 @@ export default defineNuxtModule<ModuleOptions>({
     let plural = options.plural!
     if (typeof plural !== 'string') plural = plural.toString()
 
-    const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+/, '')
+    const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$|\/{2,}/, '')
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
       plural: plural,
@@ -102,7 +102,6 @@ export default defineNuxtModule<ModuleOptions>({
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       fallbackLocale: options.fallbackLocale ?? undefined,
       dateBuild: Date.now(),
-      baseURL: process.env.NUXT_APP_BASE_URL ?? nuxt.options.app.baseURL,
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
       globalLocaleRoutes: undefined,
       apiBaseUrl: apiBaseUrl,

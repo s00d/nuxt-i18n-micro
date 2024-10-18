@@ -44,7 +44,6 @@ export interface ModuleOptions {
 export interface ModuleOptionsExtend extends ModuleOptions {
   plural: string
   dateBuild: number
-  baseURL: string
   hashMode: boolean
   apiBaseUrl: string
 }

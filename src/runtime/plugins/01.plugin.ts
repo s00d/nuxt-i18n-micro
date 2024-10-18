@@ -215,6 +215,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
   const plural: PluralFunc = new Function('return ' + i18nConfig.plural.toString())()
   const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
+  const runtimeConfig = useRuntimeConfig()
 
   const loadTranslationsIfNeeded = async (locale: string, routeName: string) => {
     try {
@@ -224,7 +225,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
         }
 
-        const data: Translations = await $fetch(`/${apiBaseUrl}/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
+        const data: Translations = await $fetch(`/${apiBaseUrl}/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: runtimeConfig.app.baseURL })
         await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
       }
     }
@@ -237,7 +238,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const locale = getCurrentLocale(to, i18nConfig, hashLocale)
 
     if (!i18nHelper.hasGeneralTranslation(locale)) {
-      const data: Translations = await $fetch(`/${apiBaseUrl}/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: i18nConfig.baseURL })
+      const data: Translations = await $fetch(`/${apiBaseUrl}/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: runtimeConfig.app.baseURL })
       await i18nHelper.loadTranslations(locale, data ?? {})
     }
 

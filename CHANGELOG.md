@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.27.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.26.4...v1.27.0)
+
+### 🚀 Enhancements
+
+- Add switchRoute ([854f23e](https://github.com/s00d/nuxt-i18n-micro/commit/854f23e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.26.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.26.3...v1.26.4)

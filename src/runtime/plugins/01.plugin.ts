@@ -304,9 +304,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     t: getTranslation,
     ts: (key: string, params?: Params, defaultValue?: string): string => {
       const value = getTranslation(key, params, defaultValue)
-      if (isDev && import.meta.client) {
-        console.warn(`Bad format: '${key}'`)
-      }
       return value?.toString() ?? defaultValue ?? key
     },
     tc: (key: string, count: number, defaultValue?: string): string => {

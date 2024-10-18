@@ -364,6 +364,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
       switchLocale(fromLocale, toLocale, route, router, i18nConfig, i18nRouteParams.value)
     },
+    switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => {
+      const router = useRouter()
+      if (typeof route === 'string') {
+        route = router.resolve(route)
+      }
+
+      const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale)
+      if (i18nConfig.hashMode) {
+        hashLocale = toLocale ?? fromLocale
+      }
+      switchLocale(fromLocale, toLocale ?? fromLocale, route, router, i18nConfig, i18nRouteParams.value)
+    },
     localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationResolved => {
       const router = useRouter()
       const route = useRoute()
@@ -411,6 +423,7 @@ export interface PluginsInjections {
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   $switchLocalePath: (locale: string) => string
   $switchLocale: (locale: string) => void
+  $switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void
   $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationResolved
   $localePath: (to: RouteLocationRaw, locale?: string) => string
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams

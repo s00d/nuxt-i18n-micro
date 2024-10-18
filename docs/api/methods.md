@@ -195,7 +195,7 @@ $switchLocale('fr')
 
 ## 🔄 `$switchRoute`
 
-Version: v1.27.0
+Version: `v1.27.0`
 
 Switches the route to a new specified destination and changes the locale if needed, redirecting the user to the appropriate localized route.
 

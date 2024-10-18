@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.27.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.27.0...v1.27.1)
+
+### 🩹 Fixes
+
+- BaseUrl ([5f092c9](https://github.com/s00d/nuxt-i18n-micro/commit/5f092c9))
+
+### 📖 Documentation
+
+- Fix ([8ab30f7](https://github.com/s00d/nuxt-i18n-micro/commit/8ab30f7))
+- Fix ([02f69e0](https://github.com/s00d/nuxt-i18n-micro/commit/02f69e0))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.27.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.26.4...v1.27.0)

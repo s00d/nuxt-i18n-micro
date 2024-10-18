@@ -309,6 +309,8 @@ disableWatcher: true // Disables the automatic creation of locale files
 
 ### 🔗 `apiBaseUrl`
 
+env: `NUXT_I18N_APP_BASE_URL`
+
 Defines the base URL that the server will use to fetch cached translations. By default, this is set to `_locales`, but you can change it to any custom path, such as `api/_locales`, if you want to load translations from a different endpoint.
 
 **Type**: `string`  

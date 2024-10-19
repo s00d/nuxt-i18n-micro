@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.29.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.28.0...v1.29.0)
+
+### 🚀 Enhancements
+
+- Fix current locale name not found ([593d857](https://github.com/s00d/nuxt-i18n-micro/commit/593d857))
+
+### 🩹 Fixes
+
+- Current locale name not found ([782d046](https://github.com/s00d/nuxt-i18n-micro/commit/782d046))
+- Current locale name not found ([d7c2491](https://github.com/s00d/nuxt-i18n-micro/commit/d7c2491))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.28.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.27.1...v1.28.0)

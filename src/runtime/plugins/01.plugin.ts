@@ -49,6 +49,27 @@ function getCurrentLocale(
   return (route.params?.locale ?? i18nConfig.defaultLocale).toString()
 }
 
+function getCurrentName(
+  route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+  i18nConfig: ModuleOptionsExtend,
+  hashLocale: string | null,
+): string | null {
+  let currentLocale = i18nConfig.defaultLocale!
+  if (i18nConfig.hashMode && hashLocale) {
+    currentLocale = hashLocale
+  }
+  else if (route.params?.locale) {
+    currentLocale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+  }
+
+  const checkLocale = i18nConfig.locales?.find(l => l.code === currentLocale)
+  if (!checkLocale || !checkLocale.displayName) {
+    console.warn(`current locale name not found`)
+    return null
+  }
+  return checkLocale.displayName
+}
+
 // Вспомогательная функция для получения имени маршрута
 function getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale: string): string {
   return (route?.name ?? '')
@@ -295,6 +316,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     i18n: undefined,
     __micro: true,
     getLocale: () => getCurrentLocale(useRoute(), i18nConfig, hashLocale),
+    getLocaleName: () => getCurrentName(useRoute(), i18nConfig, hashLocale),
     defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
@@ -411,6 +433,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
 export interface PluginsInjections {
   $getLocale: () => string
+  $getLocaleName: () => string
   $getLocales: () => Locale[]
   $defaultLocale: () => string | undefined
   $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string

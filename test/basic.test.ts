@@ -94,6 +94,8 @@ test('test plugin methods output on page', async ({ page, goto }) => {
   // Verify the locale
   await expect(page.locator('#locale')).toHaveText('Current Locale: en')
 
+  await expect(page.locator('#locale-name')).toHaveText('English')
+
   // Verify the list of locales
   await expect(page.locator('#locales')).toHaveText('en, de, ru')
 
@@ -123,7 +125,23 @@ test('test locale switching on page', async ({ page, goto }) => {
   await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
 
   // Verify the pluralization for items after switching locale
-  await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result in German
+  await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result in en
+
+  await page.click('#locale-switcher button')
+
+  // Add a small delay to allow rendering
+  await page.waitForTimeout(200)
+
+  await expect(page.locator('.language-switcher')).toHaveText('English ▾')
+
+  // Verify the languages in the dropdown
+  await expect(page.locator('.switcher-locale-en')).toHaveText('English')
+  await expect(page.locator('.switcher-locale-de')).toHaveText('German')
+  await expect(page.locator('.switcher-locale-ru')).toHaveText('Russian')
+
+  // Verify that Russian is disabled
+  await expect(page.locator('.switcher-locale-en')).toHaveAttribute('aria-current', 'page')
+  await expect(page.locator('.switcher-locale-en')).toHaveCSS('cursor', 'not-allowed')
 
   // Verify the localized route generation after switching locale
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
@@ -136,6 +154,7 @@ test('test locale switching on page', async ({ page, goto }) => {
 
   // Verify the locale after switching
   await expect(page.locator('#locale')).toHaveText('Current Locale: de')
+  await expect(page.locator('#locale-name')).toHaveText('German')
 
   // Verify the translation for a key after switching locale
   await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
@@ -145,6 +164,22 @@ test('test locale switching on page', async ({ page, goto }) => {
 
   // Verify the localized route generation after switching locale
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
+
+  await page.click('#locale-switcher button')
+
+  // Add a small delay to allow rendering
+  await page.waitForTimeout(200)
+
+  await expect(page.locator('.language-switcher')).toHaveText('German ▾')
+
+  // Verify the languages in the dropdown
+  await expect(page.locator('.switcher-locale-en')).toHaveText('English')
+  await expect(page.locator('.switcher-locale-de')).toHaveText('German')
+  await expect(page.locator('.switcher-locale-ru')).toHaveText('Russian')
+
+  // Verify that Russian is disabled
+  await expect(page.locator('.switcher-locale-de')).toHaveAttribute('aria-current', 'page')
+  await expect(page.locator('.switcher-locale-de')).toHaveCSS('cursor', 'not-allowed')
 })
 
 test('test locale switching on locale-test page', async ({ page }) => {

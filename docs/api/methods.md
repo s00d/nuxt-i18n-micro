@@ -6,24 +6,33 @@ outline: deep
 
 ## 🌍 `$getLocale`
 
-Returns the current locale code.
-
-**Type**: `() => string`
-
-**Example**:
+-   **Type**: `() => string`
+-   **Description**: Returns the current locale code.
+-   **Example**:
 
 ```typescript
 const locale = $getLocale()
 // Output: 'en' (assuming the current locale is English)
 ```
 
+## 🌍 `$getLocaleName`
+
+**Version introduced**: `v1.28.0`
+
+-   **Type**: `() => string`
+-   **Description**: Returns the current locale name from displayName config.
+-   **Example**:
+
+```typescript
+const locale = $getLocaleName()
+// Output: 'English'
+```
+
 ## 🌍 `$getLocales`
 
-Returns an array of all available locales configured in the module.
-
-**Type**: `() => Array<{ code: string; iso?: string; dir?: string }>`
-
-**Example**:
+-   **Type**: `() => Array<{ code: string; iso?: string; dir?: string }>`
+-   **Description**: Returns an array of all available locales configured in the module.
+-   **Example**:
 
 ```typescript
 const locales = $getLocales()
@@ -32,32 +41,29 @@ const locales = $getLocales()
 
 ## 🔍 `$getRouteName`
 
-Retrieves the base route name without any locale-specific prefixes or suffixes.
+**Version introduced**: `v1.28.0`
 
-**Type**: `(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string`
-
-**Parameters**:
-- **route**: `RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | undefined` — Optional. The route object from which to extract the name.
-- **locale**: `string | undefined` — Optional. The locale code to consider when extracting the route name.
-
-**Example**:
-
+-   **Type**: `(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string`
+-   **Description**: Retrieves the base route name without any locale-specific prefixes or suffixes.
+-   **Parameters**:
+    - **route**: `RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | undefined` — Optional. The route object from which to extract the name.
+    - **locale**: `string | undefined` — Optional. The locale code to consider when extracting the route name.
+-   **Example**:
 ```typescript
 const routeName = $getRouteName(routeObject, 'fr')
 // Output: 'index' (assuming the base route name is 'index')
 ```
+
 ## 🔍 `$t`
 
-Fetches a translation for the given key. Optionally interpolates parameters.
+-   **Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | unknown | null`
+-   **Description**: Fetches a translation for the given key. Optionally interpolates parameters.
+-   **Parameters**:
+    - **key**: `string` — The translation key.
+    - **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation.
+    - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
 
-**Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | unknown | null`
-
-**Parameters**:
-- **key**: `string` — The translation key.
-- **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation.
-- **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
-
-**Example**:
+-   **Example**:
 
 ```typescript
 const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
@@ -66,17 +72,13 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 
 ## 🔍 `$ts`
 
-A variant of `$t` that always returns a string. Fetches a translation for the given key and optionally interpolates parameters.
-
-**Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string`
-
-**Parameters**:
-- **key**: `string` — The translation key.
-- **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation.
-- **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
-
-**Example**:
-
+-   **Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string`
+-   **Description**: A variant of `$t` that always returns a string. Fetches a translation for the given key and optionally interpolates parameters.
+-   **Parameters**:
+    - **key**: `string` — The translation key.
+    - **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation.
+    - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
+-   **Example**:
 ```typescript
 const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 // Output: "Welcome, Alice! You have 5 unread messages."
@@ -84,17 +86,13 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 
 ## 🔢 `$tc`
 
-Fetches a pluralized translation for the given key based on the count.
-
-**Type**: `(key: string, count: number, defaultValue?: string) => string`
-
-**Parameters**:
-- **key**: `string` — The translation key.
-- **count**: `number` — The count for pluralization.
-- **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
-
-**Example**:
-
+-   **Type**: `(key: string, count: number, defaultValue?: string) => string`
+-   **Description**: Fetches a pluralized translation for the given key based on the count.
+-   **Parameters**:
+    - **key**: `string` — The translation key.
+    - **count**: `number` — The count for pluralization.
+    - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
+-   **Example**:
 ```typescript
 const appleCountMessage = $tc('apples', 10)
 // Output: "10 apples" (assuming the plural rule for 'apples' is defined correctly)
@@ -102,16 +100,12 @@ const appleCountMessage = $tc('apples', 10)
 
 ## 🔢 `$tn`
 
-Formats a number according to the current locale using `Intl.NumberFormat`.
-
-**Type**: `(value: number, options?: Intl.NumberFormatOptions) => string`
-
-**Parameters**:
-- **value**: `number` — The number to format.
-- **options**: `Intl.NumberFormatOptions | undefined` — Optional. `Intl.NumberFormatOptions` to customize the formatting.
-
-**Example**:
-
+-   **Type**: `(value: number, options?: Intl.NumberFormatOptions) => string`
+-   **Description**: Formats a number according to the current locale using `Intl.NumberFormat`.
+-   **Parameters**:
+    - **value**: `number` — The number to format.
+    - **options**: `Intl.NumberFormatOptions | undefined` — Optional. `Intl.NumberFormatOptions` to customize the formatting.
+-   **Example**:
 ```typescript
 const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
 // Output: "$1,234,567.89" in the 'en-US' locale
@@ -123,16 +117,12 @@ const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
 
 ## 📅 `$td`
 
-Formats a date according to the current locale using `Intl.DateTimeFormat`.
-
-**Type**: `(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string`
-
-**Parameters**:
-- **value**: `Date | number | string` — The date to format, which can be a `Date` object, a timestamp, or a date string.
-- **options**: `Intl.DateTimeFormatOptions | undefined` — Optional. `Intl.DateTimeFormatOptions` to customize the formatting.
-
-**Example**:
-
+-   **Type**: `(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string`
+-   **Description**: Formats a date according to the current locale using `Intl.DateTimeFormat`.
+-   **Parameters**:
+    - **value**: `Date | number | string` — The date to format, which can be a `Date` object, a timestamp, or a date string.
+    - **options**: `Intl.DateTimeFormatOptions | undefined` — Optional. `Intl.DateTimeFormatOptions` to customize the formatting.
+-   **Example**:
 ```typescript
 const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 // Output: "Friday, September 1, 2023" in the 'en-US' locale
@@ -144,15 +134,11 @@ const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month:
 
 ## 🔄 `$switchLocaleRoute`
 
-Return current route with the given locale
-
-**Type**: `(locale: string) => RouteLocationRaw`
-
-**Parameters**:
-- **locale**: `string` — Target locale.
-
-**Example**:
-
+-   **Type**: `(locale: string) => RouteLocationRaw`
+-   **Description**: Return current route with the given locale
+-   **Parameters**:
+    - **locale**: `string` — Target locale.
+-   **Example**:
 ```typescript
 // on /en/news
 const routeFr = $switchLocaleRoute('fr')
@@ -161,15 +147,11 @@ const routeFr = $switchLocaleRoute('fr')
 
 ## 🔄 `$switchLocalePath`
 
-Return url of current route with the given locale
-
-**Type**: `(locale: string) => string`
-
-**Parameters**:
-- **locale**: `string` — Target locale.
-
-**Example**:
-
+-   **Type**: `(locale: string) => string`
+-   **Description**: Return url of current route with the given locale
+-   **Parameters**:
+    - **locale**: `string` — Target locale.
+-   **Example**:
 ```typescript
 // on /en/news
 const routeFr = $switchLocaleRoute('fr')
@@ -179,14 +161,11 @@ window.location.href = routeFr
 
 ## 🔄 `$switchLocale`
 
-Switches to the given locale and redirects the user to the appropriate localized route.
-
-**Type**: `(locale: string) => void`
-
-**Parameters**:
-- **locale**: `string` — The locale to switch to.
-
-**Example**:
+-   **Type**: `(locale: string) => void`
+-   **Description**: Switches to the given locale and redirects the user to the appropriate localized route.
+-   **Parameters**:
+    - **locale**: `string` — The locale to switch to.
+-   **Example**:
 
 ```typescript
 $switchLocale('fr')
@@ -195,19 +174,17 @@ $switchLocale('fr')
 
 ## 🔄 `$switchRoute`
 
-Version: `v1.27.0`
+**Version introduced**: `v1.27.0`
 
-Switches the route to a new specified destination and changes the locale if needed, redirecting the user to the appropriate localized route.
+-   **Type**: `(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void`
+-   **Description**: Switches the route to a new specified destination and changes the locale if needed, redirecting the user to the appropriate localized route.
+-   **Parameters**:
+    - **route**: `RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string` — The route to which you want to switch. It can be:
+      - A `RouteLocationNormalizedLoaded` or `RouteLocationResolvedGeneric` object.
+      - A string representing the route path.
+-   **toLocale** (optional): `string` — The locale to switch to for the target route. If not provided, the current locale is used.
 
-**Type**: `(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void`
-
-**Parameters**:
-- **route**: `RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string` — The route to which you want to switch. It can be:
-  - A `RouteLocationNormalizedLoaded` or `RouteLocationResolvedGeneric` object.
-  - A string representing the route path.
-- **toLocale** (optional): `string` — The locale to switch to for the target route. If not provided, the current locale is used.
-
-**Description**:
+**Info**:
 This method facilitates seamless switching between routes, accommodating the current locale configuration. Depending on the input, it resolves the intended route and determines the appropriate locale for redirecting the user to a localized route.
 
 **Examples**:
@@ -239,16 +216,13 @@ This method facilitates seamless switching between routes, accommodating the cur
 
 ## 🔄 `$setI18nRouteParams`
 
-set localized versions of params for all switchLocale* methods and returns passed value
-MUST be called inside useAsyncData
 
-**Type**: `(value: Record<LocaleCode, Record<string, string>> | null) => Record<LocaleCode, Record<string, string>> | null`
 
-**Parameters**:
-- **value**: `Record<LocaleCode, Record<string, string>> | null` — params of current route for other locale
-
-**Example**:
-
+-   **Type**: `(value: Record<LocaleCode, Record<string, string>> | null) => Record<LocaleCode, Record<string, string>> | null`
+-   **Description**: set localized versions of params for all switchLocale* methods and returns passed value. MUST be called inside useAsyncData
+-   **Parameters**:
+    - **value**: `Record<LocaleCode, Record<string, string>> | null` — params of current route for other locale
+-   **Example**:
 ```typescript
 // in pages/news/[id].vue
 // for en/news/1-first-article
@@ -290,16 +264,12 @@ $switchLocalePath('de') // === 'de/Nachricht/1-erster-Artikel'
 
 ## 🌐 `$localeRoute`
 
-Generates a localized route object based on the target route.
-
-**Type**: `(to: RouteLocationRaw, locale?: string) => RouteLocationResolved`
-
-**Parameters**:
-- **to**: `RouteLocationRaw` — The target route object.
-- **locale**: `string | undefined` — Optional. The locale for the generated route.
-
-**Example**:
-
+-   **Type**: `(to: RouteLocationRaw, locale?: string) => RouteLocationResolved`
+-   **Description**: Generates a localized route object based on the target route.
+-   **Parameters**:
+    - **to**: `RouteLocationRaw` — The target route object.
+    - **locale**: `string | undefined` — Optional. The locale for the generated route.
+-   **Example**:
 ```typescript
 const localizedRoute = $localeRoute({ name: 'index' })
 // Output: A route object with the current locale applied, e.g., { name: 'index', params: { locale: 'fr' } }
@@ -307,16 +277,13 @@ const localizedRoute = $localeRoute({ name: 'index' })
 
 ## 🔄 `$localePath`
 
-Return url based on the target route
 
-**Type**: `(to: RouteLocationRaw, locale?: string) => string`
-
-**Parameters**:
-- **to**: `RouteLocationRaw` — The target route object.
-- **locale**: `string | undefined` — Optional. The locale for the generated route.
-
-**Example**:
-
+-   **Type**: `(to: RouteLocationRaw, locale?: string) => string`
+-   **Description**: Return url based on the target route
+-   **Parameters**:
+    - **to**: `RouteLocationRaw` — The target route object.
+    - **locale**: `string | undefined` — Optional. The locale for the generated route.
+-   **Example**:
 ```typescript
 const localizedRoute = $localeRoute({ name: 'news' })
 // Output: url with new locale applied, e.g., '/en/nouvelles'
@@ -324,15 +291,11 @@ const localizedRoute = $localeRoute({ name: 'news' })
 
 ## 🗂️ `$mergeTranslations`
 
-Merges new translations into the existing translation cache for the current route and locale.
-
-**Type**: `(newTranslations: Record<string, string>) => void`
-
-**Parameters**:
-- **newTranslations**: `Record<string, string>` — The new translations to merge.
-
-**Example**:
-
+-   **Type**: `(newTranslations: Record<string, string>) => void`
+-   **Description**: Merges new translations into the existing translation cache for the current route and locale.
+-   **Parameters**:
+    - **newTranslations**: `Record<string, string>` — The new translations to merge.
+-   **Example**:
 ```typescript
 $mergeTranslations({
   welcome: 'Bienvenue, {username}!'
@@ -342,16 +305,12 @@ $mergeTranslations({
 
 ## 🚦 `$defineI18nRoute`
 
-Defines route behavior based on the current locale. This method can be used to control access to specific routes based on available locales, provide translations for specific locales, or set custom routes for different locales.
-
-**Type**: `(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>>, localeRoutes?: Record<string, string> }) => void`
-
-**Parameters**:
-- **locales**: `string[] | Record<string, Record<string, TranslationObject>>` — This property determines which locales are available for the route.
-- **localeRoutes**: `Record<string, string> | undefined` — Optional. Custom routes for specific locales.
-
-**Example**:
-
+-   **Type**: `(routeDefinition: { locales?: string[] | Record<string, Record<string, TranslationObject>>, localeRoutes?: Record<string, string> }) => void`
+-   **Description**: Defines route behavior based on the current locale. This method can be used to control access to specific routes based on available locales, provide translations for specific locales, or set custom routes for different locales.
+-   **Parameters**:
+    - **locales**: `string[] | Record<string, Record<string, TranslationObject>>` — This property determines which locales are available for the route.
+    - **localeRoutes**: `Record<string, string> | undefined` — Optional. Custom routes for specific locales.
+-   **Example**:
 ```typescript
 $defineI18nRoute({
   locales: {

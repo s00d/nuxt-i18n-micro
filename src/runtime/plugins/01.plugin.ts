@@ -53,7 +53,7 @@ function getCurrentName(
   route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
   i18nConfig: ModuleOptionsExtend,
   hashLocale: string | null | undefined,
-): string {
+): string | null {
   let currentLocale = i18nConfig.defaultLocale!
   if (i18nConfig.hashMode && hashLocale) {
     currentLocale = hashLocale
@@ -64,9 +64,9 @@ function getCurrentName(
 
   const checkLocale = i18nConfig.locales?.find(l => l.code === currentLocale)
   if (!checkLocale) {
-    return i18nConfig.defaultLocale!
+    return null
   }
-  return checkLocale?.displayName ?? checkLocale.code
+  return checkLocale?.displayName ?? null
 }
 
 // Вспомогательная функция для получения имени маршрута
@@ -432,7 +432,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
 export interface PluginsInjections {
   $getLocale: () => string
-  $getLocaleName: () => string
+  $getLocaleName: () => string | null
   $getLocales: () => Locale[]
   $defaultLocale: () => string | undefined
   $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string

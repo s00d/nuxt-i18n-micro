@@ -54,15 +54,8 @@ function getCurrentName(
   i18nConfig: ModuleOptionsExtend,
   hashLocale: string | null | undefined,
 ): string | null {
-  let currentLocale = i18nConfig.defaultLocale!
-  if (i18nConfig.hashMode && hashLocale) {
-    currentLocale = hashLocale
-  }
-  else if (route.params?.locale) {
-    currentLocale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
-  }
-
-  const checkLocale = i18nConfig.locales?.find(l => l.code === currentLocale)
+  const currentLocaleCode = getCurrentLocale(route, i18nConfig, hashLocale)
+  const checkLocale = i18nConfig.locales?.find(l => l.code === currentLocaleCode)
   if (!checkLocale) {
     return null
   }

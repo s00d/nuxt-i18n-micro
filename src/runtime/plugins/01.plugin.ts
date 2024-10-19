@@ -52,8 +52,8 @@ function getCurrentLocale(
 function getCurrentName(
   route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
   i18nConfig: ModuleOptionsExtend,
-  hashLocale: string | null,
-): string | null {
+  hashLocale: string | null | undefined,
+): string {
   let currentLocale = i18nConfig.defaultLocale!
   if (i18nConfig.hashMode && hashLocale) {
     currentLocale = hashLocale
@@ -63,11 +63,10 @@ function getCurrentName(
   }
 
   const checkLocale = i18nConfig.locales?.find(l => l.code === currentLocale)
-  if (!checkLocale || !checkLocale.displayName) {
-    console.warn(`current locale name not found`)
-    return null
+  if (!checkLocale) {
+    return i18nConfig.defaultLocale!
   }
-  return checkLocale.displayName
+  return checkLocale?.displayName ?? checkLocale.code
 }
 
 // Вспомогательная функция для получения имени маршрута

@@ -19,7 +19,7 @@ const locale = $getLocale()
 
 **Version introduced**: `v1.28.0`
 
--   **Type**: `() => string`
+-   **Type**: `() => string  | null`
 -   **Description**: Returns the current locale name from displayName config.
 -   **Example**:
 

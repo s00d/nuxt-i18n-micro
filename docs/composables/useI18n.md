@@ -27,7 +27,7 @@ The `useI18n` composable returns an object containing several key methods and pr
 
 **Version introduced**: `v1.28.0`
 
-- **Type**: `() => string`
+- **Type**: `() => string | null`
 - **Description**: Returns the current locale name from displayName config.
 - **Example**:
 

@@ -6,6 +6,9 @@
     <p id="locale">
       Current Locale: {{ $getLocale() }}
     </p>
+    <p id="locale-name">
+      {{ $getLocaleName() }}
+    </p>
 
     <!-- Display additional info for testing -->
     <p id="locales">
@@ -41,6 +44,10 @@
       {{ $localeRoute({ name: 'page' }, 'de').path }}
     </p>
 
+    <div id="locale-switcher">
+      <i18n-switcher />
+    </div>
+
     <!-- Links for switching locales -->
     <div id="locale-links">
       <NuxtLink
@@ -62,7 +69,7 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $t, $getLocale, $getLocales, $tc, $localeRoute } = useNuxtApp()
+const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute } = useNuxtApp()
 
 const customPluralRule = (key, count, _locale, t) => {
   const translation = t(key)

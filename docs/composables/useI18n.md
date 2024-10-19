@@ -23,6 +23,19 @@ The `useI18n` composable returns an object containing several key methods and pr
   console.log(locale) // e.g., 'en'
   ```
 
+## 🌍 `$getLocaleName`
+
+**Version introduced**: `v1.28.0`
+
+- **Type**: `() => string`
+- **Description**: Returns the current locale name from displayName config.
+- **Example**:
+
+```typescript
+const locale = $getLocaleName()
+// Output: 'English'
+```
+
 ### `$getLocales`
 
 - **Type**: `() => Locale[]`

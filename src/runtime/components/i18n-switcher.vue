@@ -20,7 +20,12 @@
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
           :to="getLocaleLink(locale)"
-          :style="[linkStyle, locale.code === currentLocale ? activeLinkStyle : {}, locale.code === currentLocale ? disabledLinkStyle : {}, customLinkStyle]"
+          :style="[
+            linkStyle,
+            locale.code === currentLocale ? activeLinkStyle : {},
+            locale.code === currentLocale ? disabledLinkStyle : {},
+            customLinkStyle,
+          ]"
           :hreflang="locale.iso || locale.code"
           @click="toggleDropdown"
         >
@@ -62,9 +67,10 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
-const { $localeRoute, $getLocales, $getLocale } = useNuxtApp()
+const { $localeRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
 const locales = ref($getLocales())
 const currentLocale = computed(() => $getLocale())
+const currentLocaleName = computed(() => $getLocaleName())
 const dropdownOpen = ref(false)
 
 const toggleDropdown = () => {
@@ -72,14 +78,24 @@ const toggleDropdown = () => {
 }
 
 const localeLabel = (locale: Locale) => {
-  return props.customLabels[locale.code] || locale.code.toUpperCase()
+  const current = props.customLabels[locale.code] || locale.displayName
+  if (!current) {
+    console.warn(
+      '[i18n-switcher] Either define a custom label for the locale or provide a displayName in the nuxt.config.i18n',
+    )
+  }
+  return current
 }
 
-const currentLocaleLabel = computed(() => localeLabel({ code: currentLocale.value }))
+const currentLocaleLabel = computed(() => localeLabel({
+  code: currentLocale.value,
+  displayName: currentLocaleName.value ?? undefined,
+}))
 
 const getLocaleLink = (locale: Locale) => {
   const route = useRoute()
-  const routeName = (route?.name ?? '').toString()
+  const routeName = (route?.name ?? '')
+    .toString()
     .replace(`localized-`, '')
     .replace(new RegExp(`-${currentLocale.value}$`), '')
     .replace(new RegExp(`-${locale}$`), '')

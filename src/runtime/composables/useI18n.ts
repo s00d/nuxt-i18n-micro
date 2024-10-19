@@ -13,6 +13,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
   const injections = {
     $defaultLocale: nuxtApp.$defaultLocale,
     $getLocale: nuxtApp.$getLocale,
+    $getLocaleName: nuxtApp.$getLocaleName,
     $getLocales: nuxtApp.$getLocales,
     $getRouteName: nuxtApp.$getRouteName,
     $t: nuxtApp.$t,

@@ -65,6 +65,7 @@ export default defineNuxtModule<ModuleOptions>({
     meta: true,
     debug: false,
     define: true,
+    types: true,
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectPath: '*',
@@ -182,10 +183,12 @@ export default defineNuxtModule<ModuleOptions>({
       extensions: ['vue'],
     })
 
-    addTypeTemplate({
-      filename: 'types/i18n-plugin.d.ts',
-      getContents: () => generateI18nTypes(),
-    })
+    if (options.types) {
+      addTypeTemplate({
+        filename: 'types/i18n-plugin.d.ts',
+        getContents: () => generateI18nTypes(),
+      })
+    }
 
     extendPages((pages) => {
       const pagesNames = pages

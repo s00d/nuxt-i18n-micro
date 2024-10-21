@@ -147,6 +147,19 @@ Enables logging and debugging information during the generation process to help 
 debug: true // Enable logging and debugging information
 ```
 
+### 🐛 `types`
+
+Adds types to the project during the postinstall process. If you encounter issues with types, you can disable this option.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+**Example**:
+
+```typescript
+types: true // Enable logging and debugging information
+```
+
 ### 🔗 `metaBaseUrl`
 
 Sets the base URL for generating SEO-related meta tags like canonical and alternate URLs.

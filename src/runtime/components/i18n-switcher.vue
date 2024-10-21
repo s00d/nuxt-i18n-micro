@@ -40,6 +40,7 @@
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
 import type { Locale } from '../../types'
+import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 import { useNuxtApp } from '#app'
 import { useRoute } from '#imports'
 
@@ -67,7 +68,7 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
-const { $localeRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
+const { $localeRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp().$i18n as PluginsInjections
 const locales = ref($getLocales())
 const currentLocale = computed(() => $getLocale())
 const currentLocaleName = computed(() => $getLocaleName())

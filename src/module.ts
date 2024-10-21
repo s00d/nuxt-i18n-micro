@@ -16,6 +16,7 @@ import { watch } from 'chokidar'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
+import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
 
 declare module '@nuxt/schema' {
@@ -331,4 +332,4 @@ declare module '@nuxt/schema' {
   interface NuxtHooks extends ModuleHooks {}
 }
 
-export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode }
+export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections }

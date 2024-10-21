@@ -2,6 +2,7 @@
 import { h, defineComponent } from 'vue'
 import type { VNode, PropType } from 'vue'
 import type { PluralFunc } from '../../types'
+import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 import { useNuxtApp } from '#app'
 
 export default defineComponent({
@@ -43,21 +44,23 @@ export default defineComponent({
     return () => {
       const options: Record<string, string | number | boolean> = {}
 
+      const { $getLocale, $t, $tc } = useNuxtApp().$i18n as PluginsInjections
+
       if (props.plural !== undefined) {
         if (props.customPluralRule) {
           return h(props.tag, { ...attrs, innerHTML: props.customPluralRule(
             props.keypath,
             Number.parseInt((props.plural).toString()),
-            useNuxtApp().$getLocale(),
-            useNuxtApp().$t,
+            $getLocale(),
+            $t,
           ) })
         }
         else {
-          return h(props.tag, { ...attrs, innerHTML: useNuxtApp().$tc(props.keypath, Number.parseInt(props.plural.toString())) })
+          return h(props.tag, { ...attrs, innerHTML: $tc(props.keypath, Number.parseInt(props.plural.toString())) })
         }
       }
 
-      const translation = (useNuxtApp().$t(props.keypath, { ...props.params, ...options }) ?? '').toString()
+      const translation = ($t(props.keypath, { ...props.params, ...options }) ?? '').toString()
 
       if (props.hideIfEmpty && !translation.trim()) {
         return props.defaultValue ?? null

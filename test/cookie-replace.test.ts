@@ -5,6 +5,8 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/cookie', import.meta.url)),
     nuxtConfig: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       i18n: {
         localeCookie: 'user-change-cookie',
       },

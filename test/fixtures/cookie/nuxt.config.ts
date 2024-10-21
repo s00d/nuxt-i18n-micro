@@ -5,6 +5,8 @@ export default defineNuxtConfig({
     MyModule,
   ],
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   i18n: {
     locales: [{ code: 'de' }, { code: 'en' }],
     defaultLocale: 'en',

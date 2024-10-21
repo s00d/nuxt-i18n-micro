@@ -6,6 +6,8 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap',
   ],
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   i18n: {
     locales: [
       { code: 'en', iso: 'en_EN' },

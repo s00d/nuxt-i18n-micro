@@ -1,5 +1,6 @@
 import { joinURL } from 'ufo'
 import type { ModuleOptionsExtend } from '../../types'
+import type { PluginsInjections } from '../plugins/01.plugin'
 import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
 
 interface MetaLink {
@@ -33,7 +34,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
   function updateMeta() {
     const { defaultLocale, includeDefaultLocaleRoute } = useRuntimeConfig().public.i18nConfig as ModuleOptionsExtend
-    const { $getLocales, $getLocale } = useNuxtApp()
+    const { $getLocales, $getLocale } = useNuxtApp().$i18n as PluginsInjections
 
     const route = useRoute()
     const locale = unref($getLocale())

@@ -9,9 +9,10 @@
 
 <script lang="ts" setup>
 import type { RouteLocationRaw } from 'vue-router'
+import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 import { useNuxtApp, computed, useRoute, useRouter } from '#imports'
 
-const { $localeRoute } = useNuxtApp()
+const { $localeRoute } = useNuxtApp().$i18n as PluginsInjections
 
 interface Props {
   to: RouteLocationRaw | string

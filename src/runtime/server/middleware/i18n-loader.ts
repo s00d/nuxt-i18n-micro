@@ -3,6 +3,8 @@ import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
 import type { ModuleOptionsExtend, ModulePrivateOptionsExtend } from '../../../types'
 import type { Translations } from '../../plugins/01.plugin'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { useRuntimeConfig, createError, useStorage } from '#imports'
 
 // Рекурсивная функция для глубокого слияния объектов

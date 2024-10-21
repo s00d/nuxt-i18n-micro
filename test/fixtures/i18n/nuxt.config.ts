@@ -2,6 +2,8 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: ['@nuxtjs/i18n'],
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   i18n: {
     defaultLocale: 'en',
     lazy: true,

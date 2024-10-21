@@ -414,10 +414,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  provideData.i18n = provideData
-
   const $provideData = Object.fromEntries(
     Object.entries(provideData).map(([key, value]) => [`$${key}`, value]),
   )

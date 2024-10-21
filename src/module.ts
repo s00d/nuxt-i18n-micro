@@ -5,7 +5,7 @@ import {
   addImportsDir,
   addPlugin,
   addPrerenderRoutes,
-  addServerHandler,
+  addServerHandler, addTypeTemplate,
   createResolver,
   defineNuxtModule,
   extendPages,
@@ -18,6 +18,26 @@ import { PageManager } from './page-manager'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
+
+function generateI18nTypes() {
+  return `
+import type {PluginsInjections} from "nuxt-i18n-micro";
+
+declare module 'vue/types/vue' {
+  interface Vue extends PluginsInjections { }
+}
+
+declare module '@nuxt/types' {
+  interface NuxtAppOptions extends PluginsInjections { }
+  interface Context extends PluginsInjections { }
+}
+
+declare module '#app' {
+  interface NuxtApp extends PluginsInjections { }
+}
+
+export {}`
+}
 
 declare module '@nuxt/schema' {
   interface ConfigSchema {
@@ -160,6 +180,11 @@ export default defineNuxtModule<ModuleOptions>({
       path: resolver.resolve('./runtime/components'),
       pathPrefix: false,
       extensions: ['vue'],
+    })
+
+    addTypeTemplate({
+      filename: 'types/i18n-plugin.d.ts',
+      getContents: () => generateI18nTypes(),
     })
 
     extendPages((pages) => {

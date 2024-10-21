@@ -157,7 +157,7 @@ Adds types to the project during the postinstall process. If you encounter issue
 **Example**:
 
 ```typescript
-types: true // Enable logging and debugging information
+types: true
 ```
 
 ### 🔗 `metaBaseUrl`

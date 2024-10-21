@@ -30,6 +30,7 @@ export interface ModuleOptions {
   autoDetectLanguage?: boolean
   autoDetectPath?: string
   disableWatcher?: boolean
+  types?: boolean
   includeDefaultLocaleRoute?: boolean
   routesLocaleLinks?: Record<string, string>
   plural?: string | PluralFunc

@@ -53,6 +53,7 @@
     "client:build": "nuxi generate client",
     "client:dev": "nuxi dev client --port 3300",
     "typecheck": "tsc --noEmit",
+    "typecheck:nuxt": "nuxt typecheck --no-emit",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",

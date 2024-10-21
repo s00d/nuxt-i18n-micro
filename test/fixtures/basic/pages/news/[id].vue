@@ -70,9 +70,12 @@
 </template>
 
 <script lang="ts" setup>
+import type { PluginsInjections } from '../../../../../src/runtime/plugins/01.plugin'
+import { useNuxtApp } from '#app'
+
 const { params } = useRoute()
 const router = useRouter()
-const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n()
+const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useNuxtApp().$i18n as PluginsInjections
 
 const newsLink = computed(() => $localeRoute({
   name: 'news-id',
@@ -82,11 +85,11 @@ const newsLink = computed(() => $localeRoute({
 }))
 
 const { data: news } = await useAsyncData(`articles-${params.id}`, async () => {
-  const response = await $fetch<{ metadata: { [key: string]: { id: string } } }>('/api/getNews', {
+  const response = await $fetch('/api/getNews', {
     query: {
       id: params.id,
     },
-  })
+  }) as { metadata: { [key: string]: { id: string } } }
   if (response?.metadata) {
     $setI18nRouteParams(response?.metadata)
   }

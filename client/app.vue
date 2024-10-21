@@ -130,11 +130,15 @@ watch([selectedLocale, selectedFile], () => {
 
 onDevtoolsClientConnected(async (client) => {
   const rpc = client.devtools.extendClientRpc(RPC_NAMESPACE, {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     localesUpdated(updatedLocales: LocaleData[]) {
       locales.value = updatedLocales
     },
   })
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   const initialLocales = await rpc.getLocalesAndTranslations()
   locales.value = initialLocales
   isLoading.value = false
@@ -144,6 +148,8 @@ onDevtoolsClientConnected(async (client) => {
       return
     }
     if (selectedLocale.value && selectedFile.value && newContent) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       rpc.saveTranslationContent(selectedLocale.value, selectedFile.value, newContent)
     }
   }, { deep: true })

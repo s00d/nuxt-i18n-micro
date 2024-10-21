@@ -3,7 +3,7 @@ import path from 'node:path'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { Resolver } from '@nuxt/kit'
-import type { ModuleOptions } from './types'
+import type { ModuleOptions, ModulePrivateOptionsExtend } from './types'
 
 export interface ServerFunctions {
   getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>
@@ -56,7 +56,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
         }
       },
       async getLocalesAndTranslations() {
-        const rootDirs = nuxt.options.runtimeConfig.i18nConfig?.rootDirs || [nuxt.options.rootDir]
+        const rootDirs = (nuxt.options.runtimeConfig.i18nConfig as ModulePrivateOptionsExtend)?.rootDirs || [nuxt.options.rootDir]
         const localesData: { locale: string, files: string[], content: Record<string, unknown> }[] = []
 
         for (const rootDir of rootDirs) {

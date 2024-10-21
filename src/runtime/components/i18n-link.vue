@@ -9,10 +9,11 @@
 
 <script lang="ts" setup>
 import type { RouteLocationRaw } from 'vue-router'
-import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 import { useNuxtApp, computed, useRoute, useRouter } from '#imports'
 
-const { $localeRoute } = useNuxtApp().$i18n as PluginsInjections
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const { $localeRoute } = useNuxtApp()
 
 interface Props {
   to: RouteLocationRaw | string
@@ -24,6 +25,8 @@ const route = useRoute()
 
 const isActive = computed(() => {
   // If `to` is a string, compare it directly to the route path
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const newPath = $localeRoute(props.to)
   if (typeof newPath === 'string') {
     return route.path === useRouter().resolve(newPath).path

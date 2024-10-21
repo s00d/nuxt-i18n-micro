@@ -39,10 +39,17 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
-import type { Locale } from '../../types'
-import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 import { useNuxtApp } from '#app'
 import { useRoute } from '#imports'
+
+type LocaleCode = string
+interface Locale {
+  code: LocaleCode
+  disabled?: boolean
+  iso?: string
+  dir?: 'ltr' | 'rtl' | 'auto'
+  displayName?: string
+}
 
 interface Props {
   customLabels?: Record<string, string>
@@ -68,9 +75,15 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
-const { $localeRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp().$i18n as PluginsInjections
+const { $localeRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const locales = ref($getLocales())
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const currentLocale = computed(() => $getLocale())
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const currentLocaleName = computed(() => $getLocaleName())
 const dropdownOpen = ref(false)
 
@@ -101,6 +114,8 @@ const getLocaleLink = (locale: Locale) => {
     .replace(new RegExp(`-${currentLocale.value}$`), '')
     .replace(new RegExp(`-${locale}$`), '')
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return $localeRoute({ name: routeName }, locale.code)
 }
 

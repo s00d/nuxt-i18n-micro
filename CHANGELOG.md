@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.29.5
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.29.4...v1.29.5)
+
+### 🩹 Fixes
+
+- Add page name warning ([d96c3fb](https://github.com/s00d/nuxt-i18n-micro/commit/d96c3fb))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.29.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.29.3...v1.29.4)

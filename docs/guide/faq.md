@@ -38,14 +38,16 @@ While `Nuxt I18n Micro` serves as a performance alternative to `nuxt-i18n`, it i
 
 **Modifiers**: The maintainer experimented with adding modifiers but found that components like `<i18n-t>` and `<i18n-link>` effectively cover the same needs. For example:
 
-```html
-<i18n-t keypath="feedback.text">
-  <template #link>
-    <nuxt-link :to="{ name: 'index' }">
-      <i18n-t keypath="feedback.link" />
-    </nuxt-link>
-  </template>
-</i18n-t>
+```vue
+<template>
+  <i18n-t keypath="feedback.text">
+    <template #link>
+      <nuxt-link :to="{ name: 'index' }">
+        <i18n-t keypath="feedback.link" />
+      </nuxt-link>
+    </template>
+  </i18n-t>
+</template>
 ```
 
 Since this approach is flexible and powerful, releasing modifiers was deemed unnecessary for now. However, modifiers may be added in the future if demand arises.
@@ -65,14 +67,16 @@ Example:
 }
 ```
 
-```html
-<i18n-t keypath="example">
-  <template #link>
-    <nuxt-link :to="{ name: 'referral' }">
-      <i18n-t keypath="link_text" />
-    </nuxt-link>
-  </template>
-</i18n-t>
+```vue
+<template>
+  <i18n-t keypath="example">
+    <template #link>
+      <nuxt-link :to="{ name: 'referral' }">
+        <i18n-t keypath="link_text" />
+      </nuxt-link>
+    </template>
+  </i18n-t>
+</template>
 ```
 
 This method supports dynamic link creation inside translations while maintaining proper localization structure.

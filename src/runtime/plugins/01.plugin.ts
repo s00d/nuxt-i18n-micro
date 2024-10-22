@@ -230,7 +230,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
   const runtimeConfig = useRuntimeConfig()
 
-  const loadTranslationsIfNeeded = async (locale: string, routeName: string) => {
+  const loadTranslationsIfNeeded = async (locale: string, routeName: string, path: string) => {
     try {
       if (!i18nHelper.hasPageTranslation(locale, routeName)) {
         let fRouteName = routeName
@@ -238,7 +238,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
         }
 
-        const data: Translations = await $fetch(`/${apiBaseUrl}/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: runtimeConfig.app.baseURL })
+        if (!fRouteName || fRouteName === '') {
+          console.warn(`[nuxt-i18n-next] The page name is missing in the path: ${path}. Please ensure that definePageMeta({ name: 'pageName' }) is set.`)
+          return
+        }
+
+        const route = `/${apiBaseUrl}/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`.replace(/\/{2,}/g, '/')
+        const data: Translations = await $fetch(route, { baseURL: runtimeConfig.app.baseURL })
         await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
       }
     }
@@ -257,7 +263,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (!i18nConfig.disablePageLocales) {
       const routeName = getRouteName(to, locale)
-      await loadTranslationsIfNeeded(locale, routeName)
+      await loadTranslationsIfNeeded(locale, routeName, to.fullPath)
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

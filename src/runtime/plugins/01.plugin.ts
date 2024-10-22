@@ -168,6 +168,20 @@ function getLocalizedRoute(
 
     return params
   }
+
+  if (!routeName || routeName === '') {
+    const resolved = router.resolve(to)
+    let url = resolved.path.replace(new RegExp(`^/${currentLocale}/`), '/')
+    if (currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
+      url = '/' + currentLocale + '' + url
+    }
+    return router.resolve({
+      path: url,
+      query: selectRoute.query,
+      hash: selectRoute.hash,
+    })
+  }
+
   // Check if the localized route exists
   if (router.hasRoute(`localized-${routeName}-${currentLocale}`)) {
     const newParams = resolveParams(selectRoute)

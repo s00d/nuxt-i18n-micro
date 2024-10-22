@@ -14,6 +14,10 @@ import {
   extractLocaleRoutes,
 } from './utils'
 
+const buildRouteNameFromRoute = (name: string | null | undefined, path: string | null | undefined) => {
+  return name ?? (path ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
+}
+
 // Класс PageManager
 export class PageManager {
   locales: Locale[]
@@ -48,7 +52,6 @@ export class PageManager {
     pages.forEach((page) => {
       if (!page.name) {
         console.warn(`[nuxt-i18n-next] Page name is missing for the file: ${page.file}`)
-        return
       }
       const customRoute = this.globalLocaleRoutes[page.name ?? ''] ?? null
 
@@ -79,7 +82,7 @@ export class PageManager {
     const localizedPaths: { [key: string]: { [locale: string]: string } } = {}
 
     pages.forEach((page) => {
-      const pageName = page.name ?? ''
+      const pageName = buildRouteNameFromRoute(page.name, page.path)
       const globalLocalePath = this.globalLocaleRoutes[pageName]
 
       if (!globalLocalePath) {
@@ -165,7 +168,7 @@ export class PageManager {
     const currentChildren = page.children ? [...page.children] : []
 
     if (originalChildren.length) {
-      const newName = normalizePath(path.join('/', page.name ?? ''))
+      const newName = normalizePath(path.join('/', buildRouteNameFromRoute(page.name, page.path)))
       const localizedChildren = this.mergeChildren(originalChildren, newName, [this.defaultLocale.code])
 
       // Мапа для поиска детей по имени
@@ -254,7 +257,7 @@ export class PageManager {
     customRegex?: string | RegExp,
   ): NuxtPage {
     const routePath = this.buildRoutePath(localeCodes, page.path, customPath, isCustom, customRegex)
-    const routeName = buildRouteName(page.name ?? '', localeCodes[0], isCustom)
+    const routeName = buildRouteName(buildRouteNameFromRoute(page.name, page.path), localeCodes[0], isCustom)
 
     return {
       ...page,
@@ -274,7 +277,7 @@ export class PageManager {
     addLocalePrefix: boolean,
   ): NuxtPage {
     const finalPath = this.buildLocalizedRoutePath(routePath, locale, customLocalePaths, addLocalePrefix)
-    const routeName = this.buildLocalizedRouteName(route.name ?? '', locale, modifyName)
+    const routeName = this.buildLocalizedRouteName(buildRouteNameFromRoute(route.name, route.path), locale, modifyName)
 
     return {
       ...route,

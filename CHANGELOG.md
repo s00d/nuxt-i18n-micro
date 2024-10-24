@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.30.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.30.1...v1.30.2)
+
+### 🩹 Fixes
+
+- Drop default locale routes ([8bd6eb3](https://github.com/s00d/nuxt-i18n-micro/commit/8bd6eb3))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.30.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.30.0...v1.30.1)

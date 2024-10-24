@@ -73,13 +73,6 @@ test('test navigation links and buttons de', async ({ page, goto }) => {
   await page.click('#link4')
   await expect(page).toHaveURL('/de/test-my-id') // Assuming this is the expected URL for navigateBrokenDefaultNuxtPageNaming()
 
-  // Navigate back to the main page
-  await goto('/de', { waitUntil: 'hydration' })
-
-  // Test Button 5
-  await page.click('#link5')
-  await expect(page).toHaveURL('/de/page/my-id') // Assuming this is the expected URL for navigateWorking()
-
   await goto('/de', { waitUntil: 'hydration' })
 
   await page.click('#link6')

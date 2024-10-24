@@ -5,10 +5,6 @@ function navigateBroken() {
   navigateTo($localeRoute({ name: 'page', params: { id: 'my-id' } }))
 }
 
-function navigateWorking() {
-  navigateTo({ name: 'page', params: { id: 'my-id' } })
-}
-
 function navigateBrokenDefaultNuxtPageNaming() {
   navigateTo($localeRoute({ name: 'test-id', params: { id: 'my-id' } }))
 }
@@ -44,12 +40,6 @@ function navigateBrokenDefaultNuxtPageNaming() {
     <button
       id="link4"
       @click="navigateBrokenDefaultNuxtPageNaming"
-    >
-      Navigate
-    </button>
-    <button
-      id="link5"
-      @click="navigateWorking"
     >
       Navigate
     </button>

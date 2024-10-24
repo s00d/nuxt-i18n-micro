@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.30.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.30.0...v1.30.1)
+
+### 🩹 Fixes
+
+- Change autodetect redirect type - 302 ([e9975eb](https://github.com/s00d/nuxt-i18n-micro/commit/e9975eb))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.30.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.29.6...v1.30.0)

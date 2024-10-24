@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v1.30.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.29.6...v1.30.0)
+
+### 🚀 Enhancements
+
+- Drop default locale routes for includeDefaultLocaleRoute and fix encodeURI ([b2259f3](https://github.com/s00d/nuxt-i18n-micro/commit/b2259f3))
+
+### 🩹 Fixes
+
+- Fix wrong function in docs example ([d72cff6](https://github.com/s00d/nuxt-i18n-micro/commit/d72cff6))
+
+### 📖 Documentation
+
+- Update ([7729b3f](https://github.com/s00d/nuxt-i18n-micro/commit/7729b3f))
+- Update ([e1a09ca](https://github.com/s00d/nuxt-i18n-micro/commit/e1a09ca))
+- Update ([e5aa667](https://github.com/s00d/nuxt-i18n-micro/commit/e5aa667))
+- Update ([7dce43d](https://github.com/s00d/nuxt-i18n-micro/commit/7dce43d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Florian Werndl <fwerndl@gmail.com>
+
 ## v1.29.6
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.29.5...v1.29.6)

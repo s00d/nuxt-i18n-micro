@@ -74,16 +74,22 @@ export class PageManager {
     // remove default routes
     if (this.includeDefaultLocaleRoute) {
       for (let i = pages.length - 1; i >= 0; i--) {
-        const defaultLocalePath = this.localizedPaths[pages[i].path]?.[this.defaultLocale.code]
-        if (defaultLocalePath !== null) {
-          continue
-        }
+        const page = pages[i]
+        const pagePath = page.path ?? ''
+        const pageName = page.name ?? ''
 
-        if (this.globalLocaleRoutes[pages[i].name ?? ''] !== null) {
-          continue
-        }
+        const defaultLocalePath = this.localizedPaths[pagePath]?.[this.defaultLocale.code]
+        if (defaultLocalePath !== undefined) continue
 
-        if (!/^\/:locale/.test(pages[i].path) && pages[i].path !== '/') {
+        const isLocalized = Object.values(this.localizedPaths).some(
+          paths => paths[this.defaultLocale.code] === pagePath,
+        )
+        if (isLocalized) continue
+
+        if (this.globalLocaleRoutes[pageName] !== undefined) continue
+
+        // Удаляем страницы, если они не начинаются с /:locale и не являются корневыми
+        if (!/^\/:locale/.test(pagePath) && pagePath !== '/') {
           pages.splice(i, 1)
         }
       }

@@ -185,12 +185,11 @@ test('should include default locale routes when includeDefaultLocaleRoute is tru
   // Расширяем страницы
   pageManagerWithDefaultLocale.extendPages(pages, rootDir)
   // Проверяем корректность обработки маршрута для дефолтной локали
-  expect(pages[0].path).toBe('/activity')
-  expect(pages[1].path).toBe('/:locale(en|de|ru)/activity')
+  expect(pages[0].path).toBe('/:locale(en|de|ru)/activity')
 
   // Проверяем, что добавлены маршруты для всех локалей, включая дефолтную
-  expect(pages[1].children).toHaveLength(3) // en, de, ru
-  expect(pages[1].children).toEqual(
+  expect(pages[0].children).toHaveLength(3) // en, de, ru
+  expect(pages[0].children).toEqual(
     expect.arrayContaining([
       { path: 'skiing', name: 'localized-Skiing-en', children: [] },
       { path: 'skiing', name: 'localized-Skiing-de', children: [] },

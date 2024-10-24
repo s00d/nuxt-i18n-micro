@@ -18,4 +18,3 @@ $defineI18nRoute({
     </NuxtLink>
   </div>
 </template>
-œ

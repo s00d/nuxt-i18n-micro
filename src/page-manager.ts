@@ -78,15 +78,7 @@ export class PageManager {
         const pagePath = page.path ?? ''
         const pageName = page.name ?? ''
 
-        const defaultLocalePath = this.localizedPaths[pagePath]?.[this.defaultLocale.code]
-        if (defaultLocalePath !== undefined) continue
-
-        const isLocalized = Object.values(this.localizedPaths).some(
-          paths => paths[this.defaultLocale.code] === pagePath,
-        )
-        if (isLocalized) continue
-
-        if (this.globalLocaleRoutes[pageName] !== undefined) continue
+        if (this.globalLocaleRoutes[pageName] === false) continue
 
         // Удаляем страницы, если они не начинаются с /:locale и не являются корневыми
         if (!/^\/:locale/.test(pagePath) && pagePath !== '/') {

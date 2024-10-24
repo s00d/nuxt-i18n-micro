@@ -201,6 +201,18 @@ export default defineNuxtModule<ModuleOptions>({
 
       pageManager.extendPages(pages, nuxt.options.rootDir, options.customRegexMatcher)
 
+      if (options.includeDefaultLocaleRoute) {
+        const fallbackRoute: NuxtPage = {
+          path: '/:pathMatch(.*)*',
+          name: 'custom-fallback-route',
+          file: resolver.resolve('./runtime/components/locale-redirect.vue'),
+          meta: {
+            globalLocaleRoutes: options.globalLocaleRoutes,
+          },
+        }
+        pages.push(fallbackRoute)
+      }
+
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
       const prerenderRoutes: string[] = []

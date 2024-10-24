@@ -154,7 +154,7 @@ const routeFr = $switchLocaleRoute('fr')
 -   **Example**:
 ```typescript
 // on /en/news
-const routeFr = $switchLocaleRoute('fr')
+const routeFr = $switchLocalePath('fr')
 window.location.href = routeFr
 // Output: url with new locale applied, e.g., '/fr/nouvelles'
 ```

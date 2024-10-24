@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.30.2...v1.31.0)
+
+### 🚀 Enhancements
+
+- Add pathMatch ([b23aeb2](https://github.com/s00d/nuxt-i18n-micro/commit/b23aeb2))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.30.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.30.1...v1.30.2)

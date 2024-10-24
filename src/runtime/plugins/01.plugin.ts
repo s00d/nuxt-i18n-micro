@@ -174,7 +174,7 @@ function getLocalizedRoute(
     }
     // Формируем routeName для дефолтной локали
     const defaultRouteName = getRouteName(resolvedTo as RouteLocationNormalizedLoaded, defaultLocale)
-    const newParams = resolveParams(to)
+    const newParams = resolveParams(resolvedTo)
     newParams.locale = defaultLocale
     // Если текущая локаль совпадает с дефолтной, то резолвим маршрут с дефолтной локалью
     if (router.hasRoute(`localized-${defaultRouteName}`)) {

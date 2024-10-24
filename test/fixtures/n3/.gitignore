@@ -1,0 +1,50 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+/dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Editor directories and files
+.idea
+.vscode
+.netlify
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+.tmuxinator.yml
+
+# Tests
+/coverage
+/cypress/videos/
+playwright-report
+/tests/output
+
+# cypress
+/cypress/reports/
+/cypress/videos/
+/cypress/screenshots/
+
+app/locales/dist/*.json
+app/locales/dist/dummy/*.json
+public/robots.txt

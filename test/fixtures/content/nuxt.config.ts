@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
+  // @ts-ignore
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr' },

@@ -71,6 +71,24 @@ export class PageManager {
       }
     })
 
+    // remove default routes
+    if (this.includeDefaultLocaleRoute) {
+      for (let i = pages.length - 1; i >= 0; i--) {
+        const defaultLocalePath = this.localizedPaths[pages[i].path]?.[this.defaultLocale.code]
+        if (defaultLocalePath !== null) {
+          continue
+        }
+
+        if (this.globalLocaleRoutes[pages[i].name ?? ''] !== null) {
+          continue
+        }
+
+        if (!/^\/:locale/.test(pages[i].path) && pages[i].path !== '/') {
+          pages.splice(i, 1)
+        }
+      }
+    }
+
     pages.push(...additionalRoutes)
   }
 
@@ -256,7 +274,7 @@ export class PageManager {
     customPath: string = '',
     customRegex?: string | RegExp,
   ): NuxtPage {
-    const routePath = this.buildRoutePath(localeCodes, page.path, customPath, isCustom, customRegex)
+    const routePath = this.buildRoutePath(localeCodes, page.path, encodeURI(customPath), isCustom, customRegex)
     const routeName = buildRouteName(buildRouteNameFromRoute(page.name, page.path), localeCodes[0], isCustom)
 
     return {
@@ -294,7 +312,7 @@ export class PageManager {
     addLocalePrefix: boolean,
   ): string {
     const basePath = customLocalePaths?.[locale] || routePath
-    const normalizedBasePath = normalizePath(basePath)
+    const normalizedBasePath = encodeURI(normalizePath(basePath))
 
     return shouldAddLocalePrefix(locale, this.defaultLocale, addLocalePrefix, this.includeDefaultLocaleRoute)
       ? buildFullPath(locale, normalizedBasePath)

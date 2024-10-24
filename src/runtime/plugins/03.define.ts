@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import type { ModuleOptionsExtend } from '../../types'
-import type { PluginsInjections, Translations } from '../plugins/01.plugin'
+import type { Translations } from '../plugins/01.plugin'
 import { defineNuxtPlugin, navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
@@ -85,7 +85,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
       // Если текущая локаль есть в объекте locales
       if (normalizedLocales[currentLocale]) {
         const translation = normalizedLocales[currentLocale]
-        const { $mergeTranslations } = useNuxtApp().$i18n as PluginsInjections
+        const { $mergeTranslations } = useNuxtApp()
         $mergeTranslations(translation)
       }
 

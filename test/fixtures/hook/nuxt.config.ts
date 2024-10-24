@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   ],
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
+  // @ts-ignore
   i18n: {
     locales: [{ code: 'de' }, { code: 'en' }],
     defaultLocale: 'en',

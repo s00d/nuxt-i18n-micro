@@ -148,10 +148,6 @@ function getLocalizedRoute(
   locale?: string,
   hashLocale?: string | null,
 ): RouteLocationResolved {
-  const currentLocale = locale || getCurrentLocale(route, i18nConfig, hashLocale)
-  const selectRoute = router.resolve(to)
-  const routeName = getRouteName(selectRoute, currentLocale)
-
   // Helper function to handle parameters based on the type of 'to'
   const resolveParams = (to: RouteLocationRaw) => {
     const params
@@ -168,6 +164,37 @@ function getLocalizedRoute(
 
     return params
   }
+
+  // get default route with prefix
+  if (i18nConfig.includeDefaultLocaleRoute) {
+    const defaultLocale = i18nConfig.defaultLocale!
+    let resolvedTo = to
+    if (typeof to === 'string') {
+      resolvedTo = router.resolve('/' + defaultLocale + to)
+    }
+    // Формируем routeName для дефолтной локали
+    const defaultRouteName = getRouteName(resolvedTo as RouteLocationNormalizedLoaded, defaultLocale)
+    const newParams = resolveParams(to)
+    newParams.locale = defaultLocale
+    // Если текущая локаль совпадает с дефолтной, то резолвим маршрут с дефолтной локалью
+    if (router.hasRoute(`localized-${defaultRouteName}`)) {
+      to = router.resolve({
+        name: `localized-${defaultRouteName}`,
+        params: newParams,
+      })
+    }
+    else if (router.hasRoute(`localized-${defaultRouteName}-${defaultLocale}`)) {
+      to = router.resolve({
+        name: `localized-${defaultRouteName}-${defaultLocale}`,
+        params: newParams,
+      })
+    }
+  }
+
+  const currentLocale = locale || getCurrentLocale(route, i18nConfig, hashLocale)
+  const selectRoute = router.resolve(to)
+  const routeName = getRouteName(selectRoute, currentLocale)
+    .replace(new RegExp(`-${i18nConfig.defaultLocale!}$`), '')
 
   if (!routeName || routeName === '') {
     const resolved = router.resolve(to)

@@ -69,7 +69,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       hashCookie.value = detectedLocale
     }
 
-    await navigateTo(router.resolve({ name: newRouteName, params: newParams }).href, { redirectCode: 301, external: true })
+    await navigateTo(router.resolve({ name: newRouteName, params: newParams }).href, { redirectCode: 302, external: true })
   }
   else {
     // Set the default locale in the cookie if no match found

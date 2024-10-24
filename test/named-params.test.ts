@@ -18,29 +18,29 @@ test('test navigation links and buttons', async ({ page, goto }) => {
   // Navigate back to the main page
   await goto('/', { waitUntil: 'hydration' })
 
-  // Test Link 2
+  // Test Link 2, go to default locale - de
   await page.click('#link2')
-  await expect(page).toHaveURL('/en/test-my-id')
+  await expect(page).toHaveURL('/de/test-my-id')
 
   // Navigate back to the main page
   await goto('/', { waitUntil: 'hydration' })
 
   // Test Button 3
   await page.click('#link3')
-  await expect(page).toHaveURL('/en/page/my-id') // Assuming this is the expected URL for navigateBroken()
+  await expect(page).toHaveURL('/de/page/my-id') // Assuming this is the expected URL for navigateBroken()
 
   // Navigate back to the main page
   await goto('/', { waitUntil: 'hydration' })
 
   // Test Button 4
   await page.click('#link4')
-  await expect(page).toHaveURL('/en/test-my-id') // Assuming this is the expected URL for navigateBrokenDefaultNuxtPageNaming()
+  await expect(page).toHaveURL('/de/test-my-id') // Assuming this is the expected URL for navigateBrokenDefaultNuxtPageNaming()
 
   // Navigate back to the main page
   await goto('/', { waitUntil: 'hydration' })
 
   await page.click('#link6')
-  await expect(page).toHaveURL('/en/page/id-123')
+  await expect(page).toHaveURL('/de/page/id-123')
 })
 
 test('test navigation links and buttons de', async ({ page, goto }) => {

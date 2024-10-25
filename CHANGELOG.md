@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.0...v1.31.1)
+
+### 🩹 Fixes
+
+- Update redirect logic ([c06cbbb](https://github.com/s00d/nuxt-i18n-micro/commit/c06cbbb))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.30.2...v1.31.0)

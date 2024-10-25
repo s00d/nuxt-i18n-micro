@@ -2,6 +2,11 @@ import type { ModuleOptionsExtend } from '../../types'
 import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo } from '#app'
 import { useRoute, useRouter } from '#imports'
 
+const parseAcceptLanguage = (acceptLanguage: string) =>
+  acceptLanguage
+    .split(',')
+    .map(entry => entry.split(';')[0].trim())
+
 export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig = nuxtApp.$config.public.i18nConfig as ModuleOptionsExtend
   const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale')
@@ -11,22 +16,45 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const defaultLocale = i18nConfig.defaultLocale || 'en'
   const autoDetectPath = i18nConfig.autoDetectPath || '*'
 
-  if (userLocaleCookie.value) {
-    // User already has a locale set in the cookie
-    return
-  }
-
   const router = useRouter()
   const route = useRoute()
 
+  async function switchLocale(newLocale: string) {
+    const currentPath = router.currentRoute
+    const resolvedRoute = router.resolve(currentPath.value)
+    const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
+
+    const newRouteName = i18nConfig.includeDefaultLocaleRoute || newLocale !== defaultLocale
+      ? `localized-${routeName}`
+      : routeName
+
+    const newParams = { ...route.params }
+    delete newParams.locale
+
+    if (i18nConfig.includeDefaultLocaleRoute || newLocale !== defaultLocale) {
+      newParams.locale = newLocale
+    }
+
+    const newRoute = router.resolve({
+      name: newRouteName,
+      params: newParams,
+    })
+    await navigateTo(newRoute.href, {
+      redirectCode: 302,
+      external: true,
+    })
+  }
+
+  if (userLocaleCookie.value) {
+    return
+  }
+
   if (autoDetectPath !== '*' && route.path !== autoDetectPath) {
-    // Skip auto-detection for routes that don't match the specified path
     return
   }
 
   const acceptLanguage = headers?.['accept-language'] ?? ''
-  const browserLanguages = acceptLanguage ? acceptLanguage.split(',').map(lang => lang.split(';')[0]) : [defaultLocale]
-
+  const browserLanguages = acceptLanguage ? parseAcceptLanguage(acceptLanguage) : [defaultLocale]
   let detectedLocale = defaultLocale
 
   for (const language of browserLanguages) {
@@ -37,45 +65,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  if (supportedLocales.includes(detectedLocale)) {
-    const currentPath = router.currentRoute
-
-    const currentLocale = (currentPath.value.params.locale ?? defaultLocale)
-
-    if (detectedLocale === currentLocale) {
-      userLocaleCookie.value = detectedLocale
-      if (i18nConfig.hashMode) {
-        hashCookie.value = detectedLocale
-      }
-      return
-    }
-
-    const resolvedRoute = router.resolve(currentPath.value)
-
-    const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
-
-    const newRouteName = detectedLocale === defaultLocale ? routeName : `localized-${routeName}`
-    const newParams = { ...route.params }
-
-    delete newParams.locale
-
-    if (detectedLocale !== defaultLocale) {
-      newParams.locale = detectedLocale
-    }
-
-    // Set the locale in the cookie for future visits
-    userLocaleCookie.value = detectedLocale
-    if (i18nConfig.hashMode) {
-      hashCookie.value = detectedLocale
-    }
-
-    await navigateTo(router.resolve({ name: newRouteName, params: newParams }).href, { redirectCode: 302, external: true })
+  userLocaleCookie.value = detectedLocale
+  if (i18nConfig.hashMode) {
+    hashCookie.value = detectedLocale
   }
-  else {
-    // Set the default locale in the cookie if no match found
-    userLocaleCookie.value = defaultLocale
-    if (i18nConfig.hashMode) {
-      hashCookie.value = detectedLocale
-    }
+
+  if (detectedLocale !== route.params.locale) {
+    await switchLocale(detectedLocale)
   }
 })

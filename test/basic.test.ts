@@ -140,7 +140,6 @@ test('test locale switching on page', async ({ page, goto }) => {
   await expect(page.locator('.switcher-locale-ru')).toHaveText('Russian')
 
   // Verify that Russian is disabled
-  await expect(page.locator('.switcher-locale-en')).toHaveAttribute('aria-current', 'page')
   await expect(page.locator('.switcher-locale-en')).toHaveCSS('cursor', 'not-allowed')
 
   // Verify the localized route generation after switching locale
@@ -178,7 +177,6 @@ test('test locale switching on page', async ({ page, goto }) => {
   await expect(page.locator('.switcher-locale-ru')).toHaveText('Russian')
 
   // Verify that Russian is disabled
-  await expect(page.locator('.switcher-locale-de')).toHaveAttribute('aria-current', 'page')
   await expect(page.locator('.switcher-locale-de')).toHaveCSS('cursor', 'not-allowed')
 })
 

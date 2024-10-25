@@ -19,7 +19,6 @@
       >
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
-          :to="getLocaleLink(locale)"
           :style="[
             linkStyle,
             locale.code === currentLocale ? activeLinkStyle : {},
@@ -27,7 +26,7 @@
             customLinkStyle,
           ]"
           :hreflang="locale.iso || locale.code"
-          @click="toggleDropdown"
+          @click="switchLocale(locale)"
         >
           {{ localeLabel(locale) }}
         </NuxtLink>
@@ -40,7 +39,6 @@
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
 import { useNuxtApp } from '#app'
-import { useRoute } from '#imports'
 
 type LocaleCode = string
 interface Locale {
@@ -75,7 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
-const { $localeRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
+const { $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const locales = ref($getLocales())
@@ -106,17 +104,9 @@ const currentLocaleLabel = computed(() => localeLabel({
   displayName: currentLocaleName.value ?? undefined,
 }))
 
-const getLocaleLink = (locale: Locale) => {
-  const route = useRoute()
-  const routeName = (route?.name ?? '')
-    .toString()
-    .replace(`localized-`, '')
-    .replace(new RegExp(`-${currentLocale.value}$`), '')
-    .replace(new RegExp(`-${locale}$`), '')
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return $localeRoute({ name: routeName }, locale.code)
+const switchLocale = (locale: Locale) => {
+  toggleDropdown()
+  return $switchLocale(locale.code)
 }
 
 // Default Styles

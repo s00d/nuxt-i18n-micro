@@ -111,6 +111,9 @@ test('test plugin methods output on page', async ({ page, goto }) => {
 
   // Verify the localized route generation
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
+
+  await expect(page.locator('#localized-route-2')).toHaveText('/news/aaa?info=1111')
+  await expect(page.locator('#localized-path')).toHaveText('/news/aaa?info=1111')
 })
 
 test('test locale switching on page', async ({ page, goto }) => {
@@ -163,6 +166,9 @@ test('test locale switching on page', async ({ page, goto }) => {
 
   // Verify the localized route generation after switching locale
   await expect(page.locator('#localized-route')).toHaveText('/de/page')
+
+  await expect(page.locator('#localized-route-2')).toHaveText('/de/news/aaa?info=1111')
+  await expect(page.locator('#localized-path')).toHaveText('/de/news/aaa?info=1111')
 
   await page.click('#locale-switcher button')
 

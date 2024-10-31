@@ -24,6 +24,14 @@
       {{ localeRoute({ name: 'page' }, 'de').path }}
     </p>
 
+    <p id="localized-route-3">
+      {{ localeRoute('/news/aaa?info=1111').fullPath }}
+    </p>
+
+    <p id="localized-path">
+      {{ localePath('/news/aaa?info=1111') }}
+    </p>
+
     <button @click="$switchRoute('/page')">
       switchRoute
     </button>
@@ -52,7 +60,7 @@
 </template>
 
 <script setup>
-const { $localeRoute, localeRoute, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName, $switchRoute } = useI18n()
+const { $localeRoute, localeRoute, localePath, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName, $switchRoute } = useI18n()
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []

@@ -172,6 +172,7 @@ function getLocalizedRoute(
     if (typeof to === 'string') {
       resolvedTo = router.resolve('/' + defaultLocale + to)
     }
+
     // Формируем routeName для дефолтной локали
     const defaultRouteName = getRouteName(resolvedTo as RouteLocationNormalizedLoaded, defaultLocale)
     const newParams = resolveParams(resolvedTo)
@@ -180,12 +181,14 @@ function getLocalizedRoute(
     if (router.hasRoute(`localized-${defaultRouteName}`)) {
       to = router.resolve({
         name: `localized-${defaultRouteName}`,
+        query: (resolvedTo as RouteLocationNormalizedLoaded).query,
         params: newParams,
       })
     }
     else if (router.hasRoute(`localized-${defaultRouteName}-${defaultLocale}`)) {
       to = router.resolve({
         name: `localized-${defaultRouteName}-${defaultLocale}`,
+        query: (resolvedTo as RouteLocationNormalizedLoaded).query,
         params: newParams,
       })
     }

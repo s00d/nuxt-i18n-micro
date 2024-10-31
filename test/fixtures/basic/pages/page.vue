@@ -44,6 +44,14 @@
       {{ $localeRoute({ name: 'page' }, 'de').path }}
     </p>
 
+    <p id="localized-route-2">
+      {{ $localeRoute('/news/aaa?info=1111').fullPath }}
+    </p>
+
+    <p id="localized-path">
+      {{ $localePath('/news/aaa?info=1111') }}
+    </p>
+
     <div id="locale-switcher">
       <i18n-switcher />
     </div>
@@ -69,7 +77,7 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute } = useNuxtApp()
+const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath } = useNuxtApp()
 
 const customPluralRule = (key, count, _locale, t) => {
   const translation = t(key)

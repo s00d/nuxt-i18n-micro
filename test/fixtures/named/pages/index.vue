@@ -17,6 +17,14 @@ function navigateBrokenDefaultNuxtPageNaming() {
 
     <!-- $localeRoute() with params not working -->
 
+    <p id="localized-route-2">
+      {{ $localeRoute('/page/id-222?info=1111').fullPath }}
+    </p>
+
+    <p id="localized-path">
+      {{ $localePath('/page/id-222?info=1111') }}
+    </p>
+
     <NuxtLink
       id="link1"
       :to="$localeRoute({ name: 'page', params: { id: 'my-id' } })"

@@ -11,6 +11,9 @@ test('test navigation links and buttons', async ({ page, goto }) => {
   // Go to the main page
   await goto('/', { waitUntil: 'hydration' })
 
+  await expect(page.locator('#localized-route-2')).toHaveText('/en/page/id-222?info=1111')
+  await expect(page.locator('#localized-path')).toHaveText('/en/page/id-222?info=1111')
+
   // Test Link 1
   await page.click('#link1')
   await expect(page).toHaveURL('/en/page/my-id')
@@ -47,6 +50,9 @@ test('test navigation links and buttons de', async ({ page, goto }) => {
   // Go to the main page
   await goto('/', { waitUntil: 'hydration' })
   await goto('/de', { waitUntil: 'hydration' })
+
+  await expect(page.locator('#localized-route-2')).toHaveText('/de/page/id-222?info=1111')
+  await expect(page.locator('#localized-path')).toHaveText('/de/page/id-222?info=1111')
 
   // Test Link 1
   await page.click('#link1')

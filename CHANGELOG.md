@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.1...v1.31.2)
+
+### 🩹 Fixes
+
+- Query params ([c464103](https://github.com/s00d/nuxt-i18n-micro/commit/c464103))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.0...v1.31.1)

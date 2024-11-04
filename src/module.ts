@@ -96,6 +96,10 @@ export default defineNuxtModule<ModuleOptions>({
   },
   async setup(options, nuxt) {
     const isCloudflarePages = nuxt.options.nitro.preset === 'cloudflare_pages' || process.env.NITRO_PRESET === 'cloudflare-pages'
+    if (isCloudflarePages && !options.includeDefaultLocaleRoute) {
+      throw new Error('Nuxt-i18n-micro: "includeDefaultLocaleRoute" must be set to true when using Cloudflare Pages.')
+    }
+
     const logger = useLogger('nuxt-i18n-micro')
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.5
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.4...v1.31.5)
+
+### 🩹 Fixes
+
+- Add Cloudflare error ([dc073af](https://github.com/s00d/nuxt-i18n-micro/commit/dc073af))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.3...v1.31.4)

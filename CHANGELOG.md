@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.31.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.2...v1.31.3)
+
+### 🩹 Fixes
+
+- IsCloudflarePages and custom-fallback-route ([b11d69a](https://github.com/s00d/nuxt-i18n-micro/commit/b11d69a))
+- IsCloudflarePages and custom-fallback-route ([21b440e](https://github.com/s00d/nuxt-i18n-micro/commit/21b440e))
+- IsCloudflarePages and custom-fallback-route ([5788fce](https://github.com/s00d/nuxt-i18n-micro/commit/5788fce))
+- IsCloudflarePages and custom-fallback-route ([bbdca47](https://github.com/s00d/nuxt-i18n-micro/commit/bbdca47))
+- IsCloudflarePages and custom-fallback-route ([177cc0e](https://github.com/s00d/nuxt-i18n-micro/commit/177cc0e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.1...v1.31.2)

@@ -147,7 +147,7 @@ function addTestLogicExplanation() {
 
 ### 🔍 Test Logic Explanation
 
-The performance tests conducted for \`Nuxt I18n Micro\` and \`nuxt-i18n\` are designed to simulate real-world usage scenarios. Below is an overview of the key aspects of the test methodology:
+The performance tests conducted for \`Nuxt I18n Micro\` and \`nuxt-i18n\` v9 are designed to simulate real-world usage scenarios. Below is an overview of the key aspects of the test methodology:
 
 1. **Build Time**: Measures the time required to build the project, focusing on how efficiently each module handles large translation files.
 2. **CPU Usage**: Tracks the CPU load during the build and stress tests to assess the impact on server resources.
@@ -509,7 +509,7 @@ test('compare build performance and stress test', async () => {
   console.log('\nPerformance Comparison:')
   console.log('--------------------------')
   console.log(`i18n-micro: ${i18nNextResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextResults.maxCpuUsage.toFixed(2)}%`)
-  console.log(`i18n: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%`)
+  console.log(`i18n v9: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%`)
 
   const timeDifference = i18nNextResults.buildTime - i18nResults.buildTime
   const memoryDifference = i18nNextResults.maxMemoryUsed - i18nResults.maxMemoryUsed
@@ -524,7 +524,7 @@ test('compare build performance and stress test', async () => {
   writeToMarkdown(`
 ### ⏱️ Build Time and Resource Consumption
 
-::: details **i18n**
+::: details **i18n v9**
 - **Build Time**: ${i18nResults.buildTime.toFixed(2)} seconds
 - **Max CPU Usage**: ${i18nResults.maxCpuUsage.toFixed(2)}%
 - **Max Memory Usage**: ${i18nResults.maxMemoryUsed.toFixed(2)} MB
@@ -541,7 +541,7 @@ test('compare build performance and stress test', async () => {
 ## Performance Comparison
 
 - **i18n-micro**: ${i18nNextResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextResults.maxCpuUsage.toFixed(2)}%
-- **i18n**: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%
+- **i18n v9**: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%
 - **Time Difference**: ${timeDifference.toFixed(2)} seconds
 - **Memory Difference**: ${memoryDifference.toFixed(2)} MB
 - **CPU Usage Difference**: ${cpuDifference.toFixed(2)}%
@@ -552,7 +552,7 @@ test('compare build performance and stress test', async () => {
   const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', artilleryConfigPath)
   const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', artilleryConfigPath)
 
-  logAndWriteComparisonResults('i18n', 'i18n-micro', i18nStressResults, i18nNextStressResults)
+  logAndWriteComparisonResults('i18n v9', 'i18n-micro', i18nStressResults, i18nNextStressResults)
 
   addTestLogicExplanation()
 })

@@ -201,7 +201,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       pageManager.extendPages(pages, nuxt.options.rootDir, options.customRegexMatcher)
 
-      if (options.includeDefaultLocaleRoute) {
+      if (options.includeDefaultLocaleRoute && !isCloudflarePages) {
         const fallbackRoute: NuxtPage = {
           path: '/:pathMatch(.*)*',
           name: 'custom-fallback-route',

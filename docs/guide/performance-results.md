@@ -22,95 +22,95 @@ It is essential to recognize that the example used in this test is not entirely 
 
 ---
 
+## Build Performance for ./test/fixtures/i18n v9
+
+- **Build Time**: 17.57 seconds
+- **Max CPU Usage**: 237.10%
+- **Min CPU Usage**: 105.20%
+- **Average CPU Usage**: 163.19%
+- **Max Memory Usage**: 3379.36 MB
+- **Min Memory Usage**: 245.47 MB
+- **Average Memory Usage**: 1574.95 MB
+
+
 ## Build Performance for ./test/fixtures/i18n-micro
 
-- **Build Time**: 6.29 seconds
-- **Max CPU Usage**: 185.60%
-- **Min CPU Usage**: 84.60%
-- **Average CPU Usage**: 146.67%
-- **Max Memory Usage**: 1082.77 MB
-- **Min Memory Usage**: 172.28 MB
-- **Average Memory Usage**: 511.04 MB
--
-## Build Performance for ./test/fixtures/i18n
-
-- **Build Time**: 88.02 seconds
-- **Max CPU Usage**: 384.40%
-- **Min CPU Usage**: 84.70%
-- **Average CPU Usage**: 144.63%
-- **Max Memory Usage**: 9610.03 MB
-- **Min Memory Usage**: 196.80 MB
-- **Average Memory Usage**: 3642.73 MB
-
+- **Build Time**: 5.91 seconds
+- **Max CPU Usage**: 230.40%
+- **Min CPU Usage**: 185.20%
+- **Average CPU Usage**: 202.98%
+- **Max Memory Usage**: 957.03 MB
+- **Min Memory Usage**: 189.47 MB
+- **Average Memory Usage**: 540.89 MB
 
 
 ### ⏱️ Build Time and Resource Consumption
 
 ::: details **i18n**
-- **Build Time**: 88.02 seconds
-- **Max CPU Usage**: 384.40%
-- **Max Memory Usage**: 9610.03 MB
-  :::
+- **Build Time**: 17.57 seconds
+- **Max CPU Usage**: 237.10%
+- **Max Memory Usage**: 3379.36 MB
+:::
 
 ::: details **i18n-micro**
-- **Build Time**: 6.29 seconds
-- **Max CPU Usage**: 185.60%
-- **Max Memory Usage**: 1082.77 MB
-  :::
+- **Build Time**: 5.91 seconds
+- **Max CPU Usage**: 230.40%
+- **Max Memory Usage**: 957.03 MB
+:::
 
 ## Performance Comparison
 
-- **i18n-micro**: 6.29 seconds, Max Memory: 1082.77 MB, Max CPU: 185.60%
-- **i18n**: 88.02 seconds, Max Memory: 9610.03 MB, Max CPU: 384.40%
-- **Time Difference**: -81.73 seconds
-- **Memory Difference**: -8527.27 MB
-- **CPU Usage Difference**: -198.80%
+- **i18n-micro**: 5.91 seconds, Max Memory: 957.03 MB, Max CPU: 230.40%
+- **i18n**: 17.57 seconds, Max Memory: 3379.36 MB, Max CPU: 237.10%
+- **Time Difference**: -11.66 seconds
+- **Memory Difference**: -2422.33 MB
+- **CPU Usage Difference**: -6.70%
 
-## Stress Test with Artillery for ./test/fixtures/i18n
+## Stress Test with Artillery for ./test/fixtures/i18n v9
 
-- **Max CPU Usage**: 155.10%
+- **Max CPU Usage**: 160.60%
 - **Min CPU Usage**: 0.00%
-- **Average CPU Usage**: 95.97%
-- **Max Memory Usage**: 801.61 MB
-- **Min Memory Usage**: 49.72 MB
-- **Average Memory Usage**: 592.90 MB
-- **Stress Test Time**: 69.38 seconds
-- **Average Response Time**: 439.40 ms
-- **Min Response Time**: 1.00 ms
-- **Max Response Time**: 2994.00 ms
-- **Requests per Second**: 281.00
+- **Average CPU Usage**: 109.79%
+- **Max Memory Usage**: 514.97 MB
+- **Min Memory Usage**: 47.61 MB
+- **Average Memory Usage**: 335.96 MB
+- **Stress Test Time**: 75.57 seconds
+- **Average Response Time**: 1474.00 ms
+- **Min Response Time**: 13.00 ms
+- **Max Response Time**: 9965.00 ms
+- **Requests per Second**: 82.00
 - **Error Rate**: 0.00%
-
+    
 ## Stress Test with Artillery for ./test/fixtures/i18n-micro
 
-- **Max CPU Usage**: 130.70%
+- **Max CPU Usage**: 133.10%
 - **Min CPU Usage**: 0.00%
-- **Average CPU Usage**: 91.83%
-- **Max Memory Usage**: 344.05 MB
-- **Min Memory Usage**: 48.22 MB
-- **Average Memory Usage**: 288.08 MB
-- **Stress Test Time**: 68.58 seconds
-- **Average Response Time**: 364.80 ms
-- **Min Response Time**: 0.00 ms
-- **Max Response Time**: 2483.00 ms
-- **Requests per Second**: 311.00
+- **Average CPU Usage**: 92.00%
+- **Max Memory Usage**: 333.81 MB
+- **Min Memory Usage**: 48.14 MB
+- **Average Memory Usage**: 276.33 MB
+- **Stress Test Time**: 68.51 seconds
+- **Average Response Time**: 377.90 ms
+- **Min Response Time**: 1.00 ms
+- **Max Response Time**: 2619.00 ms
+- **Requests per Second**: 298.00
 - **Error Rate**: 0.00%
+    
+## Comparison between i18n v9 and i18n-micro
 
-## Comparison between i18n and i18n-micro
-
-- **Max Memory Used Difference**: -457.56 MB
-- **Min Memory Used Difference**: -1.50 MB
-- **Avg Memory Used Difference**: -304.82 MB
-- **Max CPU Usage Difference**: -24.40%
+- **Max Memory Used Difference**: -181.16 MB
+- **Min Memory Used Difference**: 0.53 MB
+- **Avg Memory Used Difference**: -59.63 MB
+- **Max CPU Usage Difference**: -27.50%
 - **Min CPU Usage Difference**: 0.00%
-- **Avg CPU Usage Difference**: -4.14%
+- **Avg CPU Usage Difference**: -17.80%
 - **Stress Test Time Difference**: 0.00 seconds
-- **Average Response Time Difference**: -74.60 ms
-- **Min Response Time Difference**: -1.00 ms
-- **Max Response Time Difference**: -511.00 ms
-- **Requests Per Second Difference**: 30.00
+- **Average Response Time Difference**: -1096.10 ms
+- **Min Response Time Difference**: -12.00 ms
+- **Max Response Time Difference**: -7346.00 ms
+- **Requests Per Second Difference**: 216.00
 - **Error Rate Difference**: 0.00%
-
+  
 ## 📊 Detailed Performance Analysis
 
 ### 🔍 Test Logic Explanation
@@ -121,8 +121,8 @@ The performance tests conducted for `Nuxt I18n Micro` and `nuxt-i18n` are design
 2. **CPU Usage**: Tracks the CPU load during the build and stress tests to assess the impact on server resources.
 3. **Memory Usage**: Monitors memory consumption to determine how each module manages memory, especially under high load.
 4. **Stress Testing**: Simulates a series of requests to evaluate the server's ability to handle concurrent traffic. The test is divided into two phases:
-  - **Warm-up Phase**: Over 6 seconds, one request per second is sent to each of the specified URLs, with a maximum of 6 users, to ensure that the server is ready for the main test.
-  - **Main Test Phase**: For 60 seconds, the server is subjected to 60 requests per second, spread across various endpoints, to measure response times, error rates, and overall throughput under load.
+   - **Warm-up Phase**: Over 6 seconds, one request per second is sent to each of the specified URLs, with a maximum of 6 users, to ensure that the server is ready for the main test.
+   - **Main Test Phase**: For 60 seconds, the server is subjected to 60 requests per second, spread across various endpoints, to measure response times, error rates, and overall throughput under load.
 
 
 ### 🛠 Why This Approach?

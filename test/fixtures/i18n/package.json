@@ -9,6 +9,6 @@
     "init": "nuxt prepare"
   },
   "devDependencies": {
-    "@nuxtjs/i18n": "^8.5.0"
+    "@nuxtjs/i18n": "^9.0.0"
   }
 }

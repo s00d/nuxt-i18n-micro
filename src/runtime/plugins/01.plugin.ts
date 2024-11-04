@@ -7,9 +7,10 @@ import type {
   Router,
 } from 'vue-router'
 import { useTranslationHelper } from '../translationHelper'
-import type { ModuleOptionsExtend, Locale, PluralFunc, I18nRouteParams } from '../../types'
+import type { ModuleOptionsExtend, Locale, I18nRouteParams } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRoute, useRouter, useCookie, useState } from '#imports'
+import { plural } from '#build/i18n.plural.mjs'
 
 const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'
@@ -270,7 +271,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
-  const plural: PluralFunc = new Function('return ' + i18nConfig.plural.toString())()
   const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
   const runtimeConfig = useRuntimeConfig()
 

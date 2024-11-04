@@ -43,7 +43,6 @@ export interface ModuleOptions {
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {
-  plural: string
   dateBuild: number
   hashMode: boolean
   apiBaseUrl: string

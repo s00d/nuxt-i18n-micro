@@ -5,7 +5,7 @@ import {
   addImportsDir,
   addPlugin,
   addPrerenderRoutes,
-  addServerHandler, addTypeTemplate,
+  addServerHandler, addTemplate, addTypeTemplate,
   createResolver,
   defineNuxtModule,
   extendPages,
@@ -103,13 +103,16 @@ export default defineNuxtModule<ModuleOptions>({
     const localeManager = new LocaleManager(options, rootDirs)
     const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!, options.globalLocaleRoutes)
 
-    let plural = options.plural!
-    if (typeof plural !== 'string') plural = plural.toString()
+    addTemplate({
+      filename: 'i18n.plural.mjs',
+      write: true,
+      getContents: () => `export const plural = ${options.plural!.toString()};`,
+    })
 
     const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$|\/{2,}/, '')
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
-      plural: plural,
+      plural: undefined,
       locales: localeManager.locales ?? [],
       meta: options.meta ?? true,
       metaBaseUrl: options.metaBaseUrl ?? undefined,

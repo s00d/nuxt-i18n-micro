@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.6
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.5...v1.31.6)
+
+### 🩹 Fixes
+
+- Cloudflare defineI18nRoute ([88e9f1e](https://github.com/s00d/nuxt-i18n-micro/commit/88e9f1e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.4...v1.31.5)

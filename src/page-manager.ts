@@ -45,7 +45,7 @@ export class PageManager {
       .map(locale => locale.code)
   }
 
-  public extendPages(pages: NuxtPage[], rootDir: string, customRegex?: string | RegExp) {
+  public extendPages(pages: NuxtPage[], rootDir: string, customRegex?: string | RegExp, isCloudflarePages?: boolean) {
     this.localizedPaths = this.extractLocalizedPaths(pages, rootDir)
 
     const additionalRoutes: NuxtPage[] = []
@@ -72,7 +72,7 @@ export class PageManager {
     })
 
     // remove default routes
-    if (this.includeDefaultLocaleRoute) {
+    if (this.includeDefaultLocaleRoute && !isCloudflarePages) {
       for (let i = pages.length - 1; i >= 0; i--) {
         const page = pages[i]
         const pagePath = page.path ?? ''

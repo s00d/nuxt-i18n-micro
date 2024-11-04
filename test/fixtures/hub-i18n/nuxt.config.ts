@@ -22,6 +22,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-07-30',
 
   // https://hub.nuxt.com/docs/getting-started/installation#options
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   hub: {},
 
   i18n: {

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.3...v1.31.4)
+
+### 🩹 Fixes
+
+- AddTemplate plural ([5d20201](https://github.com/s00d/nuxt-i18n-micro/commit/5d20201))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.2...v1.31.3)

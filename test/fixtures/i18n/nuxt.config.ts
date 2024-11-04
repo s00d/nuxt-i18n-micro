@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     lazy: true,
     detectBrowserLanguage: false,
     langDir: 'locales',
+    baseUrl: 'http://localhost:3000/',
     locales: [
       {
         code: 'en',

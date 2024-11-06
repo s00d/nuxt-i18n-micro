@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.7
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.6...v1.31.7)
+
+### 🩹 Fixes
+
+- SSG auto detect ([8e09cb8](https://github.com/s00d/nuxt-i18n-micro/commit/8e09cb8))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.6
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.5...v1.31.6)

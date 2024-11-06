@@ -45,6 +45,7 @@ export interface ModuleOptions {
 export interface ModuleOptionsExtend extends ModuleOptions {
   dateBuild: number
   hashMode: boolean
+  isSSG: boolean
   apiBaseUrl: string
 }
 

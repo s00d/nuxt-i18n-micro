@@ -45,7 +45,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     })
   }
 
-  if (userLocaleCookie.value) {
+  if (userLocaleCookie.value || i18nConfig.isSSG) {
     return
   }
 

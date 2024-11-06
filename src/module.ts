@@ -95,6 +95,7 @@ export default defineNuxtModule<ModuleOptions>({
     customRegexMatcher: undefined,
   },
   async setup(options, nuxt) {
+    const isSSG = nuxt.options._generate
     const isCloudflarePages = nuxt.options.nitro.preset === 'cloudflare_pages' || process.env.NITRO_PRESET === 'cloudflare-pages'
     if (isCloudflarePages && !options.includeDefaultLocaleRoute) {
       throw new Error('Nuxt-i18n-micro: "includeDefaultLocaleRoute" must be set to true when using Cloudflare Pages.')
@@ -134,6 +135,7 @@ export default defineNuxtModule<ModuleOptions>({
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
       globalLocaleRoutes: undefined,
       apiBaseUrl: apiBaseUrl,
+      isSSG: isSSG,
       customRegexMatcher: options.customRegexMatcher,
     }
 

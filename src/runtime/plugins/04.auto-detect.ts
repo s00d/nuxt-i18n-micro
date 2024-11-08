@@ -19,7 +19,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const headers = useRequestHeaders(['accept-language'])
   const supportedLocales = i18nConfig.locales?.map(locale => locale.code) ?? []
   const defaultLocale = i18nConfig.defaultLocale || 'en'
-  const autoDetectPath = i18nConfig.autoDetectPath || '*'
+  const autoDetectPath = i18nConfig.autoDetectPath || '/'
 
   const router = useRouter()
   const route = useRoute()

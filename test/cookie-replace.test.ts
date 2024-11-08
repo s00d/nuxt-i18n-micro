@@ -9,6 +9,7 @@ test.use({
       // @ts-ignore
       i18n: {
         localeCookie: 'user-change-cookie',
+        autoDetectPath: '*',
       },
     },
   },

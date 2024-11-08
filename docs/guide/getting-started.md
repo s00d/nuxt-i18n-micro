@@ -188,16 +188,15 @@ autoDetectLanguage: true // Enable automatic language detection and redirection
 
 ### 🔍 `autoDetectPath`
 
-Specifies the route path(s) on which the locale auto-detection and switching should occur.
+Specifies the route path(s) on which locale auto-detection and switching should occur.
 
 **Type**: `string`  
-**Default**: `"*"`
+**Default**: `"/"`
 
-**Example**:
+**Description**:  
+Defines the route(s) where locale detection is active. By default, locale detection happens only on the home route (`"/"`).
 
-```typescript
-autoDetectPath: '/' // Locale detection will only happen on the home route
-```
+Setting this to `"*"` enables locale detection on all routes. However, using `"*"` may cause unexpected issues, especially if cookies are disabled, as this can interfere with tracking the user's locale preference.
 
 ### 🔢 `plural`
 

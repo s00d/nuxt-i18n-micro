@@ -9,8 +9,13 @@ const parseAcceptLanguage = (acceptLanguage: string) =>
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig = nuxtApp.$config.public.i18nConfig as ModuleOptionsExtend
-  const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale')
-  const hashCookie = useCookie('hash-locale')
+  const date = new Date()
+  const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale', {
+    watch: false,
+    expires: new Date(date.setDate(date.getDate() + 365)),
+  })
+
+  const hashCookie = useCookie<string | undefined>('hash-locale')
   const headers = useRequestHeaders(['accept-language'])
   const supportedLocales = i18nConfig.locales?.map(locale => locale.code) ?? []
   const defaultLocale = i18nConfig.defaultLocale || 'en'
@@ -70,7 +75,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     hashCookie.value = detectedLocale
   }
 
-  if (detectedLocale !== route.params.locale) {
+  const currentLocale = route.params.locale ?? defaultLocale
+  if (detectedLocale !== currentLocale) {
     await switchLocale(detectedLocale)
   }
 })

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.31.8
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.7...v1.31.8)
+
+### 🩹 Fixes
+
+- Autodetect redirect ([f6f46e4](https://github.com/s00d/nuxt-i18n-micro/commit/f6f46e4))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.7
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.6...v1.31.7)

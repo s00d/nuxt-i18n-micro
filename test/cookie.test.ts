@@ -4,6 +4,13 @@ import { expect, test } from '@nuxt/test-utils/playwright'
 test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/cookie', import.meta.url)),
+    nuxtConfig: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      i18n: {
+        autoDetectPath: '*',
+      },
+    },
   },
 })
 

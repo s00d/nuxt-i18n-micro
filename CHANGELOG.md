@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.31.9
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.8...v1.31.9)
+
+### 🩹 Fixes
+
+- Update default value of autoDetectPath ([08401dc](https://github.com/s00d/nuxt-i18n-micro/commit/08401dc))
+- Tests ([e1e0858](https://github.com/s00d/nuxt-i18n-micro/commit/e1e0858))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.8
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.7...v1.31.8)

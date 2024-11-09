@@ -30,6 +30,8 @@ export default defineNuxtConfig({
       { code: 'en', iso: 'en_EN', displayName: 'English' },
       { code: 'de', iso: 'de_DE', displayName: 'German' },
       { code: 'ru', iso: 'ru_RU', displayName: 'Russian' },
+      { code: 'fr', iso: 'fr_FR', displayName: 'French', baseUrl: 'https://fr.example.com', baseDefault: true },
+      { code: 'ch', iso: 'ch_CH', displayName: 'Chinese', baseUrl: 'https://test.example.com' },
     ],
     meta: true,
     defaultLocale: 'en',

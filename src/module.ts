@@ -13,8 +13,6 @@ import {
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
-import { createStorage } from 'unstorage'
-import fsDriver from 'unstorage/drivers/fs'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
@@ -105,14 +103,10 @@ export default defineNuxtModule<ModuleOptions>({
 
     const logger = useLogger('nuxt-i18n-micro')
 
-    const storagePah = path.join(nuxt.options.rootDir, './server/assets')
-
     try {
-      const storage = createStorage({
-        driver: fsDriver({ base: storagePah }),
-      })
-      await storage.clear()
-      logger.log(`Cleanup storage: ${storagePah}`)
+      const storagePahh = path.join(nuxt.options.rootDir, './server/assets')
+      fs.rmdirSync(storagePahh)
+      logger.log(`Cleanup storage: ${storagePahh}`)
     }
     catch { /* empty */ }
 

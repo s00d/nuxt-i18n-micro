@@ -1,24 +1,39 @@
 <template>
   <div :style="[wrapperStyle, customWrapperStyle]">
+    <slot name="before-button" />
+
     <button
       class="language-switcher"
       :style="[buttonStyle, customButtonStyle]"
       @click="toggleDropdown"
     >
+      <slot name="before-selected-locale" />
       {{ currentLocaleLabel }}
+      <slot name="after-selected-locale" />
       <span :style="[iconStyle, dropdownOpen ? openIconStyle : {}, customIconStyle]">&#9662;</span>
     </button>
+
+    <slot name="before-dropdown" />
+
     <ul
-      v-if="dropdownOpen"
+      v-show="dropdownOpen"
       :style="[dropdownStyle, customDropdownStyle]"
     >
+      <slot name="before-dropdown-items" />
+
       <li
         v-for="locale in locales"
         :key="locale.code"
         :style="[itemStyle, customItemStyle]"
       >
+        <slot
+          name="before-item"
+          :locale="locale"
+        />
+
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
+          :to="$switchLocaleRoute(locale.code)"
           :style="[
             linkStyle,
             locale.code === currentLocale ? activeLinkStyle : {},
@@ -26,12 +41,29 @@
             customLinkStyle,
           ]"
           :hreflang="locale.iso || locale.code"
-          @click="switchLocale(locale)"
+          @click="switchLocale()"
         >
+          <slot
+            name="before-link-content"
+            :locale="locale"
+          />
           {{ localeLabel(locale) }}
+          <slot
+            name="after-link-content"
+            :locale="locale"
+          />
         </NuxtLink>
+
+        <slot
+          name="after-item"
+          :locale="locale"
+        />
       </li>
+
+      <slot name="after-dropdown-items" />
     </ul>
+
+    <slot name="after-dropdown" />
   </div>
 </template>
 
@@ -47,6 +79,8 @@ interface Locale {
   iso?: string
   dir?: 'ltr' | 'rtl' | 'auto'
   displayName?: string
+  baseUrl?: string
+  baseDefault?: boolean
 }
 
 interface Props {
@@ -73,7 +107,7 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
-const { $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
+const { $switchLocaleRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const locales = ref($getLocales())
@@ -104,9 +138,8 @@ const currentLocaleLabel = computed(() => localeLabel({
   displayName: currentLocaleName.value ?? undefined,
 }))
 
-const switchLocale = (locale: Locale) => {
+const switchLocale = () => {
   toggleDropdown()
-  return $switchLocale(locale.code)
 }
 
 // Default Styles

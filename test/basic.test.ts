@@ -97,7 +97,7 @@ test('test plugin methods output on page', async ({ page, goto }) => {
   await expect(page.locator('#locale-name')).toHaveText('English')
 
   // Verify the list of locales
-  await expect(page.locator('#locales')).toHaveText('en, de, ru')
+  await expect(page.locator('#locales')).toHaveText('en, de, ru, fr, ch')
 
   // Verify the translation for a key
   await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
@@ -141,6 +141,20 @@ test('test locale switching on page', async ({ page, goto }) => {
   await expect(page.locator('.switcher-locale-en')).toHaveText('English')
   await expect(page.locator('.switcher-locale-de')).toHaveText('German')
   await expect(page.locator('.switcher-locale-ru')).toHaveText('Russian')
+  await expect(page.locator('.switcher-locale-fr')).toHaveText('French')
+  await expect(page.locator('.switcher-locale-ch')).toHaveText('Chinese')
+
+  await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', '/page')
+  await expect(page.locator('.switcher-locale-de')).toHaveAttribute('href', '/de/page')
+  await expect(page.locator('.switcher-locale-ru')).toHaveAttribute('href', '/ru/page')
+  await expect(page.locator('.switcher-locale-fr')).toHaveAttribute('href', 'https://fr.example.com/page')
+  await expect(page.locator('.switcher-locale-ch')).toHaveAttribute('href', 'https://test.example.com/ch/page')
+
+  await expect(page.locator('.switcher-locale-en')).toHaveAttribute('hreflang', 'en_EN')
+  await expect(page.locator('.switcher-locale-de')).toHaveAttribute('hreflang', 'de_DE')
+  await expect(page.locator('.switcher-locale-ru')).toHaveAttribute('hreflang', 'ru_RU')
+  await expect(page.locator('.switcher-locale-fr')).toHaveAttribute('hreflang', 'fr_FR')
+  await expect(page.locator('.switcher-locale-ch')).toHaveAttribute('hreflang', 'ch_CH')
 
   // Verify that Russian is disabled
   await expect(page.locator('.switcher-locale-en')).toHaveCSS('cursor', 'not-allowed')

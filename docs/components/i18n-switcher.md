@@ -1,9 +1,6 @@
 ---
 outline: deep
 ---
-Here’s the updated documentation for the `<i18n-switcher>` component, reflecting the transition to using inline styles with support for dynamic customization through props:
-
----
 
 # 🌍 `<i18n-switcher>` Component
 

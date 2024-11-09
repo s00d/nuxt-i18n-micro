@@ -50,6 +50,7 @@ export default defineConfig({
           { text: 'i18n-t', link: '/components/i18n-t' },
           { text: 'i18n-switcher', link: '/components/i18n-switcher' },
           { text: 'i18n-link', link: '/components/i18n-link' },
+          { text: 'i18n-group', link: '/components/i18n-group' },
         ],
       },
       {
@@ -119,6 +120,7 @@ export default defineConfig({
             { text: 'i18n-t Component', link: '/i18n-t' },
             { text: 'ii18n-switcher Component', link: '/i18n-switcher' },
             { text: 'i18n-link Component', link: '/i18n-link' },
+            { text: 'i18n-group Component', link: '/i18n-group' },
           ],
         },
       ],

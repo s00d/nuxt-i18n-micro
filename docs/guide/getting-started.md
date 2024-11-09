@@ -73,18 +73,22 @@ Translation files are organized into global and page-specific directories:
 
 The `Nuxt I18n Micro` module provides a range of customizable options to fine-tune your internationalization setup:
 
+Here’s the updated documentation for `locales`, including the new `baseUrl` and `baseDefault` properties:
+
 ### 🌍 `locales`
 
 Defines the locales available in your application.
 
 **Type**: `Locale[]`
 
-Each locale object includes:
+Each locale object can include the following properties:
 
 - **`code`** *(string, required)*: A unique identifier for the locale, e.g., `'en'` for English.
-- **`iso`** *(string, optional)*: The ISO code, e.g., `'en-US'`, used for the `lang` attribute in HTML.
-- **`dir`** *(string, optional)*: Text direction, either `'rtl'` for right-to-left or `'ltr'` for left-to-right languages.
-- **`disabled`** *(boolean, optional)*: Indicates if the locale should be disabled.
+- **`iso`** *(string, optional)*: The ISO code for the locale, such as `'en-US'`. This can be used for the `lang` attribute in HTML to help with accessibility and SEO.
+- **`dir`** *(string, optional)*: Specifies the text direction for the locale, either `'ltr'` (left-to-right) or `'rtl'` (right-to-left).
+- **`disabled`** *(boolean, optional)*: Disables the locale in the dropdown if set to `true`, preventing users from selecting it.
+- **`baseUrl`** *(string, optional)*: Sets a base URL for the locale, which should be used to configure redirection for locale-specific domains or subdomains. The actual redirection implementation should be handled in layers outside of this configuration, as setting `baseUrl` alone means all links within the project will direct to the specified domain. Additionally, this parameter requires an explicit protocol, either `http` or `https`.
+- **`baseDefault`** *(boolean, optional)*: If set to `true`, the locale's routes do not include the locale code in the URL path, making it the default locale.
 
 **Example**:
 
@@ -92,9 +96,23 @@ Each locale object includes:
 locales: [
   { code: 'en', iso: 'en-US', dir: 'ltr' },
   { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-  { code: 'ar', iso: 'ar-SA', dir: 'rtl', disabled: false }
+  { code: 'ar', iso: 'ar-SA', dir: 'rtl', disabled: true },
+  { code: 'de', iso: 'de-DE', dir: 'ltr', baseUrl: 'https://de.example.com', baseDefault: true },
+  { code: 'es', iso: 'es-ES', dir: 'ltr', baseUrl: 'https://es.example.com', baseDefault: true },
+  { code: 'ja', iso: 'ja-JP', dir: 'ltr', baseUrl: 'https://new.example.com' }
 ]
 ```
+
+In this example:
+
+- The `ar` locale is disabled.
+- `de` and `es` each have their own `baseUrl` and `baseDefault`, meaning routes for these locales will start with their respective URLs (`https://de.example.com`, `https://es.example.com`).
+- `ja` each have their own `baseUrl`, meaning routes for these locales will start with their respective URLs (`https://new.example.com/ja`).
+- 
+**Additional Notes**:
+
+- If `baseUrl` is provided, it will override the default routing structure, adding the `baseUrl` prefix to all routes for that locale. However, using `baseUrl` is generally not recommended, as it can lead to duplication of all internal routes as external links, complicating routing and maintenance. Instead, it is often simpler and more manageable to create external links directly for specific locales.
+- When `baseDefault` is set to `true`, the specified locale's URLs will not include the locale code prefix, making it appear as the primary or default language. Note that `baseDefault` works only in combination with `baseUrl`.
 
 ### 🌐 `defaultLocale`
 
@@ -263,9 +281,11 @@ Creates links between different pages' locale files to share translations, reduc
 **Example**:
 
 ```typescript
-routesLocaleLinks: {
-  'products-id': 'products',
-  'about-us': 'about'
+{
+  routesLocaleLinks: {
+    'products-id': 'products', 
+    'about-us': 'about'
+  }
 }
 ```
 
@@ -353,14 +373,17 @@ Specifies a fallback locale to be used when the current locale does not have a s
 **Example**:
 
 ```typescript
-i18n: {
-  locales: [
-    { code: 'en', iso: 'en-US', dir: 'ltr' },
-    { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-    { code: 'es', iso: 'es-ES', dir: 'ltr' }
-  ],
-  defaultLocale: 'en',
-  fallbackLocale: 'en', // Use English as a fallback locale
+{
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en-US', dir: 'ltr' },
+      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: 'es', iso: 'es-ES', dir: 'ltr' }
+    ],
+    defaultLocale: 'en',
+    // Use English as a fallback locale
+    fallbackLocale: 'en'
+  }
 }
 ```
 
@@ -380,13 +403,16 @@ This option gives you the flexibility to localize certain pages differently whil
 **Example**:
 
 ```typescript
-globalLocaleRoutes: {
-  page2: {
-    en: '/custom-page2-en',
-    de: '/custom-page2-de',
-    ru: '/custom-page2-ru',
-  },
-  unlocalized: false, // Unlocalized page should not be localized
+{
+  globalLocaleRoutes: {
+    page2: {
+      en: '/custom-page2-en',
+        de: '/custom-page2-de',
+        ru: '/custom-page2-ru'
+    },
+    // Unlocalized page should not be localized
+    unlocalized: false
+  }
 }
 ```
 

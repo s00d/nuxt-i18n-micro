@@ -6,6 +6,18 @@
     "link":  "click"
   },
   "text_escaping": "test {text_escaping} } { { ",
+  "product": {
+    "details": {
+      "title": "Premium Laptop",
+      "price": "Price: ${value}",
+      "description": "High-performance laptop for professionals",
+      "features": {
+        "durability": "Durable aluminum body",
+        "design": "Sleek modern design",
+        "performance": "Outstanding performance"
+      }
+    }
+  },
   "key1": {
     "key1": {
       "key1": {

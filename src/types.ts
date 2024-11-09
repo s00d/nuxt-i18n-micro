@@ -6,6 +6,8 @@ export interface Locale {
   iso?: string
   dir?: 'ltr' | 'rtl' | 'auto'
   displayName?: string
+  baseUrl?: string
+  baseDefault?: boolean
 }
 
 export interface DefineI18nRouteConfig {

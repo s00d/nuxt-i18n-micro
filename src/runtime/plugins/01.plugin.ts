@@ -71,36 +71,63 @@ function getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolv
     .replace(new RegExp(`-${locale}$`), '')
 }
 
-function switchLocaleRoute(fromLocale: string,
+function switchLocaleRoute(
+  fromLocale: string,
   toLocale: string,
   route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
   router: Router,
   i18nConfig: ModuleOptionsExtend,
   i18nRouteParams: I18nRouteParams,
 ): RouteLocationRaw {
+  const currentLocale = i18nConfig.locales?.find(l => l.code === toLocale)
+
+  function getFullPathWithBaseUrl(
+    route: RouteLocationRaw,
+  ): string {
+    const resolvedRoute = router.resolve(route)
+    let fullPath = resolvedRoute.fullPath
+
+    // Remove the locale prefix from the path if baseDefault is set
+    if (currentLocale?.baseDefault) {
+      fullPath = fullPath.replace(new RegExp(`^/${currentLocale!.code}`), '')
+    }
+
+    let baseUrl = currentLocale!.baseUrl
+    if (baseUrl?.endsWith('/')) {
+      baseUrl = baseUrl.slice(0, -1)
+    }
+
+    return baseUrl + fullPath
+  }
+
   const routeName = getRouteName(route, fromLocale)
   if (router.hasRoute(`localized-${routeName}-${toLocale}`)) {
-    // const newParams = { ...route.params }
     const newParams = { ...route.params, ...i18nRouteParams?.[toLocale] }
     newParams.locale = toLocale
 
-    // Если включен hashMode, добавляем хеш в URL
+    // If hashMode is enabled, set the locale cookie for hash-based routing
     if (i18nConfig.hashMode) {
       const userLocaleCookie = useCookie('hash-locale')
       userLocaleCookie.value = toLocale
     }
 
-    return {
+    const newRoute = {
       name: `localized-${routeName}-${toLocale}`,
       params: newParams,
     }
+
+    if (currentLocale?.baseUrl) {
+      return getFullPathWithBaseUrl(newRoute)
+    }
+
+    return newRoute
   }
 
   const newRouteName
     = toLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute
       ? `localized-${routeName}`
       : routeName
-  // const newParams = { ...route.params }
+
   const newParams = { ...route.params, ...i18nRouteParams?.[toLocale] }
   delete newParams.locale
 
@@ -108,14 +135,22 @@ function switchLocaleRoute(fromLocale: string,
     newParams.locale = toLocale
   }
 
-  // Если включен hashMode, корректно строим ссылку с хешем
+  // Set the locale cookie for hash-based routing if hashMode is enabled
   if (i18nConfig.hashMode) {
     const userLocaleCookie = useCookie('hash-locale')
-
     userLocaleCookie.value = toLocale
   }
 
-  return { name: newRouteName, params: newParams }
+  const newRoute = {
+    name: newRouteName,
+    params: newParams,
+  }
+
+  if (currentLocale?.baseUrl) {
+    return getFullPathWithBaseUrl(newRoute)
+  }
+
+  return newRoute
 }
 
 function switchLocale(

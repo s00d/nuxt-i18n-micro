@@ -106,12 +106,15 @@ export default defineNuxtModule<ModuleOptions>({
     const logger = useLogger('nuxt-i18n-micro')
 
     const storagePah = path.join(nuxt.options.rootDir, './server/assets')
-    logger.log(`Cleanup storage: ${storagePah}`)
 
-    const storage = createStorage({
-      driver: fsDriver({ base: storagePah }),
-    })
-    await storage.clear()
+    try {
+      const storage = createStorage({
+        driver: fsDriver({ base: storagePah }),
+      })
+      await storage.clear()
+      logger.log(`Cleanup storage: ${storagePah}`)
+    }
+    catch { /* empty */ }
 
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()

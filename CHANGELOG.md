@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v1.32.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.9...v1.32.0)
+
+### 🚀 Enhancements
+
+- Add baseUrl to locale ([03b1ffe](https://github.com/s00d/nuxt-i18n-micro/commit/03b1ffe))
+- Add i18n-group ([85c2817](https://github.com/s00d/nuxt-i18n-micro/commit/85c2817))
+- Add i18n-switcher slots ([9fe69f9](https://github.com/s00d/nuxt-i18n-micro/commit/9fe69f9))
+
+### 🩹 Fixes
+
+- Add cleanup storage ([a73a3dc](https://github.com/s00d/nuxt-i18n-micro/commit/a73a3dc))
+- Storage empty ([b942307](https://github.com/s00d/nuxt-i18n-micro/commit/b942307))
+- Storage empty ([5a88ca9](https://github.com/s00d/nuxt-i18n-micro/commit/5a88ca9))
+
+### 📖 Documentation
+
+- I18n-switcher Slots ([f6b3e1d](https://github.com/s00d/nuxt-i18n-micro/commit/f6b3e1d))
+- I18n-group ([0e750a9](https://github.com/s00d/nuxt-i18n-micro/commit/0e750a9))
+- Locales info ([1558b8c](https://github.com/s00d/nuxt-i18n-micro/commit/1558b8c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.31.9
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.31.8...v1.31.9)

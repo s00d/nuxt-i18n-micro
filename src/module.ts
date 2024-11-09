@@ -13,6 +13,8 @@ import {
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
+import { createStorage } from 'unstorage'
+import fsDriver from 'unstorage/drivers/fs'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
@@ -102,6 +104,15 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     const logger = useLogger('nuxt-i18n-micro')
+
+    const storagePah = path.join(nuxt.options.rootDir, './server/assets')
+    logger.log(`Cleanup storage: ${storagePah}`)
+
+    const storage = createStorage({
+      driver: fsDriver({ base: storagePah }),
+    })
+    await storage.clear()
+
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 

@@ -18,6 +18,24 @@
       </template>
     </i18n-t>
 
+    <i18n-group prefix="product.details">
+      <template #default="{ t }">
+        <h1>{{ t('title') }}</h1>
+        <div class="price">
+          {{ t('price', { value: 99.99 }) }}
+        </div>
+        <p>{{ t('description') }}</p>
+        <ul>
+          <li
+            v-for="(feature, index) in ['durability', 'design', 'performance']"
+            :key="index"
+          >
+            {{ t(`features.${feature}`) }}
+          </li>
+        </ul>
+      </template>
+    </i18n-group>
+
     <p>Current Locale: {{ $getLocale() }}</p>
 
     <p>text escaping: {{ $t('text_escaping') }}</p>

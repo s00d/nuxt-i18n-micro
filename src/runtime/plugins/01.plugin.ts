@@ -9,7 +9,7 @@ import type {
 import { useTranslationHelper } from '../translationHelper'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useRoute, useRouter, useCookie, useState } from '#imports'
+import { useRoute, useRouter, useCookie, useState, navigateTo } from '#imports'
 import { plural } from '#build/i18n.plural.mjs'
 
 const i18nHelper = useTranslationHelper()
@@ -172,6 +172,10 @@ function switchLocale(
     router,
     i18nConfig,
     i18nRouteParams)
+
+  if (typeof switchedRoute === 'string' && switchedRoute.startsWith('http')) {
+    return navigateTo(switchedRoute, { redirectCode: 200, external: true })
+  }
 
   return router.push(switchedRoute)
 }

@@ -71,6 +71,15 @@
         Switch to German
       </NuxtLink>
     </div>
+
+    <div>
+      <i18n-link
+        id="page-link"
+        :to="{ name: 'index' }"
+      >
+        Go to Page
+      </i18n-link>
+    </div>
   </div>
 </template>
 

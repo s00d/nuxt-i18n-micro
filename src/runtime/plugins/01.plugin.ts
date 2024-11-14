@@ -1,5 +1,7 @@
 import type {
   NavigationFailure,
+  NavigationGuardNext,
+  RouteLocationNormalizedGeneric,
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,
   RouteLocationResolved,
@@ -335,7 +337,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     catch (_error) { /* empty */ }
   }
 
-  useRouter().beforeEach(async (to, from, next) => {
+  async function loadTranslationsForRoute(
+    to: RouteLocationNormalizedGeneric,
+    next?: NavigationGuardNext,
+  ) {
     const hashLocale = i18nConfig.hashMode ? nuxtApp.runWithContext(() => (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString()).toString() : null
     const locale = getCurrentLocale(to, i18nConfig, hashLocale)
 
@@ -358,7 +363,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (next) {
       next()
     }
+  }
+
+  useRouter().beforeEach(async (to, from, next) => {
+    if (to.path !== from.path) {
+      await loadTranslationsForRoute(to, next)
+    }
+    next()
   })
+
+  const route = useRoute()
+  await loadTranslationsForRoute(route)
 
   const getTranslation = (
     key: string,
@@ -367,9 +382,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   ): Translation => {
     if (!key) return ''
 
+    const route = useRoute()
     const hashLocale = i18nConfig.hashMode ? (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString() : null
-    const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
-    const routeName = getRouteName(useRoute(), locale)
+    const locale = getCurrentLocale(route, i18nConfig, hashLocale)
+    const routeName = getRouteName(route, locale)
     let value = i18nHelper.getTranslation(locale, routeName, key)
 
     if (!value) {
@@ -411,15 +427,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return value?.toString() ?? defaultValue ?? key
     },
     tc: (key: string, count: number, defaultValue?: string): string => {
-      const currentLocale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const route = useRoute()
+      const currentLocale = getCurrentLocale(route, i18nConfig, hashLocale)
       return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {
-      const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const route = useRoute()
+      const locale = getCurrentLocale(route, i18nConfig, hashLocale)
       return formatNumber(value, locale, options)
     },
     td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
-      const locale = getCurrentLocale(useRoute(), i18nConfig, hashLocale)
+      const route = useRoute()
+      const locale = getCurrentLocale(route, i18nConfig, hashLocale)
       return formatDate(value, locale, options)
     },
     has: (key: string): boolean => {

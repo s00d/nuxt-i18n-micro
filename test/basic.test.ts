@@ -19,6 +19,36 @@ test('test index', async ({ page, goto }) => {
   await expect(page.locator('#locale')).toHaveText('de')
 })
 
+test('test routes', async ({ page, goto }) => {
+  await goto('/', { waitUntil: 'hydration' })
+
+  await page.click('#page-link')
+
+  await page.waitForTimeout(200)
+
+  await expect(page).toHaveURL('/page')
+
+  await page.click('#page-link')
+
+  await page.waitForTimeout(200)
+
+  await expect(page).toHaveURL('/')
+
+  await goto('/de', { waitUntil: 'hydration' })
+
+  await page.click('#page-link')
+
+  await page.waitForTimeout(200)
+
+  await expect(page).toHaveURL('/de/page')
+
+  await page.click('#page-link')
+
+  await page.waitForTimeout(200)
+
+  await expect(page).toHaveURL('/de')
+})
+
 test('test text escaping', async ({ page, goto }) => {
   await goto('/', { waitUntil: 'hydration' })
   await expect(page.locator('.text_escaping')).toHaveText('test {text_escaping} } { { ')

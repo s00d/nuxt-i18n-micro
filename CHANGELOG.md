@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.32.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.32.3...v1.32.4)
+
+### 🩹 Fixes
+
+- Change router logic ([ac81268](https://github.com/s00d/nuxt-i18n-micro/commit/ac81268))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.32.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.32.2...v1.32.3)

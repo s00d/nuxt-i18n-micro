@@ -6,37 +6,37 @@ outline: deep
 
 ## ❓ What if a route doesn't load?
 
-One common issue when using `Nuxt I18n Micro` is that some routes might not open as expected. This can happen when the router doesn’t automatically assign a name to a route, particularly in subfolders.
+When using `Nuxt I18n Micro`, certain routes might not load as expected, especially if the router doesn't automatically assign a name to a route in subfolders.
 
 **Solution:**
-To fix this, manually define the page’s route name by adding the following to the corresponding Vue file:
+To address this, manually define the route name for the page by adding the following to the corresponding Vue file:
 
 ```javascript
 definePageMeta({ name: 'pageName' })
 ```
 
-This ensures that the route is properly registered, and the application can navigate to it without issues.
+This ensures the route is properly registered, enabling seamless navigation within the application.
 
 ---
 
 ## ❓ Why is the `assets/_locales/` folder added to the server folder?
 
-When deploying to platforms like Netlify, the build process might behave differently compared to local development. This can lead to issues where certain files or folders are not found during server-side rendering (SSR).
-
-To ensure that localization files are available during SSR, the `assets/_locales/` folder is added to the server folder. This is a workaround to make sure that the localization files are accessible in the production environment, especially when the build process and runtime environment differ.
+During deployment, especially on platforms like Netlify, the build process might differ from local development. This can lead to issues where certain files or folders are missing during server-side rendering (SSR).
 
 **Explanation:**
-- **Build Process:** During the build, all translations are cached in the production folder. However, when deploying to platforms like Netlify, the server code is moved to functions, and there might be a separate container where locale files are not accessible.
-- **Prerendering:** Prerendering does not work when using `$fetch` in SSR, leading to middleware not finding the localization files.
-- **Server Assets:** To address this, the localization files are saved in the Nitro server assets during prerendering. In production, they are read from the server assets.
+- **Build Process:** Translation files are cached in the production folder during the build. However, on Netlify, server code moves to functions, sometimes isolating localization files.
+- **Prerendering:** Prerendering does not work with `$fetch` in SSR, causing middleware to miss localization files.
+- **Server Assets:** To resolve this, localization files are saved in the Nitro server assets during prerendering. They are then accessible in production directly from server assets.
 
 ---
 
-## ❓ Is `Nuxt I18n Micro` inspired by `vue-i18n`? What about features like modifiers?
+## ❓ Is `Nuxt I18n Micro` inspired by `vue-i18n`? What about modifiers?
 
-While `Nuxt I18n Micro` serves as a performance alternative to `nuxt-i18n`, it is not directly inspired by `vue-i18n`. The library was built from scratch to address issues in `nuxt-i18n`, and while some method names and parameters are similar, the underlying logic is entirely different.
+While `Nuxt I18n Micro` serves as a performance alternative to `nuxt-i18n`, it’s built independently of `vue-i18n`. While some method names and parameters may be similar, the underlying functionality differs significantly.
 
-**Modifiers**: The maintainer experimented with adding modifiers but found that components like `<i18n-t>` and `<i18n-link>` effectively cover the same needs. For example:
+**Modifiers**: The maintainer initially considered modifiers, but concluded that components like `<i18n-t>` and `<i18n-link>` effectively address those needs.
+
+For example:
 
 ```vue
 <template>
@@ -50,16 +50,17 @@ While `Nuxt I18n Micro` serves as a performance alternative to `nuxt-i18n`, it i
 </template>
 ```
 
-Since this approach is flexible and powerful, releasing modifiers was deemed unnecessary for now. However, modifiers may be added in the future if demand arises.
+This approach is flexible, so releasing modifiers is currently unnecessary. However, modifiers may be added in future releases if there is demand.
 
 ---
 
 ## ❓ Can I use `NuxtLink` or `i18nLink` directly in translation strings?
 
-Yes, `Nuxt I18n Micro` allows you to use `NuxtLink` or `i18nLink` in translations through the `<i18n-t>` component, eliminating the need to split translation strings, which can be especially helpful when dealing with languages that have different grammatical rules or RTL languages.
+Yes, `Nuxt I18n Micro` allows the use of `NuxtLink` or `i18nLink` within translations through the `<i18n-t>` component, which is especially helpful for handling grammar and RTL language requirements without splitting translation strings.
 
-Example:
+**Example**:
 
+Translation file:
 ```json
 {
   "example": "Share your {link} with friends",
@@ -67,6 +68,7 @@ Example:
 }
 ```
 
+Vue template:
 ```vue
 <template>
   <i18n-t keypath="example">
@@ -79,4 +81,50 @@ Example:
 </template>
 ```
 
-This method supports dynamic link creation inside translations while maintaining proper localization structure.
+This allows dynamic links within translations while preserving proper localization structure.
+
+---
+
+## ❓ Why does `$t` or other i18n composables not work in Nuxt plugins?
+
+Nuxt I18n composables (`$t`, `$getLocale`, `$localePath`, etc.) may not work as expected within Nuxt plugins or utility functions, resulting in runtime errors.
+
+**Cause and Solution:**
+Nuxt composables require specific contexts (e.g., Nuxt hooks or Vue setup functions) to access the Nuxt instance. If used outside of these contexts (e.g., in utility functions or plugins), the following error might appear in the console:
+
+```
+[nuxt] A composable that requires access to the Nuxt instance was called outside of a plugin, Nuxt hook, Nuxt middleware, or Vue setup function. This is probably not a Nuxt bug. Find out more at https://nuxt.com/docs/guide/concepts/auto-imports#vue-and-nuxt-composables
+```
+
+### Solution 1: Use `runWithContext`
+To call i18n composables after an asynchronous operation, use [`runWithContext`](https://nuxt.com/docs/api/composables/use-nuxt-app#runwithcontext) to preserve the necessary context.
+
+**Example:**
+```javascript
+await nuxtApp.runWithContext(() => $t('test_key'))
+```
+
+### Solution 2: Retrieve Value First
+Alternatively, retrieve the translation value first, then pass it to a utility function.
+
+**Example:**
+```javascript
+const val = nuxtApp.$t('common.errors.unknown.title')
+showError({
+    title: val
+})
+```
+
+### Solution 3: Pass Translation Keys in Services
+In services or utility functions, pass the translation keys instead of using `$t` directly. Then, fetch the translation in the component.
+
+**Example:**
+```javascript
+showError({
+  title: 'common.errors.unknown.title',
+  message: 'common.errors.unknown.message',
+  i18n: true
+})
+```
+
+These solutions help maintain context and reduce errors, allowing for flexibility in handling translations across the application.

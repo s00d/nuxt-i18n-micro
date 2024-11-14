@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.32.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.32.1...v1.32.2)
+
+### 🩹 Fixes
+
+- Locale loading logic ([8383068](https://github.com/s00d/nuxt-i18n-micro/commit/8383068))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.32.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.32.0...v1.32.1)

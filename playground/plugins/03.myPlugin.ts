@@ -1,7 +1,7 @@
 export default defineNuxtPlugin((_nuxtApp) => {
-  // const { $t } = useI18n()
-  // const { $t } = useNuxtApp() // or
+  // const { $t, $getLocale } = useI18n() // or const { $t, $getLocale } = useNuxtApp()
   // const translatedMessage = $t('test_key')
-
-  // console.log(translatedMessage)
+  // const locale = $getLocale() // error here
+  //
+  // console.log(translatedMessage, locale)
 })

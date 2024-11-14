@@ -339,7 +339,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   async function loadTranslationsForRoute(
     to: RouteLocationNormalizedGeneric,
-    next?: NavigationGuardNext,
   ) {
     const hashLocale = i18nConfig.hashMode ? nuxtApp.runWithContext(() => (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString()).toString() : null
     const locale = getCurrentLocale(to, i18nConfig, hashLocale)
@@ -360,16 +359,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const routeName = getRouteName(to, locale)
       i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
     }, locale)
-    if (next) {
-      next()
-    }
   }
 
   useRouter().beforeEach(async (to, from, next) => {
     if (to.path !== from.path) {
-      await loadTranslationsForRoute(to, next)
+      await loadTranslationsForRoute(to)
     }
-    next()
+    if (next) {
+      next()
+    }
   })
 
   const route = useRoute()

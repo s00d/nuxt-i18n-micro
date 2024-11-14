@@ -1,6 +1,5 @@
 import type {
   NavigationFailure,
-  NavigationGuardNext,
   RouteLocationNormalizedGeneric,
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,

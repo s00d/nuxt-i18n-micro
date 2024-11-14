@@ -162,12 +162,14 @@ export default defineNuxtModule<ModuleOptions>({
 
     addPlugin({
       src: resolver.resolve('./runtime/plugins/01.plugin'),
+      name: 'i18n-plugin-loader',
       order: 0,
     })
 
     if (options.meta) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/02.meta'),
+        name: 'i18n-plugin-meta',
         order: 2,
       })
     }
@@ -175,6 +177,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (options.define) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/03.define'),
+        name: 'i18n-plugin-define',
         order: 3,
       })
     }
@@ -183,6 +186,7 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin({
         src: resolver.resolve('./runtime/plugins/04.auto-detect'),
         mode: 'server',
+        name: 'i18n-plugin-auto-detect',
         order: 4,
       })
     }

@@ -9,6 +9,6 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "nuxt-i18n-micro": "^1.31.0"
+    "nuxt-i18n-micro": "^1.32.0"
   }
 }

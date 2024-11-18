@@ -48,7 +48,7 @@
     "release": "npm run lint && npm run typecheck && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "playwright test --grep-invert \"test/performance\\.test\\.ts\"",
+    "test": "playwright test",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "client:build": "nuxi generate client",

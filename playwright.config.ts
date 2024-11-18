@@ -1,15 +1,17 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './test', // Путь к вашим тестам
   retries: 3, // Количество повторов тестов при падении
-
+  testIgnore: [
+    'test/performance.test.ts', // Игнорируемый файл
+  ],
   projects: [
     {
-      name: 'firefox',
+      name: 'chromium',
       use: {
-        ...devices['Desktop Firefox'], // Настройка устройства для Firefox
+        ...devices['Desktop Chrome'],
       },
     },
   ],
-});
+})

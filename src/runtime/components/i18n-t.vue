@@ -47,16 +47,18 @@ export default defineComponent({
       const { $getLocale, $t, $tc } = useNuxtApp().$i18n as PluginsInjections
 
       if (props.plural !== undefined) {
+        const count = Number.parseInt(props.plural.toString())
         if (props.customPluralRule) {
           return h(props.tag, { ...attrs, innerHTML: props.customPluralRule(
             props.keypath,
-            Number.parseInt((props.plural).toString()),
+            count,
+            props.params,
             $getLocale(),
             $t,
           ) })
         }
         else {
-          return h(props.tag, { ...attrs, innerHTML: $tc(props.keypath, Number.parseInt(props.plural.toString())) })
+          return h(props.tag, { ...attrs, innerHTML: $tc(props.keypath, { count, ...props.params }) })
         }
       }
 

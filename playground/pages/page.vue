@@ -53,10 +53,29 @@
     </div>
 
     <div>
+      $tc plural with params :
+      <ul>
+        <li>{{ $tc('user_apples', { count: 0, username: 'Alice' }) }}</li>
+        <li>{{ $tc('user_apples', { count: 1, username: 'Alice' }) }}</li>
+        <li>{{ $tc('user_apples', { count: 10, username: 'Alice' }) }}</li>
+      </ul>
+    </div>
+
+    <div>
       i18n-t plural
       <i18n-t
         keypath="apples"
         :plural="appleCount"
+        :custom-plural-rule="customPluralRule"
+      />
+    </div>
+
+    <div>
+      i18n-t plural with params
+      <i18n-t
+        keypath="user_apples"
+        :plural="appleCount"
+        :params="{ username: 'Alice' }"
         :custom-plural-rule="customPluralRule"
       />
     </div>
@@ -101,6 +120,7 @@
 import { useNuxtApp } from '#imports'
 
 type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+type Params = Record<string, string | number | boolean>
 
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $tn, $td } = useNuxtApp()
 
@@ -109,8 +129,8 @@ const appleCount = ref(5)
 const locale = computed(() => $getLocale())
 
 // Кастомное правило множественных форм
-const customPluralRule = (key: string, count: number, _locale: string, t: Getter) => {
-  const translation = t(key)
+const customPluralRule = (key: string, count: number, params: Params, _locale: string, t: Getter) => {
+  const translation = t(key, params)
   if (!translation) {
     return null
   }

@@ -78,8 +78,8 @@ export default defineNuxtModule<ModuleOptions>({
     apiBaseUrl: '_locales',
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
-    plural: (key, count, _locale, getTranslation) => {
-      const translation = getTranslation(key, {})
+    plural: (key, count, params, _locale, getTranslation) => {
+      const translation = getTranslation(key, params)
       if (!translation) {
         return null
       }

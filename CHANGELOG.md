@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v1.33.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.32.4...v1.33.0)
+
+### 🚀 Enhancements
+
+- Add params to plural translation ([f67fb9d](https://github.com/s00d/nuxt-i18n-micro/commit/f67fb9d))
+
+### 🩹 Fixes
+
+- Tests ([89abfb8](https://github.com/s00d/nuxt-i18n-micro/commit/89abfb8))
+- Tests ([e8ab093](https://github.com/s00d/nuxt-i18n-micro/commit/e8ab093))
+
+### 💅 Refactors
+
+- **i18n:** Update customPluralRule to include _params parameter ([ae6dc4a](https://github.com/s00d/nuxt-i18n-micro/commit/ae6dc4a))
+
+### 📖 Documentation
+
+- Faq ([ed4f4ba](https://github.com/s00d/nuxt-i18n-micro/commit/ed4f4ba))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Jules <jules@hykes.dev>
+
 ## v1.32.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.32.3...v1.32.4)

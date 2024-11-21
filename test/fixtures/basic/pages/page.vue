@@ -88,7 +88,7 @@ import { useNuxtApp } from '#imports'
 
 const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath } = useNuxtApp()
 
-const customPluralRule = (key, count, _locale, t) => {
+const customPluralRule = (key, count, _params, _locale, t) => {
   const translation = t(key)
   if (!translation) {
     return null

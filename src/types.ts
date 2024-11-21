@@ -16,8 +16,10 @@ export interface DefineI18nRouteConfig {
 }
 export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 
+export type Params = Record<string, string | number | boolean>
+
 export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
-export type PluralFunc = (key: string, count: number, locale: string, getter: Getter) => string | null
+export type PluralFunc = (key: string, count: number, params: Params, locale: string, getter: Getter) => string | null
 
 export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
 

@@ -62,8 +62,8 @@ export default defineNuxtConfig({
       // pages/unlocalized.vue
       'unlocalized': false,
     },
-    plural: (key, count, _locale, getTranslation) => {
-      const translation = getTranslation(key, {})
+    plural: (key, count, params, _locale, getTranslation) => {
+      const translation = getTranslation(key, params)
       if (!translation) {
         return null
       }

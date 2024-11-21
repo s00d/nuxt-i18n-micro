@@ -8,7 +8,7 @@ import type {
   Router,
 } from 'vue-router'
 import { useTranslationHelper } from '../translationHelper'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams } from '../../types'
+import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRouter, useCookie, useState, navigateTo } from '#imports'
 import { plural } from '#build/i18n.plural.mjs'
@@ -26,8 +26,6 @@ type Translation = string | number | boolean | Translations | PluralTranslations
 export interface Translations {
   [key: string]: Translation
 }
-
-type Params = Record<string, string | number | boolean>
 
 function interpolate(template: string, params: Params): string {
   let result = template
@@ -423,10 +421,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const value = getTranslation(key, params, defaultValue)
       return value?.toString() ?? defaultValue ?? key
     },
-    tc: (key: string, count: number, defaultValue?: string): string => {
+    tc: (key: string, params: number | Params, defaultValue?: string): string => {
       const route = router.currentRoute.value
       const currentLocale = getCurrentLocale(route, i18nConfig, hashLocale)
-      return plural(key, count, currentLocale, getTranslation) as string ?? defaultValue ?? key
+      const { count, ..._params } = typeof params === 'number' ? { count: params } : params
+
+      return plural(key, Number.parseInt(count.toString()), _params, currentLocale, getTranslation) as string ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {
       const route = router.currentRoute.value
@@ -533,7 +533,7 @@ export interface PluginsInjections {
   $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
   $t: (key: string, params?: Params, defaultValue?: string) => Translation
   $ts: (key: string, params?: Params, defaultValue?: string) => string
-  $tc: (key: string, count: number, defaultValue?: string) => string
+  $tc: (key: string, params: number | Params, defaultValue?: string) => string
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   $has: (key: string) => boolean

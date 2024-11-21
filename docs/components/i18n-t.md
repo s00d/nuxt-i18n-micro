@@ -83,7 +83,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
   
 ### `customPluralRule`
 
-- **Type**: `(value: string, count: number, locale: string) => string`
+- **Type**: `(value: string, count: number, params: Record<string, string | number | boolean>, locale: string) => string`
 - **Optional**: Yes
 - **Description**: A function that allows you to define custom pluralization logic. Useful if the default pluralization rules do not fit your specific needs.
 - **Example**:
@@ -91,8 +91,8 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
   <i18n-t
     keypath="items"
     :plural="itemCount"
-    :customPluralRule="(key, count, locale, getTranslation) => {
-      const translation = getTranslation(key, {})
+    :customPluralRule="(key, count, params, locale, getTranslation) => {
+      const translation = getTranslation(key, params)
       if (!translation) {
         return null
       }

@@ -1,6 +1,7 @@
 {
   "welcome": "Welcome, {username}! You have {unreadCount} unread messages.  {username}  {username}  {username}",
   "apples": "no apples | one apple | {count} apples",
+  "user_apples": "{username} has no apple|{username} has one apple|{username} has {count} apples",
   "feedback": {
     "text":  "test link: {link}",
     "link":  "click"

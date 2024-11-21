@@ -90,7 +90,7 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 -   **Description**: Fetches a pluralized translation for the given key based on the count.
 -   **Parameters**:
     - **key**: `string` — The translation key.
-    - **count**: `number` — The count for pluralization.
+    - **params**: `number | Record<string, any>` — The count for pluralization or a record of key-value pairs with a 'count' property and additional values to interpolate into the translation.
     - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
 -   **Example**:
 ```typescript

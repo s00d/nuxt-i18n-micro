@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.33.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.33.0...v1.33.1)
+
+### 🩹 Fixes
+
+- Plural translation with 2 forms ([9ac7a41](https://github.com/s00d/nuxt-i18n-micro/commit/9ac7a41))
+
+### 📖 Documentation
+
+- Types ([c9f44ad](https://github.com/s00d/nuxt-i18n-micro/commit/c9f44ad))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Jules <jules@hykes.dev>
+
 ## v1.33.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.32.4...v1.33.0)

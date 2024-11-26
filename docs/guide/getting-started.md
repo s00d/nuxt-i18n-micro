@@ -220,7 +220,7 @@ Setting this to `"*"` enables locale detection on all routes. However, using `"*
 
 Custom function for handling pluralization in translations based on count and locale.
 
-**Type**: `(key: string, translation: unknown, count: number, locale: string) => string`
+**Type**: `(key: string, count: number, _locale: string, t: Getter) => string`
 
 **Example**:
 

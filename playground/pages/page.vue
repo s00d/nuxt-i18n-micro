@@ -41,19 +41,22 @@
     <p>text escaping: {{ $t('text_escaping') }}</p>
 
     <div>
+      <b>$t with params: </b>
       {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
     </div>
+
     <div>
-      {{ $tc('apples', 10) }}
+      <b>$tc 2 forms (zero|many): </b>
+      {{ $tc('many_apples', 0) }} | {{ $tc('many_apples', 3) }}
     </div>
 
     <div>
-      $tc plural
-      {{ $tc('apples', 10) }}
+      <b>$tc 3 forms (zero|one|{count}): </b>
+      {{ $tc('apples', 0) }} | {{ $tc('apples', 1) }} | {{ $tc('apples', 3) }}
     </div>
 
     <div>
-      $tc plural with params :
+      <b>$tc plural with params :</b>
       <ul>
         <li>{{ $tc('user_apples', { count: 0, username: 'Alice' }) }}</li>
         <li>{{ $tc('user_apples', { count: 1, username: 'Alice' }) }}</li>

@@ -220,7 +220,7 @@ Setting this to `"*"` enables locale detection on all routes. However, using `"*
 
 Custom function for handling pluralization in translations based on count and locale.
 
-**Type**: `(key: string, count: number, _locale: string, t: Getter) => string`
+**Type**: `(key: string, count: number, params: Record<string, string | number | boolean>, locale: string, t: Getter) => string`
 
 **Example**:
 
@@ -228,7 +228,7 @@ Custom function for handling pluralization in translations based on count and lo
 export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 
 {
-  plural: (key: string, count: number, _locale: string, t: Getter) => {
+  plural: (key: string, count: number, _params: Record<string, string | number | boolean>, _locale: string, t: Getter) => {
     const translation = t(key)
     if (!translation) {
       return key

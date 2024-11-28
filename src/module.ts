@@ -131,6 +131,8 @@ export default defineNuxtModule<ModuleOptions>({
       autoDetectLanguage: options.autoDetectLanguage ?? true,
       autoDetectPath: options.autoDetectPath ?? '/',
       includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       fallbackLocale: options.fallbackLocale ?? undefined,
       dateBuild: Date.now(),

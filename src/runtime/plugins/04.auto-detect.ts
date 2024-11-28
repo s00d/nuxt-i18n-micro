@@ -8,7 +8,7 @@ const parseAcceptLanguage = (acceptLanguage: string) =>
     .map(entry => entry.split(';')[0].trim())
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const i18nConfig = nuxtApp.$config.public.i18nConfig as ModuleOptionsExtend
+  const i18nConfig = nuxtApp.$config.public.i18nConfig as unknown as ModuleOptionsExtend
   const date = new Date()
   const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale', {
     watch: false,

@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
   const { rootDirs, debug } = config.i18nConfig as ModulePrivateOptionsExtend
-  const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as ModuleOptionsExtend
+  const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   if (customRegexMatcher && locales && !locales.map(l => l.code).includes(locale)) {
     // return 404 if route not matching route

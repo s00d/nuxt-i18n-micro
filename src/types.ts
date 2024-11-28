@@ -36,7 +36,7 @@ export interface ModuleOptions {
   disableWatcher?: boolean
   types?: boolean
   includeDefaultLocaleRoute?: boolean
-  routesLocaleLinks?: Record<string, string>
+  routesLocaleLinks?: { [key: string]: string }
   plural?: string | PluralFunc
   disablePageLocales?: boolean
   fallbackLocale?: string

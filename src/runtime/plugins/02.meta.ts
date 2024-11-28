@@ -9,7 +9,7 @@ const port = process.env.PORT ?? 'host'
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig()
 
-  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
+  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   const schema = port === '443' ? 'https' : 'http'
   const defaultUrl = port === '80' || port === '443' ? `${schema}://${host}` : `${schema}://${host}:${port}`

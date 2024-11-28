@@ -12,7 +12,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   const route = useRoute()
   const router = useRouter()
 
-  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
+  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   // Функция нормализации, которая объединяет массивы и объекты в единый массив строк
   const normalizeLocales = (locales?: string[] | LocalesObject): LocalesObject => {

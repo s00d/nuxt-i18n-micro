@@ -70,12 +70,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { PluginsInjections } from '../../../../../src/runtime/plugins/01.plugin'
-import { useNuxtApp } from '#app'
+import { computed } from 'vue'
+import { useRouter, useRoute, useAsyncData } from '#app'
+import { useI18n } from '#imports'
 
 const { params } = useRoute()
 const router = useRouter()
-const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useNuxtApp().$i18n as PluginsInjections
+const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n()
 
 const newsLink = computed(() => $localeRoute({
   name: 'news-id',

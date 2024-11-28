@@ -1,3 +1,10 @@
+<script setup lang="ts">
+import { useRoute } from '#app'
+import { useI18n } from '#imports'
+
+const { $localeRoute } = useI18n()
+</script>
+
 <template>
   <div>
     <h1>Subpage with route param</h1>

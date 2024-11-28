@@ -32,7 +32,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
   })
 
   function updateMeta() {
-    const { defaultLocale, includeDefaultLocaleRoute } = useRuntimeConfig().public.i18nConfig as ModuleOptionsExtend
+    const { defaultLocale, includeDefaultLocaleRoute } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
     const { $getLocales, $getLocale } = useNuxtApp()
 
     const route = useRoute()

@@ -62,28 +62,28 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "@nuxt/devtools-kit": "^1.4.2",
-    "@nuxt/kit": "^3.13.1",
+    "@nuxt/devtools-kit": "^1.6.1",
+    "@nuxt/kit": "^3.14.1592",
     "chokidar": "^3.6.0",
     "sirv": "^2.0.4",
     "ufo": "^1.5.4"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^1.4.2",
-    "@nuxt/devtools-ui-kit": "^1.4.2",
+    "@nuxt/devtools": "^1.6.1",
+    "@nuxt/devtools-ui-kit": "^1.6.1",
     "@nuxt/eslint-config": "0.5.5",
     "@nuxt/module-builder": "^0.8.4",
-    "@nuxt/schema": "^3.13.1",
-    "@nuxt/test-utils": "^3.14.2",
-    "@playwright/test": "^1.47.0",
+    "@nuxt/schema": "^3.14.1592",
+    "@nuxt/test-utils": "^3.14.4",
+    "@playwright/test": "^1.49.0",
     "@types/node": "^20.14.11",
-    "changelogen": "^0.5.5",
-    "eslint": "^8.56.0",
-    "nuxt": "^3.13.1",
-    "typescript": "5.5.4",
-    "vitepress": "^1.3.4",
-    "vitest": "^2.0.5",
-    "vue-tsc": "2.0.22"
+    "changelogen": "^0.5.7",
+    "eslint": "^8.57.1",
+    "nuxt": "^3.14.1592",
+    "typescript": "5.6.3",
+    "vitepress": "^1.5.0",
+    "vitest": "^2.1.6",
+    "vue-tsc": "2.1.10"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.9.6",

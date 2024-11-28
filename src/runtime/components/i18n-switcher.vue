@@ -33,7 +33,7 @@
 
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
-          :to="$switchLocaleRoute(locale.code)"
+          :to="$switchLocaleRoute(locale.code) as RouteLocationRaw"
           :style="[
             linkStyle,
             locale.code === currentLocale ? activeLinkStyle : {},
@@ -71,6 +71,7 @@
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
 import { useNuxtApp } from '#app'
+import type { RouteLocationRaw } from "vue-router";
 
 type LocaleCode = string
 interface Locale {

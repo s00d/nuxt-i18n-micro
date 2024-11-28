@@ -244,6 +244,7 @@ function getLocalizedRoute(
     if (currentLocale !== i18nConfig.defaultLocale || i18nConfig.includeDefaultLocaleRoute) {
       url = '/' + currentLocale + '' + url
     }
+
     return router.resolve({
       path: url,
       query: selectRoute.query,
@@ -272,6 +273,11 @@ function getLocalizedRoute(
   if (!router.hasRoute(newRouteName)) {
     const newParams = resolveParams(to)
     delete newParams.locale
+
+    if (!router.hasRoute(routeName)) {
+      return router.resolve('/')
+    }
+
     return router.resolve({
       name: routeName,
       params: newParams,
@@ -308,7 +314,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     nuxtApp.payload.data.translations = {}
   }
   const config = useRuntimeConfig()
-  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as ModuleOptionsExtend
+  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
   const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
   const runtimeConfig = useRuntimeConfig()
 

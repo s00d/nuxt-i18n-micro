@@ -3,7 +3,14 @@ import { defineNuxtConfig } from 'nuxt/config'
 import { defineNuxtModule } from '@nuxt/kit'
 import { startSubprocess } from '@nuxt/devtools-kit'
 
+const routesLocaleLinks: Record<string, string> = {
+  'dir1-slug': 'dir1',
+  'dir1-subdir-hash-subhash': 'dir1-subdir',
+  'dir1-subdir-slug-id-key': 'dir1-subdir',
+}
+
 export default defineNuxtConfig({
+
   modules: [
     '../src/module',
     defineNuxtModule({
@@ -38,11 +45,7 @@ export default defineNuxtConfig({
     translationDir: 'locales',
     autoDetectLanguage: true,
     autoDetectPath: '/',
-    routesLocaleLinks: {
-      'dir1-slug': 'dir1',
-      'dir1-subdir-hash-subhash': 'dir1-subdir',
-      'dir1-subdir-slug-id-key': 'dir1-subdir',
-    },
+    routesLocaleLinks: routesLocaleLinks,
     includeDefaultLocaleRoute: true,
     globalLocaleRoutes: {
       // pages/page.vue
@@ -72,5 +75,11 @@ export default defineNuxtConfig({
     },
   },
   devtools: { enabled: true },
+  app: {
+    baseURL: '/prefix/',
+  },
+  experimental: {
+    typedPages: true,
+  },
   compatibilityDate: '2024-08-14',
 })

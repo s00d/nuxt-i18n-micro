@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v1.34.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.33.3...v1.34.0)
+
+### 🚀 Enhancements
+
+- Support for {"key.key": value} ([779b379](https://github.com/s00d/nuxt-i18n-micro/commit/779b379))
+
+### 🩹 Fixes
+
+- 'translations' is possibly 'null' ([f71e43a](https://github.com/s00d/nuxt-i18n-micro/commit/f71e43a))
+- 'translations' is possibly 'null' ([e8cbf5c](https://github.com/s00d/nuxt-i18n-micro/commit/e8cbf5c))
+
+### 💅 Refactors
+
+- Update loadTranslationsForRoute ([bb6621f](https://github.com/s00d/nuxt-i18n-micro/commit/bb6621f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Xueyang <313867808@qq.com>
+
 ## v1.33.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.33.2...v1.33.3)

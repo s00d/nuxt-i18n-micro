@@ -75,9 +75,9 @@ export default defineNuxtConfig({
     },
   },
   devtools: { enabled: true },
-  app: {
-    baseURL: '/prefix/',
-  },
+  // app: {
+  //   baseURL: '/prefix/',
+  // },
   experimental: {
     typedPages: true,
   },

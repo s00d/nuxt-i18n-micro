@@ -78,8 +78,8 @@ export default defineNuxtConfig({
   // app: {
   //   baseURL: '/prefix/',
   // },
-  experimental: {
-    typedPages: true,
-  },
+  // experimental: {
+  //   typedPages: true,
+  // },
   compatibilityDate: '2024-08-14',
 })

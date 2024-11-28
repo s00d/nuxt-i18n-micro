@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "name": "typecheck",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate",
+    "typecheck": "nuxt typecheck --no-emit"
+  }
+}

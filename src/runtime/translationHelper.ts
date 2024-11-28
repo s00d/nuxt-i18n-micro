@@ -17,15 +17,21 @@ function deepClone<T>(value: T): T {
   return value
 }
 
-function findTranslation<T = unknown>(translations: Translations | null, parts: string[]): T | null {
+function findTranslation<T = unknown>(translations: Translations | null, key: string): T | null {
   let value: string | number | boolean | Translations | unknown | null = translations
 
-  for (const part of parts) {
-    if (value && typeof value === 'object' && part in value) {
-      value = (value as Translations)[part]
-    }
-    else {
-      return null
+  if (translations[key]) {
+    value = translations[key]
+  }
+  else {
+    const parts = key.split('.')
+    for (const part of parts) {
+      if (value && typeof value === 'object' && part in value) {
+        value = (value as Translations)[part]
+      }
+      else {
+        return null
+      }
     }
   }
 
@@ -81,17 +87,16 @@ export function useTranslationHelper() {
         return cached as T
       }
 
-      const parts = key.split('.')
       let result: T | null = null
 
       for (const dynamicCache of dynamicTranslationsCaches) {
-        result = findTranslation<T>(dynamicCache[locale] || null, parts)
+        result = findTranslation<T>(dynamicCache[locale] || null, key)
         if (result !== null) break
       }
 
       if (!result) {
-        result = findTranslation<T>(routeLocaleCache[cacheKey] || null, parts)
-        ?? findTranslation<T>(generalLocaleCache[locale] || null, parts)
+        result = findTranslation<T>(routeLocaleCache[cacheKey] || null, key)
+        ?? findTranslation<T>(generalLocaleCache[locale] || null, key)
       }
 
       if (result) {

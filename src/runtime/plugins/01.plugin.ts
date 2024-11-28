@@ -343,11 +343,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   async function loadTranslationsForRoute(
     to: RouteLocationNormalizedGeneric,
   ) {
-    const hashLocale = i18nConfig.hashMode ? nuxtApp.runWithContext(() => (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString()).toString() : null
+    const hashLocale = i18nConfig.hashMode
+      ? nuxtApp.runWithContext(() => (useCookie('hash-locale').value ?? i18nConfig.defaultLocale!).toString()).toString()
+      : null
     const locale = getCurrentLocale(to, i18nConfig, hashLocale)
 
     if (!i18nHelper.hasGeneralTranslation(locale)) {
-      const data: Translations = await $fetch(`/${apiBaseUrl}/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, { baseURL: runtimeConfig.app.baseURL })
+      const data: Translations = await $fetch(`/${apiBaseUrl}/general/${locale}/data.json?v=${i18nConfig.dateBuild}`, {
+        baseURL: runtimeConfig.app.baseURL,
+      })
       await i18nHelper.loadTranslations(locale, data ?? {})
     }
 
@@ -356,9 +360,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       await loadTranslationsIfNeeded(locale, routeName, to.fullPath)
     }
 
+    // Ensure i18n hook is called after all translations are loaded
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
+    nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
       const routeName = getRouteName(to, locale)
       i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
     }, locale)

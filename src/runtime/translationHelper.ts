@@ -20,7 +20,7 @@ function deepClone<T>(value: T): T {
 function findTranslation<T = unknown>(translations: Translations | null, key: string): T | null {
   let value: string | number | boolean | Translations | unknown | null = translations
 
-  if (!translations) {
+  if (translations === null) {
     return null
   }
 

@@ -70,8 +70,8 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 import { useNuxtApp } from '#app'
-import type { RouteLocationRaw } from "vue-router";
 
 type LocaleCode = string
 interface Locale {

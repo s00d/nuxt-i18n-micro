@@ -17,5 +17,5 @@ export default defineNuxtConfig({
     defaultLocale: 'cs',
     translationDir: 'locales',
     meta: true,
-  }
+  },
 })

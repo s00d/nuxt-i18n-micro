@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.34.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.34.0...v1.34.1)
+
+### 🩹 Fixes
+
+- **plugins:** Await i18n hook to ensure translations are loaded ([f6502d0](https://github.com/s00d/nuxt-i18n-micro/commit/f6502d0))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.34.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.33.3...v1.34.0)

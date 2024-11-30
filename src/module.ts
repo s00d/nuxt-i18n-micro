@@ -159,7 +159,7 @@ export default defineNuxtModule<ModuleOptions>({
     addPlugin({
       src: resolver.resolve('./runtime/plugins/01.plugin'),
       name: 'i18n-plugin-loader',
-      order: 0,
+      order: 1,
     })
 
     if (options.meta) {

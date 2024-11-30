@@ -363,7 +363,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // Ensure i18n hook is called after all translations are loaded
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
+    await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
       const routeName = getRouteName(to, locale)
       i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
     }, locale)

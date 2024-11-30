@@ -1,3 +1,5 @@
+import { defineNuxtPlugin } from '#app'
+
 export default defineNuxtPlugin((nuxtApp) => {
   // const { $t, $getLocale } = useI18n() // or const { $t, $getLocale } = useNuxtApp()
   // const translatedMessage = $t('test_key')
@@ -8,7 +10,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   nuxtApp.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
-    console.log('i18n:register', locale)
     register({
       hook: 'hook value',
     }, locale)

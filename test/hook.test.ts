@@ -5,11 +5,17 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/hook', import.meta.url)),
   },
+  // launchOptions: {
+  //   headless: false, // Показывать браузер
+  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  // },
 })
 
 test('navigate to test-page, check URL and text, switch language to de and recheck text', async ({ page, goto }) => {
   // Go to the main page
   await goto('/', { waitUntil: 'hydration' })
+
+  await expect(page.locator('#hook')).toHaveText('hook value')
 
   // Click on the link to navigate to the test-page
   await page.click('#test-page') // Assuming the link has an id 'test-page'
@@ -25,6 +31,8 @@ test('navigate to test-page, check URL and text, switch language to de and reche
 
   // Wait for the language switch to take effect
   await page.waitForTimeout(500) // Wait briefly to ensure the language change is applied, adjust timing if needed
+
+  await expect(page.locator('#hook')).toHaveText('hook value')
 
   // Recheck the text inside the div with id 'text' after switching language to 'de'
   await expect(page.locator('#text')).toHaveText('hook de title') // Adjust expected text as needed for 'de'

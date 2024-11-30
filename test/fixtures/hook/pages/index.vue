@@ -1,5 +1,7 @@
 <script setup>
+import { useNuxtApp } from '#imports'
 
+const { $t } = useNuxtApp()
 </script>
 
 <template>
@@ -13,5 +15,9 @@
     >
       Test
     </NuxtLink>
+
+    <p id="hook">
+      {{ $t('hook') }}
+    </p>
   </div>
 </template>

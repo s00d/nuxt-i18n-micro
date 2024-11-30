@@ -13,5 +13,9 @@
       id="text"
       v-text="$t('test.title')"
     />
+
+    <p id="hook">
+      {{ $t('hook') }}
+    </p>
   </div>
 </template>

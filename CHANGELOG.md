@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v1.35.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.34.1...v1.35.0)
+
+### 🚀 Enhancements
+
+- **content:** Add internationalized content structure and components ([f3d2b6c](https://github.com/s00d/nuxt-i18n-micro/commit/f3d2b6c))
+- **translation-server:** Add server middleware for translation fetching ([b9b7466](https://github.com/s00d/nuxt-i18n-micro/commit/b9b7466))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.34.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.34.0...v1.34.1)

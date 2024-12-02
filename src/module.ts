@@ -1,5 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import {
   addComponentsDir,
   addImportsDir,
@@ -296,6 +297,15 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
+      if (nitroConfig.imports) {
+        nitroConfig.imports.presets = nitroConfig.imports.presets || []
+        // `@intlify/h3` utilities
+        nitroConfig.imports.presets.push({
+          from: fileURLToPath(new URL('./runtime/translation-server-middleware.ts', import.meta.url)),
+          imports: ['useTranslationServerMiddleware'],
+        })
+      }
+
       const routes = nitroConfig.prerender?.routes || []
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []

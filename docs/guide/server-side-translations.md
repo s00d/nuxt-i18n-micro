@@ -25,7 +25,6 @@ You can seamlessly translate content in any `eventHandler` by using the middlewa
 ### Example: Basic Usage
 ```typescript
 import { defineEventHandler } from 'h3'
-import { useTranslationServerMiddleware } from 'nuxt-i18n-micro/runtime/translation-server-middleware'
 
 export default defineEventHandler(async (event) => {
   const t = await useTranslationServerMiddleware(event)
@@ -48,7 +47,6 @@ If you need to specify a locale manually (e.g., for testing or certain requests)
 ### Example: Custom Locale
 ```typescript
 import { defineEventHandler } from 'h3'
-import { useTranslationServerMiddleware } from 'nuxt-i18n-micro/runtime/translation-server-middleware'
 
 function detectLocale(event): string | null {
   const urlSearchParams = new URLSearchParams(event.node.req.url?.split('?')[1]);

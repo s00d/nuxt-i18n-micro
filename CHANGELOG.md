@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.35.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.35.1...v1.35.2)
+
+### 🩹 Fixes
+
+- **module:** Resolve import path for translation server middleware ([eedbd04](https://github.com/s00d/nuxt-i18n-micro/commit/eedbd04))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.35.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.35.0...v1.35.1)

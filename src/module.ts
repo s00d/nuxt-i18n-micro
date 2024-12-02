@@ -110,16 +110,14 @@ export default defineNuxtModule<ModuleOptions>({
     const localeManager = new LocaleManager(options, rootDirs)
     const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!, options.globalLocaleRoutes)
 
+    const externalData = `
+        export const plural = ${options.plural!.toString()};
+        export const defaultLocale = "${options.defaultLocale}";;
+      `
     addTemplate({
       filename: 'i18n.plural.mjs',
       write: true,
-      getContents: () => `export const plural = ${options.plural!.toString()};`,
-    })
-
-    addTemplate({
-      filename: 'i18n.config.mjs',
-      write: true,
-      getContents: () => `export const defaultLocale = "${options.defaultLocale}";`,
+      getContents: () => externalData,
     })
 
     const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$|\/{2,}/, '')
@@ -304,6 +302,9 @@ export default defineNuxtModule<ModuleOptions>({
           imports: ['useTranslationServerMiddleware'],
         })
       }
+
+      nitroConfig.virtual = nitroConfig.virtual || {}
+      nitroConfig.virtual['#internal/i18n/options.mjs'] = () => externalData
 
       const routes = nitroConfig.prerender?.routes || []
 

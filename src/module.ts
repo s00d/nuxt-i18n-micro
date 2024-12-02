@@ -292,7 +292,6 @@ export default defineNuxtModule<ModuleOptions>({
     nuxt.hook('nitro:config', (nitroConfig) => {
       if (nitroConfig.imports) {
         nitroConfig.imports.presets = nitroConfig.imports.presets || []
-        // `@intlify/h3` utilities
         nitroConfig.imports.presets.push({
           from: resolver.resolve('./runtime/translation-server-middleware'),
           imports: ['useTranslationServerMiddleware'],

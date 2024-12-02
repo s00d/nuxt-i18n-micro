@@ -1,1 +1,46 @@
-{}
+{
+  "about": {
+    "title": "O nás",
+    "description": "Zjistěte více o naší misi a hodnotách.",
+    "section1": {
+      "title": "Naše mise",
+      "content": "Usilujeme o to, aby svět byl lepším místem."
+    },
+    "section2": {
+      "title": "Naše hodnoty",
+      "content": "Integrita, inovace a inkluzivita."
+    }
+  },
+  "services": {
+    "title": "Naše služby",
+    "description": "Objevte širokou škálu našich služeb.",
+    "service1": {
+      "title": "Poradenství",
+      "content": "Odborné poradenství pro vaše podnikání."
+    },
+    "service2": {
+      "title": "Vývoj",
+      "content": "Budování robustních a škálovatelných řešení."
+    },
+    "service3": {
+      "title": "Podpora",
+      "content": "Non-stop asistence pro všechny vaše potřeby."
+    }
+  },
+  "contact": {
+    "title": "Kontaktujte nás",
+    "description": "Spojte se s naším týmem.",
+    "phone": {
+      "title": "Telefon",
+      "content": "+1 234 567 891"
+    },
+    "email": {
+      "title": "Email",
+      "content": "info@example.com"
+    },
+    "address": {
+      "title": "Adresa",
+      "content": "1234 Název ulice, Město, Země"
+    }
+  }
+}

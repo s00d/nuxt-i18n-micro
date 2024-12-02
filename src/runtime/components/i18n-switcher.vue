@@ -33,7 +33,7 @@
 
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
-          :to="$switchLocaleRoute(locale.code) as RouteLocationRaw"
+          :to="switchLocaleRoute(locale.code)"
           :style="[
             linkStyle,
             locale.code === currentLocale ? activeLinkStyle : {},
@@ -70,7 +70,6 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
-import type { RouteLocationRaw } from 'vue-router'
 import { useNuxtApp } from '#app'
 
 type LocaleCode = string
@@ -122,6 +121,12 @@ const dropdownOpen = ref(false)
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value
+}
+
+const switchLocaleRoute = (code: string) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return $switchLocaleRoute(code)
 }
 
 const localeLabel = (locale: Locale) => {

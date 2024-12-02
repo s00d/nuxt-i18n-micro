@@ -44,7 +44,7 @@ export default defineComponent({
     return () => {
       const options: Record<string, string | number | boolean> = {}
 
-      const { $getLocale, $t, $tc } = useNuxtApp() as PluginsInjections
+      const { $getLocale, $t, $tc } = useNuxtApp() as unknown as PluginsInjections
 
       if (props.plural !== undefined) {
         const count = Number.parseInt(props.plural.toString())

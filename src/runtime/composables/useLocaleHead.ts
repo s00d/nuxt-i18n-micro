@@ -1,5 +1,5 @@
 import { joinURL } from 'ufo'
-import type { ModuleOptionsExtend } from '../../types'
+import type { Locale, ModuleOptionsExtend } from '../../types'
 import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
 
 interface MetaLink {
@@ -36,9 +36,13 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const { $getLocales, $getLocale } = useNuxtApp()
 
     const route = useRoute()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const locale = unref($getLocale())
     const routeName = (route.name ?? '').toString()
-    const currentLocale = unref($getLocales().find(l => l.code === locale))
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const currentLocale = unref($getLocales().find((loc: Locale) => loc.code === locale))
     if (!currentLocale) {
       return
     }
@@ -74,6 +78,8 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     if (!addSeoAttributes) return
 
     // const alternateLocales = locales?.filter(l => l.code !== locale) ?? []
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const alternateLocales = $getLocales() ?? []
 
     const ogLocaleMeta = {
@@ -88,7 +94,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       content: ogUrl,
     }
 
-    const alternateOgLocalesMeta = alternateLocales.map(loc => ({
+    const alternateOgLocalesMeta = alternateLocales.map((loc: Locale) => ({
       [identifierAttribute]: `i18n-og-alt-${loc.iso || loc.code}`,
       property: 'og:locale:alternate',
       content: unref(loc.iso || loc.code),
@@ -100,7 +106,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       href: ogUrl,
     }
 
-    const alternateLinks = alternateLocales.flatMap((loc) => {
+    const alternateLinks = alternateLocales.flatMap((loc: Locale) => {
       const href = defaultLocale === loc.code && !includeDefaultLocaleRoute
         ? indexUrl
         : joinURL(unref(baseUrl), loc.code, fullPath)

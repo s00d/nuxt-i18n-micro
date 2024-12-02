@@ -1,1 +1,46 @@
-{}
+{
+  "about": {
+    "title": "About Us",
+    "description": "Learn more about our mission and values.",
+    "section1": {
+      "title": "Our Mission",
+      "content": "We strive to make the world a better place."
+    },
+    "section2": {
+      "title": "Our Values",
+      "content": "Integrity, innovation, and inclusivity."
+    }
+  },
+  "services": {
+    "title": "Our Services",
+    "description": "Discover the wide range of services we offer.",
+    "service1": {
+      "title": "Consulting",
+      "content": "Expert advice for your business."
+    },
+    "service2": {
+      "title": "Development",
+      "content": "Building robust and scalable solutions."
+    },
+    "service3": {
+      "title": "Support",
+      "content": "24/7 assistance for all your needs."
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Get in touch with our team.",
+    "phone": {
+      "title": "Phone",
+      "content": "+1 234 567 890"
+    },
+    "email": {
+      "title": "Email",
+      "content": "info@example.com"
+    },
+    "address": {
+      "title": "Address",
+      "content": "1234 Street Name, City, Country"
+    }
+  }
+}

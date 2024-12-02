@@ -86,6 +86,8 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
       if (normalizedLocales[currentLocale]) {
         const translation = normalizedLocales[currentLocale]
         const { $mergeTranslations } = useNuxtApp()
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         $mergeTranslations(translation)
       }
 

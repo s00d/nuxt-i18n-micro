@@ -2,18 +2,21 @@ import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
   modules: [
-    '@nuxt/content', MyModule,
+    MyModule, '@nuxt/content',
   ],
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
+  content: {
+    documentDriven: true,
+  },
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'cs', iso: 'cs-CZ', dir: 'ltr' },
+      { code: 'en', iso: 'en-US', dir: 'ltr', displayName: 'English' },
+      { code: 'cs', iso: 'cs-CZ', dir: 'ltr', displayName: 'Czech' },
     ],
-    defaultLocale: 'cs',
+    defaultLocale: 'en',
     translationDir: 'locales',
     meta: false,
     disablePageLocales: true,

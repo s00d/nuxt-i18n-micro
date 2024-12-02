@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.36.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.35.2...v1.36.0)
+
+### 🚀 Enhancements
+
+- **translations:** Replace runtime config default locale with internal option ([97877a6](https://github.com/s00d/nuxt-i18n-micro/commit/97877a6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.35.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.35.1...v1.35.2)

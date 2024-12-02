@@ -2,6 +2,8 @@ import type { H3Event } from 'h3'
 import { getQuery, getCookie } from 'h3'
 import type { Translations } from './plugins/01.plugin'
 import { useTranslationHelper } from './translationHelper'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { defaultLocale } from '#internal/i18n/options.mjs'
 
 async function fetchTranslations(locale: string): Promise<Translations> {

@@ -57,7 +57,7 @@ function detectLocale(event): string | null {
 }
 
 export default defineEventHandler(async (event) => {
-  const t = await useTranslationServerMiddleware(event, detectLocale(event)) // Force French locale
+  const t = await useTranslationServerMiddleware(event, 'en', detectLocale(event)) // Force French local, en - default locale
   return {
     message: t('welcome'), // Returns the French translation for "welcome"
   }

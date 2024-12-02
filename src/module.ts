@@ -113,9 +113,7 @@ export default defineNuxtModule<ModuleOptions>({
     addTemplate({
       filename: 'i18n.plural.mjs',
       write: true,
-      getContents: () => `
-        export const plural = ${options.plural!.toString()};
-      `,
+      getContents: () => `export const plural = ${options.plural!.toString()};`,
     })
 
     const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$|\/{2,}/, '')
@@ -300,11 +298,6 @@ export default defineNuxtModule<ModuleOptions>({
           imports: ['useTranslationServerMiddleware'],
         })
       }
-
-      nitroConfig.virtual = nitroConfig.virtual || {}
-      nitroConfig.virtual['#internal/i18n/options.mjs'] = () => `
-        export const defaultLocale = "${options.defaultLocale}";
-      `
 
       const routes = nitroConfig.prerender?.routes || []
 

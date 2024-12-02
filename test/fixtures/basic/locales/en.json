@@ -1,5 +1,6 @@
 {
   "key0": "en",
+  "test_key": "test_val_en",
   "basic": "basic text",
   "generic": {
     "welcome": "Welcome to the page!"

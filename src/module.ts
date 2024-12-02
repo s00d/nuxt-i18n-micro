@@ -116,6 +116,12 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => `export const plural = ${options.plural!.toString()};`,
     })
 
+    addTemplate({
+      filename: 'i18n.config.mjs',
+      write: true,
+      getContents: () => `export const defaultLocale = "${options.defaultLocale}";`,
+    })
+
     const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$|\/{2,}/, '')
 
     nuxt.options.runtimeConfig.public.i18nConfig = {

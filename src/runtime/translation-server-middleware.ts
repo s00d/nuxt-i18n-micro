@@ -1,9 +1,8 @@
 import type { H3Event } from 'h3'
 import { getQuery, getCookie } from 'h3'
-import type { ModuleOptions } from '../types'
 import type { Translations } from './plugins/01.plugin'
 import { useTranslationHelper } from './translationHelper'
-import { useRuntimeConfig } from '#imports'
+import { defaultLocale } from '#internal/i18n/options.mjs'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {
@@ -18,7 +17,6 @@ async function fetchTranslations(locale: string): Promise<Translations> {
 
 export const useTranslationServerMiddleware = async (event: H3Event, currentLocale?: string) => {
   const { getTranslation, loadTranslations, hasGeneralTranslation } = useTranslationHelper()
-  const runtimeI18n = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptions
 
   const locale = (
     currentLocale
@@ -26,7 +24,7 @@ export const useTranslationServerMiddleware = async (event: H3Event, currentLoca
     || getQuery(event)?.locale
     || getCookie(event, 'user-locale')
     || event.headers.get('accept-language')?.split(',')[0]
-    || runtimeI18n.defaultLocale
+    || defaultLocale
     || 'en').toString()
 
   if (!hasGeneralTranslation(locale)) {

@@ -2,13 +2,15 @@
 outline: deep
 ---
 
-# 🌍 Server-Side Translations in Nuxt I18n
+# 🌍 Server-Side Translations in Nuxt I18n Micro
 
 ## 📖 Overview
 
 Nuxt I18n Micro supports server-side translations, allowing you to translate content on the server and return it as part of the response. This is particularly useful for APIs or server-rendered applications where localization is needed before reaching the client.
 
-The translations use locale messages defined in the Nuxt I18n configuration and are dynamically resolved based on the detected locale. 
+The translations use locale messages defined in the Nuxt I18n  configuration and are dynamically resolved based on the detected locale. 
+
+To clarify, the translations used by Nuxt I18n Micro in server-side handling are only sourced from the root-level translation files. Any nested translation files or subdirectories are not utilized in this context. The system will only retrieve translations from the root folder, ensuring a consistent and manageable approach to server-side translation retrieval.
 
 ---
 
@@ -72,4 +74,4 @@ The middleware automatically determines the user's locale using a fallback chain
 1. **Query Parameter**: `?locale=fr`
 2. **Cookie**: `user-locale`
 3. **HTTP Header**: `Accept-Language`
-4. **Default Locale**: As defined in your Nuxt I18n configuration.
+4. **Default Locale**: As defined in useTranslationServerMiddleware param.

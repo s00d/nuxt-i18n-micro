@@ -1,9 +1,20 @@
 import * as fs from 'node:fs'
-import path from 'node:path'
+import path, { resolve } from 'node:path'
+import type { ServerResponse } from 'node:http'
+import { fileURLToPath } from 'node:url'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { Resolver } from '@nuxt/kit'
+import { join } from 'pathe'
+import sirv from 'sirv'
+import type { ViteDevServer } from 'vite'
 import type { ModuleOptions, ModulePrivateOptionsExtend } from './types'
+
+export const DEVTOOLS_UI_PORT = 3030
+export const DEVTOOLS_UI_ROUTE = '/__nuxt-i18n-micro'
+
+export const distDir = resolve(fileURLToPath(import.meta.url), '..')
+export const clientDir = resolve(distDir, 'client')
 
 export interface ServerFunctions {
   getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>
@@ -14,22 +25,36 @@ export interface ClientFunctions {
   showNotification: (message: string) => void
 }
 
-export const DEVTOOLS_UI_PORT = 3030
-export const DEVTOOLS_UI_ROUTE = '/__nuxt-i18n-micro'
-
 export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resolve']) {
   const nuxt = useNuxt()
   const clientPath = resolve('./client')
-  const isProductionBuild = fs.existsSync(clientPath)
+  const clientDirExists = fs.existsSync(clientPath)
 
-  // Serve the built client UI in production
-  if (isProductionBuild) {
-    nuxt.hook('vite:serverCreated', async (server) => {
-      const sirv = await import('sirv').then(r => r.default || r)
-      server.middlewares.use(DEVTOOLS_UI_ROUTE, sirv(clientPath, { dev: true, single: true }))
+  const ROUTE_PATH = `${nuxt.options.app.baseURL || '/'}/__nuxt-i18n-micro`.replace(/\/+/g, '/')
+  const ROUTE_CLIENT = `${ROUTE_PATH}/client`
+
+  if (clientDirExists) {
+    nuxt.hook('vite:serverCreated', (server: ViteDevServer) => {
+      const indexHtmlPath = join(clientDir, 'index.html')
+      const indexContent = fs.readFileSync(indexHtmlPath)
+      const handleStatic = sirv(clientDir, {
+        dev: true,
+        single: false,
+      })
+      // We replace the base URL in the index.html based on user's settings
+      const handleIndex = async (res: ServerResponse) => {
+        res.setHeader('Content-Type', 'text/html')
+        res.statusCode = 200
+        res.write((await indexContent).toString().replace(/\/__NUXT_DEVTOOLS_I18N_BASE__\//g, `${ROUTE_CLIENT}/`))
+        res.end()
+      }
+      server.middlewares.use(ROUTE_CLIENT, (req, res) => {
+        if (req.url === '/')
+          return handleIndex(res)
+        return handleStatic(req, res, () => handleIndex(res))
+      })
     })
   }
-  // Proxy to a separate development server during development
   else {
     nuxt.hook('vite:extendConfig', (config) => {
       config.server = config.server || {}
@@ -109,7 +134,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
         icon: 'carbon:language',
         view: {
           type: 'iframe',
-          src: DEVTOOLS_UI_ROUTE,
+          src: ROUTE_CLIENT,
         },
       })
     })

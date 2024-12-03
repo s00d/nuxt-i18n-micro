@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.37.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.36.1...v1.37.0)
+
+### 🚀 Enhancements
+
+- **devtools:** Enhance devtools UI setup and routing logic ([2ab8552](https://github.com/s00d/nuxt-i18n-micro/commit/2ab8552))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.36.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.36.0...v1.36.1)

@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { Resolver } from '@nuxt/kit'
-import { join } from 'pathe'
 import sirv from 'sirv'
 import type { ModuleOptions, ModulePrivateOptionsExtend } from './types'
 
@@ -34,7 +33,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
 
   if (clientDirExists) {
     nuxt.hook('vite:serverCreated', (server) => {
-      const indexHtmlPath = join(clientDir, 'index.html')
+      const indexHtmlPath = path.join(clientDir, 'index.html')
       const indexContent = fs.readFileSync(indexHtmlPath)
       const handleStatic = sirv(clientDir, {
         dev: true,

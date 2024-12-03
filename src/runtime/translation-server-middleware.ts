@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
 import { getQuery, getCookie } from 'h3'
 import type { Translations } from './plugins/01.plugin'
-import { useTranslationHelper } from './translationHelper'
+import { useTranslationHelper } from './translation-helper'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {

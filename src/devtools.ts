@@ -7,7 +7,6 @@ import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { Resolver } from '@nuxt/kit'
 import { join } from 'pathe'
 import sirv from 'sirv'
-import type { ViteDevServer } from 'vite'
 import type { ModuleOptions, ModulePrivateOptionsExtend } from './types'
 
 export const DEVTOOLS_UI_PORT = 3030
@@ -34,7 +33,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   const ROUTE_CLIENT = `${ROUTE_PATH}/client`
 
   if (clientDirExists) {
-    nuxt.hook('vite:serverCreated', (server: ViteDevServer) => {
+    nuxt.hook('vite:serverCreated', (server) => {
       const indexHtmlPath = join(clientDir, 'index.html')
       const indexContent = fs.readFileSync(indexHtmlPath)
       const handleStatic = sirv(clientDir, {

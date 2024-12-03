@@ -105,7 +105,7 @@ i18n: {
 }
 ```
 
-### Explanation:
+**Explanation:**
 - **`defaultLocale: 'en_df'`**: Defines the default locale for the application.
 - **Two locales with different `code` values**: By setting the `code` for the default locale (`en_df`) and a second one (`en`), you can create routes for both, without Vue Router treating them as duplicates. This way, you can manually manage URLs like `/en` and `/en_df` for different purposes while still using the same translations.
 
@@ -124,7 +124,7 @@ Nuxt composables require specific contexts (e.g., Nuxt hooks or Vue setup functi
 [nuxt] A composable that requires access to the Nuxt instance was called outside of a plugin, Nuxt hook, Nuxt middleware, or Vue setup function. This is probably not a Nuxt bug. Find out more at https://nuxt.com/docs/guide/concepts/auto-imports#vue-and-nuxt-composables
 ```
 
-### Solution 1: Use `runWithContext`
+**Solution 1: Use `runWithContext`**
 To call i18n composables after an asynchronous operation, use [`runWithContext`](https://nuxt.com/docs/api/composables/use-nuxt-app#runwithcontext) to preserve the necessary context.
 
 **Example:**
@@ -132,7 +132,7 @@ To call i18n composables after an asynchronous operation, use [`runWithContext`]
 await nuxtApp.runWithContext(() => $t('test_key'))
 ```
 
-### Solution 2: Retrieve Value First
+**Solution 2: Retrieve Value First**
 Alternatively, retrieve the translation value first, then pass it to a utility function.
 
 **Example:**
@@ -143,7 +143,7 @@ showError({
 })
 ```
 
-### Solution 3: Pass Translation Keys in Services
+**Solution 3: Pass Translation Keys in Services**
 In services or utility functions, pass the translation keys instead of using `$t` directly. Then, fetch the translation in the component.
 
 **Example:**

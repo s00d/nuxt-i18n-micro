@@ -85,8 +85,6 @@ This allows dynamic links within translations while preserving proper localizati
 
 ---
 
-### Updated FAQ Addition:
-
 ## ❓ How can I duplicate the default locale when `includeDefaultLocaleRoute` is set to `false`?
 
 When `includeDefaultLocaleRoute: false` is enabled, you can configure two routes with the same locale, using different `code` values. This allows you to duplicate the default locale with different identifiers for routing purposes.

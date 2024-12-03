@@ -85,6 +85,34 @@ This allows dynamic links within translations while preserving proper localizati
 
 ---
 
+### Updated FAQ Addition:
+
+## ❓ How can I duplicate the default locale when `includeDefaultLocaleRoute` is set to `false`?
+
+When `includeDefaultLocaleRoute: false` is enabled, you can configure two routes with the same locale, using different `code` values. This allows you to duplicate the default locale with different identifiers for routing purposes.
+
+**Solution:**
+For example, you can set the locale configuration like this:
+
+```javascript
+i18n: {
+  locales: [
+    { code: 'en_df', iso: 'en_EN', displayName: 'English' },
+    { code: 'en', iso: 'en_EN', displayName: 'English' },
+  ],
+  defaultLocale: 'en_df',
+  includeDefaultLocaleRoute: false,
+}
+```
+
+### Explanation:
+- **`defaultLocale: 'en_df'`**: Defines the default locale for the application.
+- **Two locales with different `code` values**: By setting the `code` for the default locale (`en_df`) and a second one (`en`), you can create routes for both, without Vue Router treating them as duplicates. This way, you can manually manage URLs like `/en` and `/en_df` for different purposes while still using the same translations.
+
+This approach is particularly useful when you need to differentiate routes with different `code` values for the same language, without causing conflicts with the default locale route.
+
+---
+
 ## ❓ Why does `$t` or other i18n composables not work in Nuxt plugins?
 
 Nuxt I18n composables (`$t`, `$getLocale`, `$localePath`, etc.) may not work as expected within Nuxt plugins or utility functions, resulting in runtime errors.

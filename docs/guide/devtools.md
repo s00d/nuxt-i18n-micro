@@ -10,8 +10,6 @@ DevTools is a powerful development assistant seamlessly integrated into the `nux
 
 ![DevTools](/devtools.png)
 
----
-
 ## 🌟 Key Features of DevTools in `nuxt-i18n-micro`
 
 ### 1. **Locale Management**

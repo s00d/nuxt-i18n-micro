@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import path from 'node:path'
 import fs from 'node:fs'
 import { mountSuspended, renderSuspended } from '@nuxt/test-utils/runtime'

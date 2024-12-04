@@ -8,7 +8,10 @@ export default defineNuxtConfig({
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {
-    locales: [{ code: 'de' }, { code: 'en' }],
+    locales: [
+      { code: 'en-us', iso: 'en_EN' },
+      { code: 'de-de', iso: 'de_DE' },
+    ],
     defaultLocale: 'en',
     // localeCookie: 'user-change-coockie',
     disablePageLocales: true,

@@ -7,7 +7,8 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import { useTranslationHelper } from '../translation-helper'
+import { useTranslationHelper, interpolate } from 'nuxt-i18n-next-core'
+import type { Translation, Translations } from 'nuxt-i18n-next-core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRouter, useCookie, useState, navigateTo } from '#imports'
@@ -15,27 +16,6 @@ import { plural } from '#build/i18n.plural.mjs'
 
 const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'
-
-export interface PluralTranslations {
-  singular: string
-  plural: string
-}
-
-export type Translation = string | number | boolean | Translations | PluralTranslations | unknown | null
-
-export interface Translations {
-  [key: string]: Translation
-}
-
-function interpolate(template: string, params: Params): string {
-  let result = template
-
-  for (const key in params) {
-    result = result.split(`{${key}}`).join(String(params[key]))
-  }
-
-  return result
-}
 
 // Вспомогательная функция для получения текущей локали
 function getCurrentLocale(

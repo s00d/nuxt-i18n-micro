@@ -45,7 +45,7 @@
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
-    "release": "pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run prepack && changelogen --release && pnpm publish && git push --follow-tags",
+    "release": "pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run prepack && changelogen --release && pnpm publish -r && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "playwright test",
@@ -63,6 +63,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
+    "nuxt-i18n-next-core": "workspace:*",
     "@nuxt/devtools-kit": "^1.6.1",
     "@nuxt/kit": "^3.14.1592",
     "chokidar": "^3.6.0",

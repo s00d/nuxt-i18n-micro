@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v1.38.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.2...v1.38.3)
+
+### 🏡 Chore
+
+- **playwright:** Clean up comments in config file ([c27cfc9](https://github.com/s00d/nuxt-i18n-micro/commit/c27cfc9))
+- **github-actions:** Limit deployment trigger to changes in docs folder ([4bfa606](https://github.com/s00d/nuxt-i18n-micro/commit/4bfa606))
+- **github-actions:** Limit deployment trigger to changes in docs folder ([29e3a3c](https://github.com/s00d/nuxt-i18n-micro/commit/29e3a3c))
+- **github-actions:** Limit deployment trigger to changes in docs folder ([d3e0443](https://github.com/s00d/nuxt-i18n-micro/commit/d3e0443))
+- **ci:** Update build command in CI workflow ([a1ec7ec](https://github.com/s00d/nuxt-i18n-micro/commit/a1ec7ec))
+- **ci:** Update build command in CI workflow ([c61d76e](https://github.com/s00d/nuxt-i18n-micro/commit/c61d76e))
+
+### ✅ Tests
+
+- **tests:** Add unit tests for i18n utility functions ([37d7dd8](https://github.com/s00d/nuxt-i18n-micro/commit/37d7dd8))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.38.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.1...v1.38.2)

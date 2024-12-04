@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
-import type { ModuleOptionsExtend } from '../../types'
 import type { Translations } from 'nuxt-i18n-next-core'
+import type { ModuleOptionsExtend } from '../../types'
 import { defineNuxtPlugin, navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 

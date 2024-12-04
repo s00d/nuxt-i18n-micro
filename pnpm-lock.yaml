@@ -91,8 +91,8 @@ importers:
   playground:
     devDependencies:
       nuxt-i18n-micro:
-        specifier: ^1.37.2
-        version: 1.37.2(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
+        specifier: ^1.37.3
+        version: 1.37.3(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
 
   test/fixtures/basic: {}
 
@@ -4645,8 +4645,8 @@ packages:
     engines: {node: ^16.10.0 || >=18.0.0}
     hasBin: true
 
-  nuxt-i18n-micro@1.37.2:
-    resolution: {integrity: sha512-z2abAlGqBdfH7OHwTF3hEyiBxHLzD2UIFforvYaqgDGX6bnMaKvoqq5uaY1dloT5u5IkzgBE4nMQYoVvQMvPbA==}
+  nuxt-i18n-micro@1.37.3:
+    resolution: {integrity: sha512-nObwX7mre5WoaS+BIJBWTPgQ5L8yY8F3/dp/tIJRthQbYycA/Vnp2XKShwiXbb9aVz1FNaTYR0R5F+HxQBKTeA==}
 
   nuxt-i18n-next-core@1.0.0:
     resolution: {integrity: sha512-ya2PzjFPk2DIpsf46HPWt/E1v+lekPRdeO+1dKShRiz0nQgr3Ox7uZRLFGwzZ5B/YQTnJy16EKHMDhCf9YOkTQ==}
@@ -11783,7 +11783,7 @@ snapshots:
 
   nuxi@3.16.0: {}
 
-  nuxt-i18n-micro@1.37.2(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0)):
+  nuxt-i18n-micro@1.37.3(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0)):
     dependencies:
       '@nuxt/devtools-kit': 1.6.3(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
       '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.28.0)

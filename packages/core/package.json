@@ -1,11 +1,15 @@
 {
   "name": "nuxt-i18n-next-core",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.cjs",
+  "module": "dist/esm/index.mjs",
+  "types": "dist/esm/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:cjs && npm run build:esm && npm run rename",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "rename": "node rename.js",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "test": "echo \"Error: no test specified\" && exit 1"

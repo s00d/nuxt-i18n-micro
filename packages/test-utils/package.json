@@ -20,6 +20,7 @@
     "nuxt-i18n-micro-core": "workspace:*"
   },
   "devDependencies": {
+    "vite": "^6.0.2",
     "vite-plugin-dts": "^4.3.0"
   }
 }

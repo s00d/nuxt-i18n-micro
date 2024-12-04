@@ -40,12 +40,12 @@
     "internals.d.ts"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && npm run client:build",
+    "prepack": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
-    "release": "npm run lint && npm run typecheck && npm run test:types && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "release": "pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run prepack && changelogen --release && pnpm publish && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "playwright test",
@@ -53,6 +53,7 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "client:build": "nuxi generate client",
     "client:dev": "nuxi dev client --port 3300",
+    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "typecheck": "tsc --noEmit",
     "typecheck:nuxt": "nuxt typecheck --no-emit",
     "docs:dev": "vitepress dev docs",
@@ -93,5 +94,5 @@
     "client",
     "test/fixtures/**/*"
   ],
-  "packageManager": "yarn@3.7.0+sha256.7bf0c78a106332886ea4e59641fd819b1af953edcd72c4d93a32b1c71000ee67"
+  "packageManager": "pnpm@9.14.2+sha512.6e2baf77d06b9362294152c851c4f278ede37ab1eba3a55fda317a4a17b209f4dbb973fb250a77abc463a341fcb1f17f17cfa24091c4eb319cda0d9b84278387"
 }

@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div>
+  <div id="data">
     Index
   </div>
 

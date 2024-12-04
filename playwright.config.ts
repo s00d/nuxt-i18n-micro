@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './test',
   testMatch: '*.test.ts',
   retries: 3,
-  workers: 3,
+  workers: process.env.CI ? 2 : 3,
   testIgnore: [
     'test/performance.test.ts',
   ],

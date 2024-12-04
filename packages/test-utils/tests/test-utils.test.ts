@@ -1,5 +1,4 @@
 import { i18nUtils } from '../src'
-import '@types/jest'
 
 describe('i18nUtils', () => {
   const mockTranslations = {

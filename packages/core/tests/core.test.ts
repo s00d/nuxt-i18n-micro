@@ -1,5 +1,4 @@
 import { useTranslationHelper, interpolate } from '../src'
-import '@types/jest'
 
 describe('Translation Helper', () => {
   const translations = {

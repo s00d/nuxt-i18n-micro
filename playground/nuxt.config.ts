@@ -12,7 +12,7 @@ const routesLocaleLinks: Record<string, string> = {
 export default defineNuxtConfig({
 
   modules: [
-    '../src/module',
+    'nuxt-i18n-micro',
     defineNuxtModule({
       setup(_, nuxt) {
         if (!nuxt.options.dev)

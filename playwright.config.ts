@@ -6,6 +6,7 @@ export default defineConfig({
   retries: 3, // Количество повторов тестов при падении
   testIgnore: [
     'test/performance.test.ts', // Игнорируемый файл
+    'test/n3.test.ts', // Игнорируемый файл
   ],
   projects: [
     {

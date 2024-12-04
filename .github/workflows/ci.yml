@@ -62,7 +62,9 @@ jobs:
         run: pnpm exec playwright install
 
       - name: Playground prepare
-        run: pnpm run dev:prepare
+        run: |
+          pnpm run dev:prepare
+          pnpm run prepack
 
       - name: Test
         run: pnpm run test

@@ -33,7 +33,9 @@ jobs:
           # cache deps for pnpm
           cache: 'pnpm'
 
-      # run build script
+      - name: Install Vite globally
+        run: npm install -g vite
+
       - name: Install dependencies
         run: pnpm install
 

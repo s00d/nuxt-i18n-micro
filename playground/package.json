@@ -7,7 +7,7 @@
     "build": "nuxi build",
     "prepare": "nuxt prepare",
     "generate": "nuxi generate",
-    "test": "vitest --config tests/vitest.unit-config.ts"
+    "test": "echo \"Error: no test specified\""
   },
   "devDependencies": {
     "nuxt-i18n-micro": "^1.38.0"

@@ -49,6 +49,7 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
 export function useTranslationHelper() {
   return {
     hasCache(locale: string, page: string) {
+      console.log()
       return (serverTranslationCache[`${locale}:${page}`] ?? new Map<string, Translations | unknown>()).size > 0
     },
     getCache(locale: string, routeName: string) {
@@ -83,6 +84,15 @@ export function useTranslationHelper() {
     },
     hasPageTranslation(locale: string, routeName: string) {
       return !!routeLocaleCache[`${locale}:${routeName}`]
+    },
+    hasTranslation: (locale: string, key: string): boolean => {
+      for (const dynamicCache of dynamicTranslationsCaches) {
+        if (findTranslation(dynamicCache[locale] || null, key) !== null) {
+          return true
+        }
+      }
+
+      return findTranslation(generalLocaleCache[locale] || null, key) !== null
     },
     getTranslation: <T = unknown>(locale: string, routeName: string, key: string): T | null => {
       const cacheKey = `${locale}:${routeName}`

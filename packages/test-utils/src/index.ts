@@ -91,7 +91,7 @@ export const tn = (value: number, options?: Intl.NumberFormatOptions) =>
 export const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) =>
   formatDate(value, locale, options)
 
-export const has = (key: string): boolean => i18nHelper.hasPageTranslation(key, routeName)
+export const has = (key: string): boolean => i18nHelper.hasTranslation(locale, key)
 
 export const mergeTranslations = (newTranslations: Translations): void =>
   i18nHelper.mergeTranslation(locale, routeName, newTranslations)

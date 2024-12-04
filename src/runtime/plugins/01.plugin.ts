@@ -7,8 +7,8 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import { useTranslationHelper, interpolate } from 'nuxt-i18n-next-core'
-import type { Translation, Translations } from 'nuxt-i18n-next-core'
+import { useTranslationHelper, interpolate } from 'nuxt-i18n-micro-core'
+import type { Translation, Translations } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params } from '../../types'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
 import { useRouter, useCookie, useState, navigateTo } from '#imports'

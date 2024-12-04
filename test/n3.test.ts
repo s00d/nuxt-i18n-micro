@@ -38,7 +38,6 @@ const staticRoutes = [
   'topic',
 ]
 async function checkPageContent(page: Page, path: string) {
-  console.log(`Checking page content for path: ${path}`)
   // Check if we're on the correct URL
   await expect(page).toHaveURL(path)
 
@@ -49,8 +48,6 @@ async function checkPageContent(page: Page, path: string) {
   // Check for 404
   const notFound = await page.locator('text=404').count()
   expect(notFound).toBe(0)
-
-  console.log(`complite: ${path}`)
 }
 
 test.describe('Page tests', async () => {

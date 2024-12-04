@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.38.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.1...v1.38.2)
+
+### 🏡 Chore
+
+- **packages:** Update package versions and remove postinstall scripts ([6aecd23](https://github.com/s00d/nuxt-i18n-micro/commit/6aecd23))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.38.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.0...v1.38.1)

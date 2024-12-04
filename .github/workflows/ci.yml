@@ -61,13 +61,10 @@ jobs:
       - name: Install playwright
         run: pnpm exec playwright install chromium
 
-      - name: Playground prepare
+      - name: Run
         run: |
-
-          pnpm --filter "./packages/**" run build
           pnpm run dev:prepare
-
-      - name: Test
-        run: |
+          pnpm --filter "./packages/**" run build
           pnpm run test
           pnpm run test:workspaces
+

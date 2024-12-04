@@ -63,8 +63,9 @@ jobs:
 
       - name: Playground prepare
         run: |
-          pnpm run dev:prepare
+
           pnpm --filter "./packages/**" run build
+          pnpm run dev:prepare
 
       - name: Test
         run: |

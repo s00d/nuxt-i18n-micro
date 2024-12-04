@@ -91,8 +91,8 @@ importers:
   playground:
     devDependencies:
       nuxt-i18n-micro:
-        specifier: ^1.37.6
-        version: 1.37.6(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
+        specifier: ^1.37.7
+        version: 1.37.7(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
 
   test/fixtures/basic: {}
 
@@ -4645,11 +4645,11 @@ packages:
     engines: {node: ^16.10.0 || >=18.0.0}
     hasBin: true
 
-  nuxt-i18n-micro@1.37.6:
-    resolution: {integrity: sha512-oW8vhX5Zk093ojke3VJXPhEgRxEArsplg6/K2uwnIHcNy8ApEA2vl01ruLYiskyAXZZUMZqNuDLQ0/tKBg0ikg==}
+  nuxt-i18n-micro@1.37.7:
+    resolution: {integrity: sha512-qcz1ZTHNGq/GkPO0w3yrUrjIBgj9nuis3wgL4PE7wDNwu0ec4IA7ZmM8aO648ihJLtSOPjVSNgv6eCRQFhsyig==}
 
-  nuxt-i18n-next-core@1.0.4:
-    resolution: {integrity: sha512-fKOWZDXnLvqcCLFbP514SGddY6q0DMRNVFsr2UTkbw5l5ZWqmfGG6/Q4F3M2+2J0oMIWv+3pJFdjowRP5hZK8A==}
+  nuxt-i18n-next-core@1.0.5:
+    resolution: {integrity: sha512-4SHf2VO/PiQqAJdQ0whAVSttagHixhIqb4XNP6lhzMrms+QDQMUmZwyitjRScnH/4Mb7UyNVtSCxwnNmfHDopA==}
 
   nuxt-site-config-kit@2.2.21:
     resolution: {integrity: sha512-xO41Zf6bXlA9Zvj+fX7ftD+ITee4LfrkzHj85Gt4FpgwonFxzGO5pMBtAqIxXKJwuyT1z2wVAixHI+ov66wV0w==}
@@ -11783,12 +11783,12 @@ snapshots:
 
   nuxi@3.16.0: {}
 
-  nuxt-i18n-micro@1.37.6(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0)):
+  nuxt-i18n-micro@1.37.7(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0)):
     dependencies:
       '@nuxt/devtools-kit': 1.6.3(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
       '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.28.0)
       chokidar: 3.6.0
-      nuxt-i18n-next-core: 1.0.4
+      nuxt-i18n-next-core: 1.0.5
       sirv: 2.0.4
       ufo: 1.5.4
     optionalDependencies:
@@ -11800,7 +11800,7 @@ snapshots:
       - supports-color
       - vite
 
-  nuxt-i18n-next-core@1.0.4: {}
+  nuxt-i18n-next-core@1.0.5: {}
 
   nuxt-site-config-kit@2.2.21(magicast@0.3.5)(rollup@4.28.0)(vue@3.5.13(typescript@5.6.3)):
     dependencies:

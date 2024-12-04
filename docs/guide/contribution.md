@@ -48,6 +48,7 @@ Before you begin, ensure that you have the following installed on your machine:
 
 - **Node.js**: v16 or later
 - **npm**: v7 or later
+- **pnpm**: v9 or later
 
 ## 🚀 Getting Started
 
@@ -62,11 +63,12 @@ cd nuxt-i18n-micro
 
 ### 2. 📦 Install Dependencies
 
-Next, install the project dependencies using npm.
+Next, install the project dependencies using pnpm.
 
 ```bash
-npm install
-npm run prepack && cd playground && npm run prepare && cd ..
+pnpm install
+pnpm run prepack && cd playground && pnpm run prepare && cd ..
+pnpm --filter "./packages/**" run build
 ```
 
 ### 3. 🖥️ Run the Development Server
@@ -74,7 +76,7 @@ npm run prepack && cd playground && npm run prepare && cd ..
 To start the development server and work on the module, run the following command:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 This command will start the Nuxt development server using the `playground` directory as the testing environment. You can view the app in your browser by navigating to `http://localhost:3000`.
@@ -84,7 +86,7 @@ This command will start the Nuxt development server using the `playground` direc
 To build the module, use the following command:
 
 ```bash
-npm run prepack
+pnpm run prepack
 ```
 
 This command prepares the module by building the necessary files, stubbing certain components, and ensuring everything is ready for packaging.
@@ -94,13 +96,13 @@ This command prepares the module by building the necessary files, stubbing certa
 To ensure your code adheres to the project's coding standards, run the linter:
 
 ```bash
-npm run lint
+pnpm run lint
 ```
 
 If there are any issues, you can attempt to automatically fix them using:
 
 ```bash
-npm run lint:fix
+pnpm run lint:fix
 ```
 
 ### 6. ✅ Running Tests
@@ -108,7 +110,8 @@ npm run lint:fix
 To run the test suite, use the following command:
 
 ```bash
-npm run test
+pnpm run test:workspaces
+pnpm run test
 ```
 
 This will run all the Playwright tests to ensure everything is functioning as expected.
@@ -118,7 +121,9 @@ This will run all the Playwright tests to ensure everything is functioning as ex
 For TypeScript type checking, run:
 
 ```bash
-npm run typecheck
+pnpm run typecheck
+pnpm run test:types
+pnpm run test
 ```
 
 This checks the type definitions to ensure there are no type errors.
@@ -128,8 +133,8 @@ This checks the type definitions to ensure there are no type errors.
 To build and preview the documentation locally, use the following commands:
 
 ```bash
-npm run docs:build
-npm run docs:serve
+pnpm run docs:build
+pnpm run docs:serve
 ```
 
 This will build the documentation and serve it locally, allowing you to view it in your browser.
@@ -139,23 +144,25 @@ This will build the documentation and serve it locally, allowing you to view it 
 If you want to test your changes in a sample Nuxt application, the `playground` directory serves as a sandbox environment. Run the following command to start the playground:
 
 ```bash
-npm run dev:build
+pnpm run dev:build
 ```
 
 You can access the playground app at `http://localhost:3000`.
 
 ## 🔧 Summary of Common Scripts
 
-- **`npm run dev`**: Start the development server using the playground.
-- **`npm run prepack`**: Build the module and prepare it for publishing.
-- **`npm run lint`**: Run the linter to check for code quality issues.
-- **`npm run lint:fix`**: Automatically fix linter issues.
-- **`npm run test`**: Run the test suite.
-- **`npm run typecheck`**: Check TypeScript types.
-- **`npm run docs:dev`**: Start the documentation site in development mode.
-- **`npm run docs:build`**: Build the documentation site.
-- **`npm run docs:serve`**: Serve the built documentation site locally.
-- **`npm run dev:build`**: Build the playground environment.
+- **`pnpm run dev`**: Start the development server using the playground.
+- **`pnpm run prepack`**: Build the module and prepare it for publishing.
+- **`pnpm --filter "./packages/**" run build`**: Build the packages.
+- **`pnpm run lint`**: Run the linter to check for code quality issues.
+- **`pnpm run lint:fix`**: Automatically fix linter issues.
+- **`pnpm run test`**: Run the test suite.
+- **`pnpm run test:workspaces`**: Run the test suite for packages.
+- **`pnpm run typecheck`**: Check TypeScript types.
+- **`pnpm run docs:dev`**: Start the documentation site in development mode.
+- **`pnpm run docs:build`**: Build the documentation site.
+- **`pnpm run docs:serve`**: Serve the built documentation site locally.
+- **`pnpm run dev:build`**: Build the playground environment.
 
 # 🚧 Making Changes
 
@@ -170,7 +177,7 @@ You can access the playground app at `http://localhost:3000`.
 Before committing your changes, ensure that your code adheres to the project's coding standards by running the linter:
 
 ```bash
-npm run lint
+pnpm run lint
 ```
 
 Fix any linting errors before proceeding.
@@ -182,7 +189,8 @@ Make sure your changes work and do not break any existing functionality:
 - Run all tests to ensure there are no errors:
 
 ```bash
-npm run test
+pnpm run test:workspaces
+pnpm run test
 ```
 
 - If you’re fixing a bug, add tests to cover the fix.

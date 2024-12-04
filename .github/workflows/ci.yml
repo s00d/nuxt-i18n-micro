@@ -64,7 +64,7 @@ jobs:
       - name: Playground prepare
         run: |
           pnpm run dev:prepare
-          pnpm recursive runrun build
+          pnpm --filter "./packages/**" run build
 
       - name: Test
         run: |

@@ -10,6 +10,6 @@
     "test": "vitest --config tests/vitest.unit-config.ts"
   },
   "devDependencies": {
-    "nuxt-i18n-micro": "^1.37.3"
+    "nuxt-i18n-micro": "^1.37.5"
   }
 }

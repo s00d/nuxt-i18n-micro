@@ -1,14 +1,15 @@
 {
   "private": true,
-  "name": "my-module-playground",
+  "name": "nuxt-i18n-next-playground",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
     "prepare": "nuxt prepare",
-    "generate": "nuxi generate"
+    "generate": "nuxi generate",
+    "test": "vitest --config tests/vitest.unit-config.ts"
   },
-  "dependencies": {
-    "nuxt-i18n-micro": "^1.35.0"
+  "devDependencies": {
+    "nuxt-i18n-micro": "^1.37.0"
   }
 }

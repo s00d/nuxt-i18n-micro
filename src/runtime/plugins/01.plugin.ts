@@ -16,12 +16,12 @@ import { plural } from '#build/i18n.plural.mjs'
 const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'
 
-interface PluralTranslations {
+export interface PluralTranslations {
   singular: string
   plural: string
 }
 
-type Translation = string | number | boolean | Translations | PluralTranslations | unknown | null
+export type Translation = string | number | boolean | Translations | PluralTranslations | unknown | null
 
 export interface Translations {
   [key: string]: Translation

@@ -158,7 +158,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     addImportsDir(resolver.resolve('./runtime/composables'))
 
-    if (import.meta.env.TEST) {
+    if (import.meta.env && import.meta.env.TEST) {
       return
     }
     addPlugin({

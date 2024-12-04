@@ -64,7 +64,7 @@ jobs:
       - name: Playground prepare
         run: |
           pnpm run dev:prepare
-          pnpm run prepack
+          pnpm recursive runrun build
 
       - name: Test
         run: |

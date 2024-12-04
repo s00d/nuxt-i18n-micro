@@ -10,14 +10,12 @@
     "clean": "rm -rf dist",
     "prebuild": "pnpm run clean",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "pnpm run build",
     "prepublishOnly": "pnpm run build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "vite": "^6.0.2",
     "vite-plugin-dts": "^4.3.0"
   }
 }

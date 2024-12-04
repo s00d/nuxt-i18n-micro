@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Install Vite globally
+        run: npm install -g vite
+
       - name: Lint
         run: pnpm run lint
 
@@ -48,6 +51,9 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+
+      - name: Install Vite globally
+        run: npm install -g vite
 
       - name: Install dependencies
         run: pnpm install

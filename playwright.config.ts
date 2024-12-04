@@ -1,12 +1,11 @@
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-  testDir: './test', // Путь к вашим тестам
+  testDir: './test',
   testMatch: '*.test.ts',
-  retries: 3, // Количество повторов тестов при падении
+  retries: 3,
   testIgnore: [
-    'test/performance.test.ts', // Игнорируемый файл
-    'test/n3.test.ts', // Игнорируемый файл
+    'test/performance.test.ts',
   ],
   projects: [
     {

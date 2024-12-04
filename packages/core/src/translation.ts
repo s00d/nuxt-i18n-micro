@@ -1,4 +1,4 @@
-import type { Translations } from './plugins/01.plugin'
+import type { Translations } from './types'
 
 const generalLocaleCache: Record<string, Translations> = {}
 const routeLocaleCache: Record<string, Translations> = {}

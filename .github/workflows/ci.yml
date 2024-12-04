@@ -59,7 +59,7 @@ jobs:
         run: pnpm install
 
       - name: Install playwright
-        run: pnpm exec playwright install
+        run: pnpm exec playwright install chromium
 
       - name: Playground prepare
         run: |
@@ -67,4 +67,6 @@ jobs:
           pnpm run prepack
 
       - name: Test
-        run: pnpm run test
+        run: |
+          pnpm run test
+          pnpm run test:workspaces

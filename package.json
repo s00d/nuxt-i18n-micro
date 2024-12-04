@@ -63,7 +63,8 @@
     "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
-    "nuxt-i18n-next-core": "workspace:*",
+    "nuxt-i18n-micro-test-utils": "workspace:*",
+    "nuxt-i18n-micro-core": "workspace:*",
     "@nuxt/devtools-kit": "^1.6.1",
     "@nuxt/kit": "^3.14.1592",
     "chokidar": "^3.6.0",

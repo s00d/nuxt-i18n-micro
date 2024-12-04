@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TestComponent component > renders correctly 1`] = `
+"<div>
+  <p>Test from component: Welcome translated</p>
+  <p data-testid="message"> Test message from props: The default message</p>
+</div>"
+`;

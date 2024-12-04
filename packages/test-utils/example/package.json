@@ -1,0 +1,27 @@
+{
+  "name": "github-mag9gj-h2v1xa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "test": "vitest --config tests/vitest.unit-config.ts",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "nuxt": "^3.13.2",
+    "nuxt-i18n-micro": "^1.37.0",
+    "vue": "latest",
+    "vue-router": "latest"
+  },
+  "devDependencies": {
+    "nuxt-i18n-micro-test-utils": "^1.0.0",
+    "@nuxt/test-utils": "^3.14.4",
+    "@testing-library/vue": "^8.1.0",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^15.11.7",
+    "vitest": "^2.1.8"
+  }
+}

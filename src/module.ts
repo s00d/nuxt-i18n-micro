@@ -156,6 +156,11 @@ export default defineNuxtModule<ModuleOptions>({
       debug: options.debug ?? false,
     }
 
+    addImportsDir(resolver.resolve('./runtime/composables'))
+
+    if (import.meta.env.TEST) {
+      return
+    }
     addPlugin({
       src: resolver.resolve('./runtime/plugins/01.plugin'),
       name: 'i18n-plugin-loader',
@@ -186,8 +191,6 @@ export default defineNuxtModule<ModuleOptions>({
         order: 4,
       })
     }
-
-    addImportsDir(resolver.resolve('./runtime/composables'))
 
     addServerHandler({
       route: `/${apiBaseUrl}/:page/:locale/data.json`,

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.38.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.0...v1.38.1)
+
+### 🩹 Fixes
+
+- **utils:** Handle empty routePath in normalizePath function ([c375fb9](https://github.com/s00d/nuxt-i18n-micro/commit/c375fb9))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin <Virus191288@gmail.com>
+
 ## v1.38.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.37.11...v1.38.0)

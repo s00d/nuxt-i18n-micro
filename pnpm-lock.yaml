@@ -108,8 +108,8 @@ importers:
   playground:
     devDependencies:
       nuxt-i18n-micro:
-        specifier: ^1.37.11
-        version: 1.37.11(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
+        specifier: ^1.38.0
+        version: 1.38.0(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
 
   test/fixtures/basic: {}
 
@@ -4965,11 +4965,14 @@ packages:
     engines: {node: ^16.10.0 || >=18.0.0}
     hasBin: true
 
-  nuxt-i18n-micro@1.37.11:
-    resolution: {integrity: sha512-22P+qwQRDgQwAtoPXrEGXQfHWXvt+E12HNghOedGP+zpbpgNFkfYX66Obe4pbakDS7ZzP8qOjZgKM1B+uGFtng==}
+  nuxt-i18n-micro-core@1.0.7:
+    resolution: {integrity: sha512-CtmSmvZzZZarXigrZUms4M1Cdho/3sXGn06atcWEx5crPO48s/mqQj21hQP0Ukqf3r0bNzWbLble+ONEcZ6n4w==}
 
-  nuxt-i18n-next-core@1.0.7:
-    resolution: {integrity: sha512-f5p1huVq3iSelX5w+t7qbJOfMwUMt3Gos1Mktjkal8A2molNYghfBKapfQqAeQhQybts/nrzcX5UXl8egKSGzA==}
+  nuxt-i18n-micro-test-utils@1.0.0:
+    resolution: {integrity: sha512-f/mqPgA2jhrEQ1hFtFCnVlkEMEsFMeO9MQWTQnW9vclzW4Z4E223QWLDrk7FG2zGEpzx12m/RA0Xlxg+wQtiVg==}
+
+  nuxt-i18n-micro@1.38.0:
+    resolution: {integrity: sha512-V3wzP2w3ZCWBhUBfl9e2buxBJO4qqmo+9eyTSX4GoltqqAHZ19A+he2gWaOXJ6Kqy506XUg7CazuPQSpP9RGbw==}
 
   nuxt-site-config-kit@2.2.21:
     resolution: {integrity: sha512-xO41Zf6bXlA9Zvj+fX7ftD+ITee4LfrkzHj85Gt4FpgwonFxzGO5pMBtAqIxXKJwuyT1z2wVAixHI+ov66wV0w==}
@@ -12655,12 +12658,19 @@ snapshots:
 
   nuxi@3.16.0: {}
 
-  nuxt-i18n-micro@1.37.11(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0)):
+  nuxt-i18n-micro-core@1.0.7: {}
+
+  nuxt-i18n-micro-test-utils@1.0.0:
+    dependencies:
+      nuxt-i18n-micro-core: 1.0.7
+
+  nuxt-i18n-micro@1.38.0(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0)):
     dependencies:
       '@nuxt/devtools-kit': 1.6.3(magicast@0.3.5)(rollup@4.28.0)(vite@5.4.11(@types/node@20.17.9)(terser@5.36.0))
       '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.28.0)
       chokidar: 3.6.0
-      nuxt-i18n-next-core: 1.0.7
+      nuxt-i18n-micro-core: 1.0.7
+      nuxt-i18n-micro-test-utils: 1.0.0
       sirv: 2.0.4
       ufo: 1.5.4
     optionalDependencies:
@@ -12671,8 +12681,6 @@ snapshots:
       - rollup
       - supports-color
       - vite
-
-  nuxt-i18n-next-core@1.0.7: {}
 
   nuxt-site-config-kit@2.2.21(magicast@0.3.5)(rollup@4.28.0)(vue@3.5.13(typescript@5.6.3)):
     dependencies:

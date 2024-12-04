@@ -65,6 +65,8 @@ jobs:
         run: |
           pnpm run dev:prepare
           pnpm --filter "./packages/**" run build
-          pnpm run test
-          pnpm run test:workspaces
 
+      - name: Test
+        run: |
+          pnpm run test:workspaces
+          pnpm run test

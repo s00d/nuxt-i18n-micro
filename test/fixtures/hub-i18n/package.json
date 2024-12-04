@@ -8,7 +8,6 @@
     "generate": "nuxt generate",
     "preview": "npx nuxthub preview",
     "deploy": "npx nuxthub deploy",
-    "postinstall": "nuxt prepare",
     "lint": "eslint ."
   },
   "devDependencies": {

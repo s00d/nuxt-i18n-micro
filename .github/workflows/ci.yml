@@ -26,11 +26,11 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install
-
       - name: Install Vite globally
         run: npm install -g vite
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Lint
         run: pnpm run lint

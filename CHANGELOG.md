@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.38.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.37.11...v1.38.0)
+
+### 🚀 Enhancements
+
+- **test-utils:** Add utility functions for i18n testing ([265bd98](https://github.com/s00d/nuxt-i18n-micro/commit/265bd98))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.37.11
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.37.10...v1.37.11)

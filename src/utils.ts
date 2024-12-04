@@ -39,7 +39,14 @@ export function validateDefineI18nRouteConfig(obj: Record<LocaleCode, Record<str
   return true
 }
 
-export const normalizePath = (routePath: string): string => path.posix.join(path.posix.normalize(routePath).replace(/\/+$/, ''))
+export const normalizePath = (routePath: string): string => {
+  if (!routePath) {
+    return ''
+  }
+
+  const normalized = path.posix.normalize(routePath).replace(/\/+$/, '')
+  return normalized === '.' ? '' : normalized
+}
 
 export const cloneArray = <T>(array: T[]): T[] => [...array]
 

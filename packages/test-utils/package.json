@@ -1,7 +1,19 @@
 {
   "name": "nuxt-i18n-micro-test-utils",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
+  "repository": "s00d/nuxt-i18n-micro",
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -11,8 +23,6 @@
     "prepublishOnly": "pnpm run build"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "nuxt-i18n-micro-core": "workspace:*"
   },

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.38.5
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.4...v1.38.5)
+
+### 🩹 Fixes
+
+- **core, test-utils:** Add documentation and improve translation functions ([9fdd8b7](https://github.com/s00d/nuxt-i18n-micro/commit/9fdd8b7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.38.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.3...v1.38.4)

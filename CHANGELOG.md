@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.38.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.3...v1.38.4)
+
+### 🩹 Fixes
+
+- **module:** Update environment variable check for test mode ([a18f84c](https://github.com/s00d/nuxt-i18n-micro/commit/a18f84c))
+
+### 📖 Documentation
+
+- **contribution:** Update Contribution Guide to use pnpm ([2717eee](https://github.com/s00d/nuxt-i18n-micro/commit/2717eee))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.38.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.2...v1.38.3)

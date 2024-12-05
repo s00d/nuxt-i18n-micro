@@ -20,7 +20,7 @@ function deepClone<T>(value: T): T {
 function findTranslation<T = unknown>(translations: Translations | null, key: string): T | null {
   let value: string | number | boolean | Translations | unknown | null = translations
 
-  if (translations === null) {
+  if (translations === null || typeof key !== 'string') {
     return null
   }
 
@@ -28,7 +28,7 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
     value = translations[key]
   }
   else {
-    const parts = key.split('.')
+    const parts = key.toString().split('.')
     for (const part of parts) {
       if (value && typeof value === 'object' && part in value) {
         value = (value as Translations)[part]

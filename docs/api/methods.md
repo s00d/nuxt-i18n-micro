@@ -111,7 +111,7 @@ const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
 // Output: "$1,234,567.89" in the 'en-US' locale
 ```
 
-### Use Cases:
+**Use Cases:**
 - Formatting numbers as currency, percentages, or decimals in the appropriate locale format.
 - Customizing the number format using `Intl.NumberFormatOptions` such as currency, minimum fraction digits, etc.
 
@@ -128,7 +128,7 @@ const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month:
 // Output: "Friday, September 1, 2023" in the 'en-US' locale
 ```
 
-### Use Cases:
+**Use Cases:**
 - Displaying dates in a format that aligns with the user's locale, including long or short date formats.
 - Customizing date output using options like weekday names, time formats, and timezone settings.
 
@@ -324,7 +324,7 @@ $defineI18nRoute({
 ```
 
 
-### Use Cases:
+**Use Cases:**
 
 - **Controlling Access**: By specifying available locales, you can control which routes are accessible based on the current locale, ensuring that users only see content relevant to their language.
 
@@ -334,7 +334,7 @@ $defineI18nRoute({
 
 This function offers a flexible way to manage routing and localization in your Nuxt application, making it easy to tailor the user experience based on the language and region settings of your audience.
 
-### Example 1: Controlling Access Based on Locales
+**Example 1: Controlling Access Based on Locales**
 
 ```typescript
 import { useNuxtApp } from '#imports'
@@ -346,7 +346,7 @@ $defineI18nRoute({
 })
 ```
 
-### Example 2: Providing Translations for Locales
+**Example 2: Providing Translations for Locales**
 
 ```typescript
 import { useNuxtApp } from '#imports'
@@ -363,7 +363,7 @@ $defineI18nRoute({
 })
 ```
 
-### 📝 Explanation:
+**📝 Explanation:**
 
 - **Locales Array**: If you only want to specify which locales are allowed for a route, pass an array of locale codes. The user will only be able to access this route if the current locale is in this list.
 - **Locales Object**: If you want to provide specific translations for each locale, pass an object where each key is a locale code. The value should be an object with key-value pairs for translations. If you do not wish to provide translations for a locale but still want to allow access, pass an empty object (`{}`) for that locale.

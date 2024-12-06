@@ -223,6 +223,8 @@ Each commit message should be structured as follows:
 - **test**: Adding or updating tests.
 - **chore**: Miscellaneous tasks, such as updating build scripts or dependencies.
 
+For more details, refer to the [Conventional Commits Specification](https://www.conventionalcommits.org/en/v1.0.0/).
+
 ### 5. 🚀 Push to GitHub
 
 Push your changes to your fork on GitHub:

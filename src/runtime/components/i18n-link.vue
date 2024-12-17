@@ -39,7 +39,6 @@ const isActive = computed(() => {
 const activeStyle = computed(() => {
   return isActive.value
     ? {
-        fontWeight: 'bold',
         ...props.activeStyle, // Merge with any custom active styles passed as props
       }
     : {}

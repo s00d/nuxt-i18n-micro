@@ -3,7 +3,7 @@
     :to="$localeRoute(to)"
     :style="activeStyle"
   >
-    <slot>Go to Page</slot>
+    <slot />
   </NuxtLink>
 </template>
 

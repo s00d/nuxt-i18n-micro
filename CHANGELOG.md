@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v1.39.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.5...v1.39.0)
+
+### 🚀 Enhancements
+
+- **types:** Add disablePageLocales option to ModuleOptions interface ([b9e57cc](https://github.com/s00d/nuxt-i18n-micro/commit/b9e57cc))
+
+### 🩹 Fixes
+
+- Pass `disablePageLocales` to public runtime config ([4ba80ac](https://github.com/s00d/nuxt-i18n-micro/commit/4ba80ac))
+
+### 💅 Refactors
+
+- **slot i18n link:** Remove the default wording of the i18n link ([37e68de](https://github.com/s00d/nuxt-i18n-micro/commit/37e68de))
+
+### 📖 Documentation
+
+- **contribution:** Add reference to Conventional Commits Specification ([b34d5a1](https://github.com/s00d/nuxt-i18n-micro/commit/b34d5a1))
+
+### 🎨 Styles
+
+- **active link:** Remove "font-weight: bold" on active link ([181235b](https://github.com/s00d/nuxt-i18n-micro/commit/181235b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+- Tristan Defachel <tristan.defachel.fr>
+
 ## v1.38.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.4...v1.38.5)

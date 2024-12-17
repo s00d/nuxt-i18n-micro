@@ -51,6 +51,7 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   hashMode: boolean
   isSSG: boolean
   apiBaseUrl: string
+  disablePageLocales: boolean
 }
 
 export interface ModulePrivateOptionsExtend extends ModuleOptions {

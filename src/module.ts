@@ -141,7 +141,7 @@ export default defineNuxtModule<ModuleOptions>({
       apiBaseUrl: apiBaseUrl,
       isSSG: isSSG,
       customRegexMatcher: options.customRegexMatcher,
-      disablePageLocales: options.disablePageLocales,
+      disablePageLocales: options.disablePageLocales ?? false,
     }
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error

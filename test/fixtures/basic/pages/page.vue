@@ -74,6 +74,15 @@
 
     <div>
       <i18n-link
+        id="external-link"
+        to="https://www.external-link.fr"
+      >
+        External Link
+      </i18n-link>
+    </div>
+
+    <div>
+      <i18n-link
         id="page-link"
         :to="{ name: 'index' }"
       >

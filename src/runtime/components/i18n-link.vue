@@ -1,7 +1,18 @@
 <template>
+  <a
+    v-if="isExternalLink"
+    :href="externalHref"
+    :style="computedStyle"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <slot />
+  </a>
+
   <NuxtLink
+    v-else
     :to="$localeRoute(to)"
-    :style="activeStyle"
+    :style="computedStyle"
   >
     <slot />
   </NuxtLink>
@@ -17,13 +28,33 @@ const { $localeRoute } = useNuxtApp()
 
 interface Props {
   to: RouteLocationRaw | string
-  activeStyle?: Partial<CSSStyleDeclaration>
+  activeStyle?: Partial<CSSStyleValue>
 }
 
 const props = defineProps<Props>()
 const route = useRoute()
 
+const isExternalLink = computed(() => {
+  if (typeof props.to === 'string') {
+    return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/.test(props.to)
+  }
+  return false
+})
+
+const externalHref = computed(() => {
+  if (isExternalLink.value && typeof props.to === 'string') {
+    if (!/^https?:\/\//.test(props.to)) {
+      return `https://${props.to}`
+    }
+    return props.to
+  }
+  return undefined
+})
+
 const isActive = computed(() => {
+  if (isExternalLink.value) {
+    return false
+  }
   // If `to` is a string, compare it directly to the route path
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -35,12 +66,9 @@ const isActive = computed(() => {
   return route.path === newPath.path
 })
 
-// Define the active styles
-const activeStyle = computed(() => {
+const computedStyle = computed((): Partial<CSSStyleValue> => {
   return isActive.value
-    ? {
-        ...props.activeStyle, // Merge with any custom active styles passed as props
-      }
+    ? { ...props.activeStyle } // Объединяем с кастомными стилями
     : {}
 })
 </script>

@@ -49,6 +49,16 @@ test('test routes', async ({ page, goto }) => {
   await expect(page).toHaveURL('/de')
 })
 
+test('test external link', async ({ page, goto }) => {
+  await goto('/page', { waitUntil: 'hydration' })
+
+  await expect(page.locator('#external-link')).toHaveAttribute('href', `https://www.external-link.fr`)
+
+  await goto('/de/page', { waitUntil: 'hydration' })
+
+  await expect(page.locator('#external-link')).toHaveAttribute('href', `https://www.external-link.fr`)
+})
+
 test('test text escaping', async ({ page, goto }) => {
   await goto('/', { waitUntil: 'hydration' })
   await expect(page.locator('.text_escaping')).toHaveText('test {text_escaping} } { { ')

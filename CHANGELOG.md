@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.40.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.39.0...v1.40.0)
+
+### 🚀 Enhancements
+
+- **i18n-link:** Add support for external links in i18n-link component ([c40e43f](https://github.com/s00d/nuxt-i18n-micro/commit/c40e43f))
+
+### 🩹 Fixes
+
+- **i18n-link:** Remove unnecessary comment in computedStyle ([570335b](https://github.com/s00d/nuxt-i18n-micro/commit/570335b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.39.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.38.5...v1.39.0)

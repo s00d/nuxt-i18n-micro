@@ -68,7 +68,7 @@ const isActive = computed(() => {
 
 const computedStyle = computed((): Partial<CSSStyleValue> => {
   return isActive.value
-    ? { ...props.activeStyle } // Объединяем с кастомными стилями
+    ? { ...props.activeStyle }
     : {}
 })
 </script>

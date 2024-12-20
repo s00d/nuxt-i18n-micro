@@ -2,25 +2,10 @@ import { resolve } from 'pathe'
 import DevtoolsUIKit from '@nuxt/devtools-ui-kit'
 
 export default defineNuxtConfig({
-  ssr: false,
 
   modules: [
     DevtoolsUIKit,
   ],
-
-  devtools: {
-    enabled: false,
-  },
-
-  nitro: {
-    output: {
-      publicDir: resolve(__dirname, '../dist/client'),
-    },
-  },
-
-  app: {
-    baseURL: '/__nuxt-i18n-micro/client',
-  },
 
   $production: {
     app: {
@@ -28,6 +13,21 @@ export default defineNuxtConfig({
       baseURL: '/__NUXT_DEVTOOLS_I18N_BASE__/',
     },
   },
+  ssr: false,
+
+  devtools: {
+    enabled: false,
+  },
+
+  app: {
+    baseURL: '/__nuxt-i18n-micro/client',
+  },
 
   compatibilityDate: '2024-08-16',
+
+  nitro: {
+    output: {
+      publicDir: resolve(__dirname, '../dist/client'),
+    },
+  },
 })

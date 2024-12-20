@@ -2,7 +2,7 @@ import { exec, execSync, spawn } from 'node:child_process'
 import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
-import { dirname, join, relative } from 'node:path'
+import path, { dirname, join, relative } from 'node:path'
 import { test } from '@nuxt/test-utils/playwright'
 
 interface ArtillerySummary {
@@ -108,6 +108,42 @@ const resultsFilePath = join(__dirname, '../docs/guide', 'performance-results.md
 // Функция для записи в MD файл
 function writeToMarkdown(content: string) {
   fs.appendFileSync(resultsFilePath, content)
+}
+
+// Чтение версии из package.json
+function getVersion(packagePath: string, key: string, subkey: string | null = null) {
+  if (fs.existsSync(packagePath)) {
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'))
+    if (subkey) {
+      return packageJson[key]?.[subkey] || 'N/A'
+    }
+    return packageJson[key] || 'N/A'
+  }
+  return 'N/A'
+}
+
+// Пути к package.json
+const rootPackagePath = path.resolve(__dirname, '../package.json')
+const i18nPackagePath = path.resolve(__dirname, 'fixtures/i18n/package.json')
+
+// Добавление раздела версий зависимостей в конечный MD-файл
+function addDependencyVersions() {
+  const dependencies = {
+    'node': process.version,
+    'nuxt': getVersion(rootPackagePath, 'devDependencies', 'nuxt'),
+    'nuxt-i18n-micro': getVersion(rootPackagePath, 'version'),
+    '@nuxtjs/i18n': getVersion(i18nPackagePath, 'devDependencies', '@nuxtjs/i18n'),
+  }
+
+  const dependencySection = `
+## Dependency Versions
+
+| Dependency                   | Version   |
+|-------------------------------|-----------|
+${Object.entries(dependencies).map(([dep, version]) => `| ${dep}                       | ${version} |`).join('\n')}
+  `
+
+  writeToMarkdown(dependencySection)
 }
 
 function initializeMarkdown() {
@@ -498,30 +534,32 @@ Stress Test Results:
   }
 }
 
-test('compare build performance and stress test', async () => {
-  test.setTimeout(1600000)
+test.describe('performance', () => {
+  test('compare build performance and stress test', async () => {
+    test.setTimeout(1600000)
 
-  initializeMarkdown()
+    initializeMarkdown()
+    addDependencyVersions()
 
-  const i18nResults = await measureBuildPerformance('./test/fixtures/i18n')
-  const i18nNextResults = await measureBuildPerformance('./test/fixtures/i18n-micro')
+    const i18nResults = await measureBuildPerformance('./test/fixtures/i18n')
+    const i18nNextResults = await measureBuildPerformance('./test/fixtures/i18n-micro')
 
-  console.log('\nPerformance Comparison:')
-  console.log('--------------------------')
-  console.log(`i18n-micro: ${i18nNextResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextResults.maxCpuUsage.toFixed(2)}%`)
-  console.log(`i18n v9: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%`)
+    console.log('\nPerformance Comparison:')
+    console.log('--------------------------')
+    console.log(`i18n-micro: ${i18nNextResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextResults.maxCpuUsage.toFixed(2)}%`)
+    console.log(`i18n v9: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%`)
 
-  const timeDifference = i18nNextResults.buildTime - i18nResults.buildTime
-  const memoryDifference = i18nNextResults.maxMemoryUsed - i18nResults.maxMemoryUsed
-  const cpuDifference = i18nNextResults.maxCpuUsage - i18nResults.maxCpuUsage
+    const timeDifference = i18nNextResults.buildTime - i18nResults.buildTime
+    const memoryDifference = i18nNextResults.maxMemoryUsed - i18nResults.maxMemoryUsed
+    const cpuDifference = i18nNextResults.maxCpuUsage - i18nResults.maxCpuUsage
 
-  console.log('\nComparison Results:')
-  console.log('--------------------------')
-  console.log(`Time difference: ${timeDifference.toFixed(2)} seconds`)
-  console.log(`Memory difference: ${memoryDifference.toFixed(2)} MB`)
-  console.log(`CPU usage difference: ${cpuDifference.toFixed(2)}%`)
+    console.log('\nComparison Results:')
+    console.log('--------------------------')
+    console.log(`Time difference: ${timeDifference.toFixed(2)} seconds`)
+    console.log(`Memory difference: ${memoryDifference.toFixed(2)} MB`)
+    console.log(`CPU usage difference: ${cpuDifference.toFixed(2)}%`)
 
-  writeToMarkdown(`
+    writeToMarkdown(`
 ### ⏱️ Build Time and Resource Consumption
 
 ::: details **i18n v9**
@@ -537,7 +575,7 @@ test('compare build performance and stress test', async () => {
 :::
 `)
 
-  writeToMarkdown(`
+    writeToMarkdown(`
 ## Performance Comparison
 
 - **i18n-micro**: ${i18nNextResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextResults.maxCpuUsage.toFixed(2)}%
@@ -547,12 +585,13 @@ test('compare build performance and stress test', async () => {
 - **CPU Usage Difference**: ${cpuDifference.toFixed(2)}%
 `)
 
-  const artilleryConfigPath = './artillery-config.yml' // Убедитесь, что путь корректный
+    const artilleryConfigPath = './artillery-config.yml' // Убедитесь, что путь корректный
 
-  const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', artilleryConfigPath)
-  const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', artilleryConfigPath)
+    const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', artilleryConfigPath)
+    const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', artilleryConfigPath)
 
-  logAndWriteComparisonResults('i18n v9', 'i18n-micro', i18nStressResults, i18nNextStressResults)
+    logAndWriteComparisonResults('i18n v9', 'i18n-micro', i18nStressResults, i18nNextStressResults)
 
-  addTestLogicExplanation()
+    addTestLogicExplanation()
+  })
 })

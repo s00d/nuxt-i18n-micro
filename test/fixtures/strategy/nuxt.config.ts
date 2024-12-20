@@ -11,13 +11,14 @@ export default defineNuxtConfig({
   // @ts-ignore
   i18n: {
     locales: [
-      { code: 'en-us', iso: 'en_EN' },
-      { code: 'de-de', iso: 'de_DE' },
+      { code: 'en', iso: 'en_EN', displayName: 'English' },
+      { code: 'de', iso: 'de_DE', displayName: 'German' },
+      { code: 'ru', iso: 'ru_RU', displayName: 'Russian' },
     ],
+    meta: true,
     defaultLocale: 'en',
-    // localeCookie: 'user-change-coockie',
-    disablePageLocales: true,
-    includeDefaultLocaleRoute: false,
-    customRegexMatcher: '[a-z]{2}-[a-z]{2}',
+    translationDir: 'locales',
+    autoDetectLanguage: false,
+    strategy: 'no_prefix',
   },
 })

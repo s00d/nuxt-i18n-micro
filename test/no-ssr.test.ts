@@ -27,11 +27,12 @@ test.use({
   // },
 })
 
-// Тест для английского языка
-test('no-ssr test', async ({ page, goto }) => {
-  await goto('/', { waitUntil: 'hydration' })
-  await expect(page.locator('#locale')).toHaveText('en')
+test.describe('no-ssr', () => {
+  test('no-ssr test', async ({ page, goto }) => {
+    await goto('/', { waitUntil: 'hydration' })
+    await expect(page.locator('#locale')).toHaveText('en')
 
-  await goto('/de', { waitUntil: 'hydration' })
-  await expect(page.locator('#locale')).toHaveText('de')
+    await goto('/de', { waitUntil: 'hydration' })
+    await expect(page.locator('#locale')).toHaveText('de')
+  })
 })

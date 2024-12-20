@@ -2,6 +2,11 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
+  devtools: { enabled: true },
+  experimental: {
+    externalVue: false,
+  },
+  compatibilityDate: '2024-08-14',
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {
@@ -16,9 +21,4 @@ export default defineNuxtConfig({
     autoDetectLanguage: false,
     define: false,
   },
-  devtools: { enabled: true },
-  experimental: {
-    externalVue: false,
-  },
-  compatibilityDate: '2024-08-14',
 })

@@ -9,6 +9,8 @@ export default defineNuxtConfig({
       hashMode: true,
     },
   },
+
+  compatibilityDate: '2024-08-16',
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {
@@ -23,6 +25,4 @@ export default defineNuxtConfig({
     includeDefaultLocaleRoute: false,
     disablePageLocales: false,
   },
-
-  compatibilityDate: '2024-08-16',
 })

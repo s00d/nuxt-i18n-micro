@@ -17,13 +17,12 @@ const locales: Locale[] = [
 ]
 
 const defaultLocaleCode = 'en'
-const includeDefaultLocaleRoute = false
 
 test.describe('PageManager', () => {
   let pageManager: PageManager
 
   test.beforeAll(() => {
-    pageManager = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute, undefined)
+    pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined)
   })
 
   test('should correctly calculate active locale codes', async () => {
@@ -167,86 +166,122 @@ test.describe('PageManager', () => {
       ]),
     )
   })
-})
 
-test('should include default locale routes when includeDefaultLocaleRoute is true', async () => {
-  // Устанавливаем флаг includeDefaultLocaleRoute в true
-  const includeDefaultLocaleRoute = true
-  const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute, undefined)
+  test('should include default locale routes when strategy is prefix', async () => {
+    // Устанавливаем флаг includeDefaultLocaleRoute в true
+    const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, 'prefix', undefined)
 
-  const pages: NuxtPage[] = [{
-    path: '/activity',
-    name: 'ActivityParent',
-    children: [{ path: 'skiing', name: 'Skiing' }],
-  }]
+    const pages: NuxtPage[] = [{
+      path: '/activity',
+      name: 'ActivityParent',
+      children: [{ path: 'skiing', name: 'Skiing' }],
+    }]
 
-  const rootDir = '/mocked/root/dir' // Мокированный путь к корневой директории
+    const rootDir = '/mocked/root/dir' // Мокированный путь к корневой директории
 
-  // Расширяем страницы
-  pageManagerWithDefaultLocale.extendPages(pages, rootDir)
-  // Проверяем корректность обработки маршрута для дефолтной локали
-  expect(pages[0].path).toBe('/:locale(en|de|ru)/activity')
+    // Расширяем страницы
+    pageManagerWithDefaultLocale.extendPages(pages, rootDir)
+    // Проверяем корректность обработки маршрута для дефолтной локали
+    expect(pages[0].path).toBe('/:locale(en|de|ru)/activity')
 
-  // Проверяем, что добавлены маршруты для всех локалей, включая дефолтную
-  expect(pages[0].children).toHaveLength(3) // en, de, ru
-  expect(pages[0].children).toEqual(
-    expect.arrayContaining([
-      { path: 'skiing', name: 'localized-Skiing-en', children: [] },
-      { path: 'skiing', name: 'localized-Skiing-de', children: [] },
-      { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
-    ]),
-  )
-})
+    // Проверяем, что добавлены маршруты для всех локалей, включая дефолтную
+    expect(pages[0].children).toHaveLength(3) // en, de, ru
+    expect(pages[0].children).toEqual(
+      expect.arrayContaining([
+        { path: 'skiing', name: 'localized-Skiing-en', children: [] },
+        { path: 'skiing', name: 'localized-Skiing-de', children: [] },
+        { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
+      ]),
+    )
+  })
 
-test('should handle globalLocaleRoutes correctly', async () => {
-  const globalLocaleRoutes = {
-    activity: {
-      en: '/custom-activity-en',
-      de: '/custom-activity-de',
-      ru: '/custom-activity-ru',
-    },
-    unlocalized: false, // Unlocalized page should not be localized
-  }
+  test('should handle prefix_except_default strategy correctly', async () => {
+    const globalLocaleRoutes = {
+      activity: {
+        en: '/custom-activity-en',
+        de: '/custom-activity-de',
+        ru: '/custom-activity-ru',
+      },
+      unlocalized: false, // Unlocalized page should not be localized
+    }
 
-  // Creating a new PageManager instance with globalLocaleRoutes
-  const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, includeDefaultLocaleRoute, globalLocaleRoutes)
+    // Creating a new PageManager instance with globalLocaleRoutes
+    const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes)
 
-  const pages: NuxtPage[] = [{
-    path: '/activity',
-    name: 'activity',
-    children: [{ path: 'skiing', name: 'Skiing' }],
-  }, {
-    path: '/unlocalized',
-    name: 'unlocalized',
-  }]
-
-  const rootDir = '/mocked/root/dir' // Mocked root directory path
-
-  // Extend pages with globalLocaleRoutes
-  pageManagerWithGlobalRoutes.extendPages(pages, rootDir)
-
-  const expectedPages = [
-    {
-      path: '/custom-activity-en',
+    const pages: NuxtPage[] = [{
+      path: '/activity',
       name: 'activity',
       children: [{ path: 'skiing', name: 'Skiing' }],
-    },
-    {
+    }, {
       path: '/unlocalized',
       name: 'unlocalized',
-    },
-    {
-      path: '/:locale(de)/custom-activity-de',
-      name: 'localized-activity-de',
-      children: [{ path: 'skiing', name: 'localized-Skiing-de', children: [] }],
-    },
-    {
-      path: '/:locale(ru)/custom-activity-ru',
-      name: 'localized-activity-ru',
-      children: [{ path: 'skiing', name: 'localized-Skiing-ru', children: [] }],
-    },
-  ]
+    }]
 
-  // Assert that the pages array matches the expected structure
-  expect(pages).toEqual(expectedPages)
+    const rootDir = '/mocked/root/dir' // Mocked root directory path
+
+    // Extend pages with globalLocaleRoutes
+    pageManagerWithGlobalRoutes.extendPages(pages, rootDir)
+
+    const expectedPages = [
+      {
+        path: '/custom-activity-en',
+        name: 'activity',
+        children: [{ path: 'skiing', name: 'Skiing' }],
+      },
+      {
+        path: '/unlocalized',
+        name: 'unlocalized',
+      },
+      {
+        path: '/:locale(de)/custom-activity-de',
+        name: 'localized-activity-de',
+        children: [{ path: 'skiing', name: 'localized-Skiing-de', children: [] }],
+      },
+      {
+        path: '/:locale(ru)/custom-activity-ru',
+        name: 'localized-activity-ru',
+        children: [{ path: 'skiing', name: 'localized-Skiing-ru', children: [] }],
+      },
+    ]
+
+    // Assert that the pages array matches the expected structure
+    expect(pages).toEqual(expectedPages)
+  })
+
+  test('should handle prefix_and_default strategy correctly', async () => {
+    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'prefix_and_default', undefined)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/activity',
+        name: 'activity',
+        children: [{ path: 'skiing', name: 'Skiing' }],
+      },
+    ]
+
+    const rootDir = '/mocked/root/dir' // Mocked root directory path
+
+    // Extend pages
+    pageManagerPrefixAndDefault.extendPages(pages, rootDir)
+
+    expect(pages).toHaveLength(2) // Routes for default and non-default locales
+
+    // Check default locale route
+    expect(pages[0].path).toBe('/activity')
+    expect(pages[0].children).toEqual(
+      expect.arrayContaining([
+        { path: 'skiing', name: 'Skiing', children: [] },
+      ]),
+    )
+
+    // Check non-default locale routes
+    expect(pages[1].path).toBe('/:locale(en|de|ru)/activity')
+    expect(pages[1].children).toEqual(
+      expect.arrayContaining([
+        { path: 'skiing', name: 'localized-Skiing-en', children: [] },
+        { path: 'skiing', name: 'localized-Skiing-de', children: [] },
+        { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
+      ]),
+    )
+  })
 })

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.50.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.50.2...v1.50.3)
+
+### 🏡 Chore
+
+- **playground:** Update `nuxt-i18n-micro` to version `^1.50.1` ([3b195b1](https://github.com/s00d/nuxt-i18n-micro/commit/3b195b1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.50.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.50.1...v1.50.2)

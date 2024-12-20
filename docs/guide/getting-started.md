@@ -239,18 +239,36 @@ export type Getter = (key: string, params?: Record<string, string | number | boo
 }
 ```
 
-### 🚦 `includeDefaultLocaleRoute`
+### 🚦 `includeDefaultLocaleRoute` (Deprecated)
 
 Automatically redirects routes without a locale prefix to the default locale.
 
 **Type**: `boolean`  
 **Default**: `false`
 
-**Example**:
+**Deprecated**: As of version 1.50.0, `includeDefaultLocaleRoute` is deprecated. Use the `strategy` option instead for more flexible route handling.
 
-```typescript
-includeDefaultLocaleRoute: true // Ensure consistency across routes by redirecting to the default locale
-```
+### 🚦 `strategy` (New in version 1.50.0)
+
+Defines how locale prefixes should be handled in routes. Choose the strategy that best fits your use case.
+
+**Type**: `string`  
+**Default**: `prefix_and_default`
+
+**Available Strategies**:
+
+- **no_prefix**  
+  Routes will not have a locale prefix. The locale will be detected and changed without modifying the URL. Locale detection relies on the browser and cookies, and you need to manage locale switching through the i18n API.  
+  **Note**: This strategy does not support features like Custom paths or Ignore routes.
+
+- **prefix_except_default**  
+  A locale prefix will be added to all routes, except for the default language. URLs for the default language will not include a prefix.
+
+- **prefix**  
+  All routes will include a locale prefix, regardless of the language.
+
+- **prefix_and_default**  
+  Combines both previous behaviors. URLs for every language will have a locale prefix, while URLs for the default language will have a non-prefixed version. However, if `detectBrowserLanguage` is enabled, the prefixed version will be preferred for the default language.
 
 ### 🚦 `customRegexMatcher`
 

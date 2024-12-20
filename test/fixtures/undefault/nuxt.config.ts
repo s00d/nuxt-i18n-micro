@@ -5,6 +5,8 @@ export default defineNuxtConfig({
     MyModule,
   ],
 
+  compatibilityDate: '2024-08-16',
+
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {
@@ -30,6 +32,4 @@ export default defineNuxtConfig({
       unlocalized: false, // Unlocalized page should not be localized
     },
   },
-
-  compatibilityDate: '2024-08-16',
 })

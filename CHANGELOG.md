@@ -33,7 +33,7 @@
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.41.0...v1.50.1)
 
-## v1.41.0
+## v1.50.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.40.0...v1.41.0)
 

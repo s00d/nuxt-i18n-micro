@@ -1,6 +1,7 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import type { Translations } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend } from '../../types'
+import { isPrefixStrategy } from '../helpers'
 import { defineNuxtPlugin, navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
@@ -59,13 +60,13 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   }
 
   if (import.meta.server) {
-    if (i18nConfig.includeDefaultLocaleRoute) {
+    if (isPrefixStrategy(i18nConfig.strategy!)) {
       await handleRedirect(route)
     }
   }
 
   router.beforeEach(async (to, from, next) => {
-    if (i18nConfig.includeDefaultLocaleRoute) {
+    if (isPrefixStrategy(i18nConfig.strategy!)) {
       await handleRedirect(to)
     }
     if (next) {
@@ -100,7 +101,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
         const newParams = { ...route.params }
         delete newParams.locale
 
-        if (i18nConfig.includeDefaultLocaleRoute) {
+        if (isPrefixStrategy(i18nConfig.strategy!)) {
           if (router.hasRoute(`localized-${defaultRouteName}-${currentLocale}`)) {
             defaultRouteName = `localized-${defaultRouteName}-${currentLocale}`
           }

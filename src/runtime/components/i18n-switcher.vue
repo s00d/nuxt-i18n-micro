@@ -41,7 +41,7 @@
             customLinkStyle,
           ]"
           :hreflang="locale.iso || locale.code"
-          @click="switchLocale()"
+          @click="switchLocale(locale.code)"
         >
           <slot
             name="before-link-content"
@@ -107,7 +107,7 @@ const props = withDefaults(defineProps<Props>(), {
   customIconStyle: () => ({}),
 })
 
-const { $switchLocaleRoute, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
+const { $switchLocaleRoute, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const locales = ref($getLocales())
@@ -144,8 +144,9 @@ const currentLocaleLabel = computed(() => localeLabel({
   displayName: currentLocaleName.value ?? undefined,
 }))
 
-const switchLocale = () => {
+const switchLocale = (code: string) => {
   toggleDropdown()
+  $switchLocale(code)
 }
 
 // Default Styles

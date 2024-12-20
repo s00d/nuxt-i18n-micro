@@ -18,6 +18,11 @@ import { PageManager } from './page-manager'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
+import {
+  isNoPrefixStrategy,
+  isPrefixStrategy,
+  withPrefixStrategy,
+} from './runtime/helpers'
 
 function generateI18nTypes() {
   return `
@@ -67,12 +72,13 @@ export default defineNuxtModule<ModuleOptions>({
     define: true,
     types: true,
     defaultLocale: 'en',
+    strategy: 'prefix_except_default',
     translationDir: 'locales',
     autoDetectPath: '/',
     autoDetectLanguage: true,
     disablePageLocales: false,
     disableWatcher: false,
-    includeDefaultLocaleRoute: false,
+    includeDefaultLocaleRoute: undefined,
     fallbackLocale: undefined,
     localeCookie: 'user-locale',
     apiBaseUrl: '_locales',
@@ -91,11 +97,22 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const isSSG = nuxt.options._generate
     const isCloudflarePages = nuxt.options.nitro.preset === 'cloudflare_pages' || process.env.NITRO_PRESET === 'cloudflare-pages'
-    if (isCloudflarePages && !options.includeDefaultLocaleRoute) {
-      throw new Error('Nuxt-i18n-micro: "includeDefaultLocaleRoute" must be set to true when using Cloudflare Pages.')
-    }
 
     const logger = useLogger('nuxt-i18n-micro')
+
+    if (options.includeDefaultLocaleRoute !== undefined) {
+      logger.debug('The \'includeDefaultLocaleRoute\' option is deprecated. Use \'strategy\' instead.')
+      if (options.includeDefaultLocaleRoute) {
+        options.strategy = 'prefix'
+      }
+      else {
+        options.strategy = 'prefix_except_default'
+      }
+    }
+
+    if (isCloudflarePages && !isPrefixStrategy(options.strategy!)) {
+      throw new Error('Nuxt-i18n-micro: "includeDefaultLocaleRoute" must be set to true when using Cloudflare Pages.')
+    }
 
     try {
       const storagePahh = path.join(nuxt.options.rootDir, './server/assets')
@@ -108,7 +125,7 @@ export default defineNuxtModule<ModuleOptions>({
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
     const localeManager = new LocaleManager(options, rootDirs)
-    const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.includeDefaultLocaleRoute!, options.globalLocaleRoutes)
+    const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.strategy!, options.globalLocaleRoutes)
 
     addTemplate({
       filename: 'i18n.plural.mjs',
@@ -130,7 +147,7 @@ export default defineNuxtModule<ModuleOptions>({
       localeCookie: options.localeCookie ?? 'user-locale',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
       autoDetectPath: options.autoDetectPath ?? '/',
-      includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
+      strategy: options.strategy ?? 'no_prefix',
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routesLocaleLinks: options.routesLocaleLinks ?? {},
@@ -212,6 +229,10 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     extendPages((pages) => {
+      if (isNoPrefixStrategy(options.strategy!)) {
+        return
+      }
+
       const pagesNames = pages
         .map(page => page.name)
         .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
@@ -222,7 +243,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       pageManager.extendPages(pages, nuxt.options.rootDir, options.customRegexMatcher, isCloudflarePages)
 
-      if (options.includeDefaultLocaleRoute && !isCloudflarePages) {
+      if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
         const fallbackRoute: NuxtPage = {
           path: '/:pathMatch(.*)*',
           name: 'custom-fallback-route',
@@ -308,7 +329,7 @@ export default defineNuxtModule<ModuleOptions>({
       const pages = nuxt.options.generate.routes || []
 
       localeManager.locales.forEach((locale) => {
-        if (locale.code !== options.defaultLocale || options.includeDefaultLocaleRoute) {
+        if (locale.code !== options.defaultLocale || withPrefixStrategy(options.strategy!)) {
           pages.forEach((page) => {
             if (!/\.[a-z0-9]+$/i.test(page)) {
               routes.push(`/${locale.code}${page}`)

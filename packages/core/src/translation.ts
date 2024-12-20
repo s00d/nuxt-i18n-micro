@@ -5,7 +5,6 @@ const routeLocaleCache: Record<string, Translations> = {}
 const dynamicTranslationsCaches: Record<string, Translations>[] = []
 
 const serverTranslationCache: Record<string, Map<string, Translations | unknown>> = {}
-const serverTranslationInit: Record<string, boolean> = {}
 
 function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -56,10 +55,7 @@ export function useTranslationHelper() {
       return serverTranslationCache[`${locale}:${routeName}`]
     },
     setCache(locale: string, routeName: string, cache: Map<string, Translations | unknown>) {
-      const cacheKey = `${locale}:${routeName}`
       serverTranslationCache[`${locale}:${routeName}`] = cache
-      serverTranslationInit[`${locale}:index`] = true
-      serverTranslationInit[cacheKey] = true
     },
     mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false) {
       if (!force && !routeLocaleCache[`${locale}:${routeName}`]) {
@@ -126,11 +122,9 @@ export function useTranslationHelper() {
     async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
       const cacheKey = `${locale}:${routeName}`
       routeLocaleCache[cacheKey] = { ...translations }
-      serverTranslationInit[cacheKey] = true
     },
     async loadTranslations(locale: string, translations: Translations): Promise<void> {
       generalLocaleCache[locale] = { ...translations }
-      serverTranslationInit[`${locale}:index`] = true
     },
   }
 }

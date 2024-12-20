@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v1.41.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.40.0...v1.41.0)
+
+### 🚀 Enhancements
+
+- **module:** Add strategy option and deprecate includeDefaultLocaleRoute ([6a2f455](https://github.com/s00d/nuxt-i18n-micro/commit/6a2f455))
+
+### 💅 Refactors
+
+- **translation:** Remove unused serverTranslationInit cache ([33fec8e](https://github.com/s00d/nuxt-i18n-micro/commit/33fec8e))
+- **config:** Clean up nuxt.config.ts and enable devtools ([534f8ff](https://github.com/s00d/nuxt-i18n-micro/commit/534f8ff))
+- **config:** Reorganize nuxt.config.ts for improved clarity ([2b2363f](https://github.com/s00d/nuxt-i18n-micro/commit/2b2363f))
+
+### 📖 Documentation
+
+- **guide:** Update FAQ and add strategy documentation ([d9c49e4](https://github.com/s00d/nuxt-i18n-micro/commit/d9c49e4))
+
+### ✅ Tests
+
+- **i18n:** Add tests for different i18n strategies ([20420e7](https://github.com/s00d/nuxt-i18n-micro/commit/20420e7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.40.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.39.0...v1.40.0)

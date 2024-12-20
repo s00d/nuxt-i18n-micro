@@ -1,15 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-07-25',
+
+  modules: ['@nuxt/test-utils/module', 'nuxt-i18n-micro'],
+  components: {
+    dirs: [{ path: '~/components', pathPrefix: false }],
+  },
   devtools: { enabled: true },
   future: {
     compatibilityVersion: 4,
   },
-  components: {
-    dirs: [{ path: '~/components', pathPrefix: false }],
-  },
-
-  modules: ['@nuxt/test-utils/module', 'nuxt-i18n-micro'],
+  compatibilityDate: '2024-07-25',
 
   i18n: {
     locales: [

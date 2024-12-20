@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { readFileSync } from 'node:fs'
 import type { NuxtPage } from '@nuxt/schema'
-import type { GlobalLocaleRoutes, Locale } from './types'
+import type { GlobalLocaleRoutes, Locale, Strategies } from './types'
 import {
   normalizePath,
   isLocaleDefault,
@@ -13,6 +13,7 @@ import {
   removeLeadingSlash,
   extractLocaleRoutes,
 } from './utils'
+import { isPrefixAndDefaultStrategy, isPrefixStrategy } from './runtime/helpers'
 
 const buildRouteNameFromRoute = (name: string | null | undefined, path: string | null | undefined) => {
   return name ?? (path ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
@@ -22,15 +23,15 @@ const buildRouteNameFromRoute = (name: string | null | undefined, path: string |
 export class PageManager {
   locales: Locale[]
   defaultLocale: Locale
-  includeDefaultLocaleRoute: boolean
+  strategy: Strategies
   localizedPaths: { [key: string]: { [locale: string]: string } } = {}
   activeLocaleCodes: string[]
   globalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
 
-  constructor(locales: Locale[], defaultLocaleCode: string, includeDefaultLocaleRoute: boolean, globalLocaleRoutes: GlobalLocaleRoutes) {
+  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes) {
     this.locales = locales
     this.defaultLocale = this.findLocaleByCode(defaultLocaleCode) || { code: defaultLocaleCode }
-    this.includeDefaultLocaleRoute = includeDefaultLocaleRoute
+    this.strategy = strategy
     this.activeLocaleCodes = this.computeActiveLocaleCodes()
     this.globalLocaleRoutes = globalLocaleRoutes || {}
   }
@@ -41,7 +42,7 @@ export class PageManager {
 
   private computeActiveLocaleCodes(): string[] {
     return this.locales
-      .filter(locale => locale.code !== this.defaultLocale.code || this.includeDefaultLocaleRoute)
+      .filter(locale => locale.code !== this.defaultLocale.code || isPrefixAndDefaultStrategy(this.strategy) || isPrefixStrategy(this.strategy))
       .map(locale => locale.code)
   }
 
@@ -72,7 +73,7 @@ export class PageManager {
     })
 
     // remove default routes
-    if (this.includeDefaultLocaleRoute && !isCloudflarePages) {
+    if (isPrefixStrategy(this.strategy) && !isCloudflarePages) {
       for (let i = pages.length - 1; i >= 0; i--) {
         const page = pages[i]
         const pagePath = page.path ?? ''
@@ -139,7 +140,7 @@ export class PageManager {
       const customPath = customRoutePaths[locale.code]
       if (!customPath) return
 
-      const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, this.includeDefaultLocaleRoute)
+      const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy))
       if (isDefaultLocale) {
         // Modify the page path if it's the default locale
         page.path = normalizePath(customPath)
@@ -147,6 +148,10 @@ export class PageManager {
       else {
         // Create a new localized route for this locale
         additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex))
+      }
+
+      if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
+        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex, true))
       }
     })
   }
@@ -229,12 +234,16 @@ export class PageManager {
       const customPath = this.localizedPaths[fullPath]?.[locale.code]
       if (!customPath) return
 
-      const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, this.includeDefaultLocaleRoute)
+      const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy))
       if (isDefaultLocale) {
         page.children = this.createLocalizedChildren(originalChildren, '', [locale.code], false)
       }
       else {
         additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex))
+      }
+
+      if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
+        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, true))
       }
     })
   }
@@ -271,8 +280,9 @@ export class PageManager {
     isCustom: boolean,
     customPath: string = '',
     customRegex?: string | RegExp,
+    force = false,
   ): NuxtPage {
-    const routePath = this.buildRoutePath(localeCodes, page.path, encodeURI(customPath), isCustom, customRegex)
+    const routePath = this.buildRoutePath(localeCodes, page.path, encodeURI(customPath), isCustom, customRegex, force)
     const routeName = buildRouteName(buildRouteNameFromRoute(page.name, page.path), localeCodes[0], isCustom)
 
     return {
@@ -312,13 +322,13 @@ export class PageManager {
     const basePath = customLocalePaths?.[locale] || routePath
     const normalizedBasePath = encodeURI(normalizePath(basePath))
 
-    return shouldAddLocalePrefix(locale, this.defaultLocale, addLocalePrefix, this.includeDefaultLocaleRoute)
+    return shouldAddLocalePrefix(locale, this.defaultLocale, addLocalePrefix, isPrefixStrategy(this.strategy))
       ? buildFullPath(locale, normalizedBasePath)
       : normalizedBasePath
   }
 
   private buildLocalizedRouteName(baseName: string, locale: string, modifyName: boolean): string {
-    return modifyName && !isLocaleDefault(locale, this.defaultLocale, this.includeDefaultLocaleRoute) ? `localized-${baseName}-${locale}` : baseName
+    return modifyName && !isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy) || isPrefixAndDefaultStrategy(this.strategy)) ? `localized-${baseName}-${locale}` : baseName
   }
 
   private buildRoutePath(
@@ -327,9 +337,10 @@ export class PageManager {
     customPath: string,
     isCustom: boolean,
     customRegex?: string | RegExp,
+    force = false,
   ): string {
     if (isCustom) {
-      return (this.includeDefaultLocaleRoute || !localeCodes.includes(this.defaultLocale.code))
+      return (force || isPrefixStrategy(this.strategy) || !localeCodes.includes(this.defaultLocale.code))
         ? buildFullPath(localeCodes, customPath, customRegex)
         : normalizePath(customPath)
     }

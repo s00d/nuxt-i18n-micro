@@ -1,4 +1,5 @@
 import type { ModuleOptionsExtend } from '../../types'
+import { isPrefixStrategy, isNoPrefixStrategy } from '../helpers'
 import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo } from '#app'
 import { useRoute, useRouter } from '#imports'
 
@@ -25,18 +26,41 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const route = useRoute()
 
   async function switchLocale(newLocale: string) {
+    if (isNoPrefixStrategy(i18nConfig.strategy!)) {
+      if (newLocale !== defaultLocale) {
+        const newParams = { ...route.params }
+        delete newParams.locale
+        const resolvedRoute = router.resolve(router.currentRoute.value)
+        const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
+
+        const newRoute = router.resolve({
+          name: routeName,
+          params: newParams,
+        })
+
+        const userLocaleCookie = useCookie('no-prefix-locale')
+        userLocaleCookie.value = newLocale
+
+        await navigateTo(newRoute, {
+          redirectCode: 302,
+          external: true,
+        })
+      }
+      return
+    }
+
     const currentPath = router.currentRoute
     const resolvedRoute = router.resolve(currentPath.value)
     const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
 
-    const newRouteName = i18nConfig.includeDefaultLocaleRoute || newLocale !== defaultLocale
+    const newRouteName = isPrefixStrategy(i18nConfig.strategy!) || newLocale !== defaultLocale
       ? `localized-${routeName}`
       : routeName
 
     const newParams = { ...route.params }
     delete newParams.locale
 
-    if (i18nConfig.includeDefaultLocaleRoute || newLocale !== defaultLocale) {
+    if (isPrefixStrategy(i18nConfig.strategy!) || newLocale !== defaultLocale) {
       newParams.locale = newLocale
     }
 

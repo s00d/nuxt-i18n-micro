@@ -23,9 +23,12 @@ export type PluralFunc = (key: string, count: number, params: Params, locale: st
 
 export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
 
+export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
+
 export interface ModuleOptions {
   locales?: Locale[]
   meta?: boolean
+  strategy?: Strategies
   metaBaseUrl?: string
   define?: boolean
   defaultLocale?: string

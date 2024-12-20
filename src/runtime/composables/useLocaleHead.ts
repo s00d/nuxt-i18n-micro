@@ -1,5 +1,6 @@
 import { joinURL } from 'ufo'
 import type { Locale, ModuleOptionsExtend } from '../../types'
+import { isPrefixExceptDefaultStrategy } from '../helpers'
 import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
 
 interface MetaLink {
@@ -32,7 +33,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
   })
 
   function updateMeta() {
-    const { defaultLocale, includeDefaultLocaleRoute } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+    const { defaultLocale, strategy } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
     const { $getLocales, $getLocale } = useNuxtApp()
 
     const route = useRoute()
@@ -107,7 +108,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     }
 
     const alternateLinks = alternateLocales.flatMap((loc: Locale) => {
-      const href = defaultLocale === loc.code && !includeDefaultLocaleRoute
+      const href = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
         ? indexUrl
         : joinURL(unref(baseUrl), loc.code, fullPath)
 

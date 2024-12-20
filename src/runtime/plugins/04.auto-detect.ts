@@ -84,23 +84,28 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const acceptLanguage = headers?.['accept-language'] ?? ''
   const browserLanguages = acceptLanguage ? parseAcceptLanguage(acceptLanguage) : [defaultLocale]
-  let detectedLocale = defaultLocale
+  let detectedLocale: string | undefined = defaultLocale
 
   for (const language of browserLanguages) {
-    const primaryLanguage = language.split('-')[0]
-    if (supportedLocales.includes(primaryLanguage)) {
-      detectedLocale = primaryLanguage
-      break
+    const lowerCaseLanguage = language.toLowerCase()
+    const primaryLanguage = lowerCaseLanguage.split('-')[0]
+
+    detectedLocale = supportedLocales.find(
+      locale => locale.toLowerCase() === lowerCaseLanguage || locale.toLowerCase() === primaryLanguage,
+    )
+
+    if (detectedLocale) break
+  }
+
+  if (detectedLocale) {
+    userLocaleCookie.value = detectedLocale
+    if (i18nConfig.hashMode) {
+      hashCookie.value = detectedLocale
     }
-  }
 
-  userLocaleCookie.value = detectedLocale
-  if (i18nConfig.hashMode) {
-    hashCookie.value = detectedLocale
-  }
-
-  const currentLocale = route.params.locale ?? defaultLocale
-  if (detectedLocale !== currentLocale) {
-    await switchLocale(detectedLocale)
+    const currentLocale = route.params.locale ?? defaultLocale
+    if (detectedLocale !== currentLocale) {
+      await switchLocale(detectedLocale)
+    }
   }
 })

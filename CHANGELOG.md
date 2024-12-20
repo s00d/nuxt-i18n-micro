@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.50.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.50.1...v1.50.2)
+
+### 🩹 Fixes
+
+- **auto-detect:** Improve locale detection logic for case sensitivity ([e762d5e](https://github.com/s00d/nuxt-i18n-micro/commit/e762d5e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.50.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.41.0...v1.50.1)

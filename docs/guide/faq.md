@@ -85,6 +85,28 @@ This allows dynamic links within translations while preserving proper localizati
 
 ---
 
+## ❓ Why are translation keys not resolving during SSR on Vercel, and how can I fix the locale path issue?
+
+### `$fetch` limitations on SSR
+On serverless platforms like Vercel, `$fetch` can only fetch static files from the CDN and not from the internal Nitro server. This means static translation files may not be directly accessible unless the correct base URL is set.
+
+### Fix by setting `apiBaseUrl`
+If translations are hosted externally, specify the full URL (e.g., `https://example.com/_locales`) for `$fetch` to access the translations correctly during SSR.
+
+**Example:**
+
+```js
+{
+  // ...
+  apiBaseUrl: 'https://example.com/_locales'
+  // ...
+}
+```
+
+---
+
+
+
 ## ❓ Why does `$t` or other i18n composables not work in Nuxt plugins?
 
 Nuxt I18n composables (`$t`, `$getLocale`, `$localePath`, etc.) may not work as expected within Nuxt plugins or utility functions, resulting in runtime errors.

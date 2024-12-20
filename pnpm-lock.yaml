@@ -117,8 +117,8 @@ importers:
   playground:
     devDependencies:
       nuxt-i18n-micro:
-        specifier: ^1.38.3
-        version: 1.38.3(magicast@0.3.5)(rollup@4.28.0)(vite@6.0.2(@types/node@20.17.10)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
+        specifier: ^1.50.1
+        version: 1.50.4(magicast@0.3.5)(rollup@4.28.0)(vite@6.0.2(@types/node@20.17.10)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
 
   test/fixtures/basic: {}
 
@@ -178,8 +178,6 @@ importers:
 
   test/fixtures/named: {}
 
-  test/fixtures/no_prefix: {}
-
   test/fixtures/redirect: {}
 
   test/fixtures/sitemap:
@@ -187,6 +185,8 @@ importers:
       '@nuxtjs/sitemap':
         specifier: ^6.1.1
         version: 6.1.5(h3@1.13.0)(magicast@0.3.5)(rollup@4.28.0)(vite@6.0.2(@types/node@20.17.10)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2))
+
+  test/fixtures/strategy: {}
 
   test/fixtures/typecheck: {}
 
@@ -5538,14 +5538,14 @@ packages:
     engines: {node: ^16.10.0 || >=18.0.0}
     hasBin: true
 
-  nuxt-i18n-micro-core@1.0.9:
-    resolution: {integrity: sha512-8ev6mWAbOcmTqJX2BarSkYRKeJ7dtxTkSEySvsWEj7ryqhrhqQDDKhvpHPGvt/yUJWV+Ay9/znh6Ba8kBgBgbA==}
+  nuxt-i18n-micro-core@1.0.10:
+    resolution: {integrity: sha512-5eQHwOTXxGeyhEadNj9UuqnK3NEctepkggIlcFlHq22N8jCZImCQkl9s5lOeR7Q+R8Xk2Vr97j/minGuPXDAtQ==}
 
-  nuxt-i18n-micro-test-utils@1.0.2:
-    resolution: {integrity: sha512-hnVcLZxT48GBjnRuz8L1fYnSSKaih+17yF4BAybQySYGhcnXyzh7ClFinKJ0YMV+GiZEsPhRKvYIlyI/lnhZrQ==}
+  nuxt-i18n-micro-test-utils@1.0.3:
+    resolution: {integrity: sha512-NXm555W+qmYMOUarjutWvOxpxLsjwjUGBqVWm2ZiMc8q5PrCxyNQowIaKsc28Kw07PYgsPTPFc7Ul5rUgXQ1/w==}
 
-  nuxt-i18n-micro@1.38.3:
-    resolution: {integrity: sha512-PC0/RD1w923DdV0LUwGmf4dxeLmPCVxJgQ45pl/7AfJYto13QAmKvOsErWhhiW1LMxxtvWDQHbenhV5jlRVtJg==}
+  nuxt-i18n-micro@1.50.4:
+    resolution: {integrity: sha512-MsvObt+Nko94QXSqfARNyQx6Ki+rm+X79CXj0nkLT1Q5yMUhZ8gjNU5QkJZ8UTI3tsTv6wsk/OBRsr0+Wag8BA==}
 
   nuxt-site-config-kit@2.2.21:
     resolution: {integrity: sha512-xO41Zf6bXlA9Zvj+fX7ftD+ITee4LfrkzHj85Gt4FpgwonFxzGO5pMBtAqIxXKJwuyT1z2wVAixHI+ov66wV0w==}
@@ -14697,24 +14697,24 @@ snapshots:
 
   nuxi@3.16.0: {}
 
-  nuxt-i18n-micro-core@1.0.9: {}
+  nuxt-i18n-micro-core@1.0.10: {}
 
-  nuxt-i18n-micro-test-utils@1.0.2:
+  nuxt-i18n-micro-test-utils@1.0.3:
     dependencies:
-      nuxt-i18n-micro-core: 1.0.9
+      nuxt-i18n-micro-core: 1.0.10
 
-  nuxt-i18n-micro@1.38.3(magicast@0.3.5)(rollup@4.28.0)(vite@6.0.2(@types/node@20.17.10)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1)):
+  nuxt-i18n-micro@1.50.4(magicast@0.3.5)(rollup@4.28.0)(vite@6.0.2(@types/node@20.17.10)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1)):
     dependencies:
-      '@nuxt/devtools-kit': 1.6.3(magicast@0.3.5)(rollup@4.28.0)(vite@6.0.2(@types/node@20.17.10)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
-      '@nuxt/kit': 3.14.1592(magicast@0.3.5)(rollup@4.28.0)
+      '@nuxt/devtools-kit': 1.6.4(magicast@0.3.5)(rollup@4.28.0)(vite@6.0.2(@types/node@20.17.10)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.1))
+      '@nuxt/kit': 3.13.2(magicast@0.3.5)(rollup@4.28.0)
       chokidar: 3.6.0
-      nuxt-i18n-micro-core: 1.0.9
-      nuxt-i18n-micro-test-utils: 1.0.2
+      nuxt-i18n-micro-core: 1.0.10
+      nuxt-i18n-micro-test-utils: 1.0.3
       sirv: 2.0.4
       ufo: 1.5.4
     optionalDependencies:
-      '@rollup/rollup-linux-x64-gnu': 4.28.0
-      '@rollup/rollup-win32-x64-msvc': 4.28.0
+      '@rollup/rollup-linux-x64-gnu': 4.28.1
+      '@rollup/rollup-win32-x64-msvc': 4.28.1
     transitivePeerDependencies:
       - magicast
       - rollup

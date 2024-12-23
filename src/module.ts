@@ -323,6 +323,10 @@ export default defineNuxtModule<ModuleOptions>({
         })
       }
 
+      if (isNoPrefixStrategy(options.strategy!)) {
+        return
+      }
+
       const routes = nitroConfig.prerender?.routes || []
 
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
@@ -380,6 +384,9 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     nuxt.hook('prerender:routes', async (prerenderRoutes) => {
+      if (isNoPrefixStrategy(options.strategy!)) {
+        return
+      }
       const routesSet = prerenderRoutes.routes
       const additionalRoutes = new Set<string>()
 

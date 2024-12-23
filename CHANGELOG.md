@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v1.51.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.50.4...v1.51.0)
+
+### 🚀 Enhancements
+
+- **fixtures:** Add empty German locale JSON file ([3f70545](https://github.com/s00d/nuxt-i18n-micro/commit/3f70545))
+
+### 🩹 Fixes
+
+- **module:** Prevent execution for no prefix strategy ([b227cd8](https://github.com/s00d/nuxt-i18n-micro/commit/b227cd8))
+
+### 📖 Documentation
+
+- **faq:** Add explanation for translation keys resolution in SSR on Vercel ([bf0e505](https://github.com/s00d/nuxt-i18n-micro/commit/bf0e505))
+
+### 🏡 Chore
+
+- **changelog:** Update version from v1.41.0 to v1.50.0 ([c8fd098](https://github.com/s00d/nuxt-i18n-micro/commit/c8fd098))
+- **pnpm:** Update package versions in `pnpm-lock.yaml` ([74201a6](https://github.com/s00d/nuxt-i18n-micro/commit/74201a6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.50.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.50.3...v1.50.4)

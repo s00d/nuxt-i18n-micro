@@ -57,6 +57,7 @@ i18n-micro text-to-i18n [options]
 - `--context`: Context prefix for translation keys. Helps organize translations by feature or section.
 - `--dryRun`: Show changes without modifying files (default: `false`).
 - `--verbose`: Show detailed processing information (default: `false`).
+- `--path`: Path to a specific file to process (e.g., `./pages/test-page.vue`). When provided, only the specified file is processed.
 
 **Example**:
 

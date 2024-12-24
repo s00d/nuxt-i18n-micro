@@ -8,8 +8,7 @@ outline: deep
 
 `nuxt-i18n-micro-cli` is a command-line tool designed to streamline the localization and internationalization process in Nuxt.js projects using the `nuxt-i18n` module. It provides utilities to extract translation keys from your codebase, manage translation files, synchronize translations across locales, and automate the translation process using external translation services.
 
-This guide will walk you through installing, configuring, and using `nuxt-i18n-micro-cli` to effectively manage your project's translations.
-
+This guide will walk you through installing, configuring, and using `nuxt-i18n-micro-cli` to effectively manage your project's translations. Package on [npmjs.com](https://www.npmjs.com/package/nuxt-i18n-micro).
 ## 🔧 Installation and Setup
 
 ### 📦 Installing nuxt-i18n-micro-cli
@@ -36,6 +35,107 @@ Ensure that your project is set up with `nuxt-i18n` and has the necessary config
 - `--translationDir`: Directory containing JSON translation files (default: `locales`).
 
 ## 📋 Commands
+
+
+### 🔄 `text-to-i18n` Command
+
+**Version introduced**: `v1.1.0`
+
+![DevTools](/text-to-i18n.gif)
+
+**Description**: The `text-to-i18n` command automatically scans your codebase for hardcoded text strings and replaces them with i18n translation references. It extracts text from Vue templates, JavaScript, and TypeScript files, generating translation keys and updating your translation files.
+
+**Usage**:
+
+```bash
+i18n-micro text-to-i18n [options]
+```
+
+**Options**:
+
+- `--translationFile`: Path to the JSON file containing translations (default: `locales/en.json`).
+- `--context`: Context prefix for translation keys. Helps organize translations by feature or section.
+- `--dryRun`: Show changes without modifying files (default: `false`).
+- `--verbose`: Show detailed processing information (default: `false`).
+
+**Example**:
+
+```bash
+i18n-micro text-to-i18n --translationFile locales/en.json --context auth
+```
+
+**How it works**:
+
+1. **File Collection**:
+- Scans directories: `pages`, `components`, and `plugins`
+- Processes files with extensions: `.vue`, `.js`, and `.ts`
+
+2. **Text Processing**:
+- Extracts text from Vue templates and script files
+- Identifies translatable strings
+- Generates unique translation keys based on:
+  - File path
+  - Text content
+  - Context prefix (if provided)
+
+3. **Translation Management**:
+- Creates new translation entries
+- Maintains nested structure in translation files
+- Preserves existing translations
+- Updates translation files with new entries
+
+**Example Transformations**:
+
+Before:
+```vue
+<template>
+  <div>
+    <h1>Welcome to our site</h1>
+    <p>Please sign in to continue</p>
+  </div>
+</template>
+```
+
+After:
+```vue
+<template>
+  <div>
+    <h1>{{ $t('pages.home.welcome_to_our_site') }}</h1>
+    <p>{{ $t('pages.home.please_sign_in') }}</p>
+  </div>
+</template>
+```
+
+**Best Practices**:
+
+1. **Run in Dry Mode First**:
+   ```bash
+   i18n-micro text-to-i18n --dryRun
+   ```
+   This shows what changes would be made without modifying files.
+
+2. **Use Context for Organization**:
+   ```bash
+   i18n-micro text-to-i18n --context auth
+   ```
+   Prefixes translation keys with `auth.` for better organization.
+
+3. **Review Changes**:
+- Enable verbose mode to see detailed changes
+- Check generated translation keys
+- Verify extracted text accuracy
+
+4. **Backup Files**:
+- Always backup your files before running the command
+- Use version control to track changes
+
+**Notes**:
+
+- The command preserves existing translations and keys
+- Generated keys are based on file paths and text content
+- Supports Vue template syntax and JavaScript/TypeScript files
+- Handles both simple text and attribute translations
+- Maintains nested translation structure
 
 ### 📊 `stats` Command
 

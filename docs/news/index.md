@@ -60,7 +60,7 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 </template>
 ```
 
-For more details, check out the [documentation](https://your-site.com/guide/cli#🔄-text-to-i18n-command).
+For more details, check out the [documentation](/guide/cli#🔄-text-to-i18n-command).
 
 
 ---

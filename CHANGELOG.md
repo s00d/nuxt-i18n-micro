@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v1.52.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.51.0...v1.52.0)
+
+### 🚀 Enhancements
+
+- **i18n-loader:** Initialize storage cache on first load ([6902dc7](https://github.com/s00d/nuxt-i18n-micro/commit/6902dc7))
+- **locales:** Add initial German locale files for various pages ([cd0cf1c](https://github.com/s00d/nuxt-i18n-micro/commit/cd0cf1c))
+
+### 📖 Documentation
+
+- **cli:** Update guide with new `text-to-i18n` command details ([3cd8d8e](https://github.com/s00d/nuxt-i18n-micro/commit/3cd8d8e))
+- **guide:** Update deprecation notice for `includeDefaultLocaleRoute` ([8adb3f3](https://github.com/s00d/nuxt-i18n-micro/commit/8adb3f3))
+- **guide:** Update npm package link for nuxt-i18n-micro-cli ([322b77c](https://github.com/s00d/nuxt-i18n-micro/commit/322b77c))
+- **cli:** Add `--path` option to specify a file for processing ([b377609](https://github.com/s00d/nuxt-i18n-micro/commit/b377609))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.51.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.50.4...v1.51.0)

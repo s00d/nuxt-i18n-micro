@@ -4,7 +4,7 @@
 
 **Date**: 2024-12-24
 
-**Version Introduced**: `v1.1.0`
+**Cli Version Introduced**: `v1.1.0`
 
 ![text-to-i18n Command Demo](/text-to-i18n.gif)
 

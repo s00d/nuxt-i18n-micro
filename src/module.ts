@@ -114,13 +114,6 @@ export default defineNuxtModule<ModuleOptions>({
       throw new Error('Nuxt-i18n-micro: "includeDefaultLocaleRoute" must be set to true when using Cloudflare Pages.')
     }
 
-    try {
-      const storagePahh = path.join(nuxt.options.rootDir, './server/assets')
-      fs.rmdirSync(storagePahh)
-      logger.log(`Cleanup storage: ${storagePahh}`)
-    }
-    catch { /* empty */ }
-
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 

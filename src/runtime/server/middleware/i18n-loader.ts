@@ -7,6 +7,8 @@ import type { ModuleOptionsExtend, ModulePrivateOptionsExtend } from '../../../t
 // @ts-ignore
 import { useRuntimeConfig, createError, useStorage } from '#imports'
 
+let storageInit = false
+
 // Рекурсивная функция для глубокого слияния объектов
 function deepMerge(target: Translations, source: Translations): Translations {
   for (const key of Object.keys(source)) {
@@ -66,6 +68,15 @@ export default defineEventHandler(async (event) => {
 
   let translations: Translations = {}
   const serverStorage = await useStorage('assets:server')
+
+  if (!storageInit) {
+    if (debug) {
+      console.log('[nuxt-i18n-micro] clear storage cache')
+    }
+    const handlerKeys = await serverStorage.getKeys()
+    await Promise.all(handlerKeys.map((element: string) => serverStorage.removeItem(element)))
+    storageInit = true
+  }
 
   // Чтение и мержинг файлов переводов
   for (const { translationPath, name } of paths) {

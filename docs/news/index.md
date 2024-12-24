@@ -1,3 +1,7 @@
+---
+outline: deep
+---
+
 # News
 
 ## [New CLI Feature: `text-to-i18n`](/guide/cli#🔄-text-to-i18n-command)
@@ -33,6 +37,31 @@ Example:
 ```bash
 i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 ```
+
+### Example Transformations
+
+#### Before
+```vue
+<template>
+  <div>
+    <h1>Welcome to our site</h1>
+    <p>Please sign in to continue</p>
+  </div>
+</template>
+```
+
+#### After
+```vue
+<template>
+  <div>
+    <h1>{{ $t('pages.home.welcome_to_our_site') }}</h1>
+    <p>{{ $t('pages.home.please_sign_in') }}</p>
+  </div>
+</template>
+```
+
+For more details, check out the [documentation](https://your-site.com/guide/cli#🔄-text-to-i18n-command).
+
 
 ---
 

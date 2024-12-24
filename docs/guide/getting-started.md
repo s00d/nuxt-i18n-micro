@@ -239,7 +239,9 @@ export type Getter = (key: string, params?: Record<string, string | number | boo
 }
 ```
 
-### 🚦 `includeDefaultLocaleRoute` (Deprecated)
+### 🚦 `includeDefaultLocaleRoute`
+
+**(Deprecated)**
 
 Automatically redirects routes without a locale prefix to the default locale.
 
@@ -248,7 +250,9 @@ Automatically redirects routes without a locale prefix to the default locale.
 
 **Deprecated**: As of version 1.50.0, `includeDefaultLocaleRoute` is deprecated. Use the `strategy` option instead for more flexible route handling.
 
-### 🚦 `strategy` (New in version 1.50.0)
+### 🚦 `strategy`
+
+**Version introduced**: `v1.50.0`
 
 Defines how locale prefixes should be handled in routes. Choose the strategy that best fits your use case.
 

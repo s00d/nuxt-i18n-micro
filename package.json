@@ -107,5 +107,10 @@
     "client",
     "test/fixtures/**/*"
   ],
+  "build": {
+    "entries": [
+      "./src/utils"
+    ]
+  },
   "packageManager": "pnpm@9.14.2"
 }

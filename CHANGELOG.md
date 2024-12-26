@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v1.53.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.52.0...v1.53.0)
+
+### 🚀 Enhancements
+
+- **docs:** Add news ([75b3509](https://github.com/s00d/nuxt-i18n-micro/commit/75b3509))
+- **docs:** Add news ([bd7af6e](https://github.com/s00d/nuxt-i18n-micro/commit/bd7af6e))
+- **docs:** Add news ([7d3529d](https://github.com/s00d/nuxt-i18n-micro/commit/7d3529d))
+- **docs:** Add news ([5e2871c](https://github.com/s00d/nuxt-i18n-micro/commit/5e2871c))
+- **build:** Add entry point for utils in build configuration ([5022b9e](https://github.com/s00d/nuxt-i18n-micro/commit/5022b9e))
+
+### 🏡 Chore
+
+- **package:** Update package.json for exports and dependencies ([42f9a32](https://github.com/s00d/nuxt-i18n-micro/commit/42f9a32))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.52.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.51.0...v1.52.0)

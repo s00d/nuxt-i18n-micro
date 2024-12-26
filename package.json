@@ -29,12 +29,19 @@
   "exports": {
     ".": {
       "types": "./dist/types.d.ts",
-      "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
-    }
+      "default": "./dist/module.mjs"
+    },
+    "./utils": "./dist/utils.mjs"
   },
   "main": "./dist/module.cjs",
-  "types": "./dist/types.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
   "files": [
     "dist",
     "internals.d.ts"
@@ -76,7 +83,7 @@
     "@types/jest": "^29.5.14",
     "@nuxt/devtools": "^1.6.4",
     "@nuxt/devtools-ui-kit": "^1.6.4",
-    "@nuxt/eslint-config": "0.7.3",
+    "@nuxt/eslint-config": "0.7.4",
     "@nuxt/module-builder": "^0.8.4",
     "@nuxt/schema": "3.13.2",
     "@nuxt/test-utils": "^3.15.1",

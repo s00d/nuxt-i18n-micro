@@ -11,7 +11,7 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@nuxthub/core": "^0.8.7",
+    "@nuxthub/core": "^0.8.10",
     "wrangler": "^3.99.0"
   }
 }

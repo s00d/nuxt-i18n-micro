@@ -1,5 +1,5 @@
 import type {
-  NavigationFailure,
+  NavigationFailure, RouteLocationAsPath, RouteLocationAsRelative, RouteLocationAsString,
   RouteLocationNormalizedGeneric,
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,
@@ -178,7 +178,7 @@ function switchLocale(
 }
 
 function getLocalizedRoute(
-  to: RouteLocationRaw,
+  to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath,
   router: Router,
   route: RouteLocationNormalizedLoaded,
   i18nConfig: ModuleOptionsExtend,
@@ -187,7 +187,7 @@ function getLocalizedRoute(
   noPrefixStrategy?: string | null,
 ): RouteLocationResolved {
   // Helper function to handle parameters based on the type of 'to'
-  const resolveParams = (to: RouteLocationRaw) => {
+  const resolveParams = (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath) => {
     const params
       = typeof to === 'object' && 'params' in to && typeof to.params === 'object'
         ? { ...to.params }
@@ -509,11 +509,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
       switchLocale(fromLocale, toLocale ?? fromLocale, route, router, i18nConfig, i18nRouteParams.value)
     },
-    localeRoute: (to: RouteLocationRaw, locale?: string): RouteLocationResolved => {
+    localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string): RouteLocationResolved => {
       const route = router.currentRoute.value
       return getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
     },
-    localePath: (to: RouteLocationRaw, locale?: string): string => {
+    localePath: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string): string => {
       const route = router.currentRoute.value
       const localeRoute = getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
       if (typeof localeRoute === 'string') {
@@ -559,7 +559,7 @@ export interface PluginsInjections {
   $switchLocalePath: (locale: string) => string
   $switchLocale: (locale: string) => void
   $switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void
-  $localeRoute: (to: RouteLocationRaw, locale?: string) => RouteLocationResolved
-  $localePath: (to: RouteLocationRaw, locale?: string) => string
+  $localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string) => RouteLocationResolved
+  $localePath: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string) => string
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
 }

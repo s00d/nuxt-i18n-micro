@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.53.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.53.1...v1.53.2)
+
+### 💅 Refactors
+
+- **plugins:** Update type definitions for route parameters ([fc61b43](https://github.com/s00d/nuxt-i18n-micro/commit/fc61b43))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.53.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.53.0...v1.53.1)

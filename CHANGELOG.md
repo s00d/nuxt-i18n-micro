@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.54.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.53.2...v1.54.0)
+
+### 🚀 Enhancements
+
+- **types:** Add `plugin` option to enable or disable additional features ([be54eaa](https://github.com/s00d/nuxt-i18n-micro/commit/be54eaa))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.53.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.53.1...v1.53.2)

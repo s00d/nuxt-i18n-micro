@@ -81,6 +81,7 @@ interface Locale {
   displayName?: string
   baseUrl?: string
   baseDefault?: boolean
+  [key: string]: unknown
 }
 
 interface Props {

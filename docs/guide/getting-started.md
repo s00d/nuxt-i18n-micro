@@ -318,6 +318,19 @@ Enables or disables the addition of a special `define` plugin that allows you to
 define: false // Disable the define plugin
 ```
 
+### 🧩 `plugin`
+
+Enables or disables a special `plugin` that integrates additional features or functionality into your Nuxt application.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+**Example**:
+
+```typescript
+plugin: false // Disable the plugin
+```
+
 ### 🔄 `disablePageLocales`
 
 Allows you to disable page-specific translations, limiting the module to only use global translation files.

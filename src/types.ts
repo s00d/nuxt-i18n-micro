@@ -8,6 +8,7 @@ export interface Locale {
   displayName?: string
   baseUrl?: string
   baseDefault?: boolean
+  [key: string]: unknown
 }
 
 export interface DefineI18nRouteConfig {
@@ -31,6 +32,7 @@ export interface ModuleOptions {
   strategy?: Strategies
   metaBaseUrl?: string
   define?: boolean
+  plugin?: boolean
   defaultLocale?: string
   apiBaseUrl?: string
   translationDir?: string

@@ -11,6 +11,8 @@ export default defineNuxtConfig({
   // @ts-ignore
   i18n: {
     defaultLocale: 'en',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     lazy: true,
     detectBrowserLanguage: false,
     langDir: 'locales',

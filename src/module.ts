@@ -70,6 +70,7 @@ export default defineNuxtModule<ModuleOptions>({
     meta: true,
     debug: false,
     define: true,
+    plugin: true,
     types: true,
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
@@ -172,11 +173,13 @@ export default defineNuxtModule<ModuleOptions>({
     if (process.env && process.env.TEST) {
       return
     }
-    addPlugin({
-      src: resolver.resolve('./runtime/plugins/01.plugin'),
-      name: 'i18n-plugin-loader',
-      order: 1,
-    })
+    if (options.plugin) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/01.plugin'),
+        name: 'i18n-plugin-loader',
+        order: 1,
+      })
+    }
 
     if (options.meta) {
       addPlugin({

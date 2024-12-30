@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.54.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.54.0...v1.54.1)
+
+### 🩹 Fixes
+
+- **i18n-switcher:** Add support for dynamic props in component interface ([6df4306](https://github.com/s00d/nuxt-i18n-micro/commit/6df4306))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.54.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.53.2...v1.54.0)

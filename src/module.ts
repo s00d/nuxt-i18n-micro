@@ -111,10 +111,6 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    if (isCloudflarePages && !isPrefixStrategy(options.strategy!)) {
-      throw new Error('Nuxt-i18n-micro: "includeDefaultLocaleRoute" must be set to true when using Cloudflare Pages.')
-    }
-
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 

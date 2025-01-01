@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.54.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.54.1...v1.54.2)
+
+### 💅 Refactors
+
+- **module:** Remove redundant Cloudflare Pages validation check ([c51bd98](https://github.com/s00d/nuxt-i18n-micro/commit/c51bd98))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.54.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.54.0...v1.54.1)

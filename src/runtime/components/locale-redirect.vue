@@ -15,12 +15,21 @@ const firstSegment = pathSegments[1]
 
 const generateRouteName = (segments) => {
   return segments
-    .filter(segment => segment)
+    .slice(1)
+    .map(segment => segment.replace(/:/g, ''))
+    .join('-')
+}
+
+const generateLocaleRouteName = (segments) => {
+  return segments
+    .filter(segment => segment && segment.trim() !== '')
+    .slice(1)
     .map(segment => segment.replace(/:/g, ''))
     .join('-')
 }
 
 const currentPageName = generateRouteName(pathSegments)
+const currentLocalePageName = generateLocaleRouteName(pathSegments)
 const globalLocaleRoutes = route.meta.globalLocaleRoutes ?? {}
 
 if (globalLocaleRoutes && globalLocaleRoutes[currentPageName]) {
@@ -33,6 +42,13 @@ if (globalLocaleRoutes && globalLocaleRoutes[currentPageName]) {
 else if (!locales.includes(firstSegment)) {
   const newPath = `/${defaultLocale}${route.fullPath}`
   navigateTo(newPath, { redirectCode: 301, external: true })
+}
+else if (locales.includes(firstSegment) && globalLocaleRoutes && globalLocaleRoutes[currentLocalePageName]) {
+  const localizedRoutes = globalLocaleRoutes[currentLocalePageName]
+  if (localizedRoutes && localizedRoutes[firstSegment]) {
+    const localizedPath = `/${firstSegment}${localizedRoutes[firstSegment]}`
+    navigateTo(localizedPath, { redirectCode: 301, external: true })
+  }
 }
 else {
   throw createError({

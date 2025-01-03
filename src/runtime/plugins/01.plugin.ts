@@ -113,10 +113,15 @@ function switchLocaleRoute(
   delete newParams.locale
 
   if (!isNoPrefixStrategy(i18nConfig.strategy!)) {
-    newRouteName
-      = toLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)
-        ? `localized-${routeName}`
-        : routeName
+    if (routeName === 'custom-fallback-route') {
+      newRouteName = routeName
+    }
+    else {
+      newRouteName
+        = toLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)
+          ? `localized-${routeName}`
+          : routeName
+    }
 
     if (toLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
       newParams.locale = toLocale
@@ -499,19 +504,43 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       switchLocale(fromLocale, toLocale, route, router, i18nConfig, i18nRouteParams.value)
     },
     switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => {
+      const currentRoute = router.currentRoute.value
+      const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)
+      const currentLocale = toLocale ?? fromLocale
       if (typeof route === 'string') {
-        route = router.resolve(route)
+        if (currentLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
+          const currentRoute = router.currentRoute.value
+          const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)
+          route = router.resolve('/' + fromLocale + route)
+        }
+        else {
+          route = router.resolve(route)
+        }
       }
 
-      const fromLocale = getCurrentLocale(route, i18nConfig, hashLocale, noPrefixDefault)
       if (i18nConfig.hashMode) {
         hashLocale = toLocale ?? fromLocale
       }
       switchLocale(fromLocale, toLocale ?? fromLocale, route, router, i18nConfig, i18nRouteParams.value)
     },
     localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string): RouteLocationResolved => {
+      const currentRoute = router.currentRoute.value
+      const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)
+      const currentLocale = locale ?? fromLocale
+
+      if (typeof to === 'string') {
+        if (currentLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
+          const currentRoute = router.currentRoute.value
+          const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)
+          to = router.resolve('/' + fromLocale + to)
+        }
+        else {
+          to = router.resolve(to)
+        }
+      }
+
       const route = router.currentRoute.value
-      return getLocalizedRoute(to, router, route, i18nConfig, locale, hashLocale)
+      return getLocalizedRoute(to, router, route, i18nConfig, currentLocale, hashLocale)
     },
     localePath: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string): string => {
       const route = router.currentRoute.value

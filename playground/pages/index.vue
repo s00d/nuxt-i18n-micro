@@ -21,6 +21,39 @@
       {{ $localeRoute({ name: 'page' }, 'de').path }}
     </p>
 
+    <p id="localized-route-path">
+      {{ localeRoute('/page') }}
+      <br>
+      <button
+        type="button"
+        @click="toCreationByStr"
+      >
+        toCreationByStr
+      </button>
+    </p>
+
+    <p id="localized-route-path">
+      {{ localeRoute({ name: 'page' }) }}
+      <br>
+      <button
+        type="button"
+        @click="toCreationByObj"
+      >
+        toCreationByObj
+      </button>
+    </p>
+
+    <p id="localized-route-path">
+      {{ localeRoute({ name: 'subpage' }) }}
+      <br>
+      <button
+        type="button"
+        @click="toCreationByObjSubPage"
+      >
+        toCreationByObj
+      </button>
+    </p>
+
     <p id="localized-route-2">
       {{ localeRoute({ name: 'page' }, 'de').path }}
     </p>
@@ -83,6 +116,18 @@ function generateKeys(depth, maxKeys = 4) {
 
   generate()
   return keys
+}
+
+const toCreationByStr = () => {
+  $switchRoute('/page')
+}
+
+const toCreationByObj = () => {
+  $switchRoute({ name: 'page' })
+}
+
+const toCreationByObjSubPage = () => {
+  $switchRoute({ name: 'subpage' })
 }
 
 const generatedKeys = ref(generateKeys(4))

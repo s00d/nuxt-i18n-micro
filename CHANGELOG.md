@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.55.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.54.2...v1.55.0)
+
+### 🚀 Enhancements
+
+- **locale:** Add custom fallback route handling and improve locale path resolution ([c8d7e3e](https://github.com/s00d/nuxt-i18n-micro/commit/c8d7e3e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.54.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.54.1...v1.54.2)

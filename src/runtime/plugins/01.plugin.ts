@@ -507,28 +507,36 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const currentRoute = router.currentRoute.value
       const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)
       const currentLocale = toLocale ?? fromLocale
-      if (typeof route === 'string') {
+
+      let to: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | null = null
+
+      if (typeof route === 'string' && !isNoPrefixStrategy(i18nConfig.strategy!)) {
         if (currentLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
           const currentRoute = router.currentRoute.value
           const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)
-          route = router.resolve('/' + fromLocale + route)
+          to = router.resolve('/' + fromLocale + route)
         }
         else {
-          route = router.resolve(route)
+          to = router.resolve(route)
         }
       }
 
       if (i18nConfig.hashMode) {
         hashLocale = toLocale ?? fromLocale
       }
-      switchLocale(fromLocale, toLocale ?? fromLocale, route, router, i18nConfig, i18nRouteParams.value)
+
+      if (!to) {
+        return
+      }
+
+      switchLocale(fromLocale, toLocale ?? fromLocale, to, router, i18nConfig, i18nRouteParams.value)
     },
     localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string): RouteLocationResolved => {
       const currentRoute = router.currentRoute.value
       const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)
       const currentLocale = locale ?? fromLocale
 
-      if (typeof to === 'string') {
+      if (typeof to === 'string' && !isNoPrefixStrategy(i18nConfig.strategy!)) {
         if (currentLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
           const currentRoute = router.currentRoute.value
           const fromLocale = getCurrentLocale(currentRoute, i18nConfig, hashLocale, noPrefixDefault)

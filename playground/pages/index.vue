@@ -18,7 +18,7 @@
     </div>
 
     <p id="localized-route">
-      {{ $localeRoute({ name: 'page' }, 'de').path }}
+      {{ localeRoute({ name: 'page' }, 'de').path }}
     </p>
 
     <p id="localized-route-path">
@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-const { $localeRoute, localeRoute, localePath, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName, $switchRoute } = useI18n()
+const { localeRoute, localePath, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName, $switchRoute } = useI18n()
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []

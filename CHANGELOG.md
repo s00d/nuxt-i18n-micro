@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.56.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.56.0...v1.56.1)
+
+### 🩹 Fixes
+
+- **router:** Resolve route correctly for NoPrefix locale switching ([c59dab9](https://github.com/s00d/nuxt-i18n-micro/commit/c59dab9))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.56.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.55.0...v1.56.0)

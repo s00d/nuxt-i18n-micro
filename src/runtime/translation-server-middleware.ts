@@ -1,7 +1,8 @@
 import type { H3Event } from 'h3'
 import { getQuery, getCookie } from 'h3'
-import { useTranslationHelper } from 'nuxt-i18n-micro-core'
+import { interpolate, useTranslationHelper } from 'nuxt-i18n-micro-core'
 import type { Translations } from 'nuxt-i18n-micro-core'
+import type { Params } from '../types'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {
@@ -31,9 +32,12 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
     await loadTranslations(locale, translations)
   }
 
-  function t(key: string): string {
-    const translation = getTranslation<string>(locale, 'index', key)
-    return translation ?? key
+  function t(key: string, params?: Params, defaultValue?: string): string {
+    let translation = getTranslation<string>(locale, 'index', key)
+    if (!translation) {
+      translation = defaultValue || key
+    }
+    return typeof translation === 'string' && params ? interpolate(translation, params) : translation
   }
 
   return t

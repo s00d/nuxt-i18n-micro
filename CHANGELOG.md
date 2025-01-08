@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.57.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.57.0...v1.57.1)
+
+### 🏡 Chore
+
+- **pnpm-lock:** Update nuxt-i18n-micro and related packages ([87d1d9b](https://github.com/s00d/nuxt-i18n-micro/commit/87d1d9b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.57.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.56.1...v1.57.0)

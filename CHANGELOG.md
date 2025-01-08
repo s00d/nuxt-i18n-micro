@@ -1,6 +1,49 @@
 # Changelog
 
 
+## v1.57.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.56.1...v1.57.0)
+
+### 🚀 Enhancements
+
+- **external link:** Add "tel:" and "mailto:" in regex external link ([83c39e6](https://github.com/s00d/nuxt-i18n-micro/commit/83c39e6))
+- **core:** Replace object caches with Map for improved performance ([8523707](https://github.com/s00d/nuxt-i18n-micro/commit/8523707))
+- **i18n:** Enhance locale switching with fromLocale parameter ([b2fda74](https://github.com/s00d/nuxt-i18n-micro/commit/b2fda74))
+
+### 🩹 Fixes
+
+- **router:** Simplify locale change detection in navigation guard ([dcc2932](https://github.com/s00d/nuxt-i18n-micro/commit/dcc2932))
+- **i18n:** Pass locale to getRouteName in multiple instances ([4b13b4f](https://github.com/s00d/nuxt-i18n-micro/commit/4b13b4f))
+
+### 💅 Refactors
+
+- **test-utils:** Simplify locale handling by using i18nHelper ([0fb3220](https://github.com/s00d/nuxt-i18n-micro/commit/0fb3220))
+- **plugins:** Simplify locale handling and improve code readability ([be7af49](https://github.com/s00d/nuxt-i18n-micro/commit/be7af49))
+- **plugins:** Reorder imports in `02.meta.ts` for consistency ([426e8b3](https://github.com/s00d/nuxt-i18n-micro/commit/426e8b3))
+- **translation-server-middleware:** Simplify translation helper usage ([e733a57](https://github.com/s00d/nuxt-i18n-micro/commit/e733a57))
+- **utils:** Simplify locale parameter construction in `buildFullPath` ([b868441](https://github.com/s00d/nuxt-i18n-micro/commit/b868441))
+- **translation:** Replace Map with Record for locale caches ([d10d997](https://github.com/s00d/nuxt-i18n-micro/commit/d10d997))
+
+### 📖 Documentation
+
+- **performance-results:** Update performance metrics for i18n and i18n-micro ([adddb4f](https://github.com/s00d/nuxt-i18n-micro/commit/adddb4f))
+
+### 🏡 Chore
+
+- **test-utils:** Bump version to 1.0.4 in `package.json` ([9c64863](https://github.com/s00d/nuxt-i18n-micro/commit/9c64863))
+
+### ✅ Tests
+
+- **core:** Simplify translation helper tests by removing locale parameter ([766ad53](https://github.com/s00d/nuxt-i18n-micro/commit/766ad53))
+- **performance:** Add pause function for stress test stabilization ([97f6963](https://github.com/s00d/nuxt-i18n-micro/commit/97f6963))
+- **custom-regex:** Correct expected URL in locale switching test ([637d970](https://github.com/s00d/nuxt-i18n-micro/commit/637d970))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- TristanSurGithub <tristan@defachel.fr>
+
 ## v1.56.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.56.0...v1.56.1)

@@ -391,16 +391,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   router.beforeEach(async (to, from, next) => {
-    if (to.fullPath === from.fullPath) {
-      return next()
-    }
-
-    const localeChanged = to.params.locale !== from.params.locale
-    if (localeChanged) {
+    if (to.fullPath !== from.fullPath) {
       await loadGlobalTranslations(to)
     }
 
-    next()
+    if (next) {
+      next()
+    }
   })
 
   await loadGlobalTranslations(router.currentRoute.value)

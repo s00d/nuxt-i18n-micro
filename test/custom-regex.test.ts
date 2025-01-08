@@ -354,7 +354,7 @@ test.describe('custom-regex', () => {
 
     // Check the second $switchLocaleRoute link in German
     const switchLocaleRouteDe = await page.locator('#locale-de').getAttribute('href')
-    expect(switchLocaleRouteDe).toContain('/de-de/locale-conf-modif')
+    expect(switchLocaleRouteDe).toContain('/de-de/locale-conf-modify')
 
     // Click on the element
     await page.click('#locale-de')

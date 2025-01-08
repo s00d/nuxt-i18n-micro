@@ -534,6 +534,10 @@ Stress Test Results:
   }
 }
 
+function pause(duration: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, duration))
+}
+
 test.describe('performance', () => {
   test('compare build performance and stress test', async () => {
     test.setTimeout(1600000)
@@ -542,6 +546,7 @@ test.describe('performance', () => {
     addDependencyVersions()
 
     const i18nResults = await measureBuildPerformance('./test/fixtures/i18n')
+    await pause(5000)
     const i18nNextResults = await measureBuildPerformance('./test/fixtures/i18n-micro')
 
     console.log('\nPerformance Comparison:')
@@ -588,6 +593,7 @@ test.describe('performance', () => {
     const artilleryConfigPath = './artillery-config.yml' // Убедитесь, что путь корректный
 
     const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', artilleryConfigPath)
+    await pause(5000)
     const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', artilleryConfigPath)
 
     logAndWriteComparisonResults('i18n v9', 'i18n-micro', i18nStressResults, i18nNextStressResults)

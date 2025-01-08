@@ -67,7 +67,7 @@ export const isLocaleDefault = (locale: string | Locale, defaultLocale: Locale, 
 
 export const buildFullPath = (locale: string | string[], basePath: string, customRegex?: string | RegExp): string => {
   const regexString = normalizeRegex(customRegex?.toString())
-  const localeParam = Array.isArray(locale) ? regexString ? regexString : locale.join('|') : locale
+  const localeParam = regexString ? regexString : Array.isArray(locale) ? locale.join('|') : locale
   return normalizePath(path.posix.join('/', `:locale(${localeParam})`, basePath))
 }
 

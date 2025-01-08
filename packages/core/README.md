@@ -1,17 +1,10 @@
-# Nuxt I18n Micro Core
+# nuxt-i18n-micro-core
 
-This is a lightweight internationalization (i18n) library for use with Nuxt.js applications, designed to manage translations for multiple languages with caching and dynamic loading support. It allows you to manage translations across your Nuxt pages and components in a clean and efficient way.
-
-## Features
-
-- **Dynamic Translations**: Support for dynamically loaded translations, allowing translations to be fetched on demand.
-- **Caching**: Caching of translations for faster access and to reduce redundant requests.
-- **Interpolation**: Easy string interpolation for dynamic translation keys.
-- **Pluralization**: Built-in support for plural translations.
+`nuxt-i18n-micro-core` is the core module for handling translations and interpolation in a Nuxt.js application. It provides utilities for managing translations, interpolating placeholders, and caching translations for efficient retrieval. This module is designed to work seamlessly with `nuxt-i18n-micro` and its associated utilities.
 
 ## Installation
 
-You can install the package via npm or yarn:
+You can install `nuxt-i18n-micro-core` using npm or yarn:
 
 ```bash
 npm install nuxt-i18n-micro-core
@@ -25,60 +18,139 @@ yarn add nuxt-i18n-micro-core
 
 ## Usage
 
-### Importing the helper
+This package provides two main utilities:
 
-To use the translation functionality, first, import the necessary helper functions:
+1. **`useTranslationHelper`**: A helper for managing translations, including loading, caching, and retrieving translations.
+2. **`interpolate`**: A utility for interpolating placeholders in translation strings with dynamic values.
+
+### Example
+
+Here’s an example of how you might use `useTranslationHelper` and `interpolate` in your Nuxt.js project:
 
 ```typescript
 import { useTranslationHelper, interpolate } from 'nuxt-i18n-micro-core'
+
+// Initialize the translation helper
+const translationHelper = useTranslationHelper()
+
+// Set the locale
+translationHelper.setLocale('en')
+
+// Load translations
+translationHelper.loadTranslations({
+  greeting: 'Hello, {name}!',
+  nested: {
+    message: 'This is a nested message.',
+  },
+})
+
+// Load page-specific translations
+translationHelper.loadPageTranslations('home', {
+  welcome: 'Welcome to the home page!',
+})
+
+// Retrieve a translation
+const greeting = translationHelper.getTranslation<string>('index', 'greeting')
+console.log(greeting) // 'Hello, {name}!'
+
+// Interpolate placeholders
+const interpolatedGreeting = interpolate(greeting!, { name: 'John' })
+console.log(interpolatedGreeting) // 'Hello, John!'
 ```
 
-### Example Usage
+## API Reference
 
-To get a translation, you can use `useTranslationHelper`:
+### `useTranslationHelper`
+
+#### Methods
+- **`getLocale(): string`**:
+  Returns the current locale.
+- **`setLocale(locale: string): void`**:
+  Sets the current locale.
+- **`hasCache(routeName: string): boolean`**:
+  Checks if translations for a specific route are cached.
+- **`getCache(routeName: string): Map<string, Translations | unknown> | undefined`**:
+  Retrieves the cache for a specific route.
+- **`setCache(routeName: string, cache: Map<string, Translations | unknown>): void`**:
+  Sets the cache for a specific route.
+- **`mergeTranslation(routeName: string, newTranslations: Translations, force = false): void`**:
+  Merges new translations into the cache for a specific route.
+- **`mergeGlobalTranslation(newTranslations: Translations, force = false): void`**:
+  Merges new translations into the global cache.
+- **`hasGeneralTranslation(): boolean`**:
+  Checks if global translations are loaded for the current locale.
+- **`hasPageTranslation(routeName: string): boolean`**:
+  Checks if translations for a specific route are loaded.
+- **`hasTranslation(key: string): boolean`**:
+  Checks if a translation exists for the given key.
+- **`getTranslation<T = unknown>(routeName: string, key: string): T | null`**:
+  Retrieves a translation for the given key.
+- **`loadPageTranslations(routeName: string, translations: Translations): Promise<void>`**:
+  Loads translations for a specific route.
+- **`loadTranslations(translations: Translations): Promise<void>`**:
+  Loads global translations for the current locale.
+
+### `interpolate`
+
+#### Function
+```typescript
+interpolate(template: string, params: Params): string
+```
+- **`template`**: The translation string with placeholders (e.g., `'Hello, {name}!'`).
+- **`params`**: An object containing key-value pairs for interpolation (e.g., `{ name: 'John' }`).
+
+#### Example
+```typescript
+const result = interpolate('Hello, {name}!', { name: 'John' })
+console.log(result) // 'Hello, John!'
+```
+
+## Types
+
+### `Translations`
+Represents a key-value pair of translations. Keys can be nested using dots (e.g., `'nested.message'`).
 
 ```typescript
-const { getTranslation, hasTranslation } = useTranslationHelper()
-
-const translation = getTranslation('en', 'home', 'welcome_message')
-console.log(translation)
+export interface Translations {
+  [key: string]: Translation
+}
 ```
 
-For dynamic strings, use the `interpolate` function to inject variables:
+### `Translation`
+Represents a translation value, which can be a string, number, boolean, nested translations, or `null`.
 
 ```typescript
-const template = 'Hello, {name}!'
-const result = interpolate(template, { name: 'John' })
-console.log(result)  // Output: Hello, John!
+export type Translation = string | number | boolean | Translations | PluralTranslations | unknown | null
 ```
 
-### Caching
-
-The library automatically caches translations for faster access. You can also manually merge translations into the cache with:
+### `PluralTranslations`
+Represents translations for singular and plural forms.
 
 ```typescript
-mergeTranslation('en', 'home', newTranslations)
+export interface PluralTranslations {
+  singular: string
+  plural: string
+}
 ```
 
-### Pluralization
-
-Support for plural translations is available by providing both singular and plural variants:
+### `Params`
+Represents a key-value pair of parameters for interpolation.
 
 ```typescript
-const pluralTranslation: PluralTranslations = { singular: 'item', plural: 'items' }
+export type Params = Record<string, string | number | boolean>
 ```
 
-## Configuration
+## Contributing
 
-The translations are stored in different caches:
-
-- `generalLocaleCache`: Stores global translations for a specific locale.
-- `routeLocaleCache`: Stores route-specific translations.
-- `dynamicTranslationsCaches`: Stores dynamic translation caches that can be used for specific conditions or pages.
+If you find any issues or have suggestions for improvements, feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/s00d/nuxt-i18n-micro).
 
 ## License
 
-MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/s00d/nuxt-i18n-micro/blob/main/LICENSE) file for more details.
+
+---
+
+For more information, visit the [GitHub repository](https://github.com/s00d/nuxt-i18n-micro).
 
 ## Author
 

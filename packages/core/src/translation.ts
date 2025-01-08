@@ -1,10 +1,10 @@
 import type { Translations } from './types'
 
-const generalLocaleCache: Record<string, Translations> = {}
-const routeLocaleCache: Record<string, Translations> = {}
-const dynamicTranslationsCaches: Record<string, Translations>[] = []
+const generalLocaleCache = new Map<string, Translations>()
+const routeLocaleCache = new Map<string, Translations>()
+const dynamicTranslationsCaches: Map<string, Translations>[] = []
 
-const serverTranslationCache: Record<string, Map<string, Translations | unknown>> = {}
+const serverTranslationCache = new Map<string, Map<string, Translations | unknown>>()
 
 function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -46,53 +46,59 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
 }
 
 export function useTranslationHelper() {
+  let _locale = 'en'
   return {
-    hasCache(locale: string, page: string) {
-      console.log()
-      return (serverTranslationCache[`${locale}:${page}`] ?? new Map<string, Translations | unknown>()).size > 0
+    getLocale() {
+      return _locale
     },
-    getCache(locale: string, routeName: string) {
-      return serverTranslationCache[`${locale}:${routeName}`]
+    setLocale(locale: string) {
+      _locale = locale
     },
-    setCache(locale: string, routeName: string, cache: Map<string, Translations | unknown>) {
-      serverTranslationCache[`${locale}:${routeName}`] = cache
+    hasCache(routeName: string) {
+      return (serverTranslationCache.get(`${_locale}:${routeName}`) ?? new Map<string, Translations | unknown>()).size > 0
     },
-    mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false) {
-      if (!force && !routeLocaleCache[`${locale}:${routeName}`]) {
-        console.error(`marge: route ${locale}:${routeName} not loaded`)
+    getCache(routeName: string) {
+      return serverTranslationCache.get(`${_locale}:${routeName}`)
+    },
+    setCache(routeName: string, cache: Map<string, Translations | unknown>) {
+      serverTranslationCache.set(`${_locale}:${routeName}`, cache)
+    },
+    mergeTranslation(routeName: string, newTranslations: Translations, force = false) {
+      if (!force && !routeLocaleCache.has(`${_locale}:${routeName}`)) {
+        console.error(`marge: route ${_locale}:${routeName} not loaded`)
       }
-      routeLocaleCache[`${locale}:${routeName}`] = {
-        ...routeLocaleCache[`${locale}:${routeName}`],
+      routeLocaleCache.set(`${_locale}:${routeName}`, {
+        ...routeLocaleCache.get(`${_locale}:${routeName}`),
         ...newTranslations,
-      }
+      })
     },
-    mergeGlobalTranslation(locale: string, newTranslations: Translations, force = false) {
-      if (!force && !generalLocaleCache[`${locale}`]) {
-        console.error(`marge: route ${locale} not loaded`)
+    mergeGlobalTranslation(newTranslations: Translations, force = false) {
+      if (!force && !generalLocaleCache.get(_locale)) {
+        console.error(`marge: route ${_locale} not loaded`)
       }
-      generalLocaleCache[locale] = {
-        ...generalLocaleCache[locale],
+      generalLocaleCache.set(_locale, {
+        ...generalLocaleCache.get(_locale),
         ...newTranslations,
-      }
+      })
     },
-    hasGeneralTranslation(locale: string) {
-      return !!generalLocaleCache[locale]
+    hasGeneralTranslation() {
+      return generalLocaleCache.has(_locale)
     },
-    hasPageTranslation(locale: string, routeName: string) {
-      return !!routeLocaleCache[`${locale}:${routeName}`]
+    hasPageTranslation(routeName: string) {
+      return routeLocaleCache.has(`${_locale}:${routeName}`)
     },
-    hasTranslation: (locale: string, key: string): boolean => {
+    hasTranslation: (key: string): boolean => {
       for (const dynamicCache of dynamicTranslationsCaches) {
-        if (findTranslation(dynamicCache[locale] || null, key) !== null) {
+        if (findTranslation(dynamicCache.get(_locale) || null, key) !== null) {
           return true
         }
       }
 
-      return findTranslation(generalLocaleCache[locale] || null, key) !== null
+      return findTranslation(generalLocaleCache.get(_locale) || null, key) !== null
     },
-    getTranslation: <T = unknown>(locale: string, routeName: string, key: string): T | null => {
-      const cacheKey = `${locale}:${routeName}`
-      const cached = serverTranslationCache[cacheKey]?.get(key)
+    getTranslation: <T = unknown>(routeName: string, key: string): T | null => {
+      const cacheKey = `${_locale}:${routeName}`
+      const cached = serverTranslationCache.get(cacheKey)?.get(key)
       if (cached) {
         return cached as T
       }
@@ -100,31 +106,31 @@ export function useTranslationHelper() {
       let result: T | null = null
 
       for (const dynamicCache of dynamicTranslationsCaches) {
-        result = findTranslation<T>(dynamicCache[locale] || null, key)
+        result = findTranslation<T>(dynamicCache.get(_locale) || null, key)
         if (result !== null) break
       }
 
       if (!result) {
-        result = findTranslation<T>(routeLocaleCache[cacheKey] || null, key)
-        ?? findTranslation<T>(generalLocaleCache[locale] || null, key)
+        result = findTranslation<T>(routeLocaleCache.get(cacheKey) || null, key)
+        ?? findTranslation<T>(generalLocaleCache.get(_locale) || null, key)
       }
 
       if (result) {
-        if (!serverTranslationCache[cacheKey]) {
-          serverTranslationCache[cacheKey] = new Map<string, Translations>()
+        if (!serverTranslationCache.get(cacheKey)) {
+          serverTranslationCache.set(cacheKey, new Map<string, Translations>())
         }
 
-        serverTranslationCache[cacheKey].set(key, result)
+        serverTranslationCache.get(cacheKey)!.set(key, result)
       }
 
       return result
     },
-    async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
-      const cacheKey = `${locale}:${routeName}`
-      routeLocaleCache[cacheKey] = { ...translations }
+    async loadPageTranslations(routeName: string, translations: Translations): Promise<void> {
+      const cacheKey = `${_locale}:${routeName}`
+      routeLocaleCache.set(cacheKey, { ...translations })
     },
-    async loadTranslations(locale: string, translations: Translations): Promise<void> {
-      generalLocaleCache[locale] = { ...translations }
+    async loadTranslations(translations: Translations): Promise<void> {
+      generalLocaleCache.set(_locale, { ...translations })
     },
   }
 }

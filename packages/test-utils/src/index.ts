@@ -30,7 +30,6 @@ let locales: Locale[] = [
     code: 'en',
   },
 ]
-let locale = 'en'
 let defLocale: string | undefined = 'en'
 let localeName: string | null = 'English'
 let routeName: string = 'test'
@@ -45,7 +44,7 @@ function formatDate(value: Date | number | string, locale: string, options?: Int
 
 // Пример утилит для тестирования
 export function t(key: string, params?: Params, defaultValue?: string): Translation {
-  const value = i18nHelper.getTranslation(locale, routeName, key)
+  const value = i18nHelper.getTranslation(routeName, key)
 
   if (!value) {
     console.warn(`Missing translation key: ${key}`)
@@ -58,15 +57,15 @@ export function t(key: string, params?: Params, defaultValue?: string): Translat
 export function tc(key: string, params: number | Params, defaultValue?: string): string {
   const { count, ...otherParams } = typeof params === 'number' ? { count: params } : params
 
-  return plural(key, Number.parseInt(count.toString()), otherParams, locale, t) ?? defaultValue ?? key
+  return plural(key, Number.parseInt(count.toString()), otherParams, i18nHelper.getLocale(), t) ?? defaultValue ?? key
 }
 
 export async function setTranslationsFromJson(locale: string, translations: Record<string, unknown>) {
-  await i18nHelper.loadTranslations(locale, translations)
+  await i18nHelper.loadTranslations(translations)
 }
 
-export const getLocale = () => locale
-export const setLocale = (val: string) => locale = val
+export const getLocale = () => i18nHelper.getLocale()
+export const setLocale = (val: string) => i18nHelper.setLocale(val)
 
 export const getLocaleName = () => localeName
 export const setLocaleName = (val: string | null) => localeName = val
@@ -86,21 +85,21 @@ export const ts = (key: string, params?: Params, defaultValue?: string) => {
 }
 
 export const tn = (value: number, options?: Intl.NumberFormatOptions) =>
-  formatNumber(value, locale, options)
+  formatNumber(value, i18nHelper.getLocale(), options)
 
 export const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) =>
-  formatDate(value, locale, options)
+  formatDate(value, i18nHelper.getLocale(), options)
 
-export const has = (key: string): boolean => i18nHelper.hasTranslation(locale, key)
+export const has = (key: string): boolean => i18nHelper.hasTranslation(key)
 
 export const mergeTranslations = (newTranslations: Translations): void =>
-  i18nHelper.mergeTranslation(locale, routeName, newTranslations)
+  i18nHelper.mergeTranslation(routeName, newTranslations)
 
-export const switchLocaleRoute = (val: string) => locale = val
+export const switchLocaleRoute = (val: string) => i18nHelper.setLocale(val)
 
-export const switchLocalePath = (val: string) => locale = val
+export const switchLocalePath = (val: string) => i18nHelper.setLocale(val)
 
-export const switchLocale = (val: string) => locale = val
+export const switchLocale = (val: string) => i18nHelper.setLocale(val)
 
 export const switchRoute = (_route: unknown, _toLocale?: string): void => {}
 

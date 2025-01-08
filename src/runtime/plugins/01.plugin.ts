@@ -199,7 +199,7 @@ function getLocalizedRoute(
     }
 
     // Формируем routeName для дефолтной локали
-    const defaultRouteName = getRouteName(resolvedTo as RouteLocationNormalizedLoaded)
+    const defaultRouteName = getRouteName(resolvedTo as RouteLocationNormalizedLoaded, defaultLocale)
     const newParams = resolveParams(resolvedTo)
     newParams.locale = defaultLocale
 
@@ -222,7 +222,7 @@ function getLocalizedRoute(
 
   const currentLocale = locale || i18nHelper.getLocale()
   const selectRoute = router.resolve(to)
-  const routeName = getRouteName(selectRoute)
+  const routeName = getRouteName(selectRoute, currentLocale)
     .replace(new RegExp(`-${i18nConfig.defaultLocale!}$`), '')
 
   if (!routeName || routeName === '') {
@@ -410,7 +410,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (!key) return ''
     const locale = i18nHelper.getLocale()
     const route = router.currentRoute.value
-    const routeName = getRouteName(route)
+    const routeName = getRouteName(route, locale)
     let value = i18nHelper.getTranslation(routeName, key)
 
     if (!value) {
@@ -439,7 +439,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     getLocales: () => i18nConfig.locales || [],
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
       const selectedRoute = route ?? router.currentRoute.value
-      return getRouteName(selectedRoute, locale)
+      return getRouteName(selectedRoute, locale ?? i18nHelper.getLocale())
     },
     t: getTranslation,
     ts: (key: string, params?: Params, defaultValue?: string): string => {
@@ -465,7 +465,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
     mergeTranslations: (newTranslations: Translations) => {
       const route = router.currentRoute.value
-      const routeName = getRouteName(route)
+      const locale = (route.params?.locale ?? i18nConfig.defaultLocale).toString()
+      const routeName = getRouteName(route, locale)
       i18nHelper.mergeTranslation(routeName, newTranslations)
     },
     switchLocaleRoute: (toLocale: string) => {
@@ -489,7 +490,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       switchLocale(toLocale, route, router, i18nConfig, i18nRouteParams.value)
     },
     switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => {
-      const fromLocale = i18nHelper.getLocale()
+      const currentRoute = router.currentRoute.value
+      const fromLocale = (currentRoute.params?.locale ?? i18nConfig.defaultLocale).toString()
       const currentLocale = toLocale ?? fromLocale
 
       let to: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | null = null

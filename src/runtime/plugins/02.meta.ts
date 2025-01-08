@@ -1,7 +1,6 @@
 import type { ModuleOptionsExtend } from '../../types'
 import { useLocaleHead } from '../composables/useLocaleHead'
-import { useHead, defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useRequestURL } from '#imports'
+import { useRequestURL, useHead, defineNuxtPlugin, useRuntimeConfig } from '#imports'
 
 const host = process.env.HOST ?? 'localhost'
 const port = process.env.PORT ?? 'host'

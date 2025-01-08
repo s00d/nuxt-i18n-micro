@@ -27,29 +27,29 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 #### Build Time and Resource Consumption
 
-**Nuxt I18n**:
+**Nuxt I18n v9**:
 - **Total size**: 54.7 MB (3.31 MB gzip)
 - **Max CPU Usage**: 391.4%
-- **Max Memory Usage**: 8305 MB
-- **Elapsed Time**: 0h 1m 31s
+- **Max Memory Usage**: 3992.42 MB
+- **Elapsed Time**: 0h 0m 15s
 
 **Nuxt I18n Micro**:
 - **Total size**: 1.93 MB (473 kB gzip) — **96% smaller**
 - **Max CPU Usage**: 220.1% — **44% lower**
-- **Max Memory Usage**: 655 MB — **92% less memory**
-- **Elapsed Time**: 0h 0m 5s — **94% faster**
+- **Max Memory Usage**: 1286.00 MB — **-2706.42 MB less memory**
+- **Elapsed Time**: 0h m 7s — **-8.27 seconds**
 
 #### Server Performance (10k Requests)
 
-**Nuxt I18n**:
-- **Requests per second**: 49.05 [#/sec] (mean)
-- **Time per request**: 611.599 ms (mean)
-- **Max Memory Usage**: 703.73 MB
+**Nuxt I18n v9**:
+- **Requests per second**: 61 [#/sec] (mean)
+- **Time per request**: 1484.70 ms (mean)
+- **Max Memory Usage**: 896.67 MB
 
 **Nuxt I18n Micro**:
-- **Requests per second**: 61.18 [#/sec] (mean) — **25% more requests per second**
-- **Time per request**: 490.379 ms (mean) — **20% faster**
-- **Max Memory Usage**: 323.00 MB — **54% less memory usage**
+- **Requests per second**: 288 [#/sec] (mean) — **227 more requests per second**
+- **Time per request**: 411.50 ms (mean) — **-1073.20 ms faster**
+- **Max Memory Usage**: 624.22 MB — **-272.45 MB less memory usage**
 
 These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area.
 

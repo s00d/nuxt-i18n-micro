@@ -36,7 +36,7 @@ const route = useRoute()
 
 const isExternalLink = computed(() => {
   if (typeof props.to === 'string') {
-    return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/.test(props.to)
+    return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(props.to)
   }
   return false
 })

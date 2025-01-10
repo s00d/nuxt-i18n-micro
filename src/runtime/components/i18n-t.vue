@@ -39,12 +39,34 @@ export default defineComponent({
       type: Function as PropType<PluralFunc>,
       default: null,
     },
+    number: {
+      type: [Number, String] as PropType<number | string>,
+    },
+    date: {
+      type: [Date, String, Number] as PropType<Date | string | number>,
+    },
+    relativeDate: {
+      type: [Date, String, Number] as PropType<Date | string | number>,
+    },
   },
   setup(props, { slots, attrs }) {
     return () => {
       const options: Record<string, string | number | boolean> = {}
 
-      const { $getLocale, $t, $tc } = useNuxtApp() as unknown as PluginsInjections
+      const { $getLocale, $t, $tc, $tn, $td, $tdr } = useNuxtApp() as unknown as PluginsInjections
+
+      if (props.number !== undefined) {
+        const numberValue = Number(props.number)
+        return h(props.tag, { ...attrs, innerHTML: $t(props.keypath, { number: $tn(numberValue) }) })
+      }
+
+      if (props.date !== undefined) {
+        return h(props.tag, { ...attrs, innerHTML: $t(props.keypath, { date: $td(props.date) }) })
+      }
+
+      if (props.relativeDate !== undefined) {
+        return h(props.tag, { ...attrs, innerHTML: $t(props.keypath, { relativeDate: $tdr(props.relativeDate) }) })
+      }
 
       if (props.plural !== undefined) {
         const count = Number.parseInt(props.plural.toString())

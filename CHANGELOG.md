@@ -1,6 +1,39 @@
 # Changelog
 
 
+## v1.58.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.57.1...v1.58.0)
+
+### 🚀 Enhancements
+
+- **i18n-loader:** Improve deep merge function and refactor translation loading ([73df4cd](https://github.com/s00d/nuxt-i18n-micro/commit/73df4cd))
+- **playground:** Disable appManifest in experimental settings ([e57c29b](https://github.com/s00d/nuxt-i18n-micro/commit/e57c29b))
+- **docs:** Add news cards for new features and performance updates ([2449173](https://github.com/s00d/nuxt-i18n-micro/commit/2449173))
+- **i18n:** Add support for pluralization in translations ([b27f442](https://github.com/s00d/nuxt-i18n-micro/commit/b27f442))
+
+### 💅 Refactors
+
+- **module:** Format import statements for better readability ([0cd6a3c](https://github.com/s00d/nuxt-i18n-micro/commit/0cd6a3c))
+
+### 📖 Documentation
+
+- **README:** Update performance metrics for Nuxt I18n v9 ([352eb62](https://github.com/s00d/nuxt-i18n-micro/commit/352eb62))
+- **performance-results:** Update performance metrics for nuxt-i18n-micro ([365c521](https://github.com/s00d/nuxt-i18n-micro/commit/365c521))
+- **readme:** Update performance metrics for Nuxt I18n comparison ([3050b83](https://github.com/s00d/nuxt-i18n-micro/commit/3050b83))
+
+### 🏡 Chore
+
+- **playground:** Update `nuxt-i18n-micro` to version `1.57.1` ([141c2ea](https://github.com/s00d/nuxt-i18n-micro/commit/141c2ea))
+
+### ✅ Tests
+
+- **translations:** Add global translation checks in basic tests ([498150f](https://github.com/s00d/nuxt-i18n-micro/commit/498150f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.57.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.57.0...v1.57.1)

@@ -91,6 +91,10 @@
       Formatted Date: {{ $td('2023-12-31') }}
     </div>
 
+    <div>
+      Formatted Date: {{ $tdr('2023-12-31') }}
+    </div>
+
     <!-- Ссылки для переключения локалей -->
     <div>
       <button
@@ -125,7 +129,7 @@ import { useNuxtApp } from '#imports'
 type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 type Params = Record<string, string | number | boolean>
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $tn, $td } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $tn, $td, $tdr } = useNuxtApp()
 
 // Количество яблок
 const appleCount = ref(5)

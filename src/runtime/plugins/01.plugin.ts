@@ -5,6 +5,7 @@ import type {
   RouteLocationAsString,
   RouteLocationNormalizedGeneric,
   RouteLocationNormalizedLoaded,
+  RouteLocationOptions,
   RouteLocationRaw,
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
@@ -164,7 +165,7 @@ function switchLocale(
   }
 
   if (isNoPrefixStrategy(i18nConfig.strategy!)) {
-    return navigateTo(switchedRoute, { redirectCode: 200, external: true })
+    (switchedRoute as RouteLocationRaw & RouteLocationOptions).force = true
   }
 
   return router.push(switchedRoute)
@@ -394,7 +395,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   router.beforeEach(async (to, from, next) => {
-    if (to.fullPath !== from.fullPath) {
+    if (to.fullPath !== from.fullPath || isNoPrefixStrategy(i18nConfig.strategy!)) {
       await loadGlobalTranslations(to)
     }
 

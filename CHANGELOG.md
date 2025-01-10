@@ -1,6 +1,40 @@
 # Changelog
 
 
+## v1.59.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.58.0...v1.59.0)
+
+### 🚀 Enhancements
+
+- **i18n:** Add relative time formatting function ([b40adfc](https://github.com/s00d/nuxt-i18n-micro/commit/b40adfc))
+- **i18n-t:** Add support for number, date, and relativeDate props ([1fe187e](https://github.com/s00d/nuxt-i18n-micro/commit/1fe187e))
+- **page:** Add new date formatting function `$tdr` ([bc3bf8c](https://github.com/s00d/nuxt-i18n-micro/commit/bc3bf8c))
+
+### 🩹 Fixes
+
+- **docs:** Correct path for NewsCard import in news index ([630fbe0](https://github.com/s00d/nuxt-i18n-micro/commit/630fbe0))
+- **plugins:** Add handling for no prefix strategy in navigation ([983bd50](https://github.com/s00d/nuxt-i18n-micro/commit/983bd50))
+
+### 📖 Documentation
+
+- **news:** Fix links to ensure proper navigation ([7b8bbcf](https://github.com/s00d/nuxt-i18n-micro/commit/7b8bbcf))
+- **i18n-t:** Update documentation with new props for number and date ([a46de1f](https://github.com/s00d/nuxt-i18n-micro/commit/a46de1f))
+- **api:** Add new methods `$tn` and `$tdr` for number and date formatting ([afc4e5c](https://github.com/s00d/nuxt-i18n-micro/commit/afc4e5c))
+- **examples:** Add usage examples for `$tn` and `$tdr` functions ([c30dddb](https://github.com/s00d/nuxt-i18n-micro/commit/c30dddb))
+
+### 🏡 Chore
+
+- **docs:** Remove outdated news components and related files ([f1fd121](https://github.com/s00d/nuxt-i18n-micro/commit/f1fd121))
+
+### ✅ Tests
+
+- **locale:** Enhance pluralization and formatting for multiple locales ([1631bd2](https://github.com/s00d/nuxt-i18n-micro/commit/1631bd2))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.58.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.57.1...v1.58.0)

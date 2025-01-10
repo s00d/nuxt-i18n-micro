@@ -438,33 +438,6 @@ const { $td } = useNuxtApp()
 </script>
 ```
 
-## 🗓️ Using `$tn` for Number Formatting
-
-The `$tn` function formats numbers according to the current locale using the `Intl.NumberFormat` API. This is useful for displaying numbers (such as currency, percentages, or plain numbers) in formats that are familiar to the user based on their locale settings.
-
-### Example: Using `$tn` for Number Formatting
-
-```vue
-<template>
-  <div>
-    <!-- Format a number as currency -->
-    <p>{{ $tn(1234567.89, { style: 'currency', currency: 'USD' }) }}</p> <!-- Outputs: "$1,234,567.89" in 'en-US' locale -->
-
-    <!-- Format a number with locale-specific grouping -->
-    <p>{{ $tn(1234567.89, { style: 'decimal' }) }}</p> <!-- Outputs: "1,234,567.89" in 'en-US' locale -->
-
-    <!-- Format a percentage -->
-    <p>{{ $tn(0.25, { style: 'percent' }) }}</p> <!-- Outputs: "25%" in 'en-US' locale -->
-  </div>
-</template>
-
-<script setup>
-import { useNuxtApp } from '#imports'
-
-const { $tn } = useNuxtApp()
-</script>
-```
-
 ## 🗓️ Using `$tdr` for Relative Date Formatting
 
 The `$tdr` function formats dates as relative times (e.g., "5 minutes ago", "2 days ago") according to the current locale using the `Intl.RelativeTimeFormat` API. This is useful for displaying time differences relative to the current date and time.

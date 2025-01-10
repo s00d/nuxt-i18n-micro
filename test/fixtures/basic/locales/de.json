@@ -1,6 +1,7 @@
 {
   "key0": "de",
   "generic": {
-    "welcome": "Willkommen auf der Seite!"
+    "welcome": "Willkommen auf der Seite!",
+    "example": "example de"
   }
 }

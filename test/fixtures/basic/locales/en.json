@@ -3,6 +3,7 @@
   "test_key": "test_val_en",
   "basic": "basic text",
   "generic": {
-    "welcome": "Welcome to the page!"
+    "welcome": "Welcome to the page!",
+    "example": "example en"
   }
 }

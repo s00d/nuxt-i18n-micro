@@ -17,6 +17,9 @@
     <p id="translation">
       {{ $t('page.example') }}
     </p>
+    <p id="translation-global">
+      {{ $t('generic.example') }}
+    </p>
     <p id="plural">
       {{ $tc('page.apples', 2) }}
     </p>

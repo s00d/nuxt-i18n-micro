@@ -34,13 +34,5 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const head = useLocaleHead({
-  addDirAttribute: true,
-  identifierAttribute: 'id',
-  addSeoAttributes: true,
-})
-
-useHead(head)
-
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
 </script>

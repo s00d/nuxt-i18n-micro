@@ -10,12 +10,61 @@
         :params="{ name: 'John' }"
       />
     </p>
-    <p id="plural">
+    <p id="plural-0">
       <i18n-t
         keypath="page.items"
-        :plural="itemCount"
+        :plural="0"
       />
     </p>
+    <p id="plural-1">
+      <i18n-t
+        keypath="page.items"
+        :plural="1"
+      />
+    </p>
+    <p id="plural-2">
+      <i18n-t
+        keypath="page.items"
+        :plural="2"
+      />
+    </p>
+    <p id="plural-3">
+      <i18n-t
+        keypath="page.items"
+        :plural="3"
+      />
+    </p>
+
+    <p id="number-tn">
+      {{ $tn(1234567.89) }}
+    </p>
+    <p id="number-tn-component">
+      <i18n-t
+        keypath="page.number"
+        :number="1234567.89"
+      />
+    </p>
+
+    <div id="date-td">
+      {{ $td('2023-12-31') }}
+    </div>
+    <p id="date-td-component">
+      <i18n-t
+        keypath="page.date"
+        date="2023-12-31"
+      />
+    </p>
+
+    <div id="date-tdr">
+      {{ $tdr('2023-12-31') }}
+    </div>
+    <p id="date-tdr-component">
+      <i18n-t
+        keypath="page.relativeDate"
+        relative-date="2023-12-31"
+      />
+    </p>
+
     <p id="html-content">
       <i18n-t
         keypath="page.htmlContent"
@@ -36,6 +85,12 @@
       >
         Switch to German
       </NuxtLink>
+      <NuxtLink
+        id="link-ru"
+        :to="$localeRoute({ name: 'locale-test' }, 'ru')"
+      >
+        Switch to Russian
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -43,7 +98,7 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $defineI18nRoute } = useNuxtApp()
+const { $defineI18nRoute, $tn, $td, $tdr } = useNuxtApp()
 
 // Define translations directly on the page
 $defineI18nRoute({
@@ -53,8 +108,11 @@ $defineI18nRoute({
         title: 'Locale Test Page',
         content: 'This is a content area.',
         greeting: 'Hello, {name}!',
-        items: 'You have {count} items.',
+        items: 'Nothing|You have {count} item|You have {count} items',
         htmlContent: '<strong>Bold Text</strong> with HTML content.',
+        number: 'The number is: {number}',
+        date: 'The date is: {date}',
+        relativeDate: 'The relative date is: {relativeDate}',
       },
     },
     de: {
@@ -62,15 +120,29 @@ $defineI18nRoute({
         title: 'Sprachtestseite',
         content: 'Dies ist ein Inhaltsbereich.',
         greeting: 'Hallo, {name}!',
-        items: 'Sie haben {count} Artikel.',
+        items: 'Nichts|Sie haben {count} Artikel|Sie haben {count} Artikel',
         htmlContent: '<strong>Fetter Text</strong> mit HTML-Inhalt.',
+        number: 'Die Zahl ist: {number}',
+        date: 'Das Datum ist: {date}',
+        relativeDate: 'Das relative Datum ist: {relativeDate}',
+      },
+    },
+    ru: {
+      page: {
+        title: 'Страница теста языка',
+        content: 'Это раздел содержимого.',
+        greeting: 'Привет, {name}!',
+        items: 'Ничего нет|У вас {count} предмет|У вас {count} предмета',
+        htmlContent: '<strong>Жирный текст</strong> с HTML-содержимым.',
+        number: 'Число: {number}',
+        date: 'Дата: {date}',
+        relativeDate: 'Относительная дата: {relativeDate}',
       },
     },
   },
   localeRoutes: {
     de: '/locale-page-modify',
+    ru: '/locale-page-modify-ru',
   },
 })
-
-const itemCount = 2
 </script>

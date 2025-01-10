@@ -1,4 +1,9 @@
 {
   "key0": "ru",
-  "test_key": "test_val_ru"
+  "test_key": "test_val_ru",
+  "basic": "основной текст",
+  "generic": {
+    "welcome": "Добро пожаловать на страницу!",
+    "example": "example ru"
+  }
 }

@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-[<< back](/news)
+[<< back](/news/)
 
 ## Optimized Translation Loading Algorithm Released
 

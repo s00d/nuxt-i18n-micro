@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-[<< back](/news)
+[<< back](/news/)
 
 ## [New CLI Feature: `text-to-i18n`](/guide/cli#🔄-text-to-i18n-command)
 

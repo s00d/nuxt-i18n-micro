@@ -132,6 +132,32 @@ const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month:
 - Displaying dates in a format that aligns with the user's locale, including long or short date formats.
 - Customizing date output using options like weekday names, time formats, and timezone settings.
 
+## 📅 `$tn`
+
+-   **Type**: `(value: number | string, options?: Intl.NumberFormatOptions) => string`
+-   **Description**: Formats a number according to the current locale using `Intl.NumberFormat`.
+-   **Parameters**:
+  - **value**: `number | string` — The number to format, which can be a `number` or a numeric `string`.
+  - **options**: `Intl.NumberFormatOptions | undefined` — Optional. `Intl.NumberFormatOptions` to customize the number formatting.
+-   **Example**:
+```typescript
+const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
+// Output: "$1,234,567.89" in the 'en-US' locale
+```
+
+## 📅 `$tdr`
+
+-   **Type**: `(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string`
+-   **Description**: Formats a date as a relative time (e.g., "5 minutes ago") according to the current locale using `Intl.RelativeTimeFormat`.
+-   **Parameters**:
+  - **value**: `Date | number | string` — The date to compare against the current time, which can be a `Date` object, a timestamp, or a date string.
+  - **options**: `Intl.RelativeTimeFormatOptions | undefined` — Optional. `Intl.RelativeTimeFormatOptions` to customize the relative time formatting.
+-   **Example**:
+```typescript
+const relativeDate = $tdr(new Date(Date.now() - 1000 * 60 * 5))
+// Output: "5 minutes ago" in the 'en-US' locale
+```
+
 ## 🔄 `$switchLocaleRoute`
 
 -   **Type**: `(locale: string) => RouteLocationRaw`

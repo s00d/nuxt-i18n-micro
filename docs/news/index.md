@@ -3,7 +3,7 @@ outline: deep
 ---
 
 <script setup>
-import NewsCard from '../News.vue'
+import NewsCard from './news.vue'
 </script>
 
 

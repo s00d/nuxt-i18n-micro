@@ -25,7 +25,13 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Description**: Specifies a number for pluralization rules.
 - **Example**:
 ```vue
-<i18n-t keypath="items" :plural="itemCount" />
+<i18n-t keypath="items" :plural="10" />
+```
+
+```json
+{
+  "items": "Nothing|You have {count} item|You have {count} items"
+}
 ```
 
 

@@ -300,6 +300,30 @@ function formatDate(value: Date | number | string, locale: string, options?: Int
   return new Intl.DateTimeFormat(locale, options).format(new Date(value))
 }
 
+function formatRelativeTime(value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions): string {
+  const date = new Date(value)
+  const now = new Date()
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+  const units: { unit: Intl.RelativeTimeFormatUnit, seconds: number }[] = [
+    { unit: 'year', seconds: 31536000 },
+    { unit: 'month', seconds: 2592000 },
+    { unit: 'day', seconds: 86400 },
+    { unit: 'hour', seconds: 3600 },
+    { unit: 'minute', seconds: 60 },
+    { unit: 'second', seconds: 1 },
+  ]
+
+  for (const { unit, seconds } of units) {
+    const diff = Math.floor(diffInSeconds / seconds)
+    if (diff >= 1) {
+      return new Intl.RelativeTimeFormat(locale, options).format(-diff, unit)
+    }
+  }
+
+  return new Intl.RelativeTimeFormat(locale, options).format(0, 'second')
+}
+
 export default defineNuxtPlugin(async (nuxtApp) => {
   if (!nuxtApp.payload.data.translations) {
     nuxtApp.payload.data.translations = {}
@@ -464,6 +488,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const locale = i18nHelper.getLocale()
       return formatDate(value, locale, options)
     },
+    tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string {
+      const locale = i18nHelper.getLocale()
+      return formatRelativeTime(value, locale, options)
+    },
     has: (key: string): boolean => {
       return !!getTranslation(key)
     },
@@ -569,6 +597,7 @@ export interface PluginsInjections {
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
+  $tdr: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   $has: (key: string) => boolean
   $mergeTranslations: (newTranslations: Translations) => void
   $switchLocaleRoute: (locale: string) => RouteLocationRaw

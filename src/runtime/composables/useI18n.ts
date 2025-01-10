@@ -20,6 +20,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $ts: nuxtApp.$ts,
     $tn: nuxtApp.$tn,
     $td: nuxtApp.$td,
+    $tdr: nuxtApp.$tdr,
     $has: nuxtApp.$has,
     $tc: nuxtApp.$tc,
     $mergeTranslations: nuxtApp.$mergeTranslations,

@@ -143,6 +143,8 @@ test.describe('basic', () => {
     // Verify the translation for a key
     await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
 
+    await expect(page.locator('#translation-global')).toHaveText('example en')
+
     // Verify the pluralization for items
     await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result
 
@@ -167,6 +169,8 @@ test.describe('basic', () => {
 
     // Verify the translation for a key after switching locale
     await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
+
+    await expect(page.locator('#translation-global')).toHaveText('example en')
 
     // Verify the pluralization for items after switching locale
     await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result in en
@@ -215,6 +219,7 @@ test.describe('basic', () => {
 
     // Verify the translation for a key after switching locale
     await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
+    await expect(page.locator('#translation-global')).toHaveText('example de')
 
     // Verify the pluralization for items after switching locale
     await expect(page.locator('#plural')).toHaveText('2 Äpfel') // Replace with actual pluralization result in German
@@ -239,6 +244,11 @@ test.describe('basic', () => {
 
     // Verify that Russian is disabled
     await expect(page.locator('.switcher-locale-de')).toHaveCSS('cursor', 'not-allowed')
+
+    await goto('/de/page', { waitUntil: 'hydration' })
+
+    await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
+    await expect(page.locator('#translation-global')).toHaveText('example de')
   })
 
   test('test locale switching on locale-test page', async ({ page }) => {

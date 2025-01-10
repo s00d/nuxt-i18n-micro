@@ -5,6 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   experimental: {
     externalVue: false,
+    appManifest: false,
   },
   compatibilityDate: '2024-08-14',
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

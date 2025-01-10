@@ -34,13 +34,6 @@
 </template>
 
 <script setup>
-const head = useLocaleHead({
-  addDirAttribute: true,
-  identifierAttribute: 'id',
-  addSeoAttributes: true,
-})
-
-useHead(head)
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []

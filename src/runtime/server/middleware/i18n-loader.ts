@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import { resolve, join } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
 import type { Translations } from 'nuxt-i18n-micro-core'
@@ -9,29 +9,23 @@ import { useRuntimeConfig, createError, useStorage } from '#imports'
 
 let storageInit = false
 
-// Рекурсивная функция для глубокого слияния объектов
 function deepMerge(target: Translations, source: Translations): Translations {
-  for (const key of Object.keys(source)) {
-    if (key === '__proto__' || key === 'constructor') {
-      continue
-    }
+  for (const key in source) {
+    if (key === '__proto__' || key === 'constructor') continue
+
     if (Array.isArray(source[key])) {
-      // Если значение — массив, берём массив из source
       target[key] = source[key]
     }
-    else if (source[key] instanceof Object && key in target) {
-      Object.assign(source[key], deepMerge(target[key] as Translations, source[key] as Translations))
+    else if (source[key] instanceof Object) {
+      target[key] = target[key] instanceof Object
+        ? deepMerge(target[key] as Translations, source[key] as Translations)
+        : source[key]
+    }
+    else {
+      target[key] = source[key]
     }
   }
-  // Сливаем объекты на верхнем уровне
-  return { ...target, ...source }
-}
-
-function isEmptyObject(obj: Translations): boolean {
-  for (const _ in obj) {
-    return false
-  }
-  return true
+  return target
 }
 
 export default defineEventHandler(async (event) => {
@@ -41,74 +35,55 @@ export default defineEventHandler(async (event) => {
   const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   if (customRegexMatcher && locales && !locales.map(l => l.code).includes(locale)) {
-    // return 404 if route not matching route
-    throw createError({
-      statusCode: 404,
-    })
-  }
-  const getTranslationPath = (locale: string, page: string) => {
-    return page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
+    throw createError({ statusCode: 404 })
   }
 
-  const paths: { translationPath: string, name: string }[] = []
-  if (fallbackLocale && fallbackLocale !== locale) {
-    rootDirs.forEach((dir) => {
-      paths.push({
-        translationPath: resolve(dir, translationDir!, getTranslationPath(fallbackLocale, page)),
-        name: `_locales/${getTranslationPath(fallbackLocale, page)}`,
-      })
-    })
-  }
-  rootDirs.forEach((dir) => {
-    paths.push({
+  const getTranslationPath = (locale: string, page: string) =>
+    page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
+
+  const createPaths = (locale: string) =>
+    rootDirs.map(dir => ({
       translationPath: resolve(dir, translationDir!, getTranslationPath(locale, page)),
       name: `_locales/${getTranslationPath(locale, page)}`,
-    })
-  })
+    }))
+
+  const paths = [
+    ...(fallbackLocale && fallbackLocale !== locale ? createPaths(fallbackLocale) : []),
+    ...createPaths(locale),
+  ]
 
   let translations: Translations = {}
   const serverStorage = await useStorage('assets:server')
 
   if (!storageInit) {
-    if (debug) {
-      console.log('[nuxt-i18n-micro] clear storage cache')
-    }
-    const handlerKeys = await serverStorage.getKeys()
-    await Promise.all(handlerKeys.map((element: string) => serverStorage.removeItem(element)))
+    if (debug) console.log('[nuxt-i18n-micro] clear storage cache')
+    await Promise.all((await serverStorage.getKeys()).map((key: string) => serverStorage.removeItem(key)))
     storageInit = true
   }
 
-  // Чтение и мержинг файлов переводов
+  const cacheName = join('_locales', getTranslationPath(locale, page))
+
+  const isThereAsset = await serverStorage.hasItem(cacheName)
+  if (isThereAsset) {
+    const rawContent = await serverStorage.getItem<Translations | string>(cacheName) ?? {}
+    return typeof rawContent === 'string' ? JSON.parse(rawContent) : rawContent
+  }
+
   for (const { translationPath, name } of paths) {
     try {
-      if (debug) {
-        console.log('[nuxt-i18n-micro] load locale', translationPath, name)
-      }
-      // check if it exists in server assets
-      const isThereAsset = await serverStorage.hasItem(name)
-      // we prefer server assets storage when in production
-      // if in dev ore while prerendering we fetch from user content
-      const fileContent = (isThereAsset && !import.meta.prerender) ? await serverStorage.getItemRaw<string>(name) : await readFile(translationPath, 'utf-8')
-      const content = JSON.parse(fileContent!) as Translations
-      if (!isThereAsset && import.meta.prerender) {
-        // write to server assets while building
-        await serverStorage.setItem(name, fileContent)
-      }
-      // Если translations пустой, просто присваиваем значение
-      if (isEmptyObject(translations)) {
-        translations = content
-      }
-      else {
-        // Иначе выполняем глубокое слияние
-        translations = deepMerge(translations, content)
-      }
+      if (debug) console.log('[nuxt-i18n-micro] load locale', translationPath, name)
+
+      const content = await readFile(translationPath, 'utf-8')
+      const fileContent = JSON.parse(content!) as Translations
+
+      translations = deepMerge(translations, fileContent)
     }
     catch (e) {
-      if (debug) {
-        console.error('[nuxt-i18n-micro] load locale error', e)
-      }
+      if (debug) console.error('[nuxt-i18n-micro] load locale error', e)
     }
   }
+
+  await serverStorage.setItem(cacheName, translations)
 
   return translations
 })

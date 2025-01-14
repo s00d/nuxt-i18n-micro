@@ -521,16 +521,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const route = router.currentRoute.value
       switchLocale(i18nHelper.getLocale(), toLocale, route, router, i18nConfig, i18nRouteParams.value)
     },
-    switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => {
+    switchRoute: (to: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => {
       const currentRoute = router.currentRoute.value
       const fromLocale = (currentRoute.params?.locale ?? i18nConfig.defaultLocale).toString()
       const currentLocale = toLocale ?? fromLocale
 
-      let to: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | null = null
-
-      if (typeof route === 'string' && !isNoPrefixStrategy(i18nConfig.strategy!)) {
+      if (typeof to === 'string' && !isNoPrefixStrategy(i18nConfig.strategy!)) {
         if (currentLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
-          to = router.resolve('/' + fromLocale + route)
+          to = router.resolve('/' + fromLocale + to)
         }
         else {
           to = router.resolve(route)
@@ -541,9 +539,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         return
       }
 
-      switchLocale(i18nHelper.getLocale(), toLocale ?? fromLocale, to, router, i18nConfig, i18nRouteParams.value)
+      switchLocale(
+        i18nHelper.getLocale(),
+        toLocale ?? fromLocale,
+        to as RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+        router,
+        i18nConfig,
+        i18nRouteParams.value,
+      )
     },
-    localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string): RouteLocationResolved => {
+    localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath | string, locale?: string): RouteLocationResolved => {
       const fromLocale = i18nHelper.getLocale()
       const currentLocale = locale ?? fromLocale
 

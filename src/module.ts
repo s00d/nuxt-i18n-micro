@@ -81,6 +81,7 @@ export default defineNuxtModule<ModuleOptions>({
     autoDetectLanguage: true,
     disablePageLocales: false,
     disableWatcher: false,
+    disableUpdater: false,
     includeDefaultLocaleRoute: undefined,
     fallbackLocale: undefined,
     localeCookie: 'user-locale',
@@ -134,6 +135,7 @@ export default defineNuxtModule<ModuleOptions>({
       metaBaseUrl: options.metaBaseUrl ?? undefined,
       define: options.define ?? true,
       disableWatcher: options.disableWatcher ?? false,
+      disableUpdater: options.disableUpdater ?? false,
       defaultLocale: options.defaultLocale ?? 'en',
       translationDir: options.translationDir ?? 'locales',
       localeCookie: options.localeCookie ?? 'user-locale',
@@ -356,26 +358,28 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    nuxt.hook('nitro:build:before', async (_nitro) => {
-      const isProd = nuxt.options.dev === false
-      if (!isProd) {
-        const translationPath = path.resolve(nuxt.options.rootDir, options.translationDir!)
+    if (!options.disableUpdater) {
+      nuxt.hook('nitro:build:before', async (_nitro) => {
+        const isProd = nuxt.options.dev === false
+        if (!isProd) {
+          const translationPath = path.resolve(nuxt.options.rootDir, options.translationDir!)
 
-        logger.log('ℹ add file watcher: ' + translationPath)
+          logger.log('ℹ add file watcher: ' + translationPath)
 
-        const watcherEvent = async (path: string) => {
-          watcher.close()
-          logger.log('↻ update store item: ' + path)
-          nuxt.callHook('restart')
+          const watcherEvent = async (path: string) => {
+            watcher.close()
+            logger.log('↻ update store item: ' + path)
+            nuxt.callHook('restart')
+          }
+
+          const watcher = watch(translationPath, { depth: 2, persistent: true }).on('change', watcherEvent)
+
+          nuxt.hook('close', () => {
+            watcher.close()
+          })
         }
-
-        const watcher = watch(translationPath, { depth: 2, persistent: true }).on('change', watcherEvent)
-
-        nuxt.hook('close', () => {
-          watcher.close()
-        })
-      }
-    })
+      })
+    }
 
     nuxt.hook('prerender:routes', async (prerenderRoutes) => {
       if (isNoPrefixStrategy(options.strategy!)) {

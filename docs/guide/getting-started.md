@@ -368,6 +368,21 @@ Disables the automatic creation of locale files during development.
 disableWatcher: true // Disables the automatic creation of locale files
 ```
 
+### 👀 `disableUpdater`
+
+**Version introduced**: `v1.60.0`
+
+Disables the file watcher for updating store items during development.
+
+**Type**: `boolean`  
+**Default**: `false`
+
+**Example**:
+
+```typescript
+disableUpdater: true // Disables the file watcher for updating store items
+```
+
 ### 🔗 `apiBaseUrl`
 
 env: `NUXT_I18N_APP_BASE_URL`

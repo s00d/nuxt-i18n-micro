@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v1.59.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.59.0...v1.59.1)
+
+### 💅 Refactors
+
+- **plugins:** Rename parameter for clarity in switchRoute method ([b380c69](https://github.com/s00d/nuxt-i18n-micro/commit/b380c69))
+- **content:** Add class names to i18n keypaths for styling ([5e14a0f](https://github.com/s00d/nuxt-i18n-micro/commit/5e14a0f))
+- **playground:** Update nuxt-i18n-micro to version v1.59.0 ([ab96274](https://github.com/s00d/nuxt-i18n-micro/commit/ab96274))
+
+### 📖 Documentation
+
+- **i18n-t:** Update pluralization example in documentation ([1e42d2d](https://github.com/s00d/nuxt-i18n-micro/commit/1e42d2d))
+- **guide:** Remove unnecessary outline comments and add example routes ([7785304](https://github.com/s00d/nuxt-i18n-micro/commit/7785304))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.59.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.58.0...v1.59.0)

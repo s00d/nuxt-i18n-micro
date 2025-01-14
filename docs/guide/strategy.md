@@ -1,7 +1,3 @@
----
-outline: deep
----
-
 # 🗂️ Strategies for Locale Prefix Handling in `Nuxt I18n` (Version 1.50.0+)
 
 ## 📖 Introduction to Locale Prefix Strategies
@@ -31,9 +27,13 @@ This strategy ensures that no locale prefix is added to your routes. Instead of 
 
 ```typescript
 i18n: {
-  strategy: 'no_prefix',
+  strategy: 'no_prefix'
 }
 ```
+
+**Example Routes**:
+- `/about` (for any language, e.g., `en`, `ru`, `fr`, etc.)
+- `/contact` (for any language)
 
 ---
 
@@ -48,9 +48,14 @@ With this strategy, all of your routes will include a locale prefix, except for 
 
 ```typescript
 i18n: {
-  strategy: 'prefix_except_default',
+  strategy: 'prefix_except_default'
 }
 ```
+
+**Example Routes**:
+- `/about` (for the default language, e.g., `en`)
+- `/ru/about` (for Russian)
+- `/fr/about` (for French)
 
 ---
 
@@ -65,9 +70,14 @@ This strategy ensures that every route in your application will include a locale
 
 ```typescript
 i18n: {
-  strategy: 'prefix',
+  strategy: 'prefix'
 }
 ```
+
+**Example Routes**:
+- `/en/about` (for English)
+- `/ru/about` (for Russian)
+- `/fr/about` (for French)
 
 ---
 
@@ -82,9 +92,15 @@ This strategy combines both the `prefix` and `prefix_except_default` behaviors. 
 
 ```typescript
 i18n: {
-  strategy: 'prefix_and_default',
+  strategy: 'prefix_and_default'
 }
 ```
+
+**Example Routes**:
+- `/about` (for the default language, e.g., `en`)
+- `/en/about` (for English, with prefix)
+- `/ru/about` (for Russian)
+- `/fr/about` (for French)
 
 ---
 

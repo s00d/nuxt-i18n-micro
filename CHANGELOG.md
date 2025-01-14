@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.60.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.59.1...v1.60.0)
+
+### 🚀 Enhancements
+
+- **module:** Add disableUpdater option for build process control #100 ([#100](https://github.com/s00d/nuxt-i18n-micro/issues/100))
+
+### 📖 Documentation
+
+- **guide:** Add disableUpdater option to getting started guide ([543bbcf](https://github.com/s00d/nuxt-i18n-micro/commit/543bbcf))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.59.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.59.0...v1.59.1)

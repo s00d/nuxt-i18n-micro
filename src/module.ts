@@ -237,7 +237,7 @@ export default defineNuxtModule<ModuleOptions>({
         localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
       }
 
-      pageManager.extendPages(pages, nuxt.options.rootDir, options.customRegexMatcher, isCloudflarePages)
+      pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
 
       if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
         const fallbackRoute: NuxtPage = {

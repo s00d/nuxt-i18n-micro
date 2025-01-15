@@ -46,8 +46,8 @@ export class PageManager {
       .map(locale => locale.code)
   }
 
-  public extendPages(pages: NuxtPage[], rootDir: string, customRegex?: string | RegExp, isCloudflarePages?: boolean) {
-    this.localizedPaths = this.extractLocalizedPaths(pages, rootDir)
+  public extendPages(pages: NuxtPage[], customRegex?: string | RegExp, isCloudflarePages?: boolean) {
+    this.localizedPaths = this.extractLocalizedPaths(pages)
 
     const additionalRoutes: NuxtPage[] = []
     pages.forEach((page) => {
@@ -93,7 +93,6 @@ export class PageManager {
 
   private extractLocalizedPaths(
     pages: NuxtPage[],
-    rootDir: string,
     parentPath = '',
   ): { [key: string]: { [locale: string]: string } } {
     const localizedPaths: { [key: string]: { [locale: string]: string } } = {}
@@ -105,9 +104,8 @@ export class PageManager {
       if (!globalLocalePath) {
         // Fallback to extracting localized paths from the page file content (existing functionality)
         if (page.file) {
-          const filePath = path.resolve(rootDir, page.file)
-          const fileContent = readFileSync(filePath, 'utf-8')
-          const localeRoutes = extractLocaleRoutes(fileContent, filePath)
+          const fileContent = readFileSync(page.file, 'utf-8')
+          const localeRoutes = extractLocaleRoutes(fileContent, page.file)
 
           if (localeRoutes) {
             const normalizedFullPath = normalizePath(path.join(parentPath, page.path))
@@ -123,7 +121,7 @@ export class PageManager {
 
       if (page.children?.length) {
         const parentFullPath = normalizePath(path.join(parentPath, page.path))
-        Object.assign(localizedPaths, this.extractLocalizedPaths(page.children, rootDir, parentFullPath))
+        Object.assign(localizedPaths, this.extractLocalizedPaths(page.children, parentFullPath))
       }
     })
 

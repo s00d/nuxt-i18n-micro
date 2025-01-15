@@ -86,10 +86,10 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
       // Если текущая локаль есть в объекте locales
       if (normalizedLocales[currentLocale]) {
         const translation = normalizedLocales[currentLocale]
-        const { $mergeTranslations } = useNuxtApp()
+        const { $mergeGlobalTranslations } = useNuxtApp()
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        $mergeTranslations(translation)
+        $mergeGlobalTranslations(translation)
       }
 
       // Если текущей локали нет в объекте locales
@@ -122,7 +122,6 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
     }
   }
 
-  // Предоставляем функцию в Nuxt контексте
   return {
     provide: {
       defineI18nRoute,

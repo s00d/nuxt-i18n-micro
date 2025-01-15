@@ -1,5 +1,6 @@
 <template>
   <div>
+    <test />
     <p id="content">
       {{ $t('page.content') }}
     </p>

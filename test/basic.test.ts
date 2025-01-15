@@ -171,6 +171,7 @@ test.describe('basic', () => {
     await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
 
     await expect(page.locator('#translation-global')).toHaveText('example en')
+    await expect(page.locator('#comp1')).toHaveText('en text')
 
     // Verify the pluralization for items after switching locale
     await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result in en
@@ -220,6 +221,7 @@ test.describe('basic', () => {
     // Verify the translation for a key after switching locale
     await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
     await expect(page.locator('#translation-global')).toHaveText('example de')
+    await expect(page.locator('#comp1')).toHaveText('de text')
 
     // Verify the pluralization for items after switching locale
     await expect(page.locator('#plural')).toHaveText('2 Äpfel') // Replace with actual pluralization result in German
@@ -249,6 +251,7 @@ test.describe('basic', () => {
 
     await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
     await expect(page.locator('#translation-global')).toHaveText('example de')
+    await expect(page.locator('#comp1')).toHaveText('de text')
   })
 
   test('test locale switching on locale-test page', async ({ page }) => {

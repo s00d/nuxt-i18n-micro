@@ -501,6 +501,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const routeName = getRouteName(route, locale)
       i18nHelper.mergeTranslation(routeName, newTranslations)
     },
+    mergeGlobalTranslations: (newTranslations: Translations) => {
+      i18nHelper.mergeGlobalTranslation(newTranslations, true)
+    },
     switchLocaleRoute: (toLocale: string) => {
       const route = router.currentRoute.value
       return switchLocaleRoute(i18nHelper.getLocale(), toLocale, route, router, i18nConfig, i18nRouteParams.value)
@@ -605,6 +608,7 @@ export interface PluginsInjections {
   $tdr: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   $has: (key: string) => boolean
   $mergeTranslations: (newTranslations: Translations) => void
+  $mergeGlobalTranslations: (newTranslations: Translations) => void
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   $switchLocalePath: (locale: string) => string
   $switchLocale: (locale: string) => void

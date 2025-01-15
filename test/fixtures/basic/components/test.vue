@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+import { useNuxtApp } from '#imports'
+
 const { $defineI18nRoute } = useNuxtApp()
 
 $defineI18nRoute({

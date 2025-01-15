@@ -13,7 +13,7 @@ The `strategy` option defines how locale prefixes should be managed across your 
 **Type**: `string`  
 **Default**: `prefix_and_default`
 
-**Available Strategies**:
+## Available Strategies:
 
 ### 🛑 **no_prefix**
 
@@ -22,6 +22,8 @@ This strategy ensures that no locale prefix is added to your routes. Instead of 
 - **Behavior**: Routes won't have any locale prefix.
 - **Locale Detection**: The locale is detected based on the user's browser language or cookies, and it is changed without altering the URL.
 - **Restrictions**: This strategy does not support features like Custom paths or Ignore routes.
+
+**Important Note**: The no_prefix strategy works only with standard routing. Any functionality tied to route generation (e.g., custom paths, dynamic route matching) can only work with other strategies. To achieve similar functionality with the no_prefix strategy, you must use a slug-based approach (e.g., `[...slug].vue`).
 
 **Use Case**: Ideal when you want a cleaner URL structure and are relying on automatic language detection rather than explicit locale identifiers in the URL.
 
@@ -34,8 +36,6 @@ i18n: {
 **Example Routes**:
 - `/about` (for any language, e.g., `en`, `ru`, `fr`, etc.)
 - `/contact` (for any language)
-
----
 
 ### 🚧 **prefix_except_default**
 
@@ -57,8 +57,6 @@ i18n: {
 - `/ru/about` (for Russian)
 - `/fr/about` (for French)
 
----
-
 ### 🌍 **prefix**
 
 This strategy ensures that every route in your application will include a locale prefix, regardless of the language. It standardizes the URL structure across all languages.
@@ -78,8 +76,6 @@ i18n: {
 - `/en/about` (for English)
 - `/ru/about` (for Russian)
 - `/fr/about` (for French)
-
----
 
 ### 🔄 **prefix_and_default**
 
@@ -101,8 +97,6 @@ i18n: {
 - `/en/about` (for English, with prefix)
 - `/ru/about` (for Russian)
 - `/fr/about` (for French)
-
----
 
 ## 📝 Conclusion
 

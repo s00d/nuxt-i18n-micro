@@ -81,10 +81,8 @@ test.describe('PageManager', () => {
       },
     ]
 
-    const rootDir = '/mocked/root/dir' // Mocked root directory path
-
     // Extend pages
-    pageManager.extendPages(pages, rootDir)
+    pageManager.extendPages(pages)
 
     // Фильтрация оригинальных страниц
     const originalPages = pages.filter(page => !page.path.includes('/:locale'))
@@ -143,10 +141,8 @@ test.describe('PageManager', () => {
       children: [{ path: 'skiing', name: 'Skiing' }],
     }]
 
-    const rootDir = '/mocked/root/dir' // Mocked root directory path
-
     // Extend pages
-    pageManager.extendPages(pages, rootDir)
+    pageManager.extendPages(pages)
 
     // Check if the route for the default locale is adjusted correctly
     expect(pages[0].path).toBe('/activity')
@@ -177,10 +173,8 @@ test.describe('PageManager', () => {
       children: [{ path: 'skiing', name: 'Skiing' }],
     }]
 
-    const rootDir = '/mocked/root/dir' // Мокированный путь к корневой директории
-
     // Расширяем страницы
-    pageManagerWithDefaultLocale.extendPages(pages, rootDir)
+    pageManagerWithDefaultLocale.extendPages(pages)
     // Проверяем корректность обработки маршрута для дефолтной локали
     expect(pages[0].path).toBe('/:locale(en|de|ru)/activity')
 
@@ -217,10 +211,8 @@ test.describe('PageManager', () => {
       name: 'unlocalized',
     }]
 
-    const rootDir = '/mocked/root/dir' // Mocked root directory path
-
     // Extend pages with globalLocaleRoutes
-    pageManagerWithGlobalRoutes.extendPages(pages, rootDir)
+    pageManagerWithGlobalRoutes.extendPages(pages)
 
     const expectedPages = [
       {
@@ -259,10 +251,8 @@ test.describe('PageManager', () => {
       },
     ]
 
-    const rootDir = '/mocked/root/dir' // Mocked root directory path
-
     // Extend pages
-    pageManagerPrefixAndDefault.extendPages(pages, rootDir)
+    pageManagerPrefixAndDefault.extendPages(pages)
 
     expect(pages).toHaveLength(2) // Routes for default and non-default locales
 

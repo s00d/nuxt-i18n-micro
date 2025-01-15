@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v1.61.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.60.0...v1.61.0)
+
+### 🚀 Enhancements
+
+- **i18n:** Add mergeGlobalTranslations method for global translation ([35535d8](https://github.com/s00d/nuxt-i18n-micro/commit/35535d8))
+- **components:** Add `useNuxtApp` import to `test.vue` ([615a5b4](https://github.com/s00d/nuxt-i18n-micro/commit/615a5b4))
+
+### 🩹 Fixes
+
+- **plugins:** Rename translation merge function for clarity ([98a67ed](https://github.com/s00d/nuxt-i18n-micro/commit/98a67ed))
+
+### 💅 Refactors
+
+- **page-manager:** Remove unnecessary `rootDir` parameter ([e2dc7d8](https://github.com/s00d/nuxt-i18n-micro/commit/e2dc7d8))
+
+### ✅ Tests
+
+- **locale:** Add tests for component text in English and German ([3a780c6](https://github.com/s00d/nuxt-i18n-micro/commit/3a780c6))
+- **pages-manager:** Remove unused `rootDir` parameter from tests ([a3d405a](https://github.com/s00d/nuxt-i18n-micro/commit/a3d405a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.60.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.59.1...v1.60.0)

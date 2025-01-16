@@ -1,7 +1,7 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import type { Translations } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend } from '../../types'
-import { isPrefixStrategy } from '../helpers'
+import { isNoPrefixStrategy, isPrefixStrategy } from '../helpers'
 import { defineNuxtPlugin, navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
 import { useRoute, useRouter } from '#imports'
 
@@ -53,7 +53,9 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
       }
 
       const newParams = { ...to.params }
-      newParams.locale = i18nConfig.defaultLocale!
+      if (!isNoPrefixStrategy(i18nConfig.strategy!)) {
+        newParams.locale = i18nConfig.defaultLocale!
+      }
 
       return navigateTo({ name: defaultRouteName, params: newParams }, { redirectCode: 301, external: true })
     }

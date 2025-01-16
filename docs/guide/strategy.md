@@ -40,6 +40,7 @@ i18n: {
 **Example Routes**:
 - `/about` (for any language, e.g., `en`, `ru`, `fr`, etc.)
 - `/contact` (for any language)
+- `/other` (for any language)
 
 ### 🚧 **prefix_except_default**
 

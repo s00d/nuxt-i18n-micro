@@ -67,8 +67,8 @@ Next, install the project dependencies using pnpm.
 
 ```bash
 pnpm install
-pnpm run prepack && cd playground && pnpm run prepare && cd ..
 pnpm --filter "./packages/**" run build
+pnpm run prepack && cd playground && pnpm run prepare && cd ..
 ```
 
 ### 3. 🖥️ Run the Development Server

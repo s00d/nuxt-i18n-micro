@@ -40,6 +40,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const locale = unref($getLocale())
+    const locales = unref($getLocales())
     const routeName = (route.name ?? '').toString()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -55,6 +56,10 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     let ogUrl = joinURL(unref(baseUrl), fullPath)
     let indexUrl = joinURL(unref(baseUrl))
 
+    if (!fullPath.startsWith('/')) {
+      fullPath = `/${fullPath}`
+    }
+
     if (!ogUrl.endsWith('/')) {
       ogUrl += '/'
     }
@@ -62,8 +67,9 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       indexUrl += '/'
     }
 
-    if (routeName.startsWith('localized-') && fullPath.startsWith(`/${locale}`)) {
-      fullPath = fullPath.slice(locale.length + 1)
+    const matchedLocale = locales.find(locale => fullPath.startsWith(`/${locale.code}`))
+    if (routeName.startsWith('localized-') && matchedLocale) {
+      fullPath = fullPath.slice(matchedLocale.code.length + 1)
       ogUrl = joinURL(unref(baseUrl), locale, fullPath)
     }
 

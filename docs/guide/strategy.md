@@ -31,7 +31,6 @@ This strategy ensures that no locale prefix is added to your routes. Instead of 
 
 **Use Case**: Ideal when you want a cleaner URL structure and are relying on automatic language detection rather than explicit locale identifiers in the URL.
 
-
 ```typescript
 i18n: {
   strategy: 'no_prefix'

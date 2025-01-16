@@ -2,6 +2,10 @@ import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
 
 test.use({
+  // launchOptions: {
+  //   headless: false, // Показывать браузер
+  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  // },
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
     nuxtConfig: {

@@ -402,7 +402,7 @@ Comparison between ${name1} and ${name2}:
   `)
 }
 
-async function stressTestServerWithArtillery(directory: string, artilleryConfigPath: string): Promise<PerformanceResult> {
+async function stressTestServerWithArtillery(directory: string, name: string, artilleryConfigPath: string): Promise<PerformanceResult> {
   console.log(`Starting server for stress test in ${directory}...`)
 
   const childProcess = spawn('node', ['.output/server/index.mjs'], {
@@ -510,6 +510,8 @@ Stress Test Results:
 - **Max Response Time**: ${responseTimeMax.toFixed(2)} ms
 - **Requests per Second**: ${requestsPerSecond.toFixed(2)}
 - **Error Rate**: ${errorRate.toFixed(2)}%
+
+![${name}](/${name}.png)
     `)
 
     return {
@@ -592,9 +594,9 @@ test.describe('performance', () => {
 
     const artilleryConfigPath = './artillery-config.yml' // Убедитесь, что путь корректный
 
-    const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', artilleryConfigPath)
+    const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', 'i18n', artilleryConfigPath)
     await pause(5000)
-    const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', artilleryConfigPath)
+    const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', 'i18n-micro', artilleryConfigPath)
 
     logAndWriteComparisonResults('i18n v9', 'i18n-micro', i18nStressResults, i18nNextStressResults)
 

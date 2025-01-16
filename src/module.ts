@@ -178,6 +178,8 @@ export default defineNuxtModule<ModuleOptions>({
       plural: undefined,
       locales: localeManager.locales ?? [],
       meta: options.meta ?? true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       metaBaseUrl: options.metaBaseUrl ?? undefined,
       define: options.define ?? true,
       disableWatcher: options.disableWatcher ?? false,

@@ -49,6 +49,7 @@ export default defineNuxtConfig({
       { code: 'ch', iso: 'ch_CH', displayName: 'Chinese' },
     ],
     meta: true,
+    metaBaseUrl: 'http://localhost:3000/',
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: true,

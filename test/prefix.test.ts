@@ -25,6 +25,13 @@ test.describe('prefix_and_default', () => {
     // Check the initial text for the default locale
     await expect(page.locator('#content')).toHaveText('en')
 
+    await page.click('#contact') // Assuming the link to the Contact page has id 'contact'
+
+    // Check the URL for the Contact page in German
+    await expect(page).toHaveURL('/en/contact')
+
+    await page.goBack()
+
     // Click on the language switcher to show language options
     await page.click('.language-switcher') // Assuming the switcher has a class 'language-switcher'
 
@@ -37,6 +44,11 @@ test.describe('prefix_and_default', () => {
     await expect(page).toHaveURL('/de')
 
     await expect(page.locator('#content')).toHaveText('de')
+
+    await page.click('#contact')
+
+    // Check the URL for the Contact page in English
+    await expect(page).toHaveURL('/de/kontakt')
 
     await goto('/en', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/en')

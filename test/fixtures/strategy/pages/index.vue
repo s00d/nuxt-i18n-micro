@@ -5,14 +5,14 @@
     </p>
 
     <i18n-link
-      id="activity"
+      id="contact"
       :to="{ name: 'contact' }"
     >
       Contact
     </i18n-link>
 
     <i18n-link
-      id="activity"
+      id="about"
       :to="{ name: 'about' }"
     >
       About

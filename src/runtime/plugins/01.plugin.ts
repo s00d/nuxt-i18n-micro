@@ -88,7 +88,7 @@ function switchLocaleRoute(
   const routeName = getRouteName(route, fromLocale)
   if (router.hasRoute(`localized-${routeName}-${toLocale}`)) {
     const newParams = { ...route.params, ...i18nRouteParams?.[toLocale] }
-    newParams.locale = toLocale
+    if (!isNoPrefixStrategy(i18nConfig.strategy!)) newParams.locale = toLocale
 
     const newRoute = {
       name: `localized-${routeName}-${toLocale}`,
@@ -117,14 +117,24 @@ function switchLocaleRoute(
           : routeName
     }
 
-    if (toLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
-      newParams.locale = toLocale
+    if (!isNoPrefixStrategy(i18nConfig.strategy!)) {
+      if (toLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
+        newParams.locale = toLocale
+      }
     }
   }
 
   const newRoute = {
     name: newRouteName,
     params: newParams,
+  }
+
+  if (isNoPrefixStrategy(i18nConfig.strategy!)) {
+    i18nConfig.locales?.forEach((locale, _index) => {
+      if (newRoute.name.endsWith(`-${locale.code}`)) {
+        newRoute.name = newRoute.name.slice(0, -locale.code - 1)
+      }
+    })
   }
 
   if (currentLocale?.baseUrl) {
@@ -203,7 +213,7 @@ function getLocalizedRoute(
     // Формируем routeName для дефолтной локали
     const defaultRouteName = getRouteName(resolvedTo as RouteLocationNormalizedLoaded, defaultLocale)
     const newParams = resolveParams(resolvedTo)
-    newParams.locale = defaultLocale
+    if (!isNoPrefixStrategy(i18nConfig.strategy!)) newParams.locale = defaultLocale
 
     // Если текущая локаль совпадает с дефолтной, то резолвим маршрут с дефолтной локалью
     if (router.hasRoute(`localized-${defaultRouteName}`)) {
@@ -244,7 +254,8 @@ function getLocalizedRoute(
   // Check if the localized route exists
   if (router.hasRoute(`localized-${routeName}-${currentLocale}`)) {
     const newParams = resolveParams(selectRoute)
-    newParams.locale = currentLocale
+    if (!isNoPrefixStrategy(i18nConfig.strategy!)) newParams.locale = currentLocale
+
     return router.resolve({
       name: `localized-${routeName}-${currentLocale}`,
       params: newParams,
@@ -278,8 +289,10 @@ function getLocalizedRoute(
   const newParams = resolveParams(to)
   delete newParams.locale
 
-  if (currentLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
-    newParams.locale = currentLocale
+  if (!isNoPrefixStrategy(i18nConfig.strategy!)) {
+    if (currentLocale !== i18nConfig.defaultLocale || withPrefixStrategy(i18nConfig.strategy!)) {
+      newParams.locale = currentLocale
+    }
   }
 
   return router.resolve({

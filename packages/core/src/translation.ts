@@ -46,55 +46,52 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
 }
 
 export function useTranslationHelper() {
-  let _locale = 'en'
   return {
-    getLocale() {
-      return _locale
+    hasCache(locale: string, page: string) {
+      console.log()
+      return (serverTranslationCache[`${locale}:${page}`] ?? new Map<string, Translations | unknown>()).size > 0
     },
-    setLocale(locale: string) {
-      _locale = locale
+    getCache(locale: string, routeName: string) {
+      return serverTranslationCache[`${locale}:${routeName}`]
     },
-    getCache(routeName: string) {
-      return serverTranslationCache[`${_locale}:${routeName}`]
+    setCache(locale: string, routeName: string, cache: Map<string, Translations | unknown>) {
+      serverTranslationCache[`${locale}:${routeName}`] = cache
     },
-    setCache(routeName: string, cache: Map<string, Translations | unknown>) {
-      serverTranslationCache[`${_locale}:${routeName}`] = cache
-    },
-    mergeTranslation(routeName: string, newTranslations: Translations, force = false) {
-      if (!force && !routeLocaleCache[`${_locale}:${routeName}`]) {
-        console.error(`marge: route ${_locale}:${routeName} not loaded`)
+    mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false) {
+      if (!force && !routeLocaleCache[`${locale}:${routeName}`]) {
+        console.error(`marge: route ${locale}:${routeName} not loaded`)
       }
-      routeLocaleCache[`${_locale}:${routeName}`] = {
-        ...routeLocaleCache[`${_locale}:${routeName}`],
+      routeLocaleCache[`${locale}:${routeName}`] = {
+        ...routeLocaleCache[`${locale}:${routeName}`],
         ...newTranslations,
       }
     },
-    mergeGlobalTranslation(newTranslations: Translations, force = false) {
-      if (!force && !generalLocaleCache[`${_locale}`]) {
-        console.error(`marge: route ${_locale} not loaded`)
+    mergeGlobalTranslation(locale: string, newTranslations: Translations, force = false) {
+      if (!force && !generalLocaleCache[`${locale}`]) {
+        console.error(`marge: route ${locale} not loaded`)
       }
-      generalLocaleCache[_locale] = {
-        ...generalLocaleCache[_locale],
+      generalLocaleCache[locale] = {
+        ...generalLocaleCache[locale],
         ...newTranslations,
       }
     },
-    hasGeneralTranslation() {
-      return !!generalLocaleCache[_locale]
+    hasGeneralTranslation(locale: string) {
+      return !!generalLocaleCache[locale]
     },
-    hasPageTranslation(routeName: string) {
-      return !!routeLocaleCache[`${_locale}:${routeName}`]
+    hasPageTranslation(locale: string, routeName: string) {
+      return !!routeLocaleCache[`${locale}:${routeName}`]
     },
-    hasTranslation: (key: string): boolean => {
+    hasTranslation: (locale: string, key: string): boolean => {
       for (const dynamicCache of dynamicTranslationsCaches) {
-        if (findTranslation(dynamicCache[_locale] || null, key) !== null) {
+        if (findTranslation(dynamicCache[locale] || null, key) !== null) {
           return true
         }
       }
 
-      return findTranslation(generalLocaleCache[_locale] || null, key) !== null
+      return findTranslation(generalLocaleCache[locale] || null, key) !== null
     },
-    getTranslation: <T = unknown>(routeName: string, key: string): T | null => {
-      const cacheKey = `${_locale}:${routeName}`
+    getTranslation: <T = unknown>(locale: string, routeName: string, key: string): T | null => {
+      const cacheKey = `${locale}:${routeName}`
       const cached = serverTranslationCache[cacheKey]?.get(key)
       if (cached) {
         return cached as T
@@ -103,13 +100,13 @@ export function useTranslationHelper() {
       let result: T | null = null
 
       for (const dynamicCache of dynamicTranslationsCaches) {
-        result = findTranslation<T>(dynamicCache[_locale] || null, key)
+        result = findTranslation<T>(dynamicCache[locale] || null, key)
         if (result !== null) break
       }
 
       if (!result) {
         result = findTranslation<T>(routeLocaleCache[cacheKey] || null, key)
-        ?? findTranslation<T>(generalLocaleCache[_locale] || null, key)
+        ?? findTranslation<T>(generalLocaleCache[locale] || null, key)
       }
 
       if (result) {
@@ -122,12 +119,12 @@ export function useTranslationHelper() {
 
       return result
     },
-    async loadPageTranslations(routeName: string, translations: Translations): Promise<void> {
-      const cacheKey = `${_locale}:${routeName}`
+    async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
+      const cacheKey = `${locale}:${routeName}`
       routeLocaleCache[cacheKey] = { ...translations }
     },
-    async loadTranslations(translations: Translations): Promise<void> {
-      generalLocaleCache[_locale] = { ...translations }
+    async loadTranslations(locale: string, translations: Translations): Promise<void> {
+      generalLocaleCache[locale] = { ...translations }
     },
   }
 }

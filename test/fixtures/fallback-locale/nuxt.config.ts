@@ -6,7 +6,9 @@ export default defineNuxtConfig({
   ],
 
   compatibilityDate: '2024-08-16',
-
+  experimental: {
+    appManifest: false,
+  },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {

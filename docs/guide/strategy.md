@@ -41,6 +41,7 @@ i18n: {
 - `/about` (for any language, e.g., `en`, `ru`, `fr`, etc.)
 - `/contact` (for any language)
 - `/other` (for any language)
+- `/other2` (for any language)
 
 ### 🚧 **prefix_except_default**
 

@@ -292,13 +292,13 @@ export default defineNuxtModule<ModuleOptions>({
         prerenderRoutes.push(`/${apiBaseUrl}/general/${locale.code}/data.json`)
       })
 
+      if (!options.disableWatcher) {
+        localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
+      }
+
+      pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
+
       if (!isNoPrefixStrategy(options.strategy!)) {
-        if (!options.disableWatcher) {
-          localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
-        }
-
-        pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
-
         if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
           const fallbackRoute: NuxtPage = {
             path: '/:pathMatch(.*)*',

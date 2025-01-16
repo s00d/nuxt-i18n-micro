@@ -25,56 +25,50 @@ describe('Translation Helper', () => {
 
   test('getTranslation fetches correct translation', () => {
     const helper = useTranslationHelper()
-    helper.setLocale('en')
-    helper.loadTranslations(translations.en)
+    helper.loadTranslations('en', translations.en)
 
-    const translation = helper.getTranslation('index', 'greeting')
+    const translation = helper.getTranslation('en', 'index', 'greeting')
     expect(translation).toBe('Hello, {name}!')
   })
 
   test('getTranslation supports nested keys', () => {
     const helper = useTranslationHelper()
-    helper.setLocale('en')
-    helper.loadTranslations(translations.en)
+    helper.loadTranslations('en', translations.en)
 
-    const translation = helper.getTranslation('index', 'nested.message')
+    const translation = helper.getTranslation('en', 'index', 'nested.message')
     expect(translation).toBe('This is a nested message.')
   })
 
   test('getTranslation falls back when translation is missing', () => {
     const helper = useTranslationHelper()
-    helper.setLocale('en')
-    helper.loadTranslations(translations.en)
+    helper.loadTranslations('en', translations.en)
 
-    const translation = helper.getTranslation('index', 'nonexistent.key')
+    const translation = helper.getTranslation('en', 'index', 'nonexistent.key')
     expect(translation).toBeNull()
   })
 
   test('loadPageTranslations correctly caches translations', async () => {
     const helper = useTranslationHelper()
-    helper.setLocale('fr')
-    await helper.loadPageTranslations('home', translations.fr)
+    await helper.loadPageTranslations('fr', 'home', translations.fr)
 
-    expect(helper.hasPageTranslation('home')).toBe(true)
-    expect(helper.getTranslation('home', 'greeting')).toBe('Bonjour, {name}!')
+    expect(helper.hasPageTranslation('fr', 'home')).toBe(true)
+    expect(helper.getTranslation('fr', 'home', 'greeting')).toBe('Bonjour, {name}!')
   })
 
   test('mergeTranslation updates route translations', () => {
     const helper = useTranslationHelper()
-    helper.setLocale('en')
-    helper.loadPageTranslations('home', translations.en)
+    helper.loadPageTranslations('en', 'home', translations.en)
 
-    helper.mergeTranslation('home', { newKey: 'New value' })
-    expect(helper.getTranslation('home', 'newKey')).toBe('New value')
+    helper.mergeTranslation('en', 'home', { newKey: 'New value' })
+    expect(helper.getTranslation('en', 'home', 'newKey')).toBe('New value')
   })
 
   test('mergeGlobalTranslation updates general translations', () => {
     const helper = useTranslationHelper()
-    helper.setLocale('en')
-    helper.loadTranslations(translations.en)
+    helper.loadTranslations('en', translations.en)
 
-    helper.mergeGlobalTranslation({ newGlobalKey: 'Global value' })
-    expect(helper.getTranslation('index', 'newGlobalKey')).toBe('Global value')
+    helper.mergeGlobalTranslation('en', { newGlobalKey: 'Global value' })
+    expect(helper.getTranslation('en', 'index', 'newGlobalKey')).toBe('Global value')
   })
 
   test('deepClone creates a deep copy of objects', () => {

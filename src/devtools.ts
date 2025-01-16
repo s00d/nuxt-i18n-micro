@@ -34,6 +34,9 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   if (clientDirExists) {
     nuxt.hook('vite:serverCreated', (server) => {
       const indexHtmlPath = path.join(clientDir, 'index.html')
+      if (!fs.existsSync(indexHtmlPath)) {
+        return
+      }
       const indexContent = fs.readFileSync(indexHtmlPath)
       const handleStatic = sirv(clientDir, {
         dev: true,

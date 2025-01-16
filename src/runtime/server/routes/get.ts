@@ -1,6 +1,8 @@
 import { defineEventHandler } from 'h3'
 import type { Translations, Translation } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend } from '../../../types'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { createError, useRuntimeConfig, useStorage } from '#imports'
 
 export default defineEventHandler(async (event) => {

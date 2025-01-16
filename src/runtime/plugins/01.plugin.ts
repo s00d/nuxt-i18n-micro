@@ -364,8 +364,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         }
 
         const locale = i18nHelper.getLocale()
-        const url = `/${apiBaseUrl}/${fRouteName}/${locale}/data.json?v=${i18nConfig.dateBuild}`.replace(/\/{2,}/g, '/')
-        const data: Translations = await $fetch(url, { baseURL: runtimeConfig.app.baseURL })
+        const url = `/${apiBaseUrl}/${fRouteName}/${locale}/data.json`.replace(/\/{2,}/g, '/')
+        const data: Translations = await $fetch(url, {
+          baseURL: runtimeConfig.app.baseURL,
+          params: {
+            v: i18nConfig.dateBuild,
+          },
+        })
         await i18nHelper.loadPageTranslations(routeName, data ?? {})
       }
     }
@@ -396,9 +401,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (!i18nHelper.hasGeneralTranslation()) {
       const locale = i18nHelper.getLocale()
-      const url = `/${apiBaseUrl}/general/${locale}/data.json?v=${i18nConfig.dateBuild}`.replace(/\/{2,}/g, '/')
+      const url = `/${apiBaseUrl}/general/${locale}/data.json`.replace(/\/{2,}/g, '/')
       const data: Translations = await $fetch(url, {
         baseURL: runtimeConfig.app.baseURL,
+        params: {
+          v: i18nConfig.dateBuild,
+        },
       })
       await i18nHelper.loadTranslations(data ?? {})
     }

@@ -10,6 +10,6 @@
     "test": "echo \"Error: no test specified\""
   },
   "devDependencies": {
-    "nuxt-i18n-micro": "v1.59.0"
+    "nuxt-i18n-micro": "v1.62.0"
   }
 }

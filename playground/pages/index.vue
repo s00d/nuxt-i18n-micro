@@ -43,6 +43,15 @@
       </button>
     </p>
 
+    <p class="localized-route-path-locale">
+      localized-route-path-locale
+      {{ localeRoute({ name: 'contact' }, 'de') }}
+
+      <NuxtLink :to="localeRoute({ name: 'contact' }, 'de')">
+        {{ $t("navigation.contact") }}
+      </NuxtLink>
+    </p>
+
     <p id="localized-route-path">
       {{ localeRoute({ name: 'subpage' }) }}
       <br>

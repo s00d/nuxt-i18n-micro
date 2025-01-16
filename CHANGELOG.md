@@ -1,6 +1,44 @@
 # Changelog
 
 
+## v1.64.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.63.2...v1.64.0)
+
+### 🚀 Enhancements
+
+- **page-manager:** Add support for no-prefix localization strategy ([aa7e4ab](https://github.com/s00d/nuxt-i18n-micro/commit/aa7e4ab))
+- **utils:** Add buildFullPathNoPrefix utility function ([316e859](https://github.com/s00d/nuxt-i18n-micro/commit/316e859))
+- **runtime:** Add no-prefix strategy check for locale setting ([6dacb39](https://github.com/s00d/nuxt-i18n-micro/commit/6dacb39))
+- **locales:** Add internationalization support for contact and about pages ([a53efe1](https://github.com/s00d/nuxt-i18n-micro/commit/a53efe1))
+
+### 🩹 Fixes
+
+- **i18n:** Adjust locale assignment based on prefix strategy ([979e50d](https://github.com/s00d/nuxt-i18n-micro/commit/979e50d))
+- **auto-detect:** Correct locale parameter handling in route resolution ([515438b](https://github.com/s00d/nuxt-i18n-micro/commit/515438b))
+
+### 💅 Refactors
+
+- **module:** Reorder conditional checks for improved readability ([1db1919](https://github.com/s00d/nuxt-i18n-micro/commit/1db1919))
+
+### 📖 Documentation
+
+- **guide:** Clarify no_prefix strategy limitations in locale detection ([153a9be](https://github.com/s00d/nuxt-i18n-micro/commit/153a9be))
+
+### 🏡 Chore
+
+- **release:** Bump version for test-utils and core packages ([4d60cee](https://github.com/s00d/nuxt-i18n-micro/commit/4d60cee))
+- **release:** Bump version for test-utils and core packages ([3374627](https://github.com/s00d/nuxt-i18n-micro/commit/3374627))
+- **workflows:** Update prepack step to build packages before packing ([2a30928](https://github.com/s00d/nuxt-i18n-micro/commit/2a30928))
+
+### ✅ Tests
+
+- **pages:** Add tests for no_prefix strategy and localized paths ([c8cf997](https://github.com/s00d/nuxt-i18n-micro/commit/c8cf997))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.63.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.63.1...v1.63.2)

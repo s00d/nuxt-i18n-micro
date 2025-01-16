@@ -1,5 +1,6 @@
 import path from 'node:path'
 import fs from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import {
   addComponentsDir,
   addImportsDir,
@@ -15,6 +16,8 @@ import {
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
+import type { Translation, Translations } from 'nuxt-i18n-micro-core'
+import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
@@ -44,6 +47,47 @@ declare module '#app' {
 }
 
 export {}`
+}
+
+function deepMerge<T extends object | unknown>(target: T, source: T): T {
+  if (typeof source !== 'object' || source === null) {
+    // If source is not an object, return target if it already exists, otherwise overwrite with source
+    return target === undefined ? source : target
+  }
+
+  if (Array.isArray(target)) {
+    // If source is an array, overwrite target with source
+    return target as T
+  }
+
+  if (source instanceof Object) {
+    // Ensure target is an object to merge into
+    if (!(target instanceof Object) || Array.isArray(target)) {
+      target = {} as T
+    }
+
+    for (const key in source) {
+      if (key === '__proto__' || key === 'constructor') continue
+
+      // Type guard to ensure that key exists on target and is of type object
+      if (target !== null && typeof (target as Record<string, unknown>)[key] === 'object'
+        && (target as Record<string, unknown>)[key] !== null) {
+        // If target has a key that is an object, merge recursively
+        (target as Record<string, unknown>)[key] = deepMerge(
+          (target as Record<string, unknown>)[key],
+          (source as Record<string, unknown>)[key],
+        )
+      }
+      else {
+        // If the key doesn't exist in target, or it's not an object, overwrite with source value
+        if (target instanceof Object && !(key in target)) {
+          (target as Record<string, unknown>)[key] = (source as Record<string, unknown>)[key]
+        }
+      }
+    }
+  }
+
+  return target
 }
 
 declare module '@nuxt/schema' {
@@ -99,6 +143,8 @@ export default defineNuxtModule<ModuleOptions>({
     customRegexMatcher: undefined,
   },
   async setup(options, nuxt) {
+    const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
+
     const isSSG = nuxt.options._generate
     const isCloudflarePages = nuxt.options.nitro.preset === 'cloudflare_pages' || process.env.NITRO_PRESET === 'cloudflare-pages'
 
@@ -118,7 +164,7 @@ export default defineNuxtModule<ModuleOptions>({
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
     const localeManager = new LocaleManager(options, rootDirs)
-    const pageManager = new PageManager(localeManager.locales, options.defaultLocale!, options.strategy!, options.globalLocaleRoutes)
+    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes)
 
     addTemplate({
       filename: 'i18n.plural.mjs',
@@ -136,7 +182,7 @@ export default defineNuxtModule<ModuleOptions>({
       define: options.define ?? true,
       disableWatcher: options.disableWatcher ?? false,
       disableUpdater: options.disableUpdater ?? false,
-      defaultLocale: options.defaultLocale ?? 'en',
+      defaultLocale: defaultLocale,
       translationDir: options.translationDir ?? 'locales',
       localeCookie: options.localeCookie ?? 'user-locale',
       autoDetectLanguage: options.autoDetectLanguage ?? true,
@@ -208,8 +254,12 @@ export default defineNuxtModule<ModuleOptions>({
 
     addServerHandler({
       route: `/${apiBaseUrl}/:page/:locale/data.json`,
-      handler: resolver.resolve('./runtime/server/middleware/i18n-loader'),
+      handler: resolver.resolve('./runtime/server/routes/get'),
     })
+    // addServerHandler({
+    //   route: `/${apiBaseUrl}/:page/:locale/data.json`,
+    //   handler: resolver.resolve('./runtime/server/middleware/i18n-loader'),
+    // })
 
     await addComponentsDir({
       path: resolver.resolve('./runtime/components'),
@@ -225,35 +275,11 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     extendPages((pages) => {
-      if (isNoPrefixStrategy(options.strategy!)) {
-        return
-      }
+      const prerenderRoutes: string[] = []
 
       const pagesNames = pages
         .map(page => page.name)
         .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
-
-      if (!options.disableWatcher) {
-        localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
-      }
-
-      pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
-
-      if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
-        const fallbackRoute: NuxtPage = {
-          path: '/:pathMatch(.*)*',
-          name: 'custom-fallback-route',
-          file: resolver.resolve('./runtime/components/locale-redirect.vue'),
-          meta: {
-            globalLocaleRoutes: options.globalLocaleRoutes,
-          },
-        }
-        pages.push(fallbackRoute)
-      }
-
-      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
-
-      const prerenderRoutes: string[] = []
 
       localeManager.locales.forEach((locale) => {
         if (!options.disablePageLocales) {
@@ -264,53 +290,84 @@ export default defineNuxtModule<ModuleOptions>({
         prerenderRoutes.push(`/${apiBaseUrl}/general/${locale.code}/data.json`)
       })
 
-      if (isCloudflarePages) {
-        const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
-          if (!page.path) return // Пропускаем страницы без пути
-
-          const fullPath = path.posix.normalize(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
-
-          // Проверяем наличие динамического сегмента :locale
-          const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)
-
-          if (localeSegmentMatch) {
-            const availableLocales = localeSegmentMatch[1].split('|') // Достаем локали из сегмента, например "de|ru|en"
-            localeManager.locales.forEach((locale) => {
-              const localeCode = locale.code
-
-              // Проверяем, есть ли текущая локаль среди указанных в сегменте :locale(de|ru|en)
-              if (availableLocales.includes(localeCode)) {
-                let localizedPath = fullPath
-
-                // Заменяем сегмент :locale(de|ru|en) на текущую локаль
-                localizedPath = localizedPath.replace(/:locale\([^)]+\)/, localeCode)
-
-                // Добавляем локализованный путь в массив
-                prerenderRoutes.push(localizedPath)
-              }
-            })
-          }
-          else {
-            // Если в пути нет динамического сегмента локали, то просто добавляем его в массив
-            prerenderRoutes.push(fullPath)
-          }
-
-          // Рекурсивно обрабатываем детей, если они есть
-          if (page.children && page.children.length) {
-            page.children.forEach(childPage => processPageWithChildren(childPage, fullPath))
-          }
+      if (!isNoPrefixStrategy(options.strategy!)) {
+        if (!options.disableWatcher) {
+          localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
         }
 
-        // Пройдемся по страницам и добавим пути для каждого локализованного пути
-        pages.forEach((page) => {
-          processPageWithChildren(page) // Обрабатываем каждую страницу рекурсивно
-        })
+        pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
+
+        if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
+          const fallbackRoute: NuxtPage = {
+            path: '/:pathMatch(.*)*',
+            name: 'custom-fallback-route',
+            file: resolver.resolve('./runtime/components/locale-redirect.vue'),
+            meta: {
+              globalLocaleRoutes: options.globalLocaleRoutes,
+            },
+          }
+          pages.push(fallbackRoute)
+        }
+
+        nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
+
+        if (isCloudflarePages) {
+          const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
+            if (!page.path) return // Пропускаем страницы без пути
+
+            const fullPath = path.posix.normalize(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
+
+            // Проверяем наличие динамического сегмента :locale
+            const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)
+
+            if (localeSegmentMatch) {
+              const availableLocales = localeSegmentMatch[1].split('|') // Достаем локали из сегмента, например "de|ru|en"
+              localeManager.locales.forEach((locale) => {
+                const localeCode = locale.code
+
+                // Проверяем, есть ли текущая локаль среди указанных в сегменте :locale(de|ru|en)
+                if (availableLocales.includes(localeCode)) {
+                  let localizedPath = fullPath
+
+                  // Заменяем сегмент :locale(de|ru|en) на текущую локаль
+                  localizedPath = localizedPath.replace(/:locale\([^)]+\)/, localeCode)
+
+                  // Добавляем локализованный путь в массив
+                  prerenderRoutes.push(localizedPath)
+                }
+              })
+            }
+            else {
+              // Если в пути нет динамического сегмента локали, то просто добавляем его в массив
+              prerenderRoutes.push(fullPath)
+            }
+
+            // Рекурсивно обрабатываем детей, если они есть
+            if (page.children && page.children.length) {
+              page.children.forEach(childPage => processPageWithChildren(childPage, fullPath))
+            }
+          }
+
+          // Пройдемся по страницам и добавим пути для каждого локализованного пути
+          pages.forEach((page) => {
+            processPageWithChildren(page) // Обрабатываем каждую страницу рекурсивно
+          })
+        }
       }
 
       addPrerenderRoutes(prerenderRoutes)
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
+      nitroConfig.bundledStorage = nitroConfig.bundledStorage || []
+      nitroConfig.bundledStorage.push('i18n-locales')
+
+      nitroConfig.devStorage = nitroConfig.devStorage || {}
+      nitroConfig.devStorage['i18n-locales'] = {
+        driver: 'fs',
+        base: path.join(nuxt.options.rootDir, 'server/assets/i18n-locales'),
+      }
+
       if (nitroConfig.imports) {
         nitroConfig.imports.presets = nitroConfig.imports.presets || []
         nitroConfig.imports.presets.push({
@@ -329,7 +386,7 @@ export default defineNuxtModule<ModuleOptions>({
       const pages = nuxt.options.generate.routes || []
 
       localeManager.locales.forEach((locale) => {
-        if (locale.code !== options.defaultLocale || withPrefixStrategy(options.strategy!)) {
+        if (locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)) {
           pages.forEach((page) => {
             if (!/\.[a-z0-9]+$/i.test(page)) {
               routes.push(`/${locale.code}${page}`)
@@ -358,6 +415,77 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
+    nuxt.hook('nitro:init', async (nitro) => {
+      logger.debug('[nuxt-i18n-micro] clear storage cache')
+      await nitro.storage.clear('i18n-locales')
+      if (!await nitro.storage.hasItem(`i18n-locales:.gitignore`)) {
+        // await nitro.storage.setItem(`${output}:.gitignore`, '*')
+        const dir = path.join(nuxt.options.rootDir, 'server/assets/i18n-locales')
+        fs.mkdirSync(dir, { recursive: true })
+        fs.writeFileSync(`${dir}/.gitignore`, '*')
+      }
+
+      const translationDir = options.translationDir ?? ''
+      const fallbackLocale = options.fallbackLocale ?? null
+      const translationsByLocale: Record<string, Translations> = {}
+
+      try {
+        for (const rootDir of rootDirs) {
+          const baseDir = path.resolve(rootDir, translationDir)
+          const files = await globby('**/*.json', { cwd: baseDir })
+
+          const promises = files.map(async (file) => {
+            const filePath = path.join(baseDir, file)
+            const content = await readFile(filePath, 'utf-8')
+            const data = JSON.parse(content) as Translations
+
+            const parts = file.split('/')
+            const locale = parts.pop()?.replace('.json', '') || ''
+            const pageKey = parts.pop() || 'general'
+
+            if (!translationsByLocale[locale]) {
+              translationsByLocale[locale] = {}
+            }
+
+            translationsByLocale[locale] = deepMerge<Translations>({
+              [pageKey]: data,
+            }, translationsByLocale[locale])
+          })
+
+          await Promise.all(promises)
+        }
+
+        const savePromises: Promise<void>[] = []
+
+        for (const [locale, translations] of Object.entries(translationsByLocale)) {
+          for (const [key, value] of Object.entries(translations)) {
+            const storageKey = `i18n-locales:${locale}:${key}`
+            const promise = (async () => {
+              let translation: Translation = value
+              if (fallbackLocale) {
+                translation = deepMerge<Translation>(
+                  translation,
+                  translationsByLocale[fallbackLocale][key] ?? {},
+                )
+              }
+              if (typeof translation === 'object' && translation !== null) {
+                await nitro.storage.setItem(storageKey, translation)
+                if (options.debug) {
+                  logger.log(`[nuxt-i18n-micro] Translation saved to Nitro storage with key: ${storageKey}`)
+                }
+              }
+            })()
+
+            savePromises.push(promise)
+          }
+        }
+        await Promise.all(savePromises)
+      }
+      catch (err) {
+        logger.error('[nuxt-i18n-micro] Error processing translations:', err)
+      }
+    })
+
     if (!options.disableUpdater) {
       nuxt.hook('nitro:build:before', async (_nitro) => {
         const isProd = nuxt.options.dev === false
@@ -367,7 +495,7 @@ export default defineNuxtModule<ModuleOptions>({
           logger.log('ℹ add file watcher: ' + translationPath)
 
           const watcherEvent = async (path: string) => {
-            watcher.close()
+            await watcher.close()
             logger.log('↻ update store item: ' + path)
             nuxt.callHook('restart')
           }
@@ -392,7 +520,7 @@ export default defineNuxtModule<ModuleOptions>({
       routesSet.forEach((route) => {
         if (!/\.[a-z0-9]+$/i.test(route)) {
           localeManager.locales!.forEach((locale) => {
-            if (locale.code !== options.defaultLocale) {
+            if (locale.code !== defaultLocale) {
               if (route === '/') {
                 additionalRoutes.add(`/${locale.code}`)
               }

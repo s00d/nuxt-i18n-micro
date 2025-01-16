@@ -71,6 +71,10 @@ export const buildFullPath = (locale: string | string[], basePath: string, custo
   return normalizePath(path.posix.join('/', `:locale(${localeParam})`, basePath))
 }
 
+export const buildFullPathNoPrefix = (basePath: string): string => {
+  return normalizePath(basePath)
+}
+
 const normalizeRegex = (toNorm?: string): string | undefined => {
   if (typeof toNorm === 'undefined') return undefined
   return toNorm.startsWith('/') && toNorm.endsWith('/') ? toNorm?.slice(1, -1) : toNorm

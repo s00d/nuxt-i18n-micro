@@ -1,6 +1,48 @@
 # Changelog
 
 
+## v1.62.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.61.0...v1.62.0)
+
+### 🚀 Enhancements
+
+- **routes:** Add server route handler for i18n translations ([0b96c2e](https://github.com/s00d/nuxt-i18n-micro/commit/0b96c2e))
+- **module:** Add deepMerge function for recursive object merging ([169f864](https://github.com/s00d/nuxt-i18n-micro/commit/169f864))
+- **contact:** Add contact page with localized routes ([05fe922](https://github.com/s00d/nuxt-i18n-micro/commit/05fe922))
+- **scripts:** Add artillery test script for performance testing ([ca5fcdf](https://github.com/s00d/nuxt-i18n-micro/commit/ca5fcdf))
+- **locales:** Add initial localization files for contact page ([e2be027](https://github.com/s00d/nuxt-i18n-micro/commit/e2be027))
+
+### 🩹 Fixes
+
+- **ui:** Add assets ([35d182e](https://github.com/s00d/nuxt-i18n-micro/commit/35d182e))
+- **plugins:** Update URL construction for translation data fetching ([2d76c74](https://github.com/s00d/nuxt-i18n-micro/commit/2d76c74))
+- **devtools:** Prevent error when index.html does not exist ([b6eef10](https://github.com/s00d/nuxt-i18n-micro/commit/b6eef10))
+- **config:** Restore compatibilityDate in fallback locale config ([b83e123](https://github.com/s00d/nuxt-i18n-micro/commit/b83e123))
+- **routes:** Suppress TypeScript error in get.ts ([56d3a7f](https://github.com/s00d/nuxt-i18n-micro/commit/56d3a7f))
+
+### 💅 Refactors
+
+- **i18n-loader:** Remove unused translation loader middleware ([691b3ce](https://github.com/s00d/nuxt-i18n-micro/commit/691b3ce))
+
+### 📖 Documentation
+
+- **guide:** Update available strategies section in strategy.md ([cdb44e0](https://github.com/s00d/nuxt-i18n-micro/commit/cdb44e0))
+- **guide:** Add instructions for setting default locale using env variable ([298d02f](https://github.com/s00d/nuxt-i18n-micro/commit/298d02f))
+- **performance-results:** Update performance metrics and dependencies ([6b33280](https://github.com/s00d/nuxt-i18n-micro/commit/6b33280))
+
+### 🏡 Chore
+
+- **test/fixtures:** Update package versions in fixture files ([3113ff6](https://github.com/s00d/nuxt-i18n-micro/commit/3113ff6))
+
+### ✅ Tests
+
+- **performance:** Update stress test function to include name parameter ([dd6ab7d](https://github.com/s00d/nuxt-i18n-micro/commit/dd6ab7d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.61.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.60.0...v1.61.0)

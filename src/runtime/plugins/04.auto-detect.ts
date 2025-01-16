@@ -60,8 +60,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const newParams = { ...route.params }
     delete newParams.locale
 
-    if (isPrefixStrategy(i18nConfig.strategy!) || newLocale !== defaultLocale) {
-      newParams.locale = newLocale
+    if (!isNoPrefixStrategy(i18nConfig.strategy!)) {
+      if (isPrefixStrategy(i18nConfig.strategy!) || newLocale !== defaultLocale) {
+        newParams.locale = newLocale
+      }
     }
 
     const newRoute = router.resolve({

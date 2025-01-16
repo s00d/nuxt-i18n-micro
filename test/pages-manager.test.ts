@@ -1,8 +1,11 @@
 import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import { expect, test } from '@nuxt/test-utils/playwright'
 import type { NuxtPage } from '@nuxt/schema'
 import type { Locale } from '~/src/types'
 import { PageManager } from '~/src/page-manager'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 test.use({
   nuxt: {
@@ -273,5 +276,74 @@ test.describe('PageManager', () => {
         { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
       ]),
     )
+  })
+
+  test('should handle no_prefix strategy correctly', async () => {
+    const globalLocaleRoutes = {
+      activity: {
+        en: '/custom-activity-en',
+        de: '/custom-activity-de',
+        ru: '/custom-activity-ru',
+      },
+      unlocalized: false, // Unlocalized page should not be localized
+    }
+    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/activity',
+        name: 'activity',
+        children: [{ path: 'skiing', name: 'Skiing' }],
+      },
+    ]
+
+    // Extend pages
+    pageManagerPrefixAndDefault.extendPages(pages)
+
+    expect(pages).toHaveLength(4) // Routes for default and non-default locales
+
+    // Check default locale route
+    expect(pages[0].path).toBe('/activity')
+    expect(pages[1].path).toBe('/custom-activity-en')
+    expect(pages[2].path).toBe('/custom-activity-de')
+    expect(pages[3].path).toBe('/custom-activity-ru')
+  })
+
+  test('extractLocalizedPaths should extract localized paths correctly', async () => {
+    const fixturesDir = path.join(__dirname, 'fixtures/strategy/pages')
+
+    const mockPages: NuxtPage[] = [
+      {
+        path: '/about',
+        file: path.join(fixturesDir, 'about.vue'),
+        children: [],
+      },
+      {
+        path: '/contact',
+        file: path.join(fixturesDir, 'contact.vue'),
+        children: [],
+      },
+    ]
+
+    const locales = [
+      { code: 'en' },
+      { code: 'fr' },
+    ]
+    const pageManager = new PageManager(locales, 'en', 'no_prefix', {})
+
+    // Вызываем метод extractLocalizedPaths
+    const localizedPaths = pageManager.extractLocalizedPaths(mockPages)
+
+    // Проверяем результат
+    expect(localizedPaths).toEqual({
+      '/about': {
+        en: '/about',
+        de: '/a-propos',
+      },
+      '/contact': {
+        en: '/contact',
+        de: '/kontakt',
+      },
+    })
   })
 })

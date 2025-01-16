@@ -11,7 +11,7 @@ const routesLocaleLinks: Record<string, string> = {
 
 export default defineNuxtConfig({
   modules: [
-    'nuxt-i18n-micro',
+    '../src/module',
     defineNuxtModule({
       setup(_, nuxt) {
         if (!nuxt.options.dev)
@@ -33,13 +33,11 @@ export default defineNuxtConfig({
   ],
   devtools: { enabled: true },
   experimental: {
+    // typedPages: true,
     appManifest: false,
   },
   // app: {
   //   baseURL: '/prefix/',
-  // },
-  // experimental: {
-  //   typedPages: true,
   // },
   compatibilityDate: '2024-08-14',
   i18n: {

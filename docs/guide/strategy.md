@@ -25,6 +25,10 @@ This strategy ensures that no locale prefix is added to your routes. Instead of 
 
 **Important Note**: The no_prefix strategy works only with standard routing. Any functionality tied to route generation (e.g., custom paths, dynamic route matching) can only work with other strategies. To achieve similar functionality with the no_prefix strategy, you must use a slug-based approach (e.g., `[...slug].vue`).
 
+**Default Locale**: You can set the default locale using an environment variable. For example:
+- `DEFAULT_LOCALE=de npm run dev`
+- `DEFAULT_LOCALE=de npm run build`
+
 **Use Case**: Ideal when you want a cleaner URL structure and are relying on automatic language detection rather than explicit locale identifiers in the URL.
 
 ```typescript

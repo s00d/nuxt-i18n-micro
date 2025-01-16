@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v1.63.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.62.0...v1.63.0)
+
+### 🚀 Enhancements
+
+- **i18n:** Enhance locale handling with new helper functions ([3d9e227](https://github.com/s00d/nuxt-i18n-micro/commit/3d9e227))
+- **locale:** Add support for multiple locales in `useLocaleHead` ([feff1be](https://github.com/s00d/nuxt-i18n-micro/commit/feff1be))
+- **translation:** Update translation helper to support locale parameter ([1349e89](https://github.com/s00d/nuxt-i18n-micro/commit/1349e89))
+- **test-utils:** Improve locale handling in translation utilities ([991dbc2](https://github.com/s00d/nuxt-i18n-micro/commit/991dbc2))
+
+### 🩹 Fixes
+
+- **module:** Ignore TypeScript error for metaBaseUrl option ([385a61c](https://github.com/s00d/nuxt-i18n-micro/commit/385a61c))
+
+### 💅 Refactors
+
+- **translation-server-middleware:** Streamline translation helper usage ([9994135](https://github.com/s00d/nuxt-i18n-micro/commit/9994135))
+
+### 🏡 Chore
+
+- **playground:** Update `nuxt-i18n-micro` to version `v1.62.0` ([74bde99](https://github.com/s00d/nuxt-i18n-micro/commit/74bde99))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.62.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.61.0...v1.62.0)

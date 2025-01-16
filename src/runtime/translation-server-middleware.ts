@@ -4,8 +4,6 @@ import { interpolate, useTranslationHelper } from 'nuxt-i18n-micro-core'
 import type { Translations } from 'nuxt-i18n-micro-core'
 import type { Params } from '../types'
 
-const i18nHelper = useTranslationHelper()
-
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {
     const translations = await $fetch(`/_locales/general/${locale}/data.json`)
@@ -18,6 +16,8 @@ async function fetchTranslations(locale: string): Promise<Translations> {
 }
 
 export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {
+  const { getTranslation, loadTranslations, hasGeneralTranslation } = useTranslationHelper()
+
   const locale = (
     currentLocale
     || event.context.params?.locale
@@ -27,15 +27,13 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
     || defaultLocale
     || 'en').toString()
 
-  i18nHelper.setLocale(locale)
-
-  if (!i18nHelper.hasGeneralTranslation()) {
+  if (!hasGeneralTranslation(locale)) {
     const translations = await fetchTranslations(locale)
-    await i18nHelper.loadTranslations(translations)
+    await loadTranslations(locale, translations)
   }
 
   function t(key: string, params?: Params, defaultValue?: string): string {
-    let translation = i18nHelper.getTranslation<string>('index', key)
+    let translation = getTranslation<string>(locale, 'index', key)
     if (!translation) {
       translation = defaultValue || key
     }

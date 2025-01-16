@@ -12,8 +12,9 @@ import {
   buildFullPath,
   removeLeadingSlash,
   extractLocaleRoutes,
+  buildFullPathNoPrefix,
 } from './utils'
-import { isPrefixAndDefaultStrategy, isPrefixStrategy } from './runtime/helpers'
+import { isPrefixAndDefaultStrategy, isPrefixStrategy, isNoPrefixStrategy } from './runtime/helpers'
 
 const buildRouteNameFromRoute = (name: string | null | undefined, path: string | null | undefined) => {
   return name ?? (path ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
@@ -91,7 +92,7 @@ export class PageManager {
     pages.push(...additionalRoutes)
   }
 
-  private extractLocalizedPaths(
+  public extractLocalizedPaths(
     pages: NuxtPage[],
     parentPath = '',
   ): { [key: string]: { [locale: string]: string } } {
@@ -139,17 +140,27 @@ export class PageManager {
       if (!customPath) return
 
       const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy))
-      if (isDefaultLocale) {
-        // Modify the page path if it's the default locale
-        page.path = normalizePath(customPath)
+
+      if (isNoPrefixStrategy(this.strategy)) {
+        // Для стратегии без префикса, создаем отдельные страницы для каждой локали без префикса
+        const newRoute = this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex)
+        if (newRoute) additionalRoutes.push(newRoute)
       }
       else {
-        // Create a new localized route for this locale
-        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex))
-      }
+        if (isDefaultLocale) {
+          // Modify the page path if it's the default locale
+          page.path = normalizePath(customPath)
+        }
+        else {
+          // Create a new localized route for this locale
+          const newRoute = this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex)
+          if (newRoute) additionalRoutes.push(newRoute)
+        }
 
-      if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
-        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex, true))
+        if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
+          const newRoute = this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex, true)
+          if (newRoute) additionalRoutes.push(newRoute)
+        }
       }
     })
   }
@@ -166,7 +177,8 @@ export class PageManager {
     const localeCodesWithoutCustomPaths = this.filterLocaleCodesWithoutCustomPaths(normalizedFullPath)
 
     if (localeCodesWithoutCustomPaths.length) {
-      additionalRoutes.push(this.createLocalizedRoute(page, localeCodesWithoutCustomPaths, originalChildren, false, '', customRegex))
+      const newRoute = this.createLocalizedRoute(page, localeCodesWithoutCustomPaths, originalChildren, false, '', customRegex)
+      if (newRoute) additionalRoutes.push(newRoute)
     }
 
     this.addCustomLocalizedRoutes(page, normalizedFullPath, originalChildren, additionalRoutes)
@@ -237,11 +249,13 @@ export class PageManager {
         page.children = this.createLocalizedChildren(originalChildren, '', [locale.code], false)
       }
       else {
-        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex))
+        const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex)
+        if (newRoute) additionalRoutes.push(newRoute)
       }
 
       if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
-        additionalRoutes.push(this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, true))
+        const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, true)
+        if (newRoute) additionalRoutes.push(newRoute)
       }
     })
   }
@@ -279,8 +293,9 @@ export class PageManager {
     customPath: string = '',
     customRegex?: string | RegExp,
     force = false,
-  ): NuxtPage {
+  ): NuxtPage | null {
     const routePath = this.buildRoutePath(localeCodes, page.path, encodeURI(customPath), isCustom, customRegex, force)
+    if (!routePath || routePath == page.path) return null
     const routeName = buildRouteName(buildRouteNameFromRoute(page.name, page.path), localeCodes[0], isCustom)
 
     return {
@@ -337,6 +352,11 @@ export class PageManager {
     customRegex?: string | RegExp,
     force = false,
   ): string {
+    if (isNoPrefixStrategy(this.strategy)) {
+      return buildFullPathNoPrefix(isCustom ? customPath : originalPath)
+    }
+
+    // Используем стандартный метод для стратегий с префиксом
     if (isCustom) {
       return (force || isPrefixStrategy(this.strategy) || !localeCodes.includes(this.defaultLocale.code))
         ? buildFullPath(localeCodes, customPath, customRegex)

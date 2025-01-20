@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import type { Locale, ModuleOptions } from './types'
+import type { Locale, ModuleOptions } from 'nuxt-i18n-micro-types'
 
 export class LocaleManager {
   locales: Locale[]

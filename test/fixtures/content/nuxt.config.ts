@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   modules: [
     MyModule, '@nuxt/content',
   ],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   content: {

@@ -3,7 +3,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
   devtools: {
-    enabled: true,
+    enabled: false,
   },
   experimental: {
     externalVue: false,

@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   modules: [
     MyModule,
   ],
+  devtools: { enabled: false },
   router: {
     options: {
       hashMode: true,

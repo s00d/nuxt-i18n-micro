@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   ],
 
   // https://devtools.nuxt.com
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   // Env variables - https://nuxt.com/docs/getting-started/configuration#environment-variables-and-private-tokens
   runtimeConfig: {

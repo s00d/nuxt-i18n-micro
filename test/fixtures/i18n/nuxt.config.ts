@@ -2,7 +2,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: ['@nuxtjs/i18n'],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   experimental: {
     externalVue: false,
     appManifest: false,

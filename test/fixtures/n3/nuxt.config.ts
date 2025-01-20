@@ -6,7 +6,7 @@ import pages from './app/locales/pages'
 export default defineNuxtConfig({
 
   modules: ['@nuxtjs/tailwindcss', MyModule],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   future: {
     compatibilityVersion: 4,

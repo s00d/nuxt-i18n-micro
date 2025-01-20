@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v1.66.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.3...v1.66.0)
+
+### 🚀 Enhancements
+
+- **nitro:** Add support for Vercel deployment presets ([d859a35](https://github.com/s00d/nuxt-i18n-micro/commit/d859a35))
+- **playground:** Add script to measure build execution time ([ca1c831](https://github.com/s00d/nuxt-i18n-micro/commit/ca1c831))
+
+### 💅 Refactors
+
+- **plugins:** Update `$t` method signature to allow null defaultValue ([8511f03](https://github.com/s00d/nuxt-i18n-micro/commit/8511f03))
+
+### 🏡 Chore
+
+- **config:** Disable devtools in various `nuxt.config.ts` files ([f728eeb](https://github.com/s00d/nuxt-i18n-micro/commit/f728eeb))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.65.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.2...v1.65.3)

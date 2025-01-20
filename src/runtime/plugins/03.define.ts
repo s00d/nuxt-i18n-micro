@@ -1,14 +1,13 @@
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
-import type { Translations } from 'nuxt-i18n-micro-core'
-import type { ModuleOptionsExtend } from '../../types'
-import { isNoPrefixStrategy, isPrefixStrategy } from '../helpers'
-import { defineNuxtPlugin, navigateTo, useNuxtApp, useRuntimeConfig } from '#app'
-import { useRoute, useRouter } from '#imports'
+import type { Ref, WatchHandle } from 'vue'
+import type { ModuleOptionsExtend, Translations } from 'nuxt-i18n-micro-types'
+import { isNoPrefixStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
+import { defineNuxtPlugin, navigateTo, useRuntimeConfig } from '#app'
+import { unref, useRoute, useRouter, useNuxtApp, watch, computed, onUnmounted } from '#imports'
 
-// Тип для локалей
 type LocalesObject = Record<string, Translations>
 
-export default defineNuxtPlugin(async (_nuxtApp) => {
+export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
   const route = useRoute()
   const router = useRouter()
@@ -33,7 +32,9 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 
   // Логика для редиректа по умолчанию, используем как на сервере, так и на клиенте
   const handleRedirect = async (to: RouteLocationNormalizedLoaded) => {
-    const currentLocale = (to.params.locale || i18nConfig.defaultLocale!).toString()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const currentLocale = (nuxtApp as unknown).$getLocale().toString()
     const { name } = to
 
     let defaultRouteName = name?.toString()
@@ -81,46 +82,36 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
     locales?: string[] | Record<string, Record<string, string>>
     localeRoutes?: Record<string, string>
   }) => {
-    const currentLocale = (route.params.locale || i18nConfig.defaultLocale!).toString()
+    const { $getLocale } = useNuxtApp()
+    let currentLocale: Ref<string> | null = computed(() => $getLocale())
     const normalizedLocales = normalizeLocales(routeDefinition.locales)
 
-    if (Object.values(normalizedLocales).length) {
-      // Если текущая локаль есть в объекте locales
-      if (normalizedLocales[currentLocale]) {
-        const translation = normalizedLocales[currentLocale]
-        const { $mergeGlobalTranslations } = useNuxtApp()
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        $mergeGlobalTranslations(translation)
-      }
-
-      // Если текущей локали нет в объекте locales
-      if (!normalizedLocales[currentLocale]) {
-        let defaultRouteName = route.name?.toString()
-          .replace('localized-', '')
-          .replace(new RegExp(`-${currentLocale}$`), '')
-        const resolvedRoute = router.resolve({ name: defaultRouteName })
-        const newParams = { ...route.params }
-        delete newParams.locale
-
-        if (isPrefixStrategy(i18nConfig.strategy!)) {
-          if (router.hasRoute(`localized-${defaultRouteName}-${currentLocale}`)) {
-            defaultRouteName = `localized-${defaultRouteName}-${currentLocale}`
+    const updateTranslations = () => {
+      const currentLocaleValue = unref(currentLocale)
+      if (currentLocaleValue && Object.values(normalizedLocales).length) {
+        if (normalizedLocales[currentLocaleValue]) {
+          const translation = normalizedLocales[currentLocaleValue]
+          const { $mergeGlobalTranslations } = useNuxtApp()
+          if ($mergeGlobalTranslations) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            $mergeGlobalTranslations(translation)
           }
-          else {
-            defaultRouteName = `localized-${defaultRouteName}`
-          }
-
-          if (!router.hasRoute(defaultRouteName)) {
-            return
-          }
-
-          newParams.locale = i18nConfig.defaultLocale!
-          newParams.name = defaultRouteName
         }
-
-        return router.push(resolvedRoute)
       }
+    }
+
+    updateTranslations()
+
+    if (import.meta.client) {
+      let stopWatcher: WatchHandle | null = watch(currentLocale, updateTranslations)
+      onUnmounted(() => {
+        if (stopWatcher) {
+          stopWatcher()
+          currentLocale = null
+          stopWatcher = null
+        }
+      })
     }
   }
 

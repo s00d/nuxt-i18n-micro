@@ -1,6 +1,34 @@
 # Changelog
 
 
+## v1.65.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.0...v1.65.1)
+
+### 🩹 Fixes
+
+- **test/fixtures:** Correct import path for Strategies type ([2e1488e](https://github.com/s00d/nuxt-i18n-micro/commit/2e1488e))
+
+### 💅 Refactors
+
+- **plugins:** Remove redundant i18n properties from global config ([546bb09](https://github.com/s00d/nuxt-i18n-micro/commit/546bb09))
+
+### 📖 Documentation
+
+- **news:** Add announcement for major release v1.65.0 ([130a43d](https://github.com/s00d/nuxt-i18n-micro/commit/130a43d))
+- **news:** Update release date for v1.65.0 announcement ([dbc82d8](https://github.com/s00d/nuxt-i18n-micro/commit/dbc82d8))
+- **news:** Update release notes for v1.65.0 ([c1f8d79](https://github.com/s00d/nuxt-i18n-micro/commit/c1f8d79))
+
+### 🏡 Chore
+
+- **package:** Update postinstall script and add client:prepare script ([a00afa7](https://github.com/s00d/nuxt-i18n-micro/commit/a00afa7))
+- **docs:** Remove prepack step from documentation workflow ([4da51f0](https://github.com/s00d/nuxt-i18n-micro/commit/4da51f0))
+- **package:** Add postinstall script to release process ([582e0c8](https://github.com/s00d/nuxt-i18n-micro/commit/582e0c8))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.65.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.64.0...v1.65.0)

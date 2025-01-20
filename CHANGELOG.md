@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.67.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.66.0...v1.67.0)
+
+### 🚀 Enhancements
+
+- **module:** Add i18n-locales storage configuration ([71d736c](https://github.com/s00d/nuxt-i18n-micro/commit/71d736c))
+
+### 💅 Refactors
+
+- **module:** Remove redundant nitroConfig.devStorage assignment ([9f4ca5d](https://github.com/s00d/nuxt-i18n-micro/commit/9f4ca5d))
+- **module:** Remove Vercel preset check and update storage config ([426037f](https://github.com/s00d/nuxt-i18n-micro/commit/426037f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.66.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.3...v1.66.0)

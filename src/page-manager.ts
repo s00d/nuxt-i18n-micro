@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { readFileSync } from 'node:fs'
 import type { NuxtPage } from '@nuxt/schema'
-import type { GlobalLocaleRoutes, Locale, Strategies } from './types'
+import type { GlobalLocaleRoutes, Locale, Strategies } from 'nuxt-i18n-micro-types'
+import { isPrefixAndDefaultStrategy, isPrefixStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
 import {
   normalizePath,
   isLocaleDefault,
@@ -14,7 +15,6 @@ import {
   extractLocaleRoutes,
   buildFullPathNoPrefix,
 } from './utils'
-import { isPrefixAndDefaultStrategy, isPrefixStrategy, isNoPrefixStrategy } from './runtime/helpers'
 
 const buildRouteNameFromRoute = (name: string | null | undefined, path: string | null | undefined) => {
   return name ?? (path ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')

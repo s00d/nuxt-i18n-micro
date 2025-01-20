@@ -1,11 +1,8 @@
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler } from 'h3'
 import type { ModuleOptionsExtend, Translations, Translation } from 'nuxt-i18n-micro-types'
-import { useStorage } from 'nitropack/runtime'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { useRuntimeConfig } from '#imports'
-
-const serverStorage = useStorage<Translations>('i18n-locales')
+import { createError, useRuntimeConfig, useStorage } from '#imports'
 
 export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
@@ -18,6 +15,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const cacheKey = `${locale}:${page}`
+
+  const serverStorage = useStorage<Translations>('i18n-locales')
 
   if (await serverStorage.hasItem(cacheKey)) {
     const rawContent: Translation | string = await serverStorage.getItem<Translation | string>(cacheKey) || {}

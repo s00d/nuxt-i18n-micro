@@ -16,18 +16,17 @@ import {
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
-import type { Translation, Translations } from 'nuxt-i18n-micro-core'
 import { globby } from 'globby'
-import { setupDevToolsUI } from './devtools'
-import { PageManager } from './page-manager'
-import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode } from './types'
-import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { LocaleManager } from './locale-manager'
+import type { Translation, Translations, ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from 'nuxt-i18n-micro-types'
 import {
   isNoPrefixStrategy,
   isPrefixStrategy,
   withPrefixStrategy,
-} from './runtime/helpers'
+} from 'nuxt-i18n-micro-core'
+import { setupDevToolsUI } from './devtools'
+import { PageManager } from './page-manager'
+import type { PluginsInjections } from './runtime/plugins/01.plugin'
+import { LocaleManager } from './locale-manager'
 
 function generateI18nTypes() {
   return `
@@ -241,6 +240,7 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin({
         src: resolver.resolve('./runtime/plugins/03.define'),
         name: 'i18n-plugin-define',
+        mode: 'all',
         order: 3,
       })
     }
@@ -298,19 +298,18 @@ export default defineNuxtModule<ModuleOptions>({
 
       pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
 
-      if (!isNoPrefixStrategy(options.strategy!)) {
-        if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
-          const fallbackRoute: NuxtPage = {
-            path: '/:pathMatch(.*)*',
-            name: 'custom-fallback-route',
-            file: resolver.resolve('./runtime/components/locale-redirect.vue'),
-            meta: {
-              globalLocaleRoutes: options.globalLocaleRoutes,
-            },
-          }
-          pages.push(fallbackRoute)
+      if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
+        const fallbackRoute: NuxtPage = {
+          path: '/:pathMatch(.*)*',
+          name: 'custom-fallback-route',
+          file: resolver.resolve('./runtime/components/locale-redirect.vue'),
+          meta: {
+            globalLocaleRoutes: options.globalLocaleRoutes,
+          },
         }
-
+        pages.push(fallbackRoute)
+      }
+      if (!isNoPrefixStrategy(options.strategy!)) {
         nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
         if (isCloudflarePages) {
@@ -557,4 +556,4 @@ declare module '@nuxt/schema' {
   interface NuxtHooks extends ModuleHooks {}
 }
 
-export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections }
+export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections, Strategies }

@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { expect, test } from '@nuxt/test-utils/playwright'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale } from '~/src/types'
+import type { Locale } from 'nuxt-i18n-micro-types'
 import { PageManager } from '~/src/page-manager'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))

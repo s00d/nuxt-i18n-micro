@@ -1,10 +1,15 @@
 import MyModule from '../../../src/module'
+import type { Strategies } from '~/src/module'
 
 export default defineNuxtConfig({
   modules: [
     MyModule,
   ],
   devtools: { enabled: true },
+  experimental: {
+    // typedPages: true,
+    appManifest: false,
+  },
   compatibilityDate: '2024-08-16',
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -19,6 +24,6 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: false,
-    strategy: 'no_prefix',
+    strategy: (process.env.STRATEGY ?? 'no_prefix') as Strategies,
   },
 })

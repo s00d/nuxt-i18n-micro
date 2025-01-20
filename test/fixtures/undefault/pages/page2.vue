@@ -1,6 +1,5 @@
-<script setup lang="ts">
+<script setup>
 import { useRoute } from '#app'
-import { useI18n } from '#imports'
 
 const { $localeRoute } = useI18n()
 </script>

@@ -9,3 +9,7 @@
     🥾🥾🥾
   </div>
 </template>
+
+<script setup>
+const { $t } = useI18n()
+</script>

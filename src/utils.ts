@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale, LocaleCode } from './types'
+import type { Locale, LocaleCode } from 'nuxt-i18n-micro-types'
 
 export function extractLocaleRoutes(content: string, filePath: string): Record<string, string> | null {
   // Ищем вызов defineI18nRoute (с долларом или без)

@@ -370,12 +370,6 @@ export default defineNuxtModule<ModuleOptions>({
         base: path.join(nuxt.options.rootDir, 'server/assets/i18n-locales'),
       }
 
-      nitroConfig.devStorage = nitroConfig.devStorage || {}
-      nitroConfig.devStorage['i18n-locales'] = {
-        driver: isVercelPages ? 'vercelKV' : 'fs',
-        base: path.join(nuxt.options.rootDir, 'server/assets/i18n-locales'),
-      }
-
       if (nitroConfig.imports) {
         nitroConfig.imports.presets = nitroConfig.imports.presets || []
         nitroConfig.imports.presets.push({

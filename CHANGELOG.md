@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.65.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.1...v1.65.2)
+
+### 🏡 Chore
+
+- **scripts:** Update release process to use prepack script ([3145219](https://github.com/s00d/nuxt-i18n-micro/commit/3145219))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.65.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.0...v1.65.1)

@@ -1,4 +1,4 @@
-import type { Params, Translation, Translations } from 'nuxt-i18n-micro-core'
+import type { Params, Translation, Translations } from 'nuxt-i18n-micro-types'
 import { useTranslationHelper, interpolate } from 'nuxt-i18n-micro-core'
 
 type LocaleCode = string

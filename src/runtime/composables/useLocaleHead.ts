@@ -1,6 +1,6 @@
 import { joinURL } from 'ufo'
-import type { Locale, ModuleOptionsExtend } from '../../types'
-import { isPrefixExceptDefaultStrategy } from '../helpers'
+import type { Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
+import { isPrefixExceptDefaultStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
 import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
 
 interface MetaLink {
@@ -113,29 +113,31 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       href: ogUrl,
     }
 
-    const alternateLinks = alternateLocales.flatMap((loc: Locale) => {
-      const href = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
-        ? indexUrl
-        : joinURL(unref(baseUrl), loc.code, fullPath)
+    const alternateLinks = isNoPrefixStrategy(strategy!)
+      ? []
+      : alternateLocales.flatMap((loc: Locale) => {
+          const href = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
+            ? indexUrl
+            : joinURL(unref(baseUrl), loc.code, fullPath)
 
-      const links = [{
-        [identifierAttribute]: `i18n-alternate-${loc.code}`,
-        rel: 'alternate',
-        href,
-        hreflang: unref(loc.code),
-      }]
+          const links = [{
+            [identifierAttribute]: `i18n-alternate-${loc.code}`,
+            rel: 'alternate',
+            href,
+            hreflang: unref(loc.code),
+          }]
 
-      if (loc.iso) {
-        links.push({
-          [identifierAttribute]: `i18n-alternate-${loc.iso}`,
-          rel: 'alternate',
-          href,
-          hreflang: unref(loc.iso),
+          if (loc.iso) {
+            links.push({
+              [identifierAttribute]: `i18n-alternate-${loc.iso}`,
+              rel: 'alternate',
+              href,
+              hreflang: unref(loc.iso),
+            })
+          }
+
+          return links
         })
-      }
-
-      return links
-    })
 
     metaObject.value.meta = [ogLocaleMeta, ogUrlMeta, ...alternateOgLocalesMeta]
     metaObject.value.link = [canonicalLink, ...alternateLinks]

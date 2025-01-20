@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.67.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.67.0...v1.67.1)
+
+### 💅 Refactors
+
+- **server:** Simplify server storage initialization in `get.ts` ([966290d](https://github.com/s00d/nuxt-i18n-micro/commit/966290d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.67.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.66.0...v1.67.0)

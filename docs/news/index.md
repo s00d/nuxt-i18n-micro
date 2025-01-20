@@ -6,7 +6,7 @@ outline: deep
 
 ## Major Release: Nuxt I18n Micro v1.65.0
 
-**Date**: 2025-02-20 
+**Date**: 2025-01-20 
 **Version**: `v1.65.0`
 
 We’re thrilled to announce **v1.65.0**, featuring a **complete rewrite of core logic** for better performance and maintainability! This release includes enhanced TypeScript support, client-side locale redirection, and streamlined translation handling. Upgrade now for a smoother, faster experience! 🚀

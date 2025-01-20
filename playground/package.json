@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
-    "prepare": "nuxt prepare",
+    "client:prepare": "nuxt prepare",
     "generate": "nuxi generate",
     "test": "echo \"Error: no test specified\""
   },
   "devDependencies": {
-    "nuxt-i18n-micro": "v1.63.2"
+    "nuxt-i18n-micro": "v1.65.0"
   }
 }

@@ -47,7 +47,7 @@
     "internals.d.ts"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
+    "postinstall": "pnpm --filter \"./packages/**\" run build && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -60,6 +60,7 @@
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "test:workspaces": "pnpm recursive run test",
     "client:build": "nuxi generate client",
+    "client:prepare": "nuxi client:prepare client",
     "client:dev": "nuxi dev client --port 3300",
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
     "typecheck": "tsc --noEmit",

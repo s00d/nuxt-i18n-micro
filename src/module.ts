@@ -1,6 +1,5 @@
 import path from 'node:path'
 import fs from 'node:fs'
-import { readFile } from 'node:fs/promises'
 import {
   addComponentsDir,
   addImportsDir,
@@ -16,8 +15,7 @@ import {
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
-import { globby } from 'globby'
-import type { Translation, Translations, ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from 'nuxt-i18n-micro-types'
+import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from 'nuxt-i18n-micro-types'
 import {
   isNoPrefixStrategy,
   isPrefixStrategy,
@@ -46,47 +44,6 @@ declare module '#app' {
 }
 
 export {}`
-}
-
-function deepMerge<T extends object | unknown>(target: T, source: T): T {
-  if (typeof source !== 'object' || source === null) {
-    // If source is not an object, return target if it already exists, otherwise overwrite with source
-    return target === undefined ? source : target
-  }
-
-  if (Array.isArray(target)) {
-    // If source is an array, overwrite target with source
-    return target as T
-  }
-
-  if (source instanceof Object) {
-    // Ensure target is an object to merge into
-    if (!(target instanceof Object) || Array.isArray(target)) {
-      target = {} as T
-    }
-
-    for (const key in source) {
-      if (key === '__proto__' || key === 'constructor') continue
-
-      // Type guard to ensure that key exists on target and is of type object
-      if (target !== null && typeof (target as Record<string, unknown>)[key] === 'object'
-        && (target as Record<string, unknown>)[key] !== null) {
-        // If target has a key that is an object, merge recursively
-        (target as Record<string, unknown>)[key] = deepMerge(
-          (target as Record<string, unknown>)[key],
-          (source as Record<string, unknown>)[key],
-        )
-      }
-      else {
-        // If the key doesn't exist in target, or it's not an object, overwrite with source value
-        if (target instanceof Object && !(key in target)) {
-          (target as Record<string, unknown>)[key] = (source as Record<string, unknown>)[key]
-        }
-      }
-    }
-  }
-
-  return target
 }
 
 declare module '@nuxt/schema' {
@@ -258,10 +215,6 @@ export default defineNuxtModule<ModuleOptions>({
       route: `/${apiBaseUrl}/:page/:locale/data.json`,
       handler: resolver.resolve('./runtime/server/routes/get'),
     })
-    // addServerHandler({
-    //   route: `/${apiBaseUrl}/:page/:locale/data.json`,
-    //   handler: resolver.resolve('./runtime/server/middleware/i18n-loader'),
-    // })
 
     await addComponentsDir({
       path: resolver.resolve('./runtime/components'),
@@ -360,21 +313,6 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
-      nitroConfig.bundledStorage = nitroConfig.bundledStorage || []
-      nitroConfig.bundledStorage.push('/i18n-locales')
-
-      nitroConfig.storage = nitroConfig.storage || {}
-      // nitroConfig.storage['i18n-locales'] = {
-      //   driver: isVercelPages ? 'vercelKV' : 'fs',
-      //   base: path.join(nuxt.options.rootDir, 'server/assets/i18n-locales'),
-      // }
-
-      nitroConfig.devStorage = nitroConfig.devStorage || {}
-      nitroConfig.devStorage['i18n-locales'] = {
-        driver: 'fs',
-        base: path.join(nuxt.options.rootDir, 'server/assets/i18n-locales'),
-      }
-
       if (nitroConfig.imports) {
         nitroConfig.imports.presets = nitroConfig.imports.presets || []
         nitroConfig.imports.presets.push({
@@ -419,77 +357,6 @@ export default defineNuxtModule<ModuleOptions>({
         catch (err) {
           logger.error('Error copying translations:', err)
         }
-      }
-    })
-
-    nuxt.hook('nitro:init', async (nitro) => {
-      logger.debug('[nuxt-i18n-micro] clear storage cache')
-      await nitro.storage.clear('i18n-locales')
-      if (!await nitro.storage.hasItem(`i18n-locales:.gitignore`)) {
-        // await nitro.storage.setItem(`${output}:.gitignore`, '*')
-        const dir = path.join(nuxt.options.rootDir, 'server/assets/i18n-locales')
-        fs.mkdirSync(dir, { recursive: true })
-        fs.writeFileSync(`${dir}/.gitignore`, '*')
-      }
-
-      const translationDir = options.translationDir ?? ''
-      const fallbackLocale = options.fallbackLocale ?? null
-      const translationsByLocale: Record<string, Translations> = {}
-
-      try {
-        for (const rootDir of rootDirs) {
-          const baseDir = path.resolve(rootDir, translationDir)
-          const files = await globby('**/*.json', { cwd: baseDir })
-
-          const promises = files.map(async (file) => {
-            const filePath = path.join(baseDir, file)
-            const content = await readFile(filePath, 'utf-8')
-            const data = JSON.parse(content) as Translations
-
-            const parts = file.split('/')
-            const locale = parts.pop()?.replace('.json', '') || ''
-            const pageKey = parts.pop() || 'general'
-
-            if (!translationsByLocale[locale]) {
-              translationsByLocale[locale] = {}
-            }
-
-            translationsByLocale[locale] = deepMerge<Translations>({
-              [pageKey]: data,
-            }, translationsByLocale[locale])
-          })
-
-          await Promise.all(promises)
-        }
-
-        const savePromises: Promise<void>[] = []
-
-        for (const [locale, translations] of Object.entries(translationsByLocale)) {
-          for (const [key, value] of Object.entries(translations)) {
-            const storageKey = `i18n-locales:${locale}:${key}`
-            const promise = (async () => {
-              let translation: Translation = value
-              if (fallbackLocale) {
-                translation = deepMerge<Translation>(
-                  translation,
-                  translationsByLocale[fallbackLocale][key] ?? {},
-                )
-              }
-              if (typeof translation === 'object' && translation !== null) {
-                await nitro.storage.setItem(storageKey, translation)
-                if (options.debug) {
-                  logger.log(`[nuxt-i18n-micro] Translation saved to Nitro storage with key: ${storageKey}`)
-                }
-              }
-            })()
-
-            savePromises.push(promise)
-          }
-        }
-        await Promise.all(savePromises)
-      }
-      catch (err) {
-        logger.error('[nuxt-i18n-micro] Error processing translations:', err)
       }
     })
 

@@ -146,7 +146,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const selectedRoute = route ?? routeService.getCurrentRoute()
       return routeService.getRouteName(selectedRoute, selectedLocale)
     },
-    t: (key: string, params?: Params, defaultValue?: string): Translation => {
+    t: (key: string, params?: Params, defaultValue?: string | null): Translation => {
       if (!key) return ''
       const route = routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale()
@@ -157,7 +157,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         if (isDev && import.meta.client) {
           console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
         }
-        value = defaultValue || key
+        value = defaultValue === undefined ? key : defaultValue
       }
 
       return typeof value === 'string' && params ? interpolate(value, params) : value
@@ -185,7 +185,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return translationService.formatRelativeTime(value, currentLocale, options)
     },
     has: (key: string): boolean => {
-      return !!provideData.t(key)
+      return !!provideData.t(key, {}, null)
     },
     mergeTranslations: (newTranslations: Translations) => {
       const route = routeService.getCurrentRoute()

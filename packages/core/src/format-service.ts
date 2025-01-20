@@ -14,7 +14,8 @@ export class FormatService {
   formatRelativeTime(value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions): string {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) {
-      return 'Invalid Date'
+      // Возвращаем "0 секунд назад" для невалидных дат
+      return new Intl.RelativeTimeFormat(locale, options).format(0, 'second')
     }
     const now = new Date()
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)

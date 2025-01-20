@@ -1,6 +1,29 @@
 # Changelog
 
 
+## v1.65.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.2...v1.65.3)
+
+### 🩹 Fixes
+
+- `$has` always returns `true` ([2af97f1](https://github.com/s00d/nuxt-i18n-micro/commit/2af97f1))
+
+### 📖 Documentation
+
+- **storybook:** Add integration guide for Nuxt, Storybook, and nuxt-i18n ([2ea2029](https://github.com/s00d/nuxt-i18n-micro/commit/2ea2029))
+- **guide:** Update storybook integration guide title and content ([b418899](https://github.com/s00d/nuxt-i18n-micro/commit/b418899))
+
+### 🏡 Chore
+
+- **ci:** Reorder commands in CI workflow ([0a27650](https://github.com/s00d/nuxt-i18n-micro/commit/0a27650))
+- **playground:** Update `nuxt-i18n-micro` to version `v1.65.2` ([7234d2d](https://github.com/s00d/nuxt-i18n-micro/commit/7234d2d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- 김용건 (Kim Younggeon) <git+commit@younggeon.kim>
+
 ## v1.65.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.65.1...v1.65.2)

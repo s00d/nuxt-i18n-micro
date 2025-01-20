@@ -247,15 +247,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // @ts-expect-error
   provideData.i18n = { ...provideData, ...$provideData }
 
-  nuxtApp.vueApp.config.globalProperties.$t = provideData.t
-  nuxtApp.vueApp.config.globalProperties.$ts = provideData.ts
-  nuxtApp.vueApp.config.globalProperties.$tc = provideData.tc
-  nuxtApp.vueApp.config.globalProperties.$tn = provideData.tn
-  nuxtApp.vueApp.config.globalProperties.$td = provideData.td
-  nuxtApp.vueApp.config.globalProperties.$tdr = provideData.tdr
-  nuxtApp.vueApp.config.globalProperties.$switchLocale = provideData.switchLocale
-  nuxtApp.vueApp.config.globalProperties.$switchLocaleRoute = provideData.switchLocaleRoute
-
   return {
     provide: provideData,
   }

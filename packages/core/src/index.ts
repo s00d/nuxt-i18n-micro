@@ -1,6 +1,16 @@
 import { useTranslationHelper } from './translation'
-import { interpolate } from './helpers'
-import type { Translations, Params, PluralTranslations, Translation } from './types'
+import { RouteService } from './route-service'
+import { FormatService } from './format-service'
+import { interpolate, withPrefixStrategy, isNoPrefixStrategy, isPrefixStrategy, isPrefixExceptDefaultStrategy, isPrefixAndDefaultStrategy } from './helpers'
 
-export { useTranslationHelper, interpolate }
-export type { Translations, Params, PluralTranslations, Translation }
+export {
+  useTranslationHelper,
+  interpolate,
+  withPrefixStrategy,
+  isNoPrefixStrategy,
+  isPrefixStrategy,
+  isPrefixExceptDefaultStrategy,
+  isPrefixAndDefaultStrategy,
+  RouteService,
+  FormatService,
+}

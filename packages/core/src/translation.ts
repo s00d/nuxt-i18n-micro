@@ -1,4 +1,4 @@
-import type { Translations } from './types'
+import type { Translations } from 'nuxt-i18n-micro-types'
 
 const generalLocaleCache: Record<string, Translations> = {}
 const routeLocaleCache: Record<string, Translations> = {}
@@ -48,7 +48,6 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
 export function useTranslationHelper() {
   return {
     hasCache(locale: string, page: string) {
-      console.log()
       return (serverTranslationCache[`${locale}:${page}`] ?? new Map<string, Translations | unknown>()).size > 0
     },
     getCache(locale: string, routeName: string) {

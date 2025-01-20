@@ -1,27 +1,88 @@
+import { resolve, join } from 'node:path'
+import { readFile } from 'node:fs/promises'
 import { defineEventHandler } from 'h3'
-import type { ModuleOptionsExtend, Translations, Translation } from 'nuxt-i18n-micro-types'
+import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from 'nuxt-i18n-micro-types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { createError, useRuntimeConfig, useStorage } from '#imports'
+import { useRuntimeConfig, createError, useStorage } from '#imports'
+
+let storageInit = false
+
+function deepMerge(target: Translations, source: Translations): Translations {
+  for (const key in source) {
+    if (key === '__proto__' || key === 'constructor') continue
+
+    if (Array.isArray(source[key])) {
+      target[key] = source[key]
+    }
+    else if (source[key] instanceof Object) {
+      target[key] = target[key] instanceof Object
+        ? deepMerge(target[key] as Translations, source[key] as Translations)
+        : source[key]
+    }
+    else {
+      target[key] = source[key]
+    }
+  }
+  return target
+}
 
 export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
-
   const config = useRuntimeConfig()
-  const { customRegexMatcher, locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const { rootDirs, debug } = config.i18nConfig as ModulePrivateOptionsExtend
+  const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   if (customRegexMatcher && locales && !locales.map(l => l.code).includes(locale)) {
     throw createError({ statusCode: 404 })
   }
 
-  const cacheKey = `${locale}:${page}`
+  const getTranslationPath = (locale: string, page: string) =>
+    page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
 
-  const serverStorage = useStorage<Translations>('i18n-locales')
+  let translations: Translations = {}
+  const serverStorage = useStorage('assets:server')
 
-  if (await serverStorage.hasItem(cacheKey)) {
-    const rawContent: Translation | string = await serverStorage.getItem<Translation | string>(cacheKey) || {}
+  if (!storageInit) {
+    if (debug) console.log('[nuxt-i18n-micro] clear storage cache')
+    await Promise.all((await serverStorage.getKeys()).map((key: string) => serverStorage.removeItem(key)))
+    storageInit = true
+  }
+
+  const cacheName = join('_locales', getTranslationPath(locale, page))
+
+  const isThereAsset = await serverStorage.hasItem(cacheName)
+  if (isThereAsset) {
+    const rawContent = await serverStorage.getItem<Translations | string>(cacheName) ?? {}
     return typeof rawContent === 'string' ? JSON.parse(rawContent) : rawContent
   }
 
-  return {}
+  const createPaths = (locale: string) =>
+    rootDirs.map(dir => ({
+      translationPath: resolve(dir, translationDir!, getTranslationPath(locale, page)),
+      name: `_locales/${getTranslationPath(locale, page)}`,
+    }))
+
+  const paths = [
+    ...(fallbackLocale && fallbackLocale !== locale ? createPaths(fallbackLocale) : []),
+    ...createPaths(locale),
+  ]
+
+  for (const { translationPath, name } of paths) {
+    try {
+      if (debug) console.log('[nuxt-i18n-micro] load locale', translationPath, name)
+
+      const content = await readFile(translationPath, 'utf-8')
+      const fileContent = JSON.parse(content!) as Translations
+
+      translations = deepMerge(translations, fileContent)
+    }
+    catch (e) {
+      if (debug) console.error('[nuxt-i18n-micro] load locale error', e)
+    }
+  }
+
+  await serverStorage.setItem(cacheName, translations)
+
+  return translations
 })

@@ -1,36 +1,6 @@
 # Changelog
 
 
-## v1.68.0
-
-[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.67.1...v1.68.0)
-
-### 🚀 Enhancements
-
-- **i18n-micro:** Replace nuxt-i18n-micro module with custom MyModule ([77a6347](https://github.com/s00d/nuxt-i18n-micro/commit/77a6347))
-- **routes:** Enhance translation loading and caching mechanism ([520330f](https://github.com/s00d/nuxt-i18n-micro/commit/520330f))
-
-### 🩹 Fixes
-
-- **routes:** Correct storage implementation in `get.ts` ([c6e58e5](https://github.com/s00d/nuxt-i18n-micro/commit/c6e58e5))
-- **playground/time.sh:** Improve execution time measurement format ([4b053f7](https://github.com/s00d/nuxt-i18n-micro/commit/4b053f7))
-
-### 💅 Refactors
-
-- **server/routes:** Reorganize imports for improved readability ([42992f2](https://github.com/s00d/nuxt-i18n-micro/commit/42992f2))
-
-### 📖 Documentation
-
-- **performance-results:** Update performance metrics for i18n and i18n-micro ([d4207f2](https://github.com/s00d/nuxt-i18n-micro/commit/d4207f2))
-
-### 🏡 Chore
-
-- **changelog:** Rm ([63cb102](https://github.com/s00d/nuxt-i18n-micro/commit/63cb102))
-
-### ❤️ Contributors
-
-- Pavel Kuzmin ([@s00d](http://github.com/s00d))
-
 ## v1.67.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.67.0...v1.67.1)
@@ -102,6 +72,7 @@
 ### ❤️ Contributors
 
 - Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- 김용건 (Kim Younggeon) <[dungsil](https://github.com/dungsil)>
 
 ## v1.65.2
 

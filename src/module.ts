@@ -146,7 +146,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     const isSSG = nuxt.options._generate
     const isCloudflarePages = nuxt.options.nitro.preset?.startsWith('cloudflare')
-    const isVercelPages = nuxt.options.nitro.preset?.startsWith('vercel')
 
     const logger = useLogger('nuxt-i18n-micro')
 
@@ -362,11 +361,13 @@ export default defineNuxtModule<ModuleOptions>({
 
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.bundledStorage = nitroConfig.bundledStorage || []
-      nitroConfig.bundledStorage.push('i18n-locales')
+      nitroConfig.bundledStorage.push('/i18n-locales')
 
       nitroConfig.storage = nitroConfig.storage || {}
-      nitroConfig.storage['i18n-locales'] = {
-        driver: isVercelPages ? 'vercelKV' : 'fs',
+
+      nitroConfig.devStorage = nitroConfig.devStorage || {}
+      nitroConfig.devStorage['i18n-locales'] = {
+        driver: 'fs',
         base: path.join(nuxt.options.rootDir, 'server/assets/i18n-locales'),
       }
 

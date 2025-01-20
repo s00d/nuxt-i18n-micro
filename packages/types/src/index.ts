@@ -65,3 +65,18 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   rootDirs: string[]
   debug: boolean
 }
+
+export interface PluralTranslations {
+  singular: string
+  plural: string
+}
+
+export type Translation = string | number | boolean | Translations | PluralTranslations | unknown | null
+
+export interface Translations {
+  [key: string]: Translation
+}
+
+const init = () => {}
+
+export { init }

@@ -1,0 +1,29 @@
+{
+  "name": "nuxt-i18n-micro-types",
+  "version": "1.0.0",
+  "description": "",
+  "repository": "s00d/nuxt-i18n-micro",
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "vite build",
+    "test": "jest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "vite-plugin-dts": "^4.3.0"
+  }
+}

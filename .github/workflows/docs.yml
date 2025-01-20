@@ -40,11 +40,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Prepack
-        run: |
-          pnpm --filter "./packages/**" run build
-          pnpm run prepack
-
       # run build script
       - name: Build VitePress site
         run: pnpm run docs:build

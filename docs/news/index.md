@@ -4,6 +4,7 @@ outline: deep
 
 # News
 
+
 ## Major Release: Nuxt I18n Micro v1.65.0
 
 **Date**: 2025-01-20 

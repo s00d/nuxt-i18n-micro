@@ -1,8 +1,7 @@
 import type { H3Event } from 'h3'
 import { getQuery, getCookie } from 'h3'
 import { interpolate, useTranslationHelper } from 'nuxt-i18n-micro-core'
-import type { Translations } from 'nuxt-i18n-micro-core'
-import type { Params } from '../types'
+import type { Params, Translations } from 'nuxt-i18n-micro-types'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {

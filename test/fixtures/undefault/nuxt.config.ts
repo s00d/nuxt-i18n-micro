@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   modules: [
     MyModule,
   ],
+  devtools: { enabled: false },
 
   compatibilityDate: '2024-08-16',
 

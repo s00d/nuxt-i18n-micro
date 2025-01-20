@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   modules: [
     MyModule,
   ],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   experimental: {
     // typedPages: true,
     appManifest: false,

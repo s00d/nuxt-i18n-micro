@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   extends: '../basic',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {

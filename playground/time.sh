@@ -1,16 +1,29 @@
 #!/bin/bash
 
-# Запускаем команду и замеряем время выполнения
-start_time=$(date +%s)
+# Используем gdate (GNU date) для получения времени в наносекундах
+start_time=$(gdate +%s%N)
 
 # Выполняем команду
 npm run build
 
 # Записываем время окончания
-end_time=$(date +%s)
+end_time=$(gdate +%s%N)
 
-# Вычисляем разницу
-elapsed_time=$((end_time - start_time))
+# Вычисляем разницу в наносекундах
+elapsed_ns=$((end_time - start_time))
 
-# Выводим результат
-echo "Время выполнения: $elapsed_time секунд"
+# Преобразуем наносекунды в миллисекунды
+elapsed_ms=$((elapsed_ns / 1000000))
+
+# Преобразуем миллисекунды в часы, минуты, секунды и миллисекунды
+hours=$((elapsed_ms / 3600000))
+elapsed_ms=$((elapsed_ms % 3600000))
+
+minutes=$((elapsed_ms / 60000))
+elapsed_ms=$((elapsed_ms % 60000))
+
+seconds=$((elapsed_ms / 1000))
+milliseconds=$((elapsed_ms % 1000))
+
+# Выводим результат в формате h:m:s:ms
+printf "Время выполнения: %02d:%02d:%02d:%03d\n" "$hours" "$minutes" "$seconds" "$milliseconds"

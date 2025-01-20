@@ -2,15 +2,16 @@
   <div>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
     <p>{{ $t('hook') }}</p>
-    <p>Current Locale: {{ $getLocale() }}</p>
-    <p>Current route without locale: {{ $getRouteName() }}</p>
+    <p>Current Locale: {{ currentLocale }}</p>
+    <p>Current route without locale: {{ currentRouteName }}</p>
 
     <!-- Ссылки для переключения локалей -->
     <div>
       <button
-        v-for="locale in $getLocales()"
+        v-for="locale in availableLocales"
         :key="locale.code"
-        :disabled="locale.code === $getLocale()"
+        :disabled="locale.isActive"
+        :class="{ disabled: locale.isActive }"
         @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}
@@ -104,6 +105,19 @@
 
 <script setup>
 const { localeRoute, localePath, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName, $switchRoute } = useI18n()
+const { $defineI18nRoute } = useNuxtApp()
+
+const currentLocales = ref($getLocales())
+const currentLocale = computed(() => $getLocale())
+const currentRouteName = computed(() => $getRouteName())
+
+const availableLocales = computed(() =>
+  currentLocales.value.map(locale => ({
+    code: locale.code,
+    isActive: locale.code === currentLocale.value,
+  })),
+)
+
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []
@@ -140,4 +154,22 @@ const toCreationByObjSubPage = () => {
 }
 
 const generatedKeys = ref(generateKeys(4))
+
+$defineI18nRoute({
+  locales: {
+    en: {
+      navigation: {
+        contact: 'Contect en',
+      },
+    },
+    de: {
+      navigation: {
+        contact: 'Contect de',
+      },
+    },
+    ru: {},
+    fr: {},
+    ch: {},
+  },
+})
 </script>

@@ -7,7 +7,5 @@
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
-
-const { $t } = useNuxtApp()
+const { $t } = useI18n()
 </script>

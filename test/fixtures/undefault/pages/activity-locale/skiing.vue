@@ -1,5 +1,6 @@
 <script setup>
 const { $defineI18nRoute } = useNuxtApp()
+const { $t } = useI18n()
 $defineI18nRoute({
   localeRoutes: {
     en: '/book-activity/skiing',

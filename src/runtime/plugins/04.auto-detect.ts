@@ -1,5 +1,5 @@
-import type { ModuleOptionsExtend } from '../../types'
-import { isPrefixStrategy, isNoPrefixStrategy } from '../helpers'
+import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
+import { isPrefixStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
 import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo } from '#app'
 import { useRoute, useRouter } from '#imports'
 

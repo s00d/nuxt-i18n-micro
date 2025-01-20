@@ -1,6 +1,65 @@
 # Changelog
 
 
+## v1.65.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.64.0...v1.65.0)
+
+### 🚀 Enhancements
+
+- **types:** Add TypeScript types and configuration for nuxt-i18n ([026964d](https://github.com/s00d/nuxt-i18n-micro/commit/026964d))
+- **playground:** Refactor localization handling in index.vue ([0fa4e65](https://github.com/s00d/nuxt-i18n-micro/commit/0fa4e65))
+- **locale-redirect:** Implement client-side redirection logic ([de2537a](https://github.com/s00d/nuxt-i18n-micro/commit/de2537a))
+- **useLocaleHead:** Update imports and enhance alternate links handling ([a1059e8](https://github.com/s00d/nuxt-i18n-micro/commit/a1059e8))
+- **runtime/plugins:** Refactor translation handling and route services ([630e6cd](https://github.com/s00d/nuxt-i18n-micro/commit/630e6cd))
+- **module:** Enhance type imports and refactor strategy checks ([1b2c8c6](https://github.com/s00d/nuxt-i18n-micro/commit/1b2c8c6))
+- **tests:** Add automated testing script for URL strategies ([e5212a5](https://github.com/s00d/nuxt-i18n-micro/commit/e5212a5))
+
+### 🩹 Fixes
+
+- **i18n-t:** Update import path for PluralFunc type ([0afe21a](https://github.com/s00d/nuxt-i18n-micro/commit/0afe21a))
+- **meta:** Update import path for `ModuleOptionsExtend` type ([788242c](https://github.com/s00d/nuxt-i18n-micro/commit/788242c))
+- **routes:** Update import path for translation types ([5698723](https://github.com/s00d/nuxt-i18n-micro/commit/5698723))
+- **translation-server-middleware:** Update import path for types ([4296fd2](https://github.com/s00d/nuxt-i18n-micro/commit/4296fd2))
+- **playwright:** Update testMatch pattern from `*.test.ts` to `*.spec.ts` ([d533c57](https://github.com/s00d/nuxt-i18n-micro/commit/d533c57))
+- **format-service:** Return "0 seconds ago" for invalid dates ([f937113](https://github.com/s00d/nuxt-i18n-micro/commit/f937113))
+- **test-utils:** Suppress TypeScript error in nuxt.config.ts ([24fc45d](https://github.com/s00d/nuxt-i18n-micro/commit/24fc45d))
+
+### 💅 Refactors
+
+- **test-utils:** Update import path for translation types ([f2ed77a](https://github.com/s00d/nuxt-i18n-micro/commit/f2ed77a))
+- **core:** Remove unused types and update imports ([0ca337c](https://github.com/s00d/nuxt-i18n-micro/commit/0ca337c))
+- **runtime/plugins:** Streamline locale handling in Nuxt plugin ([2dffdc5](https://github.com/s00d/nuxt-i18n-micro/commit/2dffdc5))
+- **plugins:** Update import paths for type definitions and helpers ([c36b4c2](https://github.com/s00d/nuxt-i18n-micro/commit/c36b4c2))
+- **helpers:** Remove unused strategy helper functions ([89a1db8](https://github.com/s00d/nuxt-i18n-micro/commit/89a1db8))
+- **devtools:** Update import path for type definitions ([09de011](https://github.com/s00d/nuxt-i18n-micro/commit/09de011))
+- **locale-manager:** Update import path for types module ([7bde673](https://github.com/s00d/nuxt-i18n-micro/commit/7bde673))
+- **page-manager:** Update import paths for types and utilities ([d317be1](https://github.com/s00d/nuxt-i18n-micro/commit/d317be1))
+- **utils:** Update Locale and LocaleCode imports for consistency ([e3acdbf](https://github.com/s00d/nuxt-i18n-micro/commit/e3acdbf))
+- **tests:** Replace old test files with updated spec files ([03f5ba0](https://github.com/s00d/nuxt-i18n-micro/commit/03f5ba0))
+
+### 📖 Documentation
+
+- **contribution:** Update build instructions in contribution guide ([13d2d7c](https://github.com/s00d/nuxt-i18n-micro/commit/13d2d7c))
+- **performance-results:** Update test script location and performance metrics ([2a7d863](https://github.com/s00d/nuxt-i18n-micro/commit/2a7d863))
+- **guide:** Add known issues and best practices for locale strategies ([d1a10f3](https://github.com/s00d/nuxt-i18n-micro/commit/d1a10f3))
+- **core:** Update README to include formatting and routing utilities ([5b10997](https://github.com/s00d/nuxt-i18n-micro/commit/5b10997))
+- **performance-results:** Update performance metrics for i18n and i18n-micro ([5b779bc](https://github.com/s00d/nuxt-i18n-micro/commit/5b779bc))
+
+### 🏡 Chore
+
+- **types:** Add MIT license and types for Jest ([4c12699](https://github.com/s00d/nuxt-i18n-micro/commit/4c12699))
+- **types:** Update test script to indicate no tests are specified ([11f0978](https://github.com/s00d/nuxt-i18n-micro/commit/11f0978))
+- **playwright:** Rename performance test file to use .spec.ts extension ([e9e5e95](https://github.com/s00d/nuxt-i18n-micro/commit/e9e5e95))
+
+### ✅ Tests
+
+- Add comprehensive unit tests for format and route services ([80ca6d6](https://github.com/s00d/nuxt-i18n-micro/commit/80ca6d6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.64.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.63.2...v1.64.0)

@@ -6,7 +6,7 @@ import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { Resolver } from '@nuxt/kit'
 import sirv from 'sirv'
-import type { ModuleOptions, ModulePrivateOptionsExtend } from './types'
+import type { ModuleOptions, ModulePrivateOptionsExtend } from 'nuxt-i18n-micro-types'
 
 export const DEVTOOLS_UI_PORT = 3030
 export const DEVTOOLS_UI_ROUTE = '/__nuxt-i18n-micro'

@@ -6,7 +6,7 @@ export default defineConfig({
   retries: 3,
   workers: process.env.CI ? 2 : 3,
   testIgnore: [
-    'test/performance.test.ts',
+    'test/performance.spec.ts',
   ],
   projects: [
     {

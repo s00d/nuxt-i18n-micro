@@ -1,8 +1,8 @@
-# 🌐 Nuxt + Storybook + Nuxt-i18n Integration Guide
+# 🌐 Storybook Integration Guide
 
 ## 📖 Introduction
 
-Integrating **Nuxt**, **Storybook**, and **nuxt-i18n** into your project allows you to build a robust, localized application with a component-driven development approach. This guide provides a step-by-step walkthrough on setting up these tools together, including configuration, localization, and Storybook integration.
+Integrating **Nuxt**, **Storybook**, and **nuxt-i18n-micro** into your project allows you to build a robust, localized application with a component-driven development approach. This guide provides a step-by-step walkthrough on setting up these tools together, including configuration, localization, and Storybook integration.
 
 ## 🛠 Nuxt Configuration
 

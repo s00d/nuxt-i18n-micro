@@ -1,5 +1,5 @@
 import MyModule from '../../../src/module'
-import type { Strategies } from '~/src/module'
+import type { Strategies } from '../../../src/module'
 
 export default defineNuxtConfig({
   modules: [

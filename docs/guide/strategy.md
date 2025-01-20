@@ -102,6 +102,78 @@ i18n: {
 - `/ru/about` (for Russian)
 - `/fr/about` (for French)
 
+## ⚠️ Known Issues and Best Practices
+
+While the `strategy` option provides flexibility, there are some known issues and best practices to keep in mind when using these strategies.
+
+### 1. **Hydration Mismatch in `no_prefix` Strategy with Static Generation**
+
+When using the `no_prefix` strategy in combination with static site generation (`generate` mode), you may encounter a **hydration mismatch** error. This happens because the locale is determined dynamically (e.g., via cookies or browser settings) after the static page is rendered, leading to a mismatch between the server-rendered content and the client-side hydration.
+
+**Error Example**:
+```
+Hydration completed but contains mismatches.
+```
+
+**Workaround**:
+- Avoid relying on dynamic locale changes during static generation.
+- Consider using a different strategy like `prefix_except_default` or `prefix` if static generation is a requirement.
+
+### 2. **Issues with `localeRoute` and Route Resolution**
+
+When using `localeRoute` to generate links, there can be issues with route resolution, especially if you rely on path-based routing. For example:
+
+```typescript
+localeRoute('/page') // May cause issues with route resolution
+```
+
+**Best Practice**:
+- Always use named routes with `localeRoute` to avoid unnecessary redirects or route resolution problems:
+
+```typescript
+localeRoute({ name: 'page' }) // Preferred approach
+```
+
+This ensures that the correct route is resolved regardless of the locale strategy.
+
+### 3. **Rendering Issues with Locale-Dependent Content in `no_prefix` Strategy**
+
+In the `no_prefix` strategy, rendering content that depends on the selected locale (e.g., buttons for switching languages) can lead to issues. For example, if you use a `v-for` loop to render locale buttons, Vue may incorrectly apply the `disabled` attribute due to hydration mismatches.
+
+**Example Problematic Code**:
+```vue
+<button
+  v-for="locale in availableLocales"
+  :key="locale.code"
+  :disabled="locale.isActive"
+  :class="{ disabled: locale.isActive }"
+  @click="() => $switchLocale(locale.code)"
+>
+  Switch to {{ locale.code }}
+</button>
+```
+
+**Issue**:
+- Vue may incorrectly apply the `disabled` attribute during hydration, and it may not update correctly when the locale changes.
+
+**Best Practice**:
+- Use a `<select>` element or another approach that avoids direct DOM manipulation for locale-dependent content:
+
+```vue
+<select @change="(e) => $switchLocale(e.target.value)">
+  <option
+    v-for="locale in availableLocales"
+    :key="locale.code"
+    :value="locale.code"
+    :selected="locale.isActive"
+  >
+    {{ locale.code }}
+  </option>
+</select>
+```
+
+This approach avoids hydration issues and ensures that the UI updates correctly when the locale changes.
+
 ## 📝 Conclusion
 
 The new `strategy` option, introduced in version 1.50.0, provides more flexibility and control over how locale prefixes are handled in your application. Whether you need a clean, non-prefixed URL structure, or prefer to add locale prefixes for all or some languages, the available strategies allow you to customize your URL structure to fit your needs.
@@ -111,5 +183,7 @@ The new `strategy` option, introduced in version 1.50.0, provides more flexibili
 - **Simplicity for Default Language**: If you don't need locale prefixes for your default language, use `prefix_except_default` or `prefix_and_default`.
 - **Consistency**: For a consistent URL structure with locale prefixes across all languages, use `prefix`.
 - **User Experience**: Consider using `no_prefix` when you want to rely on browser language detection and avoid cluttering the URL with prefixes.
+- **Avoid Hydration Issues**: Be cautious with `no_prefix` in static generation mode and use named routes with `localeRoute` for better route resolution.
+- **Handle Locale-Dependent Content Carefully**: Use `<select>` or other approaches to avoid hydration mismatches when rendering locale-dependent content.
 
-By understanding and applying these strategies, you can ensure that your application's localization behavior fits your project's requirements.
+By understanding and applying these strategies and best practices, you can ensure that your application's localization behavior fits your project's requirements while avoiding common pitfalls.

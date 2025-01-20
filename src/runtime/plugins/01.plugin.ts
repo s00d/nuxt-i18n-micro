@@ -258,7 +258,7 @@ export interface PluginsInjections {
   $getLocales: () => Locale[]
   $defaultLocale: () => string | undefined
   $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
-  $t: (key: string, params?: Params, defaultValue?: string) => Translation
+  $t: (key: string, params?: Params, defaultValue?: string | null) => Translation
   $ts: (key: string, params?: Params, defaultValue?: string) => string
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string

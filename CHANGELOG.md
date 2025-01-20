@@ -72,7 +72,6 @@
 ### ❤️ Contributors
 
 - Pavel Kuzmin ([@s00d](http://github.com/s00d))
-- 김용건 (Kim Younggeon) <git+commit@younggeon.kim>
 
 ## v1.65.2
 

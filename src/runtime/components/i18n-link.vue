@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { RouteLocationRaw } from 'vue-router'
+import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
 import { useNuxtApp, computed, useRoute, useRouter } from '#imports'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -27,7 +27,7 @@ import { useNuxtApp, computed, useRoute, useRouter } from '#imports'
 const { $localeRoute } = useNuxtApp()
 
 interface Props {
-  to: RouteLocationRaw | string
+  to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string
   activeStyle?: Partial<CSSStyleValue>
 }
 

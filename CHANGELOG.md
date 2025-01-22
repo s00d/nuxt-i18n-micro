@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v1.70.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.69.0...v1.70.0)
+
+### 🚀 Enhancements
+
+- **plugins:** Add i18n registration hook to custom plugin ([9bd9e37](https://github.com/s00d/nuxt-i18n-micro/commit/9bd9e37))
+
+### 🩹 Fixes
+
+- **plugin:** Update type for route location in translation functions ([88d92b0](https://github.com/s00d/nuxt-i18n-micro/commit/88d92b0))
+
+### 📖 Documentation
+
+- **faq:** Add explanation for I18n Micro plugin issues in Nuxt ([d4c49e5](https://github.com/s00d/nuxt-i18n-micro/commit/d4c49e5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.69.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.68.0...v1.69.0)

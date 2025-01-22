@@ -12,6 +12,6 @@
   },
   "devDependencies": {
     "@nuxthub/core": "^0.8.11",
-    "wrangler": "^3.102.0"
+    "wrangler": "^3.103.2"
   }
 }

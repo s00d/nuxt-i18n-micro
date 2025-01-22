@@ -1,8 +1,9 @@
 import type {
   NavigationFailure,
-  RouteLocationAsPath,
+  RouteLocationAsPath, RouteLocationAsPathGeneric,
   RouteLocationAsRelative,
   RouteLocationAsString,
+  RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
   RouteLocationOptions,
   RouteLocationRaw,
@@ -47,7 +48,7 @@ export class RouteService {
     return checkLocale?.displayName ?? null
   }
 
-  getRouteName(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale: string): string {
+  getRouteName(route: RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale: string): string {
     const name = (route.name ?? '').toString()
     return name
       .toString()
@@ -75,14 +76,14 @@ export class RouteService {
   switchLocaleRoute(
     fromLocale: string,
     toLocale: string,
-    route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+    route: RouteLocationResolvedGeneric | RouteLocationNamedRaw,
     i18nRouteParams: I18nRouteParams,
   ): RouteLocationRaw {
     const currentLocale = this.i18nConfig.locales?.find(l => l.code === toLocale)
 
     const routeName = this.getRouteName(route, fromLocale)
     if (this.router.hasRoute(`localized-${routeName}-${toLocale}`)) {
-      const newParams = { ...route.params, ...i18nRouteParams?.[toLocale] }
+      const newParams = { ...route.params ?? {}, ...i18nRouteParams?.[toLocale] }
       if (!isNoPrefixStrategy(this.i18nConfig.strategy!)) newParams.locale = toLocale
 
       const newRoute = {
@@ -100,7 +101,7 @@ export class RouteService {
     }
 
     let newRouteName = routeName
-    const newParams = { ...route.params, ...i18nRouteParams?.[toLocale] }
+    const newParams = { ...route.params ?? {}, ...i18nRouteParams?.[toLocale] }
     delete newParams.locale
 
     if (!isNoPrefixStrategy(this.i18nConfig.strategy!)) {
@@ -160,8 +161,8 @@ export class RouteService {
   }
 
   private handlePrefixStrategy(
-    to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath,
-  ): RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath {
+    to: RouteLocationResolvedGeneric | RouteLocationAsPathGeneric | RouteLocationNamedRaw | string,
+  ): RouteLocationResolvedGeneric | RouteLocationAsPathGeneric | RouteLocationNamedRaw | string {
     if (!withPrefixStrategy(this.i18nConfig.strategy!)) {
       return to
     }
@@ -173,7 +174,7 @@ export class RouteService {
       resolvedTo = this.router.resolve('/' + defaultLocale + to)
     }
 
-    const defaultRouteName = this.getRouteName(resolvedTo as RouteLocationNormalizedLoaded, defaultLocale)
+    const defaultRouteName = this.getRouteName(resolvedTo as RouteLocationResolvedGeneric, defaultLocale)
     const newParams = this.resolveParams(resolvedTo)
 
     if (!isNoPrefixStrategy(this.i18nConfig.strategy!)) {
@@ -276,7 +277,7 @@ export class RouteService {
   }
 
   getLocalizedRoute(
-    to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath,
+    to: RouteLocationResolvedGeneric | RouteLocationAsPathGeneric | RouteLocationNamedRaw | string,
     route: RouteLocationNormalizedLoaded,
     locale?: string,
   ): RouteLocationResolved {
@@ -322,15 +323,19 @@ export class RouteService {
     }
   }
 
-  switchLocaleLogic(toLocale: string, i18nRouteParams: I18nRouteParams, route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string) {
-    const currentRoute = this.getCurrentRoute()
+  switchLocaleLogic(toLocale: string, i18nRouteParams: I18nRouteParams, to?: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string) {
     const fromLocale = this.getCurrentLocale()
-    if (typeof route === 'string') {
-      route = this.resolveRouteWithStrategy(route, toLocale, fromLocale)
+
+    let current: RouteLocationResolved | RouteLocationNamedRaw
+    if (typeof to === 'string') {
+      current = this.resolveRouteWithStrategy(to, toLocale, fromLocale)
+    }
+    else {
+      current = to ?? this.getCurrentRoute() as RouteLocationResolved
     }
 
     this.updateCookies(toLocale)
-    const switchedRoute = this.switchLocaleRoute(fromLocale, toLocale, route ?? currentRoute, i18nRouteParams)
+    const switchedRoute = this.switchLocaleRoute(fromLocale, toLocale, current, i18nRouteParams)
 
     if (typeof switchedRoute === 'string' && switchedRoute.startsWith('http')) {
       return this.navigateTo(switchedRoute, { redirectCode: 200, external: true })
@@ -344,17 +349,21 @@ export class RouteService {
   }
 
   resolveLocalizedRoute(
-    to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath | string,
+    to: RouteLocationNamedRaw | RouteLocationAsPathGeneric | string,
     locale?: string,
   ): RouteLocationResolved {
     const currentRoute = this.getCurrentRoute()
     const fromLocale = this.getCurrentLocale()
     const currentLocale = locale ?? fromLocale
 
+    let current: RouteLocationResolved | RouteLocationNamedRaw | RouteLocationAsPathGeneric
     if (typeof to === 'string') {
-      to = this.resolveRouteWithStrategy(to, currentLocale, fromLocale)
+      current = this.resolveRouteWithStrategy(to, currentLocale, fromLocale)
+    }
+    else {
+      current = to
     }
 
-    return this.getLocalizedRoute(to, currentRoute, currentLocale)
+    return this.getLocalizedRoute(current, currentRoute, currentLocale)
   }
 }

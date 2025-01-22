@@ -1,4 +1,6 @@
 import type {
+  RouteLocationAsPathGeneric,
+  RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,
   RouteLocationResolvedGeneric,
@@ -95,13 +97,13 @@ describe('RouteService', () => {
   })
 
   test('getRouteName should return the correct route name without locale suffix', () => {
-    const route = { name: 'localized-about-en' } as RouteLocationNormalizedLoaded
+    const route = { name: 'localized-about-en' } as RouteLocationNamedRaw
     const routeName = routeService.getRouteName(route, 'en')
     expect(routeName).toBe('about')
   })
 
   test('switchLocaleRoute should return the correct route for the new locale', () => {
-    const route = { name: 'localized-about-en', params: {} } as RouteLocationNormalizedLoaded
+    const route = { name: 'localized-about-en', params: {} } as RouteLocationNamedRaw
     const i18nRouteParams = { de: { param1: 'value1' } }
     const newRoute = routeService.switchLocaleRoute('en', 'de', route, i18nRouteParams)
     expect(newRoute).toEqual({
@@ -114,7 +116,7 @@ describe('RouteService', () => {
 
   test('getLocalizedRoute should return the correct localized route', () => {
     const route = { name: 'about', params: {} } as RouteLocationNormalizedLoaded
-    const to = { path: '/about' } as RouteLocationRaw
+    const to = { path: '/about' } as RouteLocationResolvedGeneric
     mockRouter.resolve.mockReturnValueOnce({
       fullPath: '/en/about',
       path: '/about',
@@ -133,7 +135,7 @@ describe('RouteService', () => {
   })
 
   test('switchLocaleLogic should switch the locale and navigate to the new route', async () => {
-    const route = { name: 'about-en', params: {} } as RouteLocationNormalizedLoaded
+    const route = { name: 'about-en', params: {} } as RouteLocationResolvedGeneric
     const i18nRouteParams = { de: { param1: 'value1' } }
     await routeService.switchLocaleLogic('de', i18nRouteParams, route)
 
@@ -173,7 +175,7 @@ describe('RouteService', () => {
   })
 
   test('resolveLocalizedRoute should return the correct localized route', () => {
-    const to = { path: '/about' } as RouteLocationRaw
+    const to = { path: '/about' } as RouteLocationAsPathGeneric
     mockRouter.resolve.mockReturnValueOnce({
       fullPath: '/en/about',
       path: '/about',
@@ -213,7 +215,7 @@ describe('RouteService', () => {
   })
 
   test('switchLocaleRoute should handle missing i18nRouteParams', () => {
-    const route = { name: 'localized-about-en', params: {} } as RouteLocationNormalizedLoaded
+    const route = { name: 'localized-about-en', params: {} } as RouteLocationResolvedGeneric
     const newRoute = routeService.switchLocaleRoute('en', 'de', route, {})
     expect(newRoute).toEqual({
       name: 'localized-about',

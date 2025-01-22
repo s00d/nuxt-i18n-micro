@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v1.69.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.68.0...v1.69.0)
+
+### 🚀 Enhancements
+
+- **plugins:** Update route type handling in locale functions ([620a3ca](https://github.com/s00d/nuxt-i18n-micro/commit/620a3ca))
+- **i18n-link:** Enhance `to` prop type for improved routing support ([ef2d320](https://github.com/s00d/nuxt-i18n-micro/commit/ef2d320))
+- **content:** Update configuration and enhance content handling ([68fb0da](https://github.com/s00d/nuxt-i18n-micro/commit/68fb0da))
+
+### 💅 Refactors
+
+- **route-service:** Improve route type handling in locale functions ([037d4bc](https://github.com/s00d/nuxt-i18n-micro/commit/037d4bc))
+
+### 🏡 Chore
+
+- **changelog:** Rm ([9852e9c](https://github.com/s00d/nuxt-i18n-micro/commit/9852e9c))
+- **test/fixtures/hub-i18n:** Update `wrangler` dependency version ([31163f4](https://github.com/s00d/nuxt-i18n-micro/commit/31163f4))
+- **test/fixtures/hub-i18n:** Update `wrangler` dependency version ([ddad464](https://github.com/s00d/nuxt-i18n-micro/commit/ddad464))
+- **test/fixtures:** Remove unused devDependencies from package.json ([4896407](https://github.com/s00d/nuxt-i18n-micro/commit/4896407))
+- **playground:** Update `nuxt-i18n-micro` to version `v1.68.0` ([9b4752a](https://github.com/s00d/nuxt-i18n-micro/commit/9b4752a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.67.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.67.0...v1.67.1)

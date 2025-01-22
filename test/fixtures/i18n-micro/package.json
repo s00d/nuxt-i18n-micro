@@ -7,8 +7,5 @@
     "build": "NODE_OPTIONS=\"--max-old-space-size=16000\" nuxi build",
     "generate": "nuxi generate",
     "init": "nuxt prepare"
-  },
-  "devDependencies": {
-    "nuxt-i18n-micro": "../../../src/module"
   }
 }

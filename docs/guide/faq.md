@@ -4,6 +4,39 @@ outline: deep
 
 # FAQ: Common Issues & Solutions
 
+## ❓ Why does the I18n Micro plugin not work in Nuxt plugins?
+
+With the newest version of `Nuxt I18n Micro`, there are reported issues where the I18n plugin does not work as expected within Nuxt plugins. For example, the following code may break:
+
+```javascript
+export default defineNuxtPlugin((_nuxtApp) => {
+  const { $t, $getLocale } = useI18n() // or const { $t, $getLocale } = useNuxtApp()
+  const translatedMessage = $t('test_key')
+  const locale = $getLocale() // error here
+
+  console.log(translatedMessage, locale)
+})
+```
+
+**Solution:**
+
+Ensure proper plugin loading order and update your configuration to resolve the issue. For example:
+
+```javascript
+export default defineNuxtPlugin({
+  name: 'i18n:plugin',
+  dependsOn: ['i18n-plugin-loader'],
+  enforce: 'post',
+  setup(_nuxtApp) {
+    const { $t, $getLocale } = useI18n() // or const { $t, $getLocale } = useNuxtApp()
+    const translatedMessage = $t('test_key')
+    const locale = $getLocale() // error here
+
+    console.log(translatedMessage, locale)
+  },
+})
+```
+
 ## ❓ What if a route doesn't load?
 
 When using `Nuxt I18n Micro`, certain routes might not load as expected, especially if the router doesn't automatically assign a name to a route in subfolders.

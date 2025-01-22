@@ -1,12 +1,9 @@
 import type {
-  RouteLocationAsPath,
-  RouteLocationAsRelative,
-  RouteLocationAsString,
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
-  RouteLocationNormalizedGeneric,
+  RouteLocationNormalizedGeneric, RouteLocationNamedRaw,
 } from 'vue-router'
 import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translation, Translations } from 'nuxt-i18n-micro-types'
@@ -217,13 +214,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     switchLocale: (toLocale: string) => {
       return routeService.switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },
-    switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => {
-      return routeService.switchLocaleLogic(toLocale ?? routeService.getCurrentLocale(), unref(i18nRouteParams.value), route)
+    switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
+      return routeService.switchLocaleLogic(toLocale ?? routeService.getCurrentLocale(), unref(i18nRouteParams.value), route as RouteLocationResolvedGeneric)
     },
-    localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath | string, locale?: string): RouteLocationResolved => {
+    localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved => {
       return routeService.resolveLocalizedRoute(to, locale)
     },
-    localePath: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string): string => {
+    localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): string => {
       const localeRoute = routeService.resolveLocalizedRoute(to, locale)
       if (typeof localeRoute === 'string') {
         return localeRoute
@@ -257,7 +254,7 @@ export interface PluginsInjections {
   $getLocaleName: () => string | null
   $getLocales: () => Locale[]
   $defaultLocale: () => string | undefined
-  $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
+  $getRouteName: (route?: RouteLocationNamedRaw | RouteLocationResolvedGeneric, locale?: string) => string
   $t: (key: string, params?: Params, defaultValue?: string | null) => Translation
   $ts: (key: string, params?: Params, defaultValue?: string) => string
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
@@ -270,8 +267,8 @@ export interface PluginsInjections {
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   $switchLocalePath: (locale: string) => string
   $switchLocale: (locale: string) => void
-  $switchRoute: (route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void
-  $localeRoute: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string) => RouteLocationResolved
-  $localePath: (to: RouteLocationAsString | RouteLocationAsRelative | RouteLocationAsPath, locale?: string) => string
+  $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
+  $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
+  $localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
 }

@@ -6,10 +6,11 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "client:prepare": "nuxt prepare",
     "preview": "nuxt preview"
   },
   "devDependencies": {
-    "@nuxt/content": "^2.13.4"
+    "@nuxt/content": "^3.0.0"
   },
   "overrides": {
     "nitropack": "2.9.6"

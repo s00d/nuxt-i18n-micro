@@ -5,11 +5,6 @@ export default defineNuxtConfig({
     MyModule, '@nuxt/content',
   ],
   devtools: { enabled: false },
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  content: {
-    documentDriven: true,
-  },
   compatibilityDate: '2024-04-03',
   i18n: {
     locales: [

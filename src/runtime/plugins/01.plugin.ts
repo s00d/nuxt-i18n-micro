@@ -3,7 +3,7 @@ import type {
   RouteLocationRaw,
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
-  RouteLocationNormalizedGeneric, RouteLocationNamedRaw,
+  RouteLocationNamedRaw,
 } from 'vue-router'
 import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translation, Translations } from 'nuxt-i18n-micro-types'
@@ -79,7 +79,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   async function loadGlobalTranslations(
-    to: RouteLocationNormalizedGeneric,
+    to: RouteLocationResolvedGeneric,
   ) {
     let locale = routeService.getCurrentLocale(to)
     if (i18nConfig.hashMode) {
@@ -122,14 +122,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   router.beforeEach(async (to, from, next) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
-      await loadGlobalTranslations(to)
+      await loadGlobalTranslations(to as RouteLocationResolvedGeneric)
     }
     if (next) {
       next()
     }
   })
 
-  await loadGlobalTranslations(router.currentRoute.value)
+  await loadGlobalTranslations(router.currentRoute.value as RouteLocationResolvedGeneric)
 
   const provideData = {
     i18n: undefined,
@@ -141,13 +141,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
       const selectedLocale = locale ?? routeService.getCurrentLocale()
       const selectedRoute = route ?? routeService.getCurrentRoute()
-      return routeService.getRouteName(selectedRoute, selectedLocale)
+      return routeService.getRouteName(selectedRoute as RouteLocationResolvedGeneric, selectedLocale)
     },
     t: (key: string, params?: Params, defaultValue?: string | null): Translation => {
       if (!key) return ''
       const route = routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale()
-      const routeName = routeService.getRouteName(route, locale)
+      const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
       let value = i18nHelper.getTranslation(locale, routeName, key)
 
       if (!value) {
@@ -187,7 +187,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     mergeTranslations: (newTranslations: Translations) => {
       const route = routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale(route)
-      const routeName = routeService.getRouteName(route, locale)
+      const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
       i18nHelper.mergeTranslation(locale, routeName, newTranslations)
     },
     mergeGlobalTranslations: (newTranslations: Translations) => {
@@ -197,12 +197,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     switchLocaleRoute: (toLocale: string) => {
       const route = routeService.getCurrentRoute()
       const fromLocale = routeService.getCurrentLocale(route)
-      return routeService.switchLocaleRoute(fromLocale, toLocale, route, unref(i18nRouteParams.value))
+      return routeService.switchLocaleRoute(fromLocale, toLocale, route as RouteLocationResolvedGeneric, unref(i18nRouteParams.value))
     },
     switchLocalePath: (toLocale: string) => {
       const route = routeService.getCurrentRoute()
       const fromLocale = routeService.getCurrentLocale(route)
-      const localeRoute = routeService.switchLocaleRoute(fromLocale, toLocale, route, unref(i18nRouteParams.value))
+      const localeRoute = routeService.switchLocaleRoute(fromLocale, toLocale, route as RouteLocationResolvedGeneric, unref(i18nRouteParams.value))
       if (typeof localeRoute === 'string') {
         return localeRoute
       }

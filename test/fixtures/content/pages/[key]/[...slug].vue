@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { useI18n } from '#imports'
+import { useI18n, useAsyncData, createError } from '#imports'
 
 const route = useRoute()
 const { $getLocale, $localeRoute } = useI18n()
@@ -30,5 +30,12 @@ const docPath = pathWithoutLocale.startsWith('/')
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-const doc = await queryContent(`/${docPath}`).findOne()
+const { data: doc } = await useAsyncData(() => queryCollection('content').path(`/${docPath}`).first())
+
+if (!doc.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Page Not Found',
+  })
+}
 </script>

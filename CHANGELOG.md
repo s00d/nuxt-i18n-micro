@@ -1,6 +1,42 @@
 # Changelog
 
 
+## v1.71.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.70.0...v1.71.0)
+
+### 🚀 Enhancements
+
+- **types:** Add hooks and customRegexMatcher properties ([fb616f3](https://github.com/s00d/nuxt-i18n-micro/commit/fb616f3))
+- **playground:** Add initialization and type check scripts to package.json ([c8a0d96](https://github.com/s00d/nuxt-i18n-micro/commit/c8a0d96))
+- **plugins:** Update getLocale method to accept route parameter ([0b993b4](https://github.com/s00d/nuxt-i18n-micro/commit/0b993b4))
+- **i18n:** Add hooks for dynamic translation registration ([69da871](https://github.com/s00d/nuxt-i18n-micro/commit/69da871))
+- **module:** Add hooks support to i18n configuration ([4202ca2](https://github.com/s00d/nuxt-i18n-micro/commit/4202ca2))
+- **tests:** Add new scripts for type checking and initialization ([093296b](https://github.com/s00d/nuxt-i18n-micro/commit/093296b))
+
+### 🩹 Fixes
+
+- **meta:** Remove unnecessary early return in meta plugin ([e59bf2b](https://github.com/s00d/nuxt-i18n-micro/commit/e59bf2b))
+- **define:** Update `locales` type to use `LocalesObject` ([30087db](https://github.com/s00d/nuxt-i18n-micro/commit/30087db))
+- **get:** Simplify config destructuring in get.ts ([6c4a718](https://github.com/s00d/nuxt-i18n-micro/commit/6c4a718))
+
+### 💅 Refactors
+
+- **plugins:** Remove redundant i18n hook registration logic ([8c7a1f1](https://github.com/s00d/nuxt-i18n-micro/commit/8c7a1f1))
+
+### 📖 Documentation
+
+- **faq:** Remove outdated troubleshooting information for I18n plugin ([983d1fa](https://github.com/s00d/nuxt-i18n-micro/commit/983d1fa))
+- **guide:** Add hooks configuration section to getting started guide ([662d402](https://github.com/s00d/nuxt-i18n-micro/commit/662d402))
+
+### 🏡 Chore
+
+- **playground:** Remove unused nuxt-cookie-control module ([6c4a981](https://github.com/s00d/nuxt-i18n-micro/commit/6c4a981))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.70.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.69.0...v1.70.0)

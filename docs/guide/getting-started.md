@@ -331,6 +331,19 @@ Enables or disables a special `plugin` that integrates additional features or fu
 plugin: false // Disable the plugin
 ```
 
+### 🧩 `hooks`
+
+Enables or disables a special `hooks` that integrates additional features or functionality into your Nuxt application.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+**Example**:
+
+```typescript
+hooks: false // Disable the hooks
+```
+
 ### 🔄 `disablePageLocales`
 
 Allows you to disable page-specific translations, limiting the module to only use global translation files.

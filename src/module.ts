@@ -1,5 +1,7 @@
 import path from 'node:path'
 import fs from 'node:fs'
+import { readFile } from 'node:fs/promises'
+import { globby } from 'globby'
 import {
   addComponentsDir,
   addImportsDir,
@@ -15,7 +17,7 @@ import {
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { watch } from 'chokidar'
-import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from 'nuxt-i18n-micro-types'
+import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies, Translations, Translation } from 'nuxt-i18n-micro-types'
 import {
   isNoPrefixStrategy,
   isPrefixStrategy,
@@ -25,6 +27,7 @@ import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
+import { deepMerge, loadYaml } from './utils'
 
 function generateI18nTypes() {
   return `
@@ -359,6 +362,86 @@ export default defineNuxtModule<ModuleOptions>({
         catch (err) {
           logger.error('Error copying translations:', err)
         }
+      }
+    })
+
+    nuxt.hook('nitro:init', async (nitro) => {
+      logger.debug('[nuxt-i18n-micro] clear storage cache')
+      await nitro.storage.clear('i18n-locales')
+      if (!await nitro.storage.hasItem(`i18n-locales:.gitignore`)) {
+        // await nitro.storage.setItem(`${output}:.gitignore`, '*')
+        const dir = path.join(nuxt.options.rootDir, 'server/assets/i18n-locales')
+        fs.mkdirSync(dir, { recursive: true })
+        fs.writeFileSync(`${dir}/.gitignore`, '*')
+      }
+
+      const translationDir = options.translationDir ?? ''
+      const fallbackLocale = options.fallbackLocale ?? null
+      const translationsByLocale: Record<string, Translations> = {}
+
+      try {
+        for (const rootDir of rootDirs) {
+          const baseDir = path.resolve(rootDir, translationDir)
+          const jsonFiles = await globby('**/*.json', { cwd: baseDir })
+          const yamlFiles = await globby('**/*.{yaml,yml}', { cwd: baseDir })
+
+          const promises = [...jsonFiles, ...yamlFiles].map(async (file) => {
+            const filePath = path.join(baseDir, file)
+            let data: Translations | null = null
+            if (file.endsWith('.json')) {
+              const content = await readFile(filePath, 'utf-8')
+              data = JSON.parse(content) as Translations
+            }
+            else if (file.endsWith('.yaml') || file.endsWith('.yml')) {
+              data = await loadYaml(filePath) as Translations
+            }
+
+            if (!data) return
+
+            const parts = file.split('/')
+            const locale = parts.pop()?.replace(/\.(json|yaml|yml)$/, '') || ''
+            const pageKey = parts.pop() || 'general'
+
+            if (!translationsByLocale[locale]) {
+              translationsByLocale[locale] = {}
+            }
+
+            translationsByLocale[locale] = deepMerge<Translations>({
+              [pageKey]: data,
+            }, translationsByLocale[locale])
+          })
+
+          await Promise.all(promises)
+        }
+
+        const savePromises: Promise<void>[] = []
+
+        for (const [locale, translations] of Object.entries(translationsByLocale)) {
+          for (const [key, value] of Object.entries(translations)) {
+            const storageKey = `i18n-locales:${locale}:${key}`
+            const promise = (async () => {
+              let translation: Translation = value
+              if (fallbackLocale) {
+                translation = deepMerge<Translation>(
+                  translation,
+                  translationsByLocale[fallbackLocale][key] ?? {},
+                )
+              }
+              if (typeof translation === 'object' && translation !== null) {
+                await nitro.storage.setItem(storageKey, translation)
+                if (options.debug) {
+                  logger.log(`[nuxt-i18n-micro] Translation saved to Nitro storage with key: ${storageKey}`)
+                }
+              }
+            })()
+
+            savePromises.push(promise)
+          }
+        }
+        await Promise.all(savePromises)
+      }
+      catch (err) {
+        logger.error('[nuxt-i18n-micro] Error processing translations:', err)
       }
     })
 

@@ -12,7 +12,6 @@ const routesLocaleLinks: Record<string, string> = {
 export default defineNuxtConfig({
   modules: [
     '../src/module',
-    '@dargmuesli/nuxt-cookie-control',
     defineNuxtModule({
       setup(_, nuxt) {
         if (!nuxt.options.dev)

@@ -79,7 +79,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // Функция для определения i18n маршрута
   const defineI18nRoute = async (routeDefinition: {
-    locales?: string[] | Record<string, Record<string, string>>
+    locales?: string[] | LocalesObject
     localeRoutes?: Record<string, string>
   }) => {
     const { $getLocale } = useNuxtApp()

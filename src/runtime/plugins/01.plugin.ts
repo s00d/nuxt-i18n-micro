@@ -125,7 +125,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const provideData = {
     i18n: undefined,
     __micro: true,
-    getLocale: () => routeService.getCurrentLocale(),
+    getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => routeService.getCurrentLocale(route),
     getLocaleName: () => routeService.getCurrentName(routeService.getCurrentRoute()),
     defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
@@ -241,7 +241,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 })
 
 export interface PluginsInjections {
-  $getLocale: () => string
+  $getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => string
   $getLocaleName: () => string | null
   $getLocales: () => Locale[]
   $defaultLocale: () => string | undefined

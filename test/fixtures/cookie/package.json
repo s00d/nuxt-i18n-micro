@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
-    "generate": "nuxi generate"
+    "generate": "nuxi generate",
+    "init": "nuxt prepare",
+    "typecheck": "tsc --noEmit",
+    "test:types": "vue-tsc --noEmit"
   }
 }

@@ -5,15 +5,20 @@ export default defineNuxtConfig({
     MyModule,
   ],
   devtools: { enabled: false },
+  experimental: {
+    // typedPages: true,
+    appManifest: false,
+  },
   compatibilityDate: '2024-08-16',
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   i18n: {
-    locales: [{ code: 'de' }, { code: 'en' }],
+    locales: [
+      { code: 'en', iso: 'en_EN', displayName: 'English' },
+      { code: 'de', iso: 'de_DE', displayName: 'German' },
+    ],
     defaultLocale: 'en',
     // localeCookie: 'user-change-coockie',
     disablePageLocales: true,
-    includeDefaultLocaleRoute: false,
+    strategy: 'prefix_except_default',
   },
 })

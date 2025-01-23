@@ -60,13 +60,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       fullPath = `/${fullPath}`
     }
 
-    if (!ogUrl.endsWith('/')) {
-      ogUrl += '/'
-    }
-    if (!indexUrl.endsWith('/')) {
-      indexUrl += '/'
-    }
-
     const matchedLocale = locales.find(locale => fullPath.startsWith(`/${locale.code}`))
     if (routeName.startsWith('localized-') && matchedLocale) {
       fullPath = fullPath.slice(matchedLocale.code.length + 1)

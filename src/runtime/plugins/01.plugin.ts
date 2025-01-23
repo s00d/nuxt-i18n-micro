@@ -109,15 +109,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const routeName = routeService.getRouteName(to, locale)
       await loadTranslationsIfNeeded(locale, routeName, to.fullPath)
     }
-
-    // Ensure i18n hook is called after all translations are loaded
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
-      const locale = routeService.getCurrentLocale(to)
-      const routeName = routeService.getRouteName(to, locale)
-      i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
-    }, locale)
   }
 
   router.beforeEach(async (to, from, next) => {

@@ -13,10 +13,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   const schema = port === '443' ? 'https' : 'http'
   const defaultUrl = port === '80' || port === '443' ? `${schema}://${host}` : `${schema}://${host}:${port}`
 
-  if (!i18nConfig.meta) {
-    return
-  }
-
   nuxtApp.hook('app:rendered', (_context) => {
     const url = useRequestURL()
     const baseUrl = (i18nConfig.metaBaseUrl || url.origin || defaultUrl).toString()

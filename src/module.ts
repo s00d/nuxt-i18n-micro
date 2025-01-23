@@ -73,6 +73,7 @@ export default defineNuxtModule<ModuleOptions>({
     debug: false,
     define: true,
     plugin: true,
+    hooks: true,
     types: true,
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
@@ -131,31 +132,21 @@ export default defineNuxtModule<ModuleOptions>({
     const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$|\/{2,}/, '')
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
-      plural: undefined,
       locales: localeManager.locales ?? [],
-      meta: options.meta ?? true,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       metaBaseUrl: options.metaBaseUrl ?? undefined,
-      define: options.define ?? true,
-      disableWatcher: options.disableWatcher ?? false,
-      disableUpdater: options.disableUpdater ?? false,
       defaultLocale: defaultLocale,
-      translationDir: options.translationDir ?? 'locales',
       localeCookie: options.localeCookie ?? 'user-locale',
-      autoDetectLanguage: options.autoDetectLanguage ?? true,
       autoDetectPath: options.autoDetectPath ?? '/',
       strategy: options.strategy ?? 'no_prefix',
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routesLocaleLinks: options.routesLocaleLinks ?? {},
-      fallbackLocale: options.fallbackLocale ?? undefined,
       dateBuild: Date.now(),
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
-      globalLocaleRoutes: undefined,
       apiBaseUrl: apiBaseUrl,
       isSSG: isSSG,
-      customRegexMatcher: options.customRegexMatcher,
       disablePageLocales: options.disablePageLocales ?? false,
     }
 
@@ -170,6 +161,9 @@ export default defineNuxtModule<ModuleOptions>({
       rootDir: nuxt.options.rootDir,
       rootDirs: rootDirs,
       debug: options.debug ?? false,
+      fallbackLocale: options.fallbackLocale ?? undefined,
+      translationDir: options.translationDir ?? 'locales',
+      customRegexMatcher: options.customRegexMatcher,
     }
 
     addImportsDir(resolver.resolve('./runtime/composables'))
@@ -181,6 +175,14 @@ export default defineNuxtModule<ModuleOptions>({
       addPlugin({
         src: resolver.resolve('./runtime/plugins/01.plugin'),
         name: 'i18n-plugin-loader',
+        order: -5,
+      })
+    }
+
+    if (options.hooks) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/05.hooks'),
+        name: 'i18n-plugin-hooks',
         order: 1,
       })
     }

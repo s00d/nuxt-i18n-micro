@@ -30,8 +30,8 @@ function deepMerge(target: Translations, source: Translations): Translations {
 export default defineEventHandler(async (event) => {
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
-  const { rootDirs, debug } = config.i18nConfig as ModulePrivateOptionsExtend
-  const { translationDir, fallbackLocale, customRegexMatcher, locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const { rootDirs, debug, translationDir, fallbackLocale, customRegexMatcher } = config.i18nConfig as ModulePrivateOptionsExtend
+  const { locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   if (customRegexMatcher && locales && !locales.map(l => l.code).includes(locale)) {
     throw createError({ statusCode: 404 })

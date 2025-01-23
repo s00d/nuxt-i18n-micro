@@ -127,8 +127,8 @@
     <div>
       <button
         v-for="locale in $getLocales()"
-        :key="locale"
-        :disabled="locale === $getLocale()"
+        :key="locale.code"
+        :disabled="locale.code === $getLocale()"
         @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}
@@ -147,7 +147,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useNuxtApp } from '#imports'
 
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $defineI18nRoute } = useNuxtApp()
@@ -157,7 +157,7 @@ const locale_en = { greeting: 'Hello', farewell: 'Goodbye' }
 $defineI18nRoute({
   locales: {
     en: locale_en,
-    ru: { greeting: 'Привет', farewell: 'До свидания' },
+    ru: { greeting: 'Привет', farewell: 'До свидания', test: { aaa: { bbb: 'Auf Wiedersehen' } } },
     de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
   },
   localeRoutes: {

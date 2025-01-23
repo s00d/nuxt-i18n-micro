@@ -33,6 +33,7 @@ export interface ModuleOptions {
   metaBaseUrl?: string
   define?: boolean
   plugin?: boolean
+  hooks?: boolean
   defaultLocale?: string
   apiBaseUrl?: string
   translationDir?: string
@@ -64,6 +65,9 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   rootDir: string
   rootDirs: string[]
   debug: boolean
+  translationDir: string
+  fallbackLocale: string
+  customRegexMatcher?: string | RegExp
 }
 
 export interface PluralTranslations {

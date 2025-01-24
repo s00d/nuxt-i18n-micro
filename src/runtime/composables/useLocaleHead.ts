@@ -54,7 +54,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
     let fullPath = unref(route.fullPath)
     let ogUrl = joinURL(unref(baseUrl), fullPath)
-    const indexUrl = joinURL(unref(baseUrl))
 
     if (!fullPath.startsWith('/')) {
       fullPath = `/${fullPath}`

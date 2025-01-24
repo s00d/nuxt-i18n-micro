@@ -11,8 +11,5 @@
     "typecheck": "tsc --noEmit",
     "test:types": "vue-tsc --noEmit",
     "test": "echo \"Error: no test specified\""
-  },
-  "devDependencies": {
-    "nuxt-i18n-micro": "v1.68.0"
   }
 }

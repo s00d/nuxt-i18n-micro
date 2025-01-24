@@ -120,7 +120,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
             hreflang: unref(loc.code),
           }]
 
-          if (loc.iso) {
+          if (loc.iso && loc.iso !== loc.code) {
             links.push({
               [identifierAttribute]: `i18n-alternate-${loc.iso}`,
               rel: 'alternate',

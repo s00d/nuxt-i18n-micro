@@ -110,7 +110,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
           const href = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
-            ? indexUrl
+            ? joinURL(unref(baseUrl), fullPath)
             : joinURL(unref(baseUrl), loc.code, fullPath)
 
           const links = [{

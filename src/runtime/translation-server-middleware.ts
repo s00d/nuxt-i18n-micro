@@ -2,6 +2,7 @@ import type { H3Event } from 'h3'
 import { getQuery, getCookie } from 'h3'
 import { interpolate, useTranslationHelper } from 'nuxt-i18n-micro-core'
 import type { Params, Translations } from 'nuxt-i18n-micro-types'
+import { useRuntimeConfig } from '#imports'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {
@@ -16,6 +17,7 @@ async function fetchTranslations(locale: string): Promise<Translations> {
 
 export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {
   const { getTranslation, loadTranslations, hasGeneralTranslation } = useTranslationHelper()
+  const config = useRuntimeConfig(event).i18nConfig
 
   const locale = (
     currentLocale
@@ -23,6 +25,7 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
     || getQuery(event)?.locale
     || getCookie(event, 'user-locale')
     || event.headers.get('accept-language')?.split(',')[0]
+    || config.fallbackLocale
     || defaultLocale
     || 'en').toString()
 

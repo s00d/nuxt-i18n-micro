@@ -105,7 +105,7 @@ export function useTranslationHelper() {
 
       if (!result) {
         result = findTranslation<T>(routeLocaleCache[cacheKey] || null, key)
-        ?? findTranslation<T>(generalLocaleCache[locale] || null, key)
+          ?? findTranslation<T>(generalLocaleCache[locale] || null, key)
       }
 
       if (result) {

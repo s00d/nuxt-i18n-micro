@@ -1,6 +1,34 @@
 # Changelog
 
 
+## v1.72.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.71.0...v1.72.0)
+
+### 🚀 Enhancements
+
+- **pages, components:** Add translation support using useNuxtApp ([ae524f8](https://github.com/s00d/nuxt-i18n-micro/commit/ae524f8))
+- **translation:** Improve translation fallback mechanism ([41b8719](https://github.com/s00d/nuxt-i18n-micro/commit/41b8719))
+
+### 🩹 Fixes
+
+- **seo url - slash:** Remove end slash for the canonical link ([28d2aa2](https://github.com/s00d/nuxt-i18n-micro/commit/28d2aa2))
+- **useLocaleHead:** Prevent incorrect hreflang links for locales ([7b8a5d4](https://github.com/s00d/nuxt-i18n-micro/commit/7b8a5d4))
+
+### 💅 Refactors
+
+- **seo url - slash:** Edit let to const for "indexUrl" variable ([58b14c9](https://github.com/s00d/nuxt-i18n-micro/commit/58b14c9))
+
+### 🏡 Chore
+
+- **package:** Update clean script and dependencies in package.json ([c28cb9a](https://github.com/s00d/nuxt-i18n-micro/commit/c28cb9a))
+- **core:** Bump version to 1.0.16 in `package.json` ([ca578e8](https://github.com/s00d/nuxt-i18n-micro/commit/ca578e8))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- TristanSurGithub <tristan@defachel.fr>
+
 ## v1.71.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.70.0...v1.71.0)

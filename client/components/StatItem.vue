@@ -48,8 +48,8 @@ const props = defineProps({
   trend: Number,
   stacked: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const formattedValue = computed(() => {

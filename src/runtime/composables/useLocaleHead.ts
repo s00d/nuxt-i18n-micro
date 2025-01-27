@@ -54,7 +54,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
     let fullPath = unref(route.fullPath)
     let ogUrl = joinURL(unref(baseUrl), fullPath)
-    const indexUrl = joinURL(unref(baseUrl))
 
     if (!fullPath.startsWith('/')) {
       fullPath = `/${fullPath}`
@@ -110,7 +109,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
           const href = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
-            ? indexUrl
+            ? joinURL(unref(baseUrl), fullPath)
             : joinURL(unref(baseUrl), loc.code, fullPath)
 
           const links = [{

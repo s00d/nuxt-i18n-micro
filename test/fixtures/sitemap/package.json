@@ -8,6 +8,6 @@
     "generate": "nuxi generate"
   },
   "devDependencies": {
-    "@nuxtjs/sitemap": "^6.1.1"
+    "@nuxtjs/sitemap": "^7.2.3"
   }
 }

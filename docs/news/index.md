@@ -15,8 +15,6 @@ outline: deep
 
 We’re excited to unveil the **fully revamped DevTools** in **v1.73.0**, bringing a modern, intuitive experience to your i18n workflow! The update introduces powerful new features, improved usability, and a host of enhancements to streamline localization and translation management.
 
----
-
 ### What’s New?
 
 **1. New Editor**

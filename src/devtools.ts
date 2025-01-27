@@ -2,9 +2,9 @@ import * as fs from 'node:fs'
 import path, { resolve } from 'node:path'
 import type { ServerResponse } from 'node:http'
 import { fileURLToPath } from 'node:url'
+import type { Resolver } from '@nuxt/kit'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
-import type { Resolver } from '@nuxt/kit'
 import sirv from 'sirv'
 import type { ModuleOptions, ModulePrivateOptionsExtend } from 'nuxt-i18n-micro-types'
 
@@ -16,8 +16,8 @@ export const clientDir = resolve(distDir, 'client')
 
 export interface ServerFunctions {
   getConfigs: () => Promise<ModuleOptions>
-  getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>
-  saveTranslationContent: (locale: string, file: string, content: Record<string, unknown>) => Promise<void>
+  getLocalesAndTranslations: () => Promise<Record<string, string>>
+  saveTranslationContent: (file: string, content: Record<string, unknown>) => Promise<void>
 }
 
 export interface ClientFunctions {
@@ -73,7 +73,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   // Setup DevTools integration
   onDevToolsInitialized(async () => {
     extendServerRpc<ClientFunctions, ServerFunctions>('nuxt-i18n-micro', {
-      async saveTranslationContent(locale, file, content) {
+      async saveTranslationContent(file, content) {
         const filePath = path.resolve(file)
         if (fs.existsSync(filePath)) {
           fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
@@ -87,48 +87,40 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
       },
       async getLocalesAndTranslations() {
         const rootDirs = (nuxt.options.runtimeConfig.i18nConfig as ModulePrivateOptionsExtend)?.rootDirs || [nuxt.options.rootDir]
-        const localesData: { locale: string, files: string[], content: Record<string, unknown> }[] = []
+        const filesList: Record<string, string> = {}
 
         for (const rootDir of rootDirs) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
-          const pagesDir = path.join(rootDir, options.translationDir || 'locales', 'pages')
+          const pagesDir = path.join(localesDir, 'pages')
 
-          if (!fs.existsSync(localesDir)) continue
+          // Рекурсивная функция для обработки вложенных директорий
+          const processDirectory = (dir: string) => {
+            if (!fs.existsSync(dir)) return
 
-          const localeFiles = fs.readdirSync(localesDir)
-          const pageDirs = fs.existsSync(pagesDir) ? fs.readdirSync(pagesDir).filter(file => fs.lstatSync(path.join(pagesDir, file)).isDirectory()) : []
-          const locales = options.locales?.map(locale => locale.code) || []
+            fs.readdirSync(dir).forEach((file) => {
+              const filePath = path.join(dir, file)
+              const stat = fs.lstatSync(filePath)
 
-          locales.forEach((locale) => {
-            const localeData = localesData.find(data => data.locale === locale)
-            const files = localeFiles
-              .filter(file => file.startsWith(locale))
-              .map(file => path.join(localesDir, file))
-            const content: Record<string, unknown> = localeData?.content || {}
-
-            files.forEach((filePath) => {
-              content[filePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-            })
-
-            pageDirs.forEach((dir) => {
-              const pageLocaleFilePath = path.join(pagesDir, dir, `${locale}.json`)
-              if (fs.existsSync(pageLocaleFilePath)) {
-                content[pageLocaleFilePath] = JSON.parse(fs.readFileSync(pageLocaleFilePath, 'utf-8'))
-                files.push(pageLocaleFilePath)
+              if (stat.isDirectory()) {
+                processDirectory(filePath) // Рекурсивный обход поддиректорий
+              }
+              else if (file.endsWith('.json')) {
+                try {
+                  filesList[filePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+                }
+                catch (e) {
+                  console.error(`Error parsing locale file ${filePath}:`, e)
+                }
               }
             })
+          }
 
-            if (localeData) {
-              localeData.files.push(...files)
-              localeData.content = { ...localeData.content, ...content }
-            }
-            else {
-              localesData.push({ locale, files, content })
-            }
-          })
+          // Обрабатываем основную директорию и pages
+          processDirectory(localesDir)
+          processDirectory(pagesDir)
         }
 
-        return localesData
+        return filesList
       },
     })
 

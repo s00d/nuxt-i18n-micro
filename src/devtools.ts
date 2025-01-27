@@ -15,6 +15,7 @@ export const distDir = resolve(fileURLToPath(import.meta.url), '..')
 export const clientDir = resolve(distDir, 'client')
 
 export interface ServerFunctions {
+  getConfigs: () => Promise<ModuleOptions>
   getLocalesAndTranslations: () => Promise<{ locale: string, files: string[], content: Record<string, unknown> }[]>
   saveTranslationContent: (locale: string, file: string, content: Record<string, unknown>) => Promise<void>
 }
@@ -80,6 +81,9 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
         else {
           throw new Error(`File not found: ${filePath}`)
         }
+      },
+      async getConfigs() {
+        return Promise.resolve(options)
       },
       async getLocalesAndTranslations() {
         const rootDirs = (nuxt.options.runtimeConfig.i18nConfig as ModulePrivateOptionsExtend)?.rootDirs || [nuxt.options.rootDir]

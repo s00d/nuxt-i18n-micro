@@ -12,89 +12,75 @@
       <template #left>
         <LocalesList
           :locales="filteredLocales"
-          :selected-locale="selectedLocale"
-          @locale-selected="handleLocaleSelected"
+          :selected-file="selectedFile"
+          @file-selected="handleFileSelected"
         />
       </template>
 
       <template #right>
         <div
-          v-if="selectedLocale"
+          v-if="selectedFile"
           h-full
           of-hidden
           flex="~ col"
         >
-          <NSplitPane
-            storage-key="tab-i18n-files"
-            :horizontal="true"
+          <div
+            v-if="localContent"
+            class="editor-container"
           >
-            <template #left>
-              <FilesList
-                :files="selectedLocaleFiles"
-                :selected-file="selectedFile"
-                @file-selected="handleFileSelected"
+            <!-- Панель кнопок -->
+            <div class="actions">
+              <div class="left-buttons">
+                <NButton @click="exportTranslations">
+                  Export Translations
+                </NButton>
+                <NButton @click="importTranslationsClick">
+                  Import Translations
+                </NButton>
+                <input
+                  v-show="false"
+                  ref="file"
+                  type="file"
+                  @change="importTranslations"
+                >
+                <NButton @click="showStatisticsModal">
+                  Stat
+                </NButton>
+
+                <NButton
+                  v-if="selectedDriver !== 'disabled'"
+                  @click="confirmTranslateMissingKeys"
+                >
+                  Translate Missing Keys
+                </NButton>
+              </div>
+              <NButton
+                class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold"
+                @click="handleSave"
+              >
+                Save
+              </NButton>
+            </div>
+
+            <!-- Редакторы -->
+            <div class="editor-wrapper">
+              <JsonEditor
+                v-if="selectedEditor === 'json'"
+                v-model="localContent"
+                style="overflow: auto; height: 100%"
               />
-            </template>
-            <template #right>
-              <div
-                v-if="localContent"
-                class="editor-container"
-              >
-                <!-- Панель кнопок -->
-                <div class="actions">
-                  <div class="left-buttons">
-                    <NButton @click="exportTranslations">
-                      Export Translations
-                    </NButton>
-                    <NButton @click="importTranslationsClick">
-                      Import Translations
-                    </NButton>
-                    <input
-                      v-show="false"
-                      ref="file"
-                      type="file"
-                      @change="importTranslations"
-                    >
-                    <NButton @click="showStatisticsModal">
-                      Stat
-                    </NButton>
-
-                    <NButton
-                      v-if="selectedDriver !== 'disabled'"
-                      @click="confirmTranslateMissingKeys"
-                    >
-                      Translate Missing Keys
-                    </NButton>
-                  </div>
-                  <NButton
-                    class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold"
-                    @click="handleSave"
-                  >
-                    Save
-                  </NButton>
-                </div>
-
-                <!-- Редакторы -->
-                <div class="editor-wrapper">
-                  <JsonEditor
-                    v-if="selectedEditor === 'json'"
-                    v-model="localContent"
-                    style="overflow: auto; height: 100%"
-                  />
-                  <TranslationEditor
-                    v-else-if="selectedEditor === 'translation'"
-                    v-model="localContent"
-                  />
-                </div>
-              </div>
-              <div
-                v-else
-                class="text-gray-500"
-              >
-                Please select a locale and a file to view editor.
-              </div>
-            </template>
-          </NSplitPane>
+              <TranslationEditor
+                v-else-if="selectedEditor === 'translation'"
+                v-model="localContent"
+              />
+            </div>
+          </div>
+          <div
+            v-else
+            class="text-gray-500"
+          >
+            Please select a locale and a file to view editor.
+          </div>
         </div>
         <NCard v-else>
           <template #default>
@@ -155,7 +141,6 @@ import Loader from '../components/Loader.vue'
 import TranslationEditor from '../components/TranslationEditor.vue'
 import JsonEditor from '../components/JsonEditor.vue'
 import LocalesList from '../components/LocalesList.vue'
-import FilesList from '../components/FilesList.vue'
 import Modal from '../components/Modal.vue' // Импортируем наш компонент Modal
 import Statistics from '../components/Statistics.vue' // Импортируем новый компонент Statistics
 import { useI18nStore } from '../stores/useI18nStore'
@@ -171,10 +156,8 @@ const {
   configs,
   isLoading,
   locales,
-  selectedLocale,
   selectedFile,
   selectedFileContent,
-  handleLocaleSelected,
   handleFileSelected,
   exportTranslations,
   importTranslations,
@@ -218,11 +201,6 @@ watch(
   { deep: true, immediate: true },
 )
 
-const selectedLocaleFiles = computed(() => {
-  const locale = locales.value.find(l => l.locale === selectedLocale.value)
-  return locale ? locale.files : []
-})
-
 const filteredLocales = computed(() => {
   return locales.value
 })
@@ -235,9 +213,8 @@ const handleSave = () => {
   selectedFileContent.value = { ...localContent.value }
 }
 
-watch([selectedLocale, selectedFile], () => {
-  const locale = locales.value.find(l => l.locale === selectedLocale.value)
-  localContent.value = locale ? locale.content[selectedFile.value] : {}
+watch(selectedFile, (val) => {
+  localContent.value = locales.value[val] ?? {}
 })
 
 // Модальное окно для статистики
@@ -260,7 +237,7 @@ const handleConfirm = async () => {
 }
 
 const translateMissingKeys = async () => {
-  if (!selectedLocale.value || !localContent.value) return
+  if (!localContent.value) return
 
   const defaultContent = getDefaultLocaleTranslation()
   const defaultFlatContent = flattenTranslations(defaultContent)
@@ -284,7 +261,8 @@ const translateMissingKeys = async () => {
     for (const key of missingKeys) {
       const text = defaultFlatContent[key]
       if (text) {
-        currentFlatContent[key] = await translator.translate(text, fromLang, selectedLocale.value)
+        const fileName: string = selectedFile.value.split('/').pop() ?? ''
+        currentFlatContent[key] = await translator.translate(text, fromLang, fileName.replace('.json', ''))
       }
     }
 

@@ -1,6 +1,9 @@
 {
   "name": "@nuxtjs/i18n-client",
   "private": true,
+  "dependencies": {
+    "nuxt-i18n-micro-types": "workspace:*"
+  },
   "devDependencies": {
     "json-editor-vue": "^0.17.3"
   }

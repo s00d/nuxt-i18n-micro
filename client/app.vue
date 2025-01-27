@@ -29,7 +29,6 @@ const {
   isLoading,
   locales,
   configs,
-  selectedLocale,
   selectedFile,
   selectedFileContent,
 } = useI18nStore()
@@ -46,7 +45,7 @@ onDevtoolsClientConnected(async (client) => {
   const rpc = client.devtools.extendClientRpc(RPC_NAMESPACE, {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    localesUpdated(updatedLocales: LocaleData[]) {
+    localesUpdated(updatedLocales: LocaleData) {
       locales.value = updatedLocales
     },
   })
@@ -61,10 +60,10 @@ onDevtoolsClientConnected(async (client) => {
 
   watch(selectedFileContent, (newContent, oldValue) => {
     if (!oldValue) return
-    if (selectedLocale.value && selectedFile.value && newContent) {
+    if (selectedFile.value && newContent) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
-      rpc.saveTranslationContent(selectedLocale.value, selectedFile.value, newContent)
+      rpc.saveTranslationContent(selectedFile.value, newContent)
     }
   }, { deep: true })
 })

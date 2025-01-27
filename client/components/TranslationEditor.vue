@@ -73,7 +73,7 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: TranslationContent): void
 }>()
 
-const { selectedFile, configs, selectedLocale } = useI18nStore()
+const { selectedFile, configs } = useI18nStore()
 const { getDefaultLocaleTranslation } = useI18nStore()
 
 // Реактивные данные
@@ -136,7 +136,8 @@ const translateText = async (key: string, text: string) => {
       driver: selectedDriver.value as DriverType,
       options: driverOptions.value,
     })
-    flattenedContent.value[key] = await translator.translate(text, fromLang, selectedLocale.value)
+    const fileName: string = selectedFile.value.split('/').pop() ?? ''
+    flattenedContent.value[key] = await translator.translate(text, fromLang, fileName.replace('.json', ''))
     handleInputChange() // Обновляем данные
   }
   catch (error) {

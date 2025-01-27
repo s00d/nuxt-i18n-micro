@@ -3,14 +3,14 @@
     <NTextInput
       v-model="search"
       placeholder="Search locales..."
-      icon="carbon-search"
-      class="w-full"
+      icon="i-heroicons-magnifying-glass"
+      class="w-full mb-4"
     />
     <div
       v-for="locale in filteredLocales"
       :key="locale.locale"
     >
-      <button
+      <NButton
         block
         w-full
         truncate
@@ -19,19 +19,31 @@
         text-start
         text-sm
         font-mono
-        :class="locale.locale === selectedLocale ? 'text-primary n-bg-active' : 'text-secondary hover:n-bg-hover'"
+        :color="locale.locale === selectedLocale ? 'primary' : ''"
         @click="$emit('localeSelected', locale.locale)"
       >
         {{ locale.locale }}
-      </button>
-      <div x-divider />
+      </NButton>
+    </div>
+
+    <div
+      v-if="filteredLocales.length === 0"
+      class="empty-state"
+    >
+      <NIcon
+        name="i-heroicons-magnifying-glass"
+        class="empty-icon"
+      />
+      <p class="empty-text">
+        No locales found for "{{ search }}"
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits } from 'vue'
-import type { LocaleData } from '../app.vue'
+import { ref, computed } from 'vue'
+import type { LocaleData } from '../types'
 
 const props = defineProps<{
   locales: LocaleData[]
@@ -47,3 +59,17 @@ const filteredLocales = computed(() => {
   return props.locales.filter(locale => locale.locale.toLowerCase().includes(search.value.toLowerCase()))
 })
 </script>
+
+<style scoped>
+.empty-state {
+  @apply p-6 text-center text-gray-400;
+}
+
+.empty-icon {
+  @apply w-8 h-8 mx-auto mb-2;
+}
+
+.empty-text {
+  @apply text-sm;
+}
+</style>

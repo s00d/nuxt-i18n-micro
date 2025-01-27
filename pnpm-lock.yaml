@@ -137,11 +137,7 @@ importers:
         specifier: ^4.3.0
         version: 4.5.0(@types/node@20.17.16)(rollup@4.31.0)(typescript@5.7.3)(vite@6.0.11(@types/node@20.17.16)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(yaml@2.7.0))
 
-  playground:
-    dependencies:
-      nuxt-i18n-micro:
-        specifier: ^1.72.0
-        version: 1.72.0(magicast@0.3.5)(rollup@4.31.0)(vite@6.0.11(@types/node@20.17.16)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(yaml@2.7.0))(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))
+  playground: {}
 
   test/fixtures/basic: {}
 
@@ -5527,23 +5523,6 @@ packages:
   nuxt-component-meta@0.10.0:
     resolution: {integrity: sha512-iq7hbSnfp4Ff/PTMYBF8pYabTQuF3u7HVN66Kb3hOnrnaPEdXEn/q6HkAn5V8UjOVSgXYpvycM0wSnwyADYNVA==}
     hasBin: true
-
-  nuxt-i18n-micro-core@1.0.13:
-    resolution: {integrity: sha512-aqnsVhget1OQF1D765lQ+VOO0/3GzqzltZh5hk8ttSbnST2MAMWTB5EnNTjOgk2iBpWsglHIwp+1e5tzAZFF/A==}
-
-  nuxt-i18n-micro-core@1.0.16:
-    resolution: {integrity: sha512-QOCVhpUuAgisouAhh+CQGSDIcrIEKd+SQsgM+CCp/FFayJ8gUf9CHo1caPXm3Svc7DvP1uMFAUN4ouyek5OMhA==}
-
-  nuxt-i18n-micro-test-utils@1.0.6:
-    resolution: {integrity: sha512-ams/n8sRYKXl1rYSCL1YD4LOWB0sG1tLQwb+C1vMAd3pxhDukSF+jwZLqAq4ulwHM4ffLtKwNqbFEAeRsHb5eA==}
-
-  nuxt-i18n-micro-types@1.0.1:
-    resolution: {integrity: sha512-5dl/MU27zqsWo4tIOzUnEZmzwjPcUiYXr/3wjIQQWuBp8iH33gUxksO5CrqoDAam/mA9VMKwBk36YFDGt1wkeQ==}
-
-  nuxt-i18n-micro@1.72.0:
-    resolution: {integrity: sha512-dJg0Ow5gaDJ4eVgV/sNb4D21/6WBMKDrdnbAYRfXuWbye7Vv8Kyk6lzGnA/GUD+3huzbWZwVvRf3aPJKz9JfkQ==}
-    peerDependencies:
-      vue-router: '>=4.4.0'
 
   nuxt-site-config-kit@3.0.6:
     resolution: {integrity: sha512-QBOFzAIo+D02avFQQ7gNlRyA372/PQlgW2IjL2nttvjfHapqYbvP6tIP55soL+1+D8YvF/bGZgS+vJtfQhroUg==}
@@ -14434,39 +14413,6 @@ snapshots:
       - magicast
       - rollup
       - supports-color
-
-  nuxt-i18n-micro-core@1.0.13: {}
-
-  nuxt-i18n-micro-core@1.0.16:
-    dependencies:
-      nuxt-i18n-micro-types: 1.0.1
-
-  nuxt-i18n-micro-test-utils@1.0.6:
-    dependencies:
-      nuxt-i18n-micro-core: 1.0.13
-
-  nuxt-i18n-micro-types@1.0.1: {}
-
-  nuxt-i18n-micro@1.72.0(magicast@0.3.5)(rollup@4.31.0)(vite@6.0.11(@types/node@20.17.16)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(yaml@2.7.0))(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3))):
-    dependencies:
-      '@nuxt/devtools-kit': 1.7.0(magicast@0.3.5)(rollup@4.31.0)(vite@6.0.11(@types/node@20.17.16)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(yaml@2.7.0))
-      '@nuxt/kit': 3.15.2(magicast@0.3.5)(rollup@4.31.0)
-      chokidar: 3.6.0
-      globby: 14.0.2
-      nuxt-i18n-micro-core: 1.0.16
-      nuxt-i18n-micro-test-utils: 1.0.6
-      nuxt-i18n-micro-types: 1.0.1
-      sirv: 2.0.4
-      ufo: 1.5.4
-      vue-router: 4.5.0(vue@3.5.13(typescript@5.7.3))
-    optionalDependencies:
-      '@rollup/rollup-linux-x64-gnu': 4.31.0
-      '@rollup/rollup-win32-x64-msvc': 4.31.0
-    transitivePeerDependencies:
-      - magicast
-      - rollup
-      - supports-color
-      - vite
 
   nuxt-site-config-kit@3.0.6(magicast@0.3.5)(rollup@4.31.0)(vue@3.5.13(typescript@5.7.3)):
     dependencies:

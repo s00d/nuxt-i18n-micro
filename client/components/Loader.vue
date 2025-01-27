@@ -1,8 +1,10 @@
 <template>
   <div class="loader-container">
     <div class="loader">
-      <div class="loader-circle"></div>
-      <div class="loader-text">Loading...</div>
+      <div class="loader-circle" />
+      <div class="loader-text">
+        Loading...
+      </div>
     </div>
   </div>
 </template>

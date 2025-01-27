@@ -4,7 +4,7 @@
       v-for="file in files"
       :key="file"
     >
-      <button
+      <NButton
         block
         w-full
         truncate
@@ -13,18 +13,17 @@
         text-start
         text-sm
         font-mono
-        :class="file === selectedFile ? 'text-primary n-bg-active' : 'text-secondary hover:n-bg-hover'"
+        type="button"
+        :color="file === selectedFile ? 'primary' : ''"
         @click="$emit('fileSelected', file)"
       >
         {{ file }}
-      </button>
+      </NButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
-
 defineProps<{
   files: string[]
   selectedFile: string

@@ -63,6 +63,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { flattenTranslations } from '../util/i18nUtils'
 import type { TranslationContent } from '../types'
 

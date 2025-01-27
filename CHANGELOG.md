@@ -1,6 +1,72 @@
 # Changelog
 
 
+## v1.73.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.72.0...v1.73.0)
+
+### 🚀 Enhancements
+
+- **devtools:** Add getConfigs function to ServerFunctions interface ([be0fe96](https://github.com/s00d/nuxt-i18n-micro/commit/be0fe96))
+- **files:** Replace button with NButton for improved styling ([938a2ce](https://github.com/s00d/nuxt-i18n-micro/commit/938a2ce))
+- **locales:** Update search input and enhance empty state display ([a5b6d43](https://github.com/s00d/nuxt-i18n-micro/commit/a5b6d43))
+- **components:** Add DiffViewer component for translation changes ([fa019f1](https://github.com/s00d/nuxt-i18n-micro/commit/fa019f1))
+- **components:** Add JSON editor component for translation management ([174c5b8](https://github.com/s00d/nuxt-i18n-micro/commit/174c5b8))
+- **components:** Add loader component for loading state indication ([89a16b0](https://github.com/s00d/nuxt-i18n-micro/commit/89a16b0))
+- **components:** Add Modal component with customizable options ([18cce48](https://github.com/s00d/nuxt-i18n-micro/commit/18cce48))
+- **components:** Add pagination component with navigation buttons ([8777ddf](https://github.com/s00d/nuxt-i18n-micro/commit/8777ddf))
+- **statistics:** Add statistics component for translation analysis ([e799bdb](https://github.com/s00d/nuxt-i18n-micro/commit/e799bdb))
+- **components:** Add StatItem component for displaying statistics ([d2988c7](https://github.com/s00d/nuxt-i18n-micro/commit/d2988c7))
+- **tabs:** Add tabs component with active tab functionality ([f002bc2](https://github.com/s00d/nuxt-i18n-micro/commit/f002bc2))
+- **translation-editor:** Add translation editor component ([6c773a9](https://github.com/s00d/nuxt-i18n-micro/commit/6c773a9))
+- **store:** Add internationalization store with translation handling ([4229808](https://github.com/s00d/nuxt-i18n-micro/commit/4229808))
+- **i18n:** Add utility functions for flattening and unflattening translations ([938f554](https://github.com/s00d/nuxt-i18n-micro/commit/938f554))
+- **translator:** Add Translator class with multiple translation APIs ([50c41f4](https://github.com/s00d/nuxt-i18n-micro/commit/50c41f4))
+- **config:** Add ConfigView component for managing application settings ([5026c92](https://github.com/s00d/nuxt-i18n-micro/commit/5026c92))
+- **i18n:** Add I18nView component for translation management ([8df5b9c](https://github.com/s00d/nuxt-i18n-micro/commit/8df5b9c))
+- **settings:** Add settings view for editor and auto-translation configuration ([9004d0c](https://github.com/s00d/nuxt-i18n-micro/commit/9004d0c))
+- **app:** Implement tab navigation for i18n, settings, and config views ([f6aac9e](https://github.com/s00d/nuxt-i18n-micro/commit/f6aac9e))
+- **types:** Add types for JSON values and translation content ([d57ae91](https://github.com/s00d/nuxt-i18n-micro/commit/d57ae91))
+- **components:** Add imports for `computed` and `ref` in `DiffViewer.vue` ([b63eeaa](https://github.com/s00d/nuxt-i18n-micro/commit/b63eeaa))
+- **devtools:** Update translation functions to simplify file structure ([c0cb353](https://github.com/s00d/nuxt-i18n-micro/commit/c0cb353))
+- **i18n-view:** Update locale and file selection handling ([71c7e8a](https://github.com/s00d/nuxt-i18n-micro/commit/71c7e8a))
+- **locales:** Implement file tree structure for locales selection ([07ea486](https://github.com/s00d/nuxt-i18n-micro/commit/07ea486))
+
+### 🩹 Fixes
+
+- **alternate link:** Add current slug to the base url. Replace "indexUrl" with "baseUrl + fullPath" for the alternate link ([6633e23](https://github.com/s00d/nuxt-i18n-micro/commit/6633e23))
+- **loader:** Correct self-closing tag for loader-circle component ([57eaf2c](https://github.com/s00d/nuxt-i18n-micro/commit/57eaf2c))
+- **StatItem:** Correct default value syntax in stacked property ([8118a2b](https://github.com/s00d/nuxt-i18n-micro/commit/8118a2b))
+- **app:** Remove unused `selectedLocale` variable ([27be660](https://github.com/s00d/nuxt-i18n-micro/commit/27be660))
+- **TranslationEditor:** Update translation key extraction logic ([56354d2](https://github.com/s00d/nuxt-i18n-micro/commit/56354d2))
+
+### 💅 Refactors
+
+- **alternate link:** Remove unused variable ([1a863bb](https://github.com/s00d/nuxt-i18n-micro/commit/1a863bb))
+- **components:** Remove `FilesList.vue` component ([f39fe8d](https://github.com/s00d/nuxt-i18n-micro/commit/f39fe8d))
+- **types:** Simplify `LocaleData` and add `TreeNode` interface ([a0520b7](https://github.com/s00d/nuxt-i18n-micro/commit/a0520b7))
+- **i18n:** Simplify locale handling and remove unused variables ([3908072](https://github.com/s00d/nuxt-i18n-micro/commit/3908072))
+
+### 📖 Documentation
+
+- **news:** Update release notes for Nuxt I18n Micro v1.73.0 ([4c88007](https://github.com/s00d/nuxt-i18n-micro/commit/4c88007))
+
+### 🏡 Chore
+
+- **tests:** Update devDependencies in package.json for hub-i18n ([6355570](https://github.com/s00d/nuxt-i18n-micro/commit/6355570))
+- **test/fixtures/i18n:** Update `@nuxtjs/i18n` version to `9.1.3` ([84b510e](https://github.com/s00d/nuxt-i18n-micro/commit/84b510e))
+- **sitemap:** Update dev dependency for @nuxtjs/sitemap to v7.2.3 ([2c028e8](https://github.com/s00d/nuxt-i18n-micro/commit/2c028e8))
+- **client:** Add nuxt-i18n-micro-types as a dependency ([db69062](https://github.com/s00d/nuxt-i18n-micro/commit/db69062))
+
+### 🎨 Styles
+
+- **modal:** Remove unnecessary blank line in scoped styles ([76a43fe](https://github.com/s00d/nuxt-i18n-micro/commit/76a43fe))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- TristanSurGithub <tristan@defachel.fr>
+
 ## v1.72.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.71.0...v1.72.0)

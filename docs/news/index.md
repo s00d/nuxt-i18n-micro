@@ -5,7 +5,28 @@ outline: deep
 # News
 
 
-## Major Release: Nuxt I18n Micro v1.65.0
+## Redesigned DevTools in Nuxt I18n Micro v1.73.0 🎉
+
+**Date**: 2025-01-27
+
+**Version**: `v1.73.0`
+
+![DevTools Update](/1.73.0-devtools.gif)
+
+We’re excited to unveil the **fully revamped DevTools** in **v1.73.0**, bringing a modern, intuitive experience to your i18n workflow! The update introduces powerful new features, improved usability, and a host of enhancements to streamline localization and translation management.
+
+---
+
+### What’s New?
+
+**1. New Editor**
+**2. File Tree Viewer**
+**3. Built-in Translator**
+**4. Enhanced Settings**
+**5. Advanced Statistics**
+
+
+## Nuxt I18n Micro v1.65.0
 
 **Date**: 2025-01-20 
 

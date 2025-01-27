@@ -3,18 +3,12 @@ import type { ModuleOptions } from 'nuxt-i18n-micro-types'
 import type { LocaleData, TranslationContent } from '../types'
 
 const isLoading = ref(true)
-const selectedLocale = ref('')
 const selectedFile = ref('')
-const locales = ref<LocaleData[]>([])
+const locales = ref<LocaleData>({})
 const configs = ref<ModuleOptions>({})
 const selectedFileContent = ref<TranslationContent>({})
 
 export const useI18nStore = () => {
-  const handleLocaleSelected = (locale: string) => {
-    selectedLocale.value = locale
-    selectedFile.value = ''
-  }
-
   const handleFileSelected = (file: string) => {
     selectedFile.value = file
   }
@@ -50,54 +44,20 @@ export const useI18nStore = () => {
     const defaultLocale = configs.value.defaultLocale as string
     if (!defaultLocale) return {} as TranslationContent
 
-    const defaultLocaleData = locales.value.find(l => l.locale === defaultLocale)
-    if (!defaultLocaleData) return {} as TranslationContent
-
-    const fileName = selectedFile.value.replace(selectedLocale.value + '.json', defaultLocale + '.json')
-    return defaultLocaleData.content[fileName] ?? {} as TranslationContent
-  }
-
-  const getDefaultLocaleValueByKey = (key: string): string => {
-    const defaultLocale = configs.value.defaultLocale as string
-    if (!defaultLocale) return ''
-
-    const defaultLocaleData = locales.value.find(l => l.locale === defaultLocale)
-    if (!defaultLocaleData) return ''
-
-    const flattenJSON = (obj: TranslationContent, parentKey = '', result: Record<string, string> = {}): Record<string, string> => {
-      for (const k in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, k)) {
-          const newKey = parentKey ? `${parentKey}.${k}` : k
-          const value = obj[k]
-          if (typeof value === 'object' && value !== null) {
-            flattenJSON(value as TranslationContent, newKey, result)
-          }
-          else {
-            result[newKey] = value as string
-          }
-        }
-      }
-      return result
-    }
-
-    const fileName = selectedFile.value.replace(selectedLocale.value + '.json', defaultLocale + '.json')
-    const flattenedContent = flattenJSON(defaultLocaleData.content[fileName])
-
-    return flattenedContent[key] || ''
+    let fileName: string = selectedFile.value.split('/').pop() ?? ''
+    fileName = selectedFile.value.replace(fileName, defaultLocale + '.json')
+    return locales.value[fileName] ?? {} as TranslationContent
   }
 
   return {
     isLoading,
-    selectedLocale,
     selectedFile,
     locales,
     configs,
     selectedFileContent,
-    handleLocaleSelected,
     handleFileSelected,
     exportTranslations,
     importTranslations,
     getDefaultLocaleTranslation,
-    getDefaultLocaleValueByKey,
   }
 }

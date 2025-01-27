@@ -19,7 +19,7 @@ We’re excited to unveil the **fully revamped DevTools** in **v1.73.0**, bringi
 
 1. New Editor
 2. File Tree Viewer
-3. Built-in Translator
+3. Online Translator
 4. Enhanced Settings
 5. Advanced Statistics
 

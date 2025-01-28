@@ -1,0 +1,3 @@
+{
+  "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev"
+}

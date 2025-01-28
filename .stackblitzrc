@@ -1,7 +1,0 @@
-{
-  "installDependencies": true,
-  "startCommand": "pnpm --filter "./packages/**" run build && pnpm run dev:prepare && pnpm run dev",
-  "env": {
-    "PORT": "3000"
-  }
-}

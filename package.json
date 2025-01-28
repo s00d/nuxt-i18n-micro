@@ -72,7 +72,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "stackblitz": {
-    "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev"
+    "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && PORT=80 pnpm run dev"
   },
   "dependencies": {
     "@nuxt/devtools-kit": "^1.7.0",

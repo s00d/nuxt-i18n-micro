@@ -71,9 +71,6 @@
     "docs:clean-dev": "vitepress dev docs --clean-cache",
     "docs:preview": "vitepress preview docs"
   },
-  "stackblitz": {
-    "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev"
-  },
   "dependencies": {
     "@nuxt/devtools-kit": "^1.7.0",
     "@nuxt/kit": "^3.15.3",

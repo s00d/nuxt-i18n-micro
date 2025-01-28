@@ -65,7 +65,7 @@
 ### ❤️ Contributors
 
 - Pavel Kuzmin ([@s00d](http://github.com/s00d))
-- TristanSurGithub <tristan@defachel.fr>
+- TristanSurGithub ([@TristanSurGithub](https://github.com/TristanSurGithub))
 
 ## v1.72.0
 

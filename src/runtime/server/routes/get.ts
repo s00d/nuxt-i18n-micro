@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
   if (!storageInit) {
     if (debug) console.log('[nuxt-i18n-micro] clear storage cache')
-    await Promise.all((await serverStorage.getKeys()).map((key: string) => serverStorage.removeItem(key)))
+    await Promise.all((await serverStorage.getKeys('_locales')).map((key: string) => serverStorage.removeItem(key)))
     storageInit = true
   }
 

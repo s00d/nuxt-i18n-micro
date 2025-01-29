@@ -1,6 +1,38 @@
 # Changelog
 
 
+## v1.74.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.73.0...v1.74.0)
+
+### 🚀 Enhancements
+
+- **docs:** Update Storybook guide with new translation merging logic ([592aa6d](https://github.com/s00d/nuxt-i18n-micro/commit/592aa6d))
+
+### 🩹 Fixes
+
+- **routes:** Clear storage cache for specific locale keys ([393b3da](https://github.com/s00d/nuxt-i18n-micro/commit/393b3da))
+
+### 📖 Documentation
+
+- **news:** Update release notes for v1.73.0 DevTools enhancements ([8d70a5f](https://github.com/s00d/nuxt-i18n-micro/commit/8d70a5f))
+- **news:** Update new features list format in release notes ([dca188c](https://github.com/s00d/nuxt-i18n-micro/commit/dca188c))
+- **news:** Update feature name from "Built-in Translator" to "Online Translator" ([70a64f7](https://github.com/s00d/nuxt-i18n-micro/commit/70a64f7))
+
+### 🏡 Chore
+
+- **pnpm:** Clean up `pnpm-lock.yaml` by removing unused dependencies ([06860df](https://github.com/s00d/nuxt-i18n-micro/commit/06860df))
+- **stackblitz:** Add configuration for Stackblitz environment ([fd58131](https://github.com/s00d/nuxt-i18n-micro/commit/fd58131))
+- **config:** Restore `stackblitz` configuration in `package.json` ([8c85739](https://github.com/s00d/nuxt-i18n-micro/commit/8c85739))
+- **config:** Update start command to use PORT=80 for development ([4bf7959](https://github.com/s00d/nuxt-i18n-micro/commit/4bf7959))
+- **stackblitz:** Update startCommand and add .stackblitzrc file ([03edeae](https://github.com/s00d/nuxt-i18n-micro/commit/03edeae))
+- **package.json:** Remove StackBlitz start command ([280a0cc](https://github.com/s00d/nuxt-i18n-micro/commit/280a0cc))
+- **package.json:** Add StackBlitz configuration for project setup ([94ddf4d](https://github.com/s00d/nuxt-i18n-micro/commit/94ddf4d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.73.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.72.0...v1.73.0)

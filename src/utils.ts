@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { readFile } from 'node:fs/promises'
 import type { NuxtPage } from '@nuxt/schema'
 import type { Locale, LocaleCode } from 'nuxt-i18n-micro-types'
 
@@ -78,4 +79,64 @@ export const buildFullPathNoPrefix = (basePath: string): string => {
 const normalizeRegex = (toNorm?: string): string | undefined => {
   if (typeof toNorm === 'undefined') return undefined
   return toNorm.startsWith('/') && toNorm.endsWith('/') ? toNorm?.slice(1, -1) : toNorm
+}
+
+export async function loadYaml(filePath: string) {
+  try {
+    const yaml = await import('js-yaml')
+    const content = await readFile(filePath, 'utf-8')
+    return yaml.load(content)
+  }
+  catch {
+    console.warn(
+      'js-yaml is not installed, please install it if you want to use YAML files for translations.',
+    )
+    return null
+  }
+}
+
+export function deepMerge<T extends object | unknown>(target: T, source: T): T {
+  if (typeof source !== 'object' || source === null) {
+    // If source is not an object, return target if it already exists, otherwise overwrite with source
+    return target === undefined ? source : target
+  }
+
+  if (Array.isArray(target)) {
+    // If source is an array, overwrite target with source
+    return target as T
+  }
+
+  if (source instanceof Object) {
+    // Ensure target is an object to merge into
+    if (!(target instanceof Object) || Array.isArray(target)) {
+      target = {} as T
+    }
+
+    for (const key in source) {
+      if (key === '__proto__' || key === 'constructor') continue
+
+      // Type guard to ensure that key exists on target and is of type object
+      if (
+        target !== null
+        && typeof (target as Record<string, unknown>)[key] === 'object'
+        && (target as Record<string, unknown>)[key] !== null
+      ) {
+        // If target has a key that is an object, merge recursively
+        (target as Record<string, unknown>)[key] = deepMerge(
+          (target as Record<string, unknown>)[key],
+          (source as Record<string, unknown>)[key],
+        )
+      }
+      else {
+        // If the key doesn't exist in target, or it's not an object, overwrite with source value
+        if (target instanceof Object && !(key in target)) {
+          (target as Record<string, unknown>)[key] = (
+            source as Record<string, unknown>
+          )[key]
+        }
+      }
+    }
+  }
+
+  return target
 }

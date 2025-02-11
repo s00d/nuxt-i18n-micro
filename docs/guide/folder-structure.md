@@ -14,7 +14,7 @@ Organizing your translation files effectively is essential for maintaining a sca
 
 ### 🔧 Basic Structure
 
-Here’s a basic example of the folder structure you should follow:
+Here’s a basic example of the folder structure you should follow.  Note that `.json`, `.yaml`, and `.yml` files are supported.
 
 ```plaintext
   /locales
@@ -22,14 +22,23 @@ Here’s a basic example of the folder structure you should follow:
   │   ├── /index
   │   │   ├── en.json
   │   │   ├── fr.json
-  │   │   └── ar.json
+  │   │   ├── ar.json
+  │   │   ├── en.yml
+  │   │   ├── fr.yml
+  │   │   └── ar.yml
   │   ├── /about
   │   │   ├── en.json
   │   │   ├── fr.json
-  │   │   └── ar.json
+  │   │   ├── ar.json
+  │   │   ├── en.yml
+  │   │   ├── fr.yml
+  │   │   └── ar.yml
   ├── en.json
   ├── fr.json
   └── ar.json
+  ├── en.yml
+  ├── fr.yml
+  └── ar.yml
 ```
 
 ### 📄 Explanation of Structure

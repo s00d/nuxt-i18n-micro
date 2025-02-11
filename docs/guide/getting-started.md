@@ -46,6 +46,16 @@ export default defineNuxtConfig({
 })
 ```
 
+### YAML Support
+
+In addition to JSON, `nuxt-i18n-micro` also supports YAML files for translations. To use YAML, you need to install the `js-yaml` package as a dev dependency:
+
+```bash
+npm install -D js-yaml
+```
+
+After installing `js-yaml`, you can create YAML files (with `.yaml` or `.yml` extensions) in your `translationDir` alongside your JSON files.
+
 ### 📂 Folder Structure
 
 Translation files are organized into global and page-specific directories:

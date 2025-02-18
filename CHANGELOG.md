@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.75.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.74.0...v1.75.0)
+
+### 🚀 Enhancements
+
+- **playground:** Add no prefix strategy test page ([2e80c5c](https://github.com/s00d/nuxt-i18n-micro/commit/2e80c5c))
+
+### 🩹 Fixes
+
+- **route-service:** Ensure route starts with a leading slash ([86284fb](https://github.com/s00d/nuxt-i18n-micro/commit/86284fb))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.74.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.73.0...v1.74.0)

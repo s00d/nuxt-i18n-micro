@@ -358,6 +358,9 @@ export class RouteService {
 
     let current: RouteLocationResolved | RouteLocationNamedRaw | RouteLocationAsPathGeneric
     if (typeof to === 'string') {
+      if (!to.startsWith('/')) {
+        to = `/${to}`
+      }
       current = this.resolveRouteWithStrategy(to, currentLocale, fromLocale)
     }
     else {

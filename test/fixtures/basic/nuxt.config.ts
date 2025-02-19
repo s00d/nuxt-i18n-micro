@@ -5,10 +5,11 @@ export default defineNuxtConfig({
     MyModule,
   ],
   devtools: { enabled: false },
-  compatibilityDate: '2024-08-16',
   routeRules: {
     '/client': { ssr: false },
+    '/old-product': { redirect: '/page' },
   },
+  compatibilityDate: '2024-08-16',
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {

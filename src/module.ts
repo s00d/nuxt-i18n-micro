@@ -328,11 +328,12 @@ export default defineNuxtModule<ModuleOptions>({
 
       const strategy = options.strategy! as Strategies
 
-      if (routeRules && !isNoPrefixStrategy(strategy)) {
+      if (routeRules && Object.keys(routeRules).length && !isNoPrefixStrategy(strategy)) {
         // Ensure we have a place to store new rules
         nitroConfig.routeRules = nitroConfig.routeRules || {}
 
         for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
+          if (originalPath.startsWith('/api')) continue
           // For each route rule (e.g. '/client': { ssr: false })
           // replicate it for each locale in prefix strategies
           localeManager.locales.forEach((localeObj) => {

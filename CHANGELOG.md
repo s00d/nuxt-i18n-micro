@@ -1,6 +1,38 @@
 # Changelog
 
 
+## v1.76.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.75.0...v1.76.0)
+
+### 🚀 Enhancements
+
+- **module:** Update routing strategy to support prefix_except_default ([14db8a7](https://github.com/s00d/nuxt-i18n-micro/commit/14db8a7))
+- **client:** Add client-only page with SSR disabled ([e3c650f](https://github.com/s00d/nuxt-i18n-micro/commit/e3c650f))
+- **pages:** Add old product redirect page ([45d7a01](https://github.com/s00d/nuxt-i18n-micro/commit/45d7a01))
+- **locales:** Add initial locale files for client and old-product ([898f987](https://github.com/s00d/nuxt-i18n-micro/commit/898f987))
+
+### 🩹 Fixes
+
+- **module:** Improve route rule handling for prefix strategies ([302e002](https://github.com/s00d/nuxt-i18n-micro/commit/302e002))
+- **module:** Prevent processing of API routes in route rules ([b700706](https://github.com/s00d/nuxt-i18n-micro/commit/b700706))
+
+### 📖 Documentation
+
+- **guide:** Update default value for `strategy` option in documentation ([2e060b7](https://github.com/s00d/nuxt-i18n-micro/commit/2e060b7))
+
+### 🏡 Chore
+
+- **locales:** Add empty JSON files for language localization ([100724d](https://github.com/s00d/nuxt-i18n-micro/commit/100724d))
+
+### ✅ Tests
+
+- **basic:** Add tests for client-only rendering and redirection ([c65428e](https://github.com/s00d/nuxt-i18n-micro/commit/c65428e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.75.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.74.0...v1.75.0)

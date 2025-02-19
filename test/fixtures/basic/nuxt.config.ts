@@ -6,7 +6,9 @@ export default defineNuxtConfig({
   ],
   devtools: { enabled: false },
   compatibilityDate: '2024-08-16',
-
+  routeRules: {
+    '/client': { ssr: false },
+  },
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {

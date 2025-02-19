@@ -12,6 +12,19 @@ test.use({
 })
 
 test.describe('basic', () => {
+  test('renders only on client', async ({ page, baseURL }) => {
+    // 1) Fetch the raw server response for the client page
+    const res = await fetch(`${baseURL}/client`)
+    const html = await res.text()
+
+    // 2) Check that the SSR response does NOT contain your client-only text
+    expect(html).not.toContain('Client only page - SSR disabled')
+
+    // 3) Now, navigate via Playwright and check that it appears in the client
+    await page.goto('/client', { waitUntil: 'networkidle' })
+    await expect(page.locator('#client-text')).toHaveText('Client only page - SSR disabled')
+  })
+
   test('test index', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
     await expect(page.locator('#locale')).toHaveText('en')

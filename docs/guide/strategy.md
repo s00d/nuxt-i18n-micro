@@ -11,7 +11,7 @@ The `strategy` option allows you to choose between different behaviors regarding
 The `strategy` option defines how locale prefixes should be managed across your routes. The available strategies give you varying levels of control over how the locale appears in the URLs.
 
 **Type**: `string`  
-**Default**: `prefix_and_default`
+**Default**: `prefix_except_default`
 
 ## Available Strategies:
 

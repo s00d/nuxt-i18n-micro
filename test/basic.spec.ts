@@ -14,7 +14,7 @@ test.use({
 test.describe('basic', () => {
   test('renders only on client', async ({ page, baseURL }) => {
     // 1) Fetch the raw server response for the client page
-    const res = await fetch(`${baseURL}/client`)
+    const res = await fetch(`${baseURL}client`)
     const html = await res.text()
 
     // 2) Check that the SSR response does NOT contain your client-only text
@@ -23,6 +23,27 @@ test.describe('basic', () => {
     // 3) Now, navigate via Playwright and check that it appears in the client
     await page.goto('/client', { waitUntil: 'networkidle' })
     await expect(page.locator('#client-text')).toHaveText('Client only page - SSR disabled')
+
+    // 1) Fetch the raw server response for the client page
+    const res_de = await fetch(`${baseURL}de/client`)
+    const html_de = await res_de.text()
+
+    // 2) Check that the SSR response does NOT contain your client-only text
+    expect(html_de).not.toContain('Client only page - SSR disabled')
+
+    // 3) Now, navigate via Playwright and check that it appears in the client
+    await page.goto('/de/client', { waitUntil: 'networkidle' })
+    await expect(page.locator('#client-text')).toHaveText('Client only page - SSR disabled')
+  })
+
+  test('redirect from /old-product to /products', async ({ page, goto }) => {
+    await goto('/old-product', { waitUntil: 'hydration' })
+
+    await expect(page).toHaveURL('/page')
+
+    await goto('/de/old-product', { waitUntil: 'hydration' })
+
+    await expect(page).toHaveURL('/de/page')
   })
 
   test('test index', async ({ page, goto }) => {

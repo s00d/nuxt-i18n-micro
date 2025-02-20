@@ -8,6 +8,7 @@ export default defineNuxtConfig({
   routeRules: {
     '/client': { ssr: false },
     '/old-product': { redirect: '/page' },
+    '/ru/old-product': { redirect: '/ru/page' },
   },
   compatibilityDate: '2024-08-16',
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

@@ -43,7 +43,11 @@ test.describe('basic', () => {
 
     await goto('/de/old-product', { waitUntil: 'hydration' })
 
-    await expect(page).toHaveURL('/de/page')
+    await expect(page).toHaveURL('/de/old-product')
+
+    await goto('/ru/old-product', { waitUntil: 'hydration' })
+
+    await expect(page).toHaveURL('/ru/page')
   })
 
   test('test index', async ({ page, goto }) => {

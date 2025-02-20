@@ -329,43 +329,49 @@ export default defineNuxtModule<ModuleOptions>({
       const strategy = options.strategy! as Strategies
 
       if (routeRules && Object.keys(routeRules).length && !isNoPrefixStrategy(strategy)) {
-        // Ensure we have a place to store new rules
+        // Убедимся, что в nitroConfig есть место для новых правил
         nitroConfig.routeRules = nitroConfig.routeRules || {}
 
         for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-          if (originalPath.startsWith('/api')) continue
-          // For each route rule (e.g. '/client': { ssr: false })
-          // replicate it for each locale in prefix strategies
+          // Пропускаем /api
+          if (originalPath.startsWith('/api')) {
+            continue
+          }
+
+          // «Расмножаем» правила по всем локалям
           localeManager.locales.forEach((localeObj) => {
             const localeCode = localeObj.code
-
-            // In "prefix_except_default", skip the default locale for rewriting if you want
-            // to leave '/client' as-is.
             const isDefaultLocale = (localeCode === defaultLocale)
-            const skip = (isPrefixExceptDefaultStrategy(strategy) || isPrefixAndDefaultStrategy(strategy)) && isDefaultLocale
 
+            // Для стратегий "prefix_except_default" и "prefix_and_default"
+            // пропускаем дефолтную локаль, чтобы /client оставался без префикса
+            const skip = (isPrefixExceptDefaultStrategy(strategy) || isPrefixAndDefaultStrategy(strategy)) && isDefaultLocale
             if (skip) {
-              // do nothing for default locale, since it has no prefix
               return
             }
 
-            // Build a localized path.
-            // e.g. '/fr/client' if originalPath = '/client'
-            // handle special case if originalPath = '/'
+            // Формируем локализованный путь, напр. '/fr/client'
+            // Если originalPath === '/', тогда suffix === ''
             const suffix = (originalPath === '/') ? '' : originalPath
             const localizedPath = `/${localeCode}${suffix}`
 
-            // If not already set, add or override the routeRule for localized path
-            nitroConfig.routeRules = nitroConfig.routeRules || {}
-            nitroConfig.routeRules[localizedPath] = {
-              ...nitroConfig.routeRules[localizedPath],
-              ...ruleValue,
+            // Вырезаем redirect, чтобы не переносить его в локализованные маршруты
+            const { redirect, ...restRuleValue } = ruleValue
+
+            if (!Object.keys(restRuleValue).length) {
+              return
             }
 
-            if (typeof ruleValue.redirect === 'string') {
-              nitroConfig.routeRules[localizedPath].redirect = `/${localeCode}${ruleValue.redirect}`
+            // Если не существует — инициализируем
+            nitroConfig.routeRules = nitroConfig.routeRules || {}
+
+            // Присваиваем все поля, кроме redirect
+            nitroConfig.routeRules[localizedPath] = {
+              ...nitroConfig.routeRules[localizedPath],
+              ...restRuleValue,
             }
-            logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(ruleValue)}`)
+
+            logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
           })
         }
       }

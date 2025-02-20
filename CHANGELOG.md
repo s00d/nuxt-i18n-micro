@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.76.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.0...v1.76.1)
+
+### 💅 Refactors
+
+- **module:** Simplify route rule handling in nitroConfig ([5c974b0](https://github.com/s00d/nuxt-i18n-micro/commit/5c974b0))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.76.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.75.0...v1.76.0)

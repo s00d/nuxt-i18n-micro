@@ -87,4 +87,8 @@ Here are a few tips to ensure you get the best performance out of `Nuxt I18n Mic
 - 💾 **Enable Caching**: Make use of the caching features to reduce server load and improve response times.
 - 🏁 **Leverage Pre-rendering**: Pre-render your translations to speed up page loads and reduce runtime overhead.
 
+### 📄 Translation Format
+
+While `nuxt-i18n-micro` supports both JSON and YAML translation files, **JSON is recommended for optimal performance**. JSON parsing is generally faster and more efficient than YAML parsing. If performance is a priority, use JSON for your translations.
+
 For detailed results of the performance tests, please refer to the [Performance Test Results](/guide/performance-results).

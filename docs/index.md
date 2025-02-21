@@ -85,7 +85,7 @@ These results clearly demonstrate that `Nuxt I18n Micro` significantly outperfor
 - ⚡ **Optimized Build and Runtime**: Reduces build times, memory usage, and server load, making it ideal for **high-traffic applications**.
 - 🛠️ **Minimalist Design**: The module is structured around just **5 components** (1 module and 4 plugins), making it easy to understand, extend, and maintain.
 - 📏 **Efficient Routing**: Generates only **2 routes** regardless of the number of locales, thanks to dynamic regex-based routing, unlike other i18n modules that generate separate routes for each locale.
-- 🗂 **Streamlined Translation Loading**: Only **JSON files** are supported, with translations split between a global file for common texts (e.g., menus) and page-specific files, which are auto-generated in the `dev` mode if not present.
+- 🗂 **Streamlined Translation Loading**:  **JSON** and **YAML** files are supported, with translations split between a global file for common texts (e.g., menus) and page-specific files, which are auto-generated in the `dev` mode if not present. See the [getting started guide](/guide/getting-started) for details on YAML support and the required `js-yaml` dependency.
 
 ## ⚙️ Quick Setup
 

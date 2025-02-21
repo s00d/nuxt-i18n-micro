@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.76.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.1...v1.76.2)
+
+### 💅 Refactors
+
+- **plugins:** Consolidate imports from '#app' into '#imports' ([4026e0b](https://github.com/s00d/nuxt-i18n-micro/commit/4026e0b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.76.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.0...v1.76.1)

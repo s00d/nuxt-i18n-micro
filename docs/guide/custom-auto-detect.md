@@ -10,8 +10,6 @@ Nuxt I18n Micro offers built-in mechanisms for automatically detecting the user'
 
 Below is an example plugin that demonstrates a straightforward way to detect the locale from user headers, store it in a cookie, and navigate to the appropriate route.
 
----
-
 ## 🛠️ Disabling Built-In Auto-Detection
 
 In your Nuxt configuration (e.g., `nuxt.config.ts`), simply set:
@@ -27,8 +25,6 @@ export default defineNuxtConfig({
 ```
 
 With this setting, Nuxt I18n Micro will not attempt to detect the user's language. You can then handle all your custom detection logic in a separate plugin.
-
----
 
 ## ✨ Example: Custom Detection Plugin
 
@@ -112,8 +108,6 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 3. **Route Adjustment**  
    If the current route’s locale does not match the determined locale, the plugin automatically redirects to the correct localized route.
 
----
-
 ## ⚙️ Server-Only or Client-Only Plugins
 
 If you want the detection to happen **only on the server** or **only on the client**, you can use [Nuxt’s filename conventions](https://nuxt.com/docs/getting-started/directory-structure#plugins) for plugins:
@@ -133,8 +127,6 @@ For locale detection logic that relies on server headers (like `x-country`), a *
 - **Server or Client Focus**: You choose exactly where (server or client) your detection logic runs.
 
 By taking total ownership of the locale detection logic in your own plugin, you don’t have to rely on a “one-size-fits-all” solution. This setup works especially well for advanced use cases (e.g., custom headers, special cookies, IP geolocation, or multi-step detection logic).
-
----
 
 ## 🏁 Summary
 

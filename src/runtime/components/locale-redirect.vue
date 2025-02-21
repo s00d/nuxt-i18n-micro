@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useRoute, useI18n, createError } from '#imports'
+import { useRoute, useI18n, createError, navigateTo } from '#imports'
 
 const route = useRoute()
 const { $getLocales, $defaultLocale } = useI18n()

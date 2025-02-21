@@ -1,7 +1,6 @@
 import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { isPrefixStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
-import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo } from '#app'
-import { useRoute, useRouter } from '#imports'
+import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo, useRoute, useRouter } from '#imports'
 
 const parseAcceptLanguage = (acceptLanguage: string) =>
   acceptLanguage

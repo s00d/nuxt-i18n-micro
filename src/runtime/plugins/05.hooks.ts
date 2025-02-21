@@ -3,8 +3,7 @@
 
 import { isNoPrefixStrategy, useTranslationHelper } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend, Translations } from 'nuxt-i18n-micro-types'
-import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useRouter } from '#imports'
+import { defineNuxtPlugin, useRuntimeConfig, useRouter } from '#imports'
 
 const i18nHelper = useTranslationHelper()
 

@@ -2,8 +2,7 @@ import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import type { Ref, WatchHandle } from 'vue'
 import type { ModuleOptionsExtend, Translations } from 'nuxt-i18n-micro-types'
 import { isNoPrefixStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
-import { defineNuxtPlugin, navigateTo, useRuntimeConfig } from '#app'
-import { unref, useRoute, useRouter, useNuxtApp, watch, computed, onUnmounted } from '#imports'
+import { unref, useRoute, useRouter, useNuxtApp, watch, computed, onUnmounted, defineNuxtPlugin, navigateTo, useRuntimeConfig } from '#imports'
 
 type LocalesObject = Record<string, Translations>
 

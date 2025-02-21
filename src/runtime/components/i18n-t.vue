@@ -3,7 +3,7 @@ import { h, defineComponent } from 'vue'
 import type { VNode, PropType } from 'vue'
 import type { PluralFunc } from 'nuxt-i18n-micro-types'
 import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
-import { useNuxtApp } from '#app'
+import { useNuxtApp } from '#imports'
 
 export default defineComponent({
   name: 'I18nT',

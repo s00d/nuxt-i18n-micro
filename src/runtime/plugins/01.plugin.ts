@@ -7,8 +7,7 @@ import type {
 } from 'vue-router'
 import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translation, Translations } from 'nuxt-i18n-micro-types'
-import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useRouter, useCookie, useState, unref, navigateTo } from '#imports'
+import { useRouter, useCookie, useState, unref, navigateTo, defineNuxtPlugin, useRuntimeConfig } from '#imports'
 import { plural } from '#build/i18n.plural.mjs'
 
 const i18nHelper = useTranslationHelper()

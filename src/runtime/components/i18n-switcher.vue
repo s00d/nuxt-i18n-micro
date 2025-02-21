@@ -70,7 +70,7 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
-import { useNuxtApp } from '#app'
+import { useNuxtApp } from '#imports'
 
 type LocaleCode = string
 interface Locale {

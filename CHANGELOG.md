@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v1.76.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.2...v1.76.3)
+
+### 🩹 Fixes
+
+- **plugins:** Enhance locale route resolution logic ([8bdf47a](https://github.com/s00d/nuxt-i18n-micro/commit/8bdf47a))
+
+### 📖 Documentation
+
+- **custom-auto-detect:** Add guide for custom language detection plugin ([3dbccbf](https://github.com/s00d/nuxt-i18n-micro/commit/3dbccbf))
+- **guide:** Update custom auto-detect documentation for clarity ([675b717](https://github.com/s00d/nuxt-i18n-micro/commit/675b717))
+- **guide:** Remove unnecessary blank lines in custom auto-detect guide ([3868e78](https://github.com/s00d/nuxt-i18n-micro/commit/3868e78))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.76.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.1...v1.76.2)

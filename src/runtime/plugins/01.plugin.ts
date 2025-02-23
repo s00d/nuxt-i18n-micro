@@ -196,8 +196,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       if (typeof localeRoute === 'string') {
         return localeRoute
       }
-      if ('fullPath' in localeRoute) {
+      if ('fullPath' in localeRoute && localeRoute.fullPath) {
         return localeRoute.fullPath as string
+      }
+      if ('name' in localeRoute && localeRoute.name) {
+        if (router.hasRoute(localeRoute.name)) {
+          return router.resolve(localeRoute).fullPath
+        }
       }
       return ''
     },

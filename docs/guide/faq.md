@@ -17,7 +17,7 @@ definePageMeta({ name: 'pageName' })
 
 This ensures the route is properly registered, enabling seamless navigation within the application.
 
----
+
 
 ## ❓ Why is the `assets/_locales/` folder added to the server folder?
 
@@ -28,7 +28,7 @@ During deployment, especially on platforms like Netlify, the build process might
 - **Prerendering:** Prerendering does not work with `$fetch` in SSR, causing middleware to miss localization files.
 - **Server Assets:** To resolve this, localization files are saved in the Nitro server assets during prerendering. They are then accessible in production directly from server assets.
 
----
+
 
 ## ❓ Is `Nuxt I18n Micro` inspired by `vue-i18n`? What about modifiers?
 
@@ -52,7 +52,7 @@ For example:
 
 This approach is flexible, so releasing modifiers is currently unnecessary. However, modifiers may be added in future releases if there is demand.
 
----
+
 
 ## ❓ Can I use `NuxtLink` or `i18nLink` directly in translation strings?
 
@@ -83,7 +83,7 @@ Vue template:
 
 This allows dynamic links within translations while preserving proper localization structure.
 
----
+
 
 ## ❓ Why are translation keys not resolving during SSR on Vercel, and how can I fix the locale path issue?
 
@@ -102,8 +102,6 @@ If translations are hosted externally, specify the full URL (e.g., `https://exam
   // ...
 }
 ```
-
----
 
 
 
@@ -148,5 +146,35 @@ showError({
   i18n: true
 })
 ```
+
+
+
+## ❓ Why do I get a build error referring to `@unhead/vue` or an undefined object, especially on Cloudflare Pages?
+
+**Cause:**
+Some projects experience build conflicts or missing dependencies when using `nuxt-i18n-micro`. In particular:
+- Deployments on **Cloudflare Pages** or **Cloudflare Workers** may require additional compatibility flags.
+- Prerendering steps can fail if dependencies like `@unhead/vue` are not properly installed.
+- Certain modules (e.g., **nuxthub**, **nitro-cloudflare-dev**) can introduce conflicts unless configured with correct flags or dependencies.
+
+**Possible Solutions:**
+
+1. **Install `@unhead/vue` manually:**
+   If the build error complains about not finding `@unhead/vue`, install it directly in your project’s dependencies:
+   ```bash
+   npm install @unhead/vue
+   # or
+   yarn add @unhead/vue
+   ```
+This ensures it’s available during the Nitro prerender phase.
+
+2. **Add Cloudflare compatibility flags:**
+   When using Cloudflare Pages or Cloudflare Workers, Node.js compatibility is often disabled by default. Enable it in your `wrangler.toml`:
+   ```toml
+   compatibility_flags = [ "nodejs_compat_v2" ]
+   ```
+   This flag allows many Node.js modules (including those used by `nuxt-i18n-micro`) to run smoothly.
+
+---
 
 These solutions help maintain context and reduce errors, allowing for flexibility in handling translations across the application.

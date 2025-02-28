@@ -112,7 +112,7 @@ export default defineConfig({
             { text: 'DevTools', link: '/devtools' },
             { text: 'Testing', link: '/testing' },
             { text: 'Storybook', link: '/storybook' },
-            { text: 'Custom Auto Detect', link: '/guide/custom-auto-detect' },
+            { text: 'Custom Auto Detect', link: '/custom-auto-detect' },
             { text: 'CLI Tool', link: '/cli' },
           ],
         },

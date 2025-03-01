@@ -444,6 +444,29 @@ Specifies a fallback locale to be used when the current locale does not have a s
 }
 ```
 
+### 🌐 `noPrefixRedirect`
+
+**Type**: `boolean`  
+**Default**: `false`
+
+Specifies whether, when using the **no prefix** strategy, a redirect should automatically be set to a custom path (for instance, one defined through `globalLocaleRoutes` or `defineI18nRoute`) instead of rendering the default route. If enabled, any routes overridden via localization settings will generate a **redirect** to the respective localized path rather than creating a standard route.
+
+**Example**:
+
+```typescript
+{
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en-US', dir: 'ltr' },
+      { code: 'fr', iso: 'fr-FR', dir: 'ltr' }
+    ],
+    defaultLocale: 'en',
+    // Enable redirects for custom paths in no prefix strategy
+    noPrefixRedirect: true
+  }
+}
+```
+
 ### 🌐 `globalLocaleRoutes`
 
 Allows you to define custom localized routes for specific pages. You can specify a custom path for each locale for a given page, or disable localization for certain pages entirely.

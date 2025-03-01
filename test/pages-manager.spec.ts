@@ -25,7 +25,7 @@ test.describe('PageManager', () => {
   let pageManager: PageManager
 
   test.beforeAll(() => {
-    pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined)
+    pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, false)
   })
 
   test('should correctly calculate active locale codes', async () => {
@@ -168,7 +168,7 @@ test.describe('PageManager', () => {
 
   test('should include default locale routes when strategy is prefix', async () => {
     // Устанавливаем флаг includeDefaultLocaleRoute в true
-    const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, 'prefix', undefined)
+    const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, 'prefix', undefined, false)
 
     const pages: NuxtPage[] = [{
       path: '/activity',
@@ -203,7 +203,7 @@ test.describe('PageManager', () => {
     }
 
     // Creating a new PageManager instance with globalLocaleRoutes
-    const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes)
+    const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, false)
 
     const pages: NuxtPage[] = [{
       path: '/activity',
@@ -244,7 +244,7 @@ test.describe('PageManager', () => {
   })
 
   test('should handle prefix_and_default strategy correctly', async () => {
-    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'prefix_and_default', undefined)
+    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'prefix_and_default', undefined, false)
 
     const pages: NuxtPage[] = [
       {
@@ -287,7 +287,7 @@ test.describe('PageManager', () => {
       },
       unlocalized: false, // Unlocalized page should not be localized
     }
-    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes)
+    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes, false)
 
     const pages: NuxtPage[] = [
       {
@@ -329,7 +329,7 @@ test.describe('PageManager', () => {
       { code: 'en' },
       { code: 'fr' },
     ]
-    const pageManager = new PageManager(locales, 'en', 'no_prefix', {})
+    const pageManager = new PageManager(locales, 'en', 'no_prefix', {}, false)
 
     // Вызываем метод extractLocalizedPaths
     const localizedPaths = pageManager.extractLocalizedPaths(mockPages)

@@ -51,6 +51,7 @@ export interface ModuleOptions {
   debug?: boolean
   globalLocaleRoutes?: GlobalLocaleRoutes
   customRegexMatcher?: string | RegExp
+  noPrefixRedirect?: boolean
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

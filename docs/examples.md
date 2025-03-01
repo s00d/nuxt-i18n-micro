@@ -461,3 +461,27 @@ import { useNuxtApp } from '#imports'
 const { $tdr } = useNuxtApp()
 </script>
 ```
+
+## YAML Examples
+
+Here are examples of how to structure your translation files using YAML:
+
+### Example YAML File (`en.yml`)
+
+```yaml
+greeting: "Hello, {username}!"
+welcome:
+  title: "Welcome to our site"
+  description: "We offer a variety of services."
+nav:
+  home: "Home"
+  about: "About Us"
+  contact: "Contact"
+```
+
+### Example YAML File with Page-Specific Translations (`pages/index/en.yml`)
+```yaml
+title: "Welcome to the Home Page"
+introduction: "This is the introduction text for the home page."
+
+```

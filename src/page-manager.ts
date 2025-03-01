@@ -28,11 +28,13 @@ export class PageManager {
   localizedPaths: { [key: string]: { [locale: string]: string } } = {}
   activeLocaleCodes: string[]
   globalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
+  noPrefixRedirect: boolean
 
-  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes) {
+  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes, noPrefixRedirect: boolean) {
     this.locales = locales
     this.defaultLocale = this.findLocaleByCode(defaultLocaleCode) || { code: defaultLocaleCode }
     this.strategy = strategy
+    this.noPrefixRedirect = noPrefixRedirect
     this.activeLocaleCodes = this.computeActiveLocaleCodes()
     this.globalLocaleRoutes = globalLocaleRoutes || {}
   }
@@ -144,7 +146,10 @@ export class PageManager {
       if (isNoPrefixStrategy(this.strategy)) {
         // Для стратегии без префикса, создаем отдельные страницы для каждой локали без префикса
         const newRoute = this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex)
-        if (newRoute) additionalRoutes.push(newRoute)
+        if (newRoute) {
+          additionalRoutes.push(newRoute)
+          if (this.noPrefixRedirect && isNoPrefixStrategy(this.strategy)) page.redirect = newRoute.path
+        }
       }
       else {
         if (isDefaultLocale) {
@@ -251,6 +256,8 @@ export class PageManager {
       else {
         const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex)
         if (newRoute) additionalRoutes.push(newRoute)
+
+        if (this.noPrefixRedirect && isNoPrefixStrategy(this.strategy) && newRoute) page.redirect = newRoute.path
       }
 
       if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {

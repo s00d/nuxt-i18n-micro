@@ -84,6 +84,7 @@ export default defineNuxtModule<ModuleOptions>({
     disablePageLocales: false,
     disableWatcher: false,
     disableUpdater: false,
+    noPrefixRedirect: false,
     includeDefaultLocaleRoute: undefined,
     fallbackLocale: undefined,
     localeCookie: 'user-locale',
@@ -122,7 +123,7 @@ export default defineNuxtModule<ModuleOptions>({
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
     const localeManager = new LocaleManager(options, rootDirs)
-    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes)
+    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes, options.noPrefixRedirect!)
 
     addTemplate({
       filename: 'i18n.plural.mjs',

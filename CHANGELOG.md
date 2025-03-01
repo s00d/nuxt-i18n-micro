@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v1.77.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.3...v1.77.0)
+
+### 🚀 Enhancements
+
+- **types:** Add noPrefixRedirect option to ModuleOptions ([a491d48](https://github.com/s00d/nuxt-i18n-micro/commit/a491d48))
+- **types:** Add noPrefixRedirect option to ModuleOptions ([1c8b1e5](https://github.com/s00d/nuxt-i18n-micro/commit/1c8b1e5))
+
+### 📖 Documentation
+
+- **guide:** Add "Using Translations in Components" guide ([4427221](https://github.com/s00d/nuxt-i18n-micro/commit/4427221))
+- **faq:** Add troubleshooting section for build errors on Cloudflare ([4dd1afb](https://github.com/s00d/nuxt-i18n-micro/commit/4dd1afb))
+- **vitepress:** Update link for custom auto detect guide ([a2121cc](https://github.com/s00d/nuxt-i18n-micro/commit/a2121cc))
+- **guide:** Add `noPrefixRedirect` option to getting started guide ([771cea9](https://github.com/s00d/nuxt-i18n-micro/commit/771cea9))
+
+### ✅ Tests
+
+- **pages-manager:** Add includeDefaultLocaleRoute flag to PageManager ([350d3e1](https://github.com/s00d/nuxt-i18n-micro/commit/350d3e1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.76.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.2...v1.76.3)

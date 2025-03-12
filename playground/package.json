@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build",
+    "generate:en": "nuxi generate --dotenv .env.en",
+    "generate:de": "nuxi generate --dotenv .env.de",
     "client:prepare": "nuxt prepare",
     "generate": "nuxi generate",
     "init": "nuxt prepare",

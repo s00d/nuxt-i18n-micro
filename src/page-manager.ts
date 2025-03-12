@@ -111,19 +111,19 @@ export class PageManager {
           const localeRoutes = extractLocaleRoutes(fileContent, page.file)
 
           if (localeRoutes) {
-            const normalizedFullPath = normalizePath(path.join(parentPath, page.path))
+            const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
             localizedPaths[normalizedFullPath] = localeRoutes
           }
         }
       }
       else if (typeof globalLocalePath === 'object') {
         // Use globalLocaleRoutes if defined
-        const normalizedFullPath = normalizePath(path.join(parentPath, page.path))
+        const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
         localizedPaths[normalizedFullPath] = globalLocalePath
       }
 
       if (page.children?.length) {
-        const parentFullPath = normalizePath(path.join(parentPath, page.path))
+        const parentFullPath = normalizePath(path.posix.join(parentPath, page.path))
         Object.assign(localizedPaths, this.extractLocalizedPaths(page.children, parentFullPath))
       }
     })
@@ -204,7 +204,7 @@ export class PageManager {
     const currentChildren = page.children ? [...page.children] : []
 
     if (originalChildren.length) {
-      const newName = normalizePath(path.join('/', buildRouteNameFromRoute(page.name, page.path)))
+      const newName = normalizePath(path.posix.join('/', buildRouteNameFromRoute(page.name, page.path)))
       const localizedChildren = this.mergeChildren(originalChildren, newName, [this.defaultLocale.code])
 
       // Мапа для поиска детей по имени
@@ -285,7 +285,7 @@ export class PageManager {
     addLocalePrefix: boolean,
   ): NuxtPage[] {
     const routePath = normalizePath(route.path)
-    const fullPath = normalizePath(path.join(parentPath, routePath))
+    const fullPath = normalizePath(path.posix.join(parentPath, routePath))
     const customLocalePaths = this.localizedPaths[fullPath]
     const localizedChildren = this.createLocalizedChildren(route.children ?? [], fullPath, localeCodes, modifyName)
 

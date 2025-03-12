@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.78.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.77.0...v1.78.0)
+
+### 🚀 Enhancements
+
+- **plugins:** Extend translation functions to accept route parameter ([47c4763](https://github.com/s00d/nuxt-i18n-micro/commit/47c4763))
+
+### 📖 Documentation
+
+- **faq:** Add explanation for translation issues during page transitions ([657e06e](https://github.com/s00d/nuxt-i18n-micro/commit/657e06e))
+- **api:** Add 'route' parameter to translation method documentation ([87199e1](https://github.com/s00d/nuxt-i18n-micro/commit/87199e1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.77.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.76.3...v1.77.0)

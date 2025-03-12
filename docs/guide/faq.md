@@ -197,4 +197,6 @@ To ensure correct translations during transitions, explicitly pass the current r
 </template>
 ```
 
+---
+
 These solutions help maintain context and reduce errors, allowing for flexibility in handling translations across the application.

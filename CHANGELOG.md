@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v1.79.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.78.0...v1.79.0)
+
+### 🚀 Enhancements
+
+- **playground:** Add environment configuration for English and German ([97d8fc2](https://github.com/s00d/nuxt-i18n-micro/commit/97d8fc2))
+
+### 💅 Refactors
+
+- **page-manager:** Normalize path joining to use posix method ([a1cedb8](https://github.com/s00d/nuxt-i18n-micro/commit/a1cedb8))
+
+### 📖 Documentation
+
+- **faq:** Clarify cause and solution for translation flickering issue ([7d87ba5](https://github.com/s00d/nuxt-i18n-micro/commit/7d87ba5))
+- **faq:** Clarify cause of translation issues during page transitions ([ecb32a3](https://github.com/s00d/nuxt-i18n-micro/commit/ecb32a3))
+- **faq:** Update solution for nuxt-i18n-micro page transitions ([b91a423](https://github.com/s00d/nuxt-i18n-micro/commit/b91a423))
+- **faq:** Update section on `$fetch` limitations during SSR ([04d9bd8](https://github.com/s00d/nuxt-i18n-micro/commit/04d9bd8))
+- **faq:** Add section separator for clarity ([8212ee3](https://github.com/s00d/nuxt-i18n-micro/commit/8212ee3))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.78.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.77.0...v1.78.0)

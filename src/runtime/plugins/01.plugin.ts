@@ -133,9 +133,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const selectedRoute = route ?? routeService.getCurrentRoute()
       return routeService.getRouteName(selectedRoute as RouteLocationResolvedGeneric, selectedLocale)
     },
-    t: (key: string, params?: Params, defaultValue?: string | null): Translation => {
+    t: (key: string, params?: Params, defaultValue?: string | null, route?: RouteLocationNormalizedLoaded): Translation => {
       if (!key) return ''
-      const route = routeService.getCurrentRoute()
+      route = route ?? routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale()
       const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
       let value = i18nHelper.getTranslation(locale, routeName, key)
@@ -149,9 +149,19 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
       return typeof value === 'string' && params ? interpolate(value, params) : value
     },
-    ts: (key: string, params?: Params, defaultValue?: string): string => {
-      const value = provideData.t(key, params, defaultValue)
+    ts: (key: string, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
+      const value = provideData.t(key, params, defaultValue, route)
       return value?.toString() ?? defaultValue ?? key
+    },
+    _t: (route: RouteLocationNormalizedLoaded) => {
+      return (key: string, params?: Params, defaultValue?: string | null): Translation => {
+        return provideData.t(key, params, defaultValue, route)
+      }
+    },
+    _ts: (route: RouteLocationNormalizedLoaded) => {
+      return (key: string, params?: Params, defaultValue?: string): string => {
+        return provideData.ts(key, params, defaultValue, route)
+      }
     },
     tc: (key: string, params: number | Params, defaultValue?: string): string => {
       const currentLocale = routeService.getCurrentLocale()
@@ -251,7 +261,9 @@ export interface PluginsInjections {
   $defaultLocale: () => string | undefined
   $getRouteName: (route?: RouteLocationNamedRaw | RouteLocationResolvedGeneric, locale?: string) => string
   $t: (key: string, params?: Params, defaultValue?: string | null) => Translation
+  $_t: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => Translation
   $ts: (key: string, params?: Params, defaultValue?: string) => string
+  $_ts: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => Translation
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string

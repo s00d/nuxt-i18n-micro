@@ -180,8 +180,8 @@ This ensures it’s available during the Nitro prerender phase.
 
 When using `nuxt-i18n-micro` with page transitions, translations may briefly stop working during the transition. This issue occurs because the route changes before the transition completes, causing translations for the new page to load while the old page is still visible.
 
-**Solution**
-To ensure correct translations during transitions, explicitly pass the current route to `$t`:
+**Possible Solutions:**
+To ensure correct translations during transitions, explicitly pass the current route to `$_t`:
 
 ```vue
 <script lang="ts" setup>

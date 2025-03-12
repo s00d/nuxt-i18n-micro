@@ -62,6 +62,7 @@ const routeName = $getRouteName(routeObject, 'fr')
     - **key**: `string` — The translation key.
     - **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation.
     - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
+    - **route**: `RouteLocationNormalizedLoaded | undefined` — Optional. The route from which to determine the locale and resolve the translation context. If not provided, the current route is used.
 
 -   **Example**:
 
@@ -78,6 +79,8 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
     - **key**: `string` — The translation key.
     - **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation.
     - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found.
+    - **route**: `RouteLocationNormalizedLoaded | undefined` — Optional. The route from which to determine the locale and resolve the translation context. If not provided, the current route is used.
+
 -   **Example**:
 ```typescript
 const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })

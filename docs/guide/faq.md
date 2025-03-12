@@ -180,9 +180,6 @@ This ensures it’s available during the Nitro prerender phase.
 
 When using `nuxt-i18n-micro` with page transitions, translations may briefly stop working during the transition. This issue occurs because the route changes before the transition completes, causing translations for the new page to load while the old page is still visible.
 
-**Cause**
-The issue is more noticeable when navigating to pages that use `defineAsyncComponent`. Since the component loads asynchronously **after** the route change, per-page translations may temporarily break.
-
 **Solution**
 To ensure correct translations during transitions, explicitly pass the current route to `$t`:
 

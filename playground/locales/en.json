@@ -1,5 +1,8 @@
 {
   "test_key": "test_val",
+  "fallback": {
+    "value": "fallback en text"
+  },
   "key1": {
     "key1": {
       "key1": {

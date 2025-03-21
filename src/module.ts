@@ -163,6 +163,8 @@ export default defineNuxtModule<ModuleOptions>({
       rootDir: nuxt.options.rootDir,
       rootDirs: rootDirs,
       debug: options.debug ?? false,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       fallbackLocale: options.fallbackLocale ?? undefined,
       translationDir: options.translationDir ?? 'locales',
       customRegexMatcher: options.customRegexMatcher,

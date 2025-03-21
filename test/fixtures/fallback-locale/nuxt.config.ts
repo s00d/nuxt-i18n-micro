@@ -12,10 +12,15 @@ export default defineNuxtConfig({
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {
-    locales: [{ code: 'de' }, { code: 'en' }],
+    locales: [
+      { code: 'de' },
+      { code: 'en' },
+      { code: 'fr', fallbackLocale: 'de' },
+      { code: 'ru' },
+    ],
     defaultLocale: 'en',
     fallbackLocale: 'en',
-    disablePageLocales: true,
+    // disablePageLocales: true,
     includeDefaultLocaleRoute: false,
   },
 })

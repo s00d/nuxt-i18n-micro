@@ -1,5 +1,10 @@
 <template>
-  <div>contact</div>
+  <div>
+    <div>contact</div>
+
+    <p>{{ $t('fallbackPage.value') }}</p>
+    <p>{{ $t('fallback.value') }}</p>
+  </div>
 </template>
 
 <script setup>

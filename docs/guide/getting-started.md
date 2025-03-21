@@ -420,29 +420,39 @@ Specifies the name of the cookie used to store the user's selected locale.
 **Type**: `string`  
 **Default**: `'user-locale'`
 
+
 ### 🌐 `fallbackLocale`
 
-Specifies a fallback locale to be used when the current locale does not have a specific translation available.
+Specifies a fallback locale to be used when a translation is missing for the current locale.
 
 **Type**: `string | undefined`  
 **Default**: `undefined`
 
+When resolving translations, the module uses the fallback locale in the following order:
+
+1. It first checks the global `fallbackLocale` defined in the main `i18n` configuration.
+2. If the current locale (from `locales`) has its own `fallbackLocale` defined, that will take **priority** over the global one.
+
+This allows you to set a general fallback while also customizing it per locale if needed.
+
 **Example**:
 
-```typescript
+```ts
 {
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: 'fr', iso: 'fr-FR', dir: 'ltr', fallbackLocale: 'es' }, // custom fallback for 'fr'
       { code: 'es', iso: 'es-ES', dir: 'ltr' }
     ],
     defaultLocale: 'en',
-    // Use English as a fallback locale
-    fallbackLocale: 'en'
+    fallbackLocale: 'en' // global fallback
   }
 }
 ```
+
+In this example, if a 'fr' translation is missing, it will fall back to 'fr' using the **per-locale fallback**. If a per-locale fallback is not defined, it will use the **global fallbackLocale**.
+
 
 ### 🌐 `noPrefixRedirect`
 

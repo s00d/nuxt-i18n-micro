@@ -37,6 +37,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404 })
   }
 
+  const currentLocaleConfig = locales?.find(l => l.code === locale) ?? null
+
   const getTranslationPath = (locale: string, page: string) =>
     page === 'general' ? `${locale}.json` : `pages/${page}/${locale}.json`
 
@@ -65,6 +67,7 @@ export default defineEventHandler(async (event) => {
 
   const paths = [
     ...(fallbackLocale && fallbackLocale !== locale ? createPaths(fallbackLocale) : []),
+    ...(currentLocaleConfig && currentLocaleConfig.fallbackLocale ? createPaths(currentLocaleConfig.fallbackLocale) : []),
     ...createPaths(locale),
   ]
 

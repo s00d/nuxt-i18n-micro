@@ -1,4 +1,7 @@
 {
+  "fallback": {
+    "value": "fallback de text"
+  },
   "key1": {
     "key1": {
       "key1": {

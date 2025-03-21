@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.80.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.79.0...v1.80.0)
+
+### 🚀 Enhancements
+
+- Add fallbackLocale configuration option to locale ([df64d4d](https://github.com/s00d/nuxt-i18n-micro/commit/df64d4d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.79.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.78.0...v1.79.0)

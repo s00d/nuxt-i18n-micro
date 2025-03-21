@@ -8,6 +8,7 @@ export interface Locale {
   displayName?: string
   baseUrl?: string
   baseDefault?: boolean
+  fallbackLocale?: string
   [key: string]: unknown
 }
 

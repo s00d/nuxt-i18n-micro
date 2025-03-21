@@ -1,1 +1,5 @@
-{}
+{
+  "fallbackPage": {
+    "value": "fallback  page en text"
+  }
+}

@@ -207,6 +207,34 @@ if (Array.isArray(source[key])) {
 - If you are building a translation editor, combine `load-cache` and `update` for read/write access.
 - You can extract helpers like `deepMerge()` or key/path generators into a separate utility file.
 
+## 🧹 Clearing All Server Cache
+
+The i18n system uses in-memory cache (not `useStorage`) to speed up translation lookups on the server side. This cache is automatically populated when translations are loaded.
+
+If you need to reset this cache (e.g. after editing translation files), you can call the `clearCache` method.
+
+### 🔁 Example: programmatic cache clearing from the client
+
+You can create a simple internal page that clears the cache when opened:
+
+```vue
+<template>
+  <div class="container">
+    <p>Clearing translation cache...</p>
+  </div>
+</template>
+
+<script setup>
+import { useNuxtApp } from '#imports'
+
+const { $clearCache } = useNuxtApp()
+
+$clearCache()
+</script>
+```
+
+You can use this page manually, call it after deployment, or trigger it from an admin panel.
+
 ---
 
 You now have full control over reading, updating and caching translations in your i18n system. You can adjust these routes to fit your needs, build admin tools, or integrate external translation APIs.

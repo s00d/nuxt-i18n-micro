@@ -125,5 +125,24 @@ export function useTranslationHelper() {
     async loadTranslations(locale: string, translations: Translations): Promise<void> {
       generalLocaleCache[locale] = { ...translations }
     },
+    clearCache() {
+      // Clear general cache
+      Object.keys(generalLocaleCache).forEach((key) => {
+        generalLocaleCache[key] = {}
+      })
+
+      // Clear route-specific cache
+      Object.keys(routeLocaleCache).forEach((key) => {
+        routeLocaleCache[key] = {}
+      })
+
+      // Clear dynamic caches
+      dynamicTranslationsCaches.length = 0
+
+      // Clear server translation cache
+      Object.keys(serverTranslationCache).forEach((key) => {
+        serverTranslationCache[key].clear()
+      })
+    },
   }
 }

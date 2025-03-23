@@ -199,6 +199,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const fromLocale = routeService.getCurrentLocale(route)
       return routeService.switchLocaleRoute(fromLocale, toLocale, route as RouteLocationResolvedGeneric, unref(i18nRouteParams.value))
     },
+    clearCache: () => {
+      i18nHelper.clearCache()
+    },
     switchLocalePath: (toLocale: string) => {
       const route = routeService.getCurrentRoute()
       const fromLocale = routeService.getCurrentLocale(route)

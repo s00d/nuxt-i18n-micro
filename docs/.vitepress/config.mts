@@ -49,6 +49,7 @@ export default defineConfig({
         items: [
           { text: 'Methods', link: '/api/methods' },
           { text: 'Events', link: '/api/events' },
+          { text: 'Translations and Cache', link: '/api/i18n-cache-api' },
         ],
       },
       { text: 'Examples', link: '/examples' },
@@ -124,6 +125,7 @@ export default defineConfig({
           items: [
             { text: 'Methods', link: '/methods' },
             { text: 'Events', link: '/events' },
+            { text: 'Translations and Cache', link: '/api/i18n-cache-api' },
           ],
         },
       ],

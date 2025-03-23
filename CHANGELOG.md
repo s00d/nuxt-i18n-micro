@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v1.81.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.80.0...v1.81.0)
+
+### 🚀 Enhancements
+
+- **core:** Add cache clearing functionality for translations ([e50d70a](https://github.com/s00d/nuxt-i18n-micro/commit/e50d70a))
+
+### 📖 Documentation
+
+- **i18n-cache-api:** Add documentation for translation caching and loading ([8e3f426](https://github.com/s00d/nuxt-i18n-micro/commit/8e3f426))
+- **i18n-cache-api:** Remove outdated cache clearing example ([9ad49b6](https://github.com/s00d/nuxt-i18n-micro/commit/9ad49b6))
+- **i18n-cache-api:** Add instructions for clearing server cache ([902c424](https://github.com/s00d/nuxt-i18n-micro/commit/902c424))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.80.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.79.0...v1.80.0)

@@ -200,34 +200,6 @@ if (Array.isArray(source[key])) {
 }
 ```
 
-## 🔃 Clear all cache
-
-### Server route
-
-```ts
-// server/api/i18n/clear-cache.[post].ts
-import { defineEventHandler } from 'h3'
-import { useStorage } from '#imports'
-
-export default defineEventHandler(async () => {
-  const storage = useStorage('assets:server')
-  const keys = await storage.getKeys('_locales')
-  await Promise.all(keys.map(key => storage.removeItem(key)))
-
-  return {
-    cleared: keys.length
-  }
-})
-```
-
-### Example usage
-
-```ts
-await $fetch('/api/i18n/clear-cache', {
-  method: 'POST'
-})
-```
-
 ## 💡 Tips for Developers
 
 - Cache keys always match translation file paths, prefixed with `_locales/`.
@@ -237,4 +209,4 @@ await $fetch('/api/i18n/clear-cache', {
 
 ---
 
-You now have full control over reading, updating, caching, and clearing translations in your i18n system. You can adjust these routes to fit your needs, build admin tools, or integrate external translation APIs.
+You now have full control over reading, updating and caching translations in your i18n system. You can adjust these routes to fit your needs, build admin tools, or integrate external translation APIs.

@@ -181,8 +181,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const currentLocale = routeService.getCurrentLocale()
       return translationService.formatRelativeTime(value, currentLocale, options)
     },
-    has: (key: string): boolean => {
-      return !!provideData.t(key, {}, null)
+    has: (key: string, route?: RouteLocationNormalizedLoaded): boolean => {
+      route = route ?? routeService.getCurrentRoute()
+      const locale = routeService.getCurrentLocale()
+      const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
+      return !!i18nHelper.getTranslation(locale, routeName, key)
     },
     mergeTranslations: (newTranslations: Translations) => {
       const route = routeService.getCurrentRoute()

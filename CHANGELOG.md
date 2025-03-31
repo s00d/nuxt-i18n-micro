@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.82.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.81.0...v1.82.0)
+
+### 🚀 Enhancements
+
+- **plugins:** Change has ([55dcb4d](https://github.com/s00d/nuxt-i18n-micro/commit/55dcb4d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.81.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.80.0...v1.81.0)

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.83.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.82.0...v1.83.0)
+
+### 🚀 Enhancements
+
+- **i18n:** Add route-aware translation functionality ([cd26b4c](https://github.com/s00d/nuxt-i18n-micro/commit/cd26b4c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.82.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.81.0...v1.82.0)

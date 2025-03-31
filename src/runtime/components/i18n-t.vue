@@ -3,7 +3,7 @@ import { h, defineComponent } from 'vue'
 import type { VNode, PropType } from 'vue'
 import type { PluralFunc } from 'nuxt-i18n-micro-types'
 import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
-import { useNuxtApp } from '#imports'
+import { useNuxtApp, useRoute } from '#imports'
 
 export default defineComponent({
   name: 'I18nT',
@@ -53,7 +53,9 @@ export default defineComponent({
     return () => {
       const options: Record<string, string | number | boolean> = {}
 
-      const { $getLocale, $t, $tc, $tn, $td, $tdr } = useNuxtApp() as unknown as PluginsInjections
+      const { $getLocale, $_t, $tc, $tn, $td, $tdr } = useNuxtApp() as unknown as PluginsInjections
+      const route = useRoute()
+      const $t = $_t(route)
 
       if (props.number !== undefined) {
         const numberValue = Number(props.number)

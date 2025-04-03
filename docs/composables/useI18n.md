@@ -159,12 +159,3 @@ Generate a route localized to the current or specified locale.
 const { $localeRoute } = useI18n()
 const route = $localeRoute('/about', 'fr')
 ```
-
-### Loading Page-Specific Translations
-
-Lazy-load translations for a specific page and locale.
-
-```js
-const { $loadPageTranslations } = useI18n()
-await $loadPageTranslations('de', 'dashboard')
-```

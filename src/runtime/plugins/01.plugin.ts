@@ -6,7 +6,7 @@ import type {
   RouteLocationNamedRaw,
 } from 'vue-router'
 import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService } from 'nuxt-i18n-micro-core'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translation, Translations } from 'nuxt-i18n-micro-types'
+import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation } from 'nuxt-i18n-micro-types'
 import { useRouter, useCookie, useState, unref, navigateTo, defineNuxtPlugin, useRuntimeConfig } from '#imports'
 import { plural } from '#build/i18n.plural.mjs'
 
@@ -133,7 +133,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const selectedRoute = route ?? routeService.getCurrentRoute()
       return routeService.getRouteName(selectedRoute as RouteLocationResolvedGeneric, selectedLocale)
     },
-    t: (key: string, params?: Params, defaultValue?: string | null, route?: RouteLocationNormalizedLoaded): Translation => {
+    t: (key: string, params?: Params, defaultValue?: string | null, route?: RouteLocationNormalizedLoaded): CleanTranslation => {
       if (!key) return ''
       route = route ?? routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale()
@@ -147,14 +147,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         value = defaultValue === undefined ? key : defaultValue
       }
 
-      return typeof value === 'string' && params ? interpolate(value, params) : value
+      return typeof value === 'string' && params ? interpolate(value, params) : value as CleanTranslation
     },
     ts: (key: string, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
       const value = provideData.t(key, params, defaultValue, route)
       return value?.toString() ?? defaultValue ?? key
     },
     _t: (route: RouteLocationNormalizedLoaded) => {
-      return (key: string, params?: Params, defaultValue?: string | null): Translation => {
+      return (key: string, params?: Params, defaultValue?: string | null): CleanTranslation => {
         return provideData.t(key, params, defaultValue, route)
       }
     },
@@ -266,10 +266,10 @@ export interface PluginsInjections {
   $getLocales: () => Locale[]
   $defaultLocale: () => string | undefined
   $getRouteName: (route?: RouteLocationNamedRaw | RouteLocationResolvedGeneric, locale?: string) => string
-  $t: (key: string, params?: Params, defaultValue?: string | null) => Translation
-  $_t: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => Translation
+  $t: (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+  $_t: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
   $ts: (key: string, params?: Params, defaultValue?: string) => string
-  $_ts: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => Translation
+  $_ts: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => string
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string

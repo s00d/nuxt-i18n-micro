@@ -49,7 +49,7 @@ const locale = $getLocaleName()
 
 ### `$t`
 
-- **Type**: `<T extends Record<string, string | number | boolean>>(key: string, params?: T, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | unknown[] | unknown | null`
+- **Type**: `<T extends Record<string, string | number | boolean>>(key: string, params?: T, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | null`
 - **Description**: Translates a given key to the corresponding localized string, optionally replacing placeholders with provided parameters and falling back to a default value if the key is not found.
 - **Example**:
   ```js

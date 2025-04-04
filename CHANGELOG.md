@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v1.83.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.0...v1.83.1)
+
+### 🩹 Fixes
+
+- **types:** Allow `unknown` type in `Translation` definition ([e98d4c9](https://github.com/s00d/nuxt-i18n-micro/commit/e98d4c9))
+
+### 💅 Refactors
+
+- **types:** Remove 'unknown' from Translation type definition ([f5000c9](https://github.com/s00d/nuxt-i18n-micro/commit/f5000c9))
+- **types:** Rename `Translation` to `CleanTranslation` and update types ([0eb519e](https://github.com/s00d/nuxt-i18n-micro/commit/0eb519e))
+
+### 📖 Documentation
+
+- **useI18n:** Remove outdated section on page-specific translations ([2e9c7ec](https://github.com/s00d/nuxt-i18n-micro/commit/2e9c7ec))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.83.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.82.0...v1.83.0)

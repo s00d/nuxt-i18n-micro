@@ -77,7 +77,7 @@ export interface PluralTranslations {
   plural: string
 }
 
-export type Translation = string | number | boolean | Translations | PluralTranslations | unknown | null
+export type Translation = string | number | boolean | Translations | PluralTranslations | null
 
 export interface Translations {
   [key: string]: Translation

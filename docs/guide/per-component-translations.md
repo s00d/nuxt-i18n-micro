@@ -62,7 +62,7 @@ $defineI18nRoute({
    })
    ```
 
-2. **Providing Translations for Locales:** Use the `locales` object to provide specific translations for each route, enhancing the user experience by delivering content in the user's preferred language.
+2. **Providing Translations for Locales:** Use the `locales` object to provide specific translations for each route, enhancing the user experience by delivering content in the user's preferred language. This is especially useful in situations where you need to translate content outside of a page: component translation, independant package…
 
    ```typescript
    import { useNuxtApp } from '#imports'
@@ -129,6 +129,14 @@ $defineI18nRoute({
 - **Custom Routing:** The `localeRoutes` property is used to set specific paths for different locales. This allows for unique navigational flows based on the user's language preference.
 
 This setup enables the component to display localized greetings and farewells based on the current locale, and it also allows for custom routes tailored to specific locales, enhancing the user experience by delivering content in the preferred language and structure.
+
+## Performance
+
+Embedding translations in Single File Components (SFCs) can impact performance by:
+- Increasing file size, as all locales reside in the SFC, unlike separate translation files that enable locale-aware loading.
+- Slowing rendering, since in-file translations are processed at runtime.
+
+For optimal performance, use page-by-page translations, which manage duplicate text efficiently and minimize overhead. Reserve component-level translations for specific cases, like reusable components published on npm or translations unsuitable for global files. Balance your project’s needs—performance or modularity—when choosing an approach.
 
 ## Summary
 

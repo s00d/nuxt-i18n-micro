@@ -75,6 +75,55 @@ $defineI18nRoute({
 - **Documentation Sites**: Provide distinct routes for each locale to better match the localized content structure.
 - **E-commerce Sites**: Tailor product or category URLs per locale for improved SEO and user experience.
 
+## Using Navigation with `localeRoutes`
+
+As localised routes don't directly match filenames in the page directory, you need to reference your navigation by object rather than by name.
+
+```vue
+<template>
+  /**
+   * Exemple page: /pages/about-us.vue
+   * EN /about-us
+   * ES /sobre-nosotros
+   * FR /a-propos
+   */
+  
+  // Using NuxtLink
+  <NuxtLink :to="$localeRoute({ name: 'about-us' })">
+    Go to About Page
+  </NuxtLink>
+  
+  // Using I18nLink
+  <I18nLink :to="{ name: 'about-us' }">
+    Go to About Page
+  </NuxtLink>
+  
+  // The string literal navigation wouldn't work for any locale but english
+  <I18nLink to="/about-us">
+    Go to About Page
+  </NuxtLink>
+</template>
+```
+
+### Nested Page Naming
+
+By default, your pages are named based on their file & path name. Here's what it means:
+- `/pages/about-us.vue` can be accessed with `$localeRoute({ name: 'about-us' })`
+- `/pages/about-us/physical-stores.vue` can be accessed with `$localeRoute({ name: 'about-us-physical-stores' })`
+
+To override this behaviour, explicitly name your page with `definePageMeta`.
+
+```vue
+// /pages/about-us/physical-stores.vue
+<script setup>
+definePageMeta({
+  name: 'our-stores'
+})
+```
+
+
+This page can now be referenced with either `$localeRoute` or `I18nLink` by its name `:to='{ name: "our-stores" }'`.
+
 ## 📝 Best Practices for Using `localeRoutes`
 
 - **🚀 Use for Relevant Locales**: Apply `localeRoutes` primarily where the URL structure significantly impacts the user experience or SEO. Avoid overuse for minor differences.

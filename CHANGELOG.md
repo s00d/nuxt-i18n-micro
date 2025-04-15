@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.83.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.2...v1.83.3)
+
+### 🩹 Fixes
+
+- **redirects:** Support no-prefix strategy in redirect handling ([f519509](https://github.com/s00d/nuxt-i18n-micro/commit/f519509))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.83.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.1...v1.83.2)

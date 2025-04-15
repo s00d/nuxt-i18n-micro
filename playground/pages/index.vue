@@ -1,5 +1,7 @@
 <template>
   <div>
+    <Navigation />
+
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
     <p>{{ $t('hook') }}</p>
     <p>Current Locale: {{ currentLocale }}</p>
@@ -8,14 +10,20 @@
     <!-- Ссылки для переключения локалей -->
     <div>
       <button
-        v-for="locale in availableLocales"
+        v-for="locale in currentLocales"
         :key="locale.code"
-        :disabled="locale.isActive"
-        :class="{ disabled: locale.isActive }"
+        :disabled="locale.code === currentLocale"
+        :class="{ disabled: locale.code === currentLocale }"
         @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}
       </button>
+    </div>
+
+    <div>
+      <i18n-switcher
+        :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }"
+      />
     </div>
 
     <p id="localized-route">
@@ -88,12 +96,6 @@
 
     <a href="/">test</a>
 
-    <div>
-      <i18n-switcher
-        :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }"
-      />
-    </div>
-
     <div
       v-for="key in generatedKeys"
       :key="key"
@@ -104,19 +106,14 @@
 </template>
 
 <script setup>
+import Navigation from '~/components/navigation.vue'
+
 const { localeRoute, localePath, $getLocales, $getLocale, $switchLocale, $t, $has, $getRouteName, $switchRoute } = useI18n()
 const { $defineI18nRoute } = useNuxtApp()
 
 const currentLocales = ref($getLocales())
 const currentLocale = computed(() => $getLocale())
 const currentRouteName = computed(() => $getRouteName())
-
-const availableLocales = computed(() =>
-  currentLocales.value.map(locale => ({
-    code: locale.code,
-    isActive: locale.code === currentLocale.value,
-  })),
-)
 
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {

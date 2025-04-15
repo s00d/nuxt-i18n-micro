@@ -1,5 +1,8 @@
 {
+  "contact": {
+    "title": "Contact EN"
+  },
   "fallbackPage": {
-    "value": "fallback  page en text"
+    "value": "fallback page en text"
   }
 }

@@ -3,6 +3,10 @@
   "fallback": {
     "value": "fallback en text"
   },
+  "navigation_component": {
+    "title": "Navigation EN",
+    "home": "Home"
+  },
   "key1": {
     "key1": {
       "key1": {

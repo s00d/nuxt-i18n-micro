@@ -195,6 +195,9 @@ export class PageManager {
   }
 
   adjustRouteForDefaultLocale(page: NuxtPage, originalChildren: NuxtPage[]) {
+    if (isNoPrefixStrategy(this.strategy)) {
+      return
+    }
     const defaultLocalePath = this.localizedPaths[page.path]?.[this.defaultLocale.code]
     if (defaultLocalePath) {
       page.path = normalizePath(defaultLocalePath)
@@ -249,15 +252,13 @@ export class PageManager {
       const customPath = this.localizedPaths[fullPath]?.[locale.code]
       if (!customPath) return
 
-      const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy))
+      const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy) || isNoPrefixStrategy(this.strategy))
       if (isDefaultLocale) {
         page.children = this.createLocalizedChildren(originalChildren, '', [locale.code], false)
       }
       else {
         const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex)
         if (newRoute) additionalRoutes.push(newRoute)
-
-        if (this.noPrefixRedirect && isNoPrefixStrategy(this.strategy) && newRoute) page.redirect = newRoute.path
       }
 
       if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {

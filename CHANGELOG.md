@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v1.83.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.1...v1.83.2)
+
+### 🩹 Fixes
+
+- **types:** Allow `unknown` type in `Translation` definition ([85f8d41](https://github.com/s00d/nuxt-i18n-micro/commit/85f8d41))
+- **page-manager:** Handle no prefix strategy in route adjustments ([aae20c2](https://github.com/s00d/nuxt-i18n-micro/commit/aae20c2))
+
+### 💅 Refactors
+
+- **types:** Rename `Translation` to `CleanTranslation` and update types ([c814477](https://github.com/s00d/nuxt-i18n-micro/commit/c814477))
+
+### 📖 Documentation
+
+- **$defineI18nRoute:** Clarify use-cases & add performance implications ([0f337dc](https://github.com/s00d/nuxt-i18n-micro/commit/0f337dc))
+- **localeRoutes:** Clarify navigation constraints when using localised routes ([cfad775](https://github.com/s00d/nuxt-i18n-micro/commit/cfad775))
+
+### 🏡 Chore
+
+- **release:** V1.83.1 ([fe2ed7b](https://github.com/s00d/nuxt-i18n-micro/commit/fe2ed7b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Buzut ([@Buzut](http://github.com/Buzut))
+
 ## v1.83.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.0...v1.83.1)

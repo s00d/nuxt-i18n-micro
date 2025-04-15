@@ -62,13 +62,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   if (import.meta.server) {
-    if (isPrefixStrategy(i18nConfig.strategy!)) {
+    if (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!)) {
       await handleRedirect(route)
     }
   }
 
   router.beforeEach(async (to, from, next) => {
-    if (isPrefixStrategy(i18nConfig.strategy!)) {
+    if (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!)) {
       await handleRedirect(to)
     }
     if (next) {

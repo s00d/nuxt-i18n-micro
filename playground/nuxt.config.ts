@@ -59,6 +59,8 @@ export default defineNuxtConfig({
 
     // 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
     strategy: 'prefix',
+    // strategy: 'no_prefix',
+    // noPrefixRedirect: true,
     globalLocaleRoutes: {
       // pages/page.vue
       'page': {

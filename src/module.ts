@@ -10,7 +10,6 @@ import {
   addTypeTemplate,
   createResolver,
   defineNuxtModule,
-  extendPages,
   useLogger,
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
@@ -235,7 +234,7 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    extendPages((pages) => {
+    nuxt.hook('pages:resolved', (pages) => {
       const prerenderRoutes: string[] = []
 
       const pagesNames = pages

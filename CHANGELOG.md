@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.83.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.3...v1.83.4)
+
+### 💅 Refactors
+
+- **module:** Replace `extendPages` with `nuxt.hook('pages:resolved')` ([8108f47](https://github.com/s00d/nuxt-i18n-micro/commit/8108f47))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.83.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.2...v1.83.3)

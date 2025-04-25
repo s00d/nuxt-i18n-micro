@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.84.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.84.0...v1.84.1)
+
+### 💅 Refactors
+
+- **page-manager:** Improve dynamic route detection logic ([b2e8851](https://github.com/s00d/nuxt-i18n-micro/commit/b2e8851))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.84.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.4...v1.84.0)

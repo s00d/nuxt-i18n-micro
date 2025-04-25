@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v1.84.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.4...v1.84.0)
+
+### 🚀 Enhancements
+
+- **page-manager:** Enhance localization handling for dynamic routes ([1eea287](https://github.com/s00d/nuxt-i18n-micro/commit/1eea287))
+
+### ✅ Tests
+
+- **pages-manager:** Enhance tests for localized page structure ([2ed5e91](https://github.com/s00d/nuxt-i18n-micro/commit/2ed5e91))
+- **undefault:** Add tests for localized routes in post section pages ([e338443](https://github.com/s00d/nuxt-i18n-micro/commit/e338443))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.83.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.83.3...v1.83.4)

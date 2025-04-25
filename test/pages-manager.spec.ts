@@ -87,34 +87,52 @@ test.describe('PageManager', () => {
     // Extend pages
     pageManager.extendPages(pages)
 
-    // Фильтрация оригинальных страниц
-    const originalPages = pages.filter(page => !page.path.includes('/:locale'))
+    const root = pages.find(p => p.path?.startsWith('/:locale'))!
+    expect(root.path).toBe('/:locale(de|ru)/activity')
+    expect(root.name).toBe('localized-ActivityParent')
+    expect(root.children?.length).toBe(4)
 
-    // Проверка оригинальных страниц
-    expect(originalPages).toHaveLength(1) // Ожидаем одну исходную страницу
-    expect(originalPages[0].path).toBe('/activity')
-    expect(originalPages[0].children).toHaveLength(2) // Оригинальные дети
+    const c = root.children!
 
-    // Фильтрация локализованных страниц
-    const localizedPages = pages.filter(page => page.path.includes('/:locale'))
+    // --- Skiing de ---
+    expect(c[0].name).toBe('localized-Skiing-de')
+    expect(c[0].path).toBe('skiing')
+    expect(c[0].children![0].name).toBe('localized-SkiingDetails-de')
+    expect(c[0].children![0].path).toBe('details')
+    expect(c[0].children![0].children![0].name).toBe('localized-SkiingInfo-de')
+    expect(c[0].children![0].children![0].path).toBe('info')
+    expect(c[0].children![0].children![0].children![0].name).toBe('localized-SkiingDeepInfo-de')
+    expect(c[0].children![0].children![0].children![0].path).toBe('deep')
 
-    // Проверка локализованных страниц
-    expect(localizedPages).toHaveLength(1) // Проверяем основное дерево и локализованное дерево
-    expect(localizedPages[0].path).toBe('/:locale(de|ru)/activity')
-    expect(localizedPages[0].children).toHaveLength(4) // Локализованные дети для каждого языка
+    // --- Skiing ru ---
+    expect(c[1].name).toBe('localized-Skiing-ru')
+    expect(c[1].path).toBe('skiing')
+    expect(c[1].children![0].name).toBe('localized-SkiingDetails-ru')
+    expect(c[1].children![0].path).toBe('details')
+    expect(c[1].children![0].children![0].name).toBe('localized-SkiingInfo-ru')
+    expect(c[1].children![0].children![0].path).toBe('info')
+    expect(c[1].children![0].children![0].children![0].name).toBe('localized-SkiingDeepInfo-ru')
+    expect(c[1].children![0].children![0].children![0].path).toBe('deep')
 
-    // Проверка детей до 4 уровня вложенности
-    const skiingLocalizedChildren = localizedPages[0].children?.find(child => child.name?.includes('Skiing'))?.children
-    expect(skiingLocalizedChildren).toHaveLength(2) //  de, ru
+    // --- Hiking de ---
+    expect(c[2].name).toBe('localized-Hiking-de')
+    expect(c[2].path).toBe('hiking')
+    expect(c[2].children![0].name).toBe('localized-HikingDetails-de')
+    expect(c[2].children![0].path).toBe('details')
+    expect(c[2].children![0].children![0].name).toBe('localized-HikingInfo-de')
+    expect(c[2].children![0].children![0].path).toBe('info')
+    expect(c[2].children![0].children![0].children![0].name).toBe('localized-HikingDeepInfo-de')
+    expect(c[2].children![0].children![0].children![0].path).toBe('deep')
 
-    const skiingDetailsLocalized = skiingLocalizedChildren?.[0].children
-    expect(skiingDetailsLocalized).toHaveLength(2) // de, ru
-
-    const skiingInfoLocalized = skiingDetailsLocalized?.[0].children
-    expect(skiingInfoLocalized).toHaveLength(2) // de, ru
-
-    const skiingDeepInfoLocalized = skiingInfoLocalized?.[0].children
-    expect(skiingDeepInfoLocalized).toHaveLength(0) // de, ru
+    // --- Hiking ru ---
+    expect(c[3].name).toBe('localized-Hiking-ru')
+    expect(c[3].path).toBe('hiking')
+    expect(c[3].children![0].name).toBe('localized-HikingDetails-ru')
+    expect(c[3].children![0].path).toBe('details')
+    expect(c[3].children![0].children![0].name).toBe('localized-HikingInfo-ru')
+    expect(c[3].children![0].children![0].path).toBe('info')
+    expect(c[3].children![0].children![0].children![0].name).toBe('localized-HikingDeepInfo-ru')
+    expect(c[3].children![0].children![0].children![0].path).toBe('deep')
   })
 
   test('should handle default locale routes correctly', async () => {

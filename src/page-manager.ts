@@ -274,8 +274,20 @@ export class PageManager {
     localeCodes: string[],
     modifyName = true,
     addLocalePrefix = false,
+    parentIsLocalized = false,
+    localizedParentPaths: Record<string, string> = {},
   ): NuxtPage[] {
-    return routes.flatMap(route => this.createLocalizedVariants(route, parentPath, localeCodes, modifyName, addLocalePrefix))
+    return routes.flatMap(route =>
+      this.createLocalizedVariants(
+        route,
+        parentPath,
+        localeCodes,
+        modifyName,
+        addLocalePrefix,
+        parentIsLocalized,
+        localizedParentPaths,
+      ),
+    )
   }
 
   private createLocalizedVariants(
@@ -284,13 +296,79 @@ export class PageManager {
     localeCodes: string[],
     modifyName: boolean,
     addLocalePrefix: boolean,
+    parentIsLocalized: boolean,
+    localizedParentPaths: Record<string, string>,
   ): NuxtPage[] {
     const routePath = normalizePath(route.path)
+
+    const isDynamic = routePath.startsWith(':')
     const fullPath = normalizePath(path.posix.join(parentPath, routePath))
     const customLocalePaths = this.localizedPaths[fullPath]
-    const localizedChildren = this.createLocalizedChildren(route.children ?? [], fullPath, localeCodes, modifyName)
 
-    return localeCodes.map(locale => this.createLocalizedChildRoute(route, routePath, locale, customLocalePaths, localizedChildren, modifyName, addLocalePrefix))
+    if (isDynamic && !customLocalePaths) {
+      // Если динамический маршрут без кастомных путей — создаем один общий
+      const localizedChildren = this.createLocalizedChildren(
+        route.children ?? [],
+        fullPath,
+        localeCodes,
+        modifyName,
+        addLocalePrefix,
+        true,
+        localizedParentPaths,
+      )
+
+      const baseName = buildRouteNameFromRoute(route.name, route.path)
+
+      return [
+        {
+          ...route,
+          name: modifyName ? `localized-${baseName}` : baseName,
+          path: removeLeadingSlash(routePath),
+          children: localizedChildren,
+        },
+      ]
+    }
+
+    // обычный случай — размножаем по локалям
+    const result: NuxtPage[] = []
+
+    for (const locale of localeCodes) {
+      const parentPathLocalized = localizedParentPaths[locale] || parentPath
+      const fullPath = normalizePath(path.posix.join(parentPathLocalized, routePath))
+
+      const localizedChildren = this.createLocalizedChildren(
+        route.children ?? [],
+        fullPath,
+        [locale],
+        modifyName,
+        addLocalePrefix,
+        true,
+        localizedParentPaths,
+      )
+
+      const routeName = this.buildLocalizedRouteName(
+        buildRouteNameFromRoute(route.name, route.path),
+        locale,
+        modifyName,
+        parentIsLocalized || !!customLocalePaths,
+      )
+
+      const finalPath = this.buildLocalizedRoutePath(
+        routePath,
+        locale,
+        customLocalePaths,
+        addLocalePrefix,
+      )
+
+      result.push({
+        ...route,
+        name: routeName,
+        path: removeLeadingSlash(finalPath),
+        children: localizedChildren,
+      })
+    }
+
+    return result
   }
 
   private createLocalizedRoute(
@@ -308,29 +386,9 @@ export class PageManager {
 
     return {
       ...page,
-      children: this.createLocalizedChildren(originalChildren, page.path, localeCodes, true),
+      children: this.createLocalizedChildren(originalChildren, page.path, localeCodes, true, false, true),
       path: routePath,
       name: routeName,
-    }
-  }
-
-  private createLocalizedChildRoute(
-    route: NuxtPage,
-    routePath: string,
-    locale: string,
-    customLocalePaths: { [locale: string]: string } | undefined,
-    children: NuxtPage[],
-    modifyName: boolean,
-    addLocalePrefix: boolean,
-  ): NuxtPage {
-    const finalPath = this.buildLocalizedRoutePath(routePath, locale, customLocalePaths, addLocalePrefix)
-    const routeName = this.buildLocalizedRouteName(buildRouteNameFromRoute(route.name, route.path), locale, modifyName)
-
-    return {
-      ...route,
-      name: routeName,
-      path: removeLeadingSlash(finalPath),
-      children: children,
     }
   }
 
@@ -348,8 +406,21 @@ export class PageManager {
       : normalizedBasePath
   }
 
-  private buildLocalizedRouteName(baseName: string, locale: string, modifyName: boolean): string {
-    return modifyName && !isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy) || isPrefixAndDefaultStrategy(this.strategy)) ? `localized-${baseName}-${locale}` : baseName
+  private buildLocalizedRouteName(baseName: string, locale: string, modifyName: boolean, forceLocaleSuffix = false): string {
+    if (!modifyName) {
+      return baseName
+    }
+
+    if (forceLocaleSuffix) {
+      return `localized-${baseName}-${locale}`
+    }
+
+    const shouldAddLocaleSuffix
+      = locale && !isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy) || isPrefixAndDefaultStrategy(this.strategy))
+
+    return shouldAddLocaleSuffix
+      ? `localized-${baseName}-${locale}`
+      : `localized-${baseName}`
   }
 
   private buildRoutePath(

@@ -54,7 +54,7 @@ export class PageManager {
 
     const additionalRoutes: NuxtPage[] = []
     pages.forEach((page) => {
-      if (!page.name) {
+      if (!page.name && page.file?.endsWith('.vue')) {
         console.warn(`[nuxt-i18n-next] Page name is missing for the file: ${page.file}`)
       }
       const customRoute = this.globalLocaleRoutes[page.name ?? ''] ?? null
@@ -301,7 +301,7 @@ export class PageManager {
   ): NuxtPage[] {
     const routePath = normalizePath(route.path)
 
-    const isDynamic = routePath.startsWith(':')
+    const isDynamic = /(?:^|\/):/.test(routePath)
     const fullPath = normalizePath(path.posix.join(parentPath, routePath))
     const customLocalePaths = this.localizedPaths[fullPath]
 

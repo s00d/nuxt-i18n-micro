@@ -42,4 +42,21 @@ test.describe('undefault', () => {
     await page.click('#link-de')
     await expect(page).toHaveURL('/de/custom-page2-de')
   })
+
+  test('should correctly render post section pages with localized routes', async ({ page, goto }) => {
+    // Проверка на немецком
+    await goto('/de/post/1/all/s2', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('#name')).toHaveText('de')
+    await expect(page.locator('#name-page')).toHaveText('de page')
+
+    // Проверка на английском
+    await goto('/en/post/1/all/s2', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('#name')).toHaveText('en')
+    await expect(page.locator('#name-page')).toHaveText('en page')
+
+    // Проверка на русском
+    await goto('/ru/post/1/all/s2', { waitUntil: 'domcontentloaded' })
+    await expect(page.locator('#name')).toHaveText('ru')
+    await expect(page.locator('#name-page')).toHaveText('ru page')
+  })
 })

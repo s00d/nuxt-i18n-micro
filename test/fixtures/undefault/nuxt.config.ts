@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     includeDefaultLocaleRoute: true,
     routesLocaleLinks: {
       'dir1-slug': 'index',
+      'post-id-status-section': 'post-id',
     },
     globalLocaleRoutes: {
       page2: {

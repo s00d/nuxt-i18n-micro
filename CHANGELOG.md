@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.85.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.84.1...v1.85.0)
+
+### 🚀 Enhancements
+
+- **page-manager:** Improve route localization handling and structure ([aeafb5e](https://github.com/s00d/nuxt-i18n-micro/commit/aeafb5e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.84.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.84.0...v1.84.1)

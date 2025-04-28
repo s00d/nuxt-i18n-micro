@@ -90,49 +90,29 @@ test.describe('PageManager', () => {
     const root = pages.find(p => p.path?.startsWith('/:locale'))!
     expect(root.path).toBe('/:locale(de|ru)/activity')
     expect(root.name).toBe('localized-ActivityParent')
-    expect(root.children?.length).toBe(4)
+    expect(root.children?.length).toBe(2)
 
     const c = root.children!
 
-    // --- Skiing de ---
-    expect(c[0].name).toBe('localized-Skiing-de')
+    // --- Skiing ---
+    expect(c[0].name).toBe('localized-Skiing')
     expect(c[0].path).toBe('skiing')
-    expect(c[0].children![0].name).toBe('localized-SkiingDetails-de')
+    expect(c[0].children![0].name).toBe('localized-SkiingDetails')
     expect(c[0].children![0].path).toBe('details')
-    expect(c[0].children![0].children![0].name).toBe('localized-SkiingInfo-de')
+    expect(c[0].children![0].children![0].name).toBe('localized-SkiingInfo')
     expect(c[0].children![0].children![0].path).toBe('info')
-    expect(c[0].children![0].children![0].children![0].name).toBe('localized-SkiingDeepInfo-de')
+    expect(c[0].children![0].children![0].children![0].name).toBe('localized-SkiingDeepInfo')
     expect(c[0].children![0].children![0].children![0].path).toBe('deep')
 
-    // --- Skiing ru ---
-    expect(c[1].name).toBe('localized-Skiing-ru')
-    expect(c[1].path).toBe('skiing')
-    expect(c[1].children![0].name).toBe('localized-SkiingDetails-ru')
-    expect(c[1].children![0].path).toBe('details')
-    expect(c[1].children![0].children![0].name).toBe('localized-SkiingInfo-ru')
-    expect(c[1].children![0].children![0].path).toBe('info')
-    expect(c[1].children![0].children![0].children![0].name).toBe('localized-SkiingDeepInfo-ru')
-    expect(c[1].children![0].children![0].children![0].path).toBe('deep')
-
     // --- Hiking de ---
-    expect(c[2].name).toBe('localized-Hiking-de')
-    expect(c[2].path).toBe('hiking')
-    expect(c[2].children![0].name).toBe('localized-HikingDetails-de')
-    expect(c[2].children![0].path).toBe('details')
-    expect(c[2].children![0].children![0].name).toBe('localized-HikingInfo-de')
-    expect(c[2].children![0].children![0].path).toBe('info')
-    expect(c[2].children![0].children![0].children![0].name).toBe('localized-HikingDeepInfo-de')
-    expect(c[2].children![0].children![0].children![0].path).toBe('deep')
-
-    // --- Hiking ru ---
-    expect(c[3].name).toBe('localized-Hiking-ru')
-    expect(c[3].path).toBe('hiking')
-    expect(c[3].children![0].name).toBe('localized-HikingDetails-ru')
-    expect(c[3].children![0].path).toBe('details')
-    expect(c[3].children![0].children![0].name).toBe('localized-HikingInfo-ru')
-    expect(c[3].children![0].children![0].path).toBe('info')
-    expect(c[3].children![0].children![0].children![0].name).toBe('localized-HikingDeepInfo-ru')
-    expect(c[3].children![0].children![0].children![0].path).toBe('deep')
+    expect(c[1].name).toBe('localized-Hiking')
+    expect(c[1].path).toBe('hiking')
+    expect(c[1].children![0].name).toBe('localized-HikingDetails')
+    expect(c[1].children![0].path).toBe('details')
+    expect(c[1].children![0].children![0].name).toBe('localized-HikingInfo')
+    expect(c[1].children![0].children![0].path).toBe('info')
+    expect(c[1].children![0].children![0].children![0].name).toBe('localized-HikingDeepInfo')
+    expect(c[1].children![0].children![0].children![0].path).toBe('deep')
   })
 
   test('should handle default locale routes correctly', async () => {
@@ -147,7 +127,7 @@ test.describe('PageManager', () => {
 
     // Check if the route for the default locale is adjusted correctly
     expect(page.path).toBe('/activity')
-    expect(page.children).toHaveLength(1) // Original and localized
+    expect(page.children).toHaveLength(1)
     expect(page.children).toEqual(
       expect.arrayContaining([
         { path: 'skiing', name: 'Skiing', children: [] },
@@ -167,19 +147,18 @@ test.describe('PageManager', () => {
 
     // Check if the route for the default locale is adjusted correctly
     expect(pages[0].path).toBe('/activity')
-    expect(pages[1].path).toBe('/:locale(de|ru)/activity')
-    expect(pages[0].children).toHaveLength(1) // Original and localized
+    expect(pages[0].children).toHaveLength(1)
     expect(pages[0].children).toEqual(
       expect.arrayContaining([
         { path: 'skiing', name: 'Skiing', children: [] },
       ]),
     )
 
-    expect(pages[1].children).toHaveLength(2)
+    expect(pages[1].path).toBe('/:locale(de|ru)/activity')
+    expect(pages[1].children).toHaveLength(1)
     expect(pages[1].children).toEqual(
       expect.arrayContaining([
-        { path: 'skiing', name: 'localized-Skiing-de', children: [] },
-        { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
+        { path: 'skiing', name: 'localized-Skiing', children: [] },
       ]),
     )
   })
@@ -200,12 +179,10 @@ test.describe('PageManager', () => {
     expect(pages[0].path).toBe('/:locale(en|de|ru)/activity')
 
     // Проверяем, что добавлены маршруты для всех локалей, включая дефолтную
-    expect(pages[0].children).toHaveLength(3) // en, de, ru
+    expect(pages[0].children).toHaveLength(1) // en, de, ru
     expect(pages[0].children).toEqual(
       expect.arrayContaining([
-        { path: 'skiing', name: 'localized-Skiing-en', children: [] },
-        { path: 'skiing', name: 'localized-Skiing-de', children: [] },
-        { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
+        { path: 'skiing', name: 'localized-Skiing', children: [] },
       ]),
     )
   })
@@ -289,9 +266,7 @@ test.describe('PageManager', () => {
     expect(pages[1].path).toBe('/:locale(en|de|ru)/activity')
     expect(pages[1].children).toEqual(
       expect.arrayContaining([
-        { path: 'skiing', name: 'localized-Skiing-en', children: [] },
-        { path: 'skiing', name: 'localized-Skiing-de', children: [] },
-        { path: 'skiing', name: 'localized-Skiing-ru', children: [] },
+        { path: 'skiing', name: 'localized-Skiing', children: [] },
       ]),
     )
   })

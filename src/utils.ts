@@ -48,7 +48,7 @@ export const normalizePath = (routePath: string): string => {
   return normalized === '.' ? '' : normalized
 }
 
-export const cloneArray = <T>(array: T[]): T[] => [...array]
+export const cloneArray = <T extends object>(array: T[]): T[] => array.map(item => ({ ...item }))
 
 export const isPageRedirectOnly = (page: NuxtPage): boolean => !!(page.redirect && !page.file)
 

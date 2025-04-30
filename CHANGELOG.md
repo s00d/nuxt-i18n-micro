@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.86.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.85.1...v1.86.0)
+
+### 🚀 Enhancements
+
+- **redirects:** Add redirect functionality to i18n plugin ([f95d0a6](https://github.com/s00d/nuxt-i18n-micro/commit/f95d0a6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.85.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.85.0...v1.85.1)

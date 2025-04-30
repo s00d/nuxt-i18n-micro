@@ -307,16 +307,37 @@ Creates links between different pages' locale files to share translations, reduc
 
 ### 🧩 `define`
 
-Enables or disables the addition of a special `define` plugin that allows you to use Nuxt's runtime configuration for overriding settings in your translation files.
+Enables or disables the `define` plugin, which allows you to use Nuxt's runtime configuration to override settings inside your translation files and define locale-specific routes via `defineI18nRoute`.
 
 **Type**: `boolean`  
 **Default**: `true`
 
+Disabling this will prevent the `defineI18nRoute` method from being available via `useNuxtApp().$defineI18nRoute`.
+
 **Example**:
 
-```typescript
-define: false // Disable the define plugin
+```ts
+define: false // Disables the define plugin and route-specific translation logic
 ```
+
+### 🔁 `redirects`
+
+Enables or disables automatic redirection logic for URLs that are missing a locale prefix, based on your configured i18n strategy.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+When enabled, the plugin will perform a redirect (301 on server, client-side navigation otherwise) to the default or localized route if the locale is missing from the URL. This ensures consistent localization behavior but may conflict with custom routing logic.
+
+Disabling it allows full control over locale-based redirection without interfering with your own logic.
+
+**Example**:
+
+```ts
+redirects: false // Disable automatic locale redirection
+```
+
+
 
 ### 🧩 `plugin`
 

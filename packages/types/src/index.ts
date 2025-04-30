@@ -33,6 +33,7 @@ export interface ModuleOptions {
   strategy?: Strategies
   metaBaseUrl?: string
   define?: boolean
+  redirects?: boolean
   plugin?: boolean
   hooks?: boolean
   defaultLocale?: string

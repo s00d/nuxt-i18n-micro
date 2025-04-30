@@ -72,6 +72,7 @@ export default defineNuxtModule<ModuleOptions>({
     meta: true,
     debug: false,
     define: true,
+    redirects: true,
     plugin: true,
     hooks: true,
     types: true,
@@ -213,6 +214,15 @@ export default defineNuxtModule<ModuleOptions>({
         mode: 'server',
         name: 'i18n-plugin-auto-detect',
         order: 4,
+      })
+    }
+
+    if (options.redirects) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/06.redirect'),
+        name: 'i18n-plugin-redirect',
+        mode: 'all',
+        order: 6,
       })
     }
 

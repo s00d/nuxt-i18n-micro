@@ -12,12 +12,12 @@ test.describe('named-params', () => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })
 
-    await expect(page.locator('#localized-route-2')).toHaveText('/en/page/id-222?info=1111')
-    await expect(page.locator('#localized-path')).toHaveText('/en/page/id-222?info=1111')
+    await expect(page.locator('#localized-route-2')).toHaveText('/de/page/id-222?info=1111')
+    await expect(page.locator('#localized-path')).toHaveText('/de/page/id-222?info=1111')
 
     // Test Link 1
     await page.click('#link1')
-    await expect(page).toHaveURL('/en/page/my-id')
+    await expect(page).toHaveURL('/de/page/my-id')
 
     // Navigate back to the main page
     await goto('/', { waitUntil: 'hydration' })
@@ -47,42 +47,42 @@ test.describe('named-params', () => {
     await expect(page).toHaveURL('/de/page/id-123')
   })
 
-  test('test navigation links and buttons de', async ({ page, goto }) => {
+  test('test navigation links and buttons en', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto('/en', { waitUntil: 'hydration' })
 
-    await expect(page.locator('#localized-route-2')).toHaveText('/de/page/id-222?info=1111')
-    await expect(page.locator('#localized-path')).toHaveText('/de/page/id-222?info=1111')
+    await expect(page.locator('#localized-route-2')).toHaveText('/en/page/id-222?info=1111')
+    await expect(page.locator('#localized-path')).toHaveText('/en/page/id-222?info=1111')
 
     // Test Link 1
     await page.click('#link1')
-    await expect(page).toHaveURL('/de/page/my-id')
+    await expect(page).toHaveURL('/en/page/my-id')
 
     // Navigate back to the main page
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto('/en', { waitUntil: 'hydration' })
 
     // Test Link 2
     await page.click('#link2')
-    await expect(page).toHaveURL('/de/test-my-id')
+    await expect(page).toHaveURL('/en/test-my-id')
 
     // Navigate back to the main page
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto('/en', { waitUntil: 'hydration' })
 
     // Test Button 3
     await page.click('#link3')
-    await expect(page).toHaveURL('/de/page/my-id') // Assuming this is the expected URL for navigateBroken()
+    await expect(page).toHaveURL('/en/page/my-id') // Assuming this is the expected URL for navigateBroken()
 
     // Navigate back to the main page
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto('/en', { waitUntil: 'hydration' })
 
     // Test Button 4
     await page.click('#link4')
-    await expect(page).toHaveURL('/de/test-my-id') // Assuming this is the expected URL for navigateBrokenDefaultNuxtPageNaming()
+    await expect(page).toHaveURL('/en/test-my-id') // Assuming this is the expected URL for navigateBrokenDefaultNuxtPageNaming()
 
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto('/en', { waitUntil: 'hydration' })
 
     await page.click('#link6')
-    await expect(page).toHaveURL('/de/page/id-123')
+    await expect(page).toHaveURL('/en/page/id-123')
   })
 })

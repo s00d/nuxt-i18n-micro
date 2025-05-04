@@ -337,8 +337,6 @@ Disabling it allows full control over locale-based redirection without interferi
 redirects: false // Disable automatic locale redirection
 ```
 
-
-
 ### 🧩 `plugin`
 
 Enables or disables a special `plugin` that integrates additional features or functionality into your Nuxt application.
@@ -497,6 +495,21 @@ Specifies whether, when using the **no prefix** strategy, a redirect should auto
   }
 }
 ```
+
+### 🔄 `canonicalQueryWhitelist`
+
+Specifies which query parameters should be preserved in the canonical URL.
+This helps search engines differentiate between content-modifying queries (e.g., `?page=2`) and tracking or irrelevant parameters (e.g., `?utm_source=`), which are excluded by default.
+
+**Type**: `string[]`
+**Default**: `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']`
+
+**Example**:
+
+```ts
+canonicalQueryWhitelist: ['page', 'sort', 'category'] // Only include these query params in <link rel="canonical">
+```
+
 
 ### 🌐 `globalLocaleRoutes`
 

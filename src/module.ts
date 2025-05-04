@@ -91,6 +91,7 @@ export default defineNuxtModule<ModuleOptions>({
     apiBaseUrl: '_locales',
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
+    canonicalQueryWhitelist: ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag'],
     plural: (key, count, params, _locale, getTranslation) => {
       const translation = getTranslation(key, params)
       if (!translation) {
@@ -150,6 +151,7 @@ export default defineNuxtModule<ModuleOptions>({
       apiBaseUrl: apiBaseUrl,
       isSSG: isSSG,
       disablePageLocales: options.disablePageLocales ?? false,
+      canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
     }
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error

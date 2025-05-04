@@ -1,4 +1,4 @@
-import { joinURL } from 'ufo'
+import { joinURL, parseURL, withQuery } from 'ufo'
 import type { Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { isPrefixExceptDefaultStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
 import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
@@ -32,8 +32,20 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     meta: [],
   })
 
+  function filterQuery(fullPath: string, whitelist: string[]): string {
+    const { pathname, search } = parseURL(fullPath)
+    const params = new URLSearchParams(search)
+    const filtered: Record<string, string> = {}
+    for (const key of whitelist) {
+      if (params.has(key)) {
+        filtered[key] = params.get(key) as string
+      }
+    }
+    return withQuery(pathname, filtered)
+  }
+
   function updateMeta() {
-    const { defaultLocale, strategy } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+    const { defaultLocale, strategy, canonicalQueryWhitelist } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
     const { $getLocales, $getLocale } = useNuxtApp()
 
     const route = useRoute()
@@ -45,24 +57,30 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const currentLocale = unref($getLocales().find((loc: Locale) => loc.code === locale))
-    if (!currentLocale) {
-      return
-    }
+    if (!currentLocale) return
 
     const currentIso = currentLocale.iso || locale
     const currentDir = currentLocale.dir || 'auto'
 
     let fullPath = unref(route.fullPath)
-    let ogUrl = joinURL(unref(baseUrl), fullPath)
-
     if (!fullPath.startsWith('/')) {
       fullPath = `/${fullPath}`
     }
 
     const matchedLocale = locales.find(locale => fullPath.startsWith(`/${locale.code}`))
+
+    let localizedPath = fullPath
+    let ogUrl: string
+    let canonicalPath: string
+
     if (routeName.startsWith('localized-') && matchedLocale) {
-      fullPath = fullPath.slice(matchedLocale.code.length + 1)
-      ogUrl = joinURL(unref(baseUrl), locale, fullPath)
+      localizedPath = fullPath.slice(matchedLocale.code.length + 1)
+      canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist ?? [])
+      ogUrl = joinURL(unref(baseUrl), locale, canonicalPath)
+    }
+    else {
+      canonicalPath = filterQuery(fullPath, canonicalQueryWhitelist ?? [])
+      ogUrl = joinURL(unref(baseUrl), canonicalPath)
     }
 
     metaObject.value = {
@@ -76,7 +94,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
     if (!addSeoAttributes) return
 
-    // const alternateLocales = locales?.filter(l => l.code !== locale) ?? []
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const alternateLocales = $getLocales() ?? []
@@ -108,9 +125,12 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
-          const href = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
-            ? joinURL(unref(baseUrl), fullPath)
-            : joinURL(unref(baseUrl), loc.code, fullPath)
+          const localizedPath
+          = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
+            ? canonicalPath
+            : joinURL(loc.code, canonicalPath)
+
+          const href = joinURL(unref(baseUrl), localizedPath)
 
           const links = [{
             [identifierAttribute]: `i18n-alternate-${loc.code}`,

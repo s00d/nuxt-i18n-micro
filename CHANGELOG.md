@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v1.87.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.86.0...v1.87.0)
+
+### 🚀 Enhancements
+
+- **locale-head:** Add query filtering for SEO canonical links ([8ba736d](https://github.com/s00d/nuxt-i18n-micro/commit/8ba736d))
+
+### 🩹 Fixes
+
+- **routes:** Correct method name for retrieving cached content ([a7c4ab5](https://github.com/s00d/nuxt-i18n-micro/commit/a7c4ab5))
+
+### 💅 Refactors
+
+- **tests:** Remove deprecated `test.sh` and integrate tests in Vitest ([5b31255](https://github.com/s00d/nuxt-i18n-micro/commit/5b31255))
+
+### 📖 Documentation
+
+- **performance-results:** Update dependency versions and performance metrics ([b592342](https://github.com/s00d/nuxt-i18n-micro/commit/b592342))
+- **guide:** Add documentation for canonicalQueryWhitelist option ([387092b](https://github.com/s00d/nuxt-i18n-micro/commit/387092b))
+
+### ✅ Tests
+
+- **seo:** Add SEO tests for canonical URLs and locale attributes ([98739f5](https://github.com/s00d/nuxt-i18n-micro/commit/98739f5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.86.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.85.1...v1.86.0)

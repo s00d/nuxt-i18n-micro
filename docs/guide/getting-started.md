@@ -502,6 +502,7 @@ Specifies which query parameters should be preserved in the canonical URL and th
 This helps search engines and social platforms differentiate between meaningful parameters (e.g., `?page=2`) and irrelevant or tracking ones (e.g., `?utm_source=`), which are excluded by default.
 
 **Type**: `string[]`
+
 **Default**: `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']`
 
 Both `<link rel="canonical">` and `<meta property="og:url">` will include only the whitelisted query parameters.

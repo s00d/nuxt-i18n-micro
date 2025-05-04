@@ -498,18 +498,19 @@ Specifies whether, when using the **no prefix** strategy, a redirect should auto
 
 ### 🔄 `canonicalQueryWhitelist`
 
-Specifies which query parameters should be preserved in the canonical URL.
-This helps search engines differentiate between content-modifying queries (e.g., `?page=2`) and tracking or irrelevant parameters (e.g., `?utm_source=`), which are excluded by default.
+Specifies which query parameters should be preserved in the canonical URL and the `og:url` meta tag.
+This helps search engines and social platforms differentiate between meaningful parameters (e.g., `?page=2`) and irrelevant or tracking ones (e.g., `?utm_source=`), which are excluded by default.
 
 **Type**: `string[]`
 **Default**: `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']`
 
+Both `<link rel="canonical">` and `<meta property="og:url">` will include only the whitelisted query parameters.
+
 **Example**:
 
 ```ts
-canonicalQueryWhitelist: ['page', 'sort', 'category'] // Only include these query params in <link rel="canonical">
+canonicalQueryWhitelist: ['page', 'sort', 'category'] // Only include these query params in canonical and og:url
 ```
-
 
 ### 🌐 `globalLocaleRoutes`
 

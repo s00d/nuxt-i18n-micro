@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
 
   const isThereAsset = await serverStorage.hasItem(cacheName)
   if (isThereAsset) {
-    const rawContent = await serverStorage.getItem<Translations | string>(cacheName) ?? {}
+    const rawContent = await serverStorage.getItemRaw<Translations | string>(cacheName) ?? {}
     return typeof rawContent === 'string' ? JSON.parse(rawContent) : rawContent
   }
 

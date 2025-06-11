@@ -114,6 +114,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isSSG = nuxt.options.nitro.static ?? (nuxt.options as any)._generate /* TODO: remove in future */
     const isCloudflarePages = nuxt.options.nitro.preset?.startsWith('cloudflare')
 

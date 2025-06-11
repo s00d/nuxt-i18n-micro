@@ -105,7 +105,7 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
 
-    const isSSG = nuxt.options._generate
+    const isSSG = nuxt.options.nitro.static ?? (nuxt.options as any)._generate /* TODO: remove in future */
     const isCloudflarePages = nuxt.options.nitro.preset?.startsWith('cloudflare')
 
     const logger = useLogger('nuxt-i18n-micro')

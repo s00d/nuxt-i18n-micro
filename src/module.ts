@@ -1,5 +1,5 @@
-import path, { join } from 'node:path'
-import fs, { existsSync } from 'node:fs'
+import path from 'node:path'
+import fs from 'node:fs'
 import {
   addComponentsDir,
   addImportsDir,
@@ -103,15 +103,6 @@ export default defineNuxtModule<ModuleOptions>({
     customRegexMatcher: undefined,
   },
   async setup(options, nuxt) {
-    const pagesDir = join(nuxt.options.srcDir, 'pages')
-    if (!existsSync(pagesDir)) {
-      throw new Error(
-        '[nuxt-i18n-next] The "pages" directory is missing in your Nuxt project.\n'
-        + 'This module relies on the presence of the "pages" directory for proper routing and localization support.\n'
-        + 'Please create a "pages" directory in your source folder (usually at the root of your project) and try again.',
-      )
-    }
-
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

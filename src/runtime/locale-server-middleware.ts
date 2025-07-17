@@ -39,6 +39,6 @@ export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string
     available: availableLocales,
     locale: localeConfig,
     isDefault,
-    isFallback
+    isFallback,
   }
 }

@@ -337,6 +337,10 @@ export default defineNuxtModule<ModuleOptions>({
           from: resolver.resolve('./runtime/translation-server-middleware'),
           imports: ['useTranslationServerMiddleware'],
         })
+        nitroConfig.imports.presets.push({
+          from: resolver.resolve('./runtime/locale-server-middleware'),
+          imports: ['useLocaleServerMiddleware'],
+        })
       }
 
       const routeRules = nuxt.options.routeRules || {}

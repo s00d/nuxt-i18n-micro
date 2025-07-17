@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
-import { getQuery, getCookie } from 'h3'
 import { interpolate, useTranslationHelper } from 'nuxt-i18n-micro-core'
-import type { Params, Translations } from 'nuxt-i18n-micro-types'
+import type { ModuleOptionsExtend, Params, Translations } from 'nuxt-i18n-micro-types'
+import { detectCurrentLocale } from './utils/locale-detector'
 import { useRuntimeConfig } from '#imports'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
@@ -17,17 +17,9 @@ async function fetchTranslations(locale: string): Promise<Translations> {
 
 export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {
   const { getTranslation, loadTranslations, hasGeneralTranslation } = useTranslationHelper()
-  const config = useRuntimeConfig(event).i18nConfig
+  const config = useRuntimeConfig(event).i18nConfig as unknown as ModuleOptionsExtend
 
-  const locale = (
-    currentLocale
-    || event.context.params?.locale
-    || getQuery(event)?.locale
-    || getCookie(event, 'user-locale')
-    || event.headers.get('accept-language')?.split(',')[0]
-    || config.fallbackLocale
-    || defaultLocale
-    || 'en').toString()
+  const locale = currentLocale || detectCurrentLocale(event, config, defaultLocale)
 
   if (!hasGeneralTranslation(locale)) {
     const translations = await fetchTranslations(locale)

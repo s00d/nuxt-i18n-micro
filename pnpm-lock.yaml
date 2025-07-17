@@ -108,8 +108,8 @@ importers:
         version: link:../packages/types
     devDependencies:
       json-editor-vue:
-        specifier: ^0.18.1
-        version: 0.18.1(vue@3.5.13(typescript@5.7.3))
+        specifier: ^0.17.3
+        version: 0.17.3(vue@3.5.13(typescript@5.7.3))
 
   packages/core:
     dependencies:
@@ -4986,8 +4986,8 @@ packages:
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
-  json-editor-vue@0.18.1:
-    resolution: {integrity: sha512-SQCtNngo/ScFjXC7KUOqLOeeLgvl+xwWbxfNelqIOHC6uLilQl7AlWzNJyrDqo+RWnc53nT0OngXki5uTx9SJg==}
+  json-editor-vue@0.17.3:
+    resolution: {integrity: sha512-MVpD3TInIlruq9ye/J3XmYHTH+pqfyW0E1GVUV2ug5M0X/19zGslJ+FgeikDflvTVUxhVuCEnc9spMYmPj5Lyw==}
     peerDependencies:
       '@vue/composition-api': '>=1'
       vue: 2||3
@@ -7267,8 +7267,8 @@ packages:
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
 
-  vanilla-jsoneditor@3.7.0:
-    resolution: {integrity: sha512-Rvm3/22T7IFj5qvnDAvPiW1RLwjJMEgxQC+6J4eoVe2/gDB/tbz1Wb6GbnNuh/42ybO6IdTQK9dXkgqMkWcqZQ==}
+  vanilla-jsoneditor@2.4.0:
+    resolution: {integrity: sha512-v/c8Zxr0mOcagXzJ+Gar2qhkG20RpuowVDTJshsZPFxN6OZ3bo7gWoNUcuFyVbuJyy96P9CHLrZ5DQJkLfD9wQ==}
 
   vanilla-picker@2.12.3:
     resolution: {integrity: sha512-qVkT1E7yMbUsB2mmJNFmaXMWE2hF8ffqzMMwe9zdAikd8u2VfnsVY2HQcOUi2F38bgbxzlJBEdS1UUhOXdF9GQ==}
@@ -7605,10 +7605,6 @@ packages:
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
-
-  webpack-sources@3.2.3:
-    resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
-    engines: {node: '>=10.13.0'}
 
   webpack-sources@3.3.3:
     resolution: {integrity: sha512-yd1RBzSGanHkitROoPFd6qsrxt+oFhg/129YzheDGqeustzX0vTZJZsSsQjVQC4yzBQ56K55XU8gaNCtIzOnTg==}
@@ -11260,9 +11256,9 @@ snapshots:
     dependencies:
       acorn: 8.14.0
 
-  acorn-typescript@1.4.13(acorn@8.14.0):
+  acorn-typescript@1.4.13(acorn@8.15.0):
     dependencies:
-      acorn: 8.14.0
+      acorn: 8.15.0
 
   acorn-walk@8.3.2: {}
 
@@ -13757,9 +13753,9 @@ snapshots:
 
   json-buffer@3.0.1: {}
 
-  json-editor-vue@0.18.1(vue@3.5.13(typescript@5.7.3)):
+  json-editor-vue@0.17.3(vue@3.5.13(typescript@5.7.3)):
     dependencies:
-      vanilla-jsoneditor: 3.7.0
+      vanilla-jsoneditor: 2.4.0
       vue: 3.5.13(typescript@5.7.3)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
 
@@ -14350,7 +14346,7 @@ snapshots:
   micromark@4.0.2:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.1
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.3
@@ -16119,8 +16115,8 @@ snapshots:
       '@ampproject/remapping': 2.3.0
       '@jridgewell/sourcemap-codec': 1.5.0
       '@types/estree': 1.0.6
-      acorn: 8.14.0
-      acorn-typescript: 1.4.13(acorn@8.14.0)
+      acorn: 8.15.0
+      acorn-typescript: 1.4.13(acorn@8.15.0)
       aria-query: 5.3.2
       axobject-query: 4.1.0
       clsx: 2.1.1
@@ -16755,7 +16751,7 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vanilla-jsoneditor@3.7.0:
+  vanilla-jsoneditor@2.4.0:
     dependencies:
       '@codemirror/autocomplete': 6.18.6
       '@codemirror/commands': 6.8.0
@@ -17208,8 +17204,6 @@ snapshots:
 
   webidl-conversions@3.0.1: {}
 
-  webpack-sources@3.2.3: {}
-
   webpack-sources@3.3.3: {}
 
   webpack-virtual-modules@0.6.2: {}
@@ -17221,7 +17215,7 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.14.0
+      acorn: 8.15.0
       browserslist: 4.24.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.18.1
@@ -17238,7 +17232,7 @@ snapshots:
       tapable: 2.2.1
       terser-webpack-plugin: 5.3.11(webpack@5.98.0)
       watchpack: 2.4.2
-      webpack-sources: 3.2.3
+      webpack-sources: 3.3.3
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -17342,7 +17336,7 @@ snapshots:
     dependencies:
       eslint-visitor-keys: 3.4.3
       lodash: 4.17.21
-      yaml: 2.7.0
+      yaml: 2.8.0
 
   yaml@2.7.0: {}
 

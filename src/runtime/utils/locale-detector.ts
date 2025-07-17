@@ -5,6 +5,8 @@ import { getQuery, getCookie } from 'h3'
  * Detects the current locale based on various sources
  * @param event - H3Event object
  * @param config - Runtime configuration with i18n settings
+ * @param config.fallbackLocale - Fallback locale from config
+ * @param config.defaultLocale - Default locale from config
  * @param defaultLocale - Optional default locale override
  * @returns The detected locale code
  */

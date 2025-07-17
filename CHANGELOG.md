@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.88.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.88.0...v1.88.1)
+
+### 🏡 Chore
+
+- **lockfile:** Update `json-editor-vue` and `vanilla-jsoneditor` versions ([ae73ab1](https://github.com/s00d/nuxt-i18n-micro/commit/ae73ab1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.88.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.87.0...v1.88.0)

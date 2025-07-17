@@ -15,7 +15,7 @@ export interface LocaleInfo {
 
 export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string, currentLocale?: string): LocaleInfo => {
   const config = useRuntimeConfig(event)
-  const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = config.public.i18nConfig as ModuleOptionsExtend
+  const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   // Определяем текущую локаль по приоритету
   const detectedLocale = currentLocale || detectCurrentLocale(event, { fallbackLocale, defaultLocale: defaultLocale || configDefaultLocale })

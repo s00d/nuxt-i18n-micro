@@ -1,6 +1,40 @@
 # Changelog
 
 
+## v1.88.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.87.0...v1.88.0)
+
+### 🚀 Enhancements
+
+- **module:** Check for missing "pages" directory in Nuxt project ([a5c5425](https://github.com/s00d/nuxt-i18n-micro/commit/a5c5425))
+- **locale-server-middleware:** Add server middleware for locale detection ([09812f6](https://github.com/s00d/nuxt-i18n-micro/commit/09812f6))
+
+### 🩹 Fixes
+
+- Prefer `nitro.static` over `_generate` ([0fea211](https://github.com/s00d/nuxt-i18n-micro/commit/0fea211))
+- **module:** Disable eslint rule for explicit 'any' type usage ([d9660e0](https://github.com/s00d/nuxt-i18n-micro/commit/d9660e0))
+- **locale:** Add missing `isFallback` property to locale response ([ff1ab69](https://github.com/s00d/nuxt-i18n-micro/commit/ff1ab69))
+
+### 💅 Refactors
+
+- **module:** Simplify imports and remove pages directory check ([388419e](https://github.com/s00d/nuxt-i18n-micro/commit/388419e))
+- **locale-server-middleware:** Improve type assertion for i18n config ([f4dec54](https://github.com/s00d/nuxt-i18n-micro/commit/f4dec54))
+
+### 📖 Documentation
+
+- **guide:** Update `canonicalQueryWhitelist` description for clarity ([f09cb05](https://github.com/s00d/nuxt-i18n-micro/commit/f09cb05))
+- **guide:** Update `canonicalQueryWhitelist` description for clarity ([81078d6](https://github.com/s00d/nuxt-i18n-micro/commit/81078d6))
+
+### 🏡 Chore
+
+- Use nullish coalescing ([10b8ae2](https://github.com/s00d/nuxt-i18n-micro/commit/10b8ae2))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Daniel Roe ([@danielroe](http://github.com/danielroe))
+
 ## v1.87.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.86.0...v1.87.0)

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.88.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.88.1...v1.88.2)
+
+### 💅 Refactors
+
+- **module:** Improve route generation logic for locales ([5e8f231](https://github.com/s00d/nuxt-i18n-micro/commit/5e8f231))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.88.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.88.0...v1.88.1)

@@ -405,7 +405,10 @@ export default defineNuxtModule<ModuleOptions>({
       const pages = nuxt.options.generate.routes || []
 
       localeManager.locales.forEach((locale) => {
-        if (locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)) {
+        // Для стратегий prefix и prefix_and_default генерируем маршруты и для defaultLocale
+        // Для стратегии prefix_except_default пропускаем defaultLocale
+        const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
+        if (shouldGenerate) {
           pages.forEach((page) => {
             if (!/\.[a-z0-9]+$/i.test(page)) {
               routes.push(`/${locale.code}${page}`)
@@ -464,11 +467,14 @@ export default defineNuxtModule<ModuleOptions>({
       const routesSet = prerenderRoutes.routes
       const additionalRoutes = new Set<string>()
 
-      // Проходим по каждому существующему маршруту и добавляем локализованные версии, кроме дефолтной локали
+      // Проходим по каждому существующему маршруту и добавляем локализованные версии
       routesSet.forEach((route) => {
         if (!/\.[a-z0-9]+$/i.test(route)) {
           localeManager.locales!.forEach((locale) => {
-            if (locale.code !== defaultLocale) {
+            // Для стратегий prefix и prefix_and_default генерируем маршруты и для defaultLocale
+            // Для стратегии prefix_except_default пропускаем defaultLocale
+            const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
+            if (shouldGenerate) {
               if (route === '/') {
                 additionalRoutes.add(`/${locale.code}`)
               }

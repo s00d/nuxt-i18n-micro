@@ -1437,8 +1437,8 @@ packages:
     resolution: {integrity: sha512-bmsP4L2HqBF6i6uaMqJMcFBONVjKt+siGluRq4Ca4C0q7W2eMaVZr8iCgF9dKbcVXutftkC7D6z2SaSMmLiDyA==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@11.1.10':
-    resolution: {integrity: sha512-6ZW/f3Zzjxfa1Wh0tYQI5pLKUtU+SY7l70pEG+0yd0zjcsYcK0EBt6Fz30Dy0tZhEqemziQQy2aNU3GJzyrMUA==}
+  '@intlify/shared@11.1.11':
+    resolution: {integrity: sha512-RIBFTIqxZSsxUqlcyoR7iiC632bq7kkOwYvZlvcVObHfrF4NhuKc4FKvu8iPCrEO+e3XsY7/UVpfgzg+M7ETzA==}
     engines: {node: '>= 16'}
 
   '@intlify/shared@12.0.0-alpha.3':
@@ -7956,7 +7956,7 @@ snapshots:
       '@babel/traverse': 7.26.9
       '@babel/types': 7.26.9
       convert-source-map: 2.0.0
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -8181,7 +8181,7 @@ snapshots:
       '@babel/parser': 7.26.9
       '@babel/template': 7.26.9
       '@babel/types': 7.26.9
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.1(supports-color@9.4.0)
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -8625,7 +8625,7 @@ snapshots:
   '@eslint/config-array@0.19.2':
     dependencies:
       '@eslint/object-schema': 2.1.6
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -8641,7 +8641,7 @@ snapshots:
   '@eslint/eslintrc@3.2.0':
     dependencies:
       ajv: 6.12.6
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       espree: 10.3.0
       globals: 14.0.0
       ignore: 5.3.2
@@ -8713,7 +8713,7 @@ snapshots:
       '@antfu/install-pkg': 1.0.0
       '@antfu/utils': 8.1.1
       '@iconify/types': 2.0.0
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       globals: 15.15.0
       kolorist: 1.8.0
       local-pkg: 1.0.0
@@ -8837,7 +8837,7 @@ snapshots:
 
   '@intlify/shared@10.0.5': {}
 
-  '@intlify/shared@11.1.10': {}
+  '@intlify/shared@11.1.11': {}
 
   '@intlify/shared@12.0.0-alpha.3': {}
 
@@ -8845,12 +8845,12 @@ snapshots:
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@9.20.1(jiti@2.4.2))
       '@intlify/bundle-utils': 10.0.0(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))
-      '@intlify/shared': 11.1.10
-      '@intlify/vue-i18n-extensions': 8.0.0(@intlify/shared@11.1.10)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
+      '@intlify/shared': 11.1.11
+      '@intlify/vue-i18n-extensions': 8.0.0(@intlify/shared@11.1.11)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
       '@rollup/pluginutils': 5.1.4(rollup@4.34.8)
       '@typescript-eslint/scope-manager': 8.24.1
       '@typescript-eslint/typescript-estree': 8.24.1(typescript@5.7.3)
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       fast-glob: 3.3.3
       js-yaml: 4.1.0
       json5: 2.2.3
@@ -8870,11 +8870,11 @@ snapshots:
 
   '@intlify/utils@0.13.0': {}
 
-  '@intlify/vue-i18n-extensions@8.0.0(@intlify/shared@11.1.10)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))':
+  '@intlify/vue-i18n-extensions@8.0.0(@intlify/shared@11.1.11)(@vue/compiler-dom@3.5.13)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@babel/parser': 7.26.9
     optionalDependencies:
-      '@intlify/shared': 11.1.10
+      '@intlify/shared': 11.1.11
       '@vue/compiler-dom': 3.5.13
       vue: 3.5.13(typescript@5.7.3)
       vue-i18n: 10.0.5(vue@3.5.13(typescript@5.7.3))
@@ -9105,7 +9105,7 @@ snapshots:
 
   '@koa/router@12.0.2':
     dependencies:
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       http-errors: 2.0.0
       koa-compose: 4.1.0
       methods: 1.1.2
@@ -9115,7 +9115,7 @@ snapshots:
 
   '@kwsites/file-exists@1.1.1':
     dependencies:
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -9144,7 +9144,7 @@ snapshots:
       https-proxy-agent: 7.0.6(supports-color@9.4.0)
       node-fetch: 2.7.0
       nopt: 8.1.0
-      semver: 7.7.1
+      semver: 7.7.2
       tar: 7.4.3
     transitivePeerDependencies:
       - encoding
@@ -9784,7 +9784,7 @@ snapshots:
       '@nuxt/kit': 3.15.4(magicast@0.3.5)
       '@rollup/plugin-yaml': 4.1.2(rollup@4.34.8)
       '@vue/compiler-sfc': 3.5.13
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       defu: 6.1.4
       estree-walker: 3.0.3
       is-https: 4.0.0
@@ -9817,7 +9817,7 @@ snapshots:
       '@types/mdast': 4.0.4
       '@vue/compiler-core': 3.5.13
       consola: 3.4.0
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       defu: 6.1.4
       destr: 2.0.3
       detab: 3.0.2
@@ -10466,7 +10466,7 @@ snapshots:
       '@typescript-eslint/types': 8.24.1
       '@typescript-eslint/typescript-estree': 8.24.1(typescript@5.6.3)
       '@typescript-eslint/visitor-keys': 8.24.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       eslint: 9.20.1(jiti@2.4.2)
       typescript: 5.6.3
     transitivePeerDependencies:
@@ -10481,7 +10481,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/typescript-estree': 8.24.1(typescript@5.6.3)
       '@typescript-eslint/utils': 8.24.1(eslint@9.20.1(jiti@2.4.2))(typescript@5.6.3)
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       eslint: 9.20.1(jiti@2.4.2)
       ts-api-utils: 2.0.1(typescript@5.6.3)
       typescript: 5.6.3
@@ -10494,7 +10494,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.24.1
       '@typescript-eslint/visitor-keys': 8.24.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -10508,7 +10508,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.24.1
       '@typescript-eslint/visitor-keys': 8.24.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
@@ -12017,15 +12017,15 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  debug@4.4.0(supports-color@9.4.0):
+  debug@4.4.0:
+    dependencies:
+      ms: 2.1.3
+
+  debug@4.4.1(supports-color@9.4.0):
     dependencies:
       ms: 2.1.3
     optionalDependencies:
       supports-color: 9.4.0
-
-  debug@4.4.1:
-    dependencies:
-      ms: 2.1.3
 
   decode-named-character-reference@1.0.2:
     dependencies:
@@ -12364,7 +12364,7 @@ snapshots:
       '@types/doctrine': 0.0.9
       '@typescript-eslint/scope-manager': 8.24.1
       '@typescript-eslint/utils': 8.24.1(eslint@9.20.1(jiti@2.4.2))(typescript@5.6.3)
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       doctrine: 3.0.0
       enhanced-resolve: 5.18.1
       eslint: 9.20.1(jiti@2.4.2)
@@ -12384,7 +12384,7 @@ snapshots:
       '@es-joy/jsdoccomment': 0.49.0
       are-docs-informative: 0.0.2
       comment-parser: 1.4.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       escape-string-regexp: 4.0.0
       eslint: 9.20.1(jiti@2.4.2)
       espree: 10.3.0
@@ -12482,7 +12482,7 @@ snapshots:
       ajv: 6.12.6
       chalk: 4.1.2
       cross-spawn: 7.0.6
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       escape-string-regexp: 4.0.0
       eslint-scope: 8.2.0
       eslint-visitor-keys: 4.2.0
@@ -13148,7 +13148,7 @@ snapshots:
   https-proxy-agent@7.0.6(supports-color@9.4.0):
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.1(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -13219,7 +13219,7 @@ snapshots:
     dependencies:
       '@ioredis/commands': 1.2.0
       cluster-key-slot: 1.1.2
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       denque: 2.1.0
       lodash.defaults: 4.2.0
       lodash.isarguments: 3.1.0
@@ -13378,7 +13378,7 @@ snapshots:
 
   istanbul-lib-source-maps@4.0.1:
     dependencies:
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       istanbul-lib-coverage: 3.2.2
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -13776,7 +13776,7 @@ snapshots:
       acorn: 8.14.0
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
-      semver: 7.7.1
+      semver: 7.7.2
 
   jsonfile@6.1.0:
     dependencies:
@@ -13815,7 +13815,7 @@ snapshots:
 
   koa-send@5.0.1:
     dependencies:
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       http-errors: 1.8.1
       resolve-path: 1.4.0
     transitivePeerDependencies:
@@ -13835,7 +13835,7 @@ snapshots:
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookies: 0.9.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       delegates: 1.0.0
       depd: 2.0.0
       destroy: 1.2.0
@@ -13987,7 +13987,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.7.1
+      semver: 7.7.2
 
   make-error@1.3.6: {}
 
@@ -14015,12 +14015,12 @@ snapshots:
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       mdast-util-to-string: 4.0.0
-      micromark: 4.0.1
+      micromark: 4.0.2
       micromark-util-decode-numeric-character-reference: 2.0.2
       micromark-util-decode-string: 2.0.1
       micromark-util-normalize-identifier: 2.0.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
       unist-util-stringify-position: 4.0.0
     transitivePeerDependencies:
       - supports-color
@@ -14174,18 +14174,18 @@ snapshots:
       micromark-util-character: 2.1.1
       micromark-util-sanitize-uri: 2.0.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-extension-gfm-footnote@2.1.0:
     dependencies:
       devlop: 1.1.0
-      micromark-core-commonmark: 2.0.2
+      micromark-core-commonmark: 2.0.3
       micromark-factory-space: 2.0.1
       micromark-util-character: 2.1.1
       micromark-util-normalize-identifier: 2.0.1
       micromark-util-sanitize-uri: 2.0.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-extension-gfm-strikethrough@2.1.0:
     dependencies:
@@ -14194,7 +14194,7 @@ snapshots:
       micromark-util-classify-character: 2.0.1
       micromark-util-resolve-all: 2.0.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-extension-gfm-table@2.1.1:
     dependencies:
@@ -14202,11 +14202,11 @@ snapshots:
       micromark-factory-space: 2.0.1
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-extension-gfm-tagfilter@2.0.0:
     dependencies:
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-extension-gfm-task-list-item@2.1.0:
     dependencies:
@@ -14214,7 +14214,7 @@ snapshots:
       micromark-factory-space: 2.0.1
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-extension-gfm@3.0.0:
     dependencies:
@@ -14225,20 +14225,20 @@ snapshots:
       micromark-extension-gfm-tagfilter: 2.0.0
       micromark-extension-gfm-task-list-item: 2.1.0
       micromark-util-combine-extensions: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-factory-destination@2.0.1:
     dependencies:
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-factory-label@2.0.1:
     dependencies:
       devlop: 1.1.0
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-factory-space@2.0.1:
     dependencies:
@@ -14250,14 +14250,14 @@ snapshots:
       micromark-factory-space: 2.0.1
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-factory-whitespace@2.0.1:
     dependencies:
       micromark-factory-space: 2.0.1
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-util-character@2.1.1:
     dependencies:
@@ -14272,7 +14272,7 @@ snapshots:
     dependencies:
       micromark-util-character: 2.1.1
       micromark-util-symbol: 2.0.1
-      micromark-util-types: 2.0.1
+      micromark-util-types: 2.0.2
 
   micromark-util-combine-extensions@2.0.1:
     dependencies:
@@ -14324,7 +14324,7 @@ snapshots:
   micromark@4.0.1:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.2
@@ -14346,7 +14346,7 @@ snapshots:
   micromark@4.0.2:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.1
+      debug: 4.4.1(supports-color@9.4.0)
       decode-named-character-reference: 1.0.2
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.3
@@ -14627,7 +14627,7 @@ snapshots:
 
   node-abi@3.74.0:
     dependencies:
-      semver: 7.7.1
+      semver: 7.7.2
 
   node-addon-api@7.1.1: {}
 
@@ -14661,7 +14661,7 @@ snapshots:
   normalize-package-data@6.0.2:
     dependencies:
       hosted-git-info: 7.0.2
-      semver: 7.7.1
+      semver: 7.7.2
       validate-npm-package-license: 3.0.4
 
   normalize-path@3.0.0: {}
@@ -15861,7 +15861,7 @@ snapshots:
     dependencies:
       '@kwsites/file-exists': 1.1.1
       '@kwsites/promise-deferred': 1.1.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -15869,7 +15869,7 @@ snapshots:
     dependencies:
       '@kwsites/file-exists': 1.1.1
       '@kwsites/promise-deferred': 1.1.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -16818,7 +16818,7 @@ snapshots:
   vite-node@3.0.5(@types/node@20.17.19)(jiti@2.4.2)(terser@5.39.0)(yaml@2.8.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       es-module-lexer: 1.6.0
       pathe: 2.0.3
       vite: 6.1.0(@types/node@20.17.19)(jiti@2.4.2)(terser@5.39.0)(yaml@2.8.0)
@@ -16866,7 +16866,7 @@ snapshots:
       '@volar/typescript': 2.4.11
       '@vue/language-core': 2.2.0(typescript@5.7.3)
       compare-versions: 6.1.1
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       kolorist: 1.8.0
       local-pkg: 0.5.1
       magic-string: 0.30.17
@@ -16882,7 +16882,7 @@ snapshots:
     dependencies:
       '@antfu/utils': 0.7.10
       '@rollup/pluginutils': 5.1.4(rollup@4.34.8)
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       error-stack-parser-es: 0.1.5
       fs-extra: 11.3.0
       open: 10.1.0
@@ -16899,7 +16899,7 @@ snapshots:
   vite-plugin-inspect@11.3.0(@nuxt/kit@3.17.7(magicast@0.3.5))(vite@6.1.0(@types/node@20.17.19)(jiti@2.4.2)(terser@5.39.0)(yaml@2.8.0)):
     dependencies:
       ansis: 4.1.0
-      debug: 4.4.1
+      debug: 4.4.1(supports-color@9.4.0)
       error-stack-parser-es: 1.0.5
       ohash: 2.0.11
       open: 10.2.0
@@ -17048,7 +17048,7 @@ snapshots:
       '@vitest/spy': 3.0.5
       '@vitest/utils': 3.0.5
       chai: 5.2.0
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       expect-type: 1.1.0
       magic-string: 0.30.17
       pathe: 2.0.3
@@ -17082,7 +17082,7 @@ snapshots:
   vscode-languageclient@7.0.0:
     dependencies:
       minimatch: 3.1.2
-      semver: 7.7.1
+      semver: 7.7.2
       vscode-languageserver-protocol: 3.16.0
 
   vscode-languageserver-protocol@3.16.0:
@@ -17123,7 +17123,7 @@ snapshots:
 
   vue-eslint-parser@9.4.3(eslint@9.20.1(jiti@2.4.2)):
     dependencies:
-      debug: 4.4.0(supports-color@9.4.0)
+      debug: 4.4.0
       eslint: 9.20.1(jiti@2.4.2)
       eslint-scope: 7.2.2
       eslint-visitor-keys: 3.4.3

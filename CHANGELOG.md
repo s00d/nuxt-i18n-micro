@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.90.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.89.0...v1.90.0)
+
+### 🚀 Enhancements
+
+- **utils:** Add `isInternalPath` utility function ([62dab3b](https://github.com/s00d/nuxt-i18n-micro/commit/62dab3b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.89.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.88.2...v1.89.0)

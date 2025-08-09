@@ -2,6 +2,8 @@ import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import type { Locale, LocaleCode } from 'nuxt-i18n-micro-types'
 
+export const isInternalPath = (p: string) => /(?:^|\/)__[^/]+/.test(p)
+
 export function extractLocaleRoutes(content: string, filePath: string): Record<string, string> | null {
   // Ищем вызов defineI18nRoute (с долларом или без)
   const defineMatch = content.match(/\$?\bdefineI18nRoute\s*\(\s*\{[\s\S]*?\}\s*\)/)

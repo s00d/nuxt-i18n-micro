@@ -26,8 +26,7 @@ import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
-
-const isInternalPath = (p: string) => /(?:^|\/)__[^/]+/.test(p)
+import { isInternalPath } from './utils'
 
 function generateI18nTypes() {
   return `
@@ -487,7 +486,7 @@ export default defineNuxtModule<ModuleOptions>({
         }
       })
       routesToRemove.forEach(route => routesSet.delete(route))
-      
+
       const additionalRoutes = new Set<string>()
       // Проходим по каждому существующему маршруту и добавляем локализованные версии
       routesSet.forEach((route) => {

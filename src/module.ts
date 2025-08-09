@@ -19,12 +19,15 @@ import {
   isNoPrefixStrategy,
   isPrefixStrategy,
   withPrefixStrategy,
-  isPrefixExceptDefaultStrategy, isPrefixAndDefaultStrategy,
+  isPrefixExceptDefaultStrategy,
+  isPrefixAndDefaultStrategy,
 } from 'nuxt-i18n-micro-core'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
+
+const isInternalPath = (p: string) => /(?:^|\/)__[^/]+/.test(p)
 
 function generateI18nTypes() {
   return `
@@ -410,7 +413,8 @@ export default defineNuxtModule<ModuleOptions>({
         const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
         if (shouldGenerate) {
           pages.forEach((page) => {
-            if (!/\.[a-z0-9]+$/i.test(page)) {
+            // Пропускаем файлоподобные пути и служебные сегменты `__*`
+            if (!/\.[a-z0-9]+$/i.test(page) && !isInternalPath(page)) {
               routes.push(`/${locale.code}${page}`)
             }
           })
@@ -466,10 +470,9 @@ export default defineNuxtModule<ModuleOptions>({
       }
       const routesSet = prerenderRoutes.routes
       const additionalRoutes = new Set<string>()
-
       // Проходим по каждому существующему маршруту и добавляем локализованные версии
       routesSet.forEach((route) => {
-        if (!/\.[a-z0-9]+$/i.test(route)) {
+        if (!/\.[a-z0-9]+$/i.test(route) && !isInternalPath(route)) {
           localeManager.locales!.forEach((locale) => {
             // Для стратегий prefix и prefix_and_default генерируем маршруты и для defaultLocale
             // Для стратегии prefix_except_default пропускаем defaultLocale

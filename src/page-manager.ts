@@ -20,6 +20,8 @@ const buildRouteNameFromRoute = (name: string | null | undefined, path: string |
   return name ?? (path ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
 }
 
+const isInternalPath = (p: string) => /(?:^|\/)__[^/]+/.test(p)
+
 export class PageManager {
   locales: Locale[]
   defaultLocale: Locale
@@ -60,6 +62,11 @@ export class PageManager {
     const additionalRoutes: NuxtPage[] = []
 
     for (const page of [...pages]) {
+      // Skip internal paths during page processing
+      if (page.path && isInternalPath(page.path)) {
+        continue
+      }
+      
       // if (this.isAlreadyLocalized(page.path!)) continue
       if (!page.name && page.file?.endsWith('.vue')) {
         console.warn(`[nuxt-i18n-next] Page name is missing for the file: ${page.file}`)
@@ -89,6 +96,9 @@ export class PageManager {
         const page = pages[i]
         const pagePath = page.path ?? ''
         const pageName = page.name ?? ''
+
+        // Skip removal for internal paths
+        if (isInternalPath(pagePath)) continue
 
         if (this.globalLocaleRoutes[pageName] === false) continue
 

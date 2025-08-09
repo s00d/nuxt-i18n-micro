@@ -292,6 +292,11 @@ export default defineNuxtModule<ModuleOptions>({
 
             const fullPath = path.posix.normalize(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
 
+            // Skip internal paths
+            if (isInternalPath(fullPath)) {
+              return
+            }
+
             // Проверяем наличие динамического сегмента :locale
             const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)
 
@@ -308,13 +313,17 @@ export default defineNuxtModule<ModuleOptions>({
                   localizedPath = localizedPath.replace(/:locale\([^)]+\)/, localeCode)
 
                   // Добавляем локализованный путь в массив
-                  prerenderRoutes.push(localizedPath)
+                  if (!isInternalPath(localizedPath)) {
+                    prerenderRoutes.push(localizedPath)
+                  }
                 }
               })
             }
             else {
               // Если в пути нет динамического сегмента локали, то просто добавляем его в массив
-              prerenderRoutes.push(fullPath)
+              if (!isInternalPath(fullPath)) {
+                prerenderRoutes.push(fullPath)
+              }
             }
 
             // Рекурсивно обрабатываем детей, если они есть
@@ -469,6 +478,16 @@ export default defineNuxtModule<ModuleOptions>({
         return
       }
       const routesSet = prerenderRoutes.routes
+
+      // Remove internal paths before localization processing
+      const routesToRemove: string[] = []
+      routesSet.forEach((route) => {
+        if (isInternalPath(route)) {
+          routesToRemove.push(route)
+        }
+      })
+      routesToRemove.forEach(route => routesSet.delete(route))
+      
       const additionalRoutes = new Set<string>()
       // Проходим по каждому существующему маршруту и добавляем локализованные версии
       routesSet.forEach((route) => {

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.89.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.88.2...v1.89.0)
+
+### 🚀 Enhancements
+
+- **module:** Add internal path check for route generation ([0d1315c](https://github.com/s00d/nuxt-i18n-micro/commit/0d1315c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.88.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.88.1...v1.88.2)

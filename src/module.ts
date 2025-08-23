@@ -251,6 +251,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     nuxt.hook('pages:resolved', (pages) => {
       const prerenderRoutes: string[] = []
+      const routeRules = nuxt.options.routeRules || {}
 
       const pagesNames = pages
         .map(page => page.name)
@@ -296,6 +297,13 @@ export default defineNuxtModule<ModuleOptions>({
               return
             }
 
+            // Проверяем, есть ли правило для этого маршрута и должно ли он предварительно рендериться
+            const routeRule = routeRules[fullPath]
+            if (routeRule && routeRule.prerender === false) {
+              // Если маршрут явно отключен для предварительного рендеринга, пропускаем его
+              return
+            }
+
             // Проверяем наличие динамического сегмента :locale
             const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)
 
@@ -310,6 +318,13 @@ export default defineNuxtModule<ModuleOptions>({
 
                   // Заменяем сегмент :locale(de|ru|en) на текущую локаль
                   localizedPath = localizedPath.replace(/:locale\([^)]+\)/, localeCode)
+
+                  // Проверяем, есть ли правило для локализованного маршрута и должно ли он предварительно рендериться
+                  const localizedRouteRule = routeRules[localizedPath]
+                  if (localizedRouteRule && localizedRouteRule.prerender === false) {
+                    // Если локализованный маршрут явно отключен для предварительного рендеринга, пропускаем его
+                    return
+                  }
 
                   // Добавляем локализованный путь в массив
                   if (!isInternalPath(localizedPath)) {
@@ -423,7 +438,23 @@ export default defineNuxtModule<ModuleOptions>({
           pages.forEach((page) => {
             // Пропускаем файлоподобные пути и служебные сегменты `__*`
             if (!/\.[a-z0-9]+$/i.test(page) && !isInternalPath(page)) {
-              routes.push(`/${locale.code}${page}`)
+              const localizedPage = `/${locale.code}${page}`
+
+              // Проверяем, есть ли правило для этого маршрута и должно ли он предварительно рендериться
+              const routeRule = routeRules[page]
+              if (routeRule && routeRule.prerender === false) {
+                // Если маршрут явно отключен для предварительного рендеринга, пропускаем его
+                return
+              }
+
+              // Проверяем, есть ли правило для локализованного маршрута
+              const localizedRouteRule = routeRules[localizedPage]
+              if (localizedRouteRule && localizedRouteRule.prerender === false) {
+                // Если локализованный маршрут явно отключен для предварительного рендеринга, пропускаем его
+                return
+              }
+
+              routes.push(localizedPage)
             }
           })
         }
@@ -488,6 +519,8 @@ export default defineNuxtModule<ModuleOptions>({
       routesToRemove.forEach(route => routesSet.delete(route))
 
       const additionalRoutes = new Set<string>()
+      const routeRules = nuxt.options.routeRules || {}
+
       // Проходим по каждому существующему маршруту и добавляем локализованные версии
       routesSet.forEach((route) => {
         if (!/\.[a-z0-9]+$/i.test(route) && !isInternalPath(route)) {
@@ -496,12 +529,29 @@ export default defineNuxtModule<ModuleOptions>({
             // Для стратегии prefix_except_default пропускаем defaultLocale
             const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
             if (shouldGenerate) {
+              let localizedRoute: string
               if (route === '/') {
-                additionalRoutes.add(`/${locale.code}`)
+                localizedRoute = `/${locale.code}`
               }
               else {
-                additionalRoutes.add(`/${locale.code}${route}`)
+                localizedRoute = `/${locale.code}${route}`
               }
+
+              // Проверяем, есть ли правило для этого маршрута и должно ли он предварительно рендериться
+              const routeRule = routeRules[route]
+              if (routeRule && routeRule.prerender === false) {
+                // Если маршрут явно отключен для предварительного рендеринга, пропускаем его
+                return
+              }
+
+              // Проверяем, есть ли правило для локализованного маршрута
+              const localizedRouteRule = routeRules[localizedRoute]
+              if (localizedRouteRule && localizedRouteRule.prerender === false) {
+                // Если локализованный маршрут явно отключен для предварительного рендеринга, пропускаем его
+                return
+              }
+
+              additionalRoutes.add(localizedRoute)
             }
           })
         }

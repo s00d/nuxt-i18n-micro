@@ -17,13 +17,14 @@ test.describe('content', () => {
     const pageLink = page.locator('.page-link').nth(0)
     await expect(pageLink).toHaveAttribute('href', '/contact')
 
-    await expect(page.locator('span').nth(2)).toHaveText('Learn more about our mission and values.')
+    const dataItem = page.locator('.data-item')
+    await expect(dataItem.locator('span').nth(1)).toHaveText('Learn more about our mission and values.')
 
     await pageLink.click()
 
     await expect(page).toHaveURL('/contact')
-
-    await expect(page.locator('span').nth(2)).toHaveText('Phone')
+    const dataItem2 = page.locator('.data-item')
+    await expect(dataItem2.locator('span').nth(1)).toHaveText('Phone')
 
     await page.click('#locale-switcher button')
 
@@ -49,12 +50,13 @@ test.describe('content', () => {
     const pageLink = page.locator('.page-link').nth(0)
     await expect(pageLink).toHaveAttribute('href', '/cs/contact')
 
-    await expect(page.locator('span').nth(2)).toHaveText('Zjistěte více o naší misi a hodnotách.')
+    const dataItem = page.locator('.data-item')
+    await expect(dataItem.locator('span').nth(1)).toHaveText('Zjistěte více o naší misi a hodnotách.')
 
     await pageLink.click()
 
     await expect(page).toHaveURL('/cs/contact')
-
-    await expect(page.locator('span').nth(2)).toHaveText('Telefon')
+    const dataItem2 = page.locator('.data-item')
+    await expect(dataItem2.locator('span').nth(1)).toHaveText('Telefon')
   })
 })

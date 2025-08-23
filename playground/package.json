@@ -13,5 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test:types": "vue-tsc --noEmit",
     "test": "echo \"Error: no test specified\""
+  },
+  "dependencies": {
+    "nuxt": "^3.18.1"
   }
 }

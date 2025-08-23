@@ -9,7 +9,8 @@
     "preview": "nuxi preview"
   },
   "dependencies": {
-    "vue-final-modal": "^4.5.5"
+    "vue-final-modal": "^4.5.5",
+    "nuxt": "^3.18.1"
   },
  "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.13.1",

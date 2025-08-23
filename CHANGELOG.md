@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.93.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.92.0...v1.93.0)
+
+### 🚀 Enhancements
+
+- **module:** Add route rules for prerendering control ([862d778](https://github.com/s00d/nuxt-i18n-micro/commit/862d778))
+
+### 🏡 Chore
+
+- **test/fixtures/n3:** Update @nuxtjs/tailwindcss version to 6.13.1 ([0ce5a98](https://github.com/s00d/nuxt-i18n-micro/commit/0ce5a98))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.92.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.90.0...v1.92.0)

@@ -7,6 +7,9 @@
     "build": "nuxi build",
     "generate": "nuxi generate"
   },
+  "dependencies": {
+    "nuxt": "^3.18.1"
+  },
   "devDependencies": {
     "@nuxtjs/sitemap": "^7.2.5"
   }

@@ -13,9 +13,7 @@
     "nuxt": "^3.18.1"
   },
   "devDependencies": {
-    "@nuxt/content": "3.6.3",
-    "@types/node": "^20.17.10",
-    "typescript": "5.6.3"
+    "@nuxt/content": "3.6.3"
   },
   "overrides": {
     "nitropack": "2.9.6"

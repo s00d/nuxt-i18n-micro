@@ -27,7 +27,7 @@ const route = useRoute()
 const { $getLocale, $localeRoute } = useI18n()
 
 // Реактивная переменная для контента
-const doc = ref<null | string>(null)
+const doc = ref(null)
 
 // Функция для загрузки контента
 const loadContent = async (path) => {

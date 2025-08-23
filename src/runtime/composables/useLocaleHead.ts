@@ -48,6 +48,8 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const { defaultLocale, strategy, canonicalQueryWhitelist } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
     const { $getLocales, $getLocale } = useNuxtApp()
 
+    if (!$getLocale || !$getLocales) return
+
     const route = useRoute()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore

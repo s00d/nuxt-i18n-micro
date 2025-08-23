@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v1.92.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.90.0...v1.92.0)
+
+### 🚀 Enhancements
+
+- **pages:** Enhance content loading with loading state and error handling ([63a42bd](https://github.com/s00d/nuxt-i18n-micro/commit/63a42bd))
+
+### 🩹 Fixes
+
+- **useLocaleHead:** Handle absence of locale functions gracefully ([be0a9f2](https://github.com/s00d/nuxt-i18n-micro/commit/be0a9f2))
+- **playwright:** Reduce number of workers for non-CI environments ([15d43fe](https://github.com/s00d/nuxt-i18n-micro/commit/15d43fe))
+- **playwright:** Reduce number of workers for non-CI environments ([1167dcd](https://github.com/s00d/nuxt-i18n-micro/commit/1167dcd))
+
+### 🏡 Chore
+
+- **version:** Bump version to 1.91.0 in `package.json` ([fcda15e](https://github.com/s00d/nuxt-i18n-micro/commit/fcda15e))
+- **playwright:** Fix ts ([0b1d72b](https://github.com/s00d/nuxt-i18n-micro/commit/0b1d72b))
+
+### ✅ Tests
+
+- **content:** Update span locator tests to target data-item block ([aabb974](https://github.com/s00d/nuxt-i18n-micro/commit/aabb974))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.90.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.89.0...v1.90.0)

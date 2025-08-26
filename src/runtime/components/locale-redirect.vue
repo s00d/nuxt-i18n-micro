@@ -66,7 +66,14 @@ else if (locales.includes(firstSegment) && globalLocaleRoutes && globalLocaleRou
     }
   }
 }
+else if (locales.includes(firstSegment)) {
+  // If the first segment is a valid locale but no specific routing rules apply,
+  // let the route continue to be handled by other route handlers (e.g., Nuxt Content)
+  // This prevents 404 errors on catch-all routes like /:slug(.*)* with locale prefixes
+  // No action needed - just let the route through
+}
 else {
+  // Only throw 404 for routes that don't have valid locale prefixes and aren't handled above
   throw createError({
     statusCode: 404,
   })

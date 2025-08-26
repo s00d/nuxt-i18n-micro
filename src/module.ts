@@ -287,13 +287,18 @@ export default defineNuxtModule<ModuleOptions>({
         nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
 
         if (isCloudflarePages) {
+          // Helper function to check if a route contains dynamic parameters
+          const isDynamicRoute = (route: string): boolean => {
+            return /:/.test(route) || route.includes('*') || route.includes('[') || route.includes('(')
+          }
+
           const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
             if (!page.path) return // Пропускаем страницы без пути
 
             const fullPath = path.posix.normalize(`${parentPath}/${page.path}`) // Объединяем путь родителя и текущий путь
 
-            // Skip internal paths
-            if (isInternalPath(fullPath)) {
+            // Skip internal paths and dynamic routes
+            if (isInternalPath(fullPath) || isDynamicRoute(fullPath)) {
               return
             }
 
@@ -318,6 +323,11 @@ export default defineNuxtModule<ModuleOptions>({
 
                   // Заменяем сегмент :locale(de|ru|en) на текущую локаль
                   localizedPath = localizedPath.replace(/:locale\([^)]+\)/, localeCode)
+
+                  // Skip if the resulting path still contains dynamic segments
+                  if (isDynamicRoute(localizedPath)) {
+                    return
+                  }
 
                   // Проверяем, есть ли правило для локализованного маршрута и должно ли он предварительно рендериться
                   const localizedRouteRule = routeRules[localizedPath]
@@ -430,14 +440,19 @@ export default defineNuxtModule<ModuleOptions>({
       nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
       const pages = nuxt.options.generate.routes || []
 
+      // Helper function to check if a route contains dynamic parameters
+      const isDynamicRoute = (route: string): boolean => {
+        return /:/.test(route) || route.includes('*') || route.includes('[') || route.includes('(')
+      }
+
       localeManager.locales.forEach((locale) => {
         // Для стратегий prefix и prefix_and_default генерируем маршруты и для defaultLocale
         // Для стратегии prefix_except_default пропускаем defaultLocale
         const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
         if (shouldGenerate) {
           pages.forEach((page) => {
-            // Пропускаем файлоподобные пути и служебные сегменты `__*`
-            if (!/\.[a-z0-9]+$/i.test(page) && !isInternalPath(page)) {
+            // Пропускаем файлоподобные пути, служебные сегменты и динамические маршруты
+            if (!/\.[a-z0-9]+$/i.test(page) && !isInternalPath(page) && !isDynamicRoute(page)) {
               const localizedPage = `/${locale.code}${page}`
 
               // Проверяем, есть ли правило для этого маршрута и должно ли он предварительно рендериться
@@ -509,7 +524,7 @@ export default defineNuxtModule<ModuleOptions>({
       }
       const routesSet = prerenderRoutes.routes
 
-      // Remove internal paths before localization processing
+      // Remove internal paths and dynamic routes before localization processing
       const routesToRemove: string[] = []
       routesSet.forEach((route) => {
         if (isInternalPath(route)) {
@@ -518,12 +533,28 @@ export default defineNuxtModule<ModuleOptions>({
       })
       routesToRemove.forEach(route => routesSet.delete(route))
 
+      // Helper function to check if a route contains dynamic parameters
+      const isDynamicRoute = (route: string): boolean => {
+        return /:/.test(route) || route.includes('*') || route.includes('[') || route.includes('(')
+      }
+
+      // Also remove dynamic routes from prerendering
+      const dynamicRoutesToRemove: string[] = []
+      routesSet.forEach((route) => {
+        if (isDynamicRoute(route)) {
+          dynamicRoutesToRemove.push(route)
+        }
+      })
+      dynamicRoutesToRemove.forEach(route => routesSet.delete(route))
+
       const additionalRoutes = new Set<string>()
       const routeRules = nuxt.options.routeRules || {}
 
       // Проходим по каждому существующему маршруту и добавляем локализованные версии
       routesSet.forEach((route) => {
-        if (!/\.[a-z0-9]+$/i.test(route) && !isInternalPath(route)) {
+        // Skip dynamic routes from being processed for localization during prerendering
+        // This prevents issues with catch-all routes like /:slug(.*)* being processed
+        if (!/\.[a-z0-9]+$/i.test(route) && !isInternalPath(route) && !isDynamicRoute(route)) {
           localeManager.locales!.forEach((locale) => {
             // Для стратегий prefix и prefix_and_default генерируем маршруты и для defaultLocale
             // Для стратегии prefix_except_default пропускаем defaultLocale

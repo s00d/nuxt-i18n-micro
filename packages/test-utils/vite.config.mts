@@ -9,8 +9,8 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'nuxt-i18n-micro-test-utils',
-      formats: ['cjs', 'es'],
-      fileName: format => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
+      formats: ['es'],
+      fileName: _format => `index.mjs`,
     },
     rollupOptions: {
       external: ['vue'],
@@ -20,6 +20,14 @@ export default defineConfig({
     },
   },
   plugins: [
-    dts(),
+    dts({
+      outDir: 'dist',
+      tsConfigPath: './tsconfig.json',
+      insertTypesEntry: true,
+      rollupTypes: true,
+      copyDtsFiles: false,
+      skipDiagnostics: false,
+      logLevel: 'info',
+    }),
   ],
 })

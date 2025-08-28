@@ -143,11 +143,18 @@ const customPluralRule = (key: string, count: number, params: Params, _locale: s
   }
   const forms = translation.toString().split('|')
   if (count === 0 && forms.length > 2) {
-    return forms[0].trim() // Case for "no apples"
+    const form = forms[0]
+    return form ? form.trim() : null // Case for "no apples"
   }
   if (count === 1 && forms.length > 1) {
-    return forms[1].trim() // Case for "one apple"
+    const form = forms[1]
+    return form ? form.trim() : null // Case for "one apple"
   }
-  return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
+  if (forms.length > 2) {
+    const form = forms[2]
+    return form ? form.trim().replace('{count}', count.toString()) : null
+  }
+  const lastForm = forms[forms.length - 1]
+  return lastForm ? lastForm.trim().replace('{count}', count.toString()) : null
 }
 </script>

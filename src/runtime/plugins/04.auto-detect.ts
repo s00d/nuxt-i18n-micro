@@ -5,7 +5,10 @@ import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo, useRoute, u
 const parseAcceptLanguage = (acceptLanguage: string) =>
   acceptLanguage
     .split(',')
-    .map(entry => entry.split(';')[0].trim())
+    .map((entry) => {
+      const parts = entry.split(';')
+      return parts[0] ? parts[0].trim() : ''
+    })
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig = nuxtApp.$config.public.i18nConfig as unknown as ModuleOptionsExtend

@@ -93,6 +93,7 @@ export class PageManager {
       // remove default routes
       for (let i = pages.length - 1; i >= 0; i--) {
         const page = pages[i]
+        if (!page) continue
         const pagePath = page.path ?? ''
         const pageName = page.name ?? ''
 
@@ -437,7 +438,10 @@ export class PageManager {
   ): NuxtPage | null {
     const routePath = this.buildRoutePath(localeCodes, page.path, encodeURI(customPath), isCustom, customRegex, force)
     if (!routePath || routePath == page.path) return null
-    const routeName = buildRouteName(buildRouteNameFromRoute(page.name, page.path), localeCodes[0], isCustom)
+    if (localeCodes.length === 0) return null
+    const firstLocale = localeCodes[0]
+    if (!firstLocale) return null
+    const routeName = buildRouteName(buildRouteNameFromRoute(page.name ?? '', page.path ?? ''), firstLocale, isCustom)
 
     return {
       ...page,

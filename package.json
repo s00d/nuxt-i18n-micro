@@ -28,23 +28,25 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/types.d.ts",
+      "types": "./dist/types.d.mts",
       "default": "./dist/module.mjs"
     },
-    "./utils": "./dist/utils.mjs"
+    "./internals": "./internals.d.mts"
   },
-  "main": "./dist/module.cjs",
+  "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
-      "*": [
-        "./dist/*",
-        "./*"
+      ".": [
+        "./dist/types.d.mts"
+      ],
+      "internals": [
+        "./internals.d.mts"
       ]
     }
   },
   "files": [
     "dist",
-    "internals.d.ts"
+    "internals.d.mts"
   ],
   "scripts": {
     "prepack": "pnpm --filter \"./packages/**\" run build && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
@@ -93,7 +95,7 @@
     "@nuxt/devtools": "^2.6.3",
     "@nuxt/devtools-ui-kit": "^2.6.3",
     "@nuxt/eslint-config": "^1.9.0",
-    "@nuxt/module-builder": "^0.8.4",
+    "@nuxt/module-builder": "^1.0.0",
     "@nuxt/schema": "^3.18.1 || ^4.0.0",
     "@nuxt/test-utils": "^3.19.2",
     "@playwright/test": "^1.55.0",

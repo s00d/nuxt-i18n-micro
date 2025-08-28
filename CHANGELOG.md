@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v1.94.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.93.0...v1.94.0)
+
+### 🚀 Enhancements
+
+- **pluralization:** Enhance handling of empty and undefined forms ([0017bed](https://github.com/s00d/nuxt-i18n-micro/commit/0017bed))
+
+### 🩹 Fixes
+
+- **core:** Correct version numbers in package.json files ([c324ed7](https://github.com/s00d/nuxt-i18n-micro/commit/c324ed7))
+
+### 💅 Refactors
+
+- **module:** Improve type safety for Nuxt's generate options ([905bbe5](https://github.com/s00d/nuxt-i18n-micro/commit/905bbe5))
+
+### 🏡 Chore
+
+- **core:** Update package versions and file extensions to .mts ([985929d](https://github.com/s00d/nuxt-i18n-micro/commit/985929d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.93.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.92.0...v1.93.0)

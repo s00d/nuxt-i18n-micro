@@ -28,6 +28,13 @@ import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
 import { isInternalPath } from './utils'
 
+// Interface for Nuxt's advanced options with generate
+interface NuxtOptionsWithGenerate {
+  generate?: {
+    routes?: string[]
+  }
+}
+
 function generateI18nTypes() {
   return `
 import type {PluginsInjections} from "nuxt-i18n-micro";
@@ -287,9 +294,9 @@ export default defineNuxtModule<ModuleOptions>({
         pages.push(fallbackRoute)
       }
       if (!isNoPrefixStrategy(options.strategy!)) {
-        // @ts-ignore - generate может не существовать в новых версиях Nuxt
-        ;(nuxt.options as any).generate = (nuxt.options as any).generate || {}
-        ;(nuxt.options as any).generate.routes = Array.isArray((nuxt.options as any).generate.routes) ? (nuxt.options as any).generate.routes : []
+        const nuxtOptions = nuxt.options as NuxtOptionsWithGenerate
+        nuxtOptions.generate = nuxtOptions.generate || {}
+        nuxtOptions.generate.routes = Array.isArray(nuxtOptions.generate.routes) ? nuxtOptions.generate.routes : []
 
         if (isCloudflarePages) {
           const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
@@ -432,10 +439,10 @@ export default defineNuxtModule<ModuleOptions>({
 
       const routes = nitroConfig.prerender?.routes || []
 
-      // @ts-ignore - generate может не существовать в новых версиях Nuxt
-      ;(nuxt.options as any).generate = (nuxt.options as any).generate || {}
-      ;(nuxt.options as any).generate.routes = Array.isArray((nuxt.options as any).generate.routes) ? (nuxt.options as any).generate.routes : []
-      const pages = (nuxt.options as any).generate.routes || []
+      const nuxtOptions = nuxt.options as NuxtOptionsWithGenerate
+      nuxtOptions.generate = nuxtOptions.generate || {}
+      nuxtOptions.generate.routes = Array.isArray(nuxtOptions.generate.routes) ? nuxtOptions.generate.routes : []
+      const pages = nuxtOptions.generate.routes || []
 
       localeManager.locales.forEach((locale) => {
         // Для стратегий prefix и prefix_and_default генерируем маршруты и для defaultLocale

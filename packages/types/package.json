@@ -14,14 +14,9 @@
   "bugs": {
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
-  "main": "dist/index.mjs",
-  "types": "dist/index.d.mts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    }
-  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "vite build",
     "test": "echo \"Error: no test specified\"",

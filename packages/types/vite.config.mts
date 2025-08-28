@@ -8,9 +8,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'nuxt-i18n-micro-types',
-      formats: ['es'],
-      fileName: _format => `index.mjs`,
+      name: 'nuxt-i18n-micro-core',
+      formats: ['cjs', 'es'],
+      fileName: format => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
       external: ['vue'],
@@ -20,11 +20,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    dts({
-      outDir: 'dist',
-      tsConfigPath: './tsconfig.json',
-      insertTypesEntry: true,
-      rollupTypes: true,
-    }),
+    dts(),
   ],
 })

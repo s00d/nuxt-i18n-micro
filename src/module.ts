@@ -100,7 +100,10 @@ export default defineNuxtModule<ModuleOptions>({
         return null
       }
       const forms = translation.toString().split('|')
-      return (count < forms.length ? forms[count].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
+      if (forms.length === 0) return null
+      const selectedForm = count < forms.length ? forms[count] : forms[forms.length - 1]
+      if (!selectedForm) return null
+      return selectedForm.trim().replace('{count}', count.toString())
     },
     customRegexMatcher: undefined,
   },
@@ -284,7 +287,9 @@ export default defineNuxtModule<ModuleOptions>({
         pages.push(fallbackRoute)
       }
       if (!isNoPrefixStrategy(options.strategy!)) {
-        nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
+        // @ts-ignore - generate может не существовать в новых версиях Nuxt
+        ;(nuxt.options as any).generate = (nuxt.options as any).generate || {}
+        ;(nuxt.options as any).generate.routes = Array.isArray((nuxt.options as any).generate.routes) ? (nuxt.options as any).generate.routes : []
 
         if (isCloudflarePages) {
           const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
@@ -307,7 +312,7 @@ export default defineNuxtModule<ModuleOptions>({
             // Проверяем наличие динамического сегмента :locale
             const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)
 
-            if (localeSegmentMatch) {
+            if (localeSegmentMatch && localeSegmentMatch[1]) {
               const availableLocales = localeSegmentMatch[1].split('|') // Достаем локали из сегмента, например "de|ru|en"
               localeManager.locales.forEach((locale) => {
                 const localeCode = locale.code
@@ -347,7 +352,7 @@ export default defineNuxtModule<ModuleOptions>({
           }
 
           // Пройдемся по страницам и добавим пути для каждого локализованного пути
-          pages.forEach((page) => {
+          pages.forEach((page: NuxtPage) => {
             processPageWithChildren(page) // Обрабатываем каждую страницу рекурсивно
           })
         }
@@ -427,15 +432,17 @@ export default defineNuxtModule<ModuleOptions>({
 
       const routes = nitroConfig.prerender?.routes || []
 
-      nuxt.options.generate.routes = Array.isArray(nuxt.options.generate.routes) ? nuxt.options.generate.routes : []
-      const pages = nuxt.options.generate.routes || []
+      // @ts-ignore - generate может не существовать в новых версиях Nuxt
+      ;(nuxt.options as any).generate = (nuxt.options as any).generate || {}
+      ;(nuxt.options as any).generate.routes = Array.isArray((nuxt.options as any).generate.routes) ? (nuxt.options as any).generate.routes : []
+      const pages = (nuxt.options as any).generate.routes || []
 
       localeManager.locales.forEach((locale) => {
         // Для стратегий prefix и prefix_and_default генерируем маршруты и для defaultLocale
         // Для стратегии prefix_except_default пропускаем defaultLocale
         const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
         if (shouldGenerate) {
-          pages.forEach((page) => {
+          pages.forEach((page: string) => {
             // Пропускаем файлоподобные пути и служебные сегменты `__*`
             if (!/\.[a-z0-9]+$/i.test(page) && !isInternalPath(page)) {
               const localizedPage = `/${locale.code}${page}`

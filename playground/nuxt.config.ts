@@ -87,7 +87,10 @@ export default defineNuxtConfig({
         return null
       }
       const forms = translation.toString().split('|')
-      return (count < forms.length ? forms[count].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
+      if (forms.length === 0) return null
+      const selectedForm = count < forms.length ? forms[count] : forms[forms.length - 1]
+      if (!selectedForm) return null
+      return selectedForm.trim().replace('{count}', count.toString())
     },
   },
 })

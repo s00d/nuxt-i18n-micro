@@ -54,8 +54,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     try {
       if (!i18nHelper.hasPageTranslation(locale, routeName)) {
         let fRouteName = routeName
-        if (i18nConfig.routesLocaleLinks && i18nConfig.routesLocaleLinks[fRouteName]) {
-          fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
+        if (i18nConfig.routesLocaleLinks && fRouteName && i18nConfig.routesLocaleLinks[fRouteName]) {
+          const newRouteName = i18nConfig.routesLocaleLinks[fRouteName]
+          if (newRouteName) {
+            fRouteName = newRouteName
+          }
         }
 
         if (!fRouteName || fRouteName === '') {
@@ -167,6 +170,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const currentLocale = routeService.getCurrentLocale()
       const { count, ..._params } = typeof params === 'number' ? { count: params } : params
 
+      if (count === undefined) return defaultValue ?? key
       return plural(key, Number.parseInt(count.toString()), _params, currentLocale, provideData.t) as string ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {

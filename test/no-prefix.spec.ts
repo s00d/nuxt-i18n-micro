@@ -3,8 +3,8 @@ import { expect, test } from '@nuxt/test-utils/playwright'
 
 test.use({
   // launchOptions: {
-  //   headless: false, // Показывать браузер
-  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  //   headless: false, // Show browser
+  //   slowMo: 500, // Slow down step execution (in milliseconds) for better visibility
   // },
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),

@@ -43,7 +43,7 @@ function formatDate(value: Date | number | string, locale: string, options?: Int
   return new Intl.DateTimeFormat(locale, options).format(new Date(value))
 }
 
-// Пример утилит для тестирования
+// Example utilities for testing
 export function t(key: string, params?: Params, defaultValue?: string): Translation {
   const value = i18nHelper.getTranslation(locale, routeName, key)
 
@@ -110,7 +110,7 @@ export const localePath = (_to: unknown, _locale?: string): string => ''
 
 export const setI18nRouteParams = (_value: unknown) => {}
 
-// Экспортируем утилиты для использования в тестах
+// Export utilities for use in tests
 export const i18nUtils = {
   t,
   tc,

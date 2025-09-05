@@ -94,6 +94,18 @@
       </i18n-link>
     </div>
 
+    <div>
+      <i18n-link :to="{ name: 'async-components-test' }">
+        🧪 Async Components Test 1
+      </i18n-link>
+    </div>
+
+    <div>
+      <i18n-link :to="{ name: 'async-components-test-2' }">
+        🧪 Async Components Test 2
+      </i18n-link>
+    </div>
+
     <a href="/">test</a>
 
     <div

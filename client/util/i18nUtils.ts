@@ -6,18 +6,18 @@ export function flattenTranslations(obj: Record<string, unknown>, parentKey = ''
 
       if (typeof value === 'object' && value !== null) {
         if (Array.isArray(value)) {
-          // Если это массив, добавляем префикс `[]` к индексу
+          // If it's an array, add `[]` prefix to the index
           value.forEach((item, index) => {
             flattenTranslations(item as Record<string, unknown>, `${newKey}.[]${index}`, result)
           })
         }
         else {
-          // Если это объект, рекурсивно вызываем flattenTranslations
+          // If it's an object, recursively call flattenTranslations
           flattenTranslations(value as Record<string, unknown>, newKey, result)
         }
       }
       else {
-        // Если это примитив, сохраняем значение
+        // If it's a primitive, save the value
         result[newKey] = value?.toString() ?? '' as string
       }
     }
@@ -43,11 +43,11 @@ export const unflattenTranslations = <T = Record<string, unknown>>(
         const arrayIndex = isArrayElement ? Number(part.slice(2)) : Number.NaN
 
         if (i === keys.length - 1) {
-          // Установка значения для последнего ключа
+          // Set value for the last key
           if (typeof current === 'object' && current !== null) {
             const currentObj = current as Record<string, unknown>
             const value = flat[key]
-            // Преобразование значения в правильный тип
+            // Convert value to the correct type
             if (typeof value === 'string') {
               if (value === 'true' || value === 'false') {
                 currentObj[part] = value === 'true'
@@ -72,7 +72,7 @@ export const unflattenTranslations = <T = Record<string, unknown>>(
           const currentObj = current as Record<string, unknown>
 
           if (isArrayElement) {
-            // Проверяем, является ли текущий узел массивом, если нет - преобразуем
+            // Check if current node is an array, if not - convert it
             if (!Array.isArray(currentObj)) {
               const newArray: unknown[] = []
               if (parent !== null && parentKey !== null) {

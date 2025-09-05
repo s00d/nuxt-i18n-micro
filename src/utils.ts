@@ -5,15 +5,15 @@ import type { Locale, LocaleCode } from 'nuxt-i18n-micro-types'
 export const isInternalPath = (p: string) => /(?:^|\/)__[^/]+/.test(p)
 
 export function extractLocaleRoutes(content: string, filePath: string): Record<string, string> | null {
-  // Ищем вызов defineI18nRoute (с долларом или без)
+  // Look for defineI18nRoute call (with or without dollar sign)
   const defineMatch = content.match(/\$?\bdefineI18nRoute\s*\(\s*\{[\s\S]*?\}\s*\)/)
   if (defineMatch) {
-    // Ищем блок localeRoutes внутри вызова defineI18nRoute
+    // Look for localeRoutes block inside defineI18nRoute call
     const localeRoutesMatch = defineMatch[0].match(/localeRoutes:\s*(\{[\s\S]*?\})/)
 
     if (localeRoutesMatch && localeRoutesMatch[1]) {
       try {
-        // Парсим найденный блок localeRoutes
+        // Parse the found localeRoutes block
         const parsedLocaleRoutes = Function('"use strict";return (' + localeRoutesMatch[1] + ')')()
 
         if (typeof parsedLocaleRoutes === 'object' && parsedLocaleRoutes !== null) {

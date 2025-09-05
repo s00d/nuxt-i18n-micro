@@ -1,0 +1,40 @@
+{
+  "title": "Async Components Test",
+  "description": "Testing async components with i18n translations",
+  "navigation": {
+    "goToTest2": "Go to Test 2",
+    "backToHome": "Back to Home"
+  },
+  "test1": {
+    "title": "Test 1: Simple Async Component",
+    "description": "Basic async component without translations"
+  },
+  "test2": {
+    "title": "Test 2: Async Component with Translations",
+    "description": "Async component that should load its own translations"
+  },
+  "test3": {
+    "title": "Test 3: Async Component with defineI18nRoute",
+    "description": "Async component using defineI18nRoute function"
+  },
+  "test4": {
+    "title": "Test 4: Dynamic Async Component",
+    "description": "Dynamically loaded async component",
+    "loadButton": "Load Dynamic Component"
+  },
+  "test5": {
+    "title": "Test 5: Async Component with Error",
+    "description": "Async component that throws an error",
+    "error": "Error loading component"
+  },
+  "results": {
+    "title": "Test Results",
+    "currentLocale": "Current Locale",
+    "routeName": "Route Name",
+    "translationsLoaded": "Translations Loaded",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "loading": "Loading...",
+  "switchLanguage": "Switch Language"
+}

@@ -54,7 +54,7 @@ describe('i18nUtils', () => {
     const date = new Date('2023-12-01T00:00:00Z')
     const formatted = i18nUtils.td(date, { year: 'numeric', month: 'long', day: 'numeric' })
 
-    expect(formatted).toBe('December 1, 2023') // Зависит от локали
+    expect(formatted).toBe('December 1, 2023') // Depends on locale
   })
 
   test('setLocale changes the current locale', () => {

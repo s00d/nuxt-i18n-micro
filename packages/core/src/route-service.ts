@@ -283,10 +283,10 @@ export class RouteService {
   ): RouteLocationResolved {
     const currentLocale = locale || this.getCurrentLocale(route)
 
-    // Обработка префиксной стратегии
+    // Handle prefix strategy
     const processedTo = this.handlePrefixStrategy(to)
 
-    // Создание локализованного маршрута
+    // Create localized route
     return this.createLocalizedRoute(processedTo, route, currentLocale)
   }
 

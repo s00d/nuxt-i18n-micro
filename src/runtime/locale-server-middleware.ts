@@ -17,19 +17,19 @@ export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string
   const config = useRuntimeConfig(event)
   const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
-  // Определяем текущую локаль по приоритету
+  // Determine current locale by priority
   const detectedLocale = currentLocale || detectCurrentLocale(event, { fallbackLocale, defaultLocale: defaultLocale || configDefaultLocale })
 
-  // Находим конфигурацию текущей локали
+  // Find configuration for current locale
   const localeConfig = locales?.find(l => l.code === detectedLocale) ?? null
 
-  // Получаем список доступных локалей
+  // Get list of available locales
   const availableLocales = locales?.map(l => l.code) ?? []
 
-  // Проверяем, является ли текущая локаль дефолтной
+  // Check if current locale is default
   const isDefault = detectedLocale === (defaultLocale || configDefaultLocale || 'en')
 
-  // Проверяем, является ли текущая локаль fallback
+  // Check if current locale is fallback
   const isFallback = detectedLocale === (fallbackLocale || defaultLocale || configDefaultLocale || 'en')
 
   return {

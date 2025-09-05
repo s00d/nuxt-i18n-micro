@@ -1,6 +1,50 @@
 # Changelog
 
 
+## v1.95.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.94.0...v1.95.0)
+
+### 🚀 Enhancements
+
+- **playground:** Add async components test links to index page ([45432bc](https://github.com/s00d/nuxt-i18n-micro/commit/45432bc))
+- **async-components:** Add initial configuration and dependencies ([664afb8](https://github.com/s00d/nuxt-i18n-micro/commit/664afb8))
+
+### 🩹 Fixes
+
+- **page-manager:** Translate comments from Russian to English ([3adc3fe](https://github.com/s00d/nuxt-i18n-micro/commit/3adc3fe))
+- **format-service:** Update error message for invalid dates ([f8e3db0](https://github.com/s00d/nuxt-i18n-micro/commit/f8e3db0))
+- **async-components-test:** Update type for DynamicComponent reference ([59a8c44](https://github.com/s00d/nuxt-i18n-micro/commit/59a8c44))
+
+### 💅 Refactors
+
+- **module:** Remove unused NuxtOptionsWithGenerate interface ([4b01a9b](https://github.com/s00d/nuxt-i18n-micro/commit/4b01a9b))
+- **utils:** Improve comments for clarity and consistency ([53a9220](https://github.com/s00d/nuxt-i18n-micro/commit/53a9220))
+- **devtools:** Translate comments to English for better clarity ([581b893](https://github.com/s00d/nuxt-i18n-micro/commit/581b893))
+- **locale-server-middleware:** Translate comments to English ([03be2da](https://github.com/s00d/nuxt-i18n-micro/commit/03be2da))
+- **translator:** Translate comments from Russian to English ([a5c46a2](https://github.com/s00d/nuxt-i18n-micro/commit/a5c46a2))
+- **route-service:** Improve comments for clarity and consistency ([c40bc56](https://github.com/s00d/nuxt-i18n-micro/commit/c40bc56))
+- **tests:** Improve comments in route-service tests for clarity ([07cf578](https://github.com/s00d/nuxt-i18n-micro/commit/07cf578))
+- **test-utils:** Update comments to English for clarity ([3189c30](https://github.com/s00d/nuxt-i18n-micro/commit/3189c30))
+- **tests:** Update comments in `no-prefix.spec.ts` for clarity ([7f24148](https://github.com/s00d/nuxt-i18n-micro/commit/7f24148))
+
+### 🏡 Chore
+
+- **vitest:** Update test timeout comment for clarity ([36bf86f](https://github.com/s00d/nuxt-i18n-micro/commit/36bf86f))
+- **pnpm-workspace:** Update workspace configuration to include built dependencies ([9ba906f](https://github.com/s00d/nuxt-i18n-micro/commit/9ba906f))
+- **test:** Update comments in `hook.spec.ts` for clarity ([2d71f85](https://github.com/s00d/nuxt-i18n-micro/commit/2d71f85))
+
+### ✅ Tests
+
+- **tests:** Update comment for clarity on locale dependency ([19192a4](https://github.com/s00d/nuxt-i18n-micro/commit/19192a4))
+- **server:** Update comments to English for clarity ([32b69ed](https://github.com/s00d/nuxt-i18n-micro/commit/32b69ed))
+- **async-components:** Add tests for async components in production mode ([bee8210](https://github.com/s00d/nuxt-i18n-micro/commit/bee8210))
+- **async-components:** Add comprehensive tests for async components ([810a15e](https://github.com/s00d/nuxt-i18n-micro/commit/810a15e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.94.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.93.0...v1.94.0)

@@ -1,0 +1,13 @@
+{
+  "title": "Async-Komponenten Test-Suite",
+  "description": "Testen von Async-Komponenten mit i18n-Übersetzungen",
+  "navigation": {
+    "test1": "🧪 Async-Komponenten Test 1",
+    "test2": "🧪 Async-Komponenten Test 2"
+  },
+  "localeInfo": {
+    "currentLocale": "Aktuelle Lokale",
+    "routeName": "Routenname"
+  },
+  "switchLanguage": "Sprache Wechseln"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Async Components Test Suite",
+  "description": "Testing async components with i18n translations",
+  "navigation": {
+    "test1": "🧪 Async Components Test 1",
+    "test2": "🧪 Async Components Test 2"
+  },
+  "localeInfo": {
+    "currentLocale": "Current Locale",
+    "routeName": "Route Name"
+  },
+  "switchLanguage": "Switch Language"
+}

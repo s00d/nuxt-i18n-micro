@@ -1,8 +1,8 @@
 packages:
-  - packages/*
-  - client
-  - playground
-  - test/fixtures/**/*
+  - 'packages/*'
+  - 'client'
+  - 'playground'
+  - 'test/fixtures/**/*'
 
 onlyBuiltDependencies:
   - better-sqlite3

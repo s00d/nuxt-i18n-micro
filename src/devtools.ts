@@ -93,7 +93,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
           const pagesDir = path.join(localesDir, 'pages')
 
-          // Рекурсивная функция для обработки вложенных директорий
+          // Recursive function for processing nested directories
           const processDirectory = (dir: string) => {
             if (!fs.existsSync(dir)) return
 
@@ -102,7 +102,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
               const stat = fs.lstatSync(filePath)
 
               if (stat.isDirectory()) {
-                processDirectory(filePath) // Рекурсивный обход поддиректорий
+                processDirectory(filePath) // Recursive traversal of subdirectories
               }
               else if (file.endsWith('.json')) {
                 try {
@@ -115,7 +115,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
             })
           }
 
-          // Обрабатываем основную директорию и pages
+          // Process main directory and pages
           processDirectory(localesDir)
           processDirectory(pagesDir)
         }

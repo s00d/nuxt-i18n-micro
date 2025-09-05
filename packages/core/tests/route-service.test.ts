@@ -17,7 +17,7 @@ describe('RouteService', () => {
   let navigateToMock: jest.Mock
 
   beforeEach(() => {
-    // Мокируем Router
+    // Mock Router
     mockRouter = {
       currentRoute: { value: { params: { locale: 'en' } } },
       resolve: jest.fn((to: RouteLocationRaw | string) => ({
@@ -31,7 +31,7 @@ describe('RouteService', () => {
       push: jest.fn(() => Promise.resolve()) as unknown as jest.MockedFunction<Router['push']>,
     } as unknown as jest.Mocked<Router>
 
-    // Мокируем ModuleOptionsExtend
+    // Mock ModuleOptionsExtend
     mockI18nConfig = {
       apiBaseUrl: '',
       dateBuild: 0,
@@ -47,11 +47,11 @@ describe('RouteService', () => {
       hashMode: false,
     }
 
-    // Мокируем setCookie и navigateTo
+    // Mock setCookie and navigateTo
     setCookieMock = jest.fn()
     navigateToMock = jest.fn()
 
-    // Инициализируем RouteService
+    // Initialize RouteService
     routeService = new RouteService(
       mockI18nConfig,
       mockRouter,
@@ -139,7 +139,7 @@ describe('RouteService', () => {
     const i18nRouteParams = { de: { param1: 'value1' } }
     await routeService.switchLocaleLogic('de', i18nRouteParams, route)
 
-    // Проверяем, что push был вызван с правильными аргументами
+    // Check that push was called with correct arguments
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: 'localized-about',
       params: { param1: 'value1', locale: 'de' },
@@ -194,7 +194,7 @@ describe('RouteService', () => {
   })
 
   test('getCurrentLocale should return defaultLocale if locale is missing in route params', () => {
-    mockRouter.currentRoute.value.params = {} // Убираем locale из параметров
+    mockRouter.currentRoute.value.params = {} // Remove locale from params
     const locale = routeService.getCurrentLocale()
     expect(locale).toBe('en') // defaultLocale
   })
@@ -203,7 +203,7 @@ describe('RouteService', () => {
     const mockI18nConfigWithoutDisplayName = {
       ...mockI18nConfig,
       locales: [
-        { code: 'en', iso: 'en-US' }, // displayName отсутствует
+        { code: 'en', iso: 'en-US' }, // displayName is missing
         { code: 'de', iso: 'de-DE' },
         { code: 'ru', iso: 'ru-RU' },
       ],
@@ -226,7 +226,7 @@ describe('RouteService', () => {
   })
 
   test('getFullPathWithBaseUrl should handle missing baseUrl', () => {
-    const currentLocale = { code: 'de', iso: 'de-DE' } // baseUrl отсутствует
+    const currentLocale = { code: 'de', iso: 'de-DE' } // baseUrl is missing
     const route = { path: '/about' } as RouteLocationRaw
     const fullPath = routeService.getFullPathWithBaseUrl(currentLocale, route)
     expect(fullPath).toBe('/about')

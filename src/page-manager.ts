@@ -75,7 +75,7 @@ export class PageManager {
 
       // If globalLocaleRoutes for this page is false, skip localization
       if (customRoute === false) {
-        continue // Страница явно отключена в globalLocaleRoutes
+        continue // Page explicitly disabled in globalLocaleRoutes
       }
 
       // Check if the page has custom routes in globalLocaleRoutes
@@ -160,7 +160,7 @@ export class PageManager {
       const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy) || isPrefixAndDefaultStrategy(this.strategy))
 
       if (customPath) {
-        // Есть кастомный путь для этой локали
+        // There's a custom path for this locale
         if (isNoPrefixStrategy(this.strategy)) {
           const newRoute = this.createLocalizedRoute(page, [locale.code], page.children ?? [], true, customPath, customRegex, false, locale.code)
           if (newRoute) {
@@ -227,10 +227,10 @@ export class PageManager {
     if (originalChildren.length) {
       const newName = normalizePath(path.posix.join('/', buildRouteNameFromRoute(page.name, page.path)))
 
-      // Сохраняем текущих детей (если они есть)
+      // Save current children (if they exist)
       const currentChildren = page.children ? [...page.children] : []
 
-      // Создаём локализованных детей
+      // Create localized children
       const localizedChildren = this.createLocalizedChildren(
         originalChildren,
         newName,
@@ -240,20 +240,20 @@ export class PageManager {
         false,
       )
 
-      // Мапа для поиска детей по имени
+      // Map for finding children by name
       const childrenMap = new Map(currentChildren.map(child => [child.name, child]))
 
-      // Объединяем детей
+      // Merge children
       localizedChildren.forEach((localizedChild) => {
         if (childrenMap.has(localizedChild.name)) {
-          // Обновляем существующий элемент
+          // Update existing element
           const existingChild = childrenMap.get(localizedChild.name)
           if (existingChild) {
             Object.assign(existingChild, localizedChild)
           }
         }
         else {
-          // Добавляем новый элемент
+          // Add new element
           currentChildren.push(localizedChild)
         }
       })
@@ -328,7 +328,7 @@ export class PageManager {
 
     const result: NuxtPage[] = []
 
-    // --- 1. Обычный маршрут без кастомных путей и без локализованного родителя ---
+    // --- 1. Regular route without custom paths and without localized parent ---
     if (!isCustomLocalized) {
       const finalPathForRoute = removeLeadingSlash(routePath)
 
@@ -354,7 +354,7 @@ export class PageManager {
       return result
     }
 
-    // --- 2. Кастомные локализованные маршруты ---
+    // --- 2. Custom localized routes ---
     for (const locale of localeCodes) {
       const parentLocalizedPath = localizedParentPaths?.[locale]
       const hasParentLocalized = !!parentLocalizedPath

@@ -7,33 +7,33 @@ interface TranslatorOptions {
 }
 
 interface GoogleFreeTranslateResponse {
-  0: Array<[string, string]> // Первый элемент — переведенный текст, второй — дополнительная информация
+  0: Array<[string, string]> // First element — translated text, second — additional information
 }
 
 export class Translator {
   private apiKey: string
   private driver: DriverType
   private options: { [key: string]: string | number | boolean }
-  private clearBuffer: string[] = [] // Буфер для хранения замененных значений
+  private clearBuffer: string[] = [] // Buffer for storing replaced values
 
   constructor({ apiKey, driver, options = {} }: TranslatorOptions) {
     this.apiKey = apiKey
     this.driver = driver
     this.options = options
 
-    // Проверка наличия folderId для Yandex Cloud
+    // Check for folderId presence for Yandex Cloud
     if (driver === 'yandex-cloud' && !options.folderId) {
       throw new Error('Yandex Cloud Translator requires folderId in options.')
     }
   }
 
   /**
-   * Переводит текст с одного языка на другой.
+   * Translates text from one language to another.
    *
-   * @param text - Текст для перевода.
-   * @param fromLang - Исходный язык (например, "en").
-   * @param toLang - Целевой язык (например, "ru").
-   * @returns Переведенный текст.
+   * @param text - Text to translate.
+   * @param fromLang - Source language (e.g., "en").
+   * @param toLang - Target language (e.g., "ru").
+   * @returns Translated text.
    */
   async translate(text: string, fromLang: string, toLang: string): Promise<string> {
     console.debug('Translating text...', { text, fromLang, toLang })
@@ -42,7 +42,7 @@ export class Translator {
       return text
     }
 
-    // Очистка текста перед переводом (для Google, Yandex, DeepL, Google Free, Yandex Cloud)
+    // Clean text before translation (for Google, Yandex, DeepL, Google Free, Yandex Cloud)
     const cleanedText = this.clearText(text)
 
     let translatedText: string
@@ -57,10 +57,10 @@ export class Translator {
         translatedText = await this.deeplTranslate(cleanedText, fromLang, toLang)
         break
       case 'openai':
-        translatedText = await this.openaiTranslate(text, fromLang, toLang) // Оригинальный текст для OpenAI
+        translatedText = await this.openaiTranslate(text, fromLang, toLang) // Original text for OpenAI
         break
       case 'deepseek':
-        translatedText = await this.deepseekTranslate(text, fromLang, toLang) // Оригинальный текст для DeepSeek
+        translatedText = await this.deepseekTranslate(text, fromLang, toLang) // Original text for DeepSeek
         break
       case 'google-free':
         translatedText = await this.googleFreeTranslate(cleanedText, fromLang, toLang)
@@ -72,7 +72,7 @@ export class Translator {
         throw new Error(`Unsupported driver: ${this.driver}`)
     }
 
-    // Восстановление текста после перевода (для Google, Yandex, DeepL, Google Free, Yandex Cloud)
+    // Restore text after translation (for Google, Yandex, DeepL, Google Free, Yandex Cloud)
     const finalText = this.revertText(translatedText)
 
     console.debug('Text was translated', { finalText })
@@ -103,7 +103,7 @@ export class Translator {
       return acc.replace(`_r${index}_`, match)
     }, text)
 
-    // Удаление лишних пробелов и неразрывных пробелов
+    // Remove extra spaces and non-breaking spaces
     return restoredText
       .replace(/ {2,}|^ |^\xA0|\xA0{2,}|\xA0$/gmu, '')
       .replace(/&nbsp;/g, ' ')
@@ -289,7 +289,7 @@ export class Translator {
       throw new Error('Invalid response from Google Free Translate')
     }
 
-    // Извлекаем переведенный текст из ответа
+    // Extract translated text from response
     return data[0].map(item => (item[0] ? item[0] : '')).join('')
   }
 
@@ -324,10 +324,10 @@ export class Translator {
   }
 
   /**
-   * Генерация токена для Google Free Translate.
+   * Token generation for Google Free Translate.
    */
   private generateToken(text: string): string {
-    // Упрощенная реализация генерации токена
+    // Simplified token generation implementation
     const tkk = 0
     const e: number[] = []
     for (let f = 0; f < text.length; f++) {

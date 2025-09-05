@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, nextTick, onMounted } from 'vue'
+import { ref, defineAsyncComponent, nextTick, onMounted, type Component } from 'vue'
 import { useNuxtApp } from '#imports'
 
 // Отключаем SSR для этой страницы, чтобы избежать проблем с гидратацией асинхронных компонентов
@@ -239,7 +239,7 @@ $defineI18nRoute({
 
 // Состояние компонентов
 const showDynamicComponent = ref(false)
-const DynamicComponent = ref<any>(null)
+const DynamicComponent = ref<Component | null>(null)
 const isLoading = ref(false)
 const translationsLoaded = ref(false)
 

@@ -32,6 +32,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $switchRoute: nuxtApp.$switchRoute,
     $localeRoute: nuxtApp.$localeRoute,
     $localePath: nuxtApp.$localePath,
+    $loadPageTranslations: nuxtApp.$loadPageTranslations,
   } as const
 
   const noDollarInjections = Object.fromEntries(

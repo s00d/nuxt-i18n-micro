@@ -249,6 +249,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       i18nRouteParams.value = value
       return i18nRouteParams.value
     },
+    loadPageTranslations: async (locale: string, routeName: string, translations: Translations) => {
+      await i18nHelper.loadPageTranslations(locale, routeName, translations)
+    },
   }
 
   const $provideData = Object.fromEntries(
@@ -288,4 +291,5 @@ export interface PluginsInjections {
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
   $localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
+  $loadPageTranslations: (locale: string, routeName: string, translations: Translations) => Promise<void>
 }

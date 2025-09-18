@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="h-screen overflow-auto"
-    style="padding-top: 44px"
-  >
+  <div class="i18n-view">
     <Loader v-if="isLoading" />
 
     <NSplitPane
@@ -28,39 +25,25 @@
             v-if="localContent"
             class="editor-container"
           >
-            <!-- Панель кнопок -->
-            <div class="actions">
-              <div class="left-buttons">
-                <NButton @click="exportTranslations">
-                  Export Translations
-                </NButton>
-                <NButton @click="importTranslationsClick">
-                  Import Translations
-                </NButton>
-                <input
-                  v-show="false"
-                  ref="file"
-                  type="file"
-                  @change="importTranslations"
-                >
-                <NButton @click="showStatisticsModal">
-                  Stat
-                </NButton>
+            <!-- Action Bar -->
+            <ActionBar
+              v-model="selectedEditor"
+              :show-translate-button="selectedDriver !== 'disabled'"
+              @export="exportTranslations"
+              @import="importTranslationsClick"
+              @show-stats="showStatisticsModal"
+              @translate-missing="confirmTranslateMissingKeys"
+              @save="handleSave"
+            />
 
-                <NButton
-                  v-if="selectedDriver !== 'disabled'"
-                  @click="confirmTranslateMissingKeys"
-                >
-                  Translate Missing Keys
-                </NButton>
-              </div>
-              <NButton
-                class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold"
-                @click="handleSave"
-              >
-                Save
-              </NButton>
-            </div>
+            <!-- Скрытый input для импорта -->
+            <input
+              v-show="false"
+              ref="file"
+              type="file"
+              accept=".json"
+              @change="importTranslations"
+            >
 
             <!-- Редакторы -->
             <div class="editor-wrapper">
@@ -77,21 +60,39 @@
           </div>
           <div
             v-else
-            class="text-gray-500"
+            class="empty-state"
           >
-            Please select a locale and a file to view editor.
+            <div class="empty-state__icon">
+              📁
+            </div>
+            <div class="empty-state__title">
+              No File Selected
+            </div>
+            <div class="empty-state__description">
+              Please select a locale and a file to view editor.
+            </div>
           </div>
         </div>
         <NCard v-else>
           <template #default>
-            Learn more about
-            <NLink
-              href="https://github.com/s00d/nuxt-i18n-micro"
-              color="orange"
-              target="_blank"
-            >
-              i18n
-            </NLink>
+            <div class="welcome-card">
+              <div class="welcome-card__icon">
+                🌍
+              </div>
+              <div class="welcome-card__title">
+                Welcome to i18n Micro
+              </div>
+              <div class="welcome-card__description">
+                Learn more about
+                <NLink
+                  href="https://github.com/s00d/nuxt-i18n-micro"
+                  color="orange"
+                  target="_blank"
+                >
+                  i18n Micro
+                </NLink>
+              </div>
+            </div>
           </template>
         </NCard>
       </template>
@@ -141,8 +142,9 @@ import Loader from '../components/Loader.vue'
 import TranslationEditor from '../components/TranslationEditor.vue'
 import JsonEditor from '../components/JsonEditor.vue'
 import LocalesList from '../components/LocalesList.vue'
-import Modal from '../components/Modal.vue' // Импортируем наш компонент Modal
-import Statistics from '../components/Statistics.vue' // Импортируем новый компонент Statistics
+import Modal from '../components/Modal.vue'
+import Statistics from '../components/Statistics.vue'
+import ActionBar from '../components/ActionBar.vue'
 import { useI18nStore } from '../stores/useI18nStore'
 import type { TranslationContent } from '../types'
 import { flattenTranslations, unflattenTranslations } from '../util/i18nUtils'
@@ -164,7 +166,7 @@ const {
   getDefaultLocaleTranslation,
 } = useI18nStore()
 
-const file = ref<HTMLButtonElement | null>(null)
+const file = ref<HTMLInputElement | null>(null)
 
 // Локальное состояние для хранения изменений
 const localContent = ref<TranslationContent>({})
@@ -296,29 +298,51 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.i18n-view {
+  @apply h-full flex flex-col;
+}
+
 .editor-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 5px;
-}
-
-.left-buttons {
-  display: flex;
-  gap: 10px;
+  @apply flex flex-col h-full;
 }
 
 .editor-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow: hidden;
+  @apply flex-1 flex flex-col gap-2 overflow-hidden;
+}
+
+.editor {
+  @apply flex-1 overflow-auto;
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center h-full text-center p-8;
+}
+
+.empty-state__icon {
+  @apply text-6xl mb-4 opacity-50;
+}
+
+.empty-state__title {
+  @apply text-xl font-semibold text-slate-700 mb-2;
+}
+
+.empty-state__description {
+  @apply text-slate-500;
+}
+
+.welcome-card {
+  @apply text-center p-8;
+}
+
+.welcome-card__icon {
+  @apply text-6xl mb-4;
+}
+
+.welcome-card__title {
+  @apply text-2xl font-bold text-slate-800 mb-2;
+}
+
+.welcome-card__description {
+  @apply text-slate-600;
 }
 </style>

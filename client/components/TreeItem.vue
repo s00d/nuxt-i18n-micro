@@ -148,80 +148,42 @@ function handleFileSelected(fullPath: string, locale: string) {
 
 <style scoped>
 .file-item {
-  padding: 1px 12px;
-  margin: 2px 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  font-size: 14px;
-  color: #334155;
-  background: white;
-  border-radius: 6px;
-  transition: all 0.2s;
-  border: 1px solid transparent;
+  @apply py-1 px-2 my-1 cursor-pointer flex items-center text-sm text-slate-700 bg-white rounded-md transition-all duration-200 border border-transparent;
 }
 
 .file-item:hover {
-  background: #f1f5f9;
-  transform: translateX(2px);
+  @apply bg-slate-50 transform translate-x-1;
 }
 
 .file-item.selected {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #1d4ed8;
-  font-weight: 500;
+  @apply bg-blue-50 border-blue-200 text-blue-700 font-medium;
 }
 
 .folder-header {
-  padding: 1px 12px;
-  margin: 2px 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  font-size: 14px;
-  color: #334155;
-  background: white;
-  border-radius: 6px;
-  transition: all 0.2s;
-  border: 1px solid transparent;
+  @apply py-1 px-2 my-1 cursor-pointer flex items-center text-sm text-slate-700 bg-white rounded-md transition-all duration-200 border border-transparent;
 }
 
 .folder-header:hover {
-  background: #f1f5f9;
-  transform: translateX(2px);
+  @apply bg-slate-50 transform translate-x-1;
 }
 
 .folder-header.expanded {
-  font-weight: 500;
-  color: #1e40af;
+  @apply font-medium text-blue-700;
 }
 
 .folder-header.selected {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #1d4ed8;
-  font-weight: 500;
+  @apply bg-blue-50 border-blue-200 text-blue-700 font-medium;
 }
 
 .icon {
-  width: 18px;
-  height: 18px;
-  margin-right: 8px;
-  flex-shrink: 0;
+  @apply w-4 h-4 mr-2 flex-shrink-0;
 }
 
 .chevron .icon {
-  width: 14px;
-  height: 14px;
-  margin-right: 10px;
+  @apply w-3 h-3 mr-2;
 }
 
 .folder-children {
-  margin-left: 12px;
-  border-left: 2px solid #e2e8f0;
-  padding-left: 12px;
+  @apply ml-3 border-l-2 border-slate-200 pl-3;
 }
 </style>

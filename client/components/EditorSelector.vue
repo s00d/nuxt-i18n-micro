@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 interface EditorOption {
   value: string
   label: string

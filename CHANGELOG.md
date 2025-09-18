@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.96.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.95.0...v1.96.0)
+
+### 🚀 Enhancements
+
+- **i18n-view:** Enhance UI with ActionBar and improve layout ([6ea32cb](https://github.com/s00d/nuxt-i18n-micro/commit/6ea32cb))
+- **settings:** Refactor SettingsView for better modularity and clarity ([d536508](https://github.com/s00d/nuxt-i18n-micro/commit/d536508))
+- **config:** Refactor ConfigView to use ConfigCard and LocaleTable components ([41fa00b](https://github.com/s00d/nuxt-i18n-micro/commit/41fa00b))
+- **i18n:** Add loadPageTranslations method to load translations ([fc881b6](https://github.com/s00d/nuxt-i18n-micro/commit/fc881b6))
+- **components:** Add ref import for reactive state management ([2b84513](https://github.com/s00d/nuxt-i18n-micro/commit/2b84513))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.95.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.94.0...v1.95.0)

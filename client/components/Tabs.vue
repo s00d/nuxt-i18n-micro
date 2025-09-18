@@ -6,7 +6,8 @@
       :class="['tab', { active: activeTab === tab.value }]"
       @click="activeTab = tab.value"
     >
-      {{ tab.label }}
+      <span class="tab-icon">{{ getTabIcon(tab.value) }}</span>
+      <span class="tab-label">{{ tab.label }}</span>
     </button>
   </div>
 </template>
@@ -27,38 +28,37 @@ const activeTab = ref(props.modelValue)
 watch(activeTab, (newValue) => {
   emit('update:modelValue', newValue)
 })
+
+// Получаем иконку для вкладки
+const getTabIcon = (value: string) => {
+  const icons: Record<string, string> = {
+    i18n: '🌍',
+    settings: '⚙️',
+    config: '📊',
+  }
+  return icons[value] || '📄'
+}
 </script>
 
 <style scoped>
 .tabs {
-  display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  background: white;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 2;
+  @apply flex border-b border-slate-200 bg-white sticky top-0 z-10;
 }
 
 .tab {
-  padding: 10px 20px;
-  cursor: pointer;
-  border: none;
-  background: none;
-  font-size: 14px;
-  color: #4a5568; /* Цвет текста */
-  transition: all 0.2s ease;
-
-}
-
-.tab:hover {
-  background-color: #f7fafc; /* Фон при наведении */
+  @apply flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600
+  border-b-2 border-transparent transition-all duration-200 hover:text-slate-800 hover:bg-slate-50;
 }
 
 .tab.active {
-  border-bottom: 2px solid #3b82f6; /* Активная вкладка */
-  color: #3b82f6; /* Цвет текста активной вкладки */
-  font-weight: 500;
+  @apply text-blue-600 border-blue-500 bg-blue-50;
+}
+
+.tab-icon {
+  @apply text-base;
+}
+
+.tab-label {
+  @apply whitespace-nowrap;
 }
 </style>

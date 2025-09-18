@@ -107,17 +107,10 @@ function handleFileSelected(fullPath: string) {
 
 <style scoped>
 .file-tree {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #f8fafc;
-  border-radius: 8px;
-  overflow: hidden;
+  @apply h-full flex flex-col bg-slate-50 rounded-lg overflow-hidden;
 }
 
 .tree-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
+  @apply flex-1 overflow-y-auto p-2;
 }
 </style>

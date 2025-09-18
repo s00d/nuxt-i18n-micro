@@ -105,8 +105,8 @@ importers:
         version: link:../packages/types
     devDependencies:
       json-editor-vue:
-        specifier: ^0.17.3
-        version: 0.17.3(vue@3.5.19(typescript@5.9.2))
+        specifier: ^0.18.1
+        version: 0.18.1(vue@3.5.19(typescript@5.9.2))
 
   packages/core:
     dependencies:
@@ -5830,8 +5830,8 @@ packages:
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
-  json-editor-vue@0.17.3:
-    resolution: {integrity: sha512-MVpD3TInIlruq9ye/J3XmYHTH+pqfyW0E1GVUV2ug5M0X/19zGslJ+FgeikDflvTVUxhVuCEnc9spMYmPj5Lyw==}
+  json-editor-vue@0.18.1:
+    resolution: {integrity: sha512-SQCtNngo/ScFjXC7KUOqLOeeLgvl+xwWbxfNelqIOHC6uLilQl7AlWzNJyrDqo+RWnc53nT0OngXki5uTx9SJg==}
     peerDependencies:
       '@vue/composition-api': '>=1'
       vue: 2||3
@@ -8445,8 +8445,8 @@ packages:
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
 
-  vanilla-jsoneditor@2.4.0:
-    resolution: {integrity: sha512-v/c8Zxr0mOcagXzJ+Gar2qhkG20RpuowVDTJshsZPFxN6OZ3bo7gWoNUcuFyVbuJyy96P9CHLrZ5DQJkLfD9wQ==}
+  vanilla-jsoneditor@3.8.0:
+    resolution: {integrity: sha512-dZbyaBvjA4Bmnixkfp8Qnc2EUVwwyrp5zwbqQnNLBHqvtlINjy+u6zYSIIEtzSb3Qs0BoO3fTqjPjNQHNE+ZsQ==}
 
   vanilla-picker@2.12.3:
     resolution: {integrity: sha512-qVkT1E7yMbUsB2mmJNFmaXMWE2hF8ffqzMMwe9zdAikd8u2VfnsVY2HQcOUi2F38bgbxzlJBEdS1UUhOXdF9GQ==}
@@ -14271,7 +14271,7 @@ snapshots:
 
   esrap@1.4.5:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   esrecurse@4.3.0:
     dependencies:
@@ -15532,9 +15532,9 @@ snapshots:
 
   json-buffer@3.0.1: {}
 
-  json-editor-vue@0.17.3(vue@3.5.19(typescript@5.9.2)):
+  json-editor-vue@0.18.1(vue@3.5.19(typescript@5.9.2)):
     dependencies:
-      vanilla-jsoneditor: 2.4.0
+      vanilla-jsoneditor: 3.8.0
       vue: 3.5.19(typescript@5.9.2)
       vue-demi: 0.14.10(vue@3.5.19(typescript@5.9.2))
 
@@ -18403,7 +18403,7 @@ snapshots:
   svelte@5.20.1:
     dependencies:
       '@ampproject/remapping': 2.3.0
-      '@jridgewell/sourcemap-codec': 1.5.0
+      '@jridgewell/sourcemap-codec': 1.5.5
       '@types/estree': 1.0.8
       acorn: 8.15.0
       acorn-typescript: 1.4.13(acorn@8.15.0)
@@ -18414,7 +18414,7 @@ snapshots:
       esrap: 1.4.5
       is-reference: 3.0.3
       locate-character: 3.0.0
-      magic-string: 0.30.17
+      magic-string: 0.30.18
       zimmerframe: 1.1.2
 
   svgo@4.0.0:
@@ -19065,7 +19065,7 @@ snapshots:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
 
-  vanilla-jsoneditor@2.4.0:
+  vanilla-jsoneditor@3.8.0:
     dependencies:
       '@codemirror/autocomplete': 6.18.6
       '@codemirror/commands': 6.8.0

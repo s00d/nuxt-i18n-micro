@@ -4,7 +4,11 @@
   "dependencies": {
     "nuxt-i18n-micro-types": "workspace:*"
   },
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build"
+  },
   "devDependencies": {
-    "json-editor-vue": "^0.17.3"
+    "json-editor-vue": "^0.18.1"
   }
 }

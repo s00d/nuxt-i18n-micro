@@ -4,7 +4,7 @@
 [![Donate](https://img.shields.io/badge/Donate-Donationalerts-ff4081?style=for-the-badge)](https://www.donationalerts.com/r/s00d88)
 
 <p align="center">
-<img src="https://github.com/s00d/nuxt-i18n-micro/blob/main/logo_full.png?raw=true" alt="logo">
+<img src="https://github.com/s00d/nuxt-i18n-micro/blob/main/branding/logo_full.png?raw=true" alt="logo">
 </p>
 
 # Nuxt I18n Micro

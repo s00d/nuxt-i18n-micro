@@ -55,6 +55,7 @@ export interface ModuleOptions {
   customRegexMatcher?: string | RegExp
   noPrefixRedirect?: boolean
   canonicalQueryWhitelist?: string[]
+  excludePatterns?: (string | RegExp)[]
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

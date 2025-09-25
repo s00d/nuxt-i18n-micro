@@ -92,5 +92,12 @@ export default defineNuxtConfig({
       if (!selectedForm) return null
       return selectedForm.trim().replace('{count}', count.toString())
     },
+    // Test excludePatterns functionality
+    excludePatterns: [
+      '/sitemap*.xml',
+      '/robots.txt',
+      '/api/**',
+      /\.(pdf|doc)$/,
+    ],
   },
 })

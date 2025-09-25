@@ -29,12 +29,14 @@ export class PageManager {
   activeLocaleCodes: string[]
   globalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
   noPrefixRedirect: boolean
+  excludePatterns: (string | RegExp)[] | undefined
 
-  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes, noPrefixRedirect: boolean) {
+  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes, noPrefixRedirect: boolean, excludePatterns?: (string | RegExp)[]) {
     this.locales = locales
     this.defaultLocale = this.findLocaleByCode(defaultLocaleCode) || { code: defaultLocaleCode }
     this.strategy = strategy
     this.noPrefixRedirect = noPrefixRedirect
+    this.excludePatterns = excludePatterns
     this.activeLocaleCodes = this.computeActiveLocaleCodes()
     this.globalLocaleRoutes = globalLocaleRoutes || {}
   }
@@ -62,7 +64,7 @@ export class PageManager {
 
     for (const page of [...pages]) {
       // Skip internal paths during page processing
-      if (page.path && isInternalPath(page.path)) {
+      if (page.path && isInternalPath(page.path, this.excludePatterns)) {
         continue
       }
 
@@ -98,7 +100,7 @@ export class PageManager {
         const pageName = page.name ?? ''
 
         // Skip removal for internal paths
-        if (isInternalPath(pagePath)) continue
+        if (isInternalPath(pagePath, this.excludePatterns)) continue
 
         if (this.globalLocaleRoutes[pageName] === false) continue
 

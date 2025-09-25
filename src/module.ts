@@ -106,6 +106,7 @@ export default defineNuxtModule<ModuleOptions>({
       return selectedForm.trim().replace('{count}', count.toString())
     },
     customRegexMatcher: undefined,
+    excludePatterns: undefined,
   },
   async setup(options, nuxt) {
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
@@ -130,7 +131,7 @@ export default defineNuxtModule<ModuleOptions>({
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
     const localeManager = new LocaleManager(options, rootDirs)
-    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes, options.noPrefixRedirect!)
+    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes, options.noPrefixRedirect!, options.excludePatterns)
 
     addTemplate({
       filename: 'i18n.plural.mjs',
@@ -158,6 +159,7 @@ export default defineNuxtModule<ModuleOptions>({
       isSSG: isSSG,
       disablePageLocales: options.disablePageLocales ?? false,
       canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
+      excludePatterns: options.excludePatterns ?? [],
     }
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error
@@ -294,7 +296,7 @@ export default defineNuxtModule<ModuleOptions>({
             const fullPath = path.posix.normalize(`${parentPath}/${page.path}`) // Combine parent path and current path
 
             // Skip internal paths
-            if (isInternalPath(fullPath)) {
+            if (isInternalPath(fullPath, options.excludePatterns)) {
               return
             }
 
@@ -328,7 +330,7 @@ export default defineNuxtModule<ModuleOptions>({
                   }
 
                   // Add localized path to array
-                  if (!isInternalPath(localizedPath)) {
+                  if (!isInternalPath(localizedPath, options.excludePatterns)) {
                     prerenderRoutes.push(localizedPath)
                   }
                 }
@@ -336,7 +338,7 @@ export default defineNuxtModule<ModuleOptions>({
             }
             else {
               // If there's no dynamic locale segment in the path, just add it to the array
-              if (!isInternalPath(fullPath)) {
+              if (!isInternalPath(fullPath, options.excludePatterns)) {
                 prerenderRoutes.push(fullPath)
               }
             }
@@ -514,7 +516,7 @@ export default defineNuxtModule<ModuleOptions>({
       // Remove internal paths before localization processing
       const routesToRemove: string[] = []
       routesSet.forEach((route) => {
-        if (isInternalPath(route)) {
+        if (isInternalPath(route, options.excludePatterns)) {
           routesToRemove.push(route)
         }
       })
@@ -525,7 +527,7 @@ export default defineNuxtModule<ModuleOptions>({
 
       // Go through each existing route and add localized versions
       routesSet.forEach((route) => {
-        if (!/\.[a-z0-9]+$/i.test(route) && !isInternalPath(route)) {
+        if (!/\.[a-z0-9]+$/i.test(route) && !isInternalPath(route, options.excludePatterns)) {
           localeManager.locales!.forEach((locale) => {
             // For prefix and prefix_and_default strategies generate routes for defaultLocale too
             // For prefix_except_default strategy skip defaultLocale

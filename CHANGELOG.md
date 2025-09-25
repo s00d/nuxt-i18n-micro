@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v1.97.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.96.0...v1.97.0)
+
+### 🚀 Enhancements
+
+- **assets:** Add logo SVG file for branding ([c30d52c](https://github.com/s00d/nuxt-i18n-micro/commit/c30d52c))
+- **assets:** Add logo SVG file for branding ([3678d93](https://github.com/s00d/nuxt-i18n-micro/commit/3678d93))
+- **assets:** Add logo SVG file for branding ([8417cc9](https://github.com/s00d/nuxt-i18n-micro/commit/8417cc9))
+- **types:** Add excludePatterns option to ModuleOptions interface ([b171580](https://github.com/s00d/nuxt-i18n-micro/commit/b171580))
+- **page-manager:** Add support for custom exclusion patterns in i18n ([d244b1f](https://github.com/s00d/nuxt-i18n-micro/commit/d244b1f))
+- **playground:** Add excludePatterns for static files and catch-all page ([83467a6](https://github.com/s00d/nuxt-i18n-micro/commit/83467a6))
+- **docs:** Add guide for excluding static files from i18n routing ([1220921](https://github.com/s00d/nuxt-i18n-micro/commit/1220921))
+
+### 📖 Documentation
+
+- **readme:** Update logo image to full version in README.md ([1146f35](https://github.com/s00d/nuxt-i18n-micro/commit/1146f35))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.96.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.95.0...v1.96.0)

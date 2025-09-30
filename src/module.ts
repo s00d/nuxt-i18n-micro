@@ -28,7 +28,7 @@ import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
 import { extractDefineI18nRouteData } from './utils'
 import { isInternalPath } from './runtime/utils/path-utils'
-import { glob } from 'glob'
+import { globby } from 'globby'
 
 function generateI18nTypes() {
   return `
@@ -139,7 +139,7 @@ export default defineNuxtModule<ModuleOptions>({
     const globalLocaleRoutes: Record<string, Record<string, string>> = {}
 
     // Find all page files
-    const pageFiles = glob.sync('pages/**/*.vue', { cwd: nuxt.options.rootDir })
+    const pageFiles = await globby('pages/**/*.vue', { cwd: nuxt.options.rootDir })
 
     for (const pageFile of pageFiles) {
       const fullPath = join(nuxt.options.rootDir, pageFile)

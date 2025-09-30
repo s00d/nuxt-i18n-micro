@@ -56,6 +56,7 @@ export interface ModuleOptions {
   noPrefixRedirect?: boolean
   canonicalQueryWhitelist?: string[]
   excludePatterns?: (string | RegExp)[]
+  routeLocales?: Record<string, string[]>
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

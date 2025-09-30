@@ -54,7 +54,8 @@ test.describe('async-components', () => {
     await expect(page.locator('#current-locale')).toHaveText('en')
 
     // Переключаемся на русский
-    await page.click('#locale-ru')
+    const ruButton = page.locator('#locale-ru')
+    await ruButton.click()
     await expect(page).toHaveURL('/ru/async-components-test')
     await expect(page.locator('#current-locale')).toHaveText('ru')
 

@@ -1,0 +1,15 @@
+{
+  "name": "define-i18n-route",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxi build",
+    "dev": "nuxi dev",
+    "generate": "nuxi generate",
+    "preview": "nuxi preview",
+    "postinstall": "nuxi prepare"
+  },
+  "dependencies": {
+    "nuxt": "^3.18.1"
+  }
+}

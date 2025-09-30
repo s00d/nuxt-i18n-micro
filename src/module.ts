@@ -1,5 +1,5 @@
-import path from 'node:path'
-import fs from 'node:fs'
+import path, { join } from 'node:path'
+import fs, { readFileSync } from 'node:fs'
 import {
   addComponentsDir,
   addImportsDir,
@@ -26,7 +26,9 @@ import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
-import { isInternalPath } from './utils'
+import { extractDefineI18nRouteData } from './utils'
+import { isInternalPath } from './runtime/utils/path-utils'
+import { glob } from 'glob'
 
 function generateI18nTypes() {
   return `
@@ -131,7 +133,45 @@ export default defineNuxtModule<ModuleOptions>({
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
     const localeManager = new LocaleManager(options, rootDirs)
-    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes, options.noPrefixRedirect!, options.excludePatterns)
+
+    // Extract routeLocales and localeRoutes from pages before creating template
+    const routeLocales: Record<string, string[]> = {}
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {}
+
+    // Find all page files
+    const pageFiles = glob.sync('pages/**/*.vue', { cwd: nuxt.options.rootDir })
+
+    for (const pageFile of pageFiles) {
+      const fullPath = join(nuxt.options.rootDir, pageFile)
+      try {
+        const fileContent = readFileSync(fullPath, 'utf-8')
+        const { locales: extractedLocales, localeRoutes } = extractDefineI18nRouteData(fileContent, fullPath)
+
+        // Convert file path to route path
+        const routePath = pageFile
+          .replace(/^pages\//, '/')
+          .replace(/\/index\.vue$/, '')
+          .replace(/\.vue$/, '')
+          .replace(/\/$/, '') || '/'
+
+        // Convert to page name for globalLocaleRoutes (same logic as PageManager)
+        // For nested routes, we need to use the same logic as buildRouteNameFromRoute
+        const pageName = routePath.replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
+
+        if (extractedLocales) {
+          routeLocales[routePath] = extractedLocales
+        }
+
+        if (localeRoutes) {
+          globalLocaleRoutes[pageName] = localeRoutes
+        }
+      }
+      catch {
+        // Ignore files that can't be read
+      }
+    }
+
+    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes, globalLocaleRoutes, options.noPrefixRedirect!, options.excludePatterns)
 
     addTemplate({
       filename: 'i18n.plural.mjs',
@@ -160,6 +200,7 @@ export default defineNuxtModule<ModuleOptions>({
       disablePageLocales: options.disablePageLocales ?? false,
       canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
       excludePatterns: options.excludePatterns ?? [],
+      routeLocales: routeLocales,
     }
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error

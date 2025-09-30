@@ -25,7 +25,7 @@ interface MetaObject {
   meta: MetaTag[]
 }
 
-export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = {}) => {
+export const useLocaleHead = async ({ addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = {}) => {
   const metaObject = ref<MetaObject>({
     htmlAttrs: {},
     link: [],
@@ -45,7 +45,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
   }
 
   function updateMeta() {
-    const { defaultLocale, strategy, canonicalQueryWhitelist } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+    const { defaultLocale, strategy, canonicalQueryWhitelist, routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
     const { $getLocales, $getLocale } = useNuxtApp()
 
     if (!$getLocale || !$getLocales) return
@@ -54,12 +54,20 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const locale = unref($getLocale())
-    const locales = unref($getLocales())
+    const allLocales = unref($getLocales())
     const routeName = (route.name ?? '').toString()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const currentLocale = unref($getLocales().find((loc: Locale) => loc.code === locale))
     if (!currentLocale) return
+
+    // Пробуем найти по имени роута и по пути
+    const currentRouteLocales = routeLocales?.[routeName] || routeLocales?.[route.path]
+
+    // Если есть конфигурация $defineI18nRoute, используем только указанные локали
+    const locales = currentRouteLocales
+      ? allLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code))
+      : allLocales
 
     const currentIso = currentLocale.iso || locale
     const currentDir = currentLocale.dir || 'auto'
@@ -96,9 +104,8 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
     if (!addSeoAttributes) return
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const alternateLocales = $getLocales() ?? []
+    // Используем отфильтрованные локали вместо всех
+    const alternateLocales = locales
 
     const ogLocaleMeta = {
       [identifierAttribute]: 'i18n-og',

@@ -31,7 +31,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm --filter "./packages/**" run build
           pnpm install
 
       - name: Lint

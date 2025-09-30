@@ -2,94 +2,119 @@ import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import type { Locale, LocaleCode } from 'nuxt-i18n-micro-types'
 
-/**
- * Default patterns for static files that should be excluded from i18n routing
- */
-const DEFAULT_STATIC_PATTERNS = [
-  /^\/sitemap.*\.xml$/,
-  /^\/sitemap\.xml$/,
-  /^\/robots\.txt$/,
-  /^\/favicon\.ico$/,
-  /^\/apple-touch-icon.*\.png$/,
-  /^\/manifest\.json$/,
-  /^\/sw\.js$/,
-  /^\/workbox-.*\.js$/,
-  /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/,
-]
-
-/**
- * Checks if a path should be excluded from i18n routing
- * @param path - The path to check
- * @param excludePatterns - Optional custom exclusion patterns
- * @returns true if the path should be excluded
- */
-export const isInternalPath = (path: string, excludePatterns?: (string | RegExp | object)[]): boolean => {
-  // Check internal Nuxt paths (existing behavior)
-  if (/(?:^|\/)__[^/]+/.test(path)) {
-    return true
-  }
-
-  // Check default static file patterns
-  for (const pattern of DEFAULT_STATIC_PATTERNS) {
-    if (pattern.test(path)) {
-      return true
-    }
-  }
-
-  // Check custom exclusion patterns
-  if (excludePatterns) {
-    for (const pattern of excludePatterns) {
-      if (typeof pattern === 'string') {
-        // Convert string to regex if it contains wildcards or is a simple match
-        if (pattern.includes('*') || pattern.includes('?')) {
-          const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\?/g, '.'))
-          if (regex.test(path)) {
-            return true
-          }
-        }
-        else if (path === pattern || path.startsWith(pattern)) {
-          return true
-        }
-      }
-      else if (pattern instanceof RegExp) {
-        if (pattern.test(path)) {
-          return true
-        }
-      }
-      // Skip empty objects or other types
-    }
-  }
-
-  return false
+export interface DefineI18nRouteData {
+  locales: string[] | null
+  localeRoutes: Record<string, string> | null
 }
 
-export function extractLocaleRoutes(content: string, filePath: string): Record<string, string> | null {
+export function extractDefineI18nRouteData(content: string, filePath: string): DefineI18nRouteData {
   // Look for defineI18nRoute call (with or without dollar sign)
   const defineMatch = content.match(/\$?\bdefineI18nRoute\s*\(\s*\{[\s\S]*?\}\s*\)/)
-  if (defineMatch) {
-    // Look for localeRoutes block inside defineI18nRoute call
-    const localeRoutesMatch = defineMatch[0].match(/localeRoutes:\s*(\{[\s\S]*?\})/)
 
-    if (localeRoutesMatch && localeRoutesMatch[1]) {
-      try {
-        // Parse the found localeRoutes block
-        const parsedLocaleRoutes = Function('"use strict";return (' + localeRoutesMatch[1] + ')')()
+  if (!defineMatch) {
+    return { locales: null, localeRoutes: null }
+  }
 
-        if (typeof parsedLocaleRoutes === 'object' && parsedLocaleRoutes !== null) {
-          if (validateDefineI18nRouteConfig(parsedLocaleRoutes)) {
-            return parsedLocaleRoutes
-          }
-        }
-        else {
-          console.error('localeRoutes found but it is not a valid object in file:', filePath)
-        }
+  const defineContent = defineMatch[0]
+  let locales: string[] | null = null
+  let localeRoutes: Record<string, string> | null = null
+
+  // Extract locales
+  let localesStr = ''
+  const localesStart = defineContent.indexOf('locales:')
+  if (localesStart !== -1) {
+    const afterLocales = defineContent.substring(localesStart + 8) // 8 = length of 'locales:'
+    const trimmed = afterLocales.trim()
+    if (trimmed.startsWith('[')) {
+      // Array format
+      let bracketCount = 0
+      let i = 0
+      for (; i < trimmed.length; i++) {
+        if (trimmed[i] === '[') bracketCount++
+        if (trimmed[i] === ']') bracketCount--
+        if (bracketCount === 0) break
       }
-      catch (error) {
-        console.error('Failed to parse localeRoutes:', error, 'in file:', filePath)
+      localesStr = trimmed.substring(0, i + 1)
+    }
+    else if (trimmed.startsWith('{')) {
+      // Object format
+      let braceCount = 0
+      let i = 0
+      for (; i < trimmed.length; i++) {
+        if (trimmed[i] === '{') braceCount++
+        if (trimmed[i] === '}') braceCount--
+        if (braceCount === 0) break
       }
+      localesStr = trimmed.substring(0, i + 1)
     }
   }
-  return null
+
+  if (localesStr) {
+    try {
+      const localesStrTrimmed = localesStr.trim()
+
+      // Handle array format: ['en', 'de']
+      if (localesStrTrimmed.startsWith('[') && localesStrTrimmed.endsWith(']')) {
+        const arrayMatch = localesStrTrimmed.match(/\[(.*?)\]/s)
+        if (arrayMatch && arrayMatch[1]) {
+          const elements = arrayMatch[1]
+            .split(',')
+            .map(el => el.trim().replace(/['"]/g, ''))
+            .filter(el => el.length > 0)
+          locales = elements
+        }
+      }
+
+      // Handle object format: { en: {...}, de: {...} }
+      if (localesStrTrimmed.startsWith('{') && localesStrTrimmed.endsWith('}')) {
+        // Extract only top-level keys (locale codes) from the object
+        const topLevelKeyMatches = localesStrTrimmed.match(/^\s*(\w+)\s*:\s*\{/gm)
+
+        if (topLevelKeyMatches) {
+          const keys = topLevelKeyMatches.map((match) => {
+            const keyMatch = match.match(/^\s*(\w+)\s*:/)
+            return keyMatch ? keyMatch[1] : ''
+          }).filter(key => key.length > 0)
+          locales = keys
+        }
+        else {
+          // Fallback: try to extract keys by looking for patterns like "en: {"
+          const fallbackMatches = localesStrTrimmed.match(/(\w+)\s*:\s*\{/g)
+          if (fallbackMatches) {
+            const keys = fallbackMatches.map((match) => {
+              const keyMatch = match.match(/(\w+)\s*:/)
+              return keyMatch ? keyMatch[1] : ''
+            }).filter(key => key.length > 0)
+            locales = keys
+          }
+        }
+      }
+    }
+    catch (error) {
+      console.error('Failed to parse locales:', error, 'in file:', filePath)
+    }
+  }
+
+  // Extract localeRoutes
+  const localeRoutesMatch = defineContent.match(/localeRoutes:\s*(\{[\s\S]*?\})/)
+  if (localeRoutesMatch && localeRoutesMatch[1]) {
+    try {
+      const parsedLocaleRoutes = Function('"use strict";return (' + localeRoutesMatch[1] + ')')()
+      if (typeof parsedLocaleRoutes === 'object' && parsedLocaleRoutes !== null) {
+        if (validateDefineI18nRouteConfig(parsedLocaleRoutes)) {
+          localeRoutes = parsedLocaleRoutes
+        }
+      }
+      else {
+        console.error('localeRoutes found but it is not a valid object in file:', filePath)
+      }
+    }
+    catch (error) {
+      console.error('Failed to parse localeRoutes:', error, 'in file:', filePath)
+    }
+  }
+
+  return { locales, localeRoutes }
 }
 
 export function validateDefineI18nRouteConfig(obj: Record<LocaleCode, Record<string, string>>): boolean {

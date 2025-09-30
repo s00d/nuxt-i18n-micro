@@ -1,13 +1,47 @@
 // plugins/i18n.redirect.ts
 import { isNoPrefixStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
-import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo } from '#imports'
+import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo, createError } from '#imports'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const { routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
   const route = useRoute()
   const router = useRouter()
+
+  const checkRouteLocales = (to: ReturnType<typeof useRoute>) => {
+    const routePath = to.path
+    const routeName = to.name?.toString()
+    const normalizedRouteName = routeName?.replace('localized-', '')
+    const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
+
+    const allowedLocales = (routeName && routeLocales?.[routeName])
+      || (normalizedRouteName && routeLocales?.[normalizedRouteName])
+      || (normalizedRoutePath && routeLocales?.[normalizedRoutePath])
+      || routeLocales?.[routePath]
+    // If there are no restrictions for this route, skip the check
+    if (!allowedLocales || allowedLocales.length === 0) {
+      return
+    }
+
+    // Extract locale from path
+    const pathSegments = routePath.split('/').filter(Boolean)
+    const firstSegment = pathSegments[0]
+
+    // Check if the first segment is a locale
+    // Get all available locales from configuration
+    const allLocales = i18nConfig.locales?.map(l => l.code) || []
+
+    if (firstSegment && allLocales.includes(firstSegment) && !allowedLocales.includes(firstSegment)) {
+      console.log('Locale not allowed, throwing 404')
+      // If locale is not allowed for this route, return 404
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Page Not Found',
+      })
+    }
+  }
 
   const handleRedirect = async (to: ReturnType<typeof useRoute>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -41,11 +75,20 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  if (import.meta.server && (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!))) {
-    await handleRedirect(route)
+  // Always check routeLocales regardless of strategy
+  if (import.meta.server) {
+    checkRouteLocales(route)
+    if (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!)) {
+      await handleRedirect(route)
+    }
   }
 
   router.beforeEach(async (to, from, next) => {
+    // Check routeLocales only if it's not a locale switch
+    if (from.path !== to.path) {
+      checkRouteLocales(to)
+    }
+
     if (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!)) {
       await handleRedirect(to)
     }

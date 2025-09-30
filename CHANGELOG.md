@@ -1,6 +1,42 @@
 # Changelog
 
 
+## v1.98.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.97.0...v1.98.0)
+
+### 🚀 Enhancements
+
+- **path-utils:** Add path utility for excluding static files from i18n routing ([bb0cff5](https://github.com/s00d/nuxt-i18n-micro/commit/bb0cff5))
+- **page-manager:** Add support for filesLocaleRoutes in constructor ([8f765cc](https://github.com/s00d/nuxt-i18n-micro/commit/8f765cc))
+- **types:** Add `routeLocales` option to `ModuleOptions` ([34afb68](https://github.com/s00d/nuxt-i18n-micro/commit/34afb68))
+- **locale:** Add support for route-specific locales in `useLocaleHead` ([5f02fdf](https://github.com/s00d/nuxt-i18n-micro/commit/5f02fdf))
+- **plugins:** Update `defineNuxtPlugin` to use async for locale head ([c5cee28](https://github.com/s00d/nuxt-i18n-micro/commit/c5cee28))
+- **redirect:** Add locale check for route access control ([82a7862](https://github.com/s00d/nuxt-i18n-micro/commit/82a7862))
+- **module:** Extract routeLocales and localeRoutes from page files ([b744950](https://github.com/s00d/nuxt-i18n-micro/commit/b744950))
+- **module:** Replace `glob` with `globby` for page file discovery ([28be74f](https://github.com/s00d/nuxt-i18n-micro/commit/28be74f))
+
+### 🩹 Fixes
+
+- **components:** Update import path for `isInternalPath`. ([0fb1dc3](https://github.com/s00d/nuxt-i18n-micro/commit/0fb1dc3))
+- **module:** Suppress TypeScript error for routeLocales ([a8e646b](https://github.com/s00d/nuxt-i18n-micro/commit/a8e646b))
+
+### 💅 Refactors
+
+- **text:** Update PageManager instantiation parameters ([08032db](https://github.com/s00d/nuxt-i18n-micro/commit/08032db))
+
+### 🏡 Chore
+
+- **pnpm-lock:** Update dependencies for test fixtures ([17fc3da](https://github.com/s00d/nuxt-i18n-micro/commit/17fc3da))
+
+### ✅ Tests
+
+- Update async component tests and add define-i18n-route tests ([75d0726](https://github.com/s00d/nuxt-i18n-micro/commit/75d0726))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.97.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.96.0...v1.97.0)

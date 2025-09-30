@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { readFileSync } from 'node:fs'
 import type { NuxtPage } from '@nuxt/schema'
 import type { GlobalLocaleRoutes, Locale, Strategies } from 'nuxt-i18n-micro-types'
 import { isNoPrefixStrategy, isPrefixAndDefaultStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
@@ -8,14 +7,13 @@ import {
   buildFullPathNoPrefix,
   buildRouteName,
   cloneArray,
-  extractLocaleRoutes,
-  isInternalPath,
   isLocaleDefault,
   isPageRedirectOnly,
   normalizePath,
   removeLeadingSlash,
   shouldAddLocalePrefix,
 } from './utils'
+import { isInternalPath } from './runtime/utils/path-utils'
 
 const buildRouteNameFromRoute = (name: string | null | undefined, path: string | null | undefined) => {
   return name ?? (path ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
@@ -28,10 +26,11 @@ export class PageManager {
   localizedPaths: { [key: string]: { [locale: string]: string } } = {}
   activeLocaleCodes: string[]
   globalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
+  filesLocaleRoutes: Record<string, Record<string, string> | false | boolean>
   noPrefixRedirect: boolean
   excludePatterns: (string | RegExp)[] | undefined
 
-  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes, noPrefixRedirect: boolean, excludePatterns?: (string | RegExp)[]) {
+  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes, filesLocaleRoutes: GlobalLocaleRoutes, noPrefixRedirect: boolean, excludePatterns?: (string | RegExp)[]) {
     this.locales = locales
     this.defaultLocale = this.findLocaleByCode(defaultLocaleCode) || { code: defaultLocaleCode }
     this.strategy = strategy
@@ -39,6 +38,7 @@ export class PageManager {
     this.excludePatterns = excludePatterns
     this.activeLocaleCodes = this.computeActiveLocaleCodes()
     this.globalLocaleRoutes = globalLocaleRoutes || {}
+    this.filesLocaleRoutes = filesLocaleRoutes || {}
   }
 
   private findLocaleByCode(code: string): Locale | undefined {
@@ -124,15 +124,11 @@ export class PageManager {
       const globalLocalePath = this.globalLocaleRoutes[pageName]
 
       if (!globalLocalePath) {
-        // Fallback to extracting localized paths from the page file content (existing functionality)
-        if (page.file) {
-          const fileContent = readFileSync(page.file, 'utf-8')
-          const localeRoutes = extractLocaleRoutes(fileContent, page.file)
-
-          if (localeRoutes) {
-            const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
-            localizedPaths[normalizedFullPath] = localeRoutes
-          }
+        // Fallback to filesLocaleRoutes
+        const filesLocalePath = this.filesLocaleRoutes[pageName]
+        if (filesLocalePath && typeof filesLocalePath === 'object') {
+          const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
+          localizedPaths[normalizedFullPath] = filesLocalePath
         }
       }
       else if (typeof globalLocalePath === 'object') {

@@ -6,8 +6,7 @@
     "build": "nuxi build",
     "dev": "nuxi dev",
     "generate": "nuxi generate",
-    "preview": "nuxi preview",
-    "postinstall": "nuxi prepare"
+    "preview": "nuxi preview"
   },
   "dependencies": {
     "nuxt": "^3.18.1"

@@ -200,6 +200,8 @@ export default defineNuxtModule<ModuleOptions>({
       disablePageLocales: options.disablePageLocales ?? false,
       canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
       excludePatterns: options.excludePatterns ?? [],
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       routeLocales: routeLocales,
     }
 

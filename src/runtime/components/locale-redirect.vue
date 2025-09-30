@@ -4,7 +4,7 @@
 
 <script setup>
 import { useRoute, useI18n, createError, navigateTo, useRuntimeConfig } from '#imports'
-import { isInternalPath } from '../../utils'
+import { isInternalPath } from '../utils/path-utils'
 
 const route = useRoute()
 const { $getLocales, $defaultLocale } = useI18n()

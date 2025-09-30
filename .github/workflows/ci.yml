@@ -30,7 +30,9 @@ jobs:
         run: npm install -g vite
 
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          pnpm --filter "./packages/**" run build
+          pnpm install
 
       - name: Lint
         run: pnpm run lint

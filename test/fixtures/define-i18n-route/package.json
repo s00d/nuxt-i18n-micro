@@ -3,10 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxi build",
     "dev": "nuxi dev",
-    "generate": "nuxi generate",
-    "preview": "nuxi preview"
+    "build": "nuxi build",
+    "generate": "nuxi generate"
   },
   "dependencies": {
     "nuxt": "^3.18.1"

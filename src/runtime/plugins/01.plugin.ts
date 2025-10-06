@@ -45,9 +45,20 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const translationService = new FormatService()
 
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
-  nuxtApp.hook('page:start', () => {
-    // Cleaning route-params on client side only
-    i18nRouteParams.value = null
+
+  // Сохраняем информацию о предыдущей странице для очистки (только если включено)
+  const previousPageInfo = useState<{ locale: string, routeName: string } | null>('i18n-previous-page', () => null)
+  const enablePreviousPageFallback = i18nConfig.experimental?.i18nPreviousPageFallback ?? false
+
+  // Очищаем старые переводы только после полной загрузки страницы
+  nuxtApp.hook('page:finish', () => {
+    if (import.meta.client) {
+      // Очищаем route-params только после полной загрузки
+      i18nRouteParams.value = null
+
+      // Очищаем previousPageInfo
+      previousPageInfo.value = null
+    }
   })
 
   const loadTranslationsIfNeeded = async (locale: string, routeName: string, path: string) => {
@@ -115,6 +126,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   router.beforeEach(async (to, from, next) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
+      // Сохраняем информацию о предыдущей странице для последующей очистки (только если включено)
+      if (import.meta.client && from.path !== to.path && enablePreviousPageFallback) {
+        const fromLocale = routeService.getCurrentLocale(from as RouteLocationResolvedGeneric)
+        const fromRouteName = routeService.getRouteName(from as RouteLocationResolvedGeneric, fromLocale)
+        previousPageInfo.value = { locale: fromLocale, routeName: fromRouteName }
+        console.log(`Saved previous page info for cleanup: ${fromRouteName}`)
+      }
+
       await loadGlobalTranslations(to as RouteLocationResolvedGeneric)
     }
     if (next) {
@@ -143,9 +162,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
       let value = i18nHelper.getTranslation(locale, routeName, key)
 
+      // Если перевод не найден и есть сохраненные предыдущие переводы, используем их (только если включено)
+      if (!value && previousPageInfo.value && enablePreviousPageFallback) {
+        const prev = previousPageInfo.value
+        const prevValue = i18nHelper.getTranslation(prev.locale, prev.routeName, key)
+        if (prevValue) {
+          value = prevValue
+          console.log(`Using fallback translation from previous route: ${prev.routeName} -> ${key}`)
+        }
+      }
+
+      // Если все еще не найден, пробуем общие переводы
+      if (!value) {
+        value = i18nHelper.getTranslation(locale, '', key)
+      }
+
       if (!value) {
         if (isDev && import.meta.client) {
-          console.warn(`Not found '${key}' key in '${locale}' locale messages.`)
+          console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
         }
         value = defaultValue === undefined ? key : defaultValue
       }

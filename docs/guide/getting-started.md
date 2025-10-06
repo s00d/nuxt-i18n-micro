@@ -513,6 +513,33 @@ Both `<link rel="canonical">` and `<meta property="og:url">` will include only t
 canonicalQueryWhitelist: ['page', 'sort', 'category'] // Only include these query params in canonical and og:url
 ```
 
+### 🔄 `experimental.i18nPreviousPageFallback`
+
+Enables fallback to previous page translations during page transitions when new translations are not yet loaded. This is particularly useful for pages with `useAsyncData` or `defineAsyncComponent` that may cause translation keys to appear as paths during loading.
+
+**Type**: `boolean`
+
+**Default**: `false`
+
+When enabled, the module will:
+- Save previous page translation information during navigation
+- Use previous page translations as fallback when current page translations are not available
+- Clean up previous page translations only after the new page is fully loaded
+
+**Example**:
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    experimental: {
+      i18nPreviousPageFallback: true
+    }
+  }
+})
+```
+
+**Use Case**: This option is especially helpful when you have pages with asynchronous data loading (`useAsyncData`, `defineAsyncComponent`) that may cause translation keys to be displayed as raw paths instead of translated text during the loading phase.
+
 ### 🌐 `globalLocaleRoutes`
 
 Allows you to define custom localized routes for specific pages. You can specify a custom path for each locale for a given page, or disable localization for certain pages entirely.

@@ -99,5 +99,8 @@ export default defineNuxtConfig({
       '/api/**',
       /\.(pdf|doc)$/,
     ],
+    experimental: {
+      i18nPreviousPageFallback: true,
+    },
   },
 })

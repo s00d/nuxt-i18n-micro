@@ -203,6 +203,9 @@ export default defineNuxtModule<ModuleOptions>({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routeLocales: routeLocales,
+      experimental: {
+        i18nPreviousPageFallback: options.experimental?.i18nPreviousPageFallback ?? false,
+      },
     }
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error

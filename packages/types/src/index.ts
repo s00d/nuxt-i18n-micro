@@ -57,6 +57,9 @@ export interface ModuleOptions {
   canonicalQueryWhitelist?: string[]
   excludePatterns?: (string | RegExp)[]
   routeLocales?: Record<string, string[]>
+  experimental?: {
+    i18nPreviousPageFallback?: boolean
+  }
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

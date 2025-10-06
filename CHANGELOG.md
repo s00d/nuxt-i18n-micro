@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v1.99.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.98.0...v1.99.0)
+
+### 🚀 Enhancements
+
+- **types:** Add experimental i18nPreviousPageFallback option ([7df8b03](https://github.com/s00d/nuxt-i18n-micro/commit/7df8b03))
+
+### 🏡 Chore
+
+- **ci:** Update dependency installation process in CI workflow ([21f3e10](https://github.com/s00d/nuxt-i18n-micro/commit/21f3e10))
+- **ci:** Remove redundant build step from workflow ([1078250](https://github.com/s00d/nuxt-i18n-micro/commit/1078250))
+- **test/fixtures:** Remove unused scripts from package.json ([a48848c](https://github.com/s00d/nuxt-i18n-micro/commit/a48848c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.98.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.97.0...v1.98.0)

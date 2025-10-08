@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.101.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.100.1...v1.101.0)
+
+### 🚀 Enhancements
+
+- **locale:** Add utility functions for route locale handling ([d57b08e](https://github.com/s00d/nuxt-i18n-micro/commit/d57b08e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.100.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.100.0...v1.100.1)

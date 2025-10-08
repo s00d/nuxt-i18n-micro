@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import type { GlobalLocaleRoutes, Locale, Strategies } from 'nuxt-i18n-micro-types'
-import { isNoPrefixStrategy, isPrefixAndDefaultStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
+import { isNoPrefixStrategy, isPrefixAndDefaultStrategy, isPrefixExceptDefaultStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
 import {
   buildFullPath,
   buildFullPathNoPrefix,
@@ -27,10 +27,11 @@ export class PageManager {
   activeLocaleCodes: string[]
   globalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
   filesLocaleRoutes: Record<string, Record<string, string> | false | boolean>
+  routeLocales: Record<string, string[]>
   noPrefixRedirect: boolean
   excludePatterns: (string | RegExp)[] | undefined
 
-  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes, filesLocaleRoutes: GlobalLocaleRoutes, noPrefixRedirect: boolean, excludePatterns?: (string | RegExp)[]) {
+  constructor(locales: Locale[], defaultLocaleCode: string, strategy: Strategies, globalLocaleRoutes: GlobalLocaleRoutes, filesLocaleRoutes: GlobalLocaleRoutes, routeLocales: Record<string, string[]>, noPrefixRedirect: boolean, excludePatterns?: (string | RegExp)[]) {
     this.locales = locales
     this.defaultLocale = this.findLocaleByCode(defaultLocaleCode) || { code: defaultLocaleCode }
     this.strategy = strategy
@@ -39,6 +40,7 @@ export class PageManager {
     this.activeLocaleCodes = this.computeActiveLocaleCodes()
     this.globalLocaleRoutes = globalLocaleRoutes || {}
     this.filesLocaleRoutes = filesLocaleRoutes || {}
+    this.routeLocales = routeLocales || {}
   }
 
   private findLocaleByCode(code: string): Locale | undefined {
@@ -51,10 +53,31 @@ export class PageManager {
       .map(locale => locale.code)
   }
 
+  private getAllowedLocalesForPage(pagePath: string, pageName: string): string[] {
+    // Check if this page has locale restrictions from $defineI18nRoute
+    const allowedLocales = this.routeLocales[pagePath] || this.routeLocales[pageName]
+
+    if (allowedLocales && allowedLocales.length > 0) {
+      // Filter to only include locales that exist in the configuration
+      return allowedLocales.filter(locale =>
+        this.locales.some(l => l.code === locale),
+      )
+    }
+
+    // If no restrictions, return all locale codes (not just active ones)
+    // This is important for strategies like 'no_prefix' where we need all locales
+    return this.locales.map(locale => locale.code)
+  }
+
+  private hasLocaleRestrictions(pagePath: string, pageName: string): boolean {
+    // Check if this page has any locale restrictions from $defineI18nRoute
+    return !!(this.routeLocales[pagePath] || this.routeLocales[pageName])
+  }
+
   // private isAlreadyLocalized(p: string) {
   //   const codes = this.locales.map(l => l.code).join('|') // en|de|ru…
-  //   return p.startsWith('/:locale(') // динамический префикс
-  //     || new RegExp(`^/(${codes})(/|$)`).test(p) // статический /de/…
+  //   return p.startsWith('/:locale(') // dynamic prefix
+  //     || new RegExp(`^/(${codes})(/|$)`).test(p) // static /de/…
   // }
 
   public extendPages(pages: NuxtPage[], customRegex?: string | RegExp, isCloudflarePages?: boolean) {
@@ -121,19 +144,20 @@ export class PageManager {
 
     pages.forEach((page) => {
       const pageName = buildRouteNameFromRoute(page.name, page.path)
-      const globalLocalePath = this.globalLocaleRoutes[pageName]
+      const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
+
+      // Check for globalLocaleRoutes first (now includes routeLocaleRoutes from $defineI18nRoute)
+      const globalLocalePath = this.globalLocaleRoutes[normalizedFullPath] || this.globalLocaleRoutes[pageName]
 
       if (!globalLocalePath) {
         // Fallback to filesLocaleRoutes
         const filesLocalePath = this.filesLocaleRoutes[pageName]
         if (filesLocalePath && typeof filesLocalePath === 'object') {
-          const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
           localizedPaths[normalizedFullPath] = filesLocalePath
         }
       }
       else if (typeof globalLocalePath === 'object') {
         // Use globalLocaleRoutes if defined
-        const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
         localizedPaths[normalizedFullPath] = globalLocalePath
       }
 
@@ -152,7 +176,20 @@ export class PageManager {
     additionalRoutes: NuxtPage[],
     customRegex?: string | RegExp,
   ) {
-    this.locales.forEach((locale) => {
+    const normalizedFullPath = normalizePath(page.path)
+    const pageName = buildRouteNameFromRoute(page.name, page.path)
+
+    // Get allowed locales for this page from $defineI18nRoute
+    const allowedLocales = this.getAllowedLocalesForPage(normalizedFullPath, pageName)
+    const hasRestrictions = this.hasLocaleRestrictions(normalizedFullPath, pageName)
+
+    // For globalLocaleRoutes, we need to check if there are any locale restrictions
+    // If there are restrictions, filter locales; otherwise use all locales
+    const localesToUse = hasRestrictions
+      ? this.locales.filter(locale => allowedLocales.includes(locale.code))
+      : this.locales
+
+    localesToUse.forEach((locale) => {
       const customPath = customRoutePaths[locale.code]
 
       const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy) || isPrefixAndDefaultStrategy(this.strategy))
@@ -197,19 +234,67 @@ export class PageManager {
 
     const originalChildren = cloneArray(page.children ?? [])
     const normalizedFullPath = normalizePath(page.path)
+    const pageName = buildRouteNameFromRoute(page.name, page.path)
+
+    // Get allowed locales for this page from $defineI18nRoute
+    const allowedLocales = this.getAllowedLocalesForPage(normalizedFullPath, pageName)
+    const hasRestrictions = this.hasLocaleRestrictions(normalizedFullPath, pageName)
+
+    // Filter locale codes to only include allowed ones if there are restrictions
     const localeCodesWithoutCustomPaths = this.filterLocaleCodesWithoutCustomPaths(normalizedFullPath)
+      .filter(locale => hasRestrictions ? allowedLocales.includes(locale) : true)
 
     if (localeCodesWithoutCustomPaths.length) {
       const newRoute = this.createLocalizedRoute(page, localeCodesWithoutCustomPaths, originalChildren, false, '', customRegex, false, true)
       if (newRoute) additionalRoutes.push(newRoute)
     }
 
-    this.addCustomLocalizedRoutes(page, normalizedFullPath, originalChildren, additionalRoutes)
+    this.addCustomLocalizedRoutes(page, normalizedFullPath, originalChildren, additionalRoutes, hasRestrictions ? allowedLocales : undefined)
     this.adjustRouteForDefaultLocale(page, originalChildren)
+
+    // Handle alias routes - create localized versions for each alias
+    this.handleAliasRoutes(page, additionalRoutes, customRegex, hasRestrictions ? allowedLocales : undefined)
   }
 
   private filterLocaleCodesWithoutCustomPaths(fullPath: string): string[] {
     return this.activeLocaleCodes.filter(code => !this.localizedPaths[fullPath]?.[code])
+  }
+
+  private handleAliasRoutes(
+    page: NuxtPage,
+    additionalRoutes: NuxtPage[],
+    customRegex?: string | RegExp,
+    allowedLocales?: string[],
+  ) {
+    // Check if the page has alias routes defined in page.alias or page.meta.alias
+    const aliasRoutes = (page as NuxtPage & { alias?: string[] }).alias || page.meta?.alias as string[] | undefined
+    if (!aliasRoutes || !Array.isArray(aliasRoutes)) {
+      return
+    }
+
+    // Use allowed locales if provided, otherwise use all active locale codes
+    const localesToUse = allowedLocales || this.activeLocaleCodes
+
+    // Create localized versions for each alias route using a single route with locale parameter
+    aliasRoutes.forEach((aliasPath) => {
+      // Build the localized alias path with locale parameter using buildFullPath
+      const localizedAliasPath = buildFullPath(localesToUse, aliasPath, customRegex)
+
+      // Create a single route for all locales
+      const aliasRoute: NuxtPage = {
+        ...page,
+        path: localizedAliasPath,
+        name: `localized-${page.name ?? ''}`,
+        meta: {
+          ...page.meta,
+          alias: undefined, // Remove alias to prevent infinite recursion
+        },
+        alias: undefined, // Remove alias from root to prevent infinite recursion
+      }
+
+      // Add the localized alias route
+      additionalRoutes.push(aliasRoute)
+    })
   }
 
   public adjustRouteForDefaultLocale(page: NuxtPage, originalChildren: NuxtPage[]) {
@@ -265,21 +350,36 @@ export class PageManager {
     fullPath: string,
     originalChildren: NuxtPage[],
     additionalRoutes: NuxtPage[],
+    allowedLocales?: string[],
     customRegex?: string | RegExp,
   ) {
-    this.locales.forEach((locale) => {
+    // Use allowed locales if provided, otherwise use all locales
+    const localesToUse = allowedLocales
+      ? this.locales.filter(locale => allowedLocales.includes(locale.code))
+      : this.locales
+
+    localesToUse.forEach((locale) => {
       const customPath = this.localizedPaths[fullPath]?.[locale.code]
+
       if (!customPath) return
 
       const isDefaultLocale = isLocaleDefault(locale, this.defaultLocale, isPrefixStrategy(this.strategy) || isNoPrefixStrategy(this.strategy))
-      if (isDefaultLocale) {
-        page.children = this.createLocalizedChildren(originalChildren, '', [locale.code], false)
+
+      // For custom paths from $defineI18nRoute, we need to handle them differently
+      if (isDefaultLocale && isPrefixExceptDefaultStrategy(this.strategy)) {
+        // For default locale with custom path in prefix_except_default strategy, update the page path directly
+        page.path = normalizePath(customPath)
+        page.children = this.createLocalizedChildren(originalChildren, '', [locale.code], false, false, false, { [locale.code]: customPath })
       }
       else {
+        // For non-default locales or other strategies, create a new route with locale prefix
         const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, false, locale.code)
-        if (newRoute) additionalRoutes.push(newRoute)
+        if (newRoute) {
+          additionalRoutes.push(newRoute)
+        }
       }
 
+      // For prefix_and_default strategy, also create a prefixed version for default locale
       if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
         const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, true, locale.code)
         if (newRoute) additionalRoutes.push(newRoute)
@@ -321,7 +421,21 @@ export class PageManager {
     const routePath = normalizePath(route.path)
     const fullPath = normalizePath(path.posix.join(parentPath, routePath))
 
-    const customLocalePaths = this.localizedPaths[fullPath] ?? this.localizedPaths[normalizePath(route.path)]
+    // Try to find custom locale paths for this route
+    let customLocalePaths = this.localizedPaths[fullPath] ?? this.localizedPaths[normalizePath(route.path)]
+
+    // If we have localized parent paths, try to find custom paths for child routes
+    // But only if the parent path indicates we're in a localized context
+    if (!customLocalePaths && Object.keys(localizedParentPaths).length > 0) {
+      // Check if we're in a localized context (parent path contains localized paths)
+      const hasLocalizedContext = Object.values(localizedParentPaths).some(path => path && path !== '')
+      if (hasLocalizedContext) {
+        // Try to find custom paths for the original route path
+        const originalRoutePath = normalizePath(path.posix.join('/activity-locale', route.path))
+        customLocalePaths = this.localizedPaths[originalRoutePath]
+      }
+    }
+
     const isCustomLocalized = !!customLocalePaths
 
     const result: NuxtPage[] = []
@@ -359,9 +473,22 @@ export class PageManager {
 
       const customPath = customLocalePaths?.[locale]
 
-      const basePath = customPath
+      let basePath = customPath
         ? normalizePath(customPath)
         : normalizePath(route.path)
+
+      // If we have a parent localized path, we need to combine it with the custom path
+      if (hasParentLocalized && parentLocalizedPath) {
+        if (customPath) {
+          // If we have both parent and custom paths, use the custom path as is
+          // The custom path should already be the full localized path
+          basePath = normalizePath(customPath)
+        }
+        else {
+          // If we only have parent path, use it as base
+          basePath = normalizePath(path.posix.join(parentLocalizedPath, route.path))
+        }
+      }
 
       const finalRoutePath = shouldAddLocalePrefix(
         locale,
@@ -372,10 +499,7 @@ export class PageManager {
         ? buildFullPath(locale, basePath)
         : basePath
 
-      const isChildRoute = parentPath !== ''
-      const finalPathForRoute = isChildRoute && hasParentLocalized
-        ? normalizePath(route.path)
-        : removeLeadingSlash(finalRoutePath)
+      const finalPathForRoute = removeLeadingSlash(finalRoutePath)
 
       const nextParentPath = customPath
         ? normalizePath(customPath)
@@ -443,7 +567,7 @@ export class PageManager {
 
     return {
       ...page,
-      children: this.createLocalizedChildren(originalChildren, page.path, localeCodes, true, false, parentLocale),
+      children: this.createLocalizedChildren(originalChildren, page.path, localeCodes, true, false, parentLocale, { [firstLocale]: customPath }),
       path: routePath,
       name: routeName,
     }

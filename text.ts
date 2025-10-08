@@ -21,7 +21,7 @@ const locales: Locale[] = [
 const defaultLocaleCode = 'en'
 
 // Creating a new PageManager instance with globalLocaleRoutes
-const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, false)
+const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
 
 // const pages: NuxtPage[] = [{
 //   path: '/activity',

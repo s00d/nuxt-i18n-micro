@@ -154,16 +154,13 @@ export default defineNuxtModule<ModuleOptions>({
           .replace(/\.vue$/, '')
           .replace(/\/$/, '') || '/'
 
-        // Convert to page name for globalLocaleRoutes (same logic as PageManager)
-        // For nested routes, we need to use the same logic as buildRouteNameFromRoute
-        const pageName = routePath.replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
-
         if (extractedLocales) {
           routeLocales[routePath] = extractedLocales
         }
 
         if (localeRoutes) {
-          globalLocaleRoutes[pageName] = localeRoutes
+          // Use routePath as key for globalLocaleRoutes to match with PageManager logic
+          globalLocaleRoutes[routePath] = localeRoutes
         }
       }
       catch {
@@ -171,7 +168,10 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, options.globalLocaleRoutes, globalLocaleRoutes, options.noPrefixRedirect!, options.excludePatterns)
+    // Merge options.globalLocaleRoutes with extracted localeRoutes
+    const mergedGlobalLocaleRoutes = { ...options.globalLocaleRoutes, ...globalLocaleRoutes }
+
+    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, mergedGlobalLocaleRoutes, globalLocaleRoutes, routeLocales, options.noPrefixRedirect!, options.excludePatterns)
 
     addTemplate({
       filename: 'i18n.plural.mjs',

@@ -61,10 +61,10 @@ export const useLocaleHead = async ({ addDirAttribute = true, identifierAttribut
     const currentLocale = unref($getLocales().find((loc: Locale) => loc.code === locale))
     if (!currentLocale) return
 
-    // Пробуем найти по имени роута и по пути
+    // Try to find by route name and by path
     const currentRouteLocales = routeLocales?.[routeName] || routeLocales?.[route.path]
 
-    // Если есть конфигурация $defineI18nRoute, используем только указанные локали
+    // If there's $defineI18nRoute configuration, use only specified locales
     const locales = currentRouteLocales
       ? allLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code))
       : allLocales
@@ -104,7 +104,7 @@ export const useLocaleHead = async ({ addDirAttribute = true, identifierAttribut
 
     if (!addSeoAttributes) return
 
-    // Используем отфильтрованные локали вместо всех
+    // Use filtered locales instead of all
     const alternateLocales = locales
 
     const ogLocaleMeta = {

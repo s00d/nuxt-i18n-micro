@@ -57,35 +57,33 @@ export function extractDefineI18nRouteData(content: string, filePath: string): D
       if (localesStrTrimmed.startsWith('[') && localesStrTrimmed.endsWith(']')) {
         const arrayMatch = localesStrTrimmed.match(/\[(.*?)\]/s)
         if (arrayMatch && arrayMatch[1]) {
-          const elements = arrayMatch[1]
+          locales = arrayMatch[1]
             .split(',')
             .map(el => el.trim().replace(/['"]/g, ''))
             .filter(el => el.length > 0)
-          locales = elements
         }
       }
 
       // Handle object format: { en: {...}, de: {...} }
       if (localesStrTrimmed.startsWith('{') && localesStrTrimmed.endsWith('}')) {
         // Extract only top-level keys (locale codes) from the object
-        const topLevelKeyMatches = localesStrTrimmed.match(/^\s*(\w+)\s*:\s*\{/gm)
+        // Handle both ['en-us']: and 'en-us': formats
+        const topLevelKeyMatches = localesStrTrimmed.match(/^\s*(\[?['"]?([\w-]+)['"]?\]?)\s*:\s*\{/gm)
 
         if (topLevelKeyMatches) {
-          const keys = topLevelKeyMatches.map((match) => {
-            const keyMatch = match.match(/^\s*(\w+)\s*:/)
+          locales = topLevelKeyMatches.map((match) => {
+            const keyMatch = match.match(/^\s*\[?['"]?([\w-]+)['"]?\]?\s*:/)
             return keyMatch ? keyMatch[1] : ''
           }).filter(key => key.length > 0)
-          locales = keys
         }
         else {
-          // Fallback: try to extract keys by looking for patterns like "en: {"
-          const fallbackMatches = localesStrTrimmed.match(/(\w+)\s*:\s*\{/g)
+          // Fallback: try to extract keys by looking for patterns like "en: {" or "['en-us']: {"
+          const fallbackMatches = localesStrTrimmed.match(/(\[?['"]?([\w-]+)['"]?\]?)\s*:\s*\{/g)
           if (fallbackMatches) {
-            const keys = fallbackMatches.map((match) => {
-              const keyMatch = match.match(/(\w+)\s*:/)
+            locales = fallbackMatches.map((match) => {
+              const keyMatch = match.match(/(\[?['"]?([\w-]+)['"]?\]?)\s*:/)
               return keyMatch ? keyMatch[1] : ''
             }).filter(key => key.length > 0)
-            locales = keys
           }
         }
       }

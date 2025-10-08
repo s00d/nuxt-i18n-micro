@@ -1,124 +1,183 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale, LocaleCode } from 'nuxt-i18n-micro-types'
+import type { Locale } from 'nuxt-i18n-micro-types'
 
 export interface DefineI18nRouteData {
   locales: string[] | null
   localeRoutes: Record<string, string> | null
 }
 
-export function extractDefineI18nRouteData(content: string, filePath: string): DefineI18nRouteData {
-  // Look for defineI18nRoute call (with or without dollar sign)
-  const defineMatch = content.match(/\$?\bdefineI18nRoute\s*\(\s*\{[\s\S]*?\}\s*\)/)
-
-  if (!defineMatch) {
-    return { locales: null, localeRoutes: null }
-  }
-
-  const defineContent = defineMatch[0]
-  let locales: string[] | null = null
-  let localeRoutes: Record<string, string> | null = null
-
-  // Extract locales
-  let localesStr = ''
-  const localesStart = defineContent.indexOf('locales:')
-  if (localesStart !== -1) {
-    const afterLocales = defineContent.substring(localesStart + 8) // 8 = length of 'locales:'
-    const trimmed = afterLocales.trim()
-    if (trimmed.startsWith('[')) {
-      // Array format
-      let bracketCount = 0
-      let i = 0
-      for (; i < trimmed.length; i++) {
-        if (trimmed[i] === '[') bracketCount++
-        if (trimmed[i] === ']') bracketCount--
-        if (bracketCount === 0) break
-      }
-      localesStr = trimmed.substring(0, i + 1)
-    }
-    else if (trimmed.startsWith('{')) {
-      // Object format
-      let braceCount = 0
-      let i = 0
-      for (; i < trimmed.length; i++) {
-        if (trimmed[i] === '{') braceCount++
-        if (trimmed[i] === '}') braceCount--
-        if (braceCount === 0) break
-      }
-      localesStr = trimmed.substring(0, i + 1)
-    }
-  }
-
-  if (localesStr) {
-    try {
-      const localesStrTrimmed = localesStr.trim()
-
-      // Handle array format: ['en', 'de']
-      if (localesStrTrimmed.startsWith('[') && localesStrTrimmed.endsWith(']')) {
-        const arrayMatch = localesStrTrimmed.match(/\[(.*?)\]/s)
-        if (arrayMatch && arrayMatch[1]) {
-          locales = arrayMatch[1]
-            .split(',')
-            .map(el => el.trim().replace(/['"]/g, ''))
-            .filter(el => el.length > 0)
-        }
-      }
-
-      // Handle object format: { en: {...}, de: {...} }
-      if (localesStrTrimmed.startsWith('{') && localesStrTrimmed.endsWith('}')) {
-        // Extract only top-level keys (locale codes) from the object
-        // Handle both ['en-us']: and 'en-us': formats
-        const topLevelKeyMatches = localesStrTrimmed.match(/^\s*(\[?['"]?([\w-]+)['"]?\]?)\s*:\s*\{/gm)
-
-        if (topLevelKeyMatches) {
-          locales = topLevelKeyMatches.map((match) => {
-            const keyMatch = match.match(/^\s*\[?['"]?([\w-]+)['"]?\]?\s*:/)
-            return keyMatch ? keyMatch[1] : ''
-          }).filter(key => key.length > 0)
-        }
-        else {
-          // Fallback: try to extract keys by looking for patterns like "en: {" or "['en-us']: {"
-          const fallbackMatches = localesStrTrimmed.match(/(\[?['"]?([\w-]+)['"]?\]?)\s*:\s*\{/g)
-          if (fallbackMatches) {
-            locales = fallbackMatches.map((match) => {
-              const keyMatch = match.match(/(\[?['"]?([\w-]+)['"]?\]?)\s*:/)
-              return keyMatch ? keyMatch[1] : ''
-            }).filter(key => key.length > 0)
-          }
-        }
-      }
-    }
-    catch (error) {
-      console.error('Failed to parse locales:', error, 'in file:', filePath)
-    }
-  }
-
-  // Extract localeRoutes
-  const localeRoutesMatch = defineContent.match(/localeRoutes:\s*(\{[\s\S]*?\})/)
-  if (localeRoutesMatch && localeRoutesMatch[1]) {
-    try {
-      const parsedLocaleRoutes = Function('"use strict";return (' + localeRoutesMatch[1] + ')')()
-      if (typeof parsedLocaleRoutes === 'object' && parsedLocaleRoutes !== null) {
-        if (validateDefineI18nRouteConfig(parsedLocaleRoutes)) {
-          localeRoutes = parsedLocaleRoutes
-        }
-      }
-      else {
-        console.error('localeRoutes found but it is not a valid object in file:', filePath)
-      }
-    }
-    catch (error) {
-      console.error('Failed to parse localeRoutes:', error, 'in file:', filePath)
-    }
-  }
-
-  return { locales, localeRoutes }
+// Helper function to extract script content from Vue file
+function extractScriptContent(content: string): string | null {
+  const scriptMatch = content.match(/<script[^>]*>([\s\S]*?)<\/script>/)
+  return scriptMatch ? scriptMatch[1] : null
 }
 
-export function validateDefineI18nRouteConfig(obj: Record<LocaleCode, Record<string, string>>): boolean {
+// Helper function to remove TypeScript types from function parameters
+function removeTypeScriptTypes(scriptContent: string): string {
+  // Remove type annotations from function parameters: (param: type) -> (param)
+  // Only match patterns inside parentheses with word characters before the colon
+  return scriptContent.replace(/\((\w+):[^)]*\)/g, '($1)')
+}
+
+// Helper function to find defineI18nRoute call and extract config using Function()
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function findDefineI18nRouteConfig(scriptContent: string): any | null {
+  try {
+    // Find the defineI18nRoute call - use proper brace counting
+    const defineStart = scriptContent.indexOf('$defineI18nRoute(')
+    if (defineStart === -1) {
+      return null
+    }
+
+    const openParen = scriptContent.indexOf('(', defineStart)
+    if (openParen === -1) {
+      return null
+    }
+
+    // Find the matching closing paren using brace counting
+    let braceCount = 0
+    let parenCount = 1 // Start with 1 because we found the opening paren
+    let i = openParen + 1
+
+    for (; i < scriptContent.length; i++) {
+      if (scriptContent[i] === '{') braceCount++
+      if (scriptContent[i] === '}') braceCount--
+      if (scriptContent[i] === '(') parenCount++
+      if (scriptContent[i] === ')') {
+        parenCount--
+        if (parenCount === 0 && braceCount === 0) break
+      }
+    }
+
+    if (i >= scriptContent.length) {
+      return null
+    }
+
+    const configStr = scriptContent.substring(openParen + 1, i)
+
+    try {
+      // Try to execute only the config object directly first
+      const cleanConfigStr = removeTypeScriptTypes(configStr)
+
+      try {
+        // Try to execute only the config object directly
+        const configObject = Function('"use strict";return (' + cleanConfigStr + ')')()
+
+        // Use JSON.stringify to serialize and then JSON.parse to deserialize
+        // This will remove functions and other non-serializable values
+        try {
+          const serialized = JSON.stringify(configObject)
+          return JSON.parse(serialized)
+        }
+        catch {
+          // If JSON.stringify fails, return the object as is
+          return configObject
+        }
+      }
+      catch {
+        // If direct execution fails, try with mocked functions but skip imports
+        const scriptWithoutImports = scriptContent
+          .split('\n')
+          .filter(line => !line.trim().startsWith('import '))
+          .join('\n')
+
+        const cleanScript = removeTypeScriptTypes(scriptWithoutImports)
+
+        const safeScript = `
+          // Mock $defineI18nRoute to prevent errors
+          const $defineI18nRoute = () => {}
+          const defineI18nRoute = () => {}
+
+          // Mock process.env for conditional logic
+          const process = { env: { NODE_ENV: 'development' } }
+
+          // Execute the script content without imports and TypeScript types
+          ${cleanScript}
+
+          // Return the config object
+          return (${cleanConfigStr})
+        `
+
+        const configObject = Function('"use strict";' + safeScript)()
+
+        // Use JSON.stringify to serialize and then JSON.parse to deserialize
+        // This will remove functions and other non-serializable values
+        try {
+          const serialized = JSON.stringify(configObject)
+          return JSON.parse(serialized)
+        }
+        catch {
+          // If JSON.stringify fails, return the object as is
+          return configObject
+        }
+      }
+    }
+    catch {
+      return null
+    }
+  }
+  catch {
+    return null
+  }
+}
+
+export function extractDefineI18nRouteData(content: string, _filePath: string): DefineI18nRouteData {
+  try {
+    const scriptContent = extractScriptContent(content)
+    if (!scriptContent) {
+      return { locales: null, localeRoutes: null }
+    }
+
+    // Try to find the defineI18nRoute call and extract its config
+    const configObject = findDefineI18nRouteConfig(scriptContent)
+    if (!configObject) {
+      return { locales: null, localeRoutes: null }
+    }
+
+    // Extract locales
+    let locales: string[] | null = null
+    if (configObject.locales) {
+      if (Array.isArray(configObject.locales)) {
+        // Handle both string arrays and object arrays
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        locales = configObject.locales.map((item: any) => {
+          if (typeof item === 'string') {
+            return item
+          }
+          else if (typeof item === 'object' && item !== null && item.code) {
+            return item.code
+          }
+          return null
+        }).filter((item: string | null) => item !== null) as string[]
+      }
+      else if (typeof configObject.locales === 'object') {
+        locales = Object.keys(configObject.locales).filter(key =>
+          key !== 'meta' && key !== 'path' && key !== 'title' && key !== 'description',
+        )
+      }
+    }
+
+    // Extract localeRoutes
+    let localeRoutes: Record<string, string> | null = null
+    if (configObject.localeRoutes && typeof configObject.localeRoutes === 'object') {
+      const isValid = Object.values(configObject.localeRoutes).every(value => typeof value === 'string')
+      if (isValid) {
+        localeRoutes = configObject.localeRoutes
+      }
+    }
+
+    return { locales, localeRoutes }
+  }
+  catch {
+    return { locales: null, localeRoutes: null }
+  }
+}
+
+export function validateDefineI18nRouteConfig(obj: Record<string, string>): boolean {
   if (typeof obj !== 'object') return false
-  for (const routeKey in obj.localeRoutes) {
-    if (typeof obj.localeRoutes[routeKey] !== 'string') return false
+  for (const routeKey in obj) {
+    if (typeof obj[routeKey] !== 'string') return false
   }
   return true
 }

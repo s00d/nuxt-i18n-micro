@@ -13,8 +13,8 @@ test.use({
     },
   },
   // launchOptions: {
-  //   headless: false, // Показывать браузер
-  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  //   headless: false, // Show browser
+  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
   // },
 })
 test.describe('redirect', () => {
@@ -23,7 +23,7 @@ test.describe('redirect', () => {
       'Accept-Language': 'en-US,en;q=0.9',
     })
 
-    // Переходим на главную страницу
+    // Navigate to main page
     await goto('/ru/page', { waitUntil: 'hydration' })
 
     const currentURL = page.url()

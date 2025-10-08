@@ -9,28 +9,28 @@ test.use({
 
 test.describe('$defineI18nRoute behavior', () => {
   test('should generate alternates only for specified locales in $defineI18nRoute', async ({ page, goto }) => {
-    // Переходим на страницу test, которая использует $defineI18nRoute с locales: ['en']
+    // Navigate to test page that uses $defineI18nRoute with locales: ['en']
     await goto('/test', { waitUntil: 'domcontentloaded' })
 
-    // Проверяем, что страница загрузилась
+    // Check that page loaded
     await expect(page.getByText('test in en')).toBeVisible()
 
-    // Получаем все alternate ссылки
+    // Get all alternate links
     const alternateLinks = page.locator('link[rel="alternate"]')
     const count = await alternateLinks.count()
 
-    // Должны быть только alternate ссылки для 'en' локали
+    // Should only be alternate links for 'en' locale
     const hreflangs = await Promise.all(
       Array.from({ length: count }).map((_, i) =>
         alternateLinks.nth(i).getAttribute('hreflang'),
       ),
     )
 
-    // Проверяем, что есть только 'en' и 'en_EN' (ISO код)
+    // Check that there's only 'en' and 'en_EN' (ISO code)
     expect(hreflangs).toContain('en')
     expect(hreflangs).toContain('en_EN')
 
-    // Проверяем, что НЕТ 'es' и 'es-ES' alternate ссылок
+    // Check that there's NO 'es' and 'es-ES' alternate links
     expect(hreflangs).not.toContain('es')
     expect(hreflangs).not.toContain('es-ES')
   })
@@ -55,29 +55,29 @@ test.describe('$defineI18nRoute behavior', () => {
     const ogAlternate = await page.locator('meta[property="og:locale:alternate"]').all()
     const contents = await Promise.all(ogAlternate.map(el => el.getAttribute('content')))
 
-    // Должен быть только 'en_EN'
+    // Should only be 'en_EN'
     expect(contents).toContain('en_EN')
 
-    // НЕ должно быть 'es-ES'
+    // Should NOT be 'es-ES'
     expect(contents).not.toContain('es-ES')
   })
 
   test('should return 404 for non-specified locale when accessing directly', async ({ page }) => {
-    // Попытка доступа к /es/test должна вернуть 404, так как 'es' не указан в $defineI18nRoute
+    // Attempt to access /es/test should return 404, as 'es' is not specified in $defineI18nRoute
     const response = await page.goto('/es/test', { waitUntil: 'networkidle' })
 
-    // Проверяем, что страница недоступна (404 или редирект)
+    // Check that page is not accessible (404 or redirect)
     expect(response?.status()).toBeGreaterThanOrEqual(400)
   })
 
   test('should work correctly for default locale without prefix', async ({ page, goto }) => {
-    // Тестируем доступ к странице без префикса (default locale)
+    // Test access to page without prefix (default locale)
     await goto('/test', { waitUntil: 'domcontentloaded' })
 
-    // Проверяем, что контент отображается корректно
+    // Check that content displays correctly
     await expect(page.getByText('test in en')).toBeVisible()
 
-    // Проверяем, что alternate ссылки корректны
+    // Check that alternate links are correct
     const alternateLinks = page.locator('link[rel="alternate"]')
     const hreflangs = await Promise.all(
       Array.from({ length: await alternateLinks.count() }).map((_, i) =>
@@ -92,17 +92,17 @@ test.describe('$defineI18nRoute behavior', () => {
   test('should not generate alternates for non-specified locales in build output', async ({ page, goto }) => {
     await goto('/test', { waitUntil: 'domcontentloaded' })
 
-    // Получаем HTML содержимое страницы
+    // Get HTML content of the page
     const html = await page.content()
 
-    // Проверяем, что в HTML НЕТ alternate ссылок для 'es'
+    // Check that HTML does NOT contain alternate links for 'es'
     expect(html).not.toContain('hreflang="es"')
     expect(html).not.toContain('hreflang="es-ES"')
 
-    // Проверяем, что в HTML НЕТ og:locale:alternate для 'es-ES'
+    // Check that HTML does NOT contain og:locale:alternate for 'es-ES'
     expect(html).not.toContain('og:locale:alternate" content="es-ES"')
 
-    // Проверяем, что есть alternate ссылки для 'en'
+    // Check that there are alternate links for 'en'
     expect(html).toContain('hreflang="en"')
     expect(html).toContain('hreflang="en_EN"')
   })

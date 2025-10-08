@@ -1,1 +1,10 @@
-{}
+{
+  "key0": "ch",
+  "test_key": "test_val_ch",
+  "basic": "basic text",
+  "lang": "中文",
+  "generic": {
+    "welcome": "Welcome to the page!",
+    "example": "example ch"
+  }
+}

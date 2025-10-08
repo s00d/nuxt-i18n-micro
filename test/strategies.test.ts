@@ -48,7 +48,7 @@ const ROUTES = {
 
 const exec = promisify(execCb)
 
-/** Поиск свободного порта через временный net.Server */
+/** Find free port through temporary net.Server */
 export async function getFreePort(base = 10011, max = 20): Promise<number> {
   for (let i = 0; i < max; i++) {
     const port = base + i
@@ -59,20 +59,20 @@ export async function getFreePort(base = 10011, max = 20): Promise<number> {
         srv.once('error', reject)
 
         srv.once('listening', () => {
-          // завершаем сервер и резолвим промис, соблюдая сигнатуру (err?: Error)
+          // close server and resolve promise, maintaining signature (err?: Error)
           srv.close(err => err ? reject(err) : resolve())
         })
 
         srv.listen(port, '127.0.0.1')
       })
-      return port // ← свободный найден
+      return port // ← free port found
     }
-    catch { /* порт занят, пробуем следующий */ }
+    catch { /* port busy, try next */ }
   }
   throw new Error(`No free port in range ${base}-${base + max}`)
 }
 
-/** Завершает процесс, удерживающий порт (Unix и Windows) */
+/** Terminate process holding the port (Unix and Windows) */
 async function freePort(port: number) {
   if (process.platform === 'win32') {
     try {
@@ -95,19 +95,19 @@ async function freePort(port: number) {
   }
 }
 
-/** Ожидаем появления текста на странице */
+/** Wait for text to appear on page */
 async function waitForText(url: string, text: string, tries = 40, ms = 500) {
   for (let i = 0; i < tries; i++) {
     try {
       if ((await (await fetch(url)).text()).includes(text)) return
     }
-    catch { /* сервер не поднялся */ }
+    catch { /* server not started */ }
     await delay(ms)
   }
   throw new Error(`"${text}" not found at ${url}`)
 }
 
-/** npm run generate / npm run build через spawn */
+/** npm run generate / npm run build via spawn */
 function runNuxt(script: 'generate' | 'build', strategy: string): Promise<void> {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
@@ -137,7 +137,7 @@ function runNuxt(script: 'generate' | 'build', strategy: string): Promise<void> 
   })
 }
 
-/** Запуск статического или SSR-сервера */
+/** Start static or SSR server */
 function serve(cmd: string[], port: number): ChildProcess {
   const env: NodeJS.ProcessEnv = {
     ...process.env,

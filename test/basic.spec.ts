@@ -6,8 +6,8 @@ test.use({
     rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
   },
   // launchOptions: {
-  //   headless: false, // Показывать браузер
-  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  //   headless: false, // Show browser
+  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
   // },
 })
 
@@ -438,14 +438,14 @@ test.describe('basic', () => {
   })
 
   test('test navigation and locale switching on news page', async ({ page, goto }) => {
-    // Переход на страницу /news/1
+    // Navigate to /news/1 page
     await goto('/news/1', { waitUntil: 'hydration' })
 
-    // Проверяем наличие id и данных news
+    // Check presence of id and news data
     await expect(page.locator('.news-id')).toHaveText('id: 1')
     await expect(page.locator('.news-data')).toBeVisible()
 
-    // Проверяем переходы по ссылкам
+    // Check link navigation
     await page.click('.link-article-1')
     await expect(page).toHaveURL('/articles/1')
 
@@ -453,7 +453,7 @@ test.describe('basic', () => {
     await page.click('.link-news-4')
     await expect(page).toHaveURL('/news/4')
 
-    // Проверяем переключение локалей
+    // Check locale switching
     await page.click('.locale-en')
     await expect(page).toHaveURL('/news/4')
 
@@ -467,11 +467,11 @@ test.describe('basic', () => {
   test('test query parameters and hash on news page', async ({ page, goto }) => {
     await goto('/news/2?a=b#tada', { waitUntil: 'hydration' })
 
-    // Проверяем, что id и query параметры корректно отображаются
+    // Check that id and query parameters display correctly
     await expect(page.locator('.news-id')).toHaveText('id: 2')
     await expect(page).toHaveURL('/news/2?a=b#tada')
 
-    // Проверяем, что localeRoute корректно работает с query и hash
+    // Check that localeRoute works correctly with query and hash
     await page.click('.link-news-2')
     await expect(page).toHaveURL('/news/2?a=b')
   })

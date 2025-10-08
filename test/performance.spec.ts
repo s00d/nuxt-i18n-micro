@@ -99,18 +99,18 @@ interface PerformanceResult {
   failedRequests?: Record<string, number>
 }
 
-// Получаем текущий каталог, эквивалентный __dirname
+// Get current directory, equivalent to __dirname
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const resultsFilePath = join(__dirname, '../docs/guide', 'performance-results.md')
 
-// Функция для записи в MD файл
+// Function to write to MD file
 function writeToMarkdown(content: string) {
   fs.appendFileSync(resultsFilePath, content)
 }
 
-// Чтение версии из package.json
+// Read version from package.json
 function getVersion(packagePath: string, key: string, subkey: string | null = null) {
   if (fs.existsSync(packagePath)) {
     const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'))
@@ -122,11 +122,11 @@ function getVersion(packagePath: string, key: string, subkey: string | null = nu
   return 'N/A'
 }
 
-// Пути к package.json
+// Paths to package.json
 const rootPackagePath = path.resolve(__dirname, '../package.json')
 const i18nPackagePath = path.resolve(__dirname, 'fixtures/i18n/package.json')
 
-// Добавление раздела версий зависимостей в конечный MD-файл
+// Add dependency versions section to final MD file
 function addDependencyVersions() {
   const dependencies = {
     'node': process.version,
@@ -452,14 +452,14 @@ async function stressTestServerWithArtillery(directory: string, name: string, ar
         reject(error)
       })
 
-      // Даем серверу время на старт перед запуском Artillery теста
+      // Give server time to start before running Artillery test
       setTimeout(resolve, 5000)
     })
 
-    // Запуск Artillery и сбор результатов
+    // Run Artillery and collect results
     const artilleryResults = await runArtilleryTest(artilleryConfigPath)
 
-    // Остановка мониторинга и сервера
+    // Stop monitoring and server
     clearInterval(monitorInterval)
     process.kill(-pid)
 

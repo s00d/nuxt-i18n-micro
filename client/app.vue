@@ -2,13 +2,13 @@
   <div
     class="h-screen overflow-auto"
   >
-    <!-- Вкладки -->
+    <!-- Tabs -->
     <Tabs
       v-model="activeTab"
       :tabs="tabs"
     />
 
-    <!-- Основной контент -->
+    <!-- Main content -->
     <I18nView v-if="activeTab === 'i18n'" />
     <SettingsView v-if="activeTab === 'settings'" />
     <ConfigView v-if="activeTab === 'config'" />
@@ -33,7 +33,7 @@ const {
   selectedFileContent,
 } = useI18nStore()
 
-const activeTab = ref('i18n') // По умолчанию активна вкладка i18n
+const activeTab = ref('i18n') // i18n tab is active by default
 
 const tabs = [
   { label: 'i18n', value: 'i18n' },

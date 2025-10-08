@@ -32,21 +32,21 @@ import SettingsCard from '../components/SettingsCard.vue'
 import EditorSelector from '../components/EditorSelector.vue'
 import TranslationControls from '../components/TranslationControls.vue'
 
-// Настройки редактора
+// Editor settings
 const selectedEditor = ref('translation')
 const editorStorageKey = 'selectedEditor'
 
-// Настройки автоперевода
+// Auto-translation settings
 const selectedDriver = ref('disabled')
 const apiToken = ref('')
 const driverOptions = ref<{ [key: string]: string }>({
-  folderId: '', // Для Yandex Cloud
-  formality: 'default', // Для DeepL
-  model: 'gpt-3.5-turbo', // Для OpenAI и DeepSeek
+  folderId: '', // For Yandex Cloud
+  formality: 'default', // For DeepL
+  model: 'gpt-3.5-turbo', // For OpenAI and DeepSeek
 })
 const translationSettingsStorageKey = 'translationSettings'
 
-// Загрузка настроек редактора из localStorage
+// Load editor settings from localStorage
 onMounted(() => {
   const savedEditor = localStorage.getItem(editorStorageKey)
   if (savedEditor) {
@@ -56,7 +56,7 @@ onMounted(() => {
     selectedEditor.value = 'translation'
   }
 
-  // Загрузка настроек автоперевода из localStorage
+  // Load auto-translation settings from localStorage
   const savedTranslationSettings = localStorage.getItem(translationSettingsStorageKey)
   if (savedTranslationSettings) {
     const { driver, token, options } = JSON.parse(savedTranslationSettings)
@@ -66,13 +66,13 @@ onMounted(() => {
   }
 })
 
-// Сохранение настроек редактора в localStorage
+// Save editor settings to localStorage
 watch(selectedEditor, async (newValue) => {
   await nextTick()
   localStorage.setItem(editorStorageKey, newValue)
 })
 
-// Сохранение настроек автоперевода в localStorage
+// Save auto-translation settings to localStorage
 watch([selectedDriver, apiToken, driverOptions], async () => {
   await nextTick()
   const settings = {

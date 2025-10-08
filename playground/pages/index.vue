@@ -7,7 +7,7 @@
     <p>Current Locale: {{ currentLocale }}</p>
     <p>Current route without locale: {{ currentRouteName }}</p>
 
-    <!-- Ссылки для переключения локалей -->
+    <!-- Links for locale switching -->
     <div>
       <button
         v-for="locale in currentLocales"
@@ -122,14 +122,14 @@ function generateKeys(depth, maxKeys = 4) {
   const generate = (prefix = '', currentDepth = depth) => {
     if (currentDepth === 0) {
       for (let i = 0; i <= maxKeys; i++) {
-        // Генерируем ключ с инкрементом по последнему элементу
+        // Generate key with increment on last element
         keys.push(`${prefix}key${i}`)
       }
       return
     }
 
     for (let i = 0; i <= maxKeys; i++) {
-      // Добавляем к префиксу текущий элемент
+      // Add current element to prefix
       generate(`${prefix}key${i}.`, currentDepth - 1)
     }
   }

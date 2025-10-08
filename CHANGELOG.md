@@ -1,6 +1,40 @@
 # Changelog
 
 
+## v1.100.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.99.0...v1.100.0)
+
+### 🚀 Enhancements
+
+- **ui:** Translate comments in `app.vue` and `SettingsView.vue` to English ([88754bb](https://github.com/s00d/nuxt-i18n-micro/commit/88754bb))
+- **page-manager:** Add support for route locale restrictions ([f58a076](https://github.com/s00d/nuxt-i18n-micro/commit/f58a076))
+
+### 🩹 Fixes
+
+- **utils:** Correct locale extraction regex patterns ([0f10fba](https://github.com/s00d/nuxt-i18n-micro/commit/0f10fba))
+- **playground:** Translate comments from Russian to English ([311b993](https://github.com/s00d/nuxt-i18n-micro/commit/311b993))
+- **text:** Correct constructor parameters for PageManager instantiation. ([cbd7247](https://github.com/s00d/nuxt-i18n-micro/commit/cbd7247))
+
+### 💅 Refactors
+
+- **module:** Update globalLocaleRoutes key to use routePath ([1684bff](https://github.com/s00d/nuxt-i18n-micro/commit/1684bff))
+- **composables:** Improve comments for clarity and consistency ([830044b](https://github.com/s00d/nuxt-i18n-micro/commit/830044b))
+- **plugins:** Improve comments for clarity and consistency ([d6f22f7](https://github.com/s00d/nuxt-i18n-micro/commit/d6f22f7))
+
+### ✅ Tests
+
+- Update PageManager tests to include additional parameters ([c044ce7](https://github.com/s00d/nuxt-i18n-micro/commit/c044ce7))
+- Translate comments to English for clarity ([bb909d4](https://github.com/s00d/nuxt-i18n-micro/commit/bb909d4))
+
+### 🎨 Styles
+
+- **eslint:** Enforce consistent comment spacing in configuration ([3104905](https://github.com/s00d/nuxt-i18n-micro/commit/3104905))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.99.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.98.0...v1.99.0)

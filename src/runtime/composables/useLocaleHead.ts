@@ -2,6 +2,7 @@ import { joinURL, parseURL, withQuery } from 'ufo'
 import type { Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { isPrefixExceptDefaultStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
 import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
+import { findAllowedLocalesForRoute } from '../utils/route-utils'
 
 interface MetaLink {
   [key: string]: string | undefined
@@ -61,8 +62,8 @@ export const useLocaleHead = async ({ addDirAttribute = true, identifierAttribut
     const currentLocale = unref($getLocales().find((loc: Locale) => loc.code === locale))
     if (!currentLocale) return
 
-    // Try to find by route name and by path
-    const currentRouteLocales = routeLocales?.[routeName] || routeLocales?.[route.path]
+    // Find allowed locales for this route using the utility function
+    const currentRouteLocales = findAllowedLocalesForRoute(route, routeLocales)
 
     // If there's $defineI18nRoute configuration, use only specified locales
     const locales = currentRouteLocales

@@ -339,18 +339,117 @@ $mergeTranslations({
 -   **Parameters**:
     - **locales**: `string[] | Record<string, Record<string, TranslationObject>>` — This property determines which locales are available for the route.
     - **localeRoutes**: `Record<string, string> | undefined` — Optional. Custom routes for specific locales.
--   **Example**:
+
+### ✅ Supported Configuration Formats
+
+**Static Arrays:**
+```typescript
+$defineI18nRoute({
+  locales: ['en', 'de', 'fr']
+})
+```
+
+**Static Objects:**
 ```typescript
 $defineI18nRoute({
   locales: {
-    en: { greeting: 'Hello', farewell: 'Goodbye' },
-    ru: { greeting: 'Привет', farewell: 'До свидания' },
+    en: { greeting: 'Hello' },
+    de: { greeting: 'Hallo' }
   },
   localeRoutes: {
-    ru: '/localesubpage',
-  },
+    en: '/welcome',
+    de: '/willkommen'
+  }
 })
 ```
+
+**Dynamic JavaScript:**
+```typescript
+// Variables and functions
+const locales = ['en', 'de', 'fr']
+const routes = { en: '/welcome', de: '/willkommen' }
+
+$defineI18nRoute({
+  locales: locales,
+  localeRoutes: routes
+})
+```
+
+**Template Literals:**
+```typescript
+$defineI18nRoute({
+  locales: [`${prefix}-en`, `${prefix}-de`],
+  localeRoutes: {
+    [`${prefix}-en`]: `/api/welcome`,
+    [`${prefix}-de`]: `/api/willkommen`
+  }
+})
+```
+
+**Spread Operator:**
+```typescript
+const baseLocales = ['en', 'de']
+const additionalLocales = ['fr', 'es']
+
+$defineI18nRoute({
+  locales: [...baseLocales, ...additionalLocales]
+})
+```
+
+**Array of Objects:**
+```typescript
+$defineI18nRoute({
+  locales: [
+    { code: 'en', name: 'English' },
+    { code: 'de', name: 'German' }
+  ]
+})
+```
+
+**Conditional Logic:**
+```typescript
+$defineI18nRoute({
+  locales: process.env.NODE_ENV === 'production' 
+    ? ['en', 'de'] 
+    : ['en', 'de', 'fr', 'es']
+})
+```
+
+**Complex Nested Objects:**
+```typescript
+$defineI18nRoute({
+  locales: {
+    'en-us': { region: 'US' },
+    'de-de': { region: 'DE' }
+  }
+})
+```
+
+**Comments and Formatting:**
+```typescript
+$defineI18nRoute({
+  // Supported locales
+  locales: [
+    'en', // English
+    'de', // German
+    'fr'  // French
+  ],
+  localeRoutes: {
+    en: '/welcome',
+    de: '/willkommen',
+    fr: '/bienvenue'
+  }
+})
+```
+
+### ❌ Not Supported
+
+- External imports (`import` statements)
+- Async/await functions
+- Class methods
+- Complex control flow (loops, try-catch, switch)
+- Arrow functions in configuration
+- Generator functions
 
 
 **Use Cases:**

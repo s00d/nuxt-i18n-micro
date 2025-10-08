@@ -46,17 +46,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
 
-  // Сохраняем информацию о предыдущей странице для очистки (только если включено)
+  // Save previous page info for cleanup (only if enabled)
   const previousPageInfo = useState<{ locale: string, routeName: string } | null>('i18n-previous-page', () => null)
   const enablePreviousPageFallback = i18nConfig.experimental?.i18nPreviousPageFallback ?? false
 
-  // Очищаем старые переводы только после полной загрузки страницы
+  // Clear old translations only after full page load
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
-      // Очищаем route-params только после полной загрузки
+      // Clear route-params only after full page load
       i18nRouteParams.value = null
 
-      // Очищаем previousPageInfo
+      // Clear previousPageInfo
       previousPageInfo.value = null
     }
   })
@@ -126,7 +126,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   router.beforeEach(async (to, from, next) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
-      // Сохраняем информацию о предыдущей странице для последующей очистки (только если включено)
+      // Save previous page info for subsequent cleanup (only if enabled)
       if (import.meta.client && from.path !== to.path && enablePreviousPageFallback) {
         const fromLocale = routeService.getCurrentLocale(from as RouteLocationResolvedGeneric)
         const fromRouteName = routeService.getRouteName(from as RouteLocationResolvedGeneric, fromLocale)
@@ -162,7 +162,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
       let value = i18nHelper.getTranslation(locale, routeName, key)
 
-      // Если перевод не найден и есть сохраненные предыдущие переводы, используем их (только если включено)
+      // If translation not found and there are saved previous translations, use them (only if enabled)
       if (!value && previousPageInfo.value && enablePreviousPageFallback) {
         const prev = previousPageInfo.value
         const prevValue = i18nHelper.getTranslation(prev.locale, prev.routeName, key)
@@ -172,7 +172,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         }
       }
 
-      // Если все еще не найден, пробуем общие переводы
+      // If still not found, try general translations
       if (!value) {
         value = i18nHelper.getTranslation(locale, '', key)
       }

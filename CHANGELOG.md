@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v1.100.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.100.0...v1.100.1)
+
+### 🩹 Fixes
+
+- **text:** Correct constructor parameters for PageManager instantiation. ([1799aa3](https://github.com/s00d/nuxt-i18n-micro/commit/1799aa3))
+
+### 💅 Refactors
+
+- **utils:** Simplify extraction of i18n route data ([23aa57b](https://github.com/s00d/nuxt-i18n-micro/commit/23aa57b))
+
+### 📖 Documentation
+
+- **api:** Update method documentation with supported configuration formats ([1cf03ea](https://github.com/s00d/nuxt-i18n-micro/commit/1cf03ea))
+
+### ✅ Tests
+
+- **extract-define-i18n-route:** Add tests for extractDefineI18nRouteData function ([48897f5](https://github.com/s00d/nuxt-i18n-micro/commit/48897f5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.100.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.99.0...v1.100.0)

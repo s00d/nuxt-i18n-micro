@@ -95,7 +95,7 @@
       Formatted Date: {{ $tdr('2023-12-31') }}
     </div>
 
-    <!-- Ссылки для переключения локалей -->
+    <!-- Links for locale switching -->
     <div>
       <button
         v-for="val in $getLocales()"
@@ -131,11 +131,11 @@ type Params = Record<string, string | number | boolean>
 
 const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc, $tn, $td, $tdr } = useNuxtApp()
 
-// Количество яблок
+// Number of apples
 const appleCount = ref(5)
 const locale = computed(() => $getLocale())
 
-// Кастомное правило множественных форм
+// Custom plural rule
 const customPluralRule = (key: string, count: number, params: Params, _locale: string, t: Getter) => {
   const translation = t(key, params)
   if (!translation) {

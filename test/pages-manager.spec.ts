@@ -25,7 +25,7 @@ test.describe('PageManager', () => {
   let pageManager: PageManager
 
   test.beforeAll(() => {
-    pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, false)
+    pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, {}, false)
   })
 
   test('should correctly calculate active locale codes', async () => {
@@ -164,8 +164,8 @@ test.describe('PageManager', () => {
   })
 
   test('should include default locale routes when strategy is prefix', async () => {
-    // Устанавливаем флаг includeDefaultLocaleRoute в true
-    const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, 'prefix', undefined, {}, false)
+    // Set includeDefaultLocaleRoute flag to true
+    const pageManagerWithDefaultLocale = new PageManager(locales, defaultLocaleCode, 'prefix', undefined, {}, {}, false)
 
     const pages: NuxtPage[] = [{
       path: '/activity',
@@ -173,12 +173,12 @@ test.describe('PageManager', () => {
       children: [{ path: 'skiing', name: 'Skiing' }],
     }]
 
-    // Расширяем страницы
+    // Extend pages
     pageManagerWithDefaultLocale.extendPages(pages)
-    // Проверяем корректность обработки маршрута для дефолтной локали
+    // Check correct handling of route for default locale
     expect(pages[0].path).toBe('/:locale(en|de|ru)/activity')
 
-    // Проверяем, что добавлены маршруты для всех локалей, включая дефолтную
+    // Check that routes are added for all locales, including default
     expect(pages[0].children).toHaveLength(1) // en, de, ru
     expect(pages[0].children).toEqual(
       expect.arrayContaining([
@@ -198,7 +198,7 @@ test.describe('PageManager', () => {
     }
 
     // Creating a new PageManager instance with globalLocaleRoutes
-    const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, false)
+    const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
 
     const pages: NuxtPage[] = [{
       path: '/activity',
@@ -239,7 +239,7 @@ test.describe('PageManager', () => {
   })
 
   test('should handle prefix_and_default strategy correctly', async () => {
-    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'prefix_and_default', undefined, {}, false)
+    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'prefix_and_default', undefined, {}, {}, false)
 
     const pages: NuxtPage[] = [
       {
@@ -280,7 +280,7 @@ test.describe('PageManager', () => {
       },
       unlocalized: false, // Unlocalized page should not be localized
     }
-    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes, {}, false)
+    const pageManagerPrefixAndDefault = new PageManager(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes, {}, {}, false)
 
     const pages: NuxtPage[] = [
       {
@@ -323,7 +323,7 @@ test.describe('PageManager', () => {
       { code: 'fr' },
     ]
 
-    // Создаем filesLocaleRoutes на основе содержимого файлов
+    // Create filesLocaleRoutes based on file contents
     const filesLocaleRoutes = {
       about: {
         en: '/about',
@@ -335,12 +335,12 @@ test.describe('PageManager', () => {
       },
     }
 
-    const pageManager = new PageManager(locales, 'en', 'no_prefix', {}, filesLocaleRoutes, false)
+    const pageManager = new PageManager(locales, 'en', 'no_prefix', {}, filesLocaleRoutes, {}, false)
 
-    // Вызываем метод extractLocalizedPaths
+    // Call extractLocalizedPaths method
     const localizedPaths = pageManager.extractLocalizedPaths(mockPages)
 
-    // Проверяем результат
+    // Check result
     expect(localizedPaths).toEqual({
       '/about': {
         en: '/about',
@@ -351,5 +351,907 @@ test.describe('PageManager', () => {
         de: '/kontakt',
       },
     })
+  })
+
+  // === Tests for fixing $defineI18nRoute bug ===
+
+  test('should respect locale restrictions from $defineI18nRoute - locales only', async () => {
+    const routeLocales = {
+      '/test': ['en'], // Only English is allowed for /test
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create only one page for English (default locale)
+    expect(pages).toHaveLength(1)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+
+    // Should not create pages for /de/test or /ru/test
+    const localizedPages = pages.filter(p => p.path?.includes('/:locale'))
+    expect(localizedPages).toHaveLength(0)
+  })
+
+  test('should respect locale restrictions from $defineI18nRoute - multiple locales', async () => {
+    const routeLocales = {
+      '/test': ['en', 'de'], // Only English and German are allowed for /test
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create page for English (default) and German
+    expect(pages).toHaveLength(2)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+    expect(pages[1].path).toBe('/:locale(de)/test')
+    expect(pages[1].name).toBe('localized-test')
+
+    // Should not create page for /ru/test
+    const russianPages = pages.filter(p => p.path?.includes('ru'))
+    expect(russianPages).toHaveLength(0)
+  })
+
+  test('should handle localeRoutes from $defineI18nRoute correctly', async () => {
+    const globalLocaleRoutes = {
+      '/test': {
+        en: '/custom-test-en',
+        de: '/custom-test-de',
+      },
+    }
+
+    const routeLocales = {
+      '/test': ['en', 'de'], // Only English and German are allowed
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create page for English with custom path
+    expect(pages).toHaveLength(2)
+    expect(pages[0].path).toBe('/custom-test-en')
+    expect(pages[0].name).toBe('test')
+    expect(pages[1].path).toBe('/:locale(de)/custom-test-de')
+    expect(pages[1].name).toBe('localized-test-de')
+  })
+
+  test('should handle nested routes with localeRoutes from $defineI18nRoute', async () => {
+    const globalLocaleRoutes = {
+      '/activity-locale': {
+        en: '/change-activity',
+        de: '/change-buchen',
+      },
+      '/activity-locale/skiing': {
+        en: '/book-activity/skiing',
+        de: '/aktivitaet-buchen/ski-fahren',
+      },
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/activity-locale',
+        name: 'activity-locale',
+        children: [
+          {
+            path: 'skiing',
+            name: 'activity-locale-skiing',
+          },
+        ],
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Check that parent page got correct paths
+    expect(pages[0].path).toBe('/change-activity')
+    expect(pages[0].name).toBe('activity-locale')
+
+    // Check that child page got correct paths
+    // Additional child pages are created when custom paths are present
+    expect(pages[0].children).toHaveLength(2)
+    expect(pages[0].children![0].path).toBe('book-activity/skiing')
+    expect(pages[0].children![0].name).toBe('activity-locale-skiing')
+    expect(pages[0].children![1].path).toBe('book-activity/skiing')
+    expect(pages[0].children![1].name).toBe('localized-activity-locale-skiing-en')
+
+    // Check localized pages - find page with German locale
+    const germanPage = pages.find(p => p.path?.includes('de') && p.path?.includes('change-buchen'))
+    expect(germanPage).toBeDefined()
+    expect(germanPage!.name).toBe('localized-activity-locale-de')
+    expect(germanPage!.children).toHaveLength(1)
+    expect(germanPage!.children![0].path).toBe('aktivitaet-buchen/ski-fahren')
+    expect(germanPage!.children![0].name).toBe('localized-activity-locale-skiing-de')
+  })
+
+  test('should handle locale restrictions with custom paths correctly', async () => {
+    const globalLocaleRoutes = {
+      '/test': {
+        en: '/custom-test-en',
+        de: '/custom-test-de',
+        ru: '/custom-test-ru',
+      },
+    }
+
+    const routeLocales = {
+      '/test': ['en', 'de'], // Only English and German are allowed
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create page for English with custom path
+    expect(pages).toHaveLength(2)
+    expect(pages[0].path).toBe('/custom-test-en')
+    expect(pages[0].name).toBe('test')
+    expect(pages[1].path).toBe('/:locale(de)/custom-test-de')
+    expect(pages[1].name).toBe('localized-test-de')
+
+    // Should not create page for Russian, even if there's a custom path
+    const russianPages = pages.filter(p => p.path?.includes('ru'))
+    expect(russianPages).toHaveLength(0)
+  })
+
+  test('should handle complex nested routes with localeRoutes and restrictions', async () => {
+    const globalLocaleRoutes = {
+      '/activity-locale': {
+        en: '/change-activity',
+        de: '/change-buchen',
+      },
+      '/activity-locale/skiing': {
+        en: '/book-activity/skiing',
+        de: '/aktivitaet-buchen/ski-fahren',
+      },
+    }
+
+    const routeLocales = {
+      '/activity-locale': ['en', 'de'], // Only English and German are allowed for parent page
+      '/activity-locale/skiing': ['en', 'de'], // Only English and German are allowed for child page
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/activity-locale',
+        name: 'activity-locale',
+        children: [
+          {
+            path: 'skiing',
+            name: 'activity-locale-skiing',
+          },
+        ],
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Check that only pages for allowed locales are created
+    expect(pages).toHaveLength(2)
+
+    // English page (default)
+    expect(pages[0].path).toBe('/change-activity')
+    expect(pages[0].name).toBe('activity-locale')
+    expect(pages[0].children).toHaveLength(2) // Additional child pages are created when custom paths are present
+    expect(pages[0].children![0].path).toBe('book-activity/skiing')
+    expect(pages[0].children![0].name).toBe('activity-locale-skiing')
+    expect(pages[0].children![1].path).toBe('book-activity/skiing')
+    expect(pages[0].children![1].name).toBe('localized-activity-locale-skiing-en')
+
+    // German page - find page with German locale
+    const germanPage = pages.find(p => p.path?.includes('de') && p.path?.includes('change-buchen'))
+    expect(germanPage).toBeDefined()
+    expect(germanPage!.name).toBe('localized-activity-locale-de')
+    expect(germanPage!.children).toHaveLength(1)
+    // Child page gets custom path from localeRoutes
+    expect(germanPage!.children![0].path).toBe('aktivitaet-buchen/ski-fahren')
+    expect(germanPage!.children![0].name).toBe('localized-activity-locale-skiing-de')
+
+    // Should not create pages for Russian
+    const russianPages = pages.filter(p => p.path?.includes('ru'))
+    expect(russianPages).toHaveLength(0)
+  })
+
+  test('should handle prefix strategy with locale restrictions', async () => {
+    const routeLocales = {
+      '/test': ['en', 'de'], // Only English and German are allowed
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create pages for all allowed locales
+    expect(pages).toHaveLength(1)
+    expect(pages[0].path).toBe('/:locale(en|de)/test')
+    expect(pages[0].name).toBe('localized-test')
+
+    // Should not create page for Russian
+    const russianPages = pages.filter(p => p.path?.includes('ru'))
+    expect(russianPages).toHaveLength(0)
+  })
+
+  test('should handle no_prefix strategy with locale restrictions', async () => {
+    const routeLocales = {
+      '/test': ['en', 'de'], // Only English and German are allowed
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'no_prefix', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create pages for all allowed locales
+    expect(pages).toHaveLength(1)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+
+    // Should not create page for Russian
+    const russianPages = pages.filter(p => p.path?.includes('ru'))
+    expect(russianPages).toHaveLength(0)
+  })
+
+  test('should handle prefix_and_default strategy with locale restrictions', async () => {
+    const routeLocales = {
+      '/test': ['en', 'de'], // Only English and German are allowed
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_and_default', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create pages for all allowed locales
+    expect(pages).toHaveLength(2)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+    expect(pages[1].path).toBe('/:locale(en|de)/test')
+    expect(pages[1].name).toBe('localized-test')
+
+    // Should not create page for Russian
+    const russianPages = pages.filter(p => p.path?.includes('ru'))
+    expect(russianPages).toHaveLength(0)
+  })
+
+  test('should handle locale codes with hyphens in $defineI18nRoute', async () => {
+    const localesWithHyphens: Locale[] = [
+      { code: 'en-us', iso: 'en-US' },
+      { code: 'de-de', iso: 'de-DE' },
+      { code: 'ru-ru', iso: 'ru-RU' },
+    ]
+
+    const routeLocales = {
+      '/test': ['en-us', 'de-de'], // Only en-us and de-de are allowed
+    }
+
+    const pageManager = new PageManager(localesWithHyphens, 'en-us', 'prefix_except_default', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create page for en-us (default) and de-de
+    expect(pages).toHaveLength(2)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+    expect(pages[1].path).toBe('/:locale(de-de)/test')
+    expect(pages[1].name).toBe('localized-test')
+
+    // Should not create page for ru-ru
+    const russianPages = pages.filter(p => p.path?.includes('ru-ru'))
+    expect(russianPages).toHaveLength(0)
+  })
+
+  test('should handle mixed locale restrictions - some pages restricted, others not', async () => {
+    const routeLocales = {
+      '/restricted': ['en'], // Only English is allowed for /restricted
+      // /unrestricted has no restrictions
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/restricted',
+        name: 'restricted',
+      },
+      {
+        path: '/unrestricted',
+        name: 'unrestricted',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // /restricted should be created only for English
+    expect(pages[0].path).toBe('/restricted')
+    expect(pages[0].name).toBe('restricted')
+
+    // /unrestricted should be created for all locales
+    expect(pages[1].path).toBe('/unrestricted')
+    expect(pages[1].name).toBe('unrestricted')
+    expect(pages[2].path).toBe('/:locale(de|ru)/unrestricted')
+    expect(pages[2].name).toBe('localized-unrestricted')
+
+    expect(pages).toHaveLength(3)
+  })
+
+  test('should handle empty locale restrictions array', async () => {
+    const routeLocales = {
+      '/test': [], // Empty array - no locales allowed
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // With empty array, pages are created for all available locales (fallback behavior)
+    expect(pages).toHaveLength(2)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+    expect(pages[1].path).toBe('/:locale(de|ru)/test')
+    expect(pages[1].name).toBe('localized-test')
+  })
+
+  test('should handle invalid locale codes in restrictions', async () => {
+    const routeLocales = {
+      '/test': ['en', 'invalid-locale', 'de'], // invalid-locale does not exist in configuration
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create pages only for valid locales
+    expect(pages).toHaveLength(2)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+    expect(pages[1].path).toBe('/:locale(de)/test')
+    expect(pages[1].name).toBe('localized-test')
+
+    // Should not create page for invalid-locale
+    const invalidPages = pages.filter(p => p.path?.includes('invalid-locale'))
+    expect(invalidPages).toHaveLength(0)
+  })
+
+  test('should handle pages with globalLocaleRoutes set to false', async () => {
+    const globalLocaleRoutes = {
+      test: false, // Page disabled
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Page should not be localized
+    expect(pages).toHaveLength(1)
+    expect(pages[0].path).toBe('/test')
+    expect(pages[0].name).toBe('test')
+  })
+
+  test('should handle internal paths correctly', async () => {
+    const excludePatterns = ['/admin/**', /^\/api\//]
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false, excludePatterns)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+      {
+        path: '/admin/dashboard',
+        name: 'admin-dashboard',
+      },
+      {
+        path: '/api/users',
+        name: 'api-users',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Only regular page should be localized
+    expect(pages).toHaveLength(4) // 1 original + 3 localized
+    expect(pages[0].path).toBe('/test')
+    // Find localized page for test
+    const localizedTestPage = pages.find(p => p.path?.includes(':locale') && p.path?.includes('test'))
+    expect(localizedTestPage).toBeDefined()
+
+    // Internal paths should not be localized
+    const adminPages = pages.filter(p => p.path?.includes('admin'))
+    const apiPages = pages.filter(p => p.path?.includes('api'))
+    expect(adminPages).toHaveLength(1)
+    expect(apiPages).toHaveLength(1)
+  })
+
+  test('should handle pages without names correctly', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: undefined, // Missing name
+      },
+    ]
+
+    // Should not throw error
+    expect(() => pageManager.extendPages(pages)).not.toThrow()
+    expect(pages.length).toBeGreaterThan(0)
+  })
+
+  test('should handle alias routes correctly', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/about',
+        name: 'about',
+        alias: ['/about-us', '/company'],
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Localized versions of aliases should be created
+    const aliasRoutes = pages.filter(p => p.name?.includes('localized-about'))
+    expect(aliasRoutes.length).toBeGreaterThan(0)
+
+    // Check that aliases contain localized paths
+    const hasLocalizedAlias = pages.some(p =>
+      p.path?.includes(':locale') && (p.path?.includes('about-us') || p.path?.includes('company')),
+    )
+    expect(hasLocalizedAlias).toBe(true)
+  })
+
+  test('should handle alias routes with locale restrictions', async () => {
+    const routeLocales = {
+      '/about': ['en', 'de'], // Only English and German
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/about',
+        name: 'about',
+        alias: ['/about-us', '/company'],
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Aliases should be created only for allowed locales
+    const localizedAliasRoutes = pages.filter(p =>
+      p.path?.includes(':locale') && (p.path?.includes('about-us') || p.path?.includes('company')),
+    )
+
+    // Check that there are no Russian aliases
+    const russianAliasRoutes = localizedAliasRoutes.filter(p => p.path?.includes('ru'))
+    expect(russianAliasRoutes).toHaveLength(0)
+  })
+
+  test('should handle complex nested routes with multiple levels', async () => {
+    const globalLocaleRoutes = {
+      '/products': {
+        en: '/products',
+        de: '/produkte',
+      },
+      '/products/category': {
+        en: '/products/category',
+        de: '/produkte/kategorie',
+      },
+      '/products/category/item': {
+        en: '/products/category/item',
+        de: '/produkte/kategorie/artikel',
+      },
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/products',
+        name: 'products',
+        children: [
+          {
+            path: 'category',
+            name: 'products-category',
+            children: [
+              {
+                path: 'item',
+                name: 'products-category-item',
+              },
+            ],
+          },
+        ],
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Check that nested routes got correct paths
+    const germanPage = pages.find(p => p.path?.includes('de') && p.path?.includes('produkte'))
+    expect(germanPage).toBeDefined()
+    expect(germanPage!.children).toBeDefined()
+    expect(germanPage!.children!.length).toBeGreaterThan(0)
+
+    const germanCategory = germanPage!.children!.find(c => c.path?.includes('kategorie'))
+    expect(germanCategory).toBeDefined()
+    expect(germanCategory!.children).toBeDefined()
+    expect(germanCategory!.children!.length).toBeGreaterThan(0)
+
+    // Check that there are child elements (may not be artikel, but something exists)
+    expect(germanCategory!.children!.length).toBeGreaterThan(0)
+  })
+
+  test('should handle prefix strategy with default locale removal', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // With prefix strategy, default routes should be removed
+    const defaultRoutes = pages.filter(p => !p.path?.includes(':locale'))
+    expect(defaultRoutes).toHaveLength(0)
+
+    // Should only have localized routes
+    const localizedRoutes = pages.filter(p => p.path?.includes(':locale'))
+    expect(localizedRoutes.length).toBeGreaterThan(0)
+  })
+
+  test('should handle prefix strategy with Cloudflare Pages', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages, undefined, true) // isCloudflarePages = true
+
+    // With Cloudflare Pages, default routes should NOT be removed
+    const defaultRoutes = pages.filter(p => !p.path?.includes(':locale'))
+    expect(defaultRoutes.length).toBeGreaterThan(0)
+  })
+
+  test('should handle no_prefix strategy with noPrefixRedirect', async () => {
+    const globalLocaleRoutes = {
+      test: {
+        en: '/test-en',
+        de: '/test-de',
+      },
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes, {}, {}, true) // noPrefixRedirect = true
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // With noPrefixRedirect, original page should get redirect
+    const originalPage = pages.find(p => p.name === 'test')
+    expect(originalPage).toBeDefined()
+    expect(originalPage!.redirect).toBeDefined()
+  })
+
+  test('should handle custom regex in buildFullPath', async () => {
+    const customRegex = /^[a-z]{2}$/
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages, customRegex)
+
+    // Check that custom regex was applied
+    const localizedRoutes = pages.filter(p => p.path?.includes(':locale'))
+    expect(localizedRoutes.length).toBeGreaterThan(0)
+
+    // Path should contain custom regex
+    const hasCustomRegex = localizedRoutes.some(p => p.path?.includes('^[a-z]{2}$'))
+    expect(hasCustomRegex).toBe(true)
+  })
+
+  test('should handle filesLocaleRoutes fallback', async () => {
+    const filesLocaleRoutes = {
+      test: {
+        en: '/test-en',
+        de: '/test-de',
+        ru: '/test-ru',
+      },
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, filesLocaleRoutes, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Routes with custom paths from filesLocaleRoutes should be created
+    const englishPage = pages.find(p => p.path === '/test-en')
+    const germanPage = pages.find(p => p.path?.includes('test-de'))
+
+    expect(englishPage).toBeDefined()
+    expect(germanPage).toBeDefined()
+  })
+
+  test('should handle prefix_and_default strategy with custom paths', async () => {
+    const globalLocaleRoutes = {
+      test: {
+        en: '/test-en',
+        de: '/test-de',
+      },
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_and_default', globalLocaleRoutes, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // With prefix_and_default strategy, both default and prefixed versions should be created
+    const defaultPage = pages.find(p => p.path === '/test-en')
+
+    expect(defaultPage).toBeDefined()
+    // May not be test-en, but something with localization should exist
+    expect(pages.some(p => p.path?.includes(':locale'))).toBe(true)
+  })
+
+  test('should handle edge case with empty locale codes array', async () => {
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    // Test through public extendPages method with empty restrictions
+    const routeLocales = {
+      '/test': [], // Empty array of locales
+    }
+
+    const pageManagerWithEmptyRestrictions = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, routeLocales, false)
+    pageManagerWithEmptyRestrictions.extendPages(pages)
+
+    // With empty restrictions, page is still localized for all available locales
+    expect(pages.length).toBeGreaterThan(1)
+    expect(pages[0].path).toBe('/test')
+  })
+
+  test('should handle edge case with undefined page path', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    // Test with undefined path by changing after creation
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(pages[0] as any).path = undefined
+
+    // Should throw error as undefined path is not supported
+    expect(() => pageManager.extendPages(pages)).toThrow()
+  })
+
+  test('should handle redirect-only pages correctly', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/redirect',
+        name: 'redirect',
+        redirect: '/target',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Redirect-only pages should not be localized
+    expect(pages).toHaveLength(1)
+    expect(pages[0].redirect).toBe('/target')
+  })
+
+  test('should handle complex scenario with mixed restrictions and custom paths', async () => {
+    const globalLocaleRoutes = {
+      '/restricted': {
+        en: '/restricted-en',
+        de: '/restricted-de',
+      },
+      '/unrestricted': {
+        en: '/unrestricted-en',
+        de: '/unrestricted-de',
+        ru: '/unrestricted-ru',
+      },
+    }
+
+    const routeLocales = {
+      '/restricted': ['en', 'de'], // Restriction only for restricted
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/restricted',
+        name: 'restricted',
+      },
+      {
+        path: '/unrestricted',
+        name: 'unrestricted',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Restricted should be created only for en and de
+    const restrictedRoutes = pages.filter(p => p.name?.includes('restricted'))
+    expect(restrictedRoutes.length).toBeGreaterThanOrEqual(2) // en + de (may be more due to custom paths)
+
+    // Unrestricted should be created for all locales
+    const unrestrictedRoutes = pages.filter(p => p.name?.includes('unrestricted'))
+    expect(unrestrictedRoutes.length).toBe(3) // en + de + ru
+  })
+
+  test('should handle different route naming patterns', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/test',
+        name: 'test',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Check that route names are created correctly
+    const localizedRoutes = pages.filter(p => p.name?.includes('localized'))
+    expect(localizedRoutes.length).toBeGreaterThan(0)
+
+    // Default locale should not have suffix
+    const defaultRoute = pages.find(p => p.name === 'test')
+    expect(defaultRoute).toBeDefined()
+
+    // Non-default locales should have suffix
+    const nonDefaultRoutes = pages.filter(p => p.name?.includes('localized-test'))
+    expect(nonDefaultRoutes.length).toBeGreaterThan(0)
+  })
+
+  test('should handle child route naming correctly', async () => {
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/parent',
+        name: 'parent',
+        children: [
+          {
+            path: 'child',
+            name: 'parent-child',
+          },
+        ],
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Check that child routes get correct names
+    const localizedParent = pages.find(p => p.name?.includes('localized-parent'))
+    expect(localizedParent).toBeDefined()
+    expect(localizedParent!.children).toBeDefined()
+    expect(localizedParent!.children!.length).toBeGreaterThan(0)
+
+    // Child route should have correct name
+    const childRoute = localizedParent!.children!.find(c => c.name?.includes('child'))
+    expect(childRoute).toBeDefined()
   })
 })

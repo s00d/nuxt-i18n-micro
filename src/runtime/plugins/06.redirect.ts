@@ -2,6 +2,7 @@
 import { isNoPrefixStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo, createError } from '#imports'
+import { findAllowedLocalesForRoute } from '../utils/route-utils'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
@@ -11,22 +12,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
 
   const checkRouteLocales = (to: ReturnType<typeof useRoute>) => {
-    const routePath = to.path
-    const routeName = to.name?.toString()
-    const normalizedRouteName = routeName?.replace('localized-', '')
-    const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
+    const allowedLocales = findAllowedLocalesForRoute(to, routeLocales)
 
-    const allowedLocales = (routeName && routeLocales?.[routeName])
-      || (normalizedRouteName && routeLocales?.[normalizedRouteName])
-      || (normalizedRoutePath && routeLocales?.[normalizedRoutePath])
-      || routeLocales?.[routePath]
     // If there are no restrictions for this route, skip the check
     if (!allowedLocales || allowedLocales.length === 0) {
       return
     }
 
     // Extract locale from path
-    const pathSegments = routePath.split('/').filter(Boolean)
+    const pathSegments = to.path.split('/').filter(Boolean)
     const firstSegment = pathSegments[0]
 
     // Check if the first segment is a locale

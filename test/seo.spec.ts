@@ -17,11 +17,11 @@ test.describe('SEO with strategy: prefix', () => {
     const canonicalURL = new URL(canonicalHref!)
     const ogURL = new URL(ogUrlContent!)
 
-    // Проверка путей
+    // Check paths
     expect(canonicalURL.pathname).toBe('/en/contact')
     expect(ogURL.pathname).toBe('/en/contact')
 
-    // Проверка query-параметров
+    // Check query parameters
     const canonicalParams = canonicalURL.searchParams
     const ogParams = ogURL.searchParams
 
@@ -33,7 +33,7 @@ test.describe('SEO with strategy: prefix', () => {
     expect(ogParams.get('page')).toBe('2')
     expect(ogParams.has('foo')).toBe(false)
 
-    // Проверка идентичности canonical и og:url
+    // Check identity of canonical and og:url
     expect(canonicalURL.toString()).toBe(ogURL.toString())
   })
 

@@ -6,55 +6,55 @@ test.use({
     rootDir: fileURLToPath(new URL('./fixtures/undefault', import.meta.url)),
   },
   // launchOptions: {
-  //   headless: false, // Показывать браузер
-  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  //   headless: false, // Show browser
+  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
   // },
 })
 
 test.describe('undefault', () => {
   test('test redirection and link clicks in English', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
-    // Переход на страницу /page2, должно произойти редирект на /en/custom-page2-en
+    // Navigate to /page2, should redirect to /en/custom-page2-en
     await goto('/page2', { waitUntil: 'hydration' })
 
     await expect(page).toHaveURL('/en/custom-page2-en')
 
-    // Клик по ссылке 'unlocalized', должно редиректнуть на /unlocalized
+    // Click on 'unlocalized' link, should redirect to /unlocalized
     await page.click('#unlocalized')
     await expect(page).toHaveURL('/unlocalized')
 
-    // Клик по ссылке 'page2', должно вернуться на /en/custom-page2-en
+    // Click on 'page2' link, should return to /en/custom-page2-en
     await page.click('#link-en')
     await expect(page).toHaveURL('/en/custom-page2-en')
   })
 
   test('test redirection and link clicks in German', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
-    // Переход на страницу /page2, должно произойти редирект на /de/custom-page2-de
+    // Navigate to /page2, should redirect to /de/custom-page2-de
     await goto('/de/custom-page2-de', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/de/custom-page2-de')
 
-    // Клик по ссылке 'unlocalized', должно редиректнуть на /unlocalized
+    // Click on 'unlocalized' link, should redirect to /unlocalized
     await page.click('#unlocalized')
     await expect(page).toHaveURL('/unlocalized')
 
-    // Клик по ссылке 'page2', должно вернуться на /en/custom-page2-en
+    // Click on 'page2' link, should return to /en/custom-page2-en
     await page.click('#link-de')
     await expect(page).toHaveURL('/de/custom-page2-de')
   })
 
   test('should correctly render post section pages with localized routes', async ({ page, goto }) => {
-    // Проверка на немецком
+    // Check in German
     await goto('/de/post/1/all/s2', { waitUntil: 'domcontentloaded' })
     await expect(page.locator('#name')).toHaveText('de')
     await expect(page.locator('#name-page')).toHaveText('de page')
 
-    // Проверка на английском
+    // Check in English
     await goto('/en/post/1/all/s2', { waitUntil: 'domcontentloaded' })
     await expect(page.locator('#name')).toHaveText('en')
     await expect(page.locator('#name-page')).toHaveText('en page')
 
-    // Проверка на русском
+    // Check in Russian
     await goto('/ru/post/1/all/s2', { waitUntil: 'domcontentloaded' })
     await expect(page.locator('#name')).toHaveText('ru')
     await expect(page.locator('#name-page')).toHaveText('ru page')

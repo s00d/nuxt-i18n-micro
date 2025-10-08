@@ -16,8 +16,8 @@ test.use({
     rootDir: fileURLToPath(new URL('./fixtures/n3', import.meta.url)),
   },
   // launchOptions: {
-  //   headless: false, // Показывать браузер
-  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  //   headless: false, // Show browser
+  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
   // },
 })
 

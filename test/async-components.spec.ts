@@ -6,8 +6,8 @@ test.use({
     rootDir: fileURLToPath(new URL('./fixtures/async-components', import.meta.url)),
   },
   // launchOptions: {
-  //   headless: false, // Показывать браузер
-  //   slowMo: 500, // Замедлить выполнение шагов (в миллисекундах) для лучшей видимости
+  //   headless: false, // Show browser
+  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
   // },
 })
 
@@ -15,13 +15,13 @@ test.describe('async-components', () => {
   test('renders async components test page', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем заголовок страницы
+    // Check page title
     await expect(page.locator('.async-components-test h1')).toHaveText('Async Components Test')
 
-    // Проверяем описание
+    // Check description
     await expect(page.locator('.async-components-test p').first()).toContainText('Testing async components with i18n translations')
 
-    // Проверяем наличие тестовых секций
+    // Check presence of test sections
     await expect(page.locator('#test1')).toBeVisible()
     await expect(page.locator('#test2')).toBeVisible()
     await expect(page.locator('#test3')).toBeVisible()
@@ -32,17 +32,17 @@ test.describe('async-components', () => {
   test('async components load correctly', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Ждем загрузки асинхронных компонентов
+    // Wait for async components to load
     await page.waitForTimeout(1000)
 
-    // Проверяем, что простой асинхронный компонент загрузился
+    // Check that simple async component loaded
     await expect(page.locator('#simple-async-component')).toBeVisible()
     await expect(page.locator('#simple-async-component h3')).toHaveText('Simple Async Component')
 
-    // Проверяем кнопку счетчика
+    // Check counter button
     await expect(page.locator('#simple-counter-btn')).toBeVisible()
 
-    // Тестируем интерактивность
+    // Test interactivity
     await page.click('#simple-counter-btn')
     await expect(page.locator('#simple-counter-btn')).toContainText('(1)')
   })
@@ -50,39 +50,39 @@ test.describe('async-components', () => {
   test('locale switching works on async components page', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем текущую локаль
+    // Check current locale
     await expect(page.locator('#current-locale')).toHaveText('en')
 
-    // Переключаемся на русский
+    // Switch to Russian
     const ruButton = page.locator('#locale-ru')
     await ruButton.click()
     await expect(page).toHaveURL('/ru/async-components-test')
     await expect(page.locator('#current-locale')).toHaveText('ru')
 
-    // Проверяем, что заголовок изменился
+    // Check that title changed
     await expect(page.locator('.async-components-test h1')).toHaveText('Тест Асинхронных Компонентов')
 
-    // Переключаемся на немецкий
+    // Switch to German
     await page.click('#locale-de')
     await expect(page).toHaveURL('/de/async-components-test')
     await expect(page.locator('#current-locale')).toHaveText('de')
 
-    // Проверяем, что заголовок изменился
+    // Check that title changed
     await expect(page.locator('.async-components-test h1')).toHaveText('Async-Komponenten Test')
   })
 
   test('navigation between test pages works', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем навигацию на вторую тестовую страницу
+    // Check navigation to second test page
     await page.click('text=Go to Test 2')
     await expect(page).toHaveURL('/async-components-test-2')
 
-    // Проверяем навигацию обратно
+    // Check navigation back
     await page.click('text=Back to Test 1')
     await expect(page).toHaveURL('/async-components-test')
 
-    // Проверяем навигацию на главную
+    // Check navigation to home
     await page.click('text=Back to Home')
     await expect(page).toHaveURL('/')
   })
@@ -90,27 +90,27 @@ test.describe('async-components', () => {
   test('dynamic component loading works', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем, что кнопка загрузки динамического компонента видна
+    // Check that dynamic component load button is visible
     await expect(page.locator('#load-dynamic-btn')).toBeVisible()
 
-    // Нажимаем кнопку загрузки
+    // Click load button
     await page.click('#load-dynamic-btn')
 
-    // Ждем загрузки компонента
+    // Wait for component to load
     await page.waitForTimeout(500)
 
-    // Проверяем, что контейнер динамического компонента появился
+    // Check that dynamic component container appeared
     await expect(page.locator('#dynamic-component-container')).toBeVisible()
   })
 
   test('test results section displays correct information', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем секцию результатов
+    // Check results section
     await expect(page.locator('#test-results')).toBeVisible()
     await expect(page.locator('#test-results h2')).toHaveText('Test Results')
 
-    // Проверяем информацию о локали
+    // Check locale information
     await expect(page.locator('#current-locale')).toHaveText('en')
     await expect(page.locator('#route-name')).toHaveText('async-components-test')
     await expect(page.locator('#translations-loaded')).toHaveText('Yes')
@@ -119,49 +119,49 @@ test.describe('async-components', () => {
   test('language switcher works correctly', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем наличие переключателя языков
+    // Check presence of language switcher
     await expect(page.locator('#language-switcher')).toBeVisible()
     await expect(page.locator('#language-switcher h3')).toHaveText('Switch Language')
 
-    // Проверяем кнопки языков
+    // Check language buttons
     await expect(page.locator('#locale-en')).toBeVisible()
     await expect(page.locator('#locale-ru')).toBeVisible()
     await expect(page.locator('#locale-de')).toBeVisible()
 
-    // Проверяем активное состояние английского языка
+    // Check active state of English language
     await expect(page.locator('#locale-en')).toHaveClass(/active/)
   })
 
   test('async components work with different locales', async ({ page, goto }) => {
-    // Тестируем на русском языке
+    // Test in Russian
     await goto('/ru/async-components-test', { waitUntil: 'hydration' })
     await page.waitForTimeout(1000)
 
-    // Проверяем, что компонент загрузился с русскими переводами
+    // Check that component loaded with Russian translations
     await expect(page.locator('#simple-async-component h3')).toHaveText('Простой Асинхронный Компонент')
 
-    // Тестируем на немецком языке
+    // Test in German
     await goto('/de/async-components-test', { waitUntil: 'hydration' })
     await page.waitForTimeout(1000)
 
-    // Проверяем, что компонент загрузился с немецкими переводами
+    // Check that component loaded with German translations
     await expect(page.locator('#simple-async-component h3')).toHaveText('Einfache Async-Komponente')
   })
 
   test('main page navigation works', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 
-    // Проверяем заголовок главной страницы
+    // Check main page title
     await expect(page.locator('h1')).toHaveText('Async Components Test Suite')
 
-    // Проверяем навигацию к первой тестовой странице
+    // Check navigation to first test page
     await page.click('text=🧪 Async Components Test 1')
     await expect(page).toHaveURL('/async-components-test')
 
-    // Возвращаемся на главную
+    // Return to main page
     await goto('/', { waitUntil: 'hydration' })
 
-    // Проверяем навигацию ко второй тестовой странице
+    // Check navigation to second test page
     await page.click('text=🧪 Async Components Test 2')
     await expect(page).toHaveURL('/async-components-test-2')
   })
@@ -169,34 +169,34 @@ test.describe('async-components', () => {
   test('locale switching on main page works', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 
-    // Проверяем текущую локаль
+    // Check current locale
     await expect(page.locator('text=Current Locale:')).toBeVisible()
 
-    // Переключаемся на русский
+    // Switch to Russian
     await page.click('button:has-text("Русский")')
     await expect(page).toHaveURL('/ru')
 
-    // Проверяем, что заголовок изменился
+    // Check that title changed
     await expect(page.locator('h1')).toHaveText('Набор Тестов Асинхронных Компонентов')
 
-    // Переключаемся на немецкий
+    // Switch to German
     await page.click('button:has-text("Deutsch")')
     await expect(page).toHaveURL('/de')
 
-    // Проверяем, что заголовок изменился
+    // Check that title changed
     await expect(page.locator('h1')).toHaveText('Async-Komponenten Test-Suite')
   })
 
   test('async components load correctly with translations', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем, что все асинхронные компоненты загрузились
+    // Check that all async components loaded
     await expect(page.locator('.simple-async-component')).toBeVisible()
     await expect(page.locator('.async-component-with-translations')).toBeVisible()
     await expect(page.locator('.async-component-with-i18n-route')).toBeVisible()
     await expect(page.locator('.async-component-with-error')).toBeVisible()
 
-    // Проверяем содержимое компонентов
+    // Check component content
     await expect(page.locator('.simple-async-component h3')).toHaveText('Simple Async Component')
     await expect(page.locator('.async-component-with-translations h3')).toHaveText('Async Component with Translations Loaded')
     await expect(page.locator('.async-component-with-i18n-route h3')).toHaveText('Async Component with defineI18nRoute Loaded')
@@ -206,13 +206,13 @@ test.describe('async-components', () => {
   test('dynamic async component loading works', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем, что динамический компонент не загружен изначально
+    // Check that dynamic component is not loaded initially
     await expect(page.locator('#dynamic-component-container')).not.toBeVisible()
 
-    // Нажимаем кнопку загрузки
+    // Click load button
     await page.click('#load-dynamic-btn')
 
-    // Ждем загрузки и проверяем, что компонент появился
+    // Wait for loading and check that component appeared
     await expect(page.locator('#dynamic-component-container')).toBeVisible()
     await expect(page.locator('.async-dynamic-component')).toBeVisible()
     await expect(page.locator('.async-dynamic-component h3')).toHaveText('Dynamic Async Component Loaded')
@@ -221,23 +221,23 @@ test.describe('async-components', () => {
   test('async components work with locale switching', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 
-    // Проверяем английский текст
+    // Check English text
     await expect(page.locator('.simple-async-component h3')).toHaveText('Simple Async Component')
 
-    // Переключаемся на русский
+    // Switch to Russian
     await page.click('#locale-ru')
     await expect(page).toHaveURL('/ru/async-components-test')
 
-    // Проверяем, что компоненты обновились на русском
+    // Check that components updated in Russian
     await expect(page.locator('.simple-async-component h3')).toHaveText('Простой Асинхронный Компонент')
     await expect(page.locator('.async-component-with-translations h3')).toHaveText('Асинхронный Компонент с Переводами Загружен')
     await expect(page.locator('.async-component-with-i18n-route h3')).toHaveText('Асинхронный Компонент с defineI18nRoute Загружен')
 
-    // Переключаемся на немецкий
+    // Switch to German
     await page.click('#locale-de')
     await expect(page).toHaveURL('/de/async-components-test')
 
-    // Проверяем немецкий текст
+    // Check German text
     await expect(page.locator('.simple-async-component h3')).toHaveText('Einfache Async-Komponente')
     await expect(page.locator('.async-component-with-translations h3')).toHaveText('Async-Komponente mit Übersetzungen Geladen')
   })
@@ -245,19 +245,19 @@ test.describe('async-components', () => {
   test('second test page renders correctly', async ({ page, goto }) => {
     await goto('/async-components-test-2', { waitUntil: 'hydration' })
 
-    // Проверяем заголовок
+    // Check title
     await expect(page.locator('.async-components-test-2 h1')).toHaveText('Async Components Test 2')
 
-    // Проверяем наличие всех тестовых секций
+    // Check presence of all test sections
     await expect(page.locator('#test6')).toBeVisible()
     await expect(page.locator('#test7')).toBeVisible()
     await expect(page.locator('#test8')).toBeVisible()
 
-    // Проверяем, что отложенный компонент загрузился
+    // Check that delayed component loaded
     await expect(page.locator('.delayed-async-component')).toBeVisible()
     await expect(page.locator('.delayed-async-component h3')).toHaveText('Delayed Async Component Loaded')
 
-    // Проверяем множественные компоненты
+    // Check multiple components
     await expect(page.locator('.multiple-async-component-1')).toBeVisible()
     await expect(page.locator('.multiple-async-component-2')).toBeVisible()
     await expect(page.locator('.multiple-async-component-3')).toBeVisible()
@@ -266,19 +266,19 @@ test.describe('async-components', () => {
   test('conditional async component toggles correctly', async ({ page, goto }) => {
     await goto('/async-components-test-2', { waitUntil: 'hydration' })
 
-    // Проверяем, что условный компонент скрыт изначально
+    // Check that conditional component is hidden initially
     await expect(page.locator('#conditional-component-container')).not.toBeVisible()
 
-    // Нажимаем кнопку показа
+    // Click show button
     await page.click('#toggle-conditional-btn')
     await expect(page.locator('#toggle-conditional-btn')).toHaveText('Hide Component')
 
-    // Проверяем, что компонент появился
+    // Check that component appeared
     await expect(page.locator('#conditional-component-container')).toBeVisible()
     await expect(page.locator('.conditional-async-component')).toBeVisible()
     await expect(page.locator('.conditional-async-component h3')).toHaveText('Conditional Async Component Loaded')
 
-    // Скрываем компонент
+    // Hide component
     await page.click('#toggle-conditional-btn')
     await expect(page.locator('#toggle-conditional-btn')).toHaveText('Show Component')
     await expect(page.locator('#conditional-component-container')).not.toBeVisible()
@@ -343,10 +343,10 @@ test.describe('async-components', () => {
   test('async components work with different locales on second page', async ({ page, goto }) => {
     await goto('/async-components-test-2', { waitUntil: 'hydration' })
 
-    // Проверяем английский текст
+    // Check English text
     await expect(page.locator('.delayed-async-component h3')).toHaveText('Delayed Async Component Loaded')
 
-    // Переключаемся на русский
+    // Switch to Russian
     await page.click('#locale-ru')
     await expect(page).toHaveURL('/ru/async-components-test-2')
 
@@ -354,11 +354,11 @@ test.describe('async-components', () => {
     await expect(page.locator('.delayed-async-component h3')).toHaveText('Отложенный Асинхронный Компонент Загружен')
     await expect(page.locator('.multiple-async-component-1 h3')).toHaveText('Множественный Асинхронный Компонент 1 Загружен')
 
-    // Переключаемся на немецкий
+    // Switch to German
     await page.click('#locale-de')
     await expect(page).toHaveURL('/de/async-components-test-2')
 
-    // Проверяем немецкий текст
+    // Check German text
     await expect(page.locator('.delayed-async-component h3')).toHaveText('Verzögerte Async-Komponente Geladen')
     await expect(page.locator('.multiple-async-component-1 h3')).toHaveText('Mehrere Async-Komponente 1 Geladen')
   })
@@ -393,7 +393,7 @@ test.describe('async-components', () => {
     await expect(page).toHaveURL('/ru/async-components-test-2')
     await expect(page.locator('#current-locale')).toHaveText('ru')
 
-    // Переключаемся на немецкий на второй странице
+    // Switch to German на второй странице
     await page.click('#locale-de')
     await expect(page).toHaveURL('/de/async-components-test-2')
     await expect(page.locator('#current-locale')).toHaveText('de')

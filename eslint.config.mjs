@@ -20,5 +20,10 @@ export default createConfigForNuxt({
       'vue/no-v-html': 'off',
       'vue/multi-word-component-names': 'off',
       '@typescript-eslint/no-invalid-void-type': 'off',
+      // Enforce consistent comment spacing
+      'spaced-comment': ['error', 'always', {
+        exceptions: ['*'],
+        markers: ['/'],
+      }],
     },
   })

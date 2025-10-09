@@ -26,7 +26,7 @@ interface MetaObject {
   meta: MetaTag[]
 }
 
-export const useLocaleHead = async ({ addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = {}) => {
+export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = {}) => {
   const metaObject = ref<MetaObject>({
     htmlAttrs: {},
     link: [],

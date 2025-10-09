@@ -5,7 +5,7 @@ import { useRequestURL, useHead, defineNuxtPlugin, useRuntimeConfig } from '#imp
 const host = process.env.HOST ?? 'localhost'
 const port = process.env.PORT ?? 'host'
 
-export default defineNuxtPlugin(async (_nuxtApp) => {
+export default defineNuxtPlugin((_nuxtApp) => {
   const config = useRuntimeConfig()
 
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
@@ -16,7 +16,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   const url = useRequestURL()
   const baseUrl = (i18nConfig.metaBaseUrl || url.origin || defaultUrl).toString()
 
-  const head = await useLocaleHead({
+  const head = useLocaleHead({
     addDirAttribute: true,
     identifierAttribute: 'id',
     addSeoAttributes: true,

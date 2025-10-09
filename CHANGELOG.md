@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.101.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.101.1...v1.101.2)
+
+### 🩹 Fixes
+
+- **meta:** Remove unnecessary async from defineNuxtPlugin ([16acf22](https://github.com/s00d/nuxt-i18n-micro/commit/16acf22))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.101.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.101.0...v1.101.1)

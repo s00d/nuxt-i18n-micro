@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.101.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.101.0...v1.101.1)
+
+### 💅 Refactors
+
+- **composables:** Remove async from useLocaleHead function ([f16a9c5](https://github.com/s00d/nuxt-i18n-micro/commit/f16a9c5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.101.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.100.1...v1.101.0)

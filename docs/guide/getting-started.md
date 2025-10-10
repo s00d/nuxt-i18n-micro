@@ -4,6 +4,9 @@ outline: deep
 
 # 🌐 Getting Started with Nuxt I18n Micro
 
+Welcome to Nuxt I18n Micro! This guide will help you get up and running with our high-performance internationalization module for Nuxt.js.
+
+
 ## 📖 Overview
 
 `Nuxt I18n Micro` is a lightweight internationalization module for Nuxt that delivers superior performance compared to traditional solutions. It's designed to reduce build times, memory usage, and server load, making it ideal for high-traffic and large projects.
@@ -12,21 +15,42 @@ outline: deep
 
 Here are some key benefits of using `Nuxt I18n Micro`:
 
-- 🚀 **High Performance**: Significantly reduces build times and memory consumption.
-- 📦 **Compact Size**: Has minimal impact on your app's bundle size.
-- ⚙️ **Efficiency**: Optimized for large-scale applications with a focus on memory consumption and server load.
+- 🚀 **High Performance**: Significantly reduces build times and memory consumption
+- 📦 **Compact Size**: Has minimal impact on your app's bundle size
+- ⚙️ **Efficiency**: Optimized for large-scale applications with a focus on memory consumption and server load
+- 🛠️ **Easy Setup**: Simple configuration with sensible defaults
+- 🔧 **Flexible**: Extensive customization options for complex use cases
+- 📚 **Well Documented**: Comprehensive documentation and examples
 
-## 🛠 Installation
+## 🚀 Quick Start
 
-To install the module in your Nuxt application, run the following command:
+### Installation
 
-```bash
+Install the module in your Nuxt application:
+
+::: code-group
+
+```bash [npm]
 npm install nuxt-i18n-micro
 ```
 
-## ⚙️ Basic Setup
+```bash [yarn]
+yarn add nuxt-i18n-micro
+```
 
-After installation, add the module to your `nuxt.config.ts` file:
+```bash [pnpm]
+pnpm add nuxt-i18n-micro
+```
+
+```bash [bun]
+bun add nuxt-i18n-micro
+```
+
+:::
+
+### Basic Configuration
+
+Add the module to your `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
@@ -41,54 +65,89 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'en',
     translationDir: 'locales',
-    meta: true,
   },
 })
 ```
 
-### 📂 Folder Structure
+### Folder Structure
 
-Translation files are organized into global and page-specific directories:
+Your translation files will be automatically generated when you run the application:
 
 ```
-  /locales
-  ├── /pages
-  │   ├── /index
-  │   │   ├── en.json
-  │   │   ├── fr.json
-  │   │   └── ar.json
-  │   ├── /about
-  │   │   ├── en.json
-  │   │   ├── fr.json
-  │   │   └── ar.json
-  ├── en.json
-  ├── fr.json
-  └── ar.json
+/locales
+├── /pages
+│   ├── /index
+│   │   ├── en.json
+│   │   ├── fr.json
+│   │   └── ar.json
+│   └── /about
+│       ├── en.json
+│       ├── fr.json
+│       └── ar.json
+├── en.json
+├── fr.json
+└── ar.json
 ```
 
-- **Global Files**: Contain translations shared across the entire app.
-- **Page-Specific Files**: Contain translations unique to specific pages.
+::: tip Folder Structure Explanation
 
-## ⚙️ Module Configuration Options
+- **Global Files**: Contain translations shared across the entire app
+- **Page-Specific Files**: Contain translations unique to specific pages
+- **Auto-Generation**: Files are automatically created when missing during development
 
-The `Nuxt I18n Micro` module provides a range of customizable options to fine-tune your internationalization setup:
+:::
 
-Here’s the updated documentation for `locales`, including the new `baseUrl` and `baseDefault` properties:
+### Basic Usage
 
-### 🌍 `locales`
+Use translations in your components:
+
+```vue
+<template>
+  <div>
+    <h1>{{ $t('welcome') }}</h1>
+    <p>{{ $t('description', { name: 'World' }) }}</p>
+    
+    <div>
+      <button
+        v-for="locale in $getLocales()"
+        :key="locale.code"
+        @click="$switchLocale(locale.code)"
+      >
+        {{ locale.code }}
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { useI18n } from '#imports'
+
+const { $t, $getLocales, $switchLocale } = useI18n()
+</script>
+```
+
+## ⚙️ Configuration Options
+
+The module provides extensive configuration options to customize your internationalization setup.
+
+### 🌍 Core Locale Settings
+
+#### `locales`
 
 Defines the locales available in your application.
 
 **Type**: `Locale[]`
 
-Each locale object can include the following properties:
+Each locale object supports:
 
-- **`code`** *(string, required)*: A unique identifier for the locale, e.g., `'en'` for English.
-- **`iso`** *(string, optional)*: The ISO code for the locale, such as `'en-US'`. This can be used for the `lang` attribute in HTML to help with accessibility and SEO.
-- **`dir`** *(string, optional)*: Specifies the text direction for the locale, either `'ltr'` (left-to-right) or `'rtl'` (right-to-left).
-- **`disabled`** *(boolean, optional)*: Disables the locale in the dropdown if set to `true`, preventing users from selecting it.
-- **`baseUrl`** *(string, optional)*: Sets a base URL for the locale, which should be used to configure redirection for locale-specific domains or subdomains. The actual redirection implementation should be handled in layers outside of this configuration, as setting `baseUrl` alone means all links within the project will direct to the specified domain. Additionally, this parameter requires an explicit protocol, either `http` or `https`.
-- **`baseDefault`** *(boolean, optional)*: If set to `true`, the locale's routes do not include the locale code in the URL path, making it the default locale.
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `code` | `string` | ✅ | Unique identifier (e.g., `'en'`) |
+| `iso` | `string` | ❌ | ISO code (e.g., `'en-US'`) |
+| `dir` | `string` | ❌ | Text direction (`'ltr'` or `'rtl'`) |
+| `disabled` | `boolean` | ❌ | Disable in dropdown if `true` |
+| `baseUrl` | `string` | ❌ | Base URL for locale-specific domains |
+| `baseDefault` | `boolean` | ❌ | Remove locale prefix from URLs |
 
 **Example**:
 
@@ -97,438 +156,348 @@ locales: [
   { code: 'en', iso: 'en-US', dir: 'ltr' },
   { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
   { code: 'ar', iso: 'ar-SA', dir: 'rtl', disabled: true },
-  { code: 'de', iso: 'de-DE', dir: 'ltr', baseUrl: 'https://de.example.com', baseDefault: true },
-  { code: 'es', iso: 'es-ES', dir: 'ltr', baseUrl: 'https://es.example.com', baseDefault: true },
-  { code: 'ja', iso: 'ja-JP', dir: 'ltr', baseUrl: 'https://new.example.com' }
+  { 
+    code: 'de', 
+    iso: 'de-DE', 
+    dir: 'ltr', 
+    baseUrl: 'https://de.example.com', 
+    baseDefault: true 
+  },
 ]
 ```
 
-In this example:
+::: warning BaseUrl Considerations
 
-- The `ar` locale is disabled.
-- `de` and `es` each have their own `baseUrl` and `baseDefault`, meaning routes for these locales will start with their respective URLs (`https://de.example.com`, `https://es.example.com`).
-- `ja` each have their own `baseUrl`, meaning routes for these locales will start with their respective URLs (`https://new.example.com/ja`).
-- 
-**Additional Notes**:
+Using `baseUrl` can lead to duplication of internal routes as external links, complicating routing and maintenance. Consider creating external links directly for specific locales instead.
 
-- If `baseUrl` is provided, it will override the default routing structure, adding the `baseUrl` prefix to all routes for that locale. However, using `baseUrl` is generally not recommended, as it can lead to duplication of all internal routes as external links, complicating routing and maintenance. Instead, it is often simpler and more manageable to create external links directly for specific locales.
-- When `baseDefault` is set to `true`, the specified locale's URLs will not include the locale code prefix, making it appear as the primary or default language. Note that `baseDefault` works only in combination with `baseUrl`.
+:::
 
-### 🌐 `defaultLocale`
+#### `defaultLocale`
 
-Sets the default locale if no specific locale is selected by the user.
+Sets the default locale when no specific locale is selected.
 
-**Type**: `string`
-
-**Example**:
+**Type**: `string`  
+**Default**: `'en'`
 
 ```typescript
 defaultLocale: 'en'
 ```
 
-### 🗂 `translationDir`
+#### `strategy`
 
-Specifies the directory where translation files are stored.
+Defines how locale prefixes are handled in routes.
+
+**Type**: `string`  
+**Default**: `'prefix_except_default'`
+
+::: code-group
+
+```typescript [no_prefix]
+strategy: 'no_prefix'
+// Routes: /about, /contact
+// Locale detection via browser/cookies
+```
+
+```typescript [prefix_except_default]
+strategy: 'prefix_except_default'
+// Default locale: /about, /contact
+// Other locales: /fr/about, /de/contact
+```
+
+```typescript [prefix]
+strategy: 'prefix'
+// All locales: /en/about, /fr/about, /de/about
+```
+
+```typescript [prefix_and_default]
+strategy: 'prefix_and_default'
+// Both prefixed and non-prefixed versions for default locale
+```
+
+:::
+
+### 📂 Translation Management
+
+#### `translationDir`
+
+Specifies the directory for translation files.
 
 **Type**: `string`  
 **Default**: `'locales'`
 
-**Example**:
-
 ```typescript
-translationDir: 'i18n' // Custom directory for translation files
+translationDir: 'i18n' // Custom directory
 ```
 
-### 🔍 `meta`
+#### `disablePageLocales`
 
-Automatically generates SEO-related meta tags, such as `alternate` links for different locales.
-
-**Type**: `boolean`  
-**Default**: `true`
-
-**Example**:
-
-```typescript
-meta: true // Enable automatic SEO meta tags generation
-```
-
-### 🐛 `debug`
-
-Enables logging and debugging information during the generation process to help with troubleshooting.
+Disables page-specific translations, using only global files.
 
 **Type**: `boolean`  
 **Default**: `false`
 
-**Example**:
-
-```typescript
-debug: true // Enable logging and debugging information
-```
-
-### 🐛 `types`
-
-Adds types to the project during the postinstall process. If you encounter issues with types, you can disable this option.
-
-**Type**: `boolean`  
-**Default**: `true`
-
-**Example**:
-
-```typescript
-types: true
-```
-
-### 🔗 `metaBaseUrl`
-
-Sets the base URL for generating SEO-related meta tags like canonical and alternate URLs.
-
-**Type**: `string`  
-**Default**: `'/'`
-
-**Example**:
-
-```typescript
-metaBaseUrl: 'https://example.com' // Custom base URL for meta tags
-```
-
-### 🌍 `autoDetectLanguage`
-
-Automatically detects the user's preferred language based on browser settings and redirects to the appropriate locale.
-
-**Type**: `boolean`  
-**Default**: `false`
-
-**Example**:
-
-```typescript
-autoDetectLanguage: true // Enable automatic language detection and redirection
-```
-
-### 🔍 `autoDetectPath`
-
-Specifies the route path(s) on which locale auto-detection and switching should occur.
-
-**Type**: `string`  
-**Default**: `"/"`
-
-**Description**:  
-Defines the route(s) where locale detection is active. By default, locale detection happens only on the home route (`"/"`).
-
-Setting this to `"*"` enables locale detection on all routes. However, using `"*"` may cause unexpected issues, especially if cookies are disabled, as this can interfere with tracking the user's locale preference.
-
-### 🔢 `plural`
-
-Custom function for handling pluralization in translations based on count and locale.
-
-**Type**: `(key: string, count: number, params: Record<string, string | number | boolean>, locale: string, t: Getter) => string`
-
-**Example**:
-
-```typescript
-export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
-
-{
-  plural: (key: string, count: number, _params: Record<string, string | number | boolean>, _locale: string, t: Getter) => {
-    const translation = t(key)
-    if (!translation) {
-      return key
-    }
-    const forms = translation.toString().split('|')
-    return (count < forms.length ? forms[count].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
-  }
-}
-```
-
-### 🚦 `includeDefaultLocaleRoute`
-
-**(Deprecated)**
-
-Automatically redirects routes without a locale prefix to the default locale.
-
-**Type**: `boolean`  
-**Default**: `false`
-
-**Deprecated**: As of version 1.50.0, `includeDefaultLocaleRoute` is deprecated. Use the `strategy` option instead for more flexible route handling.
-
-### 🚦 `strategy`
-
-**Version introduced**: `v1.50.0`
-
-Defines how locale prefixes should be handled in routes. Choose the strategy that best fits your use case.
-
-**Type**: `string`  
-**Default**: `prefix_and_default`
-
-**Available Strategies**:
-
-- **no_prefix**  
-  Routes will not have a locale prefix. The locale will be detected and changed without modifying the URL. Locale detection relies on the browser and cookies, and you need to manage locale switching through the i18n API.  
-  **Note**: This strategy does not support features like Custom paths or Ignore routes.
-
-- **prefix_except_default**  
-  A locale prefix will be added to all routes, except for the default language. URLs for the default language will not include a prefix.
-
-- **prefix**  
-  All routes will include a locale prefix, regardless of the language.
-
-- **prefix_and_default**  
-  Combines both previous behaviors. URLs for every language will have a locale prefix, while URLs for the default language will have a non-prefixed version. However, if `detectBrowserLanguage` is enabled, the prefixed version will be preferred for the default language.
-
-### 🚦 `customRegexMatcher`
-
-I18n-micro meticulously checks each locale via vue-router route regex.
-If you have **a lot** of locales, you can improve pattern matching performances via a custom regex matcher.
-
-**Type**: `string | RegExp`  
-**Default**: `false`
-
-**Example**:
-
-```typescript
-customRegexMatcher: '[a-z]-[A-Z]'// This matches locales in isoCode (e.g: '/en-US', 'de-DE' etc)
-```
-
-### 🔗 `routesLocaleLinks`
-
-Creates links between different pages' locale files to share translations, reducing duplication.
-
-**Type**: `Record<string, string>`
-
-**Example**:
-
-```typescript
-{
-  routesLocaleLinks: {
-    'products-id': 'products', 
-    'about-us': 'about'
-  }
-}
-```
-
-### 🧩 `define`
-
-Enables or disables the `define` plugin, which allows you to use Nuxt's runtime configuration to override settings inside your translation files and define locale-specific routes via `defineI18nRoute`.
-
-**Type**: `boolean`  
-**Default**: `true`
-
-Disabling this will prevent the `defineI18nRoute` method from being available via `useNuxtApp().$defineI18nRoute`.
-
-**Example**:
-
-```ts
-define: false // Disables the define plugin and route-specific translation logic
-```
-
-### 🔁 `redirects`
-
-Enables or disables automatic redirection logic for URLs that are missing a locale prefix, based on your configured i18n strategy.
-
-**Type**: `boolean`  
-**Default**: `true`
-
-When enabled, the plugin will perform a redirect (301 on server, client-side navigation otherwise) to the default or localized route if the locale is missing from the URL. This ensures consistent localization behavior but may conflict with custom routing logic.
-
-Disabling it allows full control over locale-based redirection without interfering with your own logic.
-
-**Example**:
-
-```ts
-redirects: false // Disable automatic locale redirection
-```
-
-### 🧩 `plugin`
-
-Enables or disables a special `plugin` that integrates additional features or functionality into your Nuxt application.
-
-**Type**: `boolean`  
-**Default**: `true`
-
-**Example**:
-
-```typescript
-plugin: false // Disable the plugin
-```
-
-### 🧩 `hooks`
-
-Enables or disables a special `hooks` that integrates additional features or functionality into your Nuxt application.
-
-**Type**: `boolean`  
-**Default**: `true`
-
-**Example**:
-
-```typescript
-hooks: false // Disable the hooks
-```
-
-### 🔄 `disablePageLocales`
-
-Allows you to disable page-specific translations, limiting the module to only use global translation files.
-
-**Type**: `boolean`  
-**Default**: `false`
-
-**Example**:
-
-```typescript
-disablePageLocales: true // Disable page-specific translations, using only global translations
-```
-
-### 📂 Folder Structure with `disablePageLocales: true`
-
-When `disablePageLocales` is enabled, the module will only use the translations defined in the global files located directly under the `locales` directory. Page-specific translation files (located in `/locales/pages`) will be ignored.
+When enabled, only global translation files are used:
 
 ```
-  /locales
-  ├── en.json
-  ├── fr.json
-  └── ar.json
+/locales
+├── en.json
+├── fr.json
+└── ar.json
 ```
 
-### 👀 `disableWatcher`
+#### `fallbackLocale`
 
-Disables the automatic creation of locale files during development.
-
-**Type**: `boolean`  
-**Default**: `false`
-
-**Example**:
-
-```typescript
-disableWatcher: true // Disables the automatic creation of locale files
-```
-
-### 👀 `disableUpdater`
-
-**Version introduced**: `v1.60.0`
-
-Disables the file watcher for updating store items during development.
-
-**Type**: `boolean`  
-**Default**: `false`
-
-**Example**:
-
-```typescript
-disableUpdater: true // Disables the file watcher for updating store items
-```
-
-### 🔗 `apiBaseUrl`
-
-env: `NUXT_I18N_APP_BASE_URL`
-
-Defines the base URL that the server will use to fetch cached translations. By default, this is set to `_locales`, but you can change it to any custom path, such as `api/_locales`, if you want to load translations from a different endpoint.
-
-**Type**: `string`  
-**Default**: `'_locales'`
-
-**Example**:
-
-```typescript
-apiBaseUrl: 'api/_locales' // Custom URL for fetching cached translations
-```
-
-When set, the module will use the specified URL to request cached translations instead of using the default `_locales`.
-
-### 🍪 `localeCookie`
-
-Specifies the name of the cookie used to store the user's selected locale.
-
-**Type**: `string`  
-**Default**: `'user-locale'`
-
-
-### 🌐 `fallbackLocale`
-
-Specifies a fallback locale to be used when a translation is missing for the current locale.
+Specifies a fallback locale for missing translations.
 
 **Type**: `string | undefined`  
 **Default**: `undefined`
 
-When resolving translations, the module uses the fallback locale in the following order:
-
-1. It first checks the global `fallbackLocale` defined in the main `i18n` configuration.
-2. If the current locale (from `locales`) has its own `fallbackLocale` defined, that will take **priority** over the global one.
-
-This allows you to set a general fallback while also customizing it per locale if needed.
-
-**Example**:
-
-```ts
+```typescript
 {
-  i18n: {
-    locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr', fallbackLocale: 'es' }, // custom fallback for 'fr'
-      { code: 'es', iso: 'es-ES', dir: 'ltr' }
-    ],
-    defaultLocale: 'en',
-    fallbackLocale: 'en' // global fallback
-  }
+  locales: [
+    { code: 'en', iso: 'en-US', dir: 'ltr' },
+    { code: 'fr', iso: 'fr-FR', dir: 'ltr', fallbackLocale: 'es' },
+    { code: 'es', iso: 'es-ES', dir: 'ltr' }
+  ],
+  defaultLocale: 'en',
+  fallbackLocale: 'en' // Global fallback
 }
 ```
 
-In this example, if a 'fr' translation is missing, it will fall back to 'fr' using the **per-locale fallback**. If a per-locale fallback is not defined, it will use the **global fallbackLocale**.
+### 🔍 SEO & Meta Tags
 
+#### `meta`
 
-### 🌐 `noPrefixRedirect`
+Enables automatic SEO meta tag generation.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+meta: true // Generate alternate links, canonical URLs, etc.
+```
+
+#### `metaBaseUrl`
+
+Sets the base URL for SEO meta tags.
+
+**Type**: `string`  
+**Default**: `'/'`
+
+```typescript
+metaBaseUrl: 'https://example.com'
+```
+
+#### `canonicalQueryWhitelist`
+
+Specifies which query parameters to preserve in canonical URLs.
+
+**Type**: `string[]`  
+**Default**: `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']`
+
+```typescript
+canonicalQueryWhitelist: ['page', 'sort', 'category']
+```
+
+### 🔄 Advanced Features
+
+#### `globalLocaleRoutes`
+
+Defines custom localized routes for specific pages.
+
+**Type**: `Record<string, Record<string, string> | false>`
+
+```typescript
+globalLocaleRoutes: {
+  'about': {
+    en: '/about-us',
+    fr: '/a-propos',
+    de: '/uber-uns'
+  },
+  'unlocalized': false // Disable localization entirely
+}
+```
+
+#### `routesLocaleLinks`
+
+Creates links between pages' locale files to share translations.
+
+**Type**: `Record<string, string>`
+
+```typescript
+routesLocaleLinks: {
+  'products-id': 'products',
+  'about-us': 'about'
+}
+```
+
+#### `customRegexMatcher`
+
+Improves performance for applications with many locales.
+
+**Type**: `string | RegExp`
+
+```typescript
+customRegexMatcher: '[a-z]-[A-Z]' // Matches locales like 'en-US', 'de-DE'
+```
+
+### 🛠️ Development Options
+
+#### `debug`
+
+Enables logging and debugging information.
 
 **Type**: `boolean`  
 **Default**: `false`
 
-Specifies whether, when using the **no prefix** strategy, a redirect should automatically be set to a custom path (for instance, one defined through `globalLocaleRoutes` or `defineI18nRoute`) instead of rendering the default route. If enabled, any routes overridden via localization settings will generate a **redirect** to the respective localized path rather than creating a standard route.
+```typescript
+debug: true
+```
 
-**Example**:
+#### `disableWatcher`
+
+Disables automatic creation of locale files during development.
+
+**Type**: `boolean`  
+**Default**: `false`
 
 ```typescript
-{
-  i18n: {
-    locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' }
-    ],
-    defaultLocale: 'en',
-    // Enable redirects for custom paths in no prefix strategy
-    noPrefixRedirect: true
-  }
+disableWatcher: true
+```
+
+#### `disableUpdater`
+
+Disables the file watcher for updating store items.
+
+**Type**: `boolean`  
+**Default**: `false`
+
+```typescript
+disableUpdater: true
+```
+
+### 🔧 Plugin Control
+
+#### `define`
+
+Enables the `define` plugin for runtime configuration.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+define: false // Disables $defineI18nRoute
+```
+
+#### `redirects`
+
+Enables automatic redirection logic.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+redirects: false // Disable automatic locale redirection
+```
+
+#### `plugin`
+
+Enables the main plugin.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+plugin: false
+```
+
+#### `hooks`
+
+Enables hooks integration.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+hooks: false
+```
+
+### 🌐 Language Detection
+
+#### `autoDetectLanguage`
+
+Automatically detects user's preferred language.
+
+**Type**: `boolean`  
+**Default**: `false`
+
+```typescript
+autoDetectLanguage: true
+```
+
+#### `autoDetectPath`
+
+Specifies routes where locale detection is active.
+
+**Type**: `string`  
+**Default**: `"/"`
+
+```typescript
+autoDetectPath: "/" // Only on home route
+autoDetectPath: "*" // On all routes (use with caution)
+```
+
+### 🔢 Customization
+
+#### `plural`
+
+Custom function for handling pluralization.
+
+**Type**: `(key: string, count: number, params: Record<string, string | number | boolean>, locale: string, t: Getter) => string`
+
+```typescript
+plural: (key, count, _params, _locale, t) => {
+  const translation = t(key)
+  if (!translation) return key
+  
+  const forms = translation.toString().split('|')
+  return (count < forms.length ? forms[count].trim() : forms[forms.length - 1].trim())
+    .replace('{count}', count.toString())
 }
 ```
 
-### 🔄 `canonicalQueryWhitelist`
+#### `localeCookie`
 
-Specifies which query parameters should be preserved in the canonical URL and the `og:url` meta tag.
-This helps search engines and social platforms differentiate between meaningful parameters (e.g., `?page=2`) and irrelevant or tracking ones (e.g., `?utm_source=`), which are excluded by default.
+Specifies the cookie name for storing user's locale.
 
-**Type**: `string[]`
+**Type**: `string`  
+**Default**: `'user-locale'`
 
-**Default**: `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']`
-
-Both `<link rel="canonical">` and `<meta property="og:url">` will include only the whitelisted query parameters.
-
-**Example**:
-
-```ts
-canonicalQueryWhitelist: ['page', 'sort', 'category'] // Only include these query params in canonical and og:url
+```typescript
+localeCookie: 'user-locale'
 ```
 
-### 🔄 `experimental.i18nPreviousPageFallback`
+#### `apiBaseUrl`
 
-Enables fallback to previous page translations during page transitions when new translations are not yet loaded. This is particularly useful for pages with `useAsyncData` or `defineAsyncComponent` that may cause translation keys to appear as paths during loading.
+Defines the base URL for fetching cached translations.
 
-**Type**: `boolean`
+**Type**: `string`  
+**Default**: `'_locales'`
 
+```typescript
+apiBaseUrl: 'api/_locales'
+```
+
+### 🧪 Experimental Features
+
+#### `experimental.i18nPreviousPageFallback`
+
+Enables fallback to previous page translations during transitions.
+
+**Type**: `boolean`  
 **Default**: `false`
 
-When enabled, the module will:
-- Save previous page translation information during navigation
-- Use previous page translations as fallback when current page translations are not available
-- Clean up previous page translations only after the new page is fully loaded
-
-**Example**:
-
-```ts
+```typescript
 export default defineNuxtConfig({
   i18n: {
     experimental: {
@@ -538,47 +507,29 @@ export default defineNuxtConfig({
 })
 ```
 
-**Use Case**: This option is especially helpful when you have pages with asynchronous data loading (`useAsyncData`, `defineAsyncComponent`) that may cause translation keys to be displayed as raw paths instead of translated text during the loading phase.
+::: tip Use Case
 
-### 🌐 `globalLocaleRoutes`
+This is especially helpful for pages with asynchronous data loading (`useAsyncData`, `defineAsyncComponent`) that may cause translation keys to be displayed as raw paths during loading.
 
-Allows you to define custom localized routes for specific pages. You can specify a custom path for each locale for a given page, or disable localization for certain pages entirely.
+:::
 
-**Type**: `Record<string, Record<string, string> | false>`
+## 🔄 Caching Mechanism
 
-- **Key** (`string`): The name of the page you want to customize or disable localization for.
-- **Value**:
-  - **`Record<string, string>`**: A set of locale codes with corresponding custom paths for the page.
-  - **`false`**: Disable localization for this page entirely. The page will not be localized, and it will remain accessible only through its default path.
+One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again.
 
-This option gives you the flexibility to localize certain pages differently while leaving others unaffected by localization.
+### Benefits
 
-**Example**:
+- 🚀 **Faster Response Times**: Cached translations load instantly
+- 💾 **Reduced Memory Usage**: Efficient storage of frequently used translations
+- ⚡ **Lower Server Load**: Fewer file system operations
+- 🔄 **Smart Invalidation**: Cache updates automatically when files change
 
-```typescript
-{
-  globalLocaleRoutes: {
-    page2: {
-      en: '/custom-page2-en',
-        de: '/custom-page2-de',
-        ru: '/custom-page2-ru'
-    },
-    // Unlocalized page should not be localized
-    unlocalized: false
-  }
-}
-```
+## 📚 Next Steps
 
-### Usage:
+Now that you have the basics set up, explore these advanced topics:
 
-In the example above:
-- **`page2`**: Custom localized paths are defined for the page `page2` in English (`en`), German (`de`), and Russian (`ru`). Instead of following the standard localization pattern (like `/en/page2`), each locale will have a completely custom URL, such as `/en/custom-page2-en` for English, `/de/custom-page2-de` for German, and `/ru/custom-page2-ru` for Russian.
-- **`unlocalized`**: This page will not be localized, so it remains accessible only at `/unlocalized`, without any locale prefixes or custom paths.
+- **[Per-Component Translations](./per-component-translations.md)** - Learn about `$defineI18nRoute`
+- **[API Reference](../api/methods.md)** - Complete method documentation
+- **[Examples](../examples.md)** - Real-world usage examples
+- **[Migration Guide](./migration.md)** - Migrating from other i18n solutions
 
----
-
-# 🔄 Caching Mechanism
-
-One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can
-
-retrieve the data from the cache rather than searching through the translation files again. This caching mechanism drastically reduces the time needed to fetch translations and significantly lowers the server's resource consumption.

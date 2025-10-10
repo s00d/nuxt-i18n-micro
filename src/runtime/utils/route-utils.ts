@@ -56,3 +56,66 @@ export function findAllowedLocalesForRoute(
 
   return allowedLocales || null
 }
+
+/**
+ * Checks if meta tags should be disabled for a route
+ *
+ * @param route - The route object
+ * @param routeDisableMeta - The routeDisableMeta configuration object
+ * @param currentLocale - The current locale code
+ * @returns True if meta tags should be disabled, false otherwise
+ */
+export function isMetaDisabledForRoute(
+  route: RouteLocationNormalizedLoaded,
+  routeDisableMeta: Record<string, boolean | string[]> | undefined,
+  currentLocale?: string,
+): boolean {
+  if (!routeDisableMeta) {
+    return false
+  }
+
+  const routePath = route.path
+  const routeName = route.name?.toString()
+  const normalizedRouteName = routeName?.replace('localized-', '')
+  const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
+
+  // Helper function to check if meta is disabled for a specific route pattern
+  const checkDisableMeta = (disableMetaValue: boolean | string[] | undefined): boolean => {
+    if (disableMetaValue === undefined) {
+      return false
+    }
+
+    if (typeof disableMetaValue === 'boolean') {
+      return disableMetaValue
+    }
+
+    if (Array.isArray(disableMetaValue)) {
+      return currentLocale ? disableMetaValue.includes(currentLocale) : false
+    }
+
+    return false
+  }
+
+  // Check if meta is disabled for this route
+  if (checkDisableMeta(routeDisableMeta[routePath])
+    || (routeName && checkDisableMeta(routeDisableMeta[routeName]))
+    || (normalizedRouteName && checkDisableMeta(routeDisableMeta[normalizedRouteName]))
+    || (normalizedRoutePath && checkDisableMeta(routeDisableMeta[normalizedRoutePath]))) {
+    return true
+  }
+
+  // For dynamic routes, try to match against route patterns using route.matched
+  if (route.matched && route.matched.length > 0) {
+    const matchedRoute = route.matched[0]
+    const matchedPath = matchedRoute.path
+
+    const baseRoutePattern = extractBaseRoutePattern(matchedPath)
+
+    // Check if meta is disabled for this route pattern
+    if (checkDisableMeta(routeDisableMeta[baseRoutePattern])) {
+      return true
+    }
+  }
+
+  return false
+}

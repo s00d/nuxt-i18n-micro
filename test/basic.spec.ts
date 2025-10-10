@@ -565,4 +565,74 @@ test.describe('basic', () => {
     const switchLocaleRouteDeN = await page.locator('#locale-de').getAttribute('href')
     expect(switchLocaleRouteDeN).toContain('/de/locale-conf-modif')
   })
+
+  test('disable meta tags completely', async ({ page, goto }) => {
+    // Test English locale - meta tags should be disabled
+    await goto('/disable-meta-all', { waitUntil: 'hydration' })
+
+    // Check that i18n meta tags are not present
+    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
+    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
+    await expect(page.locator('link#i18n-can')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+
+    // Test German locale - meta tags should also be disabled
+    await goto('/de/disable-meta-all', { waitUntil: 'hydration' })
+
+    // Check that i18n meta tags are not present
+    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
+    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
+    await expect(page.locator('link#i18n-can')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+
+    // Test French locale - meta tags should also be disabled
+    await goto('/fr/disable-meta-all', { waitUntil: 'hydration' })
+
+    // Check that i18n meta tags are not present
+    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
+    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
+    await expect(page.locator('link#i18n-can')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+  })
+
+  test('disable meta tags for specific locale', async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+
+    // Test English locale - meta tags should be disabled
+    await goto('/disable-meta-locale', { waitUntil: 'hydration' })
+
+    // Check that i18n meta tags are not present for English
+    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
+    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
+    await expect(page.locator('link#i18n-can')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+
+    // Test German locale - meta tags should be present
+    await goto('/de/disable-meta-locale', { waitUntil: 'hydration' })
+
+    // Check that i18n meta tags are present for German
+    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'de_DE')
+    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/de/disable-meta-locale`)
+    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
+    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
+    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
+
+    // Test French locale - meta tags should be present
+    await goto('/fr/disable-meta-locale', { waitUntil: 'hydration' })
+
+    // Check that i18n meta tags are present for French
+    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'fr_FR')
+    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/fr/disable-meta-locale`)
+    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
+    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
+    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
+  })
 })

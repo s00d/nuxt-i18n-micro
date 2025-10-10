@@ -22,6 +22,7 @@ const TEST_CASES = [
     expected: {
       locales: ['en', 'de', 'ru'],
       localeRoutes: null,
+      disableMeta: undefined,
     },
   },
   {
@@ -240,9 +241,22 @@ const TEST_CASES = [
   },
   {
     file: 'empty-object.vue',
+    expected: null,
+  },
+  {
+    file: 'disable-meta-test.vue',
     expected: {
-      locales: null,
+      locales: ['en', 'fr'],
       localeRoutes: null,
+      disableMeta: true,
+    },
+  },
+  {
+    file: 'disable-meta-locales.vue',
+    expected: {
+      locales: ['en', 'fr', 'de', 'ru'],
+      localeRoutes: null,
+      disableMeta: ['en', 'fr'],
     },
   },
   {
@@ -556,8 +570,7 @@ describe('extractDefineI18nRouteData', () => {
 
         const result = extractDefineI18nRouteData(content, filePath)
 
-        expect(result.locales).toBeNull()
-        expect(result.localeRoutes).toBeNull()
+        expect(result).toBeNull()
       })
     })
   })

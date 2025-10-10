@@ -13,8 +13,9 @@ export interface Locale {
 }
 
 export interface DefineI18nRouteConfig {
-  locales?: Record<LocaleCode, Record<string, string>>
+  locales?: string[] | Record<LocaleCode, Translations>
   localeRoutes?: Record<LocaleCode, string>
+  disableMeta?: boolean | string[]
 }
 export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 
@@ -57,6 +58,7 @@ export interface ModuleOptions {
   canonicalQueryWhitelist?: string[]
   excludePatterns?: (string | RegExp)[]
   routeLocales?: Record<string, string[]>
+  routeDisableMeta?: Record<string, boolean | string[]>
   experimental?: {
     i18nPreviousPageFallback?: boolean
   }

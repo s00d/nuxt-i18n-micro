@@ -137,6 +137,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Extract routeLocales and localeRoutes from pages before creating template
     const routeLocales: Record<string, string[]> = {}
     const globalLocaleRoutes: Record<string, Record<string, string>> = {}
+    const routeDisableMeta: Record<string, boolean | string[]> = {}
 
     // Find all page files
     const pageFiles = await globby('pages/**/*.vue', { cwd: nuxt.options.rootDir })
@@ -145,7 +146,10 @@ export default defineNuxtModule<ModuleOptions>({
       const fullPath = join(nuxt.options.rootDir, pageFile)
       try {
         const fileContent = readFileSync(fullPath, 'utf-8')
-        const { locales: extractedLocales, localeRoutes } = extractDefineI18nRouteData(fileContent, fullPath)
+        const config = extractDefineI18nRouteData(fileContent, fullPath)
+        if (!config) continue
+
+        const { locales: extractedLocales, localeRoutes, disableMeta } = config
 
         // Convert file path to route path
         const routePath = pageFile
@@ -155,12 +159,21 @@ export default defineNuxtModule<ModuleOptions>({
           .replace(/\/$/, '') || '/'
 
         if (extractedLocales) {
-          routeLocales[routePath] = extractedLocales
+          if (Array.isArray(extractedLocales)) {
+            routeLocales[routePath] = extractedLocales
+          }
+          else if (typeof extractedLocales === 'object') {
+            routeLocales[routePath] = Object.keys(extractedLocales)
+          }
         }
 
         if (localeRoutes) {
           // Use routePath as key for globalLocaleRoutes to match with PageManager logic
           globalLocaleRoutes[routePath] = localeRoutes
+        }
+
+        if (disableMeta !== undefined) {
+          routeDisableMeta[routePath] = disableMeta
         }
       }
       catch {
@@ -203,6 +216,9 @@ export default defineNuxtModule<ModuleOptions>({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routeLocales: routeLocales,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      routeDisableMeta: routeDisableMeta,
       experimental: {
         i18nPreviousPageFallback: options.experimental?.i18nPreviousPageFallback ?? false,
       },

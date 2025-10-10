@@ -1,6 +1,38 @@
 # Changelog
 
 
+## v1.102.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.101.2...v1.102.0)
+
+### 🚀 Enhancements
+
+- **types:** Enhance `DefineI18nRouteConfig` with new properties ([57ab76a](https://github.com/s00d/nuxt-i18n-micro/commit/57ab76a))
+- **module:** Add routeDisableMeta to handle disabled routes ([aec858d](https://github.com/s00d/nuxt-i18n-micro/commit/aec858d))
+- **route-utils:** Add function to check if meta tags should be disabled ([11fb1f4](https://github.com/s00d/nuxt-i18n-micro/commit/11fb1f4))
+- **meta:** Enhance meta generation with route-based checks ([f238ce8](https://github.com/s00d/nuxt-i18n-micro/commit/f238ce8))
+- **plugins:** Enhance `defineI18nRoute` with new route config type ([62b73b7](https://github.com/s00d/nuxt-i18n-micro/commit/62b73b7))
+- **pages:** Add pages to control i18n meta tag visibility ([368a60b](https://github.com/s00d/nuxt-i18n-micro/commit/368a60b))
+
+### 💅 Refactors
+
+- **utils:** Simplify `extractDefineI18nRouteData` return type. ([03a89ac](https://github.com/s00d/nuxt-i18n-micro/commit/03a89ac))
+
+### 📖 Documentation
+
+- **methods:** Update method descriptions and formatting in documentation ([2834bab](https://github.com/s00d/nuxt-i18n-micro/commit/2834bab))
+- **faq:** Update FAQ with new sections and improved clarity ([9c62264](https://github.com/s00d/nuxt-i18n-micro/commit/9c62264))
+- **getting-started:** Enhance the guide with clearer installation steps and features ([16b4fb0](https://github.com/s00d/nuxt-i18n-micro/commit/16b4fb0))
+- **guide:** Update per-component translations documentation ([6a41e61](https://github.com/s00d/nuxt-i18n-micro/commit/6a41e61))
+
+### ✅ Tests
+
+- **meta:** Add tests for disabling meta tags in various locales ([f62ed68](https://github.com/s00d/nuxt-i18n-micro/commit/f62ed68))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.101.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.101.1...v1.101.2)

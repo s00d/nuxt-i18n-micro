@@ -1,11 +1,6 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale } from 'nuxt-i18n-micro-types'
-
-export interface DefineI18nRouteData {
-  locales: string[] | null
-  localeRoutes: Record<string, string> | null
-}
+import type { Locale, DefineI18nRouteConfig } from 'nuxt-i18n-micro-types'
 
 // Helper function to extract script content from Vue file
 function extractScriptContent(content: string): string | null {
@@ -21,8 +16,7 @@ function removeTypeScriptTypes(scriptContent: string): string {
 }
 
 // Helper function to find defineI18nRoute call and extract config using Function()
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function findDefineI18nRouteConfig(scriptContent: string): any | null {
+function findDefineI18nRouteConfig(scriptContent: string): DefineI18nRouteConfig | null {
   try {
     // Find the defineI18nRoute call - use proper brace counting
     const defineStart = scriptContent.indexOf('$defineI18nRoute(')
@@ -122,55 +116,24 @@ function findDefineI18nRouteConfig(scriptContent: string): any | null {
   }
 }
 
-export function extractDefineI18nRouteData(content: string, _filePath: string): DefineI18nRouteData {
+export function extractDefineI18nRouteData(content: string, _filePath: string): DefineI18nRouteConfig | null {
   try {
     const scriptContent = extractScriptContent(content)
     if (!scriptContent) {
-      return { locales: null, localeRoutes: null }
+      return null
     }
 
     // Try to find the defineI18nRoute call and extract its config
     const configObject = findDefineI18nRouteConfig(scriptContent)
     if (!configObject) {
-      return { locales: null, localeRoutes: null }
+      return null
     }
 
-    // Extract locales
-    let locales: string[] | null = null
-    if (configObject.locales) {
-      if (Array.isArray(configObject.locales)) {
-        // Handle both string arrays and object arrays
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        locales = configObject.locales.map((item: any) => {
-          if (typeof item === 'string') {
-            return item
-          }
-          else if (typeof item === 'object' && item !== null && item.code) {
-            return item.code
-          }
-          return null
-        }).filter((item: string | null) => item !== null) as string[]
-      }
-      else if (typeof configObject.locales === 'object') {
-        locales = Object.keys(configObject.locales).filter(key =>
-          key !== 'meta' && key !== 'path' && key !== 'title' && key !== 'description',
-        )
-      }
-    }
-
-    // Extract localeRoutes
-    let localeRoutes: Record<string, string> | null = null
-    if (configObject.localeRoutes && typeof configObject.localeRoutes === 'object') {
-      const isValid = Object.values(configObject.localeRoutes).every(value => typeof value === 'string')
-      if (isValid) {
-        localeRoutes = configObject.localeRoutes
-      }
-    }
-
-    return { locales, localeRoutes }
+    // Return the config object directly
+    return configObject
   }
   catch {
-    return { locales: null, localeRoutes: null }
+    return null
   }
 }
 

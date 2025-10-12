@@ -12,10 +12,6 @@ contact_links:
     url: https://s00d.github.io/nuxt-i18n-micro/guide/faq
     about: Check frequently asked questions before opening an issue
 
-  - name: 🔥 Firebase Deployment Guide
-    url: https://s00d.github.io/nuxt-i18n-micro/guide/firebase
-    about: Troubleshooting guide for Firebase AppHosting deployments
-
   - name: 🚀 Examples
     url: https://s00d.github.io/nuxt-i18n-micro/examples
     about: View code examples and common use cases

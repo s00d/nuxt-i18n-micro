@@ -1,6 +1,6 @@
 import { resolve, join } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, setResponseHeader } from 'h3'
 import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from 'nuxt-i18n-micro-types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -28,6 +28,9 @@ function deepMerge(target: Translations, source: Translations): Translations {
 }
 
 export default defineEventHandler(async (event) => {
+  // Set proper Content-Type header for JSON responses
+  setResponseHeader(event, 'Content-Type', 'application/json')
+
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
   const { rootDirs, debug, translationDir, fallbackLocale, customRegexMatcher } = config.i18nConfig as ModulePrivateOptionsExtend

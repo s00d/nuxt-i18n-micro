@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.103.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.102.0...v1.103.0)
+
+### 🚀 Enhancements
+
+- **server:** Set Content-Type header for JSON responses ([be7048b](https://github.com/s00d/nuxt-i18n-micro/commit/be7048b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.102.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.101.2...v1.102.0)

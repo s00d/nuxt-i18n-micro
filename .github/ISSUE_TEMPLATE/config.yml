@@ -1,0 +1,26 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://s00d.github.io/nuxt-i18n-micro/
+    about: Read the full documentation for guides, API reference, and examples
+
+  - name: 💬 GitHub Discussions
+    url: https://github.com/s00d/nuxt-i18n-micro/discussions
+    about: Ask questions and discuss ideas with the community
+
+  - name: ❓ FAQ
+    url: https://s00d.github.io/nuxt-i18n-micro/guide/faq
+    about: Check frequently asked questions before opening an issue
+
+  - name: 🔥 Firebase Deployment Guide
+    url: https://s00d.github.io/nuxt-i18n-micro/guide/firebase
+    about: Troubleshooting guide for Firebase AppHosting deployments
+
+  - name: 🚀 Examples
+    url: https://s00d.github.io/nuxt-i18n-micro/examples
+    about: View code examples and common use cases
+
+  - name: 📝 Changelog
+    url: https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md
+    about: View recent changes and updates to the module
+

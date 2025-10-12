@@ -23,6 +23,7 @@ export default defineConfig({
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Using', link: '/guide/using' },
+          { text: 'Firebase Deployment', link: '/guide/firebase' },
           { text: 'Performance', link: '/guide/performance' },
           { text: 'Performance Test Results', link: '/guide/performance-results' },
           { text: 'Folder Structure', link: '/guide/folder-structure' },
@@ -98,6 +99,7 @@ export default defineConfig({
           items: [
             { text: 'Getting Started', link: '/getting-started' },
             { text: 'Using', link: '/using' },
+            { text: 'Firebase Deployment', link: '/firebase' },
             { text: 'Performance', link: '/performance' },
             { text: 'Folder Structure', link: '/folder-structure' },
             { text: 'Layers', link: '/layers' },

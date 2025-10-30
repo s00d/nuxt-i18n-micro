@@ -12,6 +12,13 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   compatibilityDate: '2024-04-03',
+  nitro: {
+    externals: {
+      // инлайнить, чтобы не было импорта из output/server/node_modules
+      inline: ['vue', 'vue/server-renderer', '@vue/server-renderer'],
+      external: [],
+    },
+  },
 
   i18n: {
     disableWatcher: true,

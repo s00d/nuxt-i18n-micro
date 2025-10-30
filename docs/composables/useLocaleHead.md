@@ -52,28 +52,27 @@ The `useLocaleHead` composable accepts an options object to customize its behavi
 
 ## 🛠️ Return Values
 
-The `useLocaleHead` composable returns an object with `htmlAttrs`, `meta`, and `link` properties, which can be directly used in the `<head>` section of your Nuxt application.
+The `useLocaleHead` composable returns a reactive object and an updater function you should call when source data changes.
 
-### `htmlAttrs`
+### `metaObject`
 
-- **Type**: `Record<string, string>`
-- **Description**: Contains attributes to be added to the `<html>` tag, such as `lang` and `dir`.
+- **Type**: `{ htmlAttrs: Record<string,string>; meta: Array<Record<string,string>>; link: Array<Record<string,string>> }` (as a ref)
+- **Description**: Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)`.
 - **Example**:
   ```js
-  const { htmlAttrs } = useLocaleHead()
-  console.log(htmlAttrs)
-  // Output: { lang: 'en-US', dir: 'ltr' }
+  const { metaObject } = useLocaleHead()
+  useHead(metaObject)
   ```
 
-### `meta`
+### `updateMeta`
 
-- **Type**: `Array<Record<string, string>>`
-- **Description**: Contains meta tags for SEO, including Open Graph locale tags and alternate locales.
+- **Type**: `() => void`
+- **Description**: Recomputes `metaObject` based on current route/locale/config. Call it when inputs change (e.g. on route change).
 - **Example**:
   ```js
-  const { meta } = useLocaleHead()
-  console.log(meta)
-  // Output: [{ id: 'i18n-og', property: 'og:locale', content: 'en-US' }, ...]
+  const { metaObject, updateMeta } = useLocaleHead()
+  useHead(metaObject)
+  watch(() => route.fullPath, () => updateMeta(), { immediate: true })
   ```
 
 ### `link`
@@ -148,20 +147,16 @@ The following example demonstrates how to use the `useLocaleHead` composable wit
 
 ```vue
 <script setup>
-const head = useLocaleHead({
+import { useRoute, watch } from '#imports'
+const route = useRoute()
+const { metaObject, updateMeta } = useLocaleHead({
   addDirAttribute: true,
   identifierAttribute: 'id',
   addSeoAttributes: true,
 })
-
-useHead(head)
+useHead(metaObject)
+watch(() => route.fullPath, () => updateMeta(), { immediate: true })
 </script>
-
-<template>
-  <div>
-    
-  </div>
-</template>
 ```
 
 ### Explanation of the Code
@@ -185,3 +180,19 @@ useHead(head)
 3. **Base URL**: You can set your custom base URL using the `baseUrl` option to correctly generate canonical and alternate links.
 
 This example demonstrates how easy it is to integrate `useLocaleHead` into your application's components to ensure correct SEO attributes and improve the search engine indexing of localized pages.
+
+## 🧩 Customization & Lifecycle
+
+- `useLocaleHead` does not subscribe to changes by itself. It returns `metaObject` and `updateMeta`.
+- You should call `updateMeta()` when inputs change (typically on route change), for example from a plugin:
+
+```ts
+// plugins/02.meta.ts
+export default defineNuxtPlugin(() => {
+  const route = useRoute()
+  const { metaObject, updateMeta } = useLocaleHead({ baseUrl: 'https://example.com' })
+  useHead(metaObject)
+  if (import.meta.server) updateMeta()
+  else watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+})
+```

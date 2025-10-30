@@ -570,6 +570,11 @@ export class PageManager {
       children: this.createLocalizedChildren(originalChildren, page.path, localeCodes, true, false, parentLocale, { [firstLocale]: customPath }),
       path: routePath,
       name: routeName,
+      alias: [], // remove alias to prevent infinite recursion
+      meta: {
+        ...page.meta,
+        alias: [], // remove alias to prevent infinite recursion
+      },
     }
   }
 

@@ -101,14 +101,20 @@ export function useTranslationHelper(caches?: TranslationCache) {
     mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false) {
       const cacheKey = `${locale}:${routeName}`
       const currentCache = getValueByKey(routeLocaleCache, cacheKey)
-      if (!force && !currentCache) {
-        console.error(`marge: route ${locale}:${routeName} not loaded`)
+
+      if (currentCache || force) {
+        const existing = currentCache ?? {}
+        setValue(routeLocaleCache, cacheKey, {
+          ...existing,
+          ...newTranslations,
+        })
       }
-      const existing = currentCache ?? {}
-      setValue(routeLocaleCache, cacheKey, {
-        ...existing,
-        ...newTranslations,
-      })
+
+      const isDev = process.env.NODE_ENV !== 'production'
+      if (!currentCache && isDev) {
+        // Если кэша нет, выводим предупреждение в dev-режиме и ничего не делаем.
+        console.warn(`[i18n] mergeTranslation called for '${cacheKey}' which was not pre-loaded. Skipping merge. Use force: true if this is intentional.`)
+      }
     },
     mergeGlobalTranslation(locale: string, newTranslations: Translations, force = false) {
       const currentCache = getValueByKey(generalLocaleCache, locale)
@@ -126,6 +132,7 @@ export function useTranslationHelper(caches?: TranslationCache) {
     },
     hasPageTranslation(locale: string, routeName: string) {
       const cacheKey = `${locale}:${routeName}`
+
       return !!getValueByKey(routeLocaleCache, cacheKey)
     },
     hasTranslation: (locale: string, key: string): boolean => {

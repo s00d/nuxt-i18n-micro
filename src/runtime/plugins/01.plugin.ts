@@ -7,7 +7,7 @@ import type {
 } from 'vue-router'
 import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation } from 'nuxt-i18n-micro-types'
-import { useRouter, useCookie, unref, navigateTo, defineNuxtPlugin, useRuntimeConfig } from '#imports'
+import { useRouter, useCookie, unref, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
 
@@ -72,32 +72,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   })
 
-  const loadTranslationsIfNeeded = async (locale: string, routeName: string, path: string) => {
-    try {
-      if (!i18nHelper.hasPageTranslation(locale, routeName)) {
-        let fRouteName = routeName
-        if (i18nConfig.routesLocaleLinks?.[fRouteName]) {
-          fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
-        }
-
-        if (!fRouteName) {
-          console.warn(`[nuxt-i18n-micro] Page name is missing in path: ${path}. Ensure definePageMeta({ name: '...' }) is set.`)
-          return
-        }
-
-        const url = `/${apiBaseUrl}/${fRouteName}/${locale}/data.json`.replace(/\/{2,}/g, '/')
-        const data: Translations = await $fetch(url, {
-          baseURL: runtimeConfig.app.baseURL,
-          params: { v: i18nConfig.dateBuild },
-        })
-        await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
-      }
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    catch (_error) { /* empty */ }
-  }
-
-  async function loadGlobalTranslations(to: RouteLocationResolvedGeneric) {
+  // unified loader: page + global merged on server
+  async function loadPageAndGlobalTranslations(to: RouteLocationResolvedGeneric) {
     let locale = routeService.getCurrentLocale(to)
     if (i18nConfig.hashMode) {
       locale = await nuxtApp.runWithContext(() => useCookie('hash-locale', { default: () => locale }).value)
@@ -106,65 +82,66 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       locale = await nuxtApp.runWithContext(() => useCookie('no-prefix-locale', { default: () => locale }).value)
     }
 
-    if (!i18nHelper.hasGeneralTranslation(locale)) {
-      const url = `/${apiBaseUrl}/general/${locale}/data.json`.replace(/\/{2,}/g, '/')
+    const routeName = routeService.getRouteName(to, locale)
+
+    // Guard: skip loading for routes without a valid name (e.g., 404/unmatched)
+    // Also skip if there are no matched records to avoid unnecessary fetches on error pages
+    // This prevents infinite waiting on pages like /de/unlocalized where route is intentionally absent
+    // and should return 404 without triggering translation loading.
+    if (!routeName) {
+      return
+    }
+
+    if (i18nHelper.hasPageTranslation(locale, routeName)) {
+      if (isDev) {
+        console.log(`[DEBUG] Cache HIT for '${locale}:${routeName}'. Skipping fetch.`)
+      }
+      return
+    }
+
+    const url = `/${apiBaseUrl}/${routeName}/${locale}/data.json`.replace(/\/{2,}/g, '/')
+    try {
       const data: Translations = await $fetch(url, {
         baseURL: runtimeConfig.app.baseURL,
         params: { v: i18nConfig.dateBuild },
       })
-      await i18nHelper.loadTranslations(locale, data ?? {})
+      await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
     }
-
-    if (!i18nConfig.disablePageLocales) {
-      const routeName = routeService.getRouteName(to, locale)
-      await loadTranslationsIfNeeded(locale, routeName, to.fullPath)
+    catch (e) {
+      if (isDev) {
+        console.error(`[i18n] Failed to load translations for ${routeName}/${locale}`, e)
+      }
+      throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
     }
   }
 
-  // --- 3. Unified navigation hook with condition ---
+  // remove old global loader (merged on server)
+
+  // --- 3. Blocking navigation hook ---
   router.beforeEach(async (to, from, next) => {
-    if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
-      // 3.1. If hooks are enabled, call the user hook
-      if (i18nConfig.hooks) {
-        const locale = routeService.getCurrentLocale(to as RouteLocationResolvedGeneric)
-        const routeName = routeService.getRouteName(to as RouteLocationResolvedGeneric, locale)
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
-          i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
-        })
-      }
-
-      // 3.2. Logic for fallback to the previous page
-      if (import.meta.client && from.path !== to.path && enablePreviousPageFallback) {
-        const fromLocale = routeService.getCurrentLocale(from as RouteLocationResolvedGeneric)
-        const fromRouteName = routeService.getRouteName(from as RouteLocationResolvedGeneric, fromLocale)
-        previousPageInfo.value = { locale: fromLocale, routeName: fromRouteName }
-      }
-
-      // 3.3. Load core (global + page) translations
-      await loadGlobalTranslations(to as RouteLocationResolvedGeneric)
+    if (to.path === from.path && !isNoPrefixStrategy(i18nConfig.strategy!)) {
+      if (next) next()
+      return
     }
 
-    // Call next() once at the end
-    if (next) {
-      next()
+    if (import.meta.client && enablePreviousPageFallback) {
+      const fromLocale = routeService.getCurrentLocale(from as RouteLocationResolvedGeneric)
+      const fromRouteName = routeService.getRouteName(from as RouteLocationResolvedGeneric, fromLocale)
+      previousPageInfo.value = { locale: fromLocale, routeName: fromRouteName }
     }
+
+    try {
+      await loadPageAndGlobalTranslations(to as RouteLocationResolvedGeneric)
+    }
+    catch (e) {
+      console.error('[i18n] Error loading translations:', e)
+    }
+
+    if (next) next()
   })
 
-  // --- 4. Conditional initial hook call ---
-  if (i18nConfig.hooks) {
-    const initialLocale = routeService.getCurrentLocale()
-    const initialRouteName = routeService.getRouteName(router.currentRoute.value as RouteLocationResolvedGeneric, initialLocale)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
-      i18nHelper.mergeTranslation(selectedLocale ?? initialLocale, initialRouteName, translations, true)
-    }, initialLocale)
-  }
-
-  // 5. Load translations for the very first (initial) page
-  await loadGlobalTranslations(router.currentRoute.value as RouteLocationResolvedGeneric)
+  // 4. Load translations for the very first (initial) page
+  await loadPageAndGlobalTranslations(router.currentRoute.value as RouteLocationResolvedGeneric)
 
   // 6. Build `provideData` (code unchanged)
   const provideData = {
@@ -196,10 +173,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         }
       }
 
-      // If still not found, try general translations
-      if (!value) {
-        value = i18nHelper.getTranslation(locale, '', key)
-      }
+      // General fallback больше не нужен: сервер уже подмешал глобальные переводы
 
       if (!value) {
         if (isDev && import.meta.client) {
@@ -310,6 +284,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     loadPageTranslations: async (locale: string, routeName: string, translations: Translations) => {
       await i18nHelper.loadPageTranslations(locale, routeName, translations)
     },
+    helper: i18nHelper, // Оставляем helper, он может быть полезен для продвинутых пользователей
   }
 
   const $provideData = Object.fromEntries(
@@ -350,4 +325,5 @@ export interface PluginsInjections {
   $localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
   $loadPageTranslations: (locale: string, routeName: string, translations: Translations) => Promise<void>
+  helper: ReturnType<typeof useTranslationHelper>
 }

@@ -365,17 +365,6 @@ Disables automatic creation of locale files during development.
 disableWatcher: true
 ```
 
-#### `disableUpdater`
-
-Disables the file watcher for updating store items.
-
-**Type**: `boolean`  
-**Default**: `false`
-
-```typescript
-disableUpdater: true
-```
-
 ### 🔧 Plugin Control
 
 #### `define`
@@ -530,8 +519,6 @@ export default defineNuxtConfig({
   },
 })
 ```
-
-Tip: You can disable the watcher entirely with `disableUpdater: true`, or disable file auto-creation with `disableWatcher: true`.
 
 ## 🔄 Caching Mechanism
 

@@ -25,7 +25,7 @@ We’re introducing server‑side HMR for translation files in development. When
 - Watcher in `src/runtime/server/plugins/watcher.dev.ts` observes `<rootDir>/<translationDir>/**/*.json`
 - Page files (e.g., `pages/<page>/<locale>.json`) invalidate `_locales:merged:<page>:<locale>`
 - Global files (e.g., `<locale>.json`) invalidate all merged keys for that locale
-- Auto‑registered from `src/module.ts` in dev when `experimental.hmr !== false` and `!disableUpdater`
+- Auto‑registered from `src/module.ts` in dev when `experimental.hmr !== false`
 
 ### Configuration
 
@@ -36,8 +36,6 @@ export default defineNuxtConfig({
   }
 })
 ```
-
-Tip: Disable the watcher with `disableUpdater: true` or auto‑creation with `disableWatcher: true`.
 
 ## Redesigned DevTools in Nuxt I18n Micro v1.73.0 🎉
 

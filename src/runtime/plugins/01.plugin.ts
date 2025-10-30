@@ -20,7 +20,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
   const runtimeConfig = useRuntimeConfig()
 
-// 1. Create request-scoped caches via useState
+  // 1. Create request-scoped caches via useState
   const generalLocaleCache = useState<Record<string, Translations>>('i18n-general-cache', () => ({}))
   const routeLocaleCache = useState<Record<string, Translations>>('i18n-route-cache', () => ({}))
   const dynamicTranslationsCaches = useState<Record<string, Translations>[]>('i18n-dynamic-caches', () => [])
@@ -33,7 +33,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     serverTranslationCache,
   }
 
-// 2. Create helper instance with request-scoped caches
+  // 2. Create helper instance with request-scoped caches
   const i18nHelper = useTranslationHelper(translationCaches)
 
   let hashLocaleDefault: null | string | undefined = null
@@ -121,7 +121,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-// --- 3. Unified navigation hook with condition ---
+  // --- 3. Unified navigation hook with condition ---
   router.beforeEach(async (to, from, next) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
       // 3.1. If hooks are enabled, call the user hook
@@ -152,7 +152,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   })
 
-// --- 4. Conditional initial hook call ---
+  // --- 4. Conditional initial hook call ---
   if (i18nConfig.hooks) {
     const initialLocale = routeService.getCurrentLocale()
     const initialRouteName = routeService.getRouteName(router.currentRoute.value as RouteLocationResolvedGeneric, initialLocale)
@@ -163,10 +163,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }, initialLocale)
   }
 
-// 5. Load translations for the very first (initial) page
+  // 5. Load translations for the very first (initial) page
   await loadGlobalTranslations(router.currentRoute.value as RouteLocationResolvedGeneric)
 
-// 6. Build `provideData` (code unchanged)
+  // 6. Build `provideData` (code unchanged)
   const provideData = {
     i18n: undefined,
     __micro: true,

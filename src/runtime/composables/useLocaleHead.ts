@@ -1,7 +1,7 @@
 import { joinURL, parseURL, withQuery } from 'ufo'
 import type { Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { isPrefixExceptDefaultStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
-import { unref, useRoute, useRuntimeConfig, watch, onUnmounted, ref, useNuxtApp } from '#imports'
+import { unref, useRoute, useRuntimeConfig, ref, useNuxtApp } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
 
 interface MetaLink {
@@ -165,18 +165,5 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     metaObject.value.link = [canonicalLink, ...alternateLinks]
   }
 
-  if (import.meta.client) {
-    const route = useRoute()
-    const stop = watch(
-      () => route.fullPath,
-      () => updateMeta(),
-      { immediate: true },
-    )
-    onUnmounted(() => stop())
-  }
-  else {
-    updateMeta()
-  }
-
-  return metaObject
+  return { metaObject, updateMeta }
 }

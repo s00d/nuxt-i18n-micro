@@ -94,7 +94,7 @@ export const td = (value: Date | number | string, options?: Intl.DateTimeFormatO
 export const has = (key: string): boolean => i18nHelper.hasTranslation(locale, key)
 
 export const mergeTranslations = (newTranslations: Translations): void =>
-  i18nHelper.mergeTranslation(locale, routeName, newTranslations)
+  i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)
 
 export const switchLocaleRoute = (val: string) => locale = val
 

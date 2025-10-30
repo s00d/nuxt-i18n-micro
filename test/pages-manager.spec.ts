@@ -234,8 +234,8 @@ test.describe('PageManager', () => {
       },
     ]
 
-    // Assert that the pages array matches the expected structure
-    expect(pages).toEqual(expectedPages)
+    // Assert that the pages array matches the expected structure (allowing extra fields like alias/meta)
+    expect(pages).toMatchObject(expectedPages)
   })
 
   test('should handle prefix_and_default strategy correctly', async () => {

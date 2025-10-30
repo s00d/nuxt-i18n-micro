@@ -5,12 +5,12 @@ import type {
   RouteLocationResolvedGeneric,
   RouteLocationNamedRaw,
 } from 'vue-router'
-import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService } from 'nuxt-i18n-micro-core'
+import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation } from 'nuxt-i18n-micro-types'
-import { useRouter, useCookie, useState, unref, navigateTo, defineNuxtPlugin, useRuntimeConfig } from '#imports'
+import { useRouter, useCookie, unref, navigateTo, defineNuxtPlugin, useRuntimeConfig } from '#imports'
+import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
 
-const i18nHelper = useTranslationHelper()
 const isDev = process.env.NODE_ENV !== 'production'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
@@ -19,6 +19,22 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
   const router = useRouter()
   const runtimeConfig = useRuntimeConfig()
+
+// 1. Create request-scoped caches via useState
+  const generalLocaleCache = useState<Record<string, Translations>>('i18n-general-cache', () => ({}))
+  const routeLocaleCache = useState<Record<string, Translations>>('i18n-route-cache', () => ({}))
+  const dynamicTranslationsCaches = useState<Record<string, Translations>[]>('i18n-dynamic-caches', () => [])
+  const serverTranslationCache = useState<Record<string, Map<string, Translations | unknown>>>('i18n-server-cache', () => ({}))
+
+  const translationCaches: TranslationCache = {
+    generalLocaleCache,
+    routeLocaleCache,
+    dynamicTranslationsCaches,
+    serverTranslationCache,
+  }
+
+// 2. Create helper instance with request-scoped caches
+  const i18nHelper = useTranslationHelper(translationCaches)
 
   let hashLocaleDefault: null | string | undefined = null
   let noPrefixDefault: null | string | undefined = null
@@ -46,17 +62,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
 
-  // Save previous page info for cleanup (only if enabled)
   const previousPageInfo = useState<{ locale: string, routeName: string } | null>('i18n-previous-page', () => null)
   const enablePreviousPageFallback = i18nConfig.experimental?.i18nPreviousPageFallback ?? false
 
-  // Clear old translations only after full page load
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
-      // Clear route-params only after full page load
       i18nRouteParams.value = null
-
-      // Clear previousPageInfo
       previousPageInfo.value = null
     }
   })
@@ -65,24 +76,19 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     try {
       if (!i18nHelper.hasPageTranslation(locale, routeName)) {
         let fRouteName = routeName
-        if (i18nConfig.routesLocaleLinks && fRouteName && i18nConfig.routesLocaleLinks[fRouteName]) {
-          const newRouteName = i18nConfig.routesLocaleLinks[fRouteName]
-          if (newRouteName) {
-            fRouteName = newRouteName
-          }
+        if (i18nConfig.routesLocaleLinks?.[fRouteName]) {
+          fRouteName = i18nConfig.routesLocaleLinks[fRouteName]
         }
 
-        if (!fRouteName || fRouteName === '') {
-          console.warn(`[nuxt-i18n-next] The page name is missing in the path: ${path}. Please ensure that definePageMeta({ name: 'pageName' }) is set.`)
+        if (!fRouteName) {
+          console.warn(`[nuxt-i18n-micro] Page name is missing in path: ${path}. Ensure definePageMeta({ name: '...' }) is set.`)
           return
         }
 
         const url = `/${apiBaseUrl}/${fRouteName}/${locale}/data.json`.replace(/\/{2,}/g, '/')
         const data: Translations = await $fetch(url, {
           baseURL: runtimeConfig.app.baseURL,
-          params: {
-            v: i18nConfig.dateBuild,
-          },
+          params: { v: i18nConfig.dateBuild },
         })
         await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
       }
@@ -91,58 +97,76 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     catch (_error) { /* empty */ }
   }
 
-  async function loadGlobalTranslations(
-    to: RouteLocationResolvedGeneric,
-  ) {
+  async function loadGlobalTranslations(to: RouteLocationResolvedGeneric) {
     let locale = routeService.getCurrentLocale(to)
     if (i18nConfig.hashMode) {
-      locale = await nuxtApp.runWithContext(() => {
-        return useCookie('hash-locale', { default: () => locale }).value
-      })
+      locale = await nuxtApp.runWithContext(() => useCookie('hash-locale', { default: () => locale }).value)
     }
     if (isNoPrefixStrategy(i18nConfig.strategy!)) {
-      locale = await nuxtApp.runWithContext(() => {
-        return useCookie('no-prefix-locale', { default: () => locale }).value
-      })
+      locale = await nuxtApp.runWithContext(() => useCookie('no-prefix-locale', { default: () => locale }).value)
     }
 
     if (!i18nHelper.hasGeneralTranslation(locale)) {
       const url = `/${apiBaseUrl}/general/${locale}/data.json`.replace(/\/{2,}/g, '/')
       const data: Translations = await $fetch(url, {
         baseURL: runtimeConfig.app.baseURL,
-        params: {
-          v: i18nConfig.dateBuild,
-        },
+        params: { v: i18nConfig.dateBuild },
       })
       await i18nHelper.loadTranslations(locale, data ?? {})
     }
 
     if (!i18nConfig.disablePageLocales) {
-      const locale = routeService.getCurrentLocale(to)
       const routeName = routeService.getRouteName(to, locale)
       await loadTranslationsIfNeeded(locale, routeName, to.fullPath)
     }
   }
 
+// --- 3. Unified navigation hook with condition ---
   router.beforeEach(async (to, from, next) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
-      // Save previous page info for subsequent cleanup (only if enabled)
+      // 3.1. If hooks are enabled, call the user hook
+      if (i18nConfig.hooks) {
+        const locale = routeService.getCurrentLocale(to as RouteLocationResolvedGeneric)
+        const routeName = routeService.getRouteName(to as RouteLocationResolvedGeneric, locale)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
+          i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
+        })
+      }
+
+      // 3.2. Logic for fallback to the previous page
       if (import.meta.client && from.path !== to.path && enablePreviousPageFallback) {
         const fromLocale = routeService.getCurrentLocale(from as RouteLocationResolvedGeneric)
         const fromRouteName = routeService.getRouteName(from as RouteLocationResolvedGeneric, fromLocale)
         previousPageInfo.value = { locale: fromLocale, routeName: fromRouteName }
-        console.log(`Saved previous page info for cleanup: ${fromRouteName}`)
       }
 
+      // 3.3. Load core (global + page) translations
       await loadGlobalTranslations(to as RouteLocationResolvedGeneric)
     }
+
+    // Call next() once at the end
     if (next) {
       next()
     }
   })
 
+// --- 4. Conditional initial hook call ---
+  if (i18nConfig.hooks) {
+    const initialLocale = routeService.getCurrentLocale()
+    const initialRouteName = routeService.getRouteName(router.currentRoute.value as RouteLocationResolvedGeneric, initialLocale)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
+      i18nHelper.mergeTranslation(selectedLocale ?? initialLocale, initialRouteName, translations, true)
+    }, initialLocale)
+  }
+
+// 5. Load translations for the very first (initial) page
   await loadGlobalTranslations(router.currentRoute.value as RouteLocationResolvedGeneric)
 
+// 6. Build `provideData` (code unchanged)
   const provideData = {
     i18n: undefined,
     __micro: true,

@@ -86,7 +86,6 @@ export default defineNuxtModule<ModuleOptions>({
     autoDetectLanguage: true,
     disablePageLocales: false,
     disableWatcher: false,
-    disableUpdater: false,
     // experimental kept in runtimeConfig only to avoid type drift here
     noPrefixRedirect: false,
     includeDefaultLocaleRoute: undefined,
@@ -613,7 +612,7 @@ ${accepts}
 
     // Регистрируем Nitro-плагин для инвалидирования server storage в dev
     nuxt.hook('nitro:config', (nitroConfig) => {
-      if (nuxt.options.dev && (options.experimental?.hmr ?? true) && !options.disableUpdater) {
+      if (nuxt.options.dev && (options.experimental?.hmr ?? true)) {
         nitroConfig.plugins = nitroConfig.plugins || []
         nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
       }

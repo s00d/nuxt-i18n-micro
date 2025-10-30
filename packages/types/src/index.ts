@@ -43,7 +43,6 @@ export interface ModuleOptions {
   autoDetectLanguage?: boolean
   autoDetectPath?: string
   disableWatcher?: boolean
-  disableUpdater?: boolean
   types?: boolean
   includeDefaultLocaleRoute?: boolean
   routesLocaleLinks?: { [key: string]: string }

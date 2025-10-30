@@ -18,7 +18,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const config = useRuntimeConfig() as { i18nConfig?: ModulePrivateOptionsExtend }
   const i18nConfig = config.i18nConfig
 
-  if (!i18nConfig || i18nConfig.disableUpdater || process.env.NODE_ENV !== 'development') {
+  if (!i18nConfig || process.env.NODE_ENV !== 'development') {
     return
   }
 

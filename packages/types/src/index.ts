@@ -61,6 +61,7 @@ export interface ModuleOptions {
   routeDisableMeta?: Record<string, boolean | string[]>
   experimental?: {
     i18nPreviousPageFallback?: boolean
+    hmr?: boolean
   }
 }
 
@@ -79,6 +80,7 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   translationDir: string
   fallbackLocale: string
   customRegexMatcher?: string | RegExp
+  routesLocaleLinks?: { [key: string]: string }
 }
 
 export interface PluralTranslations {

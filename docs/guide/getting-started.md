@@ -507,11 +507,31 @@ export default defineNuxtConfig({
 })
 ```
 
-::: tip Use Case
+:::: tip Use Case
 
 This is especially helpful for pages with asynchronous data loading (`useAsyncData`, `defineAsyncComponent`) that may cause translation keys to be displayed as raw paths during loading.
 
-:::
+::::
+
+#### `experimental.hmr`
+
+Enables server-side HMR for translations during development. When enabled, the module watches your translation files and invalidates the in-memory server cache for changed locales/pages so that requests immediately get fresh data without restarting the server.
+
+• Type: `boolean`  
+• Default: `true` (development only)
+
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    experimental: {
+      // Hot updates for translation files in dev mode
+      hmr: true,
+    },
+  },
+})
+```
+
+Tip: You can disable the watcher entirely with `disableUpdater: true`, or disable file auto-creation with `disableWatcher: true`.
 
 ## 🔄 Caching Mechanism
 

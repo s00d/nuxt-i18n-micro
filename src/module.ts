@@ -213,6 +213,7 @@ export default defineNuxtModule<ModuleOptions>({
       disablePageLocales: options.disablePageLocales ?? false,
       canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
       excludePatterns: options.excludePatterns ?? [],
+      hooks: options.hooks ?? true,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routeLocales: routeLocales,
@@ -252,14 +253,6 @@ export default defineNuxtModule<ModuleOptions>({
         src: resolver.resolve('./runtime/plugins/01.plugin'),
         name: 'i18n-plugin-loader',
         order: -5,
-      })
-    }
-
-    if (options.hooks) {
-      addPlugin({
-        src: resolver.resolve('./runtime/plugins/05.hooks'),
-        name: 'i18n-plugin-hooks',
-        order: 1,
       })
     }
 

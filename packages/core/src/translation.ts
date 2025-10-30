@@ -1,10 +1,19 @@
 import type { Translations } from 'nuxt-i18n-micro-types'
+import type { Ref } from 'vue'
 
-const generalLocaleCache: Record<string, Translations> = {}
-const routeLocaleCache: Record<string, Translations> = {}
-const dynamicTranslationsCaches: Record<string, Translations>[] = []
+export interface TranslationCache {
+  generalLocaleCache: Ref<Record<string, Translations>> | Record<string, Translations>
+  routeLocaleCache: Ref<Record<string, Translations>> | Record<string, Translations>
+  dynamicTranslationsCaches: Ref<Record<string, Translations>[]> | Record<string, Translations>[]
+  serverTranslationCache: Ref<Record<string, Map<string, Translations | unknown>>> | Record<string, Map<string, Translations | unknown>>
+}
 
-const serverTranslationCache: Record<string, Map<string, Translations | unknown>> = {}
+// Глобальные кэши для fallback (только для unit-тестов и обратной совместимости)
+// НЕ используются в SSR продакшене
+const globalGeneralLocaleCache: Record<string, Translations> = {}
+const globalRouteLocaleCache: Record<string, Translations> = {}
+const globalDynamicTranslationsCaches: Record<string, Translations>[] = []
+const globalServerTranslationCache: Record<string, Map<string, Translations | unknown>> = {}
 
 function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -45,103 +54,151 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
   return (value as T) ?? null
 }
 
-export function useTranslationHelper() {
+// Вспомогательная функция для получения значения из Ref или обычного объекта
+function getValue<T>(refOrValue: Ref<T> | T): T {
+  return typeof refOrValue === 'object' && refOrValue !== null && 'value' in refOrValue
+    ? (refOrValue as Ref<T>).value
+    : refOrValue as T
+}
+
+// Вспомогательная функция для установки значения в Ref или обычный объект
+function setValue<T extends Record<string, unknown>>(
+  refOrValue: Ref<T> | T,
+  key: string,
+  value: T[keyof T],
+): void {
+  const target = getValue(refOrValue)
+  ;(target as Record<string, unknown>)[key] = value
+}
+
+// Вспомогательная функция для получения значения из Ref или обычного объекта по ключу
+function getValueByKey<T extends Record<string, unknown>>(refOrValue: Ref<T> | T, key: string): T[keyof T] | undefined {
+  const target = getValue(refOrValue)
+  return (target as Record<string, unknown>)[key] as T[keyof T] | undefined
+}
+
+export function useTranslationHelper(caches?: TranslationCache) {
+  // Используем переданные кэши или глобальные (fallback для тестов)
+  const generalLocaleCache = caches?.generalLocaleCache ?? globalGeneralLocaleCache
+  const routeLocaleCache = caches?.routeLocaleCache ?? globalRouteLocaleCache
+  const dynamicTranslationsCaches = caches?.dynamicTranslationsCaches ?? globalDynamicTranslationsCaches
+  const serverTranslationCache = caches?.serverTranslationCache ?? globalServerTranslationCache
+
   return {
     hasCache(locale: string, page: string) {
-      return (serverTranslationCache[`${locale}:${page}`] ?? new Map<string, Translations | unknown>()).size > 0
+      const cacheKey = `${locale}:${page}`
+      const cache = getValueByKey(serverTranslationCache, cacheKey)
+      return (cache ?? new Map<string, Translations | unknown>()).size > 0
     },
     getCache(locale: string, routeName: string) {
-      return serverTranslationCache[`${locale}:${routeName}`]
+      const cacheKey = `${locale}:${routeName}`
+      return getValueByKey(serverTranslationCache, cacheKey)
     },
     setCache(locale: string, routeName: string, cache: Map<string, Translations | unknown>) {
-      serverTranslationCache[`${locale}:${routeName}`] = cache
+      const cacheKey = `${locale}:${routeName}`
+      setValue(serverTranslationCache, cacheKey, cache)
     },
     mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false) {
-      if (!force && !routeLocaleCache[`${locale}:${routeName}`]) {
+      const cacheKey = `${locale}:${routeName}`
+      const currentCache = getValueByKey(routeLocaleCache, cacheKey)
+      if (!force && !currentCache) {
         console.error(`marge: route ${locale}:${routeName} not loaded`)
       }
-      routeLocaleCache[`${locale}:${routeName}`] = {
-        ...routeLocaleCache[`${locale}:${routeName}`],
+      const existing = currentCache ?? {}
+      setValue(routeLocaleCache, cacheKey, {
+        ...existing,
         ...newTranslations,
-      }
+      })
     },
     mergeGlobalTranslation(locale: string, newTranslations: Translations, force = false) {
-      if (!force && !generalLocaleCache[`${locale}`]) {
+      const currentCache = getValueByKey(generalLocaleCache, locale)
+      if (!force && !currentCache) {
         console.error(`marge: route ${locale} not loaded`)
       }
-      generalLocaleCache[locale] = {
-        ...generalLocaleCache[locale],
+      const existing = currentCache ?? {}
+      setValue(generalLocaleCache, locale, {
+        ...existing,
         ...newTranslations,
-      }
+      })
     },
     hasGeneralTranslation(locale: string) {
-      return !!generalLocaleCache[locale]
+      return !!getValueByKey(generalLocaleCache, locale)
     },
     hasPageTranslation(locale: string, routeName: string) {
-      return !!routeLocaleCache[`${locale}:${routeName}`]
+      const cacheKey = `${locale}:${routeName}`
+      return !!getValueByKey(routeLocaleCache, cacheKey)
     },
     hasTranslation: (locale: string, key: string): boolean => {
-      for (const dynamicCache of dynamicTranslationsCaches) {
+      const dynamicCaches = getValue(dynamicTranslationsCaches)
+      for (const dynamicCache of dynamicCaches) {
         if (findTranslation(dynamicCache[locale] || null, key) !== null) {
           return true
         }
       }
 
-      return findTranslation(generalLocaleCache[locale] || null, key) !== null
+      const generalCache = getValueByKey(generalLocaleCache, locale)
+      return findTranslation(generalCache || null, key) !== null
     },
     getTranslation: <T = unknown>(locale: string, routeName: string, key: string): T | null => {
       const cacheKey = `${locale}:${routeName}`
-      const cached = serverTranslationCache[cacheKey]?.get(key)
+      const serverCache = getValueByKey(serverTranslationCache, cacheKey)
+      const cached = serverCache?.get(key)
       if (cached) {
         return cached as T
       }
 
       let result: T | null = null
 
-      for (const dynamicCache of dynamicTranslationsCaches) {
+      const dynamicCaches = getValue(dynamicTranslationsCaches)
+      for (const dynamicCache of dynamicCaches) {
         result = findTranslation<T>(dynamicCache[locale] || null, key)
         if (result !== null) break
       }
 
       if (!result) {
-        result = findTranslation<T>(routeLocaleCache[cacheKey] || null, key)
-          ?? findTranslation<T>(generalLocaleCache[locale] || null, key)
+        const routeCache = getValueByKey(routeLocaleCache, cacheKey)
+        const generalCache = getValueByKey(generalLocaleCache, locale)
+        result = findTranslation<T>(routeCache || null, key)
+          ?? findTranslation<T>(generalCache || null, key)
       }
 
       if (result) {
-        if (!serverTranslationCache[cacheKey]) {
-          serverTranslationCache[cacheKey] = new Map<string, Translations>()
-        }
-
-        serverTranslationCache[cacheKey].set(key, result)
+        const currentServerCache = serverCache ?? new Map<string, Translations | unknown>()
+        currentServerCache.set(key, result)
+        setValue(serverTranslationCache, cacheKey, currentServerCache)
       }
 
       return result
     },
     async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
       const cacheKey = `${locale}:${routeName}`
-      routeLocaleCache[cacheKey] = { ...translations }
+      setValue(routeLocaleCache, cacheKey, { ...translations })
     },
     async loadTranslations(locale: string, translations: Translations): Promise<void> {
-      generalLocaleCache[locale] = { ...translations }
+      setValue(generalLocaleCache, locale, { ...translations })
     },
     clearCache() {
       // Clear general cache
-      Object.keys(generalLocaleCache).forEach((key) => {
-        generalLocaleCache[key] = {}
+      const generalCache = getValue(generalLocaleCache)
+      Object.keys(generalCache).forEach((key) => {
+        setValue(generalLocaleCache, key, {})
       })
 
       // Clear route-specific cache
-      Object.keys(routeLocaleCache).forEach((key) => {
-        routeLocaleCache[key] = {}
+      const routeCache = getValue(routeLocaleCache)
+      Object.keys(routeCache).forEach((key) => {
+        setValue(routeLocaleCache, key, {})
       })
 
       // Clear dynamic caches
-      dynamicTranslationsCaches.length = 0
+      const dynamicCaches = getValue(dynamicTranslationsCaches)
+      dynamicCaches.length = 0
 
       // Clear server translation cache
-      Object.keys(serverTranslationCache).forEach((key) => {
-        serverTranslationCache[key].clear()
+      const serverCache = getValue(serverTranslationCache)
+      Object.keys(serverCache).forEach((key) => {
+        const cacheMap = getValueByKey(serverTranslationCache, key)
+        cacheMap?.clear()
       })
     },
   }

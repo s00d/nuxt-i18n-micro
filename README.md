@@ -26,33 +26,27 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 #### Build Time and Resource Consumption
 
-Исправленные значения для сравнения:
-
-**Nuxt I18n v9**:
-- **Total size (build)**: 13.7 MB (2.2 MB gzip)
-- **Max CPU Usage**: 248.50%
-- **Max Memory Usage**: 3057.23 MB
-- **Elapsed Time**: 0h 0m 12s
-
-**Nuxt I18n Micro**:
-- **Total size (build)**: 229 KB (152 KB gzip) — **13.47 MB or 98.36% smaller (2.05 MB or 93.10% smaller gzip)**
-- **Max CPU Usage**: 195.00% — **21.53% lower**
-- **Max Memory Usage**: 1140.63 MB — **-1916.6 MB less memory**
-- **Elapsed Time**: 0h 0m 7s — **-5 seconds faster**
+- **i18n-micro**: 8.57 seconds, Max Memory: 1080.31 MB, Max CPU: 209.50%
+- **i18n v10**: 100.20 seconds, Max Memory: 8827.23 MB, Max CPU: 321.40%
+- **Time Difference**: -91.63 seconds
+- **Memory Difference**: -7746.92 MB
+- **CPU Usage Difference**: -111.90%
 
 
-#### Server Performance (10k Requests)
+#### Comparison between i18n v10 and i18n-micro
 
-
-**Nuxt I18n v9**:
-- **Requests per second**: 34 [#/sec] (mean)
-- **Time per request**: 1487.60 ms (mean)
-- **Max Memory Usage**: 9958.67 MB
-
-**Nuxt I18n Micro**:
-- **Requests per second**: 339 [#/sec] (mean) — **305 more requests per second (897.06% increase)**
-- **Time per request**: 5.10 ms (mean) — **-1482.50 ms faster (99.66% reduction)**
-- **Max Memory Usage**: 405.20 MB — **-9553.47 MB less memory usage (95.93% reduction)**
+- **Max Memory Used Difference**: -107.61 MB
+- **Min Memory Used Difference**: -1.33 MB
+- **Avg Memory Used Difference**: -14.33 MB
+- **Max CPU Usage Difference**: -14.70%
+- **Min CPU Usage Difference**: 0.00%
+- **Avg CPU Usage Difference**: 3.76%
+- **Stress Test Time Difference**: 0.00 seconds
+- **Average Response Time Difference**: 1239.80 ms
+- **Min Response Time Difference**: 112.00 ms
+- **Max Response Time Difference**: -53.00 ms
+- **Requests Per Second Difference**: 3.00
+- **Error Rate Difference**: 0.00%
 
 These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area.
 

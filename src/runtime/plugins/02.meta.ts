@@ -1,6 +1,6 @@
 import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { useLocaleHead } from '../composables/useLocaleHead'
-import { useRequestURL, useHead, defineNuxtPlugin, useRuntimeConfig, useRoute } from '#imports'
+import { useRequestURL, useHead, defineNuxtPlugin, useRuntimeConfig, useRoute, watch } from '#imports'
 import { isMetaDisabledForRoute } from '../utils/route-utils'
 
 const host = process.env.HOST ?? 'localhost'
@@ -29,12 +29,23 @@ export default defineNuxtPlugin((nuxtApp) => {
   const url = useRequestURL()
   const baseUrl = (i18nConfig.metaBaseUrl || url.origin || defaultUrl).toString()
 
-  const head = useLocaleHead({
+  const { metaObject, updateMeta } = useLocaleHead({
     addDirAttribute: true,
     identifierAttribute: 'id',
     addSeoAttributes: true,
     baseUrl,
   })
 
-  useHead(head)
+  useHead(metaObject)
+
+  if (import.meta.server) {
+    updateMeta()
+  }
+  else if (import.meta.client) {
+    watch(
+      () => useRoute().fullPath,
+      () => updateMeta(),
+      { immediate: true },
+    )
+  }
 })

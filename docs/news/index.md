@@ -4,6 +4,40 @@ outline: deep
 
 # News
 
+## Nuxt I18n Micro v2.0.0 — Dev HMR for Translations
+
+**Date**: 2025-10-30
+
+**Version**: `v2.0.0`
+
+![HMR Update](/2.0.0.png)
+
+We’re introducing server‑side HMR for translation files in development. When a JSON translation changes, the server cache invalidates only the affected keys, and subsequent requests immediately receive fresh data—no restarts required.
+
+### What’s New?
+
+- Server‑side HMR for translation files
+- Instant cache invalidation per page/locale
+- Seamless DX while editing content
+
+### How it works
+
+- Watcher in `src/runtime/server/plugins/watcher.dev.ts` observes `<rootDir>/<translationDir>/**/*.json`
+- Page files (e.g., `pages/<page>/<locale>.json`) invalidate `_locales:merged:<page>:<locale>`
+- Global files (e.g., `<locale>.json`) invalidate all merged keys for that locale
+- Auto‑registered from `src/module.ts` in dev when `experimental.hmr !== false` and `!disableUpdater`
+
+### Configuration
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    experimental: { hmr: true }, // default in dev
+  }
+})
+```
+
+Tip: Disable the watcher with `disableUpdater: true` or auto‑creation with `disableWatcher: true`.
 
 ## Redesigned DevTools in Nuxt I18n Micro v1.73.0 🎉
 
@@ -167,7 +201,6 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 ```
 
 For more details, check out the [documentation](/guide/cli#🔄-text-to-i18n-command).
-
 
 ---
 

@@ -3,6 +3,9 @@
   "fallback": {
     "value": "fallback en text"
   },
+  "navigation": {
+    "contact": "Contact"
+  },
   "navigation_component": {
     "title": "Navigation EN",
     "home": "Home"

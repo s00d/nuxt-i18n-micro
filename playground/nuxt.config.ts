@@ -100,7 +100,7 @@ export default defineNuxtConfig({
       /\.(pdf|doc)$/,
     ],
     experimental: {
-      i18nPreviousPageFallback: true,
+      i18nPreviousPageFallback: false,
     },
   },
 })

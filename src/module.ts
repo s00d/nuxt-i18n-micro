@@ -13,7 +13,6 @@ import {
   useLogger,
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
-import { watch } from 'chokidar'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from 'nuxt-i18n-micro-types'
 import {
   isNoPrefixStrategy,
@@ -88,6 +87,7 @@ export default defineNuxtModule<ModuleOptions>({
     disablePageLocales: false,
     disableWatcher: false,
     disableUpdater: false,
+    // experimental kept in runtimeConfig only to avoid type drift here
     noPrefixRedirect: false,
     includeDefaultLocaleRoute: undefined,
     fallbackLocale: undefined,
@@ -203,9 +203,6 @@ export default defineNuxtModule<ModuleOptions>({
       localeCookie: options.localeCookie ?? 'user-locale',
       autoDetectPath: options.autoDetectPath ?? '/',
       strategy: options.strategy ?? 'prefix_except_default',
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      routesLocaleLinks: options.routesLocaleLinks ?? {},
       dateBuild: Date.now(),
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
       apiBaseUrl: apiBaseUrl,
@@ -213,7 +210,6 @@ export default defineNuxtModule<ModuleOptions>({
       disablePageLocales: options.disablePageLocales ?? false,
       canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
       excludePatterns: options.excludePatterns ?? [],
-      hooks: options.hooks ?? true,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routeLocales: routeLocales,
@@ -222,6 +218,9 @@ export default defineNuxtModule<ModuleOptions>({
       routeDisableMeta: routeDisableMeta,
       experimental: {
         i18nPreviousPageFallback: options.experimental?.i18nPreviousPageFallback ?? false,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        hmr: options.experimental?.hmr ?? true,
       },
     }
 
@@ -241,6 +240,9 @@ export default defineNuxtModule<ModuleOptions>({
       fallbackLocale: options.fallbackLocale ?? undefined,
       translationDir: options.translationDir ?? 'locales',
       customRegexMatcher: options.customRegexMatcher,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      routesLocaleLinks: options.routesLocaleLinks ?? {},
     }
 
     addImportsDir(resolver.resolve('./runtime/composables'))
@@ -253,6 +255,14 @@ export default defineNuxtModule<ModuleOptions>({
         src: resolver.resolve('./runtime/plugins/01.plugin'),
         name: 'i18n-plugin-loader',
         order: -5,
+      })
+    }
+
+    if (options.hooks) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/05.hooks'),
+        name: 'i18n-plugin-hooks',
+        order: 1,
       })
     }
 
@@ -302,11 +312,73 @@ export default defineNuxtModule<ModuleOptions>({
       extensions: ['vue'],
     })
 
+    // Experimental: client HMR for translations
+    if (nuxt.options.dev && (options.experimental?.hmr ?? true)) {
+      const translationsDir = join(nuxt.options.rootDir, options.translationDir || 'locales')
+      const files = await globby(['**/*.json'], { cwd: translationsDir, absolute: true })
+      const tpl = addTemplate({
+        filename: 'i18n-hmr-plugin.mjs',
+        write: true,
+        getContents: () => generateHmrPlugin(files.map(f => f.replace(/\\/g, '/'))),
+      })
+      addPlugin({
+        src: tpl.dst,
+        mode: 'client',
+        name: 'i18n-hmr-plugin',
+        order: 10,
+      })
+    }
+
     if (options.types) {
       addTypeTemplate({
         filename: 'types/i18n-plugin.d.ts',
         getContents: () => generateI18nTypes(),
       })
+    }
+
+    function generateHmrPlugin(files: string[]): string {
+      const accepts = files.map((file) => {
+        const isPage = /\/pages\//.test(file)
+        let pageName = ''
+        let locale = ''
+        if (isPage) {
+          const m = /\/pages\/([^/]+)\/([^/]+)\.json$/.exec(file)
+          pageName = m?.[1] || ''
+          locale = m?.[2] || ''
+        }
+        else {
+          const m = /\/([^/]+)\.json$/.exec(file)
+          locale = m?.[1] || ''
+        }
+
+        return `
+if (import.meta.hot) {
+  import.meta.hot.accept('${file}', async (mod) => {
+    const nuxtApp = useNuxtApp()
+    const data = (mod && typeof mod === 'object' && Object.prototype.hasOwnProperty.call(mod, 'default'))
+      ? mod.default
+      : mod
+    try {
+      ${isPage
+        ? `await nuxtApp.$loadPageTranslations('${locale}', '${pageName}', data)`
+        : `await nuxtApp.$loadTranslations('${locale}', data)`}
+      console.log('[i18n HMR] Translations reloaded:', '${isPage ? 'page' : 'global'}', '${locale}'${isPage ? `, '${pageName}'` : ''})
+    }
+    catch (e) {
+      console.warn('[i18n HMR] Failed to reload translations for', '${file}', e)
+    }
+  })
+}
+`.trim()
+      }).join('\n')
+
+      return `
+import { defineNuxtPlugin, useNuxtApp } from '#imports'
+
+export default defineNuxtPlugin(() => {
+${accepts}
+})
+`.trim()
     }
 
     nuxt.hook('pages:resolved', (pages) => {
@@ -539,28 +611,13 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    if (!options.disableUpdater) {
-      nuxt.hook('nitro:build:before', async (_nitro) => {
-        const isProd = nuxt.options.dev === false
-        if (!isProd) {
-          const translationPath = path.resolve(nuxt.options.rootDir, options.translationDir!)
-
-          logger.log('ℹ add file watcher: ' + translationPath)
-
-          const watcherEvent = async (path: string) => {
-            await watcher.close()
-            logger.log('↻ update store item: ' + path)
-            nuxt.callHook('restart')
-          }
-
-          const watcher = watch(translationPath, { depth: 2, persistent: true }).on('change', watcherEvent)
-
-          nuxt.hook('close', () => {
-            watcher.close()
-          })
-        }
-      })
-    }
+    // Регистрируем Nitro-плагин для инвалидирования server storage в dev
+    nuxt.hook('nitro:config', (nitroConfig) => {
+      if (nuxt.options.dev && (options.experimental?.hmr ?? true) && !options.disableUpdater) {
+        nitroConfig.plugins = nitroConfig.plugins || []
+        nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
+      }
+    })
 
     nuxt.hook('prerender:routes', async (prerenderRoutes) => {
       if (isNoPrefixStrategy(options.strategy!)) {

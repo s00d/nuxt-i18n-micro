@@ -1,6 +1,46 @@
 # Changelog
 
 
+## v2.0.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.103.0...v2.0.0)
+
+### 🚀 Enhancements
+
+- **translation:** Implement request-scoped translation caching ([721e5dd](https://github.com/s00d/nuxt-i18n-micro/commit/721e5dd))
+- **meta:** Enhance meta management with reactive updates ([b145496](https://github.com/s00d/nuxt-i18n-micro/commit/b145496))
+- **plugins:** Unify page and global translation loading ([7209299](https://github.com/s00d/nuxt-i18n-micro/commit/7209299))
+- **routes:** Enhance translation file handling and caching ([eb7bba2](https://github.com/s00d/nuxt-i18n-micro/commit/eb7bba2))
+- **plugins:** Add i18n hooks plugin for translation management ([6fc04d8](https://github.com/s00d/nuxt-i18n-micro/commit/6fc04d8))
+- **runtime:** Add hot module replacement for translation updates ([43b8f56](https://github.com/s00d/nuxt-i18n-micro/commit/43b8f56))
+- **docs:** Update getting started guide with HMR feature details ([313f863](https://github.com/s00d/nuxt-i18n-micro/commit/313f863))
+- **types:** Add `hmr` and `routesLocaleLinks` to types ([0431b6c](https://github.com/s00d/nuxt-i18n-micro/commit/0431b6c))
+- **config:** Add nitro externals configuration to nuxt.config.ts ([c108d04](https://github.com/s00d/nuxt-i18n-micro/commit/c108d04))
+- **test-utils:** Add overwrite option to mergeTranslations function ([ff54ad0](https://github.com/s00d/nuxt-i18n-micro/commit/ff54ad0))
+
+### 🩹 Fixes
+
+- **tests:** Update references to nuxt-i18n version in performance tests ([f5f2bf3](https://github.com/s00d/nuxt-i18n-micro/commit/f5f2bf3))
+- **translation:** Improve cache handling and warning in mergeTranslation ([e091cfb](https://github.com/s00d/nuxt-i18n-micro/commit/e091cfb))
+- **nuxt.config:** Disable i18nPreviousPageFallback option ([5dbbea5](https://github.com/s00d/nuxt-i18n-micro/commit/5dbbea5))
+- **page-manager:** Remove alias to prevent infinite recursion ([c9cde51](https://github.com/s00d/nuxt-i18n-micro/commit/c9cde51))
+
+### 💅 Refactors
+
+- **plugins:** Adjust comment formatting for consistency ([635cccd](https://github.com/s00d/nuxt-i18n-micro/commit/635cccd))
+
+### 📖 Documentation
+
+- **issue-templates:** Update issue templates for better clarity ([4384cd2](https://github.com/s00d/nuxt-i18n-micro/commit/4384cd2))
+- **issue-templates:** Update issue templates for better clarity ([6b69537](https://github.com/s00d/nuxt-i18n-micro/commit/6b69537))
+- **performance-results:** Update performance metrics for nuxt-i18n v10 ([0c28c78](https://github.com/s00d/nuxt-i18n-micro/commit/0c28c78))
+- **composables:** Update useLocaleHead documentation for clarity ([2dadefe](https://github.com/s00d/nuxt-i18n-micro/commit/2dadefe))
+- **news:** Add release notes for Nuxt I18n Micro v2.0.0 ([70b6c0f](https://github.com/s00d/nuxt-i18n-micro/commit/70b6c0f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v1.103.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.102.0...v1.103.0)

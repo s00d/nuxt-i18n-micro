@@ -358,10 +358,23 @@ export class RouteService {
 
     let current: RouteLocationResolved | RouteLocationNamedRaw | RouteLocationAsPathGeneric
     if (typeof to === 'string') {
+      // Try to resolve as route name first (if it doesn't start with / and exists as route name)
       if (!to.startsWith('/')) {
-        to = `/${to}`
+        const routeName = to
+        // Check if this is a route name (not a path)
+        if (this.router.hasRoute(routeName)) {
+          // Resolve by name to get the correct route object
+          current = this.router.resolve({ name: routeName })
+        }
+        else {
+          // Treat as path
+          to = `/${to}`
+          current = this.resolveRouteWithStrategy(to, currentLocale, fromLocale)
+        }
       }
-      current = this.resolveRouteWithStrategy(to, currentLocale, fromLocale)
+      else {
+        current = this.resolveRouteWithStrategy(to, currentLocale, fromLocale)
+      }
     }
     else {
       current = to

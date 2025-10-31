@@ -138,21 +138,22 @@ export default defineNuxtModule<ModuleOptions>({
     const globalLocaleRoutes: Record<string, Record<string, string>> = {}
     const routeDisableMeta: Record<string, boolean | string[]> = {}
 
-    // Find all page files
-    const pageFiles = await globby('pages/**/*.vue', { cwd: nuxt.options.rootDir })
+    // Find all page files (both pages/ and app/pages/)
+    const pageFiles = await globby(['pages/**/*.vue', 'app/pages/**/*.vue'], { cwd: nuxt.options.rootDir })
 
     for (const pageFile of pageFiles) {
       const fullPath = join(nuxt.options.rootDir, pageFile)
       try {
         const fileContent = readFileSync(fullPath, 'utf-8')
         const config = extractDefineI18nRouteData(fileContent, fullPath)
+
         if (!config) continue
 
         const { locales: extractedLocales, localeRoutes, disableMeta } = config
 
-        // Convert file path to route path
+        // Convert file path to route path (handle both pages/ and app/pages/)
         const routePath = pageFile
-          .replace(/^pages\//, '/')
+          .replace(/^(app\/)?pages\//, '/')
           .replace(/\/index\.vue$/, '')
           .replace(/\.vue$/, '')
           .replace(/\/$/, '') || '/'

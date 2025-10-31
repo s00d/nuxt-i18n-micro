@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v2.1.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.0.0...v2.1.0)
+
+### 🚀 Enhancements
+
+- **module:** Support page files in both pages/ and app/pages/ directories ([aaf597a](https://github.com/s00d/nuxt-i18n-micro/commit/aaf597a))
+- **route-service:** Enhance route resolution by checking route names ([fdbd8b9](https://github.com/s00d/nuxt-i18n-micro/commit/fdbd8b9))
+- **route-service:** Enhance route resolution by checking route names ([fd552a9](https://github.com/s00d/nuxt-i18n-micro/commit/fd552a9))
+
+### 💅 Refactors
+
+- **types:** Remove `disableUpdater` option from configuration ([f64238e](https://github.com/s00d/nuxt-i18n-micro/commit/f64238e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.0.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.103.0...v2.0.0)

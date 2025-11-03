@@ -83,7 +83,14 @@ export class RouteService {
 
     const routeName = this.getRouteName(route, fromLocale)
     if (this.router.hasRoute(`localized-${routeName}-${toLocale}`)) {
-      const newParams = { ...route.params ?? {}, ...i18nRouteParams?.[toLocale] }
+      // If i18nRouteParams exist for target locale, use them as base, otherwise use route.params
+      const baseParams = i18nRouteParams?.[toLocale]
+        ? { ...i18nRouteParams[toLocale] }
+        : { ...route.params ?? {} }
+      // Merge remaining route.params that are not in i18nRouteParams
+      const newParams = { ...baseParams }
+      // Remove locale from params if it exists, we'll add it explicitly
+      delete newParams.locale
       if (!isNoPrefixStrategy(this.i18nConfig.strategy!)) newParams.locale = toLocale
 
       const newRoute = {
@@ -101,7 +108,12 @@ export class RouteService {
     }
 
     let newRouteName = routeName
-    const newParams = { ...route.params ?? {}, ...i18nRouteParams?.[toLocale] }
+    // If i18nRouteParams exist for target locale, use them as base, otherwise use route.params
+    const baseParams = i18nRouteParams?.[toLocale]
+      ? { ...i18nRouteParams[toLocale] }
+      : { ...route.params ?? {} }
+    // Merge remaining route.params that are not in i18nRouteParams
+    const newParams = { ...baseParams }
     delete newParams.locale
 
     if (!isNoPrefixStrategy(this.i18nConfig.strategy!)) {

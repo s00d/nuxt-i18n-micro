@@ -216,6 +216,9 @@ export default defineNuxtModule<ModuleOptions>({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routeDisableMeta: routeDisableMeta,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      globalLocaleRoutes: mergedGlobalLocaleRoutes,
       experimental: {
         i18nPreviousPageFallback: options.experimental?.i18nPreviousPageFallback ?? false,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

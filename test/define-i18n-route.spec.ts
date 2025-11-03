@@ -106,4 +106,54 @@ test.describe('$defineI18nRoute behavior', () => {
     expect(html).toContain('hreflang="en"')
     expect(html).toContain('hreflang="en_EN"')
   })
+
+  test('should generate alternate links with localized paths from localeRoutes', async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+
+    // Navigate to English page with localized route
+    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+
+    // Check that page loaded with correct content
+    await expect(page.getByText('Our Products')).toBeVisible()
+
+    // Check alternate links for English (default locale, no prefix)
+    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
+    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
+
+    // Check alternate links for Spanish (should use localized path from localeRoutes)
+    await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
+    await expect(page.locator('link#i18n-alternate-es-ES')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
+
+    // Navigate to Spanish page with localized route
+    await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
+
+    // Check that page loaded with correct content
+    await expect(page.getByText('Nuestros Productos')).toBeVisible()
+
+    // Check alternate links for Spanish
+    await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
+    await expect(page.locator('link#i18n-alternate-es-ES')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
+
+    // Check alternate links for English (should use localized path from localeRoutes)
+    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
+    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
+  })
+
+  test('should generate correct canonical URL with localized paths from localeRoutes', async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+
+    // Navigate to English page with localized route
+    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+
+    // Check canonical URL for English (should use localized path, no prefix for default locale)
+    const canonicalEn = await page.locator('link[rel="canonical"]').getAttribute('href')
+    expect(canonicalEn).toBe(`${normalizedBaseURL}/our-products`)
+
+    // Navigate to Spanish page with localized route
+    await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
+
+    // Check canonical URL for Spanish (should use localized path with locale prefix)
+    const canonicalEs = await page.locator('link[rel="canonical"]').getAttribute('href')
+    expect(canonicalEs).toBe(`${normalizedBaseURL}/es/nuestros-productos`)
+  })
 })

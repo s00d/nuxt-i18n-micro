@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v2.2.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.1.0...v2.2.0)
+
+### 🚀 Enhancements
+
+- **locale:** Add support for global locale routes in metadata handling ([017af19](https://github.com/s00d/nuxt-i18n-micro/commit/017af19))
+- **module:** Add globalLocaleRoutes to route configuration ([0b23682](https://github.com/s00d/nuxt-i18n-micro/commit/0b23682))
+
+### 💅 Refactors
+
+- **route-service:** Improve parameter handling for localized routes ([8ed38b9](https://github.com/s00d/nuxt-i18n-micro/commit/8ed38b9))
+
+### ✅ Tests
+
+- **define-i18n-route:** Add tests for alternate links and canonical URLs ([4a67fad](https://github.com/s00d/nuxt-i18n-micro/commit/4a67fad))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.1.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.0.0...v2.1.0)

@@ -20,7 +20,7 @@ test.describe('prefix_and_default', () => {
     await goto('/', { waitUntil: 'hydration' })
 
     // Ensure the URL contains the default locale
-    await expect(page).toHaveURL('/en')
+    await expect(page).toHaveURL('/en/')
 
     // Check the initial text for the default locale
     await expect(page.locator('#content')).toHaveText('en')

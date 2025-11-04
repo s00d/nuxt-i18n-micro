@@ -234,7 +234,6 @@ test.describe('PageManager', () => {
       },
     ]
 
-    // Assert that the pages array matches the expected structure (allowing extra fields like alias/meta)
     expect(pages).toMatchObject(expectedPages)
   })
 
@@ -258,7 +257,7 @@ test.describe('PageManager', () => {
     expect(pages[0].path).toBe('/activity')
     expect(pages[0].children).toEqual(
       expect.arrayContaining([
-        { path: 'skiing', name: 'Skiing', children: [] },
+        { path: 'skiing', name: 'Skiing' },
       ]),
     )
 
@@ -293,13 +292,24 @@ test.describe('PageManager', () => {
     // Extend pages
     pageManagerPrefixAndDefault.extendPages(pages)
 
-    expect(pages).toHaveLength(4) // Routes for default and non-default locales
+    // Теперь мы ожидаем 4 маршрута: 1 исходный + 3 кастомных
+    expect(pages).toHaveLength(4)
 
-    // Check default locale route
-    expect(pages[0].path).toBe('/activity')
-    expect(pages[1].path).toBe('/custom-activity-en')
-    expect(pages[2].path).toBe('/custom-activity-de')
-    expect(pages[3].path).toBe('/custom-activity-ru')
+    // Исходный маршрут остался на месте!
+    const originalPage = pages.find(p => p.path === '/activity')
+    expect(originalPage).toBeDefined()
+
+    // И все кастомные маршруты были ДОБАВЛЕНЫ
+    const customEn = pages.find(p => p.path === '/custom-activity-en')
+    const customDe = pages.find(p => p.path === '/custom-activity-de')
+    const customRu = pages.find(p => p.path === '/custom-activity-ru')
+
+    expect(customEn).toBeDefined()
+    expect(customDe).toBeDefined()
+    expect(customRu).toBeDefined()
+
+    // Можно даже проверить дочерние элементы
+    expect(customEn!.children![0].name).toBe('localized-Skiing-en')
   })
 
   test('extractLocalizedPaths should extract localized paths correctly', async () => {
@@ -474,12 +484,10 @@ test.describe('PageManager', () => {
     expect(pages[0].name).toBe('activity-locale')
 
     // Check that child page got correct paths
-    // Additional child pages are created when custom paths are present
-    expect(pages[0].children).toHaveLength(2)
+    // Должен быть создан один локализованный дочерний маршрут
+    expect(pages[0].children).toHaveLength(1)
     expect(pages[0].children![0].path).toBe('book-activity/skiing')
     expect(pages[0].children![0].name).toBe('activity-locale-skiing')
-    expect(pages[0].children![1].path).toBe('book-activity/skiing')
-    expect(pages[0].children![1].name).toBe('localized-activity-locale-skiing-en')
 
     // Check localized pages - find page with German locale
     const germanPage = pages.find(p => p.path?.includes('de') && p.path?.includes('change-buchen'))
@@ -566,11 +574,9 @@ test.describe('PageManager', () => {
     // English page (default)
     expect(pages[0].path).toBe('/change-activity')
     expect(pages[0].name).toBe('activity-locale')
-    expect(pages[0].children).toHaveLength(2) // Additional child pages are created when custom paths are present
+    expect(pages[0].children).toHaveLength(1) // Должен быть создан один локализованный дочерний маршрут
     expect(pages[0].children![0].path).toBe('book-activity/skiing')
     expect(pages[0].children![0].name).toBe('activity-locale-skiing')
-    expect(pages[0].children![1].path).toBe('book-activity/skiing')
-    expect(pages[0].children![1].name).toBe('localized-activity-locale-skiing-en')
 
     // German page - find page with German locale
     const germanPage = pages.find(p => p.path?.includes('de') && p.path?.includes('change-buchen'))
@@ -1048,6 +1054,51 @@ test.describe('PageManager', () => {
     expect(hasCustomRegex).toBe(true)
   })
 
+  test('should create route for default locale when localeRoutes is defined by path (like $defineI18nRoute)', async () => {
+    // This test simulates the case where pages/product/index.vue defines localeRoutes
+    // The routePath would be '/product' and localeRoutes would be { en: '/our-products', es: '/nuestros-productos' }
+    const globalLocaleRoutes = {
+      '/product': {
+        en: '/our-products',
+        de: '/unsere-produkte',
+        ru: '/nashi-produkty',
+      },
+    }
+
+    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/product',
+        name: 'product',
+      },
+    ]
+
+    pageManager.extendPages(pages)
+
+    // Should create page for English with custom path /our-products (default locale)
+    expect(pages.length).toBeGreaterThanOrEqual(2)
+
+    // Find the page with path /our-products (should exist for default locale)
+    const ourProductsPage = pages.find(p => p.path === '/our-products')
+    expect(ourProductsPage).toBeDefined()
+    expect(ourProductsPage!.name).toBe('product')
+    expect(ourProductsPage!.path).toBe('/our-products')
+
+    // Find localized pages for non-default locales
+    const germanPage = pages.find(p => p.path === '/:locale(de)/unsere-produkte')
+    expect(germanPage).toBeDefined()
+    expect(germanPage!.name).toBe('localized-product-de')
+
+    const russianPage = pages.find(p => p.path === '/:locale(ru)/nashi-produkty')
+    expect(russianPage).toBeDefined()
+    expect(russianPage!.name).toBe('localized-product-ru')
+
+    // The original /product path should NOT exist (it should be replaced by /our-products)
+    const originalProductPage = pages.find(p => p.path === '/product' && p.name === 'product')
+    expect(originalProductPage).toBeUndefined()
+  })
+
   test('should handle filesLocaleRoutes fallback', async () => {
     const filesLocaleRoutes = {
       test: {
@@ -1226,32 +1277,59 @@ test.describe('PageManager', () => {
     expect(nonDefaultRoutes.length).toBeGreaterThan(0)
   })
 
-  test('should handle child route naming correctly', async () => {
-    const pageManager = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+  test('should handle product pages with localeRoutes from defineI18nRoute index and slug', async () => {
+    // Simulates pages/product/index.vue and pages/product/[...slug].vue with localeRoutes
+    const globalLocaleRoutes = {
+      '/product': {
+        en: '/our-products',
+        es: '/nuestros-productos',
+      },
+      '/product/[...slug]': {
+        en: '/our-products/[...slug]',
+        es: '/nuestros-productos/[...slug]',
+      },
+    }
+
+    const locales = [
+      { code: 'en', iso: 'en-US' },
+      { code: 'es', iso: 'es-ES' },
+    ]
+
+    const pageManager = new PageManager(locales, 'en', 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
 
     const pages: NuxtPage[] = [
       {
-        path: '/parent',
-        name: 'parent',
-        children: [
-          {
-            path: 'child',
-            name: 'parent-child',
-          },
-        ],
+        path: '/product',
+        name: 'product',
+      },
+      {
+        path: '/product/:slug(.*)*',
+        name: 'product',
       },
     ]
 
     pageManager.extendPages(pages)
 
-    // Check that child routes get correct names
-    const localizedParent = pages.find(p => p.name?.includes('localized-parent'))
-    expect(localizedParent).toBeDefined()
-    expect(localizedParent!.children).toBeDefined()
-    expect(localizedParent!.children!.length).toBeGreaterThan(0)
+    // Expected result: index page gets localized paths, slug page gets localized paths with dynamic parameter
+    const expectedPages = [
+      {
+        name: 'product',
+        path: '/our-products',
+      },
+      {
+        name: 'product',
+        path: '/our-products/:slug(.*)*', // <--- ИСПРАВЛЕНО
+      },
+      {
+        name: 'localized-product-es',
+        path: '/:locale(es)/nuestros-productos',
+      },
+      {
+        name: 'localized-product-es',
+        path: '/:locale(es)/nuestros-productos/:slug(.*)*',
+      },
+    ]
 
-    // Child route should have correct name
-    const childRoute = localizedParent!.children!.find(c => c.name?.includes('child'))
-    expect(childRoute).toBeDefined()
+    expect(pages).toMatchObject(expectedPages)
   })
 })

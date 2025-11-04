@@ -16,6 +16,7 @@ export default defineNuxtConfig({
     fallbackLocale: 'en',
     // translationDir: "locales",
     autoDetectLanguage: true,
+    debug: true,
     // autoDetectPath: "/",
     // 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
     strategy: 'prefix_except_default',

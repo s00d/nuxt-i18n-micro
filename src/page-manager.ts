@@ -10,6 +10,7 @@ import {
   isLocaleDefault,
   isPageRedirectOnly,
   normalizePath,
+  normalizeRouteKey,
   removeLeadingSlash,
   shouldAddLocalePrefix,
 } from './utils'
@@ -38,7 +39,36 @@ export class PageManager {
     this.noPrefixRedirect = noPrefixRedirect
     this.excludePatterns = excludePatterns
     this.activeLocaleCodes = this.computeActiveLocaleCodes()
-    this.globalLocaleRoutes = globalLocaleRoutes || {}
+
+    // Нормализуем все ключи и значения в globalLocaleRoutes один раз при инициализации
+    const normalizedGlobalRoutes: GlobalLocaleRoutes = {}
+    for (const key in globalLocaleRoutes) {
+      // 1. Нормализуем ключ
+      const newKey = normalizeRouteKey(key)
+      const localePaths = globalLocaleRoutes[key]
+
+      // 2. Проверяем, что значение - это объект с путями, а не `false`
+      if (typeof localePaths === 'object') {
+        const normalizedLocalePaths: { [locale: string]: string } = {}
+
+        // 3. Проходим по каждому кастомному пути (en, es и т.д.)
+        for (const locale in localePaths) {
+          const customPath = localePaths[locale]
+          // 4. НОРМАЛИЗУЕМ САМ КАСТОМНЫЙ ПУТЬ!
+          normalizedLocalePaths[locale] = normalizeRouteKey(customPath)
+        }
+
+        // 5. Сохраняем объект с уже нормализованными путями
+        normalizedGlobalRoutes[newKey] = normalizedLocalePaths
+      }
+      else {
+        // Сохраняем как есть, если это `false`
+        normalizedGlobalRoutes[newKey] = localePaths
+      }
+    }
+    // Сохраняем уже нормализованный объект
+    this.globalLocaleRoutes = normalizedGlobalRoutes
+
     this.filesLocaleRoutes = filesLocaleRoutes || {}
     this.routeLocales = routeLocales || {}
   }
@@ -81,37 +111,113 @@ export class PageManager {
   // }
 
   public extendPages(pages: NuxtPage[], customRegex?: string | RegExp, isCloudflarePages?: boolean) {
+    // Шаг 1: Объединяем все кастомные пути в один объект. Глобальные имеют приоритет.
     this.localizedPaths = this.extractLocalizedPaths(pages)
 
     const additionalRoutes: NuxtPage[] = []
+    const originalPagePaths = new Map<NuxtPage, string>()
 
     for (const page of [...pages]) {
-      // Skip internal paths during page processing
+      // Проверяем redirect-only страницы в самом начале
+      if (isPageRedirectOnly(page)) {
+        continue
+      }
+
       if (page.path && isInternalPath(page.path, this.excludePatterns)) {
         continue
       }
 
-      // if (this.isAlreadyLocalized(page.path!)) continue
-      if (!page.name && page.file?.endsWith('.vue')) {
-        console.warn(`[nuxt-i18n-next] Page name is missing for the file: ${page.file}`)
+      const originalPath = page.path ?? ''
+      originalPagePaths.set(page, originalPath)
+
+      const pageName = buildRouteNameFromRoute(page.name, page.path)
+      const normalizedOriginalPath = normalizeRouteKey(originalPath)
+      const customPaths = this.localizedPaths[originalPath] || this.localizedPaths[pageName]
+
+      // ======================= ИСПРАВЛЕННАЯ ЛОГИКА =======================
+
+      // Определяем, разрешена ли локализация для этой страницы
+      // Все ключи в globalLocaleRoutes уже нормализованы, нормализуем путь страницы для поиска
+      const isLocalizationDisabled = this.globalLocaleRoutes[pageName] === false
+        || this.globalLocaleRoutes[normalizedOriginalPath] === false
+      if (isLocalizationDisabled) {
+        continue
       }
 
-      const customRoute = this.globalLocaleRoutes[page.name ?? '']
+      const allowedLocales = this.getAllowedLocalesForPage(originalPath, pageName)
+      const originalChildren = cloneArray(page.children ?? [])
 
-      // If globalLocaleRoutes for this page is false, skip localization
-      if (customRoute === false) {
-        continue // Page explicitly disabled in globalLocaleRoutes
+      // --- Логика для NO_PREFIX ---
+      if (isNoPrefixStrategy(this.strategy)) {
+        // 1. Исходный маршрут `page` остается нетронутым. Мы ничего с ним не делаем.
+        // 2. Создаем ДОПОЛНИТЕЛЬНЫЕ маршруты для КАЖДОЙ локали, у которой есть кастомный путь.
+        if (customPaths) {
+          this.locales.forEach((locale) => {
+            const customPath = customPaths[locale.code]
+            if (customPath && allowedLocales.includes(locale.code)) {
+              const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, false, locale.code, originalPath)
+              if (newRoute) {
+                additionalRoutes.push(newRoute)
+                // Если включен noPrefixRedirect, устанавливаем redirect на исходной странице
+                if (this.noPrefixRedirect && locale.code === this.defaultLocale.code) {
+                  page.redirect = normalizePath(customPath)
+                }
+              }
+            }
+          })
+        }
+        // 3. После этого мы не делаем ничего больше с этой страницей, так как `no_prefix` не создает :locale маршруты.
+        // Мы просто оставляем исходный роут и добавляем кастомные.
+        // Обработка alias routes
+        this.handleAliasRoutes(page, additionalRoutes, customRegex, allowedLocales)
+        continue // Важно! Пропускаем остальную логику генерации для этой страницы.
       }
 
-      // Check if the page has custom routes in globalLocaleRoutes
-      if (typeof customRoute === 'object' && customRoute !== null) {
-        // Add routes based on custom globalLocaleRoutes
-        this.addCustomGlobalLocalizedRoutes(page, customRoute, additionalRoutes, customRegex)
+      // --- Старая логика для остальных стратегий ---
+
+      // Обработка локали по умолчанию
+      const defaultLocaleCode = this.defaultLocale.code
+      if (allowedLocales.includes(defaultLocaleCode)) {
+        const customPath = customPaths?.[defaultLocaleCode]
+        if (isPrefixExceptDefaultStrategy(this.strategy)) {
+          if (customPath) {
+            page.path = normalizePath(customPath) // Заменяем путь, как и раньше
+          }
+          // Создаем дочерние элементы для дефолтной локали БЕЗ префикса
+          page.children = this.createLocalizedChildren(originalChildren, originalPath, [defaultLocaleCode], false, false, false, customPath ? { [defaultLocaleCode]: customPath } : {})
+        }
       }
-      else {
-        // Default behavior: localize the page as usual
-        this.localizePage(page, additionalRoutes, customRegex)
+
+      // Создание локализованных маршрутов для ВСЕХ остальных случаев
+      const localesToGenerate = this.locales.filter((l) => {
+        if (!allowedLocales.includes(l.code)) return false // Фильтр по $defineI18nRoute.locales
+        if (isPrefixExceptDefaultStrategy(this.strategy) && l.code === defaultLocaleCode) return false // Исключаем дефолтную для prefix_except_default
+        return true
+      })
+
+      if (localesToGenerate.length > 0) {
+        // Если есть кастомные пути, создаем отдельные роуты для каждой локали
+        if (customPaths) {
+          localesToGenerate.forEach((locale) => {
+            if (customPaths[locale.code]) {
+              const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPaths[locale.code], customRegex, false, locale.code, originalPath)
+              if (newRoute) additionalRoutes.push(newRoute)
+            }
+            else {
+              // Фолбэк, если для какой-то локали нет кастомного пути
+              const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, false, '', customRegex, false, locale.code, originalPath)
+              if (newRoute) additionalRoutes.push(newRoute)
+            }
+          })
+        }
+        else {
+          // Если кастомных путей нет, создаем один мульти-локальный роут
+          const localeCodes = localesToGenerate.map(l => l.code)
+          const newRoute = this.createLocalizedRoute(page, localeCodes, originalChildren, false, '', customRegex, false, true, originalPath)
+          if (newRoute) additionalRoutes.push(newRoute)
+        }
       }
+      this.handleAliasRoutes(page, additionalRoutes, customRegex, allowedLocales)
     }
 
     if (isPrefixStrategy(this.strategy) && !isCloudflarePages) {
@@ -145,9 +251,11 @@ export class PageManager {
     pages.forEach((page) => {
       const pageName = buildRouteNameFromRoute(page.name, page.path)
       const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path))
+      // Нормализуем путь для поиска в уже нормализованном globalLocaleRoutes
+      const normalizedKey = normalizeRouteKey(normalizedFullPath)
 
-      // Check for globalLocaleRoutes first (now includes routeLocaleRoutes from $defineI18nRoute)
-      const globalLocalePath = this.globalLocaleRoutes[normalizedFullPath] || this.globalLocaleRoutes[pageName]
+      // Теперь все ключи в globalLocaleRoutes уже нормализованы, просто ищем по нормализованному пути
+      const globalLocalePath = this.globalLocaleRoutes[normalizedKey] || this.globalLocaleRoutes[pageName]
 
       if (!globalLocalePath) {
         // Fallback to filesLocaleRoutes
@@ -557,17 +665,19 @@ export class PageManager {
     customRegex?: string | RegExp,
     force = false,
     parentLocale: string | boolean = false,
+    originalPagePath?: string,
   ): NuxtPage | null {
     const routePath = this.buildRoutePath(localeCodes, page.path, encodeURI(customPath), isCustom, customRegex, force)
-    if (!routePath || routePath == page.path) return null
+    if (!routePath || routePath === page.path) return null
     if (localeCodes.length === 0) return null
     const firstLocale = localeCodes[0]
     if (!firstLocale) return null
-    const routeName = buildRouteName(buildRouteNameFromRoute(page.name ?? '', page.path ?? ''), firstLocale, isCustom)
+    const parentPathForChildren = originalPagePath ?? page.path ?? ''
+    const routeName = buildRouteName(buildRouteNameFromRoute(page.name ?? '', parentPathForChildren), firstLocale, isCustom)
 
     return {
       ...page,
-      children: this.createLocalizedChildren(originalChildren, page.path, localeCodes, true, false, parentLocale, { [firstLocale]: customPath }),
+      children: this.createLocalizedChildren(originalChildren, parentPathForChildren, localeCodes, true, false, parentLocale, { [firstLocale]: customPath }),
       path: routePath,
       name: routeName,
       alias: [], // remove alias to prevent infinite recursion

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { h, defineComponent } from 'vue'
+import { h as hyperscript, defineComponent } from 'vue'
 import type { VNode, PropType } from 'vue'
 import type { PluralFunc } from 'nuxt-i18n-micro-types'
 import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
@@ -59,21 +59,21 @@ export default defineComponent({
 
       if (props.number !== undefined) {
         const numberValue = Number(props.number)
-        return h(props.tag, { ...attrs, innerHTML: $t(props.keypath, { number: $tn(numberValue) }) })
+        return hyperscript(props.tag, { ...attrs, innerHTML: $t(props.keypath, { number: $tn(numberValue) }) })
       }
 
       if (props.date !== undefined) {
-        return h(props.tag, { ...attrs, innerHTML: $t(props.keypath, { date: $td(props.date) }) })
+        return hyperscript(props.tag, { ...attrs, innerHTML: $t(props.keypath, { date: $td(props.date) }) })
       }
 
       if (props.relativeDate !== undefined) {
-        return h(props.tag, { ...attrs, innerHTML: $t(props.keypath, { relativeDate: $tdr(props.relativeDate) }) })
+        return hyperscript(props.tag, { ...attrs, innerHTML: $t(props.keypath, { relativeDate: $tdr(props.relativeDate) }) })
       }
 
       if (props.plural !== undefined) {
         const count = Number.parseInt(props.plural.toString())
         if (props.customPluralRule) {
-          return h(props.tag, { ...attrs, innerHTML: props.customPluralRule(
+          return hyperscript(props.tag, { ...attrs, innerHTML: props.customPluralRule(
             props.keypath,
             count,
             props.params,
@@ -82,7 +82,7 @@ export default defineComponent({
           ) })
         }
         else {
-          return h(props.tag, { ...attrs, innerHTML: $tc(props.keypath, { count, ...props.params }) })
+          return hyperscript(props.tag, { ...attrs, innerHTML: $tc(props.keypath, { count, ...props.params }) })
         }
       }
 
@@ -93,11 +93,11 @@ export default defineComponent({
       }
 
       if (props.html) {
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return hyperscript(props.tag, { ...attrs, innerHTML: translation })
       }
 
       if (slots.default) {
-        return h(
+        return hyperscript(
           props.tag,
           attrs,
           slots.default({ translation }),
@@ -116,7 +116,7 @@ export default defineComponent({
             children.push(translation.slice(lastIndex, index))
           }
 
-          children.push(h(slotFn!))
+          children.push(hyperscript(slotFn!))
 
           lastIndex = index + placeholder.length
         }
@@ -127,14 +127,14 @@ export default defineComponent({
       }
 
       if (slots.default) {
-        return h(
+        return hyperscript(
           props.tag,
           attrs,
           slots.default({ children }),
         )
       }
 
-      return h(props.tag, attrs, children)
+      return hyperscript(props.tag, attrs, children)
     }
   },
 })

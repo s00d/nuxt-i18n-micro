@@ -1,7 +1,18 @@
 <script setup lang="ts">
+import { useNuxtApp, useFetch, createError } from '#imports'
+
+interface Product {
+  id: string
+  title: string
+  price: string
+  url: string
+}
+
+type ProductsByLocale = Record<string, Product[]>
+
 const { $t, $defineI18nRoute, $getLocale, $switchLocalePath } = useNuxtApp()
 
-const { data: products, error } = await useFetch('/api/product')
+const { data: products, error } = await useFetch<ProductsByLocale>('/api/product')
 if (error.value) throw createError({
   statusCode: error.value?.statusCode,
   statusMessage: error.value?.statusMessage,
@@ -32,7 +43,7 @@ $defineI18nRoute({
     <p>{{ $t('description') }}</p>
     <ul>
       <li
-        v-for="product in products[$getLocale()]"
+        v-for="product in products?.[$getLocale()] || []"
         :key="product.id"
       >
         <I18nLink :to="{ name: 'product-slug', params: { slug: product.url } }">

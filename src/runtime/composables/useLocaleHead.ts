@@ -46,8 +46,8 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
   }
 
   function updateMeta() {
-    const { defaultLocale, strategy, canonicalQueryWhitelist, routeLocales, globalLocaleRoutes } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend & { globalLocaleRoutes?: Record<string, Record<string, string>> }
-    const { $getLocales, $getLocale, $getRouteName } = useNuxtApp()
+    const { defaultLocale, strategy, canonicalQueryWhitelist, routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+    const { $getLocales, $getLocale } = useNuxtApp()
 
     if (!$getLocale || !$getLocales) return
 
@@ -80,24 +80,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
     const matchedLocale = locales.find(locale => fullPath.startsWith(`/${locale.code}`))
 
-    // Get base route name (without localized- prefix and locale suffix)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const baseRouteName = $getRouteName ? unref($getRouteName(route, locale)) : routeName.replace(/^localized-/, '').replace(new RegExp(`-${locale}$`), '').replace(new RegExp(`-${defaultLocale}$`), '')
-
-    // Normalize route path (remove leading slash, locale prefix if exists)
-    let normalizedPath = route.path
-    if (matchedLocale && normalizedPath.startsWith(`/${matchedLocale.code}`)) {
-      normalizedPath = normalizedPath.slice(matchedLocale.code.length + 1)
-    }
-    if (!normalizedPath.startsWith('/')) {
-      normalizedPath = `/${normalizedPath}`
-    }
-    // Remove trailing slash except for root
-    if (normalizedPath !== '/' && normalizedPath.endsWith('/')) {
-      normalizedPath = normalizedPath.slice(0, -1)
-    }
-
     let localizedPath = fullPath
     let ogUrl: string
     let canonicalPath: string
@@ -110,31 +92,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     else {
       canonicalPath = filterQuery(fullPath, canonicalQueryWhitelist ?? [])
       ogUrl = joinURL(unref(baseUrl), canonicalPath)
-    }
-
-    // Get localized paths from globalLocaleRoutes if available
-    // First try by route name, then by normalized path
-    let routeLocalizedPaths = globalLocaleRoutes?.[baseRouteName] || globalLocaleRoutes?.[normalizedPath] || null
-
-    // If not found, try to find by matching current canonicalPath against localized paths
-    // This handles cases where route.path is already localized (e.g., /our-products vs /products)
-    if (!routeLocalizedPaths && globalLocaleRoutes) {
-      for (const [, localizedPaths] of Object.entries(globalLocaleRoutes)) {
-        if (typeof localizedPaths === 'object' && localizedPaths !== null) {
-          // Check if current canonicalPath matches any localized path for any locale
-          const normalizedCurrentPath = canonicalPath.replace(/^\/+/, '/')
-          const matchingLocale = Object.entries(localizedPaths).find(([_, localizedPathValue]) => {
-            const normalizedLocalizedPath = String(localizedPathValue).replace(/^\/+/, '/')
-            // Match exact path or path with locale prefix removed
-            return normalizedCurrentPath === normalizedLocalizedPath
-              || (matchedLocale && normalizedCurrentPath === `/${matchedLocale.code}/${normalizedLocalizedPath}`)
-          })
-          if (matchingLocale) {
-            routeLocalizedPaths = localizedPaths
-            break
-          }
-        }
-      }
     }
 
     metaObject.value = {
@@ -178,24 +135,10 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
-          // Check if there's a localized path for this locale in globalLocaleRoutes
-          let pathForLocale: string
-          if (routeLocalizedPaths && routeLocalizedPaths[loc.code]) {
-            // Use localized path from configuration
-            pathForLocale = routeLocalizedPaths[loc.code]
-          }
-          else {
-            // Fallback to current logic
-            pathForLocale = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
-              ? canonicalPath
-              : canonicalPath
-          }
-
-          // Apply locale prefix if needed
           const localizedPath
           = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
-            ? pathForLocale
-            : joinURL(loc.code, pathForLocale)
+            ? canonicalPath
+            : joinURL(loc.code, canonicalPath)
 
           const href = joinURL(unref(baseUrl), localizedPath)
 

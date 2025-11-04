@@ -67,7 +67,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
-      i18nRouteParams.value = null
+      // Don't reset i18nRouteParams immediately - let it persist until new values are set
+      // This ensures that locale switcher links remain correct during navigation
+      // The params will be set by $setI18nRouteParams on the new page
+      // Only reset if we're actually navigating away (not just client-side hydration)
       previousPageInfo.value = null
     }
   })
@@ -119,6 +122,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // --- 3. Blocking navigation hook ---
   router.beforeEach(async (to, from, next) => {
+    if (to.name !== from.name) {
+      i18nRouteParams.value = {}
+    }
     if (to.path === from.path && !isNoPrefixStrategy(i18nConfig.strategy!)) {
       if (next) next()
       return

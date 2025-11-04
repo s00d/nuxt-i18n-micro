@@ -72,7 +72,7 @@ else if (!locales.includes(firstSegment)) {
 else if (locales.includes(firstSegment) && globalLocaleRoutes && globalLocaleRoutes[currentLocalePageName]) {
   const localizedRoutes = globalLocaleRoutes[currentLocalePageName]
   if (localizedRoutes && localizedRoutes[firstSegment]) {
-    const localizedPath = `/${firstSegment}${localizedRoutes[firstSegment]}`
+    const localizedPath = `/${firstSegment}/${localizedRoutes[firstSegment]}`
     if (route.fullPath !== localizedPath) {
       handleRedirect(localizedPath)
     }

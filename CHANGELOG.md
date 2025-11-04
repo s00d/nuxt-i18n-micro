@@ -1,6 +1,47 @@
 # Changelog
 
 
+## v2.3.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.2.0...v2.3.0)
+
+### 🚀 Enhancements
+
+- **localeHead:** Simplify locale path handling in `useLocaleHead.ts` ([4a8844f](https://github.com/s00d/nuxt-i18n-micro/commit/4a8844f))
+- **redirect:** Enhance global locale route handling with dynamic path resolution ([eafbaf8](https://github.com/s00d/nuxt-i18n-micro/commit/eafbaf8))
+- **module:** Enhance fallback route handling for prefix strategy ([dddc15b](https://github.com/s00d/nuxt-i18n-micro/commit/dddc15b))
+- **page-manager:** Normalize global locale routes during initialization ([f055e95](https://github.com/s00d/nuxt-i18n-micro/commit/f055e95))
+- **utils:** Add normalizeRouteKey and denormalizeRouteKey functions ([440e75c](https://github.com/s00d/nuxt-i18n-micro/commit/440e75c))
+- **product:** Enhance product fetching with TypeScript types ([7256521](https://github.com/s00d/nuxt-i18n-micro/commit/7256521))
+
+### 🩹 Fixes
+
+- **package:** Bump version to 1.0.23 in `package.json` ([1ea1cf7](https://github.com/s00d/nuxt-i18n-micro/commit/1ea1cf7))
+- **locale-redirect:** Correct localized path format in redirect logic ([1709bb1](https://github.com/s00d/nuxt-i18n-micro/commit/1709bb1))
+- **plugins:** Prevent premature reset of i18nRouteParams during navigation ([5237ffd](https://github.com/s00d/nuxt-i18n-micro/commit/5237ffd))
+- **api:** Correct object syntax and import for event handler ([a2169ef](https://github.com/s00d/nuxt-i18n-micro/commit/a2169ef))
+
+### 💅 Refactors
+
+- **helpers:** Replace arrow functions with regular function declarations ([bbc7da8](https://github.com/s00d/nuxt-i18n-micro/commit/bbc7da8))
+- **components:** Replace `h` with `hyperscript` in `i18n-t.vue` ([83c9073](https://github.com/s00d/nuxt-i18n-micro/commit/83c9073))
+
+### 📖 Documentation
+
+- **guide:** Add section on dynamic routes with slugs and `$setI18nRouteParams` ([ccec5be](https://github.com/s00d/nuxt-i18n-micro/commit/ccec5be))
+
+### 🏡 Chore
+
+- **.gitignore:** Update ignore patterns for generated files ([083ed9f](https://github.com/s00d/nuxt-i18n-micro/commit/083ed9f))
+
+### ✅ Tests
+
+- Update pages manager tests for route handling and localization ([68b38f3](https://github.com/s00d/nuxt-i18n-micro/commit/68b38f3))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.2.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.1.0...v2.2.0)

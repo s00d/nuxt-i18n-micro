@@ -407,17 +407,45 @@ ${accepts}
 
       pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
 
-      if (isPrefixStrategy(options.strategy!) && !isCloudflarePages) {
-        const fallbackRoute: NuxtPage = {
-          path: '/:pathMatch(.*)*',
-          name: 'custom-fallback-route',
-          file: resolver.resolve('./runtime/components/locale-redirect.vue'),
-          meta: {
-            globalLocaleRoutes: options.globalLocaleRoutes,
-          },
+      if (!isCloudflarePages) {
+        const strategy = options.strategy!
+
+        if (isPrefixStrategy(strategy)) {
+          // --- Логика для 'prefix' ---
+          // 1. Удаляем корневой маршрут, чтобы он не перехватывал '/'.
+          const rootPageIndex = pages.findIndex(page => page.name === 'index' && page.path === '/')
+          if (rootPageIndex > -1) {
+            pages.splice(rootPageIndex, 1)
+          }
+
+          // 2. Добавляем fallback, который перехватит ВСЕ непрефиксные URL
+          //    и перенаправит их на версию с дефолтной локалью.
+          const fallbackRoute: NuxtPage = {
+            path: '/:pathMatch(.*)*',
+            name: 'custom-fallback-route',
+            file: resolver.resolve('./runtime/components/locale-redirect.vue'),
+          }
+          pages.push(fallbackRoute)
+          logger.info('Strategy \'prefix\': Added fallback route to redirect all non-prefixed paths.')
         }
-        pages.push(fallbackRoute)
+
+        const needsFallback
+          = (isPrefixStrategy(options.strategy!) || isPrefixExceptDefaultStrategy(options.strategy!))
+        if (needsFallback) {
+          const fallbackRoute: NuxtPage = {
+            path: '/:pathMatch(.*)*',
+            name: 'custom-fallback-route',
+            file: resolver.resolve('./runtime/components/locale-redirect.vue'),
+            meta: {
+              globalLocaleRoutes: options.globalLocaleRoutes,
+            },
+          }
+          pages.push(fallbackRoute)
+        }
+        // Для 'prefix_and_default' и 'no_prefix' fallback не нужен,
+        // так как все непрефиксные пути являются валидными.
       }
+
       if (!isNoPrefixStrategy(options.strategy!)) {
         if (isCloudflarePages) {
           const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
@@ -475,7 +503,9 @@ ${accepts}
 
             // Recursively process children if they exist
             if (page.children && page.children.length) {
-              page.children.forEach(childPage => processPageWithChildren(childPage, fullPath))
+              page.children.forEach((childPage) => {
+                processPageWithChildren(childPage, fullPath)
+              })
             }
           }
 
@@ -635,7 +665,9 @@ ${accepts}
           routesToRemove.push(route)
         }
       })
-      routesToRemove.forEach(route => routesSet.delete(route))
+      routesToRemove.forEach((route) => {
+        routesSet.delete(route)
+      })
 
       const additionalRoutes = new Set<string>()
       const routeRules = nuxt.options.routeRules || {}
@@ -677,7 +709,9 @@ ${accepts}
       })
 
       // Add new localized routes to existing ones
-      additionalRoutes.forEach(route => routesSet.add(route))
+      additionalRoutes.forEach((route) => {
+        routesSet.add(route)
+      })
     })
 
     // Setup DevTools integration

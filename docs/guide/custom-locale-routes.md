@@ -124,6 +124,223 @@ definePageMeta({
 
 This page can now be referenced with either `$localeRoute` or `I18nLink` by its name `:to='{ name: "our-stores" }'`.
 
+## 🎯 Dynamic Routes with Slugs and `$setI18nRouteParams`
+
+When working with dynamic routes that contain slugs or parameters, you can use `localeRoutes` with dynamic segments and `$setI18nRouteParams` to provide locale-specific slugs for each locale.
+
+### Dynamic Route Parameters in `localeRoutes`
+
+You can define dynamic routes using Nuxt's route parameter syntax (`[...slug]` for catch-all routes, `[param]` for single parameters, or `:param()` for named parameters):
+
+```vue
+<script setup lang="ts">
+import { useNuxtApp, useRoute, useFetch, createError } from '#imports'
+
+const { $defineI18nRoute, $setI18nRouteParams } = useNuxtApp()
+
+// Define custom routes with dynamic segments
+$defineI18nRoute({
+  localeRoutes: {
+    en: '/our-products/[...slug]',
+    es: '/nuestros-productos/[...slug]',
+  },
+})
+</script>
+```
+
+### Setting Locale-Specific Route Parameters
+
+The `$setI18nRouteParams` function allows you to set different parameter values (like slugs) for each locale. This is especially useful when your content has locale-specific URLs.
+
+**Important**: `$setI18nRouteParams` should be called after fetching data that contains locale-specific slugs, typically inside `useFetch` or `useAsyncData`.
+
+```vue
+<script setup lang="ts">
+import { useNuxtApp, useRoute, useFetch, createError } from '#imports'
+
+interface Product {
+  title: string
+  price: string
+  urlEn: string  // English slug
+  urlEs: string  // Spanish slug
+}
+
+const { $defineI18nRoute, $setI18nRouteParams } = useNuxtApp()
+
+const route = useRoute()
+const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug
+
+// Fetch product data that includes locale-specific slugs
+const { data: product, error } = await useFetch<Product>(`/api/product/${slug}`)
+if (error.value) throw createError({
+  statusCode: error.value?.statusCode,
+  statusMessage: error.value?.statusMessage,
+  fatal: true,
+})
+
+// Define custom routes with dynamic segments
+$defineI18nRoute({
+  localeRoutes: {
+    en: '/our-products/[...slug]',
+    es: '/nuestros-productos/[...slug]',
+  },
+})
+
+// Set different slugs for different locales
+if (product.value) {
+  $setI18nRouteParams({
+    en: { slug: product.value.urlEn },
+    es: { slug: product.value.urlEs },
+  })
+}
+</script>
+```
+
+### Complete Example: Product Pages with Locale-Specific Slugs
+
+Here's a complete example showing how to use `localeRoutes` and `$setI18nRouteParams` together for a product detail page:
+
+```vue
+<template>
+  <div v-if="product">
+    <h1>{{ product.title }}</h1>
+    <p>{{ $t('price') }}: {{ product.price }}</p>
+    <div class="locale-switcher">
+      <a :href="$switchLocalePath('en')">English</a>
+      <a :href="$switchLocalePath('es')">Español</a>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useNuxtApp, useRoute, useFetch, createError } from '#imports'
+
+interface Product {
+  title: string
+  price: string
+  urlEn: string
+  urlEs: string
+}
+
+const { $t, $defineI18nRoute, $setI18nRouteParams, $switchLocalePath } = useNuxtApp()
+
+// Set page name for easier navigation
+definePageMeta({ name: 'product-slug' })
+
+const route = useRoute()
+const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug
+
+// Fetch product data
+const { data: product, error } = await useFetch<Product>(`/api/product/${slug}`)
+if (error.value) throw createError({
+  statusCode: error.value?.statusCode,
+  statusMessage: error.value?.statusMessage,
+  fatal: true,
+})
+
+// Define locale-specific routes with dynamic segments
+$defineI18nRoute({
+  localeRoutes: {
+    en: '/our-products/[...slug]',
+    es: '/nuestros-productos/[...slug]',
+  },
+})
+
+// Set locale-specific slugs so $switchLocalePath works correctly
+if (product.value) {
+  $setI18nRouteParams({
+    en: { slug: product.value.urlEn },
+    es: { slug: product.value.urlEs },
+  })
+}
+</script>
+```
+
+### Example: Product List Page
+
+When linking to dynamic routes from a list page, use the route name with parameters:
+
+```vue
+<template>
+  <div>
+    <h1>{{ $t('title') }}</h1>
+    <ul>
+      <li v-for="product in products?.[$getLocale()] || []" :key="product.id">
+        <I18nLink :to="{ name: 'product-slug', params: { slug: product.url } }">
+          {{ product.title }} – {{ product.price }}
+        </I18nLink>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useNuxtApp, useFetch, createError } from '#imports'
+
+interface Product {
+  id: string
+  title: string
+  price: string
+  url: string
+}
+
+type ProductsByLocale = Record<string, Product[]>
+
+const { $t, $defineI18nRoute, $getLocale } = useNuxtApp()
+
+const { data: products, error } = await useFetch<ProductsByLocale>('/api/product')
+if (error.value) throw createError({
+  statusCode: error.value?.statusCode,
+  statusMessage: error.value?.statusMessage,
+  fatal: true,
+})
+
+$defineI18nRoute({
+  locales: {
+    en: {
+      title: 'Our Product Range',
+      description: 'Discover our collection of high-quality products.',
+    },
+    es: {
+      title: 'Nuestra Gama de Productos',
+      description: 'Descubra nuestra colección de productos de alta calidad.',
+    },
+  },
+  localeRoutes: {
+    en: '/our-products',
+    es: '/nuestros-productos',
+  },
+})
+</script>
+```
+
+### How It Works
+
+1. **Route Definition**: `localeRoutes` defines the base path structure for each locale, including dynamic segments like `[...slug]` or `[id]`.
+
+2. **Parameter Setting**: `$setI18nRouteParams` sets the actual parameter values for each locale. When a user switches locales using `$switchLocalePath`, the module uses these parameters to construct the correct URL.
+
+3. **Parameter Format**: The parameter object should match the structure:
+   ```typescript
+   {
+     [localeCode]: {
+       [paramName]: paramValue
+     }
+   }
+   ```
+
+4. **Navigation**: Use `I18nLink` or `$localeRoute` with the route name and parameters to navigate between localized versions of dynamic routes.
+
+### Important Notes
+
+- **Timing**: `$setI18nRouteParams` should be called after fetching data that contains locale-specific slugs, typically inside `useFetch` or `useAsyncData`.
+
+- **Parameter Names**: The parameter names in `$setI18nRouteParams` must match the route parameter names (e.g., `slug` for `[...slug]` or `id` for `[id]`).
+
+- **Route Names**: When using `definePageMeta({ name: 'route-name' })`, use this name when linking to the route with `I18nLink` or `$localeRoute`.
+
+- **Catch-all Routes**: For catch-all routes (`[...slug]`), the slug parameter should be an array or a string that will be converted to an array.
+
 ## 📝 Best Practices for Using `localeRoutes`
 
 - **🚀 Use for Relevant Locales**: Apply `localeRoutes` primarily where the URL structure significantly impacts the user experience or SEO. Avoid overuse for minor differences.

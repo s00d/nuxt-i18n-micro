@@ -145,6 +145,62 @@ export function validateDefineI18nRouteConfig(obj: Record<string, string>): bool
   return true
 }
 
+export function normalizeRouteKey(key: string): string {
+  return key
+    .split('/')
+    .map((segment) => {
+      if (segment.startsWith('[...') && segment.endsWith(']')) {
+        // Случай [...slug] -> :slug(.*)*
+        const paramName = segment.substring(4, segment.length - 1)
+        return `:${paramName}(.*)*`
+      }
+      if (segment.startsWith('[') && segment.endsWith(']')) {
+        // Случай [id] -> :id
+        const paramName = segment.substring(1, segment.length - 1)
+        return `:${paramName}`
+      }
+      return segment
+    })
+    .join('/')
+}
+
+export function denormalizeRouteKey(key: string): string {
+  // Если ключ - это просто корень, возвращаем его сразу.
+  if (key === '/') {
+    return key
+  }
+
+  return key
+    .split('/') // 1. Разбиваем путь на части: ['', 'product', ':slug(.*)*']
+    .map((segment) => { // 2. Преобразуем каждую часть
+      // Сначала проверяем самый специфичный случай: :slug(.*)*
+      if (segment.startsWith(':') && segment.endsWith('(.*)*')) {
+        // Вырезаем имя параметра 'slug'
+        const paramName = segment.substring(1, segment.length - 6)
+        return `[...${paramName}]` // Собираем обратно в [...slug]
+      }
+
+      // Затем проверяем случай с необязательным параметром: :id()
+      if (segment.startsWith(':') && segment.endsWith('()')) {
+        // Вырезаем имя параметра 'id'
+        const paramName = segment.substring(1, segment.length - 2)
+        return `[${paramName}]` // Собираем обратно в [id]
+      }
+
+      // Наконец, проверяем общий случай для любого динамического параметра: :id
+      // Этот блок сработает для :id, но не сработает для :slug(.*)*, так как тот уже был обработан выше.
+      if (segment.startsWith(':')) {
+        // Вырезаем имя параметра 'id'
+        const paramName = segment.substring(1)
+        return `[${paramName}]` // Собираем обратно в [id]
+      }
+
+      // Если это обычная часть пути, оставляем её без изменений
+      return segment
+    })
+    .join('/') // 3. Собираем путь обратно в единую строку
+}
+
 export const normalizePath = (routePath: string): string => {
   if (!routePath) {
     return ''

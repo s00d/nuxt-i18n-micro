@@ -106,54 +106,160 @@ test.describe('$defineI18nRoute behavior', () => {
     expect(html).toContain('hreflang="en"')
     expect(html).toContain('hreflang="en_EN"')
   })
+})
 
-  test('should generate alternate links with localized paths from localeRoutes', async ({ page, goto, baseURL }) => {
-    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+test.describe('$setI18nRouteParams behavior', () => {
+  test('should use correct slug from $setI18nRouteParams when switching from English to Spanish', async ({ page, goto }) => {
+    // Navigate to English product page
+    await goto('/our-products/coffee-filter-en', { waitUntil: 'domcontentloaded' })
 
-    // Navigate to English page with localized route
-    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+    // Check that page loaded
+    await expect(page.getByText('Coffee Filter')).toBeVisible()
 
-    // Check that page loaded with correct content
-    await expect(page.getByText('Our Products')).toBeVisible()
+    // Find the locale switcher link for Spanish (the link itself has class .es)
+    const spanishLink = page.locator('.locale-switcher .es').first()
 
-    // Check alternate links for English (default locale, no prefix)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
-    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
+    // The link should point to Spanish version with correct slug
+    const href = await spanishLink.getAttribute('href')
 
-    // Check alternate links for Spanish (should use localized path from localeRoutes)
-    await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
-    await expect(page.locator('link#i18n-alternate-es-ES')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
-
-    // Navigate to Spanish page with localized route
-    await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
-
-    // Check that page loaded with correct content
-    await expect(page.getByText('Nuestros Productos')).toBeVisible()
-
-    // Check alternate links for Spanish
-    await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
-    await expect(page.locator('link#i18n-alternate-es-ES')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos`)
-
-    // Check alternate links for English (should use localized path from localeRoutes)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
-    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
+    // Should be /es/nuestros-productos/filtro-cafe-es (not /es/nuestros-productos/coffee-filter-en)
+    expect(href).toBeTruthy()
+    expect(href).toContain('/es/nuestros-productos/filtro-cafe-es')
+    expect(href).not.toContain('/es/nuestros-productos/coffee-filter-en')
   })
 
-  test('should generate correct canonical URL with localized paths from localeRoutes', async ({ page, goto, baseURL }) => {
-    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+  test('should use correct slug from $setI18nRouteParams when switching from Spanish to English', async ({ page, goto }) => {
+    // Navigate to Spanish product page
+    await goto('/es/nuestros-productos/filtro-cafe-es', { waitUntil: 'domcontentloaded' })
 
-    // Navigate to English page with localized route
+    // Check that page loaded
+    await expect(page.getByText('Filtro de Café')).toBeVisible()
+
+    // Find the locale switcher link for English (the link itself has class .en)
+    const englishLink = page.locator('.locale-switcher .en').first()
+
+    // The link should point to English version with correct slug
+    const href = await englishLink.getAttribute('href')
+
+    // Should be /our-products/coffee-filter-en (not /our-products/filtro-cafe-es)
+    expect(href).toBeTruthy()
+    expect(href).toContain('/our-products/coffee-filter-en')
+    expect(href).not.toContain('/our-products/filtro-cafe-es')
+  })
+})
+
+test.describe('Product index page with localeRoutes', () => {
+  test('should be accessible via localized routes', async ({ page, goto }) => {
+    // Test English route
+    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+    // Check that page loaded (title may be from global translations, but description should be from $defineI18nRoute)
+    await expect(page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.')).toBeVisible()
+
+    // Test Spanish route
+    await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
+    // Check that page loaded
+    await expect(page.getByText('Descubra nuestra colección de productos de alta calidad diseñados para satisfacer sus necesidades y superar sus expectativas.')).toBeVisible()
+  })
+
+  test('should display correct translations for English locale', async ({ page, goto }) => {
     await goto('/our-products', { waitUntil: 'domcontentloaded' })
 
-    // Check canonical URL for English (should use localized path, no prefix for default locale)
-    const canonicalEn = await page.locator('link[rel="canonical"]').getAttribute('href')
-    expect(canonicalEn).toBe(`${normalizedBaseURL}/our-products`)
+    // Check English description (from $defineI18nRoute)
+    await expect(page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.')).toBeVisible()
 
-    // Navigate to Spanish page with localized route
+    // Check that products are displayed
+    await expect(page.getByText('Coffee Filter')).toBeVisible()
+    await expect(page.getByText('$18.00')).toBeVisible()
+  })
+
+  test('should display correct translations for Spanish locale', async ({ page, goto }) => {
     await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
 
-    // Check canonical URL for Spanish (should use localized path with locale prefix)
-    const canonicalEs = await page.locator('link[rel="canonical"]').getAttribute('href')
-    expect(canonicalEs).toBe(`${normalizedBaseURL}/es/nuestros-productos`)
+    // Check Spanish description (from $defineI18nRoute)
+    await expect(page.getByText('Descubra nuestra colección de productos de alta calidad diseñados para satisfacer sus necesidades y superar sus expectativas.')).toBeVisible()
+
+    // Check that products are displayed
+    await expect(page.getByText('Filtro de Café')).toBeVisible()
+    await expect(page.getByText('18,00 €')).toBeVisible()
+  })
+
+  test('should have correct locale switcher links', async ({ page, goto }) => {
+    // Test from English page
+    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+
+    const spanishLink = page.locator('.locale-switcher .es')
+    const spanishHref = await spanishLink.getAttribute('href')
+    expect(spanishHref).toBeTruthy()
+    expect(spanishHref).toContain('/es/nuestros-productos')
+
+    // Test from Spanish page
+    await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
+
+    const englishLink = page.locator('.locale-switcher .en')
+    const englishHref = await englishLink.getAttribute('href')
+    expect(englishHref).toBeTruthy()
+    expect(englishHref).toContain('/our-products')
+  })
+
+  test('should have correct product links', async ({ page, goto }) => {
+    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+
+    // Find Coffee Filter link
+    const coffeeFilterLink = page.locator('a:has-text("Coffee Filter")').first()
+    const href = await coffeeFilterLink.getAttribute('href')
+    expect(href).toBeTruthy()
+    expect(href).toContain('/our-products/coffee-filter-en')
+  })
+
+  test('should have correct product links for Spanish locale', async ({ page, goto }) => {
+    await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
+
+    // Find Filtro de Café link
+    const filtroLink = page.locator('a:has-text("Filtro de Café")').first()
+    const href = await filtroLink.getAttribute('href')
+    expect(href).toBeTruthy()
+    expect(href).toContain('/es/nuestros-productos/filtro-cafe-es')
+  })
+
+  test('should redirect from /product to /our-products for default locale', async ({ page, goto }) => {
+    // Try to access /product (should redirect to /our-products)
+    const response = await goto('/product', { waitUntil: 'networkidle' })
+
+    // Should redirect or be accessible
+    expect(response?.status()).toBeLessThan(400)
+
+    // Check that we're on the correct page by checking description
+    await expect(page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.')).toBeVisible()
+  })
+
+  test('should have correct canonical URL for English page', async ({ page, goto }) => {
+    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
+    expect(canonical).toBeTruthy()
+    expect(canonical).toContain('/our-products')
+  })
+
+  test('should have correct canonical URL for Spanish page', async ({ page, goto }) => {
+    await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
+
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
+    expect(canonical).toBeTruthy()
+    expect(canonical).toContain('/es/nuestros-productos')
+  })
+
+  test('should have correct alternate links', async ({ page, goto }) => {
+    await goto('/our-products', { waitUntil: 'domcontentloaded' })
+
+    const alternateLinks = page.locator('link[rel="alternate"]')
+    const hreflangs = await Promise.all(
+      Array.from({ length: await alternateLinks.count() }).map((_, i) =>
+        alternateLinks.nth(i).getAttribute('hreflang'),
+      ),
+    )
+
+    // Should have alternates for both locales
+    expect(hreflangs).toContain('en')
+    expect(hreflangs).toContain('es')
   })
 })

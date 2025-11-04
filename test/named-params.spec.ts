@@ -11,6 +11,7 @@ test.describe('named-params', () => {
   test('test navigation links and buttons', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })
+    await goto('/', { waitUntil: 'hydration' })
 
     await expect(page.locator('#localized-route-2')).toHaveText('/de/page/id-222?info=1111')
     await expect(page.locator('#localized-path')).toHaveText('/de/page/id-222?info=1111')

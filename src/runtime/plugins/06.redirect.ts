@@ -1,46 +1,101 @@
-// plugins/i18n.redirect.ts
+// src/runtime/plugins/06.redirect.ts
+
 import { isNoPrefixStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
 import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo, createError } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
+import { joinURL, withQuery } from 'ufo'
+
+/**
+ * Хелпер для подстановки динамических параметров в шаблон пути.
+ * @param {string} path - Шаблон пути, например, "campingplatz/:identifier".
+ * @param {object} params - Объект с параметрами, например, {identifier: 'example-campsite'}.
+ * @returns {string} - Путь с подставленными параметрами.
+ */
+function resolvePathWithParams(path: string, params: Record<string, unknown>): string {
+  let resolvedPath = path
+  for (const key in params) {
+    const value = params[key]
+    if (value) {
+      const stringValue = String(value)
+      resolvedPath = resolvedPath.replace(`:${key}()`, stringValue).replace(`:${key}`, stringValue)
+    }
+  }
+  return resolvedPath
+}
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
-  const { routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+  const { routeLocales, globalLocaleRoutes } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
   const route = useRoute()
   const router = useRouter()
 
-  const checkRouteLocales = (to: ReturnType<typeof useRoute>) => {
-    const allowedLocales = findAllowedLocalesForRoute(to, routeLocales)
-
-    // If there are no restrictions for this route, skip the check
-    if (!allowedLocales || allowedLocales.length === 0) {
-      return
+  const checkGlobalLocaleRoutes = (to: ReturnType<typeof useRoute>): boolean => {
+    if (!globalLocaleRoutes || typeof globalLocaleRoutes !== 'object' || Object.keys(globalLocaleRoutes).length === 0) {
+      return false
     }
 
-    // Extract locale from path
+    const locales = i18nConfig.locales?.map(l => l.code) || []
+    const defaultLocale = i18nConfig.defaultLocale || 'en'
     const pathSegments = to.path.split('/').filter(Boolean)
     const firstSegment = pathSegments[0]
 
-    // Check if the first segment is a locale
-    // Get all available locales from configuration
+    const pathWithoutLocale = locales.includes(firstSegment)
+      ? '/' + pathSegments.slice(1).join('/')
+      : to.path
+
+    const routeName = (typeof to.name === 'string' ? to.name : '')
+      .replace('localized-', '')
+      .replace(new RegExp(`-(${locales.join('|')})$`), '')
+
+    const routeRules = globalLocaleRoutes[pathWithoutLocale] || globalLocaleRoutes[routeName]
+
+    if (routeRules && typeof routeRules === 'object') {
+      const localeToUse = locales.includes(firstSegment) ? firstSegment : defaultLocale
+      const customPathSegment = routeRules[localeToUse]
+
+      if (customPathSegment) {
+        // --- КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ---
+        // 1. Подставляем параметры в шаблон кастомного пути
+        const resolvedCustomPath = resolvePathWithParams(customPathSegment, to.params)
+
+        // 2. Собираем полный ожидаемый путь
+        const localizedPath = locales.includes(firstSegment)
+          ? joinURL(`/${firstSegment}`, resolvedCustomPath)
+          : resolvedCustomPath
+
+        // 3. Сравниваем декодированные пути, чтобы избежать проблем с кириллицей
+        if (decodeURI(to.path) !== decodeURI(localizedPath)) {
+          const finalUrl = withQuery(localizedPath, to.query)
+          navigateTo(finalUrl, { redirectCode: 301, external: true })
+          return true
+        }
+      }
+      else if (locales.includes(firstSegment)) {
+        throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
+      }
+    }
+    return false
+  }
+
+  const checkRouteLocales = (to: ReturnType<typeof useRoute>) => {
+    const allowedLocales = findAllowedLocalesForRoute(to, routeLocales)
+    if (!allowedLocales || allowedLocales.length === 0) return
+
+    const pathSegments = to.path.split('/').filter(Boolean)
+    const firstSegment = pathSegments[0]
     const allLocales = i18nConfig.locales?.map(l => l.code) || []
 
     if (firstSegment && allLocales.includes(firstSegment) && !allowedLocales.includes(firstSegment)) {
-      console.log('Locale not allowed, throwing 404')
-      // If locale is not allowed for this route, return 404
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Page Not Found',
-      })
+      throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
     }
   }
 
   const handleRedirect = async (to: ReturnType<typeof useRoute>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    const currentLocale = (nuxtApp as unknown).$getLocale().toString()
+    const currentLocale = (nuxtApp as unknown).$getLocale(to)
     const name = to.name?.toString()
 
     let defaultRouteName = name?.toString()
@@ -69,8 +124,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  // Always check routeLocales regardless of strategy
   if (import.meta.server) {
+    if (checkGlobalLocaleRoutes(route)) return
     checkRouteLocales(route)
     if (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!)) {
       await handleRedirect(route)
@@ -78,7 +133,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   router.beforeEach(async (to, from, next) => {
-    // Check routeLocales only if it's not a locale switch
+    if (checkGlobalLocaleRoutes(to)) return
+
     if (from.path !== to.path) {
       checkRouteLocales(to)
     }

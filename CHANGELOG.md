@@ -1,6 +1,39 @@
 # Changelog
 
 
+## v2.4.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.3.0...v2.4.0)
+
+### 🚀 Enhancements
+
+- **locale-head:** Enhance locale switching functionality ([4361cee](https://github.com/s00d/nuxt-i18n-micro/commit/4361cee))
+- **page-manager:** Implement routing logic for prefix_and_default strategy ([c99f5a5](https://github.com/s00d/nuxt-i18n-micro/commit/c99f5a5))
+- **utils:** Normalize locale configurations for better handling ([7c8863f](https://github.com/s00d/nuxt-i18n-micro/commit/7c8863f))
+
+### 💅 Refactors
+
+- **i18n-link:** Optimize imports for better clarity ([da68eba](https://github.com/s00d/nuxt-i18n-micro/commit/da68eba))
+- **plugins:** Simplify imports in `01.plugin.ts` ([c518dd3](https://github.com/s00d/nuxt-i18n-micro/commit/c518dd3))
+- **plugins:** Organize imports in `02.meta.ts` for clarity ([402764f](https://github.com/s00d/nuxt-i18n-micro/commit/402764f))
+- **plugins:** Reorganize imports in `03.define.ts` ([04fd8e0](https://github.com/s00d/nuxt-i18n-micro/commit/04fd8e0))
+
+### 📖 Documentation
+
+- **performance-results:** Update test script location and performance metrics ([5384027](https://github.com/s00d/nuxt-i18n-micro/commit/5384027))
+
+### 🏡 Chore
+
+- **test:** Update test configuration and release script ([0164300](https://github.com/s00d/nuxt-i18n-micro/commit/0164300))
+
+### ✅ Tests
+
+- Update i18n route tests to verify correct meta tags for locales ([313b76c](https://github.com/s00d/nuxt-i18n-micro/commit/313b76c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.3.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.2.0...v2.3.0)

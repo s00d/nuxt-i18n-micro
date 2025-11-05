@@ -5,9 +5,7 @@ export default defineConfig({
   testMatch: '*.spec.ts',
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : 3,
-  testIgnore: [
-    'test/performance.spec.ts',
-  ],
+  testIgnore: [],
   projects: [
     {
       name: 'chromium',

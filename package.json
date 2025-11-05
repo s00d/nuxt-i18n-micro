@@ -54,7 +54,7 @@
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
-    "release": "pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run test:workspaces && pnpm run prepack && changelogen --release && pnpm publish -r && git push --follow-tags",
+    "release": "pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run test:vitest && pnpm run test:workspaces && pnpm run prepack && changelogen --release && pnpm publish -r && git push --follow-tags",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "playwright test",

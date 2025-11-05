@@ -623,7 +623,8 @@ test.describe('basic', () => {
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/de/disable-meta-locale`)
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
     await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
+    // French locale has baseUrl, so alternate link uses full URL
+    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
 
     // Test French locale - meta tags should be present
     await goto('/fr/disable-meta-locale', { waitUntil: 'hydration' })
@@ -633,6 +634,6 @@ test.describe('basic', () => {
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/fr/disable-meta-locale`)
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
     await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
+    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
   })
 })

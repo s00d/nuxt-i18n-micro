@@ -34,6 +34,11 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useI18n } from '#imports'
+
+const { $getLocale, $switchLocale, $getLocales, $t } = useI18n()
+
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
   const keys = []

@@ -9,6 +9,9 @@
     "init": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.18.1"
+    "nuxt": "4.1.2"
+  },
+  "devDependencies": {
+    "nuxt-i18n-micro": "workspace:*"
   }
 }

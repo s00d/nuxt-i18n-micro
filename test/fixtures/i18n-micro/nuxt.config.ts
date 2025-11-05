@@ -1,8 +1,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
-  modules: [MyModule],
+  modules: ['nuxt-i18n-micro'],
   devtools: {
     enabled: false,
   },

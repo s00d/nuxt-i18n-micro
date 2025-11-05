@@ -19,6 +19,7 @@ $defineI18nRoute({
   localeRoutes: {
     en: '/contact',
     de: '/kontakt',
+    ru: '/contact',
   },
 })
 </script>

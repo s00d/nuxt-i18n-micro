@@ -13,6 +13,6 @@
     "@nuxtjs/i18n": "^10.1.2"
   },
   "dependencies": {
-    "nuxt": "^3.18.1"
+    "nuxt": "4.1.2"
   }
 }

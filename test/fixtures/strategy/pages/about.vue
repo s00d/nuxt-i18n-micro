@@ -11,6 +11,7 @@ $defineI18nRoute({
   localeRoutes: {
     en: '/about',
     de: '/a-propos',
+    ru: '/about',
   },
 })
 </script>

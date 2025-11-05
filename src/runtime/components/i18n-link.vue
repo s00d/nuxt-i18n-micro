@@ -20,7 +20,8 @@
 
 <script lang="ts" setup>
 import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
-import { useNuxtApp, computed, useRoute, useRouter } from '#imports'
+import { useNuxtApp, useRoute, useRouter } from '#imports'
+import { computed } from 'vue'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

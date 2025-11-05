@@ -129,6 +129,41 @@ export function extractDefineI18nRouteData(content: string, _filePath: string): 
       return null
     }
 
+    // Normalize locales: if it's an object with path properties, convert to array and extract paths to localeRoutes
+    if (configObject.locales && typeof configObject.locales === 'object' && !Array.isArray(configObject.locales)) {
+      const localesObj = configObject.locales as Record<string, Record<string, unknown> & { path?: string }>
+      const normalizedLocales: string[] = []
+      const normalizedLocaleRoutes: Record<string, string> = {}
+
+      for (const [locale, value] of Object.entries(localesObj)) {
+        normalizedLocales.push(locale)
+        if (value && typeof value === 'object' && 'path' in value && typeof value.path === 'string') {
+          normalizedLocaleRoutes[locale] = value.path
+        }
+      }
+
+      return {
+        ...configObject,
+        locales: normalizedLocales,
+        localeRoutes: configObject.localeRoutes || Object.keys(normalizedLocaleRoutes).length > 0 ? { ...configObject.localeRoutes, ...normalizedLocaleRoutes } : undefined,
+      }
+    }
+
+    // Handle array of objects: extract code property if present
+    if (Array.isArray(configObject.locales) && configObject.locales.length > 0 && typeof configObject.locales[0] === 'object') {
+      const normalizedLocales: string[] = configObject.locales.map((item: unknown) => {
+        if (item && typeof item === 'object' && 'code' in item) {
+          return (item as { code: string }).code
+        }
+        return String(item)
+      })
+
+      return {
+        ...configObject,
+        locales: normalizedLocales,
+      }
+    }
+
     // Return the config object directly
     return configObject
   }

@@ -3,7 +3,12 @@ import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
 import path, { dirname, join, relative } from 'node:path'
-import { test } from '@nuxt/test-utils/playwright'
+import { setTimeout as delay } from 'node:timers/promises'
+import http from 'node:http'
+import {
+  describe,
+  it,
+} from 'vitest'
 
 interface ArtillerySummary {
   min: number
@@ -204,16 +209,47 @@ The chosen testing methodology is designed to reflect the scenarios that develop
 `)
 }
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/i18n-micro', import.meta.url)),
-  },
-})
+// Новый хелпер для ожидания готовности сервера
+async function waitForServer(port: number, timeout = 30000): Promise<void> {
+  const startTime = Date.now()
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      if (Date.now() - startTime > timeout) {
+        return reject(new Error(`Server on port ${port} did not start within ${timeout}ms`))
+      }
 
-function getProcessUsage(pid: number): { cpu: number, memory: number } {
+      const req = http.get(`http://localhost:${port}`, (res) => {
+        // Любой успешный статус код (2xx, 3xx) говорит о том, что сервер жив
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 400) {
+          console.log(`Server on port ${port} is ready.`)
+          res.destroy() // Закрываем соединение
+          resolve()
+        }
+        else {
+          res.destroy()
+          setTimeout(check, 500)
+        }
+      })
+
+      req.on('error', () => {
+        req.destroy()
+        setTimeout(check, 500)
+      })
+    }
+    check()
+  })
+}
+
+function getProcessUsage(pid: number): { cpu: number, memory: number } | null {
   try {
-    const result = execSync(`ps -p ${pid} -o %cpu,rss`).toString()
+    const result = execSync(`ps -p ${pid} -o %cpu,rss`, { encoding: 'utf-8', stdio: 'pipe' }).toString()
     const lines = result.trim().split('\n')
+
+    // Если процесс не найден, вернем null
+    if (lines.length < 2 || lines[1].trim() === '') {
+      return null
+    }
+
     const [cpu, memory] = lines[1].trim().split(/\s+/).map(Number.parseFloat)
 
     return {
@@ -221,9 +257,16 @@ function getProcessUsage(pid: number): { cpu: number, memory: number } {
       memory: memory / 1024 || 0, // Преобразуем из KB в MB
     }
   }
-  catch (error) {
-    console.error('Error retrieving process usage:', error)
-    return { cpu: 0, memory: 0 }
+  catch (error: unknown) {
+    // Процесс завершился - это нормально, не логируем ошибку
+    if (error && typeof error === 'object' && 'status' in error && error.status === 1) {
+      return null
+    }
+    // Другие ошибки логируем только в dev режиме
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error retrieving process usage:', error)
+    }
+    return null
   }
 }
 
@@ -239,24 +282,47 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
   let totalMemoryUsage = 0
   let cpuUsageSamples = 0
 
-  const childProcess = exec(`NODE_OPTIONS="--max-old-space-size=16000" nuxi build`, { cwd: directory })
-  const pid = childProcess.pid!
-
-  if (childProcess.stdout) {
-    childProcess.stdout.on('data', (data) => {
-      console.log(`[stdout]: ${data}`)
-    })
+  // Создаем чистое окружение, исключая переменные Vitest/тестового окружения
+  // Берем только системные переменные, необходимые для выполнения команд
+  const cleanEnv: Record<string, string> = {
+    NODE_ENV: 'production', // Явно указываем production для корректной сборки
+    NODE_OPTIONS: '--max-old-space-size=16000',
+    PATH: process.env.PATH || '',
+    HOME: process.env.HOME || '',
+    USER: process.env.USER || '',
+    SHELL: process.env.SHELL || '',
+    // Добавляем переменные для pnpm workspace (если используются)
+    ...(process.env.PNPM_HOME && { PNPM_HOME: process.env.PNPM_HOME }),
+    ...(process.env.PNPM_ROOT && { PNPM_ROOT: process.env.PNPM_ROOT }),
   }
 
-  if (childProcess.stderr) {
-    childProcess.stderr.on('data', (data) => {
-      console.error(`[stderr]: ${data}`)
-    })
-  }
+  // Используем spawn для сборки - запускаем nuxi напрямую без npx
+  // чтобы отслеживать реальный процесс сборки, а не процесс npx
+  const childProcess = spawn('nuxi', ['build'], {
+    cwd: directory,
+    env: cleanEnv,
+    stdio: 'pipe', // Перехватываем stdout и stderr
+  })
+
+  const pid = childProcess.pid ?? 0
+
+  childProcess.stdout.on('data', (data: Buffer) => {
+    console.log(`[build stdout]: ${data.toString().trim()}`)
+  })
+
+  childProcess.stderr.on('data', (data: Buffer) => {
+    console.error(`[build stderr]: ${data.toString().trim()}`)
+  })
 
   const monitorInterval = setInterval(() => {
     try {
-      const { cpu, memory } = getProcessUsage(pid)
+      const usage = getProcessUsage(pid)
+      if (!usage) {
+        // Процесс завершился, пропускаем
+        return
+      }
+
+      const { cpu, memory } = usage
 
       maxCpuUsage = Math.max(maxCpuUsage, cpu)
       minCpuUsage = Math.min(minCpuUsage, cpu)
@@ -269,13 +335,23 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
       console.log(`Current CPU: ${cpu}%, Current Memory: ${memory} MB`)
     }
     catch (error) {
-      console.error('Error retrieving process usage:', error)
+      // Игнорируем ошибки, если процесс завершился
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error retrieving process usage:', error)
+      }
     }
   }, 1000)
 
   try {
     await new Promise<void>((resolve, reject) => {
-      childProcess.on('exit', resolve)
+      childProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve()
+        }
+        else {
+          reject(new Error(`Build process exited with code ${code}`))
+        }
+      })
       childProcess.on('error', reject)
     })
 
@@ -284,8 +360,8 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
 
     clearInterval(monitorInterval)
 
-    const avgCpuUsage = totalCpuUsage / cpuUsageSamples
-    const avgMemoryUsed = totalMemoryUsage / cpuUsageSamples
+    const avgCpuUsage = cpuUsageSamples > 0 ? totalCpuUsage / cpuUsageSamples : 0
+    const avgMemoryUsed = cpuUsageSamples > 0 ? totalMemoryUsage / cpuUsageSamples : 0
 
     console.log(`Build completed in: ${buildTime.toFixed(2)} seconds`)
     console.log(`Max CPU usage: ${maxCpuUsage.toFixed(2)}%`)
@@ -321,15 +397,7 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
   catch (error) {
     clearInterval(monitorInterval)
     console.error('Build failed with error:', error)
-    return {
-      buildTime: 0,
-      maxCpuUsage: 0,
-      minCpuUsage: 0,
-      avgCpuUsage: 0,
-      maxMemoryUsed: 0,
-      minMemoryUsed: 0,
-      avgMemoryUsed: 0,
-    }
+    throw error
   }
 }
 
@@ -405,12 +473,41 @@ Comparison between ${name1} and ${name2}:
 async function stressTestServerWithArtillery(directory: string, name: string, artilleryConfigPath: string): Promise<PerformanceResult> {
   console.log(`Starting server for stress test in ${directory}...`)
 
+  const controller = new AbortController() // Для надежного завершения процесса
+  const { signal } = controller
+  const port = 10000
+
+  // Используем spawn для длительного процесса (сервер)
   const childProcess = spawn('node', ['.output/server/index.mjs'], {
     cwd: directory,
-    env: { ...process.env, PORT: '10000', NODE_OPTIONS: '--max-old-space-size=16000' },
-    detached: true,
+    signal,
+    env: {
+      ...process.env,
+      PORT: port.toString(),
+      NODE_ENV: 'production', // Самое важное исправление!
+      NITRO_PRESET: 'node-server',
+    },
+    detached: true, // Важно для корректного завершения дочернего процесса вместе с родителем
+    stdio: ['ignore', 'pipe', 'pipe'], // stdin игнорируем, stdout и stderr через pipe
   })
-  const pid = childProcess.pid!
+
+  const pid = childProcess.pid ?? 0
+
+  // Логирование вывода сервера для отладки
+  childProcess.stdout?.on('data', (data: Buffer) => console.log(`[Server stdout ${name}]: ${data.toString().trim()}`))
+  childProcess.stderr?.on('data', (data: Buffer) => console.error(`[Server stderr ${name}]: ${data.toString().trim()}`))
+
+  // Обработка ошибок процесса, включая AbortError при вызове controller.abort()
+  childProcess.on('error', (error: NodeJS.ErrnoException) => {
+    // Игнорируем AbortError - это ожидаемое поведение при завершении процесса
+    if (error.name === 'AbortError' || error.code === 'ABORT_ERR') {
+      return
+    }
+    // Логируем другие ошибки только в режиме разработки
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`[Server error ${name}]:`, error)
+    }
+  })
 
   let maxCpuUsage = 0
   let minCpuUsage = Infinity
@@ -422,7 +519,13 @@ async function stressTestServerWithArtillery(directory: string, name: string, ar
 
   const monitorInterval = setInterval(() => {
     try {
-      const { cpu, memory } = getProcessUsage(pid)
+      const usage = getProcessUsage(pid)
+      if (!usage) {
+        // Процесс завершился, пропускаем
+        return
+      }
+
+      const { cpu, memory } = usage
 
       maxCpuUsage = Math.max(maxCpuUsage, cpu)
       minCpuUsage = Math.min(minCpuUsage, cpu)
@@ -433,38 +536,19 @@ async function stressTestServerWithArtillery(directory: string, name: string, ar
       cpuUsageSamples++
     }
     catch (error) {
-      console.error('Error retrieving process usage during stress test:', error)
+      // Игнорируем ошибки, если процесс завершился
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error retrieving process usage during stress test:', error)
+      }
     }
   }, 1000)
 
   try {
-    await new Promise<void>((resolve, reject) => {
-      childProcess.stdout.on('data', (data) => {
-        console.log(`[Server stdout]: ${data}`)
-      })
-
-      childProcess.stderr.on('data', (data) => {
-        console.error(`[Server stderr]: ${data}`)
-      })
-
-      childProcess.on('error', (error) => {
-        console.error(`Error starting server: ${error}`)
-        reject(error)
-      })
-
-      // Give server time to start before running Artillery test
-      setTimeout(resolve, 5000)
-    })
+    // Ждем, пока сервер действительно запустится, вместо фиксированной задержки
+    await waitForServer(port)
 
     // Run Artillery and collect results
     const artilleryResults = await runArtilleryTest(artilleryConfigPath)
-
-    // Stop monitoring and server
-    clearInterval(monitorInterval)
-    process.kill(-pid)
-
-    const avgCpuUsage = cpuUsageSamples > 0 ? totalCpuUsage / cpuUsageSamples : 0
-    const avgMemoryUsed = cpuUsageSamples > 0 ? totalMemoryUsage / cpuUsageSamples : 0
 
     const summary = artilleryResults.aggregate
 
@@ -478,6 +562,9 @@ async function stressTestServerWithArtillery(directory: string, name: string, ar
       = summary.counters['http.codes.500'] && summary.counters['http.requests']
         ? (summary.counters['http.codes.500'] / summary.counters['http.requests']) * 100
         : 0
+
+    const avgCpuUsage = cpuUsageSamples > 0 ? totalCpuUsage / cpuUsageSamples : 0
+    const avgMemoryUsed = cpuUsageSamples > 0 ? totalMemoryUsage / cpuUsageSamples : 0
 
     console.log(`
 Stress Test Results:
@@ -522,6 +609,7 @@ Stress Test Results:
       maxMemoryUsed,
       minMemoryUsed,
       avgMemoryUsed,
+      stressTestTime,
       responseTimeAvg: avgResponseTime,
       responseTimeMin,
       responseTimeMax,
@@ -531,19 +619,44 @@ Stress Test Results:
   }
   catch (error) {
     clearInterval(monitorInterval)
-    process.kill(-pid)
+    console.error(`Stress test failed for ${name}:`, error)
     throw error
+  }
+  finally {
+    // Гарантированно завершаем мониторинг и сервер
+    clearInterval(monitorInterval)
+    console.log(`Stopping server for ${name}...`)
+    try {
+      controller.abort() // Надежно завершает процесс через AbortController
+      // Даем процессу время на завершение
+      if (childProcess.pid) {
+        try {
+          // Пытаемся "мягко" завершить процесс (SIGTERM)
+          process.kill(childProcess.pid, 'SIGTERM')
+        }
+        catch {
+          // Игнорируем ошибки при завершении процесса
+        }
+      }
+    }
+    catch (error) {
+      // Игнорируем AbortError - это ожидаемое поведение
+      if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('aborted'))) {
+        // Это нормально, процесс был прерван
+      }
+      else if (process.env.NODE_ENV === 'development') {
+        console.error(`Error stopping server for ${name}:`, error)
+      }
+    }
   }
 }
 
 function pause(duration: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, duration))
+  return delay(duration)
 }
 
-test.describe('performance', () => {
-  test('compare build performance and stress test', async () => {
-    test.setTimeout(1600000)
-
+describe('performance', () => {
+  it('compare build performance and stress test', async () => {
     initializeMarkdown()
     addDependencyVersions()
 
@@ -601,5 +714,5 @@ test.describe('performance', () => {
     logAndWriteComparisonResults('i18n v10', 'i18n-micro', i18nStressResults, i18nNextStressResults)
 
     addTestLogicExplanation()
-  })
+  }, { timeout: 1600000 }) // 1600 seconds timeout
 })

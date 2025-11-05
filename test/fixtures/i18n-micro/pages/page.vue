@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useI18n } from '#imports'
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
 </script>

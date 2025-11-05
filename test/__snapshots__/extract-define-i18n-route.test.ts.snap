@@ -1,0 +1,760 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`extractDefineI18nRouteData > edge cases > should handle content without defineI18nRoute 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > edge cases > should handle content without script tag 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > edge cases > should handle empty content 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse array-methods.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse array-of-objects.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse arrow-functions.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse async-await.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse bigint-numbers.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse class-methods.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse complex-comments.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse complex-nested.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de-de": "/willkommen",
+    "en-us": "/welcome",
+    "ru-ru": "/dobro-pozhalovat",
+  },
+  "locales": [
+    "en-us",
+    "de-de",
+    "ru-ru",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse complex-nested-objects.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de-de": "/willkommen",
+    "en-us": "/welcome",
+  },
+  "locales": [
+    "en-us",
+    "de-de",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse computed-property-names.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse conditional-logic.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "es": "/bienvenido",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+    "es",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse date-math.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse deeply-nested.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de-de": "/willkommen",
+    "en-us": "/welcome",
+    "fr-fr": "/bienvenue",
+  },
+  "locales": [
+    "en-us",
+    "de-de",
+    "fr-fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse destructuring.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse disable-meta-locales.vue correctly 1`] = `
+{
+  "disableMeta": [
+    "en",
+    "fr",
+  ],
+  "locales": [
+    "en",
+    "fr",
+    "de",
+    "ru",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse disable-meta-test.vue correctly 1`] = `
+{
+  "disableMeta": true,
+  "locales": [
+    "en",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse do-while-loops.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse empty-arrays-objects.vue correctly 1`] = `
+{
+  "localeRoutes": {},
+  "locales": [],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse empty-object.vue correctly 1`] = `{}`;
+
+exports[`extractDefineI18nRouteData > should parse for-loops.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse functions-in-objects.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse generator-functions.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse getter-setter.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse iife.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse import-alias.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse import-constants.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse import-default-export.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse import-destructuring.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse import-external-functions.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse import-multiple.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse import-with-static-config.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse js-functions.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "ru": "/dobro-pozhalovat",
+  },
+  "locales": [
+    "en",
+    "de",
+    "ru",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse js-variables.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse json-parsing.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse many-locales.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "ar": "/ahlan-wa-sahlan",
+    "da": "/velkommen",
+    "de": "/willkommen",
+    "en": "/welcome",
+    "es": "/bienvenido",
+    "fr": "/bienvenue",
+    "hi": "/swagat",
+    "it": "/benvenuto",
+    "ja": "/yokoso",
+    "ko": "/hwan-yeong",
+    "nl": "/welkom",
+    "no": "/velkommen",
+    "pl": "/witamy",
+    "pt": "/bem-vindo",
+    "ru": "/dobro-pozhalovat",
+    "sv": "/valkommen",
+    "th": "/yindee-ton-rab",
+    "tr": "/hos-geldiniz",
+    "vi": "/chao-mung",
+    "zh": "/huan-ying",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "it",
+    "pt",
+    "ru",
+    "ja",
+    "ko",
+    "zh",
+    "ar",
+    "hi",
+    "th",
+    "vi",
+    "tr",
+    "pl",
+    "nl",
+    "sv",
+    "no",
+    "da",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse map-set.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse method-shorthand.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse mixed-quotes.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse module-imports.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse multiline-complex.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de-de": "/willkommen",
+    "en-us": "/welcome",
+  },
+  "locales": [
+    "en-us",
+    "de-de",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse nested-ternary.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse no-spaces.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse null-undefined.vue correctly 1`] = `
+{
+  "locales": null,
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse numeric-strings.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "1": "/welcome",
+    "2": "/willkommen",
+    "3": "/bienvenue",
+  },
+  "locales": [
+    "1",
+    "2",
+    "3",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse object-with-paths.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "ru": "/dobro-pozhalovat",
+  },
+  "locales": [
+    "en",
+    "de",
+    "ru",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse only-locale-routes.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse only-locales.vue correctly 1`] = `
+{
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse plain-javascript.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse promise-simulation.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse proxy-objects.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse recursive-functions.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse simple-array.vue correctly 1`] = `
+{
+  "locales": [
+    "en",
+    "de",
+    "ru",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse single-locale.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "en": "/welcome",
+  },
+  "locales": [
+    "en",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse special-characters.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen-auf-unserer-website",
+    "en": "/welcome-to-our-site",
+    "fr": "/bienvenue-sur-notre-site",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse spread-operator.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "es": "/bienvenido",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+    "es",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse static-methods.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse string-manipulation.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse switch-statement.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse symbol-properties.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse template-literals.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/api/willkommen",
+    "en": "/api/welcome",
+    "fr": "/api/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse trailing-commas.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse try-catch.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse unusual-locale-codes.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de-de": "/willkommen",
+    "en-gb": "/welcome",
+    "en-us": "/welcome",
+    "es-es": "/bienvenido",
+    "fr-ca": "/bienvenue",
+    "fr-fr": "/bienvenue",
+    "pt-br": "/bem-vindo",
+    "zh-cn": "/huan-ying",
+    "zh-tw": "/huan-ying",
+  },
+  "locales": [
+    "en-us",
+    "de-de",
+    "fr-fr",
+    "es-es",
+    "pt-br",
+    "zh-cn",
+    "zh-tw",
+    "en-gb",
+    "fr-ca",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse unusual-whitespace.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse very-long-lines.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "es": "/bienvenido",
+    "fr": "/bienvenue",
+    "it": "/benvenuto",
+    "ja": "/yokoso",
+    "ko": "/hwan-yeong",
+    "pt": "/bem-vindo",
+    "ru": "/dobro-pozhalovat",
+    "zh": "/huan-ying",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+    "es",
+    "it",
+    "pt",
+    "ru",
+    "ja",
+    "ko",
+    "zh",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse weakmap-weakset.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "fr": "/bienvenue",
+  },
+  "locales": [
+    "en",
+    "de",
+    "fr",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse while-loops.vue correctly 1`] = `null`;
+
+exports[`extractDefineI18nRouteData > should parse with-comments.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+    "ru": "/dobro-pozhalovat",
+  },
+  "locales": [
+    "en",
+    "de",
+    "ru",
+  ],
+}
+`;
+
+exports[`extractDefineI18nRouteData > should parse with-locale-routes.vue correctly 1`] = `
+{
+  "localeRoutes": {
+    "de": "/willkommen",
+    "en": "/welcome",
+  },
+  "locales": [
+    "en",
+    "de",
+  ],
+}
+`;

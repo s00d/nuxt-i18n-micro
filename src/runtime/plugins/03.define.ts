@@ -1,7 +1,8 @@
 // plugins/i18n.define.ts
 import type { WatchHandle, Ref } from 'vue'
 import type { Translations, DefineI18nRouteConfig } from 'nuxt-i18n-micro-types'
-import { defineNuxtPlugin, useNuxtApp, computed, watch, onUnmounted, unref } from '#imports'
+import { defineNuxtPlugin, useNuxtApp } from '#imports'
+import { watch, unref, computed, onUnmounted } from 'vue'
 
 type LocalesObject = Record<string, Translations>
 

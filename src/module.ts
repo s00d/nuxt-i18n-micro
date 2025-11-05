@@ -192,7 +192,10 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => `export const plural = ${options.plural!.toString()};`,
     })
 
-    const apiBaseUrl = (process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$|\/{2,}/, '')
+    const rawUrl = process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales'
+    const apiBaseUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+      ? rawUrl // Preserve full URLs with protocols
+      : '/' + rawUrl.replace(/^\/+|\/+$|\/{2,}/, '') // Clean relative paths only
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
       locales: localeManager.locales ?? [],
@@ -305,7 +308,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     addServerHandler({
-      route: `/${apiBaseUrl}/:page/:locale/data.json`,
+      route: `${apiBaseUrl}/:page/:locale/data.json`,
       handler: resolver.resolve('./runtime/server/routes/get'),
     })
 
@@ -395,10 +398,10 @@ ${accepts}
       localeManager.locales.forEach((locale) => {
         if (!options.disablePageLocales) {
           pagesNames.forEach((name) => {
-            prerenderRoutes.push(`/${apiBaseUrl}/${name}/${locale.code}/data.json`)
+            prerenderRoutes.push(`${apiBaseUrl}/${name}/${locale.code}/data.json`)
           })
         }
-        prerenderRoutes.push(`/${apiBaseUrl}/general/${locale.code}/data.json`)
+        prerenderRoutes.push(`${apiBaseUrl}/general/${locale.code}/data.json`)
       })
 
       if (!options.disableWatcher) {

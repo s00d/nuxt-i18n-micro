@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v2.5.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.4.0...v2.5.0)
+
+### 🚀 Enhancements
+
+- **module:** Enhance API base URL handling for improved path management ([e651bc0](https://github.com/s00d/nuxt-i18n-micro/commit/e651bc0))
+- **translation-server-middleware:** Use configurable API base URL for translations ([d770f83](https://github.com/s00d/nuxt-i18n-micro/commit/d770f83))
+
+### 🩹 Fixes
+
+- **plugins:** Correct apiBaseUrl default value in i18n config ([b998b4a](https://github.com/s00d/nuxt-i18n-micro/commit/b998b4a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.4.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.3.0...v2.4.0)

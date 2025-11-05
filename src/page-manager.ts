@@ -186,6 +186,8 @@ export class PageManager {
           // Создаем дочерние элементы для дефолтной локали БЕЗ префикса
           page.children = this.createLocalizedChildren(originalChildren, originalPath, [defaultLocaleCode], false, false, false, customPath ? { [defaultLocaleCode]: customPath } : {})
         }
+        // For prefix_and_default strategy, don't update the original page path
+        // The original page remains with its original path, and we create separate routes for custom paths
       }
 
       // Создание локализованных маршрутов для ВСЕХ остальных случаев
@@ -200,8 +202,21 @@ export class PageManager {
         if (customPaths) {
           localesToGenerate.forEach((locale) => {
             if (customPaths[locale.code]) {
-              const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPaths[locale.code], customRegex, false, locale.code, originalPath)
-              if (newRoute) additionalRoutes.push(newRoute)
+              // For prefix_and_default strategy with default locale, create both prefixed and non-prefixed routes
+              if (isPrefixAndDefaultStrategy(this.strategy) && locale.code === defaultLocaleCode) {
+                // Create non-prefixed route
+                const nonPrefixedRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPaths[locale.code], customRegex, false, locale.code, originalPath)
+                if (nonPrefixedRoute) additionalRoutes.push(nonPrefixedRoute)
+                // Create prefixed route
+                const prefixedRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPaths[locale.code], customRegex, true, locale.code, originalPath)
+                if (prefixedRoute) additionalRoutes.push(prefixedRoute)
+              }
+              else {
+                // For other locales or strategies
+                const shouldAddPrefix = isPrefixAndDefaultStrategy(this.strategy) && locale.code === defaultLocaleCode
+                const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPaths[locale.code], customRegex, shouldAddPrefix, locale.code, originalPath)
+                if (newRoute) additionalRoutes.push(newRoute)
+              }
             }
             else {
               // Фолбэк, если для какой-то локали нет кастомного пути
@@ -410,6 +425,12 @@ export class PageManager {
       return
     }
 
+    // For prefix_and_default strategy, don't adjust the original page path
+    // because we create separate routes for default locale in addCustomLocalizedRoutes
+    if (isPrefixAndDefaultStrategy(this.strategy)) {
+      return
+    }
+
     const defaultLocalePath = this.localizedPaths[page.path]?.[this.defaultLocale.code]
     if (defaultLocalePath) {
       page.path = normalizePath(defaultLocalePath)
@@ -479,18 +500,26 @@ export class PageManager {
         page.path = normalizePath(customPath)
         page.children = this.createLocalizedChildren(originalChildren, '', [locale.code], false, false, false, { [locale.code]: customPath })
       }
+      else if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
+        // For prefix_and_default strategy with default locale, create both prefixed and non-prefixed routes
+        // First, create non-prefixed route
+        const nonPrefixedRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, false, locale.code)
+        if (nonPrefixedRoute) {
+          additionalRoutes.push(nonPrefixedRoute)
+        }
+        // Then, create prefixed route
+        const prefixedRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, true, locale.code)
+        if (prefixedRoute) {
+          additionalRoutes.push(prefixedRoute)
+        }
+      }
       else {
         // For non-default locales or other strategies, create a new route with locale prefix
-        const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, false, locale.code)
+        const shouldAddPrefix = !isDefaultLocale
+        const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, shouldAddPrefix, locale.code)
         if (newRoute) {
           additionalRoutes.push(newRoute)
         }
-      }
-
-      // For prefix_and_default strategy, also create a prefixed version for default locale
-      if (isPrefixAndDefaultStrategy(this.strategy) && locale === this.defaultLocale) {
-        const newRoute = this.createLocalizedRoute(page, [locale.code], originalChildren, true, customPath, customRegex, true, locale.code)
-        if (newRoute) additionalRoutes.push(newRoute)
       }
     })
   }
@@ -668,7 +697,10 @@ export class PageManager {
     originalPagePath?: string,
   ): NuxtPage | null {
     const routePath = this.buildRoutePath(localeCodes, page.path, encodeURI(customPath), isCustom, customRegex, force)
-    if (!routePath || routePath === page.path) return null
+    // For prefix_and_default strategy, allow creating routes even if path matches original page path
+    // because we need both prefixed and non-prefixed routes for default locale
+    const isPrefixAndDefaultWithCustomPath = isPrefixAndDefaultStrategy(this.strategy) && isCustom && customPath
+    if (!routePath || (!isPrefixAndDefaultWithCustomPath && routePath === page.path)) return null
     if (localeCodes.length === 0) return null
     const firstLocale = localeCodes[0]
     if (!firstLocale) return null
@@ -715,7 +747,15 @@ export class PageManager {
     }
 
     if (isCustom) {
-      return (force || isPrefixStrategy(this.strategy) || !localeCodes.includes(this.defaultLocale.code))
+      // For prefix_and_default strategy, non-default locales should always have prefix
+      // For default locale in prefix_and_default, prefix is added only when force=true
+      // For other strategies, add prefix if force is true, or if it's prefix strategy, or if locale is not default
+      const shouldAddPrefix = force
+        || isPrefixStrategy(this.strategy)
+        || (isPrefixAndDefaultStrategy(this.strategy) && !localeCodes.includes(this.defaultLocale.code))
+        || !localeCodes.includes(this.defaultLocale.code)
+
+      return shouldAddPrefix
         ? buildFullPath(localeCodes, customPath, customRegex)
         : normalizePath(customPath)
     }

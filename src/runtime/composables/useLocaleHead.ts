@@ -1,8 +1,9 @@
 import { joinURL, parseURL, withQuery } from 'ufo'
 import type { Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
-import { isPrefixExceptDefaultStrategy, isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
-import { unref, useRoute, useRuntimeConfig, ref, useNuxtApp } from '#imports'
+import { isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
+import { useRoute, useRuntimeConfig, useNuxtApp } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
+import { ref, unref } from 'vue'
 
 interface MetaLink {
   [key: string]: string | undefined
@@ -46,8 +47,8 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
   }
 
   function updateMeta() {
-    const { defaultLocale, strategy, canonicalQueryWhitelist, routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
-    const { $getLocales, $getLocale } = useNuxtApp()
+    const { strategy, canonicalQueryWhitelist, routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+    const { $getLocales, $getLocale, $switchLocalePath } = useNuxtApp()
 
     if (!$getLocale || !$getLocales) return
 
@@ -135,12 +136,23 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
-          const localizedPath
-          = defaultLocale === loc.code && isPrefixExceptDefaultStrategy(strategy!)
-            ? canonicalPath
-            : joinURL(loc.code, canonicalPath)
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const switchedPath = $switchLocalePath(loc.code)
+          if (!switchedPath) {
+            return []
+          }
 
-          const href = joinURL(unref(baseUrl), localizedPath)
+          // $switchLocalePath returns a full URL (with baseUrl) if locale has baseUrl, otherwise just a path
+          let href: string
+          if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
+            // It's already a full URL, use it as-is
+            href = switchedPath
+          }
+          else {
+            // It's just a path, prepend baseUrl
+            href = joinURL(unref(baseUrl), switchedPath.startsWith('/') ? switchedPath : `/${switchedPath}`)
+          }
 
           const links = [{
             [identifierAttribute]: `i18n-alternate-${loc.code}`,

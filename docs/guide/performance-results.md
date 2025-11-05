@@ -8,7 +8,7 @@ outline: deep
 
 - **[i18n-micro Path](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
 - **[i18n Path](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
-- **[Test Script Location](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/performance.spec.ts)**: ./test/performance.spec.ts
+- **[Test Script Location](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/performance.test.ts)**: ./test/performance.test.ts
 
 
 ### Description:
@@ -24,104 +24,104 @@ It is essential to recognize that the example used in this test is not entirely 
 
 ## Dependency Versions
 
-| Dependency      | Version  |
-|-----------------|----------|
-| node            | v20.19.4 |
-| nuxt            | N/A      |
-| nuxt-i18n-micro | 1.103.0  |
-| @nuxtjs/i18n    | ^10.1.2  |
+| Dependency                   | Version   |
+|-------------------------------|-----------|
+| node                       | v20.19.4 |
+| nuxt                       | N/A |
+| nuxt-i18n-micro                       | 2.3.0 |
+| @nuxtjs/i18n                       | ^10.1.2 |
   
 ## Build Performance for ./test/fixtures/i18n
 
-- **Build Time**: 79.75 seconds
-- **Max CPU Usage**: 492.00%
-- **Min CPU Usage**: 34.60%
-- **Average CPU Usage**: 160.95%
-- **Max Memory Usage**: 8619.39 MB
-- **Min Memory Usage**: 211.05 MB
-- **Average Memory Usage**: 4195.56 MB
+- **Build Time**: 63.26 seconds
+- **Max CPU Usage**: 440.90%
+- **Min CPU Usage**: 28.30%
+- **Average CPU Usage**: 158.40%
+- **Max Memory Usage**: 7743.72 MB
+- **Min Memory Usage**: 228.67 MB
+- **Average Memory Usage**: 3691.65 MB
 
 
 ## Build Performance for ./test/fixtures/i18n-micro
 
-- **Build Time**: 6.51 seconds
-- **Max CPU Usage**: 252.40%
-- **Min CPU Usage**: 113.70%
-- **Average CPU Usage**: 187.15%
-- **Max Memory Usage**: 1226.69 MB
-- **Min Memory Usage**: 203.63 MB
-- **Average Memory Usage**: 650.08 MB
+- **Build Time**: 7.18 seconds
+- **Max CPU Usage**: 222.40%
+- **Min CPU Usage**: 111.80%
+- **Average CPU Usage**: 182.87%
+- **Max Memory Usage**: 1299.05 MB
+- **Min Memory Usage**: 221.77 MB
+- **Average Memory Usage**: 714.67 MB
 
 
 ### ⏱️ Build Time and Resource Consumption
 
 ::: details **i18n v10**
-- **Build Time**: 79.75 seconds
-- **Max CPU Usage**: 492.00%
-- **Max Memory Usage**: 8619.39 MB
+- **Build Time**: 63.26 seconds
+- **Max CPU Usage**: 440.90%
+- **Max Memory Usage**: 7743.72 MB
 :::
 
 ::: details **i18n-micro**
-- **Build Time**: 6.51 seconds
-- **Max CPU Usage**: 252.40%
-- **Max Memory Usage**: 1226.69 MB
+- **Build Time**: 7.18 seconds
+- **Max CPU Usage**: 222.40%
+- **Max Memory Usage**: 1299.05 MB
 :::
 
 ## Performance Comparison
 
-- **i18n-micro**: 6.51 seconds, Max Memory: 1226.69 MB, Max CPU: 252.40%
-- **i18n v10**: 79.75 seconds, Max Memory: 8619.39 MB, Max CPU: 492.00%
-- **Time Difference**: -73.23 seconds
-- **Memory Difference**: -7392.70 MB
-- **CPU Usage Difference**: -239.60%
+- **i18n-micro**: 7.18 seconds, Max Memory: 1299.05 MB, Max CPU: 222.40%
+- **i18n v10**: 63.26 seconds, Max Memory: 7743.72 MB, Max CPU: 440.90%
+- **Time Difference**: -56.09 seconds
+- **Memory Difference**: -6444.67 MB
+- **CPU Usage Difference**: -218.50%
 
 ## Stress Test with Artillery for ./test/fixtures/i18n
 
-- **Max CPU Usage**: 165.60%
+- **Max CPU Usage**: 163.10%
 - **Min CPU Usage**: 0.00%
-- **Average CPU Usage**: 123.59%
-- **Max Memory Usage**: 1021.88 MB
-- **Min Memory Usage**: 51.55 MB
-- **Average Memory Usage**: 715.71 MB
-- **Stress Test Time**: 75.43 seconds
-- **Average Response Time**: 1503.50 ms
-- **Min Response Time**: 44.00 ms
-- **Max Response Time**: 9991.00 ms
-- **Requests per Second**: 51.00
+- **Average CPU Usage**: 135.44%
+- **Max Memory Usage**: 1011.53 MB
+- **Min Memory Usage**: 270.72 MB
+- **Average Memory Usage**: 741.74 MB
+- **Stress Test Time**: 75.42 seconds
+- **Average Response Time**: 1880.10 ms
+- **Min Response Time**: 16.00 ms
+- **Max Response Time**: 9999.00 ms
+- **Requests per Second**: 52.00
 - **Error Rate**: 0.00%
 
 ![i18n](/i18n.png)
     
 ## Stress Test with Artillery for ./test/fixtures/i18n-micro
 
-- **Max CPU Usage**: 150.90%
+- **Max CPU Usage**: 147.20%
 - **Min CPU Usage**: 0.00%
-- **Average CPU Usage**: 127.36%
-- **Max Memory Usage**: 914.27 MB
-- **Min Memory Usage**: 50.22 MB
-- **Average Memory Usage**: 701.38 MB
-- **Stress Test Time**: 75.42 seconds
-- **Average Response Time**: 2743.30 ms
-- **Min Response Time**: 156.00 ms
-- **Max Response Time**: 9938.00 ms
-- **Requests per Second**: 54.00
+- **Average CPU Usage**: 133.68%
+- **Max Memory Usage**: 940.45 MB
+- **Min Memory Usage**: 190.61 MB
+- **Average Memory Usage**: 748.56 MB
+- **Stress Test Time**: 75.41 seconds
+- **Average Response Time**: 2036.50 ms
+- **Min Response Time**: 16.00 ms
+- **Max Response Time**: 9880.00 ms
+- **Requests per Second**: 53.00
 - **Error Rate**: 0.00%
 
 ![i18n-micro](/i18n-micro.png)
     
 ## Comparison between i18n v10 and i18n-micro
 
-- **Max Memory Used Difference**: -107.61 MB
-- **Min Memory Used Difference**: -1.33 MB
-- **Avg Memory Used Difference**: -14.33 MB
-- **Max CPU Usage Difference**: -14.70%
+- **Max Memory Used Difference**: -71.08 MB
+- **Min Memory Used Difference**: -80.11 MB
+- **Avg Memory Used Difference**: 6.82 MB
+- **Max CPU Usage Difference**: -15.90%
 - **Min CPU Usage Difference**: 0.00%
-- **Avg CPU Usage Difference**: 3.76%
-- **Stress Test Time Difference**: 0.00 seconds
-- **Average Response Time Difference**: 1239.80 ms
-- **Min Response Time Difference**: 112.00 ms
-- **Max Response Time Difference**: -53.00 ms
-- **Requests Per Second Difference**: 3.00
+- **Avg CPU Usage Difference**: -1.77%
+- **Stress Test Time Difference**: -0.00 seconds
+- **Average Response Time Difference**: 156.40 ms
+- **Min Response Time Difference**: 0.00 ms
+- **Max Response Time Difference**: -119.00 ms
+- **Requests Per Second Difference**: 1.00
 - **Error Rate Difference**: 0.00%
   
 ## 📊 Detailed Performance Analysis

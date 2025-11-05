@@ -1,6 +1,7 @@
 import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
 import { useLocaleHead } from '../composables/useLocaleHead'
-import { useRequestURL, useHead, defineNuxtPlugin, useRuntimeConfig, useRoute, watch } from '#imports'
+import { useRequestURL, useHead, defineNuxtPlugin, useRuntimeConfig, useRoute } from '#imports'
+import { watch } from 'vue'
 import { isMetaDisabledForRoute } from '../utils/route-utils'
 
 const host = process.env.HOST ?? 'localhost'

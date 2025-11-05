@@ -10,9 +10,11 @@ const I18N_CONTEXT_KEY = '__i18n_cache__'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {
+    const config = useRuntimeConfig()
+    const apiBaseUrl = config.public.i18nConfig?.apiBaseUrl ?? '/_locales'
     // IMPORTANT: On the server, use a full URL or a configured baseURL for $fetch.
     // If the endpoint is on the same server, Nuxt/Nitro will handle it internally.
-    const translations = await $fetch(`/_locales/general/${locale}/data.json`)
+    const translations = await $fetch(`${apiBaseUrl}/general/${locale}/data.json`)
     return translations as Translations
   }
   catch (error) {

@@ -92,6 +92,8 @@ export default defineNuxtModule<ModuleOptions>({
     fallbackLocale: undefined,
     localeCookie: 'user-locale',
     apiBaseUrl: '_locales',
+    apiBaseClientHost: undefined,
+    apiBaseServerHost: undefined,
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
     canonicalQueryWhitelist: ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag'],

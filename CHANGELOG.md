@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v2.7.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.6.0...v2.7.0)
+
+### 🚀 Enhancements
+
+- **types:** Add apiBaseClientHost and apiBaseServerHost options ([5a78894](https://github.com/s00d/nuxt-i18n-micro/commit/5a78894))
+- **plugins:** Enhance i18n API base URL handling ([f508b3f](https://github.com/s00d/nuxt-i18n-micro/commit/f508b3f))
+- **module:** Add apiBaseClientHost and apiBaseServerHost options ([ad17272](https://github.com/s00d/nuxt-i18n-micro/commit/ad17272))
+
+### 📖 Documentation
+
+- **faq:** Update apiBaseUrl instructions for SSR translation fetching ([4e4d7d1](https://github.com/s00d/nuxt-i18n-micro/commit/4e4d7d1))
+- **firebase:** Clarify apiBaseUrl usage in route rules ([27647fc](https://github.com/s00d/nuxt-i18n-micro/commit/27647fc))
+- **guide:** Update getting started with new API base URL options ([a11ecee](https://github.com/s00d/nuxt-i18n-micro/commit/a11ecee))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.6.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.5.0...v2.6.0)

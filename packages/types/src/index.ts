@@ -39,6 +39,8 @@ export interface ModuleOptions {
   hooks?: boolean
   defaultLocale?: string
   apiBaseUrl?: string
+  apiBaseClientHost?: string
+  apiBaseServerHost?: string
   translationDir?: string
   autoDetectLanguage?: boolean
   autoDetectPath?: string
@@ -79,6 +81,8 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   translationDir: string
   fallbackLocale: string
   apiBaseUrl: string
+  apiBaseClientHost?: string
+  apiBaseServerHost?: string
   customRegexMatcher?: string | RegExp
   routesLocaleLinks?: { [key: string]: string }
 }

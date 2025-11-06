@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v2.6.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.5.0...v2.6.0)
+
+### 🚀 Enhancements
+
+- **route-service:** Add method to get plugin route name based on locale ([fb2e1ee](https://github.com/s00d/nuxt-i18n-micro/commit/fb2e1ee))
+- **types:** Add apiBaseUrl to configuration type ([de7f007](https://github.com/s00d/nuxt-i18n-micro/commit/de7f007))
+- **types:** Add apiBaseUrl to configuration type ([78ad31c](https://github.com/s00d/nuxt-i18n-micro/commit/78ad31c))
+- **module:** Add apiBaseUrl to module options ([f808685](https://github.com/s00d/nuxt-i18n-micro/commit/f808685))
+
+### 💅 Refactors
+
+- **plugins:** Rename routeService method for clarity ([6fa53ef](https://github.com/s00d/nuxt-i18n-micro/commit/6fa53ef))
+- **translation-server-middleware:** Improve type imports and config usage ([ad57f4c](https://github.com/s00d/nuxt-i18n-micro/commit/ad57f4c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.5.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.4.0...v2.5.0)

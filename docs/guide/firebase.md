@@ -65,14 +65,14 @@ export default defineNuxtConfig({
 
 ### Solution 2: Custom API Base URL
 
-If you're using a custom `apiBaseUrl`, adjust the route rules accordingly:
+If you're using a custom `apiBaseUrl` (path prefix only), adjust the route rules accordingly:
 
 ```typescript
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
   
   i18n: {
-    apiBaseUrl: 'api/translations',
+    apiBaseUrl: '/api/translations',  // Path prefix only, not a full URL
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr' },
       { code: 'fr', iso: 'fr-FR', dir: 'ltr' },

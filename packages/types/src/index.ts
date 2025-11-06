@@ -78,6 +78,7 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   debug: boolean
   translationDir: string
   fallbackLocale: string
+  apiBaseUrl: string
   customRegexMatcher?: string | RegExp
   routesLocaleLinks?: { [key: string]: string }
 }

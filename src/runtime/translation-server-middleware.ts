@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
 import { interpolate, useTranslationHelper } from 'nuxt-i18n-micro-core'
 import type { TranslationCache } from 'nuxt-i18n-micro-core/dist/translation' // <-- Direct type import
-import type { ModuleOptionsExtend, Params, Translations } from 'nuxt-i18n-micro-types'
+import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translations } from 'nuxt-i18n-micro-types'
 import { detectCurrentLocale } from './utils/locale-detector'
 import { useRuntimeConfig } from '#imports'
 
@@ -10,8 +10,9 @@ const I18N_CONTEXT_KEY = '__i18n_cache__'
 
 async function fetchTranslations(locale: string): Promise<Translations> {
   try {
-    const config = useRuntimeConfig()
-    const apiBaseUrl = config.public.i18nConfig?.apiBaseUrl ?? '/_locales'
+    const config = useRuntimeConfig() as { i18nConfig?: ModulePrivateOptionsExtend }
+    const i18nConfig = config.i18nConfig
+    const apiBaseUrl = i18nConfig?.apiBaseUrl ?? '/_locales'
     // IMPORTANT: On the server, use a full URL or a configured baseURL for $fetch.
     // If the endpoint is on the same server, Nuxt/Nitro will handle it internally.
     const translations = await $fetch(`${apiBaseUrl}/general/${locale}/data.json`)

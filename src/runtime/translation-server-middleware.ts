@@ -12,10 +12,15 @@ async function fetchTranslations(locale: string): Promise<Translations> {
   try {
     const config = useRuntimeConfig() as { i18nConfig?: ModulePrivateOptionsExtend }
     const i18nConfig = config.i18nConfig
-    const apiBaseUrl = i18nConfig?.apiBaseUrl ?? '/_locales'
+    const apiBaseUrl = i18nConfig?.apiBaseUrl ?? '_locales'
+    const apiBaseServerHost = i18nConfig?.apiBaseServerHost ?? undefined
     // IMPORTANT: On the server, use a full URL or a configured baseURL for $fetch.
     // If the endpoint is on the same server, Nuxt/Nitro will handle it internally.
-    const translations = await $fetch(`${apiBaseUrl}/general/${locale}/data.json`)
+    let url = `/${apiBaseUrl}/general/${locale}/data.json`
+    if (apiBaseServerHost) {
+      url = `${apiBaseServerHost}${url}`
+    }
+    const translations = await $fetch(url)
     return translations as Translations
   }
   catch (error) {

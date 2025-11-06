@@ -17,7 +17,8 @@ const isDev = process.env.NODE_ENV !== 'production'
 export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
-  const apiBaseUrl = i18nConfig.apiBaseUrl ?? '/_locales'
+  const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
+  const apiBaseHost = import.meta.client ? i18nConfig.apiBaseClientHost : i18nConfig.apiBaseServerHost
   const router = useRouter()
   const runtimeConfig = useRuntimeConfig()
 
@@ -103,7 +104,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return
     }
 
-    const url = `${apiBaseUrl}/${routeName}/${locale}/data.json`.replace(/\/{2,}/g, '/')
+    let url = `/${apiBaseUrl}/${routeName}/${locale}/data.json`.replace(/\/{2,}/g, '/')
+    if (apiBaseHost) {
+      url = `${apiBaseHost}${url}`
+    }
     try {
       const data: Translations = await $fetch(url, {
         baseURL: runtimeConfig.app.baseURL,

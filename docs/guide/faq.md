@@ -136,16 +136,28 @@ const { data, pending } = await useAsyncData('page-data', () => {
 **`$fetch` limitations on SSR**
 On serverless platforms like Vercel, `$fetch` can only fetch static files from the CDN and not from the internal Nitro server. This means static translation files may not be directly accessible unless the correct base URL is set.
 
-**Fix by setting `apiBaseUrl`**
-If translations are hosted externally, specify the full URL (e.g., `https://example.com/_locales`) for `$fetch` to access the translations correctly during SSR.
+**Fix by setting `apiBaseClientHost` and `apiBaseServerHost`**
+If translations are hosted externally on a CDN or different domain, use `apiBaseClientHost` for client-side requests and `apiBaseServerHost` for server-side requests. The `apiBaseUrl` should only contain the path prefix (e.g., `_locales`).
 
 ```typescript
 export default defineNuxtConfig({
   i18n: {
-    apiBaseUrl: 'https://example.com/_locales'
+    apiBaseUrl: '/_locales',                    // Path prefix only
+    apiBaseClientHost: 'https://cdn.example.com',  // CDN domain for client
+    apiBaseServerHost: 'https://cdn.example.com'  // CDN domain for server (SSR)
   }
 })
 ```
+
+Or via environment variables:
+
+```bash
+NUXT_I18N_APP_BASE_URL=_locales
+NUXT_I18N_APP_BASE_CLIENT_HOST=https://cdn.example.com
+NUXT_I18N_APP_BASE_SERVER_HOST=https://cdn.example.com
+```
+
+The translations will be fetched from `https://cdn.example.com/_locales/{routeName}/{locale}/data.json` on both client and server.
 
 ## 🔗 Routing & Navigation Issues
 

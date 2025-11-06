@@ -468,14 +468,49 @@ localeCookie: 'user-locale'
 
 #### `apiBaseUrl`
 
-Defines the base URL for fetching cached translations.
+Defines the path prefix for fetching cached translations. This is a path prefix only, not a full URL.
 
 **Type**: `string`  
-**Default**: `'_locales'`
+**Default**: `'/_locales'`  
+**Environment Variable**: `NUXT_I18N_APP_BASE_URL`
 
 ```typescript
 apiBaseUrl: 'api/_locales'
 ```
+
+The translations will be fetched from `/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `/api/_locales/general/en/data.json`).
+
+#### `apiBaseClientHost`
+
+Defines the base host URL for fetching translations from a CDN or external server on the client side. Use this when translations are hosted on a different domain and need to be fetched from the browser.
+
+**Type**: `string | undefined`  
+**Default**: `undefined`  
+**Environment Variable**: `NUXT_I18N_APP_BASE_CLIENT_HOST`
+
+```typescript
+apiBaseClientHost: 'https://cdn.example.com'
+```
+
+When `apiBaseClientHost` is set, client-side translations will be fetched from `{apiBaseClientHost}/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `https://cdn.example.com/_locales/general/en/data.json`).
+
+#### `apiBaseServerHost`
+
+Defines the base host URL for fetching translations from a CDN or external server on the server side (SSR). Use this when translations are hosted on a different domain and need to be fetched during server-side rendering.
+
+**Type**: `string | undefined`  
+**Default**: `undefined`  
+**Environment Variable**: `NUXT_I18N_APP_BASE_SERVER_HOST`
+
+```typescript
+apiBaseServerHost: 'https://internal-cdn.example.com'
+```
+
+When `apiBaseServerHost` is set, server-side translations will be fetched from `{apiBaseServerHost}/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `https://internal-cdn.example.com/_locales/general/en/data.json`).
+
+::: tip
+Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/external domain hosting, and `apiBaseServerHost` for server-side CDN/external domain hosting. This allows you to use different CDNs for client and server requests.
+:::
 
 ### 🧪 Experimental Features
 

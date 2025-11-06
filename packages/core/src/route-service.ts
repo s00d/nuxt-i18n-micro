@@ -56,6 +56,13 @@ export class RouteService {
       .replace(new RegExp(`-${locale}$`), '')
   }
 
+  getPluginRouteName(route: RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale: string): string {
+    if (this.i18nConfig.disablePageLocales) {
+      return 'general'
+    }
+    return this.getRouteName(route, locale)
+  }
+
   getFullPathWithBaseUrl(currentLocale: Locale, route: RouteLocationRaw): string {
     const resolvedRoute = this.router.resolve(route)
     let fullPath = resolvedRoute.fullPath

@@ -249,6 +249,7 @@ export default defineNuxtModule<ModuleOptions>({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       routesLocaleLinks: options.routesLocaleLinks ?? {},
+      apiBaseUrl: apiBaseUrl,
     }
 
     addImportsDir(resolver.resolve('./runtime/composables'))

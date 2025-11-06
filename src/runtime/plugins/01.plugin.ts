@@ -86,7 +86,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       locale = await nuxtApp.runWithContext(() => useCookie('no-prefix-locale', { default: () => locale }).value)
     }
 
-    const routeName = routeService.getRouteName(to, locale)
+    const routeName = routeService.getPluginRouteName(to, locale)
 
     // Guard: skip loading for routes without a valid name (e.g., 404/unmatched)
     // Also skip if there are no matched records to avoid unnecessary fetches on error pages
@@ -133,7 +133,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (import.meta.client && enablePreviousPageFallback) {
       const fromLocale = routeService.getCurrentLocale(from as RouteLocationResolvedGeneric)
-      const fromRouteName = routeService.getRouteName(from as RouteLocationResolvedGeneric, fromLocale)
+      const fromRouteName = routeService.getPluginRouteName(from as RouteLocationResolvedGeneric, fromLocale)
       previousPageInfo.value = { locale: fromLocale, routeName: fromRouteName }
     }
 
@@ -167,7 +167,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       if (!key) return ''
       route = route ?? routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale()
-      const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
+      const routeName = routeService.getPluginRouteName(route as RouteLocationResolvedGeneric, locale)
       let value = i18nHelper.getTranslation(locale, routeName, key)
 
       // If translation not found and there are saved previous translations, use them (only if enabled)
@@ -227,13 +227,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     has: (key: string, route?: RouteLocationNormalizedLoaded): boolean => {
       route = route ?? routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale()
-      const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
+      const routeName = routeService.getPluginRouteName(route as RouteLocationResolvedGeneric, locale)
       return !!i18nHelper.getTranslation(locale, routeName, key)
     },
     mergeTranslations: (newTranslations: Translations) => {
       const route = routeService.getCurrentRoute()
       const locale = routeService.getCurrentLocale(route)
-      const routeName = routeService.getRouteName(route as RouteLocationResolvedGeneric, locale)
+      const routeName = routeService.getPluginRouteName(route as RouteLocationResolvedGeneric, locale)
       i18nHelper.mergeTranslation(locale, routeName, newTranslations)
     },
     mergeGlobalTranslations: (newTranslations: Translations) => {

@@ -63,12 +63,6 @@ if (globalLocaleRoutes && globalLocaleRoutes[currentPageName]) {
     }
   }
 }
-else if (!locales.includes(firstSegment)) {
-  const newPath = `/${defaultLocale}${route.fullPath}`
-  if (route.fullPath !== newPath) {
-    handleRedirect(newPath)
-  }
-}
 else if (locales.includes(firstSegment) && globalLocaleRoutes && globalLocaleRoutes[currentLocalePageName]) {
   const localizedRoutes = globalLocaleRoutes[currentLocalePageName]
   if (localizedRoutes && localizedRoutes[firstSegment]) {

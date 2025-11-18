@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.8.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.7.0...v2.8.0)
+
+### 🚀 Enhancements
+
+- **locale-redirect:** Enhance locale redirection logic with query support ([88c5fb7](https://github.com/s00d/nuxt-i18n-micro/commit/88c5fb7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.7.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.6.0...v2.7.0)

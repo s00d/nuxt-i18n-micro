@@ -47,12 +47,20 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
   }
 
   function updateMeta() {
+    const route = useRoute()
+
+    // On 404 pages, route.matched will be empty.
+    // We should not generate SEO tags for pages that don't exist.
+    if (route.matched.length === 0 || route.matched.some(record => record.name === 'custom-fallback-route')) {
+      // Clear metaObject to ensure no tags are generated for 404 pages
+      metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
+      return
+    }
+
     const { strategy, canonicalQueryWhitelist, routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
     const { $getLocales, $getLocale, $switchLocalePath } = useNuxtApp()
 
     if (!$getLocale || !$getLocales) return
-
-    const route = useRoute()
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const locale = unref($getLocale())

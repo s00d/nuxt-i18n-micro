@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.9.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.8.0...v2.9.0)
+
+### 🚀 Enhancements
+
+- **composables:** Prevent SEO tags generation on 404 pages ([da31e8a](https://github.com/s00d/nuxt-i18n-micro/commit/da31e8a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.8.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.7.0...v2.8.0)

@@ -365,6 +365,23 @@ Disables automatic creation of locale files during development.
 disableWatcher: true
 ```
 
+#### `missingWarn`
+
+Controls whether to show console warnings when translation keys are not found.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+missingWarn: false // Disable warnings for missing translations
+```
+
+::: tip Custom Missing Handler
+
+You can set a custom handler for missing translations using `setMissingHandler` method. This allows you to send missing translation errors to error tracking services like Sentry.
+
+:::
+
 ### 🔧 Plugin Control
 
 #### `define`

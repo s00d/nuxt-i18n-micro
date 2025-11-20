@@ -1,6 +1,29 @@
 # Changelog
 
 
+## v2.11.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.10.0...v2.11.0)
+
+### 🚀 Enhancements
+
+- **types:** Add MissingHandler type and missingWarn option ([96244e4](https://github.com/s00d/nuxt-i18n-micro/commit/96244e4))
+- **i18n:** Add custom missing translation handler support ([4f20768](https://github.com/s00d/nuxt-i18n-micro/commit/4f20768))
+- **docs:** Add `$setMissingHandler` method documentation ([6e77bb2](https://github.com/s00d/nuxt-i18n-micro/commit/6e77bb2))
+- **docs:** Add `$setMissingHandler` documentation for custom handlers ([21b8208](https://github.com/s00d/nuxt-i18n-micro/commit/21b8208))
+
+### 📖 Documentation
+
+- **guide:** Add documentation for missingWarn option in getting started ([1b5a5d4](https://github.com/s00d/nuxt-i18n-micro/commit/1b5a5d4))
+
+### ✅ Tests
+
+- **missing-handler:** Add tests for missing handler functionality ([c57e989](https://github.com/s00d/nuxt-i18n-micro/commit/c57e989))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.10.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.9.0...v2.10.0)

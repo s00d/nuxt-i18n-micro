@@ -28,6 +28,14 @@ export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | fal
 
 export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
 
+export type MissingHandler = (
+  locale: string,
+  key: string,
+  routeName: string,
+  instance?: unknown,
+  type?: string
+) => void
+
 export interface ModuleOptions {
   locales?: Locale[]
   meta?: boolean
@@ -60,6 +68,7 @@ export interface ModuleOptions {
   excludePatterns?: (string | RegExp)[]
   routeLocales?: Record<string, string[]>
   routeDisableMeta?: Record<string, boolean | string[]>
+  missingWarn?: boolean
   experimental?: {
     i18nPreviousPageFallback?: boolean
     hmr?: boolean

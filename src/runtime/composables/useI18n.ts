@@ -33,6 +33,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $localeRoute: nuxtApp.$localeRoute,
     $localePath: nuxtApp.$localePath,
     $loadPageTranslations: nuxtApp.$loadPageTranslations,
+    $setMissingHandler: nuxtApp.$setMissingHandler,
   } as const
 
   const noDollarInjections = Object.fromEntries(

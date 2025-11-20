@@ -6,7 +6,7 @@ import type {
   RouteLocationNamedRaw,
 } from 'vue-router'
 import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from 'nuxt-i18n-micro-core'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation } from 'nuxt-i18n-micro-types'
+import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from 'nuxt-i18n-micro-types'
 import { useRouter, useCookie, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
 import { unref } from 'vue'
 import { useState } from '#app'
@@ -77,6 +77,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   const previousPageInfo = useState<{ locale: string, routeName: string } | null>('i18n-previous-page', () => null)
   const enablePreviousPageFallback = i18nConfig.experimental?.i18nPreviousPageFallback ?? false
+
+  // Missing locale handler configuration
+  const missingWarn = i18nConfig.missingWarn ?? true
+  const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
 
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
@@ -198,7 +202,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       // General fallback больше не нужен: сервер уже подмешал глобальные переводы
 
       if (!value) {
-        if (isDev && import.meta.client) {
+        // Call custom handler if set, otherwise show default warn if enabled
+        if (customMissingHandler.value) {
+          customMissingHandler.value(locale, key, routeName)
+        }
+        else if (missingWarn && isDev && import.meta.client) {
           console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
         }
         value = defaultValue === undefined ? key : defaultValue
@@ -306,6 +314,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     loadPageTranslations: async (locale: string, routeName: string, translations: Translations) => {
       await i18nHelper.loadPageTranslations(locale, routeName, translations)
     },
+    setMissingHandler: (handler: MissingHandler | null) => {
+      customMissingHandler.value = handler
+    },
     helper: i18nHelper, // Оставляем helper, он может быть полезен для продвинутых пользователей
   }
 
@@ -347,5 +358,6 @@ export interface PluginsInjections {
   $localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
   $loadPageTranslations: (locale: string, routeName: string, translations: Translations) => Promise<void>
+  $setMissingHandler: (handler: MissingHandler | null) => void
   helper: ReturnType<typeof useTranslationHelper>
 }

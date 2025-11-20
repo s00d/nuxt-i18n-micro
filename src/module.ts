@@ -110,6 +110,7 @@ export default defineNuxtModule<ModuleOptions>({
     },
     customRegexMatcher: undefined,
     excludePatterns: undefined,
+    missingWarn: true,
   },
   async setup(options, nuxt) {
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
@@ -235,6 +236,7 @@ export default defineNuxtModule<ModuleOptions>({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
+      missingWarn: options.missingWarn ?? true,
       experimental: {
         i18nPreviousPageFallback: options.experimental?.i18nPreviousPageFallback ?? false,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

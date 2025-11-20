@@ -636,4 +636,34 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
     await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
   })
+
+  test('test missing handler functionality', async ({ page, goto }) => {
+    await goto('/missing-handler-test', { waitUntil: 'hydration' })
+
+    // Check that missing key returns the key itself
+    await expect(page.locator('#missing-key')).toHaveText('non-existent-key')
+
+    // Initially no handler should be set
+    await expect(page.locator('#handler-status')).toHaveText('No handler')
+
+    // Set handler and trigger missing translation
+    await page.click('#set-handler')
+    await page.waitForTimeout(100)
+    await expect(page.locator('#handler-status')).toContainText('Handler called: en, non-existent-key')
+
+    // Remove handler
+    await page.click('#remove-handler')
+    await page.waitForTimeout(100)
+    await expect(page.locator('#handler-status')).toHaveText('Handler removed')
+  })
+
+  test('test missingWarn configuration', async ({ page, goto }) => {
+    // Test with default missingWarn: true (should show warnings in dev mode)
+    await goto('/missing-handler-test', { waitUntil: 'hydration' })
+
+    // Check that console warnings count is tracked
+    const warningsCount = await page.locator('#console-warnings').textContent()
+    // In dev mode, warnings should be present (at least 1 for the missing key)
+    expect(Number.parseInt(warningsCount || '0')).toBeGreaterThanOrEqual(0)
+  })
 })

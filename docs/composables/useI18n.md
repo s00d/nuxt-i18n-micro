@@ -122,6 +122,27 @@ const locale = $getLocaleName()
   await $loadPageTranslations('fr', 'home')
   ```
 
+### `$setMissingHandler`
+
+- **Type**: `(handler: MissingHandler | null) => void`
+- **Description**: Sets a custom handler function that will be called when a translation key is not found. This is useful for logging missing translations to error tracking services like Sentry.
+- **Parameters**:
+  - `handler`: A function that receives `(locale: string, key: string, routeName: string)` or `null` to remove the handler
+- **Example**:
+  ```js
+  const { $setMissingHandler } = useI18n()
+  
+  // Set a custom handler
+  $setMissingHandler((locale, key, routeName) => {
+    console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`)
+    // Send to Sentry or other error tracking service
+    // Sentry.captureMessage(`Missing translation: ${key}`)
+  })
+  
+  // Remove the handler
+  $setMissingHandler(null)
+  ```
+
 ## 🛠️ Example Usages
 
 ### Basic Locale Retrieval

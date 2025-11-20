@@ -29,17 +29,68 @@ export class RouteService {
     private noPrefixDefault: string | null | undefined,
     private navigateTo: (to: RouteLocationRaw | undefined | null, options?: NavigateToInterface) => Promise<void | NavigationFailure | false> | false | void | RouteLocationRaw,
     private setCookie: (name: string, value: string) => void,
+    private cookieLocaleDefault: string | null | undefined = null,
+    private cookieLocaleName: string | null | undefined = null,
   ) {}
+
+  /**
+   * Извлекает локаль из пути URL, проверяя первый сегмент пути
+   * @param path - Путь URL (например, '/ru/sdfsdf' или '/en/about')
+   * @returns Код локали или null, если не найдена
+   */
+  private extractLocaleFromPath(path: string): string | null {
+    if (!path || path === '/') {
+      return null
+    }
+
+    const pathSegments = path.split('/').filter(Boolean)
+    if (pathSegments.length === 0) {
+      return null
+    }
+
+    const firstSegment = pathSegments[0]
+    const availableLocales = this.i18nConfig.locales?.map(l => l.code) || []
+
+    // Проверяем, является ли первый сегмент валидной локалью
+    if (availableLocales.includes(firstSegment)) {
+      return firstSegment
+    }
+
+    return null
+  }
 
   getCurrentLocale(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string {
     route = route ?? this.router.currentRoute.value
+
+    // 1. Проверяем hashMode
     if (this.i18nConfig.hashMode && this.hashLocaleDefault) {
       return this.hashLocaleDefault
     }
+
+    // 2. Проверяем noPrefix стратегию
     if (isNoPrefixStrategy(this.i18nConfig.strategy!) && this.noPrefixDefault) {
       return this.noPrefixDefault
     }
-    return (route.params?.locale ?? this.i18nConfig.defaultLocale).toString()
+
+    // 3. Проверяем route.params.locale (для существующих маршрутов)
+    if (route.params?.locale) {
+      return route.params.locale.toString()
+    }
+
+    // 4. Извлекаем локаль из URL пути (для несуществующих маршрутов)
+    const path = route.path || route.fullPath || ''
+    const localeFromPath = this.extractLocaleFromPath(path)
+    if (localeFromPath) {
+      return localeFromPath
+    }
+
+    // 5. Проверяем куку (если передана)
+    if (this.cookieLocaleDefault) {
+      return this.cookieLocaleDefault
+    }
+
+    // 6. Возвращаем defaultLocale как fallback
+    return (this.i18nConfig.defaultLocale || 'en').toString()
   }
 
   getCurrentName(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string | null {
@@ -319,6 +370,11 @@ export class RouteService {
       this.setCookie('no-prefix-locale', toLocale)
       // useCookie('no-prefix-locale').value = toLocale
       this.noPrefixDefault = toLocale
+    }
+    // Обновляем куку для обычной стратегии (prefix или prefix_except_default)
+    if (!this.i18nConfig.hashMode && !isNoPrefixStrategy(this.i18nConfig.strategy!) && this.cookieLocaleName) {
+      this.setCookie(this.cookieLocaleName, toLocale)
+      this.cookieLocaleDefault = toLocale
     }
   }
 

@@ -40,12 +40,21 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   let hashLocaleDefault: null | string | undefined = null
   let noPrefixDefault: null | string | undefined = null
+  let cookieLocaleDefault: null | string | undefined = null
 
   if (i18nConfig.hashMode) {
     hashLocaleDefault = await nuxtApp.runWithContext(() => useCookie('hash-locale').value)
   }
   if (isNoPrefixStrategy(i18nConfig.strategy!)) {
     noPrefixDefault = await nuxtApp.runWithContext(() => useCookie('no-prefix-locale').value)
+  }
+
+  // Читаем куку для обычной стратегии (не hashMode и не noPrefix)
+  // Используем localeCookie из конфига или 'user-locale' по умолчанию
+  let cookieLocaleName: string | null = null
+  if (!i18nConfig.hashMode && !isNoPrefixStrategy(i18nConfig.strategy!)) {
+    cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
+    cookieLocaleDefault = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName!).value)
   }
 
   const routeService = new RouteService(
@@ -59,6 +68,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         return useCookie(name).value = value
       })
     },
+    cookieLocaleDefault,
+    cookieLocaleName,
   )
   const translationService = new FormatService()
 

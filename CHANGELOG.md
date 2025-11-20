@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v2.10.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.9.0...v2.10.0)
+
+### 🚀 Enhancements
+
+- **route-service:** Add locale extraction from URL path ([782acc3](https://github.com/s00d/nuxt-i18n-micro/commit/782acc3))
+- **i18n:** Add cookie locale support for non-hash strategies ([374039d](https://github.com/s00d/nuxt-i18n-micro/commit/374039d))
+
+### ✅ Tests
+
+- **route-service:** Add tests for locale extraction and cookie fallback ([c4854d5](https://github.com/s00d/nuxt-i18n-micro/commit/c4854d5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.9.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.8.0...v2.9.0)

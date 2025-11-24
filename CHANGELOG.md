@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.12.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.11.0...v2.12.0)
+
+### 🚀 Enhancements
+
+- **locales:** Add missing handler test fixtures for multiple languages ([63a77f7](https://github.com/s00d/nuxt-i18n-micro/commit/63a77f7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.11.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.10.0...v2.11.0)

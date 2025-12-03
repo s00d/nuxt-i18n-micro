@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v2.13.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.12.1...v2.13.0)
+
+### 🚀 Enhancements
+
+- **locale-detector:** Enhance locale detection logic with URL checks ([893edee](https://github.com/s00d/nuxt-i18n-micro/commit/893edee))
+- **locale-server-middleware:** Pass locales to config for URL path check ([c933b62](https://github.com/s00d/nuxt-i18n-micro/commit/c933b62))
+
+### 🩹 Fixes
+
+- **translation-server-middleware:** Update config access to use public scope ([36cac43](https://github.com/s00d/nuxt-i18n-micro/commit/36cac43))
+
+### 💅 Refactors
+
+- **route-service:** Improve locale extraction and comments ([fa66c2a](https://github.com/s00d/nuxt-i18n-micro/commit/fa66c2a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.12.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.12.0...v2.12.1)

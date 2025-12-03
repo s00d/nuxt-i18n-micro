@@ -354,4 +354,24 @@ describe('RouteService', () => {
     routeService.updateCookies('de')
     expect(setCookieMock).not.toHaveBeenCalled()
   })
+
+  test('getCurrentLocale should extract locale from fullPath with query params when route.path is missing', () => {
+    mockRouter.currentRoute.value.params = {}
+    mockRouter.currentRoute.value.path = '' // Simulate missing path (e.g. error state)
+    mockRouter.currentRoute.value.fullPath = '/de?foo=bar&baz=qux' // Fallback uses fullPath
+
+    // Ensure 'de' is in the config locales for this test
+    // (It is already present in mockI18nConfig in beforeEach)
+
+    const locale = routeService.getCurrentLocale()
+    expect(locale).toBe('de')
+  })
+
+  test('getCurrentLocale should extract locale from path with hash', () => {
+    mockRouter.currentRoute.value.params = {}
+    mockRouter.currentRoute.value.path = ''
+    mockRouter.currentRoute.value.fullPath = '/de#section'
+    const locale = routeService.getCurrentLocale()
+    expect(locale).toBe('de')
+  })
 })

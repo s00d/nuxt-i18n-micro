@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.12.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.12.0...v2.12.1)
+
+### 🩹 Fixes
+
+- **locale-redirect:** Improve error handling for 404 responses ([32e9dbe](https://github.com/s00d/nuxt-i18n-micro/commit/32e9dbe))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.12.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.11.0...v2.12.0)

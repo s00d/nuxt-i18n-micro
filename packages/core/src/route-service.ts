@@ -34,16 +34,24 @@ export class RouteService {
   ) {}
 
   /**
-   * Извлекает локаль из пути URL, проверяя первый сегмент пути
-   * @param path - Путь URL (например, '/ru/sdfsdf' или '/en/about')
-   * @returns Код локали или null, если не найдена
+   * Extracts locale from URL path by checking the first path segment
+   * @param path - URL path (e.g., '/ru/sdfsdf' or '/en/about')
+   * @returns Locale code or null if not found
    */
   private extractLocaleFromPath(path: string): string | null {
-    if (!path || path === '/') {
+    if (!path) {
       return null
     }
 
-    const pathSegments = path.split('/').filter(Boolean)
+    // Remove query params and hash to ensure clean path comparison
+    // This is important when falling back to fullPath which might contain these
+    const cleanPath = path.split('?')[0].split('#')[0]
+
+    if (cleanPath === '/') {
+      return null
+    }
+
+    const pathSegments = cleanPath.split('/').filter(Boolean)
     if (pathSegments.length === 0) {
       return null
     }
@@ -51,7 +59,7 @@ export class RouteService {
     const firstSegment = pathSegments[0]
     const availableLocales = this.i18nConfig.locales?.map(l => l.code) || []
 
-    // Проверяем, является ли первый сегмент валидной локалью
+    // Check if the first segment is a valid locale
     if (availableLocales.includes(firstSegment)) {
       return firstSegment
     }
@@ -62,34 +70,34 @@ export class RouteService {
   getCurrentLocale(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string {
     route = route ?? this.router.currentRoute.value
 
-    // 1. Проверяем hashMode
+    // 1. Check hashMode
     if (this.i18nConfig.hashMode && this.hashLocaleDefault) {
       return this.hashLocaleDefault
     }
 
-    // 2. Проверяем noPrefix стратегию
+    // 2. Check noPrefix strategy
     if (isNoPrefixStrategy(this.i18nConfig.strategy!) && this.noPrefixDefault) {
       return this.noPrefixDefault
     }
 
-    // 3. Проверяем route.params.locale (для существующих маршрутов)
+    // 3. Check route.params.locale (for existing routes)
     if (route.params?.locale) {
       return route.params.locale.toString()
     }
 
-    // 4. Извлекаем локаль из URL пути (для несуществующих маршрутов)
+    // 4. Extract locale from URL path (for non-existent routes)
     const path = route.path || route.fullPath || ''
     const localeFromPath = this.extractLocaleFromPath(path)
     if (localeFromPath) {
       return localeFromPath
     }
 
-    // 5. Проверяем куку (если передана)
+    // 5. Check cookie (if provided)
     if (this.cookieLocaleDefault) {
       return this.cookieLocaleDefault
     }
 
-    // 6. Возвращаем defaultLocale как fallback
+    // 6. Return defaultLocale as fallback
     return (this.i18nConfig.defaultLocale || 'en').toString()
   }
 
@@ -371,7 +379,7 @@ export class RouteService {
       // useCookie('no-prefix-locale').value = toLocale
       this.noPrefixDefault = toLocale
     }
-    // Обновляем куку для обычной стратегии (prefix или prefix_except_default)
+    // Update cookie for regular strategy (prefix or prefix_except_default)
     if (!this.i18nConfig.hashMode && !isNoPrefixStrategy(this.i18nConfig.strategy!) && this.cookieLocaleName) {
       this.setCookie(this.cookieLocaleName, toLocale)
       this.cookieLocaleDefault = toLocale

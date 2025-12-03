@@ -18,7 +18,12 @@ export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string
   const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   // Determine current locale by priority
-  const detectedLocale = currentLocale || detectCurrentLocale(event, { fallbackLocale, defaultLocale: defaultLocale || configDefaultLocale })
+  // Pass locales to config for URL path check
+  const detectedLocale = currentLocale || detectCurrentLocale(event, {
+    fallbackLocale,
+    defaultLocale: defaultLocale || configDefaultLocale,
+    locales, // Pass the list of locales
+  })
 
   // Find configuration for current locale
   const localeConfig = locales?.find(l => l.code === detectedLocale) ?? null

@@ -52,8 +52,15 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
   // The helper will now operate on data unique to this request
   const { getTranslation, loadTranslations, hasGeneralTranslation } = useTranslationHelper(requestScopedCache)
 
-  const config = useRuntimeConfig(event).i18nConfig as unknown as ModuleOptionsExtend
-  const locale = currentLocale || detectCurrentLocale(event, config, defaultLocale)
+  const config = useRuntimeConfig(event).public.i18nConfig as unknown as ModuleOptionsExtend // Changed to public.i18nConfig, as locales are there
+  const { locales, fallbackLocale, defaultLocale: configDefaultLocale } = config
+
+  // Pass locales for URL path check
+  const locale = currentLocale || detectCurrentLocale(event, {
+    fallbackLocale,
+    defaultLocale: defaultLocale || configDefaultLocale,
+    locales,
+  }, defaultLocale)
 
   // --- STEP 3: Logic remains the same, but now it's safe ---
 

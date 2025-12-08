@@ -5,7 +5,7 @@
 <script setup>
 import { useRoute, useRouter, useI18n, createError, navigateTo, useRuntimeConfig, showError } from '#imports'
 import { isInternalPath } from '../utils/path-utils'
-import { isPrefixStrategy, isPrefixExceptDefaultStrategy } from 'nuxt-i18n-micro-core'
+import { isPrefixStrategy, isPrefixExceptDefaultStrategy } from '@i18n-micro/core'
 
 const route = useRoute()
 const router = useRouter()

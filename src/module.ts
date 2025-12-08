@@ -13,14 +13,15 @@ import {
   useLogger,
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
-import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from 'nuxt-i18n-micro-types'
+import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from '@i18n-micro/types'
 import {
   isNoPrefixStrategy,
   isPrefixStrategy,
   withPrefixStrategy,
   isPrefixExceptDefaultStrategy,
   isPrefixAndDefaultStrategy,
-} from 'nuxt-i18n-micro-core'
+  defaultPlural,
+} from '@i18n-micro/core'
 import { setupDevToolsUI } from './devtools'
 import { PageManager } from './page-manager'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
@@ -97,17 +98,7 @@ export default defineNuxtModule<ModuleOptions>({
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
     canonicalQueryWhitelist: ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag'],
-    plural: (key, count, params, _locale, getTranslation) => {
-      const translation = getTranslation(key, params)
-      if (!translation) {
-        return null
-      }
-      const forms = translation.toString().split('|')
-      if (forms.length === 0) return null
-      const selectedForm = count < forms.length ? forms[count] : forms[forms.length - 1]
-      if (!selectedForm) return null
-      return selectedForm.trim().replace('{count}', count.toString())
-    },
+    plural: defaultPlural,
     customRegexMatcher: undefined,
     excludePatterns: undefined,
     missingWarn: true,

@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
-import { interpolate, useTranslationHelper } from 'nuxt-i18n-micro-core'
-import type { TranslationCache } from 'nuxt-i18n-micro-core/dist/translation' // <-- Direct type import
-import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translations } from 'nuxt-i18n-micro-types'
+import { interpolate, useTranslationHelper } from '@i18n-micro/core'
+import type { TranslationCache } from '@i18n-micro/core/dist/translation' // <-- Direct type import
+import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translations } from '@i18n-micro/types'
 import { detectCurrentLocale } from './utils/locale-detector'
 import { useRuntimeConfig } from '#imports'
 

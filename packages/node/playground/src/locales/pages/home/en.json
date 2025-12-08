@@ -1,0 +1,9 @@
+{
+  "title": "Home Page - Page Specific",
+  "description": "This is a page-specific translation for the home route",
+  "hero": {
+    "title": "Welcome to our Home Page",
+    "subtitle": "This content is specific to the home route"
+  }
+}
+

@@ -1,0 +1,9 @@
+{
+  "title": "Page À propos - Spécifique à la page",
+  "description": "Ceci est une traduction spécifique à la page pour la route À propos",
+  "content": {
+    "heading": "À propos de nous",
+    "text": "Ceci est un contenu spécifique à la page pour la page À propos"
+  }
+}
+

@@ -1,0 +1,9 @@
+{
+  "title": "Page d'accueil - Spécifique à la page",
+  "description": "Ceci est une traduction spécifique à la page pour la route d'accueil",
+  "hero": {
+    "title": "Bienvenue sur notre page d'accueil",
+    "subtitle": "Ce contenu est spécifique à la route d'accueil"
+  }
+}
+

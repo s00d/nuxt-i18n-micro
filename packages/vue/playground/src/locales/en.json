@@ -1,0 +1,27 @@
+{
+  "welcome": "Welcome",
+  "greeting": "Hello, {name}!",
+  "apples": "no apples | one apple | {count} apples",
+  "number": "Number: {number}",
+  "date": "Date: {date}",
+  "relativeDate": "Relative: {relativeDate}",
+  "home": {
+    "title": "Home Page",
+    "description": "This is the home page"
+  },
+  "about": {
+    "title": "About Page",
+    "description": "This is the about page"
+  },
+  "components": {
+    "title": "Components Demo",
+    "description": "Demo of all i18n components"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "components": "Components"
+  }
+}
+
+

@@ -15,6 +15,16 @@ export default createConfigForNuxt({
     ],
   },
 })
+  .prepend({
+    ignores: [
+      '**/.astro/**',
+      '**/.astro/**/*',
+      '**/playground/**/.astro/**',
+      '**/packages/*/playground/**/.astro/**',
+      '**/packages/astro/playground/.astro/**',
+      '**/packages/astro/playground/src/env.d.ts',
+    ],
+  })
   .append({
     rules: {
       'vue/no-v-html': 'off',

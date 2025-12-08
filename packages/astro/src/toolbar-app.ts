@@ -34,7 +34,6 @@ export default defineToolbarApp({
 
     const adaptedServer: AdaptedServer = {
       send: (event: string, data?: unknown) => {
-        console.log('[i18n-adapted] Sending event:', event, 'with data:', data ? (typeof data === 'object' ? Object.keys(data as Record<string, unknown>).length + ' keys' : data) : 'no data')
         server.send(event, data)
       },
       on: (event: string, callback: (data: unknown) => void) => {
@@ -43,7 +42,6 @@ export default defineToolbarApp({
         }
         handlers.get(event)?.add(callback)
         const wrappedCallback = (data: unknown) => {
-          console.log('[i18n-adapted] Received event:', event, 'with data:', data ? (typeof data === 'object' ? Object.keys(data as Record<string, unknown>).length + ' keys' : data) : 'no data')
           callback(data)
         }
         server.on(event, wrappedCallback)

@@ -79,7 +79,6 @@ export function createVueBridge(options: VueBridgeOptions): I18nDevToolsBridge {
           if (locale && routeName) {
             i18n.addRouteTranslations(locale, routeName, content as Record<string, unknown>, false)
           }
-          console.log(`[vue-bridge] Updated page translation: ${routeName} (${locale})`)
         }
         else {
           // 2. Check for global: {locale}.json
@@ -90,7 +89,6 @@ export function createVueBridge(options: VueBridgeOptions): I18nDevToolsBridge {
             if (locale) {
               i18n.addTranslations(locale, content as Record<string, unknown>, false)
             }
-            console.log(`[vue-bridge] Updated global translation: ${locale}`)
           }
           else {
             throw new Error(`Unknown file path format: ${filePath}`)
@@ -102,7 +100,6 @@ export function createVueBridge(options: VueBridgeOptions): I18nDevToolsBridge {
           try {
             const storageKey = `i18n_v_save_${filePath}`
             localStorage.setItem(storageKey, JSON.stringify(content, null, 2))
-            console.log(`[vue-bridge] Saved to localStorage: ${filePath}`)
           }
           catch (e) {
             console.warn('[vue-bridge] Failed to save to localStorage:', e)

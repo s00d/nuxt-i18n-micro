@@ -37,7 +37,6 @@ export function setupVueDevTools(options: VueDevToolsOptions) {
 
   // Функция, которую вызовет SFC из DevTools, чтобы передать свой контейнер
   const connectHandler = (el: HTMLElement) => {
-    console.log('[i18n-devtools] Connected to DevTools container')
     targetContainer.value = el
   }
 
@@ -143,6 +142,4 @@ onMounted(() => {
       },
     })
   })
-
-  console.log('[vue-devtools] i18n-micro DevTools tab registered')
 }

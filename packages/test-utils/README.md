@@ -1,6 +1,6 @@
 # Nuxt I18n Micro Test Utils
 
-This is a utility library designed to facilitate testing for Nuxt.js applications that use the `nuxt-i18n-micro-core` package. It provides helper functions to handle translations, formatting, and locale switching, simplifying the process of testing internationalization (i18n) functionality.
+This is a utility library designed to facilitate testing for Nuxt.js applications that use the `@i18n-micro/core` package. It provides helper functions to handle translations, formatting, and locale switching, simplifying the process of testing internationalization (i18n) functionality.
 
 ## Features
 
@@ -16,13 +16,13 @@ This is a utility library designed to facilitate testing for Nuxt.js application
 You can install the package via npm or yarn:
 
 ```bash
-npm install nuxt-i18n-micro-test-utils
+npm install @i18n-micro/test-utils
 ```
 
 or
 
 ```bash
-yarn add nuxt-i18n-micro-test-utils
+yarn add @i18n-micro/test-utils
 ```
 
 ## Usage
@@ -32,7 +32,7 @@ yarn add nuxt-i18n-micro-test-utils
 To use the utility functions, import them as follows:
 
 ```typescript
-import { i18nUtils } from 'nuxt-i18n-micro-test-utils'
+import { i18nUtils } from '@i18n-micro/test-utils'
 ```
 
 ### Example Usage

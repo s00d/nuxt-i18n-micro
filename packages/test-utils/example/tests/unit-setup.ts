@@ -1,6 +1,6 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { vi } from 'vitest'
-import { i18nUtils } from 'nuxt-i18n-micro-test-utils'
+import { i18nUtils } from '@i18n-micro/test-utils'
 
 export function createFakeI18n() {
   return {

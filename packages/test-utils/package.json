@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-i18n-micro-test-utils",
+  "name": "@i18n-micro/test-utils",
   "version": "1.0.7",
   "description": "",
   "repository": "s00d/nuxt-i18n-micro",
@@ -24,7 +24,7 @@
   },
   "keywords": [],
   "dependencies": {
-    "nuxt-i18n-micro-core": "workspace:*"
+    "@i18n-micro/core": "workspace:*"
   },
   "devDependencies": {
     "vite-plugin-dts": "^4.3.0"

@@ -4,15 +4,15 @@ outline: deep
 
 # News
 
-## Nuxt I18n Micro v2.14.0 — New Integrations for Node.js, Vue, and Astro
+## Nuxt I18n Micro v2.14.1 — New Integrations for Node.js, Vue, and Astro
 
 **Date**: 2025-12-07
 
 **Version**: `v2.14.0`
 
-![Integrations](/2.14.0.png)
+![Integrations](/2.14.1.png)
 
-We're excited to announce **v2.14.0** with brand new integrations for Node.js, Vue 3, and Astro! These packages bring the same powerful i18n capabilities to your favorite frameworks, sharing the same core logic for consistency and performance.
+We're excited to announce **v2.14.1** with brand new integrations for Node.js, Vue 3, and Astro! These packages bring the same powerful i18n capabilities to your favorite frameworks, sharing the same core logic for consistency and performance.
 
 ### What's New?
 

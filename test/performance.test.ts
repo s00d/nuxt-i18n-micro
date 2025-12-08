@@ -246,15 +246,17 @@ function getProcessUsage(pid: number): { cpu: number, memory: number } | null {
     const lines = result.trim().split('\n')
 
     // Если процесс не найден, вернем null
-    if (lines.length < 2 || lines[1].trim() === '') {
+    if (lines.length < 2 || !lines[1] || lines[1].trim() === '') {
       return null
     }
 
-    const [cpu, memory] = lines[1].trim().split(/\s+/).map(Number.parseFloat)
+    const parts = lines[1].trim().split(/\s+/).map(Number.parseFloat)
+    const cpu = parts[0]
+    const memory = parts[1]
 
     return {
       cpu: cpu || 0,
-      memory: memory / 1024 || 0, // Преобразуем из KB в MB
+      memory: memory ? memory / 1024 : 0, // Преобразуем из KB в MB
     }
   }
   catch (error: unknown) {

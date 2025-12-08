@@ -136,11 +136,13 @@ test.describe('n3', () => {
     })
 
     test('should handle invalid routes properly', async ({ page }) => {
+      const firstLang = availableLanguages[0]
+      if (!firstLang) return
       const invalidRoutes = [
         '/invalid-route',
-        `/${availableLanguages[0].code}/invalid-route`,
-        `/${availableLanguages[0].code}/country/invalid-country`,
-        `/${availableLanguages[0].code}/country/germany/invalid-state`,
+        `/${firstLang.code}/invalid-route`,
+        `/${firstLang.code}/country/invalid-country`,
+        `/${firstLang.code}/country/germany/invalid-state`,
       ]
 
       for (const route of invalidRoutes) {

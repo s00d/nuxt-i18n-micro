@@ -44,6 +44,7 @@ export function findAllowedLocalesForRoute(
   // For dynamic routes, try to match against route patterns using route.matched
   if (!allowedLocales && route.matched && route.matched.length > 0) {
     const matchedRoute = route.matched[0]
+    if (!matchedRoute) return null
     const matchedPath = matchedRoute.path
 
     const baseRoutePattern = extractBaseRoutePattern(matchedPath)
@@ -107,6 +108,7 @@ export function isMetaDisabledForRoute(
   // For dynamic routes, try to match against route patterns using route.matched
   if (route.matched && route.matched.length > 0) {
     const matchedRoute = route.matched[0]
+    if (!matchedRoute) return false
     const matchedPath = matchedRoute.path
 
     const baseRoutePattern = extractBaseRoutePattern(matchedPath)

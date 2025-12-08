@@ -34,8 +34,11 @@ export const detectCurrentLocale = (
   if (locales && locales.length > 0) {
     const url = getRequestURL(event)
     // Remove query params and hash to ensure clean path comparison
-    const cleanPath = url.pathname.split('?')[0].split('#')[0]
-    const firstSegment = cleanPath.split('/').filter(Boolean)[0] // Get the first non-empty segment after the slash
+    const querySplit = url.pathname.split('?')
+    const cleanPath = querySplit[0]?.split('#')[0]
+    if (!cleanPath) return defaultLocale || 'en'
+    const pathSegments = cleanPath.split('/').filter(Boolean)
+    const firstSegment = pathSegments[0] || '' // Get the first non-empty segment after the slash
 
     // If the first segment matches one of the locale codes, use it
     if (firstSegment && locales.some(l => l.code === firstSegment)) {

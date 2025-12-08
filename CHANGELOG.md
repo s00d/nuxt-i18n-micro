@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.14.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.14.0...v2.14.1)
+
+### 🏡 Chore
+
+- **packages:** Set publishConfig access to public for all packages ([2a01f9a](https://github.com/s00d/nuxt-i18n-micro/commit/2a01f9a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.14.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.13.0...v2.14.0)

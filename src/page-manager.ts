@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
-import type { GlobalLocaleRoutes, Locale, Strategies } from 'nuxt-i18n-micro-types'
-import { isNoPrefixStrategy, isPrefixAndDefaultStrategy, isPrefixExceptDefaultStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
+import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
+import { isNoPrefixStrategy, isPrefixAndDefaultStrategy, isPrefixExceptDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import {
   buildFullPath,
   buildFullPathNoPrefix,
@@ -54,8 +54,10 @@ export class PageManager {
         // 3. Проходим по каждому кастомному пути (en, es и т.д.)
         for (const locale in localePaths) {
           const customPath = localePaths[locale]
-          // 4. НОРМАЛИЗУЕМ САМ КАСТОМНЫЙ ПУТЬ!
-          normalizedLocalePaths[locale] = normalizeRouteKey(customPath)
+          if (customPath) {
+            // 4. НОРМАЛИЗУЕМ САМ КАСТОМНЫЙ ПУТЬ!
+            normalizedLocalePaths[locale] = normalizeRouteKey(customPath)
+          }
         }
 
         // 5. Сохраняем объект с уже нормализованными путями
@@ -63,7 +65,7 @@ export class PageManager {
       }
       else {
         // Сохраняем как есть, если это `false`
-        normalizedGlobalRoutes[newKey] = localePaths
+        normalizedGlobalRoutes[newKey] = localePaths as boolean | Record<string, string>
       }
     }
     // Сохраняем уже нормализованный объект

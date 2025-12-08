@@ -148,13 +148,19 @@ function serve(cmd: string[], port: number): ChildProcess {
   delete env.TEST
   delete env.JEST
 
-  const child = spawn(cmd[0], cmd.slice(1), {
+  const command = cmd[0]
+  if (!command) {
+    throw new Error('Command is required')
+  }
+  const child = spawn(command, cmd.slice(1), {
     cwd: FIXTURES,
     stdio: 'inherit',
     detached: true,
     env,
-  })
-  child.unref()
+  }) as import('child_process').ChildProcess
+  if (child && typeof child.unref === 'function') {
+    child.unref()
+  }
   return child
 }
 

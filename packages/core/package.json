@@ -22,6 +22,9 @@
     "test": "jest",
     "prepublishOnly": "pnpm run build"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [],
   "dependencies": {
     "@i18n-micro/types": "workspace:*"

@@ -24,6 +24,9 @@
     "dist",
     "src/components"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",

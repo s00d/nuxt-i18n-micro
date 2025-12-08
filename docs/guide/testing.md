@@ -10,12 +10,12 @@ Testing the `Nuxt I18n Micro` module is crucial to ensure that your application'
 
 ## 🛠️ Setting Up the Testing Environment
 
-### 1. Install `nuxt-i18n-micro-test-utils`
+### 1. Install `@i18n-micro/test-utils`
 
 First, you need to install the testing utilities for `Nuxt I18n Micro`. This package provides the necessary tools to mock and test your i18n configurations.
 
 ```bash
-npm install nuxt-i18n-micro-test-utils --save-dev
+npm install @i18n-micro/test-utils --save-dev
 ```
 
 ### 2. Create a Mock Configuration File
@@ -27,7 +27,7 @@ Next, create a file to set up the mock i18n configuration. This file will be use
 
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { vi } from 'vitest'
-import { i18nUtils } from 'nuxt-i18n-micro-test-utils'
+import { i18nUtils } from '@i18n-micro/test-utils'
 
 export function createFakeI18n() {
   return {
@@ -157,13 +157,13 @@ describe('ExampleComponent', () => {
 
 ## 📝 Best Practices for Testing
 
-- **🔧 Mock i18n Functions:** Always mock the i18n functions using `nuxt-i18n-micro-test-utils` to ensure consistent and predictable test results.
+- **🔧 Mock i18n Functions:** Always mock the i18n functions using `@i18n-micro/test-utils` to ensure consistent and predictable test results.
 - **⚙️ Use Vitest for Unit Tests:** Vitest is a powerful testing framework for Vue applications. Use it to write unit tests for your components.
 - **📚 Document Your Tests:** Clearly document the purpose and expected outcomes of each test. This will help maintain clarity and make it easier for others (or future you) to understand the tests.
 
 ## 📊 i18n Utility Methods
 
-Below is a table describing all the utility methods provided by `nuxt-i18n-micro-test-utils`.
+Below is a table describing all the utility methods provided by `@i18n-micro/test-utils`.
 
 | Method                                          | Description                                                    |
 |-------------------------------------------------|----------------------------------------------------------------|

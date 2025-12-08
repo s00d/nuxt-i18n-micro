@@ -12,7 +12,7 @@ import type {
   RouteParamsRawGeneric,
   Router,
 } from 'vue-router'
-import type { I18nRouteParams, Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
+import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { isNoPrefixStrategy, withPrefixStrategy } from './helpers'
 
 interface NavigateToInterface {
@@ -45,9 +45,10 @@ export class RouteService {
 
     // Remove query params and hash to ensure clean path comparison
     // This is important when falling back to fullPath which might contain these
-    const cleanPath = path.split('?')[0].split('#')[0]
+    const querySplit = path.split('?')
+    const cleanPath = querySplit[0]?.split('#')[0]
 
-    if (cleanPath === '/') {
+    if (!cleanPath || cleanPath === '/') {
       return null
     }
 
@@ -57,6 +58,10 @@ export class RouteService {
     }
 
     const firstSegment = pathSegments[0]
+    if (!firstSegment) {
+      return null
+    }
+
     const availableLocales = this.i18nConfig.locales?.map(l => l.code) || []
 
     // Check if the first segment is a valid locale

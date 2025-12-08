@@ -1,19 +1,19 @@
-# nuxt-i18n-micro-core
+# @i18n-micro/core
 
-`nuxt-i18n-micro-core` is the core module for handling translations, routing, and formatting in a Nuxt.js application. It provides utilities for managing translations, interpolating placeholders, formatting numbers, dates, and relative times, and handling locale-specific routing. This module is designed to work seamlessly with `nuxt-i18n-micro` and its associated utilities.
+`@i18n-micro/core` is the core module for handling translations, routing, and formatting in a Nuxt.js application. It provides utilities for managing translations, interpolating placeholders, formatting numbers, dates, and relative times, and handling locale-specific routing. This module is designed to work seamlessly with `nuxt-i18n-micro` and its associated utilities.
 
 ## Installation
 
-You can install `nuxt-i18n-micro-core` using npm or yarn:
+You can install `@i18n-micro/core` using npm or yarn:
 
 ```bash
-npm install nuxt-i18n-micro-core
+npm install @i18n-micro/core
 ```
 
 or
 
 ```bash
-yarn add nuxt-i18n-micro-core
+yarn add @i18n-micro/core
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ This package provides several utilities for managing translations, formatting, a
 Here’s an example of how you might use these utilities in your Nuxt.js project:
 
 ```typescript
-import { useTranslationHelper, interpolate, FormatService, RouteService } from 'nuxt-i18n-micro-core'
+import { useTranslationHelper, interpolate, FormatService, RouteService } from '@i18n-micro/core'
 
 // Initialize the translation helper
 const translationHelper = useTranslationHelper()

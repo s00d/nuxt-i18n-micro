@@ -1,11 +1,15 @@
-import type { Translations } from 'nuxt-i18n-micro-types'
-import type { Ref } from 'vue'
+import type { Translations } from '@i18n-micro/types'
+
+// Duck-typing для Ref, чтобы не тащить Vue зависимость
+export interface RefLike<T> {
+  value: T
+}
 
 export interface TranslationCache {
-  generalLocaleCache: Ref<Record<string, Translations>> | Record<string, Translations>
-  routeLocaleCache: Ref<Record<string, Translations>> | Record<string, Translations>
-  dynamicTranslationsCaches: Ref<Record<string, Translations>[]> | Record<string, Translations>[]
-  serverTranslationCache: Ref<Record<string, Map<string, Translations | unknown>>> | Record<string, Map<string, Translations | unknown>>
+  generalLocaleCache: RefLike<Record<string, Translations>> | Record<string, Translations>
+  routeLocaleCache: RefLike<Record<string, Translations>> | Record<string, Translations>
+  dynamicTranslationsCaches: RefLike<Record<string, Translations>[]> | Record<string, Translations>[]
+  serverTranslationCache: RefLike<Record<string, Map<string, Translations | unknown>>> | Record<string, Map<string, Translations | unknown>>
 }
 
 // Глобальные кэши для fallback (только для unit-тестов и обратной совместимости)
@@ -55,15 +59,15 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
 }
 
 // Вспомогательная функция для получения значения из Ref или обычного объекта
-function getValue<T>(refOrValue: Ref<T> | T): T {
+function getValue<T>(refOrValue: RefLike<T> | T): T {
   return typeof refOrValue === 'object' && refOrValue !== null && 'value' in refOrValue
-    ? (refOrValue as Ref<T>).value
+    ? (refOrValue as RefLike<T>).value
     : refOrValue as T
 }
 
 // Вспомогательная функция для установки значения в Ref или обычный объект
 function setValue<T extends Record<string, unknown>>(
-  refOrValue: Ref<T> | T,
+  refOrValue: RefLike<T> | T,
   key: string,
   value: T[keyof T],
 ): void {
@@ -72,7 +76,7 @@ function setValue<T extends Record<string, unknown>>(
 }
 
 // Вспомогательная функция для получения значения из Ref или обычного объекта по ключу
-function getValueByKey<T extends Record<string, unknown>>(refOrValue: Ref<T> | T, key: string): T[keyof T] | undefined {
+function getValueByKey<T extends Record<string, unknown>>(refOrValue: RefLike<T> | T, key: string): T[keyof T] | undefined {
   const target = getValue(refOrValue)
   return (target as Record<string, unknown>)[key] as T[keyof T] | undefined
 }
@@ -135,7 +139,7 @@ export function useTranslationHelper(caches?: TranslationCache) {
 
       return !!getValueByKey(routeLocaleCache, cacheKey)
     },
-    hasTranslation: (locale: string, key: string): boolean => {
+    hasTranslation: (locale: string, key: import('@i18n-micro/types').TranslationKey): boolean => {
       const dynamicCaches = getValue(dynamicTranslationsCaches)
       for (const dynamicCache of dynamicCaches) {
         if (findTranslation(dynamicCache[locale] || null, key) !== null) {
@@ -146,7 +150,7 @@ export function useTranslationHelper(caches?: TranslationCache) {
       const generalCache = getValueByKey(generalLocaleCache, locale)
       return findTranslation(generalCache || null, key) !== null
     },
-    getTranslation: <T = unknown>(locale: string, routeName: string, key: string): T | null => {
+    getTranslation: <T = unknown>(locale: string, routeName: string, key: import('@i18n-micro/types').TranslationKey): T | null => {
       const cacheKey = `${locale}:${routeName}`
       const serverCache = getValueByKey(serverTranslationCache, cacheKey)
       const cached = serverCache?.get(key)

@@ -6,7 +6,7 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
+import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { RouteService } from '../src'
 
 describe('RouteService', () => {

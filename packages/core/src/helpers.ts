@@ -1,4 +1,4 @@
-import type { Params, Strategies } from 'nuxt-i18n-micro-types'
+import type { Params, Strategies, PluralFunc, Getter, TranslationKey } from '@i18n-micro/types'
 
 export function interpolate(template: string, params: Params): string {
   let result = template
@@ -28,4 +28,26 @@ export function isPrefixExceptDefaultStrategy(strategy: Strategies) {
 
 export function isPrefixAndDefaultStrategy(strategy: Strategies) {
   return strategy === 'prefix_and_default'
+}
+
+/**
+ * Default pluralization function
+ * Splits translation by '|' and selects form based on count
+ * @param key - Translation key
+ * @param count - Count for pluralization
+ * @param params - Parameters for translation
+ * @param _locale - Current locale (unused in default implementation)
+ * @param getTranslation - Function to get translation value
+ * @returns Selected plural form or null if not found
+ */
+export const defaultPlural: PluralFunc = (key: TranslationKey, count: number, params: Params, _locale: string, getTranslation: Getter) => {
+  const translation = getTranslation(key, params)
+  if (!translation) {
+    return null
+  }
+  const forms = translation.toString().split('|')
+  if (forms.length === 0) return null
+  const selectedForm = count < forms.length ? forms[count] : forms[forms.length - 1]
+  if (!selectedForm) return null
+  return selectedForm.trim().replace('{count}', count.toString())
 }

@@ -1,0 +1,27 @@
+{
+  "title": "Node.js I18n 包演示",
+  "description": "此页面演示了在 Node.js 环境中使用 @i18n-micro/node 包。",
+  "locale": "语言:",
+  "route": "路由:",
+  "reload": "重新加载",
+  "loading": "加载中...",
+  "error": "错误:",
+  "currentLocale": "当前语言:",
+  "currentRoute": "当前路由:",
+  "translations": "翻译",
+  "welcome": "欢迎",
+  "greeting": "你好，{name}！",
+  "nested": {
+    "message": "这是一个嵌套消息。"
+  },
+  "apples": "没有苹果 | 一个苹果 | {count} 个苹果",
+  "numberFormatting": "数字格式:",
+  "dateFormatting": "日期格式:",
+  "relativeTime": "相对时间:",
+  "routeSpecific": "路由特定:",
+  "methodsInfo": "方法信息",
+  "hasTranslation": "有 'welcome' 翻译:",
+  "zero": "0:",
+  "one": "1:",
+  "many": "5:"
+}

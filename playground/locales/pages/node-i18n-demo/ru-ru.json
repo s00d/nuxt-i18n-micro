@@ -1,0 +1,28 @@
+{
+  "title": "Демо пакета Node.js I18n",
+  "description": "Эта страница демонстрирует использование пакета @i18n-micro/node в среде Node.js.",
+  "locale": "Язык:",
+  "route": "Маршрут:",
+  "reload": "Перезагрузить",
+  "loading": "Загрузка...",
+  "error": "Ошибка:",
+  "currentLocale": "Текущий язык:",
+  "currentRoute": "Текущий маршрут:",
+  "translations": "Переводы",
+  "welcome": "Добро пожаловать",
+  "greeting": "Привет, {name}!",
+  "nested": {
+    "message": "Это вложенное сообщение."
+  },
+  "apples": "нет яблок | одно яблоко | {count} яблок",
+  "numberFormatting": "Форматирование чисел:",
+  "dateFormatting": "Форматирование даты:",
+  "relativeTime": "Относительное время:",
+  "routeSpecific": "Специфично для маршрута:",
+  "methodsInfo": "Информация о методах",
+  "hasTranslation": "Есть перевод 'welcome':",
+  "zero": "0:",
+  "one": "1:",
+  "many": "5:"
+}
+

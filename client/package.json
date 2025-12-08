@@ -2,7 +2,8 @@
   "name": "@nuxtjs/i18n-client",
   "private": true,
   "dependencies": {
-    "nuxt-i18n-micro-types": "workspace:*"
+    "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/devtools-ui": "workspace:*"
   },
   "scripts": {
     "dev": "nuxi dev",

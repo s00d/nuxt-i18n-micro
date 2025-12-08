@@ -30,4 +30,17 @@ export default defineNuxtConfig({
       publicDir: resolve(__dirname, '../dist/client'),
     },
   },
+
+  vite: {
+    server: {
+      hmr: {
+        protocol: 'ws',
+        host: 'localhost',
+        // HMR client should connect through the main server proxy
+        clientPort: 3000,
+        // Use relative path - Nuxt will add baseURL automatically
+        path: '/_nuxt/',
+      },
+    },
+  },
 })

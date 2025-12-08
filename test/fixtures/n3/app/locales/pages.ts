@@ -37,7 +37,10 @@ directoryListing.forEach((path) => {
           }
         }
         else {
-          newParts[i] = parts[i] // .replace(/^_$/, '*').replace(/^_/, ':');
+          const part = parts[i]
+          if (part) {
+            newParts[i] = part // .replace(/^_$/, '*').replace(/^_/, ':');
+          }
         }
       }
       pages[pageIdentifier][lang] = newParts.join('/')

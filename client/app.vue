@@ -1,70 +1,66 @@
 <template>
   <div
-    class="h-screen overflow-auto"
-  >
-    <!-- Tabs -->
-    <Tabs
-      v-model="activeTab"
-      :tabs="tabs"
-    />
-
-    <!-- Main content -->
-    <I18nView v-if="activeTab === 'i18n'" />
-    <SettingsView v-if="activeTab === 'settings'" />
-    <ConfigView v-if="activeTab === 'config'" />
-  </div>
+    id="app"
+    ref="appContainer"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { onDevtoolsClientConnected } from '@nuxt/devtools-kit/iframe-client'
-import Tabs from './components/Tabs.vue'
-import I18nView from './views/I18nView.vue'
-import SettingsView from './views/SettingsView.vue'
-import ConfigView from './views/ConfigView.vue'
-import { type LocaleData, RPC_NAMESPACE } from './types'
-import { useI18nStore } from './stores/useI18nStore'
+import { register } from '@i18n-micro/devtools-ui'
+import type { I18nDevToolsBridge } from '@i18n-micro/devtools-ui'
+import { createNuxtBridge } from './bridge/nuxt-bridge'
 
-const {
-  isLoading,
-  locales,
-  configs,
-  selectedFile,
-  selectedFileContent,
-} = useI18nStore()
+interface I18nDevToolsElement extends HTMLElement {
+  bridge: I18nDevToolsBridge
+}
 
-const activeTab = ref('i18n') // i18n tab is active by default
+// Register the custom element
+register()
 
-const tabs = [
-  { label: 'i18n', value: 'i18n' },
-  { label: 'Settings', value: 'settings' },
-  { label: 'Server Info', value: 'config' },
-]
+const appContainer = ref<HTMLElement | null>(null)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let devToolsClient: any = null
+
+const mountDevTools = async () => {
+  if (!devToolsClient) return
+
+  // Wait for DOM to be ready
+  await nextTick()
+
+  // Get the app container
+  const container = appContainer.value || document.getElementById('app')
+  if (!container) {
+    console.error('App container not found')
+    return
+  }
+
+  // Create Nuxt bridge
+  const bridge = createNuxtBridge(devToolsClient)
+  console.log('[i18n-devtools] Bridge created:', bridge)
+
+  // Create and mount the custom element
+  const element = document.createElement('i18n-devtools-ui') as I18nDevToolsElement
+  // Set bridge as property (not attribute, as it's an object)
+  element.bridge = bridge
+  console.log('[i18n-devtools] Custom element created and bridge set:', { element, bridge: element.bridge })
+
+  // Clear container and append element
+  container.innerHTML = ''
+  container.appendChild(element)
+  console.log('[i18n-devtools] Custom element mounted')
+}
 
 onDevtoolsClientConnected(async (client) => {
-  const rpc = client.devtools.extendClientRpc(RPC_NAMESPACE, {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    localesUpdated(updatedLocales: LocaleData) {
-      locales.value = updatedLocales
-    },
-  })
+  devToolsClient = client
+  await mountDevTools()
+})
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  locales.value = await rpc.getLocalesAndTranslations()
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  configs.value = await rpc.getConfigs()
-  isLoading.value = false
-
-  watch(selectedFileContent, (newContent, oldValue) => {
-    if (!oldValue) return
-    if (selectedFile.value && newContent) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      rpc.saveTranslationContent(selectedFile.value, newContent)
-    }
-  }, { deep: true })
+// Mount on component mount as well (in case client is already connected)
+onMounted(async () => {
+  if (devToolsClient) {
+    await mountDevTools()
+  }
 })
 </script>

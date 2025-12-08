@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.15.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.15.0...v2.15.1)
+
+### 💅 Refactors
+
+- **devtools:** Streamline Vite proxy configuration for client server ([1038171](https://github.com/s00d/nuxt-i18n-micro/commit/1038171))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.15.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.14.1...v2.15.0)

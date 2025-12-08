@@ -1,11 +1,11 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale, DefineI18nRouteConfig } from 'nuxt-i18n-micro-types'
+import type { Locale, DefineI18nRouteConfig } from '@i18n-micro/types'
 
 // Helper function to extract script content from Vue file
 function extractScriptContent(content: string): string | null {
   const scriptMatch = content.match(/<script[^>]*>([\s\S]*?)<\/script>/)
-  return scriptMatch ? scriptMatch[1] : null
+  return scriptMatch && scriptMatch[1] ? scriptMatch[1] : null
 }
 
 // Helper function to remove TypeScript types from function parameters

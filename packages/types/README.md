@@ -1,19 +1,19 @@
-# nuxt-i18n-micro-types
+# @i18n-micro/types
 
-`nuxt-i18n-micro-types` provides TypeScript type definitions and interfaces for the `nuxt-i18n-micro` ecosystem. This package is designed to enhance type safety and developer experience when working with translations, locales, and routing in a Nuxt.js application. It includes types for locales, routing strategies, translation parameters, and more.
+`@i18n-micro/types` provides TypeScript type definitions and interfaces for the `nuxt-i18n-micro` ecosystem. This package is designed to enhance type safety and developer experience when working with translations, locales, and routing in a Nuxt.js application. It includes types for locales, routing strategies, translation parameters, and more.
 
 ## Installation
 
-You can install `nuxt-i18n-micro-types` using npm or yarn:
+You can install `@i18n-micro/types` using npm or yarn:
 
 ```bash
-npm install nuxt-i18n-micro-types
+npm install @i18n-micro/types
 ```
 
 or
 
 ```bash
-yarn add nuxt-i18n-micro-types
+yarn add @i18n-micro/types
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ This package provides TypeScript types and interfaces for working with `nuxt-i18
 Here’s an example of how you might use the types provided by this package:
 
 ```typescript
-import { Locale, Strategies, ModuleOptions, I18nRouteParams } from 'nuxt-i18n-micro-types'
+import { Locale, Strategies, ModuleOptions, I18nRouteParams } from '@i18n-micro/types'
 
 // Define locales
 const locales: Locale[] = [

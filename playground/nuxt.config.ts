@@ -12,6 +12,7 @@ const routesLocaleLinks: Record<string, string> = {
 export default defineNuxtConfig({
   modules: [
     '../src/module',
+    '../packages/types-generator/src/nuxt',
     defineNuxtModule({
       setup(_, nuxt) {
         if (!nuxt.options.dev)
@@ -31,7 +32,9 @@ export default defineNuxtConfig({
       },
     }),
   ],
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+  },
   experimental: {
     // typedPages: true,
     appManifest: false,
@@ -102,5 +105,8 @@ export default defineNuxtConfig({
     experimental: {
       i18nPreviousPageFallback: false,
     },
+  },
+  i18nTypes: {
+    translationDir: 'locales',
   },
 })

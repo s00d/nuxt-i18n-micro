@@ -1,0 +1,71 @@
+---
+import { useI18n } from '../utils'
+import type { Params } from '@i18n-micro/types'
+
+interface Props {
+  keypath: string
+  plural?: number | string
+  params?: Params
+  defaultValue?: string
+  tag?: string
+  html?: boolean
+  number?: number | string
+  date?: Date | string | number
+  relativeDate?: Date | string | number
+}
+
+const {
+  keypath,
+  plural,
+  params = {},
+  defaultValue = '',
+  tag = 'span',
+  html: renderHtml = false,
+  number,
+  date,
+  relativeDate,
+} = Astro.props
+
+const { t, tc, tn, td, tdr } = useI18n(Astro)
+
+let translation: string = ''
+
+// Handle number formatting
+if (number !== undefined) {
+  const numberValue = Number(number)
+  const formattedNumber = tn(numberValue)
+  translation = t(keypath, { number: formattedNumber, ...params }, defaultValue)?.toString() || defaultValue || keypath
+}
+// Handle date formatting
+else if (date !== undefined) {
+  const formattedDate = td(date)
+  translation = t(keypath, { date: formattedDate, ...params }, defaultValue)?.toString() || defaultValue || keypath
+}
+// Handle relative date formatting
+else if (relativeDate !== undefined) {
+  const formattedRelativeDate = tdr(relativeDate)
+  translation = t(keypath, { relativeDate: formattedRelativeDate, ...params }, defaultValue)?.toString() || defaultValue || keypath
+}
+// Handle pluralization
+else if (plural !== undefined) {
+  const count = Number.parseInt(plural.toString())
+  translation = tc(keypath, { count, ...params }, defaultValue)
+}
+// Regular translation
+else {
+  translation = t(keypath, params, defaultValue)?.toString() || defaultValue || keypath
+}
+---
+
+{renderHtml ? (
+  <Fragment set:html={`<${tag}>${translation}</${tag}>`} />
+) : tag === 'span' ? (
+  <span>{translation}</span>
+) : tag === 'div' ? (
+  <div>{translation}</div>
+) : tag === 'p' ? (
+  <p>{translation}</p>
+) : (
+  <span>{translation}</span>
+)}
+

@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { useI18n } from '@i18n-micro/astro'
+import I18nT from '@i18n-micro/astro/components/i18n-t.astro'
+import I18nLink from '@i18n-micro/astro/components/i18n-link.astro'
+import I18nGroup from '@i18n-micro/astro/components/i18n-group.astro'
+import I18nSwitcher from '@i18n-micro/astro/components/i18n-switcher.astro'
+
+const { t, tn, td, tdr } = useI18n(Astro)
+const now = new Date()
+const oneHourAgo = new Date(Date.now() - 3600000)
+---
+
+<Layout>
+  <h1>{t('components.title')}</h1>
+  <p>{t('components.description')}</p>
+
+  <section>
+    <h2>I18nT Component</h2>
+    <p><I18nT keypath="welcome" /></p>
+    <p><I18nT keypath="greeting" params={{ name: 'Astro' }} /></p>
+    <p><I18nT keypath="apples" plural={0} /></p>
+    <p><I18nT keypath="apples" plural={1} /></p>
+    <p><I18nT keypath="apples" plural={5} /></p>
+    <p><I18nT keypath="number" number={1234.56} /></p>
+    <p><I18nT keypath="date" date={now} /></p>
+    <p><I18nT keypath="relativeDate" relativeDate={oneHourAgo} /></p>
+  </section>
+
+  <section>
+    <h2>I18nLink Component</h2>
+    <p>
+      <I18nLink href="/">Home Link</I18nLink>
+    </p>
+    <p>
+      <I18nLink href="/about">About Link</I18nLink>
+    </p>
+    <p>
+      <I18nLink href="/components">Components Link</I18nLink>
+    </p>
+  </section>
+
+  <section>
+    <h2>I18nGroup Component</h2>
+    <I18nGroup>
+      <p>{t('home.title')}</p>
+      <p>{t('home.description')}</p>
+    </I18nGroup>
+  </section>
+
+  <section>
+    <h2>I18nSwitcher Component</h2>
+    <I18nSwitcher />
+  </section>
+
+  <section>
+    <h2>Formatting Examples</h2>
+    <p>Number: {tn(1234.56)}</p>
+    <p>Date: {td(now)}</p>
+    <p>Relative Time: {tdr(oneHourAgo)}</p>
+  </section>
+</Layout>
+
+<style>
+  section {
+    margin: 30px 0;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+
+  h2 {
+    margin-top: 0;
+    color: #42b983;
+    margin-bottom: 15px;
+  }
+
+  p {
+    margin: 10px 0;
+  }
+</style>
+

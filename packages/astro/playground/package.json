@@ -1,0 +1,26 @@
+{
+  "name": "@i18n-micro/astro-playground",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "node dist/server/entry.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@i18n-micro/astro": "workspace:*",
+    "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/types": "workspace:*",
+    "astro": "^5.0.0",
+    "@astrojs/node": "^9.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.19",
+    "typescript": "^5.4.2"
+  }
+}
+

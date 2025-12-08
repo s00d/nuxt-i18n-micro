@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { useI18n } from '@i18n-micro/astro'
+import I18nT from '@i18n-micro/astro/components/i18n-t.astro'
+
+const { t } = useI18n(Astro)
+---
+
+<Layout>
+  <h1>{t('home.title')}</h1>
+  <p>{t('home.description')}</p>
+  <p>{t('greeting', { name: 'World' })}</p>
+  <p><I18nT keypath="welcome" /></p>
+  <p><I18nT keypath="apples" plural={5} /></p>
+</Layout>
+

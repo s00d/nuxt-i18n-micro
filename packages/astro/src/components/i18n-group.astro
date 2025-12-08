@@ -1,0 +1,15 @@
+---
+interface Props {
+  route?: string
+  [key: string]: unknown
+}
+
+const { route: _route, ...attrs } = Astro.props
+// Note: Route setting would need to be handled at page level
+// This component is mainly for grouping translations
+---
+
+<div {...attrs}>
+  <slot />
+</div>
+

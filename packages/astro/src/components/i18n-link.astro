@@ -1,0 +1,40 @@
+---
+import { useI18n } from '../utils'
+import { localizePath, removeLocaleFromPath } from '../routing'
+
+interface Props {
+  href: string
+  locale?: string
+  class?: string
+  [key: string]: unknown
+}
+
+const { href, locale, class: className, ...attrs } = Astro.props
+const { locale: currentLocale, defaultLocale, locales } = useI18n(Astro)
+const localeCodes = locales.map(l => l.code)
+const currentPath = Astro.url.pathname
+
+// Get current locale from path or use detected locale
+const targetLocale = locale || currentLocale
+
+// Remove locale from current path to get base path
+const basePath = removeLocaleFromPath(currentPath, localeCodes)
+
+// If href is relative, resolve it relative to current base path
+let resolvedHref = href
+if (href.startsWith('/')) {
+  // Absolute path - remove locale if present and use as base
+  resolvedHref = removeLocaleFromPath(href, localeCodes)
+} else {
+  // Relative path - combine with current base path
+  resolvedHref = basePath === '/' ? `/${href}` : `${basePath}/${href}`
+}
+
+// Localize the href
+const localizedHref = localizePath(resolvedHref, targetLocale, localeCodes, defaultLocale)
+---
+
+<a href={localizedHref} class={className} {...attrs}>
+  <slot />
+</a>
+

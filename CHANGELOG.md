@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v2.15.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.14.1...v2.15.0)
+
+### 🚀 Enhancements
+
+- **nuxt.config:** Implement build output management in hooks ([22a0cc9](https://github.com/s00d/nuxt-i18n-micro/commit/22a0cc9))
+
+### 💅 Refactors
+
+- **playground:** Remove unnecessary reference to `content.d.ts` ([014868b](https://github.com/s00d/nuxt-i18n-micro/commit/014868b))
+
+### 📖 Documentation
+
+- **news:** Update version to v2.14.1 in the news section ([ffb4fd9](https://github.com/s00d/nuxt-i18n-micro/commit/ffb4fd9))
+- **types-generator:** Remove redundant TypeScript support link ([dd30614](https://github.com/s00d/nuxt-i18n-micro/commit/dd30614))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.14.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.14.0...v2.14.1)

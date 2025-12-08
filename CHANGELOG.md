@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v2.15.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.15.1...v2.15.2)
+
+### 🩹 Fixes
+
+- **devtools:** Use path.join for candidatePath construction ([4439fa1](https://github.com/s00d/nuxt-i18n-micro/commit/4439fa1))
+
+### 🏡 Chore
+
+- Remove unnecessary console log statements ([b003b65](https://github.com/s00d/nuxt-i18n-micro/commit/b003b65))
+- **packages:** Update package versions to 1.0.1 ([9c61051](https://github.com/s00d/nuxt-i18n-micro/commit/9c61051))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.15.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.15.0...v2.15.1)

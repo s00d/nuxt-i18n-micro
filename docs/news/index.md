@@ -8,9 +8,9 @@ outline: deep
 
 **Date**: 2025-12-07
 
-**Version**: `v2.14.0`
+**Version**: `v2.14.1`
 
-![Integrations](/2.14.1.png)
+![Integrations](/2.14.0.png)
 
 We're excited to announce **v2.14.1** with brand new integrations for Node.js, Vue 3, and Astro! These packages bring the same powerful i18n capabilities to your favorite frameworks, sharing the same core logic for consistency and performance.
 

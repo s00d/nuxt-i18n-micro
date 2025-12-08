@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { defineEventHandler, setResponseHeader } from 'h3'
-import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from 'nuxt-i18n-micro-types'
+import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - #imports доступны в Nitro
 import { useRuntimeConfig, createError, useStorage } from '#imports'
@@ -55,8 +55,8 @@ export default defineEventHandler(async (event) => {
 
   // Определяем имя страницы, по которому ищем файл перевода
   let fileLookupPage = page
-  if (routesLocaleLinks && (routesLocaleLinks as Record<string, string>)[page]) {
-    fileLookupPage = (routesLocaleLinks as Record<string, string>)[page]
+  if (routesLocaleLinks && page && (routesLocaleLinks as Record<string, string>)[page]) {
+    fileLookupPage = (routesLocaleLinks as Record<string, string>)[page] || page
     if (debug) {
       console.log(`[i18n] Route link found: '${page}' -> '${fileLookupPage}'. Using linked translations.`)
     }

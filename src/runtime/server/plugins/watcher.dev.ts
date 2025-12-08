@@ -2,7 +2,7 @@
 
 import path from 'node:path'
 import { watch, type FSWatcher } from 'chokidar'
-import type { ModulePrivateOptionsExtend } from 'nuxt-i18n-micro-types'
+import type { ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - #imports доступны в Nitro
 import { useStorage, useRuntimeConfig, defineNitroPlugin } from '#imports'

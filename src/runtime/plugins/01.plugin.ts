@@ -5,8 +5,8 @@ import type {
   RouteLocationResolvedGeneric,
   RouteLocationNamedRaw,
 } from 'vue-router'
-import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from 'nuxt-i18n-micro-core'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from 'nuxt-i18n-micro-types'
+import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from '@i18n-micro/core'
+import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from '@i18n-micro/types'
 import { useRouter, useCookie, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
 import { unref } from 'vue'
 import { useState } from '#app'

@@ -1,8 +1,8 @@
 // src/runtime/plugins/05.hooks.ts
 
-// УБИРАЕМ: import { useTranslationHelper } from 'nuxt-i18n-micro-core'
-import { isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
-import type { ModuleOptionsExtend, Translations } from 'nuxt-i18n-micro-types'
+// УБИРАЕМ: import { useTranslationHelper } from '@i18n-micro/core'
+import { isNoPrefixStrategy } from '@i18n-micro/core'
+import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { defineNuxtPlugin, useRuntimeConfig, useRouter, useNuxtApp } from '#imports'
 
 const isDev = process.env.NODE_ENV !== 'production'

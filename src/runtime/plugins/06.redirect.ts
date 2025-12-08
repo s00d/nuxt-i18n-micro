@@ -1,7 +1,7 @@
 // src/runtime/plugins/06.redirect.ts
 
-import { isNoPrefixStrategy, isPrefixStrategy } from 'nuxt-i18n-micro-core'
-import type { ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
+import { isNoPrefixStrategy, isPrefixStrategy } from '@i18n-micro/core'
+import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo, createError } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
 import { joinURL, withQuery } from 'ufo'
@@ -41,7 +41,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const pathSegments = to.path.split('/').filter(Boolean)
     const firstSegment = pathSegments[0]
 
-    const pathWithoutLocale = locales.includes(firstSegment)
+    const pathWithoutLocale = firstSegment && locales.includes(firstSegment)
       ? '/' + pathSegments.slice(1).join('/')
       : to.path
 
@@ -52,8 +52,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const routeRules = globalLocaleRoutes[pathWithoutLocale] || globalLocaleRoutes[routeName]
 
     if (routeRules && typeof routeRules === 'object') {
-      const localeToUse = locales.includes(firstSegment) ? firstSegment : defaultLocale
-      const customPathSegment = routeRules[localeToUse]
+      const localeToUse = firstSegment && locales.includes(firstSegment) ? firstSegment : defaultLocale
+      const customPathSegment = localeToUse ? routeRules[localeToUse] : undefined
 
       if (customPathSegment) {
         // --- КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ---
@@ -61,7 +61,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         const resolvedCustomPath = resolvePathWithParams(customPathSegment, to.params)
 
         // 2. Собираем полный ожидаемый путь
-        const localizedPath = locales.includes(firstSegment)
+        const localizedPath = firstSegment && locales.includes(firstSegment)
           ? joinURL(`/${firstSegment}`, resolvedCustomPath)
           : resolvedCustomPath
 
@@ -72,7 +72,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           return true
         }
       }
-      else if (locales.includes(firstSegment)) {
+      else if (firstSegment && locales.includes(firstSegment)) {
         throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
       }
     }

@@ -1,6 +1,6 @@
 // plugins/i18n.define.ts
 import type { WatchHandle, Ref } from 'vue'
-import type { Translations, DefineI18nRouteConfig } from 'nuxt-i18n-micro-types'
+import type { Translations, DefineI18nRouteConfig } from '@i18n-micro/types'
 import { defineNuxtPlugin, useNuxtApp } from '#imports'
 import { watch, unref, computed, onUnmounted } from 'vue'
 

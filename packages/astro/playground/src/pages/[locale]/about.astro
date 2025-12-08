@@ -1,0 +1,27 @@
+---
+import { useI18n } from '@i18n-micro/astro'
+
+const { locale } = Astro.params
+
+// Типы теперь подтягиваются автоматически
+const { locales } = Astro.locals
+const validLocales = locales?.map((l) => l.code) || ['en', 'fr', 'de']
+
+if (!locale || !validLocales.includes(locale)) {
+  return new Response(null, { status: 404 })
+}
+
+const i18n = Astro.locals.i18n
+// Update locale specifically for this route parameter
+if (i18n && locale) {
+  i18n.locale = locale
+  Astro.locals.locale = locale
+}
+
+const { getBasePath } = useI18n(Astro)
+const currentUrl = Astro.locals.currentUrl
+const basePath = getBasePath(currentUrl)
+
+return Astro.rewrite(basePath)
+---
+

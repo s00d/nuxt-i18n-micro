@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationDir": "./dist",
+    "sourceMap": true,
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "types": ["node", "astro/client"],
+    "jsx": "preserve",
+    "paths": {
+      // Убедитесь, что нет маппинга, который заставляет резолвить себя через node_modules/dist
+      "@i18n-micro/astro/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*", "src/astro-shim.d.ts"],
+  "exclude": ["node_modules", "dist", "**/dist/**", "**/*.d.ts"]
+}
+

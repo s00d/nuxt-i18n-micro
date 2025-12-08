@@ -1,0 +1,12 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      // Добавляем маппинг для shim, чтобы playground видел типизацию locals в dev
+      "@i18n-micro/astro/astro-shim": ["../src/astro-shim.d.ts"]
+    }
+  }
+}
+

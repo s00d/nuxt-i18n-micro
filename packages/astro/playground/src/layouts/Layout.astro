@@ -1,0 +1,106 @@
+---
+import { useI18n } from '@i18n-micro/astro'
+import I18nLink from '@i18n-micro/astro/components/i18n-link.astro'
+import I18nSwitcher from '@i18n-micro/astro/components/i18n-switcher.astro'
+
+const { t, locale } = useI18n(Astro)
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{t('welcome')}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Avenir, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: #2c3e50;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+
+      nav {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: #42b983;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+
+      nav a:hover {
+        background-color: #f0f0f0;
+      }
+
+      .locale-switcher-container {
+        margin-left: auto;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+
+      .locale-switcher-container > * {
+        display: flex;
+        gap: 5px;
+      }
+
+      .locale-switcher-container a {
+        padding: 5px 10px;
+        border: 1px solid #42b983;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #42b983;
+        font-weight: 500;
+        transition: all 0.3s;
+        white-space: nowrap;
+      }
+
+      .locale-switcher-container a:hover {
+        background-color: #f0f0f0;
+      }
+
+      .locale-switcher-container a.active {
+        background-color: #42b983;
+        color: white;
+      }
+
+      main {
+        padding: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <I18nLink href="/">{t('nav.home')}</I18nLink>
+      <I18nLink href="/about">{t('nav.about')}</I18nLink>
+      <I18nLink href="/components">{t('nav.components')}</I18nLink>
+      <div class="locale-switcher-container">
+        <I18nSwitcher class="" />
+      </div>
+    </nav>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+

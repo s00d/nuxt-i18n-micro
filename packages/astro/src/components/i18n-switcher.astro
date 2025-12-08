@@ -1,0 +1,52 @@
+---
+import { useI18n } from '../utils'
+import { switchLocalePath } from '../routing'
+import type { Locale } from '@i18n-micro/types'
+
+interface Props {
+  class?: string
+  activeClass?: string
+  [key: string]: unknown
+}
+
+const { class: className, activeClass = 'active', ...attrs } = Astro.props
+
+const { locale: currentLocale, locales, defaultLocale, getBasePath } = useI18n(Astro)
+const localeCodes = locales.map((l: Locale) => l.code)
+const currentPath = Astro.url.pathname
+
+// Filter out disabled locales
+const availableLocales = locales.filter((loc: Locale) => !loc.disabled)
+
+// Generate locale links
+const localeLinks = availableLocales.map((loc: Locale) => {
+  const isActive = loc.code === currentLocale
+  // Get base path without locale
+  const basePath = getBasePath()
+  // Generate path with locale
+  const switchPath = switchLocalePath(basePath, loc.code, localeCodes, defaultLocale)
+
+  return {
+    code: loc.code,
+    displayName: loc.displayName || loc.code,
+    path: switchPath,
+    isActive,
+  }
+})
+---
+
+{localeLinks.length > 0 && (
+  <Fragment>
+    {localeLinks.map((link) => (
+      <a
+        href={link.path}
+        class={link.isActive ? activeClass : ''}
+        aria-current={link.isActive ? 'page' : undefined}
+        data-locale={link.code}
+      >
+        {link.displayName}
+      </a>
+    ))}
+  </Fragment>
+)}
+

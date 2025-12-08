@@ -365,5 +365,4 @@ The generated file uses TypeScript's module augmentation to extend `DefineLocale
 - [Vue Package](./vue-package.md) - Vue integration
 - [Astro Package](./astro-package.md) - Astro integration
 - [Getting Started](../guide/getting-started.md) - Nuxt setup
-- [TypeScript Support](../guide/types-generator.md) - Type system overview
 

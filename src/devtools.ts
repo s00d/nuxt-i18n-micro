@@ -6,7 +6,7 @@ import type { Resolver } from '@nuxt/kit'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import sirv from 'sirv'
-import type { ModuleOptions, ModulePrivateOptionsExtend } from 'nuxt-i18n-micro-types'
+import type { ModuleOptions, ModulePrivateOptionsExtend } from '@i18n-micro/types'
 
 export const DEVTOOLS_UI_PORT = 3030
 export const DEVTOOLS_UI_ROUTE = '/__nuxt-i18n-micro'
@@ -26,20 +26,24 @@ export interface ClientFunctions {
 
 export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resolve']) {
   const nuxt = useNuxt()
+  // Check for client directory first (legacy), then devtools-ui package
   const clientPath = resolve('./client')
-  const clientDirExists = fs.existsSync(clientPath)
+  const devtoolsUiDistPath = resolve('./packages/devtools-ui/dist')
+  const clientDirExists = fs.existsSync(clientPath) || fs.existsSync(devtoolsUiDistPath)
 
   const ROUTE_PATH = `${nuxt.options.app.baseURL || '/'}/__nuxt-i18n-micro`.replace(/\/+/g, '/')
   const ROUTE_CLIENT = `${ROUTE_PATH}/client`
 
   if (clientDirExists) {
     nuxt.hook('vite:serverCreated', (server) => {
-      const indexHtmlPath = path.join(clientDir, 'index.html')
+      // Try client directory first (legacy), then devtools-ui package
+      const actualClientDir = fs.existsSync(clientDir) ? clientDir : devtoolsUiDistPath
+      const indexHtmlPath = path.join(actualClientDir, 'index.html')
       if (!fs.existsSync(indexHtmlPath)) {
         return
       }
       const indexContent = fs.readFileSync(indexHtmlPath)
-      const handleStatic = sirv(clientDir, {
+      const handleStatic = sirv(actualClientDir, {
         dev: true,
         single: false,
       })
@@ -55,6 +59,31 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
           return handleIndex(res)
         return handleStatic(req, res, () => handleIndex(res))
       })
+    })
+
+    // Setup Vite proxy for client dev server and WebSocket
+    nuxt.hook('vite:extendConfig', (config) => {
+      config.server = config.server || {}
+      config.server.proxy = config.server.proxy || {}
+
+      // Proxy for client dev server assets and WebSocket HMR
+      const proxyConfig = {
+        target: 'http://localhost:5173',
+        changeOrigin: true,
+        ws: true, // Enable WebSocket proxying for HMR
+        rewrite: (path: string) => {
+          // Remove the route prefix to proxy to client dev server
+          return path.replace(ROUTE_CLIENT, '')
+        },
+      }
+
+      // Proxy all client routes including _nuxt for assets and HMR
+      // Match both with and without trailing slash
+      const proxyPath = `${ROUTE_CLIENT}/_nuxt`
+      config.server.proxy[proxyPath] = proxyConfig
+      config.server.proxy[`${proxyPath}/`] = proxyConfig
+      // Also proxy WebSocket upgrade requests
+      config.server.proxy[`${proxyPath}/*`] = proxyConfig
     })
   }
   else {
@@ -74,7 +103,24 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   onDevToolsInitialized(async () => {
     extendServerRpc<ClientFunctions, ServerFunctions>('nuxt-i18n-micro', {
       async saveTranslationContent(file, content) {
-        const filePath = path.resolve(file)
+        // Convert relative path back to absolute path
+        const rootDirs = (nuxt.options.runtimeConfig.i18nConfig as ModulePrivateOptionsExtend)?.rootDirs || [nuxt.options.rootDir]
+        let filePath: string | null = null
+
+        for (const rootDir of rootDirs) {
+          const localesDir = path.join(rootDir, options.translationDir || 'locales')
+          const candidatePath = path.resolve(localesDir, file)
+          if (fs.existsSync(candidatePath)) {
+            filePath = candidatePath
+            break
+          }
+        }
+
+        // If file not found in any rootDir, try resolving as absolute path (fallback)
+        if (!filePath) {
+          filePath = path.resolve(file)
+        }
+
         if (fs.existsSync(filePath)) {
           fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
         }
@@ -94,7 +140,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
           const pagesDir = path.join(localesDir, 'pages')
 
           // Recursive function for processing nested directories
-          const processDirectory = (dir: string) => {
+          const processDirectory = (dir: string, baseDir: string = localesDir) => {
             if (!fs.existsSync(dir)) return
 
             fs.readdirSync(dir).forEach((file) => {
@@ -102,11 +148,15 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
               const stat = fs.lstatSync(filePath)
 
               if (stat.isDirectory()) {
-                processDirectory(filePath) // Recursive traversal of subdirectories
+                processDirectory(filePath, baseDir) // Recursive traversal of subdirectories
               }
               else if (file.endsWith('.json')) {
                 try {
-                  filesList[filePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+                  // Use relative path from localesDir for proper tree display
+                  const relativePath = path.relative(baseDir, filePath)
+                  // Normalize path separators to forward slashes for consistency
+                  const normalizedPath = relativePath.replace(/\\/g, '/')
+                  filesList[normalizedPath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
                 }
                 catch (e) {
                   console.error(`Error parsing locale file ${filePath}:`, e)
@@ -115,9 +165,9 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
             })
           }
 
-          // Process main directory and pages
-          processDirectory(localesDir)
-          processDirectory(pagesDir)
+          // Process main directory and pages (both relative to localesDir)
+          processDirectory(localesDir, localesDir)
+          processDirectory(pagesDir, localesDir)
         }
 
         return filesList

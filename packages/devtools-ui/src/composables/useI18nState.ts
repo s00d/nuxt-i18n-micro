@@ -24,9 +24,6 @@ export function createI18nState() {
     // Нормализуем путь: убираем ведущий слэш и нормализуем разделители
     const normalizedPath = file.replace(/^\/+/, '').replace(/\\/g, '/')
 
-    console.log('[i18n-state] File selected:', file, '-> normalized:', normalizedPath)
-    console.log('[i18n-state] Available locales keys:', Object.keys(locales.value))
-
     selectedFile.value = file
 
     // Пробуем найти по нормализованному пути
@@ -43,22 +40,7 @@ export function createI18nState() {
     }
 
     if (content) {
-      console.log('[i18n-state] Found content for file:', normalizedPath || file)
-      console.log('[i18n-state] Content type:', typeof content, 'is object:', typeof content === 'object', 'is array:', Array.isArray(content))
-      const contentKeys = content && typeof content === 'object'
-        ? Object.keys(content as Record<string, unknown>).slice(0, 5)
-        : 'not an object'
-      console.log('[i18n-state] Content keys:', contentKeys)
-      const contentSample = content && typeof content === 'object'
-        ? Object.keys(content as Record<string, unknown>).slice(0, 3).reduce((acc, key) => {
-            acc[key] = (content as Record<string, unknown>)[key]
-            return acc
-          }, {} as Record<string, unknown>)
-        : content
-      console.log('[i18n-state] Content sample:', contentSample)
       selectedFileContent.value = { ...content } as TranslationContent
-      console.log('[i18n-state] selectedFileContent.value after assignment:', Object.keys(selectedFileContent.value).length, 'keys')
-      console.log('[i18n-state] selectedFileContent.value keys:', Object.keys(selectedFileContent.value).slice(0, 5))
     }
     else {
       console.warn('[i18n-state] No content found for file:', file, 'or normalized:', normalizedPath)
@@ -126,15 +108,6 @@ export function createI18nState() {
       }
     }
 
-    console.log('[i18n-state] getDefaultLocaleTranslation:', {
-      selectedFile: selectedFile.value,
-      normalizedSelected,
-      currentFileName,
-      defaultFileName,
-      found: !!defaultContent,
-      availableKeys: Object.keys(locales.value),
-    })
-
     return defaultContent ?? ({} as TranslationContent)
   }
 
@@ -147,29 +120,13 @@ export function createI18nState() {
 
     try {
       isLoading.value = true
-      console.log('[i18n-devtools] Initializing with bridge...', bridge.value)
 
       const [localesData, configsData] = await Promise.all([
         bridge.value.getLocalesAndTranslations(),
         bridge.value.getConfigs(),
       ])
 
-      console.log('[i18n-devtools] Data loaded:', {
-        localesCount: Object.keys(localesData).length,
-        configs: configsData,
-      })
-      console.log('[i18n-devtools] LocalesData keys:', Object.keys(localesData))
-      console.log('[i18n-devtools] LocalesData sample:', Object.keys(localesData).slice(0, 2).reduce((acc, key) => {
-        const value = localesData[key]
-        if (value) {
-          acc[key] = value
-        }
-        return acc
-      }, {} as LocaleData))
-
       locales.value = localesData
-      console.log('[i18n-devtools] locales.value after assignment:', Object.keys(locales.value).length, 'keys')
-      console.log('[i18n-devtools] locales.value keys:', Object.keys(locales.value))
       configs.value = configsData
 
       // Subscribe to updates

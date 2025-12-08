@@ -30,8 +30,6 @@ export function createAstroBridge(server: AstroToolbarServer): I18nDevToolsBridg
         const handler = (data: unknown) => {
           clearTimeout(timeout)
           server.off('i18n:locales-data', handler)
-          console.log('[i18n-bridge] Raw received data type:', typeof data, 'is object:', typeof data === 'object', 'is array:', Array.isArray(data))
-          console.log('[i18n-bridge] Raw data:', data)
 
           // Убедимся, что данные правильно преобразованы
           let localesData: LocaleData
@@ -42,21 +40,6 @@ export function createAstroBridge(server: AstroToolbarServer): I18nDevToolsBridg
             console.error('[i18n-bridge] Invalid data format:', data)
             localesData = {} as LocaleData
           }
-
-          console.log('[i18n-bridge] Received locales data:', Object.keys(localesData).length, 'files')
-          console.log('[i18n-bridge] Locales keys:', Object.keys(localesData))
-          if (Object.keys(localesData).length > 0) {
-            const firstKey = Object.keys(localesData)[0]
-            if (firstKey) {
-              const firstContent = localesData[firstKey]
-              console.log('[i18n-bridge] First file content type:', typeof firstContent)
-              console.log('[i18n-bridge] First file content:', firstContent)
-              console.log('[i18n-bridge] First file content keys:', firstContent && typeof firstContent === 'object' ? Object.keys(firstContent as Record<string, unknown>).slice(0, 5) : 'not an object')
-            }
-            // Проверяем, что данные действительно объекты
-            const isValid = Object.values(localesData).every(v => v && typeof v === 'object' && !Array.isArray(v))
-            console.log('[i18n-bridge] All values are valid objects:', isValid)
-          }
           // Убедимся, что возвращаем правильный формат
           const result: LocaleData = {}
           for (const [key, value] of Object.entries(localesData)) {
@@ -64,11 +47,9 @@ export function createAstroBridge(server: AstroToolbarServer): I18nDevToolsBridg
               result[key] = value as TranslationContent
             }
           }
-          console.log('[i18n-bridge] Resolving with', Object.keys(result).length, 'valid files')
           resolve(result)
         }
         server.on('i18n:locales-data', handler)
-        console.log('[i18n-bridge] Requesting locales data...')
         server.send('i18n:get-locales', {})
       })
     },

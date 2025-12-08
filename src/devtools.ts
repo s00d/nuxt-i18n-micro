@@ -1,11 +1,9 @@
 import * as fs from 'node:fs'
 import path, { resolve } from 'node:path'
-import type { ServerResponse } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import type { Resolver } from '@nuxt/kit'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
-import sirv from 'sirv'
 import type { ModuleOptions, ModulePrivateOptionsExtend } from '@i18n-micro/types'
 
 export const DEVTOOLS_UI_PORT = 3030
@@ -35,55 +33,26 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   const ROUTE_CLIENT = `${ROUTE_PATH}/client`
 
   if (clientDirExists) {
-    nuxt.hook('vite:serverCreated', (server) => {
-      // Try client directory first (legacy), then devtools-ui package
-      const actualClientDir = fs.existsSync(clientDir) ? clientDir : devtoolsUiDistPath
-      const indexHtmlPath = path.join(actualClientDir, 'index.html')
-      if (!fs.existsSync(indexHtmlPath)) {
-        return
-      }
-      const indexContent = fs.readFileSync(indexHtmlPath)
-      const handleStatic = sirv(actualClientDir, {
-        dev: true,
-        single: false,
-      })
-      // We replace the base URL in the index.html based on user's settings
-      const handleIndex = async (res: ServerResponse) => {
-        res.setHeader('Content-Type', 'text/html')
-        res.statusCode = 200
-        res.write((await indexContent).toString().replace(/\/__NUXT_DEVTOOLS_I18N_BASE__\//g, `${ROUTE_CLIENT}/`))
-        res.end()
-      }
-      server.middlewares.use(ROUTE_CLIENT, (req, res) => {
-        if (req.url === '/')
-          return handleIndex(res)
-        return handleStatic(req, res, () => handleIndex(res))
-      })
-    })
-
-    // Setup Vite proxy for client dev server and WebSocket
     nuxt.hook('vite:extendConfig', (config) => {
       config.server = config.server || {}
       config.server.proxy = config.server.proxy || {}
 
       // Proxy for client dev server assets and WebSocket HMR
+      // Client dev server runs on port 3030 (configured in playground/nuxt.config.ts)
+      // Client has baseURL: '/__nuxt-i18n-micro/client', so we proxy to the same path
       const proxyConfig = {
-        target: 'http://localhost:5173',
+        target: `http://localhost:${DEVTOOLS_UI_PORT}`,
         changeOrigin: true,
         ws: true, // Enable WebSocket proxying for HMR
-        rewrite: (path: string) => {
-          // Remove the route prefix to proxy to client dev server
-          return path.replace(ROUTE_CLIENT, '')
-        },
+        // Don't rewrite - keep the full path since client server expects /__nuxt-i18n-micro/client/*
+        rewrite: (path: string) => path,
       }
 
-      // Proxy all client routes including _nuxt for assets and HMR
-      // Match both with and without trailing slash
-      const proxyPath = `${ROUTE_CLIENT}/_nuxt`
-      config.server.proxy[proxyPath] = proxyConfig
-      config.server.proxy[`${proxyPath}/`] = proxyConfig
-      // Also proxy WebSocket upgrade requests
-      config.server.proxy[`${proxyPath}/*`] = proxyConfig
+      // Proxy all client routes - use the full ROUTE_CLIENT path
+      // This will match /__nuxt-i18n-micro/client/** and proxy to localhost:3030/__nuxt-i18n-micro/client/**
+      config.server.proxy[`${ROUTE_CLIENT}`] = proxyConfig
+      config.server.proxy[`${ROUTE_CLIENT}/`] = proxyConfig
+      config.server.proxy[`${ROUTE_CLIENT}/*`] = proxyConfig
     })
   }
   else {

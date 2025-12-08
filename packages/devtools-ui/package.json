@@ -19,6 +19,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
     "vue": "^3.3.0"

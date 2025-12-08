@@ -1,0 +1,28 @@
+{
+  "title": "Node.js I18n Package Demo",
+  "description": "This page demonstrates the usage of @i18n-micro/node package in a Node.js environment.",
+  "locale": "Locale:",
+  "route": "Route:",
+  "reload": "Reload",
+  "loading": "Loading...",
+  "error": "Error:",
+  "currentLocale": "Current Locale:",
+  "currentRoute": "Current Route:",
+  "translations": "Translations",
+  "welcome": "Welcome",
+  "greeting": "Hello, {name}!",
+  "nested": {
+    "message": "This is a nested message."
+  },
+  "apples": "no apples | one apple | {count} apples",
+  "numberFormatting": "Number formatting:",
+  "dateFormatting": "Date formatting:",
+  "relativeTime": "Relative time:",
+  "routeSpecific": "Route-specific:",
+  "methodsInfo": "Methods Info",
+  "hasTranslation": "Has 'welcome' translation:",
+  "zero": "0:",
+  "one": "1:",
+  "many": "5:"
+}
+

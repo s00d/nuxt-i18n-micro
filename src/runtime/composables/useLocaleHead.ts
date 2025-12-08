@@ -1,6 +1,6 @@
 import { joinURL, parseURL, withQuery } from 'ufo'
-import type { Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
-import { isNoPrefixStrategy } from 'nuxt-i18n-micro-core'
+import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { isNoPrefixStrategy } from '@i18n-micro/core'
 import { useRoute, useRuntimeConfig, useNuxtApp } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
 import { ref, unref } from 'vue'

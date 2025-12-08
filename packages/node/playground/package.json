@@ -1,0 +1,21 @@
+{
+  "name": "@i18n-micro/node-playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@i18n-micro/node": "workspace:*",
+    "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
+

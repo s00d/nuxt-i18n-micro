@@ -1,0 +1,9 @@
+{
+  "title": "About Page - Page Specific",
+  "description": "This is a page-specific translation for the about route",
+  "content": {
+    "heading": "About Us",
+    "text": "This is page-specific content for the about page"
+  }
+}
+

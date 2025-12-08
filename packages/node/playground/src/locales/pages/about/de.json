@@ -1,0 +1,9 @@
+{
+  "title": "Über uns - Seitenspezifisch",
+  "description": "Dies ist eine seitenspezifische Übersetzung für die Über-uns-Route",
+  "content": {
+    "heading": "Über uns",
+    "text": "Dies ist seitenspezifischer Inhalt für die Über-uns-Seite"
+  }
+}
+

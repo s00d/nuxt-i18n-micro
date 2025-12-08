@@ -1,0 +1,9 @@
+{
+  "title": "Startseite - Seitenspezifisch",
+  "description": "Dies ist eine seitenspezifische Übersetzung für die Startseiten-Route",
+  "hero": {
+    "title": "Willkommen auf unserer Startseite",
+    "subtitle": "Dieser Inhalt ist spezifisch für die Startseiten-Route"
+  }
+}
+

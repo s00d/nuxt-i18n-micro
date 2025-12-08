@@ -1,5 +1,33 @@
 export type LocaleCode = string
 
+// Реестр ключей. Пользователь (через генератор) будет делать module augmentation этого интерфейса.
+export interface DefineLocaleMessage {
+  // Module augmentation point - will be extended by @i18n-micro/types-generator
+  readonly __augmentation?: never
+}
+
+// Логика определения типа ключа.
+// Если интерфейс пустой (генератор не подключен), тип ключа — string.
+// Если в интерфейсе есть ключи, тип ключа — объединение этих ключей и string (Union Type).
+// Это позволяет использовать как строгие типы (автокомплит), так и обычные строки (динамические ключи).
+export type TranslationKey = keyof DefineLocaleMessage extends never
+  ? string
+  : keyof DefineLocaleMessage | string
+
+/**
+ * Хелпер для создания типизированных префиксов.
+ * Позволяет безопасно использовать динамические ключи.
+ *
+ * @example
+ * ```typescript
+ * // Допустим, есть ключи: 'errors.404', 'errors.500', 'btn.save'
+ * function getErrorText(code: string) {
+ *   return t(`errors.${code}` as ScopedKey<'errors'>)
+ * }
+ * ```
+ */
+export type ScopedKey<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>
+
 export interface Locale {
   code: LocaleCode
   disabled?: boolean
@@ -21,8 +49,8 @@ export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 
 export type Params = Record<string, string | number | boolean>
 
-export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
-export type PluralFunc = (key: string, count: number, params: Params, locale: string, getter: Getter) => string | null
+export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+export type PluralFunc = (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 
 export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
 
@@ -30,7 +58,7 @@ export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'pre
 
 export type MissingHandler = (
   locale: string,
-  key: string,
+  key: TranslationKey,
   routeName: string,
   instance?: unknown,
   type?: string

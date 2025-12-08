@@ -4,6 +4,44 @@ outline: deep
 
 # News
 
+## Nuxt I18n Micro v2.14.0 — New Integrations for Node.js, Vue, and Astro
+
+**Date**: 2025-12-07
+
+**Version**: `v2.14.0`
+
+![Integrations](/2.14.0.png)
+
+We're excited to announce **v2.14.0** with brand new integrations for Node.js, Vue 3, and Astro! These packages bring the same powerful i18n capabilities to your favorite frameworks, sharing the same core logic for consistency and performance.
+
+### What's New?
+
+- **@i18n-micro/node** - Use i18n translations in any Node.js application, CLI tool, or backend service
+- **@i18n-micro/vue** - Vue 3 plugin for internationalization with reactive translations and route-specific support
+- **@i18n-micro/astro** - Astro integration for internationalization with full TypeScript support
+- **@i18n-micro/types-generator** - Automatic TypeScript type generation for translation keys with full type safety and IDE autocomplete
+
+### Key Features
+
+All integrations share the same core benefits:
+- Lightweight and performant
+- Route-specific translations support
+- Built-in pluralization
+- Number, date, and relative time formatting
+- Full TypeScript support
+- Same JSON translation file structure
+
+**Types Generator** provides additional developer experience enhancements:
+- Automatic type generation from JSON translation files
+- Type-safe translation keys with compile-time validation
+- Full IDE autocomplete support
+- Hot reload on translation file changes
+- Zero runtime overhead
+
+For detailed documentation and examples, visit the [repository](https://github.com/s00d/nuxt-i18n-micro) or check out the [documentation](https://s00d.github.io/nuxt-i18n-micro/).
+
+---
+
 ## Nuxt I18n Micro v2.0.0 — Dev HMR for Translations
 
 **Date**: 2025-10-30

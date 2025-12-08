@@ -8,7 +8,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'nuxt-i18n-micro-test-utils',
+      name: '@i18n-micro/test-utils',
       formats: ['cjs', 'es'],
       fileName: format => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },

@@ -1,5 +1,5 @@
-import type { Params, Translation, Translations } from 'nuxt-i18n-micro-types'
-import { useTranslationHelper, interpolate } from 'nuxt-i18n-micro-core'
+import type { Params, Translation, Translations, TranslationKey } from '@i18n-micro/types'
+import { useTranslationHelper, interpolate } from '@i18n-micro/core'
 
 type LocaleCode = string
 
@@ -13,15 +13,20 @@ interface Locale {
   baseDefault?: boolean
 }
 
-export type Getter = (key: string, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 
-const plural = (key: string, count: number, params: Params, _locale: string, getter: Getter) => {
+const plural = (key: TranslationKey, count: number, params: Params, _locale: string, getter: Getter) => {
   const translation = getter(key, params)
   if (!translation) {
     return null
   }
   const forms = translation.toString().split('|')
-  return (count < forms.length ? forms[count].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
+  const formIndex = count < forms.length ? count : (forms.length > 0 ? forms.length - 1 : 0)
+  const form = forms[formIndex]
+  if (!form) {
+    return null
+  }
+  return form.trim().replace('{count}', count.toString())
 }
 
 const i18nHelper = useTranslationHelper()
@@ -44,7 +49,7 @@ function formatDate(value: Date | number | string, locale: string, options?: Int
 }
 
 // Example utilities for testing
-export function t(key: string, params?: Params, defaultValue?: string): Translation {
+export function t(key: TranslationKey, params?: Params, defaultValue?: string): Translation {
   const value = i18nHelper.getTranslation(locale, routeName, key)
 
   if (!value) {
@@ -55,10 +60,11 @@ export function t(key: string, params?: Params, defaultValue?: string): Translat
   return typeof value === 'string' && params ? interpolate(value, params) : value
 }
 
-export function tc(key: string, params: number | Params, defaultValue?: string): string {
+export function tc(key: TranslationKey, params: number | Params, defaultValue?: string): string {
   const { count, ...otherParams } = typeof params === 'number' ? { count: params } : params
+  const countValue = count ?? 0
 
-  return plural(key, Number.parseInt(count.toString()), otherParams, locale, t) ?? defaultValue ?? key
+  return plural(key, Number.parseInt(countValue.toString()), otherParams, locale, t) ?? defaultValue ?? key
 }
 
 export async function setTranslationsFromJson(locale: string, translations: Record<string, unknown>) {
@@ -80,7 +86,7 @@ export const setDefaultLocale = (val: string | undefined) => defLocale = val
 export const getRouteName = (_route?: unknown, _locale?: string) => routeName
 export const settRouteName = (val: string) => routeName = val
 
-export const ts = (key: string, params?: Params, defaultValue?: string) => {
+export const ts = (key: TranslationKey, params?: Params, defaultValue?: string) => {
   const value = t(key, params, defaultValue)
   return value?.toString() ?? defaultValue ?? key
 }
@@ -91,7 +97,7 @@ export const tn = (value: number, options?: Intl.NumberFormatOptions) =>
 export const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) =>
   formatDate(value, locale, options)
 
-export const has = (key: string): boolean => i18nHelper.hasTranslation(locale, key)
+export const has = (key: TranslationKey): boolean => i18nHelper.hasTranslation(locale, key)
 
 export const mergeTranslations = (newTranslations: Translations): void =>
   i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)

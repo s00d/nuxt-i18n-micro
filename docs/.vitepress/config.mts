@@ -19,6 +19,15 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'News', link: '/news' },
       {
+        text: 'Integrations',
+        items: [
+          { text: 'Vue Package', link: '/integrations/vue-package' },
+          { text: 'Astro Package', link: '/integrations/astro-package' },
+          { text: 'Node.js Runtime', link: '/integrations/nodejs' },
+          { text: 'Types Generator', link: '/integrations/types-generator' },
+        ],
+      },
+      {
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
@@ -92,6 +101,18 @@ export default defineConfig({
     },
 
     sidebar: {
+      '/integrations/': [
+        {
+          text: 'Integrations',
+          base: '/integrations',
+          items: [
+            { text: 'Vue Package', link: '/vue-package' },
+            { text: 'Astro Package', link: '/astro-package' },
+            { text: 'Node.js Runtime', link: '/nodejs' },
+            { text: 'Types Generator', link: '/types-generator' },
+          ],
+        },
+      ],
       '/guide/': [
         {
           text: 'Guide',

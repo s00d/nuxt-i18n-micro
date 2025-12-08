@@ -78,7 +78,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
 
         for (const rootDir of rootDirs) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
-          const candidatePath = path.resolve(localesDir, file)
+          const candidatePath = path.join(localesDir, file)
           if (fs.existsSync(candidatePath)) {
             filePath = candidatePath
             break

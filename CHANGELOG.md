@@ -1,6 +1,69 @@
 # Changelog
 
 
+## v2.14.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.13.0...v2.14.0)
+
+### 🚀 Enhancements
+
+- **vue:** Implement Vue i18n plugin and core functionalities ([4dd2c1e](https://github.com/s00d/nuxt-i18n-micro/commit/4dd2c1e))
+- **astro:** Add i18n integration package ([a697c2f](https://github.com/s00d/nuxt-i18n-micro/commit/a697c2f))
+- **node:** Add Node.js I18n adapter with translation loading capabilities ([af4ae4e](https://github.com/s00d/nuxt-i18n-micro/commit/af4ae4e))
+- **types-generator:** Add implementation of types generator for i18n ([a5c0a92](https://github.com/s00d/nuxt-i18n-micro/commit/a5c0a92))
+- **devtools-ui:** Add implementation of i18n DevTools UI ([6db0088](https://github.com/s00d/nuxt-i18n-micro/commit/6db0088))
+- **types:** Add translation key types for enhanced localization support ([a57da32](https://github.com/s00d/nuxt-i18n-micro/commit/a57da32))
+- **app:** Implement i18n devtools integration ([4663b9f](https://github.com/s00d/nuxt-i18n-micro/commit/4663b9f))
+- **config:** Add i18n types configuration and types generator module ([6cda899](https://github.com/s00d/nuxt-i18n-micro/commit/6cda899))
+- **playground:** Add Node.js i18n package demo page and API ([8080602](https://github.com/s00d/nuxt-i18n-micro/commit/8080602))
+- **playground:** Add Node.js i18n package demo page and API ([654245f](https://github.com/s00d/nuxt-i18n-micro/commit/654245f))
+- **playground:** Add Node.js playground for i18n-micro ([0396bcb](https://github.com/s00d/nuxt-i18n-micro/commit/0396bcb))
+- **docs:** Add integrations section to documentation sidebar ([88a5e7d](https://github.com/s00d/nuxt-i18n-micro/commit/88a5e7d))
+
+### 🩹 Fixes
+
+- **tests:** Improve command spawning and invalid route handling ([6b720ac](https://github.com/s00d/nuxt-i18n-micro/commit/6b720ac))
+- **utils:** Update import path for DefineI18nRouteConfig type ([4379563](https://github.com/s00d/nuxt-i18n-micro/commit/4379563))
+- **page-manager:** Add null check for custom path normalization ([7451dc2](https://github.com/s00d/nuxt-i18n-micro/commit/7451dc2))
+- **locale-manager:** Update import path for types ([c9b27c4](https://github.com/s00d/nuxt-i18n-micro/commit/c9b27c4))
+- **devtools:** Update import path for module types ([c9e77fd](https://github.com/s00d/nuxt-i18n-micro/commit/c9e77fd))
+- **locale-server-middleware:** Update import path for types ([c46c35d](https://github.com/s00d/nuxt-i18n-micro/commit/c46c35d))
+- **locale-detector:** Handle edge cases in locale detection ([733ae61](https://github.com/s00d/nuxt-i18n-micro/commit/733ae61))
+
+### 💅 Refactors
+
+- **core:** Rename package from `nuxt-i18n-micro-core` to `@i18n-micro/core` ([31ced79](https://github.com/s00d/nuxt-i18n-micro/commit/31ced79))
+- **module:** Update plural function to use default from core ([31887a4](https://github.com/s00d/nuxt-i18n-micro/commit/31887a4))
+- **translation-server-middleware:** Update imports from nuxt-i18n-micro to @i18n-micro/core ([48e8ae6](https://github.com/s00d/nuxt-i18n-micro/commit/48e8ae6))
+- **routes:** Update import paths for module types ([168f23c](https://github.com/s00d/nuxt-i18n-micro/commit/168f23c))
+- **plugins:** Update imports to use '@i18n-micro' namespace ([763bacd](https://github.com/s00d/nuxt-i18n-micro/commit/763bacd))
+- **composables:** Update import paths for i18n dependencies ([1386a6a](https://github.com/s00d/nuxt-i18n-micro/commit/1386a6a))
+- **components:** Update import paths to use scoped packages ([3740786](https://github.com/s00d/nuxt-i18n-micro/commit/3740786))
+
+### 📖 Documentation
+
+- **news:** Add release notes for Nuxt I18n Micro v2.14.0 ([65d4895](https://github.com/s00d/nuxt-i18n-micro/commit/65d4895))
+- **nodejs:** Add integration guide for Node.js runtime using `@i18n-micro/node` ([a5fb0aa](https://github.com/s00d/nuxt-i18n-micro/commit/a5fb0aa))
+- **nodejs:** Add integration guide for astro runtime using `@i18n-micro/astro` ([109cc29](https://github.com/s00d/nuxt-i18n-micro/commit/109cc29))
+- **vue:** Add integration guide for vue runtime using `@i18n-micro/vue` ([05ae3fa](https://github.com/s00d/nuxt-i18n-micro/commit/05ae3fa))
+- **types-generator:** Add documentation for types generator package ([ce26f10](https://github.com/s00d/nuxt-i18n-micro/commit/ce26f10))
+- **testing:** Update package name in testing guide to @i18n-micro/test-utils ([1a66c80](https://github.com/s00d/nuxt-i18n-micro/commit/1a66c80))
+- **composables:** Add documentation for available composables ([e7b86d0](https://github.com/s00d/nuxt-i18n-micro/commit/e7b86d0))
+- **components:** Add documentation for available components ([b0c281b](https://github.com/s00d/nuxt-i18n-micro/commit/b0c281b))
+- **api:** Add API reference documentation ([cc4ddc6](https://github.com/s00d/nuxt-i18n-micro/commit/cc4ddc6))
+
+### 🏡 Chore
+
+- **test-utils:** Rename package and update imports to @i18n-micro ([703432d](https://github.com/s00d/nuxt-i18n-micro/commit/703432d))
+- **types:** Rename package to @i18n-micro/types ([fb76891](https://github.com/s00d/nuxt-i18n-micro/commit/fb76891))
+- **eslint:** Add ignores for Astro files in ESLint config ([6b239e4](https://github.com/s00d/nuxt-i18n-micro/commit/6b239e4))
+- **package:** Update package names and modify workspaces configuration ([abb4e64](https://github.com/s00d/nuxt-i18n-micro/commit/abb4e64))
+- **github-actions:** Trigger deployment on new release publication ([7bfcbcf](https://github.com/s00d/nuxt-i18n-micro/commit/7bfcbcf))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.13.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.12.1...v2.13.0)

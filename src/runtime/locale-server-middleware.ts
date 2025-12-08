@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import type { Locale, ModuleOptionsExtend } from 'nuxt-i18n-micro-types'
+import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { detectCurrentLocale } from './utils/locale-detector'
 import { useRuntimeConfig } from '#imports'
 

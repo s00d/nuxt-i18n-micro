@@ -1,5 +1,5 @@
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale } from 'nuxt-i18n-micro-types'
+import type { Locale } from '@i18n-micro/types'
 import { PageManager } from '~/src/page-manager'
 
 const globalLocaleRoutes

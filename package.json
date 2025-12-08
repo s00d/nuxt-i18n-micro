@@ -85,9 +85,9 @@
     "@nuxt/kit": "^3.18.1 || ^4.0.0",
     "chokidar": "^3.6.0",
     "globby": "^14.1.0",
-    "nuxt-i18n-micro-core": "workspace:*",
-    "nuxt-i18n-micro-test-utils": "workspace:*",
-    "nuxt-i18n-micro-types": "workspace:*",
+    "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/test-utils": "workspace:*",
+    "@i18n-micro/types": "workspace:*",
     "sirv": "^2.0.4",
     "ufo": "^1.5.4"
   },
@@ -119,6 +119,7 @@
   },
   "workspaces": [
     "client",
+    "packages/**",
     "test/fixtures/**/*"
   ],
   "packageManager": "pnpm@9.14.2"

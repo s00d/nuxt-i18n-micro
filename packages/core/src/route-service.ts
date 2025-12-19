@@ -374,19 +374,20 @@ export class RouteService {
   }
 
   updateCookies(toLocale: string): void {
+    const cookieLocaleName = this.cookieLocaleName || this.i18nConfig.localeCookie || 'user-locale'
     if (this.i18nConfig.hashMode) {
       this.setCookie('hash-locale', toLocale)
       // useCookie('hash-locale').value = toLocale
       this.hashLocaleDefault = toLocale
     }
     if (isNoPrefixStrategy(this.i18nConfig.strategy!)) {
-      this.setCookie('no-prefix-locale', toLocale)
-      // useCookie('no-prefix-locale').value = toLocale
+      this.setCookie(cookieLocaleName, toLocale)
+      // useCookie(cookieLocaleName).value = toLocale
       this.noPrefixDefault = toLocale
     }
     // Update cookie for regular strategy (prefix or prefix_except_default)
-    if (!this.i18nConfig.hashMode && !isNoPrefixStrategy(this.i18nConfig.strategy!) && this.cookieLocaleName) {
-      this.setCookie(this.cookieLocaleName, toLocale)
+    if (!this.i18nConfig.hashMode && !isNoPrefixStrategy(this.i18nConfig.strategy!) && cookieLocaleName) {
+      this.setCookie(cookieLocaleName, toLocale)
       this.cookieLocaleDefault = toLocale
     }
   }

@@ -40,7 +40,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           params: newParams,
         })
 
-        const userLocaleCookie = useCookie('no-prefix-locale')
         userLocaleCookie.value = newLocale
 
         await navigateTo(newRoute, {

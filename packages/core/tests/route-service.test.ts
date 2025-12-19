@@ -170,10 +170,11 @@ describe('RouteService', () => {
     const mockI18nConfigWithNoPrefix: ModuleOptionsExtend = {
       ...mockI18nConfig,
       strategy: 'no_prefix',
+      localeCookie: 'custom-locale',
     }
-    routeService = new RouteService(mockI18nConfigWithNoPrefix, mockRouter, null, 'ru', navigateToMock, setCookieMock, null, null)
+    routeService = new RouteService(mockI18nConfigWithNoPrefix, mockRouter, null, 'ru', navigateToMock, setCookieMock, null, 'custom-locale')
     routeService.updateCookies('ru')
-    expect(setCookieMock).toHaveBeenCalledWith('no-prefix-locale', 'ru')
+    expect(setCookieMock).toHaveBeenCalledWith('custom-locale', 'ru')
   })
 
   test('resolveLocalizedRoute should return the correct localized route', () => {

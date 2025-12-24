@@ -170,10 +170,11 @@ describe('RouteService', () => {
     const mockI18nConfigWithNoPrefix: ModuleOptionsExtend = {
       ...mockI18nConfig,
       strategy: 'no_prefix',
+      localeCookie: 'custom-locale',
     }
     routeService = new RouteService(mockI18nConfigWithNoPrefix, mockRouter, null, 'ru', navigateToMock, setCookieMock, null, null)
     routeService.updateCookies('ru')
-    expect(setCookieMock).toHaveBeenCalledWith('no-prefix-locale', 'ru')
+    expect(setCookieMock).toHaveBeenCalledWith('custom-locale', 'ru')
   })
 
   test('resolveLocalizedRoute should return the correct localized route', () => {
@@ -265,6 +266,25 @@ describe('RouteService', () => {
     expect(setCookieMock).toHaveBeenCalledWith('user-locale', 'ru')
   })
 
+  test('updateCookies should use localeCookie fallback for regular strategy', () => {
+    const mockI18nConfigWithLocaleCookie: ModuleOptionsExtend = {
+      ...mockI18nConfig,
+      localeCookie: 'custom-regular-cookie',
+    }
+    routeService = new RouteService(
+      mockI18nConfigWithLocaleCookie,
+      mockRouter,
+      null,
+      null,
+      navigateToMock,
+      setCookieMock,
+      null,
+      null,
+    )
+    routeService.updateCookies('ru')
+    expect(setCookieMock).toHaveBeenCalledWith('custom-regular-cookie', 'ru')
+  })
+
   test('getCurrentName should return null if displayName is missing', () => {
     const mockI18nConfigWithoutDisplayName = {
       ...mockI18nConfig,
@@ -350,9 +370,9 @@ describe('RouteService', () => {
     })
   })
 
-  test('updateCookies should not update cookies if hashMode and noPrefixStrategy are disabled', () => {
+  test('updateCookies should use default cookie when hashMode and noPrefixStrategy are disabled', () => {
     routeService.updateCookies('de')
-    expect(setCookieMock).not.toHaveBeenCalled()
+    expect(setCookieMock).toHaveBeenCalledWith('user-locale', 'de')
   })
 
   test('getCurrentLocale should extract locale from fullPath with query params when route.path is missing', () => {

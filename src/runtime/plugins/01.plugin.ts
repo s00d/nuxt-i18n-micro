@@ -42,18 +42,23 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   let noPrefixDefault: null | string | undefined = null
   let cookieLocaleDefault: null | string | undefined = null
 
+  let cookieLocaleName: string | null = null
+  if (!i18nConfig.hashMode) {
+    cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
+  }
+
   if (i18nConfig.hashMode) {
     hashLocaleDefault = await nuxtApp.runWithContext(() => useCookie('hash-locale').value)
   }
   if (isNoPrefixStrategy(i18nConfig.strategy!)) {
-    noPrefixDefault = await nuxtApp.runWithContext(() => useCookie('no-prefix-locale').value)
+    if (cookieLocaleName) {
+      noPrefixDefault = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+    }
   }
 
   // Читаем куку для обычной стратегии (не hashMode и не noPrefix)
   // Используем localeCookie из конфига или 'user-locale' по умолчанию
-  let cookieLocaleName: string | null = null
   if (!i18nConfig.hashMode && !isNoPrefixStrategy(i18nConfig.strategy!)) {
-    cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
     cookieLocaleDefault = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName!).value)
   }
 
@@ -98,8 +103,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (i18nConfig.hashMode) {
       locale = await nuxtApp.runWithContext(() => useCookie('hash-locale', { default: () => locale }).value)
     }
-    if (isNoPrefixStrategy(i18nConfig.strategy!)) {
-      locale = await nuxtApp.runWithContext(() => useCookie('no-prefix-locale', { default: () => locale }).value)
+    if (isNoPrefixStrategy(i18nConfig.strategy!) && cookieLocaleName) {
+      locale = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName, { default: () => locale }).value)
     }
 
     const routeName = routeService.getPluginRouteName(to, locale)

@@ -1,0 +1,33 @@
+{
+  "welcome": "Willkommen",
+  "greeting": "Hallo, {name}!",
+  "apples": "keine Äpfel | ein Apfel | {count} Äpfel",
+  "number": "Zahl: {number}",
+  "date": "Datum: {date}",
+  "relativeDate": "Relativ: {relativeDate}",
+  "home": {
+    "title": "Startseite",
+    "description": "Dies ist die Startseite"
+  },
+  "about": {
+    "title": "Über uns",
+    "description": "Dies ist die Über uns Seite"
+  },
+  "nav": {
+    "home": "Startseite",
+    "about": "Über uns",
+    "components": "Komponenten"
+  },
+  "components": {
+    "title": "Komponenten Demo",
+    "description": "Demo aller i18n Komponenten"
+  },
+  "htmlExample": "Dies ist <strong>HTML</strong> Inhalt",
+  "hideIfEmpty": "",
+  "group": {
+    "title": "Gruppentitel",
+    "description": "Dies ist eine Gruppenbeschreibung",
+    "item": "Elementanzahl: {count}"
+  }
+}
+

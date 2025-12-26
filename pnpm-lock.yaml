@@ -468,6 +468,9 @@ importers:
       '@i18n-micro/types':
         specifier: workspace:*
         version: link:../types
+      '@solidjs/router':
+        specifier: ^0.15.4
+        version: 0.15.4(solid-js@1.9.10)
     devDependencies:
       '@types/jest':
         specifier: ^29.5.14
@@ -665,7 +668,7 @@ importers:
     dependencies:
       nuxt:
         specifier: ^3.18.1
-        version: 3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.25)(better-sqlite3@12.2.0)(db0@0.3.4(better-sqlite3@12.2.0))(encoding@0.1.13)(eslint@9.34.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.5)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.0.6(typescript@5.9.3))(yaml@2.8.2)
+        version: 3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.25)(better-sqlite3@12.2.0)(db0@0.3.2(better-sqlite3@12.2.0))(encoding@0.1.13)(eslint@9.34.0(jiti@2.6.1))(ioredis@5.7.0)(lightningcss@1.30.2)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.5)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.0.6(typescript@5.9.3))(yaml@2.8.2)
 
   test/fixtures/async-components:
     dependencies:
@@ -674,7 +677,7 @@ importers:
         version: 3.21.0(@jest/globals@29.7.0)(@playwright/test@1.55.0)(@vue/test-utils@2.4.6)(jsdom@22.1.0)(magicast@0.3.5)(playwright-core@1.55.0)(typescript@5.9.3)(vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@22.1.0)(lightningcss@1.30.2)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.8.2))
       nuxt:
         specifier: ^3.8.0
-        version: 3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.25)(better-sqlite3@12.2.0)(db0@0.3.2(better-sqlite3@12.2.0))(encoding@0.1.13)(eslint@9.34.0(jiti@2.6.1))(ioredis@5.7.0)(lightningcss@1.30.2)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.5)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.0.6(typescript@5.9.3))(yaml@2.8.2)
+        version: 3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.25)(better-sqlite3@12.2.0)(db0@0.3.4(better-sqlite3@12.2.0))(encoding@0.1.13)(eslint@9.34.0(jiti@2.6.1))(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.5)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.0.6(typescript@5.9.3))(yaml@2.8.2)
       serve:
         specifier: ^14.2.0
         version: 14.2.5

@@ -21,10 +21,15 @@ export default defineConfig({
       {
         text: 'Integrations',
         items: [
+          { text: 'Overview', link: '/integrations/' },
           { text: 'Vue Package', link: '/integrations/vue-package' },
+          { text: 'React Package', link: '/integrations/react-package' },
+          { text: 'Preact Package', link: '/integrations/preact-package' },
+          { text: 'Solid Package', link: '/integrations/solid-package' },
           { text: 'Astro Package', link: '/integrations/astro-package' },
-          { text: 'Node.js Runtime', link: '/integrations/nodejs' },
+          { text: 'Node.js Package', link: '/integrations/nodejs-package' },
           { text: 'Types Generator', link: '/integrations/types-generator' },
+          { text: 'Devtools Package', link: '/integrations/devtools-ui-package' },
         ],
       },
       {
@@ -106,10 +111,15 @@ export default defineConfig({
           text: 'Integrations',
           base: '/integrations',
           items: [
+            { text: 'Overview', link: '/' },
             { text: 'Vue Package', link: '/vue-package' },
+            { text: 'React Package', link: '/react-package' },
+            { text: 'Preact Package', link: '/preact-package' },
+            { text: 'Solid Package', link: '/solid-package' },
             { text: 'Astro Package', link: '/astro-package' },
-            { text: 'Node.js Runtime', link: '/nodejs' },
+            { text: 'Node.js Package', link: '/nodejs-package' },
             { text: 'Types Generator', link: '/types-generator' },
+            { text: 'Devtools Package', link: '/devtools-ui-package' },
           ],
         },
       ],

@@ -1,0 +1,26 @@
+{
+  "name": "@i18n-micro/solid-playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@i18n-micro/solid": "workspace:*",
+    "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/devtools-ui": "workspace:*",
+    "solid-js": "^1.8.0",
+    "@solidjs/router": "^0.15.4"
+  },
+  "devDependencies": {
+    "vite": "^7.2.7",
+    "vite-plugin-solid": "^2.11.10",
+    "typescript": "^5.0.0"
+  }
+}
+

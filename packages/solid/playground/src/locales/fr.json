@@ -1,0 +1,33 @@
+{
+  "welcome": "Bienvenue",
+  "greeting": "Bonjour, {name}!",
+  "apples": "pas de pommes | une pomme | {count} pommes",
+  "number": "Nombre: {number}",
+  "date": "Date: {date}",
+  "relativeDate": "Relatif: {relativeDate}",
+  "home": {
+    "title": "Page d'accueil",
+    "description": "Ceci est la page d'accueil"
+  },
+  "about": {
+    "title": "Page À propos",
+    "description": "Ceci est la page à propos"
+  },
+  "components": {
+    "title": "Démo des composants",
+    "description": "Démo de tous les composants i18n"
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "components": "Composants"
+  },
+  "htmlExample": "Ceci est du contenu <strong>HTML</strong>",
+  "hideIfEmpty": "",
+  "group": {
+    "title": "Titre du groupe",
+    "description": "Ceci est une description de groupe",
+    "item": "Nombre d'éléments: {count}"
+  }
+}
+

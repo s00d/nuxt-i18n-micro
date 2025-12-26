@@ -32,4 +32,3 @@
   vertical-align: middle;
 }
 </style>
-

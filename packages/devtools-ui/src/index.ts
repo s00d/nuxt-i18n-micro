@@ -22,6 +22,10 @@ export function register() {
 // Export types for consumers
 export type { I18nDevToolsBridge } from './bridge/interface'
 
+// Export bridge creation function
+export { createBridge } from './bridge/create-bridge'
+export type { BridgeAdapter, CreateBridgeOptions } from './bridge/create-bridge'
+
 // Export RPC utilities
 export { createRpcClient } from './rpc/client'
 export { setupRpcHost } from './rpc/host'

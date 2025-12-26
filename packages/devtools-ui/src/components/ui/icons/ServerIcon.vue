@@ -40,4 +40,3 @@
   vertical-align: middle;
 }
 </style>
-

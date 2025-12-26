@@ -1,7 +1,7 @@
 ---
 import { useI18n } from '@i18n-micro/astro'
-import I18nLink from '@i18n-micro/astro/components/i18n-link.astro'
-import I18nSwitcher from '@i18n-micro/astro/components/i18n-switcher.astro'
+import I18nLink from '@i18n-micro/astro/i18n-link'
+import I18nSwitcher from '@i18n-micro/astro/i18n-switcher'
 
 const { t, locale } = useI18n(Astro)
 ---
@@ -49,18 +49,6 @@ const { t, locale } = useI18n(Astro)
         background-color: #f0f0f0;
       }
 
-      .locale-switcher-container {
-        margin-left: auto;
-        display: flex;
-        gap: 5px;
-        align-items: center;
-      }
-
-      .locale-switcher-container > * {
-        display: flex;
-        gap: 5px;
-      }
-
       .locale-switcher-container a {
         padding: 5px 10px;
         border: 1px solid #42b983;
@@ -81,6 +69,13 @@ const { t, locale } = useI18n(Astro)
         color: white;
       }
 
+      .locale-switcher-container {
+        margin-left: auto;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+
       main {
         padding: 20px;
         background-color: white;
@@ -94,8 +89,9 @@ const { t, locale } = useI18n(Astro)
       <I18nLink href="/">{t('nav.home')}</I18nLink>
       <I18nLink href="/about">{t('nav.about')}</I18nLink>
       <I18nLink href="/components">{t('nav.components')}</I18nLink>
+      <I18nLink href="/islands">{t('nav.islands')}</I18nLink>
       <div class="locale-switcher-container">
-        <I18nSwitcher class="" />
+        <I18nSwitcher activeClass="active" />
       </div>
     </nav>
     <main>

@@ -1,17 +1,10 @@
 import {
-  useTranslationHelper,
-  interpolate,
-  FormatService,
-  defaultPlural,
+  BaseI18n,
   type TranslationCache,
 } from '@i18n-micro/core'
 import type {
   Translations,
-  Params,
   PluralFunc,
-  Getter,
-  CleanTranslation,
-  TranslationKey,
 } from '@i18n-micro/types'
 
 export interface AstroI18nOptions {
@@ -25,15 +18,10 @@ export interface AstroI18nOptions {
   _cache?: TranslationCache
 }
 
-export class AstroI18n {
+export class AstroI18n extends BaseI18n {
   private _locale: string
   private _fallbackLocale: string
   private _currentRoute: string
-  private helper: ReturnType<typeof useTranslationHelper>
-  private formatter = new FormatService()
-  private pluralFunc: PluralFunc
-  private missingWarn: boolean
-  private missingHandler?: (locale: string, key: string, routeName: string) => void
 
   // Кэш для Core (без Vue реактивности)
   public readonly cache: TranslationCache
@@ -42,24 +30,29 @@ export class AstroI18n {
   private initialMessages: Record<string, Translations> = {}
 
   constructor(options: AstroI18nOptions) {
-    this._locale = options.locale
-    this._fallbackLocale = options.fallbackLocale || options.locale
-    this._currentRoute = 'general'
-    this.pluralFunc = options.plural || defaultPlural
-    this.missingWarn = options.missingWarn ?? false
-    this.missingHandler = options.missingHandler
-
     // Если передан существующий кэш (от глобального инстанса), используем его.
     // Иначе создаем новый.
-    this.cache = options._cache || {
+    const cache: TranslationCache = options._cache || {
       generalLocaleCache: {},
       routeLocaleCache: {},
       dynamicTranslationsCaches: [],
       serverTranslationCache: {},
     }
 
-    // Инициализируем Core с простым кэшем
-    this.helper = useTranslationHelper(this.cache)
+    // Call parent constructor with options
+    super({
+      cache,
+      plural: options.plural,
+      missingWarn: options.missingWarn,
+      missingHandler: options.missingHandler,
+    })
+
+    // Assign cache to public readonly property
+    this.cache = cache
+
+    this._locale = options.locale
+    this._fallbackLocale = options.fallbackLocale || options.locale
+    this._currentRoute = 'general'
 
     // Загружаем начальные сообщения (только если это первичная инициализация или добавление новых)
     if (options.messages) {
@@ -71,15 +64,52 @@ export class AstroI18n {
     }
   }
 
-  // Создать легкую копию для нового запроса с тем же кэшем
+  /**
+   * Clone cache with shallow copy to prevent memory leaks
+   * Each request-scoped instance gets its own cache structure,
+   * but can read from the global cache (read-only access to existing translations)
+   */
+  private cloneCache(sourceCache: TranslationCache): TranslationCache {
+    // Helper to get value from RefLike or plain value
+    const getValue = <T>(refOrValue: T | { value: T }): T => {
+      return typeof refOrValue === 'object' && refOrValue !== null && 'value' in refOrValue
+        ? (refOrValue as { value: T }).value
+        : refOrValue as T
+    }
+
+    // Get actual values from cache (handling RefLike)
+    const generalCache = getValue(sourceCache.generalLocaleCache)
+    const routeCache = getValue(sourceCache.routeLocaleCache)
+    const dynamicCaches = getValue(sourceCache.dynamicTranslationsCaches)
+    const serverCache = getValue(sourceCache.serverTranslationCache)
+
+    // Create new cache structure with shallow copy of existing translations
+    // This allows read-only access to global translations while isolating writes
+    return {
+      generalLocaleCache: { ...generalCache },
+      routeLocaleCache: { ...routeCache },
+      dynamicTranslationsCaches: [...dynamicCaches],
+      serverTranslationCache: { ...serverCache },
+    }
+  }
+
+  /**
+   * Create a request-scoped instance with isolated cache
+   * Prevents memory leaks by isolating per-request translations from global cache
+   */
   public clone(newLocale?: string): AstroI18n {
+    // Create isolated cache for this request to prevent memory leaks
+    // The new cache can read from global translations (shallow copy),
+    // but writes (addTranslations, addRouteTranslations) won't affect global cache
+    const isolatedCache = this.cloneCache(this.cache)
+
     return new AstroI18n({
       locale: newLocale || this._locale,
       fallbackLocale: this._fallbackLocale,
       plural: this.pluralFunc,
       missingWarn: this.missingWarn,
       missingHandler: this.missingHandler,
-      _cache: this.cache, // ШЕРИМ КЭШ
+      _cache: isolatedCache, // Изолированный кэш для предотвращения утечек памяти
     })
   }
 
@@ -110,109 +140,40 @@ export class AstroI18n {
     this._currentRoute = routeName
   }
 
-  getRoute(): string {
+  // --- Implementation of abstract methods ---
+
+  public getLocale(): string {
+    return this._locale
+  }
+
+  public getFallbackLocale(): string {
+    return this._fallbackLocale
+  }
+
+  public getRoute(): string {
     return this._currentRoute
   }
 
-  // Методы перевода
-  public t(
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string | null,
-    routeName?: string,
-  ): CleanTranslation {
-    if (!key) return ''
+  /**
+   * Get route-specific translations for a given locale and route
+   * This method encapsulates the cache key format, making it safe to use
+   * without direct cache access
+   */
+  public getRouteTranslations(locale: string, routeName: string): Translations | null {
+    const cacheKey = `${locale}:${routeName}`
+    const routeCache = this.cache.routeLocaleCache
 
-    const route = routeName || this._currentRoute
-    const localeVal = this._locale
-
-    // 1. Try to find translation in current locale (Core helper checks Route -> Global automatically)
-    let value = this.helper.getTranslation<string>(localeVal, route, key)
-
-    // 2. Fallback to fallbackLocale if not found and different
-    if (!value && localeVal !== this._fallbackLocale) {
-      value = this.helper.getTranslation<string>(this._fallbackLocale, route, key)
+    // Cache is a plain object in AstroI18n (not Vue ref)
+    if (routeCache && typeof routeCache === 'object' && !Array.isArray(routeCache)) {
+      return (routeCache as Record<string, Translations>)[cacheKey] || null
     }
 
-    // 3. Handle missing
-    if (!value) {
-      if (this.missingHandler) {
-        this.missingHandler(localeVal, key, route)
-      }
-      else if (this.missingWarn) {
-        console.warn(
-          `[i18n] Translation key '${key}' not found for locale '${localeVal}' (route: '${route}').`,
-        )
-      }
-      value = defaultValue === undefined ? key : (defaultValue || key)
-    }
-
-    // 4. Interpolate
-    if (typeof value === 'string' && params) {
-      return interpolate(value, params)
-    }
-
-    return value || key
-  }
-
-  public ts(
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string,
-    routeName?: string,
-  ): string {
-    const value = this.t(key, params, defaultValue, routeName)
-    return value?.toString() ?? defaultValue ?? key
-  }
-
-  public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
-    const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
-
-    if (countValue === undefined) {
-      return defaultValue ?? key
-    }
-
-    const getter: Getter = (k: TranslationKey, p?: Params, dv?: string) => {
-      // Приводим типы, так как t может вернуть сложный объект, но для плюрализации нам нужна строка
-      const val = this.t(k, p, dv)
-      return typeof val === 'string' ? val : ''
-    }
-
-    const result = this.pluralFunc(
-      key,
-      Number.parseInt(countValue.toString()),
-      params,
-      this._locale,
-      getter,
-    )
-
-    return result ?? defaultValue ?? key
-  }
-
-  public tn(value: number, options?: Intl.NumberFormatOptions): string {
-    return this.formatter.formatNumber(value, this._locale, options)
-  }
-
-  public td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string {
-    return this.formatter.formatDate(value, this._locale, options)
-  }
-
-  public tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string {
-    return this.formatter.formatRelativeTime(value, this._locale, options)
-  }
-
-  public has(key: TranslationKey, _routeName?: string): boolean {
-    return this.helper.hasTranslation(this._locale, key)
+    return null
   }
 
   // Методы для добавления переводов
   public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
-    if (merge) {
-      this.helper.mergeGlobalTranslation(locale, translations, true)
-    }
-    else {
-      this.helper.loadTranslations(locale, translations)
-    }
+    super.loadTranslationsCore(locale, translations, merge)
   }
 
   public addRouteTranslations(
@@ -221,12 +182,7 @@ export class AstroI18n {
     translations: Translations,
     merge: boolean = true,
   ): void {
-    if (merge) {
-      this.helper.mergeTranslation(locale, routeName, translations, true)
-    }
-    else {
-      this.helper.loadPageTranslations(locale, routeName, translations)
-    }
+    super.loadRouteTranslationsCore(locale, routeName, translations, merge)
   }
 
   public mergeTranslations(locale: string, routeName: string, translations: Translations): void {
@@ -237,12 +193,12 @@ export class AstroI18n {
     this.helper.mergeGlobalTranslation(locale, translations, true)
   }
 
-  public clearCache(): void {
+  public override clearCache(): void {
     // Сохраняем начальные переводы перед очисткой
     const initialMessages = { ...this.initialMessages }
 
     // Очищаем кэш
-    this.helper.clearCache()
+    super.clearCache()
 
     // Восстанавливаем начальные переводы
     if (Object.keys(initialMessages).length > 0) {

@@ -1,6 +1,6 @@
 ---
 import { useI18n } from '../utils'
-import { localizePath, removeLocaleFromPath } from '../routing'
+import type { I18nRoutingStrategy } from '../router/types'
 
 interface Props {
   href: string
@@ -14,24 +14,57 @@ const { locale: currentLocale, defaultLocale, locales } = useI18n(Astro)
 const localeCodes = locales.map(l => l.code)
 const currentPath = Astro.url.pathname
 
+// Get routing strategy from locals
+// @ts-ignore
+const routingStrategy: I18nRoutingStrategy | null = Astro.locals.routingStrategy || null
+
 // Get current locale from path or use detected locale
 const targetLocale = locale || currentLocale
 
+// Helper to remove locale from path
+const removeLocale = (path: string, codes: string[]): string => {
+  if (routingStrategy?.removeLocaleFromPath) {
+    return routingStrategy.removeLocaleFromPath(path, codes)
+  }
+  // Fallback
+  const segments = path.split('/').filter(Boolean)
+  const firstSegment = segments[0]
+  if (firstSegment && codes.includes(firstSegment)) {
+    segments.shift()
+  }
+  return `/${segments.join('/')}`
+}
+
 // Remove locale from current path to get base path
-const basePath = removeLocaleFromPath(currentPath, localeCodes)
+const basePath = removeLocale(currentPath, localeCodes)
 
 // If href is relative, resolve it relative to current base path
 let resolvedHref = href
 if (href.startsWith('/')) {
   // Absolute path - remove locale if present and use as base
-  resolvedHref = removeLocaleFromPath(href, localeCodes)
+  resolvedHref = removeLocale(href, localeCodes)
 } else {
   // Relative path - combine with current base path
   resolvedHref = basePath === '/' ? `/${href}` : `${basePath}/${href}`
 }
 
 // Localize the href
-const localizedHref = localizePath(resolvedHref, targetLocale, localeCodes, defaultLocale)
+let localizedHref = resolvedHref
+if (routingStrategy?.localizePath) {
+  localizedHref = routingStrategy.localizePath(resolvedHref, targetLocale, localeCodes, defaultLocale)
+} else {
+  // Fallback: basic localization
+  const cleanPath = resolvedHref.replace(/^\//, '').replace(/\/$/, '') || ''
+  const segments = cleanPath.split('/').filter(Boolean)
+  const firstSegment = segments[0]
+  if (firstSegment && localeCodes.includes(firstSegment)) {
+    segments.shift()
+  }
+  if (targetLocale !== defaultLocale) {
+    segments.unshift(targetLocale)
+  }
+  localizedHref = `/${segments.join('/')}`
+}
 ---
 
 <a href={localizedHref} class={className} {...attrs}>

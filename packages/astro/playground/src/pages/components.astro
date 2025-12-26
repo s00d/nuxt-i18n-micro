@@ -1,10 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import { useI18n } from '@i18n-micro/astro'
-import I18nT from '@i18n-micro/astro/components/i18n-t.astro'
-import I18nLink from '@i18n-micro/astro/components/i18n-link.astro'
-import I18nGroup from '@i18n-micro/astro/components/i18n-group.astro'
-import I18nSwitcher from '@i18n-micro/astro/components/i18n-switcher.astro'
+import I18nT from '@i18n-micro/astro/i18n-t'
+import I18nLink from '@i18n-micro/astro/i18n-link'
+import I18nGroup from '@i18n-micro/astro/i18n-group'
+import I18nSwitcher from '@i18n-micro/astro/i18n-switcher'
 
 const { t, tn, td, tdr } = useI18n(Astro)
 const now = new Date()

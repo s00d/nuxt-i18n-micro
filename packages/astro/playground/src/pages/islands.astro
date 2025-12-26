@@ -1,0 +1,69 @@
+---
+import { getI18nProps } from '@i18n-micro/astro'
+import Layout from '../layouts/Layout.astro'
+import VueCounter from '../components/islands/VueCounter.vue'
+import ReactCard from '../components/islands/ReactCard'
+import SvelteWidget from '../components/islands/SvelteWidget.svelte'
+import { useI18n } from '@i18n-micro/astro'
+
+const { t } = useI18n(Astro)
+
+// Собираем только нужные ключи для островов
+const i18nProps = getI18nProps(Astro, [
+  'islands.vue.title',
+  'islands.vue.description',
+  'islands.react.title',
+  'islands.react.description',
+  'islands.svelte.title',
+  'islands.svelte.description',
+  'islands.apples',
+  'islands.number',
+])
+---
+
+<Layout title={t('islands.title')}>
+  <main>
+    <h1>{t('islands.title')}</h1>
+    <p>{t('islands.description')}</p>
+
+    <section>
+      <h2>{t('islands.vue.title')}</h2>
+      <VueCounter client:load i18n={i18nProps} />
+    </section>
+
+    <section>
+      <h2>{t('islands.react.title')}</h2>
+      <ReactCard client:load i18n={i18nProps} />
+    </section>
+
+    <section>
+      <h2>{t('islands.svelte.title')}</h2>
+      <SvelteWidget client:load i18n={i18nProps} />
+    </section>
+
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  section {
+    margin: 3rem 0;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+</style>
+

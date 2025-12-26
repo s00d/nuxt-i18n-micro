@@ -1,0 +1,39 @@
+.island-card {
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.react-card {
+  border-color: #61dafb;
+  background: #f0f9ff;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.counter button {
+  padding: 0.5rem 1rem;
+  background: #61dafb;
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.counter button:hover {
+  background: #4fa8c5;
+}
+
+.locale-info {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 1rem;
+}
+

@@ -15,10 +15,16 @@ export {
   getDefaultLocale,
   getLocales,
   useLocaleHead,
+  getI18nProps,
 } from './utils'
-export type { LocaleHeadOptions, LocaleHeadResult } from './utils'
+export type { LocaleHeadOptions, LocaleHeadResult, I18nClientProps } from './utils'
 
-// Routing utilities
+// Router abstraction
+export type { I18nRoutingStrategy } from './router/types'
+export { createAstroRouterAdapter } from './router/adapter'
+
+// Legacy routing utilities (deprecated, use routingStrategy instead)
+// Kept for backward compatibility
 export {
   getRouteName,
   getLocaleFromPath,
@@ -44,5 +50,10 @@ export { interpolate, FormatService, defaultPlural } from '@i18n-micro/core'
 // Export integration options type
 export type { I18nIntegrationOptions } from './integration'
 
-// Note: toolbar-app.ts is not exported to avoid SSR issues
+// Export translation loading utilities
+export {
+  loadTranslationsFromDir,
+  loadTranslationsIntoI18n,
+} from './load-translations'
+export type { LoadTranslationsOptions, LoadedTranslations } from './load-translations'
 // It's loaded directly by Astro via entrypoint in integration config

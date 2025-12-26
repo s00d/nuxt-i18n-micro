@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/types",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "",
   "repository": "s00d/nuxt-i18n-micro",
   "license": "MIT",
@@ -27,6 +27,6 @@
   },
   "keywords": [],
   "devDependencies": {
-    "vite-plugin-dts": "^4.3.0"
+    "vite-plugin-dts": "^4.5.4"
   }
 }

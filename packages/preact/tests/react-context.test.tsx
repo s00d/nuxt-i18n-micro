@@ -71,6 +71,7 @@ describe('I18nProvider and useI18n', () => {
       locale: 'en',
       messages: {
         en: {
+          greeting: 'Hello',
           apples: 'no apples | one apple | {count} apples',
         },
       },
@@ -89,6 +90,12 @@ describe('I18nProvider and useI18n', () => {
   test('should format numbers and dates in component', () => {
     const i18n = createI18n({
       locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+          apples: 'no apples | one apple | {count} apples',
+        },
+      },
     })
 
     // @ts-expect-error - h() returns Preact VNode, render expects compatible type
@@ -107,9 +114,11 @@ describe('I18nProvider and useI18n', () => {
       messages: {
         en: {
           greeting: 'Hello',
+          apples: 'no apples | one apple | {count} apples',
         },
         fr: {
           greeting: 'Bonjour',
+          apples: 'pas de pommes | une pomme | {count} pommes',
         },
       },
     })

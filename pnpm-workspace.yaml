@@ -1,6 +1,7 @@
 packages:
   - 'packages/*'
   - 'packages/*/playground'
+  - 'packages/*/playground-*'
   - 'client'
   - 'playground'
   - 'test/fixtures/**/*'

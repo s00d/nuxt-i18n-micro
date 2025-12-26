@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/devtools-ui",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "type": "module",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -14,29 +14,40 @@
     "./bridge": {
       "types": "./dist/bridge/interface.d.ts",
       "import": "./dist/bridge/interface.js"
+    },
+    "./bridge/create": {
+      "types": "./dist/bridge/create-bridge.d.ts",
+      "import": "./dist/bridge/create-bridge.js"
+    },
+    "./vite": {
+      "types": "./dist/vite/plugin.d.ts",
+      "import": "./dist/vite/plugin.mjs"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "vite"
   ],
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
-    "vue": "^3.3.0"
+    "vue": "^3.5.25"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.17",
-    "@vitejs/plugin-vue": "^5.0.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0",
-    "tailwindcss": "^4.0.0",
-    "vite": "^5.0.0",
-    "vite-plugin-dts": "^4.3.0"
+    "@vitejs/plugin-vue": "^6.0.2",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
+    "vite": "^7.2.7",
+    "vite-plugin-dts": "^4.5.4"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && vite build --config vite.config.plugin.mjs && npm run build:plugin-types",
+    "build:plugin": "vite build --config vite.config.plugin.mjs",
+    "build:plugin-types": "tsc vite/plugin.ts --declaration --emitDeclarationOnly --outDir dist/vite --module esnext --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck",
     "typecheck": "tsc --noEmit"
   }
 }

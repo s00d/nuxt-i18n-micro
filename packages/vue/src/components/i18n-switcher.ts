@@ -1,7 +1,8 @@
-import { defineComponent, ref, computed, h, onMounted, onUnmounted, nextTick, type PropType, type CSSProperties, type VNode } from 'vue'
-import { useRouter } from 'vue-router'
-import { useI18n } from '../use-i18n'
+import { defineComponent, ref, computed, h, inject, onMounted, onUnmounted, nextTick, type PropType, type CSSProperties, type VNode } from 'vue'
 import type { Locale } from '@i18n-micro/types'
+import { I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from '../injection'
+import type { VueI18n } from '../composer'
+import type { I18nRoutingStrategy } from '../router/types'
 
 export const I18nSwitcher = defineComponent({
   name: 'I18nSwitcher',
@@ -42,21 +43,55 @@ export const I18nSwitcher = defineComponent({
       type: Object as PropType<CSSProperties>,
       default: () => ({}),
     },
+    locales: {
+      type: Array as PropType<Locale[]>,
+      default: undefined,
+    },
+    currentLocale: {
+      type: [String, Function] as PropType<string | (() => string)>,
+      default: undefined,
+    },
+    getLocaleName: {
+      type: Function as PropType<() => string | null>,
+      default: undefined,
+    },
+    switchLocale: {
+      type: Function as PropType<(locale: string) => void>,
+      default: undefined,
+    },
+    localeRoute: {
+      type: Function as PropType<(to: string | { path?: string }, locale?: string) => string | { path?: string }>,
+      default: undefined,
+    },
   },
   setup(props, { slots }) {
-    const { localeRoute, switchLocale, getLocales, locale, getLocaleName } = useI18n()
-    let router: ReturnType<typeof useRouter> | undefined
-    try {
-      router = useRouter()
-    }
-    catch {
-      // Router not available
+    const i18n = inject<VueI18n>(I18nInjectionKey)
+    const routerStrategy = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
+    const injectedLocales = inject<Locale[] | undefined>(I18nLocalesKey, undefined)
+
+    if (!i18n) {
+      throw new Error('[i18n-micro] I18nSwitcher: i18n instance not found. Make sure i18n plugin is installed.')
     }
 
-    // Используем computed для реактивности
-    const locales = computed(() => getLocales() || [])
-    const currentLocale = computed(() => locale.value)
-    const currentLocaleName = computed(() => getLocaleName())
+    if (!injectedLocales && !props.locales) {
+      throw new Error('[i18n-micro] I18nSwitcher: locales not provided. Make sure app.provide(I18nLocalesKey, locales) is called or pass locales prop.')
+    }
+
+    const locales = computed(() => props.locales || injectedLocales || [])
+    const currentLocale = computed(() => {
+      if (props.currentLocale !== undefined) {
+        return typeof props.currentLocale === 'function' ? props.currentLocale() : props.currentLocale
+      }
+      return i18n.locale.value
+    })
+    const currentLocaleName = computed(() => {
+      if (props.getLocaleName) {
+        return props.getLocaleName() || null
+      }
+      const current = locales.value.find(l => l.code === i18n.locale.value)
+      return current?.displayName || null
+    })
+
     const dropdownOpen = ref(false)
     const wrapperRef = ref<HTMLElement | null>(null)
 
@@ -79,12 +114,34 @@ export const I18nSwitcher = defineComponent({
     })
 
     const handleSwitchLocale = async (code: string) => {
-      dropdownOpen.value = false // Закрываем сразу
-      // Даем время Vue обновить DOM перед навигацией
+      dropdownOpen.value = false
       await nextTick()
-      if (switchLocale) {
-        switchLocale(code)
+
+      if (props.switchLocale) {
+        props.switchLocale(code)
+        return
       }
+
+      i18n.locale.value = code
+
+      if (!routerStrategy) {
+        return
+      }
+
+      const currentPath = routerStrategy.getCurrentPath()
+      const newPath = props.localeRoute
+        ? (() => {
+            const res = props.localeRoute(currentPath, code)
+            return typeof res === 'string' ? res : (res.path || '/')
+          })()
+        : (routerStrategy?.resolvePath
+            ? (() => {
+                const res = routerStrategy.resolvePath(currentPath, code)
+                return typeof res === 'string' ? res : (res.path || '/')
+              })()
+            : currentPath)
+
+      routerStrategy.push({ path: newPath })
     }
 
     // Default Styles
@@ -253,8 +310,13 @@ export const I18nSwitcher = defineComponent({
             linkContent.push(...normalizeSlot(slots['after-link-content']({ locale: localeItem })))
           }
 
-          // Генерируем маршрут безопасно (без навигации, только для отображения)
-          const routeTo = localeRoute ? localeRoute(router?.currentRoute.value || '/', localeItem.code) : '#'
+          const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+          const result = props.localeRoute
+            ? props.localeRoute(currentPath, localeItem.code)
+            : (routerStrategy?.resolvePath
+                ? routerStrategy.resolvePath(currentPath, localeItem.code)
+                : currentPath)
+          const routeTo = typeof result === 'string' ? result : (result.path || '#')
           const isActive = localeItem.code === currentLocale.value
 
           itemChildren.push(
@@ -266,7 +328,7 @@ export const I18nSwitcher = defineComponent({
                 ...(isActive ? activeLinkStyle : {}),
                 ...props.customLinkStyle,
               },
-              // Предотвращаем стандартную навигацию, используем только switchLocale
+              // Предотвращаем стандартную навигацию, используем только handleSwitchLocale
               onClick: (e: MouseEvent) => {
                 e.preventDefault()
                 e.stopPropagation()

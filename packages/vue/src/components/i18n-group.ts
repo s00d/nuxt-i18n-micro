@@ -1,26 +1,36 @@
-import { defineComponent, h, type PropType } from 'vue'
-import { useI18n } from '../use-i18n'
+import { defineComponent, h, inject } from 'vue'
 import type { TranslationKey } from '@i18n-micro/types'
+import { I18nInjectionKey } from '../injection'
+import type { VueI18n } from '../composer'
 
-export const I18nGroup = defineComponent({
+interface I18nGroupProps {
+  prefix: string
+  groupClass?: string
+}
+
+export const I18nGroup = defineComponent<I18nGroupProps>({
   name: 'I18nGroup',
   props: {
     prefix: {
-      type: String as PropType<string>,
+      type: String,
       required: true,
     },
     groupClass: {
-      type: String as PropType<string>,
+      type: String,
       default: '',
     },
   },
   setup(props, { slots }) {
-    const { t, getRoute } = useI18n()
+    const i18n = inject<VueI18n>(I18nInjectionKey)
+
+    if (!i18n) {
+      throw new Error('[i18n-micro] I18nGroup: i18n instance not found. Make sure i18n plugin is installed.')
+    }
 
     const translate = (key: string, params?: Record<string, string | number | boolean>) => {
       // Use type assertion for dynamic keys with prefix
       // The developer is responsible for ensuring the key exists
-      return t(`${props.prefix}.${key}` as TranslationKey, params, undefined, getRoute())
+      return i18n.t(`${props.prefix}.${key}` as TranslationKey, params, undefined, i18n.getRoute())
     }
 
     return () => h('div', {

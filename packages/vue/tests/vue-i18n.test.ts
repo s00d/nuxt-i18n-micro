@@ -1,10 +1,12 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals'
 import { createApp } from 'vue'
-import { createI18n, useI18n, VueI18n } from '../src'
+import { createI18n, useI18n, VueI18n, I18nLocalesKey, I18nDefaultLocaleKey } from '../src'
+import type { Locale } from '@i18n-micro/types'
 
 // Suppress expected Vue warnings about router injection in tests
 // These warnings are expected when router is not installed (e.g., in unit tests)
 let warnSpy: ReturnType<typeof jest.spyOn> | undefined
+const originalWarn = console.warn
 
 beforeEach(() => {
   // Suppress Vue warnings about missing router injection
@@ -14,11 +16,12 @@ beforeEach(() => {
     if (typeof message === 'string' && (
       message.includes('injection "Symbol(router)" not found')
       || message.includes('injection "Symbol(route location)" not found')
+      || message.includes('RouterStrategy not found')
     )) {
       return
     }
-    // Let other warnings through
-    console.warn(message)
+    // Let other warnings through using original function
+    originalWarn(message)
   })
 })
 
@@ -156,6 +159,9 @@ describe('createI18n plugin', () => {
   })
 
   test('should provide i18n instance', () => {
+    const locales: Locale[] = [{ code: 'en', displayName: 'English', iso: 'en-US' }]
+    const defaultLocale = 'en'
+
     const app = createApp({
       template: '<div></div>',
       setup() {
@@ -165,7 +171,7 @@ describe('createI18n plugin', () => {
       },
     })
 
-    const i18n = createI18n({
+    const i18nPlugin = createI18n({
       locale: 'en',
       messages: {
         en: {
@@ -174,13 +180,21 @@ describe('createI18n plugin', () => {
       },
     })
 
-    app.use(i18n)
+    app.use(i18nPlugin)
+    app.provide(I18nLocalesKey, locales)
+    app.provide(I18nDefaultLocaleKey, defaultLocale)
     app.mount(document.createElement('div'))
   })
 })
 
 describe('useI18n composable', () => {
-  test('should return reactive locale', () => {
+  const locales: Locale[] = [
+    { code: 'en', displayName: 'English', iso: 'en-US' },
+    { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
+  ]
+  const defaultLocale = 'en'
+
+  test('should return i18n instance with reactive locale', () => {
     const app = createApp({
       template: '<div></div>',
       setup() {
@@ -192,11 +206,13 @@ describe('useI18n composable', () => {
       },
     })
 
-    const i18n = createI18n({
+    const i18nPlugin = createI18n({
       locale: 'en',
     })
 
-    app.use(i18n)
+    app.use(i18nPlugin)
+    app.provide(I18nLocalesKey, locales)
+    app.provide(I18nDefaultLocaleKey, defaultLocale)
     app.mount(document.createElement('div'))
   })
 
@@ -204,13 +220,13 @@ describe('useI18n composable', () => {
     const app = createApp({
       template: '<div></div>',
       setup() {
-        const i18n = useI18n()
-        expect(typeof i18n.t).toBe('function')
-        expect(typeof i18n.tc).toBe('function')
-        expect(typeof i18n.tn).toBe('function')
-        expect(typeof i18n.td).toBe('function')
-        expect(typeof i18n.tdr).toBe('function')
-        expect(typeof i18n.has).toBe('function')
+        const { t, tc, tn, td, tdr, has } = useI18n()
+        expect(typeof t).toBe('function')
+        expect(typeof tc).toBe('function')
+        expect(typeof tn).toBe('function')
+        expect(typeof td).toBe('function')
+        expect(typeof tdr).toBe('function')
+        expect(typeof has).toBe('function')
         return {}
       },
     })
@@ -220,6 +236,8 @@ describe('useI18n composable', () => {
     })
 
     app.use(i18nPlugin)
+    app.provide(I18nLocalesKey, locales)
+    app.provide(I18nDefaultLocaleKey, defaultLocale)
     app.mount(document.createElement('div'))
   })
 
@@ -236,7 +254,7 @@ describe('useI18n composable', () => {
       },
     })
 
-    const i18n = createI18n({
+    const i18nPlugin = createI18n({
       locale: 'en',
       messages: {
         en: {
@@ -245,11 +263,13 @@ describe('useI18n composable', () => {
       },
     })
 
-    i18n.global.addRouteTranslations('en', 'home', {
+    i18nPlugin.global.addRouteTranslations('en', 'home', {
       title: 'Home Title',
     }, false)
 
-    app.use(i18n)
+    app.use(i18nPlugin)
+    app.provide(I18nLocalesKey, locales)
+    app.provide(I18nDefaultLocaleKey, defaultLocale)
     app.mount(document.createElement('div'))
   })
 
@@ -265,7 +285,7 @@ describe('useI18n composable', () => {
       },
     })
 
-    const i18n = createI18n({
+    const i18nPlugin = createI18n({
       locale: 'en',
       messages: {
         en: {
@@ -274,7 +294,9 @@ describe('useI18n composable', () => {
       },
     })
 
-    app.use(i18n)
+    app.use(i18nPlugin)
+    app.provide(I18nLocalesKey, locales)
+    app.provide(I18nDefaultLocaleKey, defaultLocale)
     app.mount(document.createElement('div'))
   })
 
@@ -291,11 +313,13 @@ describe('useI18n composable', () => {
       },
     })
 
-    const i18n = createI18n({
+    const i18nPlugin = createI18n({
       locale: 'en',
     })
 
-    app.use(i18n)
+    app.use(i18nPlugin)
+    app.provide(I18nLocalesKey, locales)
+    app.provide(I18nDefaultLocaleKey, defaultLocale)
     app.mount(document.createElement('div'))
   })
 })

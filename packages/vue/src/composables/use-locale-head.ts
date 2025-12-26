@@ -1,7 +1,8 @@
-import { ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, inject } from 'vue'
 import { useI18n } from '../use-i18n'
+import { I18nRouterKey } from '../injection'
 import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from '../router/types'
 
 interface MetaLink {
   [key: string]: string | undefined
@@ -40,8 +41,8 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     baseUrl = '/',
   } = options
 
-  const route = useRoute()
-  const { getLocale, getLocales, switchLocalePath } = useI18n()
+  const { getLocale, getLocales, localeRoute: i18nLocaleRoute } = useI18n()
+  const routerStrategy = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
 
   const metaObject = ref<MetaObject>({
     htmlAttrs: {},
@@ -63,9 +64,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
   }
 
   function updateMeta(canonicalQueryWhitelist: string[] = []) {
-    // On 404 pages, route.matched will be empty.
-    // We should not generate SEO tags for pages that don't exist.
-    if (route.matched.length === 0) {
+    if (!routerStrategy) {
       metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
       return
     }
@@ -81,13 +80,13 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     const currentIso = currentLocaleObj.iso || locale
     const currentDir = currentLocaleObj.dir || 'auto'
 
-    let fullPath = route.fullPath
+    let fullPath = routerStrategy.getCurrentPath()
     if (!fullPath.startsWith('/')) {
       fullPath = `/${fullPath}`
     }
 
     const pathSegments = fullPath.split('/').filter(Boolean)
-    const matchedLocale = allLocales.find(localeItem => pathSegments[0] === localeItem.code)
+    const matchedLocale = allLocales.find((localeItem: Locale) => pathSegments[0] === localeItem.code)
 
     let localizedPath = fullPath
     let canonicalPath: string
@@ -143,11 +142,14 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     }
 
     const alternateLinks: MetaLink[] = alternateLocales.flatMap((loc: Locale) => {
-      if (!switchLocalePath) {
+      if (!i18nLocaleRoute || !routerStrategy) {
         return []
       }
 
-      const switchedPath = switchLocalePath(loc.code)
+      const currentPath = routerStrategy.getCurrentPath()
+      // Use i18n's localeRoute which delegates to router strategy
+      const switchedPathResult = i18nLocaleRoute(currentPath, loc.code)
+      const switchedPath = typeof switchedPathResult === 'string' ? switchedPathResult : (switchedPathResult?.path || '/')
       if (!switchedPath) {
         return []
       }

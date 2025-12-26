@@ -1,6 +1,7 @@
 // Main exports
 export { createI18n } from './plugin'
-export { useI18n } from './use-i18n'
+export type { I18nPlugin } from './plugin'
+export { useI18n, type UseI18nOptions } from './use-i18n'
 export { VueI18n, type VueI18nOptions } from './composer'
 export { I18nT } from './components/i18n-t'
 export { I18nLink } from './components/i18n-link'
@@ -12,14 +13,11 @@ export { I18nInjectionKey, I18nLocalesKey, I18nDefaultLocaleKey } from './inject
 export { useLocaleHead } from './composables/use-locale-head'
 export type { UseLocaleHeadOptions } from './composables/use-locale-head'
 
-// Router integration
-export {
-  setupRouterIntegration,
-  switchLocaleRoute,
-  getRouteName,
-  getLocaleFromRoute,
-  type RouterIntegrationOptions,
-} from './router'
+// Router integration - should be implemented in playground
+
+// Router abstraction
+export type { I18nRoutingStrategy } from './router/types'
+export { createVueRouterAdapter } from './router/adapter'
 
 // Re-export types from @i18n-micro/types
 export type {
@@ -34,9 +32,3 @@ export type {
 
 // Re-export utilities from core
 export { interpolate, FormatService, defaultPlural } from '@i18n-micro/core'
-
-// DevTools integration
-export { setupVueDevTools } from './devtools'
-export type { VueDevToolsOptions } from './devtools'
-export { createVueBridge } from './devtools/bridge/vue-bridge'
-export type { VueBridgeOptions } from './devtools/bridge/vue-bridge'

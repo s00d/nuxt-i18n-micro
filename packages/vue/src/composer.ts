@@ -1,18 +1,11 @@
 import { ref, shallowRef, triggerRef, type Ref } from 'vue'
 import {
-  useTranslationHelper,
-  interpolate,
-  FormatService,
-  defaultPlural,
+  BaseI18n,
   type TranslationCache,
 } from '@i18n-micro/core'
 import type {
   Translations,
-  Params,
   PluralFunc,
-  Getter,
-  CleanTranslation,
-  TranslationKey,
 } from '@i18n-micro/types'
 
 export interface VueI18nOptions {
@@ -24,41 +17,40 @@ export interface VueI18nOptions {
   missingHandler?: (locale: string, key: string, routeName: string) => void
 }
 
-export class VueI18n {
+export class VueI18n extends BaseI18n {
   private _locale: Ref<string>
   private _fallbackLocale: Ref<string>
   private _currentRoute: Ref<string>
-  private helper: ReturnType<typeof useTranslationHelper>
-  private formatter = new FormatService()
-  private pluralFunc: PluralFunc
-  private missingWarn: boolean
-  private missingHandler?: (locale: string, key: string, routeName: string) => void
 
   // Реактивный кэш, совместимый с RefLike из core
-  // Делаем cache публичным, чтобы Bridge мог читать структуру
   public readonly cache: TranslationCache
 
   // Слушатели изменений для DevTools
   private listeners: Set<() => void> = new Set()
 
   constructor(options: VueI18nOptions) {
-    this._locale = ref(options.locale)
-    this._fallbackLocale = ref(options.fallbackLocale || options.locale)
-    this._currentRoute = ref('general')
-    this.pluralFunc = options.plural || defaultPlural
-    this.missingWarn = options.missingWarn ?? false
-    this.missingHandler = options.missingHandler
-
     // Создаем реактивные хранилища для Core
-    this.cache = {
+    const cache: TranslationCache = {
       generalLocaleCache: shallowRef<Record<string, Translations>>({}),
       routeLocaleCache: shallowRef<Record<string, Translations>>({}),
       dynamicTranslationsCaches: shallowRef<Record<string, Translations>[]>([]),
       serverTranslationCache: shallowRef<Record<string, Map<string, Translations | unknown>>>({}),
     }
 
-    // Инициализируем Core с реактивным кэшем
-    this.helper = useTranslationHelper(this.cache)
+    // Call parent constructor with options
+    super({
+      cache,
+      plural: options.plural,
+      missingWarn: options.missingWarn,
+      missingHandler: options.missingHandler,
+    })
+
+    // Assign cache to public readonly property
+    this.cache = cache
+
+    this._locale = ref(options.locale)
+    this._fallbackLocale = ref(options.fallbackLocale || options.locale)
+    this._currentRoute = ref('general')
 
     // Загружаем начальные сообщения
     if (options.messages) {
@@ -105,107 +97,23 @@ export class VueI18n {
     this._currentRoute.value = routeName
   }
 
-  getRoute(): string {
+  // --- Implementation of abstract methods ---
+
+  public getLocale(): string {
+    return this._locale.value
+  }
+
+  public getFallbackLocale(): string {
+    return this._fallbackLocale.value
+  }
+
+  public getRoute(): string {
     return this._currentRoute.value
   }
 
-  // Методы перевода
-  public t(
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string | null,
-    routeName?: string,
-  ): CleanTranslation {
-    if (!key) return ''
-
-    const route = routeName || this._currentRoute.value
-    const localeVal = this._locale.value
-
-    // 1. Try to find translation in current locale (Core helper checks Route -> Global automatically)
-    let value = this.helper.getTranslation<string>(localeVal, route, key)
-
-    // 2. Fallback to fallbackLocale if not found and different
-    if (!value && localeVal !== this._fallbackLocale.value) {
-      value = this.helper.getTranslation<string>(this._fallbackLocale.value, route, key)
-    }
-
-    // 3. Handle missing
-    if (!value) {
-      if (this.missingHandler) {
-        this.missingHandler(localeVal, key, route)
-      }
-      else if (this.missingWarn) {
-        console.warn(
-          `[i18n] Translation key '${key}' not found for locale '${localeVal}' (route: '${route}').`,
-        )
-      }
-      value = defaultValue === undefined ? key : (defaultValue || key)
-    }
-
-    // 4. Interpolate
-    if (typeof value === 'string' && params) {
-      return interpolate(value, params)
-    }
-
-    return value || key
-  }
-
-  public ts(
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string,
-    routeName?: string,
-  ): string {
-    const value = this.t(key, params, defaultValue, routeName)
-    return value?.toString() ?? defaultValue ?? key
-  }
-
-  public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
-    const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
-
-    if (countValue === undefined) {
-      return defaultValue ?? key
-    }
-
-    const getter: Getter = (k: TranslationKey, p?: Params, dv?: string) => {
-      return this.t(k, p, dv)
-    }
-
-    const result = this.pluralFunc(
-      key,
-      Number.parseInt(countValue.toString()),
-      params,
-      this._locale.value,
-      getter,
-    )
-
-    return result ?? defaultValue ?? key
-  }
-
-  public tn(value: number, options?: Intl.NumberFormatOptions): string {
-    return this.formatter.formatNumber(value, this._locale.value, options)
-  }
-
-  public td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string {
-    return this.formatter.formatDate(value, this._locale.value, options)
-  }
-
-  public tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string {
-    return this.formatter.formatRelativeTime(value, this._locale.value, options)
-  }
-
-  public has(key: TranslationKey, _routeName?: string): boolean {
-    return this.helper.hasTranslation(this._locale.value, key)
-  }
-
-  // Методы для добавления переводов (реактивно)
+  // Методы для добавления переводов (реактивно) - uses protected methods from base class
   public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
-    if (merge) {
-      this.helper.mergeGlobalTranslation(locale, translations, true)
-    }
-    else {
-      this.helper.loadTranslations(locale, translations)
-    }
+    super.loadTranslationsCore(locale, translations, merge)
     // Триггерим реактивность для shallowRef после изменения объекта внутри
     // В Vue пакете cache всегда содержит shallowRef, поэтому используем type assertion
     triggerRef(this.cache.generalLocaleCache as Ref<Record<string, Translations>>)
@@ -218,12 +126,7 @@ export class VueI18n {
     translations: Translations,
     merge: boolean = true,
   ): void {
-    if (merge) {
-      this.helper.mergeTranslation(locale, routeName, translations, true)
-    }
-    else {
-      this.helper.loadPageTranslations(locale, routeName, translations)
-    }
+    super.loadRouteTranslationsCore(locale, routeName, translations, merge)
     // Триггерим реактивность для shallowRef после изменения объекта внутри
     triggerRef(this.cache.routeLocaleCache as Ref<Record<string, Translations>>)
     this.notifyListeners()
@@ -243,8 +146,8 @@ export class VueI18n {
     this.notifyListeners()
   }
 
-  public clearCache(): void {
-    this.helper.clearCache()
+  public override clearCache(): void {
+    super.clearCache()
     // Триггерим реактивность для всех shallowRef после очистки кэша
     triggerRef(this.cache.generalLocaleCache as Ref<Record<string, Translations>>)
     triggerRef(this.cache.routeLocaleCache as Ref<Record<string, Translations>>)

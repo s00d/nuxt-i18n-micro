@@ -1,6 +1,7 @@
-import { defineComponent, h, type PropType, type VNode } from 'vue'
+import { defineComponent, h, inject, type PropType, type VNode } from 'vue'
 import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import { useI18n } from '../use-i18n'
+import { I18nInjectionKey } from '../injection'
+import type { VueI18n } from '../composer'
 
 export const I18nT = defineComponent({
   name: 'I18nT',
@@ -47,31 +48,35 @@ export const I18nT = defineComponent({
     },
   },
   setup(props, { slots, attrs }) {
-    const { t, tc, tn, td, tdr, locale, getRoute } = useI18n()
+    const i18n = inject<VueI18n>(I18nInjectionKey)
+
+    if (!i18n) {
+      throw new Error('[i18n-micro] I18nT: i18n instance not found. Make sure i18n plugin is installed.')
+    }
 
     return () => {
       const options: Record<string, string | number | boolean> = {}
-      const route = getRoute()
+      const route = i18n.getRoute()
 
       // Handle number formatting
       if (props.number !== undefined) {
         const numberValue = Number(props.number)
-        const formattedNumber = tn(numberValue)
-        const translation = t(props.keypath, { number: formattedNumber, ...props.params }, undefined, route)
+        const formattedNumber = i18n.tn(numberValue)
+        const translation = i18n.t(props.keypath, { number: formattedNumber, ...props.params }, undefined, route)
         return h(props.tag, { ...attrs, innerHTML: translation })
       }
 
       // Handle date formatting
       if (props.date !== undefined) {
-        const formattedDate = td(props.date)
-        const translation = t(props.keypath, { date: formattedDate, ...props.params }, undefined, route)
+        const formattedDate = i18n.td(props.date)
+        const translation = i18n.t(props.keypath, { date: formattedDate, ...props.params }, undefined, route)
         return h(props.tag, { ...attrs, innerHTML: translation })
       }
 
       // Handle relative date formatting
       if (props.relativeDate !== undefined) {
-        const formattedRelativeDate = tdr(props.relativeDate)
-        const translation = t(props.keypath, { relativeDate: formattedRelativeDate, ...props.params }, undefined, route)
+        const formattedRelativeDate = i18n.tdr(props.relativeDate)
+        const translation = i18n.t(props.keypath, { relativeDate: formattedRelativeDate, ...props.params }, undefined, route)
         return h(props.tag, { ...attrs, innerHTML: translation })
       }
 
@@ -83,19 +88,19 @@ export const I18nT = defineComponent({
             props.keypath,
             count,
             props.params,
-            locale.value,
-            (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => t(k, p, dv, route),
+            i18n.locale.value,
+            (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => i18n.t(k, p, dv, route),
           )
           return h(props.tag, { ...attrs, innerHTML: translation || '' })
         }
         else {
-          const translation = tc(props.keypath, { count, ...props.params })
+          const translation = i18n.tc(props.keypath, { count, ...props.params })
           return h(props.tag, { ...attrs, innerHTML: translation })
         }
       }
 
       // Regular translation
-      const translation = (t(props.keypath, { ...props.params, ...options }, undefined, route) ?? '').toString()
+      const translation = (i18n.t(props.keypath, { ...props.params, ...options }, undefined, route) ?? '').toString()
 
       if (props.hideIfEmpty && !translation.trim()) {
         return props.defaultValue ?? null

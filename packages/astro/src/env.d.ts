@@ -2,6 +2,7 @@
 
 import type { AstroI18n } from './composer'
 import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from './router/types'
 
 declare global {
   namespace App {
@@ -11,6 +12,7 @@ declare global {
       defaultLocale: string
       locales: Locale[]
       currentUrl: URL
+      routingStrategy?: I18nRoutingStrategy
     }
   }
 }

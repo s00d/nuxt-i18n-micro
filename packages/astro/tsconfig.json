@@ -14,7 +14,7 @@
     "rootDir": "./src",
     "baseUrl": "./",
     "types": ["node", "astro/client"],
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "paths": {
       // Убедитесь, что нет маппинга, который заставляет резолвить себя через node_modules/dist
       "@i18n-micro/astro/*": ["./src/*"]

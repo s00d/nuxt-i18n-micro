@@ -1,7 +1,8 @@
 import type { AstroI18n } from './composer'
-import { getLocaleFromPath, getRouteName } from './routing'
 import type { MiddlewareHandler } from 'astro'
 import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from './router/types'
+import { getGlobalRoutingStrategy } from './integration'
 // Import shim to ensure App.Locals is available
 import './env.d'
 
@@ -12,6 +13,7 @@ export interface I18nMiddlewareOptions {
   localeObjects?: Locale[]
   autoDetect?: boolean
   redirectToDefault?: boolean
+  routingStrategy?: I18nRoutingStrategy
 }
 
 /**
@@ -25,7 +27,11 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     localeObjects,
     autoDetect: _autoDetect = true,
     redirectToDefault: _redirectToDefault = false,
+    routingStrategy,
   } = options
+
+  // Get routing strategy from options or global context
+  const strategy = routingStrategy || getGlobalRoutingStrategy()
 
   return async (context, next) => {
     // FIX: If locale is already preserved in locals (e.g. during Astro.rewrite),
@@ -36,6 +42,34 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
 
     const url = context.url
     const pathname = url.pathname
+
+    // If no routing strategy, use basic fallback
+    if (!strategy) {
+      // Basic fallback: just set route name from path
+      const requestI18n = globalI18n.clone(defaultLocale)
+      const routeName = pathname === '/' || pathname === '' ? 'index' : pathname.split('/').filter(Boolean).join('-')
+      requestI18n.setRoute(routeName)
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      context.locals.i18n = requestI18n
+      context.locals.locale = defaultLocale
+      context.locals.defaultLocale = defaultLocale
+      context.locals.locales = localeObjects || locales.map(code => ({ code }))
+      context.locals.currentUrl = url
+
+      return next()
+    }
+
+    // Create context-aware routing strategy with current URL
+    const contextStrategy: I18nRoutingStrategy = {
+      ...strategy,
+      getCurrentPath: () => pathname,
+      getRoute: () => ({
+        fullPath: url.pathname + url.search,
+        query: Object.fromEntries(url.searchParams),
+      }),
+    }
 
     // 1. Check if locale is in path
     const pathSegments = pathname.split('/').filter(Boolean)
@@ -49,15 +83,22 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
       detectedLocale = firstSegment
     }
     else {
-      // TODO: Add auto-detect logic here if needed
-      detectedLocale = defaultLocale
+      // Use routing strategy if available, otherwise fallback
+      if (contextStrategy.getLocaleFromPath) {
+        detectedLocale = contextStrategy.getLocaleFromPath(pathname, defaultLocale, locales)
+      }
+      else {
+        detectedLocale = defaultLocale
+      }
     }
 
     // 3. Create per-request instance sharing the cache
     const requestI18n = globalI18n.clone(detectedLocale)
 
-    // 4. Set route name
-    const routeName = getRouteName(pathname, locales)
+    // 4. Set route name using routing strategy
+    const routeName = contextStrategy.getRouteName
+      ? contextStrategy.getRouteName(pathname, locales)
+      : 'general'
     requestI18n.setRoute(routeName)
 
     // 5. Store in locals (Type-safe now thanks to astro-shim.d.ts)
@@ -68,6 +109,9 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     context.locals.defaultLocale = defaultLocale
     context.locals.locales = localeObjects || locales.map(code => ({ code }))
     context.locals.currentUrl = url
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    context.locals.routingStrategy = contextStrategy
 
     return next()
   }
@@ -110,8 +154,22 @@ export function detectLocale(
   locales: string[],
   localeCookie: string = 'i18n-locale',
 ): string {
+  // Get routing strategy
+  const strategy = getGlobalRoutingStrategy()
+
   // 1. Try path
-  let locale = getLocaleFromPath(pathname, defaultLocale, locales)
+  let locale = defaultLocale
+  if (strategy?.getLocaleFromPath) {
+    locale = strategy.getLocaleFromPath(pathname, defaultLocale, locales)
+  }
+  else {
+    // Fallback: check if first segment is a locale
+    const segments = pathname.split('/').filter(Boolean)
+    const firstSegment = segments[0]
+    if (firstSegment && locales.includes(firstSegment)) {
+      locale = firstSegment
+    }
+  }
 
   // 2. Try cookie
   if (locale === defaultLocale && cookies.get(localeCookie)) {

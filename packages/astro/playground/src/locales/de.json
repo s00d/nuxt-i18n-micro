@@ -20,7 +20,30 @@
   "nav": {
     "home": "Startseite",
     "about": "Über uns",
-    "components": "Komponenten"
+    "components": "Komponenten",
+    "islands": "Inseln"
+  },
+  "islands": {
+    "title": "Astro Islands Demo",
+    "description": "Diese Seite demonstriert die i18n-Integration mit Astro Islands (Vue, React, Svelte, Preact). Jede Insel erhält Übersetzungen über Props und verwendet ihren Framework-spezifischen Adapter.",
+    "vue": {
+      "title": "Vue Insel",
+      "description": "Dies ist eine Vue-Komponente, die das provide/inject-Muster für i18n verwendet."
+    },
+    "react": {
+      "title": "React Insel",
+      "description": "Dies ist eine React-Komponente, die Context API für i18n verwendet."
+    },
+    "svelte": {
+      "title": "Svelte Insel",
+      "description": "Dies ist eine Svelte-Komponente, die Svelte Stores für i18n verwendet."
+    },
+    "preact": {
+      "title": "Preact Insel",
+      "description": "Dies ist eine Preact-Komponente, die Context API für i18n verwendet."
+    },
+    "apples": "keine Äpfel | ein Apfel | {count} Äpfel",
+    "number": "Zahl: {number}"
   }
 }
 

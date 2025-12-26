@@ -1,6 +1,10 @@
 import { defineConfig } from 'astro/config'
 import node from '@astrojs/node'
-import { i18nIntegration } from '@i18n-micro/astro'
+import vue from '@astrojs/vue'
+import react from '@astrojs/react'
+import svelte from '@astrojs/svelte'
+import { i18nIntegration, createAstroRouterAdapter } from '@i18n-micro/astro'
+import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
 import { copyFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 
@@ -9,7 +13,25 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  vite: {
+    ssr: {
+      noExternal: ['@i18n-micro/astro'],
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom'],
+    },
+    plugins: [
+      i18nDevToolsPlugin({
+        base: '/__i18n_api',
+        translationDir: 'src/locales',
+        injectButton: true,
+      }),
+    ],
+  },
   integrations: [
+    vue(),
+    react(),
+    svelte(),
     i18nIntegration({
       locale: 'en',
       fallbackLocale: 'en',
@@ -18,7 +40,15 @@ export default defineConfig({
         { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
         { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
       ],
-      translationDir: './src/locales',
+      translationDir: 'src/locales',
+      routingStrategy: createAstroRouterAdapter(
+        [
+          { code: 'en', iso: 'en-US', displayName: 'English' },
+          { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
+          { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
+        ],
+        'en',
+      ),
     }),
     {
       name: 'copy-locales',

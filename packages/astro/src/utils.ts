@@ -1,7 +1,7 @@
 import type { AstroI18n } from './composer'
-import type { Params, Locale, CleanTranslation, TranslationKey } from '@i18n-micro/types'
-import { switchLocalePath, localizePath, getLocaleFromPath, getRouteName } from './routing'
+import type { Params, Locale, CleanTranslation, TranslationKey, Translations } from '@i18n-micro/types'
 import type { AstroGlobal } from 'astro'
+import type { I18nRoutingStrategy } from './router/types'
 import './env.d'
 
 /**
@@ -39,6 +39,15 @@ export function getLocales(astro: AstroGlobal): Locale[] {
 }
 
 /**
+ * Get routing strategy from Astro locals
+ */
+function getRoutingStrategy(astro: AstroGlobal): I18nRoutingStrategy | null {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return (astro.locals.routingStrategy as I18nRoutingStrategy | undefined) || null
+}
+
+/**
  * Use i18n in Astro pages/components
  * Returns helper functions for translations
  */
@@ -48,6 +57,7 @@ export function useI18n(astro: AstroGlobal) {
   const defaultLocale = getDefaultLocale(astro)
   const locales = getLocales(astro)
   const localeCodes = locales.map(l => l.code)
+  const routingStrategy = getRoutingStrategy(astro)
 
   return {
     // Current locale
@@ -83,24 +93,62 @@ export function useI18n(astro: AstroGlobal) {
       return i18n.getRoute()
     },
     getRouteName: (path?: string): string => {
-      if (path) {
-        return getRouteName(path, localeCodes)
+      const targetPath = path || astro.url.pathname
+      if (routingStrategy?.getRouteName) {
+        return routingStrategy.getRouteName(targetPath, localeCodes)
       }
-      return getRouteName(astro.url.pathname, localeCodes)
+      // Fallback: basic route name extraction
+      const cleanPath = targetPath.replace(/^\//, '').replace(/\/$/, '')
+      if (!cleanPath) return 'index'
+      const segments = cleanPath.split('/').filter(Boolean)
+      const firstSegment = segments[0]
+      if (firstSegment && localeCodes.includes(firstSegment)) {
+        segments.shift()
+      }
+      return segments.length === 0 ? 'index' : segments.join('-')
     },
     getLocaleFromPath: (path?: string): string => {
-      if (path) {
-        return getLocaleFromPath(path, defaultLocale, localeCodes)
+      const targetPath = path || astro.url.pathname
+      if (routingStrategy?.getLocaleFromPath) {
+        return routingStrategy.getLocaleFromPath(targetPath, defaultLocale, localeCodes)
       }
-      return getLocaleFromPath(astro.url.pathname, defaultLocale, localeCodes)
+      // Fallback: check first segment
+      const segments = targetPath.split('/').filter(Boolean)
+      const firstSegment = segments[0]
+      return (firstSegment && localeCodes.includes(firstSegment)) ? firstSegment : defaultLocale
     },
 
     // Path utilities
     switchLocalePath: (newLocale: string): string => {
-      return switchLocalePath(astro.url.pathname, newLocale, localeCodes, defaultLocale)
+      if (routingStrategy?.switchLocalePath) {
+        return routingStrategy.switchLocalePath(astro.url.pathname, newLocale, localeCodes, defaultLocale)
+      }
+      // Fallback: basic locale switching
+      const segments = astro.url.pathname.split('/').filter(Boolean)
+      const firstSegment = segments[0]
+      if (firstSegment && localeCodes.includes(firstSegment)) {
+        segments.shift()
+      }
+      if (newLocale !== defaultLocale) {
+        segments.unshift(newLocale)
+      }
+      return `/${segments.join('/')}`
     },
     localizePath: (path: string, targetLocale?: string): string => {
-      return localizePath(path, targetLocale || locale, localeCodes, defaultLocale)
+      if (routingStrategy?.localizePath) {
+        return routingStrategy.localizePath(path, targetLocale || locale, localeCodes, defaultLocale)
+      }
+      // Fallback: basic localization
+      const cleanPath = path.replace(/^\//, '').replace(/\/$/, '') || ''
+      const segments = cleanPath.split('/').filter(Boolean)
+      const firstSegment = segments[0]
+      if (firstSegment && localeCodes.includes(firstSegment)) {
+        segments.shift()
+      }
+      if (targetLocale && targetLocale !== defaultLocale) {
+        segments.unshift(targetLocale)
+      }
+      return `/${segments.join('/')}`
     },
 
     // Get i18n instance
@@ -207,11 +255,30 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
     href: canonicalUrl,
   })
 
+  // Get routing strategy
+  const routingStrategy = getRoutingStrategy(astro)
+  const allLocaleCodes = locales.map(l => l.code)
+
   // Alternate languages
   for (const loc of locales) {
     if (loc.code === locale) continue
 
-    const alternatePath = switchLocalePath(astro.url.pathname, loc.code, locales.map(l => l.code), defaultLocale)
+    let alternatePath = astro.url.pathname
+    if (routingStrategy?.switchLocalePath) {
+      alternatePath = routingStrategy.switchLocalePath(astro.url.pathname, loc.code, allLocaleCodes, defaultLocale)
+    }
+    else {
+      // Fallback: basic locale switching
+      const segments = astro.url.pathname.split('/').filter(Boolean)
+      const firstSegment = segments[0]
+      if (firstSegment && allLocaleCodes.includes(firstSegment)) {
+        segments.shift()
+      }
+      if (loc.code !== defaultLocale) {
+        segments.unshift(loc.code)
+      }
+      alternatePath = `/${segments.join('/')}`
+    }
     const alternateUrl = `${baseUrl}${alternatePath}`
 
     result.link.push({
@@ -250,4 +317,81 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   }
 
   return result
+}
+
+/**
+ * Props для передачи в клиентские острова (Vue, React, Svelte, Preact)
+ */
+export interface I18nClientProps {
+  locale: string
+  fallbackLocale: string
+  translations: Record<string, Translations> // routeName -> translations
+  currentRoute: string
+}
+
+/**
+ * Создает вложенную структуру из ключа (например, 'islands.vue.title' -> { islands: { vue: { title: value } } })
+ */
+function setNestedValue(obj: Translations, key: string, value: unknown): void {
+  const parts = key.split('.')
+  let current: Translations = obj
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (!current[parts[i]]) {
+      current[parts[i]] = {}
+    }
+    current = current[parts[i]] as Translations
+  }
+  current[parts[parts.length - 1]] = value
+}
+
+/**
+ * Подготавливает пропсы для передачи в клиентский остров.
+ * Принимает список ключей, которые нужно передать в остров.
+ * Использует методы i18n для правильной работы с routesLocaleLinks.
+ * currentRoute уже нормализован через middleware (getRouteName), поэтому используем его напрямую.
+ */
+export function getI18nProps(astro: AstroGlobal, keys?: string[]): I18nClientProps {
+  const i18n = getI18n(astro)
+  const locale = getLocale(astro)
+  const fallbackLocale = getDefaultLocale(astro)
+  // currentRoute уже нормализован через middleware.setRoute(getRouteName(...))
+  // getRouteName учитывает routesLocaleLinks, если они настроены
+  const currentRoute = i18n.getRoute()
+
+  const translations: Record<string, Translations> = {}
+
+  // Если указаны ключи, извлекаем только их из кэша
+  if (keys && keys.length > 0) {
+    const extracted: Translations = {}
+
+    // Используем методы i18n для получения переводов
+    // Это гарантирует правильную работу с routesLocaleLinks
+    for (const key of keys) {
+      // Используем i18n.t() который использует helper.getTranslation внутри
+      // и правильно резолвит ключ кэша с учетом routesLocaleLinks
+      const value = i18n.t(key, undefined, undefined, currentRoute)
+      if (value !== null && value !== undefined && value !== key) {
+        setNestedValue(extracted, key, value)
+      }
+    }
+
+    if (Object.keys(extracted).length > 0) {
+      translations[currentRoute] = extracted
+    }
+  }
+  else {
+    // Если ключи не указаны, берем route-specific переводы
+    // Используем публичный метод getRouteTranslations для безопасного доступа
+    const routeTrans = i18n.getRouteTranslations(locale, currentRoute)
+    if (routeTrans) {
+      translations[currentRoute] = routeTrans
+    }
+  }
+
+  return {
+    locale,
+    fallbackLocale,
+    currentRoute,
+    translations,
+  }
 }

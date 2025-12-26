@@ -1,6 +1,56 @@
 # Changelog
 
 
+## v2.16.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.15.2...v2.16.0)
+
+### 🚀 Enhancements
+
+- **astro:** Upgrade to version 1.1.0 and add new client exports ([3ff9c68](https://github.com/s00d/nuxt-i18n-micro/commit/3ff9c68))
+- **core:** Add BaseI18n class for i18n adapter implementation ([cf220bb](https://github.com/s00d/nuxt-i18n-micro/commit/cf220bb))
+- **bridge:** Implement createBridge function for DevTools communication ([c3098c6](https://github.com/s00d/nuxt-i18n-micro/commit/c3098c6))
+- **devtools-ui:** Add Vite plugin for i18n development tools ([c53673a](https://github.com/s00d/nuxt-i18n-micro/commit/c53673a))
+- **preact:** Add initial package configuration for @i18n-micro/preact ([b7d902c](https://github.com/s00d/nuxt-i18n-micro/commit/b7d902c))
+- **react:** Add initial implementation of React i18n package ([8a6fe07](https://github.com/s00d/nuxt-i18n-micro/commit/8a6fe07))
+- **solid:** Add SolidJS i18n adapter and context management ([1cdeb19](https://github.com/s00d/nuxt-i18n-micro/commit/1cdeb19))
+- **solid:** Add SolidJS i18n adapter and context management ([0a527af](https://github.com/s00d/nuxt-i18n-micro/commit/0a527af))
+- **tests:** Add greeting and apples messages to context tests ([c847056](https://github.com/s00d/nuxt-i18n-micro/commit/c847056))
+
+### 🩹 Fixes
+
+- Respect localeCookie for no_prefix ([d5bec8e](https://github.com/s00d/nuxt-i18n-micro/commit/d5bec8e))
+- **solid:** Update `@solidjs/router` peer dependency version ([c629f5e](https://github.com/s00d/nuxt-i18n-micro/commit/c629f5e))
+
+### 💅 Refactors
+
+- **i18n:** Extend from BaseI18n and simplify constructor logic ([06147c8](https://github.com/s00d/nuxt-i18n-micro/commit/06147c8))
+- **vue:** Remove deprecated router integration code ([71574e9](https://github.com/s00d/nuxt-i18n-micro/commit/71574e9))
+- **ui:** Remove unnecessary whitespace in icon components and configs ([f76a544](https://github.com/s00d/nuxt-i18n-micro/commit/f76a544))
+
+### 📖 Documentation
+
+- **nodejs:** Remove outdated Node.js integration documentation ([38de7e7](https://github.com/s00d/nuxt-i18n-micro/commit/38de7e7))
+- **devtools-ui:** Add documentation for the DevTools UI package ([e937229](https://github.com/s00d/nuxt-i18n-micro/commit/e937229))
+- **integrations:** Add integration documentation for i18n packages ([3f580bd](https://github.com/s00d/nuxt-i18n-micro/commit/3f580bd))
+- **integrations:** Update links and add new package entries ([86f6595](https://github.com/s00d/nuxt-i18n-micro/commit/86f6595))
+
+### 🏡 Chore
+
+- **types:** Update `vite-plugin-dts` version to `^4.5.4` ([19d9036](https://github.com/s00d/nuxt-i18n-micro/commit/19d9036))
+- **test-utils:** Update version and dependencies in package.json ([f43d415](https://github.com/s00d/nuxt-i18n-micro/commit/f43d415))
+- **types-generator:** Update dependencies and version in package.json ([e5a64d9](https://github.com/s00d/nuxt-i18n-micro/commit/e5a64d9))
+- **pnpm-workspace:** Update package patterns for playground directories ([2648c29](https://github.com/s00d/nuxt-i18n-micro/commit/2648c29))
+
+### ✅ Tests
+
+- **core:** Cover localeCookie fallback ([b18a1ec](https://github.com/s00d/nuxt-i18n-micro/commit/b18a1ec))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Baker <baker@shamlan.sa>
+
 ## v2.15.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.15.1...v2.15.2)

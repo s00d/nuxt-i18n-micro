@@ -8,19 +8,28 @@ export default defineConfig({
   plugins: [
     tailwindcss({
       // Плагин Tailwind CSS 4.0 с Vite
-    }),
+    }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     vue({
       customElement: true, // Enable custom element mode for .ce.vue files
-    }),
+    }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     dts({
       rollupTypes: false,
-      include: ['src/**/*.ts', 'src/**/*.vue'],
+      include: ['src/**/*.ts', 'src/**/*.vue', 'vite/**/*.ts'],
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
       insertTypesEntry: true,
       copyDtsFiles: true,
       outDir: 'dist',
       tsconfigPath: resolve(__dirname, 'tsconfig.json'),
-    }),
+      // Генерируем типы для плагина в dist/vite
+      beforeWriteFile: (filePath, content) => {
+        if (filePath.includes('vite/plugin')) {
+          return {
+            filePath: filePath.replace(/dist\/vite\/plugin\.d\.ts$/, 'vite/plugin.d.ts'),
+            content,
+          }
+        }
+      },
+    }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   ],
   build: {
     lib: {

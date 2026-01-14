@@ -5,18 +5,18 @@ import { FormatService, interpolate, isNoPrefixStrategy, RouteService, useTransl
 import type { CleanTranslation, I18nRouteParams, Locale, MessageCompilerFunc, MissingHandler, ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
 import { unref } from 'vue'
 import type {
-	RouteLocationNamedRaw,
-	RouteLocationNormalizedLoaded,
-	RouteLocationRaw,
-	RouteLocationResolved,
-	RouteLocationResolvedGeneric,
+  RouteLocationNamedRaw,
+  RouteLocationNormalizedLoaded,
+  RouteLocationRaw,
+  RouteLocationResolved,
+  RouteLocationResolvedGeneric,
 } from 'vue-router'
 
 // Conditionally import messageCompiler if available
 let messageCompiler: MessageCompilerFunc | undefined
 try {
   // @ts-expect-error - This import may not exist if messageCompiler is not configured
-	const modName = '#build/i18n.message-compiler.mjs'
+  const modName = '#build/i18n.message-compiler.mjs'
   const mod = await import(modName)
   messageCompiler = mod.messageCompiler
 }

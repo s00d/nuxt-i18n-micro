@@ -510,14 +510,14 @@ describe('BaseI18n', () => {
 
   describe('messageCompiler', () => {
     test('should initialize with messageCompiler option', () => {
-      const compiler: MessageCompilerFunc = (msg, locale, key) => (params) => msg.toUpperCase()
+      const compiler: MessageCompilerFunc = (msg, _locale, _key) => _params => msg.toUpperCase()
       const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
       expect(i18n.messageCompiler).toBeDefined()
     })
 
     test('should use messageCompiler for translation with params', async () => {
       const compiler: MessageCompilerFunc = (msg, _locale, _key) => {
-        return (params) => msg.replace(/{(\w+)}/g, (_, k) => String(params?.[k] ?? ''))
+        return params => msg.replace(/\{(\w+)\}/g, (_, k) => String(params?.[k] ?? ''))
       }
       const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
       i18n.helper.loadTranslations('en', { greeting: 'Hello, {name}!' })
@@ -527,7 +527,7 @@ describe('BaseI18n', () => {
 
     test('should use messageCompiler even without params', async () => {
       const compiler: MessageCompilerFunc = (msg, _locale, _key) => {
-        return (_params) => msg.toUpperCase()
+        return _params => msg.toUpperCase()
       }
       const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
       i18n.helper.loadTranslations('en', { greeting: 'hello' })
@@ -538,7 +538,7 @@ describe('BaseI18n', () => {
 
     test('should cache compiled messages', async () => {
       const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
-        (msg, _locale, _key) => (params) => msg
+        (msg, _locale, _key) => _params => msg,
       )
       const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
       i18n.helper.loadTranslations('en', { test: 'value' })
@@ -559,7 +559,7 @@ describe('BaseI18n', () => {
 
     test('should clear compiled cache with clearCompiledCache()', async () => {
       const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
-        (msg, _locale, _key) => (_params) => msg
+        (msg, _locale, _key) => _params => msg,
       )
       const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
       i18n.helper.loadTranslations('en', { test: 'value' })
@@ -577,7 +577,7 @@ describe('BaseI18n', () => {
 
     test('should pass correct arguments to messageCompiler', async () => {
       const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
-        (msg, locale, key) => (params) => `${locale}:${key}:${msg}`
+        (msg, locale, key) => _params => `${locale}:${key}:${msg}`,
       )
       const i18n = new TestI18n('de', 'en', 'general', { messageCompiler: compiler })
       i18n.helper.loadTranslations('de', { greeting: 'Hallo' })
@@ -590,7 +590,7 @@ describe('BaseI18n', () => {
 
     test('should use different cache keys for different locales', async () => {
       const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
-        (msg, locale, _key) => (_params) => `[${locale}] ${msg}`
+        (msg, locale, _key) => _params => `[${locale}] ${msg}`,
       )
       const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
       i18n.helper.loadTranslations('en', { greeting: 'Hello' })

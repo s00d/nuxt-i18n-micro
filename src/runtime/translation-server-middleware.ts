@@ -14,8 +14,8 @@ async function getMessageCompiler(): Promise<MessageCompilerFunc | undefined> {
   }
   messageCompilerLoaded = true
   try {
-		// bypass vite pre-import optimization
-		const modName = '#build/i18n.message-compiler.mjs'
+    // bypass vite pre-import optimization
+    const modName = '#build/i18n.message-compiler.mjs'
     const mod = await import(modName)
     messageCompiler = mod.messageCompiler
   }

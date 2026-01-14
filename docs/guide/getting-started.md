@@ -465,12 +465,34 @@ Custom function for handling pluralization.
 plural: (key, count, _params, _locale, t) => {
   const translation = t(key)
   if (!translation) return key
-  
+
   const forms = translation.toString().split('|')
   return (count < forms.length ? forms[count].trim() : forms[forms.length - 1].trim())
     .replace('{count}', count.toString())
 }
 ```
+
+#### `messageCompiler`
+
+Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+
+**Type**: `(message: string, locale: string, key: string) => (params?: Record<string, string | number | boolean>) => string`
+
+```typescript
+import IntlMessageFormat from 'intl-messageformat'
+
+messageCompiler: (message, locale, _key) => {
+  const formatter = new IntlMessageFormat(message, locale)
+  return (params) => formatter.format(params) as string
+}
+```
+
+This enables features like:
+- ICU MessageFormat syntax (`{count, plural, one {# item} other {# items}}`)
+- Select expressions (`{gender, select, male {He} female {She} other {They}}`)
+- Date/number formatting within messages
+
+Compiled messages are cached for performance.
 
 #### `localeCookie`
 

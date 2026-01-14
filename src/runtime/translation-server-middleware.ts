@@ -1,9 +1,29 @@
 import type { H3Event } from 'h3'
 import { interpolate, useTranslationHelper } from '@i18n-micro/core'
 import type { TranslationCache } from '@i18n-micro/core/dist/translation' // <-- Direct type import
-import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translations } from '@i18n-micro/types'
+import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translations, MessageCompilerFunc } from '@i18n-micro/types'
 import { detectCurrentLocale } from './utils/locale-detector'
 import { useRuntimeConfig } from '#imports'
+
+let messageCompiler: MessageCompilerFunc | undefined
+let messageCompilerLoaded = false
+
+async function getMessageCompiler(): Promise<MessageCompilerFunc | undefined> {
+  if (messageCompilerLoaded) {
+    return messageCompiler
+  }
+  messageCompilerLoaded = true
+  try {
+		// bypass vite pre-import optimization
+		const modName = '#build/i18n.message-compiler.mjs'
+    const mod = await import(modName)
+    messageCompiler = mod.messageCompiler
+  }
+  catch {
+    // No messageCompiler configured - this is fine
+  }
+  return messageCompiler
+}
 
 // Constant for the request context key to avoid typos
 const I18N_CONTEXT_KEY = '__i18n_cache__'
@@ -70,12 +90,40 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
     await loadTranslations(locale, translations)
   }
 
+  // Load messageCompiler lazily (if configured)
+  const compiler = await getMessageCompiler()
+
+  // Get or create compiled message cache for this request
+  const compiledCacheKey = '__compiled_cache__'
+  if (!requestScopedCache.serverTranslationCache[compiledCacheKey]) {
+    requestScopedCache.serverTranslationCache[compiledCacheKey] = new Map<string, (params?: Params) => string>()
+  }
+  const compiledCache = requestScopedCache.serverTranslationCache[compiledCacheKey] as Map<string, (params?: Params) => string>
+
   function t(key: string, params?: Params, defaultValue?: string): string {
     // getTranslation will also operate on requestScopedCache
     let translation = getTranslation<string>(locale, 'index', key)
     if (!translation) {
       translation = defaultValue || key
     }
+
+    // Compile/Interpolate
+    // If messageCompiler is set, ALWAYS use it (even without params) for consistency with ICU formatters
+    if (typeof translation === 'string' && compiler) {
+      const cacheKey = `${locale}:${key}`
+
+      let compiledFn = compiledCache.get(cacheKey)
+      if (!compiledFn) {
+        // Compile once and cache
+        compiledFn = compiler(translation, locale, key)
+        compiledCache.set(cacheKey, compiledFn)
+      }
+
+      // Execute compiled function with params (or empty object)
+      return compiledFn(params ?? {})
+    }
+
+    // Fallback to simple interpolation (existing behavior when no messageCompiler)
     return typeof translation === 'string' && params ? interpolate(translation, params) : translation
   }
 

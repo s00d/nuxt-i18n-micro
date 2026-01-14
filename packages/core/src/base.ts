@@ -9,11 +9,13 @@ import type {
   CleanTranslation,
   TranslationKey,
   MissingHandler,
+  MessageCompilerFunc,
 } from '@i18n-micro/types'
 
 export interface BaseI18nOptions {
   cache?: TranslationCache
   plural?: PluralFunc
+  messageCompiler?: MessageCompilerFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
   // Optional hooks for Nuxt runtime specific features
@@ -33,6 +35,7 @@ export abstract class BaseI18n {
   public helper: ReturnType<typeof useTranslationHelper>
   public formatter = new FormatService()
   public pluralFunc: PluralFunc
+  public messageCompiler?: MessageCompilerFunc
   public missingWarn: boolean
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   // Optional hooks for Nuxt runtime specific features
@@ -40,10 +43,14 @@ export abstract class BaseI18n {
   public getCustomMissingHandler?: () => MissingHandler | null
   public enablePreviousPageFallback: boolean
 
+  // Cache for compiled messages: Map<locale:key, compiledFn>
+  private compiledMessageCache: Map<string, (params?: Params) => string> = new Map()
+
   constructor(options: BaseI18nOptions = {}) {
     this.helper = useTranslationHelper(options.cache)
     this.formatter = new FormatService()
     this.pluralFunc = options.plural || defaultPlural
+    this.messageCompiler = options.messageCompiler
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
     this.getPreviousPageInfo = options.getPreviousPageInfo
@@ -132,7 +139,23 @@ export abstract class BaseI18n {
       value = defaultValue === undefined ? key : (defaultValue || key)
     }
 
-    // 5. Interpolate
+    // 5. Compile/Interpolate
+    // If messageCompiler is set, ALWAYS use it (even without params) for consistency with ICU formatters
+    if (typeof value === 'string' && this.messageCompiler) {
+      const cacheKey = `${locale}:${key}`
+
+      let compiledFn = this.compiledMessageCache.get(cacheKey)
+      if (!compiledFn) {
+        // Compile once and cache
+        compiledFn = this.messageCompiler(value, locale, key as string)
+        this.compiledMessageCache.set(cacheKey, compiledFn)
+      }
+
+      // Execute compiled function with params (or empty object)
+      return compiledFn(params ?? {}) as CleanTranslation
+    }
+
+    // Fallback to simple interpolation (existing behavior when no messageCompiler)
     return typeof value === 'string' && params ? interpolate(value, params) : value as CleanTranslation
   }
 
@@ -213,6 +236,14 @@ export abstract class BaseI18n {
    */
   public clearCache(): void {
     this.helper.clearCache()
+  }
+
+  /**
+   * Clear compiled message cache
+   * Should be called when locale changes
+   */
+  public clearCompiledCache(): void {
+    this.compiledMessageCache.clear()
   }
 
   // --- Public methods (for subclasses to use) ---

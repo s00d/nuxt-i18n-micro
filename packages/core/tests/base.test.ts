@@ -1,5 +1,5 @@
 import { BaseI18n, type BaseI18nOptions } from '../src/base'
-import type { Translations, PluralFunc } from '@i18n-micro/types'
+import type { Translations, PluralFunc, MessageCompilerFunc } from '@i18n-micro/types'
 
 // Test implementation of BaseI18n
 class TestI18n extends BaseI18n {
@@ -505,6 +505,105 @@ describe('BaseI18n', () => {
       i18n.setRoute('about')
       expect(i18n.t('title')).toBe('About Page')
       expect(i18n.t('greeting')).toBe('Hello') // Should still work from general
+    })
+  })
+
+  describe('messageCompiler', () => {
+    test('should initialize with messageCompiler option', () => {
+      const compiler: MessageCompilerFunc = (msg, locale, key) => (params) => msg.toUpperCase()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
+      expect(i18n.messageCompiler).toBeDefined()
+    })
+
+    test('should use messageCompiler for translation with params', async () => {
+      const compiler: MessageCompilerFunc = (msg, _locale, _key) => {
+        return (params) => msg.replace(/{(\w+)}/g, (_, k) => String(params?.[k] ?? ''))
+      }
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
+      i18n.helper.loadTranslations('en', { greeting: 'Hello, {name}!' })
+
+      expect(i18n.t('greeting', { name: 'World' })).toBe('Hello, World!')
+    })
+
+    test('should use messageCompiler even without params', async () => {
+      const compiler: MessageCompilerFunc = (msg, _locale, _key) => {
+        return (_params) => msg.toUpperCase()
+      }
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
+      i18n.helper.loadTranslations('en', { greeting: 'hello' })
+
+      // Should still use compiler even without params
+      expect(i18n.t('greeting')).toBe('HELLO')
+    })
+
+    test('should cache compiled messages', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, _locale, _key) => (params) => msg
+      )
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
+      i18n.helper.loadTranslations('en', { test: 'value' })
+
+      i18n.t('test', { a: 1 })
+      i18n.t('test', { b: 2 })
+
+      // Compiler should only be called once (cached)
+      expect(compiler).toHaveBeenCalledTimes(1)
+    })
+
+    test('should fallback to interpolate when no messageCompiler', async () => {
+      const i18n = new TestI18n('en', 'en', 'general') // No compiler
+      i18n.helper.loadTranslations('en', { greeting: 'Hello, {name}!' })
+
+      expect(i18n.t('greeting', { name: 'World' })).toBe('Hello, World!')
+    })
+
+    test('should clear compiled cache with clearCompiledCache()', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, _locale, _key) => (_params) => msg
+      )
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
+      i18n.helper.loadTranslations('en', { test: 'value' })
+
+      i18n.t('test')
+      expect(compiler).toHaveBeenCalledTimes(1)
+
+      // Clear compiled cache
+      i18n.clearCompiledCache()
+
+      // Should recompile after cache clear
+      i18n.t('test')
+      expect(compiler).toHaveBeenCalledTimes(2)
+    })
+
+    test('should pass correct arguments to messageCompiler', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, locale, key) => (params) => `${locale}:${key}:${msg}`
+      )
+      const i18n = new TestI18n('de', 'en', 'general', { messageCompiler: compiler })
+      i18n.helper.loadTranslations('de', { greeting: 'Hallo' })
+
+      const result = i18n.t('greeting')
+
+      expect(compiler).toHaveBeenCalledWith('Hallo', 'de', 'greeting')
+      expect(result).toBe('de:greeting:Hallo')
+    })
+
+    test('should use different cache keys for different locales', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, locale, _key) => (_params) => `[${locale}] ${msg}`
+      )
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler })
+      i18n.helper.loadTranslations('en', { greeting: 'Hello' })
+      i18n.helper.loadTranslations('de', { greeting: 'Hallo' })
+
+      // Translate with en locale
+      expect(i18n.t('greeting')).toBe('[en] Hello')
+      expect(compiler).toHaveBeenCalledTimes(1)
+
+      // Change locale and translate again
+      i18n.setLocale('de')
+      expect(i18n.t('greeting')).toBe('[de] Hallo')
+      expect(compiler).toHaveBeenCalledTimes(2) // Different cache key due to locale
     })
   })
 })

@@ -1,16 +1,28 @@
-import type {
-  RouteLocationNormalizedLoaded,
-  RouteLocationRaw,
-  RouteLocationResolved,
-  RouteLocationResolvedGeneric,
-  RouteLocationNamedRaw,
-} from 'vue-router'
-import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from '@i18n-micro/core'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from '@i18n-micro/types'
-import { useRouter, useCookie, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
-import { unref } from 'vue'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
+import { createError, defineNuxtPlugin, navigateTo, useCookie, useRouter, useRuntimeConfig } from '#imports'
+import { FormatService, interpolate, isNoPrefixStrategy, RouteService, useTranslationHelper, type TranslationCache } from '@i18n-micro/core'
+import type { CleanTranslation, I18nRouteParams, Locale, MessageCompilerFunc, MissingHandler, ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
+import { unref } from 'vue'
+import type {
+	RouteLocationNamedRaw,
+	RouteLocationNormalizedLoaded,
+	RouteLocationRaw,
+	RouteLocationResolved,
+	RouteLocationResolvedGeneric,
+} from 'vue-router'
+
+// Conditionally import messageCompiler if available
+let messageCompiler: MessageCompilerFunc | undefined
+try {
+  // @ts-expect-error - This import may not exist if messageCompiler is not configured
+	const modName = '#build/i18n.message-compiler.mjs'
+  const mod = await import(modName)
+  messageCompiler = mod.messageCompiler
+}
+catch {
+  // No messageCompiler configured - this is fine
+}
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -27,6 +39,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const routeLocaleCache = useState<Record<string, Translations>>('i18n-route-cache', () => ({}))
   const dynamicTranslationsCaches = useState<Record<string, Translations>[]>('i18n-dynamic-caches', () => [])
   const serverTranslationCache = useState<Record<string, Map<string, Translations | unknown>>>('i18n-server-cache', () => ({}))
+
+  // Cache for compiled messages (when messageCompiler is configured)
+  const compiledMessageCache = useState<Map<string, (params?: Params) => string>>('i18n-compiled-cache', () => new Map())
 
   const translationCaches: TranslationCache = {
     generalLocaleCache,
@@ -217,6 +232,23 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         value = defaultValue === undefined ? key : defaultValue
       }
 
+      // Compile/Interpolate
+      // If messageCompiler is set, ALWAYS use it (even without params) for consistency with ICU formatters
+      if (typeof value === 'string' && messageCompiler) {
+        const cacheKey = `${locale}:${key}`
+
+        let compiledFn = compiledMessageCache.value.get(cacheKey)
+        if (!compiledFn) {
+          // Compile once and cache
+          compiledFn = messageCompiler(value, locale, key)
+          compiledMessageCache.value.set(cacheKey, compiledFn)
+        }
+
+        // Execute compiled function with params (or empty object)
+        return compiledFn(params ?? {}) as CleanTranslation
+      }
+
+      // Fallback to simple interpolation (existing behavior when no messageCompiler)
       return typeof value === 'string' && params ? interpolate(value, params) : value as CleanTranslation
     },
     ts: (key: string, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
@@ -275,6 +307,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
     clearCache: () => {
       i18nHelper.clearCache()
+      compiledMessageCache.value.clear()
     },
     switchLocalePath: (toLocale: string) => {
       const route = routeService.getCurrentRoute()
@@ -294,6 +327,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return ''
     },
     switchLocale: (toLocale: string) => {
+      // Clear compiled message cache when locale changes
+      compiledMessageCache.value.clear()
       return routeService.switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },
     switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

@@ -1,9 +1,38 @@
 import type { H3Event } from 'h3'
-import { interpolate, useTranslationHelper } from '@i18n-micro/core'
+import { useTranslationHelper, compileOrInterpolate, createCompiledCache } from '@i18n-micro/core'
 import type { TranslationCache } from '@i18n-micro/core/dist/translation' // <-- Direct type import
-import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translations } from '@i18n-micro/types'
+import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translations, MessageCompilerFunc } from '@i18n-micro/types'
 import { detectCurrentLocale } from './utils/locale-detector'
 import { useRuntimeConfig } from '#imports'
+
+// Lazy load messageCompiler (with proper error handling)
+let messageCompiler: MessageCompilerFunc | undefined
+let messageCompilerLoaded = false
+
+async function getMessageCompiler(): Promise<MessageCompilerFunc | undefined> {
+  if (messageCompilerLoaded) return messageCompiler
+  messageCompilerLoaded = true
+  try {
+    const modName = '#build/i18n.message-compiler.mjs'
+    const mod = await import(/* @vite-ignore */ modName)
+    messageCompiler = mod.messageCompiler
+  }
+  catch (err: unknown) {
+    // Определяем, является ли ошибка ошибкой "модуль не найден"
+    const isModuleMissing
+      = err
+        && typeof err === 'object'
+        && (('code' in err && (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND')
+          || ('message' in err && (err as Error).message?.includes('Cannot find module')))
+
+    // Игнорируем только если модуль действительно отсутствует.
+    // Все остальные ошибки (например, синтаксические) выводим в консоль.
+    if (!isModuleMissing) {
+      console.error('[i18n] Failed to load message compiler. Check for errors in your messageCompiler function in nuxt.config:', err)
+    }
+  }
+  return messageCompiler
+}
 
 // Constant for the request context key to avoid typos
 const I18N_CONTEXT_KEY = '__i18n_cache__'
@@ -70,13 +99,38 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
     await loadTranslations(locale, translations)
   }
 
+  // Load messageCompiler lazily
+  const compiler = await getMessageCompiler()
+
+  // Get or create compiled message cache for this request
+  // Store in event.context to avoid type issues with serverTranslationCache
+  const compiledCacheContextKey = '__i18n_compiled_cache__'
+  if (!event.context[compiledCacheContextKey]) {
+    event.context[compiledCacheContextKey] = createCompiledCache()
+  }
+  const compiledCache = event.context[compiledCacheContextKey] as ReturnType<typeof createCompiledCache>
+
   function t(key: string, params?: Params, defaultValue?: string): string {
     // getTranslation will also operate on requestScopedCache
     let translation = getTranslation<string>(locale, 'index', key)
     if (!translation) {
       translation = defaultValue || key
     }
-    return typeof translation === 'string' && params ? interpolate(translation, params) : translation
+
+    // Compile/Interpolate (using centralized utility)
+    if (typeof translation === 'string') {
+      return compileOrInterpolate(
+        translation,
+        locale,
+        'index', // routeName for server middleware
+        key,
+        params,
+        compiler,
+        compiledCache,
+      )
+    }
+
+    return translation
   }
 
   return t

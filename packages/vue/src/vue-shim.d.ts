@@ -1,4 +1,5 @@
 import type { Params, CleanTranslation, TranslationKey } from '@i18n-micro/types'
+import type { RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric } from 'vue-router'
 
 // Extend '@vue/runtime-core' module so types work correctly in all environments
 declare module '@vue/runtime-core' {
@@ -9,7 +10,7 @@ declare module '@vue/runtime-core' {
     $tn: (value: number, options?: Intl.NumberFormatOptions) => string
     $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
     $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
-    $has: (key: TranslationKey, routeName?: string) => boolean
+    $has: (key: TranslationKey, routeOrName?: string | RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => boolean
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $i18n: any
   }

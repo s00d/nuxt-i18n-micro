@@ -7,6 +7,7 @@ import { I18nGroup } from './components/i18n-group'
 import { I18nSwitcher } from './components/i18n-switcher'
 import type { TranslationKey, Locale } from '@i18n-micro/types'
 import type { I18nRoutingStrategy } from './router/types'
+import type { RouteLocationNormalizedLoaded, RouteLocationResolvedGeneric } from 'vue-router'
 
 export interface CreateI18nOptions extends VueI18nOptions {
   routingStrategy?: I18nRoutingStrategy
@@ -83,7 +84,16 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
       app.config.globalProperties.$tdr = (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => {
         return i18n.tdr(value, options)
       }
-      app.config.globalProperties.$has = (key: TranslationKey, routeName?: string) => {
+      app.config.globalProperties.$has = (key: TranslationKey, routeOrName?: string | RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => {
+        // If route object is passed, extract route name from it
+        let routeName: string | undefined
+        if (routeOrName && typeof routeOrName === 'object') {
+          // Extract route name from route object
+          routeName = routeOrName.name as string | undefined
+        }
+        else {
+          routeName = routeOrName as string | undefined
+        }
         return i18n.has(key, routeName)
       }
       // Provide access to i18n instance via $i18n

@@ -195,6 +195,49 @@ test.describe('basic', () => {
 
     await expect(page.locator('#localized-route-2')).toHaveText('/news/aaa?info=1111')
     await expect(page.locator('#localized-path')).toHaveText('/news/aaa?info=1111')
+
+    // Verify $has method
+    await expect(page.locator('#has-existing-key')).toHaveText('true')
+    await expect(page.locator('#has-missing-key')).toHaveText('false')
+    await expect(page.locator('#has-global-key')).toHaveText('true')
+    await expect(page.locator('#has-with-routename')).toHaveText('true')
+  })
+
+  test('test $has method with route object', async ({ page, goto }) => {
+    await goto('/page', { waitUntil: 'hydration' })
+
+    // Test $has with current route (implicit) - check via DOM
+    await expect(page.locator('#has-existing-key')).toHaveText('true')
+    await expect(page.locator('#has-missing-key')).toHaveText('false')
+    await expect(page.locator('#has-global-key')).toHaveText('true')
+    await expect(page.locator('#has-with-routename')).toHaveText('true')
+
+    // Test $has with routeName (string) via evaluate
+    const hasWithRouteName = await page.evaluate(() => {
+      // Access via window.$nuxt or directly from component context
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nuxtApp = (window as any).$nuxt
+      return nuxtApp?.$has('page.example', 'page') ?? false
+    })
+    expect(hasWithRouteName).toBe(true)
+
+    // Test $has with different route (page2)
+    await goto('/page2', { waitUntil: 'hydration' })
+    const hasWithDifferentRoute = await page.evaluate(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nuxtApp = (window as any).$nuxt
+      return nuxtApp?.$has('page2.content', 'page2') ?? false
+    })
+    expect(hasWithDifferentRoute).toBe(true)
+
+    // Test $has with route object from different locale
+    await goto('/de/page', { waitUntil: 'hydration' })
+    const hasWithDeRoute = await page.evaluate(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nuxtApp = (window as any).$nuxt
+      return nuxtApp?.$has('page.example', 'page') ?? false
+    })
+    expect(hasWithDeRoute).toBe(true)
   })
 
   test('test locale switching on page', async ({ page, goto }) => {

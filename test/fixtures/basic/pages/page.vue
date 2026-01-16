@@ -56,6 +56,20 @@
       {{ $localePath('/news/aaa?info=1111') }}
     </p>
 
+    <!-- Test $has method -->
+    <p id="has-existing-key">
+      {{ $has('page.example') ? 'true' : 'false' }}
+    </p>
+    <p id="has-missing-key">
+      {{ $has('page.nonexistent') ? 'true' : 'false' }}
+    </p>
+    <p id="has-global-key">
+      {{ $has('generic.example') ? 'true' : 'false' }}
+    </p>
+    <p id="has-with-routename">
+      {{ $has('page.example', 'page') ? 'true' : 'false' }}
+    </p>
+
     <div id="locale-switcher">
       <i18n-switcher />
     </div>
@@ -99,7 +113,7 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath } = useNuxtApp()
+const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath, $has } = useNuxtApp()
 
 const customPluralRule = (key, count, _params, _locale, t) => {
   const translation = t(key)

@@ -1,5 +1,5 @@
-import type { Params, Translation, Translations, TranslationKey } from '@i18n-micro/types'
-import { useTranslationHelper, interpolate } from '@i18n-micro/core'
+import type { Params, Translation, Translations, TranslationKey, MessageCompilerFunc } from '@i18n-micro/types'
+import { useTranslationHelper, compileOrInterpolate, createCompiledCache } from '@i18n-micro/core'
 
 type LocaleCode = string
 
@@ -30,6 +30,8 @@ const plural = (key: TranslationKey, count: number, params: Params, _locale: str
 }
 
 const i18nHelper = useTranslationHelper()
+const compiledCache = createCompiledCache()
+let messageCompiler: MessageCompilerFunc | undefined
 let locales: Locale[] = [
   {
     code: 'en',
@@ -57,8 +59,34 @@ export function t(key: TranslationKey, params?: Params, defaultValue?: string): 
     return defaultValue || key
   }
 
-  return typeof value === 'string' && params ? interpolate(value, params) : value
+  // Compile/Interpolate (using centralized utility)
+  if (typeof value === 'string') {
+    return compileOrInterpolate(
+      value,
+      locale,
+      routeName,
+      key,
+      params,
+      messageCompiler,
+      compiledCache,
+    )
+  }
+
+  return value
 }
+
+/**
+ * Set message compiler for tests
+ */
+export const setMessageCompiler = (compiler: MessageCompilerFunc | undefined) => {
+  messageCompiler = compiler
+  compiledCache.clear() // Clear cache when compiler changes
+}
+
+/**
+ * Get current message compiler
+ */
+export const getMessageCompiler = () => messageCompiler
 
 export function tc(key: TranslationKey, params: number | Params, defaultValue?: string): string {
   const { count, ...otherParams } = typeof params === 'number' ? { count: params } : params

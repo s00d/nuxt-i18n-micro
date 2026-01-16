@@ -52,6 +52,31 @@ export type Params = Record<string, string | number | boolean>
 export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 export type PluralFunc = (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 
+/**
+ * Message compiler function for custom message formatting (e.g., ICU MessageFormat).
+ * Returns a cached function that accepts params and returns the formatted string.
+ *
+ * @param message - The raw translation message string
+ * @param locale - The current locale code
+ * @param key - The translation key
+ * @returns A function that accepts params and returns the formatted message
+ *
+ * @example
+ * ```typescript
+ * import IntlMessageFormat from 'intl-messageformat'
+ *
+ * const messageCompiler: MessageCompilerFunc = (message, locale, key) => {
+ *   const formatter = new IntlMessageFormat(message, locale)
+ *   return (params) => formatter.format(params) as string
+ * }
+ * ```
+ */
+export type MessageCompilerFunc = (
+  message: string,
+  locale: string,
+  key: string
+) => (params?: Params) => string
+
 export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
 
 export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
@@ -85,6 +110,21 @@ export interface ModuleOptions {
   includeDefaultLocaleRoute?: boolean
   routesLocaleLinks?: { [key: string]: string }
   plural?: string | PluralFunc
+  /**
+   * Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+   * When provided, this function will be used instead of the default simple interpolation.
+   *
+   * @example
+   * ```typescript
+   * import IntlMessageFormat from 'intl-messageformat'
+   *
+   * messageCompiler: (message, locale, _key) => {
+   *   const formatter = new IntlMessageFormat(message, locale)
+   *   return (params) => formatter.format(params) as string
+   * }
+   * ```
+   */
+  messageCompiler?: MessageCompilerFunc
   disablePageLocales?: boolean
   fallbackLocale?: string
   localeCookie?: string

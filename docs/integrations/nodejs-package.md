@@ -64,6 +64,7 @@ Creates a new I18n instance.
 - `fallbackLocale?: string` - Fallback locale (default: same as locale)
 - `translationDir?: string` - Path to locales directory
 - `plural?: PluralFunc` - Custom pluralization function
+- `messageCompiler?: MessageCompilerFunc` - Custom function for compiling messages (ICU MessageFormat support)
 - `missingWarn?: boolean` - Show warnings for missing translations
 - `missingHandler?: (locale: string, key: string, routeName: string) => void` - Custom handler
 

@@ -69,6 +69,12 @@
     <p id="has-with-routename">
       {{ $has('page.example', 'page') ? 'true' : 'false' }}
     </p>
+    <p id="has-with-route-object">
+      {{ $has('page.example', $route) ? 'true' : 'false' }}
+    </p>
+    <p id="has-different-route">
+      {{ $has('page2.content', 'page2') ? 'true' : 'false' }}
+    </p>
 
     <div id="locale-switcher">
       <i18n-switcher />
@@ -111,9 +117,10 @@
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp, useRoute } from '#imports'
 
 const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath, $has } = useNuxtApp()
+const $route = useRoute()
 
 const customPluralRule = (key, count, _params, _locale, t) => {
   const translation = t(key)

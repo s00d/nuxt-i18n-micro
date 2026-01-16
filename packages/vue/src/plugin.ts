@@ -88,8 +88,9 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
         // If route object is passed, extract route name from it
         let routeName: string | undefined
         if (routeOrName && typeof routeOrName === 'object') {
-          // Extract route name from route object
-          routeName = routeOrName.name as string | undefined
+          // Extract route name from route object (name can be string | symbol | undefined)
+          const routeNameValue = routeOrName.name
+          routeName = typeof routeNameValue === 'string' ? routeNameValue : undefined
         }
         else {
           routeName = routeOrName as string | undefined

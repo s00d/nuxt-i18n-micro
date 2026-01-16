@@ -50,7 +50,9 @@ export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
 export type Params = Record<string, string | number | boolean>
 
 export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
-export type PluralFunc = (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+// PluralGetter extends Getter to support string[] for pluralization functions
+export type PluralGetter = (key: TranslationKey | string[], params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+export type PluralFunc = (key: TranslationKey, count: number, params: Params, locale: string, getter: PluralGetter | Getter) => string | null
 
 export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
 

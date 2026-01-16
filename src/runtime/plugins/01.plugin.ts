@@ -329,7 +329,7 @@ export interface PluginsInjections {
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   $tdr: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
-  $has: (key: string) => boolean
+  $has: (key: string, routeOrName?: string | RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => boolean
   $mergeTranslations: (newTranslations: Translations) => void
   $mergeGlobalTranslations: (newTranslations: Translations) => void
   $switchLocaleRoute: (locale: string) => RouteLocationRaw

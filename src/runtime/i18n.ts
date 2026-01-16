@@ -81,6 +81,28 @@ export class NuxtI18n extends BaseI18n {
     return super.t(key, params, defaultValue, routeName, locale || routeLocale)
   }
 
+  // --- Override method has to support Route object ---
+
+  public override has(
+    key: TranslationKey,
+    // In Nuxt plugin, 2nd argument can be a route object
+    routeOrName?: string | RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+  ): boolean {
+    let routeName: string | undefined
+
+    if (routeOrName && typeof routeOrName === 'object') {
+      // If route object is passed, calculate context for it
+      const routeLocale = this._routeService.getCurrentLocale(routeOrName)
+      routeName = this._routeService.getPluginRouteName(routeOrName, routeLocale)
+    }
+    else {
+      routeName = routeOrName as string
+    }
+
+    // Call BaseI18n.has with routeName
+    return super.has(key, routeName)
+  }
+
   // --- Proxy RouteService methods (optional, for convenience) ---
 
   public switchLocale(toLocale: string) {

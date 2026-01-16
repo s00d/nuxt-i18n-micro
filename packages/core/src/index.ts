@@ -1,7 +1,19 @@
 import { useTranslationHelper, type TranslationCache } from './translation'
 import { RouteService } from './route-service'
 import { FormatService } from './format-service'
-import { interpolate, withPrefixStrategy, isNoPrefixStrategy, isPrefixStrategy, isPrefixExceptDefaultStrategy, isPrefixAndDefaultStrategy, defaultPlural } from './helpers'
+import {
+  interpolate,
+  withPrefixStrategy,
+  isNoPrefixStrategy,
+  isPrefixStrategy,
+  isPrefixExceptDefaultStrategy,
+  isPrefixAndDefaultStrategy,
+  defaultPlural,
+  compileOrInterpolate,
+  createCompiledCache,
+  getCompiledCacheKey,
+  type CompiledMessageCache,
+} from './helpers'
 import { BaseI18n, type BaseI18nOptions } from './base'
 
 export {
@@ -13,9 +25,14 @@ export {
   isPrefixExceptDefaultStrategy,
   isPrefixAndDefaultStrategy,
   defaultPlural,
+  // Message compiler utilities
+  compileOrInterpolate,
+  createCompiledCache,
+  getCompiledCacheKey,
   RouteService,
   FormatService,
   BaseI18n,
   type TranslationCache,
   type BaseI18nOptions,
+  type CompiledMessageCache,
 }

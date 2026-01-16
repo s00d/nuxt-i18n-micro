@@ -1,5 +1,6 @@
-import { describe, test, expect } from '@jest/globals'
+import { describe, test, expect, jest } from '@jest/globals'
 import { AstroI18n, createI18n } from '../src'
+import type { MessageCompilerFunc } from '@i18n-micro/types'
 
 describe('AstroI18n', () => {
   test('should create i18n instance', () => {
@@ -215,5 +216,84 @@ describe('Translation management', () => {
     i18n.clearCache()
     // Cache clearing shouldn't affect loaded translations
     expect(i18n.t('test')).toBe('Test')
+  })
+
+  test('should use messageCompiler when provided', () => {
+    const compiler = jest.fn<MessageCompilerFunc>((msg: string) => () => msg.toUpperCase())
+    const i18n = new AstroI18n({
+      locale: 'en',
+      messageCompiler: compiler,
+      messages: {
+        en: {
+          greeting: 'hello world',
+        },
+      },
+    })
+
+    const result = i18n.t('greeting')
+    expect(result).toBe('HELLO WORLD')
+    expect(compiler).toHaveBeenCalledWith('hello world', 'en', 'greeting')
+  })
+
+  test('should cache compiled messages', () => {
+    const compiler = jest.fn<MessageCompilerFunc>((msg: string) => () => msg.toUpperCase())
+    const i18n = new AstroI18n({
+      locale: 'en',
+      messageCompiler: compiler,
+      messages: {
+        en: {
+          greeting: 'hello',
+        },
+      },
+    })
+
+    i18n.t('greeting')
+    i18n.t('greeting')
+    i18n.t('greeting')
+
+    // Compiler should be called only once due to caching
+    expect(compiler).toHaveBeenCalledTimes(1)
+  })
+
+  test('should recompile when message changes', () => {
+    const compiler = jest.fn<MessageCompilerFunc>((msg: string) => () => msg.toUpperCase())
+    const i18n = new AstroI18n({
+      locale: 'en',
+      messageCompiler: compiler,
+      messages: {
+        en: {
+          greeting: 'hello',
+        },
+      },
+    })
+
+    i18n.t('greeting')
+    i18n.addTranslations('en', { greeting: 'hi there' }, false)
+    i18n.t('greeting')
+
+    // Compiler should be called twice (different messages)
+    expect(compiler).toHaveBeenCalledTimes(2)
+  })
+
+  test('should fallback to interpolation when messageCompiler throws', () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const compiler = jest.fn<MessageCompilerFunc>(() => {
+      throw new Error('Compiler error')
+    })
+    const i18n = new AstroI18n({
+      locale: 'en',
+      messageCompiler: compiler,
+      messages: {
+        en: {
+          greeting: 'Hello, {name}!',
+        },
+      },
+    })
+
+    const result = i18n.t('greeting', { name: 'John' })
+    expect(result).toBe('Hello, John!')
+    expect(consoleWarnSpy).toHaveBeenCalled()
+
+    consoleWarnSpy.mockRestore()
   })
 })

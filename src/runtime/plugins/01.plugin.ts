@@ -5,8 +5,8 @@ import type {
   RouteLocationResolvedGeneric,
   RouteLocationNamedRaw,
 } from 'vue-router'
-import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from '@i18n-micro/core'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from '@i18n-micro/types'
+import { useTranslationHelper, isNoPrefixStrategy, RouteService, FormatService, compileOrInterpolate, createCompiledCache, type TranslationCache } from '@i18n-micro/core'
+import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler, MessageCompilerFunc } from '@i18n-micro/types'
 import { useRouter, useCookie, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
 import { unref } from 'vue'
 import { useState } from '#app'
@@ -14,7 +14,53 @@ import { plural } from '#build/i18n.plural.mjs'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
+// Lazy load messageCompiler (with proper error handling)
+let messageCompiler: MessageCompilerFunc | undefined
+let messageCompilerLoaded = false
+
+async function loadMessageCompiler(): Promise<MessageCompilerFunc | undefined> {
+  if (messageCompilerLoaded) return messageCompiler
+  messageCompilerLoaded = true
+  try {
+    // Bypass vite pre-import optimization
+    const modName = '#build/i18n.message-compiler.mjs'
+    const mod = await import(/* @vite-ignore */ modName)
+    messageCompiler = mod.messageCompiler
+  }
+  catch (err: unknown) {
+    // Определяем, является ли ошибка ошибкой "модуль не найден"
+    // Это может быть MODULE_NOT_FOUND, ERR_PACKAGE_IMPORT_NOT_DEFINED (для package imports),
+    // или сообщение об ошибке, содержащее информацию о том, что модуль не найден
+    const isModuleMissing
+      = err
+        && typeof err === 'object'
+        && (('code' in err && (
+          (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND'
+          || (err as NodeJS.ErrnoException).code === 'ERR_PACKAGE_IMPORT_NOT_DEFINED'
+        ))
+        || ('message' in err && (
+          (err as Error).message?.includes('Cannot find module')
+          || (err as Error).message?.includes('Package import specifier')
+          || (err as Error).message?.includes('is not defined')
+        )))
+
+    // Игнорируем только если модуль действительно отсутствует (нормально, если messageCompiler не настроен).
+    // Все остальные ошибки (например, синтаксические) выводим в консоль.
+    if (!isModuleMissing) {
+      console.error('[i18n] Failed to load message compiler. Check for errors in your messageCompiler function in nuxt.config:', err)
+    }
+  }
+  return messageCompiler
+}
+
+// Cache OUTSIDE useState to avoid SSR serialization issues
+// Functions cannot be serialized in SSR payload
+const compiledMessageCache = createCompiledCache()
+
 export default defineNuxtPlugin(async (nuxtApp) => {
+  // Load messageCompiler at startup (async, but non-blocking)
+  await loadMessageCompiler()
+
   const config = useRuntimeConfig()
   const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
   const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
@@ -217,7 +263,20 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         value = defaultValue === undefined ? key : defaultValue
       }
 
-      return typeof value === 'string' && params ? interpolate(value, params) : value as CleanTranslation
+      // Compile/Interpolate (using centralized utility)
+      if (typeof value === 'string') {
+        return compileOrInterpolate(
+          value,
+          locale,
+          routeName,
+          key,
+          params,
+          messageCompiler,
+          compiledMessageCache,
+        ) as CleanTranslation
+      }
+
+      return value as CleanTranslation
     },
     ts: (key: string, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
       const value = provideData.t(key, params, defaultValue, route)
@@ -238,7 +297,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const { count, ..._params } = typeof params === 'number' ? { count: params } : params
 
       if (count === undefined) return defaultValue ?? key
-      return plural(key, Number.parseInt(count.toString()), _params, currentLocale, provideData.t) as string ?? defaultValue ?? key
+
+      // Create a getter wrapper that matches the signature expected by plural function
+      // The plural function expects: (key: string | string[], params?: Params, defaultValue?: string) => unknown
+      const getter = (translationKey: string | string[], getterParams?: Params, getterDefaultValue?: string): unknown => {
+        // Convert TranslationKey (string | string[]) to string for provideData.t
+        const keyStr = Array.isArray(translationKey) ? translationKey.join('.') : translationKey
+        return provideData.t(keyStr, getterParams, getterDefaultValue ?? undefined)
+      }
+
+      return plural(key, Number.parseInt(count.toString()), _params, currentLocale, getter) as string ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {
       const currentLocale = routeService.getCurrentLocale()
@@ -275,6 +343,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
     clearCache: () => {
       i18nHelper.clearCache()
+      compiledMessageCache.clear()
     },
     switchLocalePath: (toLocale: string) => {
       const route = routeService.getCurrentRoute()
@@ -294,6 +363,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return ''
     },
     switchLocale: (toLocale: string) => {
+      // Clear compiled message cache when locale changes
+      compiledMessageCache.clear()
       return routeService.switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },
     switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

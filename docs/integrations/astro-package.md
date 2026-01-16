@@ -1346,6 +1346,7 @@ Creates and configures the Astro integration for i18n-micro.
 | `locales` | `Locale[]` | ❌ | `[]` | Array of locale objects |
 | `messages` | `Record<string, Translations>` | ❌ | `{}` | Initial translation messages |
 | `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
+| `messageCompiler` | `MessageCompilerFunc` | ❌ | - | Custom function for compiling messages (ICU MessageFormat support) |
 | `missingWarn` | `boolean` | ❌ | `false` | Show console warnings for missing translations |
 | `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom handler for missing translations |
 | `localeCookie` | `string` | ❌ | `'i18n-locale'` | Cookie name for storing locale |

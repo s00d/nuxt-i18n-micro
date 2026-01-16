@@ -5,6 +5,7 @@ import {
 import type {
   Translations,
   PluralFunc,
+  MessageCompilerFunc,
 } from '@i18n-micro/types'
 
 export interface AstroI18nOptions {
@@ -12,6 +13,10 @@ export interface AstroI18nOptions {
   fallbackLocale?: string
   messages?: Record<string, Translations>
   plural?: PluralFunc
+  /**
+   * Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+   */
+  messageCompiler?: MessageCompilerFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
   // NEW: Allow passing existing cache
@@ -43,6 +48,7 @@ export class AstroI18n extends BaseI18n {
     super({
       cache,
       plural: options.plural,
+      messageCompiler: options.messageCompiler,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
     })
@@ -174,6 +180,8 @@ export class AstroI18n extends BaseI18n {
   // Методы для добавления переводов
   public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
     super.loadTranslationsCore(locale, translations, merge)
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
   }
 
   public addRouteTranslations(
@@ -183,6 +191,8 @@ export class AstroI18n extends BaseI18n {
     merge: boolean = true,
   ): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
   }
 
   public mergeTranslations(locale: string, routeName: string, translations: Translations): void {

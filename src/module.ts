@@ -186,6 +186,15 @@ export default defineNuxtModule<ModuleOptions>({
       getContents: () => `export const plural = ${options.plural!.toString()};`,
     })
 
+    // Generate messageCompiler template (always create, even if undefined, to avoid import errors)
+    addTemplate({
+      filename: 'i18n.message-compiler.mjs',
+      write: true,
+      getContents: () => options.messageCompiler
+        ? `export const messageCompiler = ${options.messageCompiler.toString()};`
+        : `export const messageCompiler = undefined;`,
+    })
+
     let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
     if (apiBaseClientHost && apiBaseClientHost.endsWith('/')) {
       apiBaseClientHost = apiBaseClientHost.slice(0, -1)

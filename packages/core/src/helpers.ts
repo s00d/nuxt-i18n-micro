@@ -1,4 +1,31 @@
-import type { Params, Strategies, PluralFunc, Getter, TranslationKey } from '@i18n-micro/types'
+import type { Params, Strategies, PluralFunc, Getter, TranslationKey, MessageCompilerFunc } from '@i18n-micro/types'
+
+/**
+ * Cache for compiled messages
+ * Key format: "locale:route:key:contentLength:contentPrefix"
+ */
+export type CompiledMessageCache = Map<string, (params?: Params) => string>
+
+/**
+ * Generate cache key for compiled message
+ * Includes content info to invalidate when translation changes
+ */
+export function getCompiledCacheKey(
+  locale: string,
+  route: string,
+  key: string,
+  content: string,
+): string {
+  // Use full content to detect changes accurately
+  return `${locale}:${route}:${key}:${content}`
+}
+
+/**
+ * Create a new compiled message cache
+ */
+export function createCompiledCache(): CompiledMessageCache {
+  return new Map()
+}
 
 export function interpolate(template: string, params: Params): string {
   let result = template
@@ -50,4 +77,59 @@ export const defaultPlural: PluralFunc = (key: TranslationKey, count: number, pa
   const selectedForm = count < forms.length ? forms[count] : forms[forms.length - 1]
   if (!selectedForm) return null
   return selectedForm.trim().replace('{count}', count.toString())
+}
+
+/**
+ * Compile message or fallback to simple interpolation
+ * Centralized function for all adapters
+ *
+ * @param value - The translation string to compile/interpolate
+ * @param locale - Current locale code
+ * @param route - Current route name
+ * @param key - Translation key
+ * @param params - Parameters for interpolation
+ * @param messageCompiler - Optional custom message compiler function
+ * @param cache - Optional cache for compiled messages
+ * @returns Compiled/interpolated string
+ */
+export function compileOrInterpolate(
+  value: string,
+  locale: string,
+  route: string,
+  key: string,
+  params: Params | undefined,
+  messageCompiler: MessageCompilerFunc | undefined,
+  cache: CompiledMessageCache | undefined,
+): string {
+  // Если messageCompiler не задан, используем простую интерполяцию
+  if (!messageCompiler) {
+    return params ? interpolate(value, params) : value
+  }
+
+  try {
+    const cacheKey = getCompiledCacheKey(locale, route, key, value)
+    let compiledFn = cache?.get(cacheKey)
+
+    if (!compiledFn) {
+      // Оборачиваем компиляцию в try/catch
+      compiledFn = messageCompiler(value, locale, key)
+      cache?.set(cacheKey, compiledFn)
+    }
+
+    // Оборачиваем выполнение скомпилированной функции в try/catch
+    return compiledFn(params ?? {})
+  }
+  catch (err: unknown) {
+    // В режиме разработки выводим предупреждение с деталями
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`[i18n] Error compiling message for key '${key}'. Falling back to simple interpolation.`, {
+        locale,
+        key,
+        message: value,
+        error: err,
+      })
+    }
+    // Откат к простой интерполяции в случае ошибки
+    return params ? interpolate(value, params) : value
+  }
 }

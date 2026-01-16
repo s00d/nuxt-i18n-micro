@@ -423,6 +423,7 @@ Creates and installs the i18n plugin for your Vue application.
 | `fallbackLocale` | `string` | ❌ | Same as `locale` | Fallback locale when translation is missing |
 | `messages` | `Record<string, Translations>` | ❌ | `{}` | Initial translation messages |
 | `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
+| `messageCompiler` | `MessageCompilerFunc` | ❌ | - | Custom function for compiling messages (ICU MessageFormat support) |
 | `missingWarn` | `boolean` | ❌ | `false` | Show console warnings for missing translations |
 | `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom handler for missing translations |
 | `routingStrategy` | `I18nRoutingStrategy` | ❌ | - | Router adapter for routing features |

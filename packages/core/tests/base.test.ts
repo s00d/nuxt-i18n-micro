@@ -1,5 +1,5 @@
 import { BaseI18n, type BaseI18nOptions } from '../src/base'
-import type { Translations, PluralFunc } from '@i18n-micro/types'
+import type { Translations, PluralFunc, MessageCompilerFunc } from '@i18n-micro/types'
 
 // Test implementation of BaseI18n
 class TestI18n extends BaseI18n {
@@ -505,6 +505,170 @@ describe('BaseI18n', () => {
       i18n.setRoute('about')
       expect(i18n.t('title')).toBe('About Page')
       expect(i18n.t('greeting')).toBe('Hello') // Should still work from general
+    })
+  })
+
+  describe('messageCompiler', () => {
+    // Helper to create isolated cache for each test
+    const createIsolatedCache = () => ({
+      generalLocaleCache: {},
+      routeLocaleCache: {},
+      dynamicTranslationsCaches: [],
+      serverTranslationCache: {},
+    })
+
+    test('should initialize with messageCompiler option', () => {
+      const compiler: MessageCompilerFunc = (msg, _locale, _key) => _params => msg.toUpperCase()
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+      expect(i18n.messageCompiler).toBeDefined()
+    })
+
+    test('should use messageCompiler for translation with params', async () => {
+      const compiler: MessageCompilerFunc = (msg, _locale, _key) => {
+        return params => msg.replace(/\{(\w+)\}/g, (_, k) => String(params?.[k] ?? ''))
+      }
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+      await i18n.helper.loadTranslations('en', { greeting: 'Hello, {name}!' })
+
+      expect(i18n.t('greeting', { name: 'World' })).toBe('Hello, World!')
+    })
+
+    test('should use messageCompiler even without params', async () => {
+      const compiler: MessageCompilerFunc = (msg, _locale, _key) => {
+        return _params => msg.toUpperCase()
+      }
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+      await i18n.helper.loadTranslations('en', { greeting: 'hello' })
+
+      expect(i18n.t('greeting')).toBe('HELLO')
+    })
+
+    test('should cache compiled messages', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, _locale, _key) => _params => msg,
+      )
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+      await i18n.helper.loadTranslations('en', { test: 'value' })
+
+      i18n.t('test', { a: 1 })
+      i18n.t('test', { b: 2 })
+
+      // Compiler should only be called once (cached)
+      expect(compiler).toHaveBeenCalledTimes(1)
+    })
+
+    test('should use different cache keys for different routes', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, _locale, _key) => _params => msg,
+      )
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'page1', { messageCompiler: compiler, cache })
+      await i18n.helper.loadPageTranslations('en', 'page1', { title: 'Page 1' })
+      await i18n.helper.loadPageTranslations('en', 'page2', { title: 'Page 2' })
+
+      i18n.t('title', undefined, undefined, 'page1')
+      i18n.t('title', undefined, undefined, 'page2')
+
+      // Compiler should be called twice (different routes)
+      expect(compiler).toHaveBeenCalledTimes(2)
+    })
+
+    test('should fallback to interpolate when no messageCompiler', async () => {
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { cache })
+      await i18n.helper.loadTranslations('en', { greeting: 'Hello, {name}!' })
+
+      expect(i18n.t('greeting', { name: 'World' })).toBe('Hello, World!')
+    })
+
+    test('should clear compiled cache with clearCompiledCache()', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, _locale, _key) => _params => msg,
+      )
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+      await i18n.helper.loadTranslations('en', { test: 'value' })
+
+      i18n.t('test')
+      expect(compiler).toHaveBeenCalledTimes(1)
+
+      i18n.clearCompiledCache()
+
+      i18n.t('test')
+      expect(compiler).toHaveBeenCalledTimes(2)
+    })
+
+    test('should pass correct arguments to messageCompiler', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, locale, key) => _params => `${locale}:${key}:${msg}`,
+      )
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('de', 'en', 'general', { messageCompiler: compiler, cache })
+      await i18n.helper.loadTranslations('de', { greeting: 'Hallo' })
+
+      const result = i18n.t('greeting')
+
+      expect(compiler).toHaveBeenCalledWith('Hallo', 'de', 'greeting')
+      expect(result).toBe('de:greeting:Hallo')
+    })
+
+    test('should use different cache keys for different locales', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, locale, _key) => _params => `[${locale}] ${msg}`,
+      )
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+      await i18n.helper.loadTranslations('en', { greeting: 'Hello' })
+      await i18n.helper.loadTranslations('de', { greeting: 'Hallo' })
+
+      expect(i18n.t('greeting')).toBe('[en] Hello')
+      expect(compiler).toHaveBeenCalledTimes(1)
+
+      i18n.setLocale('de')
+      expect(i18n.t('greeting')).toBe('[de] Hallo')
+      expect(compiler).toHaveBeenCalledTimes(2)
+    })
+
+    test('should invalidate cache when content changes', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, _locale, _key) => _params => msg.toUpperCase(),
+      )
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+
+      await i18n.helper.loadTranslations('en', { greeting: 'hello' })
+      expect(i18n.t('greeting')).toBe('HELLO')
+      expect(compiler).toHaveBeenCalledTimes(1)
+
+      // Clear cache before updating translations (simulating real-world reload)
+      i18n.clearCache()
+      // Update translation content with different value
+      await i18n.helper.loadTranslations('en', { greeting: 'hi there' })
+      expect(i18n.t('greeting')).toBe('HI THERE')
+      expect(compiler).toHaveBeenCalledTimes(2) // Different content = new compilation
+    })
+
+    test('should also clear compiled cache on clearCache()', async () => {
+      const compiler = jest.fn<(params?: Record<string, string | number | boolean>) => string, [string, string, string]>(
+        (msg, _locale, _key) => _params => msg,
+      )
+      const cache = createIsolatedCache()
+      const i18n = new TestI18n('en', 'en', 'general', { messageCompiler: compiler, cache })
+      await i18n.helper.loadTranslations('en', { test: 'value' })
+
+      i18n.t('test')
+      expect(compiler).toHaveBeenCalledTimes(1)
+
+      // clearCache should also clear compiled cache
+      i18n.clearCache()
+      await i18n.helper.loadTranslations('en', { test: 'value' })
+
+      i18n.t('test')
+      expect(compiler).toHaveBeenCalledTimes(2)
     })
   })
 })

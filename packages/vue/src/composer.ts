@@ -6,6 +6,7 @@ import {
 import type {
   Translations,
   PluralFunc,
+  MessageCompilerFunc,
 } from '@i18n-micro/types'
 
 export interface VueI18nOptions {
@@ -13,6 +14,10 @@ export interface VueI18nOptions {
   fallbackLocale?: string
   messages?: Record<string, Translations>
   plural?: PluralFunc
+  /**
+   * Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+   */
+  messageCompiler?: MessageCompilerFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
 }
@@ -41,6 +46,7 @@ export class VueI18n extends BaseI18n {
     super({
       cache,
       plural: options.plural,
+      messageCompiler: options.messageCompiler,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
     })
@@ -114,6 +120,8 @@ export class VueI18n extends BaseI18n {
   // Методы для добавления переводов (реактивно) - uses protected methods from base class
   public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
     super.loadTranslationsCore(locale, translations, merge)
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
     // Триггерим реактивность для shallowRef после изменения объекта внутри
     // В Vue пакете cache всегда содержит shallowRef, поэтому используем type assertion
     triggerRef(this.cache.generalLocaleCache as Ref<Record<string, Translations>>)
@@ -127,6 +135,8 @@ export class VueI18n extends BaseI18n {
     merge: boolean = true,
   ): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
     // Триггерим реактивность для shallowRef после изменения объекта внутри
     triggerRef(this.cache.routeLocaleCache as Ref<Record<string, Translations>>)
     this.notifyListeners()

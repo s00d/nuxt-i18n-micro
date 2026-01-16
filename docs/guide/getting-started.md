@@ -472,6 +472,65 @@ plural: (key, count, _params, _locale, t) => {
 }
 ```
 
+#### `messageCompiler`
+
+Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+
+**Type**: `(message: string, locale: string, key: string) => (params?: Params) => string`
+
+When provided, this function will be used instead of the default simple interpolation. This allows you to use advanced message formatting libraries like `intl-messageformat` for ICU MessageFormat support.
+
+**Example with intl-messageformat:**
+
+```typescript
+import IntlMessageFormat from 'intl-messageformat'
+
+export default defineNuxtConfig({
+  i18n: {
+    messageCompiler: (message, locale, _key) => {
+      const formatter = new IntlMessageFormat(message, locale)
+      return (params) => formatter.format(params) as string
+    },
+    // ... other options
+  },
+})
+```
+
+**Features:**
+- ✅ **ICU MessageFormat Support**: Use ICU syntax for complex message formatting
+- ✅ **Caching**: Compiled messages are automatically cached for performance
+- ✅ **Automatic Invalidation**: Cache is cleared when locale changes or translations are updated
+- ✅ **Works Everywhere**: Supported in Nuxt, Vue, React, Preact, Solid, Node, and Astro adapters
+
+**ICU MessageFormat Example:**
+
+With `messageCompiler` configured, you can use ICU syntax in your translation files:
+
+```json
+{
+  "welcome": "Welcome, {name}!",
+  "items": "{count, plural, =0 {No items} one {# item} other {# items}}",
+  "gender": "{gender, select, male {He} female {She} other {They}} went to the store"
+}
+```
+
+```vue
+<template>
+  <div>
+    <p>{{ $t('welcome', { name: 'Alice' }) }}</p>
+    <!-- Output: Welcome, Alice! -->
+    
+    <p>{{ $t('items', { count: 5 }) }}</p>
+    <!-- Output: 5 items -->
+    
+    <p>{{ $t('gender', { gender: 'female' }) }}</p>
+    <!-- Output: She went to the store -->
+  </div>
+</template>
+```
+
+**Note:** When `messageCompiler` is set, it will be used for ALL messages, even simple ones. If you need to use simple interpolation for some messages and ICU for others, you can handle this logic within your `messageCompiler` function.
+
 #### `localeCookie`
 
 Specifies the cookie name for storing user's locale.

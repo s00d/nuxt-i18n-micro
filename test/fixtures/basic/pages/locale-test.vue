@@ -46,22 +46,22 @@
     </p>
 
     <div id="date-td">
-      {{ $td('2023-12-31') }}
+      {{ $td(oneYearAgo) }}
     </div>
     <p id="date-td-component">
       <i18n-t
         keypath="page.date"
-        date="2023-12-31"
+        :date="oneYearAgo"
       />
     </p>
 
     <div id="date-tdr">
-      {{ $tdr('2023-12-31') }}
+      {{ $tdr(oneYearAgo) }}
     </div>
     <p id="date-tdr-component">
       <i18n-t
         keypath="page.relativeDate"
-        relative-date="2023-12-31"
+        :relative-date="oneYearAgo"
       />
     </p>
 
@@ -96,9 +96,19 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useNuxtApp } from '#imports'
 
 const { $defineI18nRoute, $tn, $td, $tdr } = useNuxtApp()
+
+// Calculate date approximately 1 year ago (13-14 months to ensure it's always >= 1 year)
+const oneYearAgo = computed(() => {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - 1)
+  date.setMonth(date.getMonth() - 2) // Subtract 2 more months to ensure >= 1 year
+  date.setDate(1)
+  return date.toISOString().split('T')[0]
+})
 
 // Define translations directly on the page
 $defineI18nRoute({

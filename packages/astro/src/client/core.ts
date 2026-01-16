@@ -1,4 +1,4 @@
-import type { Translations, Params } from '@i18n-micro/types'
+import type { Translations, Params, MessageCompilerFunc } from '@i18n-micro/types'
 import { interpolate } from '@i18n-micro/core'
 
 /**
@@ -9,6 +9,22 @@ export interface I18nState {
   fallbackLocale: string
   translations: Record<string, Translations> // routeName -> translations
   currentRoute: string
+  /**
+   * Optional message compiler for ICU MessageFormat support.
+   * NOTE: For Astro islands, messageCompiler needs to be passed via props
+   * because islands are isolated and don't have access to build-time config.
+   */
+  messageCompiler?: MessageCompilerFunc
+}
+
+// Simple cache for compiled messages (per-island instance)
+const compiledCache = new Map<string, (params?: Params) => string>()
+
+/**
+ * Clear compiled message cache (useful for testing)
+ */
+export function clearCompiledCache(): void {
+  compiledCache.clear()
 }
 
 // Вспомогательная функция для поиска перевода в объекте Translations
@@ -79,9 +95,34 @@ export function translate(
     value = defaultValue === undefined ? key : (defaultValue || key)
   }
 
-  // 4. Интерполяция параметров (только для строк)
-  if (typeof value === 'string' && params) {
-    return interpolate(value, params)
+  // 4. Компиляция/Интерполяция параметров (только для строк)
+  if (typeof value === 'string') {
+    if (state.messageCompiler) {
+      try {
+        const cacheKey = `${state.locale}:${route}:${key}:${value}`
+        let compiledFn = compiledCache.get(cacheKey)
+        if (!compiledFn) {
+          compiledFn = state.messageCompiler(value, state.locale, key)
+          compiledCache.set(cacheKey, compiledFn)
+        }
+        return compiledFn(params ?? {})
+      }
+      catch (err: unknown) {
+        // В режиме разработки выводим предупреждение с деталями
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn(`[i18n] Error compiling message for key '${key}' in Astro island. Falling back to simple interpolation.`, {
+            locale: state.locale,
+            key,
+            message: value,
+            error: err,
+          })
+        }
+        // Откат к простой интерполяции в случае ошибки
+        return params ? interpolate(value, params) : value
+      }
+    }
+
+    return params ? interpolate(value, params) : value
   }
 
   // 5. Возвращаем value как есть (может быть string, number, boolean, object, или null)

@@ -20,6 +20,13 @@ export interface I18nState {
 // Simple cache for compiled messages (per-island instance)
 const compiledCache = new Map<string, (params?: Params) => string>()
 
+/**
+ * Clear compiled message cache (useful for testing)
+ */
+export function clearCompiledCache(): void {
+  compiledCache.clear()
+}
+
 // Вспомогательная функция для поиска перевода в объекте Translations
 // Returns the value as-is, including objects (for nested translations)
 function findTranslation<T = unknown>(translations: Translations | null, key: string): T | null {
@@ -92,7 +99,7 @@ export function translate(
   if (typeof value === 'string') {
     if (state.messageCompiler) {
       try {
-        const cacheKey = `${state.locale}:${route}:${key}:${value.length}:${value.slice(0, 50)}`
+        const cacheKey = `${state.locale}:${route}:${key}:${value}`
         let compiledFn = compiledCache.get(cacheKey)
         if (!compiledFn) {
           compiledFn = state.messageCompiler(value, state.locale, key)

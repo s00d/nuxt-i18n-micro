@@ -5,33 +5,57 @@ import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Translati
 import { detectCurrentLocale } from './utils/locale-detector'
 import { useRuntimeConfig } from '#imports'
 
-// Lazy load messageCompiler (with proper error handling)
+// Lazy load messageCompiler (with proper error handling and concurrent request support)
 let messageCompiler: MessageCompilerFunc | undefined
-let messageCompilerLoaded = false
+let messageCompilerPromise: Promise<MessageCompilerFunc | undefined> | null = null
 
 async function getMessageCompiler(): Promise<MessageCompilerFunc | undefined> {
-  if (messageCompilerLoaded) return messageCompiler
-  messageCompilerLoaded = true
-  try {
-    const modName = '#build/i18n.message-compiler.mjs'
-    const mod = await import(/* @vite-ignore */ modName)
-    messageCompiler = mod.messageCompiler
-  }
-  catch (err: unknown) {
-    // Определяем, является ли ошибка ошибкой "модуль не найден"
-    const isModuleMissing
-      = err
-        && typeof err === 'object'
-        && (('code' in err && (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND')
-          || ('message' in err && (err as Error).message?.includes('Cannot find module')))
+  // If already loaded, return immediately
+  if (messageCompiler !== undefined) return messageCompiler
 
-    // Игнорируем только если модуль действительно отсутствует.
-    // Все остальные ошибки (например, синтаксические) выводим в консоль.
-    if (!isModuleMissing) {
-      console.error('[i18n] Failed to load message compiler. Check for errors in your messageCompiler function in nuxt.config:', err)
+  // If loading is in progress, wait for the same promise
+  if (messageCompilerPromise) return messageCompilerPromise
+
+  // Start loading
+  messageCompilerPromise = (async () => {
+    try {
+      const modName = '#build/i18n.message-compiler.mjs'
+      const mod = await import(/* @vite-ignore */ modName)
+      messageCompiler = mod.messageCompiler
     }
-  }
-  return messageCompiler
+    catch (err: unknown) {
+      // Определяем, является ли ошибка ошибкой "модуль не найден"
+      // Это может быть MODULE_NOT_FOUND, ERR_PACKAGE_IMPORT_NOT_DEFINED (для package imports),
+      // или сообщение об ошибке, содержащее информацию о том, что модуль не найден
+      const isModuleMissing
+        = err
+          && typeof err === 'object'
+          && (('code' in err && (
+            (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND'
+            || (err as NodeJS.ErrnoException).code === 'ERR_PACKAGE_IMPORT_NOT_DEFINED'
+          ))
+            || ('message' in err && (
+              (err as Error).message?.includes('Cannot find module')
+              || (err as Error).message?.includes('Package import specifier')
+              || (err as Error).message?.includes('is not defined')
+            )))
+
+      // Игнорируем только если модуль действительно отсутствует (нормально, если messageCompiler не настроен).
+      // Все остальные ошибки (например, синтаксические) выводим в консоль.
+      if (!isModuleMissing) {
+        console.error('[i18n] Failed to load message compiler. Check for errors in your messageCompiler function in nuxt.config:', err)
+      }
+      // Set to undefined explicitly to mark as loaded (even if failed)
+      messageCompiler = undefined
+    }
+    finally {
+      // Clear promise after loading completes (success or failure)
+      messageCompilerPromise = null
+    }
+    return messageCompiler
+  })()
+
+  return messageCompilerPromise
 }
 
 // Constant for the request context key to avoid typos

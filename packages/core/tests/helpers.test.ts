@@ -106,20 +106,33 @@ describe('Helpers', () => {
   })
 
   describe('getCompiledCacheKey', () => {
-    test('should include all components', () => {
+    test('should include all components with full content', () => {
       const key = getCompiledCacheKey('en', 'about', 'title', 'Hello World')
-      expect(key).toBe('en:about:title:11:Hello World')
+      expect(key).toBe('en:about:title:Hello World')
     })
 
-    test('should truncate long content', () => {
-      const longContent = 'a'.repeat(100)
+    test('should use full content (not truncated)', () => {
+      const longContent = 'a'.repeat(100) + 'b'.repeat(100)
       const key = getCompiledCacheKey('en', 'page', 'key', longContent)
-      expect(key).toBe(`en:page:key:100:${'a'.repeat(50)}`)
+      expect(key).toBe(`en:page:key:${longContent}`)
+      // Verify it includes the full content, not just first 50 chars
+      expect(key).toContain('b'.repeat(100))
     })
 
     test('should handle empty content', () => {
       const key = getCompiledCacheKey('en', 'page', 'key', '')
-      expect(key).toBe('en:page:key:0:')
+      expect(key).toBe('en:page:key:')
+    })
+
+    test('should generate different keys for messages with same prefix but different content', () => {
+      const msg1 = 'a'.repeat(50) + 'b'.repeat(50)
+      const msg2 = 'a'.repeat(50) + 'c'.repeat(50)
+      const key1 = getCompiledCacheKey('en', 'page', 'key', msg1)
+      const key2 = getCompiledCacheKey('en', 'page', 'key', msg2)
+      expect(key1).not.toBe(key2)
+      // Both have same length and same first 50 chars, but different keys
+      expect(msg1.length).toBe(msg2.length)
+      expect(msg1.slice(0, 50)).toBe(msg2.slice(0, 50))
     })
   })
 

@@ -143,6 +143,8 @@ export class I18n extends BaseI18n {
 
   public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
     super.loadTranslationsCore(locale, translations, merge)
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
   }
 
   public addRouteTranslations(
@@ -152,6 +154,8 @@ export class I18n extends BaseI18n {
     merge: boolean = true,
   ): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
   }
 
   public hasTranslation(key: TranslationKey): boolean {

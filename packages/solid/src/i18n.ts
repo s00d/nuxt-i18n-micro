@@ -154,6 +154,8 @@ export class SolidI18n extends BaseI18n {
     else {
       this.setCacheStore('general', locale, translations)
     }
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
     this.notifyListeners()
   }
 
@@ -168,6 +170,8 @@ export class SolidI18n extends BaseI18n {
     else {
       this.setCacheStore('route', key, translations)
     }
+    // Clear compiled message cache when translations are updated
+    this.clearCompiledCache()
     this.notifyListeners()
   }
 

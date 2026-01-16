@@ -100,6 +100,8 @@ export abstract class BaseI18n {
     // 1. Try to find translation in current locale
     // Note: In Nuxt runtime, server already merges global translations, so we don't need explicit fallback
     let value = this.helper.getTranslation<string>(locale, route, key)
+    // Track which locale actually provided the translation
+    let sourceLocale = locale
 
     // 2. If translation not found and there are saved previous translations, use them (only if enabled)
     if (!value && this.enablePreviousPageFallback && this.getPreviousPageInfo) {
@@ -108,6 +110,7 @@ export abstract class BaseI18n {
         const prevValue = this.helper.getTranslation<string>(prev.locale, prev.routeName, key)
         if (prevValue) {
           value = prevValue
+          sourceLocale = prev.locale
           if (process.env.NODE_ENV !== 'production') {
             console.log(`Using fallback translation from previous route: ${prev.routeName} -> ${key}`)
           }
@@ -120,6 +123,9 @@ export abstract class BaseI18n {
       const fallbackLocale = this.getFallbackLocale()
       if (locale !== fallbackLocale) {
         value = this.helper.getTranslation<string>(fallbackLocale, route, key)
+        if (value) {
+          sourceLocale = fallbackLocale
+        }
       }
     }
 
@@ -144,10 +150,11 @@ export abstract class BaseI18n {
     }
 
     // 5. Compile/Interpolate (using centralized utility)
+    // Use sourceLocale (the locale that actually provided the translation) instead of current locale
     if (typeof value === 'string') {
       return compileOrInterpolate(
         value,
-        locale,
+        sourceLocale,
         route,
         key as string,
         params,

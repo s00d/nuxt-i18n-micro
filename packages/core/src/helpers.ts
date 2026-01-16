@@ -16,8 +16,8 @@ export function getCompiledCacheKey(
   key: string,
   content: string,
 ): string {
-  // Use content length + first 50 chars as hash to detect changes
-  return `${locale}:${route}:${key}:${content.length}:${content.slice(0, 50)}`
+  // Use full content to detect changes accurately
+  return `${locale}:${route}:${key}:${content}`
 }
 
 /**

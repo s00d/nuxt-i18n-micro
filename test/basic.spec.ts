@@ -293,6 +293,24 @@ test.describe('basic', () => {
   })
 
   test('test locale switching on locale-test page', async ({ page }) => {
+    // Calculate expected date (approximately 1 year ago, 13-14 months to ensure >= 1 year)
+    const oneYearAgo = new Date()
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+    oneYearAgo.setMonth(oneYearAgo.getMonth() - 2) // Subtract 2 more months to ensure >= 1 year
+    oneYearAgo.setDate(1)
+
+    // Calculate expected date formats
+    const expectedDateEn = new Intl.DateTimeFormat('en-US').format(oneYearAgo)
+    const expectedDateDe = new Intl.DateTimeFormat('de-DE').format(oneYearAgo)
+    const expectedDateRu = new Intl.DateTimeFormat('ru-RU').format(oneYearAgo)
+
+    // Calculate expected relative time using the same logic as FormatService
+    const diffSeconds = Math.floor((Date.now() - oneYearAgo.getTime()) / 1000)
+    const diffYears = Math.floor(diffSeconds / 31536000) // 31536000 seconds in a year
+    const expectedRelativeEn = new Intl.RelativeTimeFormat('en-US').format(-diffYears, 'year')
+    const expectedRelativeDe = new Intl.RelativeTimeFormat('de-DE').format(-diffYears, 'year')
+    const expectedRelativeRu = new Intl.RelativeTimeFormat('ru-RU').format(-diffYears, 'year')
+
     // Navigate to the /locale-test route in English
     await page.goto('/locale-test', { waitUntil: 'networkidle' })
 
@@ -306,11 +324,11 @@ test.describe('basic', () => {
     await expect(page.locator('#plural-2')).toHaveText('You have 2 items')
     await expect(page.locator('#plural-3')).toHaveText('You have 3 items')
     await expect(page.locator('#number-tn')).toHaveText('1,234,567.89')
-    await expect(page.locator('#date-td')).toHaveText('12/31/2023')
-    await expect(page.locator('#date-tdr')).toHaveText('1 year ago')
+    await expect(page.locator('#date-td')).toHaveText(expectedDateEn)
+    await expect(page.locator('#date-tdr')).toHaveText(expectedRelativeEn)
     await expect(page.locator('#number-tn-component')).toHaveText('The number is: 1,234,567.89')
-    await expect(page.locator('#date-td-component')).toHaveText('The date is: 12/31/2023')
-    await expect(page.locator('#date-tdr-component')).toHaveText('The relative date is: 1 year ago')
+    await expect(page.locator('#date-td-component')).toHaveText(`The date is: ${expectedDateEn}`)
+    await expect(page.locator('#date-tdr-component')).toHaveText(`The relative date is: ${expectedRelativeEn}`)
     await expect(page.locator('#html-content')).toHaveText('Bold Text with HTML content.')
 
     const linkDe = page.locator('#link-de')
@@ -329,11 +347,11 @@ test.describe('basic', () => {
     await expect(page.locator('#plural-2')).toHaveText('Sie haben 2 Artikel')
     await expect(page.locator('#plural-3')).toHaveText('Sie haben 3 Artikel')
     await expect(page.locator('#number-tn')).toHaveText('1.234.567,89')
-    await expect(page.locator('#date-td')).toHaveText('31.12.2023')
-    await expect(page.locator('#date-tdr')).toHaveText('vor 1 Jahr')
+    await expect(page.locator('#date-td')).toHaveText(expectedDateDe)
+    await expect(page.locator('#date-tdr')).toHaveText(expectedRelativeDe)
     await expect(page.locator('#number-tn-component')).toHaveText('Die Zahl ist: 1.234.567,89')
-    await expect(page.locator('#date-td-component')).toHaveText('Das Datum ist: 31.12.2023')
-    await expect(page.locator('#date-tdr-component')).toHaveText('Das relative Datum ist: vor 1 Jahr')
+    await expect(page.locator('#date-td-component')).toHaveText(`Das Datum ist: ${expectedDateDe}`)
+    await expect(page.locator('#date-tdr-component')).toHaveText(`Das relative Datum ist: ${expectedRelativeDe}`)
     await expect(page.locator('#html-content')).toHaveText('Fetter Text mit HTML-Inhalt.')
 
     const linkRu = page.locator('#link-ru')
@@ -342,7 +360,7 @@ test.describe('basic', () => {
     // Switch to German locale
     await linkRu.click()
 
-    // Verify the URL and content in German
+    // Verify the URL and content in Russian
     await expect(page).toHaveURL('/ru/locale-page-modify-ru')
     await expect(page.locator('h1')).toHaveText('Страница теста языка')
     await expect(page.locator('#content')).toHaveText('Это раздел содержимого.')
@@ -352,11 +370,11 @@ test.describe('basic', () => {
     await expect(page.locator('#plural-2')).toHaveText('У вас 2 предмета')
     await expect(page.locator('#plural-3')).toHaveText('У вас 3 предмета')
     await expect(page.locator('#number-tn')).toHaveText('1 234 567,89')
-    await expect(page.locator('#date-td')).toHaveText('31.12.2023')
-    await expect(page.locator('#date-tdr')).toHaveText('1 год назад')
+    await expect(page.locator('#date-td')).toHaveText(expectedDateRu)
+    await expect(page.locator('#date-tdr')).toHaveText(expectedRelativeRu)
     await expect(page.locator('#number-tn-component')).toHaveText('Число: 1 234 567,89')
-    await expect(page.locator('#date-td-component')).toHaveText('Дата: 31.12.2023')
-    await expect(page.locator('#date-tdr-component')).toHaveText('Относительная дата: 1 год назад')
+    await expect(page.locator('#date-td-component')).toHaveText(`Дата: ${expectedDateRu}`)
+    await expect(page.locator('#date-tdr-component')).toHaveText(`Относительная дата: ${expectedRelativeRu}`)
     await expect(page.locator('#html-content')).toHaveText('Жирный текст с HTML-содержимым.')
   })
 

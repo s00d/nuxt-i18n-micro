@@ -6,6 +6,7 @@ import {
 import type {
   Translations,
   PluralFunc,
+  MessageCompilerFunc,
 } from '@i18n-micro/types'
 
 export interface VueI18nOptions {
@@ -13,6 +14,10 @@ export interface VueI18nOptions {
   fallbackLocale?: string
   messages?: Record<string, Translations>
   plural?: PluralFunc
+  /**
+   * Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+   */
+  messageCompiler?: MessageCompilerFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
 }
@@ -41,6 +46,7 @@ export class VueI18n extends BaseI18n {
     super({
       cache,
       plural: options.plural,
+      messageCompiler: options.messageCompiler,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
     })

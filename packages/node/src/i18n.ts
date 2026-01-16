@@ -6,6 +6,7 @@ import type {
   Translations,
   PluralFunc,
   TranslationKey,
+  MessageCompilerFunc,
 } from '@i18n-micro/types'
 // Импортируем нашу общую логику загрузки
 import { loadTranslations } from './loader'
@@ -15,6 +16,10 @@ export interface I18nOptions {
   fallbackLocale?: string
   translationDir?: string
   plural?: PluralFunc
+  /**
+   * Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+   */
+  messageCompiler?: MessageCompilerFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
   disablePageLocales?: boolean
@@ -60,6 +65,7 @@ export class I18n extends BaseI18n {
     super({
       cache,
       plural: options.plural,
+      messageCompiler: options.messageCompiler,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
     })

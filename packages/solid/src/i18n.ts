@@ -1,13 +1,17 @@
 import { createSignal, type Accessor, type Setter } from 'solid-js'
 import { createStore, type SetStoreFunction } from 'solid-js/store'
 import { BaseI18n, type TranslationCache } from '@i18n-micro/core'
-import type { Translations, PluralFunc } from '@i18n-micro/types'
+import type { Translations, PluralFunc, MessageCompilerFunc } from '@i18n-micro/types'
 
 export interface SolidI18nOptions {
   locale: string
   fallbackLocale?: string
   messages?: Record<string, Translations>
   plural?: PluralFunc
+  /**
+   * Custom function for compiling messages, enabling ICU MessageFormat or other advanced formatting libraries.
+   */
+  messageCompiler?: MessageCompilerFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
 }
@@ -68,6 +72,7 @@ export class SolidI18n extends BaseI18n {
     super({
       cache: cacheAdapter,
       plural: options.plural,
+      messageCompiler: options.messageCompiler,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
     })

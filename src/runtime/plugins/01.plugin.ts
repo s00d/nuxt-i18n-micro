@@ -6,7 +6,7 @@ import type {
   RouteLocationNamedRaw,
 } from 'vue-router'
 import { useTranslationHelper, isNoPrefixStrategy, RouteService, FormatService, compileOrInterpolate, createCompiledCache, type TranslationCache } from '@i18n-micro/core'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler, MessageCompilerFunc, Getter, TranslationKey } from '@i18n-micro/types'
+import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler, MessageCompilerFunc } from '@i18n-micro/types'
 import { useRouter, useCookie, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
 import { unref } from 'vue'
 import { useState } from '#app'
@@ -38,11 +38,11 @@ async function loadMessageCompiler(): Promise<MessageCompilerFunc | undefined> {
           (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND'
           || (err as NodeJS.ErrnoException).code === 'ERR_PACKAGE_IMPORT_NOT_DEFINED'
         ))
-          || ('message' in err && (
-            (err as Error).message?.includes('Cannot find module')
-            || (err as Error).message?.includes('Package import specifier')
-            || (err as Error).message?.includes('is not defined')
-          )))
+        || ('message' in err && (
+          (err as Error).message?.includes('Cannot find module')
+          || (err as Error).message?.includes('Package import specifier')
+          || (err as Error).message?.includes('is not defined')
+        )))
 
     // Игнорируем только если модуль действительно отсутствует (нормально, если messageCompiler не настроен).
     // Все остальные ошибки (например, синтаксические) выводим в консоль.
@@ -297,7 +297,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const { count, ..._params } = typeof params === 'number' ? { count: params } : params
 
       if (count === undefined) return defaultValue ?? key
-      
+
       // Create a getter wrapper that matches the signature expected by plural function
       // The plural function expects: (key: string | string[], params?: Params, defaultValue?: string) => unknown
       const getter = (translationKey: string | string[], getterParams?: Params, getterDefaultValue?: string): unknown => {
@@ -305,7 +305,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         const keyStr = Array.isArray(translationKey) ? translationKey.join('.') : translationKey
         return provideData.t(keyStr, getterParams, getterDefaultValue ?? undefined)
       }
-      
+
       return plural(key, Number.parseInt(count.toString()), _params, currentLocale, getter) as string ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {

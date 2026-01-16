@@ -34,11 +34,11 @@ async function getMessageCompiler(): Promise<MessageCompilerFunc | undefined> {
             (err as NodeJS.ErrnoException).code === 'MODULE_NOT_FOUND'
             || (err as NodeJS.ErrnoException).code === 'ERR_PACKAGE_IMPORT_NOT_DEFINED'
           ))
-            || ('message' in err && (
-              (err as Error).message?.includes('Cannot find module')
-              || (err as Error).message?.includes('Package import specifier')
-              || (err as Error).message?.includes('is not defined')
-            )))
+          || ('message' in err && (
+            (err as Error).message?.includes('Cannot find module')
+            || (err as Error).message?.includes('Package import specifier')
+            || (err as Error).message?.includes('is not defined')
+          )))
 
       // Игнорируем только если модуль действительно отсутствует (нормально, если messageCompiler не настроен).
       // Все остальные ошибки (например, синтаксические) выводим в консоль.

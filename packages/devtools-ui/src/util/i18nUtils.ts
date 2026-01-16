@@ -80,7 +80,7 @@ export const unflattenTranslations = <T = Record<string, unknown>>(
                 (parent as Record<string, unknown>)[parentKey] = newArray
               }
               else if (part) {
-                // Если это корневой элемент (не должен случаться для массива)
+                // If this is root element (should not happen for array)
                 (result as Record<string, unknown>)[part] = newArray
               }
               current = newArray
@@ -88,21 +88,21 @@ export const unflattenTranslations = <T = Record<string, unknown>>(
 
             const arr = current as unknown[]
             if (Number.isNaN(arrayIndex)) {
-              continue // Пропускаем некорректный индекс
+              continue // Skip invalid index
             }
 
-            // Создаем элемент массива, если его нет
+            // Create array element if it doesn't exist
             if (arr[arrayIndex] === undefined) {
               arr[arrayIndex] = {}
             }
 
-            // Обновляем родителя и текущий узел
+            // Update parent and current node
             parent = arr
             parentKey = arrayIndex
             current = arr[arrayIndex]
           }
           else if (part) {
-            // Обработка обычного объекта
+            // Handle regular object
             if (currentObj[part] === undefined) {
               currentObj[part] = {}
             }

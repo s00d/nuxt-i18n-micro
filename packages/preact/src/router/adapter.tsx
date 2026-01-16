@@ -35,7 +35,7 @@ export function createBrowserHistoryAdapter(
   }
 
   return {
-    // Просто рендерим <a>, навигацию перехватит onClick в I18nLink
+    // Just render <a>, navigation will be intercepted by onClick in I18nLink
     linkComponent: undefined,
 
     getCurrentPath: () => {
@@ -48,7 +48,7 @@ export function createBrowserHistoryAdapter(
     push: (target) => {
       if (typeof window !== 'undefined') {
         window.history.pushState({}, '', target.path)
-        // Вызываем событие, чтобы роутеры (wouter/preact-router) узнали об изменении
+        // Dispatch event so routers (wouter/preact-router) know about the change
         window.dispatchEvent(new Event('popstate'))
       }
     },

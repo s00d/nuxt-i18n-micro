@@ -1,0 +1,633 @@
+---
+description: "Nuxt I18n Micro project rules - comprehensive coding standards, architecture patterns, testing guidelines, and development workflow"
+alwaysApply: true
+---
+
+# Nuxt I18n Micro - Cursor Rules
+
+## Project Overview
+This is a high-performance internationalization (i18n) module for Nuxt.js. It's designed to be lightweight, fast, and efficient for large-scale projects. The project uses a monorepo structure with multiple packages and includes a client application for development tools.
+
+## Architecture & Structure
+
+### Core Components
+
+#### Main Module (`src/module.ts`)
+- Main Nuxt module definition using `defineNuxtModule`
+- Handles module setup, configuration, and hooks
+- Manages page generation, route rules, and prerendering
+- Integrates with Nuxt DevTools
+- Sets up runtime config (public and private)
+- Configures plugins, components, and server handlers
+
+#### Runtime (`src/runtime/`)
+- **Components** (`src/runtime/components/`):
+  - `i18n-t.vue` - Translation component with plural, date, number support
+  - `i18n-link.vue` - Localized link component
+  - `i18n-switcher.vue` - Locale switcher component
+  - `i18n-group.vue` - Group component for conditional rendering
+  - `locale-redirect.vue` - Fallback route component for redirects
+- **Composables** (`src/runtime/composables/`):
+  - `useI18n.ts` - Main composable providing i18n methods (with and without $ prefix)
+  - `useLocaleHead.ts` - SEO meta tags composable
+- **Plugins** (`src/runtime/plugins/`):
+  - `01.plugin.ts` - Main plugin, initializes NuxtI18n instance, provides injections
+  - `02.meta.ts` - Meta tags plugin (hreflang, canonical)
+  - `03.define.ts` - Global define plugin ($defineI18nRoute)
+  - `04.auto-detect.ts` - Server-side locale auto-detection
+  - `05.hooks.ts` - Route hooks and navigation guards
+  - `06.redirect.ts` - Locale redirect logic
+- **Utils** (`src/runtime/utils/`):
+  - `path-utils.ts` - Path validation, internal path detection, exclusion patterns
+  - `route-utils.ts` - Route pattern extraction, locale matching, meta disabling
+  - `locale-detector.ts` - Locale detection utilities
+  - `index.ts` - Utility exports
+- **Server** (`src/runtime/server/`):
+  - `routes/get.ts` - Translation data API endpoint
+  - `plugins/watcher.dev.ts` - Development translation file watcher
+- **Middleware**:
+  - `translation-server-middleware.ts` - Server-side translation loading
+  - `locale-server-middleware.ts` - Server-side locale detection
+
+#### Core Classes (`src/`)
+- **LocaleManager** (`src/locale-manager.ts`):
+  - Manages locale configuration
+  - Merges locales from multiple sources
+  - Ensures translation files exist
+  - Handles locale file creation
+- **PageManager** (`src/page-manager.ts`):
+  - Extends Nuxt pages with locale routes
+  - Handles routing strategies (no_prefix, prefix, prefix_except_default, prefix_and_default)
+  - Manages global and per-page locale routes
+  - Handles route localization and normalization
+- **NuxtI18n** (`src/runtime/i18n.ts`):
+  - Extends BaseI18n from `@i18n-micro/core`
+  - Nuxt-specific i18n implementation
+  - Integrates with RouteService
+  - Supports route-based translations
+
+### Packages Structure
+
+#### `packages/core/` - Core Utilities
+- **Base Classes**:
+  - `base.ts` - `BaseI18n` abstract class with common translation logic
+  - `translation.ts` - Translation helper, cache management, translation loading
+  - `route-service.ts` - Route service for locale detection and navigation
+  - `format-service.ts` - Number, date, relative date formatting
+- **Helpers** (`helpers.ts`):
+  - Strategy checks: `isNoPrefixStrategy`, `isPrefixStrategy`, `isPrefixExceptDefaultStrategy`, `isPrefixAndDefaultStrategy`, `withPrefixStrategy`
+  - `interpolate` - String interpolation with params
+  - `defaultPlural` - Default pluralization function
+- **Exports**: Clean exports via `index.ts`
+
+#### `packages/types/` - TypeScript Definitions
+- **Core Types** (`src/index.ts`):
+  - `Locale`, `LocaleCode` - Locale definitions
+  - `TranslationKey`, `ScopedKey` - Translation key types with module augmentation support
+  - `Translations`, `CleanTranslation` - Translation data types
+  - `ModuleOptions`, `ModuleOptionsExtend`, `ModulePrivateOptionsExtend` - Configuration types
+  - `Strategies` - Routing strategy types
+  - `PluralFunc`, `Getter`, `MissingHandler` - Function types
+  - `I18nRouteParams`, `GlobalLocaleRoutes` - Route configuration types
+  - `DefineI18nRouteConfig` - Per-page route configuration
+- **Type System**: Uses module augmentation for translation key autocompletion
+
+#### Framework-Specific Packages
+- **`packages/vue/`**: Vue 3 standalone package
+  - Components: `I18nT`, `I18nLink`, `I18nSwitcher`, `I18nGroup`
+  - Composables: `useI18n`, `useLocaleHead`
+  - Plugin: `createI18n` for Vue apps
+  - Router adapter: `createVueRouterAdapter`
+- **`packages/react/`**: React package
+  - Components: `I18nT`, `I18nLink`, `I18nSwitcher`, `I18nGroup`
+  - Context: `I18nProvider`, `useI18n`
+  - Router adapter: `createReactRouterAdapter`
+- **`packages/solid/`**: SolidJS package
+  - Components and hooks for SolidJS
+- **`packages/astro/`**: Astro package
+  - Astro components and integration
+- **`packages/node/`**: Node.js package
+  - Server-side i18n utilities
+
+#### Other Packages
+- **`packages/test-utils/`**: Testing utilities and helpers
+- **`packages/devtools-ui/`**: DevTools UI components for Nuxt DevTools
+- **`packages/types-generator/`**: Type generation for translation keys
+
+### Key Technologies
+- **Framework**: Nuxt 3 with TypeScript
+- **Package Manager**: pnpm with workspaces
+- **Testing**: Playwright for E2E, Vitest for unit tests
+- **Documentation**: VitePress
+- **Build**: Vite, nuxt-module-builder, unbuild
+- **Client**: Vue 3 with Nuxt for devtools
+
+## Coding Standards
+
+### TypeScript
+- Use strict TypeScript with proper type annotations
+- Prefer interfaces over types for object shapes
+- Use generic types where appropriate
+- Always export types from `packages/types/src/index.ts`
+- Use proper type guards and validation
+- Use `RefLike<T>` interface for Vue Ref compatibility without Vue dependency
+- Use module augmentation for translation key types
+
+### Code Style
+- Follow ESLint configuration in `eslint.config.mjs`
+- Use consistent naming: camelCase for variables/functions, PascalCase for classes/interfaces
+- Prefer const over let, avoid var
+- Use template literals over string concatenation
+- Use emojis in documentation headers (🌍, 📖, 🛠️, etc.)
+- Use `spaced-comment` rule: `// Comment` not `//Comment`
+
+### Comments & Documentation
+- **ALL comments must be in English** - no exceptions
+- Write clear, concise comments explaining "why" not just "what"
+- Use JSDoc comments for public APIs with `@param`, `@returns`, `@example`
+- Document complex algorithms and business logic
+- Keep comments up-to-date with code changes
+- Replace any existing non-English comments with English equivalents
+- Use inline comments for complex logic, not obvious code
+
+### File Organization
+- Keep related functionality together
+- Use index files for clean exports
+- Separate concerns: types, utilities, runtime, tests
+- Follow the established directory structure
+- Use descriptive file names matching their purpose
+- Group related files in subdirectories
+
+### Class Structure
+- Use classes for stateful services (RouteService, LocaleManager, PageManager)
+- Use abstract base classes for shared logic (BaseI18n)
+- Keep classes focused on single responsibility
+- Use dependency injection for testability
+- Make private methods truly private (not protected unless needed)
+
+### Function Patterns
+- Prefer pure functions when possible
+- Use helper functions for reusable logic
+- Extract complex logic into separate functions
+- Use early returns for better readability
+- Handle edge cases explicitly
+
+## Package Versioning
+
+### Version Management Rules
+- **When modifying a package** (in `packages/*/`), **always increment its version** in `packages/*/package.json`
+- **DO NOT modify the root version** in `/package.json` - it's managed automatically
+- Follow semantic versioning (semver):
+  - **PATCH** (x.x.1): Bug fixes, minor improvements, documentation updates
+  - **MINOR** (x.1.0): New features, backward compatible API additions
+  - **MAJOR** (1.0.0): Breaking changes, API removals
+- Each package has its own independent version (e.g., `@i18n-micro/core` has version `1.0.28`)
+- Root package version (`2.16.3`) is updated automatically during release process
+- Before committing changes to a package, verify the version has been incremented
+
+### Package Structure
+- Packages use `workspace:*` for internal dependencies
+- Each package has its own `package.json` with version field
+- Build order matters: types → core → other packages → main module
+- Each package has its own build script and test setup
+- Packages export both CJS and ESM formats
+
+## Testing Strategy
+
+### Test Structure
+
+#### Playwright E2E Tests (`test/*.spec.ts`)
+- **Location**: `test/` directory
+- **Pattern**: `*.spec.ts` files
+- **Configuration**: `playwright.config.ts`
+- **Fixtures**: `test/fixtures/` - Complete Nuxt apps for testing
+- **Test Types**:
+  - `basic.spec.ts` - Basic functionality, routing, translations
+  - `prefix.spec.ts`, `prefix-except-default.spec.ts`, `prefix-and-default.spec.ts`, `no-prefix.spec.ts` - Routing strategies
+  - `seo.spec.ts` - Meta tags, hreflang, canonical URLs
+  - `redirect.spec.ts` - Locale redirects
+  - `hashmode.spec.ts` - Hash mode routing
+  - `layer.spec.ts` - Nuxt layers support
+  - `server.spec.ts` - Server-side rendering
+  - `named-params.spec.ts` - Dynamic route parameters
+  - `define-i18n-route.spec.ts` - Per-page route configuration
+  - `custom-regex.spec.ts` - Custom regex matchers
+  - `hook.spec.ts` - Module hooks
+  - `locale-server-middleware.spec.ts` - Server middleware
+- **Test Patterns**:
+  - Use `@nuxt/test-utils/playwright` for Nuxt integration
+  - Use `test.use()` for fixture configuration
+  - Test both SSR and client-side behavior
+  - Test multiple locales and routing strategies
+  - Verify translations, routing, and meta tags
+
+#### Vitest Unit Tests (`test/*.test.ts`, `packages/*/tests/`)
+- **Location**: `test/` and `packages/*/tests/`
+- **Pattern**: `*.test.ts` files
+- **Configuration**: `vitest.config.ts`
+- **Test Types**:
+  - `strategies.test.ts` - Routing strategy tests (static generate + SSR build)
+  - `pages-manager.test.ts` - PageManager class tests
+  - `extract-define-i18n-route.test.ts` - Route extraction tests
+  - `performance.test.ts` - Performance benchmarks
+  - `packages/core/tests/*.test.ts` - Core package unit tests
+- **Test Patterns**:
+  - Use Vitest with proper mocking
+  - Test classes in isolation
+  - Use test doubles for dependencies
+  - Test edge cases and error conditions
+  - Use snapshots for complex output
+
+#### Test Fixtures (`test/fixtures/`)
+- **Structure**: Each fixture is a complete Nuxt app
+- **Components**:
+  - `nuxt.config.ts` - Nuxt configuration
+  - `package.json` - Package dependencies
+  - `pages/` - Test pages
+  - `locales/` - Translation files
+  - `server/` - Server routes and middleware
+- **Fixture Types**:
+  - `basic/` - Basic setup with multiple locales
+  - `strategy/` - Different routing strategies
+  - `seo/` - SEO-related tests
+  - `custom-regex/` - Custom regex matchers
+  - `layer/` - Nuxt layers
+  - `async-components/` - Async component loading
+  - And many more...
+
+### Testing Best Practices
+- **Coverage**: Maintain high test coverage for core functionality
+- **Isolation**: Tests should be independent and not rely on execution order
+- **Fixtures**: Use realistic test data in fixtures
+- **Edge Cases**: Test boundary conditions, empty inputs, null values
+- **Error Handling**: Test error paths and error messages
+- **Performance**: Include performance tests for critical paths
+- **SSR/SSG**: Test both server-side rendering and static generation
+- **Multiple Locales**: Test with different locale configurations
+- **Routing Strategies**: Test all four routing strategies
+
+### Test Execution
+- **Unit Tests**: `pnpm test:vitest` or `vitest run`
+- **E2E Tests**: `pnpm test` or `playwright test`
+- **Type Tests**: `pnpm test:types` or `vue-tsc --noEmit`
+- **Watch Mode**: `pnpm test:watch` or `vitest watch`
+- **CI**: Tests run with retries and multiple workers
+
+## Module Development
+
+### Adding New Features
+
+#### Step-by-Step Process
+1. **Types First**: Define types in `packages/types/src/index.ts`
+   - Add interfaces, types, and type exports
+   - Update module augmentation if needed
+2. **Core Logic**: Implement in `packages/core/src/` if reusable
+   - Add to appropriate service or helper
+   - Export from `packages/core/src/index.ts`
+   - Add unit tests in `packages/core/tests/`
+3. **Runtime**: Add to `src/runtime/` for Nuxt-specific functionality
+   - Create plugin if needed (numbered prefix for order)
+   - Add composable if user-facing
+   - Add component if UI needed
+4. **Documentation**: Update `docs/guide/` with examples
+   - Add usage examples
+   - Document configuration options
+   - Include migration notes if breaking
+5. **Tests**: Add tests in `test/` and `packages/*/tests/`
+   - E2E tests for user-facing features
+   - Unit tests for core logic
+   - Test fixtures if needed
+6. **Client**: Update client app if needed for devtools
+   - Add UI components if needed
+   - Update RPC types
+7. **Version**: Increment package version if modifying a package
+
+### Server Middleware Pattern
+When creating server middleware:
+```typescript
+// All comments must be in English
+import { defineEventHandler } from 'h3'
+import type { H3Event } from 'h3'
+
+export const use[Name]ServerMiddleware = (
+  event: H3Event,
+  defaultLocale?: string,
+  currentLocale?: string
+): ReturnType => {
+  // Implementation with proper error handling
+  // Return structured data with proper typing
+}
+```
+- Use `defineEventHandler` from h3
+- Follow the pattern: `use[Name]ServerMiddleware`
+- Accept `event: H3Event` as first parameter
+- Return structured data with proper typing
+- Document with examples in docs
+- Include proper error handling
+- Write comments in English
+
+### Plugin Development
+- **Ordering**: Use numbered prefixes for plugin order
+  - `01.plugin.ts` - Main plugin (order: -5)
+  - `02.meta.ts` - Meta tags (order: 2)
+  - `03.define.ts` - Global define (order: 3, mode: 'all')
+  - `04.auto-detect.ts` - Auto-detection (order: 4, mode: 'server')
+  - `05.hooks.ts` - Route hooks (order: 1)
+  - `06.redirect.ts` - Redirects (order: 6, mode: 'all')
+- **Structure**:
+```typescript
+// Plugin comments in English
+import { defineNuxtPlugin } from '#imports'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  // Plugin implementation
+  // Use proper TypeScript types
+  // Include error handling and logging
+  // Write all comments in English
+})
+```
+- Follow Nuxt plugin conventions
+- Use proper TypeScript types
+- Include error handling and logging
+- Write all comments in English
+
+### Component Development
+- **Vue Components**: Use Composition API with `<script setup lang="ts">`
+- **Props**: Define with proper TypeScript types
+- **Slots**: Support named slots for flexible content
+- **Examples**:
+  - `i18n-t.vue` - Uses hyperscript for rendering
+  - `i18n-link.vue` - Wraps NuxtLink with locale logic
+  - `i18n-switcher.vue` - Locale selection UI
+- **Pattern**: Use `useNuxtApp()` for accessing i18n methods
+
+### Composable Development
+- **Pattern**: Export function starting with `use`
+- **Return Type**: Return object with methods and reactive state
+- **Example**:
+```typescript
+export function useI18n(): PluginsInjectionsWithAliases {
+  const nuxtApp = useNuxtApp()
+  // Return both $prefixed and non-prefixed versions
+  return { ...injections, ...noDollarInjections }
+}
+```
+
+### Locale Detection
+- Use shared `detectCurrentLocale` utility
+- Follow priority order:
+  1. URL params (route.params.locale)
+  2. URL path (extract from path)
+  3. Cookies (localeCookie)
+  4. Headers (Accept-Language)
+  5. Config default
+  6. Fallback to 'en'
+- Handle edge cases gracefully
+- Support custom locale detection
+- Consider hashMode and noPrefix strategies
+
+## Performance Considerations
+
+### Memory & Speed
+- Minimize bundle size - this is a performance-focused module
+- Use efficient algorithms for locale detection
+- Cache results where appropriate (compiled messages, translations)
+- Avoid unnecessary object creation
+- Prefer synchronous operations over async when possible
+- Optimize for large translation files
+- Use Map for compiled message cache (faster lookups)
+- Use RefLike interface to avoid Vue dependency in core
+
+### Build Optimization
+- Use tree-shaking friendly exports
+- Minimize dependencies
+- Use workspace packages for internal functionality
+- Optimize for both development and production builds
+- Support pre-rendering for translations
+- Use unbuild for package builds (CJS + ESM)
+- Generate proper TypeScript declarations
+
+### Client Application
+- Keep client app lightweight
+- Use efficient Vue 3 patterns
+- Minimize bundle size for devtools
+- Support real-time updates
+- Use RPC for client-server communication
+
+### Caching Strategy
+- **Compiled Messages**: Cache compiled translation functions
+- **Translation Data**: Cache loaded translations per locale/route
+- **Server Cache**: Use serverTranslationCache for SSR
+- **Clear Cache**: Clear compiled cache on locale switch
+
+## Error Handling
+- Provide meaningful error messages
+- Use proper error types
+- Log errors appropriately in debug mode
+- Gracefully handle missing translations
+- Validate configuration early
+- Handle edge cases in locale detection
+- Use try-catch for async operations
+- Return null/undefined for missing values (don't throw)
+
+## Security Considerations
+- Validate locale inputs
+- Sanitize translation content (if rendering HTML)
+- Handle malicious input gracefully
+- Follow security best practices for web modules
+- Validate configuration options
+- Don't expose sensitive data in error messages
+
+## Development Workflow
+
+### Before Committing
+1. Run `pnpm lint` to check code style
+2. Run `pnpm test` to ensure tests pass
+3. Run `pnpm typecheck` to verify types
+4. Run `pnpm test:types` for Vue type checking
+5. Update documentation if needed
+6. Test in playground environment
+7. Test client application if changes affect devtools
+8. **Verify package version has been incremented** if modifying a package
+9. **Ensure all comments are in English**
+
+### Package Management
+- Use pnpm workspaces for monorepo
+- Keep dependencies minimal
+- Use workspace:* for internal packages
+- Maintain consistent versions across packages
+- Build packages in correct order
+- **Increment package version when making changes**
+
+### Build Process
+- Use `nuxt-module-builder` for main module
+- Use `unbuild` for packages (see `build.config.ts`)
+- Build packages in correct order: types → core → others → main
+- Generate proper TypeScript declarations
+- Create optimized bundles (CJS + ESM)
+- Support both development and production builds
+
+### Git Workflow
+- Use descriptive commit messages
+- Reference issues in commits
+- Keep commits focused (one feature/fix per commit)
+- Test before committing
+- Update CHANGELOG for user-facing changes
+
+## Common Patterns
+
+### Service Classes
+```typescript
+// Service class pattern
+export class ServiceName {
+  constructor(
+    private config: ConfigType,
+    private dependencies: DependencyType
+  ) {}
+
+  public publicMethod(): ReturnType {
+    // Implementation
+  }
+
+  private privateMethod(): void {
+    // Internal logic
+  }
+}
+```
+
+### Abstract Base Classes
+```typescript
+// Abstract base class pattern
+export abstract class BaseClass {
+  public abstract getLocale(): string
+  public abstract getFallbackLocale(): string
+  
+  public concreteMethod(): string {
+    // Implementation using abstract methods
+    return this.getLocale()
+  }
+}
+```
+
+### Helper Functions
+```typescript
+// Helper function pattern
+export function helperFunction(param: Type): ReturnType {
+  // Pure function implementation
+  return result
+}
+```
+
+### Type Definitions
+```typescript
+// Interface documentation in English
+/**
+ * Options for [Feature]
+ * @example
+ * const options: [Name]Options = { ... }
+ */
+export interface [Name]Options {
+  // Options interface with proper documentation
+}
+
+export interface [Name]Result {
+  // Result interface with proper documentation
+}
+```
+
+### Plugin Structure
+```typescript
+// Plugin comments in English
+import { defineNuxtPlugin } from '#imports'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  // Plugin implementation with proper error handling
+  // Use nuxtApp for accessing Nuxt APIs
+})
+```
+
+### Component Structure
+```vue
+<script setup lang="ts">
+// TypeScript with proper types
+// All comments in English
+import { useNuxtApp } from '#imports'
+
+const { $t } = useNuxtApp()
+</script>
+
+<template>
+  <!-- Vue 3 composition API -->
+  <div>{{ $t('key') }}</div>
+</template>
+```
+
+### Composable Structure
+```typescript
+// Composable pattern
+export function useFeature(): ReturnType {
+  const nuxtApp = useNuxtApp()
+  // Implementation
+  return {
+    // Exposed methods and state
+  }
+}
+```
+
+## Routing Strategies
+
+### Strategy Types
+1. **`no_prefix`**: No locale prefix in URLs
+   - All locales accessible without prefix
+   - Uses cookies/headers for locale detection
+2. **`prefix_except_default`**: Prefix for all except default locale
+   - Default locale: `/` (no prefix)
+   - Other locales: `/locale/` (with prefix)
+3. **`prefix`**: Prefix for all locales including default
+   - All locales: `/locale/` (with prefix)
+   - Fallback route for non-prefixed paths
+4. **`prefix_and_default`**: Prefix for all, but default also accessible without prefix
+   - Default locale: `/` and `/locale/` (both work)
+   - Other locales: `/locale/` (with prefix)
+
+### Strategy Implementation
+- Use helper functions: `isNoPrefixStrategy`, `isPrefixStrategy`, etc.
+- Handle route generation per strategy
+- Support fallback routes where needed
+- Test all strategies in E2E tests
+
+## Translation System
+
+### Translation Loading
+- **Global Translations**: `locales/{locale}.json`
+- **Page Translations**: `locales/pages/{pageName}/{locale}.json`
+- **API Endpoint**: `/{apiBaseUrl}/{pageName}/{locale}/data.json`
+- **Caching**: Multiple cache layers (general, route, server, compiled)
+
+### Translation Methods
+- `$t(key, params, defaultValue, routeName, locale)` - Main translation method
+- `$ts(key, params, defaultValue, routeName, locale)` - String translation (returns string)
+- `$tc(key, params, defaultValue, routeName, locale)` - Plural translation
+- `$tn(number, locale)` - Number formatting
+- `$td(date, locale)` - Date formatting
+- `$tdr(date, locale)` - Relative date formatting
+- `$has(key, routeName, locale)` - Check if translation exists
+
+### Pluralization
+- Use `PluralFunc` for custom plural rules
+- Default plural function supports English rules
+- Pass count in params: `{ count: 5 }`
+- Returns `PluralTranslations` with `singular` and `plural` keys
+
+## Important Reminders
+
+1. **All comments must be in English** - this is mandatory
+2. **Increment package version** when modifying any package in `packages/*/`
+3. **Do not modify root version** - it's managed automatically
+4. This module prioritizes performance and efficiency
+5. Every change should consider its impact on bundle size, build time, and runtime performance
+6. The client application should remain lightweight and provide excellent developer experience
+7. Write comprehensive tests for new features
+8. Update documentation when adding features
+9. Follow established patterns and conventions
+10. Use TypeScript strictly - avoid `any` types

@@ -100,12 +100,12 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
   const injectedLocales = useI18nLocales()
   const injectedDefaultLocale = useI18nDefaultLocale()
 
-  // --- Замена useSyncExternalStore для Pure Preact ---
-  // Подписываемся на изменения в i18n и форсируем ре-рендер
+  // --- Replacement for useSyncExternalStore for Pure Preact ---
+  // Subscribe to changes in i18n and force re-render
   const [, forceUpdate] = useState(0)
 
   useEffect(() => {
-    // subscribe возвращает функцию отписки
+    // subscribe returns unsubscribe function
     const unsubscribe = i18n.subscribe(() => {
       forceUpdate(n => n + 1)
     })

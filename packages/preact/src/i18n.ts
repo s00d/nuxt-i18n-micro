@@ -30,7 +30,7 @@ export class PreactI18n extends BaseI18n {
   private listeners = new Set<() => void>()
   private revision = 0
 
-  // Cache для Core (plain objects, не реактивные)
+  // Cache for Core (plain objects, not reactive)
   public readonly cache: TranslationCache
 
   constructor(options: PreactI18nOptions) {
@@ -56,7 +56,7 @@ export class PreactI18n extends BaseI18n {
     this._locale = options.locale
     this._fallbackLocale = options.fallbackLocale || options.locale
 
-    // Загружаем начальные сообщения
+    // Load initial messages
     if (options.messages) {
       for (const [lang, msgs] of Object.entries(options.messages)) {
         this.helper.loadTranslations(lang, msgs)
@@ -64,7 +64,7 @@ export class PreactI18n extends BaseI18n {
     }
   }
 
-  // Для useSyncExternalStore
+  // For useSyncExternalStore
   subscribe = (listener: () => void) => {
     this.listeners.add(listener)
     return () => {
@@ -73,8 +73,8 @@ export class PreactI18n extends BaseI18n {
   }
 
   getSnapshot = () => {
-    // Возвращаем комбинированную строку локали и ревизии кэша
-    // Это заставит компонент перерендериться при изменении
+    // Return combined string of locale and cache revision
+    // This will force component to re-render on change
     return `${this._locale}:${this._currentRoute}:${this.revision}`
   }
 
@@ -85,7 +85,7 @@ export class PreactI18n extends BaseI18n {
     })
   }
 
-  // Геттер/Сеттер для локали
+  // Getter/Setter for locale
   get locale(): string {
     return this._locale
   }
@@ -97,7 +97,7 @@ export class PreactI18n extends BaseI18n {
     }
   }
 
-  // Геттер/Сеттер для fallback локали
+  // Getter/Setter for fallback locale
   get fallbackLocale(): string {
     return this._fallbackLocale
   }
@@ -106,7 +106,7 @@ export class PreactI18n extends BaseI18n {
     this._fallbackLocale = val
   }
 
-  // Геттер/Сеттер для текущего роута
+  // Getter/Setter for current route
   get currentRoute(): string {
     return this._currentRoute
   }

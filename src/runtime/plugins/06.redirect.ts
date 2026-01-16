@@ -7,10 +7,10 @@ import { findAllowedLocalesForRoute } from '../utils/route-utils'
 import { joinURL, withQuery } from 'ufo'
 
 /**
- * Хелпер для подстановки динамических параметров в шаблон пути.
- * @param {string} path - Шаблон пути, например, "campingplatz/:identifier".
- * @param {object} params - Объект с параметрами, например, {identifier: 'example-campsite'}.
- * @returns {string} - Путь с подставленными параметрами.
+ * Helper to substitute dynamic parameters into path template.
+ * @param {string} path - Path template, e.g., "campingplatz/:identifier".
+ * @param {object} params - Object with parameters, e.g., {identifier: 'example-campsite'}.
+ * @returns {string} - Path with substituted parameters.
  */
 function resolvePathWithParams(path: string, params: Record<string, unknown>): string {
   let resolvedPath = path
@@ -56,16 +56,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const customPathSegment = localeToUse ? routeRules[localeToUse] : undefined
 
       if (customPathSegment) {
-        // --- КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ ---
-        // 1. Подставляем параметры в шаблон кастомного пути
+        // --- KEY FIX ---
+        // 1. Substitute parameters into custom path template
         const resolvedCustomPath = resolvePathWithParams(customPathSegment, to.params)
 
-        // 2. Собираем полный ожидаемый путь
+        // 2. Build full expected path
         const localizedPath = firstSegment && locales.includes(firstSegment)
           ? joinURL(`/${firstSegment}`, resolvedCustomPath)
           : resolvedCustomPath
 
-        // 3. Сравниваем декодированные пути, чтобы избежать проблем с кириллицей
+        // 3. Compare decoded paths to avoid issues with Cyrillic characters
         if (decodeURI(to.path) !== decodeURI(localizedPath)) {
           const finalUrl = withQuery(localizedPath, to.query)
           navigateTo(finalUrl, { redirectCode: 301, external: true })

@@ -7,7 +7,7 @@ import type {
   PluralFunc,
   TranslationKey,
 } from '@i18n-micro/types'
-// Импортируем нашу общую логику загрузки
+// Import our shared loading logic
 import { loadTranslations } from './loader'
 
 export interface I18nOptions {
@@ -107,18 +107,18 @@ export class I18n extends BaseI18n {
       return
     }
 
-    // Используем общую утилиту
+    // Use shared utility
     const { global, routes } = await loadTranslations(targetDir, this.disablePageLocales)
 
-    // 1. Загружаем глобальные
+    // 1. Load global translations
     for (const [locale, translations] of Object.entries(global)) {
       this.helper.mergeGlobalTranslation(locale, translations, true)
     }
 
-    // 2. Загружаем страничные (роуты)
+    // 2. Load page-specific translations (routes)
     for (const [routeName, routeLocales] of Object.entries(routes)) {
       for (const [locale, translations] of Object.entries(routeLocales)) {
-        // Используем loadPageTranslations для первоначальной загрузки, затем merge для обновлений
+        // Use loadPageTranslations for initial load, then merge for updates
         await this.helper.loadPageTranslations(locale, routeName, translations)
       }
     }

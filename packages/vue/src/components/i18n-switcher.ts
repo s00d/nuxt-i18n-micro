@@ -211,17 +211,17 @@ export const I18nSwitcher = defineComponent({
       return Array.isArray(slotResult) ? slotResult : [slotResult as VNode]
     }
 
-    // Упрощенная и надежная логика клика снаружи
+    // Simplified and reliable click outside logic
     const handleClickOutside = (event: MouseEvent) => {
       if (!dropdownOpen.value) return
 
       const target = event.target as HTMLElement
       if (!target || !wrapperRef.value) return
 
-      // Проверяем, что клик не внутри нашего враппера
+      // Check that click is not inside our wrapper
       const isClickInside = wrapperRef.value.contains(target)
 
-      // Также проверяем, не является ли цель кнопкой переключателя
+      // Also check if target is not the switcher button
       const isButtonClick = target.closest('.i18n-switcher-button') !== null
 
       if (!isClickInside && !isButtonClick) {
@@ -230,7 +230,7 @@ export const I18nSwitcher = defineComponent({
     }
 
     onMounted(() => {
-      // Используем обычное всплытие, но с небольшой задержкой, чтобы дать время dropdown открыться
+      // Use regular bubbling, but with small delay to give dropdown time to open
       document.addEventListener('click', handleClickOutside)
     })
 
@@ -328,7 +328,7 @@ export const I18nSwitcher = defineComponent({
                 ...(isActive ? activeLinkStyle : {}),
                 ...props.customLinkStyle,
               },
-              // Предотвращаем стандартную навигацию, используем только handleSwitchLocale
+              // Prevent standard navigation, use only handleSwitchLocale
               onClick: (e: MouseEvent) => {
                 e.preventDefault()
                 e.stopPropagation()
@@ -353,7 +353,7 @@ export const I18nSwitcher = defineComponent({
           dropdownItems.push(...(normalizeSlot(slots['after-dropdown-items']()) as VNode[]))
         }
 
-        // Рендерим UL прямо здесь, БЕЗ Teleport
+        // Render UL directly here, WITHOUT Teleport
         children.push(
           h('ul', {
             class: 'i18n-switcher-dropdown',
@@ -366,7 +366,7 @@ export const I18nSwitcher = defineComponent({
         children.push(...normalizeSlot(slots['after-dropdown']()))
       }
 
-      // Возвращаем wrapper с ref
+      // Return wrapper with ref
       return h('div', {
         ref: wrapperRef,
         class: 'i18n-switcher-wrapper',

@@ -1,6 +1,6 @@
 <template>
   <div class="pagination">
-    <!-- Кнопка "Previous" -->
+    <!-- "Previous" button -->
     <button
       :disabled="currentPage === 1"
       class="pagination-button"
@@ -9,7 +9,7 @@
       Previous
     </button>
 
-    <!-- Первые страницы -->
+    <!-- First pages -->
     <template v-if="currentPage > 3">
       <button
         v-for="page in firstPages"
@@ -25,7 +25,7 @@
       >...</span>
     </template>
 
-    <!-- Текущий диапазон страниц -->
+    <!-- Current page range -->
     <button
       v-for="page in visiblePages"
       :key="page"
@@ -35,7 +35,7 @@
       {{ page }}
     </button>
 
-    <!-- Последние страницы -->
+    <!-- Last pages -->
     <template v-if="currentPage < totalPages - 2">
       <span
         v-if="currentPage < totalPages - 3"
@@ -51,7 +51,7 @@
       </button>
     </template>
 
-    <!-- Кнопка "Next" -->
+    <!-- "Next" button -->
     <button
       :disabled="currentPage === totalPages || totalPages === 0"
       class="pagination-button"
@@ -74,17 +74,17 @@ const emit = defineEmits<{
   (event: 'update:page', page: number): void
 }>()
 
-// Первые две страницы
+// First two pages
 const firstPages = computed(() => {
   return [1, 2].filter(page => page <= props.totalPages)
 })
 
-// Последние две страницы
+// Last two pages
 const lastPages = computed(() => {
   return [props.totalPages - 1, props.totalPages].filter(page => page >= 1)
 })
 
-// Видимые страницы вокруг текущей
+// Visible pages around current
 const visiblePages = computed(() => {
   const pages = []
   const startPage = Math.max(1, props.currentPage - 2)
@@ -96,7 +96,7 @@ const visiblePages = computed(() => {
   return pages
 })
 
-// Переход на страницу
+// Navigate to page
 const goToPage = (page: number) => {
   if (page >= 1 && page <= props.totalPages) {
     emit('update:page', page)

@@ -185,12 +185,12 @@ export function normalizeRouteKey(key: string): string {
     .split('/')
     .map((segment) => {
       if (segment.startsWith('[...') && segment.endsWith(']')) {
-        // Случай [...slug] -> :slug(.*)*
+        // Case [...slug] -> :slug(.*)*
         const paramName = segment.substring(4, segment.length - 1)
         return `:${paramName}(.*)*`
       }
       if (segment.startsWith('[') && segment.endsWith(']')) {
-        // Случай [id] -> :id
+        // Case [id] -> :id
         const paramName = segment.substring(1, segment.length - 1)
         return `:${paramName}`
       }
@@ -200,40 +200,40 @@ export function normalizeRouteKey(key: string): string {
 }
 
 export function denormalizeRouteKey(key: string): string {
-  // Если ключ - это просто корень, возвращаем его сразу.
+  // If key is just root, return it immediately
   if (key === '/') {
     return key
   }
 
   return key
-    .split('/') // 1. Разбиваем путь на части: ['', 'product', ':slug(.*)*']
-    .map((segment) => { // 2. Преобразуем каждую часть
-      // Сначала проверяем самый специфичный случай: :slug(.*)*
+    .split('/') // 1. Split path into parts: ['', 'product', ':slug(.*)*']
+    .map((segment) => { // 2. Transform each part
+      // First check the most specific case: :slug(.*)*
       if (segment.startsWith(':') && segment.endsWith('(.*)*')) {
-        // Вырезаем имя параметра 'slug'
+        // Extract parameter name 'slug'
         const paramName = segment.substring(1, segment.length - 6)
-        return `[...${paramName}]` // Собираем обратно в [...slug]
+        return `[...${paramName}]` // Reassemble into [...slug]
       }
 
-      // Затем проверяем случай с необязательным параметром: :id()
+      // Then check case with optional parameter: :id()
       if (segment.startsWith(':') && segment.endsWith('()')) {
-        // Вырезаем имя параметра 'id'
+        // Extract parameter name 'id'
         const paramName = segment.substring(1, segment.length - 2)
-        return `[${paramName}]` // Собираем обратно в [id]
+        return `[${paramName}]` // Reassemble into [id]
       }
 
-      // Наконец, проверяем общий случай для любого динамического параметра: :id
-      // Этот блок сработает для :id, но не сработает для :slug(.*)*, так как тот уже был обработан выше.
+      // Finally, check general case for any dynamic parameter: :id
+      // This block will work for :id, but won't work for :slug(.*)* as it was already processed above
       if (segment.startsWith(':')) {
-        // Вырезаем имя параметра 'id'
+        // Extract parameter name 'id'
         const paramName = segment.substring(1)
-        return `[${paramName}]` // Собираем обратно в [id]
+        return `[${paramName}]` // Reassemble into [id]
       }
 
-      // Если это обычная часть пути, оставляем её без изменений
+      // If it's a regular path segment, leave it unchanged
       return segment
     })
-    .join('/') // 3. Собираем путь обратно в единую строку
+    .join('/') // 3. Reassemble path back into single string
 }
 
 export const normalizePath = (routePath: string): string => {

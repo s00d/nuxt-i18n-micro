@@ -83,7 +83,7 @@ These results clearly demonstrate that `Nuxt I18n Micro` significantly outperfor
 
 - 🌐 **Compact Yet Powerful**: Despite its small size, `Nuxt I18n Micro` is designed for **large-scale projects**, focusing on performance and efficiency.
 - ⚡ **Optimized Build and Runtime**: Reduces build times, memory usage, and server load, making it ideal for **high-traffic applications**.
-- 🛠️ **Minimalist Design**: The module is structured around just **5 components** (1 module and 4 plugins), making it easy to understand, extend, and maintain.
+- 🛠️ **Minimalist Design**: The module is structured around just **5 components** (1 module and 4 plugins), with core logic centralized in the `NuxtI18n` class that extends `BaseI18n`. This unified architecture makes it easy to understand, extend, and maintain while enabling code reuse across framework integrations.
 - 📏 **Efficient Routing**: Generates only **2 routes** regardless of the number of locales, thanks to dynamic regex-based routing, unlike other i18n modules that generate separate routes for each locale.
 - 🗂 **Streamlined Translation Loading**: Only **JSON files** are supported, with translations split between a global file for common texts (e.g., menus) and page-specific files, which are auto-generated in the `dev` mode if not present.
 

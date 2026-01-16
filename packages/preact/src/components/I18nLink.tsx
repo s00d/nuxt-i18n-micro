@@ -90,7 +90,7 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
       props.onClick(e)
     }
 
-    // Если это не внешний линк и нет модификаторов (ctrl/meta)
+    // If this is not an external link and no modifiers (ctrl/meta)
     if (!e.defaultPrevented && !e.button && !e.metaKey && !e.ctrlKey && router && !isExternalLink()) {
       e.preventDefault()
       router.push({ path: toValue })

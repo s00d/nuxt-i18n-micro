@@ -8,6 +8,12 @@ The `useI18n` composable in `Nuxt I18n Micro` is designed to provide an easy and
 
 **All methods can be accessed both with and without the `$` prefix** for convenience.
 
+::: tip Under the Hood
+
+The `useI18n` composable provides access to methods from the `NuxtI18n` instance, which extends `BaseI18n` from `@i18n-micro/core`. This unified architecture ensures consistent behavior across all framework integrations. For more details, see the [Architecture Guide](/guide/architecture).
+
+:::
+
 ## ⚙️ Return Values
 
 The `useI18n` composable returns an object containing several key methods and properties for managing internationalization:

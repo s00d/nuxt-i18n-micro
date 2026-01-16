@@ -13,16 +13,16 @@ interface I18nLinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
 export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
   const router = useI18nRouter()
   const i18n = useI18nContext()
-  // Разделяем пропсы: явно выделяем style, чтобы объединить его с activeStyle
+  // Split props: explicitly extract style to merge it with activeStyle
   const [local, others] = splitProps(props, ['to', 'localeRoute', 'activeStyle', 'style', 'children'])
 
-  // 1. Получаем accessor для текущего пути из роутера
+  // 1. Get accessor for current path from router
   const extendedRouter = router as I18nRoutingStrategy & { getCurrentPathAccessor?: Accessor<string> }
   const pathnameAccessor = extendedRouter?.getCurrentPathAccessor
 
-  // 2. Вычисление целевого пути (href) - реактивно отслеживает изменения локали
+  // 2. Calculate target path (href) - reactively tracks locale changes
   const targetPath = createMemo(() => {
-    // Используем реактивный accessor для отслеживания изменений локали
+    // Use reactive accessor to track locale changes
     const currentLocale = i18n.localeAccessor()
     let result: string
     if (local.localeRoute) {
@@ -42,7 +42,7 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     return result
   })
 
-  // 3. Проверка на внешнюю ссылку
+  // 3. Check for external link
   const isExternal = createMemo(() => {
     if (typeof local.to === 'string') {
       return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(local.to)
@@ -50,41 +50,41 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     return false
   })
 
-  // 4. Вычисление активного состояния
-  // Важно: вызываем pathnameAccessor() внутри createMemo для правильного отслеживания изменений
+  // 4. Calculate active state
+  // Important: call pathnameAccessor() inside createMemo for proper change tracking
   const isActive = createMemo(() => {
     if (isExternal()) {
       return false
     }
 
-    // Получаем текущий путь - вызываем accessor внутри createMemo для реактивности
+    // Get current path - call accessor inside createMemo for reactivity
     const current = pathnameAccessor
-      ? pathnameAccessor() // Вызов accessor внутри createMemo отслеживает изменения
+      ? pathnameAccessor() // Calling accessor inside createMemo tracks changes
       : (router ? router.getCurrentPath() : (typeof window !== 'undefined' ? window.location.pathname : '/'))
     const target = targetPath()
 
-    // Нормализация для сравнения (убираем слэш в конце, если это не корень)
+    // Normalize for comparison (remove trailing slash if not root)
     const normCurrent = current === '/' ? '/' : current.replace(/\/$/, '')
     const normTarget = target === '/' ? '/' : target.replace(/\/$/, '')
 
     return normCurrent === normTarget
   })
 
-  // 5. Объединение стилей - используем isActive напрямую для реактивности
+  // 5. Merge styles - use isActive directly for reactivity
   const mergedStyle = createMemo(() => {
     const baseStyle = local.style || {}
-    // Вызываем isActive() внутри createMemo для отслеживания изменений
+    // Call isActive() inside createMemo to track changes
     const active = isActive()
     const activeStyle = active ? (local.activeStyle || {}) : {}
 
-    // SolidJS умеет работать с объектами стилей корректно при слиянии
+    // SolidJS handles style objects correctly when merging
     return {
       ...(typeof baseStyle === 'object' ? baseStyle : {}),
       ...(typeof activeStyle === 'object' ? activeStyle : {}),
     } as JSX.CSSProperties
   })
 
-  // Используем linkComponent из роутера, если доступен
+  // Use linkComponent from router if available
   const LinkComponent = router?.linkComponent
 
   if (isExternal()) {
@@ -102,7 +102,7 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     ) as unknown as JSX.Element
   }
 
-  // Если есть linkComponent из роутера (например, A из @solidjs/router), используем его
+  // If there's linkComponent from router (e.g., A from @solidjs/router), use it
   if (LinkComponent) {
     return (
       // @ts-expect-error - Type conflict with router component types
@@ -116,7 +116,7 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     ) as unknown as JSX.Element
   }
 
-  // Fallback на нативный <a> с onClick обработчиком
+  // Fallback to native <a> with onClick handler
   return (
     // @ts-expect-error - Type conflict with Vue JSX
     <a

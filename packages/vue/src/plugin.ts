@@ -42,11 +42,11 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
   }
 
   return {
-    global: i18n, // Доступ к инстансу вне компонентов
-    setRoutingStrategy, // Метод для установки адаптера после создания
+    global: i18n, // Access to instance outside components
+    setRoutingStrategy, // Method to set adapter after creation
     install(app: App) {
       currentApp = app
-      // 1. Provide для useI18n
+      // 1. Provide for useI18n
       app.provide(I18nInjectionKey, i18n)
 
       // 2. Provide routing strategy if provided
@@ -63,7 +63,7 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
         app.provide(I18nDefaultLocaleKey, defaultLocale)
       }
 
-      // 4. Глобальные свойства ($t, $tc, и т.д.)
+      // 4. Global properties ($t, $tc, etc.)
       // Note: In templates, these may be called with string literals, so we use TranslationKey type
       app.config.globalProperties.$t = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string | null, routeName?: string) => {
         return i18n.t(key, params, defaultValue, routeName)
@@ -91,7 +91,7 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       app.config.globalProperties.$i18n = i18n as any
 
-      // 5. Регистрация компонентов
+      // 5. Register components
       app.component('I18nT', I18nT)
       app.component('I18nLink', I18nLink)
       app.component('I18nGroup', I18nGroup)

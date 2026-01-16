@@ -1,6 +1,6 @@
 import type { Params, CleanTranslation, TranslationKey } from '@i18n-micro/types'
 
-// Расширяем модуль '@vue/runtime-core', чтобы типы работали корректно во всех средах
+// Extend '@vue/runtime-core' module so types work correctly in all environments
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     $t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation

@@ -6,6 +6,12 @@ outline: deep
 
 This page documents all available methods provided by nuxt-i18n-micro. Methods are organized by functionality for easier navigation.
 
+::: tip Architecture
+
+All translation methods (`$t`, `$tc`, `$ts`, etc.) are provided by the `NuxtI18n` class, which extends `BaseI18n` from `@i18n-micro/core`. This unified architecture ensures consistent behavior and optimal performance. For more details, see the [Architecture Guide](/guide/architecture).
+
+:::
+
 
 ## 🌍 Locale Management
 

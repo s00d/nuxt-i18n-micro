@@ -22,14 +22,14 @@ export class VueI18n extends BaseI18n {
   private _fallbackLocale: Ref<string>
   private _currentRoute: Ref<string>
 
-  // Реактивный кэш, совместимый с RefLike из core
+  // Reactive cache, compatible with RefLike from core
   public readonly cache: TranslationCache
 
-  // Слушатели изменений для DevTools
+  // Change listeners for DevTools
   private listeners: Set<() => void> = new Set()
 
   constructor(options: VueI18nOptions) {
-    // Создаем реактивные хранилища для Core
+    // Create reactive stores for Core
     const cache: TranslationCache = {
       generalLocaleCache: shallowRef<Record<string, Translations>>({}),
       routeLocaleCache: shallowRef<Record<string, Translations>>({}),
@@ -52,7 +52,7 @@ export class VueI18n extends BaseI18n {
     this._fallbackLocale = ref(options.fallbackLocale || options.locale)
     this._currentRoute = ref('general')
 
-    // Загружаем начальные сообщения
+    // Load initial messages
     if (options.messages) {
       for (const [lang, msgs] of Object.entries(options.messages)) {
         this.helper.loadTranslations(lang, msgs)
@@ -60,7 +60,7 @@ export class VueI18n extends BaseI18n {
     }
   }
 
-  // Геттер/Сеттер для локали
+  // Getter/Setter for locale
   get locale(): Ref<string> {
     return this._locale
   }
@@ -74,7 +74,7 @@ export class VueI18n extends BaseI18n {
     }
   }
 
-  // Геттер/Сеттер для fallback локали
+  // Getter/Setter for fallback locale
   get fallbackLocale(): Ref<string> {
     return this._fallbackLocale
   }
@@ -88,7 +88,7 @@ export class VueI18n extends BaseI18n {
     }
   }
 
-  // Геттер/Сеттер для текущего роута
+  // Getter/Setter for current route
   get currentRoute(): Ref<string> {
     return this._currentRoute
   }
@@ -111,11 +111,11 @@ export class VueI18n extends BaseI18n {
     return this._currentRoute.value
   }
 
-  // Методы для добавления переводов (реактивно) - uses protected methods from base class
+  // Methods for adding translations (reactive) - uses protected methods from base class
   public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
     super.loadTranslationsCore(locale, translations, merge)
-    // Триггерим реактивность для shallowRef после изменения объекта внутри
-    // В Vue пакете cache всегда содержит shallowRef, поэтому используем type assertion
+    // Trigger reactivity for shallowRef after changing object inside
+    // In Vue package cache always contains shallowRef, so use type assertion
     triggerRef(this.cache.generalLocaleCache as Ref<Record<string, Translations>>)
     this.notifyListeners()
   }
@@ -127,28 +127,28 @@ export class VueI18n extends BaseI18n {
     merge: boolean = true,
   ): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
-    // Триггерим реактивность для shallowRef после изменения объекта внутри
+    // Trigger reactivity for shallowRef after changing object inside
     triggerRef(this.cache.routeLocaleCache as Ref<Record<string, Translations>>)
     this.notifyListeners()
   }
 
   public mergeTranslations(locale: string, routeName: string, translations: Translations): void {
     this.helper.mergeTranslation(locale, routeName, translations, true)
-    // Триггерим реактивность для shallowRef после изменения объекта внутри
+    // Trigger reactivity for shallowRef after changing object inside
     triggerRef(this.cache.routeLocaleCache as Ref<Record<string, Translations>>)
     this.notifyListeners()
   }
 
   public mergeGlobalTranslations(locale: string, translations: Translations): void {
     this.helper.mergeGlobalTranslation(locale, translations, true)
-    // Триггерим реактивность для shallowRef после изменения объекта внутри
+    // Trigger reactivity for shallowRef after changing object inside
     triggerRef(this.cache.generalLocaleCache as Ref<Record<string, Translations>>)
     this.notifyListeners()
   }
 
   public override clearCache(): void {
     super.clearCache()
-    // Триггерим реактивность для всех shallowRef после очистки кэша
+    // Trigger reactivity for all shallowRef after clearing cache
     triggerRef(this.cache.generalLocaleCache as Ref<Record<string, Translations>>)
     triggerRef(this.cache.routeLocaleCache as Ref<Record<string, Translations>>)
     triggerRef(this.cache.dynamicTranslationsCaches as Ref<Record<string, Translations>[]>)
@@ -156,7 +156,7 @@ export class VueI18n extends BaseI18n {
     this.notifyListeners()
   }
 
-  // Подписка на изменения для DevTools
+  // Subscribe to changes for DevTools
   public subscribeToChanges(cb: () => void): () => void {
     this.listeners.add(cb)
     return () => {
@@ -164,7 +164,7 @@ export class VueI18n extends BaseI18n {
     }
   }
 
-  // Уведомление подписчиков об изменениях
+  // Notify subscribers about changes
   private notifyListeners(): void {
     this.listeners.forEach((cb) => {
       cb()

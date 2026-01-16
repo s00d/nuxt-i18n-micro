@@ -23,15 +23,15 @@ export class AstroI18n extends BaseI18n {
   private _fallbackLocale: string
   private _currentRoute: string
 
-  // Кэш для Core (без Vue реактивности)
+  // Cache for Core (without Vue reactivity)
   public readonly cache: TranslationCache
 
-  // Сохраняем начальные переводы для восстановления после clearCache
+  // Save initial translations to restore after clearCache
   private initialMessages: Record<string, Translations> = {}
 
   constructor(options: AstroI18nOptions) {
-    // Если передан существующий кэш (от глобального инстанса), используем его.
-    // Иначе создаем новый.
+    // If existing cache is passed (from global instance), use it
+    // Otherwise create new one
     const cache: TranslationCache = options._cache || {
       generalLocaleCache: {},
       routeLocaleCache: {},
@@ -54,9 +54,9 @@ export class AstroI18n extends BaseI18n {
     this._fallbackLocale = options.fallbackLocale || options.locale
     this._currentRoute = 'general'
 
-    // Загружаем начальные сообщения (только если это первичная инициализация или добавление новых)
+    // Load initial messages (only if this is primary initialization or adding new ones)
     if (options.messages) {
-      // Сохраняем начальные переводы для восстановления после clearCache
+      // Save initial translations to restore after clearCache
       this.initialMessages = { ...options.messages }
       for (const [lang, msgs] of Object.entries(options.messages)) {
         this.helper.loadTranslations(lang, msgs)
@@ -109,11 +109,11 @@ export class AstroI18n extends BaseI18n {
       plural: this.pluralFunc,
       missingWarn: this.missingWarn,
       missingHandler: this.missingHandler,
-      _cache: isolatedCache, // Изолированный кэш для предотвращения утечек памяти
+      _cache: isolatedCache, // Isolated cache to prevent memory leaks
     })
   }
 
-  // Геттер/Сеттер для локали
+  // Getter/Setter for locale
   get locale(): string {
     return this._locale
   }
@@ -122,7 +122,7 @@ export class AstroI18n extends BaseI18n {
     this._locale = val
   }
 
-  // Геттер/Сеттер для fallback локали
+  // Getter/Setter for fallback locale
   get fallbackLocale(): string {
     return this._fallbackLocale
   }
@@ -131,7 +131,7 @@ export class AstroI18n extends BaseI18n {
     this._fallbackLocale = val
   }
 
-  // Геттер/Сеттер для текущего роута
+  // Getter/Setter for current route
   get currentRoute(): string {
     return this._currentRoute
   }
@@ -171,7 +171,7 @@ export class AstroI18n extends BaseI18n {
     return null
   }
 
-  // Методы для добавления переводов
+  // Methods for adding translations
   public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
     super.loadTranslationsCore(locale, translations, merge)
   }
@@ -194,13 +194,13 @@ export class AstroI18n extends BaseI18n {
   }
 
   public override clearCache(): void {
-    // Сохраняем начальные переводы перед очисткой
+    // Save initial translations before clearing
     const initialMessages = { ...this.initialMessages }
 
-    // Очищаем кэш
+    // Clear cache
     super.clearCache()
 
-    // Восстанавливаем начальные переводы
+    // Restore initial translations
     if (Object.keys(initialMessages).length > 0) {
       for (const [lang, msgs] of Object.entries(initialMessages)) {
         this.helper.loadTranslations(lang, msgs)

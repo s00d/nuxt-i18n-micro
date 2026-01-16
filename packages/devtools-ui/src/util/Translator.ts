@@ -81,8 +81,8 @@ export class Translator {
   }
 
   /**
-   * Очищает текст перед переводом.
-   * Заменяет специальные конструкции на временные метки.
+   * Cleans text before translation.
+   * Replaces special constructs with temporary markers.
    */
   private clearText(text: string): string {
     const regex = /:[a-zA-Z0-9]+|<[^>]*>|\{['"][@$|{}]['"]\}/gu
@@ -95,8 +95,8 @@ export class Translator {
   }
 
   /**
-   * Восстанавливает текст после перевода.
-   * Заменяет временные метки на оригинальные значения.
+   * Restores text after translation.
+   * Replaces temporary markers with original values.
    */
   private revertText(text: string): string {
     const restoredText = this.clearBuffer.reduce((acc, match, index) => {

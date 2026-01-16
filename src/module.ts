@@ -423,15 +423,15 @@ ${accepts}
         const strategy = options.strategy!
 
         if (isPrefixStrategy(strategy)) {
-          // --- Логика для 'prefix' ---
-          // 1. Удаляем корневой маршрут, чтобы он не перехватывал '/'.
+          // --- Logic for 'prefix' ---
+          // 1. Remove root route so it doesn't intercept '/'
           const rootPageIndex = pages.findIndex(page => page.name === 'index' && page.path === '/')
           if (rootPageIndex > -1) {
             pages.splice(rootPageIndex, 1)
           }
 
-          // 2. Добавляем fallback, который перехватит ВСЕ непрефиксные URL
-          //    и перенаправит их на версию с дефолтной локалью.
+          // 2. Add fallback that will intercept ALL non-prefixed URLs
+          //    and redirect them to version with default locale
           const fallbackRoute: NuxtPage = {
             path: '/:pathMatch(.*)*',
             name: 'custom-fallback-route',
@@ -454,8 +454,8 @@ ${accepts}
           }
           pages.push(fallbackRoute)
         }
-        // Для 'prefix_and_default' и 'no_prefix' fallback не нужен,
-        // так как все непрефиксные пути являются валидными.
+        // For 'prefix_and_default' and 'no_prefix' fallback is not needed,
+        // as all non-prefixed paths are valid
       }
 
       if (!isNoPrefixStrategy(options.strategy!)) {
@@ -656,7 +656,7 @@ ${accepts}
       }
     })
 
-    // Регистрируем Nitro-плагин для инвалидирования server storage в dev
+    // Register Nitro plugin for invalidating server storage in dev
     nuxt.hook('nitro:config', (nitroConfig) => {
       if (nuxt.options.dev && (options.experimental?.hmr ?? true)) {
         nitroConfig.plugins = nitroConfig.plugins || []

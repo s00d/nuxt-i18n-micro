@@ -152,14 +152,14 @@ const {
 
 const file = ref<HTMLInputElement | null>(null)
 
-// Локальное состояние для хранения изменений
+// Local state to store changes
 const localContent = ref<TranslationContent>({})
 
 onMounted(() => {
   loadSettings()
 })
 
-// Инициализация локального состояния при изменении selectedFileContent
+// Initialize local state when selectedFileContent changes
 watch(
   selectedFileContent,
   (newContent) => {
@@ -184,15 +184,15 @@ const handleSave = async () => {
 }
 
 watch(selectedFile, (val) => {
-  // Нормализуем путь для поиска
+  // Normalize path for search
   const normalizedPath = val.replace(/^\/+/, '').replace(/\\/g, '/')
   localContent.value = locales.value[normalizedPath] ?? locales.value[val] ?? (val.startsWith('/') ? locales.value[val.slice(1)] : {}) ?? {}
 })
 
-// Модальное окно для статистики
+// Modal window for statistics
 const isStatisticsModalVisible = ref(false)
 
-// Показать модальное окно с статистикой
+// Show modal window with statistics
 const showStatisticsModal = () => {
   isStatisticsModalVisible.value = true
 }

@@ -1,6 +1,6 @@
 // src/runtime/plugins/05.hooks.ts
 
-// УБИРАЕМ: import { useTranslationHelper } from '@i18n-micro/core'
+// REMOVED: import { useTranslationHelper } from '@i18n-micro/core'
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { defineNuxtPlugin, useRuntimeConfig, useRouter, useNuxtApp } from '#imports'
@@ -13,15 +13,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
   const { $getLocale, $getRouteName } = useNuxtApp()
 
-  // --- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ ---
-  // Получаем helper, созданный в плагине 01.plugin.ts
-  // Он уже работает с изолированным кэшем для этого запроса.
-  // Используем `nuxtApp.$i18n.helper` или `nuxtApp.helper`, в зависимости от того, как вы назвали в provide
+  // --- KEY CHANGE ---
+  // Get helper created in plugin 01.plugin.ts
+  // It already works with isolated cache for this request
+  // Use `nuxtApp.$i18n.helper` or `nuxtApp.helper` depending on how you named it in provide
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const i18nHelper = nuxtApp.$i18n.helper
 
-  // Проверяем, что helper доступен, на всякий случай
+  // Check that helper is available, just in case
   if (!i18nHelper) {
     if (isDev) {
       console.warn('[i18n] Helper is not available. Skipping hooks plugin.')

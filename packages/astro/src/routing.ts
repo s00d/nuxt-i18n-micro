@@ -3,7 +3,7 @@
  * Extracts route name from path (e.g., /en/about -> about)
  */
 export function getRouteName(path: string, locales: string[] = []): string {
-  // Нормализуем путь
+  // Normalize path
   const cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
 
   if (!cleanPath) {

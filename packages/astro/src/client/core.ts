@@ -11,7 +11,7 @@ export interface I18nState {
   currentRoute: string
 }
 
-// Вспомогательная функция для поиска перевода в объекте Translations
+// Helper function to find translation in Translations object
 // Returns the value as-is, including objects (for nested translations)
 function findTranslation<T = unknown>(translations: Translations | null, key: string): T | null {
   if (translations === null || typeof key !== 'string') {
@@ -20,12 +20,12 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
 
   let value: string | number | boolean | Translations | unknown | null = translations
 
-  // Прямой доступ к ключу
+  // Direct key access
   if (translations[key]) {
     value = translations[key]
   }
   else {
-    // Поиск по вложенным ключам (например, "nested.message")
+    // Search by nested keys (e.g., "nested.message")
     const parts = key.toString().split('.')
     for (const part of parts) {
       if (value && typeof value === 'object' && value !== null && part in value) {
@@ -43,7 +43,7 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
 }
 
 /**
- * Чистая функция для получения перевода из состояния
+ * Pure function to get translation from state
  *
  * Note: This is a simplified version optimized for client-side islands.
  * It supports basic translation lookup, interpolation, and fallback to general translations.
@@ -64,28 +64,28 @@ export function translate(
   const route = routeName || state.currentRoute
   let value: string | number | boolean | Translations | null = null
 
-  // 1. Ищем в route-specific переводах
+  // 1. Search in route-specific translations
   if (state.translations[route]) {
     value = findTranslation<string | number | boolean | Translations>(state.translations[route], key)
   }
 
-  // 2. Fallback на general переводы
+  // 2. Fallback to general translations
   if (!value && state.translations.general) {
     value = findTranslation<string | number | boolean | Translations>(state.translations.general, key)
   }
 
-  // 3. Если не найдено, используем defaultValue или key
+  // 3. If not found, use defaultValue or key
   if (!value) {
     value = defaultValue === undefined ? key : (defaultValue || key)
   }
 
-  // 4. Интерполяция параметров (только для строк)
+  // 4. Parameter interpolation (only for strings)
   if (typeof value === 'string' && params) {
     return interpolate(value, params)
   }
 
-  // 5. Возвращаем value как есть (может быть string, number, boolean, object, или null)
-  // Это соответствует типу CleanTranslation
+  // 5. Return value as-is (can be string, number, boolean, object, or null)
+  // This matches CleanTranslation type
   return value
 }
 
@@ -101,7 +101,7 @@ export function hasTranslation(
   const routeTranslations = state.translations[route]
   const generalTranslations = state.translations.general
 
-  // Проверяем в route-specific переводах
+  // Check in route-specific translations
   if (routeTranslations) {
     const value = findTranslation(routeTranslations, key)
     if (value !== null && typeof value !== 'object') {
@@ -109,7 +109,7 @@ export function hasTranslation(
     }
   }
 
-  // Проверяем в general переводах
+  // Check in general translations
   if (generalTranslations) {
     const value = findTranslation(generalTranslations, key)
     if (value !== null && typeof value !== 'object') {

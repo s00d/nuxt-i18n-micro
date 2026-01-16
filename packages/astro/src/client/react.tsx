@@ -9,7 +9,7 @@ const formatter = new FormatService()
 const I18nContext = createContext<I18nState | null>(null)
 
 /**
- * Провайдер для i18n в React островах
+ * Provider for i18n in React islands
  */
 export function I18nProvider({ children, value }: { children: React.ReactNode, value: I18nClientProps }): React.ReactElement {
   const [state] = useState<I18nState>(() => ({
@@ -23,7 +23,7 @@ export function I18nProvider({ children, value }: { children: React.ReactNode, v
 }
 
 /**
- * Хук для использования i18n в React компонентах
+ * Hook for using i18n in React components
  */
 export function useAstroI18n() {
   const state = useContext(I18nContext)
@@ -103,7 +103,7 @@ export function useAstroI18n() {
     fallbackLocale: state.fallbackLocale,
     currentRoute: state.currentRoute,
 
-    // Route management (read-only в клиентских островах)
+    // Route management (read-only in client islands)
     getRoute: (): string => {
       return state.currentRoute
     },

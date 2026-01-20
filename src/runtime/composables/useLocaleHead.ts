@@ -87,7 +87,11 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       fullPath = `/${fullPath}`
     }
 
-    const matchedLocale = locales.find(locale => fullPath.startsWith(`/${locale.code}`))
+    // Сортируем локали по длине кода (от длинных к коротким), чтобы избежать
+    // частичного совпадения (например, чтобы 'en' не матчилось внутри '/enGB')
+    const matchedLocale = [...locales]
+      .sort((a, b) => b.code.length - a.code.length)
+      .find(locale => fullPath.startsWith(`/${locale.code}`))
 
     let localizedPath = fullPath
     let ogUrl: string

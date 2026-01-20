@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v2.17.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.16.3...v2.17.0)
+
+### 🚀 Enhancements
+
+- **nitro:** Mount translation directories as server assets ([3c69c70](https://github.com/s00d/nuxt-i18n-micro/commit/3c69c70))
+
+### 💅 Refactors
+
+- **server:** Streamline translation file loading logic ([b1bc755](https://github.com/s00d/nuxt-i18n-micro/commit/b1bc755))
+
+### ✅ Tests
+
+- **locale-test:** Update date tests to use dynamic date calculations ([ae51c82](https://github.com/s00d/nuxt-i18n-micro/commit/ae51c82))
+- **locale-test:** Update date tests to use dynamic date calculations ([15e7cad](https://github.com/s00d/nuxt-i18n-micro/commit/15e7cad))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.16.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.16.2...v2.16.3)

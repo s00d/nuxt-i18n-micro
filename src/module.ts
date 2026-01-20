@@ -532,6 +532,20 @@ ${accepts}
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
+      // Монтируем директории переводов как серверные ассеты.
+      // Это критично для поддержки serverless (Cloudflare Workers), где нет прямого доступа к FS.
+      nitroConfig.serverAssets = nitroConfig.serverAssets || []
+      rootDirs.forEach((dir, index) => {
+        const dirPath = path.resolve(dir, options.translationDir || 'locales')
+        if (fs.existsSync(dirPath)) {
+          nitroConfig.serverAssets!.push({
+            // Даем уникальное имя каждому слою, чтобы потом найти их в рантайме
+            baseName: `i18n_layer_${index}`,
+            dir: dirPath,
+          })
+        }
+      })
+
       if (nitroConfig.imports) {
         nitroConfig.imports.presets = nitroConfig.imports.presets || []
         nitroConfig.imports.presets.push({

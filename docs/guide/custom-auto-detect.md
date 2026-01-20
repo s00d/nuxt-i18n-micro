@@ -119,6 +119,157 @@ For locale detection logic that relies on server headers (like `x-country`), a *
 
 ---
 
+## 🌐 No-Prefix Strategy: Server-Side Locale Detection Without Redirects
+
+When using the `no_prefix` strategy, the locale is not included in the URL. This presents a unique challenge: how do you set the locale programmatically on the server (based on domain, headers, etc.) without causing a redirect?
+
+### The Problem
+
+With `no_prefix` strategy, `nuxt-i18n-micro` attempts to determine the current locale during initialization (SSR phase) by reading a cookie. If you want to programmatically set the locale on the server without a redirect, you need to set this cookie **before** the main i18n plugin initializes and reads it.
+
+The main `nuxt-i18n-micro` plugin has a priority (order) of `-5`. Therefore, your solution must execute earlier.
+
+### The Solution
+
+Create a server plugin with a priority lower than `-5` (e.g., `-10`). In this plugin, you'll implement your locale selection logic and write it to `useCookie`.
+
+### Implementation
+
+**Step 1: Configure `nuxt.config.ts`**
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    // Cookie name is important - must match what you use in the plugin
+    localeCookie: 'user-locale',
+    autoDetectLanguage: false, // Disable built-in detection
+    locales: [
+      { code: 'en', iso: 'en-US' },
+      { code: 'de', iso: 'de-DE' },
+      { code: 'fr', iso: 'fr-FR' }
+    ]
+  }
+})
+```
+
+**Step 2: Create `plugins/i18n-loader.server.ts`**
+
+```ts
+import { defineNuxtPlugin, useCookie, useRequestHeaders, useRuntimeConfig } from '#imports'
+
+export default defineNuxtPlugin({
+  name: 'i18n-custom-loader',
+  enforce: 'pre',  // Plugin must execute very early
+  order: -10,      // Execute BEFORE the i18n plugin (which has order -5)
+  
+  async setup() {
+    const config = useRuntimeConfig()
+    // Get cookie name from config or use default
+    // @ts-ignore
+    const cookieName = config.public.i18nConfig?.localeCookie || 'user-locale'
+    
+    // Initialize cookie composable
+    const localeCookie = useCookie(cookieName)
+
+    // If cookie already exists, do nothing (user has already chosen a language)
+    // Remove this condition if you want to always force language based on headers
+    if (localeCookie.value) {
+      return
+    }
+
+    const headers = useRequestHeaders(['x-country', 'host', 'accept-language'])
+    let detectedLocale = 'en' // Your default language
+
+    // --- YOUR DETECTION LOGIC ---
+    
+    // Example 1: By domain
+    const host = headers['host']
+    if (host?.includes('example.de')) {
+      detectedLocale = 'de'
+    } 
+    // Example 2: By custom header (e.g., from Cloudflare or nginx)
+    else if (headers['x-country'] === 'FR') {
+      detectedLocale = 'fr'
+    }
+    // Example 3: By Accept-Language header
+    else if (headers['accept-language']?.includes('de')) {
+      detectedLocale = 'de'
+    }
+
+    // --- APPLY THE LOCALE ---
+    
+    // Simply set the cookie value.
+    // Since this plugin runs BEFORE the main i18n plugin,
+    // the main plugin will read this value from the cookie during initialization.
+    localeCookie.value = detectedLocale
+    
+    console.log('[SSR] Forced locale to:', detectedLocale)
+  }
+})
+```
+
+### Why This Works
+
+1. **Server-Side**: Using `useCookie().value = 'xx'` during SSR sets the `Set-Cookie` header for the response and updates the internal request state.
+
+2. **Plugin Order**: By setting `order: -10`, this code executes before `src/runtime/plugins/01.plugin.ts` (which has `order: -5`).
+
+3. **Initialization**: When `01.plugin.ts` runs, it calls `useCookie(cookieName).value`. Since we've already updated this value in the request context, the i18n service picks up our locale (`detectedLocale`).
+
+4. **No Redirect**: The URL doesn't change, there's no redirect. The page renders immediately in the correct language.
+
+5. **Hydration**: The browser receives the HTML and the `Set-Cookie` header. During hydration on the client, the cookie is already set, so the client-side i18n initializes with the correct locale, preventing content "flashing".
+
+### Advanced: Domain-Based Locale Detection
+
+For multi-domain setups, you can detect the locale based on the hostname:
+
+```ts
+export default defineNuxtPlugin({
+  name: 'i18n-domain-loader',
+  enforce: 'pre',
+  order: -10,
+  
+  async setup() {
+    const config = useRuntimeConfig()
+    // @ts-ignore
+    const cookieName = config.public.i18nConfig?.localeCookie || 'user-locale'
+    const localeCookie = useCookie(cookieName)
+
+    // Always force locale based on domain (remove the check if needed)
+    const headers = useRequestHeaders(['host'])
+    const host = headers['host'] || ''
+    
+    let detectedLocale = 'en'
+    
+    // Domain-based detection
+    if (host.endsWith('.de') || host.includes('german.')) {
+      detectedLocale = 'de'
+    } else if (host.endsWith('.fr') || host.includes('french.')) {
+      detectedLocale = 'fr'
+    } else if (host.endsWith('.es') || host.includes('spanish.')) {
+      detectedLocale = 'es'
+    }
+
+    localeCookie.value = detectedLocale
+    console.log(`[SSR] Domain ${host} → Locale: ${detectedLocale}`)
+  }
+})
+```
+
+### Key Points
+
+- ✅ **No URL changes**: Perfect for `no_prefix` strategy where URLs shouldn't contain locale segments
+- ✅ **No redirects**: The page loads directly in the correct language
+- ✅ **SSR + Client sync**: Cookie ensures both server and client use the same locale
+- ✅ **Custom logic**: Full control over locale detection (domain, headers, IP, etc.)
+- ✅ **Plugin order**: Use `order: -10` to run before the main i18n plugin (`order: -5`)
+
+---
+
 ## ✅ Why Use a Custom Plugin?
 
 - **Full Control**: You decide precisely how to detect, parse, and apply locale logic (headers, cookies, IP-based location, etc.).

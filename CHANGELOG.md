@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v2.17.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.17.0...v2.17.1)
+
+### 🩹 Fixes
+
+- **locale:** Prevent partial locale matching by sorting locale codes ([7db7039](https://github.com/s00d/nuxt-i18n-micro/commit/7db7039))
+
+### 📖 Documentation
+
+- **guide:** Add no-prefix strategy for server-side locale detection ([4ba0026](https://github.com/s00d/nuxt-i18n-micro/commit/4ba0026))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.17.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.16.3...v2.17.0)

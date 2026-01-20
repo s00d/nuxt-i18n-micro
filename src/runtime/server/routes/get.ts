@@ -1,5 +1,3 @@
-import { resolve } from 'node:path'
-import { readFile } from 'node:fs/promises'
 import { defineEventHandler, setResponseHeader } from 'h3'
 import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -24,28 +22,13 @@ function deepMerge(target: Translations, source: Translations): Translations {
   return output
 }
 
-async function readTranslationFile(filePath: string, debug: boolean): Promise<Translations | null> {
-  try {
-    const content = await readFile(filePath, 'utf-8')
-    return JSON.parse(content) as Translations
-  }
-  catch (e) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (debug && e?.code !== 'ENOENT') {
-      console.error(`[i18n] Error loading locale file: ${filePath}`, e)
-    }
-    return null
-  }
-}
-
 export default defineEventHandler(async (event) => {
   // Set proper Content-Type header for JSON responses
   setResponseHeader(event, 'Content-Type', 'application/json')
 
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
-  const { rootDirs, debug, translationDir, fallbackLocale, routesLocaleLinks } = config.i18nConfig as ModulePrivateOptionsExtend
+  const { rootDirs, debug, routesLocaleLinks } = config.i18nConfig as ModulePrivateOptionsExtend
   const { locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
   // Always validate locale against configured locales to avoid serving data for invalid or disabled locales
@@ -77,31 +60,69 @@ export default defineEventHandler(async (event) => {
     return cachedMerged
   }
 
-  const getPathsFor = (targetLocale: string, targetPage: string) =>
-    rootDirs.map(dir => resolve(dir, translationDir!, targetPage === 'general' ? `${targetLocale}.json` : `pages/${targetPage}/${targetLocale}.json`))
+  // Используем общее хранилище Nitro. Ассеты, которые мы зарегистрировали в module.ts,
+  // доступны под префиксом 'assets:'.
+  const storage = useStorage()
 
   let finalTranslations: Translations = {}
   const currentLocaleConfig = locales?.find(l => l.code === locale) ?? null
 
+  // Функция загрузки через Storage API (Serverless compatible)
   const loadAndMerge = async (targetLocale: string) => {
     let globalTranslations: Translations = {}
     let pageTranslations: Translations = {}
 
-    for (const p of getPathsFor(targetLocale, 'general')) {
-      const content = await readTranslationFile(p, debug)
-      if (content) globalTranslations = deepMerge(globalTranslations, content)
-    }
-    if (page !== 'general') {
-      for (const p of getPathsFor(targetLocale, fileLookupPage)) {
-        const content = await readTranslationFile(p, debug)
-        if (content) pageTranslations = deepMerge(pageTranslations, content)
+    // Перебираем все слои (layers), соответствующие rootDirs
+    // Мы зарегистрировали их как i18n_layer_0, i18n_layer_1 и т.д.
+    for (let i = 0; i < rootDirs.length; i++) {
+      const layerPrefix = `assets:i18n_layer_${i}`
+
+      // 1. Загрузка глобальных переводов: {locale}.json
+      // В Storage API разделители путей заменяются на двоеточия
+      const globalKey = `${layerPrefix}:${targetLocale}.json`
+
+      try {
+        // getItem вернет null, если файла нет, или распарсенный JSON (Nitro делает это сам для .json)
+        const globalContent = await storage.getItem(globalKey) as Translations | null
+        if (globalContent) {
+          globalTranslations = deepMerge(globalTranslations, globalContent)
+        }
+      }
+      catch (e) {
+        if (debug) {
+          console.error(`[i18n] Error loading global translations: ${globalKey}`, e)
+        }
+      }
+
+      // 2. Загрузка переводов страницы: pages/{page}/{locale}.json
+      if (page !== 'general') {
+        // Нормализуем путь страницы: заменяем слеши на двоеточия для ключа хранилища
+        // например "products/slug" -> "products:slug"
+        const normalizedPage = fileLookupPage.replace(/\//g, ':')
+
+        const pageKey = `${layerPrefix}:pages:${normalizedPage}:${targetLocale}.json`
+
+        try {
+          const pageContent = await storage.getItem(pageKey) as Translations | null
+          if (pageContent) {
+            pageTranslations = deepMerge(pageTranslations, pageContent)
+          }
+        }
+        catch (e) {
+          if (debug) {
+            console.error(`[i18n] Error loading page translations: ${pageKey}`, e)
+          }
+        }
       }
     }
+
     return deepMerge(globalTranslations, pageTranslations)
   }
 
   const fallbackLocalesList = [
-    fallbackLocale,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    config.i18nConfig?.fallbackLocale,
     currentLocaleConfig?.fallbackLocale,
   ].filter((l): l is string => !!l && l !== locale)
 

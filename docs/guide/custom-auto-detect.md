@@ -129,6 +129,8 @@ With `no_prefix` strategy, `nuxt-i18n-micro` attempts to determine the current l
 
 The main `nuxt-i18n-micro` plugin has a priority (order) of `-5`. Therefore, your solution must execute earlier.
 
+**Important**: For `no_prefix` strategy, the cookie is the source of truth during SSR. To fully control the locale programmatically, you must disable the built-in auto-detection mechanism (`autoDetectLanguage: false`), otherwise it will try to override your cookie later in the request cycle, causing conflicts and warnings.
+
 ### The Solution
 
 Create a server plugin with a priority lower than `-5` (e.g., `-10`). In this plugin, you'll implement your locale selection logic and write it to `useCookie`.
@@ -145,7 +147,10 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     // Cookie name is important - must match what you use in the plugin
     localeCookie: 'user-locale',
-    autoDetectLanguage: false, // Disable built-in detection
+    // CRITICAL: Disable built-in auto-detection to prevent cookie override warnings
+    // Without this, the auto-detection plugin (order: 4) will try to overwrite
+    // your cookie later in the request cycle, causing conflicts.
+    autoDetectLanguage: false,
     locales: [
       { code: 'en', iso: 'en-US' },
       { code: 'de', iso: 'de-DE' },
@@ -165,7 +170,7 @@ export default defineNuxtPlugin({
   enforce: 'pre',  // Plugin must execute very early
   order: -10,      // Execute BEFORE the i18n plugin (which has order -5)
   
-  async setup() {
+  setup() {
     const config = useRuntimeConfig()
     // Get cookie name from config or use default
     // @ts-ignore
@@ -173,12 +178,6 @@ export default defineNuxtPlugin({
     
     // Initialize cookie composable
     const localeCookie = useCookie(cookieName)
-
-    // If cookie already exists, do nothing (user has already chosen a language)
-    // Remove this condition if you want to always force language based on headers
-    if (localeCookie.value) {
-      return
-    }
 
     const headers = useRequestHeaders(['x-country', 'host', 'accept-language'])
     let detectedLocale = 'en' // Your default language
@@ -201,12 +200,17 @@ export default defineNuxtPlugin({
 
     // --- APPLY THE LOCALE ---
     
-    // Simply set the cookie value.
+    // Set cookie ONLY if it differs or is missing.
+    // This prevents unnecessary writes and ensures we don't override
+    // a user's existing preference (if you want to respect existing cookies,
+    // add: if (localeCookie.value) return before this check).
+    if (localeCookie.value !== detectedLocale) {
+      localeCookie.value = detectedLocale
+      console.log('[SSR] Forced locale to:', detectedLocale)
+    }
+    
     // Since this plugin runs BEFORE the main i18n plugin,
     // the main plugin will read this value from the cookie during initialization.
-    localeCookie.value = detectedLocale
-    
-    console.log('[SSR] Forced locale to:', detectedLocale)
   }
 })
 ```
@@ -222,6 +226,93 @@ export default defineNuxtPlugin({
 4. **No Redirect**: The URL doesn't change, there's no redirect. The page renders immediately in the correct language.
 
 5. **Hydration**: The browser receives the HTML and the `Set-Cookie` header. During hydration on the client, the cookie is already set, so the client-side i18n initializes with the correct locale, preventing content "flashing".
+
+### Troubleshooting: Cookie Override Warning
+
+If you see a warning like `[nuxt] cookie ... is being overridden`, it means there's a conflict between your custom plugin and the built-in `autoDetectLanguage` mechanism.
+
+#### Why This Happens
+
+The event chain during SSR looks like this:
+
+1. **Your plugin (order: -10)**: Sets the cookie `no-prefix-locale` to `'ja'`.
+2. **i18n plugin (order: -5)**: Initializes, reads the cookie `'ja'`, sets locale to `'ja'`. Everything is fine.
+3. **Auto-detection plugin (order: 4)**: (`src/runtime/plugins/04.auto-detect.ts`) runs later. It looks at browser headers (`Accept-Language`). If it decides the language should be `'en_US'` (e.g., because that's the default or based on headers), it tries to overwrite the cookie back to `'en_US'`.
+4. **Nuxt**: Sees that within a single request the cookie was set twice with different values and issues a warning.
+
+#### The Solution
+
+To fully control the locale programmatically on the server, you need to **disable the built-in auto-detection** and use your plugin to set the cookie. This is the recommended ("supported") approach for `no_prefix` strategy when you need custom logic.
+
+**Important Configuration:**
+
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en_US',
+    // 1. Disable built-in auto-detection to prevent it from overwriting your cookie
+    autoDetectLanguage: false, 
+    // 2. Explicitly set the cookie name (to avoid guessing between 'user-locale' or 'no-prefix-locale')
+    localeCookie: 'no-prefix-locale', 
+    locales: [
+      { code: 'en_US', iso: 'en-US' },
+      { code: 'ja', iso: 'ja-JP' }
+    ]
+  }
+})
+```
+
+**Updated Plugin Example:**
+
+```ts
+import { defineNuxtPlugin, useCookie, useRequestHeaders, useRuntimeConfig } from '#imports'
+
+export default defineNuxtPlugin({
+  name: 'i18n-server-init',
+  enforce: 'pre',
+  order: -10, // Run BEFORE the main i18n plugin
+  
+  setup() {
+    const config = useRuntimeConfig()
+    // Get cookie name from config
+    // @ts-ignore
+    const cookieName = config.public.i18nConfig?.localeCookie || 'user-locale'
+    
+    // Initialize cookie
+    const localeCookie = useCookie(cookieName)
+
+    // Your custom detection logic
+    // For example, force 'ja' for testing or get from x-custom-header
+    const headers = useRequestHeaders()
+    
+    let targetLocale = 'en_US' // Default
+    
+    // Example logic:
+    if (headers['x-force-lang'] === 'ja') {
+      targetLocale = 'ja'
+    } else {
+      // Your detection logic here
+      targetLocale = 'ja' // As in your example
+    }
+
+    // Set cookie ONLY if it differs or is missing
+    // This prevents unnecessary writes, though with order -10 this is already safe
+    // since we've disabled auto-detection.
+    if (localeCookie.value !== targetLocale) {
+      localeCookie.value = targetLocale
+      console.log(`[SSR] Forced locale to: ${targetLocale}`)
+    }
+  }
+})
+```
+
+**Summary:**
+
+- For `no_prefix` strategy, the cookie is the source of truth during SSR.
+- To control the locale, you need to set this cookie before i18n initialization (using a plugin with `order: -10`).
+- To avoid warnings and conflicts, you must disable `autoDetectLanguage: false` in the config, as it tries to "outsmart" and override your choice later in the request cycle.
 
 ### Advanced: Domain-Based Locale Detection
 

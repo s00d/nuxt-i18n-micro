@@ -19,16 +19,16 @@ export interface SolidI18nOptions {
  * Uses createSignal for locale/route reactivity and createStore for translation cache.
  */
 export class SolidI18n extends BaseI18n {
-  // Реактивные примитивы Solid
+  // Solid reactive primitives
   private _locale: Accessor<string>
   private _setLocale: Setter<string>
   private _fallbackLocale: Accessor<string>
   private _currentRoute: Accessor<string>
   private _setRoute: Setter<string>
 
-  // Store для кэша.
-  // Мы используем createStore для глубокой реактивности, чтобы при подгрузке
-  // частичных переводов (mergeTranslation) интерфейс обновлялся.
+  // Store for cache
+  // We use createStore for deep reactivity so that when loading
+  // partial translations (mergeTranslation) the interface updates
   public readonly cacheStore: {
     general: Record<string, Translations>
     route: Record<string, Translations>
@@ -39,12 +39,12 @@ export class SolidI18n extends BaseI18n {
     route: Record<string, Translations>
   }>
 
-  // Слушатели для DevTools (аналог subscribe в React версии)
+  // Listeners for DevTools (analog of subscribe in React version)
   private listeners = new Set<() => void>()
 
   constructor(options: SolidI18nOptions) {
-    // 1. Инициализация реактивного хранилища
-    // Создаем signals и store напрямую (без createRoot, так как это SolidJS, не Preact)
+    // 1. Initialize reactive store
+    // Create signals and store directly (without createRoot, as this is SolidJS, not Preact)
     const [locale, setLocale] = createSignal(options.locale)
     const [fallback] = createSignal(options.fallbackLocale || options.locale)
     const [route, setRoute] = createSignal('general')
@@ -54,9 +54,9 @@ export class SolidI18n extends BaseI18n {
       route: {} as Record<string, Translations>,
     })
 
-    // 2. Адаптация для BaseI18n
-    // BaseI18n ожидает RefLike объекты. В Solid Store работает как Proxy,
-    // поэтому мы можем обернуть доступ к нему.
+    // 2. Adaptation for BaseI18n
+    // BaseI18n expects RefLike objects. In Solid Store works as Proxy,
+    // so we can wrap access to it
     const cacheAdapter: TranslationCache = {
       // Solid Store Proxy is compatible with reading objects
       generalLocaleCache: { value: store.general } as unknown as TranslationCache['generalLocaleCache'],
@@ -81,7 +81,7 @@ export class SolidI18n extends BaseI18n {
     this.cacheStore = store
     this.setCacheStore = setStore
 
-    // Загрузка начальных сообщений
+    // Load initial messages
     if (options.messages) {
       for (const [lang, msgs] of Object.entries(options.messages)) {
         this.addTranslations(lang, msgs)
@@ -114,7 +114,7 @@ export class SolidI18n extends BaseI18n {
     return this._locale()
   }
 
-  // Публичный accessor для реактивности
+  // Public accessor for reactivity
   public get localeAccessor(): Accessor<string> {
     return this._locale
   }
@@ -127,7 +127,7 @@ export class SolidI18n extends BaseI18n {
     return this._currentRoute()
   }
 
-  // Публичный accessor для реактивности
+  // Public accessor for reactivity
   public get routeAccessor(): Accessor<string> {
     return this._currentRoute
   }

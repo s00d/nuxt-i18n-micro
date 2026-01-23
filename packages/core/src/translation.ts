@@ -1,6 +1,6 @@
 import type { Translations } from '@i18n-micro/types'
 
-// Duck-typing для Ref, чтобы не тащить Vue зависимость
+// Duck-typing for Ref to avoid pulling Vue dependency
 export interface RefLike<T> {
   value: T
 }
@@ -12,8 +12,8 @@ export interface TranslationCache {
   serverTranslationCache: RefLike<Record<string, Map<string, Translations | unknown>>> | Record<string, Map<string, Translations | unknown>>
 }
 
-// Глобальные кэши для fallback (только для unit-тестов и обратной совместимости)
-// НЕ используются в SSR продакшене
+// Global caches for fallback (only for unit tests and backward compatibility)
+// NOT used in SSR production
 const globalGeneralLocaleCache: Record<string, Translations> = {}
 const globalRouteLocaleCache: Record<string, Translations> = {}
 const globalDynamicTranslationsCaches: Record<string, Translations>[] = []
@@ -58,14 +58,14 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
   return (value as T) ?? null
 }
 
-// Вспомогательная функция для получения значения из Ref или обычного объекта
+// Helper function to get value from Ref or regular object
 function getValue<T>(refOrValue: RefLike<T> | T): T {
   return typeof refOrValue === 'object' && refOrValue !== null && 'value' in refOrValue
     ? (refOrValue as RefLike<T>).value
     : refOrValue as T
 }
 
-// Вспомогательная функция для установки значения в Ref или обычный объект
+// Helper function to set value in Ref or regular object
 function setValue<T extends Record<string, unknown>>(
   refOrValue: RefLike<T> | T,
   key: string,
@@ -75,14 +75,14 @@ function setValue<T extends Record<string, unknown>>(
   ;(target as Record<string, unknown>)[key] = value
 }
 
-// Вспомогательная функция для получения значения из Ref или обычного объекта по ключу
+// Helper function to get value from Ref or regular object by key
 function getValueByKey<T extends Record<string, unknown>>(refOrValue: RefLike<T> | T, key: string): T[keyof T] | undefined {
   const target = getValue(refOrValue)
   return (target as Record<string, unknown>)[key] as T[keyof T] | undefined
 }
 
 export function useTranslationHelper(caches?: TranslationCache) {
-  // Используем переданные кэши или глобальные (fallback для тестов)
+  // Use provided caches or global ones (fallback for tests)
   const generalLocaleCache = caches?.generalLocaleCache ?? globalGeneralLocaleCache
   const routeLocaleCache = caches?.routeLocaleCache ?? globalRouteLocaleCache
   const dynamicTranslationsCaches = caches?.dynamicTranslationsCaches ?? globalDynamicTranslationsCaches
@@ -116,7 +116,7 @@ export function useTranslationHelper(caches?: TranslationCache) {
 
       const isDev = process.env.NODE_ENV !== 'production'
       if (!currentCache && isDev) {
-        // Если кэша нет, выводим предупреждение в dev-режиме и ничего не делаем.
+        // If cache doesn't exist, show warning in dev mode and do nothing
         console.warn(`[i18n] mergeTranslation called for '${cacheKey}' which was not pre-loaded. Skipping merge. Use force: true if this is intentional.`)
       }
     },

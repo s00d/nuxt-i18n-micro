@@ -11,6 +11,10 @@ Welcome to Nuxt I18n Micro! This guide will help you get up and running with our
 
 `Nuxt I18n Micro` is a lightweight internationalization module for Nuxt that delivers superior performance compared to traditional solutions. It's designed to reduce build times, memory usage, and server load, making it ideal for high-traffic and large projects.
 
+The module uses a unified architecture where core translation logic is shared via `@i18n-micro/core`, and Nuxt-specific functionality is provided by the `NuxtI18n` class that extends `BaseI18n`. This approach ensures consistency, performance, and maintainability across all framework integrations.
+
+For detailed information about the architecture, see the [Architecture Guide](./architecture.md).
+
 ## 🤔 Why Choose Nuxt I18n Micro?
 
 Here are some key benefits of using `Nuxt I18n Micro`:
@@ -587,6 +591,7 @@ One of the standout features of `Nuxt I18n Micro` is its **intelligent caching s
 
 Now that you have the basics set up, explore these advanced topics:
 
+- **[Architecture](./architecture.md)** - Learn about the internal architecture and how it works
 - **[Per-Component Translations](./per-component-translations.md)** - Learn about `$defineI18nRoute`
 - **[API Reference](../api/methods.md)** - Complete method documentation
 - **[Examples](../examples.md)** - Real-world usage examples

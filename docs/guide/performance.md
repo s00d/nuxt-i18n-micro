@@ -61,7 +61,9 @@ These tests clearly indicate that `Nuxt I18n Micro` offers superior performance 
 
 ### 🛠️ Minimalist Design
 
-`Nuxt I18n Micro` is built around a minimalist architecture, using only 5 components (1 module and 4 plugins). This reduces overhead and simplifies the internal logic, leading to improved performance.
+`Nuxt I18n Micro` is built around a minimalist architecture, using only 5 components (1 module and 4 plugins). The core translation logic is centralized in the `NuxtI18n` class, which extends `BaseI18n` from `@i18n-micro/core`. This unified approach reduces overhead, simplifies the internal logic, and enables code reuse across different framework integrations, leading to improved performance.
+
+For more details on the architecture, see the [Architecture Guide](/guide/architecture).
 
 ### 🚦 Efficient Routing
 

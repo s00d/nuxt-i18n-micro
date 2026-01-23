@@ -112,7 +112,7 @@ export class RouteService {
     return checkLocale?.displayName ?? null
   }
 
-  getRouteName(route: RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale: string): string {
+  getRouteName(route: RouteLocationResolvedGeneric | RouteLocationNamedRaw | RouteLocationNormalizedLoaded, locale: string): string {
     const name = (route.name ?? '').toString()
     return name
       .toString()
@@ -120,7 +120,7 @@ export class RouteService {
       .replace(new RegExp(`-${locale}$`), '')
   }
 
-  getPluginRouteName(route: RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale: string): string {
+  getPluginRouteName(route: RouteLocationResolvedGeneric | RouteLocationNamedRaw | RouteLocationNormalizedLoaded, locale: string): string {
     if (this.i18nConfig.disablePageLocales) {
       return 'general'
     }

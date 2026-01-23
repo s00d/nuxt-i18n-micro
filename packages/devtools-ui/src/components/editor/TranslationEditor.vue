@@ -1,6 +1,6 @@
 <template>
   <div class="translation-editor">
-    <!-- Список (Скроллится) -->
+    <!-- List (Scrollable) -->
     <div class="translation-list-container">
       <div class="search-box">
         <input
@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <!-- Пагинация (Фиксирована внизу) -->
+    <!-- Pagination (Fixed at bottom) -->
     <div class="pagination-wrapper">
       <Pagination
         v-if="!searchQuery"
@@ -79,19 +79,19 @@ const emit = defineEmits<{
 
 const { selectedFile, configs, getDefaultLocaleTranslation } = useI18nState()
 
-// Реактивные данные
+// Reactive data
 const flattenedContent = ref(flattenTranslations(props.modelValue))
 const defaultLocaleFlatContent = ref<Record<string, string>>({})
 const searchQuery = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 30
 
-// Настройки перевода
+// Translation settings
 const selectedDriver = ref('disabled')
 const apiToken = ref('')
 const driverOptions = ref<{ [key: string]: string | number | boolean }>({})
 
-// Вычисляемые свойства
+// Computed properties
 const filteredKeys = computed(() => {
   const keys = Object.keys(defaultLocaleFlatContent.value)
   if (!searchQuery.value.trim()) return paginatedKeys.value
@@ -113,7 +113,7 @@ const paginatedKeys = computed(() => {
   return Object.keys(defaultLocaleFlatContent.value).slice(start, end)
 })
 
-// Методы
+// Methods
 const initializeDefaultLocale = () => {
   const defaultContent = getDefaultLocaleTranslation()
   defaultLocaleFlatContent.value = flattenTranslations(defaultContent)
@@ -165,7 +165,7 @@ onMounted(() => {
 
 watch(() => props.modelValue, (newVal) => {
   flattenedContent.value = flattenTranslations(newVal)
-  // Обновляем defaultLocaleFlatContent при изменении modelValue
+  // Update defaultLocaleFlatContent when modelValue changes
   initializeDefaultLocale()
 })
 
@@ -175,7 +175,7 @@ watch(selectedFile, () => {
 })
 
 watch(() => configs.value.defaultLocale, () => {
-  // Обновляем defaultLocaleFlatContent при изменении дефолтной локали
+  // Update defaultLocaleFlatContent when default locale changes
   initializeDefaultLocale()
 })
 </script>

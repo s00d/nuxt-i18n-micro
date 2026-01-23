@@ -1,7 +1,7 @@
 import { defineEventHandler, setResponseHeader } from 'h3'
 import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - #imports доступны в Nitro
+// @ts-ignore - #imports are available in Nitro
 import { useRuntimeConfig, createError, useStorage } from '#imports'
 
 let storageInit = false
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404 })
   }
 
-  // Определяем имя страницы, по которому ищем файл перевода
+  // Determine page name to look up translation file
   let fileLookupPage = page
   if (routesLocaleLinks && page && (routesLocaleLinks as Record<string, string>)[page]) {
     fileLookupPage = (routesLocaleLinks as Record<string, string>)[page] || page
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const serverStorage = useStorage('assets:server')
-  // Кэшируем по исходному имени страницы, а не по ссылочному
+  // Cache by original page name, not by linked name
   const cacheKey = `_locales:merged:${page}:${locale}`
 
   if (!storageInit) {

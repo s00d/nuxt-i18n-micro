@@ -21,7 +21,7 @@ export interface I18nMiddlewareOptions {
  */
 export function createI18nMiddleware(options: I18nMiddlewareOptions): MiddlewareHandler {
   const {
-    i18n: globalI18n, // Это глобальный синглтон с кэшем
+    i18n: globalI18n, // This is global singleton with cache
     defaultLocale,
     locales,
     localeObjects,

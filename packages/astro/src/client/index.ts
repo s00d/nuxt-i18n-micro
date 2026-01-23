@@ -1,4 +1,4 @@
-// Core utilities (чистые функции)
+// Core utilities (pure functions)
 export { translate, hasTranslation } from './core'
 export type { I18nState } from './core'
 

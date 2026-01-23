@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4 p-4 bg-white rounded-lg shadow-sm">
-    <!-- Основная статистика -->
+    <!-- Main statistics -->
     <div class="grid grid-cols-2 gap-4">
       <StatItem
         v-for="(stat, index) in mainStats"
@@ -11,7 +11,7 @@
       />
     </div>
 
-    <!-- Ключи с экстремальными длинами -->
+    <!-- Keys with extreme lengths -->
     <div
       v-if="longestKey || shortestKey"
       class="grid grid-cols-2 gap-4"
@@ -32,7 +32,7 @@
       />
     </div>
 
-    <!-- Сравнение с дефолтной локалью -->
+    <!-- Comparison with default locale -->
     <div class="pt-4 mt-4 border-t border-gray-200">
       <h3 class="text-lg font-semibold text-gray-800 mb-3">
         Comparison with Default Locale
@@ -71,18 +71,18 @@ const props = defineProps<{
   content: TranslationContent
 }>()
 
-// Вспомогательные функции
+// Helper functions
 const safeTrim = (value: unknown): string =>
   typeof value === 'string' ? value.trim() : ''
 
 const isString = (value: unknown): value is string =>
   typeof value === 'string'
 
-// Флатеннутые версии переводов
+// Flattened versions of translations
 const flattened = computed(() => flattenTranslations(props.content))
 const defaultFlattened = computed(() => flattenTranslations(getDefaultLocaleTranslation()))
 
-// Универсальный счетчик
+// Universal counter
 const createCounter = (predicate: (value: string) => boolean) =>
   computed(() =>
     Object.values(flattened.value)
@@ -90,7 +90,7 @@ const createCounter = (predicate: (value: string) => boolean) =>
       .length,
   )
 
-// Основная статистика
+// Main statistics
 const totalKeys = computed(() => Object.keys(flattened.value).length)
 const translatedKeys = computed(() =>
   Object.values(flattened.value).filter(v =>
@@ -101,7 +101,7 @@ const percentage = computed(() =>
   totalKeys.value ? ((translatedKeys.value / totalKeys.value) * 100).toFixed(2) : '0.00',
 )
 
-// Специфические счетчики
+// Specific counters
 const duplicateValues = computed(() => {
   const counts: Record<string, number> = {}
   Object.values(flattened.value).forEach((v) => {
@@ -112,7 +112,7 @@ const duplicateValues = computed(() => {
   return Object.values(counts).filter(c => c > 1).length
 })
 
-// Экстремальные значения ключей
+// Extreme key values
 const extremeKey = (comparator: (a: number, b: number) => boolean) => computed(() => {
   const keys = Object.keys(flattened.value)
   if (keys.length < 2) return null
@@ -127,7 +127,7 @@ const extremeKey = (comparator: (a: number, b: number) => boolean) => computed((
   })
 })
 
-// Сравнение с дефолтной локалью
+// Comparison with default locale
 const totalDefaultKeys = computed(() => Object.keys(defaultFlattened.value).length)
 const translatedCompared = computed(() =>
   Object.keys(defaultFlattened.value).filter((k) => {
@@ -139,7 +139,7 @@ const percentageCompared = computed(() =>
   totalDefaultKeys.value ? ((translatedCompared.value / totalDefaultKeys.value) * 100).toFixed(2) : '0.00',
 )
 
-// Группировка данных для отображения
+// Group data for display
 const mainStats = computed(() => [
   { label: 'Total Keys', value: totalKeys.value, class: 'text-blue-600' },
   { label: 'Translated Keys', value: `${translatedKeys.value} (${percentage.value}%)`, class: 'text-green-600' },
@@ -159,7 +159,7 @@ const comparisonStats = computed(() => [
   { label: 'Extra Keys', value: Math.max(totalKeys.value - totalDefaultKeys.value, 0), class: 'text-orange-600' },
 ])
 
-// Инициализация счетчиков
+// Initialize counters
 const [longTranslations, shortTranslations, specialChars, htmlTags, placeholders] = [
   (v: string) => v.length > 100,
   (v: string) => v.length < 3,

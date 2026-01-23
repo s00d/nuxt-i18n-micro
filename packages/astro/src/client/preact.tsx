@@ -1,4 +1,4 @@
-// Preact может использовать React Context API, так как Preact совместим с React
+// Preact can use React Context API as Preact is compatible with React
 import type { ComponentChildren } from 'preact'
 import { createContext, createElement } from 'preact'
 import { useContext, useState, useMemo } from 'preact/hooks'
@@ -12,7 +12,7 @@ const formatter = new FormatService()
 const I18nContext = createContext<I18nState | null>(null)
 
 /**
- * Провайдер для i18n в Preact островах
+ * Provider for i18n in Preact islands
  */
 export const I18nProvider = ({ children, value }: { children: ComponentChildren, value: I18nClientProps }) => {
   const [state] = useState<I18nState>(() => ({
@@ -26,7 +26,7 @@ export const I18nProvider = ({ children, value }: { children: ComponentChildren,
 }
 
 /**
- * Хук для использования i18n в Preact компонентах
+ * Hook for using i18n in Preact components
  */
 export function useAstroI18n() {
   const state = useContext(I18nContext)
@@ -106,7 +106,7 @@ export function useAstroI18n() {
     fallbackLocale: state.fallbackLocale,
     currentRoute: state.currentRoute,
 
-    // Route management (read-only в клиентских островах)
+    // Route management (read-only in client islands)
     getRoute: (): string => {
       return state.currentRoute
     },

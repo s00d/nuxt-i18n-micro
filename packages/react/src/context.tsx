@@ -100,7 +100,7 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
   const injectedLocales = useI18nLocales()
   const injectedDefaultLocale = useI18nDefaultLocale()
 
-  // Реактивность! Компонент перерендерится, если i18n уведомит об изменениях
+  // Reactivity! Component will re-render if i18n notifies about changes
   useSyncExternalStore(i18n.subscribe, i18n.getSnapshot)
 
   const locales = options?.locales || injectedLocales || []

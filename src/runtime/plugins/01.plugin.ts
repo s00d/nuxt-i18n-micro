@@ -5,14 +5,18 @@ import type {
   RouteLocationResolvedGeneric,
   RouteLocationNamedRaw,
 } from 'vue-router'
-import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from '@i18n-micro/core'
+import { useTranslationHelper, isNoPrefixStrategy, RouteService, type TranslationCache, createCompiledCache } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from '@i18n-micro/types'
 import { useRouter, useCookie, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
-import { unref } from 'vue'
+import { unref, computed } from 'vue'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
+import { NuxtI18n } from '../i18n'
 
 const isDev = process.env.NODE_ENV !== 'production'
+
+// Global compiler cache (outside plugin to avoid SSR serialization issues)
+const compiledMessageCache = createCompiledCache()
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const config = useRuntimeConfig()
@@ -56,8 +60,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  // Читаем куку для обычной стратегии (не hashMode и не noPrefix)
-  // Используем localeCookie из конфига или 'user-locale' по умолчанию
+  // Read cookie for regular strategy (not hashMode and not noPrefix)
+  // Use localeCookie from config or 'user-locale' as default
   if (!i18nConfig.hashMode && !isNoPrefixStrategy(i18nConfig.strategy!)) {
     cookieLocaleDefault = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName!).value)
   }
@@ -76,7 +80,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     cookieLocaleDefault,
     cookieLocaleName,
   )
-  const translationService = new FormatService()
 
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
 
@@ -86,6 +89,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Missing locale handler configuration
   const missingWarn = i18nConfig.missingWarn ?? true
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
+
+  // 3. Create NuxtI18n instance
+  const i18n = new NuxtI18n({
+    // BaseI18n options
+    plural: plural, // From #build/i18n.plural.mjs
+    missingWarn: missingWarn,
+    enablePreviousPageFallback: enablePreviousPageFallback,
+    cache: translationCaches, // Pass caches from useState
+    compiledCache: compiledMessageCache, // Pass global cache!
+
+    // NuxtI18n options
+    routeService: routeService,
+    locales: computed(() => i18nConfig.locales || []),
+    defaultLocale: computed(() => i18nConfig.defaultLocale || 'en'),
+    i18nRouteParams: i18nRouteParams,
+    customMissingHandler: customMissingHandler,
+    previousPageInfo: previousPageInfo,
+  })
 
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
@@ -174,10 +195,40 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // 4. Load translations for the very first (initial) page
   await loadPageAndGlobalTranslations(router.currentRoute.value as RouteLocationResolvedGeneric)
 
-  // 6. Build `provideData` (code unchanged)
+  // 4. Build provideData
   const provideData = {
-    i18n: undefined,
+    i18n: undefined, // will be filled later
     __micro: true,
+
+    // --- Translation methods (delegate to i18n) ---
+    // t can accept routeObject thanks to overload in NuxtI18n
+    t: i18n.t.bind(i18n),
+
+    // tc uses this.pluralFunc inside BaseI18n, which we passed in constructor
+    tc: i18n.tc.bind(i18n),
+
+    // Helper methods
+    ts: i18n.ts.bind(i18n),
+    tn: i18n.tn.bind(i18n),
+    td: i18n.td.bind(i18n),
+    tdr: i18n.tdr.bind(i18n),
+    has: i18n.has.bind(i18n),
+
+    // Special methods with closure (keep in plugin or implement as helper)
+    _t: (route: RouteLocationNormalizedLoaded) => {
+      return (key: string, params?: Params, defaultValue?: string | null) => {
+        // Call i18n.t, explicitly passing route
+        return i18n.t(key, params, defaultValue, route)
+      }
+    },
+    _ts: (route: RouteLocationNormalizedLoaded) => {
+      return (key: string, params?: Params, defaultValue?: string) => {
+        const val = i18n.t(key, params, defaultValue, route)
+        return String(val ?? defaultValue ?? key)
+      }
+    },
+
+    // --- State/routing methods (use RouteService or i18nHelper directly) ---
     getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => routeService.getCurrentLocale(route),
     getLocaleName: () => routeService.getCurrentName(routeService.getCurrentRoute()),
     defaultLocale: () => i18nConfig.defaultLocale,
@@ -186,77 +237,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const selectedLocale = locale ?? routeService.getCurrentLocale()
       const selectedRoute = route ?? routeService.getCurrentRoute()
       return routeService.getRouteName(selectedRoute as RouteLocationResolvedGeneric, selectedLocale)
-    },
-    t: (key: string, params?: Params, defaultValue?: string | null, route?: RouteLocationNormalizedLoaded): CleanTranslation => {
-      if (!key) return ''
-      route = route ?? routeService.getCurrentRoute()
-      const locale = routeService.getCurrentLocale()
-      const routeName = routeService.getPluginRouteName(route as RouteLocationResolvedGeneric, locale)
-      let value = i18nHelper.getTranslation(locale, routeName, key)
-
-      // If translation not found and there are saved previous translations, use them (only if enabled)
-      if (!value && previousPageInfo.value && enablePreviousPageFallback) {
-        const prev = previousPageInfo.value
-        const prevValue = i18nHelper.getTranslation(prev.locale, prev.routeName, key)
-        if (prevValue) {
-          value = prevValue
-          console.log(`Using fallback translation from previous route: ${prev.routeName} -> ${key}`)
-        }
-      }
-
-      // General fallback больше не нужен: сервер уже подмешал глобальные переводы
-
-      if (!value) {
-        // Call custom handler if set, otherwise show default warn if enabled
-        if (customMissingHandler.value) {
-          customMissingHandler.value(locale, key, routeName)
-        }
-        else if (missingWarn && isDev && import.meta.client) {
-          console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
-        }
-        value = defaultValue === undefined ? key : defaultValue
-      }
-
-      return typeof value === 'string' && params ? interpolate(value, params) : value as CleanTranslation
-    },
-    ts: (key: string, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
-      const value = provideData.t(key, params, defaultValue, route)
-      return value?.toString() ?? defaultValue ?? key
-    },
-    _t: (route: RouteLocationNormalizedLoaded) => {
-      return (key: string, params?: Params, defaultValue?: string | null): CleanTranslation => {
-        return provideData.t(key, params, defaultValue, route)
-      }
-    },
-    _ts: (route: RouteLocationNormalizedLoaded) => {
-      return (key: string, params?: Params, defaultValue?: string): string => {
-        return provideData.ts(key, params, defaultValue, route)
-      }
-    },
-    tc: (key: string, params: number | Params, defaultValue?: string): string => {
-      const currentLocale = routeService.getCurrentLocale()
-      const { count, ..._params } = typeof params === 'number' ? { count: params } : params
-
-      if (count === undefined) return defaultValue ?? key
-      return plural(key, Number.parseInt(count.toString()), _params, currentLocale, provideData.t) as string ?? defaultValue ?? key
-    },
-    tn: (value: number, options?: Intl.NumberFormatOptions) => {
-      const currentLocale = routeService.getCurrentLocale()
-      return translationService.formatNumber(value, currentLocale, options)
-    },
-    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
-      const currentLocale = routeService.getCurrentLocale()
-      return translationService.formatDate(value, currentLocale, options)
-    },
-    tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string => {
-      const currentLocale = routeService.getCurrentLocale()
-      return translationService.formatRelativeTime(value, currentLocale, options)
-    },
-    has: (key: string, route?: RouteLocationNormalizedLoaded): boolean => {
-      route = route ?? routeService.getCurrentRoute()
-      const locale = routeService.getCurrentLocale()
-      const routeName = routeService.getPluginRouteName(route as RouteLocationResolvedGeneric, locale)
-      return !!i18nHelper.getTranslation(locale, routeName, key)
     },
     mergeTranslations: (newTranslations: Translations) => {
       const route = routeService.getCurrentRoute()
@@ -273,9 +253,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const fromLocale = routeService.getCurrentLocale(route)
       return routeService.switchLocaleRoute(fromLocale, toLocale, route as RouteLocationResolvedGeneric, unref(i18nRouteParams.value))
     },
-    clearCache: () => {
-      i18nHelper.clearCache()
-    },
+    clearCache: i18n.clearCache.bind(i18n),
     switchLocalePath: (toLocale: string) => {
       const route = routeService.getCurrentRoute()
       const fromLocale = routeService.getCurrentLocale(route)
@@ -293,9 +271,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
       return ''
     },
-    switchLocale: (toLocale: string) => {
-      return routeService.switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
-    },
+    // Important: switchLocale now calls through i18n to clear compiledCache
+    switchLocale: i18n.switchLocale.bind(i18n),
     switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
       return routeService.switchLocaleLogic(toLocale ?? routeService.getCurrentLocale(), unref(i18nRouteParams.value), route as RouteLocationResolvedGeneric)
     },
@@ -322,7 +299,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     setMissingHandler: (handler: MissingHandler | null) => {
       customMissingHandler.value = handler
     },
-    helper: i18nHelper, // Оставляем helper, он может быть полезен для продвинутых пользователей
+    helper: i18n.helper, // Access to helper through i18n
   }
 
   const $provideData = Object.fromEntries(
@@ -352,7 +329,7 @@ export interface PluginsInjections {
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   $tdr: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
-  $has: (key: string) => boolean
+  $has: (key: string, routeOrName?: string | RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => boolean
   $mergeTranslations: (newTranslations: Translations) => void
   $mergeGlobalTranslations: (newTranslations: Translations) => void
   $switchLocaleRoute: (locale: string) => RouteLocationRaw

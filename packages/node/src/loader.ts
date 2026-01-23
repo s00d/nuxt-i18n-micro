@@ -21,7 +21,7 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
   }
 
   try {
-    // Используем рекурсивное чтение директории (Node.js 20+)
+    // Use recursive directory reading (Node.js 20+)
     const files = await readdir(dir, { recursive: true, withFileTypes: true })
 
     for (const file of files) {
@@ -30,7 +30,7 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
       }
 
       const fullPath = join(file.path, file.name)
-      // Вычисляем путь относительно корня локалей
+      // Calculate path relative to locales root
       const relativePath = relative(dir, fullPath)
       const parts = relativePath.split(sep)
       const locale = basename(file.name, '.json')
@@ -39,10 +39,10 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
         const content = await readFile(fullPath, 'utf-8')
         const translations = JSON.parse(content) as Translations
 
-        // Логика определения типа файла (глобальный или страничный)
+        // Logic to determine file type (global or page-specific)
         if (!disablePageLocales && parts[0] === 'pages' && parts.length >= 2) {
-          // Это страница.
-          // Пример: pages/user/profile/en.json
+          // This is a page
+          // Example: pages/user/profile/en.json
           // parts: ['pages', 'user', 'profile', 'en.json']
           // routeParts: ['user', 'profile'] -> 'user-profile'
 
@@ -57,8 +57,8 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
           }
         }
         else {
-          // Это глобальный файл (в корне или если disablePageLocales=true)
-          // Пример: en.json или pages/en.json (если disablePageLocales=true)
+          // This is a global file (in root or if disablePageLocales=true)
+          // Example: en.json or pages/en.json (if disablePageLocales=true)
           result.global[locale] = translations
         }
       }
@@ -68,8 +68,8 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
     }
   }
   catch (error) {
-    // Если папки нет, просто возвращаем пустой результат, чтобы не крашить приложение
-    // (или можно прокидывать ошибку выше, если это критично)
+    // If folder doesn't exist, just return empty result to avoid crashing the app
+    // (or can throw error up if it's critical)
     if (error && typeof error === 'object' && 'code' in error && error.code !== 'ENOENT') {
       console.error(`Failed to read directory ${dir}:`, error)
     }

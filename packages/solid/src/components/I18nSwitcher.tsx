@@ -53,14 +53,14 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
     if (local.currentLocale !== undefined) {
       return typeof local.currentLocale === 'function' ? local.currentLocale() : local.currentLocale
     }
-    // Используем реактивный accessor для отслеживания изменений
+    // Use reactive accessor to track changes
     return i18n.localeAccessor()
   })
   const currentLocaleName = createMemo(() => {
     if (local.getLocaleName) {
       return local.getLocaleName() || null
     }
-    // Используем реактивный accessor для отслеживания изменений
+    // Use reactive accessor to track changes
     const current = locales().find(l => l.code === i18n.localeAccessor())
     return current?.displayName || null
   })
@@ -97,7 +97,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
       return
     }
 
-    // Используем accessor напрямую, если доступен, иначе fallback на getCurrentPath()
+    // Use accessor directly if available, otherwise fallback to getCurrentPath()
     const extendedRouter = router as I18nRoutingStrategy & { getCurrentPathAccessor?: Accessor<string> }
     const currentPath = extendedRouter.getCurrentPathAccessor ? extendedRouter.getCurrentPathAccessor() : router.getCurrentPath()
     const newPath = local.localeRoute
@@ -238,7 +238,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
         >
           {locales().map((localeItem) => {
             const isActive = localeItem.code === currentLocale()
-            // Используем accessor для реактивного отслеживания пути
+            // Use accessor for reactive path tracking
             const extendedRouter = router as I18nRoutingStrategy & { getCurrentPathAccessor?: Accessor<string> }
             const currentPath = extendedRouter?.getCurrentPathAccessor
               ? extendedRouter.getCurrentPathAccessor()

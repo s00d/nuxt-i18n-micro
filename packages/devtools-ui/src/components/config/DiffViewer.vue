@@ -1,6 +1,6 @@
 <template>
   <div class="diff-viewer">
-    <!-- Фильтры -->
+    <!-- Filters -->
     <div class="filters">
       <label
         v-for="filter in filters"
@@ -19,7 +19,7 @@
       </label>
     </div>
 
-    <!-- Список изменений -->
+    <!-- List of changes -->
     <div class="diff-list">
       <div
         v-for="(item, index) in filteredChanges"

@@ -35,10 +35,10 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
     'relativeDate',
   ])
 
-  // Используем createMemo для реактивности (отслеживает изменения локали и роута)
-  // В Solid мемо автоматически отслеживает зависимости при использовании в JSX
+  // Use createMemo for reactivity (tracks locale and route changes)
+  // In Solid memo automatically tracks dependencies when used in JSX
   const translation = createMemo(() => {
-    // Отслеживаем изменения локали и роута через accessors
+    // Track locale and route changes through accessors
     const locale = i18n.localeAccessor()
     const route = i18n.routeAccessor()
 
@@ -92,7 +92,7 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
     return translationResult
   })
 
-  // Если html=true, используем innerHTML и не рендерим children
+  // If html=true, use innerHTML and don't render children
   if (local.html) {
     return (
       // @ts-expect-error - Dynamic component type conflict with Vue JSX
@@ -104,7 +104,7 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
     ) as unknown as JSX.Element
   }
 
-  // Если html=false, рендерим как текст (Solid автоматически экранирует HTML)
+  // If html=false, render as text (Solid automatically escapes HTML)
   const translationValue = translation()
   if (local.hideIfEmpty && !translationValue.trim()) {
     if (local.defaultValue) {

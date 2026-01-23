@@ -354,21 +354,21 @@ export function getI18nProps(astro: AstroGlobal, keys?: string[]): I18nClientPro
   const i18n = getI18n(astro)
   const locale = getLocale(astro)
   const fallbackLocale = getDefaultLocale(astro)
-  // currentRoute уже нормализован через middleware.setRoute(getRouteName(...))
-  // getRouteName учитывает routesLocaleLinks, если они настроены
+  // currentRoute is already normalized through middleware.setRoute(getRouteName(...))
+  // getRouteName takes into account routesLocaleLinks if they are configured
   const currentRoute = i18n.getRoute()
 
   const translations: Record<string, Translations> = {}
 
-  // Если указаны ключи, извлекаем только их из кэша
+  // If keys are specified, extract only them from cache
   if (keys && keys.length > 0) {
     const extracted: Translations = {}
 
-    // Используем методы i18n для получения переводов
-    // Это гарантирует правильную работу с routesLocaleLinks
+    // Use i18n methods to get translations
+    // This ensures correct work with routesLocaleLinks
     for (const key of keys) {
-      // Используем i18n.t() который использует helper.getTranslation внутри
-      // и правильно резолвит ключ кэша с учетом routesLocaleLinks
+      // Use i18n.t() which uses helper.getTranslation inside
+      // and correctly resolves cache key considering routesLocaleLinks
       const value = i18n.t(key, undefined, undefined, currentRoute)
       if (value !== null && value !== undefined && value !== key) {
         setNestedValue(extracted, key, value)
@@ -380,8 +380,8 @@ export function getI18nProps(astro: AstroGlobal, keys?: string[]): I18nClientPro
     }
   }
   else {
-    // Если ключи не указаны, берем route-specific переводы
-    // Используем публичный метод getRouteTranslations для безопасного доступа
+    // If keys are not specified, take route-specific translations
+    // Use public method getRouteTranslations for safe access
     const routeTrans = i18n.getRouteTranslations(locale, currentRoute)
     if (routeTrans) {
       translations[currentRoute] = routeTrans

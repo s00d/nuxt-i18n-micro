@@ -4,7 +4,7 @@ import path from 'node:path'
 import { watch, type FSWatcher } from 'chokidar'
 import type { ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - #imports доступны в Nitro
+// @ts-ignore - #imports are available in Nitro
 import { useStorage, useRuntimeConfig, defineNitroPlugin } from '#imports'
 import type { NitroApp } from 'nitropack'
 
@@ -25,7 +25,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const log = (...args: unknown[]) => i18nConfig.debug && console.log('[i18n-hmr]', ...args)
   const warn = (...args: unknown[]) => i18nConfig.debug && console.warn('[i18n-hmr]', ...args)
 
-  // rootDir теперь правильный (путь к playground)
+  // rootDir is now correct (path to playground)
   const translationsRoot = path.resolve(i18nConfig.rootDir, i18nConfig.translationDir)
   log(`Watching for translation changes in: ${translationsRoot}`)
 
@@ -41,7 +41,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       const allKeys = await storage.getKeys('_locales:merged:')
 
       if (isPageTranslation) {
-        // --- СЛУЧАЙ 1: Изменился страничный файл (e.g., 'pages/contact/ru.json') ---
+        // --- CASE 1: Page file changed (e.g., 'pages/contact/ru.json') ---
         const match = relativePath.match(/^pages\/([^/]+)\/(.+)\.json$/)
         if (!match) return
 
@@ -55,13 +55,13 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         }
       }
       else {
-        // --- СЛУЧАЙ 2: Изменился глобальный файл (e.g., 'ru.json') ---
+        // --- CASE 2: Global file changed (e.g., 'ru.json') ---
         const match = relativePath.match(/^([^/]+)\.json$/)
         if (!match) return
 
         const locale = match[1]
 
-        // Удаляем ВСЕ объединенные кэши для этой локали
+        // Remove ALL merged caches for this locale
         const keysToRemove = allKeys.filter((key: string) => key.endsWith(`:${locale}`))
 
         if (keysToRemove.length > 0) {

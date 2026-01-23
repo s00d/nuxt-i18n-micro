@@ -182,12 +182,12 @@ const emit = defineEmits<{
   'update:options': [value: { [key: string]: string }]
 }>()
 
-// Локальные переменные для v-model
+// Local variables for v-model
 const selectedDriver = ref(props.driver)
 const localApiToken = ref(props.apiToken)
 const localDriverOptions = ref({ ...props.options })
 
-// Синхронизация с пропсами (только входящие изменения)
+// Sync with props (only incoming changes)
 watch(() => props.driver, async (newValue: string) => {
   if (newValue !== selectedDriver.value) {
     await nextTick()
@@ -209,7 +209,7 @@ watch(() => props.options, async (newValue: { [key: string]: string }) => {
   }
 }, { deep: true })
 
-// Эмиты при изменении локальных переменных (только исходящие изменения)
+// Emits when local variables change (only outgoing changes)
 watch(selectedDriver, async (newValue: string) => {
   if (newValue !== props.driver) {
     await nextTick()

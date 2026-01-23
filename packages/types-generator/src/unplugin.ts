@@ -26,7 +26,7 @@ export const I18nTypesPlugin = createUnplugin((options: GeneratorOptions) => {
   return {
     name: 'i18n-micro-types-generator',
     async buildStart() {
-      // Первичная генерация
+      // Initial generation
       try {
         await generateTypes(options)
       }
@@ -34,11 +34,11 @@ export const I18nTypesPlugin = createUnplugin((options: GeneratorOptions) => {
         console.warn('[i18n-types] Failed to generate types:', error)
       }
 
-      // В режиме dev запускаем вотчер
+      // In dev mode start watcher
       if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV !== 'production') {
         const localesDir = resolve(options.srcDir, options.translationDir)
 
-        // Debounced функция для перегенерации
+        // Debounced function for regeneration
         const debouncedGenerate = debounce(async () => {
           try {
             await generateTypes(options)
@@ -61,7 +61,7 @@ export const I18nTypesPlugin = createUnplugin((options: GeneratorOptions) => {
       }
     },
     buildEnd() {
-      // Останавливаем watcher при завершении сборки
+      // Stop watcher when build ends
       if (watcher) {
         watcher.close()
         watcher = null

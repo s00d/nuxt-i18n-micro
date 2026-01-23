@@ -104,6 +104,100 @@ describe('RouteService', () => {
     expect(routeName).toBe('about')
   })
 
+  test('getRouteName should work with RouteLocationNormalizedLoaded', () => {
+    const route = {
+      name: 'localized-about-en',
+      path: '/en/about',
+      fullPath: '/en/about',
+      params: { locale: 'en' },
+      query: {},
+      hash: '',
+      matched: [],
+      meta: {},
+      redirectedFrom: undefined,
+    } as RouteLocationNormalizedLoaded
+    const routeName = routeService.getRouteName(route, 'en')
+    expect(routeName).toBe('about')
+  })
+
+  test('getRouteName should work with RouteLocationNormalizedLoaded for different locale', () => {
+    const route = {
+      name: 'localized-about-de',
+      path: '/de/about',
+      fullPath: '/de/about',
+      params: { locale: 'de' },
+      query: {},
+      hash: '',
+      matched: [],
+      meta: {},
+      redirectedFrom: undefined,
+    } as RouteLocationNormalizedLoaded
+    const routeName = routeService.getRouteName(route, 'de')
+    expect(routeName).toBe('about')
+  })
+
+  test('getRouteName should handle RouteLocationNormalizedLoaded with complex route name', () => {
+    const route = {
+      name: 'localized-products-category-en',
+      path: '/en/products/category',
+      fullPath: '/en/products/category',
+      params: { locale: 'en', category: 'electronics' },
+      query: {},
+      hash: '',
+      matched: [],
+      meta: {},
+      redirectedFrom: undefined,
+    } as RouteLocationNormalizedLoaded
+    const routeName = routeService.getRouteName(route, 'en')
+    expect(routeName).toBe('products-category')
+  })
+
+  test('getPluginRouteName should work with RouteLocationNormalizedLoaded', () => {
+    const route = {
+      name: 'localized-about-en',
+      path: '/en/about',
+      fullPath: '/en/about',
+      params: { locale: 'en' },
+      query: {},
+      hash: '',
+      matched: [],
+      meta: {},
+      redirectedFrom: undefined,
+    } as RouteLocationNormalizedLoaded
+    const routeName = routeService.getPluginRouteName(route, 'en')
+    expect(routeName).toBe('about')
+  })
+
+  test('getPluginRouteName should return general when disablePageLocales is true', () => {
+    const mockI18nConfigWithDisablePageLocales: ModuleOptionsExtend = {
+      ...mockI18nConfig,
+      disablePageLocales: true,
+    }
+    routeService = new RouteService(
+      mockI18nConfigWithDisablePageLocales,
+      mockRouter,
+      null,
+      null,
+      navigateToMock,
+      setCookieMock,
+      null,
+      null,
+    )
+    const route = {
+      name: 'localized-about-en',
+      path: '/en/about',
+      fullPath: '/en/about',
+      params: { locale: 'en' },
+      query: {},
+      hash: '',
+      matched: [],
+      meta: {},
+      redirectedFrom: undefined,
+    } as RouteLocationNormalizedLoaded
+    const routeName = routeService.getPluginRouteName(route, 'en')
+    expect(routeName).toBe('general')
+  })
+
   test('switchLocaleRoute should return the correct route for the new locale', () => {
     const route = { name: 'localized-about-en', params: {} } as RouteLocationNamedRaw
     const i18nRouteParams = { de: { param1: 'value1' } }

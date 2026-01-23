@@ -11,8 +11,22 @@ import type {
   MissingHandler,
 } from '@i18n-micro/types'
 
+/**
+ * Cache for compiled message functions
+ * Used to store compiled translation functions to avoid recompilation
+ */
+export type CompiledMessageCache = Map<string, (params?: Params) => CleanTranslation>
+
+/**
+ * Create a new compiled message cache instance
+ */
+export function createCompiledCache(): CompiledMessageCache {
+  return new Map()
+}
+
 export interface BaseI18nOptions {
   cache?: TranslationCache
+  compiledCache?: CompiledMessageCache
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
@@ -39,6 +53,7 @@ export abstract class BaseI18n {
   public getPreviousPageInfo?: () => { locale: string, routeName: string } | null
   public getCustomMissingHandler?: () => MissingHandler | null
   public enablePreviousPageFallback: boolean
+  public compiledMessageCache: CompiledMessageCache
 
   constructor(options: BaseI18nOptions = {}) {
     this.helper = useTranslationHelper(options.cache)
@@ -49,6 +64,8 @@ export abstract class BaseI18n {
     this.getPreviousPageInfo = options.getPreviousPageInfo
     this.getCustomMissingHandler = options.getCustomMissingHandler
     this.enablePreviousPageFallback = options.enablePreviousPageFallback ?? false
+    // Use provided cache or create a new one
+    this.compiledMessageCache = options.compiledCache || createCompiledCache()
   }
 
   // --- Abstract methods (must be implemented by subclasses) ---
@@ -79,16 +96,17 @@ export abstract class BaseI18n {
     params?: Params,
     defaultValue?: string | null,
     routeName?: string,
+    locale?: string,
   ): CleanTranslation {
     if (!key) return ''
 
-    // Use abstract getters to get current state
-    const locale = this.getLocale()
-    const route = routeName || this.getRoute()
+    // Priority: passed locale -> abstract getter
+    const currentLocale = locale || this.getLocale()
+    const currentRoute = routeName || this.getRoute()
 
     // 1. Try to find translation in current locale
     // Note: In Nuxt runtime, server already merges global translations, so we don't need explicit fallback
-    let value = this.helper.getTranslation<string>(locale, route, key)
+    let value = this.helper.getTranslation<string>(currentLocale, currentRoute, key)
 
     // 2. If translation not found and there are saved previous translations, use them (only if enabled)
     if (!value && this.enablePreviousPageFallback && this.getPreviousPageInfo) {
@@ -107,8 +125,8 @@ export abstract class BaseI18n {
     // 3. Fallback to fallbackLocale if not found and different (for non-Nuxt adapters)
     if (!value) {
       const fallbackLocale = this.getFallbackLocale()
-      if (locale !== fallbackLocale) {
-        value = this.helper.getTranslation<string>(fallbackLocale, route, key)
+      if (currentLocale !== fallbackLocale) {
+        value = this.helper.getTranslation<string>(fallbackLocale, currentRoute, key)
       }
     }
 
@@ -117,16 +135,16 @@ export abstract class BaseI18n {
       // Call custom handler if set (Nuxt runtime), otherwise use instance handler
       const customHandler = this.getCustomMissingHandler?.()
       if (customHandler) {
-        customHandler(locale, key, route)
+        customHandler(currentLocale, key, currentRoute)
       }
       else if (this.missingHandler) {
-        this.missingHandler(locale, key as string, route)
+        this.missingHandler(currentLocale, key as string, currentRoute)
       }
       else if (this.missingWarn) {
         const isDev = process.env.NODE_ENV !== 'production'
         const isClient = typeof window !== 'undefined'
         if (isDev && isClient) {
-          console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${route}'.`)
+          console.warn(`Not found '${key}' key in '${currentLocale}' locale messages for route '${currentRoute}'.`)
         }
       }
       value = defaultValue === undefined ? key : (defaultValue || key)
@@ -213,6 +231,13 @@ export abstract class BaseI18n {
    */
   public clearCache(): void {
     this.helper.clearCache()
+  }
+
+  /**
+   * Clear compiled message cache
+   */
+  public clearCompiledCache(): void {
+    this.compiledMessageCache.clear()
   }
 
   // --- Public methods (for subclasses to use) ---

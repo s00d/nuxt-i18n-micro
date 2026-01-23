@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v2.18.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.17.1...v2.18.0)
+
+### 🚀 Enhancements
+
+- **server/routes:** Add safe data parsing helper for storage ([2adb080](https://github.com/s00d/nuxt-i18n-micro/commit/2adb080))
+
+### 📖 Documentation
+
+- **guide:** Update custom auto-detect documentation for clarity ([7dde79a](https://github.com/s00d/nuxt-i18n-micro/commit/7dde79a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.17.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.17.0...v2.17.1)

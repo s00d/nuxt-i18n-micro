@@ -22,6 +22,23 @@ function deepMerge(target: Translations, source: Translations): Translations {
   return output
 }
 
+// Хелпер для безопасного парсинга данных из стореджа
+function parseStorageData(data: unknown, debug = false, path?: string): Translations | null {
+  if (!data) return null
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data)
+    }
+    catch (e) {
+      if (debug) {
+        console.error(`[i18n] Error parsing storage data${path ? ` for ${path}` : ''}:`, e)
+      }
+      return null
+    }
+  }
+  return data as Translations
+}
+
 export default defineEventHandler(async (event) => {
   // Set proper Content-Type header for JSON responses
   setResponseHeader(event, 'Content-Type', 'application/json')
@@ -67,51 +84,35 @@ export default defineEventHandler(async (event) => {
   let finalTranslations: Translations = {}
   const currentLocaleConfig = locales?.find(l => l.code === locale) ?? null
 
-  // Функция загрузки через Storage API (Serverless compatible)
+  // Function to load translations from all layers (via storage) and merge them
   const loadAndMerge = async (targetLocale: string) => {
     let globalTranslations: Translations = {}
     let pageTranslations: Translations = {}
 
-    // Перебираем все слои (layers), соответствующие rootDirs
-    // Мы зарегистрировали их как i18n_layer_0, i18n_layer_1 и т.д.
+    // Iterate through all layers (indices corresponding to rootDirs)
     for (let i = 0; i < rootDirs.length; i++) {
       const layerPrefix = `assets:i18n_layer_${i}`
 
-      // 1. Загрузка глобальных переводов: {locale}.json
-      // В Storage API разделители путей заменяются на двоеточия
+      // 1. Load Global Translations: {locale}.json
       const globalKey = `${layerPrefix}:${targetLocale}.json`
+      const globalContentRaw = await storage.getItem(globalKey)
+      const globalContent = parseStorageData(globalContentRaw, debug, globalKey)
 
-      try {
-        // getItem вернет null, если файла нет, или распарсенный JSON (Nitro делает это сам для .json)
-        const globalContent = await storage.getItem(globalKey) as Translations | null
-        if (globalContent) {
-          globalTranslations = deepMerge(globalTranslations, globalContent)
-        }
-      }
-      catch (e) {
-        if (debug) {
-          console.error(`[i18n] Error loading global translations: ${globalKey}`, e)
-        }
+      if (globalContent) {
+        globalTranslations = deepMerge(globalTranslations, globalContent)
       }
 
-      // 2. Загрузка переводов страницы: pages/{page}/{locale}.json
+      // 2. Load Page Translations: pages/{page}/{locale}.json
       if (page !== 'general') {
-        // Нормализуем путь страницы: заменяем слеши на двоеточия для ключа хранилища
-        // например "products/slug" -> "products:slug"
+        // Normalize page path for storage key (replace slashes with colons)
+        // e.g. "products/slug" -> "products:slug"
         const normalizedPage = fileLookupPage.replace(/\//g, ':')
-
         const pageKey = `${layerPrefix}:pages:${normalizedPage}:${targetLocale}.json`
+        const pageContentRaw = await storage.getItem(pageKey)
+        const pageContent = parseStorageData(pageContentRaw, debug, pageKey)
 
-        try {
-          const pageContent = await storage.getItem(pageKey) as Translations | null
-          if (pageContent) {
-            pageTranslations = deepMerge(pageTranslations, pageContent)
-          }
-        }
-        catch (e) {
-          if (debug) {
-            console.error(`[i18n] Error loading page translations: ${pageKey}`, e)
-          }
+        if (pageContent) {
+          pageTranslations = deepMerge(pageTranslations, pageContent)
         }
       }
     }

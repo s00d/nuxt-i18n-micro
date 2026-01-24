@@ -106,18 +106,41 @@ i18n: {
 
 While the `strategy` option provides flexibility, there are some known issues and best practices to keep in mind when using these strategies.
 
-### 1. **Hydration Mismatch in `no_prefix` Strategy with Static Generation**
+### 1. **Hydration Mismatch in `no_prefix` Strategy**
 
-When using the `no_prefix` strategy in combination with static site generation (`generate` mode), you may encounter a **hydration mismatch** error. This happens because the locale is determined dynamically (e.g., via cookies or browser settings) after the static page is rendered, leading to a mismatch between the server-rendered content and the client-side hydration.
+When using the `no_prefix` strategy, you may encounter a **hydration mismatch** error if the locale is determined dynamically after the page starts rendering. This happens when the server-rendered content uses a different locale than what the client expects.
 
 **Error Example**:
 ```
 Hydration completed but contains mismatches.
 ```
 
-**Workaround**:
-- Avoid relying on dynamic locale changes during static generation.
-- Consider using a different strategy like `prefix_except_default` or `prefix` if static generation is a requirement.
+**Solution**:
+
+Use `useState('i18n-locale')` to set the locale before i18n initialization. This ensures both server and client use the same locale.
+
+```ts
+// plugins/i18n-loader.server.ts
+import { defineNuxtPlugin, useCookie, useState } from '#imports'
+
+export default defineNuxtPlugin({
+  name: 'i18n-custom-loader',
+  enforce: 'pre',
+  order: -10,
+
+  setup() {
+    const localeCookie = useCookie('user-locale')
+    const localeState = useState<string | null>('i18n-locale', () => null)
+
+    const detectedLocale = 'ja' // Your detection logic here
+
+    localeCookie.value = detectedLocale
+    localeState.value = detectedLocale
+  }
+})
+```
+
+See [Custom Language Detection](/guide/custom-auto-detect#no-prefix-strategy-server-side-locale-detection-without-redirects) for detailed examples.
 
 ### 2. **Issues with `localeRoute` and Route Resolution**
 
@@ -138,26 +161,13 @@ This ensures that the correct route is resolved regardless of the locale strateg
 
 ### 3. **Rendering Issues with Locale-Dependent Content in `no_prefix` Strategy**
 
-In the `no_prefix` strategy, rendering content that depends on the selected locale (e.g., buttons for switching languages) can lead to issues. For example, if you use a `v-for` loop to render locale buttons, Vue may incorrectly apply the `disabled` attribute due to hydration mismatches.
-
-**Example Problematic Code**:
-```vue
-<button
-  v-for="locale in availableLocales"
-  :key="locale.code"
-  :disabled="locale.isActive"
-  :class="{ disabled: locale.isActive }"
-  @click="() => $switchLocale(locale.code)"
->
-  Switch to {{ locale.code }}
-</button>
-```
-
-**Issue**:
-- Vue may incorrectly apply the `disabled` attribute during hydration, and it may not update correctly when the locale changes.
+In the `no_prefix` strategy, rendering content that depends on the selected locale (e.g., buttons for switching languages) can lead to issues if the locale is not properly synchronized between server and client.
 
 **Best Practice**:
-- Use a `<select>` element or another approach that avoids direct DOM manipulation for locale-dependent content:
+
+1. Use `useState('i18n-locale')` in a server plugin to ensure locale is set before rendering (see issue #1 above).
+
+2. Use a `<select>` element for locale switching to avoid hydration issues:
 
 ```vue
 <select @change="(e) => $switchLocale(e.target.value)">
@@ -183,7 +193,8 @@ The new `strategy` option, introduced in version 1.50.0, provides more flexibili
 - **Simplicity for Default Language**: If you don't need locale prefixes for your default language, use `prefix_except_default` or `prefix_and_default`.
 - **Consistency**: For a consistent URL structure with locale prefixes across all languages, use `prefix`.
 - **User Experience**: Consider using `no_prefix` when you want to rely on browser language detection and avoid cluttering the URL with prefixes.
-- **Avoid Hydration Issues**: Be cautious with `no_prefix` in static generation mode and use named routes with `localeRoute` for better route resolution.
+- **Programmatic Locale Setting**: Use `useState('i18n-locale')` in a server plugin to set locale before i18n initialization. Works with all strategies. See [Custom Language Detection](/guide/custom-auto-detect) for details.
+- **Avoid Hydration Issues**: Use named routes with `localeRoute` for better route resolution.
 - **Handle Locale-Dependent Content Carefully**: Use `<select>` or other approaches to avoid hydration mismatches when rendering locale-dependent content.
 
 By understanding and applying these strategies and best practices, you can ensure that your application's localization behavior fits your project's requirements while avoiding common pitfalls.

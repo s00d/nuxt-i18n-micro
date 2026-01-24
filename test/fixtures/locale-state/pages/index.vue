@@ -4,7 +4,11 @@ const { getLocale } = useI18n()
 
 <template>
   <div>
-    <div id="greeting">{{ $t('greeting') }}</div>
-    <div id="locale">{{ getLocale() }}</div>
+    <div id="greeting">
+      {{ $t('greeting') }}
+    </div>
+    <div id="locale">
+      {{ getLocale() }}
+    </div>
   </div>
 </template>

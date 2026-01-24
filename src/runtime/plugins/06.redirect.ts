@@ -1,8 +1,8 @@
 // src/runtime/plugins/06.redirect.ts
 
-import { isNoPrefixStrategy, isPrefixStrategy } from '@i18n-micro/core'
+import { isPrefixExceptDefaultStrategy } from '@i18n-micro/core'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo, createError } from '#imports'
+import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo, createError, useState, useCookie } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
 import { joinURL, withQuery } from 'ufo'
 
@@ -93,43 +93,48 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   const handleRedirect = async (to: ReturnType<typeof useRoute>) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    const currentLocale = (nuxtApp as unknown).$getLocale(to)
+    // Skip if locale is already in params (URL already has prefix)
+    if (to.params.locale) return
+
+    const strategy = i18nConfig.strategy!
+    const defaultLocale = i18nConfig.defaultLocale!
+
+    // Only handle prefix_except_default strategy
+    // Note: 'prefix' strategy is handled by locale-redirect.vue fallback route
+    // Note: 'prefix_and_default' allows both /path and /<locale>/path for default locale
+    if (!isPrefixExceptDefaultStrategy(strategy)) return
+
+    // Check if user has explicit locale preference (useState or cookie)
+    const localeState = await nuxtApp.runWithContext(() => useState<string | null>('i18n-locale'))
+    const cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
+    const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+    const userPreferredLocale = localeState.value || cookieValue
+
+    // Use user preference if set, otherwise use defaultLocale
+    const targetLocale = userPreferredLocale || defaultLocale
+
+    // For prefix_except_default: only redirect if target locale differs from default
+    if (isPrefixExceptDefaultStrategy(strategy) && targetLocale === defaultLocale) return
+
+    // Find the appropriate route name
     const name = to.name?.toString()
+    const targetRouteName = router.hasRoute(`localized-${name}-${targetLocale}`)
+      ? `localized-${name}-${targetLocale}`
+      : `localized-${name}`
 
-    let defaultRouteName = name?.toString()
-      .replace('localized-', '')
-      .replace(new RegExp(`-${currentLocale}$`), '')
+    if (!router.hasRoute(targetRouteName)) return
 
-    if (!to.params.locale) {
-      if (router.hasRoute(`localized-${name}-${currentLocale}`)) {
-        defaultRouteName = `localized-${name}-${currentLocale}`
-      }
-      else {
-        defaultRouteName = `localized-${name}`
-      }
-
-      if (!router.hasRoute(defaultRouteName)) return
-
-      const newParams = { ...to.params }
-      if (!isNoPrefixStrategy(i18nConfig.strategy!)) {
-        newParams.locale = i18nConfig.defaultLocale!
-      }
-
-      return navigateTo({ name: defaultRouteName, params: newParams }, {
-        redirectCode: 301,
-        external: true,
-      })
-    }
+    const newParams = { ...to.params, locale: targetLocale }
+    return navigateTo({ name: targetRouteName, params: newParams }, {
+      redirectCode: 302,
+      external: true,
+    })
   }
 
   if (import.meta.server) {
     if (checkGlobalLocaleRoutes(route)) return
     checkRouteLocales(route)
-    if (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!)) {
-      await handleRedirect(route)
-    }
+    await handleRedirect(route)
   }
 
   router.beforeEach(async (to, from, next) => {
@@ -139,9 +144,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       checkRouteLocales(to)
     }
 
-    if (isPrefixStrategy(i18nConfig.strategy!) || isNoPrefixStrategy(i18nConfig.strategy!)) {
-      await handleRedirect(to)
-    }
+    await handleRedirect(to)
     next?.()
   })
 })

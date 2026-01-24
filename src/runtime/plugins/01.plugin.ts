@@ -47,19 +47,27 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
   }
 
+  // State for programmatic locale setting (used by custom plugins that set locale before i18n init)
+  // Works with all strategies: no_prefix, prefix, prefix_except_default, prefix_and_default, hashMode
+  const localeState = useState<string | null>('i18n-locale', () => null)
+
   if (i18nConfig.hashMode) {
-    hashLocaleDefault = await nuxtApp.runWithContext(() => useCookie('hash-locale').value)
+    const cookieValue = await nuxtApp.runWithContext(() => useCookie('hash-locale').value)
+    hashLocaleDefault = localeState.value || cookieValue
   }
-  if (isNoPrefixStrategy(i18nConfig.strategy!)) {
+  else if (isNoPrefixStrategy(i18nConfig.strategy!)) {
     if (cookieLocaleName) {
-      noPrefixDefault = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+      const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+      noPrefixDefault = localeState.value || cookieValue
     }
   }
-
-  // Читаем куку для обычной стратегии (не hashMode и не noPrefix)
-  // Используем localeCookie из конфига или 'user-locale' по умолчанию
-  if (!i18nConfig.hashMode && !isNoPrefixStrategy(i18nConfig.strategy!)) {
-    cookieLocaleDefault = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName!).value)
+  else {
+    // For prefix strategies (prefix, prefix_except_default, prefix_and_default)
+    // localeState can be used to override locale detection from URL
+    if (cookieLocaleName) {
+      const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+      cookieLocaleDefault = localeState.value || cookieValue
+    }
   }
 
   const routeService = new RouteService(
@@ -99,13 +107,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // unified loader: page + global merged on server
   async function loadPageAndGlobalTranslations(to: RouteLocationResolvedGeneric) {
-    let locale = routeService.getCurrentLocale(to)
-    if (i18nConfig.hashMode) {
-      locale = await nuxtApp.runWithContext(() => useCookie('hash-locale', { default: () => locale }).value)
-    }
-    if (isNoPrefixStrategy(i18nConfig.strategy!) && cookieLocaleName) {
-      locale = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName, { default: () => locale }).value)
-    }
+    // localeState has priority over all other locale detection methods
+    // This allows custom plugins to set locale programmatically before i18n init
+    const locale = localeState.value || routeService.getCurrentLocale(to)
 
     const routeName = routeService.getPluginRouteName(to, locale)
 

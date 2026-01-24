@@ -117,7 +117,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // Also skip if there are no matched records to avoid unnecessary fetches on error pages
     // This prevents infinite waiting on pages like /de/unlocalized where route is intentionally absent
     // and should return 404 without triggering translation loading.
-    if (!routeName) {
+    // Also skip for custom-fallback-route (the redirect component for prefix strategy)
+    if (!routeName || routeName === 'custom-fallback-route') {
       return
     }
 

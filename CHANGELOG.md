@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v2.20.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.20.0...v2.20.1)
+
+### ✅ Tests
+
+- **locale-state-prefix:** Add test for custom-fallback-route 404 error ([29540a9](https://github.com/s00d/nuxt-i18n-micro/commit/29540a9))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.20.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.19.0...v2.20.0)

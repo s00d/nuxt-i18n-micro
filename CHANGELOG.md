@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v2.19.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.18.0...v2.19.0)
+
+### 🚀 Enhancements
+
+- **locale:** Add programmatic locale state management ([cc4348d](https://github.com/s00d/nuxt-i18n-micro/commit/cc4348d))
+
+### 💅 Refactors
+
+- **ui:** Clean up template formatting and remove trailing semicolons ([0163d98](https://github.com/s00d/nuxt-i18n-micro/commit/0163d98))
+
+### 📖 Documentation
+
+- **guide/custom-auto-detect:** Correct punctuation and improve clarity ([880409d](https://github.com/s00d/nuxt-i18n-micro/commit/880409d))
+- **guide/strategy:** Update hydration mismatch explanation for no_prefix ([0daa516](https://github.com/s00d/nuxt-i18n-micro/commit/0daa516))
+
+### ✅ Tests
+
+- Add tests for locale state prefix strategies ([25d9380](https://github.com/s00d/nuxt-i18n-micro/commit/25d9380))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.18.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.17.1...v2.18.0)

@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v2.20.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.19.0...v2.20.0)
+
+### 🚀 Enhancements
+
+- **redirect:** Implement locale redirection for prefix_except_default strategy ([c7cf94e](https://github.com/s00d/nuxt-i18n-micro/commit/c7cf94e))
+- **locale-redirect:** Add user locale preference handling ([d130b81](https://github.com/s00d/nuxt-i18n-micro/commit/d130b81))
+
+### 📖 Documentation
+
+- **guide:** Clarify redirect behavior for URL prefix strategies ([974eaf4](https://github.com/s00d/nuxt-i18n-micro/commit/974eaf4))
+- **guide:** Clarify redirect behavior for URL prefix strategies ([1aa6a8d](https://github.com/s00d/nuxt-i18n-micro/commit/1aa6a8d))
+
+### ✅ Tests
+
+- **locale:** Update test descriptions for clarity and correctness ([075b058](https://github.com/s00d/nuxt-i18n-micro/commit/075b058))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v2.19.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.18.0...v2.19.0)

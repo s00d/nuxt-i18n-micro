@@ -15,6 +15,6 @@
     "wrangler": "^3.109.1"
   },
   "dependencies": {
-    "nuxt": "^3.18.1"
+    "nuxt": "3.18.1"
   }
 }

@@ -69,4 +69,28 @@ test.describe('useState locale override - prefix', () => {
 
     expect(cookieWarnings).toHaveLength(0)
   })
+
+  test('no 404 error when visiting / with useState (custom-fallback-route fix)', async ({ page, goto }) => {
+    // This test ensures that custom-fallback-route doesn't cause 404 errors
+    // when trying to load translations for it (bug fix verification)
+    const errors: string[] = []
+    page.on('console', (msg) => {
+      const text = msg.text()
+      if (text.includes('404') || text.includes('custom-fallback-route')) {
+        errors.push(text)
+      }
+    })
+
+    await goto('/', { waitUntil: 'hydration' })
+
+    // Page should load successfully and redirect to /ja/
+    await expect(page).toHaveURL('/ja/')
+    await expect(page.locator('#greeting')).toHaveText('こんにちは')
+
+    // Should not have 404 errors related to custom-fallback-route translations
+    const translationErrors = errors.filter(e =>
+      e.includes('custom-fallback-route') && e.includes('404'),
+    )
+    expect(translationErrors).toHaveLength(0)
+  })
 })

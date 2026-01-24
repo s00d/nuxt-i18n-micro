@@ -16,13 +16,12 @@ test.use({
 })
 
 test.describe('useState locale override - prefix_except_default', () => {
-  test('server plugin sets locale via useState before i18n init', async ({ page, goto }) => {
+  test('redirect from / to /ja when useState sets non-default locale', async ({ page, goto }) => {
+    // With prefix_except_default, visiting / with locale=ja should redirect to /ja
     await goto('/', { waitUntil: 'hydration' })
 
-    // With prefix_except_default, default locale (en) has no prefix
-    // But useState sets 'ja', so it should use ja translations
-    // URL stays at / but content is in Japanese
-    await expect(page).toHaveURL('/')
+    // Should redirect to /ja because useState('i18n-locale') is 'ja' (non-default)
+    await expect(page).toHaveURL('/ja')
 
     // Check that the locale is set to 'ja'
     await expect(page.locator('#locale')).toHaveText('ja')
@@ -49,7 +48,7 @@ test.describe('useState locale override - prefix_except_default', () => {
       }
     })
 
-    await goto('/', { waitUntil: 'hydration' })
+    await goto('/ja', { waitUntil: 'hydration' })
     await page.waitForTimeout(500)
 
     expect(consoleErrors.filter(e => e.toLowerCase().includes('hydration'))).toHaveLength(0)
@@ -65,7 +64,7 @@ test.describe('useState locale override - prefix_except_default', () => {
       }
     })
 
-    await goto('/', { waitUntil: 'hydration' })
+    await goto('/ja', { waitUntil: 'hydration' })
     await page.waitForTimeout(500)
 
     expect(cookieWarnings).toHaveLength(0)

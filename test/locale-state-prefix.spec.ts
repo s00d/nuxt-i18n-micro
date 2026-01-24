@@ -16,10 +16,11 @@ test.use({
 })
 
 test.describe('useState locale override - prefix', () => {
-  test('server plugin sets locale via useState and translations work on /ja/', async ({ page, goto }) => {
-    // With prefix strategy, go directly to /ja/ path
-    await goto('/ja/', { waitUntil: 'hydration' })
+  test('redirect from / to /ja/ when useState sets locale', async ({ page, goto }) => {
+    // With prefix strategy, visiting / should redirect to /<currentLocale>/
+    await goto('/', { waitUntil: 'hydration' })
 
+    // Should redirect to /ja/ because useState('i18n-locale') is 'ja'
     await expect(page).toHaveURL('/ja/')
 
     // Check that the locale is set to 'ja'
@@ -47,7 +48,7 @@ test.describe('useState locale override - prefix', () => {
       }
     })
 
-    await goto('/ja/', { waitUntil: 'hydration' })
+    await goto('/', { waitUntil: 'hydration' })
     await page.waitForTimeout(500)
 
     expect(consoleErrors.filter(e => e.toLowerCase().includes('hydration'))).toHaveLength(0)
@@ -63,7 +64,7 @@ test.describe('useState locale override - prefix', () => {
       }
     })
 
-    await goto('/ja/', { waitUntil: 'hydration' })
+    await goto('/', { waitUntil: 'hydration' })
     await page.waitForTimeout(500)
 
     expect(cookieWarnings).toHaveLength(0)

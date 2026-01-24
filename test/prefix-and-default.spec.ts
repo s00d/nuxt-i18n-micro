@@ -19,7 +19,7 @@ test.describe('prefix_and_default', () => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })
 
-    // Ensure the URL contains the default locale
+    // Ensure the URL stays at / (prefix_and_default allows non-prefixed URLs for default locale)
     await expect(page).toHaveURL('/')
 
     // Check the initial text for the default locale

@@ -128,10 +128,16 @@ You can set the locale programmatically on the server using `useState('i18n-loca
 - `prefix_and_default`
 - `hashMode`
 
-::: warning Limitation for prefix strategies
-For strategies with URL prefix (`prefix`, `prefix_and_default`), `useState('i18n-locale')` affects **translations and locale detection**, but does **not** affect the redirect from `/` to `/<locale>/`. The redirect always uses `defaultLocale` from the configuration.
+::: tip Redirect behavior
+For strategies with URL prefix and `redirects: true`, `useState('i18n-locale')` affects the redirect:
 
-If you need custom redirect logic for prefix strategies, use the redirect-based approach described in the first section of this page.
+| Strategy | Redirect from `/` |
+|----------|-------------------|
+| `prefix` | → `/<locale>/` (uses `useState` or `defaultLocale`) |
+| `prefix_except_default` | → `/<locale>/` if locale ≠ default (uses `useState`/cookie) |
+| `prefix_and_default` | No redirect (both `/` and `/<locale>/` are valid for default) |
+
+This ensures URL consistency for SEO.
 :::
 
 ### The Solution
@@ -329,4 +335,6 @@ export default defineNuxtPlugin({
 - ✅ **SSR + Client sync**: Both useState and cookie ensure consistent locale across server and client
 - ✅ **Full control**: Implement any detection logic (domain, headers, IP, etc.)
 - ✅ **No hydration mismatch**: Server and client use the same locale
-- ⚠️ **Prefix strategies**: Redirect from `/` to `/<locale>/` uses `defaultLocale`, not `useState` value
+- ✅ **`prefix`**: Redirect from `/` to `/<locale>/` using `useState` or `defaultLocale`
+- ✅ **`prefix_except_default`**: Redirect from `/` to `/<locale>/` when non-default locale is set
+- ✅ **`prefix_and_default`**: No redirect (both `/` and `/<locale>/` valid for default locale)

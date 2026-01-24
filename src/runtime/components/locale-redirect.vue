@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter, useI18n, createError, navigateTo, useRuntimeConfig, showError } from '#imports'
+import { useRoute, useRouter, useI18n, createError, navigateTo, useRuntimeConfig, showError, useState } from '#imports'
 import { isInternalPath } from '../utils/path-utils'
 import { isPrefixStrategy, isPrefixExceptDefaultStrategy } from '@i18n-micro/core'
 
@@ -17,6 +17,12 @@ const i18nConfig = config.public.i18nConfig
 const strategy = i18nConfig?.strategy || 'prefix_except_default'
 const locales = $getLocales().map(locale => locale.code)
 const defaultLocale = $defaultLocale() || 'en'
+
+// Get user's explicit locale preference from useState ONLY (not cookie)
+// Cookie is used by RouteService, here we only check explicit useState override
+const localeState = useState('i18n-locale')
+// Use useState value if explicitly set, otherwise use defaultLocale
+const currentLocale = localeState.value || defaultLocale
 const pathSegments = route.fullPath.split('/')
 const firstSegment = pathSegments[1]
 
@@ -125,18 +131,19 @@ if (locales.includes(firstSegment)) {
 }
 // Scenario 2: Path does NOT start with locale prefix (e.g., /about)
 else {
-  // Check if there's a custom path for default locale
-  const customPath = globalLocaleRoutes[currentPageName]?.[defaultLocale]
+  // Check if there's a custom path for current locale
+  const customPath = globalLocaleRoutes[currentPageName]?.[currentLocale]
   if (customPath && customPath !== route.fullPath) {
-    // If there's a custom path for default locale, redirect to it
+    // If there's a custom path for current locale, redirect to it
     // Strategy 'prefix' will require adding prefix
-    const targetPath = isPrefixStrategy(strategy) ? `/${defaultLocale}${customPath}` : customPath
+    const targetPath = isPrefixStrategy(strategy) ? `/${currentLocale}${customPath}` : customPath
     handleRedirect(targetPath)
     redirectHandled = true
   }
   // If no custom path and strategy is 'prefix', redirect is needed
   else if (isPrefixStrategy(strategy)) {
-    const newPathWithPrefix = `/${defaultLocale}${route.fullPath}`
+    // Use currentLocale (from cookie/useState) for redirect, not defaultLocale
+    const newPathWithPrefix = `/${currentLocale}${route.fullPath}`
     if (routeExists(newPathWithPrefix)) {
       handleRedirect(newPathWithPrefix)
       redirectHandled = true

@@ -1348,7 +1348,7 @@ Creates and configures the Astro integration for i18n-micro.
 | `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
 | `missingWarn` | `boolean` | ❌ | `false` | Show console warnings for missing translations |
 | `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom handler for missing translations |
-| `localeCookie` | `string` | ❌ | `'i18n-locale'` | Cookie name for storing locale |
+| `localeCookie` | `string \| null` | ❌ | `'i18n-locale'` | Cookie name for storing locale. Set to `null` to disable cookie |
 | `autoDetect` | `boolean` | ❌ | `true` | Enable automatic locale detection |
 | `redirectToDefault` | `boolean` | ❌ | `false` | Redirect to default locale if not found |
 | `translationDir` | `string` | ❌ | `'src/locales'` | Directory path for translation files |
@@ -1694,7 +1694,7 @@ If a `routingStrategy` is provided, it uses `getLocaleFromPath` for path-based d
 
 ### `detectLocale(pathname, cookies, headers, defaultLocale, locales, localeCookie?, routingStrategy?): string`
 
-Utility function for custom locale detection logic.
+Utility function for custom locale detection logic. Set `localeCookie` to `null` to disable cookie-based detection.
 
 ```typescript
 import { detectLocale } from '@i18n-micro/astro'
@@ -1705,7 +1705,7 @@ const locale = detectLocale(
   headers,
   'en',
   ['en', 'fr', 'de'],
-  'i18n-locale',
+  'i18n-locale', // or null to disable cookie
   routingStrategy // Optional
 )
 ```

@@ -472,18 +472,12 @@ export default defineNuxtConfig({
 
 ### Lazy Load Translations
 
-For large applications, consider lazy loading translations:
+`Nuxt I18n Micro` automatically lazy-loads translations on a per-page basis. Translations are only loaded when needed, reducing initial bundle size. This is built-in functionality - no additional configuration required.
 
-```typescript
-i18n: {
-  lazy: true,
-  langDir: 'locales',
-  locales: [
-    { code: 'en', file: 'en.json' },
-    { code: 'fr', file: 'fr.json' }
-  ]
-}
-```
+To further optimize:
+- Use `disablePageLocales: false` (default) to enable page-specific translations
+- Keep global translations minimal
+- Use route-specific translation files for page content
 
 ::: tip Module Version
 The module automatically sets proper `Content-Type` headers starting from version **1.35.0**. If you're experiencing issues, update to the latest version:

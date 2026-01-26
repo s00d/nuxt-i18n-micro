@@ -66,6 +66,7 @@
     "client:prepare": "nuxi client:prepare client",
     "client:dev": "nuxi dev client --port 3300",
     "clean": "find . \\( -name 'node_modules' -o -name '.nuxt' -o -name '.output' -o -name 'dist' \\) -type d -prune -exec rm -rf '{}' + && find . \\( -name 'pnpm-lock.yaml' -o -name 'package-lock.json' \\) -type f -exec rm -f '{}' +",
+    "clean:test": "find test/fixtures -type d \\( -name '.nuxt' -o -name 'test-results' \\) -exec rm -rf '{}' + 2>/dev/null || true",
     "typecheck": "tsc --noEmit",
     "typecheck:nuxt": "nuxt typecheck --no-emit",
     "docs:dev": "vitepress dev docs",

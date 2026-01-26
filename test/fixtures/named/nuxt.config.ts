@@ -13,5 +13,7 @@ export default defineNuxtConfig({
     locales: [{ code: 'de' }, { code: 'en' }],
     defaultLocale: 'de',
     strategy: 'prefix',
+    autoDetectLanguage: false,
+    localeCookie: 'user-locale',
   },
 })

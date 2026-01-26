@@ -474,14 +474,31 @@ plural: (key, count, _params, _locale, t) => {
 
 #### `localeCookie`
 
-Specifies the cookie name for storing user's locale.
+Specifies the cookie name for storing user's locale. This enables locale persistence across page reloads and browser sessions. By default, cookie-based locale persistence is disabled.
 
-**Type**: `string`  
-**Default**: `'user-locale'`
+**Type**: `string | null`  
+**Default**: `null`
+
+::: tip Automatic for `no_prefix` strategy
+When using `strategy: 'no_prefix'`, `localeCookie` is automatically set to `'user-locale'` if not specified. This is required to persist the locale between page reloads since there's no locale information in the URL.
+:::
 
 ```typescript
+// Enable cookie (recommended for no_prefix strategy)
 localeCookie: 'user-locale'
+
+// Enable cookie with custom name
+localeCookie: 'my-locale-cookie'
+
+// Disable cookie (default) - locale won't persist across reloads
+localeCookie: null
 ```
+
+**What `localeCookie` enables:**
+- Persists user's locale preference across page reloads
+- Remembers locale when user returns to your site
+- Required for `no_prefix` strategy to work correctly
+- Used for redirect decisions in prefix strategies (when enabled)
 
 #### `apiBaseUrl`
 

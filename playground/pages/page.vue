@@ -12,7 +12,7 @@
 
     <i18n-t keypath="feedback.text">
       <template #link>
-        <nuxt-link :to="{ name: 'index' }">
+        <nuxt-link :to="$localeRoute({ name: 'index' })">
           <i18n-t keypath="feedback.link" />
         </nuxt-link>
       </template>

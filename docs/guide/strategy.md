@@ -29,9 +29,14 @@ This strategy ensures that no locale prefix is added to your routes. Instead of 
 
 **Use Case**: Ideal when you want a cleaner URL structure and are relying on automatic language detection rather than explicit locale identifiers in the URL.
 
+::: tip Automatic `localeCookie`
+When using `no_prefix` strategy, `localeCookie` is automatically set to `'user-locale'` if not specified. This is required to persist the locale between page reloads since there's no locale information in the URL.
+:::
+
 ```typescript
 i18n: {
   strategy: 'no_prefix'
+  // localeCookie is automatically set to 'user-locale'
 }
 ```
 
@@ -101,6 +106,47 @@ i18n: {
 - `/en/about` (for English, with prefix)
 - `/ru/about` (for Russian)
 - `/fr/about` (for French)
+
+## 🔀 Redirect Behavior
+
+When using prefix-based strategies with `redirects: true`, visiting `/` triggers a redirect based on user's locale preference.
+
+### Server-Side Redirect (No Error Flash)
+
+For the `prefix` strategy, redirects are handled at the server middleware level when a locale cookie is present. This prevents the "error flash" issue where users briefly see an error page before being redirected.
+
+**How it works:**
+1. When a request comes to `/` with a valid locale cookie, server middleware immediately returns a 302 redirect
+2. No page rendering occurs, so there's no error flash
+3. If no cookie is present, the redirect is handled by the plugin/component (which sets the cookie for future requests)
+
+| Strategy | Redirect from `/` |
+|----------|-------------------|
+| `prefix` | → `/<locale>/` (uses `useState`, cookie, or `defaultLocale`) |
+| `prefix_except_default` | → `/<locale>/` only if locale ≠ default |
+| `prefix_and_default` | No redirect (both `/` and `/<locale>/` are valid) |
+
+**Locale Priority Order:**
+1. `useState('i18n-locale')` - highest priority (for programmatic locale setting)
+2. Cookie value (if `localeCookie` is set)
+3. `defaultLocale` - fallback
+
+**Important:** 
+- Cookie-based locale persistence is disabled by default (`localeCookie: null`)
+- For `no_prefix` strategy, `localeCookie` is **required** to persist locale
+- If the cookie contains an invalid locale (not in the `locales` list), the module falls back to `defaultLocale`
+
+To enable cookie-based locale persistence:
+```typescript
+i18n: {
+  localeCookie: 'user-locale'
+}
+```
+
+This enables:
+- Locale persistence across page reloads
+- Locale memory when user returns to your site
+- Correct redirect behavior for prefix strategies
 
 ## ⚠️ Known Issues and Best Practices
 
@@ -183,6 +229,72 @@ In the `no_prefix` strategy, rendering content that depends on the selected loca
 ```
 
 This approach avoids hydration issues and ensures that the UI updates correctly when the locale changes.
+
+### 4. **Using `pages: false` with i18n**
+
+When using Nuxt with `pages: false` (disabled file-based routing), the i18n module has some limitations:
+
+**Known Limitations:**
+- **No automatic redirects**: Redirect logic depends on file-based routes. With `pages: false`, the router doesn't have page-based routes to redirect to.
+- **No route-based locale detection**: URL-based locale detection (prefix strategies) won't work as expected since there are no route definitions.
+- **Client-side locale switching**: Requires a page reload because the router doesn't have routes to trigger translation reloading.
+
+**Recommended Configuration for `pages: false`:**
+
+```typescript
+export default defineNuxtConfig({
+  pages: false,
+  modules: ['nuxt-i18n-micro'],
+  i18n: {
+    strategy: 'no_prefix', // Recommended for pages: false
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', iso: 'en-US', name: 'English' },
+      { code: 'zh', iso: 'zh-CN', name: '简体中文' },
+    ],
+    disablePageLocales: true, // Required with pages: false
+    localeCookie: 'user-locale', // Required for locale persistence
+  },
+})
+```
+
+**Why `no_prefix` is recommended:**
+- No dependency on URL-based locale detection
+- Locale is determined by cookie or `useState('i18n-locale')`
+- Works consistently with custom routing solutions
+
+**Workarounds for client-side locale switching:**
+
+1. **Full page reload after switching locale:**
+```vue
+<script setup>
+const { $switchLocale } = useNuxtApp()
+
+function switchToLocale(locale) {
+  $switchLocale(locale)
+  // Force page reload to load new translations
+  window.location.reload()
+}
+</script>
+```
+
+2. **Manually load translations:**
+```vue
+<script setup>
+const { $switchLocale, $mergeGlobalTranslations } = useNuxtApp()
+
+async function switchToLocale(locale) {
+  // Load translations first
+  const data = await $fetch(`/locales/${locale}.json`)
+  $mergeGlobalTranslations(data)
+  $switchLocale(locale)
+}
+</script>
+```
+
+**Invalid Cookie Handling:**
+
+If a cookie contains an invalid locale (not in the `locales` list), the module gracefully falls back to `defaultLocale` instead of throwing an error. This ensures your app remains functional even with corrupted or outdated cookies.
 
 ## 📝 Conclusion
 

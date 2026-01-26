@@ -43,8 +43,17 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   let cookieLocaleDefault: null | string | undefined = null
 
   let cookieLocaleName: string | null = null
-  if (!i18nConfig.hashMode) {
+  // Only use cookie if localeCookie is not disabled (null) and not in hashMode
+  if (!i18nConfig.hashMode && i18nConfig.localeCookie !== null) {
     cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
+  }
+
+  // Valid locale codes for validation
+  const validLocales = i18nConfig.locales?.map(l => l.code) || []
+
+  // Helper to validate locale value
+  const isValidLocale = (locale: string | null | undefined): locale is string => {
+    return !!locale && validLocales.includes(locale)
   }
 
   // State for programmatic locale setting (used by custom plugins that set locale before i18n init)
@@ -53,12 +62,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   if (i18nConfig.hashMode) {
     const cookieValue = await nuxtApp.runWithContext(() => useCookie('hash-locale').value)
-    hashLocaleDefault = localeState.value || cookieValue
+    const preferredLocale = localeState.value || cookieValue
+    // Validate locale - fallback to null if invalid
+    hashLocaleDefault = isValidLocale(preferredLocale) ? preferredLocale : null
   }
   else if (isNoPrefixStrategy(i18nConfig.strategy!)) {
     if (cookieLocaleName) {
       const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
-      noPrefixDefault = localeState.value || cookieValue
+      const preferredLocale = localeState.value || cookieValue
+      // Validate locale - fallback to defaultLocale if invalid
+      noPrefixDefault = isValidLocale(preferredLocale) ? preferredLocale : i18nConfig.defaultLocale
     }
   }
   else {
@@ -66,7 +79,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // localeState can be used to override locale detection from URL
     if (cookieLocaleName) {
       const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
-      cookieLocaleDefault = localeState.value || cookieValue
+      const preferredLocale = localeState.value || cookieValue
+      // Validate locale - fallback to null if invalid (URL will be used)
+      cookieLocaleDefault = isValidLocale(preferredLocale) ? preferredLocale : null
     }
   }
 

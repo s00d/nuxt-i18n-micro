@@ -87,7 +87,7 @@ export interface ModuleOptions {
   plural?: string | PluralFunc
   disablePageLocales?: boolean
   fallbackLocale?: string
-  localeCookie?: string
+  localeCookie?: string | null
   debug?: boolean
   globalLocaleRoutes?: GlobalLocaleRoutes
   customRegexMatcher?: string | RegExp

@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter, useI18n, createError, navigateTo, useRuntimeConfig, showError, useState } from '#imports'
+import { useRoute, useRouter, useI18n, createError, navigateTo, useRuntimeConfig, showError, useState, useCookie } from '#imports'
 import { isInternalPath } from '../utils/path-utils'
 import { isPrefixStrategy, isPrefixExceptDefaultStrategy } from '@i18n-micro/core'
 
@@ -18,11 +18,18 @@ const strategy = i18nConfig?.strategy || 'prefix_except_default'
 const locales = $getLocales().map(locale => locale.code)
 const defaultLocale = $defaultLocale() || 'en'
 
-// Get user's explicit locale preference from useState ONLY (not cookie)
-// Cookie is used by RouteService, here we only check explicit useState override
+// Get user's locale preference from useState or cookie (same behavior as prefix_except_default)
 const localeState = useState('i18n-locale')
-// Use useState value if explicitly set, otherwise use defaultLocale
-const currentLocale = localeState.value || defaultLocale
+// Only read cookie if localeCookie is not disabled (null)
+let cookieValue
+if (i18nConfig?.localeCookie !== null) {
+  const cookieLocaleName = i18nConfig?.localeCookie || 'user-locale'
+  cookieValue = useCookie(cookieLocaleName).value
+}
+const userPreferredLocale = localeState.value || cookieValue
+// Validate that preferred locale exists, otherwise fallback to defaultLocale
+const isValidLocale = userPreferredLocale && locales.includes(userPreferredLocale)
+const currentLocale = isValidLocale ? userPreferredLocale : defaultLocale
 const pathSegments = route.fullPath.split('/')
 const firstSegment = pathSegments[1]
 
@@ -43,17 +50,28 @@ if (isInternalPath(route.fullPath, i18nConfig?.excludePatterns)) {
 }
 
 // --- 3. Utilities ---
-const handleRedirect = (path) => {
-  // Add query parameters to redirect path
-  const finalPath = route.query && Object.keys(route.query).length > 0
-    ? `${path}?${new URLSearchParams(route.query).toString()}`
-    : path
+const handleRedirect = (path, isIndexRoute = false) => {
+  // Use router.resolve to get the correct path
+  const resolved = router.resolve(path)
+  let resolvedPath = resolved.fullPath || path
+
+  // For index routes, ensure trailing slash
+  if (isIndexRoute && !resolvedPath.includes('?') && !resolvedPath.endsWith('/')) {
+    resolvedPath = `${resolvedPath}/`
+  }
+
+  // Add query parameters to redirect path if not already included
+  const hasQuery = resolvedPath.includes('?')
+  const finalPath = !hasQuery && route.query && Object.keys(route.query).length > 0
+    ? `${resolvedPath}?${new URLSearchParams(route.query).toString()}`
+    : resolvedPath
 
   if (import.meta.client) {
     window.history.replaceState(null, '', finalPath)
     location.assign(finalPath)
   }
   else {
+    // Use external: false for SSG to avoid prerender errors
     navigateTo(finalPath, { redirectCode: 301, external: true })
   }
 }
@@ -143,9 +161,11 @@ else {
   // If no custom path and strategy is 'prefix', redirect is needed
   else if (isPrefixStrategy(strategy)) {
     // Use currentLocale (from cookie/useState) for redirect, not defaultLocale
-    const newPathWithPrefix = `/${currentLocale}${route.fullPath}`
-    if (routeExists(newPathWithPrefix)) {
-      handleRedirect(newPathWithPrefix)
+    const basePath = route.path === '/' ? '' : route.path
+    const newPathWithPrefix = `/${currentLocale}${basePath}`
+    const isIndexRoute = route.path === '/'
+    if (routeExists(newPathWithPrefix) || routeExists(`${newPathWithPrefix}/`)) {
+      handleRedirect(newPathWithPrefix, isIndexRoute)
       redirectHandled = true
     }
     else {

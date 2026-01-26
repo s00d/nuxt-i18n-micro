@@ -1,6 +1,6 @@
 // src/runtime/plugins/06.redirect.ts
 
-import { isPrefixExceptDefaultStrategy } from '@i18n-micro/core'
+import { isPrefixExceptDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { defineNuxtPlugin, useRuntimeConfig, useRoute, useRouter, navigateTo, createError, useState, useCookie } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
@@ -31,7 +31,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const route = useRoute()
   const router = useRouter()
 
-  const checkGlobalLocaleRoutes = (to: ReturnType<typeof useRoute>): boolean => {
+  // Helper to check if route exists in router
+  const routeExists = (path: string) => {
+    try {
+      const resolved = router.resolve(path)
+      return resolved.name && resolved.name !== 'custom-fallback-route' && resolved.matched.length > 0
+    }
+    catch {
+      return false
+    }
+  }
+
+  const checkGlobalLocaleRoutes = async (to: ReturnType<typeof useRoute>): Promise<boolean> => {
     if (!globalLocaleRoutes || typeof globalLocaleRoutes !== 'object' || Object.keys(globalLocaleRoutes).length === 0) {
       return false
     }
@@ -68,12 +79,21 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         // 3. Сравниваем декодированные пути, чтобы избежать проблем с кириллицей
         if (decodeURI(to.path) !== decodeURI(localizedPath)) {
           const finalUrl = withQuery(localizedPath, to.query)
-          navigateTo(finalUrl, { redirectCode: 301, external: true })
+          // Use external: true for server-side redirects
+          await navigateTo(finalUrl, { redirectCode: 301, external: true })
           return true
         }
       }
       else if (firstSegment && locales.includes(firstSegment)) {
-        throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
+        // --- ИСПРАВЛЕНИЕ: Добавлена проверка !routeExists ---
+        // Если кастомного пути нет, но физический маршрут существует (авто-генерация),
+        // то это НЕ ошибка 404. Ошибку кидаем только если роута реально нет.
+        if (!routeExists(to.fullPath)) {
+          if (import.meta.server) {
+            console.log('[06.redirect] Route does not exist, throwing 404:', to.fullPath)
+          }
+          throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
+        }
       }
     }
     return false
@@ -98,26 +118,40 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     const strategy = i18nConfig.strategy!
     const defaultLocale = i18nConfig.defaultLocale!
+    const validLocales = i18nConfig.locales?.map(l => l.code) || []
 
-    // Only handle prefix_except_default strategy
-    // Note: 'prefix' strategy is handled by locale-redirect.vue fallback route
+    // Only handle prefix and prefix_except_default strategies
     // Note: 'prefix_and_default' allows both /path and /<locale>/path for default locale
-    if (!isPrefixExceptDefaultStrategy(strategy)) return
+    const shouldHandle = isPrefixStrategy(strategy) || isPrefixExceptDefaultStrategy(strategy)
+    if (!shouldHandle) return
 
     // Check if user has explicit locale preference (useState or cookie)
     const localeState = await nuxtApp.runWithContext(() => useState<string | null>('i18n-locale'))
-    const cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
-    const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+
+    // Only read cookie if localeCookie is not disabled (null)
+    let cookieValue: string | null | undefined
+    if (i18nConfig.localeCookie !== null) {
+      const cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
+      cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+    }
     const userPreferredLocale = localeState.value || cookieValue
 
-    // Use user preference if set, otherwise use defaultLocale
-    const targetLocale = userPreferredLocale || defaultLocale
+    // Validate that preferred locale exists, otherwise fallback to defaultLocale
+    const isValidLocale = userPreferredLocale && validLocales.includes(userPreferredLocale)
+    const targetLocale = isValidLocale ? userPreferredLocale : defaultLocale
 
     // For prefix_except_default: only redirect if target locale differs from default
-    if (isPrefixExceptDefaultStrategy(strategy) && targetLocale === defaultLocale) return
+    // (unless includeDefaultLocaleRoute is true, which always requires prefix)
+    // For prefix: always redirect (all paths need prefix)
+    const includeDefaultRoute = i18nConfig.includeDefaultLocaleRoute === true
+    if (isPrefixExceptDefaultStrategy(strategy) && targetLocale === defaultLocale && !includeDefaultRoute) return
 
     // Find the appropriate route name
     const name = to.name?.toString()
+
+    // Skip custom-fallback-route - it's handled by locale-redirect.vue component
+    if (name === 'custom-fallback-route') return
+
     const targetRouteName = router.hasRoute(`localized-${name}-${targetLocale}`)
       ? `localized-${name}-${targetLocale}`
       : `localized-${name}`
@@ -132,13 +166,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   if (import.meta.server) {
-    if (checkGlobalLocaleRoutes(route)) return
+    if (await checkGlobalLocaleRoutes(route)) return
     checkRouteLocales(route)
     await handleRedirect(route)
   }
 
   router.beforeEach(async (to, from, next) => {
-    if (checkGlobalLocaleRoutes(to)) return
+    if (await checkGlobalLocaleRoutes(to)) return
 
     if (from.path !== to.path) {
       checkRouteLocales(to)

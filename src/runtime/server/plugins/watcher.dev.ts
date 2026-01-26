@@ -4,7 +4,7 @@ import path from 'node:path'
 import { watch, type FSWatcher } from 'chokidar'
 import type { ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - #imports доступны в Nitro
+// @ts-ignore - #imports are available in Nitro
 import { useStorage, useRuntimeConfig, defineNitroPlugin } from '#imports'
 import type { NitroApp } from 'nitropack'
 
@@ -25,11 +25,15 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const log = (...args: unknown[]) => i18nConfig.debug && console.log('[i18n-hmr]', ...args)
   const warn = (...args: unknown[]) => i18nConfig.debug && console.warn('[i18n-hmr]', ...args)
 
-  // rootDir теперь правильный (путь к playground)
+  // Get routesLocaleLinks for alias resolution
+  const routesLocaleLinks = i18nConfig.routesLocaleLinks || {}
+
+  // rootDir is correct (path to playground)
   const translationsRoot = path.resolve(i18nConfig.rootDir, i18nConfig.translationDir)
   log(`Watching for translation changes in: ${translationsRoot}`)
 
-  const storage = useStorage('assets:server')
+  // Use cache storage (read-write) instead of assets:server (read-only)
+  const cacheStorage = useStorage('cache')
 
   const invalidateCache = async (filePath: string) => {
     if (!filePath.endsWith('.json')) return
@@ -38,34 +42,56 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     const isPageTranslation = relativePath.startsWith('pages/')
 
     try {
-      const allKeys = await storage.getKeys('_locales:merged:')
+      // New key format: i18n:{dateBuild}:{page}:{locale}
+      // In dev mode invalidate all versions for the changed file
+      const allKeys = await cacheStorage.getKeys('i18n:')
 
       if (isPageTranslation) {
-        // --- СЛУЧАЙ 1: Изменился страничный файл (e.g., 'pages/contact/ru.json') ---
+        // --- CASE 1: Page translation file changed (e.g., 'pages/contact/ru.json') ---
         const match = relativePath.match(/^pages\/([^/]+)\/(.+)\.json$/)
         if (!match) return
 
-        const pageName = match[1]
+        const filePageName = match[1] // Real file name (e.g., 'about')
         const locale = match[2]
-        const keyToRemove = `_locales:merged:${pageName}:${locale}`
 
-        if (allKeys.includes(keyToRemove)) {
-          await storage.removeItem(keyToRemove)
-          log(`Invalidated page cache: ${keyToRemove}`)
+        // Find all aliases that point to this file page name
+        // For example, if routesLocaleLinks has 'about-us': 'about', we need to find 'about-us'
+        const aliases = Object.keys(routesLocaleLinks).filter(
+          alias => routesLocaleLinks[alias] === filePageName,
+        )
+
+        // Add the file page name itself to the list of targets
+        const targets = [filePageName, ...aliases]
+
+        // Filter keys where pageName matches ANY of the targets
+        // Cache keys use the alias (from URL), so we need to check both the file name and all aliases
+        const keysToRemove = allKeys.filter((key: string) => {
+          const parts = key.split(':')
+          // parts[2] is the page from URL (can be an alias)
+          return parts.length === 4 && parts[0] === 'i18n' && targets.includes(parts[2]) && parts[3] === locale
+        })
+
+        if (keysToRemove.length > 0) {
+          await Promise.all(keysToRemove.map((key: string) => cacheStorage.removeItem(key)))
+          log(`Invalidated page cache for '${filePageName}:${locale}' (including aliases: ${aliases.join(', ') || 'none'}). Removed ${keysToRemove.length} entries.`)
         }
       }
       else {
-        // --- СЛУЧАЙ 2: Изменился глобальный файл (e.g., 'ru.json') ---
+        // --- CASE 2: Global translation file changed (e.g., 'ru.json') ---
         const match = relativePath.match(/^([^/]+)\.json$/)
         if (!match) return
 
         const locale = match[1]
 
-        // Удаляем ВСЕ объединенные кэши для этой локали
-        const keysToRemove = allKeys.filter((key: string) => key.endsWith(`:${locale}`))
+        // Delete ALL caches for this locale (all pages, all versions)
+        // Format: i18n:{dateBuild}:{page}:{locale}
+        const keysToRemove = allKeys.filter((key: string) => {
+          const parts = key.split(':')
+          return parts.length === 4 && parts[0] === 'i18n' && parts[3] === locale
+        })
 
         if (keysToRemove.length > 0) {
-          await Promise.all(keysToRemove.map((key: string) => storage.removeItem(key)))
+          await Promise.all(keysToRemove.map((key: string) => cacheStorage.removeItem(key)))
           log(`Invalidated ALL page caches for locale '${locale}'. Removed ${keysToRemove.length} entries.`)
         }
       }

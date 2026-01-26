@@ -1,6 +1,6 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { isPrefixStrategy, isNoPrefixStrategy } from '@i18n-micro/core'
-import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo, useRoute, useRouter } from '#imports'
+import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo, useRoute, useRouter, useState } from '#imports'
 
 const parseAcceptLanguage = (acceptLanguage: string) =>
   acceptLanguage
@@ -77,6 +77,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     })
   }
 
+  // useState for programmatic locale setting - shared with 01.plugin.ts
+  const localeState = useState<string | null>('i18n-locale', () => null)
+
   if (userLocaleCookie.value || i18nConfig.isSSG) {
     return
   }
@@ -104,6 +107,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     userLocaleCookie.value = detectedLocale
     if (i18nConfig.hashMode) {
       hashCookie.value = detectedLocale
+    }
+
+    // For no_prefix strategy: set useState and cookie, no redirect needed
+    // The 01.plugin.ts will pick up the locale via useState
+    if (isNoPrefixStrategy(i18nConfig.strategy!)) {
+      localeState.value = detectedLocale
+      return
     }
 
     const currentLocale = route.params.locale ?? defaultLocale

@@ -152,7 +152,7 @@ export function detectLocale(
   headers: Headers,
   defaultLocale: string,
   locales: string[],
-  localeCookie: string = 'i18n-locale',
+  localeCookie: string | null = 'i18n-locale',
 ): string {
   // Get routing strategy
   const strategy = getGlobalRoutingStrategy()
@@ -171,8 +171,8 @@ export function detectLocale(
     }
   }
 
-  // 2. Try cookie
-  if (locale === defaultLocale && cookies.get(localeCookie)) {
+  // 2. Try cookie (skip if localeCookie is null)
+  if (localeCookie !== null && locale === defaultLocale && cookies.get(localeCookie)) {
     const cookieLocale = cookies.get(localeCookie)?.value
     if (cookieLocale && locales.includes(cookieLocale)) {
       locale = cookieLocale

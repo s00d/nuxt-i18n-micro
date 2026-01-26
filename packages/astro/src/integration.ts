@@ -11,7 +11,7 @@ export interface I18nIntegrationOptions extends Omit<ModuleOptions, 'plural'> {
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
-  localeCookie?: string
+  localeCookie?: string | null
   autoDetect?: boolean
   redirectToDefault?: boolean
   translationDir?: string
@@ -59,7 +59,7 @@ export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegrati
           translationDir: translationDir || null,
           autoDetect: options.autoDetect ?? true,
           redirectToDefault: options.redirectToDefault ?? false,
-          localeCookie: options.localeCookie || 'i18n-locale',
+          localeCookie: options.localeCookie === null ? null : (options.localeCookie || 'i18n-locale'),
           missingWarn: options.missingWarn ?? false,
         }
 
@@ -102,8 +102,8 @@ export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegrati
                 translationDir: string | null;
                 autoDetect: boolean;
                 redirectToDefault: boolean;
-                localeCookie: string;
-                missingWarn: boolean;
+                localeCookie: string | null;
+                missingWarn: boolean | null;
               }
             }
           `,

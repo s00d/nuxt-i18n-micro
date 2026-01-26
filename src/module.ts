@@ -63,6 +63,9 @@ declare module '@nuxt/schema' {
   interface NuxtOptions {
     i18nConfig?: ModuleOptionsExtend
   }
+  interface PublicRuntimeConfig {
+    i18nConfig: ModuleOptionsExtend
+  }
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -91,7 +94,7 @@ export default defineNuxtModule<ModuleOptions>({
     noPrefixRedirect: false,
     includeDefaultLocaleRoute: undefined,
     fallbackLocale: undefined,
-    localeCookie: 'user-locale',
+    localeCookie: null,
     apiBaseUrl: '_locales',
     apiBaseClientHost: undefined,
     apiBaseServerHost: undefined,
@@ -120,6 +123,12 @@ export default defineNuxtModule<ModuleOptions>({
       else {
         options.strategy = 'prefix_except_default'
       }
+    }
+
+    // For no_prefix strategy, localeCookie is required - set default if not provided
+    if (options.strategy === 'no_prefix' && !options.localeCookie) {
+      options.localeCookie = 'user-locale'
+      logger.info('Strategy \'no_prefix\': localeCookie automatically set to \'user-locale\' for locale persistence.')
     }
 
     const resolver = createResolver(import.meta.url)
@@ -206,7 +215,8 @@ export default defineNuxtModule<ModuleOptions>({
       // @ts-ignore
       metaBaseUrl: options.metaBaseUrl ?? undefined,
       defaultLocale: defaultLocale,
-      localeCookie: options.localeCookie ?? 'user-locale',
+      fallbackLocale: options.fallbackLocale ?? undefined,
+      localeCookie: options.localeCookie ?? null,
       autoDetectPath: options.autoDetectPath ?? '/',
       strategy: options.strategy ?? 'prefix_except_default',
       dateBuild: Date.now(),
@@ -262,9 +272,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     addImportsDir(resolver.resolve('./runtime/composables'))
 
-    if (process.env && process.env.TEST) {
-      return
-    }
     if (options.plugin) {
       addPlugin({
         src: resolver.resolve('./runtime/plugins/01.plugin'),
@@ -303,7 +310,7 @@ export default defineNuxtModule<ModuleOptions>({
         src: resolver.resolve('./runtime/plugins/04.auto-detect'),
         mode: 'server',
         name: 'i18n-plugin-auto-detect',
-        order: 4,
+        order: -15, // Execute BEFORE 01.plugin.ts (order: -5) to set locale via useState
       })
     }
 

@@ -4,13 +4,37 @@ This guide is for developers who want to customize or extend how translations ar
 
 ## 📦 Cache Structure
 
-Translation cache is stored using `useStorage('assets:server')`.
+Translation cache is stored using `useStorage('cache')` (read-write storage), separate from the read-only `assets:server` storage where source translation files are mounted.
 
-Each cache entry matches one translation JSON file. The cache keys follow the same structure as the file paths:
+**Important**: For serverless environments (like Cloudflare Workers), you need to configure the `cache` storage in your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  nitro: {
+    storage: {
+      // 'assets:server' is automatically configured by the module as read-only
+      
+      // Configure cache storage for read-write operations
+      'cache': {
+        driver: 'cloudflare-kv-binding',
+        binding: 'MY_KV_NAMESPACE' // Your KV namespace binding name
+      }
+    }
+  }
+})
+```
+
+Each cache entry stores merged translations for a specific page and locale. The cache keys follow this pattern:
 
 ```
-_locales/en.json
-_locales/pages/home/en.json
+i18n:merged:{page}:{locale}
+```
+
+For example:
+```
+i18n:merged:home:en
+i18n:merged:contact:ru
+i18n:merged:general:fr
 ```
 
 ### Example of cached data:
@@ -38,13 +62,16 @@ import { defineEventHandler, readBody } from 'h3'
 import { useStorage } from '#imports'
 
 export default defineEventHandler(async (event) => {
-  const { key } = await readBody<{ key: string }>(event)
-  const storage = useStorage('assets:server')
+  const { page, locale } = await readBody<{ page: string, locale: string }>(event)
+  const cacheStorage = useStorage('cache')
+  
+  // Cache key format: i18n:merged:{page}:{locale}
+  const cacheKey = `i18n:merged:${page}:${locale}`
 
-  const data = await storage.getItem(key)
+  const data = await cacheStorage.getItem(cacheKey)
   return {
     from: 'cache',
-    key,
+    key: cacheKey,
     data
   }
 })
@@ -56,7 +83,8 @@ export default defineEventHandler(async (event) => {
 await $fetch('/api/i18n/load-cache', {
   method: 'POST',
   body: {
-    key: '_locales/pages/home/en.json'
+    page: 'home',
+    locale: 'en'
   }
 })
 ```
@@ -147,8 +175,27 @@ export default defineEventHandler(async (event) => {
 
   await writeFile(fullPath, JSON.stringify(merged, null, 2), 'utf-8')
 
-  const serverStorage = useStorage('assets:server')
-  await serverStorage.setItem(join('_locales', path), merged)
+  // Invalidate cache for affected pages/locales
+  // Note: The actual cache is managed by the i18n module's /_locales/{page}/{locale} route
+  // This example shows how you might clear specific cache entries after updating files
+  const cacheStorage = useStorage('cache')
+  
+  // Extract page name and locale from path (e.g., 'pages/home/en.json' -> page: 'home', locale: 'en')
+  const pathMatch = path.match(/^pages\/([^/]+)\/(.+)\.json$/)
+  if (pathMatch) {
+    const [, pageName, locale] = pathMatch
+    const cacheKey = `i18n:merged:${pageName}:${locale}`
+    await cacheStorage.removeItem(cacheKey)
+  } else {
+    // Global translation file changed - clear all caches for this locale
+    const localeMatch = path.match(/^(.+)\.json$/)
+    if (localeMatch) {
+      const locale = localeMatch[1]
+      const allKeys = await cacheStorage.getKeys('i18n:merged:')
+      const keysToRemove = allKeys.filter((key: string) => key.endsWith(`:${locale}`))
+      await Promise.all(keysToRemove.map((key: string) => cacheStorage.removeItem(key)))
+    }
+  }
 
   return {
     success: true,
@@ -202,14 +249,16 @@ if (Array.isArray(source[key])) {
 
 ## 💡 Tips for Developers
 
-- Cache keys always match translation file paths, prefixed with `_locales/`.
-- Cached data must always match the contents of the actual files.
+- **Cache storage is separate from assets storage**: Source translation files are read-only in `assets:server`, while merged translations cache is stored in `cache` storage (read-write).
+- **Cache keys format**: `i18n:merged:{page}:{locale}` (e.g., `i18n:merged:home:en`)
+- **Serverless configuration**: Always configure `nitro.storage.cache` for serverless environments (Cloudflare KV, AWS DynamoDB, etc.)
+- Cached data contains merged translations (global + page-specific + fallbacks) for optimal performance.
 - If you are building a translation editor, combine `load-cache` and `update` for read/write access.
 - You can extract helpers like `deepMerge()` or key/path generators into a separate utility file.
 
 ## 🧹 Clearing All Server Cache
 
-The i18n system uses in-memory cache (not `useStorage`) to speed up translation lookups on the server side. This cache is automatically populated when translations are loaded.
+The i18n system uses `useStorage('cache')` to store merged translations cache. This cache is automatically populated when translations are loaded and cleared when a new build is detected (via `dateBuild` version check).
 
 If you need to reset this cache (e.g. after editing translation files), you can call the `clearCache` method.
 

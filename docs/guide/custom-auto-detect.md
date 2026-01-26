@@ -133,9 +133,14 @@ For strategies with URL prefix and `redirects: true`, `useState('i18n-locale')` 
 
 | Strategy | Redirect from `/` |
 |----------|-------------------|
-| `prefix` | → `/<locale>/` (uses `useState` or `defaultLocale`) |
+| `prefix` | → `/<locale>/` (uses `useState`, cookie, or `defaultLocale`) |
 | `prefix_except_default` | → `/<locale>/` if locale ≠ default (uses `useState`/cookie) |
 | `prefix_and_default` | No redirect (both `/` and `/<locale>/` are valid for default) |
+
+**Important notes:**
+- Cookie-based locale detection is disabled by default (`localeCookie: null`)
+- Set `localeCookie: 'user-locale'` to enable cookie persistence
+- If the locale from cookie/useState is invalid (not in `locales` list), it falls back to `defaultLocale`
 
 This ensures URL consistency for SEO.
 :::
@@ -335,6 +340,6 @@ export default defineNuxtPlugin({
 - ✅ **SSR + Client sync**: Both useState and cookie ensure consistent locale across server and client
 - ✅ **Full control**: Implement any detection logic (domain, headers, IP, etc.)
 - ✅ **No hydration mismatch**: Server and client use the same locale
-- ✅ **`prefix`**: Redirect from `/` to `/<locale>/` using `useState` or `defaultLocale`
-- ✅ **`prefix_except_default`**: Redirect from `/` to `/<locale>/` when non-default locale is set
+- ✅ **`prefix`**: Redirect from `/` to `/<locale>/` using `useState`, cookie (if enabled), or `defaultLocale`
+- ✅ **`prefix_except_default`**: Redirect from `/` to `/<locale>/` when non-default locale is set (uses `useState`/cookie)
 - ✅ **`prefix_and_default`**: No redirect (both `/` and `/<locale>/` valid for default locale)

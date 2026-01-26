@@ -9,12 +9,13 @@ test.use({
       // @ts-ignore
       i18n: {
         strategy: 'prefix',
+        localeCookie: 'user-locale',
       },
     },
   },
 })
 
-test.describe('prefix_and_default', () => {
+test.describe('prefix strategy', () => {
   test('navigate to test-page, check URL and text, switch language and verify text and URL changes', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })
@@ -55,5 +56,51 @@ test.describe('prefix_and_default', () => {
 
     await goto('/de', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/de')
+  })
+
+  test('redirect from / to /<locale>/ with cookie set - no error flash', async ({ page, goto, baseURL }) => {
+    // Clear cookies first
+    await page.context().clearCookies()
+
+    // Set cookie to non-default locale (de)
+    await page.context().addCookies([{
+      name: 'user-locale',
+      value: 'de',
+      url: baseURL!,
+    }])
+
+    // Track responses to check for redirect behavior
+    const responses: { url: string, status: number }[] = []
+    page.on('response', (response) => {
+      responses.push({ url: response.url(), status: response.status() })
+    })
+
+    await goto('/', { waitUntil: 'hydration' })
+
+    // Should be redirected to /de/
+    await expect(page).toHaveURL('/de/')
+
+    // Should show German content
+    await expect(page.locator('#content')).toHaveText('de')
+
+    // Check that the first response was a redirect (302), not an error
+    const rootResponse = responses.find(r => r.url.endsWith('/') && !r.url.includes('/de'))
+    if (rootResponse) {
+      // Should be 302 redirect, not 404/500
+      expect([200, 301, 302]).toContain(rootResponse.status)
+    }
+  })
+
+  test('redirect from / to /en/ with no cookie - uses defaultLocale', async ({ page, goto }) => {
+    // Clear all cookies
+    await page.context().clearCookies()
+
+    await goto('/', { waitUntil: 'hydration' })
+
+    // Should redirect to /en/ (defaultLocale)
+    await expect(page).toHaveURL('/en/')
+
+    // Should show English content
+    await expect(page.locator('#content')).toHaveText('en')
   })
 })

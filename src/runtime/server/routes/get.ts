@@ -1,10 +1,8 @@
 import { defineEventHandler, setResponseHeader } from 'h3'
 import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - #imports доступны в Nitro
+// @ts-ignore - #imports are available in Nitro
 import { useRuntimeConfig, createError, useStorage } from '#imports'
-
-let storageInit = false
 
 function deepMerge(target: Translations, source: Translations): Translations {
   const output = { ...target }
@@ -22,119 +20,154 @@ function deepMerge(target: Translations, source: Translations): Translations {
   return output
 }
 
-// Хелпер для безопасного парсинга данных из стореджа
-function parseStorageData(data: unknown, debug = false, path?: string): Translations | null {
-  if (!data) return null
-  if (typeof data === 'string') {
-    try {
-      return JSON.parse(data)
-    }
-    catch (e) {
-      if (debug) {
-        console.error(`[i18n] Error parsing storage data${path ? ` for ${path}` : ''}:`, e)
-      }
-      return null
-    }
-  }
-  return data as Translations
-}
+// Key for storing current build version in storage
+const META_VERSION_KEY = 'meta:version'
 
 export default defineEventHandler(async (event) => {
-  // Set proper Content-Type header for JSON responses
   setResponseHeader(event, 'Content-Type', 'application/json')
 
   const { page, locale } = event.context.params as { page: string, locale: string }
   const config = useRuntimeConfig()
-  const { rootDirs, debug, routesLocaleLinks } = config.i18nConfig as ModulePrivateOptionsExtend
-  const { locales } = config.public.i18nConfig as unknown as ModuleOptionsExtend
 
-  // Always validate locale against configured locales to avoid serving data for invalid or disabled locales
-  if (locales && !locales.map(l => l.code).includes(locale)) {
-    throw createError({ statusCode: 404 })
+  const privateConfig = config.i18nConfig as ModulePrivateOptionsExtend
+  const publicConfig = config.public.i18nConfig as unknown as ModuleOptionsExtend
+
+  const { debug, rootDirs, routesLocaleLinks } = privateConfig
+  const { locales, dateBuild, fallbackLocale } = publicConfig
+
+  // 1. Validation
+  const currentLocaleConfig = locales?.find(l => l.code === locale)
+  if (!currentLocaleConfig) {
+    throw createError({ statusCode: 404, statusMessage: 'Locale not found' })
   }
 
-  // Определяем имя страницы, по которому ищем файл перевода
-  let fileLookupPage = page
-  if (routesLocaleLinks && page && (routesLocaleLinks as Record<string, string>)[page]) {
-    fileLookupPage = (routesLocaleLinks as Record<string, string>)[page] || page
-    if (debug) {
-      console.log(`[i18n] Route link found: '${page}' -> '${fileLookupPage}'. Using linked translations.`)
+  const fileLookupPage = (routesLocaleLinks && routesLocaleLinks[page]) ? routesLocaleLinks[page] : page
+
+  // 2. Initialize cache storage
+  const cacheStorage = useStorage('cache')
+  // dateBuild comes as number, convert to string. If missing - 'dev'.
+  const currentBuildId = String(dateBuild ?? 'dev')
+
+  // 3. VERSION CHECK AND CLEANUP (Garbage Collection)
+  // This solves the problem with fs and redis, preventing cache from growing infinitely.
+  // We check the stored version. If it differs from current - clear everything.
+  const storedBuildId = await cacheStorage.getItem(META_VERSION_KEY)
+
+  if (storedBuildId !== currentBuildId) {
+    if (debug) console.log(`[i18n] New build detected (${currentBuildId}). Clearing old cache...`)
+
+    try {
+      // Only clear if there was a previous version (not first run)
+      // On first run (storedBuildId is null/undefined), cache is already empty, so clear() is unnecessary
+      // and may fail with ENOENT if directory doesn't exist yet
+      if (storedBuildId != null) {
+        // clear() will remove ALL keys in 'cache' namespace.
+        // For fs this means file deletion, for redis - FLUSHDB (or prefix-based deletion).
+        // This is much faster and more reliable than manually iterating keys.
+        await cacheStorage.clear()
+      }
+
+      // Save new version
+      await cacheStorage.setItem(META_VERSION_KEY, currentBuildId)
+    }
+    catch (e: unknown) {
+      // Ignore ENOENT (file/directory doesn't exist) and ENOTEMPTY (directory not empty)
+      // ENOENT is normal on first run, ENOTEMPTY can happen during parallel requests (prerendering)
+      // where multiple requests detect version change simultaneously
+      const error = e as { code?: string }
+      if (error?.code !== 'ENOENT' && error?.code !== 'ENOTEMPTY') {
+        console.warn('[i18n] Failed to clear cache storage:', e)
+      }
     }
   }
 
-  const serverStorage = useStorage('assets:server')
-  // Кэшируем по исходному имени страницы, а не по ссылочному
-  const cacheKey = `_locales:merged:${page}:${locale}`
+  // 4. Build cache key (we could omit buildId since we clear storage,
+  // but it's better to keep buildId for reliability to avoid race conditions during deployment)
+  const cacheKey = `i18n:${currentBuildId}:${page}:${locale}`
 
-  if (!storageInit) {
-    if (debug) console.log('[nuxt-i18n-micro] clear storage cache')
-    await Promise.all((await serverStorage.getKeys('_locales')).map((key: string) => serverStorage.removeItem(key)))
-    storageInit = true
-  }
-
-  const cachedMerged = await serverStorage.getItem(cacheKey)
+  // 5. Check cache (Fast Path)
+  const cachedMerged = await cacheStorage.getItem(cacheKey)
   if (cachedMerged) {
     return cachedMerged
   }
 
-  // Используем общее хранилище Nitro. Ассеты, которые мы зарегистрировали в module.ts,
-  // доступны под префиксом 'assets:'.
+  // 6. Build from assets (Slow Path)
+  // Use general storage for reading assets (read-only)
+  // Assets registered in module.ts via serverAssets are available under 'assets:' prefix with baseName as part of path
   const storage = useStorage()
 
-  let finalTranslations: Translations = {}
-  const currentLocaleConfig = locales?.find(l => l.code === locale) ?? null
+  // Helper for safe JSON parsing
+  // Prevents crashes when files are empty or contain invalid JSON
+  const safeParse = (data: unknown, label: string): Translations => {
+    if (!data) return {}
+    if (typeof data === 'object' && data !== null && !Array.isArray(data)) return data as Translations // Already an object (memory driver)
+    try {
+      // Handle empty strings or whitespace-only strings
+      const trimmed = typeof data === 'string' ? data.trim() : String(data).trim()
+      if (!trimmed || trimmed === '') return {}
+      return JSON.parse(trimmed) as Translations
+    }
+    catch (e) {
+      // Log warning but don't crash - return empty object instead
+      if (debug) console.warn(`[i18n] Failed to parse JSON for ${label}:`, e)
+      return {}
+    }
+  }
 
-  // Function to load translations from all layers (via storage) and merge them
-  const loadAndMerge = async (targetLocale: string) => {
-    let globalTranslations: Translations = {}
-    let pageTranslations: Translations = {}
+  const loadLayer = async (targetLocale: string) => {
+    let mergedLayer: Translations = {}
 
-    // Iterate through all layers (indices corresponding to rootDirs)
     for (let i = 0; i < rootDirs.length; i++) {
       const layerPrefix = `assets:i18n_layer_${i}`
 
-      // 1. Load Global Translations: {locale}.json
       const globalKey = `${layerPrefix}:${targetLocale}.json`
-      const globalContentRaw = await storage.getItem(globalKey)
-      const globalContent = parseStorageData(globalContentRaw, debug, globalKey)
-
-      if (globalContent) {
-        globalTranslations = deepMerge(globalTranslations, globalContent)
+      const globalRaw = await storage.getItem(globalKey)
+      if (globalRaw) {
+        mergedLayer = deepMerge(mergedLayer, safeParse(globalRaw, globalKey))
       }
 
-      // 2. Load Page Translations: pages/{page}/{locale}.json
-      if (page !== 'general') {
-        // Normalize page path for storage key (replace slashes with colons)
-        // e.g. "products/slug" -> "products:slug"
+      if (fileLookupPage !== 'general') {
         const normalizedPage = fileLookupPage.replace(/\//g, ':')
         const pageKey = `${layerPrefix}:pages:${normalizedPage}:${targetLocale}.json`
-        const pageContentRaw = await storage.getItem(pageKey)
-        const pageContent = parseStorageData(pageContentRaw, debug, pageKey)
-
-        if (pageContent) {
-          pageTranslations = deepMerge(pageTranslations, pageContent)
+        const pageRaw = await storage.getItem(pageKey)
+        if (pageRaw) {
+          mergedLayer = deepMerge(mergedLayer, safeParse(pageRaw, pageKey))
         }
       }
     }
-
-    return deepMerge(globalTranslations, pageTranslations)
+    return mergedLayer
   }
 
-  const fallbackLocalesList = [
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    config.i18nConfig?.fallbackLocale,
-    currentLocaleConfig?.fallbackLocale,
-  ].filter((l): l is string => !!l && l !== locale)
+  // 7. Merge translations
+  let finalTranslations: Translations = {}
+  const localesToMerge = [
+    fallbackLocale,
+    currentLocaleConfig.fallbackLocale,
+    locale,
+  ]
+    .filter((l): l is string => !!l) // Remove undefined/null
+    .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
 
-  for (const fb of [...new Set(fallbackLocalesList)]) {
-    const fbTranslations = await loadAndMerge(fb)
-    finalTranslations = deepMerge(finalTranslations, fbTranslations)
+  for (const loc of localesToMerge) {
+    const layerData = await loadLayer(loc)
+    finalTranslations = deepMerge(finalTranslations, layerData)
   }
 
-  const mainTranslations = await loadAndMerge(locale)
-  finalTranslations = deepMerge(finalTranslations, mainTranslations)
+  // 8. Write to cache
+  try {
+    await cacheStorage.setItem(cacheKey, finalTranslations)
+    if (debug) {
+      console.log(`[i18n] Generated & Cached: ${cacheKey}`)
+    }
+  }
+  catch (e: unknown) {
+    // Ignore ENOENT errors (directory doesn't exist) - cache write is optional
+    // This can happen during prerendering if cache directory wasn't created yet
+    const error = e as { code?: string }
+    if (error?.code !== 'ENOENT') {
+      if (debug) console.warn(`[i18n] Failed to cache ${cacheKey}:`, e)
+    }
+  }
 
-  await serverStorage.setItem(cacheKey, finalTranslations)
   return finalTranslations
 })

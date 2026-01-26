@@ -374,6 +374,11 @@ export class RouteService {
   }
 
   updateCookies(toLocale: string): void {
+    // Skip cookie update if localeCookie is disabled (null)
+    if (this.i18nConfig.localeCookie === null) {
+      return
+    }
+
     const cookieLocaleName = this.cookieLocaleName || this.i18nConfig.localeCookie || 'user-locale'
     if (this.i18nConfig.hashMode) {
       this.setCookie('hash-locale', toLocale)

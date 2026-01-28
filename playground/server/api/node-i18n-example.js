@@ -15,9 +15,6 @@ async function getI18n() {
       fallbackLocale: 'en',
       translationDir: localesPath,
     })
-
-    // Debug: log loaded routes
-    console.log('[i18n-node] Loaded translations from:', localesPath)
   }
 
   return i18nInstance

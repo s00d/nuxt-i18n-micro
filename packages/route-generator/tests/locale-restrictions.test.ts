@@ -7,7 +7,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should respect locale restrictions from $defineI18nRoute - locales only', () => {
     const routeLocales = { '/test': ['en'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -19,7 +19,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should respect locale restrictions from $defineI18nRoute - multiple locales', () => {
     const routeLocales = { '/test': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -38,7 +38,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
 
     const routeLocales = { '/test': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -59,7 +59,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
       },
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -70,6 +70,54 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
     ]
 
     generator.extendPages(pages)
+
+    expect(pages).toMatchSnapshot()
+  })
+
+  test('undefault fixture: activity + activity/skiing-locale with keys without leading slash (module-style)', () => {
+    const globalLocaleRoutes = {
+      'activity/skiing-locale': {
+        en: '/book-activity/skiing',
+        de: '/aktivitaet-buchen/ski-fahren',
+      },
+      'activity/hiking-locale': {
+        en: '/book-activity/hiking',
+        de: '/aktivitaet-buchen/wandern',
+      },
+      'activity-locale': {
+        en: '/change-activity',
+        de: '/change-buchen',
+      },
+    }
+
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
+
+    const pages: NuxtPage[] = [
+      {
+        path: '/activity',
+        name: 'activity',
+        children: [
+          { path: 'skiing', name: 'activity-skiing' },
+          { path: 'skiing-locale', name: 'activity-skiing-locale' },
+          { path: 'hiking', name: 'activity-hiking' },
+          { path: 'hiking-locale', name: 'activity-hiking-locale' },
+        ],
+      },
+    ]
+
+    generator.extendPages(pages)
+
+    const defaultRoute = pages.find(p => p.name === 'activity' && !String(p.name).startsWith('localized-'))
+    expect(defaultRoute).toBeDefined()
+    expect(defaultRoute!.path).toBe('/activity')
+
+    const defaultSkiingLocale = defaultRoute!.children?.find(c => c.name === 'activity-skiing-locale')
+    expect(defaultSkiingLocale).toBeDefined()
+    expect(defaultSkiingLocale!.path).toBe('book-activity/skiing')
+
+    const defaultHikingLocale = defaultRoute!.children?.find(c => c.name === 'activity-hiking-locale')
+    expect(defaultHikingLocale).toBeDefined()
+    expect(defaultHikingLocale!.path).toBe('book-activity/hiking')
 
     expect(pages).toMatchSnapshot()
   })
@@ -85,7 +133,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
 
     const routeLocales = { '/test': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -111,7 +159,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
       '/activity-locale/skiing': ['en', 'de'],
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -129,7 +177,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should handle prefix strategy with locale restrictions', () => {
     const routeLocales = { '/test': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -141,7 +189,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should handle no_prefix strategy with locale restrictions', () => {
     const routeLocales = { '/test': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'no_prefix', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'no_prefix', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -153,7 +201,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should handle prefix_and_default strategy with locale restrictions', () => {
     const routeLocales = { '/test': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_and_default', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_and_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -171,7 +219,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
 
     const routeLocales = { '/test': ['en-us', 'de-de'] }
 
-    const generator = new RouteGenerator(localesWithHyphens, 'en-us', 'prefix_except_default', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales: localesWithHyphens, defaultLocaleCode: 'en-us', strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -183,7 +231,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should handle mixed locale restrictions - some pages restricted, others not', () => {
     const routeLocales = { '/restricted': ['en'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       { path: '/restricted', name: 'restricted' },
@@ -198,7 +246,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should handle empty locale restrictions array', () => {
     const routeLocales = { '/test': [] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -210,7 +258,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should handle invalid locale codes in restrictions', () => {
     const routeLocales = { '/test': ['en', 'invalid-locale', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -222,7 +270,7 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should handle pages with globalLocaleRoutes set to false', () => {
     const globalLocaleRoutes = { test: false }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 

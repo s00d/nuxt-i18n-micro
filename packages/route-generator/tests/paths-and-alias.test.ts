@@ -5,7 +5,7 @@ import { locales, defaultLocaleCode } from './helpers'
 describe('RouteGenerator - Paths, alias, edge cases', () => {
   test('should handle internal paths correctly', () => {
     const excludePatterns = ['/admin/**', /^\/api\//]
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false, excludePatterns)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false, excludePatterns })
 
     const pages: NuxtPage[] = [
       { path: '/test', name: 'test' },
@@ -19,7 +19,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
   })
 
   test('should handle pages without names correctly', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: undefined }]
 
@@ -28,7 +28,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
   })
 
   test('should handle alias routes correctly', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -46,7 +46,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
   test('should handle alias routes with locale restrictions', () => {
     const routeLocales = { '/about': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -68,7 +68,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
       '/products/category/item': { en: '/products/category/item', de: '/produkte/kategorie/artikel' },
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -92,7 +92,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
   })
 
   test('should handle prefix strategy with default locale removal', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -102,7 +102,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
   })
 
   test('should handle prefix strategy with Cloudflare Pages', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -116,7 +116,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
       test: { en: '/test-en', de: '/test-de' },
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes, {}, {}, true)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'no_prefix', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: true })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -127,7 +127,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
 
   test('should handle custom regex in buildFullPath', () => {
     const customRegex = /^[a-z]{2}$/
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -145,7 +145,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
       },
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/product', name: 'product' }]
 
@@ -160,7 +160,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
       test: { en: '/test-en', de: '/test-de', ru: '/test-ru' },
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, filesLocaleRoutes, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, filesLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -174,7 +174,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
       test: { en: '/test-en', de: '/test-de' },
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_and_default', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_and_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
@@ -188,7 +188,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
 
     const routeLocales = { '/test': [] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales, noPrefixRedirect: false })
     generator.extendPages(pages)
 
     expect(pages.length).toBeGreaterThan(1)
@@ -196,17 +196,17 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
   })
 
   test('should handle edge case with undefined page path', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
 
-    ;(pages[0] as any).path = undefined
+    ;(pages[0] as unknown as { path?: string }).path = undefined
 
     expect(() => generator.extendPages(pages)).toThrow()
   })
 
   test('should handle redirect-only pages correctly', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -225,7 +225,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
     const globalLocaleRoutes = {
       '/about': { en: '/about', de: '/ueber-uns' },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -255,7 +255,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
 
     const routeLocales = { '/restricted': ['en', 'de'] }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, routeLocales, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       { path: '/restricted', name: 'restricted' },

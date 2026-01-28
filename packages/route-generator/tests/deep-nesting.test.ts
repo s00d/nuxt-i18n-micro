@@ -78,7 +78,7 @@ describe('RouteGenerator - Deep nesting (4 levels)', () => {
 
   test('filesLocaleRoutes at every level', () => {
     const filesLocaleRoutes = {
-      section: { en: '/section', de: '/bereich' },
+      'section': { en: '/section', de: '/bereich' },
       'section-category': { en: '/section/category', de: '/bereich/kategorie' },
       'section-category-item': { en: '/section/category/item', de: '/bereich/kategorie/artikel' },
       'section-category-item-detail': {
@@ -163,15 +163,15 @@ describe('RouteGenerator - Deep nesting (4 levels)', () => {
       '/section': { en: '/section', de: '/bereich' },
       '/section/category/item/detail': { en: '/detail', de: '/detail-de' },
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
-      {},
-      {},
-      false,
-    )
+      filesLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages = createDeepNestedPages()
     const extracted = generator.extractLocalizedPaths(pages)
     expect(extracted).toMatchSnapshot()
@@ -299,15 +299,15 @@ describe('RouteGenerator - Very deep nesting (6 levels)', () => {
       '/a/b/c': { en: '/a/b/c', de: '/a-de/b-de/c-de' },
       '/a/b/c/d/e/f': { en: '/leaf', de: '/blatt' },
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
-      {},
-      {},
-      false,
-    )
+      filesLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages = createVeryDeepNestedPages()
     const extracted = generator.extractLocalizedPaths(pages)
     expect(extracted).toMatchSnapshot()
@@ -431,15 +431,15 @@ describe('RouteGenerator - Deep nesting with multiple branches', () => {
       '/section/category/item': ['en', 'de'],
       '/section/category/item/detail': ['en', 'de'],
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
       filesLocaleRoutes,
       routeLocales,
-      false,
-    )
+      noPrefixRedirect: false,
+    })
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()
   })

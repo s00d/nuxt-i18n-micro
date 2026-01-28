@@ -2,11 +2,11 @@
 
 exports[`RouteGenerator - Deep nesting (4 levels) extractLocalizedPaths on deep nested pages with globalLocaleRoutes 1`] = `
 {
-  "/section": {
+  "section": {
     "de": "/bereich",
     "en": "/section",
   },
-  "/section/category/item/detail": {
+  "section/category/item/detail": {
     "de": "/detail-de",
     "en": "/detail",
   },
@@ -1585,15 +1585,15 @@ exports[`RouteGenerator - Deep nesting with multiple branches two deep branches 
 
 exports[`RouteGenerator - Very deep nesting (6 levels) extractLocalizedPaths on 6-level nested pages 1`] = `
 {
-  "/a": {
+  "a": {
     "de": "/a-de",
     "en": "/a",
   },
-  "/a/b/c": {
+  "a/b/c": {
     "de": "/a-de/b-de/c-de",
     "en": "/a/b/c",
   },
-  "/a/b/c/d/e/f": {
+  "a/b/c/d/e/f": {
     "de": "/blatt",
     "en": "/leaf",
   },

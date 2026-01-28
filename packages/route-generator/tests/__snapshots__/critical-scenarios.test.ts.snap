@@ -441,11 +441,11 @@ exports[`Critical: Path joining (resolveChildPath) parent custom path + child re
 
 exports[`Critical: extractLocalizedPaths keys are full original paths nested structure: keys in extractLocalizedPaths use full path (e.g. /parent/child) 1`] = `
 {
-  "/parent": {
+  "parent": {
     "de": "/eltern",
     "en": "/parent",
   },
-  "/parent/child": {
+  "parent/child": {
     "de": "/eltern/kind",
     "en": "/parent/child",
   },

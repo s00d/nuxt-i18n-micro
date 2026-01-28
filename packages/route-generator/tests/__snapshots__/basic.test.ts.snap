@@ -166,11 +166,11 @@ exports[`RouteGenerator - Basic Functionality Basic Functionality should include
 
 exports[`RouteGenerator - Basic Functionality extractLocalizedPaths should extract localized paths correctly 1`] = `
 {
-  "/about": {
+  "about": {
     "de": "/a-propos",
     "en": "/about",
   },
-  "/contact": {
+  "contact": {
     "de": "/kontakt",
     "en": "/contact",
   },

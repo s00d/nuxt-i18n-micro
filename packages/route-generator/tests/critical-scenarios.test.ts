@@ -9,7 +9,7 @@
 
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
-import { locales, defaultLocaleCode, createNestedPages, createManager } from './helpers'
+import { locales, defaultLocaleCode, createManager } from './helpers'
 
 describe('Critical: Original path lookup (parentOriginalPath)', () => {
   test('nested: parent has custom path, child has no custom path — child path joins to parent localized path', () => {
@@ -17,15 +17,15 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
       '/parent': { en: '/parent', de: '/eltern' },
       // child /parent/child — нет кастомного пути, должен склеиться с путём родителя
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
-      {},
-      {},
-      false,
-    )
+      filesLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       {
         path: '/parent',
@@ -63,15 +63,15 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
       '/parent': { en: '/parent', de: '/eltern' },
       '/parent/child': { en: '/parent/child', de: '/eltern/kind' },
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
-      {},
-      {},
-      false,
-    )
+      filesLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       {
         path: '/parent',
@@ -95,15 +95,15 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
       '/parent': { en: '/parent', de: '/eltern' },
       '/parent/child': { en: '/parent/child', de: '/standalone' }, // абсолютный кастом для de
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
-      {},
-      {},
-      false,
-    )
+      filesLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       {
         path: '/parent',
@@ -124,7 +124,7 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
 
 describe('Critical: Alias handling', () => {
   test('alias routes are separate entries with localized path (prefix strategy)', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
     const pages: NuxtPage[] = [
       {
         path: '/about',
@@ -138,14 +138,14 @@ describe('Critical: Alias handling', () => {
     expect(aboutMain.length).toBeGreaterThan(0)
     const aliasRoutes = pages.filter(p => p.path?.includes('about-us') || p.path?.includes('company'))
     expect(aliasRoutes.length).toBeGreaterThan(0)
-    aliasRoutes.forEach(r => {
+    aliasRoutes.forEach((r) => {
       expect(r.path).toMatch(/^\/:locale\(|^\/[deru]+\//)
     })
     expect(pages).toMatchSnapshot()
   })
 
   test('main localized route has alias undefined when alias routes are generated as separate', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
     const pages: NuxtPage[] = [
       {
         path: '/about',
@@ -165,7 +165,7 @@ describe('Critical: Alias handling', () => {
   })
 
   test('nested page with alias — alias routes exist and are prefixed', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
     const pages: NuxtPage[] = [
       {
         path: '/parent',
@@ -184,18 +184,18 @@ describe('Critical: Alias handling', () => {
   test('all strategies with alias: no_prefix, prefix, prefix_and_default', () => {
     const pageWithAlias: NuxtPage[] = [{ path: '/x', name: 'x', alias: ['/y'] }]
 
-    const noPrefix = new RouteGenerator(locales, defaultLocaleCode, 'no_prefix', {}, {}, {}, false)
+    const noPrefix = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'no_prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
     const pagesNoPrefix: NuxtPage[] = [...pageWithAlias.map(p => ({ ...p }))]
     noPrefix.extendPages(pagesNoPrefix)
     expect(pagesNoPrefix.some(r => r.path === '/x' || r.path === '/y')).toBe(true)
     expect(pagesNoPrefix).toMatchSnapshot()
 
-    const prefix = new RouteGenerator(locales, defaultLocaleCode, 'prefix', {}, {}, {}, false)
+    const prefix = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
     const pagesPrefix: NuxtPage[] = [{ path: '/x', name: 'x', alias: ['/y'] }]
     prefix.extendPages(pagesPrefix)
     expect(pagesPrefix).toMatchSnapshot()
 
-    const prefixAndDefault = new RouteGenerator(locales, defaultLocaleCode, 'prefix_and_default', {}, {}, {}, false)
+    const prefixAndDefault = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_and_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
     const pagesPrefixAndDefault: NuxtPage[] = [{ path: '/x', name: 'x', alias: ['/y'] }]
     prefixAndDefault.extendPages(pagesPrefixAndDefault)
     expect(pagesPrefixAndDefault).toMatchSnapshot()
@@ -308,15 +308,15 @@ describe('Critical: extractLocalizedPaths keys are full original paths', () => {
       '/parent': { en: '/parent', de: '/eltern' },
       '/parent/child': { en: '/parent/child', de: '/eltern/kind' },
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
-      {},
-      {},
-      false,
-    )
+      filesLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       {
         path: '/parent',

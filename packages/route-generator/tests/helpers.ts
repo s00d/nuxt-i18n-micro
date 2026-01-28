@@ -131,7 +131,7 @@ export function createManager(
   excludePatterns: (string | RegExp)[] = [],
   filesLocaleRoutes: GlobalLocaleRoutes = {},
 ): RouteGenerator {
-  return new RouteGenerator(
+  return new RouteGenerator({
     locales,
     defaultLocaleCode,
     strategy,
@@ -140,5 +140,5 @@ export function createManager(
     routeLocales,
     noPrefixRedirect,
     excludePatterns,
-  )
+  })
 }

@@ -274,3 +274,74 @@ exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should respect 
   },
 ]
 `;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) undefault fixture: activity + activity/skiing-locale with keys without leading slash (module-style) 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "activity-skiing",
+        "path": "skiing",
+      },
+      {
+        "children": [],
+        "name": "activity-skiing-locale",
+        "path": "book-activity/skiing",
+      },
+      {
+        "children": [],
+        "name": "activity-hiking",
+        "path": "hiking",
+      },
+      {
+        "children": [],
+        "name": "activity-hiking-locale",
+        "path": "book-activity/hiking",
+      },
+    ],
+    "name": "activity",
+    "path": "/activity",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-activity-skiing",
+        "path": "skiing",
+      },
+      {
+        "children": [],
+        "name": "localized-activity-skiing-locale-de",
+        "path": "aktivitaet-buchen/ski-fahren",
+      },
+      {
+        "children": [],
+        "name": "localized-activity-skiing-locale-ru",
+        "path": "skiing-locale",
+      },
+      {
+        "children": [],
+        "name": "localized-activity-hiking",
+        "path": "hiking",
+      },
+      {
+        "children": [],
+        "name": "localized-activity-hiking-locale-de",
+        "path": "aktivitaet-buchen/wandern",
+      },
+      {
+        "children": [],
+        "name": "localized-activity-hiking-locale-ru",
+        "path": "hiking-locale",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity",
+    "path": "/:locale(de|ru)/activity",
+  },
+]
+`;

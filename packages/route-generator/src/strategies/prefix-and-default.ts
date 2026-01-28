@@ -1,4 +1,3 @@
-import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import {
@@ -6,15 +5,11 @@ import {
   buildRouteName,
   buildRouteNameFromRoute,
   cloneArray,
-  isLocaleDefault,
   normalizePath,
-  removeLeadingSlash,
-  shouldAddLocalePrefix,
 } from '../utils'
-import { createRoute, resolveChildPath } from '../core/builder'
+import { createRoute } from '../core/builder'
 import { generateAliasRoutes } from '../core/alias'
 import type { GeneratorContext } from '../core/context'
-import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import { BaseStrategy } from './abstract'
 
 export class PrefixAndDefaultStrategy extends BaseStrategy {
@@ -140,165 +135,6 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
     return [...basePages, ...localizedPages]
   }
 
-  private createLocalizedChildren(
-    routes: NuxtPage[],
-    parentPath: string,
-    localeCodes: string[],
-    modifyName = true,
-    addLocalePrefix = false,
-    parentLocale: string | boolean = false,
-    localizedParentPaths: Record<string, string> = {},
-    context: GeneratorContext,
-  ): NuxtPage[] {
-    return routes.flatMap(route =>
-      this.createLocalizedVariants(
-        route,
-        parentPath,
-        localeCodes,
-        modifyName,
-        addLocalePrefix,
-        parentLocale,
-        localizedParentPaths,
-        context,
-      ),
-    )
-  }
-
-  private createLocalizedVariants(
-    route: NuxtPage,
-    parentPath: string,
-    localeCodes: string[],
-    modifyName: boolean,
-    addLocalePrefix: boolean,
-    parentLocale: string | boolean = false,
-    localizedParentPaths: Record<string, string>,
-    context: GeneratorContext,
-  ): NuxtPage[] {
-    const routePath = normalizePath(route.path ?? '')
-    const fullPath = resolveChildPath(parentPath, route.path ?? '')
-    const lookupKey = pathKeyForLocalizedPaths(fullPath)
-
-    let customLocalePaths = context.localizedPaths[lookupKey] ?? context.localizedPaths[pathKeyForLocalizedPaths(normalizePath(route.path ?? ''))]
-
-    if (!customLocalePaths && Object.keys(localizedParentPaths).length > 0) {
-      const hasLocalizedContext = Object.values(localizedParentPaths).some(p => p && p !== '')
-      if (hasLocalizedContext) {
-        const originalRoutePath = normalizePath(path.posix.join('/activity-locale', route.path ?? ''))
-        customLocalePaths = context.localizedPaths[pathKeyForLocalizedPaths(originalRoutePath)]
-      }
-    }
-
-    const isCustomLocalized = !!customLocalePaths
-
-    const result: NuxtPage[] = []
-
-    if (!isCustomLocalized) {
-      const finalPathForRoute = removeLeadingSlash(routePath)
-
-      const localizedChildren = this.createLocalizedChildren(
-        cloneArray(route.children ?? []),
-        resolveChildPath(parentPath, route.path ?? ''),
-        localeCodes,
-        modifyName,
-        addLocalePrefix,
-        parentLocale,
-        localizedParentPaths,
-        context,
-      )
-
-      const newName = this.buildChildRouteName(route.name as string, parentLocale, context)
-
-      result.push(
-        createRoute(route, {
-          path: finalPathForRoute,
-          name: newName,
-          children: localizedChildren,
-        }),
-      )
-
-      return result
-    }
-
-    for (const locale of localeCodes) {
-      const parentLocalizedPath = localizedParentPaths?.[locale]
-      const hasParentLocalized = !!parentLocalizedPath
-
-      const customPath = customLocalePaths?.[locale]
-
-      let basePath = customPath
-        ? normalizePath(customPath)
-        : normalizePath(route.path ?? '')
-
-      if (hasParentLocalized && parentLocalizedPath) {
-        if (customPath) {
-          basePath = normalizePath(customPath)
-        }
-        else {
-          basePath = resolveChildPath(parentLocalizedPath, route.path ?? '')
-        }
-      }
-
-      const finalRoutePath = shouldAddLocalePrefix(
-        locale,
-        context.defaultLocale,
-        addLocalePrefix,
-        isPrefixStrategy(context.strategy),
-      )
-        ? buildFullPath(locale, basePath, context.customRegex)
-        : basePath
-
-      const finalPathForRoute = removeLeadingSlash(finalRoutePath)
-
-      const nextParentPath = customPath
-        ? normalizePath(customPath)
-        : hasParentLocalized
-          ? parentLocalizedPath
-          : resolveChildPath(parentPath, route.path ?? '')
-
-      const localizedChildren = this.createLocalizedChildren(
-        cloneArray(route.children ?? []),
-        nextParentPath,
-        [locale],
-        modifyName,
-        addLocalePrefix,
-        locale,
-        {
-          ...localizedParentPaths,
-          [locale]: nextParentPath,
-        },
-        context,
-      )
-
-      const routeName = this.buildLocalizedRouteName(
-        buildRouteNameFromRoute(route.name, route.path),
-        locale,
-        modifyName,
-        !!customLocalePaths,
-        context,
-      )
-
-      result.push(
-        createRoute(route, {
-          path: finalPathForRoute,
-          name: routeName,
-          children: localizedChildren,
-        }),
-      )
-    }
-
-    return result
-  }
-
-  private buildChildRouteName(baseName: string, parentLocale: string | boolean, context: GeneratorContext): string {
-    if (parentLocale === true) {
-      return `${context.localizedRouteNamePrefix}${baseName}`
-    }
-    if (typeof parentLocale === 'string') {
-      return `${context.localizedRouteNamePrefix}${baseName}-${parentLocale}`
-    }
-    return baseName
-  }
-
   private createLocalizedRoute(
     page: NuxtPage,
     localeCodes: string[],
@@ -307,7 +143,7 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
     customPath: string = '',
     customRegex: string | RegExp | undefined,
     force = false,
-    parentLocale: string | boolean = false,
+    _parentLocale: string | boolean = false,
     originalPagePath: string | undefined,
     context: GeneratorContext,
   ): NuxtPage | null {
@@ -320,43 +156,18 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
     const parentPathForChildren = originalPagePath ?? page.path ?? ''
     const routeName = buildRouteName(buildRouteNameFromRoute(page.name ?? '', parentPathForChildren), firstLocale, isCustom, context.localizedRouteNamePrefix)
 
+    const addPrefix = force || firstLocale !== context.defaultLocale.code
+    const children = localeCodes.length === 1
+      ? this.localizeChildren(originalChildren, routePath, parentPathForChildren, firstLocale, context, addPrefix)
+      : this.localizeChildrenAllLocales(originalChildren, routePath, parentPathForChildren, localeCodes, context)
+
     return createRoute(page, {
       path: routePath,
       name: routeName,
-      children: this.createLocalizedChildren(
-        originalChildren,
-        parentPathForChildren,
-        localeCodes,
-        true,
-        false,
-        parentLocale,
-        { [firstLocale]: customPath },
-        context,
-      ),
+      children,
       alias: [],
       meta: { alias: [] },
     })
-  }
-
-  private buildLocalizedRouteName(
-    baseName: string,
-    locale: string,
-    modifyName: boolean,
-    forceLocaleSuffixOrCustom = false,
-    context: GeneratorContext,
-  ): string {
-    if (!modifyName) return baseName
-
-    if (forceLocaleSuffixOrCustom) {
-      return `${context.localizedRouteNamePrefix}${baseName}-${locale}`
-    }
-
-    const shouldAddLocaleSuffix = locale
-      && !isLocaleDefault(locale, context.defaultLocale, isPrefixAndDefaultStrategy(context.strategy))
-
-    return shouldAddLocaleSuffix
-      ? `${context.localizedRouteNamePrefix}${baseName}-${locale}`
-      : `${context.localizedRouteNamePrefix}${baseName}`
   }
 
   private buildRoutePath(

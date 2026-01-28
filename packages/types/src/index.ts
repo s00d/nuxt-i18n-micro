@@ -94,6 +94,7 @@ export interface ModuleOptions {
   noPrefixRedirect?: boolean
   canonicalQueryWhitelist?: string[]
   excludePatterns?: (string | RegExp)[]
+  localizedRouteNamePrefix?: string
   routeLocales?: Record<string, string[]>
   routeDisableMeta?: Record<string, boolean | string[]>
   missingWarn?: boolean

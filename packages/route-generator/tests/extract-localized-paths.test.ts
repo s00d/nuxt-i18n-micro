@@ -1,21 +1,19 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { RouteGenerator } from '../src/index'
-import { locales, defaultLocaleCode, createNestedPages } from './helpers'
+import { extractLocalizedPaths } from '../src/core/localized-paths'
+import { createNestedPages } from './helpers'
 
-describe('RouteGenerator - extractLocalizedPaths', () => {
+describe('extractLocalizedPaths (core)', () => {
   test('empty pages array returns empty object', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
-    const result = generator.extractLocalizedPaths([])
+    const result = extractLocalizedPaths([], {}, {})
     expect(result).toMatchSnapshot()
   })
 
   test('pages with no globalLocaleRoutes or filesLocaleRoutes returns empty', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, {}, {}, false)
     const pages: NuxtPage[] = [
       { path: '/about', name: 'about' },
       { path: '/contact', name: 'contact' },
     ]
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, {}, {})
     expect(result).toMatchSnapshot()
   })
 
@@ -24,12 +22,11 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
       '/about': { en: '/about', de: '/ueber-uns' },
       '/contact': { en: '/contact', de: '/kontakt' },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
     const pages: NuxtPage[] = [
       { path: '/about', name: 'about' },
       { path: '/contact', name: 'contact' },
     ]
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, globalLocaleRoutes, {})
     expect(result).toMatchSnapshot()
   })
 
@@ -38,12 +35,11 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
       about: { en: '/about', de: '/ueber-uns' },
       contact: { en: '/contact', ru: '/kontakt' },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', {}, filesLocaleRoutes, {}, false)
     const pages: NuxtPage[] = [
       { path: '/about', name: 'about' },
       { path: '/contact', name: 'contact' },
     ]
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, {}, filesLocaleRoutes)
     expect(result).toMatchSnapshot()
   })
 
@@ -52,9 +48,8 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
       '/parent': { en: '/parent', de: '/eltern' },
       '/parent/child': { en: '/parent/child', de: '/eltern/kind' },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
     const pages = createNestedPages()
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, globalLocaleRoutes, {})
     expect(result).toMatchSnapshot()
   })
 
@@ -63,12 +58,11 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
       '/about': { en: '/about', de: '/ueber' },
       '/disabled': false,
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
     const pages: NuxtPage[] = [
       { path: '/about', name: 'about' },
       { path: '/disabled', name: 'disabled' },
     ]
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, globalLocaleRoutes, {})
     expect(result).toMatchSnapshot()
   })
 
@@ -76,9 +70,8 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
     const globalLocaleRoutes = {
       'about-page': { en: '/about-us', de: '/ueber-uns' },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
     const pages: NuxtPage[] = [{ path: '/about', name: 'about-page' }]
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, globalLocaleRoutes, {})
     expect(result).toMatchSnapshot()
   })
 
@@ -86,9 +79,8 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
     const globalLocaleRoutes = {
       '/users/:id': { en: '/users/:id', de: '/benutzer/:id' },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
     const pages: NuxtPage[] = [{ path: '/users/[id]', name: 'users-id' }]
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, globalLocaleRoutes, {})
     expect(result).toMatchSnapshot()
   })
 
@@ -99,7 +91,6 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
     const filesLocaleRoutes = {
       'level1-level2': { en: '/l1/l2', de: '/ebene1/ebene2' },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, filesLocaleRoutes, {}, false)
     const pages: NuxtPage[] = [
       {
         path: '/level1',
@@ -107,7 +98,7 @@ describe('RouteGenerator - extractLocalizedPaths', () => {
         children: [{ path: 'level2', name: 'level1-level2' }],
       },
     ]
-    const result = generator.extractLocalizedPaths(pages)
+    const result = extractLocalizedPaths(pages, globalLocaleRoutes, filesLocaleRoutes)
     expect(result).toMatchSnapshot()
   })
 })

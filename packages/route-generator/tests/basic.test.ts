@@ -6,7 +6,7 @@ import { locales, defaultLocaleCode, fixturesDir } from './helpers'
 describe('RouteGenerator - Basic Functionality', () => {
   describe('Basic Functionality', () => {
     test('should correctly extend pages with localized routes', () => {
-      const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, {}, false)
+      const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
       const pages: NuxtPage[] = [
         {
           path: '/activity',
@@ -60,7 +60,7 @@ describe('RouteGenerator - Basic Functionality', () => {
     })
 
     test('should handle default locale routes correctly in extendPages', () => {
-      const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', undefined, {}, {}, false)
+      const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
       const pages: NuxtPage[] = [{
         path: '/activity',
         name: 'ActivityParent',
@@ -73,7 +73,7 @@ describe('RouteGenerator - Basic Functionality', () => {
     })
 
     test('should include default locale routes when strategy is prefix', () => {
-      const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix', undefined, {}, {}, false)
+      const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
       const pages: NuxtPage[] = [{
         path: '/activity',
@@ -97,7 +97,7 @@ describe('RouteGenerator - Basic Functionality', () => {
       unlocalized: false,
     }
 
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [{
       path: '/activity',
@@ -114,7 +114,7 @@ describe('RouteGenerator - Basic Functionality', () => {
   })
 
   test('should handle prefix_and_default strategy correctly', () => {
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_and_default', undefined, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_and_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -137,7 +137,7 @@ describe('RouteGenerator - Basic Functionality', () => {
         ru: '/custom-activity-ru',
       },
     }
-    const generator = new RouteGenerator(locales, defaultLocaleCode, 'no_prefix', globalLocaleRoutes, {}, {}, false)
+    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'no_prefix', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const pages: NuxtPage[] = [
       {
@@ -182,7 +182,7 @@ describe('RouteGenerator - Basic Functionality', () => {
       },
     }
 
-    const generator = new RouteGenerator(testLocales, 'en', 'no_prefix', {}, filesLocaleRoutes, {}, false)
+    const generator = new RouteGenerator({ locales: testLocales, defaultLocaleCode: 'en', strategy: 'no_prefix', globalLocaleRoutes: {}, filesLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
     const localizedPaths = generator.extractLocalizedPaths(mockPages)
 

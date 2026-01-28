@@ -1,34 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RouteGenerator - adjustRouteForDefaultLocale direct call adjustRouteForDefaultLocale with custom localizedPaths 1`] = `
-[
-  {
-    "children": [],
-    "name": "page",
-    "path": "/custom-en",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-page-de",
-    "path": "/:locale(de)/custom-de",
-  },
-  {
-    "alias": [],
-    "children": [],
-    "meta": {
-      "alias": [],
-    },
-    "name": "localized-page",
-    "path": "/:locale(ru)/page",
-  },
-]
-`;
-
-exports[`RouteGenerator - adjustRouteForDefaultLocale no_prefix: adjustRouteForDefaultLocale is no-op 1`] = `
+exports[`RouteGenerator - default locale behavior in extendPages no_prefix: default locale path is not adjusted (no-op) 1`] = `
 [
   {
     "name": "test",
@@ -37,7 +9,7 @@ exports[`RouteGenerator - adjustRouteForDefaultLocale no_prefix: adjustRouteForD
 ]
 `;
 
-exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_and_default: adjustRouteForDefaultLocale is no-op (does not change path) 1`] = `
+exports[`RouteGenerator - default locale behavior in extendPages prefix_and_default: default locale path is not changed (no-op) 1`] = `
 [
   {
     "name": "test",
@@ -55,7 +27,7 @@ exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_and_default: adjust
 ]
 `;
 
-exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_except_default with nested: default locale children get adjusted 1`] = `
+exports[`RouteGenerator - default locale behavior in extendPages prefix_except_default with nested: default locale children get adjusted 1`] = `
 [
   {
     "children": [
@@ -128,7 +100,35 @@ exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_except_default with
 ]
 `;
 
-exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_except_default: updates page.path from localizedPaths for default locale 1`] = `
+exports[`RouteGenerator - default locale behavior in extendPages prefix_except_default: default locale path uses custom globalLocaleRoutes (was direct adjustRouteForDefaultLocale) 1`] = `
+[
+  {
+    "children": [],
+    "name": "page",
+    "path": "/custom-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-page-de",
+    "path": "/:locale(de)/custom-de",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-page",
+    "path": "/:locale(ru)/page",
+  },
+]
+`;
+
+exports[`RouteGenerator - default locale behavior in extendPages prefix_except_default: updates page.path from localizedPaths for default locale 1`] = `
 [
   {
     "children": [],

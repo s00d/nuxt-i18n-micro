@@ -16,15 +16,15 @@ describe('RouteGenerator - Advanced Scenarios', () => {
 
   test('34. should prioritize globalLocaleRoutes over filesLocaleRoutes', () => {
     const pages: NuxtPage[] = [{ path: '/about', name: 'about' }]
-    const manager = new RouteGenerator(
+    const manager = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
-      { '/about': { en: '/from-global' } },
-      { '/about': { en: '/from-file' } },
-      {},
-      false,
-    )
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: { '/about': { en: '/from-global' } },
+      filesLocaleRoutes: { '/about': { en: '/from-file' } },
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     manager.extendPages(pages)
 
     expect(pages).toMatchSnapshot()
@@ -102,15 +102,14 @@ describe('RouteGenerator - Advanced Scenarios', () => {
 
   test('41. should handle empty locales array gracefully', () => {
     const pages = createBasicPages()
-    const manager = new RouteGenerator(
-      [],
+    const manager = new RouteGenerator({
+      locales: [],
       defaultLocaleCode,
-      'prefix_except_default',
-      {},
-      {},
-      {},
-      false,
-    )
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     manager.extendPages(pages)
 
     expect(pages).toMatchSnapshot()
@@ -118,15 +117,14 @@ describe('RouteGenerator - Advanced Scenarios', () => {
 
   test('42. should handle defaultLocale not in locales list', () => {
     const pages = createBasicPages()
-    const manager = new RouteGenerator(
-      [{ code: 'de', iso: 'de-DE' }, { code: 'ru', iso: 'ru-RU' }],
-      'en',
-      'prefix_except_default',
-      {},
-      {},
-      {},
-      false,
-    )
+    const manager = new RouteGenerator({
+      locales: [{ code: 'de', iso: 'de-DE' }, { code: 'ru', iso: 'ru-RU' }],
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     manager.extendPages(pages)
 
     expect(pages).toMatchSnapshot()

@@ -40,7 +40,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 
 exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths 1`] = `
 {
-  "/a": {
+  "a": {
     "en": "/a-en",
   },
 }

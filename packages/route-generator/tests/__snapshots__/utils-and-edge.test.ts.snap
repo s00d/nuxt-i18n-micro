@@ -195,7 +195,7 @@ exports[`RouteGenerator - Edge cases globalLocaleRoutes with Nuxt-style [id] key
 
 exports[`RouteGenerator - Edge cases localizedPaths populated after extendPages 1`] = `
 {
-  "/about": {
+  "about": {
     "de": "/ueber-uns",
     "en": "/about",
   },

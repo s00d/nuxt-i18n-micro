@@ -1,20 +1,20 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
-import { locales, defaultLocaleCode, createBasicPages, createNestedPages, createManager } from './helpers'
+import { locales, defaultLocaleCode, createManager } from './helpers'
 
 describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales)', () => {
   test('globalLocaleRoutes overrides filesLocaleRoutes for same path', () => {
     const globalLocaleRoutes = { '/about': { en: '/from-global', de: '/aus-global' } }
     const filesLocaleRoutes = { '/about': { en: '/from-file', de: '/aus-datei', ru: '/iz-fajla' } }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
       filesLocaleRoutes,
-      {},
-      false,
-    )
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [{ path: '/about', name: 'about' }]
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()
@@ -40,15 +40,15 @@ describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocal
       '/shop/product': { en: '/product', de: '/produkt' },
     }
     const routeLocales = { '/shop': ['en', 'de'], '/shop/product': ['en'] }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
       filesLocaleRoutes,
       routeLocales,
-      false,
-    )
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       {
         path: '/shop',
@@ -72,15 +72,15 @@ describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocal
       '/page-b': ['en', 'ru'],
       '/page-c': ['en'],
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
       filesLocaleRoutes,
       routeLocales,
-      false,
-    )
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       { path: '/page-a', name: 'page-a' },
       { path: '/page-b', name: 'page-b' },
@@ -111,15 +111,15 @@ describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocal
       '/catalog': ['en', 'de'],
       '/catalog/item': ['en', 'de'],
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
       filesLocaleRoutes,
       routeLocales,
-      false,
-    )
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       {
         path: '/catalog',
@@ -149,15 +149,15 @@ describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocal
     const filesLocaleRoutes = {
       '/home': { ru: '/glavnaya' },
     }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'no_prefix',
+      strategy: 'no_prefix',
       globalLocaleRoutes,
       filesLocaleRoutes,
-      {},
-      true,
-    )
+      routeLocales: {},
+      noPrefixRedirect: true,
+    })
     const pages: NuxtPage[] = [{ path: '/home', name: 'home' }]
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()
@@ -172,15 +172,15 @@ describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocal
       '/hybrid': { ru: '/hybrid-ru' },
     }
     const routeLocales = { '/only-restrict': ['en', 'ru'] }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
       filesLocaleRoutes,
       routeLocales,
-      false,
-    )
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       { path: '/no-i18n', name: 'no-i18n' },
       { path: '/hybrid', name: 'hybrid' },
@@ -193,15 +193,15 @@ describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocal
   test('extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths', () => {
     const globalLocaleRoutes = { '/a': { en: '/a-en' } }
     const filesLocaleRoutes = { '/b': { en: '/b-en' }, '/a': { de: '/a-de-file' } }
-    const generator = new RouteGenerator(
+    const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      'prefix_except_default',
+      strategy: 'prefix_except_default',
       globalLocaleRoutes,
       filesLocaleRoutes,
-      {},
-      false,
-    )
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [
       { path: '/a', name: 'a' },
       { path: '/b', name: 'b' },

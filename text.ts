@@ -21,7 +21,7 @@ const locales: Locale[] = [
 const defaultLocaleCode = 'en'
 
 // Creating a new RouteGenerator instance with globalLocaleRoutes
-const routeGenerator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+const routeGenerator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
 
 // const pages: NuxtPage[] = [{
 //   path: '/activity',

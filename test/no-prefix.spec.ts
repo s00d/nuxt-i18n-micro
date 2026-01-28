@@ -51,7 +51,7 @@ test.describe('no_prefix', () => {
 
     await page.click('#contact')
 
-    // Check the URL for the Contact page in English
+    // Check the URL for the Contact page in German
     await expect(page).toHaveURL('/kontakt')
 
     await goto('/', { waitUntil: 'hydration' })

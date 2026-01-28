@@ -12,6 +12,7 @@ const parseAcceptLanguage = (acceptLanguage: string) =>
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig = nuxtApp.$config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const localizedRouteNamePrefix = i18nConfig.localizedRouteNamePrefix || 'localized-'
   const date = new Date()
   const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale', {
     watch: false,
@@ -33,7 +34,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         const newParams = { ...route.params }
         delete newParams.locale
         const resolvedRoute = router.resolve(router.currentRoute.value)
-        const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
+        const routeName = (resolvedRoute.name as string).replace(localizedRouteNamePrefix, '')
 
         const newRoute = router.resolve({
           name: routeName,
@@ -52,10 +53,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     const currentPath = router.currentRoute
     const resolvedRoute = router.resolve(currentPath.value)
-    const routeName = (resolvedRoute.name as string).replace(`localized-`, '')
+    const routeName = (resolvedRoute.name as string).replace(localizedRouteNamePrefix, '')
 
     const newRouteName = isPrefixStrategy(i18nConfig.strategy!) || newLocale !== defaultLocale
-      ? `localized-${routeName}`
+      ? `${localizedRouteNamePrefix}${routeName}`
       : routeName
 
     const newParams = { ...route.params }

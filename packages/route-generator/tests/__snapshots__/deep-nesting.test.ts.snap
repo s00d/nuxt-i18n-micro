@@ -1,0 +1,2330 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - Deep nesting (4 levels) extractLocalizedPaths on deep nested pages with globalLocaleRoutes 1`] = `
+{
+  "/section": {
+    "de": "/bereich",
+    "en": "/section",
+  },
+  "/section/category/item/detail": {
+    "de": "/detail-de",
+    "en": "/detail",
+  },
+}
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) filesLocaleRoutes at every level 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "section/category/item/detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "section/category/item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "section/category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "section/category/item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes + filesLocaleRoutes: root from global, children from files 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "section/category/item/detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-en",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "section/category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "section/category/detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes + routeLocales: custom paths and restrictions at each level 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "section/category/item/detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "section/category/item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "section/category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at every level 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "section/category/item/detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "section/category/item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "section/category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "section/category/item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at leaf level only (detail) 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "section/category/item/detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "bereich/kategorie/artikel/detail",
+              },
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(de|ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at middle level only (category) 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-en",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-en",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "section/category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(de|ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at root level only (section) 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-ru",
+    "path": "/:locale(ru)/razdel",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes: root disabled (false), children have custom paths 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) no_prefix: deep nested with custom paths at every level 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/bereich",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) no_prefix: deep nested without custom paths 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custom paths, default routes removed 1`] = `
+[
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-en",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-en",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-en",
+        "path": "section/category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-en",
+    "path": "/:locale(en)/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested without custom paths 1`] = `
+[
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(en|de|ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) prefix_and_default: deep nested with custom paths at root and leaf 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-en",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-en",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-en",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-en",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-en",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-en",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-en",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-en",
+    "path": "/:locale(en)/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail-de",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) prefix_and_default: deep nested without custom paths 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(en|de|ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) prefix_except_default: deep nested without custom paths 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(de|ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) routeLocales at each level: different restrictions 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(de|ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting (4 levels) routeLocales at root only: section restricted to en, de 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(de)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting with multiple branches deep branch with routeLocales on each level of branch 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "name": "docs-guide-intro-step1-example",
+                    "path": "example",
+                  },
+                ],
+                "name": "docs-guide-intro-step1",
+                "path": "step1",
+              },
+            ],
+            "name": "docs-guide-intro",
+            "path": "intro",
+          },
+        ],
+        "name": "docs-guide",
+        "path": "guide",
+      },
+    ],
+    "name": "docs",
+    "path": "/docs",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "name": "localized-docs-guide-intro-step1-example",
+                    "path": "example",
+                  },
+                ],
+                "name": "localized-docs-guide-intro-step1",
+                "path": "step1",
+              },
+            ],
+            "name": "localized-docs-guide-intro",
+            "path": "intro",
+          },
+        ],
+        "name": "localized-docs-guide",
+        "path": "guide",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-docs",
+    "path": "/:locale(de)/docs",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting with multiple branches deep nesting with globalLocaleRoutes + filesLocaleRoutes + routeLocales combined 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "section-category-item-detail",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "section-category-item",
+            "path": "section/category/item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "section-category",
+        "path": "section/category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "name": "section",
+    "path": "/section",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-de",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-de",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-de",
+        "path": "bereich/kategorie",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section-de",
+    "path": "/:locale(de)/bereich",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/section/category/item/detail.vue",
+                "name": "localized-section-category-item-detail-ru",
+                "path": "detail",
+              },
+            ],
+            "file": "/pages/section/category/item.vue",
+            "name": "localized-section-category-item-ru",
+            "path": "section/category/item",
+          },
+        ],
+        "file": "/pages/section/category.vue",
+        "name": "localized-section-category-ru",
+        "path": "category",
+      },
+    ],
+    "file": "/pages/section.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-section",
+    "path": "/:locale(ru)/section",
+  },
+]
+`;
+
+exports[`RouteGenerator - Deep nesting with multiple branches two deep branches from same root 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/shop/category/product/reviews.vue",
+                "name": "localized-shop-category-product-reviews-en",
+                "path": "reviews",
+              },
+            ],
+            "file": "/pages/shop/category/product.vue",
+            "name": "shop-category-product",
+            "path": "shop/category/product",
+          },
+        ],
+        "file": "/pages/shop/category.vue",
+        "name": "shop-category",
+        "path": "category",
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/shop/brand/item/specs.vue",
+                "name": "localized-shop-brand-item-specs-en",
+                "path": "specs",
+              },
+            ],
+            "file": "/pages/shop/brand/item.vue",
+            "name": "shop-brand-item",
+            "path": "shop/brand/item",
+          },
+        ],
+        "file": "/pages/shop/brand.vue",
+        "name": "shop-brand",
+        "path": "brand",
+      },
+    ],
+    "file": "/pages/shop.vue",
+    "name": "shop",
+    "path": "/shop",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/shop/category/product/reviews.vue",
+                "name": "localized-shop-category-product-reviews-de",
+                "path": "reviews",
+              },
+            ],
+            "file": "/pages/shop/category/product.vue",
+            "name": "localized-shop-category-product-de",
+            "path": "geschaeft/kategorie/produkt",
+          },
+        ],
+        "file": "/pages/shop/category.vue",
+        "name": "localized-shop-category-de",
+        "path": "category",
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/shop/brand/item/specs.vue",
+                "name": "localized-shop-brand-item-specs-de",
+                "path": "specs",
+              },
+            ],
+            "file": "/pages/shop/brand/item.vue",
+            "name": "localized-shop-brand-item-de",
+            "path": "geschaeft/marke/artikel",
+          },
+        ],
+        "file": "/pages/shop/brand.vue",
+        "name": "localized-shop-brand-de",
+        "path": "brand",
+      },
+    ],
+    "file": "/pages/shop.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-shop-de",
+    "path": "/:locale(de)/geschaeft",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/shop/category/product/reviews.vue",
+                "name": "localized-shop-category-product-reviews-ru",
+                "path": "reviews",
+              },
+            ],
+            "file": "/pages/shop/category/product.vue",
+            "name": "localized-shop-category-product-ru",
+            "path": "product",
+          },
+        ],
+        "file": "/pages/shop/category.vue",
+        "name": "localized-shop-category-ru",
+        "path": "category",
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "file": "/pages/shop/brand/item/specs.vue",
+                "name": "localized-shop-brand-item-specs-ru",
+                "path": "specs",
+              },
+            ],
+            "file": "/pages/shop/brand/item.vue",
+            "name": "localized-shop-brand-item-ru",
+            "path": "item",
+          },
+        ],
+        "file": "/pages/shop/brand.vue",
+        "name": "localized-shop-brand-ru",
+        "path": "brand",
+      },
+    ],
+    "file": "/pages/shop.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-shop",
+    "path": "/:locale(ru)/shop",
+  },
+]
+`;
+
+exports[`RouteGenerator - Very deep nesting (6 levels) extractLocalizedPaths on 6-level nested pages 1`] = `
+{
+  "/a": {
+    "de": "/a-de",
+    "en": "/a",
+  },
+  "/a/b/c": {
+    "de": "/a-de/b-de/c-de",
+    "en": "/a/b/c",
+  },
+  "/a/b/c/d/e/f": {
+    "de": "/blatt",
+    "en": "/leaf",
+  },
+}
+`;
+
+exports[`RouteGenerator - Very deep nesting (6 levels) globalLocaleRoutes at every level (6 levels) 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "a-b-c-d-e-f",
+                        "path": "a/b/c/d/e/f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "a-b-c-d-e",
+                    "path": "a/b/c/d/e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "a-b-c-d",
+                "path": "a/b/c/d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "a-b-c",
+            "path": "a/b/c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "a-b",
+        "path": "a/b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "name": "a",
+    "path": "/a",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-de",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-de",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-de",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-de",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-de",
+        "path": "a1/b1",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a-de",
+    "path": "/:locale(de)/a1",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-ru",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-ru",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-ru",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-ru",
+            "path": "a/b/c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-ru",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(ru)/a",
+  },
+]
+`;
+
+exports[`RouteGenerator - Very deep nesting (6 levels) globalLocaleRoutes at root (a) and leaf (f) only 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "a-b-c-d-e-f",
+                        "path": "a/b/c/d/e/f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "a-b-c-d-e",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "a-b-c-d",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "a-b-c",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "a-b",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "name": "a",
+    "path": "/a",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-de",
+                        "path": "a-de/b/c/d/e/f-de",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-de",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-de",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-de",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-de",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a-de",
+    "path": "/:locale(de)/a-de",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-ru",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-ru",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-ru",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-ru",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-ru",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(ru)/a",
+  },
+]
+`;
+
+exports[`RouteGenerator - Very deep nesting (6 levels) prefix: 6 levels without custom paths 1`] = `
+[
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(en|de|ru)/a",
+  },
+]
+`;
+
+exports[`RouteGenerator - Very deep nesting (6 levels) prefix_and_default: 6 levels with custom path at root 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "a-b-c-d-e-f",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "a-b-c-d-e",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "a-b-c-d",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "a-b-c",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "a-b",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "name": "a",
+    "path": "/a",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-en",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-en",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-en",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-en",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-en",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a-en",
+    "path": "/root",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-en",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-en",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-en",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-en",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-en",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a-en",
+    "path": "/:locale(en)/root",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-de",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-de",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-de",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-de",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-de",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a-de",
+    "path": "/:locale(de)/wurzel",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f-ru",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e-ru",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d-ru",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c-ru",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b-ru",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(ru)/a",
+  },
+]
+`;
+
+exports[`RouteGenerator - Very deep nesting (6 levels) prefix_except_default: 6 levels without custom paths 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "a-b-c-d-e-f",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "a-b-c-d-e",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "a-b-c-d",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "a-b-c",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "a-b",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "name": "a",
+    "path": "/a",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(de|ru)/a",
+  },
+]
+`;
+
+exports[`RouteGenerator - Very deep nesting (6 levels) routeLocales at alternating levels 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "a-b-c-d-e-f",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "a-b-c-d-e",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "a-b-c-d",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "a-b-c",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "a-b",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "name": "a",
+    "path": "/a",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [],
+                        "file": "/pages/a/b/c/d/e/f.vue",
+                        "name": "localized-a-b-c-d-e-f",
+                        "path": "f",
+                      },
+                    ],
+                    "file": "/pages/a/b/c/d/e.vue",
+                    "name": "localized-a-b-c-d-e",
+                    "path": "e",
+                  },
+                ],
+                "file": "/pages/a/b/c/d.vue",
+                "name": "localized-a-b-c-d",
+                "path": "d",
+              },
+            ],
+            "file": "/pages/a/b/c.vue",
+            "name": "localized-a-b-c",
+            "path": "c",
+          },
+        ],
+        "file": "/pages/a/b.vue",
+        "name": "localized-a-b",
+        "path": "b",
+      },
+    ],
+    "file": "/pages/a.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(de)/a",
+  },
+]
+`;

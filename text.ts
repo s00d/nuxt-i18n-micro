@@ -1,6 +1,6 @@
 import type { NuxtPage } from '@nuxt/schema'
 import type { Locale } from '@i18n-micro/types'
-import { PageManager } from '~/src/page-manager'
+import { RouteGenerator } from '@i18n-micro/route-generator'
 
 const globalLocaleRoutes
 = {
@@ -20,8 +20,8 @@ const locales: Locale[] = [
 
 const defaultLocaleCode = 'en'
 
-// Creating a new PageManager instance with globalLocaleRoutes
-const pageManagerWithGlobalRoutes = new PageManager(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
+// Creating a new RouteGenerator instance with globalLocaleRoutes
+const routeGenerator = new RouteGenerator(locales, defaultLocaleCode, 'prefix_except_default', globalLocaleRoutes, {}, {}, false)
 
 // const pages: NuxtPage[] = [{
 //   path: '/activity',
@@ -116,6 +116,6 @@ const pages: NuxtPage[] = [
 ]
 
 // Extend pages with globalLocaleRoutes
-pageManagerWithGlobalRoutes.extendPages(pages)
+routeGenerator.extendPages(pages)
 
 console.log(1111, JSON.stringify(pages, null, 2))

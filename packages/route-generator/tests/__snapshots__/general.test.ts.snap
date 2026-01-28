@@ -1,0 +1,537 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 21. should exclude routes based on \`excludePatterns\` 1`] = `
+[
+  {
+    "children": [],
+    "file": "/pages/index.vue",
+    "name": "index",
+    "path": "/",
+  },
+  {
+    "children": [],
+    "file": "/pages/about.vue",
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "name": "users-id",
+    "path": "/users/:id",
+  },
+  {
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "name": "catch-all",
+    "path": "/:slug(.*)*",
+  },
+  {
+    "name": "admin",
+    "path": "/admin",
+  },
+  {
+    "name": "api-users",
+    "path": "/api/users",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/index.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-index",
+    "path": "/:locale(de|ru)",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id",
+    "path": "/:locale(de|ru)/users/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-catch-all",
+    "path": "/:locale(de|ru)/:slug(.*)*",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 22. should correctly localize aliases 1`] = `
+[
+  {
+    "alias": [
+      "/about-us",
+      "/company",
+    ],
+    "children": [],
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/about-us",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/company",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 23. should handle deep nesting with custom paths at different levels 1`] = `
+[
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-en",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-en",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(en)/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grosskind",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 24. should handle catch-all routes correctly 1`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-catch-all",
+    "path": "/:locale(en|de|ru)/:slug(.*)*",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 25. should combine \`routeLocales\` and \`globalLocaleRoutes\` correctly 1`] = `
+[
+  {
+    "children": [],
+    "file": "/pages/index.vue",
+    "name": "index",
+    "path": "/",
+  },
+  {
+    "children": [],
+    "file": "/pages/about.vue",
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "name": "users-id",
+    "path": "/users/:id",
+  },
+  {
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "name": "catch-all",
+    "path": "/:slug(.*)*",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/index.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-index",
+    "path": "/:locale(de|ru)",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about-de",
+    "path": "/:locale(de)/ueber-uns",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id",
+    "path": "/:locale(de|ru)/users/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-catch-all",
+    "path": "/:locale(de|ru)/:slug(.*)*",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 27. should not localize redirect-only pages 1`] = `
+[
+  {
+    "path": "/old",
+    "redirect": "/new",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 28. should correctly generate names for nested localized routes 1`] = `
+[
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(en|de|ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 29. should correctly handle custom path for a child but not for the parent 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-en",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "kind",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(de|ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 30. should handle custom path for parent and child 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-en",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "eltern/kind",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 31. should handle custom path for parent but not for child 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "parent-child-grandchild",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - General Functionality (Cross-Strategy) 32. should handle a page with multiple dynamic segments 1`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-group-id",
+    "path": "/:locale(en|de|ru)/users/:group/:id",
+  },
+]
+`;

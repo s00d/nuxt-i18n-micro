@@ -1,0 +1,312 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - Edge cases activeLocaleCodes for each strategy 1`] = `
+{
+  "no_prefix": [
+    "de",
+    "ru",
+  ],
+  "prefix": [
+    "en",
+    "de",
+    "ru",
+  ],
+  "prefix_and_default": [
+    "en",
+    "de",
+    "ru",
+  ],
+  "prefix_except_default": [
+    "de",
+    "ru",
+  ],
+}
+`;
+
+exports[`RouteGenerator - Edge cases constructor with undefined filesLocaleRoutes 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(de|ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Edge cases constructor with undefined globalLocaleRoutes 1`] = `
+[
+  {
+    "children": [],
+    "file": "/pages/index.vue",
+    "name": "index",
+    "path": "/",
+  },
+  {
+    "children": [],
+    "file": "/pages/about.vue",
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "name": "users-id",
+    "path": "/users/:id",
+  },
+  {
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "name": "catch-all",
+    "path": "/:slug(.*)*",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/index.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-index",
+    "path": "/:locale(de|ru)",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id",
+    "path": "/:locale(de|ru)/users/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-catch-all",
+    "path": "/:locale(de|ru)/:slug(.*)*",
+  },
+]
+`;
+
+exports[`RouteGenerator - Edge cases defaultLocale when code not in locales list 1`] = `
+{
+  "code": "en",
+}
+`;
+
+exports[`RouteGenerator - Edge cases empty pages array: extendPages does nothing 1`] = `[]`;
+
+exports[`RouteGenerator - Edge cases excludePatterns: string and RegExp together 1`] = `
+[
+  {
+    "children": [],
+    "name": "public",
+    "path": "/public",
+  },
+  {
+    "name": "admin",
+    "path": "/admin",
+  },
+  {
+    "name": "api-health",
+    "path": "/api/health",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-public",
+    "path": "/:locale(de|ru)/public",
+  },
+]
+`;
+
+exports[`RouteGenerator - Edge cases extendPages with customRegex string pattern 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(^[a-z]{2}(-[a-z]{2})?$)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Edge cases globalLocaleRoutes with Nuxt-style [id] key normalizes to :id 1`] = `
+[
+  {
+    "children": [],
+    "name": "users-id",
+    "path": "/users/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id-de",
+    "path": "/:locale(de)/benutzer/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id",
+    "path": "/:locale(ru)/users/[id]",
+  },
+]
+`;
+
+exports[`RouteGenerator - Edge cases localizedPaths populated after extendPages 1`] = `
+{
+  "/about": {
+    "de": "/ueber-uns",
+    "en": "/about",
+  },
+}
+`;
+
+exports[`RouteGenerator - Edge cases multiple redirect-only pages 1`] = `
+[
+  {
+    "path": "/r1",
+    "redirect": "/t1",
+  },
+  {
+    "path": "/r2",
+    "redirect": "/t2",
+  },
+]
+`;
+
+exports[`RouteGenerator - Edge cases page with empty path (root) 1`] = `
+[
+  {
+    "children": [],
+    "name": "index",
+    "path": "/",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-index",
+    "path": "/:locale(de|ru)",
+  },
+]
+`;
+
+exports[`RouteGenerator - Edge cases single locale in config 1`] = `
+[
+  {
+    "children": [],
+    "name": "about",
+    "path": "/about",
+  },
+]
+`;
+
+exports[`RouteGenerator - Exported utils buildFullPath array of locales 1`] = `"/:locale(en|de)/about"`;
+
+exports[`RouteGenerator - Exported utils buildFullPath single locale 1`] = `"/:locale(en)/about"`;
+
+exports[`RouteGenerator - Exported utils buildFullPath with custom regex 1`] = `"/:locale(^[a-z]{2}$)/about"`;
+
+exports[`RouteGenerator - Exported utils buildFullPathNoPrefix returns normalized path 1`] = `"/about"`;
+
+exports[`RouteGenerator - Exported utils buildRouteName custom path adds locale suffix 1`] = `"localized-about-de"`;
+
+exports[`RouteGenerator - Exported utils buildRouteName non-custom no locale suffix 1`] = `"localized-about"`;
+
+exports[`RouteGenerator - Exported utils cloneArray shallow clone objects 1`] = `
+[
+  {
+    "a": 1,
+  },
+  {
+    "b": 2,
+  },
+]
+`;
+
+exports[`RouteGenerator - Exported utils isInternalPath __nuxt internal path 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils isInternalPath custom excludePatterns regex 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils isInternalPath custom excludePatterns string 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils isInternalPath normal path not excluded 1`] = `false`;
+
+exports[`RouteGenerator - Exported utils isInternalPath robots.txt 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils isInternalPath sitemap.xml 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils isLocaleDefault object locale 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils isLocaleDefault string locale, default, includeDefault false -> true 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils isPageRedirectOnly page with file is not redirect-only 1`] = `false`;
+
+exports[`RouteGenerator - Exported utils isPageRedirectOnly redirect without file is redirect-only 1`] = `true`;
+
+exports[`RouteGenerator - Exported utils normalizePath . becomes empty 1`] = `""`;
+
+exports[`RouteGenerator - Exported utils normalizePath double slash normalized 1`] = `"/about/contact"`;
+
+exports[`RouteGenerator - Exported utils normalizePath empty string 1`] = `""`;
+
+exports[`RouteGenerator - Exported utils normalizePath trailing slash removed 1`] = `"/about"`;
+
+exports[`RouteGenerator - Exported utils normalizeRouteKey [...slug] -> :slug(.*)* 1`] = `"/:slug(.*)*"`;
+
+exports[`RouteGenerator - Exported utils normalizeRouteKey [id] -> :id 1`] = `"/users/:id"`;
+
+exports[`RouteGenerator - Exported utils normalizeRouteKey mixed path 1`] = `"/posts/:id/:rest(.*)*"`;
+
+exports[`RouteGenerator - Exported utils normalizeRouteKey static path unchanged 1`] = `"/about"`;
+
+exports[`RouteGenerator - Exported utils removeLeadingSlash no slash unchanged 1`] = `"about"`;
+
+exports[`RouteGenerator - Exported utils removeLeadingSlash removes leading slash 1`] = `"about"`;
+
+exports[`RouteGenerator - Exported utils shouldAddLocalePrefix addLocalePrefix true, default locale, includeDefault false -> false 1`] = `false`;
+
+exports[`RouteGenerator - Exported utils shouldAddLocalePrefix addLocalePrefix true, non-default -> true 1`] = `true`;

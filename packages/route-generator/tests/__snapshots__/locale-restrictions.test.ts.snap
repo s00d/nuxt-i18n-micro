@@ -1,0 +1,276 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle complex nested routes with localeRoutes and restrictions 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "activity-locale-skiing",
+        "path": "book-activity/skiing",
+      },
+    ],
+    "name": "activity-locale",
+    "path": "/change-activity",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-activity-locale-skiing-de",
+        "path": "aktivitaet-buchen/ski-fahren",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-locale-de",
+    "path": "/:locale(de)/change-buchen",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle empty locale restrictions array 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(de|ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle invalid locale codes in restrictions 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(de)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle locale codes with hyphens in $defineI18nRoute 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(de-de)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle locale restrictions with custom paths correctly 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/custom-test-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-de",
+    "path": "/:locale(de)/custom-test-de",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle localeRoutes from $defineI18nRoute correctly 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/custom-test-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-de",
+    "path": "/:locale(de)/custom-test-de",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle mixed locale restrictions - some pages restricted, others not 1`] = `
+[
+  {
+    "children": [],
+    "name": "restricted",
+    "path": "/restricted",
+  },
+  {
+    "children": [],
+    "name": "unrestricted",
+    "path": "/unrestricted",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-unrestricted",
+    "path": "/:locale(de|ru)/unrestricted",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle nested routes with localeRoutes from $defineI18nRoute 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "activity-locale-skiing",
+        "path": "book-activity/skiing",
+      },
+    ],
+    "name": "activity-locale",
+    "path": "/change-activity",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-activity-locale-skiing-de",
+        "path": "aktivitaet-buchen/ski-fahren",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-locale-de",
+    "path": "/:locale(de)/change-buchen",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-activity-locale-skiing-ru",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-locale",
+    "path": "/:locale(ru)/activity-locale",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle no_prefix strategy with locale restrictions 1`] = `
+[
+  {
+    "name": "test",
+    "path": "/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle pages with globalLocaleRoutes set to false 1`] = `
+[
+  {
+    "name": "test",
+    "path": "/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle prefix strategy with locale restrictions 1`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(en|de)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should handle prefix_and_default strategy with locale restrictions 1`] = `
+[
+  {
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(en|de)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should respect locale restrictions from $defineI18nRoute - locales only 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Locale restrictions ($defineI18nRoute) should respect locale restrictions from $defineI18nRoute - multiple locales 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(de)/test",
+  },
+]
+`;

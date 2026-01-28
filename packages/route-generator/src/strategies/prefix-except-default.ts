@@ -1,5 +1,4 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import {
   buildFullPath,
   buildRouteName,
@@ -122,9 +121,9 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
 
   // Группируем оригинальные маршруты и локализованные: сначала базовые, затем localized-*
   override postProcess(pages: NuxtPage[], context: GeneratorContext): NuxtPage[] {
+    // prefix_and_default: сначала все базовые страницы, затем с префиксом localizedRouteNamePrefix
     const basePages: NuxtPage[] = []
     const localizedPages: NuxtPage[] = []
-
     for (const page of pages) {
       const name = page.name ?? ''
       if (typeof name === 'string' && name.startsWith(context.localizedRouteNamePrefix)) {
@@ -134,7 +133,6 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
         basePages.push(page)
       }
     }
-
     return [...basePages, ...localizedPages]
   }
 
@@ -232,7 +230,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
         locale,
         context.defaultLocale,
         addLocalePrefix,
-        isPrefixStrategy(context.strategy),
+        false,
       )
         ? buildFullPath(locale, basePath, context.customRegex)
         : basePath
@@ -301,9 +299,16 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     originalPagePath: string | undefined,
     context: GeneratorContext,
   ): NuxtPage | null {
-    const routePath = this.buildRoutePath(localeCodes, page.path ?? '', encodeURI(customPath), isCustom, customRegex, force, context)
-    const isPrefixAndDefaultWithCustomPath = isPrefixAndDefaultStrategy(context.strategy) && isCustom && customPath
-    if (!routePath || (!isPrefixAndDefaultWithCustomPath && routePath === page.path)) return null
+    const routePath = this.buildRoutePathForLocales(
+      localeCodes,
+      page.path ?? '',
+      encodeURI(customPath),
+      isCustom,
+      customRegex,
+      force,
+      context.defaultLocale.code,
+    )
+    if (!routePath || routePath === page.path) return null
     if (localeCodes.length === 0) return null
     const firstLocale = localeCodes[0]
     if (!firstLocale) return null
@@ -342,32 +347,10 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     }
 
     const shouldAddLocaleSuffix = locale
-      && !isLocaleDefault(locale, context.defaultLocale, isPrefixAndDefaultStrategy(context.strategy))
+      && !isLocaleDefault(locale, context.defaultLocale, false)
 
     return shouldAddLocaleSuffix
       ? `${context.localizedRouteNamePrefix}${baseName}-${locale}`
       : `${context.localizedRouteNamePrefix}${baseName}`
-  }
-
-  private buildRoutePath(
-    localeCodes: string[],
-    originalPath: string,
-    customPath: string,
-    isCustom: boolean,
-    customRegex: string | RegExp | undefined,
-    force = false,
-    context: GeneratorContext,
-  ): string {
-    if (isCustom) {
-      const shouldAddPrefix = force
-        || isPrefixStrategy(context.strategy)
-        || (isPrefixAndDefaultStrategy(context.strategy) && !localeCodes.includes(context.defaultLocale.code))
-        || !localeCodes.includes(context.defaultLocale.code)
-
-      return shouldAddPrefix
-        ? buildFullPath(localeCodes, customPath, customRegex)
-        : normalizePath(customPath)
-    }
-    return buildFullPath(localeCodes, originalPath, customRegex)
   }
 }

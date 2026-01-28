@@ -10,8 +10,8 @@
                 translationDir: string | null;
                 autoDetect: boolean;
                 redirectToDefault: boolean;
-                localeCookie: string;
-                missingWarn: boolean;
+                localeCookie: string | null;
+                missingWarn: boolean | null;
               }
             }
           

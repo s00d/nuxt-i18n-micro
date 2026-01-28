@@ -1,11 +1,8 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import {
-  buildFullPath,
   buildRouteName,
   buildRouteNameFromRoute,
   cloneArray,
-  normalizePath,
 } from '../utils'
 import { createRoute } from '../core/builder'
 import { generateAliasRoutes } from '../core/alias'
@@ -147,8 +144,16 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
     originalPagePath: string | undefined,
     context: GeneratorContext,
   ): NuxtPage | null {
-    const routePath = this.buildRoutePath(localeCodes, page.path ?? '', encodeURI(customPath), isCustom, customRegex, force, context)
-    const isPrefixAndDefaultWithCustomPath = isPrefixAndDefaultStrategy(context.strategy) && isCustom && customPath
+    const routePath = this.buildRoutePathForLocales(
+      localeCodes,
+      page.path ?? '',
+      encodeURI(customPath),
+      isCustom,
+      customRegex,
+      force,
+      context.defaultLocale.code,
+    )
+    const isPrefixAndDefaultWithCustomPath = isCustom && customPath
     if (!routePath || (!isPrefixAndDefaultWithCustomPath && routePath === page.path)) return null
     if (localeCodes.length === 0) return null
     const firstLocale = localeCodes[0]
@@ -168,27 +173,5 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
       alias: [],
       meta: { alias: [] },
     })
-  }
-
-  private buildRoutePath(
-    localeCodes: string[],
-    originalPath: string,
-    customPath: string,
-    isCustom: boolean,
-    customRegex: string | RegExp | undefined,
-    force = false,
-    context: GeneratorContext,
-  ): string {
-    if (isCustom) {
-      const shouldAddPrefix = force
-        || isPrefixStrategy(context.strategy)
-        || (isPrefixAndDefaultStrategy(context.strategy) && !localeCodes.includes(context.defaultLocale.code))
-        || !localeCodes.includes(context.defaultLocale.code)
-
-      return shouldAddPrefix
-        ? buildFullPath(localeCodes, customPath, customRegex)
-        : normalizePath(customPath)
-    }
-    return buildFullPath(localeCodes, originalPath, customRegex)
   }
 }

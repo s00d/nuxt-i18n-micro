@@ -12,3 +12,9 @@ export interface RouteStrategy {
    */
   postProcess(pages: NuxtPage[], context: GeneratorContext): NuxtPage[]
 }
+
+/**
+ * Общий тип для конфигураций глобальных/файловых локальных путей.
+ * Используется в Context и RouteGenerator вместо дублирования сигнатуры.
+ */
+export type LocaleRoutesConfig = Record<string, Record<string, string> | false | boolean>

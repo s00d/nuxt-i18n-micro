@@ -32,6 +32,10 @@ export function generateAliasRoutes(
         name: `${localizedRouteNamePrefix}${page.name ?? ''}`,
         alias: undefined,
         meta: { alias: undefined },
+        // Важно: если у исходной страницы были children, алиас-маршрут
+        // должен иметь такое же дерево детей, чтобы /alias/child не 404-ило.
+        // createRoute позаботится о корректном clone/adjust детей.
+        children: page.children,
       }),
     )
   }

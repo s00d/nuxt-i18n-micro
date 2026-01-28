@@ -103,6 +103,7 @@ export default defineNuxtModule<ModuleOptions>({
     plural: defaultPlural,
     customRegexMatcher: undefined,
     excludePatterns: undefined,
+    localizedRouteNamePrefix: 'localized-',
     missingWarn: true,
   },
   async setup(options, nuxt) {
@@ -153,12 +154,14 @@ export default defineNuxtModule<ModuleOptions>({
 
         const { locales: extractedLocales, localeRoutes, disableMeta } = config
 
-        // Convert file path to route path (handle both pages/ and app/pages/)
-        const routePath = pageFile
-          .replace(/^(app\/)?pages\//, '/')
+        // Convert file path to route path (handle both pages/ and app/pages/).
+        // No leading slash so keys match route-generator (extractLocalizedPaths, createLocalizedVariants).
+        const raw = pageFile
+          .replace(/^(app\/)?pages\//, '')
           .replace(/\/index\.vue$/, '')
           .replace(/\.vue$/, '')
-          .replace(/\/$/, '') || '/'
+          .replace(/\/$/, '')
+        const routePath = raw === '' || raw === 'index' ? '/' : raw
 
         if (extractedLocales) {
           if (Array.isArray(extractedLocales)) {
@@ -186,7 +189,17 @@ export default defineNuxtModule<ModuleOptions>({
     // Merge options.globalLocaleRoutes with extracted localeRoutes
     const mergedGlobalLocaleRoutes = { ...options.globalLocaleRoutes, ...globalLocaleRoutes }
 
-    const routeGenerator = new RouteGenerator(localeManager.locales, defaultLocale, options.strategy!, mergedGlobalLocaleRoutes, globalLocaleRoutes, routeLocales, options.noPrefixRedirect!, options.excludePatterns)
+    const routeGenerator = new RouteGenerator({
+      locales: localeManager.locales,
+      defaultLocaleCode: defaultLocale,
+      strategy: options.strategy!,
+      globalLocaleRoutes: mergedGlobalLocaleRoutes,
+      filesLocaleRoutes: globalLocaleRoutes,
+      routeLocales,
+      noPrefixRedirect: options.noPrefixRedirect!,
+      excludePatterns: options.excludePatterns,
+      localizedRouteNamePrefix: options.localizedRouteNamePrefix,
+    })
 
     addTemplate({
       filename: 'i18n.plural.mjs',
@@ -243,6 +256,7 @@ export default defineNuxtModule<ModuleOptions>({
         // @ts-ignore
         hmr: options.experimental?.hmr ?? true,
       },
+      localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
     }
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error

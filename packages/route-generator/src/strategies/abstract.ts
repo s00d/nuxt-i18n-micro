@@ -1,5 +1,6 @@
 import type { NuxtPage } from '@nuxt/schema'
 import {
+  buildFullPath,
   buildRouteNameFromRoute,
   cloneArray,
   isInternalPath,
@@ -141,5 +142,32 @@ export abstract class BaseStrategy implements RouteStrategy {
         children: localizedChildren,
       }),
     ]
+  }
+
+  /**
+   * Общий helper для стратегий, строящих префиксные пути (:locale(...)):
+   * - для кастомных путей решает, нужен ли префикс,
+   * - для обычных всегда использует buildFullPath.
+   *
+   * Логика совпадает с тем, что сейчас дублируется в buildRoutePath стратегий.
+   */
+  protected buildRoutePathForLocales(
+    localeCodes: string[],
+    originalPath: string,
+    customPath: string,
+    isCustom: boolean,
+    customRegex: string | RegExp | undefined,
+    force: boolean,
+    defaultLocaleCode: string,
+  ): string {
+    if (isCustom) {
+      const hasDefault = localeCodes.includes(defaultLocaleCode)
+      const shouldAddPrefix = force || !hasDefault
+
+      return shouldAddPrefix
+        ? buildFullPath(localeCodes, customPath, customRegex)
+        : normalizePath(customPath)
+    }
+    return buildFullPath(localeCodes, originalPath, customRegex)
   }
 }

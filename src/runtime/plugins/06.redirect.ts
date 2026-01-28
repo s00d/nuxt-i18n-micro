@@ -31,7 +31,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const localizedRouteNamePrefix = i18nConfig.localizedRouteNamePrefix || 'localized-'
   const route = useRoute()
   const router = useRouter()
-  const strategy = i18nConfig.strategy!
 
   // Helper to check if route exists in router
   const routeExists = (path: string) => {
@@ -42,27 +41,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     catch {
       return false
     }
-  }
-
-  // Helper to resolve user-preferred locale from state/cookie
-  const getUserPreferredLocale = async (): Promise<string | null> => {
-    const validLocales = i18nConfig.locales?.map(l => l.code) || []
-    const defaultLocale = i18nConfig.defaultLocale || 'en'
-
-    // Check if user has explicit locale preference (useState or cookie)
-    const localeState = await nuxtApp.runWithContext(() => useState<string | null>('i18n-locale'))
-
-    // Only read cookie if localeCookie is not disabled (null)
-    let cookieValue: string | null | undefined
-    if (i18nConfig.localeCookie !== null) {
-      const cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
-      cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
-    }
-    const userPreferredLocale = localeState.value || cookieValue
-
-    // Validate that preferred locale exists, otherwise fallback to defaultLocale
-    const isValidLocale = userPreferredLocale && validLocales.includes(userPreferredLocale)
-    return (isValidLocale ? userPreferredLocale : defaultLocale) || defaultLocale
   }
 
   const checkGlobalLocaleRoutes = async (to: ReturnType<typeof useRoute>): Promise<boolean> => {
@@ -89,13 +67,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const routeRules = globalLocaleRoutes[pathWithoutLocale] || globalLocaleRoutes[pathKey] || globalLocaleRoutes[routeName]
 
     if (routeRules && typeof routeRules === 'object') {
-      const hasLocalePrefix = !!firstSegment && locales.includes(firstSegment)
-      let localeToUse = hasLocalePrefix ? firstSegment : defaultLocale
-
-      // For no_prefix strategy without explicit locale prefix, prefer user locale over default.
-      if (!hasLocalePrefix && strategy === 'no_prefix') {
-        localeToUse = await getUserPreferredLocale() || defaultLocale
-      }
+      const localeToUse = firstSegment && locales.includes(firstSegment) ? firstSegment : defaultLocale
       const customPathSegment = localeToUse ? routeRules[localeToUse] : undefined
 
       if (customPathSegment) {
@@ -121,6 +93,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         // Если кастомного пути нет, но физический маршрут существует (авто-генерация),
         // то это НЕ ошибка 404. Ошибку кидаем только если роута реально нет.
         if (!routeExists(to.fullPath)) {
+          if (import.meta.server) {
+            console.log('[06.redirect] Route does not exist, throwing 404:', to.fullPath)
+          }
           throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
         }
       }
@@ -145,14 +120,29 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // Skip if locale is already in params (URL already has prefix)
     if (to.params.locale) return
 
+    const strategy = i18nConfig.strategy!
     const defaultLocale = i18nConfig.defaultLocale!
+    const validLocales = i18nConfig.locales?.map(l => l.code) || []
 
     // Only handle prefix and prefix_except_default strategies
     // Note: 'prefix_and_default' allows both /path and /<locale>/path for default locale
     const shouldHandle = isPrefixStrategy(strategy) || isPrefixExceptDefaultStrategy(strategy)
     if (!shouldHandle) return
 
-    const targetLocale = await getUserPreferredLocale()
+    // Check if user has explicit locale preference (useState or cookie)
+    const localeState = await nuxtApp.runWithContext(() => useState<string | null>('i18n-locale'))
+
+    // Only read cookie if localeCookie is not disabled (null)
+    let cookieValue: string | null | undefined
+    if (i18nConfig.localeCookie !== null) {
+      const cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
+      cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
+    }
+    const userPreferredLocale = localeState.value || cookieValue
+
+    // Validate that preferred locale exists, otherwise fallback to defaultLocale
+    const isValidLocale = userPreferredLocale && validLocales.includes(userPreferredLocale)
+    const targetLocale = isValidLocale ? userPreferredLocale : defaultLocale
 
     // For prefix_except_default: only redirect if target locale differs from default
     // (unless includeDefaultLocaleRoute is true, which always requires prefix)

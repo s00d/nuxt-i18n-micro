@@ -6,6 +6,7 @@ import { GeneratorContext } from './core/context'
 import { getStrategy } from './strategies/factory'
 import { extractLocalizedPaths as extractLocalizedPathsCore } from './core/localized-paths'
 import type { LocaleRoutesConfig } from './strategies/types'
+import type { LocalizedPathsMap } from './core/localized-paths'
 
 export interface RouteGeneratorOptions {
   locales: Locale[]
@@ -23,7 +24,7 @@ export class RouteGenerator {
   locales: Locale[]
   defaultLocale: Locale
   strategy: Strategies
-  localizedPaths: { [key: string]: { [locale: string]: string } } = {}
+  localizedPaths: LocalizedPathsMap = {}
   activeLocaleCodes: string[]
   globalLocaleRoutes: LocaleRoutesConfig
   filesLocaleRoutes: LocaleRoutesConfig

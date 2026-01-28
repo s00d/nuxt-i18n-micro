@@ -1,5 +1,6 @@
 import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
+import type { LocaleRoutesConfig } from '../strategies/types'
 import { normalizePath, normalizeRouteKey, removeLeadingSlash } from '../utils'
 
 const buildRouteNameFromRoute = (name: string | null | undefined, routePath: string | null | undefined): string =>
@@ -22,8 +23,8 @@ export function pathKeyForLocalizedPaths(fullPath: string): string {
  */
 export function extractLocalizedPaths(
   pages: NuxtPage[],
-  globalLocaleRoutes: Record<string, Record<string, string> | false | boolean>,
-  filesLocaleRoutes: Record<string, Record<string, string> | false | boolean>,
+  globalLocaleRoutes: LocaleRoutesConfig,
+  filesLocaleRoutes: LocaleRoutesConfig,
   parentPath = '',
 ): LocalizedPathsMap {
   const localizedPaths: LocalizedPathsMap = {}

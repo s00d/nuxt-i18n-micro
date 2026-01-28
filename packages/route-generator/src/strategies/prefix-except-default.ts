@@ -1,4 +1,3 @@
-import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import {
@@ -177,15 +176,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     const fullPath = resolveChildPath(parentPath, route.path ?? '')
     const lookupKey = pathKeyForLocalizedPaths(fullPath)
 
-    let customLocalePaths = context.localizedPaths[lookupKey] ?? context.localizedPaths[pathKeyForLocalizedPaths(normalizePath(route.path ?? ''))]
-
-    if (!customLocalePaths && Object.keys(localizedParentPaths).length > 0) {
-      const hasLocalizedContext = Object.values(localizedParentPaths).some(p => p && p !== '')
-      if (hasLocalizedContext) {
-        const originalRoutePath = normalizePath(path.posix.join('/activity-locale', route.path ?? ''))
-        customLocalePaths = context.localizedPaths[pathKeyForLocalizedPaths(originalRoutePath)]
-      }
-    }
+    const customLocalePaths = context.localizedPaths[lookupKey]
 
     const isCustomLocalized = !!customLocalePaths
 

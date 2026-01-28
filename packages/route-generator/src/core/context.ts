@@ -1,14 +1,13 @@
 import type { NuxtPage } from '@nuxt/schema'
 import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
+import type { LocaleRoutesConfig } from '../strategies/types'
 import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
 import { normalizeRouteKey } from '../utils'
 import { extractLocalizedPaths, pathKeyForLocalizedPaths } from './localized-paths'
 import type { LocalizedPathsMap } from './localized-paths'
 
-export type NormalizedGlobalLocaleRoutes = Record<string, Record<string, string> | false | boolean>
-
-function normalizeGlobalLocaleRoutes(globalLocaleRoutes: GlobalLocaleRoutes): NormalizedGlobalLocaleRoutes {
-  const normalized: NormalizedGlobalLocaleRoutes = {}
+function normalizeGlobalLocaleRoutes(globalLocaleRoutes: GlobalLocaleRoutes): LocaleRoutesConfig {
+  const normalized: LocaleRoutesConfig = {}
   if (!globalLocaleRoutes) return normalized
 
   for (const key in globalLocaleRoutes) {
@@ -36,8 +35,8 @@ export class GeneratorContext {
   readonly locales: Locale[]
   readonly defaultLocale: Locale
   readonly strategy: Strategies
-  readonly globalLocaleRoutes: NormalizedGlobalLocaleRoutes
-  readonly filesLocaleRoutes: Record<string, Record<string, string> | false | boolean>
+  readonly globalLocaleRoutes: LocaleRoutesConfig
+  readonly filesLocaleRoutes: LocaleRoutesConfig
   readonly routeLocales: Record<string, string[]>
   readonly localizedPaths: LocalizedPathsMap
   readonly activeLocaleCodes: string[]
@@ -52,7 +51,7 @@ export class GeneratorContext {
     defaultLocaleCode: string,
     strategy: Strategies,
     globalLocaleRoutes: GlobalLocaleRoutes,
-    filesLocaleRoutes: Record<string, Record<string, string> | false | boolean>,
+    filesLocaleRoutes: LocaleRoutesConfig,
     routeLocales: Record<string, string[]>,
     pages: NuxtPage[],
     options?: { excludePatterns?: (string | RegExp)[], customRegex?: string | RegExp, noPrefixRedirect?: boolean, isCloudflarePages?: boolean, localizedRouteNamePrefix?: string },

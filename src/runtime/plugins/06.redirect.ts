@@ -44,6 +44,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   const checkGlobalLocaleRoutes = async (to: ReturnType<typeof useRoute>): Promise<boolean> => {
+    if (i18nConfig.strategy === 'no_prefix') {
+      return false
+    }
+
     if (!globalLocaleRoutes || typeof globalLocaleRoutes !== 'object' || Object.keys(globalLocaleRoutes).length === 0) {
       return false
     }

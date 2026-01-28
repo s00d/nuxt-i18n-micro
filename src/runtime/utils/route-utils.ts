@@ -29,10 +29,11 @@ export function extractBaseRoutePattern(matchedPath: string): string {
 export function findAllowedLocalesForRoute(
   route: RouteLocationNormalizedLoaded,
   routeLocales: Record<string, string[]> | undefined,
+  localizedRouteNamePrefix = 'localized-',
 ): string[] | null {
   const routePath = route.path
   const routeName = route.name?.toString()
-  const normalizedRouteName = routeName?.replace('localized-', '')
+  const normalizedRouteName = routeName?.replace(localizedRouteNamePrefix, '')
   const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
 
   // Try to find allowed locales for this route
@@ -70,6 +71,7 @@ export function isMetaDisabledForRoute(
   route: RouteLocationNormalizedLoaded,
   routeDisableMeta: Record<string, boolean | string[]> | undefined,
   currentLocale?: string,
+  localizedRouteNamePrefix = 'localized-',
 ): boolean {
   if (!routeDisableMeta) {
     return false
@@ -77,7 +79,7 @@ export function isMetaDisabledForRoute(
 
   const routePath = route.path
   const routeName = route.name?.toString()
-  const normalizedRouteName = routeName?.replace('localized-', '')
+  const normalizedRouteName = routeName?.replace(localizedRouteNamePrefix, '')
   const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
 
   // Helper function to check if meta is disabled for a specific route pattern

@@ -1,6 +1,7 @@
-import { RouteGenerator } from './route-generator'
-import { isInternalPath } from './path-utils'
+import { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
+import { extractLocalizedPaths, type LocalizedPathsMap } from './core/localized-paths'
 import {
+  isInternalPath,
   normalizeRouteKey,
   normalizePath,
   cloneArray,
@@ -15,6 +16,9 @@ import {
 
 export {
   RouteGenerator,
+  type RouteGeneratorOptions,
+  extractLocalizedPaths,
+  type LocalizedPathsMap,
   isInternalPath,
   normalizeRouteKey,
   normalizePath,

@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - adjustRouteForDefaultLocale direct call adjustRouteForDefaultLocale with custom localizedPaths 1`] = `
+[
+  {
+    "children": [],
+    "name": "page",
+    "path": "/custom-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-page-de",
+    "path": "/:locale(de)/custom-de",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-page",
+    "path": "/:locale(ru)/page",
+  },
+]
+`;
+
+exports[`RouteGenerator - adjustRouteForDefaultLocale no_prefix: adjustRouteForDefaultLocale is no-op 1`] = `
+[
+  {
+    "name": "test",
+    "path": "/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_and_default: adjustRouteForDefaultLocale is no-op (does not change path) 1`] = `
+[
+  {
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(en|de|ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_except_default with nested: default locale children get adjusted 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-en",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "parent/child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "eltern/kind",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - adjustRouteForDefaultLocale prefix_except_default: updates page.path from localizedPaths for default locale 1`] = `
+[
+  {
+    "children": [],
+    "name": "dashboard",
+    "path": "/dashboard",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-dashboard-de",
+    "path": "/:locale(de)/uebersicht",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-dashboard",
+    "path": "/:locale(ru)/dashboard",
+  },
+]
+`;

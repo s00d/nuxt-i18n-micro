@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - extractLocalizedPaths dynamic segments in path: normalized key [id] -> :id 1`] = `
+{
+  "/users/[id]": {
+    "de": "/benutzer/:id",
+    "en": "/users/:id",
+  },
+}
+`;
+
+exports[`RouteGenerator - extractLocalizedPaths empty pages array returns empty object 1`] = `{}`;
+
+exports[`RouteGenerator - extractLocalizedPaths filesLocaleRoutes only: returns paths by page name and path 1`] = `
+{
+  "/about": {
+    "de": "/ueber-uns",
+    "en": "/about",
+  },
+  "/contact": {
+    "en": "/contact",
+    "ru": "/kontakt",
+  },
+}
+`;
+
+exports[`RouteGenerator - extractLocalizedPaths globalLocaleRoutes only: returns paths by normalized key 1`] = `
+{
+  "/about": {
+    "de": "/ueber-uns",
+    "en": "/about",
+  },
+  "/contact": {
+    "de": "/kontakt",
+    "en": "/contact",
+  },
+}
+`;
+
+exports[`RouteGenerator - extractLocalizedPaths globalLocaleRoutes with false value: key not in result for that path 1`] = `
+{
+  "/about": {
+    "de": "/ueber",
+    "en": "/about",
+  },
+}
+`;
+
+exports[`RouteGenerator - extractLocalizedPaths lookup by pageName when path differs 1`] = `
+{
+  "/about": {
+    "de": "/ueber-uns",
+    "en": "/about-us",
+  },
+}
+`;
+
+exports[`RouteGenerator - extractLocalizedPaths multiple levels of nesting with mixed global and files 1`] = `
+{
+  "/level1": {
+    "de": "/ebene1",
+    "en": "/l1",
+  },
+  "/level1/level2": {
+    "de": "/ebene1/ebene2",
+    "en": "/l1/l2",
+  },
+}
+`;
+
+exports[`RouteGenerator - extractLocalizedPaths nested pages: extracts with parentPath 1`] = `
+{
+  "/parent": {
+    "de": "/eltern",
+    "en": "/parent",
+  },
+  "/parent/child": {
+    "de": "/eltern/kind",
+    "en": "/parent/child",
+  },
+}
+`;
+
+exports[`RouteGenerator - extractLocalizedPaths pages with no globalLocaleRoutes or filesLocaleRoutes returns empty 1`] = `{}`;

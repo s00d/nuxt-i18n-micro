@@ -1,0 +1,330 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) all three: globalLocaleRoutes + filesLocaleRoutes + routeLocales on different pages 1`] = `
+[
+  {
+    "children": [],
+    "name": "page-a",
+    "path": "/page-a",
+  },
+  {
+    "children": [],
+    "name": "page-b",
+    "path": "/page-b",
+  },
+  {
+    "children": [],
+    "name": "page-c",
+    "path": "/page-c",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-page-a-de",
+    "path": "/:locale(de)/seite-a",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-page-b",
+    "path": "/:locale(ru)/page-b",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths 1`] = `
+{
+  "/a": {
+    "en": "/a-en",
+  },
+}
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths 2`] = `
+[
+  {
+    "children": [],
+    "name": "a",
+    "path": "/a-en",
+  },
+  {
+    "children": [],
+    "name": "b",
+    "path": "/b",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(de)/a",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-a",
+    "path": "/:locale(ru)/a",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-b",
+    "path": "/:locale(de|ru)/b",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) filesLocaleRoutes used when globalLocaleRoutes has no entry for path 1`] = `
+[
+  {
+    "children": [],
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "children": [],
+    "name": "contact",
+    "path": "/contact-us",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-contact",
+    "path": "/:locale(de)/contact",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-contact",
+    "path": "/:locale(ru)/contact",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) globalLocaleRoutes false + filesLocaleRoutes + routeLocales: disabled page not localized 1`] = `
+[
+  {
+    "name": "disabled",
+    "path": "/disabled",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) globalLocaleRoutes overrides filesLocaleRoutes for same path 1`] = `
+[
+  {
+    "children": [],
+    "name": "about",
+    "path": "/from-global",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about-de",
+    "path": "/:locale(de)/aus-global",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(ru)/about",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) mixed: one page global false, one page global+files, one page only routeLocales 1`] = `
+[
+  {
+    "name": "no-i18n",
+    "path": "/no-i18n",
+  },
+  {
+    "children": [],
+    "name": "hybrid",
+    "path": "/hybrid-en",
+  },
+  {
+    "children": [],
+    "name": "only-restrict",
+    "path": "/only-restrict",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-hybrid-de",
+    "path": "/:locale(de)/hybrid-de",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-hybrid",
+    "path": "/:locale(ru)/hybrid",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-only-restrict",
+    "path": "/:locale(ru)/only-restrict",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) nested: parent from globalLocaleRoutes, child from filesLocaleRoutes, routeLocales on both 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "catalog-item",
+        "path": "item",
+      },
+    ],
+    "name": "catalog",
+    "path": "/catalog",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-catalog-item-de",
+        "path": "item",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-catalog-de",
+    "path": "/:locale(de)/katalog",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) no_prefix with globalLocaleRoutes + filesLocaleRoutes + noPrefixRedirect 1`] = `
+[
+  {
+    "name": "home",
+    "path": "/home",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-home-de",
+    "path": "/start",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) prefix_and_default with globalLocaleRoutes + routeLocales combination 1`] = `
+[
+  {
+    "name": "pricing",
+    "path": "/pricing",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-pricing-en",
+    "path": "/pricing",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-pricing-en",
+    "path": "/:locale(en)/pricing",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-pricing-de",
+    "path": "/:locale(de)/preise",
+  },
+]
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) routeLocales restricts which locales get routes even with globalLocaleRoutes and filesLocaleRoutes 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "shop-product",
+        "path": "product",
+      },
+    ],
+    "name": "shop",
+    "path": "/shop",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-shop-product-de",
+        "path": "product",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-shop-de",
+    "path": "/:locale(de)/geschaeft",
+  },
+]
+`;

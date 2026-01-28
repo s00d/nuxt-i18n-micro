@@ -1,0 +1,453 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Critical: Alias handling alias routes are separate entries with localized path (prefix strategy) 1`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/about",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/about-us",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/company",
+  },
+]
+`;
+
+exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 1`] = `
+[
+  {
+    "alias": [
+      "/y",
+    ],
+    "name": "x",
+    "path": "/x",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-x",
+    "path": "/:locale(en|de|ru)/y",
+  },
+]
+`;
+
+exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 2`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-x",
+    "path": "/:locale(en|de|ru)/x",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-x",
+    "path": "/:locale(en|de|ru)/y",
+  },
+]
+`;
+
+exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 3`] = `
+[
+  {
+    "alias": [
+      "/y",
+    ],
+    "name": "x",
+    "path": "/x",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-x",
+    "path": "/:locale(en|de|ru)/x",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-x",
+    "path": "/:locale(en|de|ru)/y",
+  },
+]
+`;
+
+exports[`Critical: Alias handling main localized route has alias undefined when alias routes are generated as separate 1`] = `
+[
+  {
+    "alias": [
+      "/about-us",
+    ],
+    "children": [],
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/about-us",
+  },
+]
+`;
+
+exports[`Critical: Alias handling nested page with alias — alias routes exist and are prefixed 1`] = `
+[
+  {
+    "alias": [
+      "/parent-alias",
+    ],
+    "children": [
+      {
+        "children": [],
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-parent-child",
+        "path": "child",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(de|ru)/parent",
+  },
+  {
+    "alias": undefined,
+    "children": [
+      {
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-parent",
+    "path": "/:locale(en|de|ru)/parent-alias",
+  },
+]
+`;
+
+exports[`Critical: Meta, file preserved in generated routes generated route preserves meta and file from original page 1`] = `
+[
+  {
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "auth": true,
+      "layout": "default",
+    },
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "alias": [],
+      "auth": true,
+      "layout": "default",
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+]
+`;
+
+exports[`Critical: Original path lookup (parentOriginalPath) child with absolute custom path — path is standalone, not joined with parent 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "parent-child",
+        "path": "parent/child",
+      },
+    ],
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-parent-child-de",
+        "path": "standalone",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`Critical: Original path lookup (parentOriginalPath) nested: parent and child both have custom paths — lookup by original full path /parent/child 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "parent-child",
+        "path": "parent/child",
+      },
+    ],
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-parent-child-de",
+        "path": "eltern/kind",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`Critical: Original path lookup (parentOriginalPath) nested: parent has custom path, child has no custom path — child path joins to parent localized path 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "parent-child-grandchild",
+            "path": "grandchild",
+          },
+        ],
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "name": "localized-parent-child-de",
+        "path": "child",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`Critical: Path joining (resolveChildPath) empty parent path segment + child — normalized correctly 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "index-dashboard",
+        "path": "dashboard",
+      },
+    ],
+    "name": "index",
+    "path": "/",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-index-dashboard",
+        "path": "dashboard",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-index",
+    "path": "/:locale(de|ru)",
+  },
+]
+`;
+
+exports[`Critical: Path joining (resolveChildPath) parent custom path + child relative segment — child path is join(parentLocalizedPath, child.path) 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "products-category",
+        "path": "category",
+      },
+    ],
+    "name": "products",
+    "path": "/products",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-products-category-de",
+        "path": "category",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-products-de",
+    "path": "/:locale(de)/produkte",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-products-category-ru",
+        "path": "category",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-products",
+    "path": "/:locale(ru)/products",
+  },
+]
+`;
+
+exports[`Critical: extractLocalizedPaths keys are full original paths nested structure: keys in extractLocalizedPaths use full path (e.g. /parent/child) 1`] = `
+{
+  "/parent": {
+    "de": "/eltern",
+    "en": "/parent",
+  },
+  "/parent/child": {
+    "de": "/eltern/kind",
+    "en": "/parent/child",
+  },
+}
+`;

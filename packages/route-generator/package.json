@@ -1,0 +1,74 @@
+{
+  "name": "@i18n-micro/route-generator",
+  "version": "1.0.0",
+  "description": "Locale-aware route generator for Nuxt i18n micro",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      ".": ["./dist/index.d.ts"]
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "test": "jest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "i18n",
+    "nuxt",
+    "routes",
+    "locale",
+    "route-generator",
+    "internationalization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/route-generator"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/route-generator#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/types": "workspace:*",
+    "@nuxt/schema": "^3.14.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.4.6",
+    "vite": "^7.2.7",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

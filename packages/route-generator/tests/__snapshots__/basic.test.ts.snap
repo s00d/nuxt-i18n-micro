@@ -1,0 +1,318 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - Basic Functionality Basic Functionality should correctly extend pages with localized routes 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "name": "SkiingDeepInfo",
+                    "path": "deep",
+                  },
+                ],
+                "name": "SkiingInfo",
+                "path": "info",
+              },
+            ],
+            "name": "SkiingDetails",
+            "path": "details",
+          },
+        ],
+        "name": "Skiing",
+        "path": "skiing",
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "name": "HikingDeepInfo",
+                    "path": "deep",
+                  },
+                ],
+                "name": "HikingInfo",
+                "path": "info",
+              },
+            ],
+            "name": "HikingDetails",
+            "path": "details",
+          },
+        ],
+        "name": "Hiking",
+        "path": "hiking",
+      },
+    ],
+    "name": "ActivityParent",
+    "path": "/activity",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "name": "localized-SkiingDeepInfo",
+                    "path": "deep",
+                  },
+                ],
+                "name": "localized-SkiingInfo",
+                "path": "info",
+              },
+            ],
+            "name": "localized-SkiingDetails",
+            "path": "details",
+          },
+        ],
+        "name": "localized-Skiing",
+        "path": "skiing",
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [],
+                    "name": "localized-HikingDeepInfo",
+                    "path": "deep",
+                  },
+                ],
+                "name": "localized-HikingInfo",
+                "path": "info",
+              },
+            ],
+            "name": "localized-HikingDetails",
+            "path": "details",
+          },
+        ],
+        "name": "localized-Hiking",
+        "path": "hiking",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-ActivityParent",
+    "path": "/:locale(de|ru)/activity",
+  },
+]
+`;
+
+exports[`RouteGenerator - Basic Functionality Basic Functionality should handle default locale routes correctly in extendPages 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "Skiing",
+        "path": "skiing",
+      },
+    ],
+    "name": "ActivityParent",
+    "path": "/activity",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-ActivityParent",
+    "path": "/:locale(de|ru)/activity",
+  },
+]
+`;
+
+exports[`RouteGenerator - Basic Functionality Basic Functionality should include default locale routes when strategy is prefix 1`] = `
+[
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-ActivityParent",
+    "path": "/:locale(en|de|ru)/activity",
+  },
+]
+`;
+
+exports[`RouteGenerator - Basic Functionality extractLocalizedPaths should extract localized paths correctly 1`] = `
+{
+  "/about": {
+    "de": "/a-propos",
+    "en": "/about",
+  },
+  "/contact": {
+    "de": "/kontakt",
+    "en": "/contact",
+  },
+}
+`;
+
+exports[`RouteGenerator - Basic Functionality should handle no_prefix strategy correctly 1`] = `
+[
+  {
+    "children": [
+      {
+        "name": "Skiing",
+        "path": "skiing",
+      },
+    ],
+    "name": "activity",
+    "path": "/activity",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing-en",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-en",
+    "path": "/custom-activity-en",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing-de",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-de",
+    "path": "/custom-activity-de",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing-ru",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-ru",
+    "path": "/custom-activity-ru",
+  },
+]
+`;
+
+exports[`RouteGenerator - Basic Functionality should handle prefix_and_default strategy correctly 1`] = `
+[
+  {
+    "children": [
+      {
+        "name": "Skiing",
+        "path": "skiing",
+      },
+    ],
+    "name": "activity",
+    "path": "/activity",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity",
+    "path": "/:locale(en|de|ru)/activity",
+  },
+]
+`;
+
+exports[`RouteGenerator - Basic Functionality should handle prefix_except_default strategy correctly 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "name": "Skiing",
+        "path": "skiing",
+      },
+    ],
+    "name": "activity",
+    "path": "/custom-activity-en",
+  },
+  {
+    "name": "unlocalized",
+    "path": "/unlocalized",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing-de",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-de",
+    "path": "/:locale(de)/custom-activity-de",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [],
+        "name": "localized-Skiing-ru",
+        "path": "skiing",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-activity-ru",
+    "path": "/:locale(ru)/custom-activity-ru",
+  },
+]
+`;

@@ -1,0 +1,533 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - Advanced Scenarios 33. should not create route when globalLocaleRoutes defines custom path for locale forbidden in routeLocales 1`] = `
+[
+  {
+    "children": [],
+    "file": "/pages/index.vue",
+    "name": "index",
+    "path": "/",
+  },
+  {
+    "children": [],
+    "file": "/pages/about.vue",
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "name": "users-id",
+    "path": "/users/:id",
+  },
+  {
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "name": "catch-all",
+    "path": "/:slug(.*)*",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/index.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-index",
+    "path": "/:locale(de|ru)",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about-de",
+    "path": "/:locale(de)/ueber-uns",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id",
+    "path": "/:locale(de|ru)/users/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-catch-all",
+    "path": "/:locale(de|ru)/:slug(.*)*",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 34. should prioritize globalLocaleRoutes over filesLocaleRoutes 1`] = `
+[
+  {
+    "children": [],
+    "name": "about",
+    "path": "/from-global",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de)/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(ru)/about",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 35. should handle index.vue in subfolder correctly 1`] = `
+[
+  {
+    "children": [],
+    "file": "/pages/parent/index.vue",
+    "name": "parent-index",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/parent/index.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-index",
+    "path": "/:locale(de|ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 36. should handle paths conflicting with locale codes 1`] = `
+[
+  {
+    "children": [],
+    "file": "/pages/de/contact.vue",
+    "name": "de-contact",
+    "path": "/de/contact",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/de/contact.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-de-contact",
+    "path": "/:locale(de|ru)/de/contact",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 37. should handle paths with special characters requiring encoding 1`] = `
+[
+  {
+    "children": [],
+    "name": "test-path",
+    "path": "/test-path",
+  },
+  {
+    "children": [],
+    "name": "test-space",
+    "path": "/test path",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-path",
+    "path": "/:locale(de|ru)/test-path",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-space",
+    "path": "/:locale(de|ru)/test path",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 38. should handle parent with custom path but child without 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "parent-child-grandchild",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 39. should handle child with custom path but parent without 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-en",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "kind",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(de|ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 40. should handle child custom path that does not include parent custom path 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-en",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-de",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-de",
+        "path": "ganz-anderer-pfad",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent-de",
+    "path": "/:locale(de)/eltern",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild-ru",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child-ru",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 41. should handle empty locales array gracefully 1`] = `[]`;
+
+exports[`RouteGenerator - Advanced Scenarios 42. should handle defaultLocale not in locales list 1`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/index.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-index",
+    "path": "/:locale(de|ru)",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/about.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/users/[id].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id",
+    "path": "/:locale(de|ru)/users/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "file": "/pages/[...slug].vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-catch-all",
+    "path": "/:locale(de|ru)/:slug(.*)*",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 43. should handle dynamic segments in custom paths with different param names 1`] = `
+[
+  {
+    "children": [],
+    "name": "users-id",
+    "path": "/users/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id-de",
+    "path": "/:locale(de)/benutzer/:userId",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-id",
+    "path": "/:locale(ru)/users/:id",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 44. should handle nested routes with restrictions at different levels 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "parent-child-grandchild",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "name": "parent",
+    "path": "/parent",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "file": "/pages/parent/child/grandchild.vue",
+            "name": "localized-parent-child-grandchild",
+            "path": "grandchild",
+          },
+        ],
+        "file": "/pages/parent/child.vue",
+        "name": "localized-parent-child",
+        "path": "child",
+      },
+    ],
+    "file": "/pages/parent.vue",
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-parent",
+    "path": "/:locale(de|ru)/parent",
+  },
+]
+`;
+
+exports[`RouteGenerator - Advanced Scenarios 45. should handle multiple dynamic segments in custom paths 1`] = `
+[
+  {
+    "children": [],
+    "name": "users-group-id",
+    "path": "/users/:group/:id",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-group-id-de",
+    "path": "/:locale(de)/benutzer/:gruppe/:benutzerId",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-users-group-id",
+    "path": "/:locale(ru)/users/:group/:id",
+  },
+]
+`;

@@ -23,11 +23,10 @@ import {
   defaultPlural,
 } from '@i18n-micro/core'
 import { setupDevToolsUI } from './devtools'
-import { PageManager } from './page-manager'
+import { RouteGenerator, isInternalPath } from '@i18n-micro/route-generator'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { LocaleManager } from './locale-manager'
 import { extractDefineI18nRouteData } from './utils'
-import { isInternalPath } from './runtime/utils/path-utils'
 import { globby } from 'globby'
 
 function generateI18nTypes() {
@@ -171,7 +170,7 @@ export default defineNuxtModule<ModuleOptions>({
         }
 
         if (localeRoutes) {
-          // Use routePath as key for globalLocaleRoutes to match with PageManager logic
+          // Use routePath as key for globalLocaleRoutes to match with RouteGenerator logic
           globalLocaleRoutes[routePath] = localeRoutes
         }
 
@@ -187,7 +186,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Merge options.globalLocaleRoutes with extracted localeRoutes
     const mergedGlobalLocaleRoutes = { ...options.globalLocaleRoutes, ...globalLocaleRoutes }
 
-    const pageManager = new PageManager(localeManager.locales, defaultLocale, options.strategy!, mergedGlobalLocaleRoutes, globalLocaleRoutes, routeLocales, options.noPrefixRedirect!, options.excludePatterns)
+    const routeGenerator = new RouteGenerator(localeManager.locales, defaultLocale, options.strategy!, mergedGlobalLocaleRoutes, globalLocaleRoutes, routeLocales, options.noPrefixRedirect!, options.excludePatterns)
 
     addTemplate({
       filename: 'i18n.plural.mjs',
@@ -424,7 +423,7 @@ ${accepts}
         localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
       }
 
-      pageManager.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
+      routeGenerator.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
 
       if (!isCloudflarePages) {
         const strategy = options.strategy!

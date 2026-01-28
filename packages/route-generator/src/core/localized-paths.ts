@@ -1,7 +1,6 @@
-import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import type { LocaleRoutesConfig } from '../strategies/types'
-import { normalizePath, normalizeRouteKey, removeLeadingSlash } from '../utils'
+import { joinPath, normalizePath, normalizeRouteKey, removeLeadingSlash } from '../utils'
 
 const buildRouteNameFromRoute = (name: string | null | undefined, routePath: string | null | undefined): string =>
   name ?? (routePath ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
@@ -31,7 +30,7 @@ export function extractLocalizedPaths(
 
   pages.forEach((page) => {
     const pageName = buildRouteNameFromRoute(page.name, page.path)
-    const normalizedFullPath = normalizePath(path.posix.join(parentPath, page.path ?? ''))
+    const normalizedFullPath = normalizePath(joinPath(parentPath, page.path ?? ''))
     const pathKey = pathKeyForLocalizedPaths(normalizedFullPath)
     const normalizedKey = normalizeRouteKey(normalizedFullPath)
 
@@ -48,7 +47,7 @@ export function extractLocalizedPaths(
     }
 
     if (page.children?.length) {
-      const parentFullPath = normalizePath(path.posix.join(parentPath, page.path ?? ''))
+      const parentFullPath = normalizePath(joinPath(parentPath, page.path ?? ''))
       Object.assign(localizedPaths, extractLocalizedPaths(page.children, globalLocaleRoutes, filesLocaleRoutes, parentFullPath))
     }
   })

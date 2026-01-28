@@ -81,7 +81,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
     const fullPath = resolveChildPath(parentPath, child.path ?? '')
     const lookupKey = pathKeyForLocalizedPaths(fullPath)
-    const customLocalePaths = context.localizedPaths[lookupKey] ?? context.localizedPaths[pathKeyForLocalizedPaths(normalizePath(child.path ?? ''))]
+    const customLocalePaths = context.localizedPaths[lookupKey]
 
     if (customLocalePaths) {
       return localeCodes.flatMap((locale) => {

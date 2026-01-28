@@ -293,13 +293,16 @@ test.describe('basic', () => {
   })
 
   test('test locale switching on locale-test page', async ({ page }) => {
-    // Calculate expected date (approximately 1 year ago, 13-14 months to ensure >= 1 year)
-    const oneYearAgo = new Date()
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
-    oneYearAgo.setMonth(oneYearAgo.getMonth() - 2) // Subtract 2 more months to ensure >= 1 year
-    oneYearAgo.setDate(1)
+    // Calculate expected date using the same pipeline as in the component:
+    // 1) build Date, 2) convert to ISO yyyy-mm-dd, 3) parse back from that string.
+    const base = new Date()
+    base.setFullYear(base.getFullYear() - 1)
+    base.setMonth(base.getMonth() - 2) // Subtract 2 more months to ensure >= 1 year
+    base.setDate(1)
+    const oneYearAgoISO = base.toISOString().split('T')[0]
+    const oneYearAgo = new Date(oneYearAgoISO)
 
-    // Format expected dates for different locales
+    // Format expected dates for different locales (matches $td behavior)
     const expectedDateEn = new Intl.DateTimeFormat('en-US').format(oneYearAgo)
     const expectedDateDe = new Intl.DateTimeFormat('de-DE').format(oneYearAgo)
     const expectedDateRu = new Intl.DateTimeFormat('ru-RU').format(oneYearAgo)

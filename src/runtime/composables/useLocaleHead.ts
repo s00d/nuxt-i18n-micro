@@ -57,7 +57,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       return
     }
 
-    const { strategy, canonicalQueryWhitelist, routeLocales } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+    const { strategy, canonicalQueryWhitelist, routeLocales, localizedRouteNamePrefix = 'localized-' } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
     const { $getLocales, $getLocale, $switchLocalePath } = useNuxtApp()
 
     if (!$getLocale || !$getLocales) return
@@ -97,7 +97,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     let ogUrl: string
     let canonicalPath: string
 
-    if (routeName.startsWith('localized-') && matchedLocale) {
+    if (routeName.startsWith(localizedRouteNamePrefix) && matchedLocale) {
       localizedPath = fullPath.slice(matchedLocale.code.length + 1)
       canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist ?? [])
       ogUrl = joinURL(unref(baseUrl), locale, canonicalPath)

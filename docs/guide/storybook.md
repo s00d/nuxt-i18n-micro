@@ -32,7 +32,7 @@ export default defineNuxtConfig({
 
 ## 🛠 Storybook Configuration
 
-To integrate Storybook with Nuxt and nuxt-i18n, configure the `.storybook/main.ts` file, add `mergeTranslations` and `staticDirs`.
+To integrate Storybook with Nuxt and nuxt-i18n-micro, configure the `.storybook/main.ts` file, add `mergeTranslations` and `staticDirs`.
 
 ### 📄 `.storybook/main.ts`
 
@@ -137,13 +137,13 @@ export default config
 For complete examples, check out these projects:
 
 1. **[Nuxt + Storybook + i18n Example on GitHub](https://github.com/s00d/nuxtjs-storybook-i18n-micro)**  
-   This repository demonstrates how to integrate Nuxt, Storybook, and nuxt-i18n. It includes setup instructions and configuration details.
+   This repository demonstrates how to integrate Nuxt, Storybook, and nuxt-i18n-micro. It includes setup instructions and configuration details.
 
 2. **[Storybook for Nuxt Documentation](https://storybook.nuxtjs.org/getting-started/setup)**  
    The official documentation for setting up Storybook with Nuxt. It provides detailed steps and best practices.
 
 3. **[Interactive Example on StackBlitz](https://stackblitz.com/~/github.com/s00d/nuxtjs-storybook-i18n-micro)**  
-   Explore a live example of Nuxt, Storybook, and nuxt-i18n integration directly in your browser.
+   Explore a live example of Nuxt, Storybook, and nuxt-i18n-micro integration directly in your browser.
 
 <div>
  <iframe

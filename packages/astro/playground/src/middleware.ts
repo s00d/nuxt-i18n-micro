@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+
 import { createI18nMiddleware, createI18n, createAstroRouterAdapter, loadTranslationsIntoI18n } from '@i18n-micro/astro'
 import type { MiddlewareHandler } from 'astro'
 // Virtual module created by integration at build time
@@ -36,6 +39,4 @@ const i18nMiddleware = createI18nMiddleware({
   routingStrategy,
 })
 
-// Type assertion to handle version differences in Astro types
-// @ts-expect-error - Astro version compatibility
 export const onRequest: MiddlewareHandler = i18nMiddleware

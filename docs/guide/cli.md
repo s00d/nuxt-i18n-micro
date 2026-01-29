@@ -6,7 +6,7 @@ outline: deep
 
 ## 📖 Introduction
 
-`nuxt-i18n-micro-cli` is a command-line tool designed to streamline the localization and internationalization process in Nuxt.js projects using the `nuxt-i18n` module. It provides utilities to extract translation keys from your codebase, manage translation files, synchronize translations across locales, and automate the translation process using external translation services.
+`nuxt-i18n-micro-cli` is a command-line tool designed to streamline the localization and internationalization process in Nuxt.js projects using the `nuxt-i18n-micro` module (Nuxt I18n Micro). It provides utilities to extract translation keys from your codebase, manage translation files, synchronize translations across locales, and automate the translation process using external translation services.
 
 This guide will walk you through installing, configuring, and using `nuxt-i18n-micro-cli` to effectively manage your project's translations. Package on [npmjs.com](https://www.npmjs.com/package/nuxt-i18n-micro-cli).
 ## 🔧 Installation and Setup
@@ -25,7 +25,7 @@ This will make the `i18n-micro` command available globally on your system.
 
 After installing, you can run `i18n-micro` commands in your Nuxt.js project directory.
 
-Ensure that your project is set up with `nuxt-i18n` and has the necessary configuration in `nuxt.config.js`.
+Ensure that your project is set up with `nuxt-i18n-micro` and has the necessary configuration in `nuxt.config.ts` (or `nuxt.config.js`).
 
 
 ### 📄 Common Arguments
@@ -502,7 +502,7 @@ This allows you to track exactly where and what changes were made during the rep
 
 ## ⚙️ Configuration Guide
 
-`nuxt-i18n-micro-cli` relies on your Nuxt.js i18n configuration in `nuxt.config.js`. Ensure you have the `nuxt-i18n` module installed and configured.
+`nuxt-i18n-micro-cli` relies on your Nuxt.js i18n configuration in `nuxt.config.ts` (or `nuxt.config.js`). Ensure you have the `nuxt-i18n-micro` module installed and configured.
 
 ### 🔑 nuxt.config.js Example
 

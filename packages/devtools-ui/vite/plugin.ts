@@ -442,13 +442,16 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
             const parts = file.split('/')
             let current = structure
             for (let i = 0; i < parts.length - 1; i++) {
-              const part = parts[i]
+              const part = parts[i]!
               if (!current[part]) {
                 current[part] = {}
               }
               current = current[part] as Record<string, unknown>
             }
-            current[parts[parts.length - 1]] = file
+            const last = parts[parts.length - 1]
+            if (last !== undefined) {
+              current[last] = file
+            }
           }
 
           res.statusCode = 200

@@ -310,8 +310,8 @@ const localizedRoute = $localeRoute({ name: 'index' })
 - **locale**: `string | undefined` — Optional. The locale for the generated route
 
 ```typescript
-const localizedRoute = $localeRoute({ name: 'news' })
-// Output: url with new locale applied, e.g., '/en/nouvelles'
+const localizedPath = $localePath({ name: 'news' })
+// Output: path with current (or specified) locale applied, e.g., '/en/nouvelles'
 ```
 
 ## 🔍 Route Information
@@ -428,10 +428,10 @@ $switchLocalePath('de') // === 'de/Nachricht/1-erster-Artikel'
     </div>
 
     <div>
-      <button
+        <button
         v-for="locale in $getLocales()"
-        :key="locale"
-        :disabled="locale === $getLocale()"
+        :key="locale.code"
+        :disabled="locale.code === $getLocale()"
         @click="() => $switchLocale(locale.code)"
       >
         Switch to {{ locale.code }}

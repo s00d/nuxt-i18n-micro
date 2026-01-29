@@ -38,22 +38,26 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
     // Default locale (en): parent path = /parent, child = /parent/child
     const defaultRoute = pages.find(p => p.path === '/parent' && p.name === 'parent')
     expect(defaultRoute).toBeDefined()
-    expect(defaultRoute!.children).toHaveLength(1)
-    expect(defaultRoute!.children![0].path).toBe('child')
-    const childRoute = defaultRoute!.children![0]
-    expect(childRoute.children).toHaveLength(1)
-    expect(childRoute.children![0].path).toBe('grandchild')
+    const defaultChildren = defaultRoute!.children
+    expect(defaultChildren).toHaveLength(1)
+    expect(defaultChildren![0]!.path).toBe('child')
+    const childRoute = defaultChildren![0]
+    expect(childRoute).toBeDefined()
+    expect(childRoute!.children).toHaveLength(1)
+    expect(childRoute!.children![0]!.path).toBe('grandchild')
 
     // Locale de: parent path = /eltern (custom), child should be /eltern/child (joined to the custom parent)
     const dePrefixed = pages.find(p => p.name === 'localized-parent-de')
     expect(dePrefixed).toBeDefined()
     expect(dePrefixed!.path).toMatch(/eltern/)
-    expect(dePrefixed!.children).toHaveLength(1)
-    expect(dePrefixed!.children![0].path).toBe('child')
+    const dePrefixedChildren = dePrefixed!.children
+    expect(dePrefixedChildren).toHaveLength(1)
+    expect(dePrefixedChildren![0]!.path).toBe('child')
     // The child's full path in the tree is a relative segment; final full path = /de/eltern/child
-    const deChild = dePrefixed!.children![0]
-    expect(deChild.children).toHaveLength(1)
-    expect(deChild.children![0].path).toBe('grandchild')
+    const deChild = dePrefixedChildren![0]
+    expect(deChild).toBeDefined()
+    expect(deChild!.children).toHaveLength(1)
+    expect(deChild!.children![0]!.path).toBe('grandchild')
 
     expect(pages).toMatchSnapshot()
   })
@@ -85,8 +89,9 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
     const dePrefixed = pages.find(p => p.name === 'localized-parent-de')
     expect(dePrefixed).toBeDefined()
     expect(dePrefixed!.path).toMatch(/eltern$/)
-    expect(dePrefixed!.children).toHaveLength(1)
-    expect(dePrefixed!.children![0].path).toMatch(/kind/)
+    const deChildren = dePrefixed!.children
+    expect(deChildren).toHaveLength(1)
+    expect(deChildren![0]!.path).toMatch(/kind/)
     expect(pages).toMatchSnapshot()
   })
 
@@ -115,9 +120,10 @@ describe('Critical: Original path lookup (parentOriginalPath)', () => {
 
     const dePrefixed = pages.find(p => p.name === 'localized-parent-de')
     expect(dePrefixed).toBeDefined()
-    expect(dePrefixed!.children).toHaveLength(1)
+    const deStandaloneChildren = dePrefixed!.children
+    expect(deStandaloneChildren).toHaveLength(1)
     // Child with an absolute custom path /standalone → in the prefixed version /de/standalone
-    expect(dePrefixed!.children![0].path).toBe('standalone')
+    expect(deStandaloneChildren![0]!.path).toBe('standalone')
     expect(pages).toMatchSnapshot()
   })
 })
@@ -223,8 +229,9 @@ describe('Critical: Path joining (resolveChildPath)', () => {
     const deProducts = pages.find(p => p.name === 'localized-products-de')
     expect(deProducts).toBeDefined()
     expect(deProducts!.path).toMatch(/produkte/)
-    expect(deProducts!.children).toHaveLength(1)
-    expect(deProducts!.children![0].path).toBe('category')
+    const deProductsChildren = deProducts!.children
+    expect(deProductsChildren).toHaveLength(1)
+    expect(deProductsChildren![0]!.path).toBe('category')
     expect(pages).toMatchSnapshot()
   })
 
@@ -252,16 +259,17 @@ describe('Critical: Immutability (original page not mutated)', () => {
       },
     ]
     const ref = pages[0]
-    const originalPath = ref.path
-    const originalChildren = ref.children
+    expect(ref).toBeDefined()
+    const originalPath = ref!.path
+    const originalChildren = ref!.children
     const originalChildrenLength = originalChildren?.length ?? 0
 
     const generator = createManager('prefix_except_default')
     generator.extendPages(pages)
 
-    expect(ref.path).toBe(originalPath)
-    expect(ref.children).toBe(originalChildren)
-    expect(ref.children?.length ?? 0).toBe(originalChildrenLength)
+    expect(ref!.path).toBe(originalPath)
+    expect(ref!.children).toBe(originalChildren)
+    expect(ref!.children?.length ?? 0).toBe(originalChildrenLength)
   })
 
   test('passed pages array is replaced in place (length then push), but original refs unchanged', () => {
@@ -271,12 +279,14 @@ describe('Critical: Immutability (original page not mutated)', () => {
     ]
     const refA = pages[0]
     const refB = pages[1]
+    expect(refA).toBeDefined()
+    expect(refB).toBeDefined()
 
     const generator = createManager('prefix_except_default')
     generator.extendPages(pages)
 
-    expect(refA.path).toBe('/a')
-    expect(refB.path).toBe('/b')
+    expect(refA!.path).toBe('/a')
+    expect(refB!.path).toBe('/b')
     expect(pages.length).toBeGreaterThan(2)
   })
 })

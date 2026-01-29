@@ -53,7 +53,7 @@ describe('resolveLocales (utils/locales)', () => {
     ]
     const result = resolveLocales(locales, 'en')
     expect(result.locales).toHaveLength(1)
-    expect(result.locales[0].code).toBe('de')
+    expect(result.locales[0]!.code).toBe('de')
     expect(result.defaultLocale).toEqual({ code: 'en' })
   })
 

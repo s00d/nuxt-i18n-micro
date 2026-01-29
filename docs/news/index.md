@@ -4,6 +4,35 @@ outline: deep
 
 # News
 
+## Nuxt I18n Micro v3.0.0 — Route Generator Rewrite & @i18n-micro/route-strategy
+
+**Date**: 2026-01-28
+
+**Version**: `v3.0.0`
+
+![RouteGenerator](/3.0.0.png)
+
+We're announcing **v3.0.0** with a **complete rewrite of the route generator**. All locale-prefix and routing logic has been moved into a dedicated package **@i18n-micro/route-strategy**, giving a clearer architecture, better testability, and a stable foundation for future strategies and integrations.
+
+### What's New?
+
+- **@i18n-micro/route-strategy** — New package that owns all route generation: extending Nuxt pages with localized routes, handling aliases, nested routes, and custom paths per strategy.
+- **RouteGenerator** — Single entry point: `new RouteGenerator(options)` and `extendPages(pages)`. Strategies (`no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`) are implemented as separate strategy classes and selected via a factory.
+- **Structured package layout** — Code is split into `core/` (context, builder, localized paths, alias handling), `strategies/` (abstract strategy, concrete implementations, factory), and `utils/` (path normalization, locale resolution, shared helpers).
+- **Consistent behavior** — Alias handling, parent–child path joining, custom `globalLocaleRoutes` / `filesLocaleRoutes` / `routeLocales`, and immutability guarantees are covered by a dedicated test suite (including critical-scenarios tests).
+- **No breaking changes for module users** — The same `strategy` and `globalLocaleRoutes` (and related) options in `nuxt.config` work as before; only the internal implementation has changed.
+
+### Why It Matters
+
+- **Maintainability**: Route logic lives in one package with clear boundaries and types.
+- **Testing**: Strategy behavior and edge cases are tested in isolation.
+- **Future work**: New strategies or routing features can be added in route-strategy without touching the main module.
+- **Documentation**: Routing behavior is documented in the [Strategy guide](/guide/strategy) and in the [route-strategy package](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/route-strategy).
+
+For upgrade notes and a full list of changes, see the [changelog](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
+
+---
+
 ## Nuxt I18n Micro v2.14.1 — New Integrations for Node.js, Vue, and Astro
 
 **Date**: 2025-12-07

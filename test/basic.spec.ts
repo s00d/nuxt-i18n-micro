@@ -300,6 +300,7 @@ test.describe('basic', () => {
     base.setMonth(base.getMonth() - 2) // Subtract 2 more months to ensure >= 1 year
     base.setDate(1)
     const oneYearAgoISO = base.toISOString().split('T')[0]
+    if (oneYearAgoISO === undefined) throw new Error('toISOString().split failed')
     const oneYearAgo = new Date(oneYearAgoISO)
 
     // Format expected dates for different locales (matches $td behavior)

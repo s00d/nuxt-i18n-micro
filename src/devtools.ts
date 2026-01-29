@@ -32,10 +32,12 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   const ROUTE_PATH = `${nuxt.options.app.baseURL || '/'}/__nuxt-i18n-micro`.replace(/\/+/g, '/')
   const ROUTE_CLIENT = `${ROUTE_PATH}/client`
 
+  type ViteConfigMutable = { server?: { proxy?: Record<string, unknown> } }
   if (clientDirExists) {
     nuxt.hook('vite:extendConfig', (config) => {
-      config.server = config.server || {}
-      config.server.proxy = config.server.proxy || {}
+      const c = config as ViteConfigMutable
+      c.server = c.server || {}
+      c.server.proxy = c.server.proxy || {}
 
       // Proxy for client dev server assets and WebSocket HMR
       // Client dev server runs on port 3030 (configured in playground/nuxt.config.ts)
@@ -50,20 +52,21 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
 
       // Proxy all client routes - use the full ROUTE_CLIENT path
       // This will match /__nuxt-i18n-micro/client/** and proxy to localhost:3030/__nuxt-i18n-micro/client/**
-      config.server.proxy[`${ROUTE_CLIENT}`] = proxyConfig
-      config.server.proxy[`${ROUTE_CLIENT}/`] = proxyConfig
-      config.server.proxy[`${ROUTE_CLIENT}/*`] = proxyConfig
+      c.server.proxy![`${ROUTE_CLIENT}`] = proxyConfig
+      c.server.proxy![`${ROUTE_CLIENT}/`] = proxyConfig
+      c.server.proxy![`${ROUTE_CLIENT}/*`] = proxyConfig
     })
   }
   else {
     nuxt.hook('vite:extendConfig', (config) => {
-      config.server = config.server || {}
-      config.server.proxy = config.server.proxy || {}
-      config.server.proxy[DEVTOOLS_UI_ROUTE] = {
+      const c = config as ViteConfigMutable
+      c.server = c.server || {}
+      c.server.proxy = c.server.proxy || {}
+      c.server.proxy![DEVTOOLS_UI_ROUTE] = {
         target: `http://localhost:${DEVTOOLS_UI_PORT}${DEVTOOLS_UI_ROUTE}`,
         changeOrigin: true,
         followRedirects: true,
-        rewrite: path => path.replace(DEVTOOLS_UI_ROUTE, ''),
+        rewrite: (path: string) => path.replace(DEVTOOLS_UI_ROUTE, ''),
       }
     })
   }

@@ -87,7 +87,7 @@
     "chokidar": "^3.6.0",
     "globby": "^14.1.0",
     "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/route-generator": "workspace:*",
+    "@i18n-micro/route-strategy": "workspace:*",
     "@i18n-micro/test-utils": "workspace:*",
     "@i18n-micro/types": "workspace:*",
     "ufo": "^1.5.4"

@@ -1,6 +1,6 @@
 import type { NuxtPage } from '@nuxt/schema'
 import type { Locale } from '@i18n-micro/types'
-import { RouteGenerator } from '@i18n-micro/route-generator'
+import { RouteGenerator } from '@i18n-micro/route-strategy'
 
 const globalLocaleRoutes
 = {

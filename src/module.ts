@@ -12,20 +12,16 @@ import {
   defineNuxtModule,
   useLogger,
 } from '@nuxt/kit'
-import type { HookResult, NuxtPage } from '@nuxt/schema'
+import type { HookResult } from '@nuxt/schema'
 import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from '@i18n-micro/types'
 import {
   isNoPrefixStrategy,
-  isPrefixStrategy,
-  withPrefixStrategy,
-  isPrefixExceptDefaultStrategy,
-  isPrefixAndDefaultStrategy,
   defaultPlural,
 } from '@i18n-micro/core'
 import { setupDevToolsUI } from './devtools'
-import { RouteGenerator, isInternalPath } from '@i18n-micro/route-generator'
+import { RouteGenerator, isInternalPath, normalizePath } from '@i18n-micro/route-strategy'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { LocaleManager } from './locale-manager'
+import { generateHmrPlugin } from './hmr-plugin'
 import { extractDefineI18nRouteData } from './utils'
 import { globby } from 'globby'
 
@@ -111,7 +107,6 @@ export default defineNuxtModule<ModuleOptions>({
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isSSG = nuxt.options.nitro.static ?? (nuxt.options as any)._generate ?? false /* TODO: remove in future */
-    const isCloudflarePages = nuxt.options.nitro.preset?.startsWith('cloudflare')
 
     const logger = useLogger('nuxt-i18n-micro')
 
@@ -134,11 +129,9 @@ export default defineNuxtModule<ModuleOptions>({
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
 
-    const localeManager = new LocaleManager(options, rootDirs)
-
     // Extract routeLocales and localeRoutes from pages before creating template
     const routeLocales: Record<string, string[]> = {}
-    const globalLocaleRoutes: Record<string, Record<string, string>> = {}
+    const globalLocaleRoutes: GlobalLocaleRoutes = {}
     const routeDisableMeta: Record<string, boolean | string[]> = {}
 
     // Find all page files (both pages/ and app/pages/)
@@ -190,7 +183,7 @@ export default defineNuxtModule<ModuleOptions>({
     const mergedGlobalLocaleRoutes = { ...options.globalLocaleRoutes, ...globalLocaleRoutes }
 
     const routeGenerator = new RouteGenerator({
-      locales: localeManager.locales,
+      locales: options.locales ?? [],
       defaultLocaleCode: defaultLocale,
       strategy: options.strategy!,
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
@@ -199,6 +192,8 @@ export default defineNuxtModule<ModuleOptions>({
       noPrefixRedirect: options.noPrefixRedirect!,
       excludePatterns: options.excludePatterns,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
+      customRegexMatcher: options.customRegexMatcher,
+      fallbackRedirectComponentPath: resolver.resolve('./runtime/components/locale-redirect.vue'),
     })
 
     addTemplate({
@@ -222,7 +217,7 @@ export default defineNuxtModule<ModuleOptions>({
     const apiBaseUrl = rawUrl.replace(/^\/+|\/+$|\/{2,}/, '')
 
     nuxt.options.runtimeConfig.public.i18nConfig = {
-      locales: localeManager.locales ?? [],
+      locales: routeGenerator.locales ?? [],
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       metaBaseUrl: options.metaBaseUrl ?? undefined,
@@ -261,7 +256,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error
     if (typeof options.customRegexMatcher !== 'undefined') {
-      const localeCodes = localeManager.locales.map(l => l.code)
+      const localeCodes = routeGenerator.locales.map(l => l.code)
       if (!localeCodes.every(code => code.match(options.customRegexMatcher as string | RegExp))) {
         throw new Error('Nuxt-18n-micro: Some locale codes does not match customRegexMatcher')
       }
@@ -371,184 +366,22 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    function generateHmrPlugin(files: string[]): string {
-      const accepts = files.map((file) => {
-        const isPage = /\/pages\//.test(file)
-        let pageName = ''
-        let locale = ''
-        if (isPage) {
-          const m = /\/pages\/([^/]+)\/([^/]+)\.json$/.exec(file)
-          pageName = m?.[1] || ''
-          locale = m?.[2] || ''
-        }
-        else {
-          const m = /\/([^/]+)\.json$/.exec(file)
-          locale = m?.[1] || ''
-        }
-
-        return `
-if (import.meta.hot) {
-  import.meta.hot.accept('${file}', async (mod) => {
-    const nuxtApp = useNuxtApp()
-    const data = (mod && typeof mod === 'object' && Object.prototype.hasOwnProperty.call(mod, 'default'))
-      ? mod.default
-      : mod
-    try {
-      ${isPage
-        ? `await nuxtApp.$loadPageTranslations('${locale}', '${pageName}', data)`
-        : `await nuxtApp.$loadTranslations('${locale}', data)`}
-      console.log('[i18n HMR] Translations reloaded:', '${isPage ? 'page' : 'global'}', '${locale}'${isPage ? `, '${pageName}'` : ''})
-    }
-    catch (e) {
-      console.warn('[i18n HMR] Failed to reload translations for', '${file}', e)
-    }
-  })
-}
-`.trim()
-      }).join('\n')
-
-      return `
-import { defineNuxtPlugin, useNuxtApp } from '#imports'
-
-export default defineNuxtPlugin(() => {
-${accepts}
-})
-`.trim()
-    }
-
     nuxt.hook('pages:resolved', (pages) => {
-      const prerenderRoutes: string[] = []
-      const routeRules = nuxt.options.routeRules || {}
-
       const pagesNames = pages
         .map(page => page.name)
         .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
 
-      localeManager.locales.forEach((locale) => {
-        if (!options.disablePageLocales) {
-          pagesNames.forEach((name) => {
-            prerenderRoutes.push(`/${apiBaseUrl}/${name}/${locale.code}/data.json`)
-          })
-        }
-        prerenderRoutes.push(`/${apiBaseUrl}/general/${locale.code}/data.json`)
-      })
-
       if (!options.disableWatcher) {
-        localeManager.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir)
+        routeGenerator.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir, options.disablePageLocales)
       }
 
-      routeGenerator.extendPages(pages, options.customRegexMatcher, isCloudflarePages)
+      const pagesForDataRoutes = pages.filter(
+        p => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]),
+      )
+      const dataRoutes = routeGenerator.generateDataRoutes(pagesForDataRoutes, apiBaseUrl, !!options.disablePageLocales)
+      addPrerenderRoutes(dataRoutes)
 
-      if (!isCloudflarePages) {
-        const strategy = options.strategy!
-
-        if (isPrefixStrategy(strategy)) {
-          // --- Логика для 'prefix' ---
-          // 1. Удаляем корневой маршрут, чтобы он не перехватывал '/'.
-          const rootPageIndex = pages.findIndex(page => page.name === 'index' && page.path === '/')
-          if (rootPageIndex > -1) {
-            pages.splice(rootPageIndex, 1)
-          }
-
-          // 2. Добавляем fallback, который перехватит ВСЕ непрефиксные URL
-          //    и перенаправит их на версию с дефолтной локалью.
-          const fallbackRoute: NuxtPage = {
-            path: '/:pathMatch(.*)*',
-            name: 'custom-fallback-route',
-            file: resolver.resolve('./runtime/components/locale-redirect.vue'),
-          }
-          pages.push(fallbackRoute)
-          logger.info('Strategy \'prefix\': Added fallback route to redirect all non-prefixed paths.')
-        }
-
-        const needsFallback
-          = (isPrefixStrategy(options.strategy!) || isPrefixExceptDefaultStrategy(options.strategy!))
-        if (needsFallback) {
-          const fallbackRoute: NuxtPage = {
-            path: '/:pathMatch(.*)*',
-            name: 'custom-fallback-route',
-            file: resolver.resolve('./runtime/components/locale-redirect.vue'),
-            meta: {
-              globalLocaleRoutes: options.globalLocaleRoutes,
-            },
-          }
-          pages.push(fallbackRoute)
-        }
-        // Для 'prefix_and_default' и 'no_prefix' fallback не нужен,
-        // так как все непрефиксные пути являются валидными.
-      }
-
-      if (!isNoPrefixStrategy(options.strategy!)) {
-        if (isCloudflarePages) {
-          const processPageWithChildren = (page: NuxtPage, parentPath = '') => {
-            if (!page.path) return // Skip pages without path
-
-            const fullPath = path.posix.normalize(`${parentPath}/${page.path}`) // Combine parent path and current path
-
-            // Skip internal paths
-            if (isInternalPath(fullPath, options.excludePatterns)) {
-              return
-            }
-
-            // Check if there's a rule for this route and whether it should be prerendered
-            const routeRule = routeRules[fullPath]
-            if (routeRule && routeRule.prerender === false) {
-              // If the route is explicitly disabled for prerendering, skip it
-              return
-            }
-
-            // Check for dynamic :locale segment
-            const localeSegmentMatch = fullPath.match(/:locale\(([^)]+)\)/)
-
-            if (localeSegmentMatch && localeSegmentMatch[1]) {
-              const availableLocales = localeSegmentMatch[1].split('|') // Extract locales from segment, e.g. "de|ru|en"
-              localeManager.locales.forEach((locale) => {
-                const localeCode = locale.code
-
-                // Check if current locale is among those specified in :locale(de|ru|en) segment
-                if (availableLocales.includes(localeCode)) {
-                  let localizedPath = fullPath
-
-                  // Replace :locale(de|ru|en) segment with current locale
-                  localizedPath = localizedPath.replace(/:locale\([^)]+\)/, localeCode)
-
-                  // Check if there's a rule for the localized route and whether it should be prerendered
-                  const localizedRouteRule = routeRules[localizedPath]
-                  if (localizedRouteRule && localizedRouteRule.prerender === false) {
-                    // If the localized route is explicitly disabled for prerendering, skip it
-                    return
-                  }
-
-                  // Add localized path to array
-                  if (!isInternalPath(localizedPath, options.excludePatterns)) {
-                    prerenderRoutes.push(localizedPath)
-                  }
-                }
-              })
-            }
-            else {
-              // If there's no dynamic locale segment in the path, just add it to the array
-              if (!isInternalPath(fullPath, options.excludePatterns)) {
-                prerenderRoutes.push(fullPath)
-              }
-            }
-
-            // Recursively process children if they exist
-            if (page.children && page.children.length) {
-              page.children.forEach((childPage) => {
-                processPageWithChildren(childPage, fullPath)
-              })
-            }
-          }
-
-          // Process pages and add paths for each localized path
-          pages.forEach((page: NuxtPage) => {
-            processPageWithChildren(page) // Process each page recursively
-          })
-        }
-      }
-
-      addPrerenderRoutes(prerenderRoutes)
+      routeGenerator.extendPages(pages)
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
@@ -579,99 +412,33 @@ ${accepts}
       }
 
       const routeRules = nuxt.options.routeRules || {}
-
       const strategy = options.strategy! as Strategies
 
       if (routeRules && Object.keys(routeRules).length && !isNoPrefixStrategy(strategy)) {
-        // Ensure nitroConfig has space for new rules
         nitroConfig.routeRules = nitroConfig.routeRules || {}
 
         for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-          // Skip /api
-          if (originalPath.startsWith('/api')) {
-            continue
-          }
+          if (originalPath.startsWith('/api')) continue
 
-          // "Multiply" rules across all locales
-          localeManager.locales.forEach((localeObj) => {
+          routeGenerator.locales.forEach((localeObj) => {
             const localeCode = localeObj.code
-            const isDefaultLocale = (localeCode === defaultLocale)
+            const localizedPath = routeGenerator.resolveLocalizedPath(originalPath, localeCode)
 
-            // For "prefix_except_default" and "prefix_and_default" strategies
-            // skip default locale so /client remains without prefix
-            const skip = (isPrefixExceptDefaultStrategy(strategy) || isPrefixAndDefaultStrategy(strategy)) && isDefaultLocale
-            if (skip) {
+            if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) {
               return
             }
 
-            // Form localized path, e.g. '/fr/client'
-            // If originalPath === '/', then suffix === ''
-            const suffix = (originalPath === '/') ? '' : originalPath
-            const localizedPath = `/${localeCode}${suffix}`
-
-            // Extract redirect to avoid carrying it to localized routes
             const { redirect, ...restRuleValue } = ruleValue
+            if (!Object.keys(restRuleValue).length) return
 
-            if (!Object.keys(restRuleValue).length) {
-              return
-            }
-
-            // If doesn't exist — initialize
-            nitroConfig.routeRules = nitroConfig.routeRules || {}
-
-            // Assign all fields except redirect
-            nitroConfig.routeRules[localizedPath] = {
-              ...nitroConfig.routeRules[localizedPath],
+            nitroConfig.routeRules![localizedPath] = {
+              ...nitroConfig.routeRules![localizedPath],
               ...restRuleValue,
             }
-
             logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
           })
         }
       }
-
-      if (isNoPrefixStrategy(options.strategy!)) {
-        return
-      }
-
-      const routes = nitroConfig.prerender?.routes || []
-
-      nitroConfig.prerender = nitroConfig.prerender || {}
-      nitroConfig.prerender.routes = Array.isArray(nitroConfig.prerender.routes) ? nitroConfig.prerender.routes : []
-      const pages = nitroConfig.prerender.routes || []
-
-      localeManager.locales.forEach((locale) => {
-        // For prefix and prefix_and_default strategies generate routes for defaultLocale too
-        // For prefix_except_default strategy skip defaultLocale
-        const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
-        if (shouldGenerate) {
-          pages.forEach((page) => {
-            // Skip undefined values, file-like paths and service segments `__*`
-            if (page && !/\.[a-z0-9]+$/i.test(page) && !isInternalPath(page)) {
-              const localizedPage = `/${locale.code}${page}`
-
-              // Check if there's a rule for this route and whether it should be prerendered
-              const routeRule = routeRules[page]
-              if (routeRule && routeRule.prerender === false) {
-                // If the route is explicitly disabled for prerendering, skip it
-                return
-              }
-
-              // Check if there's a rule for the localized route
-              const localizedRouteRule = routeRules[localizedPage]
-              if (localizedRouteRule && localizedRouteRule.prerender === false) {
-                // If the localized route is explicitly disabled for prerendering, skip it
-                return
-              }
-
-              routes.push(localizedPage)
-            }
-          })
-        }
-      })
-
-      nitroConfig.prerender = nitroConfig.prerender || {}
-      nitroConfig.prerender.routes = routes
     })
 
     nuxt.hook('nitro:build:public-assets', (nitro) => {
@@ -702,62 +469,40 @@ ${accepts}
       if (isNoPrefixStrategy(options.strategy!)) {
         return
       }
+
       const routesSet = prerenderRoutes.routes
-
-      // Remove internal paths before localization processing
-      const routesToRemove: string[] = []
-      routesSet.forEach((route) => {
-        if (isInternalPath(route, options.excludePatterns)) {
-          routesToRemove.push(route)
-        }
-      })
-      routesToRemove.forEach((route) => {
-        routesSet.delete(route)
-      })
-
-      const additionalRoutes = new Set<string>()
       const routeRules = nuxt.options.routeRules || {}
+      const additionalRoutes = new Set<string>()
 
-      // Go through each existing route and add localized versions
-      routesSet.forEach((route) => {
-        if (!/\.[a-z0-9]+$/i.test(route) && !isInternalPath(route, options.excludePatterns)) {
-          localeManager.locales!.forEach((locale) => {
-            // For prefix and prefix_and_default strategies generate routes for defaultLocale too
-            // For prefix_except_default strategy skip defaultLocale
-            const shouldGenerate = locale.code !== defaultLocale || withPrefixStrategy(options.strategy!)
-            if (shouldGenerate) {
-              let localizedRoute: string
-              if (route === '/') {
-                localizedRoute = `/${locale.code}`
-              }
-              else {
-                localizedRoute = `/${locale.code}${route}`
-              }
-
-              // Check if there's a rule for this route and whether it should be prerendered
-              const routeRule = routeRules[route]
-              if (routeRule && routeRule.prerender === false) {
-                // If the route is explicitly disabled for prerendering, skip it
-                return
-              }
-
-              // Check if there's a rule for the localized route
-              const localizedRouteRule = routeRules[localizedRoute]
-              if (localizedRouteRule && localizedRouteRule.prerender === false) {
-                // If the localized route is explicitly disabled for prerendering, skip it
-                return
-              }
-
-              additionalRoutes.add(localizedRoute)
-            }
-          })
+      for (const route of routesSet) {
+        if (isInternalPath(route, options.excludePatterns)) {
+          routesSet.delete(route)
         }
-      })
+      }
 
-      // Add new localized routes to existing ones
-      additionalRoutes.forEach((route) => {
+      for (const route of routesSet) {
+        if (/\.[a-z0-9]+$/i.test(route)) {
+          continue
+        }
+        if (routeRules[route]?.prerender === false) {
+          continue
+        }
+
+        for (const locale of routeGenerator.locales) {
+          const localizedRoute = routeGenerator.resolveLocalizedPath(route, locale.code)
+          if (localizedRoute === route) {
+            continue
+          }
+          if (routeRules[localizedRoute]?.prerender === false) {
+            continue
+          }
+          additionalRoutes.add(localizedRoute)
+        }
+      }
+
+      for (const route of additionalRoutes) {
         routesSet.add(route)
-      })
+      }
     })
 
     // Setup DevTools integration

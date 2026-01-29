@@ -1,0 +1,457 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RouteGenerator - Paths, alias, edge cases prefix strategy: filtered pages when no fallback redirect path 1`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(en|de|ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should create route for default locale when localeRoutes is defined by path (like $defineI18nRoute) 1`] = `
+[
+  {
+    "children": [],
+    "name": "product",
+    "path": "/our-products",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-product-de",
+    "path": "/:locale(de)/unsere-produkte",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-product-ru",
+    "path": "/:locale(ru)/nashi-produkty",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle alias routes correctly 1`] = `
+[
+  {
+    "alias": [
+      "/about-us",
+      "/company",
+    ],
+    "children": [],
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de|ru)/about",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/about-us",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/company",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle alias routes with locale restrictions 1`] = `
+[
+  {
+    "alias": [
+      "/about-us",
+      "/company",
+    ],
+    "children": [],
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(de)/about",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de)/about-us",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de)/company",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle alias with custom path (globalLocaleRoutes): alias routes get prefixed path 1`] = `
+[
+  {
+    "alias": [
+      "/about-us",
+    ],
+    "children": [],
+    "name": "about",
+    "path": "/about",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about-de",
+    "path": "/:locale(de)/ueber-uns",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-about",
+    "path": "/:locale(ru)/about",
+  },
+  {
+    "alias": undefined,
+    "meta": {
+      "alias": undefined,
+    },
+    "name": "localized-about",
+    "path": "/:locale(en|de|ru)/about-us",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle complex nested routes with multiple levels 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "products-category-item",
+            "path": "products/category/item",
+          },
+        ],
+        "name": "products-category",
+        "path": "products/category",
+      },
+    ],
+    "name": "products",
+    "path": "/products",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "localized-products-category-item-de",
+            "path": "item",
+          },
+        ],
+        "name": "localized-products-category-de",
+        "path": "produkte/kategorie",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-products-de",
+    "path": "/:locale(de)/produkte",
+  },
+  {
+    "alias": [],
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "name": "localized-products-category-item-ru",
+            "path": "products/category/item",
+          },
+        ],
+        "name": "localized-products-category-ru",
+        "path": "category",
+      },
+    ],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-products",
+    "path": "/:locale(ru)/products",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle complex scenario with mixed restrictions and custom paths 1`] = `
+[
+  {
+    "children": [],
+    "name": "restricted",
+    "path": "/restricted-en",
+  },
+  {
+    "children": [],
+    "name": "unrestricted",
+    "path": "/unrestricted-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-restricted-de",
+    "path": "/:locale(de)/restricted-de",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-unrestricted-de",
+    "path": "/:locale(de)/unrestricted-de",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-unrestricted-ru",
+    "path": "/:locale(ru)/unrestricted-ru",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle custom regex in buildFullPath 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(^[a-z]{2}$)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle edge case with empty locale codes array 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(de|ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle filesLocaleRoutes fallback 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-de",
+    "path": "/:locale(de)/test-de",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-ru",
+    "path": "/:locale(ru)/test-ru",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle internal paths correctly 1`] = `
+[
+  {
+    "children": [],
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "name": "admin-dashboard",
+    "path": "/admin/dashboard",
+  },
+  {
+    "name": "api-users",
+    "path": "/api/users",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(de|ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle no_prefix strategy with noPrefixRedirect 1`] = `
+[
+  {
+    "name": "test",
+    "path": "/test",
+    "redirect": "/test-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-en",
+    "path": "/test-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-de",
+    "path": "/test-de",
+    "redirect": "/test-en",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle prefix strategy with default locale removal 1`] = `
+[
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(en|de|ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle prefix_and_default strategy with custom paths 1`] = `
+[
+  {
+    "name": "test",
+    "path": "/test",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-en",
+    "path": "/test-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-en",
+    "path": "/:locale(en)/test-en",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test-de",
+    "path": "/:locale(de)/test-de",
+  },
+  {
+    "alias": [],
+    "children": [],
+    "meta": {
+      "alias": [],
+    },
+    "name": "localized-test",
+    "path": "/:locale(ru)/test",
+  },
+]
+`;
+
+exports[`RouteGenerator - Paths, alias, edge cases should handle redirect-only pages correctly 1`] = `
+[
+  {
+    "name": "redirect",
+    "path": "/redirect",
+    "redirect": "/target",
+  },
+]
+`;

@@ -1,14 +1,14 @@
-# 🗂️ Strategies for Locale Prefix Handling in `Nuxt I18n` (Version 1.50.0+)
+# 🗂️ Strategies for Locale Prefix Handling in Nuxt I18n Micro
 
 ## 📖 Introduction to Locale Prefix Strategies
 
-Starting with version 1.50.0, `Nuxt I18n` introduces a more flexible way to manage how locale prefixes are handled in URLs through the `strategy` option. This new approach replaces the deprecated `includeDefaultLocaleRoute` and gives you better control over how localization is applied to different routes in your application.
+Nuxt I18n Micro manages how locale prefixes appear in URLs through the `strategy` option. This gives you control over how localization is applied to routes: whether the default locale has a prefix, whether all locales use a prefix, or whether no prefix is used at all.
 
-The `strategy` option allows you to choose between different behaviors regarding locale prefixes, providing more fine-grained control over the URLs of your application and how they are structured based on the user's selected language.
+The `strategy` option is implemented by the `@i18n-micro/route-strategy` package: the Nuxt module passes it into `RouteGenerator`, which extends your Nuxt pages with the appropriate localized routes at build time.
 
-## 🚦 `strategy` (New in Version 1.50.0)
+## 🚦 `strategy`
 
-The `strategy` option defines how locale prefixes should be managed across your routes. The available strategies give you varying levels of control over how the locale appears in the URLs.
+The `strategy` option defines how locale prefixes are applied across your routes. The available values are:
 
 **Type**: `string`  
 **Default**: `prefix_except_default`
@@ -298,7 +298,7 @@ If a cookie contains an invalid locale (not in the `locales` list), the module g
 
 ## 📝 Conclusion
 
-The new `strategy` option, introduced in version 1.50.0, provides more flexibility and control over how locale prefixes are handled in your application. Whether you need a clean, non-prefixed URL structure, or prefer to add locale prefixes for all or some languages, the available strategies allow you to customize your URL structure to fit your needs.
+The `strategy` option in Nuxt I18n Micro controls how locale prefixes are applied to your routes. Whether you need a clean, non-prefixed URL structure or locale prefixes for all or some languages, the available strategies let you tailor the URL structure to your project.
 
 ### 📚 Best Practices:
 

@@ -336,12 +336,16 @@ function setNestedValue(obj: Translations, key: string, value: unknown): void {
   const parts = key.split('.')
   let current: Translations = obj
   for (let i = 0; i < parts.length - 1; i++) {
-    if (!current[parts[i]]) {
-      current[parts[i]] = {}
+    const part = parts[i]!
+    if (!current[part]) {
+      current[part] = {}
     }
-    current = current[parts[i]] as Translations
+    current = current[part] as Translations
   }
-  current[parts[parts.length - 1]] = value
+  const last = parts[parts.length - 1]
+  if (last !== undefined) {
+    current[last] = value
+  }
 }
 
 /**

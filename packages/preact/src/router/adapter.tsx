@@ -19,7 +19,8 @@ export function createBrowserHistoryAdapter(
     const pathSegments = path.split('/').filter(Boolean)
 
     // If path already starts with a locale, remove it
-    if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
+    const first = pathSegments[0]
+    if (first !== undefined && localeCodes.includes(first)) {
       pathSegments.shift()
     }
 

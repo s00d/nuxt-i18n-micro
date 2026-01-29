@@ -6,6 +6,109 @@ packages:
   - 'playground'
   - 'test/fixtures/**/*'
 
+catalog:
+  # Build & dev
+  vite: ^7.3.1
+  vite-plugin-dts: ^4.5.4
+  vite-plugin-solid: ^2.11.10
+  vite-plugin-vue-devtools: ^8.0.5
+  '@vitejs/plugin-react': ^5.1.2
+  '@vitejs/plugin-vue': ^6.0.3
+  '@tailwindcss/vite': ^4.1.17
+  # Nuxt
+  nuxt: 4.1.2
+  '@nuxt/kit': ^3.18.1 || ^4.0.0
+  '@nuxt/schema': ^3.18.1 || ^4.0.0
+  '@nuxt/devtools': ^2.6.3
+  '@nuxt/devtools-kit': ^2.6.3
+  '@nuxt/devtools-ui-kit': ^2.6.3
+  '@nuxt/eslint-config': ^1.9.0
+  '@nuxt/module-builder': ^1.0.0
+  '@nuxt/test-utils': ^3.19.2
+  '@nuxt/content': 3.6.3
+  '@nuxtjs/sitemap': ^7.2.5
+  '@nuxtjs/i18n': ^10.1.2
+  '@nuxthub/core': ^0.8.17
+  # Vue
+  vue: ^3.5.25
+  vue-router: ^4.6.3
+  vue-tsc: ^2.0.21
+  '@vue/test-utils': ^2.4.6
+  '@vue/devtools-api': ^7.0.0
+  '@vue/server-renderer': ^3.3.0
+  # React (один диапазон для deps и peer)
+  react: "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  react-dom: ^18.3.1
+  '@types/react': ^18.3.27
+  '@types/react-dom': ^18.3.0
+  react-router-dom: ^6.20.0
+  use-sync-external-store: ^1.6.0
+  # Preact
+  preact: ^10.0.0
+  '@testing-library/preact': ^2.0.0
+  wouter-preact: ^3.0.0
+  '@preact/preset-vite': ^2.0.0
+  # Solid
+  solid-js: ^1.9.10
+  '@solidjs/router': ^0.15.4
+  # Astro & Svelte
+  astro: ^5.16.5
+  '@astrojs/node': ^9.5.1
+  '@astrojs/vue': ^5.1.3
+  '@astrojs/react': ^4.4.2
+  '@astrojs/svelte': ^7.2.2
+  svelte: "^4.0.0 || ^5.0.0"
+  # Testing
+  jest: ^29.7.0
+  ts-jest: ^29.4.6
+  babel-jest: ^29.7.0
+  jest-environment-jsdom: ^29.7.0
+  '@types/jest': ^29.5.14
+  vitest: ^3.2.4
+  '@playwright/test': ^1.55.0
+  '@testing-library/jest-dom': ^6.9.1
+  '@testing-library/react': ^14.3.1
+  '@testing-library/vue': ^8.1.0
+  happy-dom: ^15.11.7
+  # TypeScript & types
+  typescript: ^5.9.3
+  '@types/node': ^20.19.26
+  tsx: ^4.0.0
+  # Babel
+  '@babel/core': ^7.26.0
+  '@babel/preset-env': ^7.26.0
+  # Docs & lint
+  vitepress: ^1.6.4
+  eslint: ^9.39.1
+  changelogen: ^0.5.7
+  # Utils
+  chokidar: ^3.6.0
+  globby: ^14.1.0
+  glob: ^11.0.1
+  ufo: ^1.5.4
+  unplugin: ^1.16.1
+  serve: ^14.2.0
+  wrangler: ^3.109.1
+  vue-final-modal: ^4.5.5
+  nitropack: 2.9.6
+  '@intlify/message-compiler': ^11.1.12
+  # Tailwind & CSS
+  tailwindcss: ^4.1.17
+  autoprefixer: ^10.4.22
+  postcss: ^8.5.6
+  # Optional / misc
+  '@rollup/rollup-linux-x64-gnu': ^4.28.1
+  '@rollup/rollup-win32-x64-msvc': ^4.28.1
+  json-editor-vue: ^0.18.1
+  compression: ^1.7.4
+  express: ^4.18.2
+  sirv: ^2.0.3
+
+# Именованные каталоги: альтернативные версии (где была 3 — остаётся 3)
+catalogs:
+  nuxt3:
+    nuxt: 3.18.1
+
 onlyBuiltDependencies:
   - better-sqlite3
   - esbuild

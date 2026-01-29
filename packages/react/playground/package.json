@@ -14,17 +14,17 @@
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",
     "@i18n-micro/devtools-ui": "workspace:*",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.20.0",
-    "use-sync-external-store": "^1.2.2"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router-dom": "catalog:",
+    "use-sync-external-store": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "@vitejs/plugin-react": "^4.0.0",
-    "vite": "^7.2.7",
-    "typescript": "^5.0.0"
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "vite": "catalog:",
+    "typescript": "catalog:"
   }
 }
 

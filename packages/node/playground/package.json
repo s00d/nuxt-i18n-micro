@@ -13,9 +13,9 @@
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20.17.10",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }
 

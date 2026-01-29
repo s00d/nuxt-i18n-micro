@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/astro",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -56,11 +56,11 @@
     "@i18n-micro/node": "workspace:*"
   },
   "peerDependencies": {
-    "astro": "^5.0.0",
-    "svelte": "^4.0.0 || ^5.0.0",
-    "vue": "^3.0.0",
-    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
-    "preact": "^10.0.0"
+    "astro": "catalog:",
+    "svelte": "catalog:",
+    "vue": "catalog:",
+    "react": "catalog:",
+    "preact": "catalog:"
   },
   "peerDependenciesMeta": {
     "svelte": {
@@ -77,16 +77,16 @@
     }
   },
   "devDependencies": {
-    "astro": "^5.16.5",
-    "vite": "^7.2.7",
-    "vite-plugin-dts": "^4.5.4",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.4.6",
-    "@types/jest": "^29.5.14",
-    "svelte": "^5.0.0",
-    "vue": "^3.4.0",
-    "react": "^18.3.0",
-    "preact": "^10.0.0"
+    "astro": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "jest": "catalog:",
+    "ts-jest": "catalog:",
+    "@types/jest": "catalog:",
+    "svelte": "catalog:",
+    "vue": "catalog:",
+    "react": "catalog:",
+    "preact": "catalog:"
   },
   "scripts": {
     "build": "vite build",

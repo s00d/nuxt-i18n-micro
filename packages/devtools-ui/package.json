@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/devtools-ui",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -33,16 +33,16 @@
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
-    "vue": "^3.5.25"
+    "vue": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.17",
-    "@vitejs/plugin-vue": "^6.0.2",
-    "autoprefixer": "^10.4.22",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17",
-    "vite": "^7.2.7",
-    "vite-plugin-dts": "^4.5.4"
+    "@tailwindcss/vite": "catalog:",
+    "@vitejs/plugin-vue": "catalog:",
+    "autoprefixer": "catalog:",
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   },
   "scripts": {
     "build": "vite build && vite build --config vite.config.plugin.mjs && npm run build:plugin-types",

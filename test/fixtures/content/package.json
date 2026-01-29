@@ -10,10 +10,10 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
-    "nuxt": "3.18.1"
+    "nuxt": "catalog:nuxt3"
   },
   "devDependencies": {
-    "@nuxt/content": "3.6.3"
+    "@nuxt/content": "catalog:"
   },
   "overrides": {
     "nitropack": "2.9.6"

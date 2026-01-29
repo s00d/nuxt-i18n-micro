@@ -14,13 +14,13 @@
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",
     "@i18n-micro/devtools-ui": "workspace:*",
-    "preact": "^10.0.0",
-    "wouter-preact": "^3.0.0"
+    "preact": "catalog:",
+    "wouter-preact": "catalog:"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.0.0",
-    "vite": "^7.2.7",
-    "typescript": "^5.0.0"
+    "@preact/preset-vite": "catalog:",
+    "vite": "catalog:",
+    "typescript": "catalog:"
   }
 }
 

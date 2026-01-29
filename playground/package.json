@@ -15,6 +15,6 @@
     "test": "echo \"Error: no test specified\""
   },
   "dependencies": {
-    "nuxt": "^3.18.1"
+    "nuxt": "catalog:"
   }
 }

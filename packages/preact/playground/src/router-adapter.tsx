@@ -14,7 +14,8 @@ export function createWouterAdapter(
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
     const path = typeof to === 'string' ? to : (to.path || '/')
     const pathSegments = path.split('/').filter(Boolean)
-    if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
+    const first = pathSegments[0]
+    if (first !== undefined && localeCodes.includes(first)) {
       pathSegments.shift()
     }
     const cleanPath = '/' + pathSegments.join('/')

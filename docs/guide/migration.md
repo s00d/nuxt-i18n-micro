@@ -20,7 +20,7 @@ The `Nuxt I18n Micro` module offers several advantages over the traditional `nux
 
 Before you begin the migration process, it’s essential to understand the key differences between `nuxt-i18n` and `Nuxt I18n Micro`:
 
-- **🌐 Route Management**: `Nuxt I18n Micro` uses dynamic regex-based routing, generating only two routes regardless of the number of locales, unlike `nuxt-i18n` which creates a separate route for each locale.
+- **🌐 Route Management**: `Nuxt I18n Micro` uses `@i18n-micro/route-strategy` to extend Nuxt pages with localized routes based on the chosen strategy (prefix, no_prefix, prefix_except_default, prefix_and_default). Route names follow a consistent pattern (e.g. `localized-about-en`, `localized-about-de`) and can be matched with a single regex when needed.
 - **🗂️ Translation Files**: Only JSON files are supported in `Nuxt I18n Micro`. The translations are split into global and page-specific files, which are auto-generated in development mode if not present.
 - **📈 SEO Integration**: `Nuxt I18n Micro` offers built-in SEO optimization with automatic meta tag generation and support for `hreflang` tags.
 

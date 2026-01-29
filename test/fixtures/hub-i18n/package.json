@@ -11,10 +11,10 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@nuxthub/core": "^0.8.17",
-    "wrangler": "^3.109.1"
+    "@nuxthub/core": "catalog:",
+    "wrangler": "catalog:"
   },
   "dependencies": {
-    "nuxt": "3.18.1"
+    "nuxt": "catalog:nuxt3"
   }
 }

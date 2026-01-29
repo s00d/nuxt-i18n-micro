@@ -11,17 +11,17 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.13.2",
-    "nuxt-i18n-micro": "^1.37.0",
-    "vue": "latest",
-    "vue-router": "latest"
+    "nuxt": "catalog:",
+    "nuxt-i18n-micro": "workspace:*",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   },
   "devDependencies": {
-    "@i18n-micro/test-utils": "^1.0.0",
-    "@nuxt/test-utils": "^3.14.4",
-    "@testing-library/vue": "^8.1.0",
-    "@vue/test-utils": "^2.4.6",
-    "happy-dom": "^15.11.7",
-    "vitest": "^2.1.8"
+    "@i18n-micro/test-utils": "workspace:*",
+    "@nuxt/test-utils": "catalog:",
+    "@testing-library/vue": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "happy-dom": "catalog:",
+    "vitest": "catalog:"
   }
 }

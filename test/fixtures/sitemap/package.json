@@ -8,9 +8,9 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
-    "nuxt": "3.18.1"
+    "nuxt": "catalog:nuxt3"
   },
   "devDependencies": {
-    "@nuxtjs/sitemap": "^7.2.5"
+    "@nuxtjs/sitemap": "catalog:"
   }
 }

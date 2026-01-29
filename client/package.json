@@ -10,6 +10,6 @@
     "build": "nuxi build"
   },
   "devDependencies": {
-    "json-editor-vue": "^0.18.1"
+    "json-editor-vue": "catalog:"
   }
 }

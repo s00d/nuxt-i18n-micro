@@ -19,18 +19,18 @@
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",
     "@i18n-micro/devtools-ui": "workspace:*",
-    "compression": "^1.7.4",
-    "express": "^4.18.2",
-    "sirv": "^2.0.3",
-    "vue": "^3.3.0",
-    "vue-router": "^4.0.0"
+    "compression": "catalog:",
+    "express": "catalog:",
+    "sirv": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.0.0",
-    "@vue/devtools-api": "^7.0.0",
-    "@vue/server-renderer": "^3.3.0",
-    "vite": "^7.2.7",
-    "vite-plugin-vue-devtools": "^7.0.0"
+    "@vitejs/plugin-vue": "catalog:",
+    "@vue/devtools-api": "catalog:",
+    "@vue/server-renderer": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:"
   }
 }
 

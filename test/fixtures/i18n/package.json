@@ -9,10 +9,10 @@
     "init": "nuxt prepare"
   },
   "devDependencies": {
-    "@intlify/message-compiler": "^11.1.12",
-    "@nuxtjs/i18n": "^10.1.2"
+    "@intlify/message-compiler": "catalog:",
+    "@nuxtjs/i18n": "catalog:"
   },
   "dependencies": {
-    "nuxt": "4.1.2"
+    "nuxt": "catalog:"
   }
 }

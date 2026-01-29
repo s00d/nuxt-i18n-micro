@@ -11,8 +11,8 @@
     "test:types": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "nuxt": "^3.8.0",
-    "@nuxt/test-utils": "latest",
-    "serve": "^14.2.0"
+    "nuxt": "catalog:nuxt3",
+    "@nuxt/test-utils": "catalog:",
+    "serve": "catalog:"
   }
 }

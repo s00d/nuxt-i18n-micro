@@ -15,19 +15,19 @@
     "@i18n-micro/astro": "workspace:*",
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",
-    "astro": "^5.0.0",
-    "@astrojs/node": "^9.5.1",
-    "@astrojs/vue": "^5.1.3",
-    "@astrojs/react": "^4.4.2",
-    "@astrojs/svelte": "^7.2.2",
-    "vue": "^3.4.0",
-    "react": "^18.3.0",
-    "react-dom": "^18.3.0",
-    "svelte": "^5.0.0"
+    "astro": "catalog:",
+    "@astrojs/node": "catalog:",
+    "@astrojs/vue": "catalog:",
+    "@astrojs/react": "catalog:",
+    "@astrojs/svelte": "catalog:",
+    "vue": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "svelte": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "^20.17.19",
-    "typescript": "^5.4.2"
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
   }
 }
 

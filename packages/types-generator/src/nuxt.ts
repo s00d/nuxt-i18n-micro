@@ -15,12 +15,10 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
     translationDir: 'locales',
   },
   async setup(options, nuxt) {
-    // Получаем translationDir из опций модуля или из runtimeConfig
-    // Используем безопасный доступ к runtimeConfig, так как типы могут быть не полностью определены
-    const publicConfig = nuxt.options.runtimeConfig?.public as Record<string, unknown> | undefined
-    const runtimeConfigI18n = publicConfig?.i18nConfig as { translationDir?: string } | undefined
+    // translationDir из опций модуля или из опций nuxt-i18n-micro (конфиг i18n в #build/i18n.config.mjs и i18n.strategy.mjs)
+    const mainModuleI18n = (nuxt.options as { i18n?: { translationDir?: string } }).i18n
     const translationDir = options.translationDir
-      || runtimeConfigI18n?.translationDir
+      || mainModuleI18n?.translationDir
       || 'locales'
 
     const filename = 'types/i18n-micro.d.ts'

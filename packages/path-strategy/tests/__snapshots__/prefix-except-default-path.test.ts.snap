@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PrefixExceptDefaultPathStrategy - switchLocaleRoute should build localized route when exact localized name exists 1`] = `
+{
+  "hash": "",
+  "name": "localized-about-de",
+  "params": {},
+  "query": {},
+}
+`;

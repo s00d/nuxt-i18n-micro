@@ -1,0 +1,217 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`buildPathFromBaseNameAndParams (router does not have route) prefix: route name test-id with param id, router throws → hyphen form path test-:id 1`] = `
+{
+  "fullPath": "/de/test-42",
+  "name": "localized-test-id-de",
+  "params": {
+    "id": "42",
+  },
+  "path": "/de/test-42",
+}
+`;
+
+exports[`buildPathFromBaseNameAndParams (router does not have route) prefix_except_default: route with params, path from resolved route when router returns path 1`] = `
+{
+  "fullPath": "/de/products/1",
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "1",
+  },
+  "path": "/de/products/1",
+  "query": {},
+}
+`;
+
+exports[`buildPathFromBaseNameAndParams (router does not have route) prefix_except_default: when source has no path and router throws on base name resolve, path built from baseName+params 1`] = `
+{
+  "fullPath": "/de/products/id",
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "1",
+  },
+  "path": "/de/products/id",
+  "query": {},
+}
+`;
+
+exports[`getRedirect edge cases for all strategies no_prefix: no redirect for path without locale segment 1`] = `
+{
+  "aboutEn": null,
+  "productsDe": null,
+}
+`;
+
+exports[`getRedirect edge cases for all strategies prefix: redirect root to /locale for every locale 1`] = `
+{
+  "rootEn": "/en",
+  "rootRu": "/ru",
+}
+`;
+
+exports[`getRedirect edge cases for all strategies prefix_and_default: redirect / to /en, /about to /de/about 1`] = `
+{
+  "aboutDe": "/de/about",
+  "enAboutEn": null,
+  "rootEn": "/en",
+}
+`;
+
+exports[`getRedirect edge cases for all strategies prefix_except_default: redirect /de to /en, /de/about to /en/about when target is default locale 1`] = `
+{
+  "deAboutToEn": "/en/about",
+  "deToEn": "/en",
+}
+`;
+
+exports[`localeRoute + getSeoAttributes with baseUrl getSeoAttributes canonical and hreflangs include baseUrl when locale has baseUrl 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "https://de.example.com/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`localeRoute + getSeoAttributes with baseUrl localeRoute applies baseUrl when locale has baseUrl 1`] = `
+{
+  "de": {
+    "fullPath": "https://de.example.com/de/about",
+    "path": "https://de.example.com/de/about",
+  },
+  "en": {
+    "fullPath": "/about",
+    "path": "/about",
+  },
+  "ru": {
+    "fullPath": "https://ru.example.com/ru/about",
+    "path": "https://ru.example.com/ru/about",
+  },
+}
+`;
+
+exports[`localeRoute with query and hash preserved when using baseUrl applyBaseUrl on RouteLike preserves query and hash in fullPath 1`] = `
+{
+  "fullPath": "https://de.example.com/de/about?tab=info#section",
+  "hash": "#section",
+  "name": "localized-about-de",
+  "params": {},
+  "path": "https://de.example.com/de/about",
+  "query": {
+    "tab": "info",
+  },
+}
+`;
+
+exports[`nested globalLocaleRoutes (parent key) prefix_except_default: nested route uses full path from globalLocaleRoutes when key matches path 1`] = `
+{
+  "de": {
+    "fullPath": "/de/eltern/kind",
+    "path": "/de/eltern/kind",
+  },
+  "en": {
+    "fullPath": "/parent-en/child",
+    "path": "/parent-en/child",
+  },
+}
+`;
+
+exports[`routesLocaleLinks + routeLocales in getSeoAttributes routesLocaleLinks maps products-id to products for routeLocales lookup 1`] = `
+{
+  "seoBlog": {
+    "canonical": "/blog/hello",
+    "hreflangs": [
+      {
+        "href": "/blog/hello",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "seoProducts": {
+    "canonical": "/products/1",
+    "hreflangs": [
+      {
+        "href": "/products/1",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "/de/products/1",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+    ],
+  },
+}
+`;
+
+exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute) getSeoAttributes with baseUrl: canonical and hreflangs 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "https://de.example.com/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute) localeRoute with baseUrl: path per locale with baseUrl 1`] = `
+{
+  "de": {
+    "fullPath": "https://de.example.com/de/about",
+    "path": "https://de.example.com/de/about",
+  },
+  "en": {
+    "fullPath": "/about",
+    "path": "/about",
+  },
+  "ru": {
+    "fullPath": "https://ru.example.com/ru/about",
+    "path": "https://ru.example.com/ru/about",
+  },
+}
+`;
+
+exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute) switchLocaleRoute with i18nRouteParams: merged params result 1`] = `
+{
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "2",
+    "slug": "product-2",
+  },
+  "query": {},
+}
+`;
+
+exports[`switchLocaleRoute with i18nRouteParams i18nRouteParams override and extend params for target locale 1`] = `
+{
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "2",
+    "slug": "product-2",
+  },
+  "query": {},
+}
+`;

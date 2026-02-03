@@ -1,0 +1,1275 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`strategies deep snapshots (large configs, full state) no_prefix: full state 1`] = `
+{
+  "getCanonical": {
+    "de": "/ueber-uns",
+    "en": "/about-us",
+    "fr": "/a-propos",
+    "ru": "/o-nas",
+  },
+  "getLocaleFromPath": {
+    "/": null,
+    "/about": null,
+    "/about-us": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+    "/en/parent-en/child": "en",
+    "/parent/child": null,
+    "/products/1": null,
+    "/ru/o-nas": "ru",
+  },
+  "getRedirect": [
+    {
+      "path": "/",
+      "redirect": null,
+      "targetLocale": "en",
+    },
+    {
+      "path": "/",
+      "redirect": null,
+      "targetLocale": "de",
+    },
+    {
+      "path": "/",
+      "redirect": null,
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/",
+      "redirect": null,
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/about",
+      "redirect": null,
+      "targetLocale": "en",
+    },
+    {
+      "path": "/about",
+      "redirect": null,
+      "targetLocale": "de",
+    },
+    {
+      "path": "/about",
+      "redirect": null,
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/about",
+      "redirect": null,
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/about",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/about",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/about",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/about",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/ueber-uns",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/ueber-uns",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/ueber-uns",
+      "targetLocale": "fr",
+    },
+  ],
+  "getSeoAbout": {
+    "canonical": "/about-us",
+    "hreflangs": [
+      {
+        "href": "/",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoProducts": {
+    "canonical": "/products/1",
+    "hreflangs": [
+      {
+        "href": "/products/1",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/produkte/1",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoWithQuery": {
+    "canonical": "/about-us",
+    "hreflangs": [
+      {
+        "href": "/",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "localeRouteByName": {
+    "de": {
+      "fullPath": "https://de.example.com",
+      "hash": "",
+      "name": "localized-about-de",
+      "params": {},
+      "path": "https://de.example.com",
+      "query": {},
+    },
+    "en": {
+      "fullPath": "/",
+      "hash": "",
+      "name": "localized-about-en",
+      "params": {},
+      "path": "/",
+      "query": {},
+    },
+    "fr": {
+      "fullPath": "/a-propos",
+      "path": "/a-propos",
+    },
+    "ru": {
+      "fullPath": "https://ru.example.com",
+      "hash": "",
+      "name": "localized-about-ru",
+      "params": {},
+      "path": "https://ru.example.com",
+      "query": {},
+    },
+  },
+  "localeRouteByPath": {
+    "de": {
+      "/about": {
+        "fullPath": "https://de.example.com/ueber-uns",
+        "path": "https://de.example.com/ueber-uns",
+      },
+      "/parent/child": {
+        "fullPath": "https://de.example.com/eltern/kind",
+        "path": "https://de.example.com/eltern/kind",
+      },
+      "/products/1": {
+        "fullPath": "https://de.example.com/products/1",
+        "path": "https://de.example.com/products/1",
+      },
+    },
+    "en": {
+      "/about": {
+        "fullPath": "/about-us",
+        "path": "/about-us",
+      },
+      "/parent/child": {
+        "fullPath": "/parent-en/child",
+        "path": "/parent-en/child",
+      },
+      "/products/1": {
+        "fullPath": "/products/1",
+        "path": "/products/1",
+      },
+    },
+    "fr": {
+      "/about": {
+        "fullPath": "/a-propos",
+        "path": "/a-propos",
+      },
+      "/parent/child": {
+        "fullPath": "/parent/enfant",
+        "path": "/parent/enfant",
+      },
+      "/products/1": {
+        "fullPath": "/products/1",
+        "path": "/products/1",
+      },
+    },
+    "ru": {
+      "/about": {
+        "fullPath": "https://ru.example.com/o-nas",
+        "path": "https://ru.example.com/o-nas",
+      },
+      "/parent/child": {
+        "fullPath": "https://ru.example.com/roditel/rebenok",
+        "path": "https://ru.example.com/roditel/rebenok",
+      },
+      "/products/1": {
+        "fullPath": "https://ru.example.com/products/1",
+        "path": "https://ru.example.com/products/1",
+      },
+    },
+  },
+  "resolveLocaleFromPath": {
+    "/": null,
+    "/about": null,
+    "/about-us": null,
+    "/de/about": null,
+    "/de/ueber-uns": null,
+    "/en/about": null,
+    "/en/parent-en/child": null,
+    "/parent/child": null,
+    "/products/1": null,
+    "/ru/o-nas": null,
+  },
+  "switchFromEnToDe": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "https://de.example.com",
+    "query": {},
+  },
+  "switchWithParams": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-products-id-de",
+    "params": {
+      "id": "2",
+    },
+    "path": "https://de.example.com",
+    "query": {},
+  },
+}
+`;
+
+exports[`strategies deep snapshots (large configs, full state) prefix: full state 1`] = `
+{
+  "getCanonical": {
+    "de": "/de/ueber-uns",
+    "en": "/en/about-us",
+    "fr": "/fr/a-propos",
+    "ru": "/ru/o-nas",
+  },
+  "getLocaleFromPath": {
+    "/": null,
+    "/about": null,
+    "/about-us": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+    "/en/parent-en/child": "en",
+    "/parent/child": null,
+    "/products/1": null,
+    "/ru/o-nas": "ru",
+  },
+  "getRedirect": [
+    {
+      "path": "/",
+      "redirect": "/en",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/",
+      "redirect": "/de",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/",
+      "redirect": "/ru",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/",
+      "redirect": "/fr",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/about",
+      "redirect": "/en/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/en/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/en/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/en/ueber-uns",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": null,
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/ru/ueber-uns",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/fr/ueber-uns",
+      "targetLocale": "fr",
+    },
+  ],
+  "getSeoAbout": {
+    "canonical": "/en/about-us",
+    "hreflangs": [
+      {
+        "href": "/",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoProducts": {
+    "canonical": "/en/products/1",
+    "hreflangs": [
+      {
+        "href": "/en/products/1",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/de/produkte/1",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoWithQuery": {
+    "canonical": "/en/about-us",
+    "hreflangs": [
+      {
+        "href": "/",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "localeRouteByName": {
+    "de": {
+      "fullPath": "https://de.example.com",
+      "hash": "",
+      "name": "localized-about-de",
+      "params": {},
+      "path": "https://de.example.com",
+      "query": {},
+    },
+    "en": {
+      "fullPath": "/",
+      "hash": "",
+      "name": "localized-about-en",
+      "params": {},
+      "path": "/",
+      "query": {},
+    },
+    "fr": {
+      "fullPath": "/fr/a-propos",
+      "path": "/fr/a-propos",
+    },
+    "ru": {
+      "fullPath": "https://ru.example.com",
+      "hash": "",
+      "name": "localized-about-ru",
+      "params": {},
+      "path": "https://ru.example.com",
+      "query": {},
+    },
+  },
+  "localeRouteByPath": {
+    "de": {
+      "/about": {
+        "fullPath": "https://de.example.com/de/ueber-uns",
+        "path": "https://de.example.com/de/ueber-uns",
+      },
+      "/parent/child": {
+        "fullPath": "https://de.example.com/de/eltern/kind",
+        "path": "https://de.example.com/de/eltern/kind",
+      },
+      "/products/1": {
+        "fullPath": "https://de.example.com/de/products/1",
+        "path": "https://de.example.com/de/products/1",
+      },
+    },
+    "en": {
+      "/about": {
+        "fullPath": "/en/about-us",
+        "path": "/en/about-us",
+      },
+      "/parent/child": {
+        "fullPath": "/en/parent-en/child",
+        "path": "/en/parent-en/child",
+      },
+      "/products/1": {
+        "fullPath": "/en/products/1",
+        "path": "/en/products/1",
+      },
+    },
+    "fr": {
+      "/about": {
+        "fullPath": "/fr/a-propos",
+        "path": "/fr/a-propos",
+      },
+      "/parent/child": {
+        "fullPath": "/fr/parent/enfant",
+        "path": "/fr/parent/enfant",
+      },
+      "/products/1": {
+        "fullPath": "/fr/products/1",
+        "path": "/fr/products/1",
+      },
+    },
+    "ru": {
+      "/about": {
+        "fullPath": "https://ru.example.com/ru/o-nas",
+        "path": "https://ru.example.com/ru/o-nas",
+      },
+      "/parent/child": {
+        "fullPath": "https://ru.example.com/ru/roditel/rebenok",
+        "path": "https://ru.example.com/ru/roditel/rebenok",
+      },
+      "/products/1": {
+        "fullPath": "https://ru.example.com/ru/products/1",
+        "path": "https://ru.example.com/ru/products/1",
+      },
+    },
+  },
+  "resolveLocaleFromPath": {
+    "/": null,
+    "/about": null,
+    "/about-us": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+    "/en/parent-en/child": "en",
+    "/parent/child": null,
+    "/products/1": null,
+    "/ru/o-nas": "ru",
+  },
+  "switchFromEnToDe": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "https://de.example.com",
+    "query": {},
+  },
+  "switchWithParams": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-products-id-de",
+    "params": {
+      "id": "2",
+    },
+    "path": "https://de.example.com",
+    "query": {},
+  },
+}
+`;
+
+exports[`strategies deep snapshots (large configs, full state) prefix_and_default: full state 1`] = `
+{
+  "getCanonical": {
+    "de": "/de/ueber-uns",
+    "en": "/en/about-us",
+    "fr": "/fr/a-propos",
+    "ru": "/ru/o-nas",
+  },
+  "getLocaleFromPath": {
+    "/": null,
+    "/about": null,
+    "/about-us": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+    "/en/parent-en/child": "en",
+    "/parent/child": null,
+    "/products/1": null,
+    "/ru/o-nas": "ru",
+  },
+  "getRedirect": [
+    {
+      "path": "/",
+      "redirect": "/en",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/",
+      "redirect": "/de",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/",
+      "redirect": "/ru",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/",
+      "redirect": "/fr",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/about",
+      "redirect": "/en/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/en/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/en/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/en/ueber-uns",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": null,
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/ru/ueber-uns",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/fr/ueber-uns",
+      "targetLocale": "fr",
+    },
+  ],
+  "getSeoAbout": {
+    "canonical": "/en/about-us",
+    "hreflangs": [
+      {
+        "href": "/en/about-us",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/de/ueber-uns",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com/ru/o-nas",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoProducts": {
+    "canonical": "/en/products/1",
+    "hreflangs": [
+      {
+        "href": "/en/products/1",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/de/produkte/1",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoWithQuery": {
+    "canonical": "/en/about-us",
+    "hreflangs": [
+      {
+        "href": "/en/about-us",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/de/ueber-uns",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com/ru/o-nas",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "localeRouteByName": {
+    "de": {
+      "fullPath": "https://de.example.com/de/ueber-uns",
+      "path": "https://de.example.com/de/ueber-uns",
+    },
+    "en": {
+      "fullPath": "/en/about-us",
+      "path": "/en/about-us",
+    },
+    "fr": {
+      "fullPath": "/fr/a-propos",
+      "path": "/fr/a-propos",
+    },
+    "ru": {
+      "fullPath": "https://ru.example.com/ru/o-nas",
+      "path": "https://ru.example.com/ru/o-nas",
+    },
+  },
+  "localeRouteByPath": {
+    "de": {
+      "/about": {
+        "fullPath": "https://de.example.com/de/ueber-uns",
+        "path": "https://de.example.com/de/ueber-uns",
+      },
+      "/parent/child": {
+        "fullPath": "https://de.example.com/de/eltern/kind",
+        "path": "https://de.example.com/de/eltern/kind",
+      },
+      "/products/1": {
+        "fullPath": "https://de.example.com/de/products/1",
+        "path": "https://de.example.com/de/products/1",
+      },
+    },
+    "en": {
+      "/about": {
+        "fullPath": "/en/about-us",
+        "path": "/en/about-us",
+      },
+      "/parent/child": {
+        "fullPath": "/en/parent-en/child",
+        "path": "/en/parent-en/child",
+      },
+      "/products/1": {
+        "fullPath": "/en/products/1",
+        "path": "/en/products/1",
+      },
+    },
+    "fr": {
+      "/about": {
+        "fullPath": "/fr/a-propos",
+        "path": "/fr/a-propos",
+      },
+      "/parent/child": {
+        "fullPath": "/fr/parent/enfant",
+        "path": "/fr/parent/enfant",
+      },
+      "/products/1": {
+        "fullPath": "/fr/products/1",
+        "path": "/fr/products/1",
+      },
+    },
+    "ru": {
+      "/about": {
+        "fullPath": "https://ru.example.com/ru/o-nas",
+        "path": "https://ru.example.com/ru/o-nas",
+      },
+      "/parent/child": {
+        "fullPath": "https://ru.example.com/ru/roditel/rebenok",
+        "path": "https://ru.example.com/ru/roditel/rebenok",
+      },
+      "/products/1": {
+        "fullPath": "https://ru.example.com/ru/products/1",
+        "path": "https://ru.example.com/ru/products/1",
+      },
+    },
+  },
+  "resolveLocaleFromPath": {
+    "/": null,
+    "/about": null,
+    "/about-us": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+    "/en/parent-en/child": "en",
+    "/parent/child": null,
+    "/products/1": null,
+    "/ru/o-nas": "ru",
+  },
+  "switchFromEnToDe": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "https://de.example.com",
+    "query": {},
+  },
+  "switchWithParams": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-products-id-de",
+    "params": {
+      "id": "2",
+    },
+    "path": "https://de.example.com",
+    "query": {},
+  },
+}
+`;
+
+exports[`strategies deep snapshots (large configs, full state) prefix_except_default: full state 1`] = `
+{
+  "getCanonical": {
+    "de": "/de/ueber-uns",
+    "en": "/about-us",
+    "fr": "/fr/a-propos",
+    "ru": "/ru/o-nas",
+  },
+  "getLocaleFromPath": {
+    "/": null,
+    "/about": null,
+    "/about-us": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+    "/en/parent-en/child": "en",
+    "/parent/child": null,
+    "/products/1": null,
+    "/ru/o-nas": "ru",
+  },
+  "getRedirect": [
+    {
+      "path": "/",
+      "redirect": null,
+      "targetLocale": "en",
+    },
+    {
+      "path": "/",
+      "redirect": "/de",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/",
+      "redirect": "/ru",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/",
+      "redirect": "/fr",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/about",
+      "redirect": "/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/en/about",
+      "redirect": "/about",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/en/about-us",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/de/ueber-uns",
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/ru/o-nas",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/about",
+      "redirect": "/fr/a-propos",
+      "targetLocale": "fr",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/en/ueber-uns",
+      "targetLocale": "en",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": null,
+      "targetLocale": "de",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/ru/ueber-uns",
+      "targetLocale": "ru",
+    },
+    {
+      "path": "/de/ueber-uns",
+      "redirect": "/fr/ueber-uns",
+      "targetLocale": "fr",
+    },
+  ],
+  "getSeoAbout": {
+    "canonical": "/about-us",
+    "hreflangs": [
+      {
+        "href": "/about-us",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/de/ueber-uns",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com/ru/o-nas",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoProducts": {
+    "canonical": "/products/1",
+    "hreflangs": [
+      {
+        "href": "/products/1",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/de/produkte/1",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "getSeoWithQuery": {
+    "canonical": "/about-us",
+    "hreflangs": [
+      {
+        "href": "/about-us",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://de.example.com/de/ueber-uns",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+      {
+        "href": "https://ru.example.com/ru/o-nas",
+        "hreflang": "ru",
+        "rel": "alternate",
+      },
+    ],
+  },
+  "localeRouteByName": {
+    "de": {
+      "fullPath": "https://de.example.com/de/ueber-uns",
+      "path": "https://de.example.com/de/ueber-uns",
+    },
+    "en": {
+      "fullPath": "/about-us",
+      "path": "/about-us",
+    },
+    "fr": {
+      "fullPath": "/fr/a-propos",
+      "path": "/fr/a-propos",
+    },
+    "ru": {
+      "fullPath": "https://ru.example.com/ru/o-nas",
+      "path": "https://ru.example.com/ru/o-nas",
+    },
+  },
+  "localeRouteByPath": {
+    "de": {
+      "/about": {
+        "fullPath": "https://de.example.com/de/ueber-uns",
+        "path": "https://de.example.com/de/ueber-uns",
+      },
+      "/parent/child": {
+        "fullPath": "https://de.example.com/de/eltern/kind",
+        "path": "https://de.example.com/de/eltern/kind",
+      },
+      "/products/1": {
+        "fullPath": "https://de.example.com/de/products/1",
+        "path": "https://de.example.com/de/products/1",
+      },
+    },
+    "en": {
+      "/about": {
+        "fullPath": "/about-us",
+        "path": "/about-us",
+      },
+      "/parent/child": {
+        "fullPath": "/parent-en/child",
+        "path": "/parent-en/child",
+      },
+      "/products/1": {
+        "fullPath": "/products/1",
+        "path": "/products/1",
+      },
+    },
+    "fr": {
+      "/about": {
+        "fullPath": "/fr/a-propos",
+        "path": "/fr/a-propos",
+      },
+      "/parent/child": {
+        "fullPath": "/fr/parent/enfant",
+        "path": "/fr/parent/enfant",
+      },
+      "/products/1": {
+        "fullPath": "/fr/products/1",
+        "path": "/fr/products/1",
+      },
+    },
+    "ru": {
+      "/about": {
+        "fullPath": "https://ru.example.com/ru/o-nas",
+        "path": "https://ru.example.com/ru/o-nas",
+      },
+      "/parent/child": {
+        "fullPath": "https://ru.example.com/ru/roditel/rebenok",
+        "path": "https://ru.example.com/ru/roditel/rebenok",
+      },
+      "/products/1": {
+        "fullPath": "https://ru.example.com/ru/products/1",
+        "path": "https://ru.example.com/ru/products/1",
+      },
+    },
+  },
+  "resolveLocaleFromPath": {
+    "/": "en",
+    "/about": "en",
+    "/about-us": "en",
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+    "/en/parent-en/child": "en",
+    "/parent/child": "en",
+    "/products/1": "en",
+    "/ru/o-nas": "ru",
+  },
+  "switchFromEnToDe": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "https://de.example.com",
+    "query": {},
+  },
+  "switchWithParams": {
+    "fullPath": "https://de.example.com",
+    "hash": "",
+    "name": "localized-products-id-de",
+    "params": {
+      "id": "2",
+    },
+    "path": "https://de.example.com",
+    "query": {},
+  },
+}
+`;
+
+exports[`strategies deep snapshots — defaultLocale and two locales only prefix_except_default with two locales: state 1`] = `
+{
+  "canonicalResult": {
+    "de": "/de/ueber-uns",
+    "en": "/about-us",
+  },
+  "getRedirect": [
+    {
+      "locale": "en",
+      "path": "/",
+      "redirect": null,
+    },
+    {
+      "locale": "de",
+      "path": "/",
+      "redirect": "/de",
+    },
+    {
+      "locale": "en",
+      "path": "/about",
+      "redirect": "/about-us",
+    },
+    {
+      "locale": "de",
+      "path": "/about",
+      "redirect": "/de/ueber-uns",
+    },
+    {
+      "locale": "en",
+      "path": "/de/about",
+      "redirect": "/en/about-us",
+    },
+    {
+      "locale": "de",
+      "path": "/de/about",
+      "redirect": "/de/ueber-uns",
+    },
+  ],
+  "localeRouteResult": {
+    "de": {
+      "fullPath": "/de/ueber-uns",
+      "path": "/de/ueber-uns",
+    },
+    "en": {
+      "fullPath": "/about-us",
+      "path": "/about-us",
+    },
+  },
+  "resolveLocaleFromPath": {
+    "/": "en",
+    "/about": "en",
+    "/about-us": "en",
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+  },
+  "seoResult": {
+    "canonical": "/about-us",
+    "hreflangs": [
+      {
+        "href": "/about-us",
+        "hreflang": "en",
+        "rel": "alternate",
+      },
+      {
+        "href": "/de/ueber-uns",
+        "hreflang": "de",
+        "rel": "alternate",
+      },
+    ],
+  },
+}
+`;
+
+exports[`strategies deep snapshots — no_prefix with noPrefixRedirect: false no_prefix noPrefixRedirect false: getRedirect and localeRoute 1`] = `
+{
+  "localeRoutes": {
+    "de": {
+      "fullPath": "https://de.example.com/ueber-uns",
+      "path": "https://de.example.com/ueber-uns",
+    },
+    "en": {
+      "fullPath": "/about-us",
+      "path": "/about-us",
+    },
+  },
+  "redirects": [
+    {
+      "locale": "en",
+      "path": "/about",
+      "redirect": null,
+    },
+    {
+      "locale": "en",
+      "path": "/en/about",
+      "redirect": null,
+    },
+    {
+      "locale": "de",
+      "path": "/de/about",
+      "redirect": null,
+    },
+  ],
+}
+`;

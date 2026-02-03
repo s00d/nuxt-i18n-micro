@@ -4,7 +4,7 @@ outline: deep
 
 # News
 
-## Nuxt I18n Micro v3.0.0 — Route Generator Rewrite & @i18n-micro/route-strategy
+## Nuxt I18n Micro v3.0.0 — Route & Path Strategy Packages, Redirect Architecture Overhaul
 
 **Date**: 2026-01-28
 
@@ -12,22 +12,41 @@ outline: deep
 
 ![RouteGenerator](/3.0.0.png)
 
-We're announcing **v3.0.0** with a **complete rewrite of the route generator**. All locale-prefix and routing logic has been moved into a dedicated package **@i18n-micro/route-strategy**, giving a clearer architecture, better testability, and a stable foundation for future strategies and integrations.
+We're announcing **v3.0.0** with a **major architectural overhaul**: route generation and runtime path logic are now split into dedicated packages, and the redirect flow has been redesigned for better reliability and Serverless compatibility.
 
 ### What's New?
 
-- **@i18n-micro/route-strategy** — New package that owns all route generation: extending Nuxt pages with localized routes, handling aliases, nested routes, and custom paths per strategy.
-- **RouteGenerator** — Single entry point: `new RouteGenerator(options)` and `extendPages(pages)`. Strategies (`no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`) are implemented as separate strategy classes and selected via a factory.
-- **Structured package layout** — Code is split into `core/` (context, builder, localized paths, alias handling), `strategies/` (abstract strategy, concrete implementations, factory), and `utils/` (path normalization, locale resolution, shared helpers).
-- **Consistent behavior** — Alias handling, parent–child path joining, custom `globalLocaleRoutes` / `filesLocaleRoutes` / `routeLocales`, and immutability guarantees are covered by a dedicated test suite (including critical-scenarios tests).
-- **No breaking changes for module users** — The same `strategy` and `globalLocaleRoutes` (and related) options in `nuxt.config` work as before; only the internal implementation has changed.
+#### Route & Path Strategy Packages
+
+- **@i18n-micro/route-strategy** — Build-time route generation: extends Nuxt pages with localized routes, handles aliases, nested routes, and custom paths per strategy. Single entry point: `new RouteGenerator(options)` and `extendPages(pages)`. Strategies (`no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`) are implemented as separate classes and selected via a factory.
+- **@i18n-micro/path-strategy** — Runtime path and locale handling: provides `PathStrategy` for building localized paths, resolving redirects, and locale switching. Tree-shakeable subpath exports (`/prefix`, `/no-prefix`, etc.) so only the selected strategy is bundled.
+- **Structured package layout** — Route logic in `core/`, `strategies/`, and `utils/`. Path strategy in `strategies/` with shared types in `types`.
+- **Consistent behavior** — Alias handling, parent–child path joining, custom `globalLocaleRoutes` / `filesLocaleRoutes` / `routeLocales`, and immutability guarantees are covered by a dedicated test suite.
+
+#### Redirect Architecture Overhaul
+
+- **Nitro plugin (server-side)** — Redirects and 404 handling now run in a Nitro plugin (`i18n-redirect.ts`) instead of server middleware. This executes before Nuxt render, so redirects from `/` to `/<locale>/` happen without an error flash when a locale cookie is present.
+- **Client plugin (client-side)** — A new client-only plugin (`06.client-redirect.client.ts`) runs after hydration and handles redirects when `useState('i18n-locale')` or cookie sets a non-default locale. Nitro runs before Nuxt, so the server cannot see cookie/useState changes from user plugins; the client plugin covers this case.
+- **No fallback component** — The `locale-redirect.vue` fallback component and `fallbackRedirectComponentPath` option have been removed. Redirect logic is fully handled by the Nitro and client plugins.
+- **Custom path support** — Paths like `/kontakt` for German (via `globalLocaleRoutes`) are correctly recognized as valid without a locale prefix, avoiding incorrect 404s during prerender.
+
+#### Custom Auto-Detection & Configuration
+
+- **`getI18nConfig()`** — Custom plugins (e.g. for locale detection) should use `getI18nConfig()` from `#build/i18n.strategy.mjs` instead of `useRuntimeConfig().public.i18nConfig`. This provides direct access to the resolved i18n config (e.g. `localeCookie`) without relying on runtime config.
+- **Cookie name** — Use `getI18nConfig().localeCookie ?? 'user-locale'` when implementing custom detection logic.
+
+### Breaking Changes
+
+- **`fallbackRedirectComponentPath`** — Removed. The module no longer uses a fallback route component for redirects. If you had a custom component path configured, remove it from your config.
+- **Custom plugins** — If your custom locale-detection plugin used `useRuntimeConfig().public.i18nConfig`, switch to `getI18nConfig()` from `#build/i18n.strategy.mjs`. See [Custom Language Detection](/guide/custom-auto-detect) for updated examples.
 
 ### Why It Matters
 
-- **Maintainability**: Route logic lives in one package with clear boundaries and types.
+- **Maintainability**: Route and path logic live in dedicated packages with clear boundaries and types.
 - **Testing**: Strategy behavior and edge cases are tested in isolation.
-- **Future work**: New strategies or routing features can be added in route-strategy without touching the main module.
-- **Documentation**: Routing behavior is documented in the [Strategy guide](/guide/strategy) and in the [route-strategy package](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/route-strategy).
+- **Reliability**: Split server (Nitro) and client redirect logic avoids timing issues when cookie/useState are set by user plugins.
+- **Serverless-ready**: Nitro plugin runs in the same context as Nitro handlers, compatible with Edge/Workers.
+- **Documentation**: Routing behavior is documented in the [Strategy guide](/guide/strategy) and in the [path-strategy](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/path-strategy) and [route-strategy](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/route-strategy) packages.
 
 For upgrade notes and a full list of changes, see the [changelog](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
 

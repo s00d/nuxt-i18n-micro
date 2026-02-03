@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   compatibilityDate: '2024-04-03',
   i18n: {
+    debug: true,
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr', displayName: 'English' },
       { code: 'cs', iso: 'cs-CZ', dir: 'ltr', displayName: 'Czech' },

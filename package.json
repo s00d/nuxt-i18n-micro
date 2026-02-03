@@ -33,6 +33,11 @@
     },
     "./internals": "./internals.d.mts"
   },
+  "imports": {
+    "#i18n-internal/plural": "./internals.d.mts",
+    "#i18n-internal/strategy": "./internals.d.mts",
+    "#i18n-internal/config": "./internals.d.mts"
+  },
   "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
@@ -40,6 +45,15 @@
         "./dist/types.d.mts"
       ],
       "internals": [
+        "./internals.d.mts"
+      ],
+      "#i18n-internal/plural": [
+        "./internals.d.mts"
+      ],
+      "#i18n-internal/strategy": [
+        "./internals.d.mts"
+      ],
+      "#i18n-internal/config": [
         "./internals.d.mts"
       ]
     }
@@ -59,6 +73,7 @@
     "lint:fix": "eslint . --fix",
     "test": "playwright test",
     "test:vitest": "vitest run",
+    "test:strategies": "vitest run test/strategies.test.ts",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "test:workspaces": "pnpm recursive run test",
@@ -87,6 +102,7 @@
     "chokidar": "catalog:",
     "globby": "catalog:",
     "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/path-strategy": "workspace:*",
     "@i18n-micro/route-strategy": "workspace:*",
     "@i18n-micro/test-utils": "workspace:*",
     "@i18n-micro/types": "workspace:*",

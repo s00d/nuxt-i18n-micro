@@ -1,6 +1,7 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { isPrefixStrategy, isNoPrefixStrategy } from '@i18n-micro/core'
 import { defineNuxtPlugin, useCookie, useRequestHeaders, navigateTo, useRoute, useRouter, useState } from '#imports'
+import { getI18nConfig } from '#build/i18n.strategy.mjs'
 
 const parseAcceptLanguage = (acceptLanguage: string) =>
   acceptLanguage
@@ -10,8 +11,8 @@ const parseAcceptLanguage = (acceptLanguage: string) =>
       return parts[0] ? parts[0].trim() : ''
     })
 
-export default defineNuxtPlugin(async (nuxtApp) => {
-  const i18nConfig = nuxtApp.$config.public.i18nConfig as unknown as ModuleOptionsExtend
+export default defineNuxtPlugin(async (_nuxtApp) => {
+  const i18nConfig = getI18nConfig() as ModuleOptionsExtend
   const localizedRouteNamePrefix = i18nConfig.localizedRouteNamePrefix || 'localized-'
   const date = new Date()
   const userLocaleCookie = useCookie(i18nConfig.localeCookie || 'user-locale', {

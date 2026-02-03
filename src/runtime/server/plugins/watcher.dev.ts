@@ -2,10 +2,10 @@
 
 import path from 'node:path'
 import { watch, type FSWatcher } from 'chokidar'
-import type { ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - #imports are available in Nitro
-import { useStorage, useRuntimeConfig, defineNitroPlugin } from '#imports'
+import { useStorage, defineNitroPlugin } from '#imports'
+import { getI18nPrivateConfig } from '#i18n-internal/config'
 import type { NitroApp } from 'nitropack'
 
 let watcherInstance: FSWatcher | null = null
@@ -15,10 +15,9 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     return
   }
 
-  const config = useRuntimeConfig() as { i18nConfig?: ModulePrivateOptionsExtend }
-  const i18nConfig = config.i18nConfig
+  const i18nConfig = getI18nPrivateConfig()
 
-  if (!i18nConfig || process.env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV !== 'development') {
     return
   }
 

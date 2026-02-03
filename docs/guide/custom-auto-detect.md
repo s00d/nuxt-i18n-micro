@@ -175,7 +175,8 @@ export default defineNuxtConfig({
 **Step 2: Create `plugins/i18n-loader.server.ts`**
 
 ```ts
-import { defineNuxtPlugin, useCookie, useState, useRequestHeaders, useRuntimeConfig } from '#imports'
+import { defineNuxtPlugin, useCookie, useState, useRequestHeaders } from '#imports'
+import { getI18nConfig } from '#build/i18n.strategy.mjs'
 
 export default defineNuxtPlugin({
   name: 'i18n-custom-loader',
@@ -183,9 +184,8 @@ export default defineNuxtPlugin({
   order: -10, // Execute BEFORE the i18n plugin (which has order -5)
 
   setup() {
-    const config = useRuntimeConfig()
-    // @ts-ignore
-    const cookieName = config.public.i18nConfig?.localeCookie || 'user-locale'
+    const { localeCookie: configCookie } = getI18nConfig()
+    const cookieName = configCookie ?? 'user-locale'
 
     const localeCookie = useCookie(cookieName)
     
@@ -251,7 +251,8 @@ export default defineNuxtPlugin({
 For multi-domain setups:
 
 ```ts
-import { defineNuxtPlugin, useCookie, useState, useRequestHeaders, useRuntimeConfig } from '#imports'
+import { defineNuxtPlugin, useCookie, useState, useRequestHeaders } from '#imports'
+import { getI18nConfig } from '#build/i18n.strategy.mjs'
 
 export default defineNuxtPlugin({
   name: 'i18n-domain-loader',
@@ -259,10 +260,9 @@ export default defineNuxtPlugin({
   order: -10,
 
   setup() {
-    const config = useRuntimeConfig()
-    // @ts-ignore
-    const cookieName = config.public.i18nConfig?.localeCookie || 'user-locale'
-    
+    const { localeCookie: configCookie } = getI18nConfig()
+    const cookieName = configCookie ?? 'user-locale'
+
     const localeCookie = useCookie(cookieName)
     const localeState = useState<string | null>('i18n-locale', () => null)
 
@@ -291,7 +291,8 @@ export default defineNuxtPlugin({
 If you want to respect an existing user preference (e.g., they manually switched language):
 
 ```ts
-import { defineNuxtPlugin, useCookie, useState, useRequestHeaders, useRuntimeConfig } from '#imports'
+import { defineNuxtPlugin, useCookie, useState, useRequestHeaders } from '#imports'
+import { getI18nConfig } from '#build/i18n.strategy.mjs'
 
 export default defineNuxtPlugin({
   name: 'i18n-smart-loader',
@@ -299,9 +300,8 @@ export default defineNuxtPlugin({
   order: -10,
 
   setup() {
-    const config = useRuntimeConfig()
-    // @ts-ignore
-    const cookieName = config.public.i18nConfig?.localeCookie || 'user-locale'
+    const { localeCookie: configCookie } = getI18nConfig()
+    const cookieName = configCookie ?? 'user-locale'
 
     const localeCookie = useCookie(cookieName)
     const localeState = useState<string | null>('i18n-locale', () => null)

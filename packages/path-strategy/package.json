@@ -1,0 +1,86 @@
+{
+  "name": "@i18n-micro/path-strategy",
+  "version": "1.0.0",
+  "description": "Shared strategy-based path and route name builder for Nuxt I18n Micro frontend routing.",
+  "repository": "s00d/nuxt-i18n-micro",
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    },
+    "./prefix": {
+      "types": "./dist/prefix-strategy.d.ts",
+      "import": "./dist/prefix-strategy.mjs",
+      "require": "./dist/prefix-strategy.cjs",
+      "default": "./dist/prefix-strategy.mjs"
+    },
+    "./no-prefix": {
+      "types": "./dist/no-prefix-strategy.d.ts",
+      "import": "./dist/no-prefix-strategy.mjs",
+      "require": "./dist/no-prefix-strategy.cjs",
+      "default": "./dist/no-prefix-strategy.mjs"
+    },
+    "./prefix-except-default": {
+      "types": "./dist/prefix-except-default-strategy.d.ts",
+      "import": "./dist/prefix-except-default-strategy.mjs",
+      "require": "./dist/prefix-except-default-strategy.cjs",
+      "default": "./dist/prefix-except-default-strategy.mjs"
+    },
+    "./prefix-and-default": {
+      "types": "./dist/prefix-and-default-strategy.d.ts",
+      "import": "./dist/prefix-and-default-strategy.mjs",
+      "require": "./dist/prefix-and-default-strategy.cjs",
+      "default": "./dist/prefix-and-default-strategy.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.cjs",
+      "default": "./dist/types.mjs"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "test": "jest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "nuxt",
+    "i18n",
+    "routing",
+    "paths",
+    "strategy"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "@i18n-micro/types": "workspace:*",
+    "ufo": "catalog:"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
+  }
+}
+

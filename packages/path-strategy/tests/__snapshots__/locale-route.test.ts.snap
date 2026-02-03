@@ -1,0 +1,325 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`localeRoute - no_prefix { name: "index" } returns root path / 1`] = `
+{
+  "de": {
+    "fullPath": "/",
+    "name": "localized-index-de",
+    "params": {},
+    "path": "/",
+  },
+  "en": {
+    "fullPath": "/",
+    "name": "localized-index-en",
+    "params": {},
+    "path": "/",
+  },
+}
+`;
+
+exports[`localeRoute - no_prefix object with name: returns route with localized name when router has it 1`] = `
+{
+  "fullPath": "/",
+  "hash": "",
+  "name": "localized-about-de",
+  "params": {},
+  "path": "/",
+  "query": {},
+}
+`;
+
+exports[`localeRoute - no_prefix string path: returns path as-is (no prefix) 1`] = `
+{
+  "de": {
+    "fullPath": "/about",
+    "path": "/about",
+  },
+  "en": {
+    "fullPath": "/about",
+    "path": "/about",
+  },
+}
+`;
+
+exports[`localeRoute - prefix { name: "index" } returns localized root path 1`] = `
+{
+  "fullPath": "/de",
+  "name": "localized-index-de",
+  "params": {},
+  "path": "/de",
+}
+`;
+
+exports[`localeRoute - prefix object with name: returns route with correct name 1`] = `
+{
+  "de": {
+    "fullPath": "/",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "/",
+    "query": {},
+  },
+  "en": {
+    "fullPath": "/",
+    "hash": "",
+    "name": "localized-about-en",
+    "params": {},
+    "path": "/",
+    "query": {},
+  },
+}
+`;
+
+exports[`localeRoute - prefix string path: adds locale prefix 1`] = `
+{
+  "de": {
+    "fullPath": "/de/about",
+    "path": "/de/about",
+  },
+  "en": {
+    "fullPath": "/en/about",
+    "path": "/en/about",
+  },
+}
+`;
+
+exports[`localeRoute - prefix with globalLocaleRoutes: uses custom path for locale 1`] = `
+{
+  "de": {
+    "fullPath": "/de/ueber-uns",
+    "path": "/de/ueber-uns",
+  },
+  "en": {
+    "fullPath": "/en/about-us",
+    "path": "/en/about-us",
+  },
+}
+`;
+
+exports[`localeRoute - prefix_and_default { name: "index" } returns localized root path for each locale 1`] = `
+{
+  "de": {
+    "fullPath": "/de",
+    "hash": "",
+    "name": "localized-index-de",
+    "params": {},
+    "path": "/de",
+    "query": {},
+  },
+  "en": {
+    "fullPath": "/en",
+    "hash": "",
+    "name": "localized-index-en",
+    "params": {},
+    "path": "/en",
+    "query": {},
+  },
+}
+`;
+
+exports[`localeRoute - prefix_and_default object with name: returns route with correct name 1`] = `
+{
+  "de": {
+    "fullPath": "/de",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "/de",
+    "query": {},
+  },
+  "en": {
+    "fullPath": "/en",
+    "hash": "",
+    "name": "localized-about-en",
+    "params": {},
+    "path": "/en",
+    "query": {},
+  },
+}
+`;
+
+exports[`localeRoute - prefix_and_default string path: all locales get prefix 1`] = `
+{
+  "de": {
+    "fullPath": "/de/about",
+    "path": "/de/about",
+  },
+  "en": {
+    "fullPath": "/en/about",
+    "path": "/en/about",
+  },
+}
+`;
+
+exports[`localeRoute - prefix_and_default with globalLocaleRoutes unlocalized: false returns path without locale prefix 1`] = `
+{
+  "de": {
+    "fullPath": "/unlocalized",
+    "path": "/unlocalized",
+  },
+  "en": {
+    "fullPath": "/unlocalized",
+    "path": "/unlocalized",
+  },
+}
+`;
+
+exports[`localeRoute - prefix_and_default with globalLocaleRoutes: custom path with prefix 1`] = `
+{
+  "fullPath": "/de/ueber-uns",
+  "path": "/de/ueber-uns",
+}
+`;
+
+exports[`localeRoute - prefix_except_default { name: "index" } default locale returns / (no prefix) 1`] = `
+{
+  "fullPath": "/",
+  "hash": "",
+  "name": "index",
+  "params": {},
+  "path": "/",
+  "query": {},
+}
+`;
+
+exports[`localeRoute - prefix_except_default { name: "index" } returns root path for target locale (not current page path) 1`] = `
+{
+  "fullPath": "/de",
+  "hash": "",
+  "name": "localized-index-de",
+  "params": {},
+  "path": "/de",
+  "query": {},
+}
+`;
+
+exports[`localeRoute - prefix_except_default object with name: returns route with correct name 1`] = `
+{
+  "de": {
+    "fullPath": "/de/about",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "/de/about",
+    "query": {},
+  },
+  "en": {
+    "fullPath": "/about",
+    "hash": "",
+    "name": "about",
+    "params": {},
+    "path": "/about",
+    "query": {},
+  },
+}
+`;
+
+exports[`localeRoute - prefix_except_default string path: default locale no prefix, others have prefix 1`] = `
+{
+  "de": {
+    "fullPath": "/de/about",
+    "path": "/de/about",
+  },
+  "en": {
+    "fullPath": "/about",
+    "path": "/about",
+  },
+}
+`;
+
+exports[`localeRoute - prefix_except_default with globalLocaleRoutes: custom paths per locale 1`] = `
+{
+  "de": {
+    "fullPath": "/de/ueber-uns",
+    "path": "/de/ueber-uns",
+  },
+  "en": {
+    "fullPath": "/about-us",
+    "path": "/about-us",
+  },
+}
+`;
+
+exports[`snapshots (documentation: how localeRoute works per strategy) localeRoute with globalLocaleRoutes: custom paths per locale 1`] = `
+{
+  "de": {
+    "fullPath": "/de/ueber-uns",
+    "path": "/de/ueber-uns",
+  },
+  "en": {
+    "fullPath": "/about-us",
+    "path": "/about-us",
+  },
+  "ru": {
+    "fullPath": "/ru/o-nas",
+    "path": "/ru/o-nas",
+  },
+}
+`;
+
+exports[`snapshots (documentation: how localeRoute works per strategy) localeRoute: object with name and path returns RouteLike with path/fullPath 1`] = `
+{
+  "resultDe": {
+    "fullPath": "/de/about",
+    "hash": "",
+    "name": "localized-about-de",
+    "params": {},
+    "path": "/de/about",
+    "query": {},
+  },
+  "resultEn": {
+    "fullPath": "/about",
+    "hash": "",
+    "name": "about",
+    "params": {},
+    "path": "/about",
+    "query": {},
+  },
+}
+`;
+
+exports[`snapshots (documentation: how localeRoute works per strategy) localeRoute: path /about per strategy and locale en/de 1`] = `
+{
+  "no_prefix": {
+    "de": {
+      "fullPath": "/about",
+      "path": "/about",
+    },
+    "en": {
+      "fullPath": "/about",
+      "path": "/about",
+    },
+  },
+  "prefix": {
+    "de": {
+      "fullPath": "/de/about",
+      "path": "/de/about",
+    },
+    "en": {
+      "fullPath": "/en/about",
+      "path": "/en/about",
+    },
+  },
+  "prefix_and_default": {
+    "de": {
+      "fullPath": "/de/about",
+      "path": "/de/about",
+    },
+    "en": {
+      "fullPath": "/en/about",
+      "path": "/en/about",
+    },
+  },
+  "prefix_except_default": {
+    "de": {
+      "fullPath": "/de/about",
+      "path": "/de/about",
+    },
+    "en": {
+      "fullPath": "/about",
+      "path": "/about",
+    },
+  },
+}
+`;

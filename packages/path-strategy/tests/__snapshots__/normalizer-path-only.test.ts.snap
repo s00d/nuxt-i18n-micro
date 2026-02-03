@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getPathWithoutLocale: path with query and hash path with locale prefix: pathWithoutLocale must not contain query or hash 1`] = `
+{
+  "localeFromPath": "de",
+  "pathWithoutLocale": "/news/2",
+}
+`;
+
+exports[`getPathWithoutLocale: path with query and hash path without locale prefix: pathWithoutLocale must not contain query or hash 1`] = `
+{
+  "localeFromPath": null,
+  "pathWithoutLocale": "/news/2",
+}
+`;

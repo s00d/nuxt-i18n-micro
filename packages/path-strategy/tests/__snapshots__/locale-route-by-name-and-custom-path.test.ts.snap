@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`localeRoute by route name + globalLocaleRoutes (locale-test style) no_prefix: route name "locale-test" with globalLocaleRoutes returns custom path without locale prefix 1`] = `
+{
+  "de": {
+    "fullPath": "/locale-page-modify",
+    "path": "/locale-page-modify",
+  },
+  "en": {
+    "fullPath": "/locale-test-en",
+    "path": "/locale-test-en",
+  },
+}
+`;
+
+exports[`snapshots (documentation: localeRoute by name with globalLocaleRoutes) prefix_except_default: locale-test with globalLocaleRoutes — result per locale 1`] = `
+{
+  "de": {
+    "fullPath": "/de/locale-page-modify",
+    "path": "/de/locale-page-modify",
+  },
+  "en": {
+    "fullPath": "/locale/test",
+    "hash": "",
+    "name": "locale-test",
+    "params": {},
+    "path": "/locale/test",
+    "query": {},
+  },
+  "ru": {
+    "fullPath": "/ru/locale-page-modify-ru",
+    "path": "/ru/locale-page-modify-ru",
+  },
+}
+`;

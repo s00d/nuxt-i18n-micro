@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getCanonicalPath - no_prefix with globalLocaleRoutes: returns path without locale prefix 1`] = `
+{
+  "de": "/ueber-uns",
+  "en": "/about-us",
+}
+`;
+
+exports[`getCanonicalPath - prefix no globalLocaleRoutes for route: returns null 1`] = `
+{
+  "de": null,
+  "en": null,
+}
+`;
+
+exports[`getCanonicalPath - prefix with globalLocaleRoutes: returns prefixed custom path 1`] = `
+{
+  "de": "/de/ueber-uns",
+  "en": "/en/about-us",
+}
+`;
+
+exports[`getCanonicalPath - prefix_and_default with globalLocaleRoutes: all get prefix 1`] = `
+{
+  "de": "/de/ueber-uns",
+}
+`;
+
+exports[`getCanonicalPath - prefix_except_default no globalLocaleRoutes: returns null 1`] = `
+{
+  "en": null,
+}
+`;
+
+exports[`getCanonicalPath - prefix_except_default with globalLocaleRoutes: default locale without prefix, others with prefix 1`] = `
+{
+  "de": "/de/ueber-uns",
+  "en": "/about-us",
+}
+`;
+
+exports[`snapshots (documentation: how getCanonicalPath works per strategy) getCanonicalPath with globalLocaleRoutes: result per strategy and locale 1`] = `
+{
+  "no_prefix": {
+    "de": "/ueber-uns",
+    "en": "/about-us",
+    "ru": "/o-nas",
+  },
+  "prefix": {
+    "de": "/de/ueber-uns",
+    "en": "/en/about-us",
+    "ru": "/ru/o-nas",
+  },
+  "prefix_and_default": {
+    "de": "/de/ueber-uns",
+    "en": "/en/about-us",
+    "ru": "/ru/o-nas",
+  },
+  "prefix_except_default": {
+    "de": "/de/ueber-uns",
+    "en": "/about-us",
+    "ru": "/ru/o-nas",
+  },
+}
+`;

@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`localeRoute: preserve query and hash from input no_prefix returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+{
+  "fullPath": "/news/2?a=b#tada",
+  "hash": "#tada",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input no_prefix when input has query and hash, result must include both 1`] = `
+{
+  "fullPath": "/news/2?a=b#tada",
+  "hash": "#tada",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input no_prefix when input has query, result must include query (object or fullPath with query) 1`] = `
+{
+  "fullPath": "/news/2?a=b",
+  "hash": "",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+{
+  "fullPath": "/en/news/2?a=b#tada",
+  "hash": "#tada",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/en/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix when input has query and hash, result must include both 1`] = `
+{
+  "fullPath": "/en/news/2?a=b#tada",
+  "hash": "#tada",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/en/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix when input has query, result must include query (object or fullPath with query) 1`] = `
+{
+  "fullPath": "/news/2?a=b",
+  "hash": "",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix_and_default returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+{
+  "fullPath": "/en/news/2?a=b#tada",
+  "hash": "#tada",
+  "path": "/en/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix_and_default when input has query and hash, result must include both 1`] = `
+{
+  "fullPath": "/en/news/2?a=b#tada",
+  "hash": "#tada",
+  "path": "/en/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix_and_default when input has query, result must include query (object or fullPath with query) 1`] = `
+{
+  "fullPath": "/en/news/2?a=b",
+  "hash": "",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/en/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix_except_default returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+{
+  "fullPath": "/news/2?a=b#tada",
+  "hash": "#tada",
+  "name": "news-id",
+  "params": {
+    "id": "2",
+  },
+  "path": "/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix_except_default when input has query and hash, result must include both 1`] = `
+{
+  "fullPath": "/news/2?a=b#tada",
+  "hash": "#tada",
+  "name": "news-id",
+  "params": {
+    "id": "2",
+  },
+  "path": "/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;
+
+exports[`localeRoute: preserve query and hash from input prefix_except_default when input has query, result must include query (object or fullPath with query) 1`] = `
+{
+  "fullPath": "/news/2?a=b",
+  "hash": "",
+  "name": "localized-news-id-en",
+  "params": {
+    "id": "2",
+  },
+  "path": "/news/2",
+  "query": {
+    "a": "b",
+  },
+}
+`;

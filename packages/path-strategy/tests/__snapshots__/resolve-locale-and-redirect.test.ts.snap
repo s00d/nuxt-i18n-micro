@@ -1,0 +1,464 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getLocaleFromPath returns first segment when it is a locale code 1`] = `
+{
+  "/de/ueber-uns": "de",
+  "/en/about": "en",
+  "/ru": "ru",
+}
+`;
+
+exports[`getLocaleFromPath returns null for root or path without locale prefix 1`] = `
+{
+  "/": null,
+  "/about": null,
+}
+`;
+
+exports[`getLocaleFromPath strips query and hash before parsing 1`] = `
+{
+  "withHash": "de",
+  "withQuery": "en",
+}
+`;
+
+exports[`getRedirect no circular redirect: prefix strategy 1`] = `
+{
+  "redirect1": "/en/about",
+  "redirect2": null,
+}
+`;
+
+exports[`getRedirect no circular redirect: second getRedirect on result returns null (idempotent) 1`] = `
+{
+  "redirect1": "/de/about",
+  "redirect2": null,
+}
+`;
+
+exports[`getRedirect no_prefix: no redirect when noPrefixRedirect is false 1`] = `
+{
+  "aboutEn": null,
+  "enAboutEn": null,
+}
+`;
+
+exports[`getRedirect no_prefix: strips locale prefix when noPrefixRedirect is true (default) 1`] = `
+{
+  "deUeberDe": "/ueber-uns",
+  "enAboutEn": "/about",
+  "enRootEn": "/",
+}
+`;
+
+exports[`getRedirect prefix: root redirects to /locale 1`] = `
+{
+  "aboutEn": "/en/about",
+  "deAboutDe": null,
+  "enAboutEn": null,
+  "rootDe": "/de",
+  "rootEn": "/en",
+}
+`;
+
+exports[`getRedirect prefix_and_default: root redirects to /locale 1`] = `
+{
+  "aboutDe": "/de/about",
+  "rootEn": "/en",
+}
+`;
+
+exports[`getRedirect prefix_except_default: default locale no prefix 1`] = `
+{
+  "aboutDe": "/de/about",
+  "aboutEn": null,
+  "deAboutDe": null,
+  "enAboutToEn": "/about",
+  "rootEn": null,
+}
+`;
+
+exports[`getRedirect prefix_except_default: no redirect when path matches and only query/hash differs (hash preservation) 1`] = `
+{
+  "pathOnly": null,
+  "withHash": null,
+  "withQuery": null,
+  "withQueryHash": null,
+}
+`;
+
+exports[`getSeoAttributes getSeoAttributes with baseUrl: canonical and hreflang href include baseUrl when locale has baseUrl 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "https://de.example.com/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes no routeLocales: all locales in hreflangs 1`] = `
+{
+  "canonical": "/",
+  "hreflangs": [
+    {
+      "href": "/",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+    {
+      "href": "/ru",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes no_prefix: returns canonical and hreflangs for all locales 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+    {
+      "href": "/about",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes prefix: returns canonical and hreflangs with locale prefix in href 1`] = `
+{
+  "canonical": "/en/about",
+  "hreflangs": [
+    {
+      "href": "/en/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+    {
+      "href": "/ru/about",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes prefix_and_default: returns canonical and hreflangs 1`] = `
+{
+  "canonical": "/en/about",
+  "hreflangs": [
+    {
+      "href": "/en/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+    {
+      "href": "/ru/about",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes respects routeLocales by base name 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/ru/about",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes respects routeLocales by path: only allowed locales get hreflang 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes respects routesLocaleLinks when resolving routeLocales key 1`] = `
+{
+  "canonical": "/en/products/1",
+  "hreflangs": [
+    {
+      "href": "/products/1",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/products/1",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes returns canonical and hreflangs 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+    {
+      "href": "/ru/about",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`getSeoAttributes routesLocaleLinks with multiple keys: each linked name used for routeLocales lookup 1`] = `
+{
+  "canonical": "/news/1",
+  "hreflangs": [
+    {
+      "href": "/news/1",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/news/1",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+    {
+      "href": "/ru/news/1",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`resolveLocaleFromPath no_prefix: cannot determine from path 1`] = `
+{
+  "/about": null,
+  "/en/about": null,
+}
+`;
+
+exports[`resolveLocaleFromPath prefix: first segment is locale 1`] = `
+{
+  "/": null,
+  "/about": null,
+  "/de/ueber-uns": "de",
+  "/en/about": "en",
+  "/ru": "ru",
+}
+`;
+
+exports[`resolveLocaleFromPath prefix_and_default: first segment is locale 1`] = `
+{
+  "/about": null,
+  "/en/about": "en",
+}
+`;
+
+exports[`resolveLocaleFromPath prefix_except_default: first segment or default 1`] = `
+{
+  "/": "en",
+  "/about": "en",
+  "/de/about": "de",
+  "/en/about": "en",
+}
+`;
+
+exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect, getSeoAttributes work) getRedirect: path and target locale → where to redirect (null = no redirect) 1`] = `
+[
+  {
+    "path": "/",
+    "redirect": "/en",
+    "strategy": "prefix",
+    "targetLocale": "en",
+  },
+  {
+    "path": "/",
+    "redirect": null,
+    "strategy": "prefix_except_default",
+    "targetLocale": "en",
+  },
+  {
+    "path": "/about",
+    "redirect": "/de/about",
+    "strategy": "prefix_except_default",
+    "targetLocale": "de",
+  },
+  {
+    "path": "/en/about",
+    "redirect": "/about",
+    "strategy": "prefix_except_default",
+    "targetLocale": "en",
+  },
+  {
+    "path": "/en/about",
+    "redirect": "/about",
+    "strategy": "no_prefix",
+    "targetLocale": "en",
+  },
+  {
+    "path": "/de/about",
+    "redirect": null,
+    "strategy": "prefix_except_default",
+    "targetLocale": "de",
+  },
+]
+`;
+
+exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect, getSeoAttributes work) getSeoAttributes with routeLocales: only en and de in hreflangs 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect, getSeoAttributes work) getSeoAttributes with routesLocaleLinks: products-id → products for routeLocales 1`] = `
+{
+  "canonical": "/products/1",
+  "hreflangs": [
+    {
+      "href": "/products/1",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/products/1",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect, getSeoAttributes work) getSeoAttributes: canonical and hreflangs for /about page (prefix_except_default) 1`] = `
+{
+  "canonical": "/about",
+  "hreflangs": [
+    {
+      "href": "/about",
+      "hreflang": "en",
+      "rel": "alternate",
+    },
+    {
+      "href": "/de/about",
+      "hreflang": "de",
+      "rel": "alternate",
+    },
+    {
+      "href": "/ru/about",
+      "hreflang": "ru",
+      "rel": "alternate",
+    },
+  ],
+}
+`;
+
+exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect, getSeoAttributes work) resolveLocaleFromPath: result per strategy for set of paths 1`] = `
+{
+  "no_prefix": {
+    "/": null,
+    "/about": null,
+    "/de/about": null,
+    "/de/ueber-uns": null,
+    "/en/about": null,
+  },
+  "prefix": {
+    "/": null,
+    "/about": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+  },
+  "prefix_and_default": {
+    "/": null,
+    "/about": null,
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+  },
+  "prefix_except_default": {
+    "/": "en",
+    "/about": "en",
+    "/de/about": "de",
+    "/de/ueber-uns": "de",
+    "/en/about": "en",
+  },
+}
+`;

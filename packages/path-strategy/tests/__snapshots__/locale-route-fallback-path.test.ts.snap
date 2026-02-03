@@ -1,0 +1,227 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) no_prefix activity-hiking -> path form 1`] = `
+{
+  "fullPath": "/activity/hiking",
+  "name": "localized-activity-hiking-en",
+  "params": {},
+  "path": "/activity/hiking",
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) no_prefix router does not have localized name: strategy returns object with fullPath from transformNameKeyToPath 1`] = `
+{
+  "fullPath": "/activity/skiing",
+  "name": "localized-activity-skiing-en",
+  "params": {},
+  "path": "/activity/skiing",
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) no_prefix same for de locale 1`] = `
+{
+  "fullPath": "/activity/skiing",
+  "name": "localized-activity-skiing-de",
+  "params": {},
+  "path": "/activity/skiing",
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix activity-hiking -> path form 1`] = `
+{
+  "fullPath": "/en/activity/hiking",
+  "name": "localized-activity-hiking-en",
+  "params": {},
+  "path": "/en/activity/hiking",
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix router does not have localized name: strategy returns object with fullPath from transformNameKeyToPath 1`] = `
+{
+  "fullPath": "/en/activity/skiing",
+  "name": "localized-activity-skiing-en",
+  "params": {},
+  "path": "/en/activity/skiing",
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix same for de locale 1`] = `
+{
+  "fullPath": "/de/activity/skiing",
+  "name": "localized-activity-skiing-de",
+  "params": {},
+  "path": "/de/activity/skiing",
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix_and_default activity-hiking -> path form 1`] = `
+{
+  "fullPath": "/en/activity/hiking",
+  "hash": "",
+  "name": "localized-activity-hiking-en",
+  "params": {},
+  "path": "/en/activity/hiking",
+  "query": {},
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix_and_default router does not have localized name: strategy returns object with fullPath from transformNameKeyToPath 1`] = `
+{
+  "fullPath": "/en/activity/skiing",
+  "hash": "",
+  "name": "localized-activity-skiing-en",
+  "params": {},
+  "path": "/en/activity/skiing",
+  "query": {},
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix_and_default same for de locale 1`] = `
+{
+  "fullPath": "/de/activity/skiing",
+  "hash": "",
+  "name": "localized-activity-skiing-de",
+  "params": {},
+  "path": "/de/activity/skiing",
+  "query": {},
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix_except_default activity-hiking -> path form 1`] = `
+{
+  "fullPath": "/activity/hiking",
+  "hash": "",
+  "name": "activity-hiking",
+  "params": {},
+  "path": "/activity/hiking",
+  "query": {},
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix_except_default router does not have localized name: strategy returns object with fullPath from transformNameKeyToPath 1`] = `
+{
+  "fullPath": "/activity/skiing",
+  "hash": "",
+  "name": "activity-skiing",
+  "params": {},
+  "path": "/activity/skiing",
+  "query": {},
+}
+`;
+
+exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix_except_default same for de locale 1`] = `
+{
+  "fullPath": "/de/activity/skiing",
+  "hash": "",
+  "name": "localized-activity-skiing-de",
+  "params": {},
+  "path": "/de/activity/skiing",
+  "query": {},
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted no_prefix router does not have baseName: with params strategy builds path from baseName+params (hyphen form for test-id+id) 1`] = `
+{
+  "fullPath": "/test-my-id",
+  "name": "localized-test-id-en",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/test-my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted no_prefix router has baseName and resolve(baseName, params) returns path with params: strategy returns fullPath with params 1`] = `
+{
+  "fullPath": "/test/my-id",
+  "name": "localized-test-id-en",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/test/my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted no_prefix same for de locale with params 1`] = `
+{
+  "fullPath": "/test/my-id",
+  "name": "localized-test-id-de",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/test/my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted prefix router does not have baseName: with params strategy builds path from baseName+params (hyphen form for test-id+id) 1`] = `
+{
+  "fullPath": "/en/test-my-id",
+  "name": "localized-test-id-en",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/en/test-my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted prefix router has baseName and resolve(baseName, params) returns path with params: strategy returns fullPath with params 1`] = `
+{
+  "fullPath": "/en/test/my-id",
+  "name": "localized-test-id-en",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/en/test/my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted prefix same for de locale with params 1`] = `
+{
+  "fullPath": "/de/test/my-id",
+  "name": "localized-test-id-de",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/de/test/my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted prefix_and_default router has baseName and resolve(baseName, params) returns path with params: strategy returns fullPath with params 1`] = `
+{
+  "fullPath": "/en/test/my-id",
+  "path": "/en/test/my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted prefix_and_default same for de locale with params 1`] = `
+{
+  "fullPath": "/de/test/my-id",
+  "path": "/de/test/my-id",
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted prefix_except_default router has baseName and resolve(baseName, params) returns path with params: strategy returns fullPath with params 1`] = `
+{
+  "fullPath": "/test/my-id",
+  "hash": "",
+  "name": "test-id",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/test/my-id",
+  "query": {},
+}
+`;
+
+exports[`localeRoute fallback: name with params -> fullPath with params substituted prefix_except_default same for de locale with params 1`] = `
+{
+  "fullPath": "/de/test/my-id",
+  "hash": "",
+  "name": "localized-test-id-de",
+  "params": {
+    "id": "my-id",
+  },
+  "path": "/de/test/my-id",
+  "query": {},
+}
+`;

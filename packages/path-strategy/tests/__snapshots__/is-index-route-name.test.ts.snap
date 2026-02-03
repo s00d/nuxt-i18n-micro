@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`isIndexRouteName base name (index or empty) returns false for null/undefined 1`] = `
+{
+  "null": false,
+  "undefined": false,
+}
+`;
+
+exports[`isIndexRouteName base name (index or empty) returns true for "index" 1`] = `
+{
+  "noOpts": true,
+  "withLocaleCodes": true,
+}
+`;
+
+exports[`isIndexRouteName base name (index or empty) returns true for empty string 1`] = `
+{
+  "noOpts": true,
+  "withLocaleCodes": true,
+}
+`;
+
+exports[`isIndexRouteName localized index name (localized-index-{locale}) custom prefix 1`] = `
+{
+  "i18nIndexDe": true,
+  "localizedIndexDe": false,
+}
+`;
+
+exports[`isIndexRouteName localized index name (localized-index-{locale}) returns false for localized-index-{locale} when locale not in localeCodes 1`] = `
+{
+  "fr": false,
+  "xx": false,
+}
+`;
+
+exports[`isIndexRouteName localized index name (localized-index-{locale}) returns true for localized-index-{locale} when locale in localeCodes 1`] = `
+{
+  "de": true,
+  "en": true,
+  "enUS": true,
+  "ru": true,
+}
+`;
+
+exports[`isIndexRouteName localized index name (localized-index-{locale}) with empty localeCodes: accepts any 2+ char suffix as locale 1`] = `
+{
+  "de": true,
+  "en": true,
+  "x": false,
+}
+`;
+
+exports[`isIndexRouteName non-index names (must return false) localized-index- with wrong prefix 1`] = `
+{
+  "wrongPrefix": false,
+}
+`;
+
+exports[`isIndexRouteName non-index names (must return false) names ending with -index but not index route 1`] = `
+{
+  "localizedPageIndexDe": false,
+  "pageIndex": false,
+}
+`;
+
+exports[`isIndexRouteName non-index names (must return false) other base names 1`] = `
+{
+  "about": false,
+  "localizedAboutEn": false,
+  "localizedPageDe": false,
+  "page": false,
+}
+`;
+
+exports[`snapshots (documentation: how isIndexRouteName works) isIndexRouteName: result for set of names 1`] = `
+{
+  "": true,
+  "about": false,
+  "index": true,
+  "localized-index-de": true,
+  "localized-index-en": true,
+  "localized-page-de": false,
+  "page-index": false,
+}
+`;

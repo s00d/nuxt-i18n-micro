@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getRouteBaseName (strategy method) NoPrefixPathStrategy returns base name 1`] = `"contact"`;
+
+exports[`getRouteBaseName (strategy method) PrefixExceptDefaultPathStrategy returns base name 1`] = `"about"`;
+
+exports[`getRouteBaseName (strategy method) custom localizedRouteNamePrefix in context 1`] = `"about"`;
+
+exports[`getRouteBaseName (utility) custom localizedRouteNamePrefix 1`] = `"about"`;
+
+exports[`getRouteBaseName (utility) does not strip -en when it is part of a word (product-screen) 1`] = `
+{
+  "localizedProductScreenEn": "product-screen",
+  "productScreen": "product-screen",
+}
+`;
+
+exports[`getRouteBaseName (utility) longer locale checked first: en-US before en 1`] = `
+{
+  "homeEn": "home",
+  "homeEnUS": "home",
+}
+`;
+
+exports[`getRouteBaseName (utility) name without locale suffix: returns as-is after removing prefix 1`] = `
+{
+  "about": "about",
+  "localizedAbout": "about",
+}
+`;
+
+exports[`getRouteBaseName (utility) name without prefix: strips only locale suffix 1`] = `"about"`;
+
+exports[`getRouteBaseName (utility) returns null when name is null/undefined 1`] = `
+{
+  "nameNull": null,
+  "noName": null,
+}
+`;
+
+exports[`getRouteBaseName (utility) strips localized prefix and locale suffix 1`] = `
+{
+  "localizedAboutDe": "about",
+  "localizedAboutEn": "about",
+  "localizedProductsIdRu": "products-id",
+}
+`;
+
+exports[`snapshots (documentation: how getRouteBaseName works) getRouteBaseName: result for set of route names 1`] = `
+{
+  "about": "about",
+  "localized-about-de": "about",
+  "localized-about-en": "about",
+  "localized-index-en": "index",
+  "localized-product-screen-en": "product-screen",
+  "localized-products-id-ru": "products-id",
+}
+`;

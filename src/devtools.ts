@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import type { Resolver } from '@nuxt/kit'
 import { useNuxt } from '@nuxt/kit'
 import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
-import type { ModuleOptions, ModulePrivateOptionsExtend } from '@i18n-micro/types'
+import type { ModuleOptions } from '@i18n-micro/types'
 
 export const DEVTOOLS_UI_PORT = 3030
 export const DEVTOOLS_UI_ROUTE = '/__nuxt-i18n-micro'
@@ -75,8 +75,8 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
   onDevToolsInitialized(async () => {
     extendServerRpc<ClientFunctions, ServerFunctions>('nuxt-i18n-micro', {
       async saveTranslationContent(file, content) {
-        // Convert relative path back to absolute path
-        const rootDirs = (nuxt.options.runtimeConfig.i18nConfig as ModulePrivateOptionsExtend)?.rootDirs || [nuxt.options.rootDir]
+        const { getI18nPrivateConfig } = await import('#build/i18n.config.mjs')
+        const rootDirs = getI18nPrivateConfig()?.rootDirs ?? [nuxt.options.rootDir]
         let filePath: string | null = null
 
         for (const rootDir of rootDirs) {
@@ -104,7 +104,8 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
         return Promise.resolve(options)
       },
       async getLocalesAndTranslations() {
-        const rootDirs = (nuxt.options.runtimeConfig.i18nConfig as ModulePrivateOptionsExtend)?.rootDirs || [nuxt.options.rootDir]
+        const { getI18nPrivateConfig } = await import('#build/i18n.config.mjs')
+        const rootDirs = getI18nPrivateConfig()?.rootDirs ?? [nuxt.options.rootDir]
         const filesList: Record<string, string> = {}
 
         for (const rootDir of rootDirs) {

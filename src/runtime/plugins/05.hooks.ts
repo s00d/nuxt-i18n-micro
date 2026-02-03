@@ -3,13 +3,13 @@
 // УБИРАЕМ: import { useTranslationHelper } from '@i18n-micro/core'
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
-import { defineNuxtPlugin, useRuntimeConfig, useRouter, useNuxtApp } from '#imports'
+import { defineNuxtPlugin, useRouter, useNuxtApp } from '#imports'
+import { getI18nConfig } from '#build/i18n.strategy.mjs'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const config = useRuntimeConfig()
-  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
   const router = useRouter()
   const { $getLocale, $getRouteName } = useNuxtApp()
 

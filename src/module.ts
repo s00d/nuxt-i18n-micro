@@ -13,9 +13,10 @@ import {
   useLogger,
 } from '@nuxt/kit'
 import type { HookResult } from '@nuxt/schema'
-import type { ModuleOptions, ModuleOptionsExtend, ModulePrivateOptionsExtend, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from '@i18n-micro/types'
+import type { ModuleOptions, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from '@i18n-micro/types'
 import {
   isNoPrefixStrategy,
+  withPrefixStrategy,
   defaultPlural,
 } from '@i18n-micro/core'
 import { setupDevToolsUI } from './devtools'
@@ -43,24 +44,6 @@ declare module '#app' {
 }
 
 export {}`
-}
-
-declare module '@nuxt/schema' {
-  interface ConfigSchema {
-    i18nConfig?: ModulePrivateOptionsExtend
-    publicRuntimeConfig?: {
-      i18nConfig?: ModuleOptionsExtend
-    }
-  }
-  interface NuxtConfig {
-    i18nConfig?: ModuleOptionsExtend
-  }
-  interface NuxtOptions {
-    i18nConfig?: ModuleOptionsExtend
-  }
-  interface PublicRuntimeConfig {
-    i18nConfig: ModuleOptionsExtend
-  }
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -179,8 +162,22 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    // Merge options.globalLocaleRoutes with extracted localeRoutes
-    const mergedGlobalLocaleRoutes = { ...options.globalLocaleRoutes, ...globalLocaleRoutes }
+    // Merge extracted localeRoutes with options.globalLocaleRoutes so user options (e.g. unlocalized: false) take precedence
+    const mergedGlobalLocaleRoutes = { ...globalLocaleRoutes, ...options.globalLocaleRoutes }
+    if (options.debug) {
+      logger.debug('[i18n module] mergedGlobalLocaleRoutes keys:', Object.keys(mergedGlobalLocaleRoutes))
+      logger.debug('[i18n module] mergedGlobalLocaleRoutes["unlocalized"]:', mergedGlobalLocaleRoutes['unlocalized'])
+      logger.debug('[i18n module] strategy:', options.strategy)
+    }
+
+    // Alias for path-strategy: only the selected strategy is bundled (see README packages/path-strategy)
+    const strategyEntries: Record<Strategies, string> = {
+      no_prefix: '@i18n-micro/path-strategy/no-prefix',
+      prefix: '@i18n-micro/path-strategy/prefix',
+      prefix_except_default: '@i18n-micro/path-strategy/prefix-except-default',
+      prefix_and_default: '@i18n-micro/path-strategy/prefix-and-default',
+    }
+    const selectedStrategy = strategyEntries[options.strategy!] ?? strategyEntries.prefix_except_default
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],
@@ -193,10 +190,11 @@ export default defineNuxtModule<ModuleOptions>({
       excludePatterns: options.excludePatterns,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
-      fallbackRedirectComponentPath: resolver.resolve('./runtime/components/locale-redirect.vue'),
+      // Redirect/404 logic is in server/middleware/redirect.ts; no fallback route component.
+      fallbackRedirectComponentPath: undefined,
     })
 
-    addTemplate({
+    const pluralTemplate = addTemplate({
       filename: 'i18n.plural.mjs',
       write: true,
       getContents: () => `export const plural = ${options.plural!.toString()};`,
@@ -216,10 +214,8 @@ export default defineNuxtModule<ModuleOptions>({
     }
     const apiBaseUrl = rawUrl.replace(/^\/+|\/+$|\/{2,}/, '')
 
-    nuxt.options.runtimeConfig.public.i18nConfig = {
+    const fullConfig = {
       locales: routeGenerator.locales ?? [],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       metaBaseUrl: options.metaBaseUrl ?? undefined,
       defaultLocale: defaultLocale,
       fallbackLocale: options.fallbackLocale ?? undefined,
@@ -228,31 +224,73 @@ export default defineNuxtModule<ModuleOptions>({
       strategy: options.strategy ?? 'prefix_except_default',
       dateBuild: Date.now(),
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
-      apiBaseUrl: apiBaseUrl,
-      apiBaseClientHost: apiBaseClientHost,
-      apiBaseServerHost: apiBaseServerHost,
-      isSSG: isSSG,
+      apiBaseUrl,
+      apiBaseClientHost,
+      apiBaseServerHost,
+      isSSG,
       disablePageLocales: options.disablePageLocales ?? false,
       canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
       excludePatterns: options.excludePatterns ?? [],
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      routeLocales: routeLocales,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      routeLocales,
       routeDisableMeta: routeDisableMeta,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
       missingWarn: options.missingWarn ?? true,
       experimental: {
         i18nPreviousPageFallback: options.experimental?.i18nPreviousPageFallback ?? false,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         hmr: options.experimental?.hmr ?? true,
       },
       localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
+      routesLocaleLinks: options.routesLocaleLinks ?? {},
+      noPrefixRedirect: options.noPrefixRedirect ?? false,
+      debug: options.debug ?? false,
     }
+
+    nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {}
+    ;(nuxt.options.runtimeConfig.public as Record<string, unknown>).i18nConfig = fullConfig
+
+    const fullConfigJson = JSON.stringify(fullConfig)
+    const strategyTemplate = addTemplate({
+      filename: 'i18n.strategy.mjs',
+      write: true,
+      getContents: () => `import { Strategy } from '${selectedStrategy}'
+
+const __fullConfig = ${fullConfigJson}
+
+export function getI18nConfig() { return __fullConfig }
+
+export function createI18nStrategy(router) {
+  const routerAdapter = {
+    hasRoute(name) { return router.hasRoute(name) },
+    resolve(to) {
+      const r = router.resolve(to)
+      return {
+        name: r.name != null ? String(r.name) : null,
+        path: r.path,
+        fullPath: r.fullPath,
+        params: r.params || {},
+        query: r.query || {},
+        hash: r.hash || '',
+      }
+    },
+  }
+
+  return new Strategy({
+    strategy: __fullConfig.strategy,
+    defaultLocale: __fullConfig.defaultLocale,
+    locales: __fullConfig.locales,
+    localizedRouteNamePrefix: __fullConfig.localizedRouteNamePrefix,
+    globalLocaleRoutes: __fullConfig.globalLocaleRoutes,
+    routeLocales: __fullConfig.routeLocales,
+    routesLocaleLinks: __fullConfig.routesLocaleLinks,
+    noPrefixRedirect: __fullConfig.noPrefixRedirect,
+    debug: __fullConfig.debug,
+    router: routerAdapter,
+  })
+}
+`,
+    })
+
+    // Конфигурация i18n только в #build/i18n.strategy.mjs (getI18nConfig, createI18nStrategy). runtimeConfig.public.i18nConfig не используется.
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error
     if (typeof options.customRegexMatcher !== 'undefined') {
@@ -261,22 +299,29 @@ export default defineNuxtModule<ModuleOptions>({
         throw new Error('Nuxt-18n-micro: Some locale codes does not match customRegexMatcher')
       }
     }
-    nuxt.options.runtimeConfig.i18nConfig = {
+
+    const privateConfig = {
       rootDir: nuxt.options.rootDir,
-      rootDirs: rootDirs,
+      rootDirs,
       debug: options.debug ?? false,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       fallbackLocale: options.fallbackLocale ?? undefined,
       translationDir: options.translationDir ?? 'locales',
-      customRegexMatcher: options.customRegexMatcher,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      customRegexMatcher: options.customRegexMatcher instanceof RegExp
+        ? options.customRegexMatcher.source
+        : options.customRegexMatcher,
       routesLocaleLinks: options.routesLocaleLinks ?? {},
-      apiBaseUrl: apiBaseUrl,
-      apiBaseClientHost: apiBaseClientHost,
-      apiBaseServerHost: apiBaseServerHost,
+      apiBaseUrl,
+      apiBaseClientHost,
+      apiBaseServerHost,
     }
+    const privateConfigJson = JSON.stringify(privateConfig)
+    const configTemplate = addTemplate({
+      filename: 'i18n.config.mjs',
+      write: true,
+      getContents: () => `const __privateConfig = ${privateConfigJson}
+export function getI18nPrivateConfig() { return __privateConfig }
+`,
+    })
 
     addImportsDir(resolver.resolve('./runtime/composables'))
 
@@ -322,14 +367,13 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
-    if (options.redirects) {
-      addPlugin({
-        src: resolver.resolve('./runtime/plugins/06.redirect'),
-        name: 'i18n-plugin-redirect',
-        mode: 'all',
-        order: 6,
-      })
-    }
+    // Client-only: redirect / to /locale when useState('i18n-locale') or cookie set (Nitro runs before Nuxt, so server doesn't see them).
+    addPlugin({
+      src: resolver.resolve('./runtime/plugins/06.client-redirect.client'),
+      mode: 'client',
+      name: 'i18n-plugin-client-redirect',
+      order: 10,
+    })
 
     addServerHandler({
       route: `/${apiBaseUrl}/:page/:locale/data.json`,
@@ -347,14 +391,14 @@ export default defineNuxtModule<ModuleOptions>({
       const translationsDir = join(nuxt.options.rootDir, options.translationDir || 'locales')
       const files = await globby(['**/*.json'], { cwd: translationsDir, absolute: true })
       const tpl = addTemplate({
-        filename: 'i18n-hmr-plugin.mjs',
+        filename: 'i18n.hmr.mjs',
         write: true,
         getContents: () => generateHmrPlugin(files.map(f => f.replace(/\\/g, '/'))),
       })
       addPlugin({
         src: tpl.dst,
         mode: 'client',
-        name: 'i18n-hmr-plugin',
+        name: 'i18n-hmr',
         order: 10,
       })
     }
@@ -365,6 +409,38 @@ export default defineNuxtModule<ModuleOptions>({
         getContents: () => generateI18nTypes(),
       })
     }
+
+    // Типы для #build/* и #i18n-internal/* (подключается в .nuxt/types/, nuxt.d.ts)
+    addTypeTemplate({
+      filename: 'types/i18n-internal.d.ts',
+      getContents: () => {
+        return `import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Getter, PluralFunc } from '@i18n-micro/types'
+import type { PathStrategy } from '@i18n-micro/path-strategy'
+
+declare module '#build/i18n.plural.mjs' {
+  export function plural(key: string, count: number, params: Params, locale: string, getter: Getter): string | null
+}
+
+declare module '#build/i18n.strategy.mjs' {
+  export function getI18nConfig(): ModuleOptionsExtend
+  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string } }): PathStrategy
+}
+
+declare module '#i18n-internal/config' {
+  export function getI18nPrivateConfig(): ModulePrivateOptionsExtend
+}
+
+declare module '#i18n-internal/strategy' {
+  export function getI18nConfig(): ModuleOptionsExtend
+  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string } }): PathStrategy
+}
+
+declare module '#i18n-internal/plural' {
+  export const plural: PluralFunc
+}
+`
+      },
+    })
 
     nuxt.hook('pages:resolved', (pages) => {
       const pagesNames = pages
@@ -384,7 +460,23 @@ export default defineNuxtModule<ModuleOptions>({
       routeGenerator.extendPages(pages)
     })
 
+    // Алиасы #i18n-internal/* для Vite (плагины/рантайм резолвят при сборке)
+    nuxt.hook('vite:extendConfig', (viteConfig) => {
+      const resolve = viteConfig.resolve ?? {}
+      ;(viteConfig as { resolve: typeof resolve }).resolve = resolve
+      const alias = resolve.alias || {}
+      resolve.alias = Array.isArray(alias)
+        ? [...alias, { find: '#i18n-internal/plural', replacement: pluralTemplate.dst }, { find: '#i18n-internal/strategy', replacement: strategyTemplate.dst }, { find: '#i18n-internal/config', replacement: configTemplate.dst }]
+        : { ...alias, '#i18n-internal/plural': pluralTemplate.dst, '#i18n-internal/strategy': strategyTemplate.dst, '#i18n-internal/config': configTemplate.dst }
+    })
+
     nuxt.hook('nitro:config', (nitroConfig) => {
+      // Алиасы для Nitro: префикс #i18n-internal (не #build), чтобы Nitro/Rollup не блокировали
+      nitroConfig.alias = nitroConfig.alias || {}
+      nitroConfig.alias['#i18n-internal/plural'] = pluralTemplate.dst
+      nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
+      nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
+
       // Монтируем директории переводов как серверные ассеты.
       // Это критично для поддержки serverless (Cloudflare Workers), где нет прямого доступа к FS.
       nitroConfig.serverAssets = nitroConfig.serverAssets || []
@@ -457,10 +549,10 @@ export default defineNuxtModule<ModuleOptions>({
       }
     })
 
-    // Регистрируем Nitro-плагин для инвалидирования server storage в dev
     nuxt.hook('nitro:config', (nitroConfig) => {
+      nitroConfig.plugins = nitroConfig.plugins || []
+      nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/i18n-redirect'))
       if (nuxt.options.dev && (options.experimental?.hmr ?? true)) {
-        nitroConfig.plugins = nitroConfig.plugins || []
         nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
       }
     })
@@ -500,8 +592,31 @@ export default defineNuxtModule<ModuleOptions>({
         }
       }
 
+      if (additionalRoutes.size > 0) {
+        logger.debug('[i18n prerender:routes] added localized routes:', [...additionalRoutes].sort().join(', '))
+      }
+
       for (const route of additionalRoutes) {
         routesSet.add(route)
+      }
+
+      // prefix / prefix_and_default: only locale-prefixed paths are valid. Nuxt still
+      // registers file-based routes like /contact, /about; prerendering them causes 500.
+      // Remove them from the list so the crawler doesn't request them.
+      if (withPrefixStrategy(options.strategy!)) {
+        const localeCodes = new Set(routeGenerator.locales.map(l => l.code))
+        const deleted: string[] = []
+        for (const route of routesSet) {
+          if (route === '/' || route === '') continue
+          const firstSegment = route.replace(/^\//, '').split('/')[0]
+          if (firstSegment && !localeCodes.has(firstSegment)) {
+            routesSet.delete(route)
+            deleted.push(route)
+          }
+        }
+        if (deleted.length > 0) {
+          logger.info(`[i18n prerender:routes] removed from prerender list (no locale prefix): ${deleted.join(', ')}`)
+        }
       }
     })
 

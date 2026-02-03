@@ -1,7 +1,7 @@
 import { joinURL, parseURL, withQuery } from 'ufo'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { isNoPrefixStrategy } from '@i18n-micro/core'
-import { useRoute, useRuntimeConfig, useNuxtApp } from '#imports'
+import { useRoute, useNuxtApp } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
 import { ref, unref } from 'vue'
 
@@ -57,7 +57,10 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       return
     }
 
-    const { strategy, canonicalQueryWhitelist, routeLocales, localizedRouteNamePrefix = 'localized-' } = useRuntimeConfig().public.i18nConfig as unknown as ModuleOptionsExtend
+    const i18nConfig = useNuxtApp().$getI18nConfig() as ModuleOptionsExtend
+    const { canonicalQueryWhitelist, routeLocales, localizedRouteNamePrefix } = i18nConfig
+    const strategy = i18nConfig.strategy
+    const localizedRouteNamePrefixResolved = localizedRouteNamePrefix || 'localized-'
     const { $getLocales, $getLocale, $switchLocalePath } = useNuxtApp()
 
     if (!$getLocale || !$getLocales) return
@@ -72,7 +75,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     if (!currentLocale) return
 
     // Find allowed locales for this route using the utility function
-    const currentRouteLocales = findAllowedLocalesForRoute(route, routeLocales)
+    const currentRouteLocales = findAllowedLocalesForRoute(route, routeLocales, localizedRouteNamePrefixResolved)
 
     // If there's $defineI18nRoute configuration, use only specified locales
     const locales = currentRouteLocales
@@ -97,7 +100,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     let ogUrl: string
     let canonicalPath: string
 
-    if (routeName.startsWith(localizedRouteNamePrefix) && matchedLocale) {
+    if (routeName.startsWith(localizedRouteNamePrefixResolved) && matchedLocale) {
       localizedPath = fullPath.slice(matchedLocale.code.length + 1)
       canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist ?? [])
       ogUrl = joinURL(unref(baseUrl), locale, canonicalPath)

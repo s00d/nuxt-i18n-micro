@@ -1,7 +1,7 @@
 import type { H3Event } from 'h3'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { detectCurrentLocale } from './utils/locale-detector'
-import { useRuntimeConfig } from '#imports'
+import { getI18nConfig } from '#i18n-internal/strategy'
 
 export interface LocaleInfo {
   current: string
@@ -14,8 +14,7 @@ export interface LocaleInfo {
 }
 
 export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string, currentLocale?: string): LocaleInfo => {
-  const config = useRuntimeConfig(event)
-  const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = getI18nConfig() as ModuleOptionsExtend
 
   // Determine current locale by priority
   // Pass locales to config for URL path check

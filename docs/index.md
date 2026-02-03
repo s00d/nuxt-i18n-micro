@@ -21,7 +21,7 @@ features:
   - title: 🎨 Minimalist Design
     details: 🧱 A simple structure with just 5 components, easy to extend and maintain.
   - title: 🔄 Strategy-Based Routing
-    details: 🗺️ Locale prefix strategies (no_prefix, prefix, prefix_except_default, prefix_and_default) via @i18n-micro/route-strategy extend Nuxt pages with the right localized routes at build time.
+    details: 🗺️ Locale prefix strategies (no_prefix, prefix, prefix_except_default, prefix_and_default) via @i18n-micro/route-strategy (build-time) and @i18n-micro/path-strategy (runtime) extend Nuxt pages with the right localized routes.
   - title: 📂 Streamlined Translation Loading
     details: 🔧 Supports only JSON files, with auto-generated page-specific translations.
   - title: 🌐 Seamless Nuxt Integration
@@ -84,7 +84,7 @@ These results clearly demonstrate that `Nuxt I18n Micro` significantly outperfor
 - 🌐 **Compact Yet Powerful**: Despite its small size, `Nuxt I18n Micro` is designed for **large-scale projects**, focusing on performance and efficiency.
 - ⚡ **Optimized Build and Runtime**: Reduces build times, memory usage, and server load, making it ideal for **high-traffic applications**.
 - 🛠️ **Minimalist Design**: The module is structured around just **5 components** (1 module and 4 plugins), making it easy to understand, extend, and maintain.
-- 📏 **Strategy-Based Routing**: Uses `@i18n-micro/route-strategy` to extend Nuxt pages with localized routes according to the chosen strategy (prefix, no_prefix, etc.), so each page gets the correct locale variants without manual route duplication.
+- 📏 **Strategy-Based Routing**: Uses `@i18n-micro/route-strategy` (build-time) and `@i18n-micro/path-strategy` (runtime) to extend Nuxt pages with localized routes according to the chosen strategy (prefix, no_prefix, etc.), so each page gets the correct locale variants without manual route duplication.
 - 🗂 **Streamlined Translation Loading**: Only **JSON files** are supported, with translations split between a global file for common texts (e.g., menus) and page-specific files, which are auto-generated in the `dev` mode if not present.
 
 ## ⚙️ Quick Setup

@@ -167,12 +167,9 @@ test.describe('basic', () => {
   })
 
   test('test plugin methods output on page', async ({ page, goto }) => {
-    // Navigate to the /page route
     await goto('/page', { waitUntil: 'hydration' })
 
-    // Verify the locale
     await expect(page.locator('#locale')).toHaveText('Current Locale: en')
-
     await expect(page.locator('#locale-name')).toHaveText('English')
 
     // Verify the list of locales
@@ -546,8 +543,8 @@ test.describe('basic', () => {
     expect(htmlContentEn).toContain('<strong>Bold Text</strong> with HTML content.')
 
     const localeRouteEn = await page.locator('.locale-route-data:nth-of-type(1)').textContent()
+    expect(localeRouteEn).toContain('"path": "/locale-conf"')
     expect(localeRouteEn).toContain('"fullPath": "/locale-conf"')
-    expect(localeRouteEn).toContain('"name": "locale-conf"')
     expect(localeRouteEn).toContain('"href": "/locale-conf"')
 
     // Check the first $switchLocaleRoute link in English

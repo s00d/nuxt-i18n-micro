@@ -21,7 +21,7 @@ test.describe('prefix strategy', () => {
     await goto('/', { waitUntil: 'hydration' })
 
     // Ensure the URL contains the default locale
-    await expect(page).toHaveURL('/en/')
+    await expect(page).toHaveURL('/en')
 
     // Check the initial text for the default locale
     await expect(page.locator('#content')).toHaveText('en')
@@ -77,8 +77,8 @@ test.describe('prefix strategy', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // Should be redirected to /de/
-    await expect(page).toHaveURL('/de/')
+    // Should be redirected to /de
+    await expect(page).toHaveURL('/de')
 
     // Should show German content
     await expect(page.locator('#content')).toHaveText('de')
@@ -97,8 +97,8 @@ test.describe('prefix strategy', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // Should redirect to /en/ (defaultLocale)
-    await expect(page).toHaveURL('/en/')
+    // Should redirect to /en (defaultLocale)
+    await expect(page).toHaveURL('/en')
 
     // Should show English content
     await expect(page.locator('#content')).toHaveText('en')

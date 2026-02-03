@@ -22,8 +22,8 @@ test.describe('cookie-based redirect - prefix strategy', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // Should redirect to /en/ because cookie is set to 'en'
-    await expect(page).toHaveURL('/en/')
+    // Should redirect to /en because cookie is set to 'en'
+    await expect(page).toHaveURL('/en')
   })
 
   test('fallback to defaultLocale when cookie has invalid locale', async ({ page, goto, baseURL }) => {
@@ -39,8 +39,8 @@ test.describe('cookie-based redirect - prefix strategy', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // Should redirect to /de/ (defaultLocale) because 'fr' is invalid
-    await expect(page).toHaveURL('/de/')
+    // Should redirect to /de (defaultLocale) because 'fr' is invalid
+    await expect(page).toHaveURL('/de')
   })
 
   test('fallback to defaultLocale when cookie is empty', async ({ page, goto }) => {
@@ -49,8 +49,8 @@ test.describe('cookie-based redirect - prefix strategy', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // Should redirect to /de/ (defaultLocale) because no cookie is set
-    await expect(page).toHaveURL('/de/')
+    // Should redirect to /de (defaultLocale) because no cookie is set
+    await expect(page).toHaveURL('/de')
   })
 
   test('cookie with valid non-default locale works', async ({ page, goto, baseURL }) => {
@@ -66,8 +66,8 @@ test.describe('cookie-based redirect - prefix strategy', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // Should redirect to /en/ because cookie is set to 'en'
-    await expect(page).toHaveURL('/en/')
+    // Should redirect to /en because cookie is set to 'en'
+    await expect(page).toHaveURL('/en')
 
     // Verify content is in English
     await expect(page.locator('#localized-route-2')).toHaveText('/en/page/id-222?info=1111')

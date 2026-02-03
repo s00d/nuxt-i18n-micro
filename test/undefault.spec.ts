@@ -12,6 +12,14 @@ test.use({
 })
 
 test.describe('undefault', () => {
+  test.beforeEach(({ page }) => {
+    page.on('console', (msg) => {
+      const text = msg.text()
+      if (text.includes('[path-strategy]') || text.includes('[i18n'))
+        console.log('[browser]', msg.type(), text)
+    })
+  })
+
   test('test redirection and link clicks in English', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
     // Navigate to /page2, should redirect to /en/custom-page2-en

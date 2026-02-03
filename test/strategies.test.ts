@@ -1,9 +1,13 @@
 /**
- * tests/strategies.spec.ts
+ * tests/strategies.test.ts
  * Проверка всех i18n-стратегий Nuxt без сторонних пакетов:
  *  – поиск свободного порта через net.Server
  *  – освобождение порта через lsof / netstat
  *  – глобальный fetch из Node ≥ 18
+ *
+ * Все 8 сценариев используют фикстуру test/fixtures/strategy. Чтобы при полном прогоне
+ * (pnpm test:vitest) другой тест не затирал .nuxt/.output, в vitest.config задан один воркер.
+ * Запуск только этого файла: pnpm exec vitest run test/strategies.test.ts
  */
 
 import { join } from 'node:path'
@@ -189,14 +193,19 @@ describe.each(Object.entries(ROUTES))(
       beforeAll(async () => {
         port = await getFreePort()
         await stop()
+        await delay(800) // дать ОС освободить порт после предыдущего сервера
         await rimraf(join(FIXTURES, '.nuxt'))
+        await rimraf(join(FIXTURES, '.output'))
         await runNuxt('generate', strategy)
 
         server = serve(['npx', 'serve', '.output/public', '-p', String(port)], port)
         await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
       }, 300_000)
 
-      afterAll(stop)
+      afterAll(async () => {
+        await stop()
+        await delay(500) // освобождение порта перед следующим сценарием
+      })
 
       routes.forEach(([path, text]) => {
         it(`GET ${path} → contains "${text}"`, async () => {
@@ -210,14 +219,19 @@ describe.each(Object.entries(ROUTES))(
       beforeAll(async () => {
         port = await getFreePort()
         await stop()
+        await delay(800) // дать ОС освободить порт после предыдущего сервера
         await rimraf(join(FIXTURES, '.nuxt'))
+        await rimraf(join(FIXTURES, '.output'))
         await runNuxt('build', strategy)
 
         server = serve(['node', '.output/server/index.mjs'], port)
         await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
       }, 300_000)
 
-      afterAll(stop)
+      afterAll(async () => {
+        await stop()
+        await delay(500) // освобождение порта перед следующим сценарием
+      })
 
       routes.forEach(([path, text]) => {
         it(`GET ${path} → contains "${text}"`, async () => {

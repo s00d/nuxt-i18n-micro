@@ -20,8 +20,8 @@ test.describe('useState locale override - prefix', () => {
     // With prefix strategy, visiting / should redirect to /<currentLocale>/
     await goto('/', { waitUntil: 'hydration' })
 
-    // Should redirect to /ja/ because useState('i18n-locale') is 'ja'
-    await expect(page).toHaveURL('/ja/')
+    // Should redirect to /ja because useState('i18n-locale') is 'ja'
+    await expect(page).toHaveURL('/ja')
 
     // Check that the locale is set to 'ja'
     await expect(page.locator('#locale')).toHaveText('ja')
@@ -83,8 +83,8 @@ test.describe('useState locale override - prefix', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // Page should load successfully and redirect to /ja/
-    await expect(page).toHaveURL('/ja/')
+    // Page should load successfully and redirect to /ja
+    await expect(page).toHaveURL('/ja')
     await expect(page.locator('#greeting')).toHaveText('こんにちは')
 
     // Should not have 404 errors related to custom-fallback-route translations

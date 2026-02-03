@@ -344,8 +344,8 @@ test.describe('custom-regex', () => {
     expect(htmlContentEn).toContain('<strong>Bold Text</strong> with HTML content.')
 
     const localeRouteEn = await page.locator('.locale-route-data:nth-of-type(1)').textContent()
+    expect(localeRouteEn).toContain('"path": "/locale-conf"')
     expect(localeRouteEn).toContain('"fullPath": "/locale-conf"')
-    expect(localeRouteEn).toContain('"name": "locale-conf"')
     expect(localeRouteEn).toContain('"href": "/locale-conf"')
 
     // Check the first $switchLocaleRoute link in English

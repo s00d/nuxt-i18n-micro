@@ -11,16 +11,6 @@ export function loadJsonFile<T>(relativePath: string): T {
   return JSON.parse(content) as T
 }
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/n3', import.meta.url)),
-  },
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
-  // },
-})
-
 interface RouteTranslations {
   [key: string]: {
     [key: string]: string
@@ -49,6 +39,12 @@ async function checkPageContent(page: Page, path: string) {
   const notFound = await page.locator('text=404').count()
   expect(notFound).toBe(0)
 }
+
+test.use({
+  nuxt: {
+    rootDir: fileURLToPath(new URL('./fixtures/n3', import.meta.url)),
+  },
+})
 
 test.describe('n3', () => {
   test.describe('Page tests', async () => {

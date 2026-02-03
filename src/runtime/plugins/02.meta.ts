@@ -1,17 +1,16 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { useLocaleHead } from '../composables/useLocaleHead'
-import { useRequestURL, useHead, defineNuxtPlugin, useRuntimeConfig, useRoute } from '#imports'
+import { useRequestURL, useHead, defineNuxtPlugin, useRoute } from '#imports'
 import { watch } from 'vue'
 import { isMetaDisabledForRoute } from '../utils/route-utils'
+import { getI18nConfig } from '#build/i18n.strategy.mjs'
 
 const host = process.env.HOST ?? 'localhost'
 const port = process.env.PORT ?? 'host'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig()
   const route = useRoute()
-
-  const i18nConfig: ModuleOptionsExtend = config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
 
   // Get current locale
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

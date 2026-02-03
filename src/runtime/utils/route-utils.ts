@@ -24,23 +24,39 @@ export function extractBaseRoutePattern(matchedPath: string): string {
  *
  * @param route - The route object
  * @param routeLocales - The routeLocales configuration object
+ * @param localizedRouteNamePrefix - Prefix for localized route names
+ * @param localeCodes - Optional list of locale codes; when provided, path like /es/test is also looked up as routeLocales['test']/['/test']
  * @returns Array of allowed locale codes or null if no restrictions
  */
 export function findAllowedLocalesForRoute(
   route: RouteLocationNormalizedLoaded,
   routeLocales: Record<string, string[]> | undefined,
   localizedRouteNamePrefix = 'localized-',
+  localeCodes?: string[],
 ): string[] | null {
   const routePath = route.path
   const routeName = route.name?.toString()
   const normalizedRouteName = routeName?.replace(localizedRouteNamePrefix, '')
   const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
 
-  // Try to find allowed locales for this route
+  // Try to find allowed locales for this route (module uses path without leading slash, e.g. 'test' for pages/test/)
   let allowedLocales = (routeName && routeLocales?.[routeName])
     || (normalizedRouteName && routeLocales?.[normalizedRouteName])
     || (normalizedRoutePath && routeLocales?.[normalizedRoutePath])
+    || (normalizedRoutePath && routeLocales?.[normalizedRoutePath.replace(/^\//, '')])
     || routeLocales?.[routePath]
+    || (routePath && routeLocales?.[routePath.replace(/^\//, '')])
+
+  // Path-based lookup when path has locale prefix (e.g. /es/test) and route might not be matched yet (SSR/direct request)
+  if (!allowedLocales && routeLocales && localeCodes?.length) {
+    const segments = routePath.split('/').filter(Boolean)
+    const first = segments[0]
+    if (first && localeCodes.includes(first) && segments.length > 1) {
+      const pathWithoutLocale = '/' + segments.slice(1).join('/')
+      const pathKey = pathWithoutLocale === '/' ? '/' : pathWithoutLocale.replace(/^\//, '')
+      allowedLocales = routeLocales[pathWithoutLocale] ?? routeLocales[pathKey] ?? undefined
+    }
+  }
 
   // For dynamic routes, try to match against route patterns using route.matched
   if (!allowedLocales && route.matched && route.matched.length > 0) {

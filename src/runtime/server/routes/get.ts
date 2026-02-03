@@ -2,7 +2,11 @@ import { defineEventHandler, setResponseHeader } from 'h3'
 import type { Translations, ModuleOptionsExtend, ModulePrivateOptionsExtend } from '@i18n-micro/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - #imports are available in Nitro
-import { useRuntimeConfig, createError, useStorage } from '#imports'
+import { createError, useStorage } from '#imports'
+// eslint-disable-next-line import/no-duplicates
+import { getI18nConfig } from '#i18n-internal/strategy'
+// eslint-disable-next-line import/no-duplicates
+import { getI18nPrivateConfig } from '#i18n-internal/config'
 
 function deepMerge(target: Translations, source: Translations): Translations {
   const output = { ...target }
@@ -27,10 +31,8 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'Content-Type', 'application/json')
 
   const { page, locale } = event.context.params as { page: string, locale: string }
-  const config = useRuntimeConfig()
-
-  const privateConfig = config.i18nConfig as ModulePrivateOptionsExtend
-  const publicConfig = config.public.i18nConfig as unknown as ModuleOptionsExtend
+  const privateConfig = getI18nPrivateConfig() as ModulePrivateOptionsExtend
+  const publicConfig = getI18nConfig() as ModuleOptionsExtend
 
   const { debug, rootDirs, routesLocaleLinks } = privateConfig
   const { locales, dateBuild, fallbackLocale } = publicConfig
@@ -54,8 +56,6 @@ export default defineEventHandler(async (event) => {
   const storedBuildId = await cacheStorage.getItem(META_VERSION_KEY)
 
   if (storedBuildId !== currentBuildId) {
-    if (debug) console.log(`[i18n] New build detected (${currentBuildId}). Clearing old cache...`)
-
     try {
       // Only clear if there was a previous version (not first run)
       // On first run (storedBuildId is null/undefined), cache is already empty, so clear() is unnecessary
@@ -156,9 +156,6 @@ export default defineEventHandler(async (event) => {
   // 8. Write to cache
   try {
     await cacheStorage.setItem(cacheKey, finalTranslations)
-    if (debug) {
-      console.log(`[i18n] Generated & Cached: ${cacheKey}`)
-    }
   }
   catch (e: unknown) {
     // Ignore ENOENT errors (directory doesn't exist) - cache write is optional

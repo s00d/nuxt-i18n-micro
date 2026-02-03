@@ -14,6 +14,7 @@ export default defineNuxtConfig({
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   i18n: {
+    debug: true,
     locales: [
       { code: 'en', iso: 'en_EN', displayName: 'English' },
       { code: 'de', iso: 'de_DE', displayName: 'German' },

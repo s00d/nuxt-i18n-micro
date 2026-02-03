@@ -7,6 +7,14 @@ test.use({
   },
 })
 test.describe('locale-slug', () => {
+  test.beforeEach(({ page }) => {
+    page.on('console', (msg) => {
+      const text = msg.text()
+      if (text.includes('[path-strategy]') || text.includes('[i18n'))
+        console.log('[browser]', msg.type(), text)
+    })
+  })
+
   test('Test Locale Path', async ({ page, goto }) => {
     // Test main activity page
     await goto('/activity', { waitUntil: 'hydration' })

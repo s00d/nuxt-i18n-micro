@@ -9,11 +9,11 @@ test.use({
 
 test.describe('named-params', () => {
   test('test navigation links and buttons', async ({ page, goto }) => {
-    // Go to the main page - should redirect to /de/ (defaultLocale)
+    // Go to the main page - should redirect to /de (defaultLocale)
     await goto('/', { waitUntil: 'hydration' })
 
-    // Verify redirect to /de/
-    await expect(page).toHaveURL('/de/')
+    // Verify redirect to /de
+    await expect(page).toHaveURL('/de')
 
     await expect(page.locator('#localized-route-2')).toHaveText('/de/page/id-222?info=1111')
     await expect(page.locator('#localized-path')).toHaveText('/de/page/id-222?info=1111')

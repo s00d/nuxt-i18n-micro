@@ -11,7 +11,7 @@
 
   <NuxtLink
     v-else
-    :to="$localeRoute(to)"
+    :to="$localePath(to)"
     :style="computedStyle"
   >
     <slot />
@@ -25,7 +25,7 @@ import { computed } from 'vue'
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-const { $localeRoute } = useNuxtApp()
+const { $localePath } = useNuxtApp()
 
 interface Props {
   to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string
@@ -56,15 +56,8 @@ const isActive = computed(() => {
   if (isExternalLink.value) {
     return false
   }
-  // If `to` is a string, compare it directly to the route path
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const newPath = $localeRoute(props.to)
-  if (typeof newPath === 'string') {
-    return route.path === useRouter().resolve(newPath).path
-  }
-
-  return route.path === newPath.path
+  const pathStr = $localePath(props.to)
+  return route.path === useRouter().resolve(pathStr).path
 })
 
 const computedStyle = computed((): Partial<CSSStyleValue> => {

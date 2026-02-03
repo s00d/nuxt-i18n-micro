@@ -4,7 +4,7 @@
 
 Nuxt I18n Micro manages how locale prefixes appear in URLs through the `strategy` option. This gives you control over how localization is applied to routes: whether the default locale has a prefix, whether all locales use a prefix, or whether no prefix is used at all.
 
-The `strategy` option is implemented by the `@i18n-micro/route-strategy` package: the Nuxt module passes it into `RouteGenerator`, which extends your Nuxt pages with the appropriate localized routes at build time.
+The `strategy` option is implemented by two packages: **@i18n-micro/route-strategy** (build-time route generation) and **@i18n-micro/path-strategy** (runtime path and redirect logic). The Nuxt module passes the strategy into `RouteGenerator`, which extends your Nuxt pages with the appropriate localized routes at build time.
 
 ## 🚦 `strategy`
 
@@ -113,12 +113,12 @@ When using prefix-based strategies with `redirects: true`, visiting `/` triggers
 
 ### Server-Side Redirect (No Error Flash)
 
-For the `prefix` strategy, redirects are handled at the server middleware level when a locale cookie is present. This prevents the "error flash" issue where users briefly see an error page before being redirected.
+For the `prefix` strategy, redirects are handled by a **Nitro plugin** (`i18n-redirect`) when a locale cookie is present. This prevents the "error flash" issue where users briefly see an error page before being redirected.
 
 **How it works:**
-1. When a request comes to `/` with a valid locale cookie, server middleware immediately returns a 302 redirect
+1. When a request comes to `/` with a valid locale cookie, the Nitro plugin immediately returns a 302 redirect before Nuxt renders
 2. No page rendering occurs, so there's no error flash
-3. If no cookie is present, the redirect is handled by the plugin/component (which sets the cookie for future requests)
+3. If no cookie is present (e.g. first visit), the **client plugin** (`06.client-redirect.client.ts`) runs after hydration and redirects based on `useState('i18n-locale')` or cookie set by your custom plugins
 
 | Strategy | Redirect from `/` |
 |----------|-------------------|

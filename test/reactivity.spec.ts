@@ -8,6 +8,10 @@ test.use({
 })
 
 test.describe('Critical i18n scenarios', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.context().clearCookies()
+  })
+
   test('reactivity: computed translations update immediately after locale switch', async ({ page, goto }) => {
     await goto('/page', { waitUntil: 'hydration' })
 
@@ -26,10 +30,11 @@ test.describe('Critical i18n scenarios', () => {
     // 4. Проверяем, что URL изменился
     await expect(page).toHaveURL('/de/page')
 
-    // 5. Переключаем обратно на английский
+    // 5. Переходим на /page (дефолтный маршрут) — при localeCookie: null остаёмся на локали юзера (localeState)
     await page.click('#link-en')
-    await expect(page.locator('#locale-name')).toHaveText('English')
-    await expect(page.locator('#translation')).toHaveText('Page example in en')
+    await expect(page).toHaveURL('/page')
+    await expect(page.locator('#locale-name')).toHaveText('German')
+    await expect(page.locator('#translation')).toHaveText('Page example in de')
   })
 
   test('routing: preserves query params and hash when switching locale', async ({ page, goto }) => {

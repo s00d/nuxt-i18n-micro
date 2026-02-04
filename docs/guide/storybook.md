@@ -93,17 +93,17 @@ const mergeTranslations = () => {
   }
 
   locales.forEach((lang) => {
-    // 1. Собираем все страничные переводы
+    // 1. Collect all page translations
     let merged = collectAllTranslations(path.join(localesDir, 'pages'), lang)
 
-    // 2. Добавляем общие переводы с приоритетом
+    // 2. Add general translations with priority
     const generalFilePath = path.join(localesDir, `${lang}.json`)
     if (fs.existsSync(generalFilePath)) {
       const generalContent = JSON.parse(fs.readFileSync(generalFilePath, 'utf-8'))
       merged = mergeAllTranslations(merged, generalContent)
     }
 
-    // 3. Сохраняем результат
+    // 3. Save result
     const outputPath = path.join(outputDir, `${lang}/data.json`)
     fs.mkdirSync(path.dirname(outputPath), { recursive: true })
     fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2))

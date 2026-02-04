@@ -83,6 +83,7 @@ export default defineConfig({
         items: [
           { text: 'useI18n', link: '/composables/useI18n' },
           { text: 'useLocaleHead', link: '/composables/useLocaleHead' },
+          { text: 'useI18nLocale', link: '/composables/useI18nLocale' },
         ],
       },
       {
@@ -183,6 +184,7 @@ export default defineConfig({
           items: [
             { text: 'useI18n', link: '/useI18n' },
             { text: 'useLocaleHead', link: '/useLocaleHead' },
+            { text: 'useI18nLocale', link: '/useI18nLocale' },
           ],
         },
       ],

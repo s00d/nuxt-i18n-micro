@@ -108,7 +108,12 @@ export default defineEventHandler(async (event) => {
 
   const prerenderHeader = getHeader(event, 'x-nitro-prerender')
   const userAgent = getHeader(event, 'user-agent') || ''
-  const skipRedirect = !!(prerenderHeader || userAgent.includes('Nitro') || !userAgent)
+  // For / with prefix strategy: always redirect to default locale (even during prerender)
+  // so index.html is generated as redirect for static hosting
+  const isRootPath = path === '/' || path === ''
+  const skipRedirect = isRootPath && (strategy === 'prefix' || strategy === 'prefix_and_default')
+    ? false
+    : !!(prerenderHeader || userAgent.includes('Nitro') || !userAgent)
 
   const pathSegments = path.split('/').filter(Boolean)
   const firstSegment = pathSegments[0]

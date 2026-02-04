@@ -12,7 +12,7 @@ import {
   defineNuxtModule,
   useLogger,
 } from '@nuxt/kit'
-import type { HookResult } from '@nuxt/schema'
+import type { HookResult, NuxtPage } from '@nuxt/schema'
 import type { ModuleOptions, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from '@i18n-micro/types'
 import {
   isNoPrefixStrategy,
@@ -220,6 +220,7 @@ export default defineNuxtModule<ModuleOptions>({
       defaultLocale: defaultLocale,
       fallbackLocale: options.fallbackLocale ?? undefined,
       localeCookie: options.localeCookie ?? null,
+      autoDetectLanguage: options.autoDetectLanguage ?? true,
       autoDetectPath: options.autoDetectPath ?? '/',
       strategy: options.strategy ?? 'prefix_except_default',
       dateBuild: Date.now(),
@@ -243,6 +244,9 @@ export default defineNuxtModule<ModuleOptions>({
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       noPrefixRedirect: options.noPrefixRedirect ?? false,
       debug: options.debug ?? false,
+      customRegexMatcher: options.customRegexMatcher instanceof RegExp
+        ? options.customRegexMatcher.source
+        : options.customRegexMatcher,
     }
 
     nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {}
@@ -358,15 +362,6 @@ export function getI18nPrivateConfig() { return __privateConfig }
       })
     }
 
-    if (options.autoDetectLanguage) {
-      addPlugin({
-        src: resolver.resolve('./runtime/plugins/04.auto-detect'),
-        mode: 'server',
-        name: 'i18n-plugin-auto-detect',
-        order: -15, // Execute BEFORE 01.plugin.ts (order: -5) to set locale via useState
-      })
-    }
-
     // Client-only: redirect / to /locale when useState('i18n-locale') or cookie set (Nitro runs before Nuxt, so server doesn't see them).
     addPlugin({
       src: resolver.resolve('./runtime/plugins/06.client-redirect.client'),
@@ -377,7 +372,7 @@ export function getI18nPrivateConfig() { return __privateConfig }
 
     addServerHandler({
       route: `/${apiBaseUrl}/:page/:locale/data.json`,
-      handler: resolver.resolve('./runtime/server/routes/get'),
+      handler: resolver.resolve('./runtime/server/routes/i18n'),
     })
 
     addComponentsDir({
@@ -407,6 +402,22 @@ export function getI18nPrivateConfig() { return __privateConfig }
       addTypeTemplate({
         filename: 'types/i18n-plugin.d.ts',
         getContents: () => generateI18nTypes(),
+      })
+      addTypeTemplate({
+        filename: 'types/h3.d.ts',
+        getContents: () => `import type { Translations } from '@i18n-micro/types'
+
+declare module 'h3' {
+  interface H3EventContext {
+    i18n?: {
+      locale: string
+      translations: Translations
+    }
+  }
+}
+
+export {}
+`,
       })
     }
 
@@ -442,6 +453,14 @@ declare module '#i18n-internal/plural' {
       },
     })
 
+    const addDataRoutes = (pages: NuxtPage[] = []) => {
+      const pagesForDataRoutes = pages.filter(
+        p => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]),
+      )
+      const dataRoutes = routeGenerator.generateDataRoutes(pagesForDataRoutes, apiBaseUrl, !!options.disablePageLocales)
+      addPrerenderRoutes(dataRoutes)
+    }
+
     nuxt.hook('pages:resolved', (pages) => {
       const pagesNames = pages
         .map(page => page.name)
@@ -451,14 +470,14 @@ declare module '#i18n-internal/plural' {
         routeGenerator.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir, options.disablePageLocales)
       }
 
-      const pagesForDataRoutes = pages.filter(
-        p => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]),
-      )
-      const dataRoutes = routeGenerator.generateDataRoutes(pagesForDataRoutes, apiBaseUrl, !!options.disablePageLocales)
-      addPrerenderRoutes(dataRoutes)
-
+      addDataRoutes(pages)
       routeGenerator.extendPages(pages)
     })
+
+    // When pages: false, pages:resolved may not run — ensure general data routes are added
+    if (options.disablePageLocales) {
+      nuxt.hook('build:before', () => addDataRoutes([] as NuxtPage[]))
+    }
 
     // Алиасы #i18n-internal/* для Vite (плагины/рантайм резолвят при сборке)
     nuxt.hook('vite:extendConfig', (viteConfig) => {
@@ -494,11 +513,11 @@ declare module '#i18n-internal/plural' {
       if (nitroConfig.imports) {
         nitroConfig.imports.presets = nitroConfig.imports.presets || []
         nitroConfig.imports.presets.push({
-          from: resolver.resolve('./runtime/translation-server-middleware'),
+          from: resolver.resolve('./runtime/server/utils/translation-server-middleware'),
           imports: ['useTranslationServerMiddleware'],
         })
         nitroConfig.imports.presets.push({
-          from: resolver.resolve('./runtime/locale-server-middleware'),
+          from: resolver.resolve('./runtime/server/utils/locale-server-middleware'),
           imports: ['useLocaleServerMiddleware'],
         })
       }
@@ -551,10 +570,14 @@ declare module '#i18n-internal/plural' {
 
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.plugins = nitroConfig.plugins || []
-      nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/i18n-redirect'))
       if (nuxt.options.dev && (options.experimental?.hmr ?? true)) {
         nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
       }
+      nitroConfig.handlers = nitroConfig.handlers || []
+      nitroConfig.handlers.unshift({
+        middleware: true,
+        handler: resolver.resolve('./runtime/server/middleware/i18n.global'),
+      })
     })
 
     nuxt.hook('prerender:routes', async (prerenderRoutes) => {

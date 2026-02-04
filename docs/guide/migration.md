@@ -123,7 +123,7 @@ If you're upgrading from Nuxt I18n Micro v2.x to v3.0.0, consider the following 
 
 ### Removed: `fallbackRedirectComponentPath`
 
-The `fallbackRedirectComponentPath` option and the `locale-redirect.vue` fallback component have been removed. Redirect logic is now fully handled by a Nitro plugin (server-side) and a client plugin (client-side).
+The `fallbackRedirectComponentPath` option and the `locale-redirect.vue` fallback component have been removed. Redirect logic is now fully handled by server middleware (`i18n.global.ts`) and a client plugin (client-side).
 
 **Action:** Remove `fallbackRedirectComponentPath` from your `nuxt.config.ts` if you had it configured:
 
@@ -158,7 +158,7 @@ See [Custom Language Detection](/guide/custom-auto-detect) for full examples.
 
 ### Redirect Architecture
 
-Redirects now use a Nitro plugin (server) and a client-only plugin. No code changes are required for standard setups. If you relied on the fallback component for custom redirect logic, implement that logic in a custom plugin with `order: -10` and `useState('i18n-locale')` instead.
+Redirects now use server middleware (`i18n.global.ts`) and a client-only plugin. No code changes are required for standard setups. If you relied on the fallback component for custom redirect logic, implement that logic in a custom plugin with `order: -10` and `useI18nLocale().setLocale()` instead.
 
 ---
 

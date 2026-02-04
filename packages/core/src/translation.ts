@@ -102,23 +102,16 @@ export function useTranslationHelper(caches?: TranslationCache) {
       const cacheKey = `${locale}:${routeName}`
       setValue(serverTranslationCache, cacheKey, cache)
     },
-    mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false) {
+    mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force = false) {
       const cacheKey = `${locale}:${routeName}`
       const currentCache = getValueByKey(routeLocaleCache, cacheKey)
 
-      if (currentCache || force) {
-        const existing = currentCache ?? {}
-        setValue(routeLocaleCache, cacheKey, {
-          ...existing,
-          ...newTranslations,
-        })
-      }
-
-      const isDev = process.env.NODE_ENV !== 'production'
-      if (!currentCache && isDev) {
-        // Если кэша нет, выводим предупреждение в dev-режиме и ничего не делаем.
-        console.warn(`[i18n] mergeTranslation called for '${cacheKey}' which was not pre-loaded. Skipping merge. Use force: true if this is intentional.`)
-      }
+      // Всегда создаем объект, если его нет. defineI18nRoute может сработать до загрузки (HMR, порядок хуков).
+      const existing = currentCache ?? {}
+      setValue(routeLocaleCache, cacheKey, {
+        ...existing,
+        ...newTranslations,
+      })
     },
     mergeGlobalTranslation(locale: string, newTranslations: Translations, force = false) {
       const currentCache = getValueByKey(generalLocaleCache, locale)

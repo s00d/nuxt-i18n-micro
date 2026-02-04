@@ -8,11 +8,13 @@ import type {
 import { useTranslationHelper, interpolate, isNoPrefixStrategy, RouteService, FormatService, type TranslationCache } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from '@i18n-micro/types'
 import type { PathStrategy, RouteLike, ResolvedRouteLike } from '@i18n-micro/path-strategy'
-import { useRouter, useCookie, navigateTo, defineNuxtPlugin, useRuntimeConfig, createError } from '#imports'
+import { useRouter, navigateTo, defineNuxtPlugin, createError, useRuntimeConfig } from '#imports'
 import { unref } from 'vue'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
 import { getI18nConfig, createI18nStrategy } from '#build/i18n.strategy.mjs'
+import { loadTranslations } from '../utils/translation-loader'
+import { useI18nLocale } from '../composables/useI18nLocale'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -20,9 +22,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
   const i18nStrategy = createI18nStrategy(router)
   const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
-  const apiBaseUrl = i18nConfig.apiBaseUrl ?? '_locales'
-  const apiBaseHost = import.meta.client ? i18nConfig.apiBaseClientHost : i18nConfig.apiBaseServerHost
-  const runtimeConfig = useRuntimeConfig()
 
   // 1. Create request-scoped caches via useState
   const generalLocaleCache = useState<Record<string, Translations>>('i18n-general-cache', () => ({}))
@@ -40,56 +39,30 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // 2. Create helper instance with request-scoped caches
   const i18nHelper = useTranslationHelper(translationCaches)
 
-  let hashLocaleDefault: null | string | undefined = null
-  let noPrefixDefault: null | string | undefined = null
-  let cookieLocaleDefault: null | string | undefined = null
+  const {
+    locale: localeState,
+    setLocale,
+    getLocale,
+    getLocaleWithServerFallback,
+    getEffectiveLocale,
+    resolveInitialLocale,
+    isValidLocale,
+  } = useI18nLocale()
 
-  let cookieLocaleName: string | null = null
-  // Only use cookie if localeCookie is not disabled (null) and not in hashMode
-  if (!i18nConfig.hashMode && i18nConfig.localeCookie !== null) {
-    cookieLocaleName = i18nConfig.localeCookie || 'user-locale'
-  }
-
-  // Valid locale codes for validation
-  const validLocales = i18nConfig.locales?.map(l => l.code) || []
-
-  // Helper to validate locale value
-  const isValidLocale = (locale: string | null | undefined): locale is string => {
-    return !!locale && validLocales.includes(locale)
-  }
-
-  // State for programmatic locale setting (used by custom plugins that set locale before i18n init)
-  // Works with all strategies: no_prefix, prefix, prefix_except_default, prefix_and_default, hashMode
-  const localeState = useState<string | null>('i18n-locale', () => null)
+  let hashLocaleDefault: string | null | undefined = null
+  let noPrefixDefault: string | null | undefined = null
 
   if (i18nConfig.hashMode) {
-    const hashCookie = await nuxtApp.runWithContext(() => useCookie('hash-locale').value)
-    const userCookieName = i18nConfig.localeCookie !== null ? (i18nConfig.localeCookie || 'user-locale') : null
-    const userCookie = userCookieName
-      ? await nuxtApp.runWithContext(() => useCookie(userCookieName).value)
-      : undefined
-    const preferredLocale = localeState.value || hashCookie || userCookie
-    // Validate locale - fallback to null if invalid
+    const preferredLocale = await nuxtApp.runWithContext(() => getLocale())
     hashLocaleDefault = isValidLocale(preferredLocale) ? preferredLocale : null
   }
   else if (isNoPrefixStrategy(i18nConfig.strategy!)) {
-    if (cookieLocaleName) {
-      const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
-      const preferredLocale = localeState.value || cookieValue
-      // Validate locale - fallback to defaultLocale if invalid
-      noPrefixDefault = isValidLocale(preferredLocale) ? preferredLocale : i18nConfig.defaultLocale
-    }
+    const serverLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+    const preferredLocale = await nuxtApp.runWithContext(() => getLocaleWithServerFallback(serverLocale))
+    noPrefixDefault = isValidLocale(preferredLocale) ? preferredLocale : i18nConfig.defaultLocale
   }
-  else {
-    // For prefix strategies (prefix, prefix_except_default, prefix_and_default)
-    // localeState can be used to override locale detection from URL
-    if (cookieLocaleName) {
-      const cookieValue = await nuxtApp.runWithContext(() => useCookie(cookieLocaleName).value)
-      const preferredLocale = localeState.value || cookieValue
-      // Validate locale - fallback to null if invalid (URL will be used)
-      cookieLocaleDefault = isValidLocale(preferredLocale) ? preferredLocale : null
-    }
-  }
+  const getDefaultLocale = (): string | null | undefined =>
+    getLocale() ?? null
 
   const routeService = new RouteService(
     i18nConfig,
@@ -97,13 +70,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     hashLocaleDefault,
     noPrefixDefault,
     (to, options) => navigateTo(to, options),
-    (name, value) => {
-      nuxtApp.runWithContext(() => {
-        return useCookie(name).value = value
-      })
-    },
-    cookieLocaleDefault,
-    cookieLocaleName,
+    getDefaultLocale,
   )
   const translationService = new FormatService()
 
@@ -118,53 +85,28 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
-      // Don't reset i18nRouteParams immediately - let it persist until new values are set
-      // This ensures that locale switcher links remain correct during navigation
-      // The params will be set by $setI18nRouteParams on the new page
-      // Only reset if we're actually navigating away (not just client-side hydration)
       previousPageInfo.value = null
     }
   })
 
-  // unified loader: page + global merged on server
-  async function loadPageAndGlobalTranslations(to: RouteLocationResolvedGeneric) {
-    // localeState has priority over all other locale detection methods
-    // This allows custom plugins to set locale programmatically before i18n init
-    const locale = localeState.value || routeService.getCurrentLocale(to)
-
-    const routeName = routeService.getPluginRouteName(to, locale)
-
-    // Guard: skip loading for routes without a valid name (e.g., 404/unmatched)
-    // Also skip if there are no matched records to avoid unnecessary fetches on error pages
-    // This prevents infinite waiting on pages like /de/unlocalized where route is intentionally absent
-    // and should return 404 without triggering translation loading.
-    // Also skip for custom-fallback-route (the redirect component for prefix strategy)
-    if (!routeName || routeName === 'custom-fallback-route') {
-      return
-    }
-
-    if (i18nHelper.hasPageTranslation(locale, routeName)) return
-
-    let url = `/${apiBaseUrl}/${routeName}/${locale}/data.json`.replace(/\/{2,}/g, '/')
-    if (apiBaseHost) {
-      url = `${apiBaseHost}${url}`
-    }
-    try {
-      const data: Translations = await $fetch(url, {
-        baseURL: runtimeConfig.app.baseURL,
-        params: { v: i18nConfig.dateBuild },
-      })
-      await i18nHelper.loadPageTranslations(locale, routeName, data ?? {})
-    }
-    catch (e) {
-      if (isDev) {
-        console.error(`[i18n] Failed to load translations for ${routeName}/${locale}`, e)
-      }
-      throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
-    }
+  const getRouteName = (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
+    const selectedLocale = locale ?? routeService.getCurrentLocale()
+    const selectedRoute = route ?? routeService.getCurrentRoute()
+    return routeService.getRouteName(selectedRoute as RouteLocationResolvedGeneric, selectedLocale)
   }
 
-  // remove old global loader (merged on server)
+  const runtimeConfig = useRuntimeConfig()
+
+  const doLoadTranslations = async (
+    locale: string,
+    route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+  ) => {
+    const routeName = routeService.getPluginRouteName(route as RouteLocationResolvedGeneric, locale)
+    await loadTranslations(locale, routeName, i18nHelper, {
+      i18nConfig,
+      runtimeConfig,
+    })
+  }
 
   // --- 3. Blocking navigation hook ---
   router.beforeEach(async (to, from, next) => {
@@ -183,39 +125,50 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
 
     try {
-      await loadPageAndGlobalTranslations(to as RouteLocationResolvedGeneric)
+      const targetLocale = getEffectiveLocale(to, r => routeService.getCurrentLocale(r as RouteLocationResolvedGeneric))
+      await doLoadTranslations(targetLocale, to as RouteLocationResolvedGeneric)
+      if (targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
+        setLocale(targetLocale)
+      }
     }
     catch (e) {
-      console.error('[i18n] Error loading translations:', e)
+      if (isDev) console.error('[i18n] Error loading translations:', e)
     }
 
     if (next) next()
   })
 
-  // 4. Load translations for the very first (initial) page
-  await loadPageAndGlobalTranslations(router.currentRoute.value as RouteLocationResolvedGeneric)
+  // 4. Initial load (first render)
+  const serverLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+  const initialLocale = resolveInitialLocale({
+    route: router.currentRoute.value,
+    serverLocale,
+    getLocaleFromRoute: r => routeService.getCurrentLocale(r as RouteLocationResolvedGeneric),
+  })
+
+  try {
+    await doLoadTranslations(initialLocale, router.currentRoute.value as RouteLocationResolvedGeneric)
+  }
+  catch (e) {
+    if (isDev) console.error('[i18n] Initial load error:', e)
+    throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
+  }
 
   // 6. Build `provideData` (code unchanged)
   const provideData = {
     i18n: undefined,
     __micro: true,
     i18nStrategy,
-    getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => {
-      if (i18nConfig.hashMode && localeState.value != null) return localeState.value
-      return routeService.getCurrentLocale(route)
-    },
+    getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
+      getEffectiveLocale(route, r => routeService.getCurrentLocale(r as RouteLocationResolvedGeneric)),
     getLocaleName: () => routeService.getCurrentName(routeService.getCurrentRoute()),
     defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
-    getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => {
-      const selectedLocale = locale ?? routeService.getCurrentLocale()
-      const selectedRoute = route ?? routeService.getCurrentRoute()
-      return routeService.getRouteName(selectedRoute as RouteLocationResolvedGeneric, selectedLocale)
-    },
+    getRouteName,
     t: (key: string, params?: Params, defaultValue?: string | null, route?: RouteLocationNormalizedLoaded): CleanTranslation => {
       if (!key) return ''
       route = route ?? routeService.getCurrentRoute()
-      const locale = routeService.getCurrentLocale()
+      const locale = routeService.getCurrentLocale(route as RouteLocationResolvedGeneric)
       const routeName = routeService.getPluginRouteName(route as RouteLocationResolvedGeneric, locale)
       let value = i18nHelper.getTranslation(locale, routeName, key)
 
@@ -315,9 +268,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
       return ''
     },
-    switchLocale: (toLocale: string) => {
-      if (i18nConfig.hashMode) localeState.value = toLocale
-      return routeService.switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+    switchLocale: async (toLocale: string) => {
+      // For no_prefix/hash: set state and load translations first — navigation to same path
+      // may not trigger router.beforeEach, so translations would never load
+      if (isValidLocale(toLocale)) {
+        setLocale(toLocale)
+        if (isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode) {
+          const route = routeService.getCurrentRoute()
+          await doLoadTranslations(toLocale, route as RouteLocationResolvedGeneric)
+        }
+      }
+      const result = await routeService.switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
+      return result
     },
     switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
       return routeService.switchLocaleLogic(toLocale ?? routeService.getCurrentLocale(), unref(i18nRouteParams.value), route as RouteLocationResolvedGeneric)

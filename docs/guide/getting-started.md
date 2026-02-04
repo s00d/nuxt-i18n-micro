@@ -333,12 +333,12 @@ routesLocaleLinks: {
 
 #### `customRegexMatcher`
 
-Improves performance for applications with many locales.
+Improves performance for applications with many locales. The pattern matches the **entire** first path segment (anchors `^` and `$` are applied automatically).
 
 **Type**: `string | RegExp`
 
 ```typescript
-customRegexMatcher: '[a-z]-[A-Z]' // Matches locales like 'en-US', 'de-DE'
+customRegexMatcher: '[a-z]{2}-[a-z]{2}' // Matches locales like 'en-us', 'de-de'
 ```
 
 ### 🛠️ Development Options

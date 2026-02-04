@@ -25,10 +25,17 @@ We're announcing **v3.0.0** with a **major architectural overhaul**: route gener
 
 #### Redirect Architecture Overhaul
 
-- **Nitro plugin (server-side)** — Redirects and 404 handling now run in a Nitro plugin (`i18n-redirect.ts`) instead of server middleware. This executes before Nuxt render, so redirects from `/` to `/<locale>/` happen without an error flash when a locale cookie is present.
-- **Client plugin (client-side)** — A new client-only plugin (`06.client-redirect.client.ts`) runs after hydration and handles redirects when `useState('i18n-locale')` or cookie sets a non-default locale. Nitro runs before Nuxt, so the server cannot see cookie/useState changes from user plugins; the client plugin covers this case.
-- **No fallback component** — The `locale-redirect.vue` fallback component and `fallbackRedirectComponentPath` option have been removed. Redirect logic is fully handled by the Nitro and client plugins.
+- **Server middleware** — Redirects and 404 handling run in Nitro middleware (`i18n.global.ts`). This executes before Nuxt render, so redirects from `/` to `/<locale>/` happen without an error flash when a locale cookie is present.
+- **Client plugin (client-side)** — A client-only plugin (`06.client-redirect.client.ts`) runs after hydration and handles redirects when `useI18nLocale()` or cookie sets a non-default locale. Nitro runs before Nuxt, so the server cannot see cookie/state changes from user plugins; the client plugin covers this case.
+- **No fallback component** — The `locale-redirect.vue` fallback component and `fallbackRedirectComponentPath` option have been removed. Redirect logic is fully handled by the server middleware and client plugin.
 - **Custom path support** — Paths like `/kontakt` for German (via `globalLocaleRoutes`) are correctly recognized as valid without a locale prefix, avoiding incorrect 404s during prerender.
+- **customRegexMatcher fix** — When using `customRegexMatcher`, the pattern now matches the **entire** first path segment (with `^` and `$` anchors). This prevents false 404s for routes like `/locale-test` when the pattern `[a-z]{2}-[a-z]{2}` would previously match substrings.
+
+#### useI18nLocale Composable
+
+- **Centralized locale management** — New `useI18nLocale()` composable replaces `useLocaleCookies` and provides a single entry point for locale state, cookies, and sync utilities.
+- **API** — `locale`, `localeCookie`, `hashCookie`, `getLocale()`, `getPreferredLocale()`, `setLocale()`, `syncLocale()`, `isValidLocale()`, `getEffectiveLocale()`, `resolveInitialLocale()`.
+- **Programmatic locale** — Use `useI18nLocale().setLocale(locale)` in server plugins instead of `useState('i18n-locale')` for cleaner, centralized locale handling.
 
 #### Custom Auto-Detection & Configuration
 
@@ -38,7 +45,8 @@ We're announcing **v3.0.0** with a **major architectural overhaul**: route gener
 ### Breaking Changes
 
 - **`fallbackRedirectComponentPath`** — Removed. The module no longer uses a fallback route component for redirects. If you had a custom component path configured, remove it from your config.
-- **Custom plugins** — If your custom locale-detection plugin used `useRuntimeConfig().public.i18nConfig`, switch to `getI18nConfig()` from `#build/i18n.strategy.mjs`. See [Custom Language Detection](/guide/custom-auto-detect) for updated examples.
+- **`useLocaleCookies`** — Removed. Use `useI18nLocale()` instead. The new composable provides `locale`, `localeCookie`, `hashCookie`, `setLocale()`, `syncLocale()`, and more.
+- **Custom plugins** — If your custom locale-detection plugin used `useRuntimeConfig().public.i18nConfig`, switch to `getI18nConfig()` from `#build/i18n.strategy.mjs`. Prefer `useI18nLocale().setLocale()` over `useState('i18n-locale')`. See [Custom Language Detection](/guide/custom-auto-detect) for updated examples.
 
 ### Why It Matters
 

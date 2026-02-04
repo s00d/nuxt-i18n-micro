@@ -1,6 +1,7 @@
 // src/runtime/plugins/05.hooks.ts
 
 // УБИРАЕМ: import { useTranslationHelper } from '@i18n-micro/core'
+import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { defineNuxtPlugin, useRouter, useNuxtApp } from '#imports'
@@ -41,7 +42,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   router.beforeEach(async (to, from, next) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
       const locale = $getLocale(to)
-      const routeName = $getRouteName(to)
+      const routeName = $getRouteName(to as RouteLocationResolvedGeneric)
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore i18n:register is custom hook

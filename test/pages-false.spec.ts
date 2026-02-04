@@ -15,7 +15,7 @@ testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)
     await page.context().clearCookies()
   })
 
-  testPrefixExceptDefault('renders default locale content on root path', async ({ page, goto }) => {
+  testPrefixExceptDefault('prefix_except_default: renders default locale content on root path', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 
     // Should show English content (default locale)
@@ -23,7 +23,7 @@ testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)
     await expect(page.locator('#greeting')).toHaveText('Hello')
   })
 
-  testPrefixExceptDefault('respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
+  testPrefixExceptDefault('prefix_except_default: respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
     // Set Chinese locale cookie
     await page.context().addCookies([{
       name: 'user-locale',
@@ -39,7 +39,7 @@ testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)
     await expect(page.locator('#greeting')).toHaveText('你好')
   })
 
-  testPrefixExceptDefault('handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
+  testPrefixExceptDefault('prefix_except_default: handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
     // Set invalid locale cookie
     await page.context().addCookies([{
       name: 'user-locale',
@@ -54,7 +54,7 @@ testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)
     await expect(page.locator('#greeting')).toHaveText('Hello')
   })
 
-  testPrefixExceptDefault('handles cleared cookie gracefully', async ({ page, goto }) => {
+  testPrefixExceptDefault('prefix_except_default: handles cleared cookie gracefully', async ({ page, goto }) => {
     // No cookie set
     await goto('/', { waitUntil: 'hydration' })
 
@@ -77,7 +77,7 @@ testNoPrefix.describe('pages: false with i18n (no_prefix)', () => {
     await page.context().clearCookies()
   })
 
-  testNoPrefix('renders default locale content on root path', async ({ page, goto }) => {
+  testNoPrefix('no_prefix: renders default locale content on root path', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 
     // Should show English content (default locale)
@@ -85,7 +85,7 @@ testNoPrefix.describe('pages: false with i18n (no_prefix)', () => {
     await expect(page.locator('#greeting')).toHaveText('Hello')
   })
 
-  testNoPrefix('respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
+  testNoPrefix('no_prefix: respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
     // Set Chinese locale cookie
     await page.context().addCookies([{
       name: 'user-locale',
@@ -107,7 +107,7 @@ testNoPrefix.describe('pages: false with i18n (no_prefix)', () => {
   // 1. Using a full page reload after switching locale
   // 2. Manually loading translations via $mergeGlobalTranslations
 
-  testNoPrefix('handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
+  testNoPrefix('no_prefix: handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
     // Set invalid locale cookie
     await page.context().addCookies([{
       name: 'user-locale',

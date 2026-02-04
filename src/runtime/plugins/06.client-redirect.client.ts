@@ -1,21 +1,13 @@
 /**
- * Client-only: redirect / to /locale when useState('i18n-locale') or cookie
+ * Client-only: redirect / to /locale when useI18nLocale (useState + cookie)
  * sets a non-default locale for prefix strategies. Nitro runs before Nuxt,
  * so server doesn't see cookie/useState; this runs after hydration (app:mounted).
  */
-import { defineNuxtPlugin, useRoute, useCookie, useState, navigateTo } from '#imports'
+import { defineNuxtPlugin, useRoute, navigateTo } from '#imports'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { isNoPrefixStrategy, isPrefixStrategy, isPrefixExceptDefaultStrategy } from '@i18n-micro/core'
-
-function getPreferredLocale(i18nConfig: ModuleOptionsExtend): string | null {
-  const localeState = useState<string | null>('i18n-locale', () => null)
-  const cookieName = i18nConfig.localeCookie !== null ? (i18nConfig.localeCookie || 'user-locale') : null
-  const cookie = cookieName ? useCookie(cookieName) : null
-  const preferred = localeState.value || cookie?.value
-  const validLocales = i18nConfig.locales?.map(l => l.code) || []
-  return preferred && validLocales.includes(preferred) ? preferred : null
-}
+import { useI18nLocale } from '../composables/useI18nLocale'
 
 export default defineNuxtPlugin({
   name: 'i18n-client-redirect',
@@ -31,7 +23,8 @@ export default defineNuxtPlugin({
     const defaultLocale = i18nConfig.defaultLocale || 'en'
 
     const runRedirect = () => {
-      const preferredLocale = getPreferredLocale(i18nConfig)
+      const { getPreferredLocale } = useI18nLocale()
+      const preferredLocale = getPreferredLocale()
       if (!preferredLocale) return
 
       const route = useRoute()
@@ -61,10 +54,7 @@ export default defineNuxtPlugin({
           navigateTo(`/${preferredLocale}`, { replace: true, redirectCode: 302 })
           return
         }
-        // prefix_and_default
-        if (preferredLocale !== defaultLocale) {
-          navigateTo(`/${preferredLocale}`, { replace: true, redirectCode: 302 })
-        }
+        // prefix_and_default: / is valid for any locale — no redirect, useState/cookie set locale for content
         return
       }
 

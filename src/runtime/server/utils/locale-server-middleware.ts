@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
-import { detectCurrentLocale } from './utils/locale-detector'
+import { detectCurrentLocale } from './locale-detector'
 import { getI18nConfig } from '#i18n-internal/strategy'
 
 export interface LocaleInfo {
@@ -16,24 +16,15 @@ export interface LocaleInfo {
 export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string, currentLocale?: string): LocaleInfo => {
   const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = getI18nConfig() as ModuleOptionsExtend
 
-  // Determine current locale by priority
-  // Pass locales to config for URL path check
   const detectedLocale = currentLocale || detectCurrentLocale(event, {
     fallbackLocale,
     defaultLocale: defaultLocale || configDefaultLocale,
-    locales, // Pass the list of locales
-  })
+    locales,
+  }, defaultLocale)
 
-  // Find configuration for current locale
   const localeConfig = locales?.find(l => l.code === detectedLocale) ?? null
-
-  // Get list of available locales
   const availableLocales = locales?.map(l => l.code) ?? []
-
-  // Check if current locale is default
   const isDefault = detectedLocale === (defaultLocale || configDefaultLocale || 'en')
-
-  // Check if current locale is fallback
   const isFallback = detectedLocale === (fallbackLocale || defaultLocale || configDefaultLocale || 'en')
 
   return {

@@ -630,7 +630,7 @@ declare module '#i18n-internal/plural' {
         const localeCodes = new Set(routeGenerator.locales.map(l => l.code))
         const deleted: string[] = []
         for (const route of routesSet) {
-          if (route === '/' || route === '') continue
+          if (route === '/' || route === '') continue // Keep / for redirect to default locale
           const firstSegment = route.replace(/^\//, '').split('/')[0]
           if (firstSegment && !localeCodes.has(firstSegment)) {
             routesSet.delete(route)

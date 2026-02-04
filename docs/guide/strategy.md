@@ -113,23 +113,23 @@ When using prefix-based strategies with `redirects: true`, visiting `/` triggers
 
 ### Server-Side Redirect (No Error Flash)
 
-For the `prefix` strategy, redirects are handled by a **Nitro plugin** (`i18n-redirect`) when a locale cookie is present. This prevents the "error flash" issue where users briefly see an error page before being redirected.
+For the `prefix` strategy, redirects are handled by **server middleware** (`i18n.global.ts`) when a locale cookie is present. This prevents the "error flash" issue where users briefly see an error page before being redirected.
 
 **How it works:**
 1. When a request comes to `/` with a valid locale cookie, the Nitro plugin immediately returns a 302 redirect before Nuxt renders
 2. No page rendering occurs, so there's no error flash
-3. If no cookie is present (e.g. first visit), the **client plugin** (`06.client-redirect.client.ts`) runs after hydration and redirects based on `useState('i18n-locale')` or cookie set by your custom plugins
+3. If no cookie is present (e.g. first visit), the **client plugin** (`06.client-redirect.client.ts`) runs after hydration and redirects based on `useI18nLocale()` (locale state) or cookie set by your custom plugins
 
 | Strategy | Redirect from `/` |
 |----------|-------------------|
-| `prefix` | → `/<locale>/` (uses `useState`, cookie, or `defaultLocale`) |
+| `prefix` | → `/<locale>/` (uses `useI18nLocale`, cookie, or `defaultLocale`) |
 | `prefix_except_default` | → `/<locale>/` only if locale ≠ default |
 | `prefix_and_default` | No redirect (both `/` and `/<locale>/` are valid) |
 
 **Locale Priority Order:**
-1. `useState('i18n-locale')` - highest priority (for programmatic locale setting)
+1. `useI18nLocale().locale` (or `useState('i18n-locale')`) — highest priority for programmatic locale setting
 2. Cookie value (if `localeCookie` is set)
-3. `defaultLocale` - fallback
+3. `defaultLocale` — fallback
 
 **Important:** 
 - Cookie-based locale persistence is disabled by default (`localeCookie: null`)
@@ -163,11 +163,11 @@ Hydration completed but contains mismatches.
 
 **Solution**:
 
-Use `useState('i18n-locale')` to set the locale before i18n initialization. This ensures both server and client use the same locale.
+Use `useI18nLocale().setLocale()` to set the locale before i18n initialization. This ensures both server and client use the same locale.
 
 ```ts
 // plugins/i18n-loader.server.ts
-import { defineNuxtPlugin, useCookie, useState } from '#imports'
+import { defineNuxtPlugin } from '#imports'
 
 export default defineNuxtPlugin({
   name: 'i18n-custom-loader',
@@ -175,13 +175,9 @@ export default defineNuxtPlugin({
   order: -10,
 
   setup() {
-    const localeCookie = useCookie('user-locale')
-    const localeState = useState<string | null>('i18n-locale', () => null)
-
+    const { setLocale } = useI18nLocale()
     const detectedLocale = 'ja' // Your detection logic here
-
-    localeCookie.value = detectedLocale
-    localeState.value = detectedLocale
+    setLocale(detectedLocale)
   }
 })
 ```
@@ -211,7 +207,7 @@ In the `no_prefix` strategy, rendering content that depends on the selected loca
 
 **Best Practice**:
 
-1. Use `useState('i18n-locale')` in a server plugin to ensure locale is set before rendering (see issue #1 above).
+1. Use `useI18nLocale().setLocale()` in a server plugin to ensure locale is set before rendering (see issue #1 above).
 
 2. Use a `<select>` element for locale switching to avoid hydration issues:
 
@@ -260,7 +256,7 @@ export default defineNuxtConfig({
 
 **Why `no_prefix` is recommended:**
 - No dependency on URL-based locale detection
-- Locale is determined by cookie or `useState('i18n-locale')`
+- Locale is determined by cookie or `useI18nLocale()` (locale state)
 - Works consistently with custom routing solutions
 
 **Workarounds for client-side locale switching:**
@@ -305,7 +301,7 @@ The `strategy` option in Nuxt I18n Micro controls how locale prefixes are applie
 - **Simplicity for Default Language**: If you don't need locale prefixes for your default language, use `prefix_except_default` or `prefix_and_default`.
 - **Consistency**: For a consistent URL structure with locale prefixes across all languages, use `prefix`.
 - **User Experience**: Consider using `no_prefix` when you want to rely on browser language detection and avoid cluttering the URL with prefixes.
-- **Programmatic Locale Setting**: Use `useState('i18n-locale')` in a server plugin to set locale before i18n initialization. Works with all strategies. See [Custom Language Detection](/guide/custom-auto-detect) for details.
+- **Programmatic Locale Setting**: Use `useI18nLocale().setLocale()` in a server plugin to set locale before i18n initialization. Works with all strategies. See [Custom Language Detection](/guide/custom-auto-detect) for details.
 - **Avoid Hydration Issues**: Use named routes with `localeRoute` for better route resolution.
 - **Handle Locale-Dependent Content Carefully**: Use `<select>` or other approaches to avoid hydration mismatches when rendering locale-dependent content.
 

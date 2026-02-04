@@ -22,11 +22,11 @@ test.describe('cookie', () => {
     // Check that the URL is redirected to /
     await expect(page).toHaveURL('/')
 
-    // Check that the cookie 'user-locale' is set to 'de'
+    // Check that the cookie 'user-locale' is set to 'en'
     const cookies = await page.context().cookies()
     const userLocaleCookie = cookies.find(cookie => cookie.name === 'user-locale')
 
-    expect(userLocaleCookie).toBeDefined() // Ensure the cookie exists
-    expect(userLocaleCookie?.value).toBe('en') // Ensure the cookie value is 'de'
+    expect(userLocaleCookie).toBeDefined()
+    expect(userLocaleCookie?.value).toBe('en')
   })
 })

@@ -121,7 +121,7 @@ For locale detection logic that relies on server headers (like `x-country`), a *
 
 ## 🌐 Programmatic Locale Setting (All Strategies)
 
-You can set the locale programmatically on the server using `useState('i18n-locale')`. This works with **all strategies**:
+You can set the locale programmatically on the server using `useI18nLocale().setLocale()`. This works with **all strategies**:
 - `no_prefix`
 - `prefix`
 - `prefix_except_default`
@@ -129,12 +129,12 @@ You can set the locale programmatically on the server using `useState('i18n-loca
 - `hashMode`
 
 ::: tip Redirect behavior
-For strategies with URL prefix and `redirects: true`, `useState('i18n-locale')` affects the redirect:
+For strategies with URL prefix and `redirects: true`, `useI18nLocale()` affects the redirect:
 
 | Strategy | Redirect from `/` |
 |----------|-------------------|
-| `prefix` | → `/<locale>/` (uses `useState`, cookie, or `defaultLocale`) |
-| `prefix_except_default` | → `/<locale>/` if locale ≠ default (uses `useState`/cookie) |
+| `prefix` | → `/<locale>/` (uses `useI18nLocale`, cookie, or `defaultLocale`) |
+| `prefix_except_default` | → `/<locale>/` if locale ≠ default (uses `useI18nLocale`/cookie) |
 | `prefix_and_default` | No redirect (both `/` and `/<locale>/` are valid for default) |
 
 **Important notes:**
@@ -147,9 +147,9 @@ This ensures URL consistency for SEO.
 
 ### The Solution
 
-Create a server plugin with a priority lower than `-5` (e.g., `-10`). In this plugin, you'll implement your locale selection logic and use both `useState` and `useCookie` to set the locale.
+Create a server plugin with a priority lower than `-5` (e.g., `-10`). In this plugin, you'll implement your locale selection logic and use `useI18nLocale().setLocale()` to set the locale.
 
-**Important**: Use `useState('i18n-locale')` to immediately pass the locale to the i18n plugin. This is necessary because `useCookie` changes are not immediately visible between plugins during SSR.
+**Important**: `useI18nLocale().setLocale()` updates both the locale state and cookies, ensuring immediate visibility to the i18n plugin during SSR.
 
 ### Implementation
 
@@ -175,8 +175,7 @@ export default defineNuxtConfig({
 **Step 2: Create `plugins/i18n-loader.server.ts`**
 
 ```ts
-import { defineNuxtPlugin, useCookie, useState, useRequestHeaders } from '#imports'
-import { getI18nConfig } from '#build/i18n.strategy.mjs'
+import { defineNuxtPlugin, useRequestHeaders } from '#imports'
 
 export default defineNuxtPlugin({
   name: 'i18n-custom-loader',
@@ -184,15 +183,7 @@ export default defineNuxtPlugin({
   order: -10, // Execute BEFORE the i18n plugin (which has order -5)
 
   setup() {
-    const { localeCookie: configCookie } = getI18nConfig()
-    const cookieName = configCookie ?? 'user-locale'
-
-    const localeCookie = useCookie(cookieName)
-    
-    // Use useState to immediately pass the locale to the i18n plugin
-    // This is the recommended way to set locale programmatically
-    const localeState = useState<string | null>('i18n-locale', () => null)
-
+    const { setLocale } = useI18nLocale()
     const headers = useRequestHeaders(['host', 'x-country', 'accept-language'])
     let detectedLocale = 'en'
 
@@ -213,23 +204,16 @@ export default defineNuxtPlugin({
     }
 
     // --- APPLY THE LOCALE ---
-
-    // Set cookie for persistence across requests
-    if (localeCookie.value !== detectedLocale) {
-      localeCookie.value = detectedLocale
-    }
-
-    // Set useState for immediate availability to the i18n plugin
-    localeState.value = detectedLocale
+    setLocale(detectedLocale)
   }
 })
 ```
 
 ### Why This Works
 
-1. **useState for Immediate Sync**: `useState('i18n-locale')` provides immediate synchronization between plugins during SSR. Unlike cookies, state changes are instantly visible to other plugins.
+1. **useI18nLocale for Sync**: `useI18nLocale().setLocale()` updates both the locale state and cookies, providing immediate synchronization between plugins during SSR.
 
-2. **useCookie for Persistence**: The cookie ensures the locale persists across page reloads and subsequent requests.
+2. **Cookie for Persistence**: When `localeCookie` is configured, the cookie ensures the locale persists across page reloads and subsequent requests.
 
 3. **Plugin Order**: By setting `order: -10`, this plugin executes before `01.plugin.ts` (which has `order: -5`).
 
@@ -241,8 +225,7 @@ export default defineNuxtPlugin({
 
 | Feature | Description |
 |---------|-------------|
-| `useState('i18n-locale')` | Immediately available to i18n plugin during SSR |
-| `useCookie` | Persists locale across requests |
+| `useI18nLocale().setLocale()` | Updates state and cookies; immediately available to i18n plugin during SSR |
 | `order: -10` | Ensures plugin runs before i18n initialization |
 | `enforce: 'pre'` | Runs in the "pre" plugin group |
 
@@ -251,8 +234,7 @@ export default defineNuxtPlugin({
 For multi-domain setups:
 
 ```ts
-import { defineNuxtPlugin, useCookie, useState, useRequestHeaders } from '#imports'
-import { getI18nConfig } from '#build/i18n.strategy.mjs'
+import { defineNuxtPlugin, useRequestHeaders } from '#imports'
 
 export default defineNuxtPlugin({
   name: 'i18n-domain-loader',
@@ -260,12 +242,7 @@ export default defineNuxtPlugin({
   order: -10,
 
   setup() {
-    const { localeCookie: configCookie } = getI18nConfig()
-    const cookieName = configCookie ?? 'user-locale'
-
-    const localeCookie = useCookie(cookieName)
-    const localeState = useState<string | null>('i18n-locale', () => null)
-
+    const { setLocale } = useI18nLocale()
     const headers = useRequestHeaders(['host'])
     const host = headers['host'] || ''
 
@@ -280,8 +257,7 @@ export default defineNuxtPlugin({
       detectedLocale = 'ja'
     }
 
-    localeCookie.value = detectedLocale
-    localeState.value = detectedLocale
+    setLocale(detectedLocale)
   }
 })
 ```
@@ -291,8 +267,7 @@ export default defineNuxtPlugin({
 If you want to respect an existing user preference (e.g., they manually switched language):
 
 ```ts
-import { defineNuxtPlugin, useCookie, useState, useRequestHeaders } from '#imports'
-import { getI18nConfig } from '#build/i18n.strategy.mjs'
+import { defineNuxtPlugin, useRequestHeaders } from '#imports'
 
 export default defineNuxtPlugin({
   name: 'i18n-smart-loader',
@@ -300,15 +275,10 @@ export default defineNuxtPlugin({
   order: -10,
 
   setup() {
-    const { localeCookie: configCookie } = getI18nConfig()
-    const cookieName = configCookie ?? 'user-locale'
-
-    const localeCookie = useCookie(cookieName)
-    const localeState = useState<string | null>('i18n-locale', () => null)
+    const { getLocale, setLocale } = useI18nLocale()
 
     // If user already has a preference, respect it
-    if (localeCookie.value) {
-      localeState.value = localeCookie.value
+    if (getLocale()) {
       return
     }
 
@@ -323,8 +293,7 @@ export default defineNuxtPlugin({
       detectedLocale = 'ja'
     }
 
-    localeCookie.value = detectedLocale
-    localeState.value = detectedLocale
+    setLocale(detectedLocale)
   }
 })
 ```
@@ -335,11 +304,11 @@ export default defineNuxtPlugin({
 
 ### Key Takeaways
 
-- ✅ **`useState('i18n-locale')`**: Works with **all strategies** — the recommended way to programmatically set locale before i18n initialization
+- ✅ **`useI18nLocale().setLocale()`**: Works with **all strategies** — the recommended way to programmatically set locale before i18n initialization
 - ✅ **Plugin order**: Use `order: -10` and `enforce: 'pre'` to run before the main i18n plugin
-- ✅ **SSR + Client sync**: Both useState and cookie ensure consistent locale across server and client
+- ✅ **SSR + Client sync**: `useI18nLocale` updates state and cookies for consistent locale across server and client
 - ✅ **Full control**: Implement any detection logic (domain, headers, IP, etc.)
 - ✅ **No hydration mismatch**: Server and client use the same locale
-- ✅ **`prefix`**: Redirect from `/` to `/<locale>/` using `useState`, cookie (if enabled), or `defaultLocale`
-- ✅ **`prefix_except_default`**: Redirect from `/` to `/<locale>/` when non-default locale is set (uses `useState`/cookie)
+- ✅ **`prefix`**: Redirect from `/` to `/<locale>/` using `useI18nLocale`, cookie (if enabled), or `defaultLocale`
+- ✅ **`prefix_except_default`**: Redirect from `/` to `/<locale>/` when non-default locale is set (uses `useI18nLocale`/cookie)
 - ✅ **`prefix_and_default`**: No redirect (both `/` and `/<locale>/` valid for default locale)

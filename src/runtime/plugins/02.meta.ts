@@ -5,29 +5,22 @@ import { watch } from 'vue'
 import { isMetaDisabledForRoute } from '../utils/route-utils'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 
-const host = process.env.HOST ?? 'localhost'
-const port = process.env.PORT ?? 'host'
-
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
-  const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
+  const i18nConfig = getI18nConfig() as ModuleOptionsExtend
 
-  // Get current locale
+  // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const currentLocale = nuxtApp.$getLocale?.()
 
-  // Check if meta is disabled for this route
   if (isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, currentLocale)) {
-    // Don't generate any meta tags if disabled for this route
     return
   }
 
-  const schema = port === '443' ? 'https' : 'http'
-  const defaultUrl = port === '80' || port === '443' ? `${schema}://${host}` : `${schema}://${host}:${port}`
-
+  // useRequestURL() works everywhere (Node, Edge, Browser) and respects proxy headers (X-Forwarded-Proto, etc.)
   const url = useRequestURL()
-  const baseUrl = (i18nConfig.metaBaseUrl || url.origin || defaultUrl).toString()
+  const baseUrl = (i18nConfig.metaBaseUrl || url.origin).toString()
 
   const { metaObject, updateMeta } = useLocaleHead({
     addDirAttribute: true,
@@ -43,7 +36,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
   else if (import.meta.client) {
     watch(
-      () => useRoute().fullPath,
+      () => route.fullPath,
       () => updateMeta(),
       { immediate: true },
     )

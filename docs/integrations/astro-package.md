@@ -2054,7 +2054,7 @@ import SvelteWidget from '../components/islands/SvelteWidget.svelte'
 
 const { t } = useI18n(Astro)
 
-// Собираем только нужные ключи для островов
+// Collect only the keys needed for islands
 const i18nProps = getI18nProps(Astro, [
   'islands.vue.title',
   'islands.vue.description',
@@ -2108,11 +2108,11 @@ const props = defineProps<{
   i18n: I18nClientProps
 }>()
 
-// Инициализируем провайдер и получаем состояние напрямую
+// Initialize provider and get state directly
 const state = provideI18n(props.i18n)
 const formatter = new FormatService()
 
-// Используем состояние напрямую вместо inject
+// Use state directly instead of inject
 const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => {
   return translate(state.value, key as string, params, defaultValue, routeName)
 }
@@ -2219,7 +2219,7 @@ For Svelte components, use `createI18nStore` and `useAstroI18n`:
 
   export let i18n: I18nClientProps
 
-  // Создаем store и инициализируем хук
+  // Create store and initialize hook
   const i18nStore = createI18nStore(i18n)
   const { t, locale, tn, tc, store } = useAstroI18n(i18nStore)
 
@@ -2339,7 +2339,7 @@ import SvelteWidget from '../components/islands/SvelteWidget.svelte'
 
 const { t } = useI18n(Astro)
 
-// Собираем только нужные ключи для островов
+// Collect only the keys needed for islands
 const i18nProps = getI18nProps(Astro, [
   'islands.vue.title',
   'islands.vue.description',

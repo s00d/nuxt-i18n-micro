@@ -13,13 +13,15 @@ import type {
   Router,
 } from 'vue-router'
 import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
-import { isNoPrefixStrategy, withPrefixStrategy } from './helpers'
+import { isNoPrefixStrategy, withPrefixStrategy, isPrefixAndDefaultStrategy } from './helpers'
 
 interface NavigateToInterface {
   replace?: boolean
   redirectCode?: number
   external?: boolean
 }
+
+export type GetDefaultLocale = () => string | null | undefined
 
 export class RouteService {
   constructor(
@@ -28,9 +30,8 @@ export class RouteService {
     private hashLocaleDefault: string | null | undefined,
     private noPrefixDefault: string | null | undefined,
     private navigateTo: (to: RouteLocationRaw | undefined | null, options?: NavigateToInterface) => Promise<void | NavigationFailure | false> | false | void | RouteLocationRaw,
-    private setCookie: (name: string, value: string) => void,
-    private cookieLocaleDefault: string | null | undefined = null,
-    private cookieLocaleName: string | null | undefined = null,
+    /** Optional getter for current locale (used by hash/noPrefix when state changes). Plugin provides () => localeState.value */
+    private getDefaultLocale?: GetDefaultLocale,
   ) {}
 
   /**
@@ -75,14 +76,25 @@ export class RouteService {
   getCurrentLocale(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string {
     route = route ?? this.router.currentRoute.value
 
-    // 1. Check hashMode
-    if (this.i18nConfig.hashMode && this.hashLocaleDefault) {
-      return this.hashLocaleDefault
+    // 1. Check hashMode (getter overrides initial value when state changes)
+    if (this.i18nConfig.hashMode) {
+      const fromGetter = this.getDefaultLocale?.()
+      if (fromGetter) return fromGetter
+      if (this.hashLocaleDefault) return this.hashLocaleDefault
     }
 
     // 2. Check noPrefix strategy
-    if (isNoPrefixStrategy(this.i18nConfig.strategy!) && this.noPrefixDefault) {
-      return this.noPrefixDefault
+    if (isNoPrefixStrategy(this.i18nConfig.strategy!)) {
+      const fromGetter = this.getDefaultLocale?.()
+      if (fromGetter) return fromGetter
+      if (this.noPrefixDefault) return this.noPrefixDefault
+    }
+
+    const path = route.path || route.fullPath || ''
+    // 2b. prefix_and_default at /: useState/cookie can override — / is valid for any locale
+    if (isPrefixAndDefaultStrategy(this.i18nConfig.strategy!) && (path === '/' || path === '')) {
+      const fromGetter = this.getDefaultLocale?.()
+      if (fromGetter) return fromGetter
     }
 
     // 3. Check route.params.locale (for existing routes)
@@ -91,16 +103,14 @@ export class RouteService {
     }
 
     // 4. Extract locale from URL path (for non-existent routes)
-    const path = route.path || route.fullPath || ''
     const localeFromPath = this.extractLocaleFromPath(path)
     if (localeFromPath) {
       return localeFromPath
     }
 
-    // 5. Check cookie (if provided)
-    if (this.cookieLocaleDefault) {
-      return this.cookieLocaleDefault
-    }
+    // 5. Check getter (plugin provides cookie/state for prefix strategies when URL has no locale)
+    const fromGetter = this.getDefaultLocale?.()
+    if (fromGetter) return fromGetter
 
     // 6. Return defaultLocale as fallback
     return (this.i18nConfig.defaultLocale || 'en').toString()
@@ -373,30 +383,6 @@ export class RouteService {
     return this.createLocalizedRoute(processedTo, route, currentLocale)
   }
 
-  updateCookies(toLocale: string): void {
-    // Skip cookie update if localeCookie is disabled (null)
-    if (this.i18nConfig.localeCookie === null) {
-      return
-    }
-
-    const cookieLocaleName = this.cookieLocaleName || this.i18nConfig.localeCookie || 'user-locale'
-    if (this.i18nConfig.hashMode) {
-      this.setCookie('hash-locale', toLocale)
-      // useCookie('hash-locale').value = toLocale
-      this.hashLocaleDefault = toLocale
-    }
-    if (isNoPrefixStrategy(this.i18nConfig.strategy!)) {
-      this.setCookie(cookieLocaleName, toLocale)
-      // useCookie(cookieLocaleName).value = toLocale
-      this.noPrefixDefault = toLocale
-    }
-    // Update cookie for regular strategy (prefix or prefix_except_default)
-    if (!this.i18nConfig.hashMode && !isNoPrefixStrategy(this.i18nConfig.strategy!) && cookieLocaleName) {
-      this.setCookie(cookieLocaleName, toLocale)
-      this.cookieLocaleDefault = toLocale
-    }
-  }
-
   getCurrentRoute(): RouteLocationNormalizedLoaded {
     return this.router.currentRoute.value
   }
@@ -428,7 +414,6 @@ export class RouteService {
       current = to ?? this.getCurrentRoute() as RouteLocationResolved
     }
 
-    this.updateCookies(toLocale)
     const switchedRoute = this.switchLocaleRoute(fromLocale, toLocale, current, i18nRouteParams)
 
     if (typeof switchedRoute === 'string' && switchedRoute.startsWith('http')) {

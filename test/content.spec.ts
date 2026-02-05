@@ -26,6 +26,7 @@ test.describe('content', () => {
     const dataItem2 = page.locator('.data-item')
     await expect(dataItem2.locator('span').nth(1)).toHaveText('Phone')
 
+    await page.locator('#locale-switcher button').waitFor({ state: 'visible' })
     await page.click('#locale-switcher button')
 
     await page.waitForTimeout(200)
@@ -38,6 +39,7 @@ test.describe('content', () => {
   test('Test cs About Page', async ({ page, goto }) => {
     await goto('/about', { waitUntil: 'hydration' })
 
+    await page.locator('#locale-switcher button').waitFor({ state: 'visible' })
     await page.click('#locale-switcher button')
 
     await page.waitForTimeout(200)

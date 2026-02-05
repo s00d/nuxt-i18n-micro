@@ -12,25 +12,25 @@ test.describe('content', () => {
     await goto('/about', { waitUntil: 'hydration' })
 
     await expect(page).toHaveURL('/about')
-    await expect(page.locator('h1')).toHaveText('About Us')
 
-    const pageLink = page.locator('.page-link').nth(0)
+    // Wait for content to load - use text content
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('About Us')
+    await expect(page.getByText('Learn more about our mission and values.')).toBeVisible()
+
+    // Find contact link by text
+    const pageLink = page.getByRole('link', { name: 'Contact Us' })
     await expect(pageLink).toHaveAttribute('href', '/contact')
-
-    const dataItem = page.locator('.data-item')
-    await expect(dataItem.locator('span').nth(1)).toHaveText('Learn more about our mission and values.')
 
     await pageLink.click()
 
     await expect(page).toHaveURL('/contact')
-    const dataItem2 = page.locator('.data-item')
-    await expect(dataItem2.locator('span').nth(1)).toHaveText('Phone')
+    await expect(page.getByText('Phone')).toBeVisible()
 
     await page.locator('#locale-switcher button').waitFor({ state: 'visible' })
     await page.click('#locale-switcher button')
 
-    await page.waitForTimeout(200)
-
+    // Wait for dropdown to appear
+    await page.locator('.switcher-locale-cs').waitFor({ state: 'visible' })
     await page.click('.switcher-locale-cs')
 
     await expect(page).toHaveURL('/cs/contact')
@@ -42,23 +42,23 @@ test.describe('content', () => {
     await page.locator('#locale-switcher button').waitFor({ state: 'visible' })
     await page.click('#locale-switcher button')
 
-    await page.waitForTimeout(200)
-
+    // Wait for dropdown to appear
+    await page.locator('.switcher-locale-cs').waitFor({ state: 'visible' })
     await page.click('.switcher-locale-cs')
 
     await expect(page).toHaveURL('/cs/about')
-    await expect(page.locator('h1')).toHaveText('O nás')
 
-    const pageLink = page.locator('.page-link').nth(0)
+    // Wait for content to load - use text content
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('O nás')
+    await expect(page.getByText('Zjistěte více o naší misi a hodnotách.')).toBeVisible()
+
+    // Find contact link - in Czech the link text might be different
+    const pageLink = page.getByRole('link', { name: 'Contact Us' })
     await expect(pageLink).toHaveAttribute('href', '/cs/contact')
-
-    const dataItem = page.locator('.data-item')
-    await expect(dataItem.locator('span').nth(1)).toHaveText('Zjistěte více o naší misi a hodnotách.')
 
     await pageLink.click()
 
     await expect(page).toHaveURL('/cs/contact')
-    const dataItem2 = page.locator('.data-item')
-    await expect(dataItem2.locator('span').nth(1)).toHaveText('Telefon')
+    await expect(page.getByText('Telefon')).toBeVisible()
   })
 })

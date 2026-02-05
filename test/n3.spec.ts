@@ -31,8 +31,12 @@ async function checkPageContent(page: Page, path: string) {
   // Check if we're on the correct URL
   await expect(page).toHaveURL(path)
 
+  // Wait for #data element to be visible and have content
+  const dataEl = page.locator('#data')
+  await dataEl.waitFor({ state: 'visible' })
+
   // Verify content exists
-  const content = await page.textContent('#data')
+  const content = await dataEl.textContent()
   expect(content).toContain('Index')
 
   // Check for 404
@@ -49,7 +53,7 @@ test.use({
 test.describe('n3', () => {
   test.describe('Page tests', async () => {
     test('static pages should work in all languages', async ({ page }) => {
-      await page.goto('/')
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
       for (const lang of availableLanguages) {
         for (const route of staticRoutes) {
           let translatedRoute = routeTranslations[lang.code]?.[route]
@@ -59,7 +63,7 @@ test.describe('n3', () => {
 
           const path = encodeURI(`/${lang.code}/${translatedRoute}`)
           console.log(`Testing static route: ${path}`)
-          await page.goto(path)
+          await page.goto(path, { waitUntil: 'domcontentloaded' })
 
           await checkPageContent(page, path)
         }
@@ -82,7 +86,7 @@ test.describe('n3', () => {
           for (const param of params) {
             const path = `/${lang.code}/${translatedRoute}/${param}`
             console.log(`Testing dynamic route: ${path}`)
-            await page.goto(path)
+            await page.goto(path, { waitUntil: 'domcontentloaded' })
             await checkPageContent(page, path)
           }
         }
@@ -124,7 +128,7 @@ test.describe('n3', () => {
             }
 
             console.log(`Testing nested route: ${path}`)
-            await page.goto(path)
+            await page.goto(path, { waitUntil: 'domcontentloaded' })
             await checkPageContent(page, path)
           }
         }
@@ -143,7 +147,7 @@ test.describe('n3', () => {
 
       for (const route of invalidRoutes) {
         console.log(`Testing invalid route: ${route}`)
-        await page.goto(route)
+        await page.goto(route, { waitUntil: 'domcontentloaded' })
         const content = await page.textContent('body')
         expect(content?.trim().length).toBeGreaterThan(0)
       }
@@ -153,7 +157,7 @@ test.describe('n3', () => {
       for (const lang of availableLanguages) {
         const homePath = `/${lang.code}`
         console.log(`Testing metadata for: ${homePath}`)
-        await page.goto(homePath)
+        await page.goto(homePath, { waitUntil: 'domcontentloaded' })
 
         // Check HTML lang attribute
         const htmlLang = await page.getAttribute('html', 'lang')

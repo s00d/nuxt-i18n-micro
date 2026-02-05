@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v3.1.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.0.0...v3.1.0)
+
+### 🚀 Enhancements
+
+- **module:** Resolve strategy file paths using dynamic require ([ca92093](https://github.com/s00d/nuxt-i18n-micro/commit/ca92093))
+
+### 🏡 Chore
+
+- **route-strategy:** Set publish access to public in package.json ([d4741f0](https://github.com/s00d/nuxt-i18n-micro/commit/d4741f0))
+- **route-strategy:** Remove public access configuration from package.json ([00cfa21](https://github.com/s00d/nuxt-i18n-micro/commit/00cfa21))
+- **path-strategy:** Bump version to 1.0.1 in package.json ([0aa0c7d](https://github.com/s00d/nuxt-i18n-micro/commit/0aa0c7d))
+- **package:** Add lightweight release script for streamlined publishing ([43b594a](https://github.com/s00d/nuxt-i18n-micro/commit/43b594a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.0.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v2.20.1...v3.0.0)

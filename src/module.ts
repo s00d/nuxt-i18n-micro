@@ -1,4 +1,5 @@
-import path, { join } from 'node:path'
+import path, { join, dirname } from 'node:path'
+import { createRequire } from 'node:module'
 import fs, { readFileSync } from 'node:fs'
 import {
   addComponentsDir,
@@ -170,7 +171,22 @@ export default defineNuxtModule<ModuleOptions>({
       logger.debug('[i18n module] strategy:', options.strategy)
     }
 
-    // Path-strategy: use direct dist path to avoid subpath exports issues in some environments (e.g., Cloudflare)
+    // Path-strategy: resolve actual path and add alias for pnpm compatibility
+    const require = createRequire(import.meta.url)
+    let pathStrategyDir: string
+    try {
+      const pkgPath = require.resolve('@i18n-micro/path-strategy/package.json')
+      pathStrategyDir = dirname(pkgPath)
+    }
+    catch {
+      // Fallback - should not happen in normal circumstances
+      pathStrategyDir = '@i18n-micro/path-strategy'
+    }
+
+    // Add alias so Vite/Nuxt can resolve the package in pnpm environments
+    nuxt.options.alias = nuxt.options.alias || {}
+    nuxt.options.alias['@i18n-micro/path-strategy'] = pathStrategyDir
+
     const strategyDistPaths: Record<Strategies, string> = {
       no_prefix: '@i18n-micro/path-strategy/dist/no-prefix-strategy.mjs',
       prefix: '@i18n-micro/path-strategy/dist/prefix-strategy.mjs',

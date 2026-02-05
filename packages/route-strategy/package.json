@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/route-strategy",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Locale-aware route generator for Nuxt i18n micro",
   "type": "module",
   "main": "dist/index.cjs",

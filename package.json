@@ -73,6 +73,7 @@
     "lint:fix": "eslint . --fix",
     "test": "playwright test",
     "test:vitest": "vitest run",
+    "test:performance": "vitest run --config vitest.performance.config.ts",
     "test:strategies": "vitest run test/strategies.test.ts",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",

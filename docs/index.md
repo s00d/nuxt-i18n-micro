@@ -49,6 +49,8 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 #### ⏱️ Build Time and Resource Consumption
 
+> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
+
 ::: details **plain-nuxt** (baseline)
 - **Build Time**: 4.48 seconds
 - **Max CPU Usage**: 242.60%

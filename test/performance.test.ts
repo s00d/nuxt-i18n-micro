@@ -162,19 +162,20 @@ outline: deep
 
 ## Project Information
 
+- **[plain-nuxt Path](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/plain-nuxt)**: ./test/fixtures/plain-nuxt
 - **[i18n-micro Path](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
 - **[i18n Path](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
 - **[Test Script Location](https://github.com/s00d/nuxt-i18n-micro/tree/main/${relativePath})**: ./${relativePath}
 
 
 ### Description:
-This performance test compares two implementations of internationalization: **i18n-micro** and **i18n**.
-The main focus of the test is to evaluate build times, memory usage, CPU usage, and the performance of the server under stress (e.g., how many requests can be handled and how efficiently).
-The **i18n-micro** implementation shows slightly lower overall script execution times.
-This difference is attributed to its ability to handle more requests, which requires additional time for processing.
+This performance test compares **plain Nuxt** (baseline without i18n), **i18n-micro**, and **i18n** (nuxtjs/i18n v10).
+The **plain-nuxt** fixture serves as a baseline: it loads data directly from JSON files and displays the same content as i18n fixtures, but without any internationalization module.
+The main focus is to evaluate build times, memory usage, CPU usage, and server performance under stress.
+Results show the overhead introduced by each i18n solution compared to the baseline.
 
 ### Important Note:
-It is essential to recognize that the example used in this test is not entirely representative of the intended usage pattern for **i18n-micro**. The example simplifies the translation structure by consolidating all translations into a single file. However, **i18n-micro** is optimized for scenarios where translations are organized on a per-page basis. This approach allows for more granular control and efficiency, particularly in large-scale applications. The current setup is used merely for demonstration purposes and may not fully showcase the potential performance benefits of **i18n-micro** in real-world applications.
+The **i18n-micro** example simplifies the translation structure by consolidating translations. However, **i18n-micro** is optimized for per-page translations. The **plain-nuxt** baseline uses the same page structure and data volume for a fair comparison.
 
 ---
 `
@@ -188,24 +189,21 @@ function addTestLogicExplanation() {
 
 ### 🔍 Test Logic Explanation
 
-The performance tests conducted for \`Nuxt I18n Micro\` and \`nuxt-i18n\` v10 are designed to simulate real-world usage scenarios. Below is an overview of the key aspects of the test methodology:
+The performance tests compare **plain-nuxt** (baseline), **Nuxt I18n Micro**, and **nuxt-i18n** v10. The **plain-nuxt** fixture loads data directly from JSON files without any i18n module, providing a baseline for measuring i18n overhead.
 
-1. **Build Time**: Measures the time required to build the project, focusing on how efficiently each module handles large translation files.
-2. **CPU Usage**: Tracks the CPU load during the build and stress tests to assess the impact on server resources.
-3. **Memory Usage**: Monitors memory consumption to determine how each module manages memory, especially under high load.
-4. **Stress Testing**: Simulates a series of requests to evaluate the server's ability to handle concurrent traffic. The test is divided into two phases:
-   - **Warm-up Phase**: Over 6 seconds, one request per second is sent to each of the specified URLs, with a maximum of 6 users, to ensure that the server is ready for the main test.
-   - **Main Test Phase**: For 60 seconds, the server is subjected to 60 requests per second, spread across various endpoints, to measure response times, error rates, and overall throughput under load.
-
+1. **Build Time**: Measures the time required to build each project. Plain-nuxt shows the baseline; i18n modules add overhead for translation processing.
+2. **CPU Usage**: Tracks CPU load during build and stress tests.
+3. **Memory Usage**: Monitors memory consumption. Plain-nuxt establishes the baseline; i18n modules increase memory usage.
+4. **Stress Testing**: Simulates concurrent traffic. Plain-nuxt uses \`/\` and \`/page\`; i18n fixtures use locale-prefixed routes (\`/\`, \`/ru\`, \`/de\`, \`/page\`, etc.).
+   - **Warm-up Phase**: 6 seconds, 6 users.
+   - **Main Test Phase**: 60 seconds, 60 requests/second.
 
 ### 🛠 Why This Approach?
 
-The chosen testing methodology is designed to reflect the scenarios that developers are likely to encounter in production environments. By focusing on build time, CPU and memory usage, and server performance under load, the tests provide a comprehensive view of how each module will perform in a large-scale, high-traffic application.
-
-**Nuxt I18n Micro** is optimized for:
-- **Faster Build Times**: By reducing the overhead during the build process.
-- **Lower Resource Consumption**: Minimizing CPU and memory usage, making it suitable for resource-constrained environments.
-- **Better Handling of Large Projects**: With a focus on scalability, ensuring that applications remain responsive even as they grow.
+By including a **plain-nuxt** baseline, we can quantify the overhead of each i18n solution. **Nuxt I18n Micro** is optimized for:
+- **Faster Build Times**: Lower overhead than nuxt-i18n.
+- **Lower Resource Consumption**: Closer to plain-nuxt baseline.
+- **Better Scalability**: Per-page translations for large applications.
 `)
 }
 
@@ -662,27 +660,27 @@ describe('performance', () => {
     initializeMarkdown()
     addDependencyVersions()
 
+    // 1. plain-nuxt (baseline) - first
+    const plainNuxtResults = await measureBuildPerformance('./test/fixtures/plain-nuxt')
+    await pause(5000)
     const i18nResults = await measureBuildPerformance('./test/fixtures/i18n')
     await pause(5000)
-    const i18nNextResults = await measureBuildPerformance('./test/fixtures/i18n-micro')
+    const i18nMicroResults = await measureBuildPerformance('./test/fixtures/i18n-micro')
 
     console.log('\nPerformance Comparison:')
     console.log('--------------------------')
-    console.log(`i18n-micro: ${i18nNextResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextResults.maxCpuUsage.toFixed(2)}%`)
+    console.log(`plain-nuxt (baseline): ${plainNuxtResults.buildTime.toFixed(2)} seconds, Max Memory: ${plainNuxtResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${plainNuxtResults.maxCpuUsage.toFixed(2)}%`)
     console.log(`i18n v10: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%`)
-
-    const timeDifference = i18nNextResults.buildTime - i18nResults.buildTime
-    const memoryDifference = i18nNextResults.maxMemoryUsed - i18nResults.maxMemoryUsed
-    const cpuDifference = i18nNextResults.maxCpuUsage - i18nResults.maxCpuUsage
-
-    console.log('\nComparison Results:')
-    console.log('--------------------------')
-    console.log(`Time difference: ${timeDifference.toFixed(2)} seconds`)
-    console.log(`Memory difference: ${memoryDifference.toFixed(2)} MB`)
-    console.log(`CPU usage difference: ${cpuDifference.toFixed(2)}%`)
+    console.log(`i18n-micro: ${i18nMicroResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nMicroResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nMicroResults.maxCpuUsage.toFixed(2)}%`)
 
     writeToMarkdown(`
 ### ⏱️ Build Time and Resource Consumption
+
+::: details **plain-nuxt (baseline)**
+- **Build Time**: ${plainNuxtResults.buildTime.toFixed(2)} seconds
+- **Max CPU Usage**: ${plainNuxtResults.maxCpuUsage.toFixed(2)}%
+- **Max Memory Usage**: ${plainNuxtResults.maxMemoryUsed.toFixed(2)} MB
+:::
 
 ::: details **i18n v10**
 - **Build Time**: ${i18nResults.buildTime.toFixed(2)} seconds
@@ -691,29 +689,46 @@ describe('performance', () => {
 :::
 
 ::: details **i18n-micro**
-- **Build Time**: ${i18nNextResults.buildTime.toFixed(2)} seconds
-- **Max CPU Usage**: ${i18nNextResults.maxCpuUsage.toFixed(2)}%
-- **Max Memory Usage**: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB
+- **Build Time**: ${i18nMicroResults.buildTime.toFixed(2)} seconds
+- **Max CPU Usage**: ${i18nMicroResults.maxCpuUsage.toFixed(2)}%
+- **Max Memory Usage**: ${i18nMicroResults.maxMemoryUsed.toFixed(2)} MB
 :::
 `)
 
     writeToMarkdown(`
 ## Performance Comparison
 
-- **i18n-micro**: ${i18nNextResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nNextResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nNextResults.maxCpuUsage.toFixed(2)}%
-- **i18n v10**: ${i18nResults.buildTime.toFixed(2)} seconds, Max Memory: ${i18nResults.maxMemoryUsed.toFixed(2)} MB, Max CPU: ${i18nResults.maxCpuUsage.toFixed(2)}%
-- **Time Difference**: ${timeDifference.toFixed(2)} seconds
-- **Memory Difference**: ${memoryDifference.toFixed(2)} MB
-- **CPU Usage Difference**: ${cpuDifference.toFixed(2)}%
+| Project | Build Time | Max Memory | Max CPU |
+|---------|------------|------------|---------|
+| **plain-nuxt** (baseline) | ${plainNuxtResults.buildTime.toFixed(2)} seconds | ${plainNuxtResults.maxMemoryUsed.toFixed(2)} MB | ${plainNuxtResults.maxCpuUsage.toFixed(2)}% |
+| **i18n v10** | ${i18nResults.buildTime.toFixed(2)} seconds | ${i18nResults.maxMemoryUsed.toFixed(2)} MB | ${i18nResults.maxCpuUsage.toFixed(2)}% |
+| **i18n-micro** | ${i18nMicroResults.buildTime.toFixed(2)} seconds | ${i18nMicroResults.maxMemoryUsed.toFixed(2)} MB | ${i18nMicroResults.maxCpuUsage.toFixed(2)}% |
+
+- **i18n v10 vs baseline**: +${(i18nResults.buildTime - plainNuxtResults.buildTime).toFixed(2)}s build, +${(i18nResults.maxMemoryUsed - plainNuxtResults.maxMemoryUsed).toFixed(2)} MB memory
+- **i18n-micro vs baseline**: +${(i18nMicroResults.buildTime - plainNuxtResults.buildTime).toFixed(2)}s build, +${(i18nMicroResults.maxMemoryUsed - plainNuxtResults.maxMemoryUsed).toFixed(2)} MB memory
 `)
 
-    const artilleryConfigPath = './artillery-config.yml' // Убедитесь, что путь корректный
+    const artilleryConfigPath = './artillery-config.yml'
 
+    const plainNuxtStressResults = await stressTestServerWithArtillery('./test/fixtures/plain-nuxt', 'plain-nuxt', artilleryConfigPath)
+    await pause(5000)
     const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', 'i18n', artilleryConfigPath)
     await pause(5000)
-    const i18nNextStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', 'i18n-micro', artilleryConfigPath)
+    const i18nMicroStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', 'i18n-micro', artilleryConfigPath)
 
-    logAndWriteComparisonResults('i18n v10', 'i18n-micro', i18nStressResults, i18nNextStressResults)
+    writeToMarkdown(`
+## Stress Test Comparison
+
+| Project | Avg Response | RPS | Error Rate |
+|---------|--------------|-----|------------|
+| **plain-nuxt** | ${plainNuxtStressResults.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms | ${plainNuxtStressResults.requestsPerSecond?.toFixed(2) ?? 'N/A'} | ${plainNuxtStressResults.errorRate?.toFixed(2) ?? 'N/A'}% |
+| **i18n v10** | ${i18nStressResults.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms | ${i18nStressResults.requestsPerSecond?.toFixed(2) ?? 'N/A'} | ${i18nStressResults.errorRate?.toFixed(2) ?? 'N/A'}% |
+| **i18n-micro** | ${i18nMicroStressResults.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms | ${i18nMicroStressResults.requestsPerSecond?.toFixed(2) ?? 'N/A'} | ${i18nMicroStressResults.errorRate?.toFixed(2) ?? 'N/A'}% |
+`)
+
+    logAndWriteComparisonResults('plain-nuxt (baseline)', 'i18n v10', plainNuxtStressResults, i18nStressResults)
+    logAndWriteComparisonResults('plain-nuxt (baseline)', 'i18n-micro', plainNuxtStressResults, i18nMicroStressResults)
+    logAndWriteComparisonResults('i18n v10', 'i18n-micro', i18nStressResults, i18nMicroStressResults)
 
     addTestLogicExplanation()
   }, { timeout: 1600000 }) // 1600 seconds timeout

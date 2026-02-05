@@ -1,0 +1,17 @@
+{
+  "welcome": "Willkommen, {username}! Sie haben {unreadCount} ungelesene Nachrichten.",
+  "apples": "no apples | one apple | {count} apples",
+  "feedback": {
+    "text": "test link: {link}",
+    "link": "click"
+  },
+  "key1": {
+    "key1": {
+      "key1": {
+        "key1": {
+          "key1": "page de"
+        }
+      }
+    }
+  }
+}

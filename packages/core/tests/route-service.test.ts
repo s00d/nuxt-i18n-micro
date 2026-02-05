@@ -184,9 +184,9 @@ describe('RouteService', () => {
     expect(locale).toBe('ru') // Should extract from URL
   })
 
-  test('getCurrentLocale should use getDefaultLocale when route params and URL path are missing', () => {
+  test('getCurrentLocale should return defaultLocale for prefix_except_default when URL has no locale prefix', () => {
     routeService = new RouteService(
-      mockI18nConfig,
+      mockI18nConfig, // strategy: prefix_except_default
       mockRouter,
       null,
       null,
@@ -196,7 +196,26 @@ describe('RouteService', () => {
     mockRouter.currentRoute.value.params = {} // Remove locale from params
     mockRouter.currentRoute.value.path = '/' // No locale in path
     const locale = routeService.getCurrentLocale()
-    expect(locale).toBe('de') // Should use getter
+    // For prefix_except_default: URL without locale = defaultLocale (SEO requirement)
+    // Getter is NOT used because URL explicitly indicates defaultLocale
+    expect(locale).toBe('en')
+  })
+
+  test('getCurrentLocale should use getDefaultLocale for no_prefix strategy', () => {
+    const noPrefixConfig = { ...mockI18nConfig, strategy: 'no_prefix' as const }
+    routeService = new RouteService(
+      noPrefixConfig,
+      mockRouter,
+      null,
+      'de', // noPrefixDefault
+      navigateToMock,
+      () => 'de', // getter from plugin (cookie/state)
+    )
+    mockRouter.currentRoute.value.params = {} // Remove locale from params
+    mockRouter.currentRoute.value.path = '/' // No locale in path
+    const locale = routeService.getCurrentLocale()
+    // For no_prefix: getter/noPrefixDefault determines locale
+    expect(locale).toBe('de')
   })
 
   test('getCurrentLocale should prioritize route params over URL path', () => {

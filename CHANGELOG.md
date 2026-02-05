@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.2.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.2...v3.2.3)
+
+### 🩹 Fixes
+
+- **module:** Update path strategy resolution for pnpm compatibility ([34728d6](https://github.com/s00d/nuxt-i18n-micro/commit/34728d6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.2.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.1...v3.2.2)

@@ -1,13 +1,14 @@
 import type { Params, Strategies, PluralFunc, Getter, TranslationKey } from '@i18n-micro/types'
 
+const RE_TOKEN = /\{(\w+)\}/g
+
 export function interpolate(template: string, params: Params): string {
-  let result = template
+  if (!params) return template
 
-  for (const key in params) {
-    result = result.split(`{${key}}`).join(String(params[key]))
-  }
-
-  return result
+  return template.replace(RE_TOKEN, (_, key) => {
+    const value = params[key]
+    return value !== undefined ? String(value) : `{${key}}`
+  })
 }
 
 export function withPrefixStrategy(strategy: Strategies) {

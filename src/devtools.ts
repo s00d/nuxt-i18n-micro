@@ -22,7 +22,7 @@ export interface ClientFunctions {
   showNotification: (message: string) => void
 }
 
-export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resolve']) {
+export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resolve'], rootDirs: string[]) {
   const nuxt = useNuxt()
   // Check for client directory first (legacy), then devtools-ui package
   const clientPath = resolve('./client')
@@ -73,13 +73,12 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
 
   // Setup DevTools integration
   onDevToolsInitialized(async () => {
+    const dirs = rootDirs.length > 0 ? rootDirs : [nuxt.options.rootDir]
     extendServerRpc<ClientFunctions, ServerFunctions>('nuxt-i18n-micro', {
       async saveTranslationContent(file, content) {
-        const { getI18nPrivateConfig } = await import('#build/i18n.config.mjs')
-        const rootDirs = getI18nPrivateConfig()?.rootDirs ?? [nuxt.options.rootDir]
         let filePath: string | null = null
 
-        for (const rootDir of rootDirs) {
+        for (const rootDir of dirs) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
           const candidatePath = path.join(localesDir, file)
           if (fs.existsSync(candidatePath)) {
@@ -104,11 +103,9 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
         return Promise.resolve(options)
       },
       async getLocalesAndTranslations() {
-        const { getI18nPrivateConfig } = await import('#build/i18n.config.mjs')
-        const rootDirs = getI18nPrivateConfig()?.rootDirs ?? [nuxt.options.rootDir]
         const filesList: Record<string, string> = {}
 
-        for (const rootDir of rootDirs) {
+        for (const rootDir of dirs) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
           const pagesDir = path.join(localesDir, 'pages')
 

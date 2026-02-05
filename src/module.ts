@@ -645,7 +645,7 @@ declare module '#i18n-internal/plural' {
 
     // Setup DevTools integration
     if (nuxt.options.dev) {
-      setupDevToolsUI(options, resolver.resolve)
+      setupDevToolsUI(options, resolver.resolve, rootDirs)
     }
   },
 })

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.2.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.1...v3.2.2)
+
+### 🩹 Fixes
+
+- **module:** Add alias resolution for pnpm compatibility ([edcc0cc](https://github.com/s00d/nuxt-i18n-micro/commit/edcc0cc))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.2.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.0...v3.2.1)

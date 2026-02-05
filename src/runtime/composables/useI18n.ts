@@ -11,13 +11,17 @@ export function useI18n(): PluginsInjectionsWithAliases {
   const nuxtApp = useNuxtApp()
 
   const injections = {
+    $i18nStrategy: nuxtApp.$i18nStrategy,
+    $getI18nConfig: nuxtApp.$getI18nConfig,
     $defaultLocale: nuxtApp.$defaultLocale,
     $getLocale: nuxtApp.$getLocale,
     $getLocaleName: nuxtApp.$getLocaleName,
     $getLocales: nuxtApp.$getLocales,
     $getRouteName: nuxtApp.$getRouteName,
     $t: nuxtApp.$t,
+    $_t: nuxtApp.$_t,
     $ts: nuxtApp.$ts,
+    $_ts: nuxtApp.$_ts,
     $tn: nuxtApp.$tn,
     $td: nuxtApp.$td,
     $tdr: nuxtApp.$tdr,
@@ -34,6 +38,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $localePath: nuxtApp.$localePath,
     $loadPageTranslations: nuxtApp.$loadPageTranslations,
     $setMissingHandler: nuxtApp.$setMissingHandler,
+    helper: nuxtApp.helper,
   } as const
 
   const noDollarInjections = Object.fromEntries(
@@ -43,5 +48,5 @@ export function useI18n(): PluginsInjectionsWithAliases {
   return {
     ...injections,
     ...noDollarInjections,
-  } as PluginsInjectionsWithAliases
+  } as unknown as PluginsInjectionsWithAliases
 }

@@ -1113,6 +1113,12 @@ importers:
 
   test/fixtures/pages-false-no-prefix: {}
 
+  test/fixtures/plain-nuxt:
+    dependencies:
+      nuxt:
+        specifier: 'catalog:'
+        version: 4.1.2(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.27)(better-sqlite3@12.2.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.2.0))(encoding@0.1.13)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.2)(lightningcss@1.30.2)(magicast@0.5.1)(optionator@0.9.4)(rollup@4.57.0)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.0.6(typescript@5.9.3))(yaml@2.8.2)
+
   test/fixtures/redirect:
     dependencies:
       nuxt:

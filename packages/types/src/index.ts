@@ -98,10 +98,9 @@ export interface ModuleOptions {
   routeLocales?: Record<string, string[]>
   routeDisableMeta?: Record<string, boolean | string[]>
   missingWarn?: boolean
-  experimental?: {
-    i18nPreviousPageFallback?: boolean
-    hmr?: boolean
-  }
+  previousPageFallback?: boolean
+  hmr?: boolean
+  experimental?: Record<string, unknown>
 }
 
 export interface ModuleOptionsExtend extends ModuleOptions {

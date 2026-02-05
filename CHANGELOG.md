@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.2.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.0...v3.2.1)
+
+### 🏡 Chore
+
+- **path-strategy:** Bump version to 1.0.3 in package.json ([c97eb36](https://github.com/s00d/nuxt-i18n-micro/commit/c97eb36))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.2.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.1.0...v3.2.0)

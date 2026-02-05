@@ -171,29 +171,33 @@ export default defineNuxtModule<ModuleOptions>({
       logger.debug('[i18n module] strategy:', options.strategy)
     }
 
-    // Path-strategy: resolve actual path and add alias for pnpm compatibility
+    // Path-strategy: resolve actual file path for pnpm compatibility
+    // We use absolute path in generated code to avoid module resolution issues
     const require = createRequire(import.meta.url)
-    let pathStrategyDir: string
+    const strategyFiles: Record<Strategies, string> = {
+      no_prefix: 'no-prefix-strategy.mjs',
+      prefix: 'prefix-strategy.mjs',
+      prefix_except_default: 'prefix-except-default-strategy.mjs',
+      prefix_and_default: 'prefix-and-default-strategy.mjs',
+    }
+    const strategyFile = strategyFiles[options.strategy!] ?? strategyFiles.prefix_except_default
+
+    let resolvedStrategyPath: string
     try {
       const pkgPath = require.resolve('@i18n-micro/path-strategy/package.json')
-      pathStrategyDir = dirname(pkgPath)
+      // Use absolute file path - works in all environments
+      resolvedStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
     }
     catch {
-      // Fallback - should not happen in normal circumstances
-      pathStrategyDir = '@i18n-micro/path-strategy'
+      // Fallback to subpath export (should not happen normally)
+      const strategySubpaths: Record<Strategies, string> = {
+        no_prefix: '@i18n-micro/path-strategy/no-prefix',
+        prefix: '@i18n-micro/path-strategy/prefix',
+        prefix_except_default: '@i18n-micro/path-strategy/prefix-except-default',
+        prefix_and_default: '@i18n-micro/path-strategy/prefix-and-default',
+      }
+      resolvedStrategyPath = strategySubpaths[options.strategy!] ?? strategySubpaths.prefix_except_default
     }
-
-    // Add alias so Vite/Nuxt can resolve the package in pnpm environments
-    nuxt.options.alias = nuxt.options.alias || {}
-    nuxt.options.alias['@i18n-micro/path-strategy'] = pathStrategyDir
-
-    const strategyDistPaths: Record<Strategies, string> = {
-      no_prefix: '@i18n-micro/path-strategy/dist/no-prefix-strategy.mjs',
-      prefix: '@i18n-micro/path-strategy/dist/prefix-strategy.mjs',
-      prefix_except_default: '@i18n-micro/path-strategy/dist/prefix-except-default-strategy.mjs',
-      prefix_and_default: '@i18n-micro/path-strategy/dist/prefix-and-default-strategy.mjs',
-    }
-    const selectedStrategyPath = strategyDistPaths[options.strategy!] ?? strategyDistPaths.prefix_except_default
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],
@@ -270,7 +274,7 @@ export default defineNuxtModule<ModuleOptions>({
     const strategyTemplate = addTemplate({
       filename: 'i18n.strategy.mjs',
       write: true,
-      getContents: () => `import { Strategy } from '${selectedStrategyPath}'
+      getContents: () => `import { Strategy } from '${resolvedStrategyPath}'
 
 const __fullConfig = ${fullConfigJson}
 

@@ -49,14 +49,9 @@ describe('BaseI18n', () => {
       expect(i18n.getRoute()).toBe('general')
     })
 
-    test('should initialize with custom cache', () => {
-      const cache = {
-        generalLocaleCache: {},
-        routeLocaleCache: {},
-        dynamicTranslationsCaches: [],
-        serverTranslationCache: {},
-      }
-      const i18n = new TestI18n('en', 'en', 'general', { cache })
+    test('should initialize with custom storage', () => {
+      const storage = { translations: new Map<string, Translations>() }
+      const i18n = new TestI18n('en', 'en', 'general', { storage })
       expect(i18n).toBeDefined()
     })
 
@@ -93,13 +88,8 @@ describe('BaseI18n', () => {
     })
 
     test('should interpolate params in translation', async () => {
-      const cache = {
-        generalLocaleCache: {},
-        routeLocaleCache: {},
-        dynamicTranslationsCaches: [],
-        serverTranslationCache: {},
-      }
-      const i18n = new TestI18n('en', 'en', 'general', { cache })
+      const storage = { translations: new Map<string, Translations>() }
+      const i18n = new TestI18n('en', 'en', 'general', { storage })
       const translations: Translations = { greeting: 'Hello, {name}!' }
       await i18n['helper'].loadTranslations('en', translations)
 
@@ -117,13 +107,8 @@ describe('BaseI18n', () => {
     })
 
     test('should fallback to fallbackLocale when translation is missing', async () => {
-      const cache = {
-        generalLocaleCache: {},
-        routeLocaleCache: {},
-        dynamicTranslationsCaches: [],
-        serverTranslationCache: {},
-      }
-      const i18n = new TestI18n('en', 'fr', 'general', { cache })
+      const storage = { translations: new Map<string, Translations>() }
+      const i18n = new TestI18n('en', 'fr', 'general', { storage })
       const translations: Translations = { greeting: 'Bonjour' }
       await i18n['helper'].loadTranslations('fr', translations)
 
@@ -139,15 +124,10 @@ describe('BaseI18n', () => {
     })
 
     test('should use previousPageInfo fallback when enabled', async () => {
-      const cache = {
-        generalLocaleCache: {},
-        routeLocaleCache: {},
-        dynamicTranslationsCaches: [],
-        serverTranslationCache: {},
-      }
+      const storage = { translations: new Map<string, Translations>() }
       const prevInfo = { locale: 'fr', routeName: 'previous' }
       const i18n = new TestI18n('en', 'en', 'general', {
-        cache,
+        storage,
         getPreviousPageInfo: () => prevInfo,
         enablePreviousPageFallback: true,
       })
@@ -479,13 +459,8 @@ describe('BaseI18n', () => {
     })
 
     test('should handle route change', async () => {
-      const cache = {
-        generalLocaleCache: {},
-        routeLocaleCache: {},
-        dynamicTranslationsCaches: [],
-        serverTranslationCache: {},
-      }
-      const i18n = new TestI18n('en', 'en', 'general', { cache })
+      const storage = { translations: new Map<string, Translations>() }
+      const i18n = new TestI18n('en', 'en', 'general', { storage })
       const generalTranslations: Translations = { greeting: 'Hello' }
       const routeTranslations: Translations = { title: 'About Page' }
 

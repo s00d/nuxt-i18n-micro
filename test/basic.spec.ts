@@ -388,10 +388,9 @@ test.describe('basic', () => {
     await expect(page).toHaveURL('/de/page')
     await expect(page.locator('#locale')).toHaveText('Current Locale: de')
 
-    // With localeCookie: null, localeState persists — /page shows user's chosen locale (de)
     await page.click('#link-en')
     await expect(page).toHaveURL('/page')
-    await expect(page.locator('#locale')).toHaveText('Current Locale: de')
+    await expect(page.locator('#locale')).toHaveText('Current Locale: en')
   })
 
   test('test localized content changes on navigation', async ({ page, goto }) => {

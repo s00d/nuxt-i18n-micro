@@ -1,0 +1,17 @@
+{
+  "welcome": "Добро пожаловать, {username}! У вас {unreadCount} непрочитанных сообщений.",
+  "apples": "no apples | one apple | {count} apples",
+  "feedback": {
+    "text": "test link: {link}",
+    "link": "click"
+  },
+  "key1": {
+    "key1": {
+      "key1": {
+        "key1": {
+          "key1": "page ru"
+        }
+      }
+    }
+  }
+}

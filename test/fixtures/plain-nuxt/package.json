@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "name": "plain-nuxt",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=16000\" nuxi build",
+    "generate": "nuxi generate",
+    "prebuild": "node data/generate.mjs",
+    "init": "nuxt prepare"
+  },
+  "dependencies": {
+    "nuxt": "catalog:"
+  }
+}

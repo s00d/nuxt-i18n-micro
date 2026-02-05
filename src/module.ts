@@ -68,7 +68,7 @@ export default defineNuxtModule<ModuleOptions>({
     autoDetectLanguage: true,
     disablePageLocales: false,
     disableWatcher: false,
-    // experimental kept in runtimeConfig only to avoid type drift here
+    // previousPageFallback and hmr are now main options (not experimental)
     noPrefixRedirect: false,
     includeDefaultLocaleRoute: undefined,
     fallbackLocale: undefined,
@@ -236,10 +236,8 @@ export default defineNuxtModule<ModuleOptions>({
       routeDisableMeta: routeDisableMeta,
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
       missingWarn: options.missingWarn ?? true,
-      experimental: {
-        i18nPreviousPageFallback: options.experimental?.i18nPreviousPageFallback ?? false,
-        hmr: options.experimental?.hmr ?? true,
-      },
+      previousPageFallback: options.previousPageFallback ?? false,
+      hmr: options.hmr ?? true,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       noPrefixRedirect: options.noPrefixRedirect ?? false,
@@ -381,8 +379,8 @@ export function getI18nPrivateConfig() { return __privateConfig }
       extensions: ['vue'],
     })
 
-    // Experimental: client HMR for translations
-    if (nuxt.options.dev && (options.experimental?.hmr ?? true)) {
+    // HMR for translations
+    if (nuxt.options.dev && (options.hmr ?? true)) {
       const translationsDir = join(nuxt.options.rootDir, options.translationDir || 'locales')
       const files = await globby(['**/*.json'], { cwd: translationsDir, absolute: true })
       const tpl = addTemplate({
@@ -570,7 +568,7 @@ declare module '#i18n-internal/plural' {
 
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.plugins = nitroConfig.plugins || []
-      if (nuxt.options.dev && (options.experimental?.hmr ?? true)) {
+      if (nuxt.options.dev && (options.hmr ?? true)) {
         nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
       }
       nitroConfig.handlers = nitroConfig.handlers || []

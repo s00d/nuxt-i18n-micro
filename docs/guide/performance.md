@@ -71,6 +71,52 @@ Unlike other i18n modules that generate a separate route for each locale, `Nuxt 
 
 The module supports only JSON files for translations, with a clear separation between global and page-specific files. This ensures that only the necessary translation data is loaded at any given time, further enhancing performance.
 
+### 🔒 GlobalThis Singleton Cache
+
+Starting from v3.0.0, the module uses a `globalThis` singleton pattern with `Symbol.for` to guarantee a single cache instance across the entire Node.js process. This prevents:
+
+- Cache duplication when the same module is bundled multiple times
+- Per-request object recreation that causes garbage collection pressure
+- Memory leaks from orphaned cache instances
+
+```typescript
+// Internal implementation pattern
+const CACHE_KEY = Symbol.for('__NUXT_I18N_STORAGE_CACHE__')
+if (!globalThis[CACHE_KEY]) {
+  globalThis[CACHE_KEY] = new Map()
+}
+```
+
+### ⚡ Optimized Translation Function (tFast)
+
+The `$t()` function uses a layered lookup strategy optimized for speed:
+
+1. **Pre-computed context**: Locale and route name are calculated once during navigation, not on every `$t()` call
+2. **Layered search**: First searches page-specific translations, then falls back to general translations
+3. **Direct property access**: Uses `obj[key]` instead of Map lookups for hot paths
+4. **Frozen objects**: Loaded translations are frozen with `Object.freeze()` for V8 optimization
+
+```typescript
+// Simplified lookup logic
+const page = loadedChunks.get(`${locale}:${routeName}`) || {}
+const general = loadedChunks.get(`${locale}:general`) || {}
+let val = page[key] ?? general[key]
+```
+
+### 💉 Server-Side Injection
+
+During SSR, translations are injected directly into the HTML as a script tag:
+
+```html
+<script>window.__I18N__={"en:general":{...},"en:index":{...}};</script>
+```
+
+On the client, the plugin reads from `window.__I18N__` on initial hydration, completely avoiding duplicate fetch requests. This approach:
+
+- Eliminates waterfall requests on page load
+- Reduces Time to Interactive (TTI)
+- Works seamlessly with pre-rendering and SSG
+
 ### 💾 Caching and Pre-rendering
 
 To optimize performance, `Nuxt I18n Micro` implements caching and supports pre-rendering of translation files:

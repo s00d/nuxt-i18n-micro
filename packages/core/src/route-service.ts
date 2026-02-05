@@ -13,7 +13,7 @@ import type {
   Router,
 } from 'vue-router'
 import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
-import { isNoPrefixStrategy, withPrefixStrategy, isPrefixAndDefaultStrategy } from './helpers'
+import { isNoPrefixStrategy, withPrefixStrategy, isPrefixAndDefaultStrategy, isPrefixExceptDefaultStrategy } from './helpers'
 
 interface NavigateToInterface {
   replace?: boolean
@@ -108,11 +108,16 @@ export class RouteService {
       return localeFromPath
     }
 
-    // 5. Check getter (plugin provides cookie/state for prefix strategies when URL has no locale)
+    // 5. For prefix_except_default: URL without locale prefix = defaultLocale
+    if (isPrefixExceptDefaultStrategy(this.i18nConfig.strategy!)) {
+      return (this.i18nConfig.defaultLocale || 'en').toString()
+    }
+
+    // 6. Check getter (for no_prefix and other strategies)
     const fromGetter = this.getDefaultLocale?.()
     if (fromGetter) return fromGetter
 
-    // 6. Return defaultLocale as fallback
+    // 7. Return defaultLocale as fallback
     return (this.i18nConfig.defaultLocale || 'en').toString()
   }
 

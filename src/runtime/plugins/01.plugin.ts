@@ -89,10 +89,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const enablePreviousPageFallback = i18nConfig.previousPageFallback ?? false
   const previousPageInfo = useState<{ locale: string, routeName: string } | null>('i18n-previous-page', () => null)
 
-  // Очищаем старые данные только после полной загрузки страницы
+  // Очищаем previousPageInfo после полной загрузки страницы
+  // ВАЖНО: i18nRouteParams НЕ сбрасываем здесь - они нужны для locale switcher
+  // i18nRouteParams сбрасываются в router.beforeEach когда меняется route name
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
-      i18nRouteParams.value = null
       previousPageInfo.value = null
     }
   })

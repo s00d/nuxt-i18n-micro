@@ -226,7 +226,7 @@ export abstract class BaseI18n {
       this.helper.mergeGlobalTranslation(locale, translations, true)
     }
     else {
-      this.helper.loadTranslations(locale, translations)
+      this.helper.setTranslations(locale, translations)
     }
   }
 

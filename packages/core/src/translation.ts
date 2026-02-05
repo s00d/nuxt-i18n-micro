@@ -71,8 +71,13 @@ export function useTranslationHelper(storage?: TranslationStorage) {
       return findValue<T>(generalData, key)
     },
     loadTranslations(locale: string, data: Translations): void {
+      // Merge with existing, replacing duplicate keys
       const existing = translations.get(locale) ?? {}
       translations.set(locale, { ...existing, ...data })
+    },
+    setTranslations(locale: string, data: Translations): void {
+      // Replace all translations for locale (no merge)
+      translations.set(locale, data)
     },
     loadPageTranslations(locale: string, routeName: string, data: Translations): void {
       const key = `${locale}:${routeName}`

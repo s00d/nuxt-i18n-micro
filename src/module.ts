@@ -1,5 +1,4 @@
-import path, { join, dirname } from 'node:path'
-import { createRequire } from 'node:module'
+import path, { join } from 'node:path'
 import fs, { readFileSync } from 'node:fs'
 import {
   addComponentsDir,
@@ -171,32 +170,14 @@ export default defineNuxtModule<ModuleOptions>({
       logger.debug('[i18n module] strategy:', options.strategy)
     }
 
-    // Alias for path-strategy: only the selected strategy is bundled (see README packages/path-strategy)
-    const strategyFiles: Record<Strategies, string> = {
-      no_prefix: 'no-prefix-strategy.mjs',
-      prefix: 'prefix-strategy.mjs',
-      prefix_except_default: 'prefix-except-default-strategy.mjs',
-      prefix_and_default: 'prefix-and-default-strategy.mjs',
+    // Path-strategy: use direct dist path to avoid subpath exports issues in some environments (e.g., Cloudflare)
+    const strategyDistPaths: Record<Strategies, string> = {
+      no_prefix: '@i18n-micro/path-strategy/dist/no-prefix-strategy.mjs',
+      prefix: '@i18n-micro/path-strategy/dist/prefix-strategy.mjs',
+      prefix_except_default: '@i18n-micro/path-strategy/dist/prefix-except-default-strategy.mjs',
+      prefix_and_default: '@i18n-micro/path-strategy/dist/prefix-and-default-strategy.mjs',
     }
-    const strategyFile = strategyFiles[options.strategy!] ?? strategyFiles.prefix_except_default
-
-    // Resolve the actual file path to avoid subpath exports issues in some environments (e.g., Cloudflare)
-    const require = createRequire(import.meta.url)
-    let selectedStrategyPath: string
-    try {
-      const pkgPath = require.resolve('@i18n-micro/path-strategy/package.json')
-      selectedStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
-    }
-    catch {
-      // Fallback to subpath export if resolve fails
-      const strategyEntries: Record<Strategies, string> = {
-        no_prefix: '@i18n-micro/path-strategy/no-prefix',
-        prefix: '@i18n-micro/path-strategy/prefix',
-        prefix_except_default: '@i18n-micro/path-strategy/prefix-except-default',
-        prefix_and_default: '@i18n-micro/path-strategy/prefix-and-default',
-      }
-      selectedStrategyPath = strategyEntries[options.strategy!] ?? strategyEntries.prefix_except_default
-    }
+    const selectedStrategyPath = strategyDistPaths[options.strategy!] ?? strategyDistPaths.prefix_except_default
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],

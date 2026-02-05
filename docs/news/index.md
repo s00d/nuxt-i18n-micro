@@ -4,17 +4,41 @@ outline: deep
 
 # News
 
-## Nuxt I18n Micro v3.0.0 — Route & Path Strategy Packages, Redirect Architecture Overhaul
+## Nuxt I18n Micro v3.0.0 — Performance Optimization, Route & Path Strategy Packages
 
-**Date**: 2026-01-28
+**Date**: 2026-02-04
 
 **Version**: `v3.0.0`
 
 ![RouteGenerator](/3.0.0.png)
 
-We're announcing **v3.0.0** with a **major architectural overhaul**: route generation and runtime path logic are now split into dedicated packages, and the redirect flow has been redesigned for better reliability and Serverless compatibility.
+We're announcing **v3.0.0** with a **major architectural overhaul**: complete rewrite of the translation storage system for maximum performance, route generation and runtime path logic are now split into dedicated packages, and the redirect flow has been redesigned for better reliability and Serverless compatibility.
 
 ### What's New?
+
+#### Performance Optimization — New Translation Storage Architecture
+
+The translation loading and caching system has been completely rewritten for maximum performance:
+
+- **Centralized TranslationStorage class** — A new `TranslationStorage` class (`src/runtime/utils/storage.ts`) provides a unified storage for both client and server. Uses `globalThis` with `Symbol.for` to guarantee a true singleton across the entire Node.js process, preventing cache duplication across bundled modules.
+
+- **Optimized `$t()` function (tFast)** — The translation function now uses a layered lookup strategy:
+  1. First searches in page-specific translations (highest priority)
+  2. Then falls back to general translations
+  3. Supports nested keys (`key.subkey.subsubkey`) with optimized path resolution
+  4. No Map lookups or locale/route calculations on each call — uses pre-computed context
+
+- **Server-side injection via `window.__I18N__`** — Translations loaded during SSR are injected into the HTML as a script tag. The client reads directly from `window.__I18N__` on initial load, avoiding duplicate fetches.
+
+- **Local chunk cache in plugin** — The plugin maintains a local `loadedChunks` Map that stores all loaded translation chunks. Once loaded, translations are never re-fetched during the page lifecycle.
+
+- **Server-side Nitro storage loader** — A dedicated `server-loader.ts` handles loading translations from Nitro's storage layer with proper fallback locale support and deep merging.
+
+**Performance improvements:**
+- Reduced memory allocation per request (no object re-creation on each `$t()` call)
+- Lower garbage collection pressure
+- Faster response times under load
+- Stable memory usage pattern (no "jumping" graphs)
 
 #### Route & Path Strategy Packages
 
@@ -30,6 +54,7 @@ We're announcing **v3.0.0** with a **major architectural overhaul**: route gener
 - **No fallback component** — The `locale-redirect.vue` fallback component and `fallbackRedirectComponentPath` option have been removed. Redirect logic is fully handled by the server middleware and client plugin.
 - **Custom path support** — Paths like `/kontakt` for German (via `globalLocaleRoutes`) are correctly recognized as valid without a locale prefix, avoiding incorrect 404s during prerender.
 - **customRegexMatcher fix** — When using `customRegexMatcher`, the pattern now matches the **entire** first path segment (with `^` and `$` anchors). This prevents false 404s for routes like `/locale-test` when the pattern `[a-z]{2}-[a-z]{2}` would previously match substrings.
+- **autoDetectPath fix** — The `autoDetectPath` option now correctly compares against the original URL path, preventing unwanted redirects when explicitly navigating to locale-prefixed URLs.
 
 #### useI18nLocale Composable
 
@@ -42,14 +67,20 @@ We're announcing **v3.0.0** with a **major architectural overhaul**: route gener
 - **`getI18nConfig()`** — Custom plugins (e.g. for locale detection) should use `getI18nConfig()` from `#build/i18n.strategy.mjs` instead of `useRuntimeConfig().public.i18nConfig`. This provides direct access to the resolved i18n config (e.g. `localeCookie`) without relying on runtime config.
 - **Cookie name** — Use `getI18nConfig().localeCookie ?? 'user-locale'` when implementing custom detection logic.
 
+#### Simplified Integration Packages
+
+All integration packages (`@i18n-micro/vue`, `@i18n-micro/astro`, `@i18n-micro/node`, `@i18n-micro/react`, `@i18n-micro/preact`, `@i18n-micro/solid`) have been simplified and optimized, sharing the same core translation logic.
+
 ### Breaking Changes
 
 - **`fallbackRedirectComponentPath`** — Removed. The module no longer uses a fallback route component for redirects. If you had a custom component path configured, remove it from your config.
 - **`useLocaleCookies`** — Removed. Use `useI18nLocale()` instead. The new composable provides `locale`, `localeCookie`, `hashCookie`, `setLocale()`, `syncLocale()`, and more.
 - **Custom plugins** — If your custom locale-detection plugin used `useRuntimeConfig().public.i18nConfig`, switch to `getI18nConfig()` from `#build/i18n.strategy.mjs`. Prefer `useI18nLocale().setLocale()` over `useState('i18n-locale')`. See [Custom Language Detection](/guide/custom-auto-detect) for updated examples.
+- **Internal file changes** — `load-from-storage.ts` and `translation-loader.ts` have been removed and replaced with `storage.ts` and `server-loader.ts`. If you were importing from these files directly (not recommended), update your imports.
 
 ### Why It Matters
 
+- **Performance**: Centralized singleton cache eliminates per-request object creation and reduces GC pressure.
 - **Maintainability**: Route and path logic live in dedicated packages with clear boundaries and types.
 - **Testing**: Strategy behavior and edge cases are tested in isolation.
 - **Reliability**: Split server (Nitro) and client redirect logic avoids timing issues when cookie/useState are set by user plugins.

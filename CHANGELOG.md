@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.2.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.3...v3.2.4)
+
+### 💅 Refactors
+
+- **module:** Simplify strategy path resolution logic ([3d77bf2](https://github.com/s00d/nuxt-i18n-micro/commit/3d77bf2))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.2.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.2...v3.2.3)

@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v3.2.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.1.0...v3.2.0)
+
+### 🚀 Enhancements
+
+- **module:** Update path-strategy to use direct dist paths ([9eca73d](https://github.com/s00d/nuxt-i18n-micro/commit/9eca73d))
+
+### 🏡 Chore
+
+- **path-strategy:** Bump version to 1.0.2 and update package entries ([38b51d6](https://github.com/s00d/nuxt-i18n-micro/commit/38b51d6))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.1.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.0.0...v3.1.0)

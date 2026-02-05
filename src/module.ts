@@ -172,7 +172,6 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // Path-strategy: resolve actual file path for pnpm compatibility
-    // We use absolute path in generated code to avoid module resolution issues
     const require = createRequire(import.meta.url)
     const strategyFiles: Record<Strategies, string> = {
       no_prefix: 'no-prefix-strategy.mjs',
@@ -181,23 +180,8 @@ export default defineNuxtModule<ModuleOptions>({
       prefix_and_default: 'prefix-and-default-strategy.mjs',
     }
     const strategyFile = strategyFiles[options.strategy!] ?? strategyFiles.prefix_except_default
-
-    let resolvedStrategyPath: string
-    try {
-      const pkgPath = require.resolve('@i18n-micro/path-strategy/package.json')
-      // Use absolute file path - works in all environments
-      resolvedStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
-    }
-    catch {
-      // Fallback to subpath export (should not happen normally)
-      const strategySubpaths: Record<Strategies, string> = {
-        no_prefix: '@i18n-micro/path-strategy/no-prefix',
-        prefix: '@i18n-micro/path-strategy/prefix',
-        prefix_except_default: '@i18n-micro/path-strategy/prefix-except-default',
-        prefix_and_default: '@i18n-micro/path-strategy/prefix-and-default',
-      }
-      resolvedStrategyPath = strategySubpaths[options.strategy!] ?? strategySubpaths.prefix_except_default
-    }
+    const pkgPath = require.resolve('@i18n-micro/path-strategy/package.json')
+    const resolvedStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],

@@ -98,10 +98,18 @@ const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
 export default defineEventHandler(async (event) => {
   const path = event.path || getRequestURL(event).pathname
 
+  // Fast early exits — before any i18n logic
   if (path.startsWith('/api') || path.startsWith('/_nuxt') || path.startsWith('/_locales') || path.startsWith('/__')) return
-  if (path.includes('.')) return
+  // Static assets: .js, .css, .png etc. — skip regex/config entirely
+  if (path.includes('.') && !path.endsWith('.html')) return
 
   const config = getI18nConfig() as ModuleOptionsExtend
+  // isInternalPath (regex loop) as early as possible — before path parsing, cookies, headers
+  if (isInternalPath(path, config.excludePatterns)) {
+    if (DEBUG) console.error('[i18n-middleware] 404: isInternalPath', path)
+    throw createError({ statusCode: 404, statusMessage: 'Static file - should not be processed by i18n' })
+  }
+
   const validLocales = config.locales?.map(l => l.code) || []
   const defaultLocale = config.defaultLocale || 'en'
   const strategy = config.strategy!
@@ -133,12 +141,24 @@ export default defineEventHandler(async (event) => {
   const globalLocaleRoutes = config.globalLocaleRoutes
   const routeLocales = config.routeLocales
 
-  if (isInternalPath(path, config.excludePatterns)) {
-    if (DEBUG) console.error('[i18n-middleware] 404: isInternalPath', path)
-    throw createError({ statusCode: 404, statusMessage: 'Static file - should not be processed by i18n' })
+  let locale = defaultLocale
+  let detectedFromAcceptLanguage: string | null = null
+
+  // Detect locale from Accept-Language first (for autoDetectLanguage redirect)
+  if (config.autoDetectLanguage) {
+    const acceptHeader = getHeader(event, 'accept-language')
+    const langs = parseAcceptLanguage(acceptHeader)
+    for (const lang of langs) {
+      const lowerCaseLanguage = lang.toLowerCase()
+      const primaryLanguage = lowerCaseLanguage.split('-')[0]
+      const found = validLocales.find(l => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
+      if (found) {
+        detectedFromAcceptLanguage = found
+        break
+      }
+    }
   }
 
-  let locale = defaultLocale
   if (hasLocaleInUrl) {
     locale = firstSegment!
   }
@@ -152,19 +172,24 @@ export default defineEventHandler(async (event) => {
       if (cookieVal && validLocales.includes(cookieVal)) locale = cookieVal
     }
   }
-  // If still default (no cookie or invalid), try accept-language
-  if (locale === defaultLocale && config.autoDetectLanguage) {
-    const acceptHeader = getHeader(event, 'accept-language')
-    const langs = parseAcceptLanguage(acceptHeader)
-    for (const lang of langs) {
-      const lowerCaseLanguage = lang.toLowerCase()
-      const primaryLanguage = lowerCaseLanguage.split('-')[0]
-      const found = validLocales.find(l => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
-      if (found) {
-        locale = found
-        break
-      }
-    }
+
+  // Apply Accept-Language detection if no explicit locale found
+  if (locale === defaultLocale && detectedFromAcceptLanguage) {
+    locale = detectedFromAcceptLanguage
+  }
+
+  // autoDetectLanguage redirect: URL has locale but Accept-Language prefers different one
+  // Only redirect if autoDetectPath matches current path (compare with original path, not pathWithoutLocale)
+  const autoDetectPath = config.autoDetectPath ?? '/'
+  const shouldAutoDetectRedirect = autoDetectPath === '*' || path === autoDetectPath || path === `${autoDetectPath}/`
+  if (!skipRedirect && config.autoDetectLanguage && hasLocaleInUrl && detectedFromAcceptLanguage && firstSegment !== detectedFromAcceptLanguage && shouldAutoDetectRedirect) {
+    const redirectPath = resolveLocalizedPath(pathWithoutLocale, detectedFromAcceptLanguage, strategy, defaultLocale, globalLocaleRoutes)
+    const url = getRequestURL(event)
+    let finalPath = redirectPath
+    if (url.search) finalPath += url.search
+    if (url.hash) finalPath += (url.hash.startsWith('#') ? url.hash : `#${url.hash}`)
+    if (DEBUG) console.error('[i18n-middleware] REDIRECT autoDetect', { path, finalPath, detectedFromAcceptLanguage })
+    return sendRedirect(event, finalPath, 302)
   }
 
   if (!skipRedirect && strategy !== 'no_prefix') {
@@ -234,7 +259,8 @@ export default defineEventHandler(async (event) => {
 
   // Синхронизация cookie с определённой локалью — единый источник правды на сервере
   const cookieName = getLocaleCookieName(config)
-  if (cookieName && validLocales.includes(locale)) {
+  const currentCookie = cookieName ? getCookie(event, cookieName) : undefined
+  if (cookieName && validLocales.includes(locale) && currentCookie !== locale) {
     const { watch: _w, ...cookieOpts } = getLocaleCookieOptions()
     setCookie(event, cookieName, locale, cookieOpts)
   }

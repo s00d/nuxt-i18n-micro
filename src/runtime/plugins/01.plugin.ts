@@ -85,6 +85,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
 
+  // Previous page fallback
+  const enablePreviousPageFallback = i18nConfig.previousPageFallback ?? false
+  const previousPageInfo = useState<{ locale: string, routeName: string } | null>('i18n-previous-page', () => null)
+
+  // Очищаем старые данные только после полной загрузки страницы
+  nuxtApp.hook('page:finish', () => {
+    if (import.meta.client) {
+      i18nRouteParams.value = null
+      previousPageInfo.value = null
+    }
+  })
+
   const missingWarn = i18nConfig.missingWarn ?? true
 
   // === 2. ЗАГРУЗЧИК ЧАНКОВ ===
@@ -177,6 +189,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
       // Если изменился язык или страница — меняем контекст
       if (targetLocale !== currentLocale || targetRouteName !== currentRouteName) {
+        // Сохраняем информацию о предыдущей странице для fallback (только на клиенте)
+        if (import.meta.client && enablePreviousPageFallback && from.path !== to.path) {
+          const fromLocale = routeService.getCurrentLocale(from as RouteLocationResolvedGeneric)
+          const fromRouteName = routeService.getPluginRouteName(from as RouteLocationResolvedGeneric, fromLocale)
+          previousPageInfo.value = { locale: fromLocale, routeName: fromRouteName }
+        }
+
         await switchContext(targetLocale, targetRouteName)
       }
 
@@ -216,7 +235,25 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
     }
 
-    // 4. Не найдено
+    // 4. Fallback на предыдущую страницу (experimental)
+    if (val === undefined && enablePreviousPageFallback && previousPageInfo.value) {
+      const prev = previousPageInfo.value
+      const prevPage = prev.routeName ? (loadedChunks.get(`${prev.locale}:${prev.routeName}`) || {}) : {}
+      const prevGeneral = loadedChunks.get(`${prev.locale}:general`) || {}
+
+      val = prevPage[key]
+      if (val === undefined) {
+        val = prevGeneral[key]
+      }
+      if (val === undefined && key.includes('.')) {
+        val = getByPath(prevPage, key)
+        if (val === undefined) {
+          val = getByPath(prevGeneral, key)
+        }
+      }
+    }
+
+    // 5. Не найдено
     if (val === undefined) {
       if (customMissingHandler.value) {
         customMissingHandler.value(locale, key, routeName)
@@ -227,13 +264,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return (defaultValue === undefined ? key : defaultValue) as CleanTranslation
     }
 
-    // 5. Не строка — возвращаем как есть (объект, массив)
+    // 6. Не строка — возвращаем как есть (объект, массив)
     if (typeof val !== 'string') return val as CleanTranslation
 
-    // 6. Без параметров — быстрый возврат
+    // 7. Без параметров — быстрый возврат
     if (!params) return val as CleanTranslation
 
-    // 7. Интерполяция
+    // 8. Интерполяция
     return val.replace(RE_TOKEN, (_: string, k: string) => {
       return params[k] !== undefined ? String(params[k]) : `{${k}}`
     }) as CleanTranslation
@@ -254,6 +291,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (key.includes('.')) {
       if (getByPath(page, key) !== undefined) return true
       if (getByPath(general, key) !== undefined) return true
+    }
+    // Fallback на предыдущую страницу (experimental)
+    if (enablePreviousPageFallback && previousPageInfo.value) {
+      const prev = previousPageInfo.value
+      const prevPage = prev.routeName ? (loadedChunks.get(`${prev.locale}:${prev.routeName}`) || {}) : {}
+      const prevGeneral = loadedChunks.get(`${prev.locale}:general`) || {}
+      if (prevPage[key] !== undefined) return true
+      if (prevGeneral[key] !== undefined) return true
+      if (key.includes('.')) {
+        if (getByPath(prevPage, key) !== undefined) return true
+        if (getByPath(prevGeneral, key) !== undefined) return true
+      }
     }
     return false
   }

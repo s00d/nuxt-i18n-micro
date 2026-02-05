@@ -102,9 +102,7 @@ export default defineNuxtConfig({
       '/api/**',
       /\.(pdf|doc)$/,
     ],
-    experimental: {
-      i18nPreviousPageFallback: false,
-    },
+    previousPageFallback: false,
   },
   i18nTypes: {
     translationDir: 'locales',

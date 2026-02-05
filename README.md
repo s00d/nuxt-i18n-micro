@@ -22,33 +22,36 @@ The `Nuxt I18n Micro` module was created to address critical performance issues 
 
 ### Performance Comparison
 
-To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identical conditions. Both modules were tested with a 10MB translation file on the same hardware.
+To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identical conditions. Both modules were tested with a 10MB translation file on the same hardware. We also include a **plain-nuxt** baseline (no i18n module) to measure the real overhead.
 
 #### Build Time and Resource Consumption
 
-- **i18n-micro**: 8.57 seconds, Max Memory: 1080.31 MB, Max CPU: 209.50%
-- **i18n v10**: 100.20 seconds, Max Memory: 8827.23 MB, Max CPU: 321.40%
-- **Time Difference**: -91.63 seconds
-- **Memory Difference**: -7746.92 MB
-- **CPU Usage Difference**: -111.90%
+> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
 
+| Project | Build Time | Max Memory | Max CPU |
+|---------|------------|------------|---------|
+| **plain-nuxt** (baseline) | 4.48s | 609.55 MB | 242.60% |
+| **i18n-micro** | 7.88s | 1164.02 MB | 336.00% |
+| **i18n v10** | 77.81s | 9494.69 MB | 449.00% |
 
-#### Comparison between i18n v10 and i18n-micro
+- **i18n-micro vs baseline**: +3.40s build, +554.47 MB memory
+- **i18n v10 vs baseline**: +73.33s build, +8885.14 MB memory
 
-- **Max Memory Used Difference**: -107.61 MB
-- **Min Memory Used Difference**: -1.33 MB
-- **Avg Memory Used Difference**: -14.33 MB
-- **Max CPU Usage Difference**: -14.70%
-- **Min CPU Usage Difference**: 0.00%
-- **Avg CPU Usage Difference**: 3.76%
-- **Stress Test Time Difference**: 0.00 seconds
-- **Average Response Time Difference**: 1239.80 ms
-- **Min Response Time Difference**: 112.00 ms
-- **Max Response Time Difference**: -53.00 ms
-- **Requests Per Second Difference**: 3.00
-- **Error Rate Difference**: 0.00%
+#### Stress Test Results (Requests per Second)
 
-These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area.
+| Project | Avg Response | RPS | Max Memory |
+|---------|--------------|-----|------------|
+| **plain-nuxt** | 106.50 ms | 318.00 | 229.02 MB |
+| **i18n-micro** | 516.70 ms | 225.00 | 366.69 MB |
+| **i18n v10** | 1130.20 ms | 51.00 | 1050.38 MB |
+
+#### Comparison: i18n v10 vs i18n-micro
+
+- **Max Memory Used**: -683.69 MB (i18n-micro uses less)
+- **Average Response Time**: -613.50 ms (i18n-micro is faster)
+- **Requests Per Second**: +174.00 (i18n-micro handles more)
+
+These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area while staying close to the plain Nuxt baseline.
 
 ## Key Features
 
@@ -93,7 +96,7 @@ That's it! You're now ready to use Nuxt I18n Micro in your Nuxt app.
 
 [Plugin Methods](https://s00d.github.io/nuxt-i18n-micro/api/methods)
 
-[Performanc](https://s00d.github.io/nuxt-i18n-micro/guide/performance)
+[Performance](https://s00d.github.io/nuxt-i18n-micro/guide/performance)
 
 [Performance Test Results](https://s00d.github.io/nuxt-i18n-micro/guide/performance-results)
 

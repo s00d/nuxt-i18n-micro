@@ -1,4 +1,4 @@
-import { useTranslationHelper, type TranslationCache } from './translation'
+import { useTranslationHelper, type TranslationStorage } from './translation'
 import { FormatService } from './format-service'
 import { interpolate, defaultPlural } from './helpers'
 import type {
@@ -12,7 +12,7 @@ import type {
 } from '@i18n-micro/types'
 
 export interface BaseI18nOptions {
-  cache?: TranslationCache
+  storage?: TranslationStorage
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
@@ -41,7 +41,7 @@ export abstract class BaseI18n {
   public enablePreviousPageFallback: boolean
 
   constructor(options: BaseI18nOptions = {}) {
-    this.helper = useTranslationHelper(options.cache)
+    this.helper = useTranslationHelper(options.storage)
     this.formatter = new FormatService()
     this.pluralFunc = options.plural || defaultPlural
     this.missingWarn = options.missingWarn ?? true

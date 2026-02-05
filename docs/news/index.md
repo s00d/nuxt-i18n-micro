@@ -71,10 +71,37 @@ The translation loading and caching system has been completely rewritten for max
 
 All integration packages (`@i18n-micro/vue`, `@i18n-micro/astro`, `@i18n-micro/node`, `@i18n-micro/react`, `@i18n-micro/preact`, `@i18n-micro/solid`) have been simplified and optimized, sharing the same core translation logic.
 
+#### Configuration Changes
+
+- **`previousPageFallback`** — Moved from `experimental.i18nPreviousPageFallback` to a top-level option. Enables fallback to previous page translations during page transitions.
+- **`hmr`** — Moved from `experimental.hmr` to a top-level option. Controls server-side HMR for translation files (enabled by default in development).
+
+```typescript
+// Before (v2.x)
+export default defineNuxtConfig({
+  i18n: {
+    experimental: {
+      i18nPreviousPageFallback: true,
+      hmr: true,
+    }
+  }
+})
+
+// After (v3.0.0)
+export default defineNuxtConfig({
+  i18n: {
+    previousPageFallback: true,
+    hmr: true,
+  }
+})
+```
+
 ### Breaking Changes
 
 - **`fallbackRedirectComponentPath`** — Removed. The module no longer uses a fallback route component for redirects. If you had a custom component path configured, remove it from your config.
 - **`useLocaleCookies`** — Removed. Use `useI18nLocale()` instead. The new composable provides `locale`, `localeCookie`, `hashCookie`, `setLocale()`, `syncLocale()`, and more.
+- **`experimental.i18nPreviousPageFallback`** — Moved to `previousPageFallback`. Update your config if you were using this option.
+- **`experimental.hmr`** — Moved to `hmr`. Update your config if you were using this option.
 - **Custom plugins** — If your custom locale-detection plugin used `useRuntimeConfig().public.i18nConfig`, switch to `getI18nConfig()` from `#build/i18n.strategy.mjs`. Prefer `useI18nLocale().setLocale()` over `useState('i18n-locale')`. See [Custom Language Detection](/guide/custom-auto-detect) for updated examples.
 - **Internal file changes** — `load-from-storage.ts` and `translation-loader.ts` have been removed and replaced with `storage.ts` and `server-loader.ts`. If you were importing from these files directly (not recommended), update your imports.
 

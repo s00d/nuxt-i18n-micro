@@ -546,11 +546,11 @@ When `apiBaseServerHost` is set, server-side translations will be fetched from `
 Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/external domain hosting, and `apiBaseServerHost` for server-side CDN/external domain hosting. This allows you to use different CDNs for client and server requests.
 :::
 
-### 🧪 Experimental Features
+### 🔄 Additional Features
 
-#### `experimental.i18nPreviousPageFallback`
+#### `previousPageFallback`
 
-Enables fallback to previous page translations during transitions.
+Enables fallback to previous page translations during page transitions. When navigating between pages, if a translation key is not found on the new page, the module will look for it in the translations from the previous page.
 
 **Type**: `boolean`  
 **Default**: `false`
@@ -558,9 +558,7 @@ Enables fallback to previous page translations during transitions.
 ```typescript
 export default defineNuxtConfig({
   i18n: {
-    experimental: {
-      i18nPreviousPageFallback: true
-    }
+    previousPageFallback: true
   }
 })
 ```
@@ -571,20 +569,18 @@ This is especially helpful for pages with asynchronous data loading (`useAsyncDa
 
 ::::
 
-#### `experimental.hmr`
+#### `hmr`
 
 Enables server-side HMR for translations during development. When enabled, the module watches your translation files and invalidates the in-memory server cache for changed locales/pages so that requests immediately get fresh data without restarting the server.
 
-• Type: `boolean`  
-• Default: `true` (development only)
+**Type**: `boolean`  
+**Default**: `true` (development only)
 
 ```typescript
 export default defineNuxtConfig({
   i18n: {
-    experimental: {
-      // Hot updates for translation files in dev mode
-      hmr: true,
-    },
+    // Hot updates for translation files in dev mode
+    hmr: true,
   },
 })
 ```

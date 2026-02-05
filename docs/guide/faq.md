@@ -71,16 +71,14 @@ When using `nuxt-i18n-micro` with page transitions, translations may briefly sto
 - `defineAsyncComponent` and `useAsyncData` can delay translation loading
 - Translation keys may appear as raw paths during loading
 
-**Solution 1: Enable Experimental Fallback (Recommended)**
+**Solution 1: Enable Previous Page Fallback (Recommended)**
 
-Use the experimental `i18nPreviousPageFallback` feature to automatically fall back to previous page translations during transitions:
+Use the `previousPageFallback` feature to automatically fall back to previous page translations during transitions:
 
 ```typescript
 export default defineNuxtConfig({
   i18n: {
-    experimental: {
-      i18nPreviousPageFallback: true
-    }
+    previousPageFallback: true
   }
 })
 ```

@@ -1,13 +1,5 @@
-import {
-  BaseI18n,
-  type TranslationCache,
-} from '@i18n-micro/core'
-import type {
-  Translations,
-  PluralFunc,
-  TranslationKey,
-} from '@i18n-micro/types'
-// Импортируем нашу общую логику загрузки
+import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
+import type { Translations, PluralFunc, TranslationKey } from '@i18n-micro/types'
 import { loadTranslations } from './loader'
 
 export interface I18nOptions {
@@ -20,52 +12,25 @@ export interface I18nOptions {
   disablePageLocales?: boolean
 }
 
-/**
- * Node.js I18n Adapter
- *
- * Provides a standalone i18n instance that uses the shared core logic from nuxt-i18n-micro.
- * Fully compatible with the file structure and caching mechanisms of the Nuxt module.
- */
 export class I18n extends BaseI18n {
   public locale: string
   public fallbackLocale: string
   public translationDir?: string
   private disablePageLocales: boolean
 
-  /**
-   * Current active route name for translations.
-   * Defaults to 'general' (global translations only).
-   * Change this using setRoute() to access page-specific translations.
-   */
   public currentRoute: string = 'general'
 
-  // In-memory cache store (plain objects, compatible with updated Core)
-  private cache: TranslationCache = {
-    generalLocaleCache: {},
-    routeLocaleCache: {},
-    dynamicTranslationsCaches: [],
-    serverTranslationCache: {},
-  }
-
   constructor(options: I18nOptions) {
-    // Create cache first
-    const cache: TranslationCache = {
-      generalLocaleCache: {},
-      routeLocaleCache: {},
-      dynamicTranslationsCaches: [],
-      serverTranslationCache: {},
+    const storage: TranslationStorage = {
+      translations: new Map<string, Translations>(),
     }
 
-    // Call parent constructor with options
     super({
-      cache,
+      storage,
       plural: options.plural,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
     })
-
-    // Assign cache to private property
-    this.cache = cache
 
     this.locale = options.locale
     this.fallbackLocale = options.fallbackLocale || options.locale
@@ -73,15 +38,9 @@ export class I18n extends BaseI18n {
     this.disablePageLocales = options.disablePageLocales ?? false
   }
 
-  /**
-   * Set the current route name context.
-   * Useful when processing a specific page request in Node.
-   */
   public setRoute(routeName: string) {
     this.currentRoute = routeName
   }
-
-  // --- Implementation of abstract methods ---
 
   public getLocale(): string {
     return this.locale
@@ -95,11 +54,6 @@ export class I18n extends BaseI18n {
     return this.currentRoute
   }
 
-  // --- Loader & Cache Management ---
-
-  /**
-   * Load translations from directory.
-   */
   public async loadTranslations(dir?: string): Promise<void> {
     const targetDir = dir || this.translationDir
     if (!targetDir) {
@@ -107,35 +61,26 @@ export class I18n extends BaseI18n {
       return
     }
 
-    // Используем общую утилиту
     const { global, routes } = await loadTranslations(targetDir, this.disablePageLocales)
 
-    // 1. Загружаем глобальные
     for (const [locale, translations] of Object.entries(global)) {
       this.helper.mergeGlobalTranslation(locale, translations, true)
     }
 
-    // 2. Загружаем страничные (роуты)
     for (const [routeName, routeLocales] of Object.entries(routes)) {
       for (const [locale, translations] of Object.entries(routeLocales)) {
-        // Используем loadPageTranslations для первоначальной загрузки, затем merge для обновлений
-        await this.helper.loadPageTranslations(locale, routeName, translations)
+        this.helper.loadPageTranslations(locale, routeName, translations)
       }
     }
   }
 
-  /**
-   * Clear cache and reload translations from disk
-   */
   public async reload(): Promise<void> {
     this.helper.clearCache()
     await this.loadTranslations()
-    console.log(`[i18n-node] Cache cleared and translations reloaded.`)
+    console.log('[i18n-node] Cache cleared and translations reloaded.')
   }
 
-  // --- Manual Manipulation ---
-
-  public addTranslations(locale: string, translations: Translations, merge: boolean = true): void {
+  public addTranslations(locale: string, translations: Translations, merge = true): void {
     super.loadTranslationsCore(locale, translations, merge)
   }
 
@@ -143,7 +88,7 @@ export class I18n extends BaseI18n {
     locale: string,
     routeName: string,
     translations: Translations,
-    merge: boolean = true,
+    merge = true,
   ): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
   }
@@ -157,9 +102,6 @@ export class I18n extends BaseI18n {
   }
 }
 
-/**
- * Create a new I18n instance
- */
 export function createI18n(options: I18nOptions): I18n {
   return new I18n(options)
 }

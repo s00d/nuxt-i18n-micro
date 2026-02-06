@@ -823,6 +823,16 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custo
     "name": "localized-section",
     "path": "/:locale(ru)/section",
   },
+  {
+    "name": "redirect--section",
+    "path": "/section",
+    "redirect": "/en/section",
+  },
+  {
+    "name": "redirect--section-category",
+    "path": "/section/category",
+    "redirect": "/en/section/category",
+  },
 ]
 `;
 

@@ -2,11 +2,14 @@
 
 exports[`snapshots (documentation: how switchLocaleRoute works) switchLocaleRoute with i18nRouteParams: full result object 1`] = `
 {
+  "fullPath": "/",
   "hash": "",
   "name": "localized-about-de",
   "params": {
+    "locale": "de",
     "tab": "info",
   },
+  "path": "/",
   "query": {},
 }
 `;
@@ -32,9 +35,13 @@ exports[`snapshots (documentation: how switchLocaleRoute works) switchLocaleRout
     "query": {},
   },
   "prefix_except_default": {
+    "fullPath": "/",
     "hash": "",
     "name": "localized-about-de",
-    "params": {},
+    "params": {
+      "locale": "de",
+    },
+    "path": "/",
     "query": {},
   },
 }
@@ -131,9 +138,13 @@ exports[`switchLocaleRoute - via createPathStrategy prefix_and_default 1`] = `
 
 exports[`switchLocaleRoute - via createPathStrategy prefix_except_default 1`] = `
 {
+  "fullPath": "/",
   "hash": "",
   "name": "localized-about-de",
-  "params": {},
+  "params": {
+    "locale": "de",
+  },
+  "path": "/",
   "query": {},
 }
 `;

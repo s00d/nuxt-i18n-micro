@@ -3,7 +3,6 @@
 exports[`buildPathFromBaseNameAndParams (router does not have route) prefix: route name test-id with param id, router throws → hyphen form path test-:id 1`] = `
 {
   "fullPath": "/de/test-42",
-  "name": "localized-test-id-de",
   "params": {
     "id": "42",
   },
@@ -105,8 +104,6 @@ exports[`localeRoute with query and hash preserved when using baseUrl applyBaseU
 {
   "fullPath": "https://de.example.com/de/about?tab=info#section",
   "hash": "#section",
-  "name": "localized-about-de",
-  "params": {},
   "path": "https://de.example.com/de/about",
   "query": {
     "tab": "info",
@@ -194,24 +191,30 @@ exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks,
 
 exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute) switchLocaleRoute with i18nRouteParams: merged params result 1`] = `
 {
+  "fullPath": "/products/2",
   "hash": "",
   "name": "localized-products-id-de",
   "params": {
     "id": "2",
+    "locale": "de",
     "slug": "product-2",
   },
+  "path": "/products/2",
   "query": {},
 }
 `;
 
 exports[`switchLocaleRoute with i18nRouteParams i18nRouteParams override and extend params for target locale 1`] = `
 {
+  "fullPath": "/products/2",
   "hash": "",
   "name": "localized-products-id-de",
   "params": {
     "id": "2",
+    "locale": "de",
     "slug": "product-2",
   },
+  "path": "/products/2",
   "query": {},
 }
 `;

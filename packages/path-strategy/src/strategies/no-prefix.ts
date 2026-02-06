@@ -44,6 +44,29 @@ export class NoPrefixPathStrategy extends BasePathStrategy {
     if (!newPath || !newPath.startsWith('/')) newPath = '/' + (newPath || '')
     return cleanDoubleSlashes(newPath) || '/'
   }
+
+  /**
+   * Formats path for router.resolve.
+   * no_prefix: path as-is, no locale prefix.
+   */
+  formatPathForResolve(path: string, _fromLocale: string, _toLocale: string): string {
+    return path
+  }
+
+  /**
+   * no_prefix strategy: never redirect based on locale preference.
+   * Locale is handled via cookie/useState only, not URL.
+   */
+  getClientRedirect(_currentPath: string, _preferredLocale: string): string | null {
+    return null
+  }
+
+  /**
+   * no_prefix strategy: no 404 checks related to locale prefix.
+   */
+  override shouldReturn404(_currentPath: string): string | null {
+    return null
+  }
 }
 
 /** Alias for Nuxt alias consumption. */

@@ -11,7 +11,11 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
    */
   protected shouldHavePrefix(locale: string): boolean {
     if (this.ctx.includeDefaultLocaleRoute) return true
-    return locale !== this.ctx.defaultLocale
+    if (locale === this.ctx.defaultLocale) return false
+    // When locale has baseUrl with baseDefault=true, no prefix needed (uses root on separate domain)
+    const localeObj = this.ctx.locales.find(l => l.code === locale)
+    if (localeObj?.baseUrl && localeObj?.baseDefault) return false
+    return true
   }
 
   protected buildLocalizedPath(path: string, locale: string, _isCustom: boolean): string {
@@ -33,18 +37,36 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     const baseName = this.getBaseRouteName(route, fromLocale)
     if (!baseName) return route
 
-    const targetName = this.shouldHavePrefix(toLocale)
-      ? this.buildLocalizedName(baseName, toLocale)
-      : baseName
+    // For non-default locale, try route name with locale suffix first (custom paths),
+    // then without suffix (standard routes like "localized-page")
+    let targetName: string
+    if (this.shouldHavePrefix(toLocale)) {
+      const nameWithSuffix = this.buildLocalizedName(baseName, toLocale)
+      const nameWithoutSuffix = `${this.getLocalizedRouteNamePrefix()}${baseName}`
+      targetName = this.ctx.router.hasRoute(nameWithSuffix) ? nameWithSuffix : nameWithoutSuffix
+    }
+    else {
+      targetName = baseName
+    }
 
     if (this.ctx.router.hasRoute(targetName)) {
       const i18nParams = options.i18nRouteParams?.[toLocale] || {}
       const newParams: Record<string, unknown> = { ...(route.params || {}), ...i18nParams }
-      delete newParams.locale
+      // Always set locale param for non-default locales because routes may have /:locale(...) in path
+      if (this.shouldHavePrefix(toLocale)) {
+        newParams.locale = toLocale
+      }
+      else {
+        delete newParams.locale
+      }
 
+      // Resolve to get the actual path for applyBaseUrl
+      const resolved = this.ctx.router.resolve({ name: targetName, params: newParams })
       const newRoute: RouteLike = {
         name: targetName,
         params: newParams,
+        path: resolved?.path,
+        fullPath: resolved?.fullPath,
         query: route.query,
         hash: route.hash,
       }
@@ -52,7 +74,10 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       return this.applyBaseUrl(toLocale, newRoute)
     }
 
-    return { ...route, name: targetName }
+    // Fallback: build path-based route
+    const pathWithoutLocale = route.path?.replace(new RegExp(`^/${fromLocale}`), '') || '/'
+    const targetPath = this.buildLocalizedPath(pathWithoutLocale, toLocale, false)
+    return this.applyBaseUrl(toLocale, { path: targetPath, query: route.query, hash: route.hash })
   }
 
   protected override resolveLocaleRoute(
@@ -101,6 +126,26 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
 
     const hasParams = sourceRoute.params && Object.keys(sourceRoute.params ?? {}).length > 0
     if (inputName && hasParams) {
+      // For default locale, try resolving base route name first (without localized prefix)
+      if (!this.shouldHavePrefix(targetLocale) && this.ctx.router.hasRoute(inputName)) {
+        const resolved = this.ctx.router.resolve({
+          name: inputName,
+          params: sourceRoute.params,
+          query: sourceRoute.query,
+          hash: sourceRoute.hash,
+        })
+        if (resolved?.path && resolved.path !== '/') {
+          const routeResult: RouteLike = {
+            name: inputName,
+            path: resolved.path,
+            fullPath: resolved.fullPath,
+            params: resolved.params,
+            query: resolved.query ?? sourceRoute.query,
+            hash: resolved.hash ?? sourceRoute.hash,
+          }
+          return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeResult), sourceRoute)
+        }
+      }
       const routeWithParams = this.tryResolveByLocalizedNameWithParams(
         inputName,
         targetLocale,
@@ -211,8 +256,27 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       }
     }
     if (inputName && !hasParams) {
-      const routeByLocalizedName = this.tryResolveByLocalizedName(inputName, targetLocale, sourceRoute)
-      if (routeByLocalizedName !== null) return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeByLocalizedName), sourceRoute)
+      // For default locale, try base route name first (e.g. 'index' instead of 'localized-index')
+      if (!this.shouldHavePrefix(targetLocale)) {
+        // Default locale: try to resolve baseName directly
+        if (this.ctx.router.hasRoute(inputName)) {
+          const resolvedBase = this.ctx.router.resolve({ name: inputName, params: sourceRoute.params, query: sourceRoute.query, hash: sourceRoute.hash })
+          if (resolvedBase?.path) {
+            return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, {
+              name: inputName,
+              path: resolvedBase.path,
+              fullPath: resolvedBase.fullPath,
+              params: resolvedBase.params,
+              query: resolvedBase.query ?? sourceRoute.query,
+              hash: resolvedBase.hash ?? sourceRoute.hash,
+            }), sourceRoute)
+          }
+        }
+      }
+      else {
+        const routeByLocalizedName = this.tryResolveByLocalizedName(inputName, targetLocale, sourceRoute)
+        if (routeByLocalizedName !== null) return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeByLocalizedName), sourceRoute)
+      }
     }
 
     const fromLocale = currentRoute
@@ -300,6 +364,22 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     return isSamePath(currentPathOnly, normalized) ? null : normalized
   }
 
+  override shouldReturn404(currentPath: string): string | null {
+    const { pathWithoutLocale, localeFromPath } = this.getPathWithoutLocale(currentPath)
+
+    // No locale in URL - no 404 from strategy perspective
+    if (localeFromPath === null) return null
+
+    // Default locale with prefix is 404 for prefix_except_default
+    // e.g. /en when defaultLocale is 'en' and path is just the locale
+    if (localeFromPath === this.ctx.defaultLocale && pathWithoutLocale === '/') {
+      return 'Default locale should not have prefix'
+    }
+
+    // Delegate to base implementation for other checks
+    return super.shouldReturn404(currentPath)
+  }
+
   /** True if gr[key] is a locale rules object (Record<locale, path>). */
   private isLocaleRules(key: string): boolean {
     const gr = this.ctx.globalLocaleRoutes
@@ -378,6 +458,60 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       }
     }
     return null
+  }
+
+  /**
+   * Formats path for router.resolve.
+   * prefix_except_default: add prefix only for non-default locale.
+   */
+  formatPathForResolve(path: string, fromLocale: string, toLocale: string): string {
+    if (toLocale !== this.ctx.defaultLocale) {
+      return `/${fromLocale}${path}`
+    }
+    return path
+  }
+
+  /**
+   * prefix_except_default: redirect based on preferred locale.
+   * Uses shouldHavePrefix to determine if locale needs prefix.
+   * Also handles custom paths from globalLocaleRoutes.
+   */
+  getClientRedirect(currentPath: string, preferredLocale: string): string | null {
+    const { pathWithoutLocale, localeFromPath } = this.getPathWithoutLocale(currentPath)
+
+    // Check if route is unlocalized
+    const gr = this.ctx.globalLocaleRoutes
+    const pathKey = pathWithoutLocale === '/' ? '/' : withoutLeadingSlash(pathWithoutLocale)
+    if (gr && (gr[pathWithoutLocale] === false || gr[pathKey] === false)) {
+      return null // Unlocalized routes - no redirect
+    }
+
+    // URL has locale prefix - user explicitly navigated here, don't redirect
+    if (localeFromPath !== null) return null
+
+    // Resolve custom path for this locale
+    const customPath = this.resolvePathForLocale(pathWithoutLocale, preferredLocale)
+    const needsPrefix = this.shouldHavePrefix(preferredLocale)
+
+    // Build target path
+    let targetPath: string
+    if (needsPrefix) {
+      targetPath = cleanDoubleSlashes(`/${preferredLocale}${customPath.startsWith('/') ? customPath : `/${customPath}`}`)
+    }
+    else {
+      targetPath = customPath.startsWith('/') ? customPath : `/${customPath}`
+    }
+
+    // Remove trailing slash (except for root)
+    if (targetPath !== '/' && targetPath.endsWith('/')) {
+      targetPath = targetPath.slice(0, -1)
+    }
+
+    // Only redirect if target differs from current
+    const currentClean = getCleanPath(currentPath)
+    if (isSamePath(currentClean, targetPath)) return null
+
+    return targetPath
   }
 }
 

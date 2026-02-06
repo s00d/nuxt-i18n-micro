@@ -1,7 +1,7 @@
 import type { Strategies, Locale, I18nRouteParams } from '@i18n-micro/types'
 
 /** Custom path rules: route key -> locale -> path segment. false = unlocalized route. */
-export type GlobalLocaleRoutes = Record<string, Record<string, string> | false>
+export type GlobalLocaleRoutes = Record<string, Record<string, string> | false | boolean>
 
 /** Input for localeRoute: path string or route-like object. */
 export type RouteInput = string | RouteLike
@@ -46,6 +46,10 @@ export interface PathStrategyContext {
   noPrefixRedirect?: boolean
   debug?: boolean
   router: RouterAdapter
+  /** Hash mode: locale stored in hash, no prefix in path */
+  hashMode?: boolean
+  /** When true, all pages use only global translations (no page-specific loading) */
+  disablePageLocales?: boolean
 }
 
 export interface SwitchLocaleOptions {
@@ -112,6 +116,20 @@ export interface PathStrategy {
   getRedirect(currentPath: string, targetLocale: string): string | null
 
   /**
+   * Checks if the current path should return 404.
+   * Returns error message if 404 should be returned, null otherwise.
+   * Checks: invalid locale prefix, unlocalized routes with prefix, route locale restrictions.
+   */
+  shouldReturn404(currentPath: string): string | null
+
+  /**
+   * Returns path to redirect to for client-side navigation based on preferred locale.
+   * Returns null if no redirect needed.
+   * Used by client redirect plugin - each strategy implements its own logic.
+   */
+  getClientRedirect(currentPath: string, preferredLocale: string): string | null
+
+  /**
    * Returns SEO attributes (canonical, hreflangs) for useHead.
    */
   getSeoAttributes(currentRoute: ResolvedRouteLike): SeoAttributes
@@ -129,4 +147,38 @@ export interface PathStrategy {
   getRouteLocales(): Record<string, string[]> | undefined
   getRoutesLocaleLinks(): Record<string, string> | undefined
   getNoPrefixRedirect(): boolean | undefined
+
+  /**
+   * Determines current locale from route, considering hashMode, noPrefix, etc.
+   * @param route - Current route object
+   * @param getDefaultLocale - Optional getter for locale state (for hashMode/noPrefix)
+   */
+  getCurrentLocale(route: ResolvedRouteLike, getDefaultLocale?: () => string | null | undefined): string
+
+  /**
+   * Returns the route name for plugin translation loading.
+   * If disablePageLocales is true, returns 'general'.
+   */
+  getPluginRouteName(route: ResolvedRouteLike, locale: string): string
+
+  /**
+   * Returns base route name without locale prefix/suffix.
+   * @param route - Route object
+   * @param locale - Optional locale to strip suffix for (if not provided, tries all locales)
+   */
+  getRouteBaseName(route: RouteLike, locale?: string): string | null
+
+  /**
+   * Returns displayName of the current locale, or null if not found.
+   */
+  getCurrentLocaleName(route: ResolvedRouteLike): string | null
+
+  /**
+   * Formats path for router.resolve based on strategy.
+   * Returns path with or without locale prefix depending on strategy.
+   * @param path - Original path (e.g. '/about')
+   * @param fromLocale - Current locale
+   * @param toLocale - Target locale
+   */
+  formatPathForResolve(path: string, fromLocale: string, toLocale: string): string
 }

@@ -43,13 +43,14 @@ describe('RouterAdapter fallback: hasRoute returns false', () => {
     // Fallback spreads source route, so path may still be present
   })
 
-  test('PrefixExceptDefaultPathStrategy.switchLocaleRoute returns object with target name when router has no target', () => {
+  test('PrefixExceptDefaultPathStrategy.switchLocaleRoute returns path-based object when router has no target', () => {
     const router = makeRouterAdapter([])
     const ctx = makePathStrategyContext(baseConfig, 'prefix_except_default', { router })
     const strategy = new PrefixExceptDefaultPathStrategy(ctx)
     const result = strategy.switchLocaleRoute('en', 'de', route, {})
     expect(typeof result).toBe('object')
-    expect((result as RouteLike).name).toBe('localized-about-de')
+    // When route doesn't exist, fallback returns path-based result
+    expect((result as RouteLike).path).toBe('/de/about')
   })
 
   test('PrefixAndDefaultPathStrategy.switchLocaleRoute returns object with target name when router has no routes', () => {

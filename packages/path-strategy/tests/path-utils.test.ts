@@ -8,6 +8,8 @@ import {
   nameKeyLastSlash,
   joinUrl,
   normalizePath,
+  getParentPath,
+  transformNameKeyToPath,
 } from '../src/utils/path'
 
 describe('parentKeyFromSlashKey', () => {
@@ -68,5 +70,53 @@ describe('joinUrl + lastPathSegment (nested path building)', () => {
     const segment = lastPathSegment(pathWithoutLocale)
     expect(segment).toBe('hiking')
     expect(normalizePath(joinUrl(parentPath, segment))).toBe('/change-buchen/hiking')
+  })
+})
+
+describe('getParentPath', () => {
+  test('/a/b/c -> /a/b', () => {
+    expect(getParentPath('/a/b/c')).toBe('/a/b')
+  })
+
+  test('/a -> /', () => {
+    expect(getParentPath('/a')).toBe('/')
+  })
+
+  test('/ -> null', () => {
+    expect(getParentPath('/')).toBeNull()
+  })
+
+  test('empty string -> null', () => {
+    expect(getParentPath('')).toBeNull()
+  })
+
+  test('/a/b -> /a', () => {
+    expect(getParentPath('/a/b')).toBe('/a')
+  })
+
+  test('/deep/nested/path/here -> /deep/nested/path', () => {
+    expect(getParentPath('/deep/nested/path/here')).toBe('/deep/nested/path')
+  })
+})
+
+describe('transformNameKeyToPath', () => {
+  test('activity-skiing-locale -> activity/skiing/locale', () => {
+    expect(transformNameKeyToPath('activity-skiing-locale')).toBe('activity/skiing/locale')
+  })
+
+  test('simple-name -> simple/name', () => {
+    expect(transformNameKeyToPath('simple-name')).toBe('simple/name')
+  })
+
+  test('single -> single', () => {
+    expect(transformNameKeyToPath('single')).toBe('single')
+  })
+
+  test('empty string -> empty string', () => {
+    expect(transformNameKeyToPath('')).toBe('')
+  })
+
+  test('a-b-c-d -> a/b/c/d', () => {
+    expect(transformNameKeyToPath('a-b-c-d')).toBe('a/b/c/d')
   })
 })

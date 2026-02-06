@@ -26,22 +26,41 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
     const baseName = this.getBaseRouteName(route, fromLocale)
     if (!baseName) return route
 
-    const targetName = this.buildLocalizedName(baseName, toLocale)
+    // Try route name with locale suffix first (custom paths), then without suffix (standard routes)
+    const nameWithSuffix = this.buildLocalizedName(baseName, toLocale)
+    const nameWithoutSuffix = `${this.getLocalizedRouteNamePrefix()}${baseName}`
+    let targetName: string
+    let needsLocaleParam = false
 
-    if (this.ctx.router.hasRoute(targetName)) {
-      const i18nParams = options.i18nRouteParams?.[toLocale] || {}
-      const newParams = { ...(route.params || {}), ...i18nParams }
-      delete (newParams as Record<string, unknown>).locale
-
-      return this.applyBaseUrl(toLocale, {
-        name: targetName,
-        params: newParams,
-        query: route.query,
-        hash: route.hash,
-      }) as RouteLike
+    if (this.ctx.router.hasRoute(nameWithSuffix)) {
+      targetName = nameWithSuffix
+    }
+    else if (this.ctx.router.hasRoute(nameWithoutSuffix)) {
+      targetName = nameWithoutSuffix
+      needsLocaleParam = true
+    }
+    else if (this.ctx.router.hasRoute(baseName)) {
+      targetName = baseName
+    }
+    else {
+      return { ...route, name: nameWithSuffix }
     }
 
-    return { ...route, name: targetName }
+    const i18nParams = options.i18nRouteParams?.[toLocale] || {}
+    const newParams: Record<string, unknown> = { ...(route.params || {}), ...i18nParams }
+    if (needsLocaleParam) {
+      newParams.locale = toLocale
+    }
+    else {
+      delete (newParams as Record<string, unknown>).locale
+    }
+
+    return this.applyBaseUrl(toLocale, {
+      name: targetName,
+      params: newParams,
+      query: route.query,
+      hash: route.hash,
+    }) as RouteLike
   }
 
   protected override resolveLocaleRoute(
@@ -210,6 +229,40 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
       return `/${locale}`
     }
     return joinUrl(`/${locale}`, resolved)
+  }
+
+  /**
+   * Formats path for router.resolve.
+   * prefix_and_default: always add locale prefix.
+   */
+  formatPathForResolve(path: string, fromLocale: string, _toLocale: string): string {
+    return `/${fromLocale}${path}`
+  }
+
+  /**
+   * prefix_and_default: both / and /locale are valid for any locale.
+   * Does NOT redirect if user explicitly navigates to a locale path.
+   * Only redirects from paths without locale prefix.
+   */
+  getClientRedirect(currentPath: string, preferredLocale: string): string | null {
+    const { pathWithoutLocale, localeFromPath } = this.getPathWithoutLocale(currentPath)
+
+    // Check if route is unlocalized
+    const gr = this.ctx.globalLocaleRoutes
+    const pathKey = pathWithoutLocale === '/' ? '/' : pathWithoutLocale.replace(/^\//, '')
+    if (gr && (gr[pathWithoutLocale] === false || gr[pathKey] === false)) {
+      return null // Unlocalized routes - no redirect
+    }
+
+    // URL has locale prefix - user explicitly navigated here, don't redirect
+    if (localeFromPath !== null) return null
+
+    // Root path without locale is valid for any locale - no redirect
+    if (currentPath === '/' || currentPath === '') return null
+
+    // Non-root path without locale - this shouldn't happen normally in prefix_and_default
+    // but if it does, we could redirect. For now, let Vue Router handle it.
+    return null
   }
 }
 

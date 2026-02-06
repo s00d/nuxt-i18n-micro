@@ -4,13 +4,11 @@ exports[`localeRoute - no_prefix { name: "index" } returns root path / 1`] = `
 {
   "de": {
     "fullPath": "/",
-    "name": "localized-index-de",
     "params": {},
     "path": "/",
   },
   "en": {
     "fullPath": "/",
-    "name": "localized-index-en",
     "params": {},
     "path": "/",
   },
@@ -44,9 +42,11 @@ exports[`localeRoute - no_prefix string path: returns path as-is (no prefix) 1`]
 exports[`localeRoute - prefix { name: "index" } returns localized root path 1`] = `
 {
   "fullPath": "/de",
+  "hash": "",
   "name": "localized-index-de",
   "params": {},
   "path": "/de",
+  "query": {},
 }
 `;
 

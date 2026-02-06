@@ -39,6 +39,28 @@ nuxt.hook('i18n:register', async (register: (translations: unknown, locale?: str
 
 ### 🛠️ Explanation
 
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant NuxtHooks as Nuxt Hooks
+    participant Plugin as Custom Plugin
+    participant Loader as Translation Loader
+    participant I18nContext as I18n Context
+    
+    App->>NuxtHooks: Initialize app
+    NuxtHooks->>Plugin: Execute plugin
+    Plugin->>NuxtHooks: nuxtApp.hook('i18n:register', callback)
+    
+    Note over NuxtHooks: Later, during i18n init...
+    
+    NuxtHooks->>Plugin: Trigger i18n:register(register, locale)
+    Plugin->>Loader: import(`../locales/${locale}.json`)
+    Loader-->>Plugin: translations object
+    Plugin->>I18nContext: register(translations, locale)
+    I18nContext->>I18nContext: mergeTranslations()
+    I18nContext-->>App: Updated $t() available
+```
+
 - **Triggering the Event**:
   - The event is hooked into the `i18n:register` lifecycle event provided by `Nuxt I18n Micro`.
 

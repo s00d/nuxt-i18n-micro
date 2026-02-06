@@ -50,10 +50,54 @@ We also tested server performance by simulating 10,000 requests to each module.
 
 ### 📈 Visual Comparison
 
-```mermaid
-pie title Memory Usage Comparison
-    "nuxt-i18n (8305 MB)" : 8305
-    "i18n-micro (655 MB)" : 655
+```chart
+type: doughnut
+data:
+  labels: ["nuxt-i18n (8305 MB)", "i18n-micro (655 MB)"]
+  datasets:
+    - data: [8305, 655]
+      backgroundColor: ["rgba(255, 99, 132, 0.8)", "rgba(46, 204, 113, 0.8)"]
+      borderColor: ["rgb(255, 99, 132)", "rgb(46, 204, 113)"]
+      borderWidth: 2
+options:
+  plugins:
+    title:
+      display: true
+      text: Memory Usage Comparison
+      font:
+        size: 16
+    legend:
+      position: bottom
+```
+
+```chart
+type: bar
+data:
+  labels: ["Build Time (s)", "Memory (MB)", "Bundle Size (MB)", "CPU Usage (%)"]
+  datasets:
+    - label: nuxt-i18n
+      data: [91, 8305, 54.7, 391]
+      backgroundColor: "rgba(255, 99, 132, 0.8)"
+      borderColor: "rgb(255, 99, 132)"
+      borderWidth: 2
+    - label: i18n-micro
+      data: [5, 655, 1.93, 220]
+      backgroundColor: "rgba(46, 204, 113, 0.8)"
+      borderColor: "rgb(46, 204, 113)"
+      borderWidth: 2
+options:
+  plugins:
+    title:
+      display: true
+      text: Performance Metrics Comparison
+      font:
+        size: 16
+    legend:
+      position: bottom
+  scales:
+    y:
+      beginAtZero: true
+      type: logarithmic
 ```
 
 | Metric | nuxt-i18n | i18n-micro | Improvement |

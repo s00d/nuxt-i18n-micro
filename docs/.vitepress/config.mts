@@ -1,8 +1,8 @@
-import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 import pkg from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid({
   lang: 'en-US',
   title: 'Nuxt I18n Micro',
   description: 'Fast, simple, and lightweight i18n for Nuxt',
@@ -193,5 +193,13 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/s00d/nuxt-i18n-micro' },
     ],
+  },
+
+  // Mermaid configuration
+  mermaid: {
+    theme: 'default',
+  },
+  mermaidPlugin: {
+    class: 'mermaid-chart',
   },
 })

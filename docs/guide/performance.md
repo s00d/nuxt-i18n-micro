@@ -10,7 +10,7 @@ outline: deep
 
 ## 🤔 Why Focus on Performance?
 
-In large-scale projects and high-traffic environments, performance bottlenecks can lead to slow build times, increased memory usage, and poor server response times. These issues become more pronounced with complex i18n setups involving large translation files. `Nuxt I18n Micro` was built to address these challenges head-on by optimizing for speed, memory efficiency, and minimal impact on your application’s bundle size.
+In large-scale projects and high-traffic environments, performance bottlenecks can lead to slow build times, increased memory usage, and poor server response times. These issues become more pronounced with complex i18n setups involving large translation files. `Nuxt I18n Micro` was built to address these challenges head-on by optimizing for speed, memory efficiency, and minimal impact on your application's bundle size.
 
 ## 📊 Performance Comparison
 
@@ -18,34 +18,36 @@ We conducted a series of tests to demonstrate the performance improvements that 
 
 ### ⏱️ Build Time and Resource Consumption
 
-::: details **Nuxt I18n**
-- **Total Size**: 54.7 MB (3.31 MB gzip)
-- **Max CPU Usage**: 391.4%
-- **Max Memory Usage**: 8305 MB
-- **Elapsed Time**: 1m 31s
+::: details **Nuxt I18n v10**
+- **Code Bundle**: 19.24 MB
+- **Translations**: 38.05 MB (compiled into JS)
+- **Max CPU Usage**: 439%
+- **Max Memory Usage**: 9,528 MB
+- **Elapsed Time**: 84.91s
 :::
 
 ::: tip **Nuxt I18n Micro**
-- **Total Size**: 1.93 MB (473 kB gzip) — **96% smaller**
-- **Max CPU Usage**: 220.1% — **44% lower**
-- **Max Memory Usage**: 655 MB — **92% less memory**
-- **Elapsed Time**: 0m 5s — **94% faster**
+- **Code Bundle**: 1.5 MB — **92% smaller**
+- **Translations**: 60.97 MB (lazy-loaded JSON)
+- **Max CPU Usage**: 208% — **53% lower**
+- **Max Memory Usage**: 1,658 MB — **83% less memory**
+- **Elapsed Time**: 23.47s — **72% faster**
 :::
 
 ### 🌐 Server Performance Under Load
 
-We also tested server performance by simulating 10,000 requests to each module.
+We also tested server performance using Artillery and Autocannon stress tests.
 
-::: details **Nuxt I18n**
-- **Requests per Second**: 49.05 [#/sec] (mean)
-- **Time per Request**: 611.599 ms (mean)
-- **Max Memory Usage**: 703.73 MB
+::: details **Nuxt I18n v10**
+- **Requests per Second (Artillery)**: 51 [#/sec]
+- **Average Response Time**: 1,363 ms
+- **Max Memory Usage**: 1,243 MB
 :::
 
 ::: tip **Nuxt I18n Micro**
-- **Requests per Second**: 61.18 [#/sec] (mean) — **25% more requests per second**
-- **Time per Request**: 490.379 ms (mean) — **20% faster**
-- **Max Memory Usage**: 323.00 MB — **54% less memory usage**
+- **Requests per Second (Artillery)**: 292 [#/sec] — **472% more requests per second**
+- **Average Response Time**: 411 ms — **70% faster**
+- **Max Memory Usage**: 347 MB — **72% less memory usage**
 :::
 
 ### 📈 Visual Comparison
@@ -53,9 +55,9 @@ We also tested server performance by simulating 10,000 requests to each module.
 ```chart
 type: doughnut
 data:
-  labels: ["nuxt-i18n (8305 MB)", "i18n-micro (655 MB)"]
+  labels: ["nuxt-i18n v10 (9,528 MB)", "i18n-micro (1,658 MB)"]
   datasets:
-    - data: [8305, 655]
+    - data: [9528, 1658]
       backgroundColor: ["rgba(255, 99, 132, 0.8)", "rgba(46, 204, 113, 0.8)"]
       borderColor: ["rgb(255, 99, 132)", "rgb(46, 204, 113)"]
       borderWidth: 2
@@ -63,7 +65,7 @@ options:
   plugins:
     title:
       display: true
-      text: Memory Usage Comparison
+      text: Memory Usage During Build (MB)
       font:
         size: 16
     legend:
@@ -73,15 +75,15 @@ options:
 ```chart
 type: bar
 data:
-  labels: ["Build Time (s)", "Memory (MB)", "Bundle Size (MB)", "CPU Usage (%)"]
+  labels: ["Build Time (s)", "Memory (GB)", "Code Bundle (MB)", "CPU Usage (%)"]
   datasets:
-    - label: nuxt-i18n
-      data: [91, 8305, 54.7, 391]
+    - label: nuxt-i18n v10
+      data: [84.9, 9.5, 19.2, 439]
       backgroundColor: "rgba(255, 99, 132, 0.8)"
       borderColor: "rgb(255, 99, 132)"
       borderWidth: 2
     - label: i18n-micro
-      data: [5, 655, 1.93, 220]
+      data: [23.5, 1.7, 1.5, 208]
       backgroundColor: "rgba(46, 204, 113, 0.8)"
       borderColor: "rgb(46, 204, 113)"
       borderWidth: 2
@@ -100,21 +102,24 @@ options:
       type: logarithmic
 ```
 
-| Metric | nuxt-i18n | i18n-micro | Improvement |
-|--------|-----------|------------|-------------|
-| Build Time | 91s | 5s | **94% faster** |
-| Memory | 8305 MB | 655 MB | **92% less** |
-| Bundle Size | 54.7 MB | 1.93 MB | **96% smaller** |
-| CPU Usage | 391% | 220% | **44% lower** |
+| Metric | nuxt-i18n v10 | i18n-micro | Improvement |
+|--------|---------------|------------|-------------|
+| Build Time | 84.91s | 23.47s | **72% faster** |
+| Memory (build) | 9,528 MB | 1,658 MB | **83% less** |
+| Code Bundle | 19.24 MB | 1.5 MB | **92% smaller** |
+| CPU Usage | 439% | 208% | **53% lower** |
+| Response Time | 1,363 ms | 411 ms | **70% faster** |
+| RPS (Artillery) | 51 | 292 | **472% more** |
 
 ### 🔍 Interpretation of Results
 
 These tests clearly indicate that `Nuxt I18n Micro` offers superior performance across multiple metrics:
 
-- 🗜️ **Smaller Bundle Size**: Reduces the overall size of your application bundle, leading to faster load times and better user experience.
-- 🔋 **Lower CPU Usage**: Decreases the load on your server’s CPU, allowing for more efficient processing of requests.
-- 🧠 **Reduced Memory Consumption**: Significantly lowers memory usage, minimizing the risk of memory leaks and enabling your application to handle larger workloads.
-- 🕒 **Faster Build Times**: Drastically reduces build times, which is particularly beneficial during development and CI/CD processes.
+- 🗜️ **Smaller Code Bundle**: The code bundle is only 1.5 MB (vs 19.24 MB for i18n v10) — translations are stored as lazy-loaded JSON files.
+- 🔋 **Lower CPU Usage**: 53% lower CPU usage during build (208% vs 439%), allowing for more efficient CI/CD pipelines.
+- 🧠 **Reduced Memory Consumption**: Uses 83% less memory during build (1.7 GB vs 9.5 GB), making it feasible for resource-constrained environments.
+- 🕒 **Faster Build Times**: 72% faster builds (23.47s vs 84.91s), beneficial for development iteration speed.
+- ⚡ **Better Runtime Performance**: 70% faster response times (411 ms vs 1,363 ms) and 472% more requests per second under load.
 
 ## ⚙️ Key Optimizations
 

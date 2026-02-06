@@ -68,9 +68,20 @@ describe('localeRoute - prefix', () => {
   })
 
   test('{ name: "index" } returns localized root path', () => {
-    const strategy = createPathStrategy(makeCtx('prefix'))
+    const router = makeRouterAdapter(['index', 'localized-index', 'localized-index-de'])
+    // Override resolve to return correct path for localized-index-de
+    const originalResolve = router.resolve.bind(router)
+    router.resolve = (to: RouteLike | string) => {
+      const r = originalResolve(to) as ResolvedRouteLike
+      if (r.name === 'localized-index-de') {
+        return { ...r, path: '/de', fullPath: '/de' }
+      }
+      return r
+    }
+    const strategy = createPathStrategy(makeCtx('prefix', { router }))
     const result = strategy.localeRoute('de', { name: 'index' })
     expect(result.path).toBe('/de')
+    // When route exists with locale suffix, name is preserved
     expect(result.name).toBe('localized-index-de')
     expect(result).toMatchSnapshot()
   })

@@ -52,6 +52,48 @@ export class PrefixPathStrategy extends BasePathStrategy {
     const withSlash = resolved.startsWith('/') ? resolved : `/${resolved}`
     return cleanDoubleSlashes(prefix + withSlash)
   }
+
+  /**
+   * Formats path for router.resolve.
+   * prefix: always add locale prefix.
+   */
+  formatPathForResolve(path: string, fromLocale: string, _toLocale: string): string {
+    return `/${fromLocale}${path}`
+  }
+
+  /**
+   * prefix strategy: redirect only if URL has no locale prefix.
+   * Does NOT redirect if user explicitly navigates to a locale path.
+   * Uses custom paths from globalLocaleRoutes when available.
+   */
+  getClientRedirect(currentPath: string, preferredLocale: string): string | null {
+    const { pathWithoutLocale, localeFromPath } = this.getPathWithoutLocale(currentPath)
+
+    // Check if route is unlocalized
+    const gr = this.ctx.globalLocaleRoutes
+    const pathKey = pathWithoutLocale === '/' ? '/' : withoutLeadingSlash(pathWithoutLocale)
+    if (gr && (gr[pathWithoutLocale] === false || gr[pathKey] === false)) {
+      return null // Unlocalized routes - no redirect
+    }
+
+    // URL has locale prefix - user explicitly navigated here, don't redirect
+    if (localeFromPath !== null) return null
+
+    // Resolve custom path for this locale (uses globalLocaleRoutes)
+    const customPath = this.resolvePathForLocale(pathWithoutLocale, preferredLocale)
+    let targetPath = cleanDoubleSlashes(`/${preferredLocale}${customPath.startsWith('/') ? customPath : `/${customPath}`}`)
+
+    // Remove trailing slash (except for root)
+    if (targetPath !== '/' && targetPath.endsWith('/')) {
+      targetPath = targetPath.slice(0, -1)
+    }
+
+    // Only redirect if target differs from current
+    const currentClean = getCleanPath(currentPath)
+    if (isSamePath(currentClean, targetPath)) return null
+
+    return targetPath
+  }
 }
 
 /** Alias for Nuxt alias consumption: only this strategy is bundled when importing from #i18n-strategy. */

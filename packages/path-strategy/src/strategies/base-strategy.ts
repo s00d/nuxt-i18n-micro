@@ -49,20 +49,22 @@ export abstract class BasePathStrategy implements PathStrategy {
     return this.ctx.noPrefixRedirect
   }
 
-  /** Strips localization prefix/suffix and returns the "base" route name for one locale. */
-  protected getBaseRouteName(route: RouteLike, locale: string): string | null {
+  /**
+   * Returns base route name without locale prefix/suffix.
+   * @param route - Route object
+   * @param locale - Optional locale to strip suffix for (if not provided, tries all locales)
+   */
+  getRouteBaseName(route: RouteLike, locale?: string): string | null {
+    const locales = locale ? [{ code: locale }] : this.ctx.locales
     return utilGetRouteBaseName(route, {
-      locales: [{ code: locale }],
+      locales,
       localizedRouteNamePrefix: this.getLocalizedRouteNamePrefix(),
     })
   }
 
-  /** Returns the base route name (without localized prefix/suffix) by trying all locales. */
-  getRouteBaseName(route: RouteLike): string | null {
-    return utilGetRouteBaseName(route, {
-      locales: this.ctx.locales,
-      localizedRouteNamePrefix: this.getLocalizedRouteNamePrefix(),
-    })
+  /** Alias for internal use - strips localization prefix/suffix for specific locale. */
+  protected getBaseRouteName(route: RouteLike, locale: string): string | null {
+    return this.getRouteBaseName(route, locale)
   }
 
   /** Resolves target path for a locale, checking globalLocaleRoutes first. */
@@ -114,6 +116,10 @@ export abstract class BasePathStrategy implements PathStrategy {
 
     const resolvedPath = normalizePath(route.path || '')
     const fullPath = joinUrl(baseUrl, resolvedPath)
+    // For external URLs (with protocol), return string to prevent NuxtLink from adding base path
+    if (hasProtocol(fullPath)) {
+      return fullPath
+    }
     return {
       ...route,
       path: fullPath,
@@ -179,16 +185,43 @@ export abstract class BasePathStrategy implements PathStrategy {
    * Try to resolve route by localized name. Returns RouteLike with query/hash from sourceRoute to preserve them.
    */
   protected tryResolveByLocalizedName(routeName: string, targetLocale: string, sourceRoute?: RouteLike): RouteLike | null {
-    const localizedName = `${this.getLocalizedRouteNamePrefix()}${routeName}-${targetLocale}`
-    const hasRoute = this.ctx.router.hasRoute(localizedName)
-    this.debugLog('tryResolveByLocalizedName', { routeName, targetLocale, localizedName, hasRoute })
-    if (!hasRoute) return null
-    const resolved = this.ctx.router.resolve({
-      name: localizedName,
-      params: sourceRoute?.params,
-      query: sourceRoute?.query,
-      hash: sourceRoute?.hash,
-    })
+    const prefix = this.getLocalizedRouteNamePrefix()
+    // Try with locale suffix first (custom paths), then without (standard routes)
+    const localizedNameWithSuffix = `${prefix}${routeName}-${targetLocale}`
+    const localizedNameWithoutSuffix = `${prefix}${routeName}`
+
+    let localizedName: string
+    if (this.ctx.router.hasRoute(localizedNameWithSuffix)) {
+      localizedName = localizedNameWithSuffix
+    }
+    else if (this.ctx.router.hasRoute(localizedNameWithoutSuffix)) {
+      localizedName = localizedNameWithoutSuffix
+    }
+    else {
+      this.debugLog('tryResolveByLocalizedName', { routeName, targetLocale, tried: [localizedNameWithSuffix, localizedNameWithoutSuffix], found: false })
+      return null
+    }
+
+    this.debugLog('tryResolveByLocalizedName', { routeName, targetLocale, localizedName, found: true })
+    // If using route without locale suffix (e.g. localized-page), add locale param
+    const params = { ...sourceRoute?.params }
+    if (localizedName === localizedNameWithoutSuffix) {
+      params.locale = targetLocale
+    }
+    let resolved: ReturnType<typeof this.ctx.router.resolve>
+    try {
+      resolved = this.ctx.router.resolve({
+        name: localizedName,
+        params,
+        query: sourceRoute?.query,
+        hash: sourceRoute?.hash,
+      })
+    }
+    catch {
+      // Router threw error (e.g. missing required param) - try path-based fallback
+      this.debugLog('tryResolveByLocalizedName resolve error', { localizedName, params })
+      return null
+    }
     this.debugLog('tryResolveByLocalizedName resolved', { localizedName, path: resolved?.path, fullPath: resolved?.fullPath })
     if (!resolved?.path) return null
     return {
@@ -210,16 +243,43 @@ export abstract class BasePathStrategy implements PathStrategy {
     params: Record<string, unknown>,
     sourceRoute?: RouteLike,
   ): RouteLike | null {
-    const localizedName = `${this.getLocalizedRouteNamePrefix()}${routeName}-${targetLocale}`
-    const hasRoute = this.ctx.router.hasRoute(localizedName)
-    this.debugLog('tryResolveByLocalizedNameWithParams', { routeName, targetLocale, params, localizedName, hasRoute })
-    if (!hasRoute) return null
-    const resolved = this.ctx.router.resolve({
-      name: localizedName,
-      params,
-      query: sourceRoute?.query,
-      hash: sourceRoute?.hash,
-    })
+    const prefix = this.getLocalizedRouteNamePrefix()
+    // Try with locale suffix first (custom paths), then without (standard routes)
+    const localizedNameWithSuffix = `${prefix}${routeName}-${targetLocale}`
+    const localizedNameWithoutSuffix = `${prefix}${routeName}`
+
+    let localizedName: string
+    if (this.ctx.router.hasRoute(localizedNameWithSuffix)) {
+      localizedName = localizedNameWithSuffix
+    }
+    else if (this.ctx.router.hasRoute(localizedNameWithoutSuffix)) {
+      localizedName = localizedNameWithoutSuffix
+    }
+    else {
+      this.debugLog('tryResolveByLocalizedNameWithParams', { routeName, targetLocale, params, tried: [localizedNameWithSuffix, localizedNameWithoutSuffix], found: false })
+      return null
+    }
+
+    this.debugLog('tryResolveByLocalizedNameWithParams', { routeName, targetLocale, params, localizedName, found: true })
+    // If using route without locale suffix (e.g. localized-page), add locale param
+    const resolveParams = { ...params }
+    if (localizedName === localizedNameWithoutSuffix) {
+      resolveParams.locale = targetLocale
+    }
+    let resolved: ReturnType<typeof this.ctx.router.resolve>
+    try {
+      resolved = this.ctx.router.resolve({
+        name: localizedName,
+        params: resolveParams,
+        query: sourceRoute?.query,
+        hash: sourceRoute?.hash,
+      })
+    }
+    catch {
+      // Router threw error (e.g. missing required param) - return null
+      this.debugLog('tryResolveByLocalizedNameWithParams resolve error', { localizedName, resolveParams })
+      return null
+    }
     this.debugLog('tryResolveByLocalizedNameWithParams resolved', { path: resolved?.path, fullPath: resolved?.fullPath })
     if (!resolved?.path || resolved.path === '/') return null
     return {
@@ -285,6 +345,47 @@ export abstract class BasePathStrategy implements PathStrategy {
   abstract getRedirect(currentPath: string, targetLocale: string): string | null
 
   /**
+   * Returns path to redirect to for client-side navigation based on preferred locale.
+   * Returns null if no redirect needed. Each strategy implements its own logic.
+   */
+  abstract getClientRedirect(currentPath: string, preferredLocale: string): string | null
+
+  /**
+   * Checks if the current path should return 404.
+   * Returns error message if 404 should be returned, null otherwise.
+   * Base implementation checks unlocalized routes and routeLocales restrictions.
+   */
+  shouldReturn404(currentPath: string): string | null {
+    const { pathWithoutLocale, localeFromPath } = this.getPathWithoutLocale(currentPath)
+
+    // No locale in URL - no 404 from strategy perspective
+    if (localeFromPath === null) return null
+
+    const pathKey = pathWithoutLocale === '/' ? '/' : pathWithoutLocale.replace(/^\//, '')
+    const gr = this.ctx.globalLocaleRoutes
+
+    // Unlocalized route with locale prefix is 404
+    if (gr && (gr[pathWithoutLocale] === false || gr[pathKey] === false)) {
+      return 'Unlocalized route cannot have locale prefix'
+    }
+
+    // Check routeLocales restrictions
+    const rl = this.ctx.routeLocales
+    if (rl && Object.keys(rl).length > 0) {
+      const allowed = rl[pathWithoutLocale] ?? rl[pathKey]
+      if (Array.isArray(allowed) && allowed.length > 0) {
+        const validCodes = this.ctx.locales.map(l => l.code)
+        const allowedCodes = allowed.filter(code => validCodes.includes(code))
+        if (allowedCodes.length > 0 && !allowedCodes.includes(localeFromPath)) {
+          return 'Locale not allowed for this route'
+        }
+      }
+    }
+
+    return null
+  }
+
+  /**
    * Builds SEO attributes (canonical + hreflangs) from current route.
    * Respects routeLocales: only allowed locales for this route get an hreflang entry.
    * routesLocaleLinks is used when resolving the route key for routeLocales lookup.
@@ -335,20 +436,35 @@ export abstract class BasePathStrategy implements PathStrategy {
     const baseName = this.getBaseRouteName(route, fromLocale)
     if (!baseName) return route
 
-    let targetName = this.buildLocalizedRouteName(baseName, toLocale)
+    // Try route name with locale suffix first (custom paths), then without suffix (standard routes)
+    const nameWithSuffix = this.buildLocalizedRouteName(baseName, toLocale)
+    const nameWithoutSuffix = `${this.getLocalizedRouteNamePrefix()}${baseName}`
+    let targetName: string
+    let needsLocaleParam = false
 
-    if (!this.ctx.router.hasRoute(targetName)) {
-      if (this.ctx.router.hasRoute(baseName)) {
-        targetName = baseName
-      }
-      else {
-        return this.getSwitchLocaleFallbackWhenNoRoute(route, targetName)
-      }
+    if (this.ctx.router.hasRoute(nameWithSuffix)) {
+      targetName = nameWithSuffix
+    }
+    else if (this.ctx.router.hasRoute(nameWithoutSuffix)) {
+      targetName = nameWithoutSuffix
+      needsLocaleParam = true
+    }
+    else if (this.ctx.router.hasRoute(baseName)) {
+      targetName = baseName
+    }
+    else {
+      return this.getSwitchLocaleFallbackWhenNoRoute(route, nameWithSuffix)
     }
 
     const i18nParams = options.i18nRouteParams?.[toLocale] || {}
     const newParams: Record<string, unknown> = { ...(route.params || {}), ...i18nParams }
-    delete (newParams as Record<string, unknown>).locale
+    // Add locale param if using route without locale suffix (e.g. localized-index with /:locale param)
+    if (needsLocaleParam) {
+      newParams.locale = toLocale
+    }
+    else {
+      delete (newParams as Record<string, unknown>).locale
+    }
 
     const newRoute: RouteLike = {
       name: targetName,
@@ -601,8 +717,124 @@ export abstract class BasePathStrategy implements PathStrategy {
         newRoute.fullPath = pathStr
       }
     }
+    // If we have a path, remove 'name' to prevent NuxtLink from calling router.resolve with non-existent route name
+    if (newRoute.path) {
+      delete newRoute.name
+    }
     const out = this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, newRoute), src)
     this.debugLog('branch=fallbackNewRoute return', { baseName, targetName, hasParams, newRoutePath: newRoute.path, outPath: typeof out === 'string' ? out : (out as RouteLike).path })
     return out
   }
+
+  /**
+   * Extracts locale from URL path by checking the first path segment.
+   */
+  private extractLocaleFromPath(path: string): string | null {
+    if (!path) return null
+
+    // Remove query params and hash
+    const querySplit = path.split('?')
+    const cleanPath = querySplit[0]?.split('#')[0]
+
+    if (!cleanPath || cleanPath === '/') return null
+
+    const pathSegments = cleanPath.split('/').filter(Boolean)
+    if (pathSegments.length === 0) return null
+
+    const firstSegment = pathSegments[0]
+    if (!firstSegment) return null
+
+    const availableLocales = this.ctx.locales.map(l => l.code)
+    if (availableLocales.includes(firstSegment)) {
+      return firstSegment
+    }
+
+    return null
+  }
+
+  /**
+   * Determines current locale from route, considering hashMode, noPrefix, prefix_and_default at /, etc.
+   */
+  getCurrentLocale(route: ResolvedRouteLike, getDefaultLocale?: () => string | null | undefined): string {
+    const strategy = this.ctx.strategy
+
+    // 1. Check hashMode
+    if (this.ctx.hashMode) {
+      const fromGetter = getDefaultLocale?.()
+      if (fromGetter) return fromGetter
+      return this.ctx.defaultLocale
+    }
+
+    // 2. Check no_prefix strategy
+    if (strategy === 'no_prefix') {
+      const fromGetter = getDefaultLocale?.()
+      if (fromGetter) return fromGetter
+      return this.ctx.defaultLocale
+    }
+
+    const path = route.path || route.fullPath || ''
+
+    // 2b. prefix_and_default at /: useState/cookie can override — / is valid for any locale
+    if (strategy === 'prefix_and_default' && (path === '/' || path === '')) {
+      const fromGetter = getDefaultLocale?.()
+      if (fromGetter) return fromGetter
+    }
+
+    // 3. Check route.params.locale (for existing routes)
+    if (route.params?.locale) {
+      return String(route.params.locale)
+    }
+
+    // 4. Extract locale from URL path (for non-existent routes)
+    const localeFromPath = this.extractLocaleFromPath(path)
+    if (localeFromPath) {
+      return localeFromPath
+    }
+
+    // 5. For prefix_except_default: URL without locale prefix = defaultLocale
+    if (strategy === 'prefix_except_default') {
+      return this.ctx.defaultLocale
+    }
+
+    // 6. Check getter (for no_prefix and other strategies)
+    const fromGetter = getDefaultLocale?.()
+    if (fromGetter) return fromGetter
+
+    // 7. Return defaultLocale as fallback
+    return this.ctx.defaultLocale
+  }
+
+  /**
+   * Returns the route name for plugin translation loading.
+   * If disablePageLocales is true, returns 'general'.
+   */
+  getPluginRouteName(route: ResolvedRouteLike, locale: string): string {
+    if (this.ctx.disablePageLocales) {
+      return 'general'
+    }
+    const baseName = this.getRouteBaseName(route)
+    if (!baseName) {
+      // Fallback: extract from route name
+      const name = (route.name ?? '').toString()
+      return name
+        .replace(this.getLocalizedRouteNamePrefix(), '')
+        .replace(new RegExp(`-${locale}$`), '')
+    }
+    return baseName
+  }
+
+  /**
+   * Returns displayName of the current locale, or null if not found.
+   */
+  getCurrentLocaleName(route: ResolvedRouteLike): string | null {
+    const currentLocaleCode = this.getCurrentLocale(route)
+    const localeObj = this.ctx.locales.find(l => l.code === currentLocaleCode)
+    return localeObj?.displayName ?? null
+  }
+
+  /**
+   * Formats path for router.resolve based on strategy.
+   * Each strategy should override this with its own logic.
+   */
+  abstract formatPathForResolve(path: string, fromLocale: string, toLocale: string): string
 }

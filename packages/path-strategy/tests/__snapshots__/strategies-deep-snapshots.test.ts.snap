@@ -180,11 +180,7 @@ exports[`strategies deep snapshots (large configs, full state) no_prefix: full s
   "localeRouteByName": {
     "de": {
       "fullPath": "https://de.example.com",
-      "hash": "",
-      "name": "localized-about-de",
-      "params": {},
       "path": "https://de.example.com",
-      "query": {},
     },
     "en": {
       "fullPath": "/",
@@ -200,11 +196,7 @@ exports[`strategies deep snapshots (large configs, full state) no_prefix: full s
     },
     "ru": {
       "fullPath": "https://ru.example.com",
-      "hash": "",
-      "name": "localized-about-ru",
-      "params": {},
       "path": "https://ru.example.com",
-      "query": {},
     },
   },
   "localeRouteByPath": {
@@ -277,24 +269,8 @@ exports[`strategies deep snapshots (large configs, full state) no_prefix: full s
     "/products/1": null,
     "/ru/o-nas": null,
   },
-  "switchFromEnToDe": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-about-de",
-    "params": {},
-    "path": "https://de.example.com",
-    "query": {},
-  },
-  "switchWithParams": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-products-id-de",
-    "params": {
-      "id": "2",
-    },
-    "path": "https://de.example.com",
-    "query": {},
-  },
+  "switchFromEnToDe": "https://de.example.com",
+  "switchWithParams": "https://de.example.com",
 }
 `;
 
@@ -478,11 +454,7 @@ exports[`strategies deep snapshots (large configs, full state) prefix: full stat
   "localeRouteByName": {
     "de": {
       "fullPath": "https://de.example.com",
-      "hash": "",
-      "name": "localized-about-de",
-      "params": {},
       "path": "https://de.example.com",
-      "query": {},
     },
     "en": {
       "fullPath": "/",
@@ -498,11 +470,7 @@ exports[`strategies deep snapshots (large configs, full state) prefix: full stat
     },
     "ru": {
       "fullPath": "https://ru.example.com",
-      "hash": "",
-      "name": "localized-about-ru",
-      "params": {},
       "path": "https://ru.example.com",
-      "query": {},
     },
   },
   "localeRouteByPath": {
@@ -575,24 +543,8 @@ exports[`strategies deep snapshots (large configs, full state) prefix: full stat
     "/products/1": null,
     "/ru/o-nas": "ru",
   },
-  "switchFromEnToDe": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-about-de",
-    "params": {},
-    "path": "https://de.example.com",
-    "query": {},
-  },
-  "switchWithParams": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-products-id-de",
-    "params": {
-      "id": "2",
-    },
-    "path": "https://de.example.com",
-    "query": {},
-  },
+  "switchFromEnToDe": "https://de.example.com",
+  "switchWithParams": "https://de.example.com",
 }
 `;
 
@@ -861,24 +813,8 @@ exports[`strategies deep snapshots (large configs, full state) prefix_and_defaul
     "/products/1": null,
     "/ru/o-nas": "ru",
   },
-  "switchFromEnToDe": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-about-de",
-    "params": {},
-    "path": "https://de.example.com",
-    "query": {},
-  },
-  "switchWithParams": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-products-id-de",
-    "params": {
-      "id": "2",
-    },
-    "path": "https://de.example.com",
-    "query": {},
-  },
+  "switchFromEnToDe": "https://de.example.com",
+  "switchWithParams": "https://de.example.com",
 }
 `;
 
@@ -1147,24 +1083,8 @@ exports[`strategies deep snapshots (large configs, full state) prefix_except_def
     "/products/1": "en",
     "/ru/o-nas": "ru",
   },
-  "switchFromEnToDe": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-about-de",
-    "params": {},
-    "path": "https://de.example.com",
-    "query": {},
-  },
-  "switchWithParams": {
-    "fullPath": "https://de.example.com",
-    "hash": "",
-    "name": "localized-products-id-de",
-    "params": {
-      "id": "2",
-    },
-    "path": "https://de.example.com",
-    "query": {},
-  },
+  "switchFromEnToDe": "https://de.example.com",
+  "switchWithParams": "https://de.example.com",
 }
 `;
 

@@ -4,7 +4,6 @@ exports[`localeRoute: preserve query and hash from input no_prefix returned stru
 {
   "fullPath": "/news/2?a=b#tada",
   "hash": "#tada",
-  "name": "localized-news-id-en",
   "params": {
     "id": "2",
   },
@@ -19,7 +18,6 @@ exports[`localeRoute: preserve query and hash from input no_prefix when input ha
 {
   "fullPath": "/news/2?a=b#tada",
   "hash": "#tada",
-  "name": "localized-news-id-en",
   "params": {
     "id": "2",
   },
@@ -49,7 +47,6 @@ exports[`localeRoute: preserve query and hash from input prefix returned structu
 {
   "fullPath": "/en/news/2?a=b#tada",
   "hash": "#tada",
-  "name": "localized-news-id-en",
   "params": {
     "id": "2",
   },
@@ -64,7 +61,6 @@ exports[`localeRoute: preserve query and hash from input prefix when input has q
 {
   "fullPath": "/en/news/2?a=b#tada",
   "hash": "#tada",
-  "name": "localized-news-id-en",
   "params": {
     "id": "2",
   },
@@ -132,9 +128,7 @@ exports[`localeRoute: preserve query and hash from input prefix_except_default r
   "fullPath": "/news/2?a=b#tada",
   "hash": "#tada",
   "name": "news-id",
-  "params": {
-    "id": "2",
-  },
+  "params": {},
   "path": "/news/2",
   "query": {
     "a": "b",
@@ -161,7 +155,7 @@ exports[`localeRoute: preserve query and hash from input prefix_except_default w
 {
   "fullPath": "/news/2?a=b",
   "hash": "",
-  "name": "localized-news-id-en",
+  "name": "news-id",
   "params": {
     "id": "2",
   },

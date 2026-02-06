@@ -194,8 +194,6 @@ export default defineNuxtModule<ModuleOptions>({
       excludePatterns: options.excludePatterns,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
-      // Redirect/404 logic is in server/middleware/redirect.ts; no fallback route component.
-      fallbackRedirectComponentPath: undefined,
     })
 
     const pluralTemplate = addTemplate({
@@ -249,6 +247,7 @@ export default defineNuxtModule<ModuleOptions>({
       customRegexMatcher: options.customRegexMatcher instanceof RegExp
         ? options.customRegexMatcher.source
         : options.customRegexMatcher,
+      includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
     }
 
     nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {}
@@ -291,6 +290,9 @@ export function createI18nStrategy(router) {
     noPrefixRedirect: __fullConfig.noPrefixRedirect,
     debug: __fullConfig.debug,
     router: routerAdapter,
+    hashMode: __fullConfig.hashMode,
+    disablePageLocales: __fullConfig.disablePageLocales,
+    includeDefaultLocaleRoute: __fullConfig.includeDefaultLocaleRoute,
   })
 }
 `,
@@ -364,11 +366,11 @@ export function getI18nPrivateConfig() { return __privateConfig }
       })
     }
 
-    // Client-only: redirect / to /locale when useState('i18n-locale') or cookie set (Nitro runs before Nuxt, so server doesn't see them).
+    // Universal redirect plugin (server + client)
     addPlugin({
-      src: resolver.resolve('./runtime/plugins/06.client-redirect.client'),
-      mode: 'client',
-      name: 'i18n-plugin-client-redirect',
+      src: resolver.resolve('./runtime/plugins/06.redirect'),
+      mode: 'all',
+      name: 'i18n-plugin-redirect',
       order: 10,
     })
 

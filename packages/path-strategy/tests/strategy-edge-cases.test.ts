@@ -34,19 +34,13 @@ function makeCtx(strategy: NonNullable<ModuleOptionsExtend['strategy']>, extra?:
 describe('applyBaseUrl edge cases', () => {
   test('returns route unchanged when path already has protocol', () => {
     const strategy = createPathStrategy(makeCtx('prefix_except_default'))
-    const route: ResolvedRouteLike = {
-      name: 'external',
-      path: 'https://example.com/page',
-      fullPath: 'https://example.com/page',
-      params: {},
-    }
     const currentRoute: ResolvedRouteLike = {
       name: 'page',
       path: '/page',
       fullPath: '/page',
       params: {},
     }
-    
+
     // Call switchLocaleRoute which internally uses applyBaseUrl
     const result = strategy.switchLocaleRoute('en', 'de', currentRoute, {})
     expect(result).toBeDefined()
@@ -124,7 +118,7 @@ describe('localeRoute with nested routes', () => {
   test('handles nested route with parent custom path', () => {
     const ctx = makeCtx('prefix_except_default', {
       globalLocaleRoutes: {
-        docs: { en: '/documentation', de: '/dokumentation' },
+        'docs': { en: '/documentation', de: '/dokumentation' },
         'docs-guide': { en: '/guide', de: '/anleitung' },
       },
     })
@@ -221,12 +215,11 @@ describe('no_prefix strategy edge cases', () => {
   })
 })
 
-
 describe('factory edge case', () => {
   test('returns strategy for valid type', () => {
     const ctx = makeCtx('prefix')
     const strategy = createPathStrategy(ctx)
-    
+
     expect(strategy).toBeInstanceOf(PrefixPathStrategy)
   })
 })

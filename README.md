@@ -91,6 +91,10 @@ export default defineNuxtConfig({
 
 That's it! You're now ready to use Nuxt I18n Micro in your Nuxt app.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=s00d/nuxt-i18n-micro&type=date&legend=top-left)](https://www.star-history.com/#s00d/nuxt-i18n-micro&type=date&legend=top-left)
+
 
 [Docs](https://s00d.github.io/nuxt-i18n-micro/)
 

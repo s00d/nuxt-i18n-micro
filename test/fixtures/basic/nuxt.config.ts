@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   ],
   devtools: { enabled: false },
   routeRules: {
+    // @ts-expect-error ssr is valid in runtime but types are not updated
     '/client': { ssr: false },
     '/old-product': { redirect: '/page' },
     '/ru/old-product': { redirect: '/ru/page' },

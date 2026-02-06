@@ -32,7 +32,7 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
 
   it('1. Cold start: returns translations and writes to disk cache', async () => {
     // Этот запрос должен вернуть 200, если addServerHandler сработал
-    const translations = await $fetch('/_locales/index/en/data.json')
+    const translations = await $fetch('/_locales/index/en/data.json') as Record<string, string>
 
     expect(translations).toBeDefined()
     expect(translations.hello).toBe('Hello World')
@@ -61,7 +61,7 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
   })
 
   it('2. Cache hit: reads from disk correctly after serialization', async () => {
-    const translations1 = await $fetch('/_locales/index/en/data.json')
+    const translations1 = await $fetch('/_locales/index/en/data.json') as Record<string, string>
     expect(translations1.hello).toBe('Hello World')
 
     // Второй запрос - должен прочитать с диска

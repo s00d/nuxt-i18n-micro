@@ -3,7 +3,7 @@
     <h2 id="ok">
       ok
     </h2>
-    <p>{{ getValue(data, 'key1.key1.key1.key1.key1') }}</p>
+    <p>{{ t('key1.key1.key1.key1.key1') }}</p>
     <p>Current Locale: de</p>
 
     <div>
@@ -16,19 +16,26 @@
       v-for="key in generatedKeys"
       :key="key"
     >
-      <p>{{ key }}: {{ getValue(data, key) }}</p>
+      <p>{{ key }}: {{ t(key) }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import indexData from '../../data/index/de.json'
+import { useAsyncData } from '#imports'
 
-const data = indexData
+const locale = 'de'
 
-function getValue(obj, path) {
-  return path.split('.').reduce((o, k) => o?.[k], obj) ?? path
+const { data: translations } = await useAsyncData(
+  `translations-${locale}`,
+  () => $fetch(`/api/translations/${locale}`),
+)
+
+function t(path) {
+  if (!translations.value) return path
+  const result = path.split('.').reduce((o, k) => o?.[k], translations.value)
+  return result ?? path
 }
 
 function generateKeys(depth, maxKeys = 4) {

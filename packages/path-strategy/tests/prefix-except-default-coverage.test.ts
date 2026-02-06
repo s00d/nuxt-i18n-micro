@@ -179,14 +179,13 @@ describe('PrefixExceptDefaultPathStrategy - localeRoute edge cases', () => {
     const result = strategy.localeRoute('de', 'linked-page', currentRoute)
     expect(result).toBeDefined()
   })
-
 })
 
 describe('PrefixExceptDefaultPathStrategy - getRedirect', () => {
   test('redirects unlocalized route from /locale/path to /path (line 342)', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: {
-        'static': false,
+        static: false,
       },
     })
     const router = makeRouterAdapter()

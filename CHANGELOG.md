@@ -1,6 +1,81 @@
 # Changelog
 
 
+## v3.3.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.4...v3.3.0)
+
+### 🚀 Enhancements
+
+- **path-strategy:** Enhance route name resolution for localization ([7708c00](https://github.com/s00d/nuxt-i18n-micro/commit/7708c00))
+- **route-strategy:** Increment version to 1.1.1 and add custom path redirects ([f2b5bf5](https://github.com/s00d/nuxt-i18n-micro/commit/f2b5bf5))
+- **redirect:** Add universal redirect plugin for i18n routes ([6b1e1b8](https://github.com/s00d/nuxt-i18n-micro/commit/6b1e1b8))
+- **i18n:** Optimize JSON response handling for translations ([b4ecfd7](https://github.com/s00d/nuxt-i18n-micro/commit/b4ecfd7))
+- **server-cache:** Implement process-level caching for translations ([e8b6452](https://github.com/s00d/nuxt-i18n-micro/commit/e8b6452))
+- **module:** Add support for default locale route inclusion ([c3cf288](https://github.com/s00d/nuxt-i18n-micro/commit/c3cf288))
+- **docs:** Integrate Mermaid plugin for enhanced diagram support ([2b1b0f4](https://github.com/s00d/nuxt-i18n-micro/commit/2b1b0f4))
+- **performance:** Add Chart.js integration for performance metrics ([cfa8a61](https://github.com/s00d/nuxt-i18n-micro/commit/cfa8a61))
+- **docs:** Add Chart.js integration and performance test results link ([562a351](https://github.com/s00d/nuxt-i18n-micro/commit/562a351))
+- **performance:** Enhance performance metrics with code and translation sizes ([219b401](https://github.com/s00d/nuxt-i18n-micro/commit/219b401))
+- **tests:** Add redirect snapshots for about and section routes ([4d35238](https://github.com/s00d/nuxt-i18n-micro/commit/4d35238))
+
+### 🩹 Fixes
+
+- **test/fixtures:** Update nuxt.config.ts to handle SSR type errors ([406dd20](https://github.com/s00d/nuxt-i18n-micro/commit/406dd20))
+- **test/fixtures:** Suppress TypeScript error for SSR in config ([7e98e12](https://github.com/s00d/nuxt-i18n-micro/commit/7e98e12))
+- **path-strategy:** Update version to 1.1.1 in package.json ([a563141](https://github.com/s00d/nuxt-i18n-micro/commit/a563141))
+
+### 💅 Refactors
+
+- **core:** Remove `RouteService` and related imports ([db7b953](https://github.com/s00d/nuxt-i18n-micro/commit/db7b953))
+- **plugins:** Simplify locale and translation handling logic ([8ecb75c](https://github.com/s00d/nuxt-i18n-micro/commit/8ecb75c))
+- **plugins:** Remove deprecated client redirect plugin ([ac85b16](https://github.com/s00d/nuxt-i18n-micro/commit/ac85b16))
+- **i18n:** Simplify middleware by removing redirect logic ([d85e801](https://github.com/s00d/nuxt-i18n-micro/commit/d85e801))
+- **storage:** Rename load method to getFromCache and improve caching ([348c23f](https://github.com/s00d/nuxt-i18n-micro/commit/348c23f))
+- **docs:** Simplify enhanceApp function in theme index.js ([b092df7](https://github.com/s00d/nuxt-i18n-micro/commit/b092df7))
+- **path-strategy:** Rename parameter in getClientRedirect method ([69b2f54](https://github.com/s00d/nuxt-i18n-micro/commit/69b2f54))
+
+### 📖 Documentation
+
+- **readme:** Add star history section with chart link ([90b9652](https://github.com/s00d/nuxt-i18n-micro/commit/90b9652))
+- **events:** Add sequence diagram for i18n:register event flow ([8cabe4b](https://github.com/s00d/nuxt-i18n-micro/commit/8cabe4b))
+- **i18n-cache-api:** Enhance documentation with cache architecture overview ([a4dc843](https://github.com/s00d/nuxt-i18n-micro/commit/a4dc843))
+- **api:** Add API overview and method details to documentation ([d9b16fe](https://github.com/s00d/nuxt-i18n-micro/commit/d9b16fe))
+- **useI18n:** Add methods overview diagram to documentation ([bf0cd9d](https://github.com/s00d/nuxt-i18n-micro/commit/bf0cd9d))
+- **cli:** Add CLI workflow overview and workflow steps to documentation ([75f970b](https://github.com/s00d/nuxt-i18n-micro/commit/75f970b))
+- Add mermaid diagrams for improved clarity in various guides ([336d2f6](https://github.com/s00d/nuxt-i18n-micro/commit/336d2f6))
+- Add mermaid diagrams for improved clarity in various guides ([c984958](https://github.com/s00d/nuxt-i18n-micro/commit/c984958))
+- **performance:** Update performance comparison charts in guide bundle size, and CPU usage. ([3ca9fef](https://github.com/s00d/nuxt-i18n-micro/commit/3ca9fef))
+- **performance-results:** Update performance metrics and comparisons ([932af2a](https://github.com/s00d/nuxt-i18n-micro/commit/932af2a))
+- **performance:** Update performance comparison metrics and details ([18a5b27](https://github.com/s00d/nuxt-i18n-micro/commit/18a5b27))
+- **performance-results:** Update performance metrics and comparisons ([6a07e86](https://github.com/s00d/nuxt-i18n-micro/commit/6a07e86))
+- **readme:** Update performance metrics and comparison for i18n-micro ([3b29935](https://github.com/s00d/nuxt-i18n-micro/commit/3b29935))
+
+### 🏡 Chore
+
+- **.gitignore:** Add `.perf-output` directory to ignored files ([384cbcc](https://github.com/s00d/nuxt-i18n-micro/commit/384cbcc))
+
+### ✅ Tests
+
+- Improve page load assertions in content tests ([eb9bed4](https://github.com/s00d/nuxt-i18n-micro/commit/eb9bed4))
+- **layout-switch:** Add tests for layout switching and cookie redirects ([4865d08](https://github.com/s00d/nuxt-i18n-micro/commit/4865d08))
+- **redirect:** Remove unused i18n configuration in redirect tests ([f691bcf](https://github.com/s00d/nuxt-i18n-micro/commit/f691bcf))
+- **redirect:** Remove unused i18n configuration in redirect tests ([0873b6c](https://github.com/s00d/nuxt-i18n-micro/commit/0873b6c))
+- **serverless-cache:** Add type assertion for translations fetching ([11563d8](https://github.com/s00d/nuxt-i18n-micro/commit/11563d8))
+- **performance:** Add more info ([94c5eef](https://github.com/s00d/nuxt-i18n-micro/commit/94c5eef))
+- **performance:** Add more info ([2351a8e](https://github.com/s00d/nuxt-i18n-micro/commit/2351a8e))
+- **path-strategy:** Add tests for getClientRedirect functionality ([c2b512f](https://github.com/s00d/nuxt-i18n-micro/commit/c2b512f))
+- **path-strategy:** Remove unused RouterAdapter import from tests ([9a69f29](https://github.com/s00d/nuxt-i18n-micro/commit/9a69f29))
+- **path-strategy:** Remove unused imports and clean up whitespace ([9fa1fa8](https://github.com/s00d/nuxt-i18n-micro/commit/9fa1fa8))
+- **path-strategy:** Update test for PrefixExceptDefaultPathStrategy ([88e8359](https://github.com/s00d/nuxt-i18n-micro/commit/88e8359))
+- **tests:** Remove unnecessary blank line in coverage test file ([b359c9a](https://github.com/s00d/nuxt-i18n-micro/commit/b359c9a))
+- **tests:** Remove unnecessary whitespace in test-utils-coverage file ([e8adb62](https://github.com/s00d/nuxt-i18n-micro/commit/e8adb62))
+- **strategy-edge-cases:** Clean up test cases for applyBaseUrl and factory ([30b24ae](https://github.com/s00d/nuxt-i18n-micro/commit/30b24ae))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.2.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.3...v3.2.4)

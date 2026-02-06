@@ -225,12 +225,17 @@ interface ChartDataPoint {
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const resultsFilePath = join(__dirname, '../docs/guide', 'performance-results.md')
-const chartsDir = join(__dirname, '../docs/public')
+const chartsDir = join(__dirname, '../docs/public/charts')
 const tempOutputDir = join(__dirname, '.perf-output')
 
 // Ensure temp output directory exists
 if (!fs.existsSync(tempOutputDir)) {
   fs.mkdirSync(tempOutputDir, { recursive: true })
+}
+
+// Ensure charts directory exists
+if (!fs.existsSync(chartsDir)) {
+  fs.mkdirSync(chartsDir, { recursive: true })
 }
 
 // ============================================================================
@@ -617,7 +622,7 @@ async function runArtilleryTest(configPath: string, outputName: string): Promise
 }
 
 // ============================================================================
-// MERMAID CHART GENERATION
+// CHART.JS GENERATION
 // ============================================================================
 
 function extractChartData(artillery: ArtilleryResult): ChartDataPoint[] {
@@ -631,19 +636,216 @@ function extractChartData(artillery: ArtilleryResult): ChartDataPoint[] {
   }))
 }
 
-function generateMermaidChart(
+// Color scheme matching the i18n-micro.png style
+const chartColors = {
+  requestRate: 'rgb(255, 159, 64)', // Orange
+  responseTimeP95: 'rgb(75, 192, 192)', // Cyan/Teal
+  vusersCreated: 'rgb(153, 102, 255)', // Purple
+  vusersActive: 'rgb(46, 204, 113)', // Green
+  vusersFailed: 'rgb(255, 99, 132)', // Red/Pink
+  plainNuxt: 'rgb(75, 192, 192)', // Teal
+  i18nV10: 'rgb(255, 99, 132)', // Red
+  i18nMicro: 'rgb(46, 204, 113)', // Green
+}
+
+function generateChartJsConfig(
   name: string,
-  data: ChartDataPoint[],
-  summary: {
-    vusersCreated: number
-    completed: number
-    failed: number
-    avgReqPerSec: number
-    peakReqPerSec: number
-  },
+  artillery: ArtilleryResult,
+): { trafficConfig: object, latencyConfig: object } {
+  const intermediate = artillery.intermediate || []
+  const timeSeriesData = intermediate.map((entry, index) => ({
+    time: `${index * 10}s`,
+    requestRate: entry.rates['http.request_rate'] || 0,
+    responseTimeP95: entry.summaries?.['http.response_time']?.p95 || 0,
+    vusersCreated: entry.counters['vusers.created'] || 0,
+    vusersActive: Math.max(0, (entry.counters['vusers.created'] || 0)
+    - (entry.counters['vusers.completed'] || 0)
+    - (entry.counters['vusers.failed'] || 0)),
+    vusersFailed: entry.counters['vusers.failed'] || 0,
+  }))
+
+  const labels = timeSeriesData.map(d => d.time)
+
+  // Traffic Profile Chart (multi-axis line chart)
+  const trafficConfig = {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'http.request_rate',
+          data: timeSeriesData.map(d => Math.round(d.requestRate)),
+          borderColor: chartColors.requestRate,
+          backgroundColor: chartColors.requestRate.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+          borderWidth: 2,
+          tension: 0.3,
+          yAxisID: 'y1',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: 'http.response_time.p95',
+          data: timeSeriesData.map(d => Math.round(d.responseTimeP95)),
+          borderColor: chartColors.responseTimeP95,
+          backgroundColor: chartColors.responseTimeP95.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+          borderWidth: 2,
+          tension: 0.3,
+          yAxisID: 'y2',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: 'vusers.created',
+          data: timeSeriesData.map(d => Math.round(d.vusersCreated)),
+          borderColor: chartColors.vusersCreated,
+          backgroundColor: chartColors.vusersCreated.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+          borderWidth: 2,
+          tension: 0.3,
+          yAxisID: 'y',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: 'vusers.active',
+          data: timeSeriesData.map(d => Math.round(d.vusersActive)),
+          borderColor: chartColors.vusersActive,
+          backgroundColor: chartColors.vusersActive.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+          borderWidth: 2,
+          tension: 0.3,
+          yAxisID: 'y',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: 'vusers.failed',
+          data: timeSeriesData.map(d => Math.round(d.vusersFailed)),
+          borderColor: chartColors.vusersFailed,
+          backgroundColor: chartColors.vusersFailed.replace('rgb', 'rgba').replace(')', ', 0.1)'),
+          borderWidth: 2,
+          tension: 0.3,
+          yAxisID: 'y',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: `Load Summary - ${name}`,
+          font: { size: 16, weight: 'bold' },
+        },
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, padding: 15 },
+        },
+      },
+      scales: {
+        x: {
+          display: true,
+          title: { display: true, text: 'Time' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: { display: true, text: 'VUsers' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          min: 0,
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: { display: true, text: 'req/s' },
+          grid: { drawOnChartArea: false },
+          min: 0,
+        },
+        y2: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: { display: true, text: 'ms' },
+          grid: { drawOnChartArea: false },
+          min: 0,
+        },
+      },
+    },
+  }
+
+  // Response Time P95 Chart
+  const latencyConfig = {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'P95 Latency (ms)',
+          data: timeSeriesData.map(d => Math.round(d.responseTimeP95)),
+          borderColor: chartColors.responseTimeP95,
+          backgroundColor: chartColors.responseTimeP95.replace('rgb', 'rgba').replace(')', ', 0.2)'),
+          borderWidth: 3,
+          tension: 0.3,
+          fill: true,
+          pointRadius: 5,
+          pointHoverRadius: 8,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: `Response Time P95 - ${name}`,
+          font: { size: 16, weight: 'bold' },
+        },
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true },
+        },
+      },
+      scales: {
+        x: {
+          display: true,
+          title: { display: true, text: 'Time' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+        y: {
+          display: true,
+          title: { display: true, text: 'Latency (ms)' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+          min: 0,
+        },
+      },
+    },
+  }
+
+  return { trafficConfig, latencyConfig }
+}
+
+function generateChartMarkdown(
+  name: string,
   artillery: ArtilleryResult,
 ): string {
-  // Summary stats
+  const data = extractChartData(artillery)
+  const summary = {
+    vusersCreated: artillery.aggregate.counters['vusers.created'] || 0,
+    completed: artillery.aggregate.counters['vusers.completed'] || 0,
+    failed: artillery.aggregate.counters['vusers.failed'] || 0,
+    avgReqPerSec: artillery.aggregate.rates['http.request_rate'] || 0,
+    peakReqPerSec: Math.max(...data.map(d => d.requestRate), 0),
+  }
+
   const completedPercent = summary.vusersCreated > 0
     ? ((summary.completed / summary.vusersCreated) * 100).toFixed(2)
     : '0'
@@ -651,7 +853,7 @@ function generateMermaidChart(
     ? ((summary.failed / summary.vusersCreated) * 100).toFixed(2)
     : '0'
 
-  // Extract detailed time-series data
+  // Extract detailed time-series data for table
   const intermediate = artillery.intermediate || []
   const timeSeriesData = intermediate.map((entry, index) => {
     const timestamp = new Date(entry.period).toLocaleTimeString('en-US', {
@@ -665,33 +867,22 @@ function generateMermaidChart(
       requestRate: entry.rates['http.request_rate'] || 0,
       responseTimeP95: entry.summaries?.['http.response_time']?.p95 || 0,
       vusersCreated: entry.counters['vusers.created'] || 0,
-      vusersActive: (entry.counters['vusers.created'] || 0)
-        - (entry.counters['vusers.completed'] || 0)
-        - (entry.counters['vusers.failed'] || 0),
+      vusersActive: Math.max(0, (entry.counters['vusers.created'] || 0)
+      - (entry.counters['vusers.completed'] || 0)
+      - (entry.counters['vusers.failed'] || 0)),
       vusersFailed: entry.counters['vusers.failed'] || 0,
     }
   })
 
-  // Generate data for charts
-  const xLabels = timeSeriesData.map((_, i) => `"${i * 10}s"`).join(', ')
-  const requestRates = timeSeriesData.map(d => Math.round(d.requestRate)).join(', ')
-  const responseTimesP95 = timeSeriesData.map(d => Math.round(d.responseTimeP95)).join(', ')
-  const vusersActive = timeSeriesData.map(d => Math.max(0, Math.round(d.vusersActive))).join(', ')
-  const vusersCreated = timeSeriesData.map(d => Math.round(d.vusersCreated)).join(', ')
-
-  // Calculate max values
-  const maxRequestRate = Math.max(...timeSeriesData.map(d => d.requestRate), 1)
-  const maxResponseTime = Math.max(...timeSeriesData.map(d => d.responseTimeP95), 1)
-  const maxVusers = Math.max(...timeSeriesData.map(d => Math.max(d.vusersCreated, d.vusersActive)), 1)
-
-  // Time series table (like Artillery report)
   let timeSeriesTable = `
 | Time | Request Rate | Response P95 | VUsers Active | VUsers Created |
 |------|--------------|--------------|---------------|----------------|
 `
   timeSeriesData.forEach((d) => {
-    timeSeriesTable += `| ${d.time} | ${d.requestRate.toFixed(0)} req/s | ${d.responseTimeP95.toFixed(0)} ms | ${Math.max(0, d.vusersActive)} | ${d.vusersCreated} |\n`
+    timeSeriesTable += `| ${d.time} | ${d.requestRate.toFixed(0)} req/s | ${d.responseTimeP95.toFixed(0)} ms | ${d.vusersActive} | ${d.vusersCreated} |\n`
   })
+
+  const safeName = name.replace(/[^a-z0-9-]/gi, '-')
 
   return `
 #### 📊 Load Summary - ${name}
@@ -704,26 +895,18 @@ function generateMermaidChart(
 
 </div>
 
-#### 📈 Request Rate & VUsers Over Time
+#### 📈 Traffic Profile Over Time
 
-\`\`\`mermaid
-xychart-beta
-    title "Traffic Profile - ${name}"
-    x-axis [${xLabels}]
-    y-axis "req/s | VUsers" 0 --> ${Math.ceil(Math.max(maxRequestRate, maxVusers) * 1.2)}
-    line "Request Rate" [${requestRates}]
-    line "VUsers Active" [${vusersActive}]
-    line "VUsers Created" [${vusersCreated}]
+\`\`\`chart
+url: /charts/${safeName}-traffic.js
+height: 400px
 \`\`\`
 
 #### ⏱️ Response Time P95 Over Time
 
-\`\`\`mermaid
-xychart-beta
-    title "Response Time P95 (ms) - ${name}"
-    x-axis [${xLabels}]
-    y-axis "ms" 0 --> ${Math.ceil(maxResponseTime * 1.2)}
-    line "P95 Latency" [${responseTimesP95}]
+\`\`\`chart
+url: /charts/${safeName}-latency.js
+height: 300px
 \`\`\`
 
 <details>
@@ -735,27 +918,254 @@ ${timeSeriesTable}
 `
 }
 
-function generateComparisonMermaidChart(
+function generateComparisonCharts(
   results: { name: string, autocannon?: AutocannonResult, artillery?: ArtilleryResult }[],
-): string {
-  const names = results.map(r => `"${r.name}"`).join(', ')
+): { rpsConfig: object, latencyConfig: object, artilleryRpsConfig: object } {
+  const labels = results.map(r => r.name)
 
-  // RPS comparison (using autocannon data)
-  const rpsValues = results.map(r => Math.round(r.autocannon?.requests.average || 0)).join(', ')
-
-  // Latency comparisons
-  const latencyAvg = results.map(r => Math.round(r.autocannon?.latency.average || 0)).join(', ')
-  const latencyP50 = results.map(r => Math.round(r.autocannon?.latency.p50 || 0)).join(', ')
-  const latencyP95 = results.map(r => Math.round(r.autocannon?.latency.p97_5 || 0)).join(', ')
-  const latencyP99 = results.map(r => Math.round(r.autocannon?.latency.p99 || 0)).join(', ')
+  // RPS comparison (Autocannon)
+  const rpsConfig = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Requests per Second',
+          data: results.map(r => Math.round(r.autocannon?.requests.average || 0)),
+          backgroundColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Requests per Second - Autocannon (higher is better)',
+          font: { size: 16, weight: 'bold' },
+        },
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'RPS' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+      },
+    },
+  }
 
   // Artillery RPS
-  const artilleryRps = results.map(r => Math.round(r.artillery?.aggregate.rates['http.request_rate'] || 0)).join(', ')
+  const artilleryRpsConfig = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Requests per Second',
+          data: results.map(r => Math.round(r.artillery?.aggregate.rates['http.request_rate'] || 0)),
+          backgroundColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Requests per Second - Artillery (higher is better)',
+          font: { size: 16, weight: 'bold' },
+        },
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'RPS' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+      },
+    },
+  }
 
-  const maxRps = Math.max(...results.map(r => r.autocannon?.requests.average || 0), 1)
-  const maxLatency = Math.max(...results.map(r => r.autocannon?.latency.p99 || 0), 1)
+  // Latency comparison
+  const latencyConfig = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Avg',
+          data: results.map(r => Math.round(r.autocannon?.latency.average || 0)),
+          backgroundColor: 'rgba(75, 192, 192, 0.8)',
+          borderColor: 'rgb(75, 192, 192)',
+          borderWidth: 1,
+        },
+        {
+          label: 'P50',
+          data: results.map(r => Math.round(r.autocannon?.latency.p50 || 0)),
+          backgroundColor: 'rgba(255, 206, 86, 0.8)',
+          borderColor: 'rgb(255, 206, 86)',
+          borderWidth: 1,
+        },
+        {
+          label: 'P95',
+          data: results.map(r => Math.round(r.autocannon?.latency.p97_5 || 0)),
+          backgroundColor: 'rgba(255, 159, 64, 0.8)',
+          borderColor: 'rgb(255, 159, 64)',
+          borderWidth: 1,
+        },
+        {
+          label: 'P99',
+          data: results.map(r => Math.round(r.autocannon?.latency.p99 || 0)),
+          backgroundColor: 'rgba(255, 99, 132, 0.8)',
+          borderColor: 'rgb(255, 99, 132)',
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Latency Percentiles (lower is better)',
+          font: { size: 16, weight: 'bold' },
+        },
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Latency (ms)' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+      },
+    },
+  }
 
-  // Calculate winner for each metric
+  return { rpsConfig, latencyConfig, artilleryRpsConfig }
+}
+
+function generateBuildComparisonCharts(
+  buildTimes: number[],
+  bundleSizesMB: number[],
+): { buildTimeConfig: object, bundleSizeConfig: object } {
+  const labels = ['plain-nuxt', 'i18n-v10', 'i18n-micro']
+
+  const buildTimeConfig = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Build Time (seconds)',
+          data: buildTimes,
+          backgroundColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Build Time (lower is better)',
+          font: { size: 16, weight: 'bold' },
+        },
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Seconds' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+      },
+    },
+  }
+
+  const bundleSizeConfig = {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Bundle Size (MB)',
+          data: bundleSizesMB,
+          backgroundColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Bundle Size (lower is better)',
+          font: { size: 16, weight: 'bold' },
+        },
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'MB' },
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        },
+      },
+    },
+  }
+
+  return { buildTimeConfig, bundleSizeConfig }
+}
+
+function saveChartJsConfig(filename: string, config: object): void {
+  const jsContent = `// Auto-generated Chart.js config
+export default function() {
+  return ${JSON.stringify(config, null, 2)};
+}
+`
+  const filePath = join(chartsDir, filename)
+  fs.writeFileSync(filePath, jsContent)
+  console.log(`Chart config saved to: ${filePath}`)
+}
+
+function generateComparisonMarkdown(
+  results: { name: string, autocannon?: AutocannonResult, artillery?: ArtilleryResult }[],
+): string {
   const rpsWinner = results.reduce((best, curr) =>
     (curr.autocannon?.requests.average || 0) > (best.autocannon?.requests.average || 0) ? curr : best,
   )
@@ -770,35 +1180,23 @@ function generateComparisonMermaidChart(
 
 > **Winner: ${rpsWinner.name}** with ${rpsWinner.autocannon?.requests.average.toFixed(0)} RPS
 
-\`\`\`mermaid
-xychart-beta
-    title "Requests per Second - Autocannon (higher is better)"
-    x-axis [${names}]
-    y-axis "RPS" 0 --> ${Math.ceil(maxRps * 1.2)}
-    bar [${rpsValues}]
+\`\`\`chart
+url: /charts/comparison-rps-autocannon.js
+height: 350px
 \`\`\`
 
-\`\`\`mermaid
-xychart-beta
-    title "Requests per Second - Artillery (higher is better)"
-    x-axis [${names}]
-    y-axis "RPS" 0 --> ${Math.ceil(maxRps * 1.2)}
-    bar [${artilleryRps}]
+\`\`\`chart
+url: /charts/comparison-rps-artillery.js
+height: 350px
 \`\`\`
 
 ### Latency Distribution
 
 > **Winner: ${latencyWinner.name}** with ${latencyWinner.autocannon?.latency.average.toFixed(2)} ms avg latency
 
-\`\`\`mermaid
-xychart-beta
-    title "Latency Percentiles (lower is better)"
-    x-axis [${names}]
-    y-axis "ms" 0 --> ${Math.ceil(maxLatency * 1.2)}
-    bar "Avg" [${latencyAvg}]
-    bar "P50" [${latencyP50}]
-    bar "P95" [${latencyP95}]
-    bar "P99" [${latencyP99}]
+\`\`\`chart
+url: /charts/comparison-latency.js
+height: 350px
 \`\`\`
 
 ### Quick Comparison
@@ -815,6 +1213,16 @@ xychart-beta
 
 async function generateAndSaveChart(name: string, artillery: ArtilleryResult): Promise<string> {
   const data = extractChartData(artillery)
+  const { trafficConfig, latencyConfig } = generateChartJsConfig(name, artillery)
+
+  const safeName = name.replace(/[^a-z0-9-]/gi, '-')
+
+  // Save Chart.js configs as JS files
+  saveChartJsConfig(`${safeName}-traffic.js`, trafficConfig)
+  saveChartJsConfig(`${safeName}-latency.js`, latencyConfig)
+
+  // Save JSON data for reference
+  const jsonPath = join(chartsDir, `${safeName}-data.json`)
   const summary = {
     vusersCreated: artillery.aggregate.counters['vusers.created'] || 0,
     completed: artillery.aggregate.counters['vusers.completed'] || 0,
@@ -822,15 +1230,10 @@ async function generateAndSaveChart(name: string, artillery: ArtilleryResult): P
     avgReqPerSec: artillery.aggregate.rates['http.request_rate'] || 0,
     peakReqPerSec: Math.max(...data.map(d => d.requestRate), 0),
   }
-
-  const mermaidMarkdown = generateMermaidChart(name, data, summary, artillery)
-
-  // Save JSON data for reference
-  const jsonPath = join(chartsDir, `${name}-data.json`)
   fs.writeFileSync(jsonPath, JSON.stringify({ data, summary, intermediate: artillery.intermediate }, null, 2))
   console.log(`Chart data saved to: ${jsonPath}`)
 
-  return mermaidMarkdown
+  return generateChartMarkdown(name, artillery)
 }
 
 // ============================================================================
@@ -1118,6 +1521,11 @@ describe('performance', () => {
     ]
     const maxBundleSize = Math.max(...bundleSizesMB, 1)
 
+    // Generate and save build comparison charts
+    const { buildTimeConfig, bundleSizeConfig } = generateBuildComparisonCharts(buildTimes, bundleSizesMB)
+    saveChartJsConfig('build-time-comparison.js', buildTimeConfig)
+    saveChartJsConfig('bundle-size-comparison.js', bundleSizeConfig)
+
     writeToMarkdown(`
 ## Build Performance Summary
 
@@ -1129,22 +1537,16 @@ describe('performance', () => {
 
 ### Build Time Comparison
 
-\`\`\`mermaid
-xychart-beta
-    title "Build Time (lower is better)"
-    x-axis ["plain-nuxt", "i18n-v10", "i18n-micro"]
-    y-axis "seconds" 0 --> ${Math.ceil(maxBuildTime * 1.2)}
-    bar [${buildTimes.join(', ')}]
+\`\`\`chart
+url: /charts/build-time-comparison.js
+height: 350px
 \`\`\`
 
 ### Bundle Size Comparison
 
-\`\`\`mermaid
-xychart-beta
-    title "Bundle Size (lower is better)"
-    x-axis ["plain-nuxt", "i18n-v10", "i18n-micro"]
-    y-axis "MB" 0 --> ${Math.ceil(maxBundleSize * 1.2)}
-    bar [${bundleSizesMB.join(', ')}]
+\`\`\`chart
+url: /charts/bundle-size-comparison.js
+height: 350px
 \`\`\`
 
 - **i18n v10 vs baseline**: ${formatBytes((i18nResults.bundleSize?.total || 0) - (plainNuxtResults.bundleSize?.total || 0))} larger
@@ -1163,11 +1565,16 @@ xychart-beta
     const i18nMicroStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', 'i18n-micro', artilleryConfigPath)
 
     // 3. Summary tables and comparison charts
-    const comparisonCharts = generateComparisonMermaidChart([
+    const comparisonResults = [
       { name: 'plain-nuxt', autocannon: plainNuxtStressResults.autocannon, artillery: plainNuxtStressResults.artillery },
       { name: 'i18n-v10', autocannon: i18nStressResults.autocannon, artillery: i18nStressResults.artillery },
       { name: 'i18n-micro', autocannon: i18nMicroStressResults.autocannon, artillery: i18nMicroStressResults.artillery },
-    ])
+    ]
+    const { rpsConfig, latencyConfig, artilleryRpsConfig } = generateComparisonCharts(comparisonResults)
+    saveChartJsConfig('comparison-rps-autocannon.js', rpsConfig)
+    saveChartJsConfig('comparison-rps-artillery.js', artilleryRpsConfig)
+    saveChartJsConfig('comparison-latency.js', latencyConfig)
+    const comparisonCharts = generateComparisonMarkdown(comparisonResults)
 
     writeToMarkdown(`
 ## Stress Test Summary

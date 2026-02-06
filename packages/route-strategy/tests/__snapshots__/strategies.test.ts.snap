@@ -307,6 +307,11 @@ exports[`RouteGenerator - Strategy: prefix 12. should apply custom paths to all 
     "name": "localized-catch-all",
     "path": "/:locale(en|de|ru)/:slug(.*)*",
   },
+  {
+    "name": "redirect--about",
+    "path": "/about",
+    "redirect": "/en/about-us",
+  },
 ]
 `;
 

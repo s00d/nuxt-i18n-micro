@@ -1,8 +1,9 @@
 import { withMermaid } from 'vitepress-plugin-mermaid'
+import { withChartjs } from 'vitepress-plugin-chartjs'
 import pkg from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
-export default withMermaid({
+export default withChartjs(withMermaid({
   lang: 'en-US',
   title: 'Nuxt I18n Micro',
   description: 'Fast, simple, and lightweight i18n for Nuxt',
@@ -133,6 +134,7 @@ export default withMermaid({
             { text: 'Using', link: '/using' },
             { text: 'Firebase Deployment', link: '/firebase' },
             { text: 'Performance', link: '/performance' },
+            { text: 'Performance Test Results', link: '/performance-results' },
             { text: 'Folder Structure', link: '/folder-structure' },
             { text: 'Layers', link: '/layers' },
             { text: 'Seo', link: '/seo' },
@@ -202,4 +204,16 @@ export default withMermaid({
   mermaidPlugin: {
     class: 'mermaid-chart',
   },
-})
+
+  // Chart.js configuration
+  chartjs: {
+    defaultHeight: '400px',
+    colorPalette: [
+      'rgba(75, 192, 192, 0.8)',
+      'rgba(255, 99, 132, 0.8)',
+      'rgba(46, 204, 113, 0.8)',
+      'rgba(255, 159, 64, 0.8)',
+      'rgba(153, 102, 255, 0.8)',
+    ],
+  },
+}))

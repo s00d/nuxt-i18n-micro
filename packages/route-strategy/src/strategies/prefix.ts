@@ -93,6 +93,30 @@ export class PrefixStrategy extends BaseStrategy {
       if (/^\/:locale/.test(pagePath) || pagePath === '/') return true
       return false
     })
+
+    // Add redirect routes for custom paths (e.g., /page2 → /en/custom-page2-en)
+    const defaultLocale = context.defaultLocale.code
+    for (const [routeKey, localePaths] of Object.entries(context.globalLocaleRoutes)) {
+      if (localePaths === false || typeof localePaths !== 'object') continue
+
+      const customPath = (localePaths as Record<string, string>)[defaultLocale]
+      if (!customPath) continue
+
+      // Original path (e.g., /page2)
+      const originalPath = routeKey.startsWith('/') ? routeKey : `/${routeKey}`
+      // Target path with locale prefix (e.g., /en/custom-page2-en)
+      const targetPath = `/${defaultLocale}${customPath.startsWith('/') ? customPath : `/${customPath}`}`
+
+      // Only add redirect if paths differ
+      if (originalPath !== targetPath) {
+        filtered.push({
+          path: originalPath,
+          name: `redirect-${routeKey.replace(/\//g, '-')}`,
+          redirect: targetPath,
+        } as NuxtPage)
+      }
+    }
+
     if (context.fallbackRedirectComponentPath) {
       filtered.push({
         path: '/:pathMatch(.*)*',

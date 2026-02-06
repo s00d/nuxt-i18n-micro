@@ -260,4 +260,3 @@ describe('PathResolver - getParentPathForNested', () => {
     expect(result).toBe('/verschachtelt/pfad')
   })
 })
-

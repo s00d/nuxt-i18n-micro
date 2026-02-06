@@ -8,6 +8,48 @@ The `useI18n` composable in `Nuxt I18n Micro` is designed to provide an easy and
 
 **All methods can be accessed both with and without the `$` prefix** for convenience.
 
+## 📊 Methods Overview
+
+```mermaid
+classDiagram
+    class useI18n {
+        <<composable>>
+    }
+    
+    class LocaleMethods {
+        $getLocale()
+        $getLocaleName()
+        $getLocales()
+    }
+    
+    class TranslationMethods {
+        $t(key, params?, default?)
+        $ts(key, params?, default?)
+        $tc(key, count, default?)
+        $has(key)
+        $mergeTranslations(obj)
+    }
+    
+    class FormattingMethods {
+        $tn(value, options?)
+        $td(date, options?)
+        $tdr(date, options?)
+    }
+    
+    class RoutingMethods {
+        $switchLocale(locale)
+        $switchLocalePath(locale)
+        $localeRoute(to, locale?)
+        $localePath(to, locale?)
+        $loadPageTranslations(...)
+    }
+    
+    useI18n <|-- LocaleMethods
+    useI18n <|-- TranslationMethods
+    useI18n <|-- FormattingMethods
+    useI18n <|-- RoutingMethods
+```
+
 ## ⚙️ Return Values
 
 The `useI18n` composable returns an object containing several key methods and properties for managing internationalization:

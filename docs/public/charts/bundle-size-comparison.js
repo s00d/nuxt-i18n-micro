@@ -10,22 +10,25 @@ export default function() {
     ],
     "datasets": [
       {
-        "label": "Bundle Size (MB)",
+        "label": "Code Bundle (MB)",
         "data": [
-          1.9,
-          57.3,
-          62.5
+          1.4,
+          19.2,
+          1.5
         ],
-        "backgroundColor": [
-          "rgb(75, 192, 192)",
-          "rgb(255, 99, 132)",
-          "rgb(46, 204, 113)"
+        "backgroundColor": "rgba(75, 192, 192, 0.8)",
+        "borderColor": "rgb(75, 192, 192)",
+        "borderWidth": 2
+      },
+      {
+        "label": "Translations (MB)",
+        "data": [
+          0.6,
+          38.1,
+          61
         ],
-        "borderColor": [
-          "rgb(75, 192, 192)",
-          "rgb(255, 99, 132)",
-          "rgb(46, 204, 113)"
-        ],
+        "backgroundColor": "rgba(255, 206, 86, 0.8)",
+        "borderColor": "rgb(255, 206, 86)",
         "borderWidth": 2
       }
     ]
@@ -36,19 +39,23 @@ export default function() {
     "plugins": {
       "title": {
         "display": true,
-        "text": "Bundle Size (lower is better)",
+        "text": "Bundle Size: Code vs Translations (lower is better)",
         "font": {
           "size": 16,
           "weight": "bold"
         }
       },
       "legend": {
-        "display": false
+        "position": "bottom",
+        "labels": {
+          "usePointStyle": true
+        }
       }
     },
     "scales": {
       "y": {
         "beginAtZero": true,
+        "stacked": true,
         "title": {
           "display": true,
           "text": "MB"
@@ -58,6 +65,7 @@ export default function() {
         }
       },
       "x": {
+        "stacked": true,
         "grid": {
           "color": "rgba(255, 255, 255, 0.1)"
         }

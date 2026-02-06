@@ -11,6 +11,23 @@ import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getI18nConfig } from '#i18n-internal/strategy'
 
 // ============================================================================
+// SERVER CACHE (процессно-глобальный кэш результатов)
+// ============================================================================
+
+const CACHE_KEY = Symbol.for('__NUXT_I18N_SERVER_RESULT_CACHE__')
+type CacheEntry = { data: Translations, json: string }
+type ServerCache = Map<string, CacheEntry>
+type GlobalWithCache = typeof globalThis & { [key: symbol]: ServerCache }
+
+function getServerCache(): ServerCache {
+  const g = globalThis as GlobalWithCache
+  if (!g[CACHE_KEY]) {
+    g[CACHE_KEY] = new Map()
+  }
+  return g[CACHE_KEY]
+}
+
+// ============================================================================
 // HELPERS
 // ============================================================================
 
@@ -35,7 +52,6 @@ function deepMerge(target: Translations, source: Translations): Translations {
 
 function toTranslations(data: unknown): Translations {
   if (!data) return {}
-  // unstorage автоматически парсит .json файлы и возвращает объект
   if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
     return data as Translations
   }
@@ -90,14 +106,27 @@ async function loadMergedFromServer(locale: string, page: string | undefined): P
 /**
  * Загрузка переводов из Nitro storage с поддержкой fallback локалей.
  * Используется в API route и server middleware.
+ * Результат кэшируется на уровне процесса - один раз загружаем, потом отдаём из памяти.
  */
 export async function loadTranslationsFromServer(locale: string, routeName?: string): Promise<{ data: Translations, json: string }> {
+  const cache = getServerCache()
+  const cacheKey = `${locale}:${routeName || 'general'}`
+
+  // Быстрый путь: из кэша
+  const cached = cache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  // Медленный путь: загрузка и мёрдж
   const config = getI18nConfig() as ModuleOptionsExtend
   const { locales, fallbackLocale } = config
 
   const localeConfig = locales?.find(l => l.code === locale)
   if (!localeConfig) {
-    return { data: {}, json: '{}' }
+    const empty = { data: {}, json: '{}' }
+    cache.set(cacheKey, empty)
+    return empty
   }
 
   const localesToMerge: string[] = [fallbackLocale, localeConfig.fallbackLocale, locale]
@@ -113,5 +142,10 @@ export async function loadTranslationsFromServer(locale: string, routeName?: str
   }
 
   const json = JSON.stringify(result).replace(/</g, '\\u003c')
-  return { data: result, json }
+  const entry = { data: result, json }
+
+  // В кэш
+  cache.set(cacheKey, entry)
+
+  return entry
 }

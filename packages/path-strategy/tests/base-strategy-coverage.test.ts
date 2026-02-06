@@ -2,7 +2,7 @@
  * Tests for base-strategy.ts coverage - getters, setters, and edge cases
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import type { PathStrategyContext, ResolvedRouteLike, RouteLike, RouterAdapter } from '../src'
+import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
 import {
   createPathStrategy,
   PrefixExceptDefaultPathStrategy,
@@ -334,6 +334,7 @@ describe('applyBaseUrl - external URL handling', () => {
 describe('NoPrefixPathStrategy - formatPathForResolve', () => {
   test('returns path unchanged', () => {
     const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix'))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((strategy as any).formatPathForResolve('/about', 'en', 'de')).toBe('/about')
   })
 })
@@ -341,6 +342,7 @@ describe('NoPrefixPathStrategy - formatPathForResolve', () => {
 describe('PrefixPathStrategy - formatPathForResolve', () => {
   test('returns path with locale prefix', () => {
     const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((strategy as any).formatPathForResolve('/about', 'en', 'de')).toBe('/en/about')
   })
 })
@@ -380,6 +382,7 @@ describe('BasePathStrategy - applyBaseUrl edge cases', () => {
     }
 
     // When route already has protocol, return as-is
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = (strategy as any).applyBaseUrl('fr', route)
     expect(result).toEqual(route)
   })
@@ -403,6 +406,7 @@ describe('BasePathStrategy - applyBaseUrl edge cases', () => {
     }
 
     // When baseUrl doesn't have protocol, return route object
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = (strategy as any).applyBaseUrl('de', route)
     expect(typeof result).toBe('object')
     expect(result.path).toBe('/de-prefix/page')

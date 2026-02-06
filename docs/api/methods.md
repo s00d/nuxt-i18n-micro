@@ -6,6 +6,54 @@ outline: deep
 
 This page documents all available methods provided by nuxt-i18n-micro. Methods are organized by functionality for easier navigation.
 
+## 📊 API Overview
+
+```mermaid
+classDiagram
+    class useI18n {
+        +$getLocale() string
+        +$getLocaleName() string
+        +$getLocales() Locale[]
+        +$t(key, params?, defaultValue?) Translation
+        +$ts(key, params?, defaultValue?) string
+        +$tc(key, count, defaultValue?) string
+        +$tn(value, options?) string
+        +$td(value, options?) string
+        +$tdr(value, options?) string
+        +$has(key) boolean
+        +$switchLocale(locale) void
+        +$switchLocalePath(locale) string
+        +$localeRoute(to, locale?) RouteLocation
+        +$localePath(to, locale?) string
+        +$mergeTranslations(translations) void
+        +$setMissingHandler(handler) void
+    }
+    
+    class Locale {
+        +string code
+        +string? iso
+        +string? dir
+        +string? displayName
+        +boolean? disabled
+        +string? fallbackLocale
+    }
+    
+    class Translation {
+        <<type>>
+        string | number | boolean
+        Translations | PluralTranslations
+    }
+    
+    class Params {
+        <<type>>
+        Record~string, string | number | boolean~
+    }
+    
+    useI18n ..> Locale : returns
+    useI18n ..> Translation : returns
+    useI18n ..> Params : accepts
+```
+
 
 ## 🌍 Locale Management
 

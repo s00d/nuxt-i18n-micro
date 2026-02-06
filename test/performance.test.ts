@@ -184,6 +184,12 @@ interface BundleSize {
   client: number
   server: number
   total: number
+  clientCode: number
+  clientTranslations: number
+  serverCode: number
+  serverTranslations: number
+  codeTotal: number
+  translationsTotal: number
 }
 
 interface PerformanceResult {
@@ -278,29 +284,92 @@ function measureBundleSize(directory: string): BundleSize {
   const clientDir = path.join(outputDir, 'public')
   const serverDir = path.join(outputDir, 'server')
 
-  function getDirSize(dir: string): number {
-    if (!fs.existsSync(dir)) return 0
-    let size = 0
-    const files = fs.readdirSync(dir, { withFileTypes: true })
-    for (const file of files) {
-      const filePath = path.join(dir, file.name)
-      if (file.isDirectory()) {
-        size += getDirSize(filePath)
-      }
-      else {
-        size += fs.statSync(filePath).size
+  function isTranslationFile(filePath: string): boolean {
+    const relativePath = filePath.toLowerCase()
+    const fileName = path.basename(filePath)
+
+    // JSON files in locales directories (i18n-micro)
+    if (relativePath.includes('locales') && filePath.endsWith('.json')) {
+      return true
+    }
+
+    // MJS files that are locale translations in chunks/_/ directory (nuxt-i18n)
+    // e.g., chunks/_/en.mjs, chunks/_/de.mjs
+    if (relativePath.includes('chunks/_') || relativePath.includes('chunks\\_')) {
+      const localePattern = /^(?:en|de|ru|fr|es|it|pt|zh|ja|ko|ar|he|hi|pl|nl|sv|da|fi|no|cs|sk|hu|ro|bg|uk|tr|vi|th|id|ms)\.mjs$/i
+      if (localePattern.test(fileName)) {
+        return true
       }
     }
-    return size
+
+    // MJS files in chunks/build/ that start with locale code (nuxt-i18n compiled translations)
+    // e.g., chunks/build/en-DNSlf_yQ.mjs, chunks/build/de-D2u_zdJD.mjs
+    if (relativePath.includes('chunks/build') || relativePath.includes('chunks\\build')) {
+      const localePattern = /^(?:en|de|ru|fr|es|it|pt|zh|ja|ko|ar|he|hi|pl|nl|sv|da|fi|no|cs|sk|hu|ro|bg|uk|tr|vi|th|id|ms)-\w+\.mjs$/i
+      if (localePattern.test(fileName)) {
+        return true
+      }
+    }
+
+    // Raw translation chunks (i18n-micro)
+    // e.g., chunks/raw/en4.mjs, chunks/raw/de2.mjs
+    if (relativePath.includes('chunks/raw') || relativePath.includes('chunks\\raw')) {
+      const localePattern = /^(?:en|de|ru|fr|es|it|pt|zh|ja|ko|ar|he|hi|pl|nl|sv|da|fi|no|cs|sk|hu|ro|bg|uk|tr|vi|th|id|ms)\d*\.mjs$/i
+      if (localePattern.test(fileName)) {
+        return true
+      }
+    }
+
+    // API translations folder (plain-nuxt)
+    if (relativePath.includes('routes/api/translations') || relativePath.includes('routes\\api\\translations')) {
+      return true
+    }
+
+    return false
   }
 
-  const client = getDirSize(clientDir)
-  const server = getDirSize(serverDir)
+  function getDirSizeWithSeparation(dir: string): { total: number, code: number, translations: number } {
+    if (!fs.existsSync(dir)) return { total: 0, code: 0, translations: 0 }
+
+    let code = 0
+    let translations = 0
+
+    function walkDir(currentDir: string) {
+      const files = fs.readdirSync(currentDir, { withFileTypes: true })
+      for (const file of files) {
+        const filePath = path.join(currentDir, file.name)
+        if (file.isDirectory()) {
+          walkDir(filePath)
+        }
+        else {
+          const fileSize = fs.statSync(filePath).size
+          if (isTranslationFile(filePath)) {
+            translations += fileSize
+          }
+          else {
+            code += fileSize
+          }
+        }
+      }
+    }
+
+    walkDir(dir)
+    return { total: code + translations, code, translations }
+  }
+
+  const clientStats = getDirSizeWithSeparation(clientDir)
+  const serverStats = getDirSizeWithSeparation(serverDir)
 
   return {
-    client,
-    server,
-    total: client + server,
+    client: clientStats.total,
+    server: serverStats.total,
+    total: clientStats.total + serverStats.total,
+    clientCode: clientStats.code,
+    clientTranslations: clientStats.translations,
+    serverCode: serverStats.code,
+    serverTranslations: serverStats.translations,
+    codeTotal: clientStats.code + serverStats.code,
+    translationsTotal: clientStats.translations + serverStats.translations,
   }
 }
 
@@ -539,7 +608,8 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
 ## Build Performance for ${directory}
 
 - **Build Time**: ${buildTime.toFixed(2)} seconds
-- **Bundle Size**: ${formatBytes(bundleSize.total)} (client: ${formatBytes(bundleSize.client)}, server: ${formatBytes(bundleSize.server)})
+- **Bundle Size**: ${formatBytes(bundleSize.total)} (code: ${formatBytes(bundleSize.codeTotal)}, translations: ${formatBytes(bundleSize.translationsTotal)})
+- **Code Bundle**: client: ${formatBytes(bundleSize.clientCode)}, server: ${formatBytes(bundleSize.serverCode)}
 - **Max CPU Usage**: ${maxCpuUsage.toFixed(2)}%
 - **Min CPU Usage**: ${minCpuUsage.toFixed(2)}%
 - **Average CPU Usage**: ${avgCpuUsage.toFixed(2)}%
@@ -1069,7 +1139,8 @@ function generateComparisonCharts(
 
 function generateBuildComparisonCharts(
   buildTimes: number[],
-  bundleSizesMB: number[],
+  codeBundleSizesMB: number[],
+  translationSizesMB: number[],
 ): { buildTimeConfig: object, bundleSizeConfig: object } {
   const labels = ['plain-nuxt', 'i18n-v10', 'i18n-micro']
 
@@ -1111,16 +1182,24 @@ function generateBuildComparisonCharts(
     },
   }
 
+  // Stacked bar chart showing Code vs Translations
   const bundleSizeConfig = {
     type: 'bar',
     data: {
       labels,
       datasets: [
         {
-          label: 'Bundle Size (MB)',
-          data: bundleSizesMB,
-          backgroundColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
-          borderColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
+          label: 'Code Bundle (MB)',
+          data: codeBundleSizesMB,
+          backgroundColor: 'rgba(75, 192, 192, 0.8)',
+          borderColor: 'rgb(75, 192, 192)',
+          borderWidth: 2,
+        },
+        {
+          label: 'Translations (MB)',
+          data: translationSizesMB,
+          backgroundColor: 'rgba(255, 206, 86, 0.8)',
+          borderColor: 'rgb(255, 206, 86)',
           borderWidth: 2,
         },
       ],
@@ -1131,18 +1210,23 @@ function generateBuildComparisonCharts(
       plugins: {
         title: {
           display: true,
-          text: 'Bundle Size (lower is better)',
+          text: 'Bundle Size: Code vs Translations (lower is better)',
           font: { size: 16, weight: 'bold' },
         },
-        legend: { display: false },
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true },
+        },
       },
       scales: {
         y: {
           beginAtZero: true,
+          stacked: true,
           title: { display: true, text: 'MB' },
           grid: { color: 'rgba(255, 255, 255, 0.1)' },
         },
         x: {
+          stacked: true,
           grid: { color: 'rgba(255, 255, 255, 0.1)' },
         },
       },
@@ -1511,29 +1595,37 @@ describe('performance', () => {
       Math.round(i18nResults.buildTime * 10) / 10,
       Math.round(i18nMicroResults.buildTime * 10) / 10,
     ]
-    const maxBuildTime = Math.max(...buildTimes, 1)
 
-    // Bundle sizes for chart (in MB)
-    const bundleSizesMB = [
-      Math.round((plainNuxtResults.bundleSize?.total || 0) / 1024 / 1024 * 10) / 10,
-      Math.round((i18nResults.bundleSize?.total || 0) / 1024 / 1024 * 10) / 10,
-      Math.round((i18nMicroResults.bundleSize?.total || 0) / 1024 / 1024 * 10) / 10,
+    // Code bundle sizes for chart (in MB) - excludes translation JSON files
+    const codeBundleSizesMB = [
+      Math.round((plainNuxtResults.bundleSize?.codeTotal || 0) / 1024 / 1024 * 10) / 10,
+      Math.round((i18nResults.bundleSize?.codeTotal || 0) / 1024 / 1024 * 10) / 10,
+      Math.round((i18nMicroResults.bundleSize?.codeTotal || 0) / 1024 / 1024 * 10) / 10,
     ]
-    const maxBundleSize = Math.max(...bundleSizesMB, 1)
+
+    // Translation sizes for chart (in MB)
+    const translationSizesMB = [
+      Math.round((plainNuxtResults.bundleSize?.translationsTotal || 0) / 1024 / 1024 * 10) / 10,
+      Math.round((i18nResults.bundleSize?.translationsTotal || 0) / 1024 / 1024 * 10) / 10,
+      Math.round((i18nMicroResults.bundleSize?.translationsTotal || 0) / 1024 / 1024 * 10) / 10,
+    ]
 
     // Generate and save build comparison charts
-    const { buildTimeConfig, bundleSizeConfig } = generateBuildComparisonCharts(buildTimes, bundleSizesMB)
+    const { buildTimeConfig, bundleSizeConfig } = generateBuildComparisonCharts(buildTimes, codeBundleSizesMB, translationSizesMB)
     saveChartJsConfig('build-time-comparison.js', buildTimeConfig)
     saveChartJsConfig('bundle-size-comparison.js', bundleSizeConfig)
 
     writeToMarkdown(`
 ## Build Performance Summary
 
-| Project | Build Time | Bundle Size | Client | Server |
-|---------|------------|-------------|--------|--------|
-| **plain-nuxt** (baseline) | ${plainNuxtResults.buildTime.toFixed(2)}s | ${formatBytes(plainNuxtResults.bundleSize?.total || 0)} | ${formatBytes(plainNuxtResults.bundleSize?.client || 0)} | ${formatBytes(plainNuxtResults.bundleSize?.server || 0)} |
-| **i18n v10** | ${i18nResults.buildTime.toFixed(2)}s | ${formatBytes(i18nResults.bundleSize?.total || 0)} | ${formatBytes(i18nResults.bundleSize?.client || 0)} | ${formatBytes(i18nResults.bundleSize?.server || 0)} |
-| **i18n-micro** | ${i18nMicroResults.buildTime.toFixed(2)}s | ${formatBytes(i18nMicroResults.bundleSize?.total || 0)} | ${formatBytes(i18nMicroResults.bundleSize?.client || 0)} | ${formatBytes(i18nMicroResults.bundleSize?.server || 0)} |
+| Project | Build Time | Code Bundle | Translations | Total |
+|---------|------------|-------------|--------------|-------|
+| **plain-nuxt** (baseline) | ${plainNuxtResults.buildTime.toFixed(2)}s | ${formatBytes(plainNuxtResults.bundleSize?.codeTotal || 0)} | ${formatBytes(plainNuxtResults.bundleSize?.translationsTotal || 0)} | ${formatBytes(plainNuxtResults.bundleSize?.total || 0)} |
+| **i18n v10** | ${i18nResults.buildTime.toFixed(2)}s | ${formatBytes(i18nResults.bundleSize?.codeTotal || 0)} | ${formatBytes(i18nResults.bundleSize?.translationsTotal || 0)} | ${formatBytes(i18nResults.bundleSize?.total || 0)} |
+| **i18n-micro** | ${i18nMicroResults.buildTime.toFixed(2)}s | ${formatBytes(i18nMicroResults.bundleSize?.codeTotal || 0)} | ${formatBytes(i18nMicroResults.bundleSize?.translationsTotal || 0)} | ${formatBytes(i18nMicroResults.bundleSize?.total || 0)} |
+
+> **Note**: "Code Bundle" = JavaScript/CSS code. "Translations" = JSON translation files in locales directories.
+> i18n-micro stores translations as lazy-loaded JSON files, while i18n v10 compiles them into JS bundles.
 
 ### Build Time Comparison
 
@@ -1542,16 +1634,17 @@ url: /charts/build-time-comparison.js
 height: 350px
 \`\`\`
 
-### Bundle Size Comparison
+### Bundle Size Comparison (Code vs Translations)
 
 \`\`\`chart
 url: /charts/bundle-size-comparison.js
-height: 350px
+height: 400px
 \`\`\`
 
-- **i18n v10 vs baseline**: ${formatBytes((i18nResults.bundleSize?.total || 0) - (plainNuxtResults.bundleSize?.total || 0))} larger
-- **i18n-micro vs baseline**: ${formatBytes((i18nMicroResults.bundleSize?.total || 0) - (plainNuxtResults.bundleSize?.total || 0))} larger
-- **i18n-micro vs i18n v10**: ${formatBytes((i18nMicroResults.bundleSize?.total || 0) - (i18nResults.bundleSize?.total || 0))} ${(i18nMicroResults.bundleSize?.total || 0) < (i18nResults.bundleSize?.total || 0) ? 'smaller' : 'larger'}
+**Code Bundle Comparison** (lower is better):
+- **i18n v10 vs baseline**: ${formatBytes((i18nResults.bundleSize?.codeTotal || 0) - (plainNuxtResults.bundleSize?.codeTotal || 0))} larger
+- **i18n-micro vs baseline**: ${formatBytes((i18nMicroResults.bundleSize?.codeTotal || 0) - (plainNuxtResults.bundleSize?.codeTotal || 0))} larger
+- **i18n-micro vs i18n v10**: ${formatBytes(Math.abs((i18nMicroResults.bundleSize?.codeTotal || 0) - (i18nResults.bundleSize?.codeTotal || 0)))} ${(i18nMicroResults.bundleSize?.codeTotal || 0) < (i18nResults.bundleSize?.codeTotal || 0) ? 'smaller' : 'larger'}
 
 `)
 

@@ -26,6 +26,13 @@ Before you begin the migration process, it’s essential to understand the key d
 
 ## 🛠️ Step-by-Step Migration
 
+### Migration Steps
+
+```mermaid
+flowchart LR
+    A[1. Backup] --> B[2. Install] --> C[3. Migrate] --> D[4. Test] --> E[✅ Done]
+```
+
 ### 1. 🛠️ Install `Nuxt I18n Micro`
 
 First, add `Nuxt I18n Micro` to your Nuxt project:

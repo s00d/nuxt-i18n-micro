@@ -48,6 +48,21 @@ We also tested server performance by simulating 10,000 requests to each module.
 - **Max Memory Usage**: 323.00 MB — **54% less memory usage**
 :::
 
+### 📈 Visual Comparison
+
+```mermaid
+pie title Memory Usage Comparison
+    "nuxt-i18n (8305 MB)" : 8305
+    "i18n-micro (655 MB)" : 655
+```
+
+| Metric | nuxt-i18n | i18n-micro | Improvement |
+|--------|-----------|------------|-------------|
+| Build Time | 91s | 5s | **94% faster** |
+| Memory | 8305 MB | 655 MB | **92% less** |
+| Bundle Size | 54.7 MB | 1.93 MB | **96% smaller** |
+| CPU Usage | 391% | 220% | **44% lower** |
+
 ### 🔍 Interpretation of Results
 
 These tests clearly indicate that `Nuxt I18n Micro` offers superior performance across multiple metrics:
@@ -79,6 +94,30 @@ Starting from v3.0.0, the module uses a `globalThis` singleton pattern with `Sym
 - Per-request object recreation that causes garbage collection pressure
 - Memory leaks from orphaned cache instances
 
+```mermaid
+flowchart LR
+    subgraph Process["Node.js Process"]
+        G["globalThis[Symbol.for('CACHE')]"]
+        
+        subgraph R1["SSR Request 1"]
+            P1[Plugin Instance] --> G
+        end
+        
+        subgraph R2["SSR Request 2"]
+            P2[Plugin Instance] --> G
+        end
+        
+        subgraph R3["SSR Request 3"]
+            P3[Plugin Instance] --> G
+        end
+    end
+    
+    G --> Cache["Single Map Instance"]
+    Cache --> D1["en:index → translations"]
+    Cache --> D2["en:general → translations"]
+    Cache --> D3["de:index → translations"]
+```
+
 ```typescript
 // Internal implementation pattern
 const CACHE_KEY = Symbol.for('__NUXT_I18N_STORAGE_CACHE__')
@@ -95,6 +134,27 @@ The `$t()` function uses a layered lookup strategy optimized for speed:
 2. **Layered search**: First searches page-specific translations, then falls back to general translations
 3. **Direct property access**: Uses `obj[key]` instead of Map lookups for hot paths
 4. **Frozen objects**: Loaded translations are frozen with `Object.freeze()` for V8 optimization
+
+```mermaid
+flowchart TB
+    A["$t('key')"] --> B{Direct Access}
+    B -->|"translations[key]"| C{Found?}
+    C -->|Yes| R[Return Value]
+    C -->|No| D{Contains '.'?}
+    D -->|Yes| E[getByPath lookup]
+    E --> F{Found?}
+    F -->|Yes| R
+    F -->|No| G{Previous Page Fallback?}
+    D -->|No| G
+    G -->|Enabled| H[Search Previous Page]
+    H --> I{Found?}
+    I -->|Yes| R
+    I -->|No| J[Return Key / Default]
+    G -->|Disabled| J
+    
+    style R fill:#2ed573
+    style J fill:#ff9f43
+```
 
 ```typescript
 // Simplified lookup logic

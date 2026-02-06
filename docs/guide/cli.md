@@ -34,6 +34,42 @@ Ensure that your project is set up with `nuxt-i18n-micro` and has the necessary 
 - `--logLevel`: Set the log level (`silent`, `info`, `verbose`).
 - `--translationDir`: Directory containing JSON translation files (default: `locales`).
 
+## 📊 CLI Workflow Overview
+
+```mermaid
+flowchart TB
+    subgraph Dev["1️⃣ Development"]
+        E[extract] --> TI[text-to-i18n]
+    end
+    
+    subgraph Sync["2️⃣ Synchronization"]
+        S[sync] --> V[validate]
+    end
+    
+    subgraph Trans["3️⃣ Translation"]
+        T[translate] --> ST[stats]
+    end
+    
+    subgraph Maint["4️⃣ Maintenance"]
+        C[clean] --> CD[check-duplicates]
+    end
+    
+    Dev --> Sync
+    Sync --> Trans
+    Trans --> Maint
+    V -->|Issues found| S
+    Maint -->|Ready| Done["✅ Deploy"]
+```
+
+### Workflow Steps
+
+| Phase | Commands | Purpose |
+|-------|----------|---------|
+| **Development** | `extract`, `text-to-i18n` | Find and extract translation keys |
+| **Sync** | `sync`, `validate` | Ensure all locales have same keys |
+| **Translate** | `translate`, `stats` | Auto-translate missing keys |
+| **Maintenance** | `clean`, `check-duplicates` | Keep translations tidy |
+
 ## 📋 Commands
 
 

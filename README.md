@@ -28,28 +28,33 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 > **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
 
-| Project | Build Time | Max Memory | Max CPU |
-|---------|------------|------------|---------|
-| **plain-nuxt** (baseline) | 4.48s | 609.55 MB | 242.60% |
-| **i18n-micro** | 7.88s | 1164.02 MB | 336.00% |
-| **i18n v10** | 77.81s | 9494.69 MB | 449.00% |
+| Project | Build Time | Code Bundle | Max Memory | Max CPU |
+|---------|------------|-------------|------------|---------|
+| **plain-nuxt** (baseline) | 5.71s | 1.35 MB | 674 MB | 240% |
+| **i18n-micro** | 23.47s | 1.5 MB | 1,658 MB | 208% |
+| **i18n v10** | 84.91s | 19.24 MB | 9,528 MB | 439% |
 
-- **i18n-micro vs baseline**: +3.40s build, +554.47 MB memory
-- **i18n v10 vs baseline**: +73.33s build, +8885.14 MB memory
+> **Code Bundle** = JavaScript/CSS code only (excludes translation JSON files).
+> i18n-micro stores translations as lazy-loaded JSON files, keeping the code bundle minimal.
+
+- **i18n-micro vs baseline**: +17.76s build, +0.15 MB code, +984 MB memory
+- **i18n v10 vs baseline**: +79.20s build, +17.89 MB code, +8,854 MB memory
 
 #### Stress Test Results (Requests per Second)
 
-| Project | Avg Response | RPS | Max Memory |
-|---------|--------------|-----|------------|
-| **plain-nuxt** | 106.50 ms | 318.00 | 229.02 MB |
-| **i18n-micro** | 516.70 ms | 225.00 | 366.69 MB |
-| **i18n v10** | 1130.20 ms | 51.00 | 1050.38 MB |
+| Project | Avg Response | RPS (Artillery) | Max Memory |
+|---------|--------------|-----------------|------------|
+| **plain-nuxt** | 544 ms | 228 | 340 MB |
+| **i18n-micro** | 411 ms | 292 | 347 MB |
+| **i18n v10** | 1,363 ms | 51 | 1,243 MB |
 
 #### Comparison: i18n v10 vs i18n-micro
 
-- **Max Memory Used**: -683.69 MB (i18n-micro uses less)
-- **Average Response Time**: -613.50 ms (i18n-micro is faster)
-- **Requests Per Second**: +174.00 (i18n-micro handles more)
+- **Code Bundle**: 17.74 MB smaller (i18n-micro: 1.5 MB vs i18n v10: 19.24 MB)
+- **Build Time**: 61.44s faster (i18n-micro: 23.47s vs i18n v10: 84.91s)
+- **Max Memory (build)**: 7,870 MB less (i18n-micro: 1,658 MB vs i18n v10: 9,528 MB)
+- **Average Response Time**: 952 ms faster (i18n-micro: 411 ms vs i18n v10: 1,363 ms)
+- **Requests Per Second**: 241 more (i18n-micro: 292 vs i18n v10: 51)
 
 These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area while staying close to the plain Nuxt baseline.
 

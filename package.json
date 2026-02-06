@@ -99,15 +99,15 @@
     }
   },
   "dependencies": {
-    "@nuxt/devtools-kit": "catalog:",
-    "@nuxt/kit": "catalog:",
-    "chokidar": "catalog:",
-    "globby": "catalog:",
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/path-strategy": "workspace:*",
     "@i18n-micro/route-strategy": "workspace:*",
     "@i18n-micro/test-utils": "workspace:*",
     "@i18n-micro/types": "workspace:*",
+    "@nuxt/devtools-kit": "catalog:",
+    "@nuxt/kit": "catalog:",
+    "chokidar": "catalog:",
+    "globby": "catalog:",
     "ufo": "catalog:"
   },
   "devDependencies": {
@@ -123,9 +123,11 @@
     "changelogen": "catalog:",
     "eslint": "catalog:",
     "jest": "catalog:",
+    "mermaid": "^11.12.2",
     "ts-jest": "catalog:",
     "typescript": "catalog:",
     "vitepress": "catalog:",
+    "vitepress-plugin-mermaid": "^2.0.17",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },

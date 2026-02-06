@@ -1,0 +1,13 @@
+{
+  "layout": {
+    "title": "My App",
+    "nav": {
+      "home": "Home",
+      "about": "About"
+    }
+  },
+  "page": {
+    "welcome": "Welcome to our site",
+    "description": "This is the English version"
+  }
+}

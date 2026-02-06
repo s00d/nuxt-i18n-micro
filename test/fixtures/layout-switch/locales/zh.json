@@ -1,0 +1,13 @@
+{
+  "layout": {
+    "title": "我的应用",
+    "nav": {
+      "home": "首页",
+      "about": "关于"
+    }
+  },
+  "page": {
+    "welcome": "欢迎来到我们的网站",
+    "description": "这是中文版本"
+  }
+}

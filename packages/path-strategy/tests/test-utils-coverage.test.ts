@@ -9,7 +9,7 @@ describe('makeRouterAdapter', () => {
     test('resolves string to route object', () => {
       const router = makeRouterAdapter(['test-route'])
       const result = router.resolve('test-route')
-      
+
       expect(result.name).toBe('test-route')
       expect(result.path).toBe('test-route')
       expect(result.fullPath).toBe('test-route')
@@ -17,13 +17,13 @@ describe('makeRouterAdapter', () => {
 
     test('throws when string route name not found and throwOnUnknownName is true', () => {
       const router = makeRouterAdapter(['known-route'], { throwOnUnknownName: true })
-      
+
       expect(() => router.resolve('unknown-route')).toThrow('Unknown route name: unknown-route')
     })
 
     test('does not throw for unknown string when throwOnUnknownName is false', () => {
       const router = makeRouterAdapter(['known-route'])
-      
+
       expect(() => router.resolve('unknown-route')).not.toThrow()
     })
   })
@@ -32,14 +32,14 @@ describe('makeRouterAdapter', () => {
     test('resolves object route', () => {
       const router = makeRouterAdapter(['page'])
       const result = router.resolve({ name: 'page', path: '/page' })
-      
+
       expect(result.name).toBe('page')
       expect(result.path).toBe('/page')
     })
 
     test('throws when object route name not found and throwOnUnknownName is true', () => {
       const router = makeRouterAdapter(['known'], { throwOnUnknownName: true })
-      
+
       expect(() => router.resolve({ name: 'unknown' })).toThrow('Unknown route name: unknown')
     })
 
@@ -54,7 +54,7 @@ describe('makeRouterAdapter', () => {
       })
 
       const result = router.resolve({ name: 'products-id', params: { id: '123' } })
-      
+
       expect(result.path).toBe('/products/123')
       expect(result.fullPath).toBe('/products/123')
     })
@@ -65,7 +65,7 @@ describe('makeRouterAdapter', () => {
       })
 
       const result = router.resolve({ name: 'page', path: '/original-path', params: { id: '1' } })
-      
+
       expect(result.path).toBe('/original-path')
     })
 
@@ -75,14 +75,14 @@ describe('makeRouterAdapter', () => {
       })
 
       const result = router.resolve({ name: 'page', params: { id: '1' } })
-      
+
       expect(result.path).toBe('/')
     })
 
     test('handles route without name', () => {
       const router = makeRouterAdapter([])
       const result = router.resolve({ path: '/some-path' })
-      
+
       expect(result.name).toBeNull()
       expect(result.path).toBe('/some-path')
     })
@@ -90,7 +90,7 @@ describe('makeRouterAdapter', () => {
     test('handles route with fullPath but no path', () => {
       const router = makeRouterAdapter(['test'])
       const result = router.resolve({ name: 'test', fullPath: '/full/path' })
-      
+
       expect(result.fullPath).toBe('/full/path')
     })
   })
@@ -98,13 +98,13 @@ describe('makeRouterAdapter', () => {
   describe('hasRoute', () => {
     test('returns true for existing route', () => {
       const router = makeRouterAdapter(['my-route'])
-      
+
       expect(router.hasRoute('my-route')).toBe(true)
     })
 
     test('returns false for non-existing route', () => {
       const router = makeRouterAdapter(['my-route'])
-      
+
       expect(router.hasRoute('other-route')).toBe(false)
     })
   })
@@ -127,7 +127,7 @@ describe('makePathStrategyContext', () => {
 
   test('creates context with default values', () => {
     const ctx = makePathStrategyContext(baseConfig, 'prefix_except_default')
-    
+
     expect(ctx.strategy).toBe('prefix_except_default')
     expect(ctx.defaultLocale).toBe('en')
     expect(ctx.locales).toHaveLength(2)
@@ -141,7 +141,7 @@ describe('makePathStrategyContext', () => {
       localizedRouteNamePrefix: 'i18n-',
     }
     const ctx = makePathStrategyContext(config, 'prefix')
-    
+
     expect(ctx.localizedRouteNamePrefix).toBe('i18n-')
   })
 
@@ -150,7 +150,7 @@ describe('makePathStrategyContext', () => {
       globalLocaleRoutes: { page: { en: '/page', de: '/seite' } },
       hashMode: true,
     })
-    
+
     expect(ctx.globalLocaleRoutes).toEqual({ page: { en: '/page', de: '/seite' } })
     expect(ctx.hashMode).toBe(true)
   })
@@ -160,7 +160,7 @@ describe('makePathStrategyContext', () => {
     const ctx = makePathStrategyContext(baseConfig, 'prefix', {
       router: customRouter,
     })
-    
+
     expect(ctx.router).toBe(customRouter)
   })
 })

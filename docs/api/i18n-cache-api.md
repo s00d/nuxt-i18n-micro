@@ -2,6 +2,73 @@
 
 This guide is for developers who want to customize or extend how translations are loaded, stored, cached, and updated in the i18n system. All translation data is stored in JSON files, and server-side logic is used to manage them with cache support.
 
+## 📊 Cache Architecture Overview
+
+### Storage Relationships
+
+```mermaid
+erDiagram
+    LOCALE ||--o{ GLOBAL_TRANSLATION : has
+    LOCALE ||--o{ PAGE_TRANSLATION : has
+    PAGE ||--o{ PAGE_TRANSLATION : contains
+    
+    GLOBAL_TRANSLATION ||--|| CACHE_ENTRY : "merges into"
+    PAGE_TRANSLATION ||--|| CACHE_ENTRY : "merges into"
+    
+    LOCALE {
+        string code PK
+        string iso
+        string dir
+        string fallbackLocale FK
+    }
+    
+    GLOBAL_TRANSLATION {
+        string locale FK
+        json data
+        string path "locales/{locale}.json"
+    }
+    
+    PAGE_TRANSLATION {
+        string locale FK
+        string page FK
+        json data
+        string path "locales/pages/{page}/{locale}.json"
+    }
+    
+    PAGE {
+        string name PK
+        string route
+    }
+    
+    CACHE_ENTRY {
+        string key PK "i18n:merged:{page}:{locale}"
+        json mergedData
+        timestamp created
+    }
+```
+
+### Data Flow
+
+```mermaid
+flowchart LR
+    subgraph Storage["Nitro Storage"]
+        AS["assets:server<br/>(Read-Only)"]
+        CS["cache<br/>(Read-Write)"]
+    end
+    
+    subgraph Files["Translation Files"]
+        GF["locales/*.json"]
+        PF["locales/pages/**/*.json"]
+    end
+    
+    GF -->|Mount| AS
+    PF -->|Mount| AS
+    
+    AS -->|Load| M[Merge + Fallback]
+    M -->|Cache| CS
+    CS -->|Serve| API["/_locales/:page/:locale"]
+```
+
 ## 📦 Cache Structure
 
 Translation cache is stored using `useStorage('cache')` (read-write storage), separate from the read-only `assets:server` storage where source translation files are mounted.

@@ -81,10 +81,10 @@ class TranslationStorage {
   // ==========================================================================
 
   /**
-   * Загрузка переводов (с кэшированием).
-   * Возвращает данные, ключ кэша и JSON для инъекции (только на сервере).
+   * Синхронная проверка и получение из кэша.
+   * Возвращает данные если они в кэше, иначе null.
    */
-  async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
+  getFromCache(locale: string, routeName?: string): LoadResult | null {
     const cacheKey = this.getCacheKey(locale, routeName)
 
     // Из кэша
@@ -99,6 +99,20 @@ class TranslationStorage {
       this.set(locale, routeName, data)
       return { data: this.get(locale, routeName)!, cacheKey }
     }
+
+    return null
+  }
+
+  /**
+   * Загрузка переводов (с кэшированием).
+   * Возвращает данные, ключ кэша и JSON для инъекции (только на сервере).
+   */
+  async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
+    // Быстрый путь - синхронно из кэша
+    const cached = this.getFromCache(locale, routeName)
+    if (cached) return cached
+
+    const cacheKey = this.getCacheKey(locale, routeName)
 
     // Загрузка через fetch
     const data = await this.fetchTranslations(locale, routeName, options)

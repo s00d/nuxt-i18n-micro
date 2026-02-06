@@ -11,6 +11,39 @@ Welcome to Nuxt I18n Micro! This guide will help you get up and running with our
 
 `Nuxt I18n Micro` is a lightweight internationalization module for Nuxt that delivers superior performance compared to traditional solutions. It's designed to reduce build times, memory usage, and server load, making it ideal for high-traffic and large projects.
 
+```mermaid
+flowchart LR
+    subgraph Core["🌐 Nuxt I18n Micro"]
+        direction TB
+        T[Translations]
+        R[Routing]
+        P[Performance]
+        S[SEO]
+        D[DevTools]
+    end
+    
+    T --> T1[Global]
+    T --> T2[Page-specific]
+    T --> T3[Component]
+    T --> T4[Fallback]
+    
+    R --> R1[prefix]
+    R --> R2[no_prefix]
+    R --> R3[prefix_except_default]
+    
+    P --> P1[Lazy loading]
+    P --> P2[Caching]
+    P --> P3[SSR optimized]
+    
+    S --> S1[hreflang]
+    S --> S2[Canonical]
+    S --> S3[Open Graph]
+    
+    D --> D1[HMR]
+    D --> D2[TypeScript]
+    D --> D3[CLI]
+```
+
 ## 🤔 Why Choose Nuxt I18n Micro?
 
 Here are some key benefits of using `Nuxt I18n Micro`:
@@ -588,6 +621,36 @@ export default defineNuxtConfig({
 ## 🔄 Caching Mechanism
 
 One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again.
+
+### Translation Loading Flow
+
+```mermaid
+flowchart TB
+    subgraph Client["🖥️ Client Side"]
+        A[Page Request] --> B{window.__I18N__?}
+        B -->|Found| C[Use SSR Data]
+        B -->|Not Found| D{Local Cache?}
+        D -->|Hit| E[Return Cached]
+        D -->|Miss| F["$fetch API"]
+        F --> G[Store in Cache]
+        G --> E
+    end
+
+    subgraph Server["🖧 Server Side"]
+        H[SSR Request] --> I{Server Cache?}
+        I -->|Hit| J[Return Cached]
+        I -->|Miss| K[Load from Storage]
+        K --> L[Merge Translations]
+        L --> M[Cache Result]
+        M --> J
+        J --> N[Inject window.__I18N__]
+    end
+
+    A -.->|First Load| H
+    N -.->|Hydration| B
+    E --> O[Render Page]
+    C --> O
+```
 
 ### Benefits
 

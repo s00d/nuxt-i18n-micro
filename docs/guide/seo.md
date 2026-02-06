@@ -12,6 +12,28 @@ This guide explains how `Nuxt I18n Micro` handles SEO to enhance your site's vis
 
 ## ⚙️ Automatic SEO Handling
 
+### SEO Meta Generation Flow
+
+```mermaid
+flowchart LR
+    A[Page Render] --> B{meta: true?}
+    B -->|No| C[Skip]
+    B -->|Yes| D[useLocaleHead]
+    D --> E[HTML lang/dir]
+    D --> F[Canonical URL]
+    D --> G[hreflang links]
+    D --> H[Open Graph]
+```
+
+**Generated tags:**
+
+| Tag | Example |
+|-----|---------|
+| HTML attributes | `<html lang="en" dir="ltr">` |
+| Canonical | `<link rel="canonical" href="...">` |
+| hreflang | `<link rel="alternate" hreflang="en" href="...">` |
+| Open Graph | `<meta property="og:locale" content="en_US">` |
+
 ### 🔑 Key SEO Features
 
 When the `meta` option is enabled in `Nuxt I18n Micro`, the module automatically manages the following SEO aspects:

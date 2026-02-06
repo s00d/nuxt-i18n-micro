@@ -27,6 +27,31 @@ $defineI18nRoute({
 
 ### 🔄 How `localeRoutes` Work
 
+```mermaid
+flowchart TB
+    subgraph Default["Default Behavior (no localeRoutes)"]
+        D1["/en/products"] --> DP[products.vue]
+        D2["/de/products"] --> DP
+        D3["/ru/products"] --> DP
+    end
+    
+    subgraph Custom["Custom Behavior (with localeRoutes)"]
+        C1["/en/products"] --> CP[products.vue]
+        C2["/de/produkte"] --> CP
+        C3["/ru/tovary"] --> CP
+    end
+    
+    subgraph Config["localeRoutes Config"]
+        CFG["localeRoutes: {
+          en: '/products',
+          de: '/produkte',
+          ru: '/tovary'
+        }"]
+    end
+    
+    Config -.->|Applies| Custom
+```
+
 - **Default Behavior**: Without `localeRoutes`, all locales use a common route structure defined by the primary path.
 - **Custom Behavior**: With `localeRoutes`, specific locales can have their own routes, overriding the default path with locale-specific routes defined in the configuration.
 

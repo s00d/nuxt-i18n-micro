@@ -101,6 +101,38 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
 
 ### How It Works
 
+```mermaid
+flowchart TB
+    subgraph Request["1️⃣ Server Request"]
+        A[Receive request] --> B[Read headers]
+        B --> C["x-country"]
+        B --> D["accept-language"]
+    end
+    
+    subgraph Detect["2️⃣ Locale Detection"]
+        C --> E{Country match?}
+        E -->|de/ru| F[Use country code]
+        E -->|other| G{Language match?}
+        D --> G
+        G -->|de*/ru*| F
+        G -->|other| H[Use defaultLocale]
+    end
+    
+    subgraph Cookie["3️⃣ Cookie Check"]
+        F --> I{Cookie exists?}
+        H --> I
+        I -->|No| J[Set cookie]
+        I -->|Yes| K[Use cookie value]
+        J --> K
+    end
+    
+    subgraph Route["4️⃣ Route Decision"]
+        K --> L{Route locale matches?}
+        L -->|No| M["302 Redirect"]
+        L -->|Yes| N[Continue to page]
+    end
+```
+
 1. **Headers and Country Detection**  
    The plugin reads the headers `x-country` and `accept-language` to figure out the user's preferred locale.
 2. **Cookie Storage**  

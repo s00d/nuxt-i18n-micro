@@ -13,6 +13,34 @@ The `strategy` option defines how locale prefixes are applied across your routes
 **Type**: `string`  
 **Default**: `prefix_except_default`
 
+### Strategy Comparison
+
+```mermaid
+flowchart LR
+    subgraph no_prefix["no_prefix"]
+        N1["/about"] --> N2["Any locale"]
+        N3["/contact"] --> N2
+    end
+    
+    subgraph prefix_except_default["prefix_except_default"]
+        P1["/about"] --> P2["Default (en)"]
+        P3["/fr/about"] --> P4["French"]
+        P5["/de/about"] --> P6["German"]
+    end
+    
+    subgraph prefix["prefix"]
+        X1["/en/about"] --> X2["English"]
+        X3["/fr/about"] --> X4["French"]
+        X5["/de/about"] --> X6["German"]
+    end
+    
+    subgraph prefix_and_default["prefix_and_default"]
+        A1["/about"] --> A2["Default (en)"]
+        A3["/en/about"] --> A2
+        A5["/fr/about"] --> A6["French"]
+    end
+```
+
 ## Available Strategies:
 
 ### 🛑 **no_prefix**
@@ -110,6 +138,38 @@ i18n: {
 ## 🔀 Redirect Behavior
 
 When using prefix-based strategies with `redirects: true`, visiting `/` triggers a redirect based on user's locale preference.
+
+### Redirect Flow Diagram
+
+```mermaid
+flowchart TB
+    A["Request to /"] --> B{Strategy?}
+    
+    B -->|no_prefix| C["✅ No Redirect"]
+    B -->|prefix_and_default| C
+    B -->|prefix| D{Cookie exists?}
+    B -->|prefix_except_default| D
+    
+    D -->|Yes| E{Valid locale?}
+    D -->|No| F[Render page]
+    
+    E -->|Yes| G["302 → /{locale}/"]
+    E -->|No| H[Use defaultLocale]
+    H --> G
+    
+    F --> I{Client check}
+    I --> J["useI18nLocale()"]
+    J --> K{Has value?}
+    K -->|Yes| L["Redirect → /{locale}/"]
+    K -->|No| M{Check cookie}
+    M -->|Found| L
+    M -->|Not found| N[Use default]
+    N --> L
+    
+    C --> O["✅ Done"]
+    G --> O
+    L --> O
+```
 
 ### Server-Side Redirect (No Error Flash)
 

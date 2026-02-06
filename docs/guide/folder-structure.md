@@ -140,6 +140,26 @@ This will instruct `Nuxt I18n Micro` to look for translation files in the `/i18n
 
 `Nuxt I18n Micro` uses dynamic locale routes to load translations efficiently. When a user visits a page, the module determines the appropriate locale and loads the corresponding translation files based on the current route and locale.
 
+```mermaid
+flowchart TB
+    A["📥 Request: /fr/about"] --> B["🔍 Detect locale: fr"]
+    A --> C["🔍 Detect route: about"]
+    
+    B --> D["📂 Load: locales/fr.json"]
+    C --> E["📂 Load: locales/pages/about/fr.json"]
+    
+    D --> F["🔀 Merge Translations"]
+    E --> F
+    
+    F --> G{Fallback configured?}
+    G -->|Yes| H["📂 Load: locales/en.json"]
+    H --> I["🔀 Deep merge with fallback"]
+    G -->|No| J["✅ Translations ready"]
+    I --> J
+    
+    J --> K["Available via $t()"]
+```
+
 For example:
 - Visiting `/en/index` will load translations from `/locales/pages/index/en.json`.
 - Visiting `/fr/about` will load translations from `/locales/pages/about/fr.json`.

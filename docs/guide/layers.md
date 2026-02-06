@@ -8,6 +8,35 @@ outline: deep
 
 Layers in `Nuxt I18n Micro` allow you to manage and customize localization settings flexibly across different parts of your application. By defining different layers, you can adjust the configuration for various contexts, such as overriding settings for specific sections of your site or creating reusable base configurations that can be extended by other parts of your application.
 
+### Layer Inheritance Flow
+
+```mermaid
+flowchart TB
+    subgraph Primary["🏠 Primary Layer (nuxt.config.ts)"]
+        P1["locales: [en, fr]"]
+        P2["defaultLocale: en"]
+        P3["meta: true"]
+    end
+    
+    subgraph Admin["👔 Admin Layer"]
+        A1["extends: ../nuxt.config"]
+        A2["+ locale: es"]
+        A3["meta: false"]
+    end
+    
+    subgraph Support["🎧 Support Layer"]
+        S1["extends: ../nuxt.config"]
+        S2["+ locale: de"]
+        S3["defaultLocale: de"]
+    end
+    
+    Primary --> Admin
+    Primary --> Support
+    
+    Admin --> AR["Result: en, fr, es<br/>default: en<br/>meta: false"]
+    Support --> SR["Result: en, fr, de<br/>default: de<br/>meta: true"]
+```
+
 ## 🛠️ Primary Configuration Layer
 
 The **Primary Configuration Layer** is where you set up the default localization settings for your entire application. This layer is essential as it defines the global configuration, including the supported locales, default language, and other critical i18n settings.

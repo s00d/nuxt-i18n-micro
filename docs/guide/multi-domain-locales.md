@@ -12,6 +12,45 @@ By leveraging layers in `Nuxt I18n Micro`, you can create a flexible and maintai
 
 To create a setup where different domains serve specific locales by customizing configurations in child layers. This method leverages Nuxt's layering system, allowing you to maintain a base configuration while extending or modifying it for each domain.
 
+### Multi-Domain Architecture
+
+```mermaid
+flowchart TB
+    subgraph Base["🏠 Base Layer"]
+        B1["locales: en, de, es, fr"]
+        B2["defaultLocale: en"]
+        B3["translationDir: locales"]
+    end
+    
+    subgraph Domains["🌐 Domain Layers"]
+        subgraph FR["fr.example.com"]
+            F1["extends: base"]
+            F2["defaultLocale: fr"]
+            F3["disabled: en, de, es"]
+        end
+        
+        subgraph DE["de.example.com"]
+            D1["extends: base"]
+            D2["defaultLocale: de"]
+            D3["disabled: en, fr, es"]
+        end
+        
+        subgraph EN["example.com"]
+            E1["extends: base"]
+            E2["defaultLocale: en"]
+            E3["disabled: fr, de, es"]
+        end
+    end
+    
+    Base --> FR
+    Base --> DE
+    Base --> EN
+    
+    FR --> FD["Deploy fr.example.com"]
+    DE --> DD["Deploy de.example.com"]
+    EN --> ED["Deploy example.com"]
+```
+
 ## 🛠 Steps to Implement Multi-Domain Locales
 
 ### 1. **Create the Base Layer**

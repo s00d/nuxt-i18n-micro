@@ -46,6 +46,30 @@ The `$defineI18nRoute` function configures route behavior based on the current l
 - Set custom routes for different locales
 - Control meta tag generation
 
+### How It Works
+
+```mermaid
+flowchart TB
+    A["$defineI18nRoute({...})"] --> B{locales type?}
+    
+    B -->|Array| C["['en', 'fr', 'de']"]
+    B -->|Object| D["{en: {...}, fr: {...}}"]
+    
+    C --> E{Locale allowed?}
+    D --> F[Merge translations]
+    F --> E
+    
+    E -->|No| G["❌ 404 / Redirect"]
+    E -->|Yes| H{Has localeRoutes?}
+    
+    H -->|Yes| I[Apply custom path]
+    H -->|No| J[Use default path]
+    
+    I --> K["✅ Route ready"]
+    J --> K
+    K --> L["$t() available"]
+```
+
 ### Method Signature
 
 ```typescript
@@ -500,6 +524,23 @@ Embedding translations in Single File Components (SFCs) can impact performance:
 ### Performance vs Modularity
 
 Balance your project's needs when choosing an approach:
+
+```mermaid
+flowchart TB
+    subgraph Approaches["Translation Approaches"]
+        G["🌍 Global Files<br/>⭐⭐⭐⭐⭐ Performance<br/>⭐⭐⭐ Modularity"]
+        P["📄 Page-Specific<br/>⭐⭐⭐⭐ Performance<br/>⭐⭐⭐⭐ Modularity"]
+        C["🧩 Component-Level<br/>⭐⭐ Performance<br/>⭐⭐⭐⭐⭐ Modularity"]
+    end
+    
+    G -->|Best for| G1[Most applications]
+    P -->|Best for| P1[Large applications]
+    C -->|Best for| C1[Reusable npm packages]
+    
+    style G fill:#2ed573
+    style P fill:#ffa502
+    style C fill:#ff6b6b
+```
 
 | Approach | Performance | Modularity | Use Case |
 |----------|-------------|------------|----------|

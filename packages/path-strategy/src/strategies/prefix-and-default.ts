@@ -244,7 +244,7 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
    * Does NOT redirect if user explicitly navigates to a locale path.
    * Only redirects from paths without locale prefix.
    */
-  getClientRedirect(currentPath: string, preferredLocale: string): string | null {
+  getClientRedirect(currentPath: string, _preferredLocale: string): string | null {
     const { pathWithoutLocale, localeFromPath } = this.getPathWithoutLocale(currentPath)
 
     // Check if route is unlocalized

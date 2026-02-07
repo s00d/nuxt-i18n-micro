@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v3.4.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.3.0...v3.4.0)
+
+### 🚀 Enhancements
+
+- **runtime:** Add context signal for reactive tracking in translations ([ceff8c7](https://github.com/s00d/nuxt-i18n-micro/commit/ceff8c7))
+
+### 🩹 Fixes
+
+- **deps:** Update vitepress-plugin-chartjs to version 1.1.2 ([561ea6c](https://github.com/s00d/nuxt-i18n-micro/commit/561ea6c))
+- **middleware:** Update TypeScript ignore comment for property mismatch ([8dfa03b](https://github.com/s00d/nuxt-i18n-micro/commit/8dfa03b))
+
+### 💅 Refactors
+
+- **astrol:** Remove unused i18n and content type definitions ([fcfd22a](https://github.com/s00d/nuxt-i18n-micro/commit/fcfd22a))
+
+### 🏡 Chore
+
+- **pnpm:** Remove `@nuxt/eslint-config` and add `@biomejs/biome` ([b530688](https://github.com/s00d/nuxt-i18n-micro/commit/b530688))
+- **ci:** Install Vite globally in CI workflow ([87002ef](https://github.com/s00d/nuxt-i18n-micro/commit/87002ef))
+- **.gitignore:** Add pattern to ignore Astro build files ([568fae5](https://github.com/s00d/nuxt-i18n-micro/commit/568fae5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.3.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.2.4...v3.3.0)

@@ -37,6 +37,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
   const runtimeConfig = useRuntimeConfig()
 
+  // === 0. CONFIGURE STORAGE CACHE ===
+  translationStorage.configure({
+    maxSize: i18nConfig.cacheMaxSize ?? 0,
+    ttl: i18nConfig.cacheTtl ?? 0,
+  })
+
   // === 1. LOCAL CACHE ===
   // Key: `${locale}:${routeName}` or `${locale}:general`
   // Value: merged translations (global + page-specific)
@@ -153,26 +159,39 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     return null
   }
 
-  // Async loading
-  const loadAsync = async (locale: string, routeName?: string): Promise<Record<string, unknown>> => {
+  // Async loading with request deduplication
+  const pendingLoads = new Map<string, Promise<Record<string, unknown>>>()
+
+  const loadAsync = (locale: string, routeName?: string): Promise<Record<string, unknown>> => {
     const cacheKey = getCacheKey(locale, routeName)
 
-    try {
-      const result = await translationStorage.load(locale, routeName, loadOptions)
-      loadedChunks.set(cacheKey, result.data)
+    // Return existing in-flight promise to avoid duplicate requests
+    const pending = pendingLoads.get(cacheKey)
+    if (pending) return pending
 
-      // SERVER: Injection for client hydration
-      if (import.meta.server && result.json) {
-        const ctx = nuxtApp.ssrContext!.event.context
-        if (!ctx._i18n) ctx._i18n = {}
-        ctx._i18n[cacheKey] = result.json
+    const promise = (async () => {
+      try {
+        const result = await translationStorage.load(locale, routeName, loadOptions)
+        loadedChunks.set(cacheKey, result.data)
+
+        // SERVER: Injection for client hydration
+        if (import.meta.server && result.json) {
+          const ctx = nuxtApp.ssrContext!.event.context
+          if (!ctx._i18n) ctx._i18n = {}
+          ctx._i18n[cacheKey] = result.json
+        }
+
+        return result.data
+      } catch (e) {
+        if (isDev) console.error('[i18n] Load error:', e)
+        return {}
+      } finally {
+        pendingLoads.delete(cacheKey)
       }
+    })()
 
-      return result.data
-    } catch (e) {
-      if (isDev) console.error('[i18n] Load error:', e)
-      return {}
-    }
+    pendingLoads.set(cacheKey, promise)
+    return promise
   }
 
   // === 3. CONTEXT SWITCHER ===

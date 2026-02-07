@@ -366,12 +366,29 @@ routesLocaleLinks: {
 
 #### `customRegexMatcher`
 
-Improves performance for applications with many locales. The pattern matches the **entire** first path segment (anchors `^` and `$` are applied automatically).
+Improves performance for applications with many locales. Instead of checking each locale code one by one, the module uses a single regex to detect whether the first path segment is a locale. The pattern matches the **entire** first path segment (anchors `^` and `$` are applied automatically).
 
-**Type**: `string | RegExp`
+**Type**: `string | RegExp`  
+**Default**: `undefined` (auto-generated from locale codes)
+
+::: danger Must match ALL locale codes
+At build time, the module **validates** that every locale code in your `locales` list matches the `customRegexMatcher` pattern. If any locale code does not match, **the build will fail** with the error:
+
+> `Nuxt-i18n-micro: Some locale codes does not match customRegexMatcher`
+
+Always verify your regex against all your locale codes before deploying.
+:::
 
 ```typescript
-customRegexMatcher: '[a-z]{2}-[a-z]{2}' // Matches locales like 'en-us', 'de-de'
+// ✅ Correct: matches 'en-us', 'de-de', 'fr-fr'
+customRegexMatcher: '[a-z]{2}-[a-z]{2}'
+
+// ✅ Correct: matches 'en', 'de', 'fr', 'zh'
+customRegexMatcher: '[a-z]{2}'
+
+// ❌ Wrong: won't match 'zh-Hant' (uppercase letter)
+// This will FAIL the build if 'zh-Hant' is in your locales list
+customRegexMatcher: '[a-z]{2}-[a-z]{2}'
 ```
 
 ### 🛠️ Development Options
@@ -507,13 +524,18 @@ plural: (key, count, _params, _locale, t) => {
 
 #### `localeCookie`
 
-Specifies the cookie name for storing user's locale. This enables locale persistence across page reloads and browser sessions. By default, cookie-based locale persistence is disabled.
+Specifies the cookie name for storing user's locale. This enables locale persistence across page reloads and browser sessions.
 
 **Type**: `string | null`  
-**Default**: `null`
+**Default**: `null` (but see note below about `no_prefix`)
 
-::: tip Automatic for `no_prefix` strategy
-When using `strategy: 'no_prefix'`, `localeCookie` is automatically set to `'user-locale'` if not specified. This is required to persist the locale between page reloads since there's no locale information in the URL.
+::: warning Effective default depends on strategy
+While the configured default is `null` (disabled), the module **automatically overrides** this to `'user-locale'` when using `strategy: 'no_prefix'`. This means:
+
+- **`no_prefix`**: Cookie is **always enabled** (`'user-locale'`), even if you don't set it explicitly. This is required because the URL contains no locale information.
+- **All other strategies**: Cookie is `null` (disabled) unless you set it explicitly.
+
+If you set `localeCookie` explicitly, your value is always used regardless of strategy.
 :::
 
 ::: warning Required for redirects with prefix strategies
@@ -621,6 +643,39 @@ export default defineNuxtConfig({
   },
 })
 ```
+
+#### `cacheMaxSize`
+
+Controls the maximum number of entries in the translation cache. When the limit is reached, the **least recently used** entry is evicted (LRU policy). Set to `0` (default) for unlimited cache.
+
+**Type**: `number`  
+**Default**: `0` (unlimited)
+
+#### `cacheTtl`
+
+Time-to-live for server cache entries **in seconds**. When a cached entry is accessed, its expiry is **refreshed** (sliding expiration). Expired entries are evicted on the next cache write. Set to `0` (default) for entries that never expire.
+
+**Type**: `number`  
+**Default**: `0` (no expiration)
+
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    // Limit cache to 1000 entries, each lives 10 minutes (refreshed on access)
+    cacheMaxSize: 1000,
+    cacheTtl: 600,
+  },
+})
+```
+
+::: tip When to use
+For most projects the default (unlimited, no expiration) is fine — translations are small and finite. However, if your project has **thousands of pages** with `disablePageLocales: false` and **many locales**, the server cache can grow significantly. In long-running Node.js servers this may lead to excessive memory usage.
+
+- **`cacheMaxSize`** — caps the number of cached entries. Useful for bounding memory.
+- **`cacheTtl`** — ensures stale translations are eventually reloaded from storage. Useful for serverless environments or when translations change at runtime.
+
+**Formula for estimating max entries**: `number_of_locales × (number_of_pages + 1)`. For example, 10 locales × 500 pages = ~5010 entries.
+:::
 
 ## 🔄 Caching Mechanism
 

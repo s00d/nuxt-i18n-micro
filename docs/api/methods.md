@@ -295,7 +295,7 @@ window.location.href = routeFr
 
 ### `$switchRoute`
 
-**Version introduced**: `v1.27.0**
+**Version introduced**: `v1.27.0`
 
 - **Type**: `(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void`
 - **Description**: Switches the route to a new specified destination and changes the locale if needed, redirecting the user to the appropriate localized route.
@@ -310,22 +310,22 @@ window.location.href = routeFr
 
 ```typescript [String Path]
 // Switches to the given path with the current locale
-switchRoute('/about')
+$switchRoute('/about')
 ```
 
 ```typescript [String Path with Locale]
 // Switches to the given path with French locale
-switchRoute('/about', 'fr')
+$switchRoute('/about', 'fr')
 ```
 
 ```typescript [Named Route]
 // Switches to a named route with the current locale
-switchRoute({ name: 'page' })
+$switchRoute({ name: 'page' })
 ```
 
 ```typescript [Named Route with Locale]
 // Switches to a named route and changes the locale to Spanish
-switchRoute({ name: 'page' }, 'es')
+$switchRoute({ name: 'page' }, 'es')
 ```
 
 :::

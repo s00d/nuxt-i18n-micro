@@ -112,7 +112,7 @@ Core methods for retrieving and managing translations.
 
 ### `$t`
 
-- **Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string | number | boolean | Translations | PluralTranslations | unknown | null`
+- **Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => CleanTranslation`
 - **Description**: Fetches a translation for the given key. Optionally interpolates parameters.
 
 **Parameters**:
@@ -126,10 +126,19 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 // Output: "Welcome, Alice! You have 5 unread messages."
 ```
 
+::: warning Return type includes objects
+`$t` returns `CleanTranslation` which is `string | number | boolean | Translations | PluralTranslations | null`. If the key points to a **nested object** in your JSON (e.g. `$t('header')` when the JSON contains `{ "header": { "title": "Hi" } }`), the return value will be that **object**, not a string. Using it directly in a Vue template (`{{ $t('header') }}`) will render as `[object Object]`.
+
+**How to avoid this:**
+- Use a more specific key: `$t('header.title')` → `"Hi"`
+- Use `$ts()` which always returns a string (calls `.toString()` on non-strings)
+- Use `$t` with a nested key to intentionally access sub-objects for programmatic use
+:::
+
 ### `$ts`
 
 - **Type**: `(key: string, params?: Record<string, any>, defaultValue?: string) => string`
-- **Description**: A variant of `$t` that always returns a string.
+- **Description**: A **string-safe** variant of `$t` that always returns a `string`. If the resolved value is not a string (e.g. an object or number), it is converted via `.toString()`. **Use `$ts` in templates** when you are not 100% sure the key resolves to a string.
 
 **Parameters**:
 - **key**: `string` — The translation key

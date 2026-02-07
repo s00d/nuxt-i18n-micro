@@ -92,6 +92,8 @@ export interface ModuleOptions {
   missingWarn?: boolean
   previousPageFallback?: boolean
   hmr?: boolean
+  cacheMaxSize?: number
+  cacheTtl?: number
   experimental?: Record<string, unknown>
 }
 

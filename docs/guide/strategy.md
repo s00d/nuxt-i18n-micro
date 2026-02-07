@@ -61,6 +61,17 @@ This strategy ensures that no locale prefix is added to your routes. Instead of 
 When using `no_prefix` strategy, `localeCookie` is automatically set to `'user-locale'` if not specified. This is required to persist the locale between page reloads since there's no locale information in the URL.
 :::
 
+::: warning `localeCookie` required for redirects
+When using prefix strategies with `redirects: true` (the default), you should explicitly set `localeCookie: 'user-locale'` (or a custom name) for redirect behavior to work correctly. Without a cookie, the redirect plugin cannot remember the user's locale preference across page reloads, making redirects effectively non-functional for returning users.
+
+```typescript
+i18n: {
+  strategy: 'prefix_except_default',
+  localeCookie: 'user-locale' // Required for redirects to work properly
+}
+```
+:::
+
 ```typescript
 i18n: {
   strategy: 'no_prefix'
@@ -193,10 +204,11 @@ For the `prefix` strategy, redirects are handled by **server middleware** (`i18n
 
 **Important:** 
 - Cookie-based locale persistence is disabled by default (`localeCookie: null`)
-- For `no_prefix` strategy, `localeCookie` is **required** to persist locale
+- For `no_prefix` strategy, `localeCookie` is **automatically** set to `'user-locale'` (required to persist locale)
+- For prefix strategies with `redirects: true`, you **must** explicitly set `localeCookie` for redirects to remember the user's locale preference. Without it, redirects will only work based on `Accept-Language` header or `defaultLocale`
 - If the cookie contains an invalid locale (not in the `locales` list), the module falls back to `defaultLocale`
 
-To enable cookie-based locale persistence:
+To enable cookie-based locale persistence (recommended for prefix strategies with redirects):
 ```typescript
 i18n: {
   localeCookie: 'user-locale'

@@ -1,217 +1,133 @@
-# Working with Translations and Cache
+# 🗄️ Translation Cache & Storage Architecture
 
-This guide is for developers who want to customize or extend how translations are loaded, stored, cached, and updated in the i18n system. All translation data is stored in JSON files, and server-side logic is used to manage them with cache support.
+## 📖 Overview
 
-::: tip v3.0.0 Built-in Cache
-Starting from v3.0.0, the module includes a built-in `TranslationStorage` class (`src/runtime/utils/storage.ts`) that uses `globalThis` and `Symbol.for` for a singleton pattern. Translations are also injected into the client via `window.__I18N__` for optimal SSR hydration. The server-side loading is handled by an optimized `server-loader`.
+Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. This page describes how the built-in cache works and how to extend it for custom use cases (admin tools, external APIs, cache invalidation).
 
-The examples below show how to **extend or customize** the caching behavior beyond what the built-in mechanism provides (e.g., building admin tools, external translation APIs, or custom cache invalidation).
-:::
-
-## 📊 Cache Architecture Overview
-
-### Storage Relationships
-
-```mermaid
-erDiagram
-    LOCALE ||--o{ GLOBAL_TRANSLATION : has
-    LOCALE ||--o{ PAGE_TRANSLATION : has
-    PAGE ||--o{ PAGE_TRANSLATION : contains
-    
-    GLOBAL_TRANSLATION ||--|| CACHE_ENTRY : "merges into"
-    PAGE_TRANSLATION ||--|| CACHE_ENTRY : "merges into"
-    
-    LOCALE {
-        string code PK
-        string iso
-        string dir
-        string fallbackLocale FK
-    }
-    
-    GLOBAL_TRANSLATION {
-        string locale FK
-        json data
-        string path "locales/{locale}.json"
-    }
-    
-    PAGE_TRANSLATION {
-        string locale FK
-        string page FK
-        json data
-        string path "locales/pages/{page}/{locale}.json"
-    }
-    
-    PAGE {
-        string name PK
-        string route
-    }
-    
-    CACHE_ENTRY {
-        string key PK "i18n:merged:{page}:{locale}"
-        json mergedData
-        timestamp created
-    }
-```
+## 📊 Architecture Overview
 
 ### Data Flow
 
 ```mermaid
-flowchart LR
-    subgraph Storage["Nitro Storage"]
-        AS["assets:server<br/>(Read-Only)"]
-        CS["cache<br/>(Read-Write)"]
+flowchart TB
+    subgraph Build["Build Time"]
+        F1["locales/*.json"] -->|Mount| NS["Nitro Storage<br/>(assets:i18n_layer_N)"]
+        F2["locales/pages/**/*.json"] -->|Mount| NS
     end
-    
-    subgraph Files["Translation Files"]
-        GF["locales/*.json"]
-        PF["locales/pages/**/*.json"]
+
+    subgraph Server["Server Runtime"]
+        NS -->|loadFromNitroStorage| SL["server-loader.ts<br/>loadTranslationsFromServer()"]
+        SL -->|deepMerge| MR["Merged Result<br/>(global + page + fallback)"]
+        MR -->|Symbol.for cache| SC["Server Cache<br/>(process-global Map)"]
+        SC -->|JSON response| API["/_locales/:page/:locale/data.json"]
     end
-    
-    GF -->|Mount| AS
-    PF -->|Mount| AS
-    
-    AS -->|Load| M[Merge + Fallback]
-    M -->|Cache| CS
-    CS -->|Serve| API["/_locales/:page/:locale"]
+
+    subgraph Client["Client Runtime"]
+        API -->|$fetch| TS["TranslationStorage<br/>(singleton via Symbol.for)"]
+        SSR["window.__I18N__<br/>(SSR injection)"] -->|hydration| TS
+        TS -->|getFromCache / load| PL["01.plugin.ts<br/>Translation Context"]
+    end
 ```
 
-## 📦 Cache Structure
+## 🧱 Core Components
 
-Translation cache is stored using `useStorage('cache')` (read-write storage), separate from the read-only `assets:server` storage where source translation files are mounted.
+### 1. `TranslationStorage` (Client + Server)
 
-**Important**: For serverless environments (like Cloudflare Workers), you need to configure the `cache` storage in your `nuxt.config.ts`:
+**File**: `src/runtime/utils/storage.ts`
 
-```ts
-export default defineNuxtConfig({
-  nitro: {
-    storage: {
-      // 'assets:server' is automatically configured by the module as read-only
-      
-      // Configure cache storage for read-write operations
-      'cache': {
-        driver: 'cloudflare-kv-binding',
-        binding: 'MY_KV_NAMESPACE' // Your KV namespace binding name
-      }
-    }
-  }
+A singleton class that provides unified translation storage for both client and server. Uses `Symbol.for('__NUXT_I18N_STORAGE_CACHE__')` on `globalThis` to ensure only one instance exists, even when multiple bundles are loaded.
+
+**Key methods:**
+
+| Method | Description |
+|--------|-------------|
+| `getFromCache(locale, routeName?)` | Synchronous check: returns cached data or checks `window.__I18N__` (client) |
+| `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
+| `clear()` | Clears the entire cache |
+
+**Cache key format**: `{locale}:{routeName}` (e.g., `en:index`, `fr:general`)
+
+```typescript
+import { translationStorage } from '../utils/storage'
+
+// Synchronous cache check
+const cached = translationStorage.getFromCache('en', 'index')
+
+// Async load (with automatic caching)
+const result = await translationStorage.load('en', 'index', {
+  apiBaseUrl: '_locales',
+  baseURL: '/',
+  dateBuild: '2024-01-01'
 })
+// result.data — merged translations
+// result.cacheKey — cache key used
+// result.json — JSON string (server only, for client injection)
 ```
 
-Each cache entry stores merged translations for a specific page and locale. The cache keys follow this pattern:
+### 2. `loadTranslationsFromServer()` (Server Only)
 
-```
-i18n:merged:{page}:{locale}
-```
+**File**: `src/runtime/server/utils/server-loader.ts`
 
-For example:
-```
-i18n:merged:home:en
-i18n:merged:contact:ru
-i18n:merged:general:fr
-```
+Loads translations from Nitro storage (read-only `assets:i18n_layer_N`), merges global + page-specific + fallback locale data, and caches the result in a process-global `Map` via `Symbol.for('__NUXT_I18N_SERVER_RESULT_CACHE__')`.
 
-### Example of cached data:
+**Merge order** (last wins):
+1. Global fallback locale translations (`locales/{fallbackLocale}.json`)
+2. Per-locale fallback translations (if `locale.fallbackLocale` is set)
+3. Target locale translations (`locales/{locale}.json`)
+4. Page-specific translations for each of the above
 
-```json
-{
-  "title": "Page Title",
-  "description": "Localized description",
-  "button": {
-    "text": "Click me",
-    "tooltip": "Click to continue"
-  }
-}
+```typescript
+import { loadTranslationsFromServer } from '../server/utils/server-loader'
+
+// Returns { data: Translations, json: string }
+const { data, json } = await loadTranslationsFromServer('en', 'index')
 ```
 
-The structure is the same as the content of the JSON files.
+### 3. SSR Injection (`window.__I18N__`)
 
-## 📥 Load translation from cache
+During server-side rendering, the main plugin (`01.plugin.ts`) collects all loaded translations and injects them into the HTML as:
 
-### Server route
+```html
+<script>
+window.__I18N__={};
+window.__I18N__["en:index"]={...};
+window.__I18N__["en:general"]={...};
+</script>
+```
+
+On the client, `TranslationStorage.getFromCache()` checks `window.__I18N__` for SSR-injected data before making any fetch requests. This ensures **zero additional HTTP requests** on first page load.
+
+### 4. Server API Route
+
+**Route**: `/_locales/{page}/{locale}/data.json`
+
+**File**: `src/runtime/server/routes/i18n.ts`
+
+This Nitro route serves pre-merged translations. It calls `loadTranslationsFromServer()` and returns the result as JSON. Cache headers are controlled by `dateBuild` version parameter.
+
+## 📥 Extending: Custom Translation Loading
+
+### Read from cache (server route)
 
 ```ts
 // server/api/i18n/load-cache.[post].ts
 import { defineEventHandler, readBody } from 'h3'
-import { useStorage } from '#imports'
+import { loadTranslationsFromServer } from '#imports'
 
 export default defineEventHandler(async (event) => {
-  const { page, locale } = await readBody<{ page: string, locale: string }>(event)
-  const cacheStorage = useStorage('cache')
-  
-  // Cache key format: i18n:merged:{page}:{locale}
-  const cacheKey = `i18n:merged:${page}:${locale}`
-
-  const data = await cacheStorage.getItem(cacheKey)
-  return {
-    from: 'cache',
-    key: cacheKey,
-    data
-  }
+  const { page, locale } = await readBody<{ page: string; locale: string }>(event)
+  const { data } = await loadTranslationsFromServer(locale, page)
+  return { locale, page, data }
 })
 ```
 
-### Example usage
-
-```ts
-await $fetch('/api/i18n/load-cache', {
-  method: 'POST',
-  body: {
-    page: 'home',
-    locale: 'en'
-  }
-})
-```
-
-## 📂 Load translation from file
-
-### Server route
-
-```ts
-// server/api/i18n/load-file.[post].ts
-import { defineEventHandler, readBody, createError } from 'h3'
-import { readFile } from 'node:fs/promises'
-import { join } from 'node:path'
-
-export default defineEventHandler(async (event) => {
-  const { path } = await readBody<{ path: string }>(event)
-
-  try {
-    const fileContent = await readFile(join('locales', path), 'utf-8')
-    return {
-      from: 'file',
-      path,
-      data: JSON.parse(fileContent)
-    }
-  } catch (err) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: `File not found: ${path}`
-    })
-  }
-})
-```
-
-### Example usage
-
-```ts
-await $fetch('/api/i18n/load-file', {
-  method: 'POST',
-  body: {
-    path: 'pages/home/en.json'
-  }
-})
-```
-
-## 🛠 Update translations (file + cache)
-
-### Server route
+### Update translations (file + invalidate cache)
 
 ```ts
 // server/api/i18n/update.[post].ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { join } from 'node:path'
 import { readFile, writeFile } from 'node:fs/promises'
-import { useStorage } from '#imports'
 
 function deepMerge(target: any, source: any): any {
   for (const key in source) {
@@ -228,7 +144,7 @@ function deepMerge(target: any, source: any): any {
 }
 
 export default defineEventHandler(async (event) => {
-  const { path, updates } = await readBody<{ path: string, updates: Record<string, any> }>(event)
+  const { path, updates } = await readBody<{ path: string; updates: Record<string, any> }>(event)
 
   if (!path || !updates) {
     throw createError({ statusCode: 400, statusMessage: 'Missing path or updates' })
@@ -245,118 +161,71 @@ export default defineEventHandler(async (event) => {
   }
 
   const merged = deepMerge(existing, updates)
-
   await writeFile(fullPath, JSON.stringify(merged, null, 2), 'utf-8')
 
-  // Invalidate cache for affected pages/locales
-  // Note: The actual cache is managed by the i18n module's /_locales/{page}/{locale} route
-  // This example shows how you might clear specific cache entries after updating files
-  const cacheStorage = useStorage('cache')
-  
-  // Extract page name and locale from path (e.g., 'pages/home/en.json' -> page: 'home', locale: 'en')
-  const pathMatch = path.match(/^pages\/([^/]+)\/(.+)\.json$/)
-  if (pathMatch) {
-    const [, pageName, locale] = pathMatch
-    const cacheKey = `i18n:merged:${pageName}:${locale}`
-    await cacheStorage.removeItem(cacheKey)
-  } else {
-    // Global translation file changed - clear all caches for this locale
-    const localeMatch = path.match(/^(.+)\.json$/)
-    if (localeMatch) {
-      const locale = localeMatch[1]
-      const allKeys = await cacheStorage.getKeys('i18n:merged:')
-      const keysToRemove = allKeys.filter((key: string) => key.endsWith(`:${locale}`))
-      await Promise.all(keysToRemove.map((key: string) => cacheStorage.removeItem(key)))
-    }
-  }
-
-  return {
-    success: true,
-    path,
-    updated: merged
-  }
+  return { success: true, path, updated: merged }
 })
 ```
 
-### Example usage
+::: tip
+After updating translation files, the server cache is only invalidated on restart or new deployment (detected via `dateBuild`). In development, HMR (`hmr: true`) handles automatic cache invalidation when files change.
+:::
+
+## 🧹 Clearing Cache
+
+### Programmatic cache clearing (client)
+
+Use the built-in `$clearCache` method:
+
+```vue
+<script setup>
+const { $clearCache } = useNuxtApp()
+
+// Clears both TranslationStorage and plugin-level cache
+$clearCache()
+</script>
+```
+
+### Server cache behavior
+
+The server-side cache (`loadTranslationsFromServer`) is process-global and persists until:
+- The server process restarts
+- A new deployment is detected (different `dateBuild` value)
+
+For serverless environments, each cold start has a fresh cache.
+
+## ⚙️ Serverless Configuration
+
+For serverless environments (Cloudflare Workers, AWS Lambda), the built-in cache uses in-memory `Map` objects. No external storage configuration is needed for the translation cache itself.
+
+However, Nitro storage for source translation files may need configuration:
 
 ```ts
-await $fetch('/api/i18n/update', {
-  method: 'POST',
-  body: {
-    path: 'pages/home/en.json',
-    updates: {
-      header: 'New header',
-      footer: {
-        text: 'Updated Footer'
+export default defineNuxtConfig({
+  nitro: {
+    storage: {
+      // Only needed if default file-system storage is unavailable
+      'assets:server': {
+        driver: 'cloudflare-kv-binding',
+        binding: 'MY_KV_NAMESPACE'
       }
     }
   }
 })
 ```
 
-## 🧪 Optional Extensions
+## 💡 Key Differences from v2
 
-### Delete translation keys
+| Aspect | v2 | v3 |
+|--------|----|----|
+| Client cache | `useStorage('cache')` | `TranslationStorage` singleton (Symbol.for on globalThis) |
+| SSR transfer | Runtime config | `window.__I18N__` script injection |
+| Server cache | Nitro cache storage | Process-global `Map` via `Symbol.for` |
+| Merge logic | Client-side | Server-side (`loadTranslationsFromServer`) |
+| Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}` |
 
-You can allow deleting keys by checking for a `__delete` array in the request:
+## 📚 Related
 
-```ts
-if ('__delete' in body) {
-  const keysToDelete = body.__delete
-  for (const key of keysToDelete) {
-    delete existing[key]
-  }
-}
-```
-
-### Replace arrays instead of merging
-
-If you don’t want to merge arrays and just replace them:
-
-```ts
-if (Array.isArray(source[key])) {
-  target[key] = [...source[key]]
-}
-```
-
-## 💡 Tips for Developers
-
-- **Cache storage is separate from assets storage**: Source translation files are read-only in `assets:server`, while merged translations cache is stored in `cache` storage (read-write).
-- **Cache keys format**: `i18n:merged:{page}:{locale}` (e.g., `i18n:merged:home:en`)
-- **Serverless configuration**: Always configure `nitro.storage.cache` for serverless environments (Cloudflare KV, AWS DynamoDB, etc.)
-- Cached data contains merged translations (global + page-specific + fallbacks) for optimal performance.
-- If you are building a translation editor, combine `load-cache` and `update` for read/write access.
-- You can extract helpers like `deepMerge()` or key/path generators into a separate utility file.
-
-## 🧹 Clearing All Server Cache
-
-The i18n system uses `useStorage('cache')` to store merged translations cache. This cache is automatically populated when translations are loaded and cleared when a new build is detected (via `dateBuild` version check).
-
-If you need to reset this cache (e.g. after editing translation files), you can call the `clearCache` method.
-
-### 🔁 Example: programmatic cache clearing from the client
-
-You can create a simple internal page that clears the cache when opened:
-
-```vue
-<template>
-  <div class="container">
-    <p>Clearing translation cache...</p>
-  </div>
-</template>
-
-<script setup>
-import { useNuxtApp } from '#imports'
-
-const { $clearCache } = useNuxtApp()
-
-$clearCache()
-</script>
-```
-
-You can use this page manually, call it after deployment, or trigger it from an admin panel.
-
----
-
-You now have full control over reading, updating and caching translations in your i18n system. You can adjust these routes to fit your needs, build admin tools, or integrate external translation APIs.
+- [Performance Guide](/guide/performance) — How caching impacts performance
+- [Server-Side Translations](/guide/server-side-translations) — Using translations in server routes
+- [Firebase Deployment](/guide/firebase) — Deployment-specific cache considerations

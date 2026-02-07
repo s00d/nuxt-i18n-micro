@@ -1,6 +1,62 @@
 # Changelog
 
 
+## v3.5.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.4.0...v3.5.0)
+
+### 🚀 Enhancements
+
+- **redirect:** Enhance locale handling and redirect logic ([46776b8](https://github.com/s00d/nuxt-i18n-micro/commit/46776b8))
+- **module:** Add warning for missing localeCookie with redirects enabled ([096a4ea](https://github.com/s00d/nuxt-i18n-micro/commit/096a4ea))
+- **types:** Add optional `redirects` property to ModuleOptions interface ([67b84a3](https://github.com/s00d/nuxt-i18n-micro/commit/67b84a3))
+- **route-strategy:** Remove `includeDefaultLocaleRoute` option ([6f38bbd](https://github.com/s00d/nuxt-i18n-micro/commit/6f38bbd))
+- **types:** Add cacheMaxSize and cacheTtl options to configuration ([318ccf8](https://github.com/s00d/nuxt-i18n-micro/commit/318ccf8))
+- **cache:** Add LRU cache implementation with sliding TTL support ([9e66665](https://github.com/s00d/nuxt-i18n-micro/commit/9e66665))
+- **plugins:** Configure storage cache and optimize async loading ([9f41f44](https://github.com/s00d/nuxt-i18n-micro/commit/9f41f44))
+- **module:** Add cache settings and improve locale validation error ([cf3cf72](https://github.com/s00d/nuxt-i18n-micro/commit/cf3cf72))
+
+### 🩹 Fixes
+
+- Update comments to English for clarity ([8dd57b3](https://github.com/s00d/nuxt-i18n-micro/commit/8dd57b3))
+- **module:** Enable watcher only in development mode ([456138b](https://github.com/s00d/nuxt-i18n-micro/commit/456138b))
+- **route-generator:** Handle errors in file creation process ([4e13975](https://github.com/s00d/nuxt-i18n-micro/commit/4e13975))
+- **core:** Update version to 1.1.3 in package.json ([d24e49c](https://github.com/s00d/nuxt-i18n-micro/commit/d24e49c))
+- **charts:** Update data values for latency and traffic metrics ([61e35e2](https://github.com/s00d/nuxt-i18n-micro/commit/61e35e2))
+
+### 💅 Refactors
+
+- **resolver:** Simplify parameter substitution in path resolution ([c47c564](https://github.com/s00d/nuxt-i18n-micro/commit/c47c564))
+- **storage:** Delegate cache control to CacheControl class ([b8cf552](https://github.com/s00d/nuxt-i18n-micro/commit/b8cf552))
+- **server-loader:** Replace global cache with CacheControl singleton ([bf964b1](https://github.com/s00d/nuxt-i18n-micro/commit/bf964b1))
+
+### 📖 Documentation
+
+- **strategy:** Clarify `localeCookie` requirement for redirects ([9f2375a](https://github.com/s00d/nuxt-i18n-micro/commit/9f2375a))
+- **getting-started:** Clarify localeCookie requirement for prefix strategies ([e7e2cc7](https://github.com/s00d/nuxt-i18n-micro/commit/e7e2cc7))
+- **api/methods:** Fix formatting of version introduced for `$switchRoute` ([3fe986d](https://github.com/s00d/nuxt-i18n-micro/commit/3fe986d))
+- **guide:** Update cookie name for user locale detection ([b6e68dc](https://github.com/s00d/nuxt-i18n-micro/commit/b6e68dc))
+- **guide/firebase:** Update version number for Content-Type headers notice ([f76157d](https://github.com/s00d/nuxt-i18n-micro/commit/f76157d))
+- **getting-started:** Document deprecation of includeDefaultLocaleRoute option ([4fe148b](https://github.com/s00d/nuxt-i18n-micro/commit/4fe148b))
+- **migration:** Update migration guide for v3.0.0 changes ([e330e99](https://github.com/s00d/nuxt-i18n-micro/commit/e330e99))
+- **strategy:** Update `autoDetectLanguage` behavior description ([6bcd7ae](https://github.com/s00d/nuxt-i18n-micro/commit/6bcd7ae))
+- Update ecosystem packages section in index.md ([ddec61c](https://github.com/s00d/nuxt-i18n-micro/commit/ddec61c))
+- **i18n-cache-api:** Update documentation for built-in cache in v3.0.0 ([9c3f6f4](https://github.com/s00d/nuxt-i18n-micro/commit/9c3f6f4))
+- **i18n-cache-api:** Update translation cache architecture documentation ([21b83eb](https://github.com/s00d/nuxt-i18n-micro/commit/21b83eb))
+- **api/methods:** Add new translation and cache utility methods ([13625d0](https://github.com/s00d/nuxt-i18n-micro/commit/13625d0))
+- **custom-auto-detect:** Update guide to reflect v3 changes ([79717d5](https://github.com/s00d/nuxt-i18n-micro/commit/79717d5))
+- **migration:** Update migration guide for Nuxt I18n Micro v3.0.0 ([c8df634](https://github.com/s00d/nuxt-i18n-micro/commit/c8df634))
+- **strategy:** Update routing strategies section for clarity and detail ([9e4620c](https://github.com/s00d/nuxt-i18n-micro/commit/9e4620c))
+- **getting-started:** Update caching mechanism description and structure ([593b16d](https://github.com/s00d/nuxt-i18n-micro/commit/593b16d))
+- **api:** Update return type of `$t` method and add usage warnings ([4539404](https://github.com/s00d/nuxt-i18n-micro/commit/4539404))
+- **guide:** Enhance getting started guide with regex matcher and caching options ([7c07ae5](https://github.com/s00d/nuxt-i18n-micro/commit/7c07ae5))
+- **performance-results:** Update performance metrics and test results ([fee022f](https://github.com/s00d/nuxt-i18n-micro/commit/fee022f))
+- **guide:** Clarify usage of `$t` and `$ts` methods in i18n ([1d56f00](https://github.com/s00d/nuxt-i18n-micro/commit/1d56f00))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.4.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.3.0...v3.4.0)

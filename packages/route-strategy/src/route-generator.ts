@@ -149,12 +149,16 @@ export class RouteGenerator {
   }
 
   private ensureFileExists(filePath: string): void {
-    const fileDir = path.dirname(filePath)
-    if (!existsSync(fileDir)) {
-      mkdirSync(fileDir, { recursive: true })
-    }
-    if (!existsSync(filePath)) {
-      writeFileSync(filePath, JSON.stringify({}), 'utf-8')
+    try {
+      const fileDir = path.dirname(filePath)
+      if (!existsSync(fileDir)) {
+        mkdirSync(fileDir, { recursive: true })
+      }
+      if (!existsSync(filePath)) {
+        writeFileSync(filePath, JSON.stringify({}), 'utf-8')
+      }
+    } catch {
+      // Silently skip file creation on read-only file systems (Docker, serverless, etc.)
     }
   }
 

@@ -163,6 +163,37 @@ const cookieName = configCookie ?? 'user-locale'
 
 See [Custom Language Detection](/guide/custom-auto-detect) for full examples.
 
+### Experimental Options Moved to Root
+
+In v3.0.0, options that were previously under `experimental` have been moved to the root of the `i18n` configuration object:
+
+**Before (v2.x):**
+
+```ts
+i18n: {
+  experimental: {
+    hmr: true,
+    previousPageFallback: true
+  }
+}
+```
+
+**After (v3.0.0):**
+
+```ts
+i18n: {
+  hmr: true,
+  previousPageFallback: true
+}
+```
+
+### Deprecated: `includeDefaultLocaleRoute`
+
+The `includeDefaultLocaleRoute` option is deprecated. Use the `strategy` option instead:
+
+- `includeDefaultLocaleRoute: true` → `strategy: 'prefix_and_default'`
+- `includeDefaultLocaleRoute: false` → `strategy: 'prefix_except_default'`
+
 ### Redirect Architecture
 
 Redirects now use server middleware (`i18n.global.ts`) and a client-only plugin. No code changes are required for standard setups. If you relied on the fallback component for custom redirect logic, implement that logic in a custom plugin with `order: -10` and `useI18nLocale().setLocale()` instead.

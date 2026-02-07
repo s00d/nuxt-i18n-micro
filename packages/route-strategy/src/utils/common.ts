@@ -11,12 +11,12 @@ export const buildRouteName = (baseName: string, localeCode: string, isCustom: b
 export const buildRouteNameFromRoute = (name: string | null | undefined, routePath: string | null | undefined): string =>
   name ?? (routePath ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
 
-export const shouldAddLocalePrefix = (locale: string, defaultLocale: Locale, addLocalePrefix: boolean, includeDefaultLocaleRoute: boolean): boolean =>
-  addLocalePrefix && !(locale === defaultLocale.code && !includeDefaultLocaleRoute)
+export const shouldAddLocalePrefix = (locale: string, defaultLocale: Locale, addLocalePrefix: boolean): boolean =>
+  addLocalePrefix && locale !== defaultLocale.code
 
-export const isLocaleDefault = (locale: string | Locale, defaultLocale: Locale, includeDefaultLocaleRoute: boolean): boolean => {
+export const isLocaleDefault = (locale: string | Locale, defaultLocale: Locale): boolean => {
   const localeCode = typeof locale === 'string' ? locale : locale.code
-  return localeCode === defaultLocale.code && !includeDefaultLocaleRoute
+  return localeCode === defaultLocale.code
 }
 
 const DEFAULT_STATIC_PATTERNS = [

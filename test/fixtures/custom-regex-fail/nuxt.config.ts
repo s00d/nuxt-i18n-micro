@@ -13,7 +13,6 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     // localeCookie: 'user-change-coockie',
     disablePageLocales: true,
-    includeDefaultLocaleRoute: false,
     customRegexMatcher: '[a-z]{2}-[a-z]{2}',
   },
 })

@@ -95,7 +95,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     locales: [/* ... */],
     localizedRouteNamePrefix: 'localized-',
     router: { hasRoute, resolve },
-    // optional: globalLocaleRoutes, routeLocales, routesLocaleLinks, noPrefixRedirect, includeDefaultLocaleRoute
+    // optional: globalLocaleRoutes, routeLocales, routesLocaleLinks, noPrefixRedirect
   }
 
   const pathStrategy = new Strategy(context)
@@ -155,7 +155,6 @@ Import from `@i18n-micro/path-strategy/types`.
 | `globalLocaleRoutes` | `Record<string, Record<string, string> \| false>`: custom path per route/locale; `false` = unlocalized. |
 | `routeLocales` | `Record<string, string[]>`: route path or base name → list of locale codes; limits hreflang entries. |
 | `routesLocaleLinks` | `Record<string, string>`: base name → key for `routeLocales` lookup (e.g. `'products-id'` → `'products'`). |
-| `includeDefaultLocaleRoute` | When set, SEO and links can include the default locale variant. |
 | `noPrefixRedirect` | When `true` (default), `NoPrefixPathStrategy.getRedirect` strips a leading locale segment (e.g. `/en/about` → `/about`). Set to `false` to disable. |
 | `debug` | Enable debug logging. |
 

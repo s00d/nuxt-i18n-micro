@@ -17,7 +17,7 @@ export default defineNuxtConfig({
         iso: 'en-GB',
       },
     ],
-    includeDefaultLocaleRoute: true,
+    strategy: 'prefix',
     defaultLocale: 'en-GB',
     fallbackLocale: 'en-GB',
     localeCookie: 'locale',

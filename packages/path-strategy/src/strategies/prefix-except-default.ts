@@ -17,11 +17,9 @@ import { BasePathStrategy } from './base-strategy'
 
 export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
   /**
-   * For this strategy a prefix is required for all non-default locales,
-   * unless includeDefaultLocaleRoute is explicitly enabled.
+   * For this strategy a prefix is required for all non-default locales.
    */
   protected shouldHavePrefix(locale: string): boolean {
-    if (this.ctx.includeDefaultLocaleRoute) return true
     if (locale === this.ctx.defaultLocale) return false
     // When locale has baseUrl with baseDefault=true, no prefix needed (uses root on separate domain)
     const localeObj = this.ctx.locales.find((l) => l.code === locale)

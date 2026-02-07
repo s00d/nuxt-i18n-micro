@@ -20,7 +20,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   nitro: {
     externals: {
-      // инлайнить, чтобы не было импорта из output/server/node_modules
+      // inline to prevent imports from output/server/node_modules
       inline: ['vue', 'vue/server-renderer', '@vue/server-renderer'],
       external: [],
     },
@@ -34,7 +34,7 @@ export default defineNuxtConfig({
     locales: availableLanguages,
     autoDetectLanguage: false,
     autoDetectPath: '/',
-    includeDefaultLocaleRoute: true,
+    strategy: 'prefix',
     globalLocaleRoutes: pages,
     defaultLocale: 'de',
     translationDir: './app/locales',

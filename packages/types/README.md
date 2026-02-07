@@ -53,7 +53,7 @@ const options: ModuleOptions = {
   locales,
   strategy,
   defaultLocale: 'en',
-  includeDefaultLocaleRoute: true,
+  strategy: 'prefix',
 }
 
 // Define route parameters

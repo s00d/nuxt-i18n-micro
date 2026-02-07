@@ -219,7 +219,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
         }
       }
 
-      const finalRoutePath = shouldAddLocalePrefix(locale, context.defaultLocale, addLocalePrefix, false)
+      const finalRoutePath = shouldAddLocalePrefix(locale, context.defaultLocale, addLocalePrefix)
         ? buildFullPath(locale, basePath, context.customRegex)
         : basePath
 
@@ -339,7 +339,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
       return `${context.localizedRouteNamePrefix}${baseName}-${locale}`
     }
 
-    const shouldAddLocaleSuffix = locale && !isLocaleDefault(locale, context.defaultLocale, false)
+    const shouldAddLocaleSuffix = locale && !isLocaleDefault(locale, context.defaultLocale)
 
     return shouldAddLocaleSuffix ? `${context.localizedRouteNamePrefix}${baseName}-${locale}` : `${context.localizedRouteNamePrefix}${baseName}`
   }

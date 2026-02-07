@@ -19,7 +19,6 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     fallbackLocale: 'en',
     autoDetectLanguage: true,
-    includeDefaultLocaleRoute: false,
     disablePageLocales: false,
   },
 })

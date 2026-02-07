@@ -74,7 +74,7 @@ export interface ModuleOptions {
   autoDetectPath?: string
   disableWatcher?: boolean
   types?: boolean
-  includeDefaultLocaleRoute?: boolean
+
   routesLocaleLinks?: { [key: string]: string }
   plural?: string | PluralFunc
   disablePageLocales?: boolean

@@ -28,7 +28,7 @@ At a high level, `@i18n-micro/route-strategy`:
   - `globalLocaleRoutes` (custom paths per locale),
   - `filesLocaleRoutes` (file‑level locale paths),
   - `routeLocales` (locale restrictions),
-  - `noPrefixRedirect` and `includeDefaultLocaleRoute` flags;
+  - `noPrefixRedirect` flag;
 - keeps aliases, children and internal/excluded routes consistent.
 
 All of this is done without any Nuxt runtime / Vue Router dependency – it operates purely on plain `NuxtPage` objects, so it is safe to run in Node during build and easy to test.

@@ -249,16 +249,6 @@ strategy: 'prefix_and_default'
 
 :::
 
-#### `includeDefaultLocaleRoute`
-
-::: danger Deprecated
-This option is **deprecated** since v3.0.0. Use `strategy` instead:
-- `includeDefaultLocaleRoute: true` → `strategy: 'prefix_and_default'`
-- `includeDefaultLocaleRoute: false` → `strategy: 'prefix_except_default'`
-
-If this option is set, a deprecation warning will be logged to the console.
-:::
-
 ### 📂 Translation Management
 
 #### `translationDir`

@@ -50,7 +50,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
       const routeName = pathname === '/' || pathname === '' ? 'index' : pathname.split('/').filter(Boolean).join('-')
       requestI18n.setRoute(routeName)
 
-      // @ts-expect-error private property mismatch between src and dist types
+      // @ts-ignore private property mismatch between src and dist types
       context.locals.i18n = requestI18n
       context.locals.locale = defaultLocale
       context.locals.defaultLocale = defaultLocale
@@ -97,7 +97,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     requestI18n.setRoute(routeName)
 
     // 5. Store in locals (Type-safe now thanks to astro-shim.d.ts)
-    // @ts-expect-error private property mismatch between src and dist types
+    // @ts-ignore private property mismatch between src and dist types
     context.locals.i18n = requestI18n
     context.locals.locale = detectedLocale
     context.locals.defaultLocale = defaultLocale

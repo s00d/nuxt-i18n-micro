@@ -26,6 +26,9 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      - name: Install Vite globally
+        run: npm install -g vite
+
       - name: Install dependencies
         run: pnpm install
 

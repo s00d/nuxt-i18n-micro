@@ -9,30 +9,33 @@ import { getRouteBaseName } from '../utils/route-name'
 import { getPathWithoutLocale } from './normalizer'
 import type { PathStrategyContext, ResolvedRouteLike } from './types'
 
-/** Escapes special regex characters in a string for use in RegExp. */
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
+/**
+ * Single pre-compiled regex that matches all Nuxt route param patterns in one pass:
+ *   :key()       — optional param  (group 1)
+ *   :key         — required param  (group 2, not followed by word char)
+ *   [...key]     — catch-all param (group 3)
+ */
+const PARAM_PATTERN = /:(\w+)\(\)|:(\w+)(?!\w)|\[\.\.\.(\w+)\]/g
 
 export class RouteResolver {
   constructor(private ctx: PathStrategyContext) {}
 
   /**
    * Substitutes params into path template (:key, :key(), [...key]).
-   * Uses one combined regex per key to avoid creating multiple RegExp in a loop.
+   * Uses a single pre-compiled regex for all keys in one pass — no per-key RegExp allocation.
    */
   resolvePathWithParams(path: string, params: Record<string, unknown> = {}): string {
-    let resolved = path
-    for (const key in params) {
-      const value = params[key]
-      if (value === undefined || value === null || value === '') continue
+    if (!params || Object.keys(params).length === 0) return path
 
-      const strValue = Array.isArray(value) ? (value as unknown[]).join('/') : String(value)
-      const escaped = escapeRegex(key)
-      const pattern = new RegExp(`:${escaped}\\(\\)|:${escaped}(?![\\w])|\\[\\.\\.\\.${escaped}\\]`, 'g')
-      resolved = resolved.replace(pattern, strValue)
-    }
-    return resolved
+    return path.replace(PARAM_PATTERN, (match, optKey?: string, reqKey?: string, catchAllKey?: string) => {
+      const key = optKey || reqKey || catchAllKey
+      if (!key) return match
+
+      const value = params[key]
+      if (value === undefined || value === null || value === '') return match
+
+      return Array.isArray(value) ? (value as unknown[]).join('/') : String(value)
+    })
   }
 
   /**

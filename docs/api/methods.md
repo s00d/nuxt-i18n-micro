@@ -127,7 +127,7 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 ```
 
 ::: warning Return type includes objects
-`$t` returns `CleanTranslation` which is `string | number | boolean | Translations | PluralTranslations | null`. If the key points to a **nested object** in your JSON (e.g. `$t('header')` when the JSON contains `{ "header": { "title": "Hi" } }`), the return value will be that **object**, not a string. Using it directly in a Vue template (`{{ $t('header') }}`) will render as `[object Object]`.
+`$t` returns `CleanTranslation` which is `string | number | boolean | Translations | PluralTranslations | null`. If the key points to a **nested object** in your JSON (e.g. `$t('header')` when the JSON contains `{ "header": { "title": "Hi" } }`), the return value will be that **object**, not a string. Using it directly in a Vue template (<code v-pre>{{ $t('header') }}</code>) will render as `[object Object]`.
 
 **How to avoid this:**
 - Use a more specific key: `$t('header.title')` → `"Hi"`

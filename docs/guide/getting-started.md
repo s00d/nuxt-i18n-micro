@@ -516,8 +516,12 @@ Specifies the cookie name for storing user's locale. This enables locale persist
 When using `strategy: 'no_prefix'`, `localeCookie` is automatically set to `'user-locale'` if not specified. This is required to persist the locale between page reloads since there's no locale information in the URL.
 :::
 
+::: warning Required for redirects with prefix strategies
+When using prefix strategies (`prefix`, `prefix_except_default`, `prefix_and_default`) with `redirects: true` (the default), you **must** set `localeCookie` for redirect behavior to work correctly. Without a cookie, the redirect plugin cannot remember the user's locale preference across page reloads, and redirects will only work based on `Accept-Language` header (if `autoDetectLanguage: true`) or `defaultLocale`.
+:::
+
 ```typescript
-// Enable cookie (recommended for no_prefix strategy)
+// Enable cookie (recommended when using redirects with prefix strategies)
 localeCookie: 'user-locale'
 
 // Enable cookie with custom name
@@ -531,7 +535,7 @@ localeCookie: null
 - Persists user's locale preference across page reloads
 - Remembers locale when user returns to your site
 - Required for `no_prefix` strategy to work correctly
-- Used for redirect decisions in prefix strategies (when enabled)
+- **Required** for redirect behavior in prefix strategies (when `redirects: true`)
 
 #### `apiBaseUrl`
 

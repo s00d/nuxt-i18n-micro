@@ -81,8 +81,8 @@ export class Translator {
   }
 
   /**
-   * Очищает текст перед переводом.
-   * Заменяет специальные конструкции на временные метки.
+   * Cleans text before translation.
+   * Replaces special constructs with temporary markers.
    */
   private clearText(text: string): string {
     const regex = /:[a-zA-Z0-9]+|<[^>]*>|\{['"][@$|{}]['"]\}/gu
@@ -95,8 +95,8 @@ export class Translator {
   }
 
   /**
-   * Восстанавливает текст после перевода.
-   * Заменяет временные метки на оригинальные значения.
+   * Restores text after translation.
+   * Replaces temporary markers with original values.
    */
   private revertText(text: string): string {
     const restoredText = this.clearBuffer.reduce((acc, match, index) => {
@@ -108,7 +108,7 @@ export class Translator {
   }
 
   /**
-   * Переводчик Google (платный API).
+   * Google Translator (paid API).
    */
   private async googleTranslate(text: string, fromLang: string, toLang: string): Promise<string> {
     const url = 'https://translation.googleapis.com/language/translate/v2'
@@ -131,7 +131,7 @@ export class Translator {
   }
 
   /**
-   * Переводчик Yandex (платный API).
+   * Yandex Translator (paid API).
    */
   private async yandexTranslate(text: string, fromLang: string, toLang: string): Promise<string> {
     const url = 'https://translate.api.cloud.yandex.net/translate/v2/translate'
@@ -161,7 +161,7 @@ export class Translator {
   }
 
   /**
-   * Переводчик DeepL (платный API).
+   * DeepL Translator (paid API).
    */
   private async deeplTranslate(text: string, fromLang: string, toLang: string): Promise<string> {
     const url = 'https://api.deepl.com/v2/translate'
@@ -189,7 +189,7 @@ export class Translator {
   }
 
   /**
-   * Переводчик OpenAI (GPT).
+   * OpenAI Translator (GPT).
    */
   private async openaiTranslate(text: string, fromLang: string, toLang: string): Promise<string> {
     const url = 'https://api.openai.com/v1/chat/completions'
@@ -226,7 +226,7 @@ export class Translator {
   }
 
   /**
-   * Переводчик DeepSeek.
+   * DeepSeek Translator.
    */
   private async deepseekTranslate(text: string, fromLang: string, toLang: string): Promise<string> {
     const url = 'https://api.deepseek.com/chat/completions'
@@ -264,7 +264,7 @@ export class Translator {
   }
 
   /**
-   * Переводчик Google Free (неофициальный API).
+   * Google Free Translator (unofficial API).
    */
   private async googleFreeTranslate(text: string, fromLang: string, toLang: string): Promise<string> {
     const url = 'https://translate.google.com/translate_a/single'
@@ -292,7 +292,7 @@ export class Translator {
   }
 
   /**
-   * Переводчик Yandex Cloud.
+   * Yandex Cloud Translator.
    */
   private async yandexCloudTranslate(text: string, fromLang: string, toLang: string): Promise<string> {
     const url = 'https://translate.api.cloud.yandex.net/translate/v2/translate'

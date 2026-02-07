@@ -1,9 +1,9 @@
 /**
- * Рекурсивно обходит JSON объект и создает плоский список ключей через точку.
+ * Recursively traverses a JSON object and creates a flat list of dot-separated keys.
  *
- * @param obj - JSON объект с переводами
- * @param prefix - Префикс для вложенных ключей (используется рекурсивно)
- * @returns Массив строк с плоскими ключами (например, ['greeting', 'header.title', 'errors.404'])
+ * @param obj - JSON object with translations
+ * @param prefix - Prefix for nested keys (used recursively)
+ * @returns Array of strings with flat keys (e.g. ['greeting', 'header.title', 'errors.404'])
  *
  * @example
  * ```typescript
@@ -27,12 +27,12 @@ export function flattenKeys(obj: Record<string, unknown>, prefix = ''): string[]
     const value = obj[key]
     const newKey = prefix ? `${prefix}.${key}` : key
 
-    // Если значение - объект и не массив, идем вглубь
+    // If value is an object and not an array, go deeper
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       keys.push(...flattenKeys(value as Record<string, unknown>, newKey))
     } else {
-      // Иначе это конечный ключ (строка, число или массив для плюрализации)
-      // Плюрализация обрабатывается как один ключ (формат "no | one | many" не разбивается)
+      // Otherwise it's a leaf key (string, number, or array for pluralization)
+      // Pluralization is treated as a single key ("no | one | many" format is not split)
       keys.push(newKey)
     }
   }

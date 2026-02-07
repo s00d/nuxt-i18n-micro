@@ -10,7 +10,7 @@ export const options = {
       duration: '10s',
       exec: 'openLinksScenario',
       tags: { scenario: 'openLinks' },
-      // Опция browser указывается только для первого сценария
+      // The browser option is specified only for the first scenario
       options: {
         browser: {
           type: 'chromium',

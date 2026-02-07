@@ -5,8 +5,8 @@ import { loadTranslationsFromServer } from '../utils/server-loader'
 
 /**
  * API Route: /_locales/:page/:locale/data.json
- * Возвращает переводы с fallback локалями.
- * Использует pre-serialized JSON для избежания повторной сериализации.
+ * Returns translations with fallback locales.
+ * Uses pre-serialized JSON to avoid repeated serialization.
  */
 export default defineEventHandler(async (event) => {
   const page = getRouterParam(event, 'page')
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
   const { json } = await loadTranslationsFromServer(locale, page === 'general' ? undefined : page)
 
-  // Отправляем готовый JSON напрямую (без повторной сериализации)
+  // Send pre-serialized JSON directly (no repeated serialization)
   setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')
   return send(event, json)
 })

@@ -121,13 +121,13 @@ const handleKeydown = (e: KeyboardEvent) => {
   if (e.key === 'Escape') handleEsc()
 }
 
-// Блокировка скролла при открытии модального окна
+// Block scroll when modal is open
 const originalOverflow = ref<string>('')
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
 
-  // Блокируем скролл при открытии модального окна
+  // Block scroll when modal is open
   if (props.show) {
     const appContainer = document.querySelector('i18n-devtools-ui')
     if (appContainer) {
@@ -140,14 +140,14 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
 
-  // Восстанавливаем скролл при закрытии
+  // Restore scroll on close
   const appContainer = document.querySelector('i18n-devtools-ui')
   if (appContainer) {
     ;(appContainer as HTMLElement).style.overflow = originalOverflow.value
   }
 })
 
-// Отслеживаем изменения show для блокировки/разблокировки скролла
+// Watch show changes for blocking/unblocking scroll
 watch(
   () => props.show,
   (isOpen) => {

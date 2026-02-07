@@ -1,6 +1,6 @@
 /**
  * Server-side translation loader
- * Загрузка переводов из Nitro storage (только для сервера)
+ * Load translations from Nitro storage (server only)
  */
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { useStorage } from 'nitropack/runtime'
@@ -9,7 +9,7 @@ import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getI18nConfig } from '#i18n-internal/strategy'
 
 // ============================================================================
-// SERVER CACHE (процессно-глобальный кэш результатов)
+// SERVER CACHE (process-global result cache)
 // ============================================================================
 
 const CACHE_KEY = Symbol.for('__NUXT_I18N_SERVER_RESULT_CACHE__')
@@ -99,21 +99,21 @@ async function loadMergedFromServer(locale: string, page: string | undefined): P
 // ============================================================================
 
 /**
- * Загрузка переводов из Nitro storage с поддержкой fallback локалей.
- * Используется в API route и server middleware.
- * Результат кэшируется на уровне процесса - один раз загружаем, потом отдаём из памяти.
+ * Load translations from Nitro storage with fallback locale support.
+ * Used in API routes and server middleware.
+ * Results are cached at the process level — loaded once, then served from memory.
  */
 export async function loadTranslationsFromServer(locale: string, routeName?: string): Promise<{ data: Translations; json: string }> {
   const cache = getServerCache()
   const cacheKey = `${locale}:${routeName || 'general'}`
 
-  // Быстрый путь: из кэша
+  // Fast path: from cache
   const cached = cache.get(cacheKey)
   if (cached) {
     return cached
   }
 
-  // Медленный путь: загрузка и мёрдж
+  // Slow path: load and merge
   const config = getI18nConfig() as ModuleOptionsExtend
   const { locales, fallbackLocale } = config
 
@@ -139,7 +139,7 @@ export async function loadTranslationsFromServer(locale: string, routeName?: str
   const json = JSON.stringify(result).replace(/</g, '\\u003c')
   const entry = { data: result, json }
 
-  // В кэш
+  // Store in cache
   cache.set(cacheKey, entry)
 
   return entry

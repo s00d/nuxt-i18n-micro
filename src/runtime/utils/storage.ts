@@ -1,6 +1,6 @@
 /**
  * Translation Storage
- * Единое хранилище переводов для клиента и сервера.
+ * Unified translation storage for client and server.
  */
 declare global {
   interface Window {
@@ -79,18 +79,18 @@ class TranslationStorage {
   // ==========================================================================
 
   /**
-   * Синхронная проверка и получение из кэша.
-   * Возвращает данные если они в кэше, иначе null.
+   * Synchronous cache check and retrieval.
+   * Returns data if cached, otherwise null.
    */
   getFromCache(locale: string, routeName?: string): LoadResult | null {
     const cacheKey = this.getCacheKey(locale, routeName)
 
-    // Из кэша
+    // From cache
     if (this.has(locale, routeName)) {
       return { data: this.get(locale, routeName)!, cacheKey }
     }
 
-    // CLIENT: Проверка инъекции из SSR
+    // CLIENT: Check SSR injection
     if (import.meta.client && typeof window !== 'undefined' && window.__I18N__?.[cacheKey]) {
       const data = window.__I18N__[cacheKey] as Record<string, unknown>
       window.__I18N__[cacheKey] = undefined
@@ -102,30 +102,30 @@ class TranslationStorage {
   }
 
   /**
-   * Загрузка переводов (с кэшированием).
-   * Возвращает данные, ключ кэша и JSON для инъекции (только на сервере).
+   * Load translations (with caching).
+   * Returns data, cache key, and JSON for injection (server only).
    */
   async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
-    // Быстрый путь - синхронно из кэша
+    // Fast path — synchronous from cache
     const cached = this.getFromCache(locale, routeName)
     if (cached) return cached
 
     const cacheKey = this.getCacheKey(locale, routeName)
 
-    // Загрузка через fetch
+    // Load via fetch
     const data = await this.fetchTranslations(locale, routeName, options)
 
-    // В кэш
+    // Store in cache
     this.set(locale, routeName, data)
 
-    // SERVER: Генерируем JSON для инъекции
+    // SERVER: Generate JSON for client injection
     const json = import.meta.server ? JSON.stringify(data).replace(/</g, '\\u003c') : undefined
 
     return { data: this.get(locale, routeName)!, cacheKey, json }
   }
 
   /**
-   * Очистка кэша.
+   * Clear cache.
    */
   clear(): void {
     this.cache.clear()

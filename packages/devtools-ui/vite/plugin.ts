@@ -10,7 +10,7 @@ export interface DevToolsPluginOptions {
   injectButton?: boolean
 }
 
-// Вспомогательная функция для безопасного резолва пути
+// Helper function for safe path resolution
 function safeResolvePath(projectRoot: string, filePath: string): string {
   const normalizedFile = filePath.replace(/^\/+/, '').replace(/\/+/g, '/')
   const resolvedPath = path.resolve(projectRoot, normalizedFile)
@@ -24,7 +24,7 @@ function safeResolvePath(projectRoot: string, filePath: string): string {
   return resolvedPath
 }
 
-// Рекурсивное сканирование директории для поиска JSON файлов
+// Recursive directory scanning to find JSON files
 async function scanTranslationFiles(dir: string, baseDir: string): Promise<string[]> {
   const files: string[] = []
   try {
@@ -36,17 +36,17 @@ async function scanTranslationFiles(dir: string, baseDir: string): Promise<strin
         files.push(...subFiles)
       } else if (entry.isFile() && entry.name.endsWith('.json')) {
         const relativePath = path.relative(baseDir, fullPath)
-        files.push(relativePath.replace(/\\/g, '/')) // Нормализуем для кроссплатформенности
+        files.push(relativePath.replace(/\\/g, '/')) // Normalize for cross-platform compatibility
       }
     }
   } catch (error) {
-    // Игнорируем ошибки доступа к директориям
+    // Ignore directory access errors
     console.warn(`[i18n-devtools] Cannot scan directory ${dir}:`, error)
   }
   return files
 }
 
-// Скрипт для инжекции кнопки
+// Script for button injection
 const BUTTON_INJECTION_SCRIPT = `
 (function() {
   if (typeof window === 'undefined' || document.getElementById('i18n-devtools-button-container')) {
@@ -82,7 +82,7 @@ const BUTTON_INJECTION_SCRIPT = `
 
   function hideButton() {
     if (isVisible) {
-      // Оставляем видимой только небольшую часть кнопки (примерно 40px)
+      // Leave only a small part of the button visible (approximately 40px)
       button.style.transform = 'translateX(calc(100% - 40px))';
       button.style.opacity = '0.3';
       isVisible = false;
@@ -120,7 +120,7 @@ const BUTTON_INJECTION_SCRIPT = `
       clearTimeout(hideTimeout);
       hideTimeout = null;
     }
-    // Показываем кнопку полностью при наведении
+    // Show the button fully on hover
     if (!isVisible) {
       showButton();
     }
@@ -135,12 +135,12 @@ const BUTTON_INJECTION_SCRIPT = `
   });
 
   button.addEventListener('click', function() {
-    // Проверяем, не открыт ли уже редактор
+    // Check if the editor is already open
     if (document.getElementById('i18n-devtools-modal')) {
       return;
     }
 
-    // Открываем модальное окно с iframe
+    // Open modal window with iframe
     const modal = document.createElement('div');
     modal.id = 'i18n-devtools-modal';
     modal.style.cssText = 'position: fixed; inset: 0; z-index: 999999; background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; padding: 2rem;';
@@ -189,7 +189,7 @@ const BUTTON_INJECTION_SCRIPT = `
 
   document.addEventListener('mousemove', checkMouseDistance);
 
-  // Автоматически скрываем через 3 секунды после загрузки
+  // Auto-hide after 3 seconds of loading
   setTimeout(() => {
     if (!button.matches(':hover')) {
       hideTimeout = setTimeout(hideButton, 3000);
@@ -203,11 +203,11 @@ const BUTTON_INJECTION_SCRIPT = `
 export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginOption {
   const apiBase = options.base || '/__i18n_api'
   const translationDir = options.translationDir || 'src/locales'
-  const injectButton = options.injectButton !== false // По умолчанию true
+  const injectButton = options.injectButton !== false // Default is true
 
   return {
     name: 'i18n-micro-devtools-plugin',
-    apply: 'serve', // Работает только в dev server
+    apply: 'serve', // Works only in dev server
 
     resolveId(id: string) {
       if (id === '/@vite-plugin-i18n-devtools/devtools-ui.js') {
@@ -218,7 +218,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 
     load(id: string) {
       if (id === '/@vite-plugin-i18n-devtools/devtools-ui.js') {
-        // Возвращаем реэкспорт из devtools-ui пакета
+        // Return re-export from devtools-ui package
         return `export * from '@i18n-micro/devtools-ui'`
       }
       return null
@@ -229,21 +229,21 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         return html
       }
 
-      // Инжектируем скрипт перед закрывающим тегом </body>
+      // Inject script before the closing </body> tag
       const scriptTag = `<script>${BUTTON_INJECTION_SCRIPT}</script>`
       if (html.includes('</body>')) {
         return html.replace('</body>', `${scriptTag}</body>`)
       }
-      // Если нет </body>, добавляем в конец
+      // If no </body>, append to the end
       return html + scriptTag
     },
 
     configureServer(server: ViteDevServer) {
-      // Используем server.config.root как источник правды для корня проекта
+      // Use server.config.root as the source of truth for the project root
       const projectRoot = server.config.root
 
-      // HTML страница для iframe с devtools UI
-      // Используем виртуальный модуль для правильного импорта
+      // HTML page for iframe with devtools UI
+      // Use virtual module for proper imports
       const devtoolsHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -279,14 +279,14 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
     <div class="loading">Loading DevTools...</div>
   </div>
   <script type="module">
-    // Импортируем devtools UI
-    // Пытаемся импортировать через разные пути для совместимости
+    // Import devtools UI
+    // Try to import through different paths for compatibility
     let register;
     try {
       const devtoolsModule = await import('/@vite-plugin-i18n-devtools/devtools-ui.js');
       register = devtoolsModule.register;
     } catch (e) {
-      // Fallback: пытаемся импортировать напрямую
+      // Fallback: try to import directly
       try {
         const devtoolsModule = await import('@i18n-micro/devtools-ui');
         register = devtoolsModule.register;
@@ -297,10 +297,10 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
       }
     }
 
-    // Регистрируем custom element
+    // Register custom element
     register();
 
-    // Создаем bridge через API
+    // Create bridge via API
     const bridge = {
       async getLocalesAndTranslations() {
         try {
@@ -379,14 +379,14 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 </body>
 </html>`
 
-      // Middleware для обслуживания HTML страницы devtools
+      // Middleware for serving the devtools HTML page
       server.middlewares.use('/__i18n_devtools.html', (_req: IncomingMessage, res: ServerResponse) => {
         res.statusCode = 200
         res.setHeader('Content-Type', 'text/html; charset=utf-8')
         res.end(devtoolsHtml)
       })
 
-      // Эндпоинт для получения конфигурации
+      // Endpoint for getting configuration
       server.middlewares.use(`${apiBase}/config`, async (_req: IncomingMessage, res: ServerResponse, next) => {
         if (_req.method !== 'GET') {
           return next()
@@ -416,7 +416,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         }
       })
 
-      // Эндпоинт для получения списка файлов
+      // Endpoint for getting file list
       server.middlewares.use(`${apiBase}/files`, async (req: IncomingMessage, res: ServerResponse, next) => {
         if (req.method !== 'GET') {
           return next()
@@ -425,7 +425,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         try {
           const localesPath = path.resolve(projectRoot, translationDir)
 
-          // Проверяем, что путь безопасен
+          // Verify the path is safe
           safeResolvePath(projectRoot, translationDir)
 
           if (!fs.existsSync(localesPath)) {
@@ -437,7 +437,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
 
           const files = await scanTranslationFiles(localesPath, localesPath)
 
-          // Строим структуру директорий
+          // Build directory structure
           const structure: Record<string, unknown> = {}
           for (const file of files) {
             const parts = file.split('/')
@@ -471,7 +471,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         }
       })
 
-      // Эндпоинт для загрузки конкретного файла
+      // Endpoint for loading a specific file
       server.middlewares.use(`${apiBase}/file`, async (req: IncomingMessage, res: ServerResponse, next) => {
         if (req.method !== 'GET') {
           return next()
@@ -485,7 +485,7 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
             throw new Error('Path parameter is required')
           }
 
-          // Резолвим путь относительно translationDir
+          // Resolve path relative to translationDir
           const fullPath = path.join(translationDir, filePath)
           const resolvedPath = safeResolvePath(projectRoot, fullPath)
 
@@ -519,14 +519,14 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         }
       })
 
-      // Эндпоинт для сохранения файла
+      // Endpoint for saving a file
       server.middlewares.use(`${apiBase}/save`, async (req: IncomingMessage, res: ServerResponse, next) => {
         if (req.method !== 'POST') {
           return next()
         }
 
         try {
-          // Чтение тела запроса
+          // Read request body
           const buffers: Buffer[] = []
           for await (const chunk of req) {
             buffers.push(chunk)
@@ -544,25 +544,25 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
             throw new Error('Invalid data: file and content are required')
           }
 
-          // Резолвим путь относительно translationDir, если путь не абсолютный
+          // Resolve path relative to translationDir if path is not absolute
           const fullPath = file.startsWith(translationDir) ? file : path.join(translationDir, file)
           const filePath = safeResolvePath(projectRoot, fullPath)
 
-          // Проверка расширения
+          // Check extension
           if (!filePath.endsWith('.json')) {
             throw new Error('Invalid file: only .json files are allowed')
           }
 
-          // Создаем директорию, если её нет
+          // Create directory if it doesn't exist
           const dir = path.dirname(filePath)
           if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true })
           }
 
-          // Записываем файл
+          // Write file
           fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
 
-          // Успешный ответ
+          // Successful response
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify({ success: true }))

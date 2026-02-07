@@ -5,7 +5,7 @@ import DevtoolsUIKit from '@nuxt/devtools-ui-kit'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
 
-// Целевая папка в корне монорепозитория
+// Target directory in the monorepo root
 const targetDistDir = resolve(currentDir, '../dist/client')
 
 export default defineNuxtConfig({
@@ -40,25 +40,25 @@ export default defineNuxtConfig({
     },
   },
 
-  // Убираем nitro.output, так как оно работает ненадежно для путей вне корня
-  // при nuxi generate
+  // Remove nitro.output as it works unreliably for paths outside the root
+  // during nuxi generate
 
   hooks: {
-    // Хук 'close' срабатывает, когда Nuxt полностью завершил сборку и генерацию
+    // The 'close' hook fires when Nuxt has completely finished building and generating
     close: async () => {
-      // Стандартный путь вывода Nuxt 3 (Nitro)
+      // Default Nuxt 3 (Nitro) output path
       const outputDir = resolve(currentDir, '.output/public')
 
       if (existsSync(outputDir)) {
         console.log(`[i18n-client] Moving build from ${outputDir} to ${targetDistDir}...`)
 
-        // 1. Очищаем целевую папку
+        // 1. Clean the target directory
         rmSync(targetDistDir, { recursive: true, force: true })
 
-        // 2. Создаем её заново
+        // 2. Recreate it
         mkdirSync(targetDistDir, { recursive: true })
 
-        // 3. Копируем файлы рекурсивно
+        // 3. Copy files recursively
         cpSync(outputDir, targetDistDir, { recursive: true })
 
         console.log('[i18n-client] Build successfully copied to root dist/client')

@@ -1,7 +1,7 @@
 import { exec } from 'node:child_process'
 
 function getProcessUsageMock() {
-  // Возвращает случайные значения для CPU и памяти
+  // Returns random values for CPU and memory
   return {
     cpu: Math.random() * 100,
     memory: Math.random() * 2048, // в MB
@@ -31,7 +31,7 @@ function getProcessUsageMock() {
   })
 
   const monitorInterval = setInterval(() => {
-    const { cpu, memory } = getProcessUsageMock() // Используем мок-функцию для демонстрации
+    const { cpu, memory } = getProcessUsageMock() // Using mock function for demonstration
 
     maxCpuUsage = Math.max(maxCpuUsage, cpu)
     minCpuUsage = Math.min(minCpuUsage, cpu)

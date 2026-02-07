@@ -298,7 +298,7 @@ export function createI18nStrategy(router) {
 `,
     })
 
-    // Конфигурация i18n только в #build/i18n.strategy.mjs (getI18nConfig, createI18nStrategy). runtimeConfig.public.i18nConfig не используется.
+    // i18n config is only in #build/i18n.strategy.mjs (getI18nConfig, createI18nStrategy). runtimeConfig.public.i18nConfig is not used.
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error
     if (typeof options.customRegexMatcher !== 'undefined') {
@@ -423,7 +423,7 @@ export {}
       })
     }
 
-    // Типы для #build/* и #i18n-internal/* (подключается в .nuxt/types/, nuxt.d.ts)
+    // Types for #build/* and #i18n-internal/* (included in .nuxt/types/, nuxt.d.ts)
     addTypeTemplate({
       filename: 'types/i18n-internal.d.ts',
       getContents: () => {
@@ -479,7 +479,7 @@ declare module '#i18n-internal/plural' {
       nuxt.hook('build:before', () => addDataRoutes([] as NuxtPage[]))
     }
 
-    // Алиасы #i18n-internal/* для Vite (плагины/рантайм резолвят при сборке)
+    // Aliases #i18n-internal/* for Vite (plugins/runtime resolve at build time)
     nuxt.hook('vite:extendConfig', (viteConfig) => {
       const resolve = viteConfig.resolve ?? {}
       ;(viteConfig as { resolve: typeof resolve }).resolve = resolve
@@ -500,20 +500,20 @@ declare module '#i18n-internal/plural' {
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
-      // Алиасы для Nitro: префикс #i18n-internal (не #build), чтобы Nitro/Rollup не блокировали
+      // Aliases for Nitro: prefix #i18n-internal (not #build) so Nitro/Rollup don't block them
       nitroConfig.alias = nitroConfig.alias || {}
       nitroConfig.alias['#i18n-internal/plural'] = pluralTemplate.dst
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
 
-      // Монтируем директории переводов как серверные ассеты.
-      // Это критично для поддержки serverless (Cloudflare Workers), где нет прямого доступа к FS.
+      // Mount translation directories as server assets.
+      // This is critical for serverless support (Cloudflare Workers) where there is no direct FS access.
       nitroConfig.serverAssets = nitroConfig.serverAssets || []
       rootDirs.forEach((dir, index) => {
         const dirPath = path.resolve(dir, options.translationDir || 'locales')
         if (fs.existsSync(dirPath)) {
           nitroConfig.serverAssets!.push({
-            // Даем уникальное имя каждому слою, чтобы потом найти их в рантайме
+            // Give each layer a unique name so we can find them at runtime
             baseName: `i18n_layer_${index}`,
             dir: dirPath,
           })

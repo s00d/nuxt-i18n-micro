@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+
+import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
 import { defineConfig } from 'vite'
 import solidPlugin from 'vite-plugin-solid'
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
 
 export default defineConfig({
   plugins: [

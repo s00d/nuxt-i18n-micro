@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { splitProps, createMemo, type Accessor, type Component, type JSX } from 'solid-js'
-import { useI18nRouter, useI18nContext } from '../injection'
+import { type Accessor, type Component, createMemo, type JSX, splitProps } from 'solid-js'
+import { useI18nContext, useI18nRouter } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
 
 interface I18nLinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -28,15 +27,12 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     if (local.localeRoute) {
       const res = local.localeRoute(local.to, currentLocale)
       result = typeof res === 'string' ? res : res?.path || '/'
-    }
-    else if (router?.resolvePath) {
+    } else if (router?.resolvePath) {
       const res = router.resolvePath(local.to, currentLocale)
-      result = typeof res === 'string' ? res : (res?.path || '/')
-    }
-    else if (typeof local.to === 'string') {
+      result = typeof res === 'string' ? res : res?.path || '/'
+    } else if (typeof local.to === 'string') {
       result = local.to
-    }
-    else {
+    } else {
       result = (local.to as { path?: string })?.path || '/'
     }
     return result
@@ -60,7 +56,11 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     // Получаем текущий путь - вызываем accessor внутри createMemo для реактивности
     const current = pathnameAccessor
       ? pathnameAccessor() // Вызов accessor внутри createMemo отслеживает изменения
-      : (router ? router.getCurrentPath() : (typeof window !== 'undefined' ? window.location.pathname : '/'))
+      : router
+        ? router.getCurrentPath()
+        : typeof window !== 'undefined'
+          ? window.location.pathname
+          : '/'
     const target = targetPath()
 
     // Нормализация для сравнения (убираем слэш в конце, если это не корень)
@@ -75,7 +75,7 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
     const baseStyle = local.style || {}
     // Вызываем isActive() внутри createMemo для отслеживания изменений
     const active = isActive()
-    const activeStyle = active ? (local.activeStyle || {}) : {}
+    const activeStyle = active ? local.activeStyle || {} : {}
 
     // SolidJS умеет работать с объектами стилей корректно при слиянии
     return {
@@ -90,47 +90,49 @@ export const I18nLink: Component<I18nLinkProps> = (props): JSX.Element => {
   if (isExternal()) {
     return (
       // @ts-expect-error - Type conflict with Vue JSX
-      <a
-        href={typeof local.to === 'string' ? local.to : ''}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={mergedStyle()}
-        {...(others as unknown as JSX.AnchorHTMLAttributes<HTMLAnchorElement>)}
-      >
-        {local.children}
-      </a>
-    ) as unknown as JSX.Element
+      (
+        <a
+          href={typeof local.to === 'string' ? local.to : ''}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={mergedStyle()}
+          {...(others as unknown as JSX.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        >
+          {local.children}
+        </a>
+      ) as unknown as JSX.Element
+    )
   }
 
   // Если есть linkComponent из роутера (например, A из @solidjs/router), используем его
   if (LinkComponent) {
     return (
       // @ts-expect-error - Type conflict with router component types
-      <LinkComponent
-        href={targetPath()}
-        style={mergedStyle()}
-        {...(others as unknown as Record<string, unknown>)}
-      >
-        {local.children}
-      </LinkComponent>
-    ) as unknown as JSX.Element
+      (
+        <LinkComponent href={targetPath()} style={mergedStyle()} {...(others as unknown as Record<string, unknown>)}>
+          {local.children}
+        </LinkComponent>
+      ) as unknown as JSX.Element
+    )
   }
 
   // Fallback на нативный <a> с onClick обработчиком
   return (
     // @ts-expect-error - Type conflict with Vue JSX
-    <a
-      href={targetPath()}
-      style={mergedStyle()}
-      {...(others as unknown as JSX.AnchorHTMLAttributes<HTMLAnchorElement>)}
-      onClick={(e: MouseEvent) => {
-        if (router && !isExternal()) {
-          e.preventDefault()
-          router.push({ path: targetPath() })
-        }
-      }}
-    >
-      {local.children}
-    </a>
-  ) as unknown as JSX.Element
+    (
+      <a
+        href={targetPath()}
+        style={mergedStyle()}
+        {...(others as unknown as JSX.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        onClick={(e: MouseEvent) => {
+          if (router && !isExternal()) {
+            e.preventDefault()
+            router.push({ path: targetPath() })
+          }
+        }}
+      >
+        {local.children}
+      </a>
+    ) as unknown as JSX.Element
+  )
 }

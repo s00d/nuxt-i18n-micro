@@ -51,7 +51,7 @@ test.describe('SEO with strategy: prefix', () => {
     expect(ogLocale).toBe('en_EN')
 
     const ogAlternate = await page.locator('meta[property="og:locale:alternate"]').all()
-    const contents = await Promise.all(ogAlternate.map(el => el.getAttribute('content')))
+    const contents = await Promise.all(ogAlternate.map((el) => el.getAttribute('content')))
     expect(contents).toContain('de_DE')
   })
 
@@ -62,11 +62,7 @@ test.describe('SEO with strategy: prefix', () => {
     const count = await links.count()
     expect(count).toBeGreaterThan(0)
 
-    const hreflangs = await Promise.all(
-      Array.from({ length: count }).map((_, i) =>
-        links.nth(i).getAttribute('hreflang'),
-      ),
-    )
+    const hreflangs = await Promise.all(Array.from({ length: count }).map((_, i) => links.nth(i).getAttribute('hreflang')))
     expect(hreflangs).toContain('en')
     expect(hreflangs).toContain('de')
   })

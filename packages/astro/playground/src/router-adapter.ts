@@ -6,12 +6,8 @@ import type { Locale } from '@i18n-micro/types'
  * Implements routing utilities for Astro file-based routing
  * Uses standard Astro APIs: Astro.url, context.url
  */
-export function createAstroRouterAdapter(
-  locales: Locale[],
-  defaultLocale: string,
-  getCurrentUrl?: () => URL,
-): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+export function createAstroRouterAdapter(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL): I18nRoutingStrategy {
+  const localeCodes = locales.map((loc) => loc.code)
 
   /**
    * Get route name from Astro path
@@ -43,11 +39,7 @@ export function createAstroRouterAdapter(
    * Get locale from path
    * Checks if first segment is a locale code
    */
-  const getLocaleFromPath = (
-    path: string,
-    defaultLocale: string = 'en',
-    locales: string[] = [],
-  ): string => {
+  const getLocaleFromPath = (path: string, defaultLocale: string = 'en', locales: string[] = []): string => {
     const segments = path.split('/').filter(Boolean)
     const firstSegment = segments[0]
     if (firstSegment && locales.includes(firstSegment)) {
@@ -61,12 +53,7 @@ export function createAstroRouterAdapter(
    * Switch locale in path
    * Replaces or adds locale prefix to path
    */
-  const switchLocalePath = (
-    path: string,
-    newLocale: string,
-    locales: string[] = [],
-    defaultLocale?: string,
-  ): string => {
+  const switchLocalePath = (path: string, newLocale: string, locales: string[] = [], defaultLocale?: string): string => {
     const segments = path.split('/').filter(Boolean)
 
     // Remove existing locale if present
@@ -86,12 +73,7 @@ export function createAstroRouterAdapter(
   /**
    * Localize path with locale prefix
    */
-  const localizePath = (
-    path: string,
-    locale: string,
-    locales: string[] = [],
-    defaultLocale?: string,
-  ): string => {
+  const localizePath = (path: string, locale: string, locales: string[] = [], defaultLocale?: string): string => {
     const cleanPath = path.replace(/^\//, '').replace(/\/$/, '') || ''
     const segments = cleanPath.split('/').filter(Boolean)
 
@@ -125,7 +107,7 @@ export function createAstroRouterAdapter(
    * Resolve path for specific locale
    */
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     return localizePath(path, locale, localeCodes, defaultLocale)
   }
 

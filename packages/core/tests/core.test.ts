@@ -1,4 +1,4 @@
-import { useTranslationHelper, interpolate } from '../src'
+import { interpolate, useTranslationHelper } from '../src'
 
 describe('Translation Helper', () => {
   const translations = {

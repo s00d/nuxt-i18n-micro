@@ -31,13 +31,15 @@ export interface I18nRoutingStrategy {
   /**
    * Component to use for rendering links (e.g., RouterLink)
    */
-  linkComponent?: string | Component<{
-    href: string
-    children?: JSX.Element
-    style?: JSX.CSSProperties
-    class?: string
-    [key: string]: unknown
-  }>
+  linkComponent?:
+    | string
+    | Component<{
+        href: string
+        children?: JSX.Element
+        style?: JSX.CSSProperties
+        class?: string
+        [key: string]: unknown
+      }>
 
   /**
    * Function to navigate to another route/locale

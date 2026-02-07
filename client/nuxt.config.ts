@@ -1,6 +1,6 @@
+import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { resolve, dirname } from 'node:path'
-import { existsSync, cpSync, rmSync, mkdirSync } from 'node:fs'
 import DevtoolsUIKit from '@nuxt/devtools-ui-kit'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
@@ -9,9 +9,7 @@ const currentDir = dirname(fileURLToPath(import.meta.url))
 const targetDistDir = resolve(currentDir, '../dist/client')
 
 export default defineNuxtConfig({
-  modules: [
-    DevtoolsUIKit,
-  ],
+  modules: [DevtoolsUIKit],
 
   $production: {
     app: {
@@ -64,8 +62,7 @@ export default defineNuxtConfig({
         cpSync(outputDir, targetDistDir, { recursive: true })
 
         console.log('[i18n-client] Build successfully copied to root dist/client')
-      }
-      else {
+      } else {
         console.error(`[i18n-client] Error: Build output not found at ${outputDir}`)
       }
     },

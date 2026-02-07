@@ -47,7 +47,10 @@ function runQueryHashTests(strategy: StrategyName, _expectedEnPath: string) {
       const path = '/news/2'
       const query = r.query ?? {}
       const hash = (r as { hash?: string }).hash ?? ''
-      const fullPath = path + (Object.keys(query).length ? '?' + new URLSearchParams(query as Record<string, string>).toString() : '') + (hash ? (hash.startsWith('#') ? hash : '#' + hash) : '')
+      const fullPath =
+        path +
+        (Object.keys(query).length ? `?${new URLSearchParams(query as Record<string, string>).toString()}` : '') +
+        (hash ? (hash.startsWith('#') ? hash : `#${hash}`) : '')
       return {
         name: r.name ?? null,
         path,
@@ -73,7 +76,10 @@ function runQueryHashTests(strategy: StrategyName, _expectedEnPath: string) {
       const path = '/news/2'
       const query = r.query ?? {}
       const hash = (r as { hash?: string }).hash ?? ''
-      const fullPath = path + (Object.keys(query).length ? '?' + new URLSearchParams(query as Record<string, string>).toString() : '') + (hash ? (hash.startsWith('#') ? hash : '#' + hash) : '')
+      const fullPath =
+        path +
+        (Object.keys(query).length ? `?${new URLSearchParams(query as Record<string, string>).toString()}` : '') +
+        (hash ? (hash.startsWith('#') ? hash : `#${hash}`) : '')
       return { name: r.name ?? null, path, fullPath, params: r.params ?? {}, query, hash }
     }
     const s = createPathStrategy(makeCtx(strategy, { router }))

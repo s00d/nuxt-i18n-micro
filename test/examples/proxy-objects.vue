@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with Proxy objects
 const localeConfig = {
@@ -13,8 +12,8 @@ const localeConfig = {
   paths: {
     en: '/welcome',
     de: '/willkommen',
-    fr: '/bienvenue'
-  }
+    fr: '/bienvenue',
+  },
 }
 
 const proxy = new Proxy(localeConfig, {
@@ -23,11 +22,11 @@ const proxy = new Proxy(localeConfig, {
       return target.paths
     }
     return target[prop as keyof typeof target]
-  }
+  },
 })
 
 $defineI18nRoute({
   locales: proxy.locales,
-  localeRoutes: proxy.localeRoutes
+  localeRoutes: proxy.localeRoutes,
 })
 </script>

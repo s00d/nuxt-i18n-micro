@@ -1,22 +1,16 @@
+import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import type { ComponentChildren } from 'preact'
 import { h } from 'preact'
 import { useEffect, useState } from 'preact/hooks'
-import type { ComponentChildren } from 'preact'
 import type { PreactI18n } from './i18n'
-import type {
-  Translations,
-  Params,
-  TranslationKey,
-  CleanTranslation,
-  Locale,
-} from '@i18n-micro/types'
 import {
   I18nContext,
-  I18nLocalesContext,
   I18nDefaultLocaleContext,
+  I18nLocalesContext,
   I18nRouterContext,
   useI18nContext,
-  useI18nLocales,
   useI18nDefaultLocale,
+  useI18nLocales,
   useI18nRouter,
 } from './injection'
 import type { I18nRoutingStrategy } from './router/types'
@@ -41,13 +35,7 @@ export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, ch
             ? h(
                 I18nDefaultLocaleContext.Provider,
                 { value: defaultLocale },
-                routingStrategy
-                  ? h(
-                      I18nRouterContext.Provider,
-                      { value: routingStrategy },
-                      children,
-                    )
-                  : children,
+                routingStrategy ? h(I18nRouterContext.Provider, { value: routingStrategy }, children) : children,
               )
             : children,
         )
@@ -107,7 +95,7 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
   useEffect(() => {
     // subscribe возвращает функцию отписки
     const unsubscribe = i18n.subscribe(() => {
-      forceUpdate(n => n + 1)
+      forceUpdate((n) => n + 1)
     })
     return unsubscribe
   }, [i18n])
@@ -162,7 +150,7 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
     getLocales: () => locales,
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
-      const current = locales.find(l => l.code === i18n.locale)
+      const current = locales.find((l) => l.code === i18n.locale)
       return current?.displayName || null
     },
 
@@ -171,7 +159,7 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
     localeRoute: resolveLocalePath,
     localePath: (to: string | { path?: string }, locale?: string) => {
       const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : (res.path || '/')
+      return typeof res === 'string' ? res : res.path || '/'
     },
 
     // Translation management

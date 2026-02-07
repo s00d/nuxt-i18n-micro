@@ -1,4 +1,4 @@
-import type { Params, Strategies, PluralFunc, Getter, TranslationKey } from '@i18n-micro/types'
+import type { Getter, Params, PluralFunc, Strategies, TranslationKey } from '@i18n-micro/types'
 
 const RE_TOKEN = /\{(\w+)\}/g
 

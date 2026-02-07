@@ -1,4 +1,8 @@
 import type { NuxtPage } from '@nuxt/schema'
+import { generateAliasRoutes } from '../core/alias'
+import { createRoute, resolveChildPath } from '../core/builder'
+import type { GeneratorContext } from '../core/context'
+import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import {
   buildFullPath,
   buildRouteName,
@@ -9,10 +13,6 @@ import {
   removeLeadingSlash,
   shouldAddLocalePrefix,
 } from '../utils'
-import { createRoute, resolveChildPath } from '../core/builder'
-import { generateAliasRoutes } from '../core/alias'
-import type { GeneratorContext } from '../core/context'
-import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import { BaseStrategy } from './abstract'
 
 export class PrefixExceptDefaultStrategy extends BaseStrategy {
@@ -52,9 +52,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     }
 
     // 2. Non-default locales: prefixed routes
-    const nonDefaultLocales = context.locales.filter(
-      locale => allowedLocales.includes(locale.code) && locale.code !== defaultLocaleCode,
-    )
+    const nonDefaultLocales = context.locales.filter((locale) => allowedLocales.includes(locale.code) && locale.code !== defaultLocaleCode)
 
     if (nonDefaultLocales.length) {
       if (customPaths) {
@@ -74,8 +72,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
               context,
             )
             if (newRoute) result.push(newRoute)
-          }
-          else {
+          } else {
             const newRoute = this.createLocalizedRoute(
               page,
               [locale.code],
@@ -91,9 +88,8 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
             if (newRoute) result.push(newRoute)
           }
         }
-      }
-      else {
-        const localeCodes = nonDefaultLocales.map(l => l.code)
+      } else {
+        const localeCodes = nonDefaultLocales.map((l) => l.code)
         const newRoute = this.createLocalizedRoute(
           page,
           localeCodes,
@@ -127,8 +123,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
       const name = page.name ?? ''
       if (typeof name === 'string' && name.startsWith(context.localizedRouteNamePrefix)) {
         localizedPages.push(page)
-      }
-      else {
+      } else {
         basePages.push(page)
       }
     }
@@ -156,17 +151,8 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     localizedParentPaths: Record<string, string> = {},
     context: GeneratorContext,
   ): NuxtPage[] {
-    return routes.flatMap(route =>
-      this.createLocalizedVariants(
-        route,
-        parentPath,
-        localeCodes,
-        modifyName,
-        addLocalePrefix,
-        parentLocale,
-        localizedParentPaths,
-        context,
-      ),
+    return routes.flatMap((route) =>
+      this.createLocalizedVariants(route, parentPath, localeCodes, modifyName, addLocalePrefix, parentLocale, localizedParentPaths, context),
     )
   }
 
@@ -223,25 +209,17 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
 
       const customPath = customLocalePaths?.[locale]
 
-      let basePath = customPath
-        ? normalizePath(customPath)
-        : normalizePath(route.path ?? '')
+      let basePath = customPath ? normalizePath(customPath) : normalizePath(route.path ?? '')
 
       if (hasParentLocalized && parentLocalizedPath) {
         if (customPath) {
           basePath = normalizePath(customPath)
-        }
-        else {
+        } else {
           basePath = resolveChildPath(parentLocalizedPath, route.path ?? '')
         }
       }
 
-      const finalRoutePath = shouldAddLocalePrefix(
-        locale,
-        context.defaultLocale,
-        addLocalePrefix,
-        false,
-      )
+      const finalRoutePath = shouldAddLocalePrefix(locale, context.defaultLocale, addLocalePrefix, false)
         ? buildFullPath(locale, basePath, context.customRegex)
         : basePath
 
@@ -323,7 +301,12 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     const firstLocale = localeCodes[0]
     if (!firstLocale) return null
     const parentPathForChildren = originalPagePath ?? page.path ?? ''
-    const routeName = buildRouteName(buildRouteNameFromRoute(page.name ?? '', parentPathForChildren), firstLocale, isCustom, context.localizedRouteNamePrefix)
+    const routeName = buildRouteName(
+      buildRouteNameFromRoute(page.name ?? '', parentPathForChildren),
+      firstLocale,
+      isCustom,
+      context.localizedRouteNamePrefix,
+    )
 
     return createRoute(page, {
       path: routePath,
@@ -356,11 +339,8 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
       return `${context.localizedRouteNamePrefix}${baseName}-${locale}`
     }
 
-    const shouldAddLocaleSuffix = locale
-      && !isLocaleDefault(locale, context.defaultLocale, false)
+    const shouldAddLocaleSuffix = locale && !isLocaleDefault(locale, context.defaultLocale, false)
 
-    return shouldAddLocaleSuffix
-      ? `${context.localizedRouteNamePrefix}${baseName}-${locale}`
-      : `${context.localizedRouteNamePrefix}${baseName}`
+    return shouldAddLocaleSuffix ? `${context.localizedRouteNamePrefix}${baseName}-${locale}` : `${context.localizedRouteNamePrefix}${baseName}`
   }
 }

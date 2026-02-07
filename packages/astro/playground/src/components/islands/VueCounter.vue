@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { provideI18n } from '@i18n-micro/astro/client/vue'
-import { translate } from '@i18n-micro/astro/client'
-import { defaultPlural, FormatService } from '@i18n-micro/core'
 import type { I18nClientProps } from '@i18n-micro/astro'
+import { translate } from '@i18n-micro/astro/client'
+import { provideI18n } from '@i18n-micro/astro/client/vue'
+import { defaultPlural, FormatService } from '@i18n-micro/core'
 import type { Params, TranslationKey } from '@i18n-micro/types'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
   i18n: I18nClientProps
@@ -30,13 +30,7 @@ const tc = (key: TranslationKey, count: number | Params, defaultValue?: string) 
     return t(k, p, dv)
   }
 
-  const result = defaultPlural(
-    key,
-    Number.parseInt(countValue.toString(), 10),
-    params,
-    state.value.locale,
-    getter,
-  )
+  const result = defaultPlural(key, Number.parseInt(countValue.toString(), 10), params, state.value.locale, getter)
 
   return result ?? defaultValue ?? (key as string)
 }

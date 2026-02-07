@@ -51,7 +51,7 @@ const tree = computed<TreeNode[]>(() => {
       if (!part) continue
       const isFile = index === relativePath.length - 1
 
-      let child = current.children.find(node => node.name === part)
+      let child = current.children.find((node) => node.name === part)
       if (!child) {
         child = {
           name: part,
@@ -85,16 +85,15 @@ const tree = computed<TreeNode[]>(() => {
 function findCommonPrefix(files: string[]): string {
   if (files.length === 0) return ''
 
-  const paths = files.map(p => p.split('/'))
+  const paths = files.map((p) => p.split('/'))
   const commonSegments: string[] = []
-  const maxDepth = Math.min(...paths.map(p => p.length))
+  const maxDepth = Math.min(...paths.map((p) => p.length))
 
   for (let i = 0; i < maxDepth; i++) {
     const segment = paths[0]?.[i]
-    if (segment && paths.every(p => p[i] === segment)) {
+    if (segment && paths.every((p) => p[i] === segment)) {
       commonSegments.push(segment)
-    }
-    else {
+    } else {
       break
     }
   }
@@ -103,7 +102,7 @@ function findCommonPrefix(files: string[]): string {
 }
 
 function extractName(path: string): string {
-  const parts = path.split('/').filter(p => p)
+  const parts = path.split('/').filter((p) => p)
   return parts[parts.length - 1] || ''
 }
 

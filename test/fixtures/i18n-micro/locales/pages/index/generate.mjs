@@ -27,8 +27,7 @@ function generateTranslations(locale, level = 5) {
 
     if (level > 1) {
       translations[key] = generateTranslations(locale, level - 1)
-    }
-    else {
+    } else {
       translations[key] = generateTextForLocale(locale)
     }
   }
@@ -43,7 +42,7 @@ function generateStructuredTranslations(locales, level = 5) {
 
   locales.forEach((locale) => {
     structuredTranslations[locale] = JSON.parse(
-      JSON.stringify(baseStructure, (key, value) => {
+      JSON.stringify(baseStructure, (_key, value) => {
         if (typeof value === 'string') {
           return generateTextForLocale(locale)
         }

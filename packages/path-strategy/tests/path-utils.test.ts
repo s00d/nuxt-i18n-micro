@@ -2,13 +2,13 @@
  * Unit tests for path utils: parentKeyFromSlashKey, lastPathSegment, nameKeyFirstSlash, nameKeyLastSlash.
  */
 import {
-  parentKeyFromSlashKey,
+  getParentPath,
+  joinUrl,
   lastPathSegment,
   nameKeyFirstSlash,
   nameKeyLastSlash,
-  joinUrl,
   normalizePath,
-  getParentPath,
+  parentKeyFromSlashKey,
   transformNameKeyToPath,
 } from '../src/utils/path'
 

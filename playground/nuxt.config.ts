@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
-import { defineNuxtConfig } from 'nuxt/config'
-import { defineNuxtModule } from '@nuxt/kit'
 import { startSubprocess } from '@nuxt/devtools-kit'
+import { defineNuxtModule } from '@nuxt/kit'
+import { defineNuxtConfig } from 'nuxt/config'
 
 const routesLocaleLinks: Record<string, string> = {
   'dir1-slug': 'dir1',
@@ -15,8 +15,7 @@ export default defineNuxtConfig({
     '../packages/types-generator/src/nuxt',
     defineNuxtModule({
       setup(_, nuxt) {
-        if (!nuxt.options.dev)
-          return
+        if (!nuxt.options.dev) return
 
         startSubprocess(
           {
@@ -66,7 +65,7 @@ export default defineNuxtConfig({
     // noPrefixRedirect: true,
     globalLocaleRoutes: {
       // pages/page.vue
-      'page': {
+      page: {
         en: '/pageEN',
         de: '/seite',
         ru: '/stranitsa',
@@ -80,10 +79,8 @@ export default defineNuxtConfig({
       },
 
       // pages/unlocalized.vue
-      'unlocalized': false,
+      unlocalized: false,
     },
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     plural: (key, count, params, _locale, getTranslation) => {
       const translation = getTranslation(key, params)
       if (!translation) {
@@ -96,12 +93,7 @@ export default defineNuxtConfig({
       return selectedForm.trim().replace('{count}', count.toString())
     },
     // Test excludePatterns functionality
-    excludePatterns: [
-      '/sitemap*.xml',
-      '/robots.txt',
-      '/api/**',
-      /\.(pdf|doc)$/,
-    ],
+    excludePatterns: ['/sitemap*.xml', '/robots.txt', '/api/**', /\.(pdf|doc)$/],
     previousPageFallback: false,
   },
   i18nTypes: {

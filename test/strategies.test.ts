@@ -10,20 +10,14 @@
  * Запуск только этого файла: pnpm exec vitest run test/strategies.test.ts
  */
 
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { spawn, type ChildProcess, exec as execCb } from 'node:child_process'
-import { promisify } from 'node:util'
+import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
 import net from 'node:net'
+import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
+import { promisify } from 'node:util'
 import { rimraf } from 'rimraf'
-import {
-  describe,
-  it,
-  beforeAll,
-  afterAll,
-  expect,
-} from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 /* ──────────────── settings ──────────────── */
 
@@ -32,19 +26,33 @@ const HOST = 'localhost'
 
 const ROUTES = {
   no_prefix: [
-    ['/', 'en'], ['/contact', 'contact'], ['/kontakt', 'contact'],
+    ['/', 'en'],
+    ['/contact', 'contact'],
+    ['/kontakt', 'contact'],
   ],
   prefix_except_default: [
-    ['/', 'en'], ['/ru', 'ru'], ['/de', 'de'],
-    ['/ru/contact', 'contact'], ['/de/kontakt', 'contact'],
+    ['/', 'en'],
+    ['/ru', 'ru'],
+    ['/de', 'de'],
+    ['/ru/contact', 'contact'],
+    ['/de/kontakt', 'contact'],
   ],
   prefix: [
-    ['/en', 'en'], ['/ru', 'ru'], ['/de', 'de'],
-    ['/en/contact', 'contact'], ['/ru/contact', 'contact'], ['/de/kontakt', 'contact'],
+    ['/en', 'en'],
+    ['/ru', 'ru'],
+    ['/de', 'de'],
+    ['/en/contact', 'contact'],
+    ['/ru/contact', 'contact'],
+    ['/de/kontakt', 'contact'],
   ],
   prefix_and_default: [
-    ['/', 'en'], ['/en', 'en'], ['/ru', 'ru'], ['/de', 'de'],
-    ['/en/contact', 'contact'], ['/ru/contact', 'contact'], ['/de/kontakt', 'contact'],
+    ['/', 'en'],
+    ['/en', 'en'],
+    ['/ru', 'ru'],
+    ['/de', 'de'],
+    ['/en/contact', 'contact'],
+    ['/ru/contact', 'contact'],
+    ['/de/kontakt', 'contact'],
   ],
 } as const
 
@@ -64,14 +72,15 @@ export async function getFreePort(base = 10011, max = 20): Promise<number> {
 
         srv.once('listening', () => {
           // close server and resolve promise, maintaining signature (err?: Error)
-          srv.close(err => err ? reject(err) : resolve())
+          srv.close((err) => (err ? reject(err) : resolve()))
         })
 
         srv.listen(port, '127.0.0.1')
       })
       return port // ← free port found
+    } catch {
+      /* port busy, try next */
     }
-    catch { /* port busy, try next */ }
   }
   throw new Error(`No free port in range ${base}-${base + max}`)
 }
@@ -81,21 +90,22 @@ async function freePort(port: number) {
   if (process.platform === 'win32') {
     try {
       const { stdout } = await exec(`netstat -ano | findstr :${port}`)
-      const pids = stdout.trim().split('\n')
-        .map(l => l.trim().split(/\s+/).pop())
+      const pids = stdout
+        .trim()
+        .split('\n')
+        .map((l) => l.trim().split(/\s+/).pop())
         .filter(Boolean)
-      for (const pid of pids)
-        await exec(`taskkill /PID ${pid} /F`)
+      for (const pid of pids) await exec(`taskkill /PID ${pid} /F`)
+    } catch {
+      /* empty */
     }
-    catch { /* empty */ }
-  }
-  else {
+  } else {
     try {
       const { stdout } = await exec(`lsof -ti tcp:${port}`)
-      for (const pid of stdout.trim().split('\n').filter(Boolean))
-        process.kill(Number(pid), 'SIGKILL')
+      for (const pid of stdout.trim().split('\n').filter(Boolean)) process.kill(Number(pid), 'SIGKILL')
+    } catch {
+      /* empty */
     }
-    catch { /* empty */ }
   }
 }
 
@@ -104,8 +114,9 @@ async function waitForText(url: string, text: string, tries = 40, ms = 500) {
   for (let i = 0; i < tries; i++) {
     try {
       if ((await (await fetch(url)).text()).includes(text)) return
+    } catch {
+      /* server not started */
     }
-    catch { /* server not started */ }
     await delay(ms)
   }
   throw new Error(`"${text}" not found at ${url}`)
@@ -133,11 +144,7 @@ function runNuxt(script: 'generate' | 'build', strategy: string): Promise<void> 
       env,
     })
     child.unref()
-    child.on('exit', code =>
-      code === 0
-        ? resolve()
-        : reject(new Error(`npm run ${script} exited with code ${code}`)),
-    )
+    child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`npm run ${script} exited with code ${code}`))))
   })
 }
 
@@ -176,68 +183,65 @@ async function htmlIncludes(port: number, path: string, text: string) {
 
 /* ──────────────── tests ──────────────── */
 
-describe.each(Object.entries(ROUTES))(
-  '[%s] strategy',
-  (strategy, routes) => {
-    let port: number
-    let server: ChildProcess | null = null
+describe.each(Object.entries(ROUTES))('[%s] strategy', (strategy, routes) => {
+  let port: number
+  let server: ChildProcess | null = null
 
-    const stop = async () => {
-      if (server && !server.killed) server.kill()
-      server = null
-      if (port) await freePort(port)
-    }
+  const stop = async () => {
+    if (server && !server.killed) server.kill()
+    server = null
+    if (port) await freePort(port)
+  }
 
-    /* ---------- STATIC ---------- */
-    describe('static generate', () => {
-      beforeAll(async () => {
-        port = await getFreePort()
-        await stop()
-        await delay(800) // дать ОС освободить порт после предыдущего сервера
-        await rimraf(join(FIXTURES, '.nuxt'))
-        await rimraf(join(FIXTURES, '.output'))
-        await runNuxt('generate', strategy)
+  /* ---------- STATIC ---------- */
+  describe('static generate', () => {
+    beforeAll(async () => {
+      port = await getFreePort()
+      await stop()
+      await delay(800) // дать ОС освободить порт после предыдущего сервера
+      await rimraf(join(FIXTURES, '.nuxt'))
+      await rimraf(join(FIXTURES, '.output'))
+      await runNuxt('generate', strategy)
 
-        server = serve(['npx', 'serve', '.output/public', '-p', String(port)], port)
-        await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
-      }, 300_000)
+      server = serve(['npx', 'serve', '.output/public', '-p', String(port)], port)
+      await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
+    }, 300_000)
 
-      afterAll(async () => {
-        await stop()
-        await delay(500) // освобождение порта перед следующим сценарием
-      })
-
-      routes.forEach(([path, text]) => {
-        it(`GET ${path} → contains "${text}"`, async () => {
-          await htmlIncludes(port, path, text)
-        })
-      })
+    afterAll(async () => {
+      await stop()
+      await delay(500) // освобождение порта перед следующим сценарием
     })
 
-    /* ---------- SSR ---------- */
-    describe('ssr build', () => {
-      beforeAll(async () => {
-        port = await getFreePort()
-        await stop()
-        await delay(800) // дать ОС освободить порт после предыдущего сервера
-        await rimraf(join(FIXTURES, '.nuxt'))
-        await rimraf(join(FIXTURES, '.output'))
-        await runNuxt('build', strategy)
-
-        server = serve(['node', '.output/server/index.mjs'], port)
-        await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
-      }, 300_000)
-
-      afterAll(async () => {
-        await stop()
-        await delay(500) // освобождение порта перед следующим сценарием
-      })
-
-      routes.forEach(([path, text]) => {
-        it(`GET ${path} → contains "${text}"`, async () => {
-          await htmlIncludes(port, path, text)
-        })
+    routes.forEach(([path, text]) => {
+      it(`GET ${path} → contains "${text}"`, async () => {
+        await htmlIncludes(port, path, text)
       })
     })
-  },
-)
+  })
+
+  /* ---------- SSR ---------- */
+  describe('ssr build', () => {
+    beforeAll(async () => {
+      port = await getFreePort()
+      await stop()
+      await delay(800) // дать ОС освободить порт после предыдущего сервера
+      await rimraf(join(FIXTURES, '.nuxt'))
+      await rimraf(join(FIXTURES, '.output'))
+      await runNuxt('build', strategy)
+
+      server = serve(['node', '.output/server/index.mjs'], port)
+      await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
+    }, 300_000)
+
+    afterAll(async () => {
+      await stop()
+      await delay(500) // освобождение порта перед следующим сценарием
+    })
+
+    routes.forEach(([path, text]) => {
+      it(`GET ${path} → contains "${text}"`, async () => {
+        await htmlIncludes(port, path, text)
+      })
+    })
+  })
+})

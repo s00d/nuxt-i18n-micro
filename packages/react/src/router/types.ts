@@ -15,13 +15,15 @@ export interface I18nRoutingStrategy {
   /**
    * Component to use for rendering links (e.g., RouterLink)
    */
-  linkComponent?: string | React.ComponentType<{
-    href: string
-    children?: React.ReactNode
-    style?: React.CSSProperties
-    className?: string
-    [key: string]: unknown
-  }>
+  linkComponent?:
+    | string
+    | React.ComponentType<{
+        href: string
+        children?: React.ReactNode
+        style?: React.CSSProperties
+        className?: string
+        [key: string]: unknown
+      }>
 
   /**
    * Function to navigate to another route/locale

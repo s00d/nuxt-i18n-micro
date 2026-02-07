@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { createI18nStore, useAstroI18n } from '@i18n-micro/astro/client/svelte'
-  import type { I18nClientProps } from '@i18n-micro/astro'
+import type { I18nClientProps } from '@i18n-micro/astro'
+import { createI18nStore, useAstroI18n } from '@i18n-micro/astro/client/svelte'
 
-  export let i18n: I18nClientProps
+export let i18n: I18nClientProps
 
-  // Создаем store и инициализируем хук
-  const i18nStore = createI18nStore(i18n)
-  const { t, locale, tn, tc } = useAstroI18n(i18nStore)
+// Создаем store и инициализируем хук
+const i18nStore = createI18nStore(i18n)
+const { t, locale, tn, tc } = useAstroI18n(i18nStore)
 
-  let count = 0
-  const increment = () => count++
+let count = 0
+const increment = () => count++
 </script>
 
 <div class="island-card svelte-card">

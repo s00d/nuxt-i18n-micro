@@ -25,8 +25,7 @@ export const normalizePath = (routePath: string): string => {
   return normalized === '.' ? '' : normalized
 }
 
-export const removeLeadingSlash = (routePath: string): string =>
-  routePath.startsWith('/') ? routePath.slice(1) : routePath
+export const removeLeadingSlash = (routePath: string): string => (routePath.startsWith('/') ? routePath.slice(1) : routePath)
 
 export function joinPath(...segments: string[]): string {
   return path.posix.join(...segments)

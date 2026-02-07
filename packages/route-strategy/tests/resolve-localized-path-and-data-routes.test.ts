@@ -1,6 +1,6 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
-import { locales, defaultLocaleCode, createBasicPages } from './helpers'
+import { createBasicPages, defaultLocaleCode, locales } from './helpers'
 
 describe('RouteGenerator.resolveLocalizedPath', () => {
   test('no_prefix: returns path without locale prefix for any locale', () => {
@@ -192,7 +192,7 @@ describe('RouteGenerator.generateDataRoutes', () => {
     const routes = generator.generateDataRoutes(pages, apiBaseUrl, true)
     const generalCount = 3
     expect(routes).toHaveLength(generalCount)
-    expect(routes.every(r => r.includes('/general/'))).toBe(true)
+    expect(routes.every((r) => r.includes('/general/'))).toBe(true)
   })
 
   test('skips pages without name', () => {
@@ -210,7 +210,7 @@ describe('RouteGenerator.generateDataRoutes', () => {
     })
     const routes = generator.generateDataRoutes(pages, apiBaseUrl, false)
     expect(routes).toContain(`/${apiBaseUrl}/about/en/data.json`)
-    expect(routes.filter(r => r.includes('/noname/'))).toHaveLength(0)
+    expect(routes.filter((r) => r.includes('/noname/'))).toHaveLength(0)
     expect(routes).toHaveLength(3 + 3 * 1) // 3 general + 3 locales * 1 named page
   })
 

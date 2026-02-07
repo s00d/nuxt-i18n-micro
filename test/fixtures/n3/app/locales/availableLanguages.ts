@@ -1,4 +1,4 @@
-const availableLanguages: Array<{ code: string, name: string }> = [
+const availableLanguages: Array<{ code: string; name: string }> = [
   {
     code: 'de',
     name: 'Deutsch',

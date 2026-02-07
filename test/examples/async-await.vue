@@ -22,7 +22,6 @@ const fetchPaths = async () => {
 const locales = await fetchLocales()
 const paths = await fetchPaths()
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: locales,

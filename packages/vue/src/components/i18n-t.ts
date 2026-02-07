@@ -1,7 +1,7 @@
-import { defineComponent, h, inject, type PropType, type VNode } from 'vue'
 import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import { I18nInjectionKey } from '../injection'
+import { defineComponent, h, inject, type PropType, type VNode } from 'vue'
 import type { VueI18n } from '../composer'
+import { I18nInjectionKey } from '../injection'
 
 export const I18nT = defineComponent({
   name: 'I18nT',
@@ -82,7 +82,7 @@ export const I18nT = defineComponent({
 
       // Handle pluralization
       if (props.plural !== undefined) {
-        const count = Number.parseInt(props.plural.toString())
+        const count = Number.parseInt(props.plural.toString(), 10)
         if (props.customPluralRule) {
           const translation = props.customPluralRule(
             props.keypath,
@@ -92,8 +92,7 @@ export const I18nT = defineComponent({
             (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => i18n.t(k, p, dv, route),
           )
           return h(props.tag, { ...attrs, innerHTML: translation || '' })
-        }
-        else {
+        } else {
           const translation = i18n.tc(props.keypath, { count, ...props.params })
           return h(props.tag, { ...attrs, innerHTML: translation })
         }
@@ -112,11 +111,7 @@ export const I18nT = defineComponent({
 
       // Handle slots
       if (slots.default) {
-        return h(
-          props.tag,
-          attrs,
-          slots.default({ translation }),
-        )
+        return h(props.tag, attrs, slots.default({ translation }))
       }
 
       // Handle named slots for interpolation
@@ -147,11 +142,7 @@ export const I18nT = defineComponent({
       }
 
       if (slots.default) {
-        return h(
-          props.tag,
-          attrs,
-          slots.default({ children }),
-        )
+        return h(props.tag, attrs, slots.default({ children }))
       }
 
       if (children.length > 0) {

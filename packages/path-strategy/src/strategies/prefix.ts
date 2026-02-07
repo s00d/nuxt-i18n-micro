@@ -1,7 +1,7 @@
-import type { ResolvedRouteLike } from '../core/types'
-import { BasePathStrategy } from './base-strategy'
 import { cleanDoubleSlashes, isSamePath, withoutLeadingSlash } from 'ufo'
+import type { ResolvedRouteLike } from '../core/types'
 import { getCleanPath, joinUrl, normalizePath, normalizePathForCompare } from '../utils/path'
+import { BasePathStrategy } from './base-strategy'
 
 export class PrefixPathStrategy extends BasePathStrategy {
   protected buildLocalizedPath(path: string, locale: string, _isCustom: boolean): string {

@@ -1,5 +1,5 @@
+import type { Locale, ModuleOptions } from '@i18n-micro/types'
 import type { I18nDevToolsBridge, LocaleData, TranslationContent } from './interface'
-import type { ModuleOptions, Locale } from '@i18n-micro/types'
 
 /**
  * Adapter interface for accessing i18n instance data
@@ -124,8 +124,7 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
           if (locale && routeName) {
             adapter.addRouteTranslations(locale, routeName, content, false)
           }
-        }
-        else {
+        } else {
           // 2. Check for global: {locale}.json
           const globalMatch = normalizedPath.match(/^([^/]+)\.json$/)
           if (globalMatch) {
@@ -134,8 +133,7 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
             if (locale) {
               adapter.addTranslations(locale, content, false)
             }
-          }
-          else {
+          } else {
             throw new Error(`Unknown file path format: ${filePath}`)
           }
         }
@@ -162,21 +160,18 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
           }
 
           console.log(`[i18n-bridge] Saved to disk: ${realFilePath}`)
-        }
-        catch (serverError) {
+        } catch (serverError) {
           // Fallback: Save to localStorage if server is unavailable (e.g., in production preview)
           if (typeof localStorage !== 'undefined') {
             console.warn('[i18n-bridge] Server save failed, falling back to localStorage:', serverError)
             const storageKey = `i18n_save_${filePath}`
             localStorage.setItem(storageKey, JSON.stringify(content, null, 2))
-          }
-          else {
+          } else {
             // If no server and no localStorage, throw error
             throw serverError
           }
         }
-      }
-      catch (error) {
+      } catch (error) {
         throw new Error(`Failed to save: ${error instanceof Error ? error.message : String(error)}`)
       }
     },

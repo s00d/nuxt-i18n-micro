@@ -1,13 +1,13 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-object-type */
 // @ts-nocheck
+
+import { createI18n, createReactRouterAdapter, I18nLink, I18nProvider, I18nSwitcher, useI18n } from '@i18n-micro/react'
+import type { Locale } from '@i18n-micro/types'
 import type React from 'react'
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useParams, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { createI18n, I18nProvider, useI18n, I18nLink, I18nSwitcher, createReactRouterAdapter } from '@i18n-micro/react'
-import type { Locale } from '@i18n-micro/types'
-import { Home } from './pages/Home'
+import { BrowserRouter, Outlet, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { About } from './pages/About'
 import { Components } from './pages/Components'
+import { Home } from './pages/Home'
 
 const localesConfig: Locale[] = [
   { code: 'en', displayName: 'English', iso: 'en-US' },
@@ -20,8 +20,7 @@ async function loadTranslations(locale: string) {
   try {
     const messages = await import(`./locales/${locale}.json`)
     return messages.default
-  }
-  catch (error) {
+  } catch (error) {
     console.error(`Failed to load translations for locale: ${locale}`, error)
     return {}
   }
@@ -41,7 +40,7 @@ async function initApp() {
   // Simple check for initial locale from URL to prioritize loading
   const path = window.location.pathname
   const firstSegment = path.split('/')[1]
-  const initialLocale = localesConfig.some(l => l.code === firstSegment) ? firstSegment : 'en'
+  const initialLocale = localesConfig.some((l) => l.code === firstSegment) ? firstSegment : 'en'
 
   // Load initial locale
   const translations = await loadTranslations(initialLocale)
@@ -51,8 +50,8 @@ async function initApp() {
   }
 
   // Preload other locales in background
-  const otherLocales = localesConfig.map(l => l.code).filter(c => c !== initialLocale)
-  Promise.all(otherLocales.map(code => loadTranslations(code).then(msgs => ({ code, msgs }))))
+  const otherLocales = localesConfig.map((l) => l.code).filter((c) => c !== initialLocale)
+  Promise.all(otherLocales.map((code) => loadTranslations(code).then((msgs) => ({ code, msgs }))))
     .then((results) => {
       results.forEach(({ code, msgs }) => {
         i18n.addTranslations(code, msgs, false)
@@ -139,22 +138,22 @@ const AppRoutes: React.FC<{}> = () => {
         {/* @ts-expect-error - React Router type issue - element prop */}
         <Route element={<LocaleHandler />}>
           {/* @ts-expect-error - React Router type issue */}
-          <Route path="/" element={<Home /> as any} />
+          <Route path="/" element={(<Home />) as any} />
           {/* @ts-expect-error - React Router type issue */}
-          <Route path="/about" element={<About /> as any} />
+          <Route path="/about" element={(<About />) as any} />
           {/* @ts-expect-error - React Router type issue */}
-          <Route path="/components" element={<Components /> as any} />
+          <Route path="/components" element={(<Components />) as any} />
         </Route>
 
         {/* Localized routes */}
         {/* @ts-expect-error - React Router type issue */}
         <Route path="/:locale" element={<LocaleHandler />}>
           {/* @ts-expect-error - React Router type issue */}
-          <Route index element={<Home /> as any} />
+          <Route index element={(<Home />) as any} />
           {/* @ts-expect-error - React Router type issue */}
-          <Route path="about" element={<About /> as any} />
+          <Route path="about" element={(<About />) as any} />
           {/* @ts-expect-error - React Router type issue */}
-          <Route path="components" element={<Components /> as any} />
+          <Route path="components" element={(<Components />) as any} />
         </Route>
       </Route>
     </Routes>
@@ -169,12 +168,7 @@ const RouterRoot: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const routingStrategy = createReactRouterAdapter(localesConfig, 'en', location, navigate)
 
   return (
-    <I18nProvider
-      i18n={i18n}
-      locales={localesConfig}
-      defaultLocale="en"
-      routingStrategy={routingStrategy}
-    >
+    <I18nProvider i18n={i18n} locales={localesConfig} defaultLocale="en" routingStrategy={routingStrategy}>
       {children}
     </I18nProvider>
   )

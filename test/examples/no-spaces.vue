@@ -5,15 +5,14 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with no spaces around operators
 $defineI18nRoute({
-  locales:['en','de','fr'],
-  localeRoutes:{
-    'en':'/welcome',
-    'de':'/willkommen',
-    'fr':'/bienvenue'
-  }
+  locales: ['en', 'de', 'fr'],
+  localeRoutes: {
+    en: '/welcome',
+    de: '/willkommen',
+    fr: '/bienvenue',
+  },
 })
 </script>

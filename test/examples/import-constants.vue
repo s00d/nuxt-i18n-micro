@@ -6,9 +6,8 @@
 
 <script setup lang="ts">
 // Test with import of constants
-import { SUPPORTED_LOCALES, LOCALE_PATHS } from './config/i18n'
+import { LOCALE_PATHS, SUPPORTED_LOCALES } from './config/i18n'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: SUPPORTED_LOCALES,

@@ -1,10 +1,10 @@
+import { createI18n } from '@i18n-micro/vue'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { createI18n } from '@i18n-micro/vue'
 import App from './App.vue'
-import { routes, defaultLocale, localesConfig } from './app-config'
+import { defaultLocale, localesConfig, routes } from './app-config'
+import { loadTranslations, preloadTranslations, setupApp } from './app-utils'
 import { createVueRouterAdapter } from './router-adapter'
-import { loadTranslations, setupApp, preloadTranslations } from './app-utils'
 
 console.log('[playground] entry-client.ts: All imports loaded')
 
@@ -22,19 +22,13 @@ async function initApp() {
   // Get initial state from SSR (if available)
   const initialState = (window as { __INITIAL_STATE__?: { locale?: string } }).__INITIAL_STATE__
   // Ensure locale is a string, not an object
-  const initialLocale = typeof initialState?.locale === 'string'
-    ? initialState.locale
-    : defaultLocale
+  const initialLocale = typeof initialState?.locale === 'string' ? initialState.locale : defaultLocale
 
   console.log('[playground] initApp: Initial locale:', initialLocale)
 
   // Create adapter BEFORE creating i18n instance
   // Note: router.isReady() will be called after app is created and router is installed
-  const routingStrategy = createVueRouterAdapter(
-    router,
-    localesConfig,
-    defaultLocale,
-  )
+  const routingStrategy = createVueRouterAdapter(router, localesConfig, defaultLocale)
 
   // Create I18n instance with routingStrategy
   const i18n = createI18n({

@@ -1,8 +1,9 @@
 // plugins/i18n.define.ts
-import type { WatchHandle, Ref } from 'vue'
-import type { Translations, DefineI18nRouteConfig } from '@i18n-micro/types'
+
+import type { DefineI18nRouteConfig, Translations } from '@i18n-micro/types'
+import type { Ref, WatchHandle } from 'vue'
+import { computed, onUnmounted, unref, watch } from 'vue'
 import { defineNuxtPlugin, useNuxtApp } from '#imports'
-import { watch, unref, computed, onUnmounted } from 'vue'
 
 type LocalesObject = Record<string, Translations>
 
@@ -12,8 +13,7 @@ const normalizeLocales = (locales?: string[] | LocalesObject): LocalesObject => 
       acc[locale] = {}
       return acc
     }, {} as LocalesObject)
-  }
-  else if (typeof locales === 'object' && locales !== null) {
+  } else if (typeof locales === 'object' && locales !== null) {
     return locales
   }
   return {}

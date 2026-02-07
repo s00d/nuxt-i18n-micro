@@ -5,26 +5,25 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with method shorthand
 const config = {
   locales: ['en', 'de', 'fr'],
   localeRoutes: {
-    'en': '/welcome',
-    'de': '/willkommen',
-    'fr': '/bienvenue'
+    en: '/welcome',
+    de: '/willkommen',
+    fr: '/bienvenue',
   },
   getLocales() {
     return this.locales
   },
   getPaths() {
     return this.localeRoutes
-  }
+  },
 }
 
 $defineI18nRoute({
   locales: config.getLocales(),
-  localeRoutes: config.getPaths()
+  localeRoutes: config.getPaths(),
 })
 </script>

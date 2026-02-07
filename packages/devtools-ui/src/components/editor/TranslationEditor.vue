@@ -64,8 +64,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18nState } from '../../composables/useI18nState'
-import { flattenTranslations, unflattenTranslations } from '../../util/i18nUtils'
 import type { TranslationContent } from '../../types'
+import { flattenTranslations, unflattenTranslations } from '../../util/i18nUtils'
 import { type DriverType, Translator } from '../../util/Translator'
 import Pagination from '../ui/Pagination.vue'
 
@@ -73,9 +73,7 @@ const props = defineProps<{
   modelValue: TranslationContent
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: TranslationContent): void
-}>()
+const emit = defineEmits<(e: 'update:modelValue', value: TranslationContent) => void>()
 
 const { selectedFile, configs, getDefaultLocaleTranslation } = useI18nState()
 
@@ -97,10 +95,7 @@ const filteredKeys = computed(() => {
   if (!searchQuery.value.trim()) return paginatedKeys.value
 
   const query = searchQuery.value.toLowerCase()
-  return keys.filter(key =>
-    key.toLowerCase().includes(query)
-    || defaultLocaleFlatContent.value[key]?.toLowerCase().includes(query),
-  )
+  return keys.filter((key) => key.toLowerCase().includes(query) || defaultLocaleFlatContent.value[key]?.toLowerCase().includes(query))
 })
 
 const totalPages = computed(() => {
@@ -137,8 +132,7 @@ const translateText = async (key: string, text: string) => {
     const fileName: string = selectedFile.value.split('/').pop() ?? ''
     flattenedContent.value[key] = await translator.translate(text, fromLang, fileName.replace('.json', ''))
     handleInputChange()
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Translation error:', error)
   }
 }
@@ -151,8 +145,7 @@ const loadSettings = () => {
       selectedDriver.value = settings.driver || 'disabled'
       apiToken.value = settings.token || ''
       driverOptions.value = settings.options || {}
-    }
-    catch {
+    } catch {
       localStorage.removeItem('translationSettings')
     }
   }
@@ -163,21 +156,27 @@ onMounted(() => {
   loadSettings()
 })
 
-watch(() => props.modelValue, (newVal) => {
-  flattenedContent.value = flattenTranslations(newVal)
-  // Обновляем defaultLocaleFlatContent при изменении modelValue
-  initializeDefaultLocale()
-})
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    flattenedContent.value = flattenTranslations(newVal)
+    // Обновляем defaultLocaleFlatContent при изменении modelValue
+    initializeDefaultLocale()
+  },
+)
 
 watch(selectedFile, () => {
   initializeDefaultLocale()
   currentPage.value = 1
 })
 
-watch(() => configs.value.defaultLocale, () => {
-  // Обновляем defaultLocaleFlatContent при изменении дефолтной локали
-  initializeDefaultLocale()
-})
+watch(
+  () => configs.value.defaultLocale,
+  () => {
+    // Обновляем defaultLocaleFlatContent при изменении дефолтной локали
+    initializeDefaultLocale()
+  },
+)
 </script>
 
 <style scoped>

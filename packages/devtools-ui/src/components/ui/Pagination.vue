@@ -70,18 +70,16 @@ const props = defineProps<{
   totalPages: number
 }>()
 
-const emit = defineEmits<{
-  (event: 'update:page', page: number): void
-}>()
+const emit = defineEmits<(event: 'update:page', page: number) => void>()
 
 // Первые две страницы
 const firstPages = computed(() => {
-  return [1, 2].filter(page => page <= props.totalPages)
+  return [1, 2].filter((page) => page <= props.totalPages)
 })
 
 // Последние две страницы
 const lastPages = computed(() => {
-  return [props.totalPages - 1, props.totalPages].filter(page => page >= 1)
+  return [props.totalPages - 1, props.totalPages].filter((page) => page >= 1)
 })
 
 // Видимые страницы вокруг текущей

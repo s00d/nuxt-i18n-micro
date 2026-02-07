@@ -1,5 +1,5 @@
-import { defineEventHandler, getRouterParam, setResponseHeader, createError, send } from 'h3'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { createError, defineEventHandler, getRouterParam, send, setResponseHeader } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
 import { loadTranslationsFromServer } from '../utils/server-loader'
 
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = getI18nConfig() as ModuleOptionsExtend
-  if (!config.locales?.find(l => l.code === locale)) {
+  if (!config.locales?.find((l) => l.code === locale)) {
     throw createError({ statusCode: 404, statusMessage: 'Locale not found' })
   }
 

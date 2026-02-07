@@ -1,21 +1,18 @@
-import type { I18nRoutingStrategy } from './types'
 import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from './types'
 
 /**
  * Создает адаптер для работы с History API (универсальный для Pure Preact)
  * Работает с любым роутером, который использует History API (wouter, preact-router, и т.д.)
  */
-export function createBrowserHistoryAdapter(
-  locales: Locale[],
-  defaultLocale: string,
-): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+export function createBrowserHistoryAdapter(locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
+  const localeCodes = locales.map((loc) => loc.code)
 
   /**
    * Path resolution logic (add prefix or not)
    */
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
 
     // If path already starts with a locale, remove it
@@ -24,7 +21,7 @@ export function createBrowserHistoryAdapter(
       pathSegments.shift()
     }
 
-    const cleanPath = '/' + pathSegments.join('/')
+    const cleanPath = `/${pathSegments.join('/')}`
 
     // If default locale - return clean path
     if (locale === defaultLocale) {

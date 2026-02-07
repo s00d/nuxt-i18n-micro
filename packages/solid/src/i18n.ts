@@ -1,6 +1,6 @@
-import { createSignal, type Accessor, type Setter } from 'solid-js'
 import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
-import type { Translations, PluralFunc } from '@i18n-micro/types'
+import type { PluralFunc, Translations } from '@i18n-micro/types'
+import { type Accessor, createSignal, type Setter } from 'solid-js'
 
 export interface SolidI18nOptions {
   locale: string
@@ -100,12 +100,7 @@ export class SolidI18n extends BaseI18n {
     this.notifyListeners()
   }
 
-  public addRouteTranslations(
-    locale: string,
-    routeName: string,
-    translations: Translations,
-    merge = true,
-  ): void {
+  public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
     this.notifyListeners()
   }
@@ -121,7 +116,7 @@ export class SolidI18n extends BaseI18n {
   }
 
   private notifyListeners(): void {
-    this.listeners.forEach(cb => cb())
+    this.listeners.forEach((cb) => cb())
   }
 }
 

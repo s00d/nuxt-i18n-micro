@@ -17,10 +17,7 @@
  * flattenKeys(obj) // ['greeting', 'header.title', 'header.subtitle']
  * ```
  */
-export function flattenKeys(
-  obj: Record<string, unknown>,
-  prefix = '',
-): string[] {
+export function flattenKeys(obj: Record<string, unknown>, prefix = ''): string[] {
   const keys: string[] = []
 
   for (const key in obj) {
@@ -33,8 +30,7 @@ export function flattenKeys(
     // Если значение - объект и не массив, идем вглубь
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       keys.push(...flattenKeys(value as Record<string, unknown>, newKey))
-    }
-    else {
+    } else {
       // Иначе это конечный ключ (строка, число или массив для плюрализации)
       // Плюрализация обрабатывается как один ключ (формат "no | one | many" не разбивается)
       keys.push(newKey)

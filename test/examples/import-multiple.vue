@@ -6,11 +6,11 @@
 
 <script setup lang="ts">
 // Test with multiple imports
+
+import { isProduction } from './config/env'
 import { getLocales } from './utils/locale-utils'
 import { getPaths } from './utils/path-utils'
-import { isProduction } from './config/env'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: getLocales(),

@@ -1,8 +1,8 @@
 import type { PathStrategy, PathStrategyContext } from '../core/types'
 import { NoPrefixPathStrategy } from './no-prefix'
 import { PrefixPathStrategy } from './prefix'
-import { PrefixExceptDefaultPathStrategy } from './prefix-except-default'
 import { PrefixAndDefaultPathStrategy } from './prefix-and-default'
+import { PrefixExceptDefaultPathStrategy } from './prefix-except-default'
 
 /**
  * Creates the appropriate path strategy instance for the given context.

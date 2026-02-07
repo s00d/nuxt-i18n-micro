@@ -1,8 +1,9 @@
 /**
  * Tests for test-utils.ts - coverage for all branches
  */
-import { makeRouterAdapter, makePathStrategyContext } from './test-utils'
+
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
 
 describe('makeRouterAdapter', () => {
   describe('resolve with string input', () => {

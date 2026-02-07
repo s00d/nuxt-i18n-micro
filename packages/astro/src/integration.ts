@@ -1,6 +1,6 @@
+import type { Locale, ModuleOptions, PluralFunc } from '@i18n-micro/types'
 import type { AstroIntegration, HookParameters } from 'astro'
 import { AstroI18n, type AstroI18nOptions } from './composer'
-import type { Locale, ModuleOptions, PluralFunc } from '@i18n-micro/types'
 import type { I18nRoutingStrategy } from './router/types'
 
 export interface I18nIntegrationOptions extends Omit<ModuleOptions, 'plural'> {
@@ -32,12 +32,7 @@ export function setGlobalRoutingStrategy(strategy: I18nRoutingStrategy | null): 
  * Astro Integration for i18n-micro
  */
 export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegration {
-  const {
-    locale: defaultLocale,
-    fallbackLocale,
-    translationDir,
-    routingStrategy,
-  } = options
+  const { locale: defaultLocale, fallbackLocale, translationDir, routingStrategy } = options
 
   globalRoutingStrategy = routingStrategy || null
 
@@ -49,17 +44,17 @@ export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegrati
         const { updateConfig } = params as HookParameters<'astro:config:setup'>
 
         const virtualModuleId = 'virtual:i18n-micro/config'
-        const resolvedVirtualModuleId = '\0' + virtualModuleId
+        const resolvedVirtualModuleId = `\0${virtualModuleId}`
 
         const configData = {
           defaultLocale,
           fallbackLocale: fallbackLocale || defaultLocale,
           locales: options.locales || [],
-          localeCodes: (options.locales || []).map(l => l.code),
+          localeCodes: (options.locales || []).map((l) => l.code),
           translationDir: translationDir || null,
           autoDetect: options.autoDetect ?? true,
           redirectToDefault: options.redirectToDefault ?? false,
-          localeCookie: options.localeCookie === null ? null : (options.localeCookie || 'i18n-locale'),
+          localeCookie: options.localeCookie === null ? null : options.localeCookie || 'i18n-locale',
           missingWarn: options.missingWarn ?? false,
         }
 

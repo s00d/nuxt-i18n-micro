@@ -1,11 +1,11 @@
+import type { Locale, TranslationKey } from '@i18n-micro/types'
 import type { App, Plugin } from 'vue'
-import { VueI18n, type VueI18nOptions } from './composer'
-import { I18nInjectionKey, I18nRouterKey, I18nLocalesKey, I18nDefaultLocaleKey } from './injection'
-import { I18nT } from './components/i18n-t'
-import { I18nLink } from './components/i18n-link'
 import { I18nGroup } from './components/i18n-group'
+import { I18nLink } from './components/i18n-link'
 import { I18nSwitcher } from './components/i18n-switcher'
-import type { TranslationKey, Locale } from '@i18n-micro/types'
+import { I18nT } from './components/i18n-t'
+import { VueI18n, type VueI18nOptions } from './composer'
+import { I18nDefaultLocaleKey, I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from './injection'
 import type { I18nRoutingStrategy } from './router/types'
 
 export interface CreateI18nOptions extends VueI18nOptions {
@@ -65,10 +65,20 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
 
       // 4. Глобальные свойства ($t, $tc, и т.д.)
       // Note: In templates, these may be called with string literals, so we use TranslationKey type
-      app.config.globalProperties.$t = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string | null, routeName?: string) => {
+      app.config.globalProperties.$t = (
+        key: TranslationKey,
+        params?: Record<string, string | number | boolean>,
+        defaultValue?: string | null,
+        routeName?: string,
+      ) => {
         return i18n.t(key, params, defaultValue, routeName)
       }
-      app.config.globalProperties.$ts = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string, routeName?: string) => {
+      app.config.globalProperties.$ts = (
+        key: TranslationKey,
+        params?: Record<string, string | number | boolean>,
+        defaultValue?: string,
+        routeName?: string,
+      ) => {
         return i18n.ts(key, params, defaultValue, routeName)
       }
       app.config.globalProperties.$tc = (key: TranslationKey, count: number | Record<string, string | number | boolean>, defaultValue?: string) => {
@@ -88,7 +98,6 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
       }
       // Provide access to i18n instance via $i18n
       // Using unknown and then casting to avoid any, but Vue's globalProperties requires flexibility
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       app.config.globalProperties.$i18n = i18n as any
 
       // 5. Регистрация компонентов

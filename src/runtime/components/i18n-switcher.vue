@@ -68,8 +68,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
+import { computed, ref } from 'vue'
 import { useNuxtApp } from '#imports'
 
 type LocaleCode = string
@@ -109,14 +109,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { $switchLocaleRoute, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const locales = ref($getLocales())
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const currentLocale = computed(() => $getLocale())
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const currentLocaleName = computed(() => $getLocaleName())
 const dropdownOpen = ref(false)
 
@@ -125,25 +119,23 @@ const toggleDropdown = () => {
 }
 
 const switchLocaleRoute = (code: string) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   return $switchLocaleRoute(code)
 }
 
 const localeLabel = (locale: Locale) => {
   const current = props.customLabels[locale.code] || locale.displayName
   if (!current) {
-    console.warn(
-      '[i18n-switcher] Either define a custom label for the locale or provide a displayName in the nuxt.config.i18n',
-    )
+    console.warn('[i18n-switcher] Either define a custom label for the locale or provide a displayName in the nuxt.config.i18n')
   }
   return current
 }
 
-const currentLocaleLabel = computed(() => localeLabel({
-  code: currentLocale.value,
-  displayName: currentLocaleName.value ?? undefined,
-}))
+const currentLocaleLabel = computed(() =>
+  localeLabel({
+    code: currentLocale.value,
+    displayName: currentLocaleName.value ?? undefined,
+  }),
+)
 
 const switchLocale = (code: string) => {
   toggleDropdown()

@@ -2,12 +2,13 @@
  * Universal redirect plugin for i18n routes (works on both server and client).
  * Handles locale detection, 404 checks, and redirects.
  */
-import { defineNuxtPlugin, useRoute, useRouter, useRequestEvent, navigateTo, createError, useState } from '#imports'
-import { getI18nConfig, createI18nStrategy } from '#build/i18n.strategy.mjs'
+
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import { getCookie, setCookie, getHeader, getRequestURL, sendRedirect } from 'h3'
-import { getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
+import { getCookie, getHeader, getRequestURL, sendRedirect, setCookie } from 'h3'
+import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
+import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRoute, useRouter, useState } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
+import { getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
 
@@ -38,12 +39,10 @@ function isInternalPath(path: string, excludePatterns?: (string | RegExp | objec
         if (pattern.includes('*') || pattern.includes('?')) {
           const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\?/g, '.'))
           if (regex.test(path)) return true
-        }
-        else if (path === pattern || path.startsWith(pattern)) {
+        } else if (path === pattern || path.startsWith(pattern)) {
           return true
         }
-      }
-      else if (pattern instanceof RegExp) {
+      } else if (pattern instanceof RegExp) {
         if (pattern.test(path)) return true
       }
     }
@@ -69,7 +68,7 @@ export default defineNuxtPlugin({
     const router = useRouter()
     const i18nStrategy = createI18nStrategy(router)
     const i18nConfig = getI18nConfig() as ModuleOptionsExtend
-    const validLocales = i18nConfig.locales?.map(l => l.code) || []
+    const validLocales = i18nConfig.locales?.map((l) => l.code) || []
     const defaultLocale = i18nConfig.defaultLocale || 'en'
     const autoDetectPath = i18nConfig.autoDetectPath || '/'
     const cookieName = getLocaleCookieName(i18nConfig)
@@ -150,7 +149,7 @@ export default defineNuxtPlugin({
         for (const lang of langs) {
           const lowerCaseLanguage = lang.toLowerCase()
           const primaryLanguage = lowerCaseLanguage.split('-')[0]
-          const found = validLocales.find(l => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
+          const found = validLocales.find((l) => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
           if (found) {
             preferredLocale = found
             break
@@ -166,8 +165,7 @@ export default defineNuxtPlugin({
         let targetPath: string
         if (preferredLocale === defaultLocale && i18nConfig.strategy === 'prefix_except_default') {
           targetPath = rest ? `/${rest}` : '/'
-        }
-        else {
+        } else {
           targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
         }
         // Sync cookie to preferred locale BEFORE redirect
@@ -213,8 +211,7 @@ export default defineNuxtPlugin({
           let targetPath: string
           if (preferredLocale === defaultLocale && i18nConfig.strategy === 'prefix_except_default') {
             targetPath = rest ? `/${rest}` : '/'
-          }
-          else {
+          } else {
             targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
           }
           navigateTo(targetPath, { replace: true, redirectCode: 302 })

@@ -10,8 +10,7 @@ test.describe('locale-slug', () => {
   test.beforeEach(({ page }) => {
     page.on('console', (msg) => {
       const text = msg.text()
-      if (text.includes('[path-strategy]') || text.includes('[i18n'))
-        console.log('[browser]', msg.type(), text)
+      if (text.includes('[path-strategy]') || text.includes('[i18n')) console.log('[browser]', msg.type(), text)
     })
   })
 

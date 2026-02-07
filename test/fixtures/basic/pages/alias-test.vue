@@ -1,6 +1,6 @@
 <script setup>
-import { definePageMeta } from '#imports'
 import { useRoute } from '#app'
+import { definePageMeta } from '#imports'
 
 definePageMeta({
   name: 'alias-test-check',

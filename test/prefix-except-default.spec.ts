@@ -5,8 +5,6 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
     nuxtConfig: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       i18n: {
         strategy: 'prefix_except_default',
       },

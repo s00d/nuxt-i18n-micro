@@ -1,7 +1,7 @@
 import type { Locale } from '@i18n-micro/types'
-import Home from './pages/Home.vue'
 import About from './pages/About.vue'
 import Components from './pages/Components.vue'
+import Home from './pages/Home.vue'
 
 export const localesConfig: Locale[] = [
   { code: 'en', displayName: 'English', iso: 'en-US' },

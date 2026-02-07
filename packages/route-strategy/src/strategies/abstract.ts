@@ -1,4 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
+import { createRoute, resolveChildPath } from '../core/builder'
+import type { GeneratorContext } from '../core/context'
+import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import {
   buildFullPath,
   buildRouteNameFromRoute,
@@ -9,9 +12,6 @@ import {
   normalizeRouteKey,
   removeLeadingSlash,
 } from '../utils'
-import { createRoute, resolveChildPath } from '../core/builder'
-import type { GeneratorContext } from '../core/context'
-import { pathKeyForLocalizedPaths } from '../core/localized-paths'
 import type { RouteStrategy } from './types'
 
 export abstract class BaseStrategy implements RouteStrategy {
@@ -28,8 +28,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     const originalPath = page.path ?? ''
     const pageName = buildRouteNameFromRoute(page.name, page.path)
     const normalizedOriginalPath = normalizeRouteKey(originalPath)
-    const isLocalizationDisabled = context.globalLocaleRoutes[pageName] === false
-      || context.globalLocaleRoutes[normalizedOriginalPath] === false
+    const isLocalizationDisabled = context.globalLocaleRoutes[pageName] === false || context.globalLocaleRoutes[normalizedOriginalPath] === false
     if (isLocalizationDisabled) {
       return [page]
     }
@@ -56,7 +55,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     context: GeneratorContext,
     addPrefix: boolean,
   ): NuxtPage[] {
-    return children.flatMap(child => this.localizeChild(child, parentLocalizedPath, parentOriginalPath, locale, context, addPrefix))
+    return children.flatMap((child) => this.localizeChild(child, parentLocalizedPath, parentOriginalPath, locale, context, addPrefix))
   }
 
   /**
@@ -70,7 +69,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     localeCodes: string[],
     context: GeneratorContext,
   ): NuxtPage[] {
-    return children.flatMap(child => this.localizeChildAllLocales(child, parentPath, parentOriginalPath, localeCodes, context))
+    return children.flatMap((child) => this.localizeChildAllLocales(child, parentPath, parentOriginalPath, localeCodes, context))
   }
 
   private localizeChildAllLocales(
@@ -95,13 +94,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     }
     const routePath = normalizePath(child.path ?? '')
     const finalPathForRoute = removeLeadingSlash(routePath)
-    const localizedChildren = this.localizeChildrenAllLocales(
-      cloneArray(child.children ?? []),
-      fullPath,
-      childOriginalPath,
-      localeCodes,
-      context,
-    )
+    const localizedChildren = this.localizeChildrenAllLocales(cloneArray(child.children ?? []), fullPath, childOriginalPath, localeCodes, context)
     const newName = `${context.localizedRouteNamePrefix}${child.name ?? ''}`
     return [
       createRoute(child, {
@@ -122,19 +115,10 @@ export abstract class BaseStrategy implements RouteStrategy {
   ): NuxtPage[] {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
     const customPath = context.getCustomPath(childOriginalPath, locale)
-    const finalPathForRoute = customPath
-      ? removeLeadingSlash(normalizePath(customPath))
-      : removeLeadingSlash(normalizePath(child.path ?? ''))
+    const finalPathForRoute = customPath ? removeLeadingSlash(normalizePath(customPath)) : removeLeadingSlash(normalizePath(child.path ?? ''))
 
     const nextParentPath = customPath ?? resolveChildPath(parentLocalizedPath, child.path ?? '')
-    const localizedChildren = this.localizeChildren(
-      cloneArray(child.children ?? []),
-      nextParentPath,
-      childOriginalPath,
-      locale,
-      context,
-      addPrefix,
-    )
+    const localizedChildren = this.localizeChildren(cloneArray(child.children ?? []), nextParentPath, childOriginalPath, locale, context, addPrefix)
     const baseName = buildRouteNameFromRoute(child.name, child.path)
     const routeName = `${context.localizedRouteNamePrefix}${baseName}-${locale}`
     return [
@@ -166,9 +150,7 @@ export abstract class BaseStrategy implements RouteStrategy {
       const hasDefault = localeCodes.includes(defaultLocaleCode)
       const shouldAddPrefix = force || !hasDefault
 
-      return shouldAddPrefix
-        ? buildFullPath(localeCodes, customPath, customRegex)
-        : normalizePath(customPath)
+      return shouldAddPrefix ? buildFullPath(localeCodes, customPath, customRegex) : normalizePath(customPath)
     }
     return buildFullPath(localeCodes, originalPath, customRegex)
   }

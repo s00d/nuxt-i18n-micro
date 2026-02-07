@@ -1,8 +1,8 @@
-import type { AstroI18n } from './composer'
-import type { MiddlewareHandler } from 'astro'
 import type { Locale } from '@i18n-micro/types'
-import type { I18nRoutingStrategy } from './router/types'
+import type { MiddlewareHandler } from 'astro'
+import type { AstroI18n } from './composer'
 import { getGlobalRoutingStrategy } from './integration'
+import type { I18nRoutingStrategy } from './router/types'
 // Import shim to ensure App.Locals is available
 import './env.d'
 
@@ -50,12 +50,11 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
       const routeName = pathname === '/' || pathname === '' ? 'index' : pathname.split('/').filter(Boolean).join('-')
       requestI18n.setRoute(routeName)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error private property mismatch between src and dist types
       context.locals.i18n = requestI18n
       context.locals.locale = defaultLocale
       context.locals.defaultLocale = defaultLocale
-      context.locals.locales = localeObjects || locales.map(code => ({ code }))
+      context.locals.locales = localeObjects || locales.map((code) => ({ code }))
       context.locals.currentUrl = url
 
       return next()
@@ -81,13 +80,11 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
 
     if (hasLocalePrefix && firstSegment) {
       detectedLocale = firstSegment
-    }
-    else {
+    } else {
       // Use routing strategy if available, otherwise fallback
       if (contextStrategy.getLocaleFromPath) {
         detectedLocale = contextStrategy.getLocaleFromPath(pathname, defaultLocale, locales)
-      }
-      else {
+      } else {
         detectedLocale = defaultLocale
       }
     }
@@ -96,21 +93,16 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     const requestI18n = globalI18n.clone(detectedLocale)
 
     // 4. Set route name using routing strategy
-    const routeName = contextStrategy.getRouteName
-      ? contextStrategy.getRouteName(pathname, locales)
-      : 'general'
+    const routeName = contextStrategy.getRouteName ? contextStrategy.getRouteName(pathname, locales) : 'general'
     requestI18n.setRoute(routeName)
 
     // 5. Store in locals (Type-safe now thanks to astro-shim.d.ts)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error private property mismatch between src and dist types
     context.locals.i18n = requestI18n
     context.locals.locale = detectedLocale
     context.locals.defaultLocale = defaultLocale
-    context.locals.locales = localeObjects || locales.map(code => ({ code }))
+    context.locals.locales = localeObjects || locales.map((code) => ({ code }))
     context.locals.currentUrl = url
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     context.locals.routingStrategy = contextStrategy
 
     return next()
@@ -161,8 +153,7 @@ export function detectLocale(
   let locale = defaultLocale
   if (strategy?.getLocaleFromPath) {
     locale = strategy.getLocaleFromPath(pathname, defaultLocale, locales)
-  }
-  else {
+  } else {
     // Fallback: check if first segment is a locale
     const segments = pathname.split('/').filter(Boolean)
     const firstSegment = segments[0]
@@ -192,8 +183,7 @@ export function detectLocale(
           }
         }
       }
-    }
-    catch {
+    } catch {
       // Headers may be unavailable in static mode
       // Fallback to default locale
     }

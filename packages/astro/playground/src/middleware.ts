@@ -1,10 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-
-import { createI18nMiddleware, createI18n, createAstroRouterAdapter, loadTranslationsIntoI18n } from '@i18n-micro/astro'
-import type { MiddlewareHandler } from 'astro'
 // Virtual module created by integration at build time
 import { config } from 'virtual:i18n-micro/config'
+import { createAstroRouterAdapter, createI18n, createI18nMiddleware, loadTranslationsIntoI18n } from '@i18n-micro/astro'
+import type { MiddlewareHandler } from 'astro'
 
 // Use config from virtual module (created by integration)
 // This demonstrates the proper way to use the integration's translationDir option
@@ -25,10 +22,7 @@ if (config.translationDir) {
 }
 
 // Create router adapter using config from virtual module
-const routingStrategy = createAstroRouterAdapter(
-  config.locales,
-  config.defaultLocale,
-)
+const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale)
 
 const i18nMiddleware = createI18nMiddleware({
   i18n: globalI18n,

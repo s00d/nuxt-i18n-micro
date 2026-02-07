@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp, useRoute, useFetch, createError } from '#imports'
+import { createError, useFetch, useNuxtApp, useRoute } from '#imports'
 
 interface Product {
   title: string
@@ -33,11 +33,12 @@ const route = useRoute()
 const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug
 
 const { data: product, error } = await useFetch<Product>(`/api/product/${slug}`)
-if (error.value) throw createError({
-  statusCode: error.value?.statusCode,
-  statusMessage: error.value?.statusMessage,
-  fatal: true,
-})
+if (error.value)
+  throw createError({
+    statusCode: error.value?.statusCode,
+    statusMessage: error.value?.statusMessage,
+    fatal: true,
+  })
 
 $defineI18nRoute({
   localeRoutes: {

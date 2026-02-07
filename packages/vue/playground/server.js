@@ -23,8 +23,7 @@ if (!isProduction) {
     base,
   })
   app.use(vite.middlewares)
-}
-else {
+} else {
   const compression = (await import('compression')).default
   const sirv = (await import('sirv')).default
   app.use(compression())
@@ -41,10 +40,7 @@ app.use('*', async (req, res) => {
     let render
     if (!isProduction) {
       // Always read fresh template in dev
-      template = fs.readFileSync(
-        path.resolve(__dirname, 'index.html'),
-        'utf-8',
-      )
+      template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8')
       template = await vite.transformIndexHtml(url, template)
       console.log('[server] Template loaded and transformed')
       const entryServer = await vite.ssrLoadModule('/src/entry-server.ts')
@@ -53,12 +49,8 @@ app.use('*', async (req, res) => {
       if (!render) {
         throw new Error('render function not found in entry-server.ts')
       }
-    }
-    else {
-      template = fs.readFileSync(
-        path.resolve(__dirname, 'dist/client/index.html'),
-        'utf-8',
-      )
+    } else {
+      template = fs.readFileSync(path.resolve(__dirname, 'dist/client/index.html'), 'utf-8')
       const entryServer = await import('./dist/server/entry-server.js')
       render = entryServer.render
     }
@@ -75,15 +67,11 @@ app.use('*', async (req, res) => {
     // Inject state into HTML
     const html = template
       .replace(`<!--ssr-outlet-->`, appHtml)
-      .replace(
-        '<!--ssr-state-->',
-        `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state)}</script>`,
-      )
+      .replace('<!--ssr-state-->', `<script>window.__INITIAL_STATE__ = ${JSON.stringify(state)}</script>`)
 
     console.log('[server] HTML prepared, length:', html.length)
     res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
-  }
-  catch (e) {
+  } catch (e) {
     vite?.ssrFixStacktrace(e)
     console.error('[server] Error:', e)
     console.error('[server] Stack:', e.stack)

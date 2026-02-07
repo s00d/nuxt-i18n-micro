@@ -4,11 +4,11 @@
   </div>
 </template>
 
-<script setup lang="ts">/* eslint-disable */
+<script setup lang="ts">
 // @ts-nocheck
 // Test with do-while loops
-let locales: string[] = []
-let localeRoutes: Record<string, string> = {}
+const locales: string[] = []
+const localeRoutes: Record<string, string> = {}
 
 let i = 0
 const localeCodes = ['en', 'de', 'fr']
@@ -26,6 +26,6 @@ do {
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

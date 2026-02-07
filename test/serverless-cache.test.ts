@@ -1,10 +1,10 @@
+import { existsSync, readdirSync } from 'node:fs'
+import { mkdir, rm, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 // Используем @nuxt/test-utils вместо e2e для тестирования модулей
-import { setup, $fetch } from '@nuxt/test-utils'
-import { describe, it, expect, afterAll } from 'vitest'
-import { rm, writeFile, mkdir } from 'node:fs/promises'
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { $fetch, setup } from '@nuxt/test-utils'
+import { afterAll, describe, expect, it } from 'vitest'
 
 // Путь, куда будем писать кэш в тесте
 const cacheDir = fileURLToPath(new URL('../.data/test-cache', import.meta.url))
@@ -32,7 +32,7 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
 
   it('1. Cold start: returns translations and writes to disk cache', async () => {
     // Этот запрос должен вернуть 200, если addServerHandler сработал
-    const translations = await $fetch('/_locales/index/en/data.json') as Record<string, string>
+    const translations = (await $fetch('/_locales/index/en/data.json')) as Record<string, string>
 
     expect(translations).toBeDefined()
     expect(translations.hello).toBe('Hello World')
@@ -53,15 +53,14 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
             expect(hasCache).toBe(true)
           }
         }
-      }
-      catch {
+      } catch {
         // Игнорируем ошибки чтения директории - главное что API работает
       }
     }
   })
 
   it('2. Cache hit: reads from disk correctly after serialization', async () => {
-    const translations1 = await $fetch('/_locales/index/en/data.json') as Record<string, string>
+    const translations1 = (await $fetch('/_locales/index/en/data.json')) as Record<string, string>
     expect(translations1.hello).toBe('Hello World')
 
     // Второй запрос - должен прочитать с диска
@@ -92,8 +91,7 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
           expect(fileList.some((f: unknown) => typeof f === 'string' && f.includes('de'))).toBe(true)
           expect(fileList.some((f: unknown) => typeof f === 'string' && f.includes('fr'))).toBe(true)
         }
-      }
-      catch {
+      } catch {
         // Игнорируем ошибки чтения - главное что API работает
       }
     }
@@ -137,17 +135,19 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
 
     // 2. Запускаем 20 одновременных запросов
     const requests = Array.from({ length: 20 }).map(() =>
-      $fetch('/_locales/index/en/data.json').then(res => ({ status: 'ok' as const, data: res })).catch(err => ({ status: 'error' as const, err })),
+      $fetch('/_locales/index/en/data.json')
+        .then((res) => ({ status: 'ok' as const, data: res }))
+        .catch((err) => ({ status: 'error' as const, err })),
     )
 
     const results = await Promise.all(requests)
 
     // 3. Проверяем, что ВСЕ запросы успешны
-    const failures = results.filter(r => r.status === 'error')
+    const failures = results.filter((r) => r.status === 'error')
     expect(failures.length).toBe(0)
 
     // 4. Проверяем, что данные корректны
-    const firstResult = results.find(r => r.status === 'ok')
+    const firstResult = results.find((r) => r.status === 'ok')
     expect(firstResult).toBeDefined()
     if (firstResult && firstResult.status === 'ok') {
       expect(firstResult.data).toHaveProperty('hello', 'Hello World')
@@ -163,8 +163,7 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
         // В идеале должен быть 1 файл, но из-за race condition при записи может быть перезапись.
         // Главное - сервер не упал.
         expect(enFiles.length).toBeGreaterThan(0)
-      }
-      catch {
+      } catch {
         // Игнорируем ошибки чтения
       }
     }
@@ -177,10 +176,9 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
       await $fetch('/_locales/index/unknown-locale/data.json')
       // Если дошли сюда, значит не выбросили ошибку - это плохо
       expect.fail('Should have thrown 404 error')
-    }
-    catch (e: unknown) {
+    } catch (e: unknown) {
       // Ожидаем 404, а не 500 (падение скрипта)
-      const error = e as { statusCode?: number, statusMessage?: string }
+      const error = e as { statusCode?: number; statusMessage?: string }
       expect(error.statusCode).toBe(404)
       expect(error.statusMessage).toContain('Locale not found')
     }
@@ -191,7 +189,7 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
     // en.json (Global): "hello": "Hello World", "welcome": "Welcome to our site"
     // pages/index/en.json (Page): "pageTitle": "Home Page"
 
-    const data = await $fetch('/_locales/index/en/data.json') as Record<string, string>
+    const data = (await $fetch('/_locales/index/en/data.json')) as Record<string, string>
 
     // Должны быть и глобальные, и страничные ключи
     expect(data).toHaveProperty('hello', 'Hello World')
@@ -203,11 +201,11 @@ describe('serverless caching emulation (FS driver for serialization check)', asy
 
   // Дополнительный тест на спецсимволы и Unicode
   it('10. Encoding: handles special characters correctly', async () => {
-    const fr = await $fetch('/_locales/index/fr/data.json') as Record<string, string>
+    const fr = (await $fetch('/_locales/index/fr/data.json')) as Record<string, string>
     // Проверяем, что 'd'accueil' не сломалось при JSON сериализации/десериализации
-    expect(fr).toHaveProperty('pageTitle', 'Page d\'accueil')
+    expect(fr).toHaveProperty('pageTitle', "Page d'accueil")
 
-    const de = await $fetch('/_locales/index/de/data.json') as Record<string, string>
+    const de = (await $fetch('/_locales/index/de/data.json')) as Record<string, string>
     // Проверяем умляуты (если бы они были, тут просто проверка кодировки)
     expect(de).toBeDefined()
   })

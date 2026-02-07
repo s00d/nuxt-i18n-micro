@@ -19,22 +19,22 @@ export function register() {
   }
 }
 
-// Export types for consumers
-export type { I18nDevToolsBridge } from './bridge/interface'
+export type { BridgeAdapter, CreateBridgeOptions } from './bridge/create-bridge'
 
 // Export bridge creation function
 export { createBridge } from './bridge/create-bridge'
-export type { BridgeAdapter, CreateBridgeOptions } from './bridge/create-bridge'
+// Export types for consumers
+export type { I18nDevToolsBridge } from './bridge/interface'
 
 // Export RPC utilities
 export { createRpcClient } from './rpc/client'
 export { setupRpcHost } from './rpc/host'
-export type { JsonRpcRequest, JsonRpcResponse, JsonRpcEvent } from './rpc/types'
+export type { JsonRpcEvent, JsonRpcRequest, JsonRpcResponse } from './rpc/types'
 
 // Export types from types module
 export type {
+  JSONValue,
   LocaleData,
   TranslationContent,
-  JSONValue,
   TreeNode,
 } from './types'

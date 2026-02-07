@@ -60,11 +60,11 @@ interface Props {
 defineProps<Props>()
 
 const emit = defineEmits<{
-  'export': []
-  'import': []
+  export: []
+  import: []
   'show-stats': []
   'translate-missing': []
-  'save': []
+  save: []
 }>()
 </script>
 

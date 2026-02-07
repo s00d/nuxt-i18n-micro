@@ -1,5 +1,5 @@
+import type { PluralFunc, Translations } from '@i18n-micro/types'
 import { BaseI18n, type BaseI18nOptions } from '../src/base'
-import type { Translations, PluralFunc } from '@i18n-micro/types'
 
 // Test implementation of BaseI18n
 class TestI18n extends BaseI18n {
@@ -7,12 +7,7 @@ class TestI18n extends BaseI18n {
   private _fallbackLocale: string
   private _route: string
 
-  constructor(
-    locale: string,
-    fallbackLocale: string,
-    route: string,
-    options?: BaseI18nOptions,
-  ) {
+  constructor(locale: string, fallbackLocale: string, route: string, options?: BaseI18nOptions) {
     super(options)
     this._locale = locale
     this._fallbackLocale = fallbackLocale
@@ -375,7 +370,7 @@ describe('BaseI18n', () => {
 
       i18n['loadTranslationsCore']('en', translations, false)
       // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       expect(i18n.has('greeting')).toBe(true)
     })
@@ -388,7 +383,7 @@ describe('BaseI18n', () => {
       await i18n['helper'].loadTranslations('en', initial)
       i18n['loadTranslationsCore']('en', additional, true)
       // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       expect(i18n.has('greeting')).toBe(true)
       expect(i18n.has('farewell')).toBe(true)
@@ -402,7 +397,7 @@ describe('BaseI18n', () => {
 
       i18n['loadRouteTranslationsCore']('en', 'about', translations, false)
       // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       expect(i18n.has('title', 'about')).toBe(true)
     })
@@ -415,7 +410,7 @@ describe('BaseI18n', () => {
       await i18n['helper'].loadPageTranslations('en', 'about', initial)
       i18n['loadRouteTranslationsCore']('en', 'about', additional, true)
       // Wait for async operation to complete
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       expect(i18n.has('title', 'about')).toBe(true)
       expect(i18n.has('description', 'about')).toBe(true)

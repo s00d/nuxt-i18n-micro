@@ -59,11 +59,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { flattenTranslations } from '../../util/i18nUtils'
-import type { TranslationContent } from '../../types'
 import { useI18nState } from '../../composables/useI18nState'
-import StatItem from './StatItem.vue'
+import type { TranslationContent } from '../../types'
+import { flattenTranslations } from '../../util/i18nUtils'
 import DiffViewer from '../config/DiffViewer.vue'
+import StatItem from './StatItem.vue'
 
 const { getDefaultLocaleTranslation } = useI18nState()
 
@@ -72,11 +72,9 @@ const props = defineProps<{
 }>()
 
 // Вспомогательные функции
-const safeTrim = (value: unknown): string =>
-  typeof value === 'string' ? value.trim() : ''
+const safeTrim = (value: unknown): string => (typeof value === 'string' ? value.trim() : '')
 
-const isString = (value: unknown): value is string =>
-  typeof value === 'string'
+const isString = (value: unknown): value is string => typeof value === 'string'
 
 // Флатеннутые версии переводов
 const flattened = computed(() => flattenTranslations(props.content))
@@ -84,22 +82,12 @@ const defaultFlattened = computed(() => flattenTranslations(getDefaultLocaleTran
 
 // Универсальный счетчик
 const createCounter = (predicate: (value: string) => boolean) =>
-  computed(() =>
-    Object.values(flattened.value)
-      .filter(v => isString(v) && predicate(v))
-      .length,
-  )
+  computed(() => Object.values(flattened.value).filter((v) => isString(v) && predicate(v)).length)
 
 // Основная статистика
 const totalKeys = computed(() => Object.keys(flattened.value).length)
-const translatedKeys = computed(() =>
-  Object.values(flattened.value).filter(v =>
-    isString(v) && safeTrim(v) !== '',
-  ).length,
-)
-const percentage = computed(() =>
-  totalKeys.value ? ((translatedKeys.value / totalKeys.value) * 100).toFixed(2) : '0.00',
-)
+const translatedKeys = computed(() => Object.values(flattened.value).filter((v) => isString(v) && safeTrim(v) !== '').length)
+const percentage = computed(() => (totalKeys.value ? ((translatedKeys.value / totalKeys.value) * 100).toFixed(2) : '0.00'))
 
 // Специфические счетчики
 const duplicateValues = computed(() => {
@@ -109,35 +97,35 @@ const duplicateValues = computed(() => {
       counts[v] = (counts[v] || 0) + 1
     }
   })
-  return Object.values(counts).filter(c => c > 1).length
+  return Object.values(counts).filter((c) => c > 1).length
 })
 
 // Экстремальные значения ключей
-const extremeKey = (comparator: (a: number, b: number) => boolean) => computed(() => {
-  const keys = Object.keys(flattened.value)
-  if (keys.length < 2) return null
+const extremeKey = (comparator: (a: number, b: number) => boolean) =>
+  computed(() => {
+    const keys = Object.keys(flattened.value)
+    if (keys.length < 2) return null
 
-  return keys.reduce((a, b) => {
-    const aVal = flattened.value[a]
-    const bVal = flattened.value[b]
-    const aLength = isString(aVal) ? aVal.length : 0
-    const bLength = isString(bVal) ? bVal.length : 0
+    return keys.reduce((a, b) => {
+      const aVal = flattened.value[a]
+      const bVal = flattened.value[b]
+      const aLength = isString(aVal) ? aVal.length : 0
+      const bLength = isString(bVal) ? bVal.length : 0
 
-    return comparator(aLength, bLength) ? a : b
+      return comparator(aLength, bLength) ? a : b
+    })
   })
-})
 
 // Сравнение с дефолтной локалью
 const totalDefaultKeys = computed(() => Object.keys(defaultFlattened.value).length)
-const translatedCompared = computed(() =>
-  Object.keys(defaultFlattened.value).filter((k) => {
-    const val = flattened.value[k]
-    return isString(val) && safeTrim(val) !== ''
-  }).length,
+const translatedCompared = computed(
+  () =>
+    Object.keys(defaultFlattened.value).filter((k) => {
+      const val = flattened.value[k]
+      return isString(val) && safeTrim(val) !== ''
+    }).length,
 )
-const percentageCompared = computed(() =>
-  totalDefaultKeys.value ? ((translatedCompared.value / totalDefaultKeys.value) * 100).toFixed(2) : '0.00',
-)
+const percentageCompared = computed(() => (totalDefaultKeys.value ? ((translatedCompared.value / totalDefaultKeys.value) * 100).toFixed(2) : '0.00'))
 
 // Группировка данных для отображения
 const mainStats = computed(() => [
@@ -166,7 +154,7 @@ const [longTranslations, shortTranslations, specialChars, htmlTags, placeholders
   (v: string) => /[@#{}[\]]/.test(v),
   (v: string) => /<[^>]+>/.test(v),
   (v: string) => /\{[^}]+\}/.test(v),
-].map(pred => createCounter(pred))
+].map((pred) => createCounter(pred))
 
 const longestKey = extremeKey((a, b) => a > b)
 const shortestKey = extremeKey((a, b) => a < b)

@@ -28,7 +28,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'I18nMicroPreact',
       formats: ['es', 'cjs'],
-      fileName: format => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
       external: [

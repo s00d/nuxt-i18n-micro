@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with empty object
 $defineI18nRoute({})

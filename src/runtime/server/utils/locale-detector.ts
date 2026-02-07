@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { getQuery, getCookie, getRequestURL } from 'h3'
+import { getCookie, getQuery, getRequestURL } from 'h3'
 
 /**
  * Detects the current locale based on various sources (server-only).
@@ -13,7 +13,7 @@ import { getQuery, getCookie, getRequestURL } from 'h3'
  */
 export const detectCurrentLocale = (
   event: H3Event,
-  config: { fallbackLocale?: string, defaultLocale?: string, locales?: { code: string }[] },
+  config: { fallbackLocale?: string; defaultLocale?: string; locales?: { code: string }[] },
   defaultLocale?: string,
 ): string => {
   const { fallbackLocale, defaultLocale: configDefaultLocale, locales } = config
@@ -37,7 +37,7 @@ export const detectCurrentLocale = (
     if (cleanPath) {
       const pathSegments = cleanPath.split('/').filter(Boolean)
       const firstSegment = pathSegments[0] || ''
-      if (firstSegment && locales.some(l => l.code === firstSegment)) {
+      if (firstSegment && locales.some((l) => l.code === firstSegment)) {
         return firstSegment
       }
     }
@@ -45,11 +45,11 @@ export const detectCurrentLocale = (
 
   // 4. Other fallbacks (Cookie, Header, Default)
   return (
-    getCookie(event, 'user-locale')
-    || event.headers.get('accept-language')?.split(',')[0]
-    || fallbackLocale
-    || defaultLocale
-    || configDefaultLocale
-    || 'en'
+    getCookie(event, 'user-locale') ||
+    event.headers.get('accept-language')?.split(',')[0] ||
+    fallbackLocale ||
+    defaultLocale ||
+    configDefaultLocale ||
+    'en'
   ).toString()
 }

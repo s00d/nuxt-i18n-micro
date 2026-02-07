@@ -61,7 +61,7 @@ describe('PrefixExceptDefaultPathStrategy - localeRoute edge cases', () => {
   test('handles nested route with custom parent path (lines 194-196)', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: {
-        'parent': { en: '/parent-en', de: '/eltern' },
+        parent: { en: '/parent-en', de: '/eltern' },
         'parent-child': { en: '/child-en', de: '/kind' },
       },
     })
@@ -285,7 +285,7 @@ describe('PrefixExceptDefaultPathStrategy - nested routes (lines 404, 412, 430-4
     const ctx = makeCtx({
       globalLocaleRoutes: {
         'activity/hiking': { en: '/hiking-en', de: '/wandern' },
-        'activity': { en: '/activity-en', de: '/aktivitaet' },
+        activity: { en: '/activity-en', de: '/aktivitaet' },
       },
     })
     const router = makeRouterAdapter(['localized-activity-hiking-en', 'localized-activity-hiking-de'])
@@ -362,7 +362,7 @@ describe('PrefixExceptDefaultPathStrategy - resolveLocaleRoute with resolved.nam
     const ctx = makeCtx({
       globalLocaleRoutes: {
         'products/detail': { en: '/detail-en', de: '/details-de' },
-        'products': { en: '/products-en', de: '/produkte' },
+        products: { en: '/products-en', de: '/produkte' },
       },
     })
     const router = makeRouterAdapter(['localized-products-detail-en', 'localized-products-detail-de'])

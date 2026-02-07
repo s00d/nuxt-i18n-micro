@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with switch statement
 const getLocalePath = (locale: string) => {
@@ -25,9 +24,12 @@ const locales = ['en', 'de', 'fr']
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: locales.reduce((acc, locale) => {
-    acc[locale] = getLocalePath(locale)
-    return acc
-  }, {} as Record<string, string>)
+  localeRoutes: locales.reduce(
+    (acc, locale) => {
+      acc[locale] = getLocalePath(locale)
+      return acc
+    },
+    {} as Record<string, string>,
+  ),
 })
 </script>

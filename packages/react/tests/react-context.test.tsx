@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-import { describe, test, expect, jest } from '@jest/globals'
+import { describe, expect, jest, test } from '@jest/globals'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
-import { render, screen, waitFor, act } from '@testing-library/react'
 import { createI18n, I18nProvider, useI18n } from '../src'
 
 // Test component that uses useI18n
@@ -166,9 +165,14 @@ describe('I18nProvider and useI18n', () => {
       },
     })
 
-    i18n.addRouteTranslations('en', 'home', {
-      title: 'Home Title',
-    }, false)
+    i18n.addRouteTranslations(
+      'en',
+      'home',
+      {
+        title: 'Home Title',
+      },
+      false,
+    )
 
     // @ts-expect-error - React.FC type compatibility
     const RouteTestComponent: React.FC<{}> = () => {

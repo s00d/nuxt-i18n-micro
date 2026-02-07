@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with Symbol properties
 const LOCALE_SYMBOL = Symbol('locale')
@@ -16,12 +15,12 @@ const config = {
   [PATH_SYMBOL]: {
     en: '/welcome',
     de: '/willkommen',
-    fr: '/bienvenue'
-  }
+    fr: '/bienvenue',
+  },
 }
 
 $defineI18nRoute({
   locales: config[LOCALE_SYMBOL],
-  localeRoutes: config[PATH_SYMBOL]
+  localeRoutes: config[PATH_SYMBOL],
 })
 </script>

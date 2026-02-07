@@ -5,14 +5,13 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with only localeRoutes property
 $defineI18nRoute({
   localeRoutes: {
-    'en': '/welcome',
-    'de': '/willkommen',
-    'fr': '/bienvenue'
-  }
+    en: '/welcome',
+    de: '/willkommen',
+    fr: '/bienvenue',
+  },
 })
 </script>

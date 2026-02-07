@@ -24,8 +24,7 @@ function findValue<T = unknown>(data: Translations | null | undefined, key: stri
   for (const part of parts) {
     if (value && typeof value === 'object' && part in (value as object)) {
       value = (value as Translations)[part]
-    }
-    else {
+    } else {
       return null
     }
   }
@@ -85,8 +84,7 @@ export function useTranslationHelper(storage?: TranslationStorage) {
       // Perf: при пустом existing — сохраняем ссылку, избегаем O(n) копирования больших объектов
       if (!existing || Object.keys(existing).length === 0) {
         translations.set(key, data)
-      }
-      else {
+      } else {
         translations.set(key, { ...existing, ...data })
       }
     },

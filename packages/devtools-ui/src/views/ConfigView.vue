@@ -80,19 +80,16 @@
 </template>
 
 <script setup lang="ts">
-import { useI18nState } from '../composables/useI18nState'
-import Loader from '../components/ui/Loader.vue'
 import ConfigCard from '../components/config/ConfigCard.vue'
 import LocaleTable from '../components/data/LocaleTable.vue'
-import StatusIndicator from '../components/ui/StatusIndicator.vue'
 import GlobeIcon from '../components/ui/icons/GlobeIcon.vue'
-import SettingsIcon from '../components/ui/icons/SettingsIcon.vue'
 import ServerIcon from '../components/ui/icons/ServerIcon.vue'
+import SettingsIcon from '../components/ui/icons/SettingsIcon.vue'
+import Loader from '../components/ui/Loader.vue'
+import StatusIndicator from '../components/ui/StatusIndicator.vue'
+import { useI18nState } from '../composables/useI18nState'
 
-const {
-  isLoading,
-  configs,
-} = useI18nState()
+const { isLoading, configs } = useI18nState()
 </script>
 
 <style scoped>

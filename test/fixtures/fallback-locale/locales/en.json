@@ -4,11 +4,7 @@
     "title": "Page Title!"
   },
   "global": "global en",
-  "arr": [
-    "aaaa",
-    "bbbb",
-    "cccc"
-  ],
+  "arr": ["aaaa", "bbbb", "cccc"],
   "arr_obj": [
     {
       "key1": "val"

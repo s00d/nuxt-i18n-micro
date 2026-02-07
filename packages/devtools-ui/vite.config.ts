@@ -1,17 +1,17 @@
 import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import dts from 'vite-plugin-dts'
 import tailwindcss from '@tailwindcss/vite'
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   plugins: [
     tailwindcss({
       // Плагин Tailwind CSS 4.0 с Vite
-    }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    }) as any,
     vue({
       customElement: true, // Enable custom element mode for .ce.vue files
-    }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    }) as any,
     dts({
       rollupTypes: false,
       include: ['src/**/*.ts', 'src/**/*.vue', 'vite/**/*.ts'],
@@ -29,7 +29,7 @@ export default defineConfig({
           }
         }
       },
-    }) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    }) as any,
   ],
   build: {
     lib: {
@@ -40,9 +40,7 @@ export default defineConfig({
     },
     rollupOptions: {
       // НЕ добавляем Vue в external - бандлим внутрь для независимости
-      external: [
-        '@i18n-micro/types',
-      ],
+      external: ['@i18n-micro/types'],
       output: {
         exports: 'named',
         globals: {
@@ -52,10 +50,7 @@ export default defineConfig({
       onwarn(warning, warn) {
         // Подавляем предупреждения о sourcemap от плагина Tailwind CSS
         // Эти предупреждения не критичны, так как плагин работает корректно
-        if (
-          warning.message?.includes('Sourcemap is likely to be incorrect')
-          || warning.plugin?.includes('tailwindcss')
-        ) {
+        if (warning.message?.includes('Sourcemap is likely to be incorrect') || warning.plugin?.includes('tailwindcss')) {
           return
         }
         warn(warning)

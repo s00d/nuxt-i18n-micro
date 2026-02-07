@@ -1,10 +1,10 @@
 // src/runtime/server/plugins/watcher.dev.ts
 
 import path from 'node:path'
-import { watch, type FSWatcher } from 'chokidar'
+import { type FSWatcher, watch } from 'chokidar'
+import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
-import type { NitroApp } from 'nitropack'
 
 // Используем тот же ключ что и в server-loader.ts
 const CACHE_KEY = Symbol.for('__NUXT_I18N_SERVER_CACHE__')
@@ -54,9 +54,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         const filePageName = match[1]
         const locale = match[2]
 
-        const aliases = Object.keys(routesLocaleLinks).filter(
-          alias => routesLocaleLinks[alias] === filePageName,
-        )
+        const aliases = Object.keys(routesLocaleLinks).filter((alias) => routesLocaleLinks[alias] === filePageName)
         const targets = [filePageName, ...aliases]
 
         let removed = 0
@@ -74,10 +72,11 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         }
 
         if (removed > 0) {
-          log(`Invalidated page cache for '${filePageName}:${locale}' (including aliases: ${aliases.join(', ') || 'none'}). Removed ${removed} entries.`)
+          log(
+            `Invalidated page cache for '${filePageName}:${locale}' (including aliases: ${aliases.join(', ') || 'none'}). Removed ${removed} entries.`,
+          )
         }
-      }
-      else {
+      } else {
         const match = relativePath.match(/^([^/]+)\.json$/)
         if (!match) return
 
@@ -95,8 +94,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
           log(`Invalidated ALL page caches for locale '${locale}'. Removed ${removed} entries.`)
         }
       }
-    }
-    catch (e) {
+    } catch (e) {
       warn('Failed to invalidate server cache for', filePath, e)
     }
   }

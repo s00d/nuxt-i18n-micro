@@ -5,18 +5,17 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with JavaScript variables
 const locales = ['en', 'de', 'fr']
 const customPaths = {
   en: '/welcome',
   de: '/willkommen',
-  fr: '/bienvenue'
+  fr: '/bienvenue',
 }
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: customPaths
+  localeRoutes: customPaths,
 })
 </script>

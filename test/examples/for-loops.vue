@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with for loops
 const locales: string[] = []
@@ -22,6 +21,6 @@ for (const locale of locales) {
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

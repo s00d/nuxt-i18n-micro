@@ -1,5 +1,5 @@
-import { createI18n, I18n } from '../src'
 import { join } from 'node:path'
+import { createI18n, I18n } from '../src'
 
 describe('I18n (Simple API)', () => {
   const translations = {

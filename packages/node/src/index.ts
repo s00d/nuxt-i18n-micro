@@ -1,20 +1,19 @@
-import { loadTranslations, loadGlobalTranslations, type LoadedTranslations } from './loader'
-import { I18n, createI18n, type I18nOptions } from './i18n'
+import { createI18n, I18n, type I18nOptions } from './i18n'
+import { type LoadedTranslations, loadGlobalTranslations, loadTranslations } from './loader'
 
 export type { LoadedTranslations, I18nOptions }
 
 export { I18n, createI18n, loadTranslations, loadGlobalTranslations }
 
+// Re-export utilities from core
+export { FormatService, interpolate } from '@i18n-micro/core'
 // Re-export types from @i18n-micro/types
 export type {
-  Translations,
-  Params,
-  PluralFunc,
+  CleanTranslation,
   Getter,
   Locale,
   LocaleCode,
-  CleanTranslation,
+  Params,
+  PluralFunc,
+  Translations,
 } from '@i18n-micro/types'
-
-// Re-export utilities from core
-export { interpolate, FormatService } from '@i18n-micro/core'

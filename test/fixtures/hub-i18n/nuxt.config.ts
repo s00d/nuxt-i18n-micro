@@ -2,10 +2,7 @@ import MyModule from '../../../src/module'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // https://nuxt.com/modules
-  modules: [
-    '@nuxthub/core',
-    MyModule,
-  ],
+  modules: ['@nuxthub/core', MyModule],
 
   // https://devtools.nuxt.com
   devtools: { enabled: false },
@@ -22,7 +19,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-07-30',
 
   // https://hub.nuxt.com/docs/getting-started/installation#options
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   hub: {},
 

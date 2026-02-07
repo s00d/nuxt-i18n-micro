@@ -58,8 +58,7 @@ const loadTestTranslations = async () => {
     await $loadPageTranslations(currentLocale, routeName, testTranslations)
     translationsLoaded.value = true
     console.log('Translations loaded successfully:', testTranslations)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error loading translations:', error)
   }
 }

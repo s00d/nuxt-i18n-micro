@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
@@ -10,17 +9,11 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: '@i18n-micro/node',
       formats: ['cjs', 'es'],
-      fileName: format => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
+      fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
       // Важно: не бандлим зависимости, они должны ставиться через npm
-      external: [
-        '@i18n-micro/core',
-        '@i18n-micro/types',
-        'node:fs/promises',
-        'node:path',
-        'node:fs',
-      ],
+      external: ['@i18n-micro/core', '@i18n-micro/types', 'node:fs/promises', 'node:path', 'node:fs'],
     },
     // Для Node.js таргета
     target: 'node18',

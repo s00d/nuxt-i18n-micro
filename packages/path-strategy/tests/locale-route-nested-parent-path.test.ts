@@ -30,7 +30,7 @@ describe('localeRoute: nested route includes parent path', () => {
   test('activity-locale-skiing (child of activity-locale): en path must be /change-activity/book-activity/skiing', () => {
     const router = makeRouterAdapter(['activity-locale', 'activity-locale-skiing'])
     router.resolve = (to: unknown) => {
-      const r = to as { name?: string, path?: string }
+      const r = to as { name?: string; path?: string }
       if (r.name === 'activity-locale-skiing') {
         return {
           name: 'activity-locale-skiing',
@@ -57,7 +57,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('en', { name: 'activity-locale-skiing' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/change-activity/book-activity/skiing')
   })
 
@@ -85,7 +90,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('de', { name: 'activity-locale-skiing' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/aktivitaet-buchen/ski-fahren')
   })
 
@@ -113,7 +123,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('de', { name: 'activity-locale-hiking' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/hiking')
   })
 
@@ -140,7 +155,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('de', { name: 'activity-locale-hiking' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/hiking')
   })
 
@@ -167,7 +187,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('en', { name: 'activity-locale-hiking' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/change-activity/hiking')
   })
 
@@ -194,7 +219,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('de', { name: 'activity-locale-hiking' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/hiking')
   })
 
@@ -213,7 +243,12 @@ describe('localeRoute: nested route includes parent path', () => {
     }
     const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
     const result = strategy.localeRoute('de', { name: 'about' })
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/ueber-uns')
   })
 
@@ -241,7 +276,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('de', { name: 'activity-locale-skiing' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/aktivitaet-buchen/ski-fahren')
   })
 
@@ -269,7 +309,12 @@ describe('localeRoute: nested route includes parent path', () => {
       hash: '',
     }
     const result = strategy.localeRoute('de', { name: 'activity-locale-hiking' }, currentRoute)
-    const pathStr = typeof result === 'string' ? result : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : (result as { fullPath?: string }).fullPath ?? '')
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/hiking')
   })
 })

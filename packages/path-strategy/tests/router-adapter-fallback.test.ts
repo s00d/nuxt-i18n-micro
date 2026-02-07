@@ -1,11 +1,6 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
-import {
-  PrefixPathStrategy,
-  PrefixExceptDefaultPathStrategy,
-  PrefixAndDefaultPathStrategy,
-  NoPrefixPathStrategy,
-} from '../src'
+import { NoPrefixPathStrategy, PrefixAndDefaultPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {

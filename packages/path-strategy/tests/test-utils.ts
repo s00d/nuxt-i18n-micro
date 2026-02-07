@@ -8,10 +8,7 @@ export interface MakeRouterAdapterOptions {
   pathFromName?: (name: string, params: Record<string, unknown>) => string | null
 }
 
-export const makeRouterAdapter = (
-  existingNames: string[] = [],
-  options: MakeRouterAdapterOptions = {},
-): RouterAdapter => {
+export const makeRouterAdapter = (existingNames: string[] = [], options: MakeRouterAdapterOptions = {}): RouterAdapter => {
   const { throwOnUnknownName = false, pathFromName } = options
   return {
     hasRoute: (name: string) => existingNames.includes(name),

@@ -27,10 +27,7 @@ import { useAsyncData } from '#imports'
 
 const locale = 'de'
 
-const { data: translations } = await useAsyncData(
-  `translations-${locale}`,
-  () => $fetch(`/api/translations/${locale}`),
-)
+const { data: translations } = await useAsyncData(`translations-${locale}`, () => $fetch(`/api/translations/${locale}`))
 
 function t(path) {
   if (!translations.value) return path

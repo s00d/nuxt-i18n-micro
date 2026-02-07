@@ -1,4 +1,4 @@
-import type { Strategies, Locale, I18nRouteParams } from '@i18n-micro/types'
+import type { I18nRouteParams, Locale, Strategies } from '@i18n-micro/types'
 
 /** Custom path rules: route key -> locale -> path segment. false = unlocalized route. */
 export type GlobalLocaleRoutes = Record<string, Record<string, string> | false | boolean>
@@ -24,9 +24,9 @@ export interface ResolvedRouteLike extends RouteLike {
 }
 
 /** Normalized input for resolveLocaleRoute (template method). */
-export type NormalizedRouteInput
-  = | { kind: 'path', path: string }
-    | { kind: 'route', inputName: string | null, sourceRoute: RouteLike, resolved: ResolvedRouteLike }
+export type NormalizedRouteInput =
+  | { kind: 'path'; path: string }
+  | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
 
 export interface RouterAdapter {
   hasRoute: (name: string) => boolean
@@ -71,31 +71,19 @@ export interface PathStrategy {
   /**
    * Returns a route object to navigate to another locale from the current page.
    */
-  switchLocaleRoute(
-    fromLocale: string,
-    toLocale: string,
-    route: ResolvedRouteLike,
-    options: SwitchLocaleOptions,
-  ): RouteLike | string
+  switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string
 
   /**
    * Localizes the given route (object or string) for the target locale.
    * Always returns RouteLike (path and fullPath set). Analogue of $localeRoute / resolveLocalizedRoute.
    */
-  localeRoute(
-    targetLocale: string,
-    routeOrPath: RouteLike | string,
-    currentRoute?: ResolvedRouteLike,
-  ): RouteLike
+  localeRoute(targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike): RouteLike
 
   /**
    * Checks if there is a custom path for the given route in globalLocaleRoutes.
    * Used by redirect logic. Returns a path or null.
    */
-  getCanonicalPath(
-    route: ResolvedRouteLike,
-    targetLocale: string,
-  ): string | null
+  getCanonicalPath(route: ResolvedRouteLike, targetLocale: string): string | null
 
   /**
    * Determines locale from URL path (strategy-specific).

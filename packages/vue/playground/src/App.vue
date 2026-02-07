@@ -36,9 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { watch, computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { I18nLink, I18nSwitcher, useI18n } from '@i18n-micro/vue'
+import { computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { defaultLocale } from './app-config'
 
 const route = useRoute()
@@ -49,8 +49,7 @@ let i18nResult: ReturnType<typeof useI18n>
 try {
   i18nResult = useI18n()
   console.log('[playground] useI18n() succeeded:', i18nResult)
-}
-catch (error) {
+} catch (error) {
   console.error('[playground] useI18n() failed:', error)
   throw error
 }

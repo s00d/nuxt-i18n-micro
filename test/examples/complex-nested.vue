@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 // Complex object with nested structure
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: {

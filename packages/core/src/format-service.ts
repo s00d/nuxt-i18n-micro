@@ -20,7 +20,7 @@ export class FormatService {
     const now = new Date()
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-    const units: { unit: Intl.RelativeTimeFormatUnit, seconds: number }[] = [
+    const units: { unit: Intl.RelativeTimeFormatUnit; seconds: number }[] = [
       { unit: 'year', seconds: 31536000 },
       { unit: 'month', seconds: 2592000 },
       { unit: 'day', seconds: 86400 },

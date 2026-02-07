@@ -1,6 +1,6 @@
 import path from 'node:path'
+import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
-import type { Locale, Strategies, GlobalLocaleRoutes } from '@i18n-micro/types'
 import { RouteGenerator } from '../src/index'
 
 export const locales: Locale[] = [
@@ -35,9 +35,7 @@ export function createNestedPages(): NuxtPage[] {
           path: 'child',
           name: 'parent-child',
           file: '/pages/parent/child.vue',
-          children: [
-            { path: 'grandchild', name: 'parent-child-grandchild', file: '/pages/parent/child/grandchild.vue' },
-          ],
+          children: [{ path: 'grandchild', name: 'parent-child-grandchild', file: '/pages/parent/child/grandchild.vue' }],
         },
       ],
     },

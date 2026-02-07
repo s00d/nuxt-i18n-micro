@@ -1,5 +1,5 @@
 import type { I18nDevToolsBridge, LocaleData, TranslationContent } from '../bridge/interface'
-import type { JsonRpcRequest, JsonRpcResponse, JsonRpcEvent } from './types'
+import type { JsonRpcEvent, JsonRpcRequest, JsonRpcResponse } from './types'
 
 function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2)
@@ -31,8 +31,7 @@ export function createRpcClient(): I18nDevToolsBridge {
         pending.delete(data.id)
         if (data.error) {
           reject(new Error(data.error.message))
-        }
-        else {
+        } else {
           resolve(data.result)
         }
       }

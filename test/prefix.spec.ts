@@ -5,8 +5,6 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
     nuxtConfig: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       i18n: {
         strategy: 'prefix',
         localeCookie: 'user-locale',
@@ -63,14 +61,16 @@ test.describe('prefix strategy', () => {
     await page.context().clearCookies()
 
     // Set cookie to non-default locale (de)
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'de',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'de',
+        url: baseURL!,
+      },
+    ])
 
     // Track responses to check for redirect behavior
-    const responses: { url: string, status: number }[] = []
+    const responses: { url: string; status: number }[] = []
     page.on('response', (response) => {
       responses.push({ url: response.url(), status: response.status() })
     })
@@ -84,7 +84,7 @@ test.describe('prefix strategy', () => {
     await expect(page.locator('#content')).toHaveText('de')
 
     // Check that the first response was a redirect (302), not an error
-    const rootResponse = responses.find(r => r.url.endsWith('/') && !r.url.includes('/de'))
+    const rootResponse = responses.find((r) => r.url.endsWith('/') && !r.url.includes('/de'))
     if (rootResponse) {
       // Should be 302 redirect, not 404/500
       expect([200, 301, 302]).toContain(rootResponse.status)

@@ -10,7 +10,6 @@
  * This is a complex configuration
  * with multiple locales and paths
  */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   // Single line comment for locales

@@ -9,7 +9,6 @@
 const isProduction = process.env.NODE_ENV === 'production'
 const locales = isProduction ? ['en', 'de'] : ['en', 'de', 'fr', 'es']
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: locales,

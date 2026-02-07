@@ -1,7 +1,7 @@
-import { inject, computed } from 'vue'
-import { I18nInjectionKey, I18nLocalesKey, I18nDefaultLocaleKey, I18nRouterKey } from './injection'
-import type { VueI18n } from './composer'
 import type { Locale } from '@i18n-micro/types'
+import { computed, inject } from 'vue'
+import type { VueI18n } from './composer'
+import { I18nDefaultLocaleKey, I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from './injection'
 import type { I18nRoutingStrategy } from './router/types'
 
 export interface UseI18nOptions {
@@ -57,7 +57,7 @@ export function useI18n(options?: UseI18nOptions) {
     getLocales: () => locales,
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
-      const current = locales.find(l => l.code === i18n.locale.value)
+      const current = locales.find((l) => l.code === i18n.locale.value)
       return current?.displayName || null
     },
 
@@ -65,7 +65,7 @@ export function useI18n(options?: UseI18nOptions) {
     localeRoute: resolveLocalePath,
     localePath: (to: string | { path?: string }, locale?: string): string => {
       const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : (res.path || '/')
+      return typeof res === 'string' ? res : res.path || '/'
     },
     switchLocale: (newLocale: string) => {
       i18n.locale.value = newLocale

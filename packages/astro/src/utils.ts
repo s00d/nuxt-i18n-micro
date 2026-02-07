@@ -1,6 +1,6 @@
-import type { AstroI18n } from './composer'
-import type { Params, Locale, CleanTranslation, TranslationKey, Translations } from '@i18n-micro/types'
+import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import type { AstroGlobal } from 'astro'
+import type { AstroI18n } from './composer'
 import type { I18nRoutingStrategy } from './router/types'
 import './env.d'
 
@@ -12,8 +12,7 @@ export function getI18n(astro: AstroGlobal): AstroI18n {
   if (!i18n) {
     throw new Error('i18n instance not found. Make sure i18n middleware is configured.')
   }
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-expect-error private property mismatch between src and dist types
   return i18n
 }
 
@@ -42,8 +41,6 @@ export function getLocales(astro: AstroGlobal): Locale[] {
  * Get routing strategy from Astro locals
  */
 function getRoutingStrategy(astro: AstroGlobal): I18nRoutingStrategy | null {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   return (astro.locals.routingStrategy as I18nRoutingStrategy | undefined) || null
 }
 
@@ -56,7 +53,7 @@ export function useI18n(astro: AstroGlobal) {
   const locale = getLocale(astro)
   const defaultLocale = getDefaultLocale(astro)
   const locales = getLocales(astro)
-  const localeCodes = locales.map(l => l.code)
+  const localeCodes = locales.map((l) => l.code)
   const routingStrategy = getRoutingStrategy(astro)
 
   return {
@@ -115,7 +112,7 @@ export function useI18n(astro: AstroGlobal) {
       // Fallback: check first segment
       const segments = targetPath.split('/').filter(Boolean)
       const firstSegment = segments[0]
-      return (firstSegment && localeCodes.includes(firstSegment)) ? firstSegment : defaultLocale
+      return firstSegment && localeCodes.includes(firstSegment) ? firstSegment : defaultLocale
     },
 
     // Path utilities
@@ -217,16 +214,12 @@ export interface LocaleHeadResult {
 }
 
 export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {}): LocaleHeadResult {
-  const {
-    baseUrl = '/',
-    addDirAttribute = true,
-    addSeoAttributes = true,
-  } = options
+  const { baseUrl = '/', addDirAttribute = true, addSeoAttributes = true } = options
 
   const locale = getLocale(astro)
   const defaultLocale = getDefaultLocale(astro)
   const locales = getLocales(astro)
-  const currentLocaleObj = locales.find(l => l.code === locale)
+  const currentLocaleObj = locales.find((l) => l.code === locale)
 
   if (!currentLocaleObj) {
     return { htmlAttrs: {}, link: [], meta: [] }
@@ -257,7 +250,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
 
   // Get routing strategy
   const routingStrategy = getRoutingStrategy(astro)
-  const allLocaleCodes = locales.map(l => l.code)
+  const allLocaleCodes = locales.map((l) => l.code)
 
   // Alternate languages
   for (const loc of locales) {
@@ -266,8 +259,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
     let alternatePath = astro.url.pathname
     if (routingStrategy?.switchLocalePath) {
       alternatePath = routingStrategy.switchLocalePath(astro.url.pathname, loc.code, allLocaleCodes, defaultLocale)
-    }
-    else {
+    } else {
       // Fallback: basic locale switching
       const segments = astro.url.pathname.split('/').filter(Boolean)
       const firstSegment = segments[0]
@@ -382,8 +374,7 @@ export function getI18nProps(astro: AstroGlobal, keys?: string[]): I18nClientPro
     if (Object.keys(extracted).length > 0) {
       translations[currentRoute] = extracted
     }
-  }
-  else {
+  } else {
     // Если ключи не указаны, берем route-specific переводы
     // Используем публичный метод getRouteTranslations для безопасного доступа
     const routeTrans = i18n.getRouteTranslations(locale, currentRoute)

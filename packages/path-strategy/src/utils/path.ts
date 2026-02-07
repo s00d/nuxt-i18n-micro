@@ -3,16 +3,16 @@
  */
 import type { QueryObject } from 'ufo'
 import {
+  cleanDoubleSlashes,
+  hasProtocol,
+  isEmptyURL,
   joinURL,
+  parseFilename,
+  parsePath,
+  withFragment,
   withLeadingSlash,
   withoutTrailingSlash,
-  cleanDoubleSlashes,
   withQuery,
-  withFragment,
-  parsePath,
-  parseFilename,
-  isEmptyURL,
-  hasProtocol,
 } from 'ufo'
 
 /** Path segments without leading/repeated slashes (ufo parsePath.pathname). */

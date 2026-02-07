@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with recursive function
 function generateLocales(count: number): string[] {
@@ -18,13 +17,13 @@ function generatePaths(locales: string[]): Record<string, string> {
   if (locales.length === 0) return {}
   const [first, ...rest] = locales
   const paths = {
-    'en': '/welcome',
-    'de': '/willkommen',
-    'fr': '/bienvenue'
+    en: '/welcome',
+    de: '/willkommen',
+    fr: '/bienvenue',
   }
   return {
     [first]: paths[first as keyof typeof paths] || `/${first}`,
-    ...generatePaths(rest)
+    ...generatePaths(rest),
   }
 }
 
@@ -33,6 +32,6 @@ const localeRoutes = generatePaths(locales)
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

@@ -1,5 +1,5 @@
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
-import { resolve, join } from 'node:path'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import type { Translations } from '@i18n-micro/types'
 
 /**
@@ -64,17 +64,14 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
         // If it's a 'pages' directory and page locales are enabled, treat as route-specific
         if (entry === 'pages' && !disablePageLocales) {
           loadFiles(fullPath, '')
-        }
-        else if (routePrefix || disablePageLocales) {
+        } else if (routePrefix || disablePageLocales) {
           // Continue in general translations
           loadFiles(fullPath, routePrefix)
-        }
-        else {
+        } else {
           // This is a route directory (e.g., pages/home/)
           loadFiles(fullPath, entry)
         }
-      }
-      else if (entry.endsWith('.json')) {
+      } else if (entry.endsWith('.json')) {
         const locale = entry.replace('.json', '')
         try {
           const content = readFileSync(fullPath, 'utf-8')
@@ -86,13 +83,11 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
               routes[routePrefix] = {}
             }
             routes[routePrefix][locale] = translations
-          }
-          else {
+          } else {
             // General translation
             general[locale] = translations
           }
-        }
-        catch (error) {
+        } catch (error) {
           console.error(`[i18n] Failed to load translation file: ${fullPath}`, error)
         }
       }
@@ -111,7 +106,10 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
  * For Edge environments, use import.meta.glob to load translations at build time.
  */
 export function loadTranslationsIntoI18n(
-  i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void, addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void },
+  i18n: {
+    addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+    addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
+  },
   options: LoadTranslationsOptions,
 ): void {
   const { general, routes } = loadTranslationsFromDir(options)

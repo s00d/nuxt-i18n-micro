@@ -1,4 +1,4 @@
-import { render, h } from 'preact'
+import { h, render } from 'preact'
 import App from './App'
 
 const appElement = document.getElementById('app')

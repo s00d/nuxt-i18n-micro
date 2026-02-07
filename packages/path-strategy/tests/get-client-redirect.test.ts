@@ -1,6 +1,6 @@
+import type { PathStrategyContext } from '../src'
 import { createPathStrategy } from '../src'
 import { makeRouterAdapter } from './test-utils'
-import type { PathStrategyContext } from '../src'
 
 describe('getClientRedirect', () => {
   describe('prefix strategy', () => {
@@ -45,37 +45,43 @@ describe('getClientRedirect', () => {
     })
 
     it('uses custom path from globalLocaleRoutes', () => {
-      const strategy = createPathStrategy(makeContext({
-        globalLocaleRoutes: {
-          page2: {
-            en: '/custom-page2-en',
-            de: '/custom-page2-de',
+      const strategy = createPathStrategy(
+        makeContext({
+          globalLocaleRoutes: {
+            page2: {
+              en: '/custom-page2-en',
+              de: '/custom-page2-de',
+            },
           },
-        },
-      }))
+        }),
+      )
       const result = strategy.getClientRedirect('/page2', 'en')
       expect(result).toBe('/en/custom-page2-en')
     })
 
     it('uses custom path for non-default locale', () => {
-      const strategy = createPathStrategy(makeContext({
-        globalLocaleRoutes: {
-          page2: {
-            en: '/custom-page2-en',
-            de: '/custom-page2-de',
+      const strategy = createPathStrategy(
+        makeContext({
+          globalLocaleRoutes: {
+            page2: {
+              en: '/custom-page2-en',
+              de: '/custom-page2-de',
+            },
           },
-        },
-      }))
+        }),
+      )
       const result = strategy.getClientRedirect('/page2', 'de')
       expect(result).toBe('/de/custom-page2-de')
     })
 
     it('returns null for unlocalized routes', () => {
-      const strategy = createPathStrategy(makeContext({
-        globalLocaleRoutes: {
-          unlocalized: false,
-        },
-      }))
+      const strategy = createPathStrategy(
+        makeContext({
+          globalLocaleRoutes: {
+            unlocalized: false,
+          },
+        }),
+      )
       const result = strategy.getClientRedirect('/unlocalized', 'en')
       expect(result).toBeNull()
     })
@@ -130,37 +136,43 @@ describe('getClientRedirect', () => {
     })
 
     it('uses custom path from globalLocaleRoutes for non-default locale', () => {
-      const strategy = createPathStrategy(makeContext({
-        globalLocaleRoutes: {
-          page2: {
-            en: '/custom-page2-en',
-            de: '/custom-page2-de',
+      const strategy = createPathStrategy(
+        makeContext({
+          globalLocaleRoutes: {
+            page2: {
+              en: '/custom-page2-en',
+              de: '/custom-page2-de',
+            },
           },
-        },
-      }))
+        }),
+      )
       const result = strategy.getClientRedirect('/page2', 'de')
       expect(result).toBe('/de/custom-page2-de')
     })
 
     it('uses custom path for default locale (no prefix)', () => {
-      const strategy = createPathStrategy(makeContext({
-        globalLocaleRoutes: {
-          page2: {
-            en: '/custom-page2-en',
-            de: '/custom-page2-de',
+      const strategy = createPathStrategy(
+        makeContext({
+          globalLocaleRoutes: {
+            page2: {
+              en: '/custom-page2-en',
+              de: '/custom-page2-de',
+            },
           },
-        },
-      }))
+        }),
+      )
       const result = strategy.getClientRedirect('/page2', 'en')
       expect(result).toBe('/custom-page2-en')
     })
 
     it('returns null for unlocalized routes', () => {
-      const strategy = createPathStrategy(makeContext({
-        globalLocaleRoutes: {
-          unlocalized: false,
-        },
-      }))
+      const strategy = createPathStrategy(
+        makeContext({
+          globalLocaleRoutes: {
+            unlocalized: false,
+          },
+        }),
+      )
       const result = strategy.getClientRedirect('/unlocalized', 'de')
       expect(result).toBeNull()
     })
@@ -196,14 +208,16 @@ describe('getClientRedirect', () => {
       })
 
       it('uses custom path with prefix for default locale', () => {
-        const strategy = createPathStrategy(makeContextWithInclude({
-          globalLocaleRoutes: {
-            page2: {
-              en: '/custom-page2-en',
-              de: '/custom-page2-de',
+        const strategy = createPathStrategy(
+          makeContextWithInclude({
+            globalLocaleRoutes: {
+              page2: {
+                en: '/custom-page2-en',
+                de: '/custom-page2-de',
+              },
             },
-          },
-        }))
+          }),
+        )
         const result = strategy.getClientRedirect('/page2', 'en')
         expect(result).toBe('/en/custom-page2-en')
       })

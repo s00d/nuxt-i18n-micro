@@ -1,6 +1,6 @@
+import { I18nDefaultLocaleKey, I18nLocalesKey, type I18nPlugin } from '@i18n-micro/vue'
 import type { App } from 'vue'
-import { I18nLocalesKey, I18nDefaultLocaleKey, type I18nPlugin } from '@i18n-micro/vue'
-import { localesConfig, defaultLocale } from './app-config'
+import { defaultLocale, localesConfig } from './app-config'
 
 /**
  * Load translations for a locale
@@ -12,8 +12,7 @@ export async function loadTranslations(
   try {
     const messages = await import(`./locales/${locale}.json`)
     i18nInstance.addTranslations(locale, messages.default, false)
-  }
-  catch (error) {
+  } catch (error) {
     console.error(`Failed to load translations for locale: ${locale}`, error)
   }
 }
@@ -53,13 +52,9 @@ export async function preloadTranslations(
   i18nInstance: ReturnType<typeof import('@i18n-micro/vue').createI18n>['global'],
   initialLocale: string = defaultLocale,
 ): Promise<void> {
-  const otherLocales = localesConfig
-    .map(locale => locale.code)
-    .filter(code => code !== initialLocale)
+  const otherLocales = localesConfig.map((locale) => locale.code).filter((code) => code !== initialLocale)
 
-  await Promise.all(
-    otherLocales.map(locale => loadTranslations(i18nInstance, locale)),
-  ).catch(() => {
+  await Promise.all(otherLocales.map((locale) => loadTranslations(i18nInstance, locale))).catch(() => {
     // Ignore errors for preloading
   })
 }

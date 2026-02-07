@@ -6,20 +6,14 @@
  *  – проверка тех же страниц и функциональности
  */
 
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { spawn, type ChildProcess, exec as execCb } from 'node:child_process'
-import { promisify } from 'node:util'
+import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
 import net from 'node:net'
+import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
+import { promisify } from 'node:util'
 import { rimraf } from 'rimraf'
-import {
-  describe,
-  it,
-  beforeAll,
-  afterAll,
-  expect,
-} from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 /* ──────────────── settings ──────────────── */
 
@@ -58,14 +52,15 @@ export async function getFreePort(base = 20011, max = 20): Promise<number> {
         srv.once('error', reject)
 
         srv.once('listening', () => {
-          srv.close(err => err ? reject(err) : resolve())
+          srv.close((err) => (err ? reject(err) : resolve()))
         })
 
         srv.listen(port, '127.0.0.1')
       })
       return port
+    } catch {
+      /* порт занят, пробуем следующий */
     }
-    catch { /* порт занят, пробуем следующий */ }
   }
   throw new Error(`No free port in range ${base}-${base + max}`)
 }
@@ -75,21 +70,22 @@ async function freePort(port: number) {
   if (process.platform === 'win32') {
     try {
       const { stdout } = await exec(`netstat -ano | findstr :${port}`)
-      const pids = stdout.trim().split('\n')
-        .map(l => l.trim().split(/\s+/).pop())
+      const pids = stdout
+        .trim()
+        .split('\n')
+        .map((l) => l.trim().split(/\s+/).pop())
         .filter(Boolean)
-      for (const pid of pids)
-        await exec(`taskkill /PID ${pid} /F`)
+      for (const pid of pids) await exec(`taskkill /PID ${pid} /F`)
+    } catch {
+      /* empty */
     }
-    catch { /* empty */ }
-  }
-  else {
+  } else {
     try {
       const { stdout } = await exec(`lsof -ti tcp:${port}`)
-      for (const pid of stdout.trim().split('\n').filter(Boolean))
-        process.kill(Number(pid), 'SIGKILL')
+      for (const pid of stdout.trim().split('\n').filter(Boolean)) process.kill(Number(pid), 'SIGKILL')
+    } catch {
+      /* empty */
     }
-    catch { /* empty */ }
   }
 }
 
@@ -100,8 +96,9 @@ async function waitForText(url: string, text: string, tries = 40, ms = 500) {
       const response = await fetch(url)
       const html = await response.text()
       if (html.includes(text)) return
+    } catch {
+      /* сервер не поднялся */
     }
-    catch { /* сервер не поднялся */ }
     await delay(ms)
   }
   throw new Error(`"${text}" not found at ${url}`)
@@ -128,11 +125,7 @@ function runNuxt(script: 'generate' | 'build'): Promise<void> {
       env,
     })
     child.unref()
-    child.on('exit', code =>
-      code === 0
-        ? resolve()
-        : reject(new Error(`npm run ${script} exited with code ${code}`)),
-    )
+    child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`npm run ${script} exited with code ${code}`))))
   })
 }
 

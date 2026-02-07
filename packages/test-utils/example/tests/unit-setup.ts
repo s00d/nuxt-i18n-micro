@@ -1,6 +1,6 @@
+import { i18nUtils } from '@i18n-micro/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { vi } from 'vitest'
-import { i18nUtils } from '@i18n-micro/test-utils'
 
 export function createFakeI18n() {
   return {
@@ -31,8 +31,6 @@ export function createFakeI18n() {
   }
 }
 
-mockNuxtImport<() => ReturnType<typeof createFakeI18n>>('useI18n', () =>
-  vi.fn(() => createFakeI18n()),
-)
+mockNuxtImport<() => ReturnType<typeof createFakeI18n>>('useI18n', () => vi.fn(() => createFakeI18n()))
 
 export const setTranslationsFromJson = i18nUtils.setTranslationsFromJson

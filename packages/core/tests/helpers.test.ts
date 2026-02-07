@@ -1,10 +1,10 @@
 import {
   interpolate,
-  withPrefixStrategy,
   isNoPrefixStrategy,
-  isPrefixStrategy,
-  isPrefixExceptDefaultStrategy,
   isPrefixAndDefaultStrategy,
+  isPrefixExceptDefaultStrategy,
+  isPrefixStrategy,
+  withPrefixStrategy,
 } from '../src/helpers'
 
 describe('Helpers', () => {

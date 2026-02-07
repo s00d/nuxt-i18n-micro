@@ -81,7 +81,7 @@ test.describe('Layout Switch and Cookie Redirect', () => {
 
       // Get cookies
       const cookies = await page.context().cookies()
-      const localeCookie = cookies.find(c => c.name === 'i18n_locale')
+      const localeCookie = cookies.find((c) => c.name === 'i18n_locale')
       expect(localeCookie?.value).toBe('ja')
 
       // Now visit homepage directly - should redirect to /ja based on cookie
@@ -98,12 +98,14 @@ test.describe('Layout Switch and Cookie Redirect', () => {
       await goto('/', { waitUntil: 'hydration' })
 
       // Set cookie to Japanese
-      await page.context().addCookies([{
-        name: 'i18n_locale',
-        value: 'ja',
-        domain: new URL(baseURL!).hostname,
-        path: '/',
-      }])
+      await page.context().addCookies([
+        {
+          name: 'i18n_locale',
+          value: 'ja',
+          domain: new URL(baseURL!).hostname,
+          path: '/',
+        },
+      ])
 
       // Set Chinese Accept-Language
       await page.setExtraHTTPHeaders({

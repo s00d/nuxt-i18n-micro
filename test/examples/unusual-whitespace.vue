@@ -5,15 +5,14 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with unusual whitespace and formatting
-$defineI18nRoute(    {
-    locales    :    [    'en'    ,    'de'    ,    'fr'    ]    ,
-    localeRoutes    :    {
-        'en'    :    '/welcome'    ,
-        'de'    :    '/willkommen'    ,
-        'fr'    :    '/bienvenue'
-    }
-}    )
+$defineI18nRoute({
+  locales: ['en', 'de', 'fr'],
+  localeRoutes: {
+    en: '/welcome',
+    de: '/willkommen',
+    fr: '/bienvenue',
+  },
+})
 </script>

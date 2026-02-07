@@ -1,4 +1,4 @@
-import { defineNuxtModule, addTypeTemplate } from '@nuxt/kit'
+import { addTypeTemplate, defineNuxtModule } from '@nuxt/kit'
 import { getTypesString } from './core/generator'
 
 export interface I18nTypesGeneratorOptions {
@@ -17,9 +17,7 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
   async setup(options, nuxt) {
     // translationDir из опций модуля или из опций nuxt-i18n-micro (конфиг i18n в #build/i18n.config.mjs и i18n.strategy.mjs)
     const mainModuleI18n = (nuxt.options as { i18n?: { translationDir?: string } }).i18n
-    const translationDir = options.translationDir
-      || mainModuleI18n?.translationDir
-      || 'locales'
+    const translationDir = options.translationDir || mainModuleI18n?.translationDir || 'locales'
 
     const filename = 'types/i18n-micro.d.ts'
 
@@ -34,8 +32,7 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
             srcDir: nuxt.options.rootDir,
             translationDir,
           })
-        }
-        catch (error) {
+        } catch (error) {
           console.warn('[i18n-types] Failed to generate types:', error)
           // Возвращаем пустой файл в случае ошибки
           return `// Failed to generate types: ${error instanceof Error ? error.message : String(error)}`

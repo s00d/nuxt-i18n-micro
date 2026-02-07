@@ -1,14 +1,11 @@
 import { exec, execSync, spawn } from 'node:child_process'
-import { performance } from 'node:perf_hooks'
-import { fileURLToPath } from 'node:url'
 import fs from 'node:fs'
-import path, { dirname, join, relative } from 'node:path'
-import { setTimeout as delay } from 'node:timers/promises'
 import http from 'node:http'
-import {
-  describe,
-  it,
-} from 'vitest'
+import path, { dirname, join, relative } from 'node:path'
+import { performance } from 'node:perf_hooks'
+import { setTimeout as delay } from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
+import { describe, it } from 'vitest'
 
 // ============================================================================
 // TYPES
@@ -91,10 +88,10 @@ interface ArtilleryResult {
 }
 
 interface AutocannonResult {
-  'url': string
-  'title': string
-  'socketPath': string | undefined
-  'requests': {
+  url: string
+  title: string
+  socketPath: string | undefined
+  requests: {
     average: number
     mean: number
     stddev: number
@@ -118,7 +115,7 @@ interface AutocannonResult {
     p99_999: number
     sent: number
   }
-  'latency': {
+  latency: {
     average: number
     mean: number
     stddev: number
@@ -141,7 +138,7 @@ interface AutocannonResult {
     p99_999: number
     totalCount: number
   }
-  'throughput': {
+  throughput: {
     average: number
     mean: number
     stddev: number
@@ -164,15 +161,15 @@ interface AutocannonResult {
     p99_99: number
     p99_999: number
   }
-  'errors': number
-  'timeouts': number
-  'mismatches': number
-  'duration': number
-  'start': string
-  'finish': string
-  'connections': number
-  'pipelining': number
-  'non2xx': number
+  errors: number
+  timeouts: number
+  mismatches: number
+  duration: number
+  start: string
+  finish: string
+  connections: number
+  pipelining: number
+  non2xx: number
   '1xx': number
   '2xx': number
   '3xx': number
@@ -268,7 +265,7 @@ function formatBytes(bytes: number): string {
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
 }
 
 // Paths to package.json
@@ -328,7 +325,7 @@ function measureBundleSize(directory: string): BundleSize {
     return false
   }
 
-  function getDirSizeWithSeparation(dir: string): { total: number, code: number, translations: number } {
+  function getDirSizeWithSeparation(dir: string): { total: number; code: number; translations: number } {
     if (!fs.existsSync(dir)) return { total: 0, code: 0, translations: 0 }
 
     let code = 0
@@ -340,13 +337,11 @@ function measureBundleSize(directory: string): BundleSize {
         const filePath = path.join(currentDir, file.name)
         if (file.isDirectory()) {
           walkDir(filePath)
-        }
-        else {
+        } else {
           const fileSize = fs.statSync(filePath).size
           if (isTranslationFile(filePath)) {
             translations += fileSize
-          }
-          else {
+          } else {
             code += fileSize
           }
         }
@@ -379,8 +374,8 @@ function measureBundleSize(directory: string): BundleSize {
 
 function addDependencyVersions() {
   const dependencies = {
-    'node': process.version,
-    'nuxt': getVersion(rootPackagePath, 'devDependencies', 'nuxt'),
+    node: process.version,
+    nuxt: getVersion(rootPackagePath, 'devDependencies', 'nuxt'),
     'nuxt-i18n-micro': getVersion(rootPackagePath, 'version'),
     '@nuxtjs/i18n': getVersion(i18nPackagePath, 'devDependencies', '@nuxtjs/i18n'),
   }
@@ -390,7 +385,9 @@ function addDependencyVersions() {
 
 | Dependency                   | Version   |
 |-------------------------------|-----------|
-${Object.entries(dependencies).map(([dep, version]) => `| ${dep}                       | ${version} |`).join('\n')}
+${Object.entries(dependencies)
+  .map(([dep, version]) => `| ${dep}                       | ${version} |`)
+  .join('\n')}
   `
 
   writeToMarkdown(dependencySection)
@@ -470,8 +467,7 @@ async function waitForServer(port: number, timeout = 30000): Promise<void> {
           console.log(`Server on port ${port} is ready.`)
           res.destroy()
           resolve()
-        }
-        else {
+        } else {
           res.destroy()
           setTimeout(check, 500)
         }
@@ -486,7 +482,7 @@ async function waitForServer(port: number, timeout = 30000): Promise<void> {
   })
 }
 
-function getProcessUsage(pid: number): { cpu: number, memory: number } | null {
+function getProcessUsage(pid: number): { cpu: number; memory: number } | null {
   try {
     const result = execSync(`ps -p ${pid} -o %cpu,rss`, { encoding: 'utf-8', stdio: 'pipe' }).toString()
     const lines = result.trim().split('\n')
@@ -503,8 +499,7 @@ function getProcessUsage(pid: number): { cpu: number, memory: number } | null {
       cpu: cpu || 0,
       memory: memory ? memory / 1024 : 0,
     }
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     if (error && typeof error === 'object' && 'status' in error && error.status === 1) {
       return null
     }
@@ -571,8 +566,7 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
       cpuUsageSamples++
 
       console.log(`Current CPU: ${cpu}%, Current Memory: ${memory.toFixed(2)} MB`)
-    }
-    catch {
+    } catch {
       // Ignore
     }
   }, 1000)
@@ -582,8 +576,7 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
       childProcess.on('close', (code) => {
         if (code === 0) {
           resolve()
-        }
-        else {
+        } else {
           reject(new Error(`Build process exited with code ${code}`))
         }
       })
@@ -602,7 +595,9 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
     const bundleSize = measureBundleSize(directory)
 
     console.log(`Build completed in: ${buildTime.toFixed(2)} seconds`)
-    console.log(`Bundle size: ${formatBytes(bundleSize.total)} (client: ${formatBytes(bundleSize.client)}, server: ${formatBytes(bundleSize.server)})`)
+    console.log(
+      `Bundle size: ${formatBytes(bundleSize.total)} (client: ${formatBytes(bundleSize.client)}, server: ${formatBytes(bundleSize.server)})`,
+    )
 
     writeToMarkdown(`
 ## Build Performance for ${directory}
@@ -629,8 +624,7 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
       avgMemoryUsed,
       bundleSize,
     }
-  }
-  catch (error) {
+  } catch (error) {
     clearInterval(monitorInterval)
     console.error('Build failed with error:', error)
     throw error
@@ -644,26 +638,21 @@ async function measureBuildPerformance(directory: string): Promise<PerformanceRe
 async function runAutocannonTest(port: number, duration = 10, connections = 10): Promise<AutocannonResult> {
   return new Promise((resolve, reject) => {
     const outputFile = join(tempOutputDir, `autocannon-output-${port}.json`)
-    exec(
-      `npx autocannon -c ${connections} -d ${duration} -j http://localhost:${port}`,
-      { maxBuffer: 50 * 1024 * 1024 },
-      (error, stdout, stderr) => {
-        if (error && !stdout) {
-          console.error(`Autocannon test failed: ${error.message}`)
-          console.error(`stderr: ${stderr}`)
-          return reject(error)
-        }
-        try {
-          const result = JSON.parse(stdout)
-          fs.writeFileSync(outputFile, JSON.stringify(result, null, 2))
-          resolve(result)
-        }
-        catch (e) {
-          console.error('Failed to parse autocannon output:', stdout)
-          reject(e)
-        }
-      },
-    )
+    exec(`npx autocannon -c ${connections} -d ${duration} -j http://localhost:${port}`, { maxBuffer: 50 * 1024 * 1024 }, (error, stdout, stderr) => {
+      if (error && !stdout) {
+        console.error(`Autocannon test failed: ${error.message}`)
+        console.error(`stderr: ${stderr}`)
+        return reject(error)
+      }
+      try {
+        const result = JSON.parse(stdout)
+        fs.writeFileSync(outputFile, JSON.stringify(result, null, 2))
+        resolve(result)
+      } catch (e) {
+        console.error('Failed to parse autocannon output:', stdout)
+        reject(e)
+      }
+    })
   })
 }
 
@@ -718,23 +707,21 @@ const chartColors = {
   i18nMicro: 'rgb(46, 204, 113)', // Green
 }
 
-function generateChartJsConfig(
-  name: string,
-  artillery: ArtilleryResult,
-): { trafficConfig: object, latencyConfig: object } {
+function generateChartJsConfig(name: string, artillery: ArtilleryResult): { trafficConfig: object; latencyConfig: object } {
   const intermediate = artillery.intermediate || []
   const timeSeriesData = intermediate.map((entry, index) => ({
     time: `${index * 10}s`,
     requestRate: entry.rates['http.request_rate'] || 0,
     responseTimeP95: entry.summaries?.['http.response_time']?.p95 || 0,
     vusersCreated: entry.counters['vusers.created'] || 0,
-    vusersActive: Math.max(0, (entry.counters['vusers.created'] || 0)
-    - (entry.counters['vusers.completed'] || 0)
-    - (entry.counters['vusers.failed'] || 0)),
+    vusersActive: Math.max(
+      0,
+      (entry.counters['vusers.created'] || 0) - (entry.counters['vusers.completed'] || 0) - (entry.counters['vusers.failed'] || 0),
+    ),
     vusersFailed: entry.counters['vusers.failed'] || 0,
   }))
 
-  const labels = timeSeriesData.map(d => d.time)
+  const labels = timeSeriesData.map((d) => d.time)
 
   // Traffic Profile Chart (multi-axis line chart)
   const trafficConfig = {
@@ -744,7 +731,7 @@ function generateChartJsConfig(
       datasets: [
         {
           label: 'http.request_rate',
-          data: timeSeriesData.map(d => Math.round(d.requestRate)),
+          data: timeSeriesData.map((d) => Math.round(d.requestRate)),
           borderColor: chartColors.requestRate,
           backgroundColor: chartColors.requestRate.replace('rgb', 'rgba').replace(')', ', 0.1)'),
           borderWidth: 2,
@@ -755,7 +742,7 @@ function generateChartJsConfig(
         },
         {
           label: 'http.response_time.p95',
-          data: timeSeriesData.map(d => Math.round(d.responseTimeP95)),
+          data: timeSeriesData.map((d) => Math.round(d.responseTimeP95)),
           borderColor: chartColors.responseTimeP95,
           backgroundColor: chartColors.responseTimeP95.replace('rgb', 'rgba').replace(')', ', 0.1)'),
           borderWidth: 2,
@@ -766,7 +753,7 @@ function generateChartJsConfig(
         },
         {
           label: 'vusers.created',
-          data: timeSeriesData.map(d => Math.round(d.vusersCreated)),
+          data: timeSeriesData.map((d) => Math.round(d.vusersCreated)),
           borderColor: chartColors.vusersCreated,
           backgroundColor: chartColors.vusersCreated.replace('rgb', 'rgba').replace(')', ', 0.1)'),
           borderWidth: 2,
@@ -777,7 +764,7 @@ function generateChartJsConfig(
         },
         {
           label: 'vusers.active',
-          data: timeSeriesData.map(d => Math.round(d.vusersActive)),
+          data: timeSeriesData.map((d) => Math.round(d.vusersActive)),
           borderColor: chartColors.vusersActive,
           backgroundColor: chartColors.vusersActive.replace('rgb', 'rgba').replace(')', ', 0.1)'),
           borderWidth: 2,
@@ -788,7 +775,7 @@ function generateChartJsConfig(
         },
         {
           label: 'vusers.failed',
-          data: timeSeriesData.map(d => Math.round(d.vusersFailed)),
+          data: timeSeriesData.map((d) => Math.round(d.vusersFailed)),
           borderColor: chartColors.vusersFailed,
           backgroundColor: chartColors.vusersFailed.replace('rgb', 'rgba').replace(')', ', 0.1)'),
           borderWidth: 2,
@@ -859,7 +846,7 @@ function generateChartJsConfig(
       datasets: [
         {
           label: 'P95 Latency (ms)',
-          data: timeSeriesData.map(d => Math.round(d.responseTimeP95)),
+          data: timeSeriesData.map((d) => Math.round(d.responseTimeP95)),
           borderColor: chartColors.responseTimeP95,
           backgroundColor: chartColors.responseTimeP95.replace('rgb', 'rgba').replace(')', ', 0.2)'),
           borderWidth: 3,
@@ -903,25 +890,18 @@ function generateChartJsConfig(
   return { trafficConfig, latencyConfig }
 }
 
-function generateChartMarkdown(
-  name: string,
-  artillery: ArtilleryResult,
-): string {
+function generateChartMarkdown(name: string, artillery: ArtilleryResult): string {
   const data = extractChartData(artillery)
   const summary = {
     vusersCreated: artillery.aggregate.counters['vusers.created'] || 0,
     completed: artillery.aggregate.counters['vusers.completed'] || 0,
     failed: artillery.aggregate.counters['vusers.failed'] || 0,
     avgReqPerSec: artillery.aggregate.rates['http.request_rate'] || 0,
-    peakReqPerSec: Math.max(...data.map(d => d.requestRate), 0),
+    peakReqPerSec: Math.max(...data.map((d) => d.requestRate), 0),
   }
 
-  const completedPercent = summary.vusersCreated > 0
-    ? ((summary.completed / summary.vusersCreated) * 100).toFixed(2)
-    : '0'
-  const failedPercent = summary.vusersCreated > 0
-    ? ((summary.failed / summary.vusersCreated) * 100).toFixed(2)
-    : '0'
+  const completedPercent = summary.vusersCreated > 0 ? ((summary.completed / summary.vusersCreated) * 100).toFixed(2) : '0'
+  const failedPercent = summary.vusersCreated > 0 ? ((summary.failed / summary.vusersCreated) * 100).toFixed(2) : '0'
 
   // Extract detailed time-series data for table
   const intermediate = artillery.intermediate || []
@@ -937,9 +917,10 @@ function generateChartMarkdown(
       requestRate: entry.rates['http.request_rate'] || 0,
       responseTimeP95: entry.summaries?.['http.response_time']?.p95 || 0,
       vusersCreated: entry.counters['vusers.created'] || 0,
-      vusersActive: Math.max(0, (entry.counters['vusers.created'] || 0)
-      - (entry.counters['vusers.completed'] || 0)
-      - (entry.counters['vusers.failed'] || 0)),
+      vusersActive: Math.max(
+        0,
+        (entry.counters['vusers.created'] || 0) - (entry.counters['vusers.completed'] || 0) - (entry.counters['vusers.failed'] || 0),
+      ),
       vusersFailed: entry.counters['vusers.failed'] || 0,
     }
   })
@@ -988,10 +969,12 @@ ${timeSeriesTable}
 `
 }
 
-function generateComparisonCharts(
-  results: { name: string, autocannon?: AutocannonResult, artillery?: ArtilleryResult }[],
-): { rpsConfig: object, latencyConfig: object, artilleryRpsConfig: object } {
-  const labels = results.map(r => r.name)
+function generateComparisonCharts(results: { name: string; autocannon?: AutocannonResult; artillery?: ArtilleryResult }[]): {
+  rpsConfig: object
+  latencyConfig: object
+  artilleryRpsConfig: object
+} {
+  const labels = results.map((r) => r.name)
 
   // RPS comparison (Autocannon)
   const rpsConfig = {
@@ -1001,7 +984,7 @@ function generateComparisonCharts(
       datasets: [
         {
           label: 'Requests per Second',
-          data: results.map(r => Math.round(r.autocannon?.requests.average || 0)),
+          data: results.map((r) => Math.round(r.autocannon?.requests.average || 0)),
           backgroundColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
           borderColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
           borderWidth: 2,
@@ -1040,7 +1023,7 @@ function generateComparisonCharts(
       datasets: [
         {
           label: 'Requests per Second',
-          data: results.map(r => Math.round(r.artillery?.aggregate.rates['http.request_rate'] || 0)),
+          data: results.map((r) => Math.round(r.artillery?.aggregate.rates['http.request_rate'] || 0)),
           backgroundColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
           borderColor: [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro],
           borderWidth: 2,
@@ -1079,28 +1062,28 @@ function generateComparisonCharts(
       datasets: [
         {
           label: 'Avg',
-          data: results.map(r => Math.round(r.autocannon?.latency.average || 0)),
+          data: results.map((r) => Math.round(r.autocannon?.latency.average || 0)),
           backgroundColor: 'rgba(75, 192, 192, 0.8)',
           borderColor: 'rgb(75, 192, 192)',
           borderWidth: 1,
         },
         {
           label: 'P50',
-          data: results.map(r => Math.round(r.autocannon?.latency.p50 || 0)),
+          data: results.map((r) => Math.round(r.autocannon?.latency.p50 || 0)),
           backgroundColor: 'rgba(255, 206, 86, 0.8)',
           borderColor: 'rgb(255, 206, 86)',
           borderWidth: 1,
         },
         {
           label: 'P95',
-          data: results.map(r => Math.round(r.autocannon?.latency.p97_5 || 0)),
+          data: results.map((r) => Math.round(r.autocannon?.latency.p97_5 || 0)),
           backgroundColor: 'rgba(255, 159, 64, 0.8)',
           borderColor: 'rgb(255, 159, 64)',
           borderWidth: 1,
         },
         {
           label: 'P99',
-          data: results.map(r => Math.round(r.autocannon?.latency.p99 || 0)),
+          data: results.map((r) => Math.round(r.autocannon?.latency.p99 || 0)),
           backgroundColor: 'rgba(255, 99, 132, 0.8)',
           borderColor: 'rgb(255, 99, 132)',
           borderWidth: 1,
@@ -1141,7 +1124,7 @@ function generateBuildComparisonCharts(
   buildTimes: number[],
   codeBundleSizesMB: number[],
   translationSizesMB: number[],
-): { buildTimeConfig: object, bundleSizeConfig: object } {
+): { buildTimeConfig: object; bundleSizeConfig: object } {
   const labels = ['plain-nuxt', 'i18n-v10', 'i18n-micro']
 
   const buildTimeConfig = {
@@ -1247,9 +1230,7 @@ export default function() {
   console.log(`Chart config saved to: ${filePath}`)
 }
 
-function generateComparisonMarkdown(
-  results: { name: string, autocannon?: AutocannonResult, artillery?: ArtilleryResult }[],
-): string {
+function generateComparisonMarkdown(results: { name: string; autocannon?: AutocannonResult; artillery?: ArtilleryResult }[]): string {
   const rpsWinner = results.reduce((best, curr) =>
     (curr.autocannon?.requests.average || 0) > (best.autocannon?.requests.average || 0) ? curr : best,
   )
@@ -1285,12 +1266,12 @@ height: 350px
 
 ### Quick Comparison
 
-| Metric | ${results.map(r => `**${r.name}**`).join(' | ')} | Best |
+| Metric | ${results.map((r) => `**${r.name}**`).join(' | ')} | Best |
 |--------|${results.map(() => '---').join('|')}|------|
-| RPS (Autocannon) | ${results.map(r => `${r.autocannon?.requests.average.toFixed(0) || 'N/A'}`).join(' | ')} | ${rpsWinner.name} |
-| Avg Latency | ${results.map(r => `${r.autocannon?.latency.average.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${latencyWinner.name} |
-| P99 Latency | ${results.map(r => `${r.autocannon?.latency.p99.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${latencyWinner.name} |
-| Errors | ${results.map(r => `${r.autocannon?.errors || 0}`).join(' | ')} | - |
+| RPS (Autocannon) | ${results.map((r) => `${r.autocannon?.requests.average.toFixed(0) || 'N/A'}`).join(' | ')} | ${rpsWinner.name} |
+| Avg Latency | ${results.map((r) => `${r.autocannon?.latency.average.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${latencyWinner.name} |
+| P99 Latency | ${results.map((r) => `${r.autocannon?.latency.p99.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${latencyWinner.name} |
+| Errors | ${results.map((r) => `${r.autocannon?.errors || 0}`).join(' | ')} | - |
 
 `
 }
@@ -1312,7 +1293,7 @@ async function generateAndSaveChart(name: string, artillery: ArtilleryResult): P
     completed: artillery.aggregate.counters['vusers.completed'] || 0,
     failed: artillery.aggregate.counters['vusers.failed'] || 0,
     avgReqPerSec: artillery.aggregate.rates['http.request_rate'] || 0,
-    peakReqPerSec: Math.max(...data.map(d => d.requestRate), 0),
+    peakReqPerSec: Math.max(...data.map((d) => d.requestRate), 0),
   }
   fs.writeFileSync(jsonPath, JSON.stringify({ data, summary, intermediate: artillery.intermediate }, null, 2))
   console.log(`Chart data saved to: ${jsonPath}`)
@@ -1324,11 +1305,7 @@ async function generateAndSaveChart(name: string, artillery: ArtilleryResult): P
 // STRESS TEST
 // ============================================================================
 
-async function stressTestServerWithArtillery(
-  directory: string,
-  name: string,
-  artilleryConfigPath: string,
-): Promise<PerformanceResult> {
+async function stressTestServerWithArtillery(directory: string, name: string, artilleryConfigPath: string): Promise<PerformanceResult> {
   console.log(`Starting server for stress test in ${directory}...`)
 
   const controller = new AbortController()
@@ -1379,8 +1356,7 @@ async function stressTestServerWithArtillery(
       minMemoryUsed = Math.min(minMemoryUsed, memory)
       totalMemoryUsage += memory
       cpuUsageSamples++
-    }
-    catch {
+    } catch {
       // Ignore
     }
   }, 1000)
@@ -1409,8 +1385,8 @@ async function stressTestServerWithArtillery(
     const responseTimeP95 = summary.summaries['http.response_time']?.p95 || 0
     const responseTimeP99 = summary.summaries['http.response_time']?.p99 || 0
     const requestsPerSecond = summary.rates['http.request_rate'] || 0
-    const errorRate
-      = summary.counters['http.codes.500'] && summary.counters['http.requests']
+    const errorRate =
+      summary.counters['http.codes.500'] && summary.counters['http.requests']
         ? (summary.counters['http.codes.500'] / summary.counters['http.requests']) * 100
         : 0
 
@@ -1492,13 +1468,11 @@ ${mermaidChart}
       autocannon: autocannonResults,
       artillery: artilleryResults,
     }
-  }
-  catch (error) {
+  } catch (error) {
     clearInterval(monitorInterval)
     console.error(`Stress test failed for ${name}:`, error)
     throw error
-  }
-  finally {
+  } finally {
     clearInterval(monitorInterval)
     console.log(`Stopping server for ${name}...`)
     try {
@@ -1506,13 +1480,11 @@ ${mermaidChart}
       if (childProcess.pid) {
         try {
           process.kill(childProcess.pid, 'SIGTERM')
-        }
-        catch {
+        } catch {
           // Ignore
         }
       }
-    }
-    catch {
+    } catch {
       // Ignore
     }
   }
@@ -1572,50 +1544,54 @@ function pause(duration: number): Promise<void> {
 // ============================================================================
 
 describe('performance', () => {
-  it('compare build performance and stress test', async () => {
-    initializeMarkdown()
-    addDependencyVersions()
+  it(
+    'compare build performance and stress test',
+    async () => {
+      initializeMarkdown()
+      addDependencyVersions()
 
-    // 1. Build all fixtures
-    const plainNuxtResults = await measureBuildPerformance('./test/fixtures/plain-nuxt')
-    await pause(5000)
-    const i18nResults = await measureBuildPerformance('./test/fixtures/i18n')
-    await pause(5000)
-    const i18nMicroResults = await measureBuildPerformance('./test/fixtures/i18n-micro')
+      // 1. Build all fixtures
+      const plainNuxtResults = await measureBuildPerformance('./test/fixtures/plain-nuxt')
+      await pause(5000)
+      const i18nResults = await measureBuildPerformance('./test/fixtures/i18n')
+      await pause(5000)
+      const i18nMicroResults = await measureBuildPerformance('./test/fixtures/i18n-micro')
 
-    console.log('\nPerformance Comparison:')
-    console.log('--------------------------')
-    console.log(`plain-nuxt (baseline): ${plainNuxtResults.buildTime.toFixed(2)} seconds, Bundle: ${formatBytes(plainNuxtResults.bundleSize?.total || 0)}`)
-    console.log(`i18n v10: ${i18nResults.buildTime.toFixed(2)} seconds, Bundle: ${formatBytes(i18nResults.bundleSize?.total || 0)}`)
-    console.log(`i18n-micro: ${i18nMicroResults.buildTime.toFixed(2)} seconds, Bundle: ${formatBytes(i18nMicroResults.bundleSize?.total || 0)}`)
+      console.log('\nPerformance Comparison:')
+      console.log('--------------------------')
+      console.log(
+        `plain-nuxt (baseline): ${plainNuxtResults.buildTime.toFixed(2)} seconds, Bundle: ${formatBytes(plainNuxtResults.bundleSize?.total || 0)}`,
+      )
+      console.log(`i18n v10: ${i18nResults.buildTime.toFixed(2)} seconds, Bundle: ${formatBytes(i18nResults.bundleSize?.total || 0)}`)
+      console.log(`i18n-micro: ${i18nMicroResults.buildTime.toFixed(2)} seconds, Bundle: ${formatBytes(i18nMicroResults.bundleSize?.total || 0)}`)
 
-    // Build time values for chart (in seconds)
-    const buildTimes = [
-      Math.round(plainNuxtResults.buildTime * 10) / 10,
-      Math.round(i18nResults.buildTime * 10) / 10,
-      Math.round(i18nMicroResults.buildTime * 10) / 10,
-    ]
+      // Build time values for chart (in seconds)
+      const buildTimes = [
+        Math.round(plainNuxtResults.buildTime * 10) / 10,
+        Math.round(i18nResults.buildTime * 10) / 10,
+        Math.round(i18nMicroResults.buildTime * 10) / 10,
+      ]
 
-    // Code bundle sizes for chart (in MB) - excludes translation JSON files
-    const codeBundleSizesMB = [
-      Math.round((plainNuxtResults.bundleSize?.codeTotal || 0) / 1024 / 1024 * 10) / 10,
-      Math.round((i18nResults.bundleSize?.codeTotal || 0) / 1024 / 1024 * 10) / 10,
-      Math.round((i18nMicroResults.bundleSize?.codeTotal || 0) / 1024 / 1024 * 10) / 10,
-    ]
+      // Code bundle sizes for chart (in MB) - excludes translation JSON files
+      const codeBundleSizesMB = [
+        Math.round(((plainNuxtResults.bundleSize?.codeTotal || 0) / 1024 / 1024) * 10) / 10,
+        Math.round(((i18nResults.bundleSize?.codeTotal || 0) / 1024 / 1024) * 10) / 10,
+        Math.round(((i18nMicroResults.bundleSize?.codeTotal || 0) / 1024 / 1024) * 10) / 10,
+      ]
 
-    // Translation sizes for chart (in MB)
-    const translationSizesMB = [
-      Math.round((plainNuxtResults.bundleSize?.translationsTotal || 0) / 1024 / 1024 * 10) / 10,
-      Math.round((i18nResults.bundleSize?.translationsTotal || 0) / 1024 / 1024 * 10) / 10,
-      Math.round((i18nMicroResults.bundleSize?.translationsTotal || 0) / 1024 / 1024 * 10) / 10,
-    ]
+      // Translation sizes for chart (in MB)
+      const translationSizesMB = [
+        Math.round(((plainNuxtResults.bundleSize?.translationsTotal || 0) / 1024 / 1024) * 10) / 10,
+        Math.round(((i18nResults.bundleSize?.translationsTotal || 0) / 1024 / 1024) * 10) / 10,
+        Math.round(((i18nMicroResults.bundleSize?.translationsTotal || 0) / 1024 / 1024) * 10) / 10,
+      ]
 
-    // Generate and save build comparison charts
-    const { buildTimeConfig, bundleSizeConfig } = generateBuildComparisonCharts(buildTimes, codeBundleSizesMB, translationSizesMB)
-    saveChartJsConfig('build-time-comparison.js', buildTimeConfig)
-    saveChartJsConfig('bundle-size-comparison.js', bundleSizeConfig)
+      // Generate and save build comparison charts
+      const { buildTimeConfig, bundleSizeConfig } = generateBuildComparisonCharts(buildTimes, codeBundleSizesMB, translationSizesMB)
+      saveChartJsConfig('build-time-comparison.js', buildTimeConfig)
+      saveChartJsConfig('bundle-size-comparison.js', bundleSizeConfig)
 
-    writeToMarkdown(`
+      writeToMarkdown(`
 ## Build Performance Summary
 
 | Project | Build Time | Code Bundle | Translations | Total |
@@ -1648,28 +1624,28 @@ height: 400px
 
 `)
 
-    const artilleryConfigPath = './artillery-config.yml'
+      const artilleryConfigPath = './artillery-config.yml'
 
-    // 2. Stress tests
-    const plainNuxtStressResults = await stressTestServerWithArtillery('./test/fixtures/plain-nuxt', 'plain-nuxt', artilleryConfigPath)
-    await pause(5000)
-    const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', 'i18n', artilleryConfigPath)
-    await pause(5000)
-    const i18nMicroStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', 'i18n-micro', artilleryConfigPath)
+      // 2. Stress tests
+      const plainNuxtStressResults = await stressTestServerWithArtillery('./test/fixtures/plain-nuxt', 'plain-nuxt', artilleryConfigPath)
+      await pause(5000)
+      const i18nStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n', 'i18n', artilleryConfigPath)
+      await pause(5000)
+      const i18nMicroStressResults = await stressTestServerWithArtillery('./test/fixtures/i18n-micro', 'i18n-micro', artilleryConfigPath)
 
-    // 3. Summary tables and comparison charts
-    const comparisonResults = [
-      { name: 'plain-nuxt', autocannon: plainNuxtStressResults.autocannon, artillery: plainNuxtStressResults.artillery },
-      { name: 'i18n-v10', autocannon: i18nStressResults.autocannon, artillery: i18nStressResults.artillery },
-      { name: 'i18n-micro', autocannon: i18nMicroStressResults.autocannon, artillery: i18nMicroStressResults.artillery },
-    ]
-    const { rpsConfig, latencyConfig, artilleryRpsConfig } = generateComparisonCharts(comparisonResults)
-    saveChartJsConfig('comparison-rps-autocannon.js', rpsConfig)
-    saveChartJsConfig('comparison-rps-artillery.js', artilleryRpsConfig)
-    saveChartJsConfig('comparison-latency.js', latencyConfig)
-    const comparisonCharts = generateComparisonMarkdown(comparisonResults)
+      // 3. Summary tables and comparison charts
+      const comparisonResults = [
+        { name: 'plain-nuxt', autocannon: plainNuxtStressResults.autocannon, artillery: plainNuxtStressResults.artillery },
+        { name: 'i18n-v10', autocannon: i18nStressResults.autocannon, artillery: i18nStressResults.artillery },
+        { name: 'i18n-micro', autocannon: i18nMicroStressResults.autocannon, artillery: i18nMicroStressResults.artillery },
+      ]
+      const { rpsConfig, latencyConfig, artilleryRpsConfig } = generateComparisonCharts(comparisonResults)
+      saveChartJsConfig('comparison-rps-autocannon.js', rpsConfig)
+      saveChartJsConfig('comparison-rps-artillery.js', artilleryRpsConfig)
+      saveChartJsConfig('comparison-latency.js', latencyConfig)
+      const comparisonCharts = generateComparisonMarkdown(comparisonResults)
 
-    writeToMarkdown(`
+      writeToMarkdown(`
 ## Stress Test Summary
 
 ### Artillery Results
@@ -1689,11 +1665,13 @@ height: 400px
 ${comparisonCharts}
 `)
 
-    // 4. Comparisons
-    logAndWriteComparisonResults('plain-nuxt (baseline)', 'i18n v10', plainNuxtStressResults, i18nStressResults)
-    logAndWriteComparisonResults('plain-nuxt (baseline)', 'i18n-micro', plainNuxtStressResults, i18nMicroStressResults)
-    logAndWriteComparisonResults('i18n v10', 'i18n-micro', i18nStressResults, i18nMicroStressResults)
+      // 4. Comparisons
+      logAndWriteComparisonResults('plain-nuxt (baseline)', 'i18n v10', plainNuxtStressResults, i18nStressResults)
+      logAndWriteComparisonResults('plain-nuxt (baseline)', 'i18n-micro', plainNuxtStressResults, i18nMicroStressResults)
+      logAndWriteComparisonResults('i18n v10', 'i18n-micro', i18nStressResults, i18nMicroStressResults)
 
-    addTestLogicExplanation()
-  }, { timeout: 1800000 }) // 30 minutes timeout
+      addTestLogicExplanation()
+    },
+    { timeout: 1800000 },
+  ) // 30 minutes timeout
 })

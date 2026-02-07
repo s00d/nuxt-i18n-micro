@@ -1,5 +1,5 @@
-import type { Translations, Params } from '@i18n-micro/types'
 import { interpolate } from '@i18n-micro/core'
+import type { Params, Translations } from '@i18n-micro/types'
 
 /**
  * Состояние i18n для клиентских островов
@@ -23,15 +23,13 @@ function findTranslation<T = unknown>(translations: Translations | null, key: st
   // Прямой доступ к ключу
   if (translations[key]) {
     value = translations[key]
-  }
-  else {
+  } else {
     // Поиск по вложенным ключам (например, "nested.message")
     const parts = key.toString().split('.')
     for (const part of parts) {
       if (value && typeof value === 'object' && value !== null && part in value) {
         value = (value as Translations)[part]
-      }
-      else {
+      } else {
         return null
       }
     }
@@ -76,7 +74,7 @@ export function translate(
 
   // 3. Если не найдено, используем defaultValue или key
   if (!value) {
-    value = defaultValue === undefined ? key : (defaultValue || key)
+    value = defaultValue === undefined ? key : defaultValue || key
   }
 
   // 4. Интерполяция параметров (только для строк)
@@ -92,11 +90,7 @@ export function translate(
 /**
  * Проверяет наличие перевода в состоянии
  */
-export function hasTranslation(
-  state: I18nState,
-  key: string,
-  routeName?: string,
-): boolean {
+export function hasTranslation(state: I18nState, key: string, routeName?: string): boolean {
   const route = routeName || state.currentRoute
   const routeTranslations = state.translations[route]
   const generalTranslations = state.translations.general

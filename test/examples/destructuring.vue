@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with destructuring
 const config = {
@@ -13,14 +12,14 @@ const config = {
   paths: {
     en: '/welcome',
     de: '/willkommen',
-    fr: '/bienvenue'
-  }
+    fr: '/bienvenue',
+  },
 }
 
 const { locales, paths: localeRoutes } = config
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/vue",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -50,4 +50,3 @@
     "typecheck": "tsc --noEmit"
   }
 }
-

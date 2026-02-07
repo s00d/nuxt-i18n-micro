@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Edge case: with comments and extra whitespace
 $defineI18nRoute({
@@ -13,12 +12,12 @@ $defineI18nRoute({
   locales: [
     'en', // English
     'de', // German
-    'ru'  // Russian
+    'ru', // Russian
   ],
   localeRoutes: {
-    'en': '/welcome',
-    'de': '/willkommen',
-    'ru': '/dobro-pozhalovat'
-  }
+    en: '/welcome',
+    de: '/willkommen',
+    ru: '/dobro-pozhalovat',
+  },
 })
 </script>

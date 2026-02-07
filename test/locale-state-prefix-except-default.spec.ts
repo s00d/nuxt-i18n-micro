@@ -6,8 +6,6 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/locale-state', import.meta.url)),
     nuxtConfig: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       i18n: {
         strategy: 'prefix_except_default',
       },
@@ -31,7 +29,7 @@ test.describe('useState locale override - prefix_except_default', () => {
 
     // Verify cookie is set correctly
     const cookies = await page.context().cookies()
-    const userLocaleCookie = cookies.find(cookie => cookie.name === 'user-locale')
+    const userLocaleCookie = cookies.find((cookie) => cookie.name === 'user-locale')
 
     expect(userLocaleCookie).toBeDefined()
     expect(userLocaleCookie?.value).toBe('ja')
@@ -51,7 +49,7 @@ test.describe('useState locale override - prefix_except_default', () => {
     await goto('/ja', { waitUntil: 'hydration' })
     await page.waitForTimeout(500)
 
-    expect(consoleErrors.filter(e => e.toLowerCase().includes('hydration'))).toHaveLength(0)
+    expect(consoleErrors.filter((e) => e.toLowerCase().includes('hydration'))).toHaveLength(0)
     await expect(page.locator('#greeting')).toHaveText('こんにちは')
   })
 

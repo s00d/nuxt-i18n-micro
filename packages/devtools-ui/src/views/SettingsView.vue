@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import SettingsCard from '../components/config/SettingsCard.vue'
 import TranslationControls from '../components/editor/TranslationControls.vue'
 
@@ -43,15 +43,19 @@ onMounted(() => {
 })
 
 // Save auto-translation settings to localStorage
-watch([selectedDriver, apiToken, driverOptions], async () => {
-  await nextTick()
-  const settings = {
-    driver: selectedDriver.value,
-    token: apiToken.value,
-    options: driverOptions.value,
-  }
-  localStorage.setItem(translationSettingsStorageKey, JSON.stringify(settings))
-}, { deep: true })
+watch(
+  [selectedDriver, apiToken, driverOptions],
+  async () => {
+    await nextTick()
+    const settings = {
+      driver: selectedDriver.value,
+      token: apiToken.value,
+      options: driverOptions.value,
+    }
+    localStorage.setItem(translationSettingsStorageKey, JSON.stringify(settings))
+  },
+  { deep: true },
+)
 </script>
 
 <style scoped>

@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
@@ -10,7 +9,7 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: '@i18n-micro/route-strategy',
       formats: ['cjs', 'es'],
-      fileName: format => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
+      fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
       external: ['@i18n-micro/core', '@i18n-micro/types', '@nuxt/schema', 'node:path', 'path', 'node:fs', 'fs'],
@@ -19,7 +18,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [
-    dts({ tsconfigPath: 'tsconfig.build.json' }),
-  ],
+  plugins: [dts({ tsconfigPath: 'tsconfig.build.json' })],
 })

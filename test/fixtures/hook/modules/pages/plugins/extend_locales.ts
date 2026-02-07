@@ -6,14 +6,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     try {
       const translations = await import(`../locales/${lang}.json`)
       return translations.default
-    }
-    catch (error) {
+    } catch (error) {
       console.error(`Error loading translations for language: ${lang}`, error)
       return null
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   nuxtApp.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
     const translations = await loadTranslations(locale)

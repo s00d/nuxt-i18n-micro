@@ -1,8 +1,8 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { buildFullPathNoPrefix, buildRouteName, buildRouteNameFromRoute, cloneArray, normalizePath, removeLeadingSlash } from '../utils'
-import { createRoute, resolveChildPath } from '../core/builder'
 import { generateAliasRoutes } from '../core/alias'
+import { createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
+import { buildFullPathNoPrefix, buildRouteName, buildRouteNameFromRoute, cloneArray, normalizePath, removeLeadingSlash } from '../utils'
 import { BaseStrategy } from './abstract'
 
 export class NoPrefixStrategy extends BaseStrategy {
@@ -31,15 +31,7 @@ export class NoPrefixStrategy extends BaseStrategy {
 
         const routePath = buildFullPathNoPrefix(customPath)
         const routeName = buildRouteName(pageName, locale, true)
-        const children = this.localizeChildrenForNoPrefix(
-          originalChildren,
-          normalizedCustomPath,
-          originalPath,
-          originalPath,
-          locale,
-          context,
-          1,
-        )
+        const children = this.localizeChildrenForNoPrefix(originalChildren, normalizedCustomPath, originalPath, originalPath, locale, context, 1)
         result.push(
           createRoute(page, {
             path: routePath,
@@ -87,14 +79,12 @@ export class NoPrefixStrategy extends BaseStrategy {
           const normalized = normalizePath(customPath)
           finalPathForRoute = removeLeadingSlash(normalized)
           nextParentLocalizedPath = normalized
-        }
-        else {
+        } else {
           const normalizedSegment = normalizePath(child.path ?? '')
           finalPathForRoute = removeLeadingSlash(normalizedSegment)
           nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? '')
         }
-      }
-      else {
+      } else {
         const normalizedSegment = normalizePath(child.path ?? '')
         finalPathForRoute = removeLeadingSlash(normalizedSegment)
         nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? '')

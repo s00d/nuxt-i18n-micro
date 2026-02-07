@@ -1,14 +1,14 @@
-import path from 'node:path'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import type { NuxtPage } from '@nuxt/schema'
-import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
+import path from 'node:path'
 import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
-import { normalizeRouteKey, removeLeadingSlash, normalizePath, resolveLocales } from './utils'
+import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
+import type { NuxtPage } from '@nuxt/schema'
 import { GeneratorContext } from './core/context'
-import { getStrategy } from './strategies/factory'
-import { extractLocalizedPaths as getLocalizedPathsMap } from './core/localized-paths'
-import type { LocaleRoutesConfig } from './strategies/types'
 import type { LocalizedPathsMap } from './core/localized-paths'
+import { extractLocalizedPaths as getLocalizedPathsMap } from './core/localized-paths'
+import { getStrategy } from './strategies/factory'
+import type { LocaleRoutesConfig } from './strategies/types'
+import { normalizePath, normalizeRouteKey, removeLeadingSlash, resolveLocales } from './utils'
 
 export interface RouteGeneratorOptions {
   locales: Locale[]
@@ -82,8 +82,7 @@ export class RouteGenerator {
         }
 
         normalizedGlobalRoutes[newKey] = normalizedLocalePaths
-      }
-      else {
+      } else {
         normalizedGlobalRoutes[newKey] = localePaths as boolean | Record<string, string>
       }
     }
@@ -96,8 +95,8 @@ export class RouteGenerator {
 
   private computeActiveLocaleCodes(): string[] {
     return this.locales
-      .filter(locale => locale.code !== this.defaultLocale.code || isPrefixAndDefaultStrategy(this.strategy) || isPrefixStrategy(this.strategy))
-      .map(locale => locale.code)
+      .filter((locale) => locale.code !== this.defaultLocale.code || isPrefixAndDefaultStrategy(this.strategy) || isPrefixStrategy(this.strategy))
+      .map((locale) => locale.code)
   }
 
   public extendPages(pages: NuxtPage[]) {
@@ -129,27 +128,14 @@ export class RouteGenerator {
     pages.push(...finalRoutes)
   }
 
-  public extractLocalizedPaths(
-    pages: NuxtPage[],
-    parentPath = '',
-  ): { [key: string]: { [locale: string]: string } } {
-    return getLocalizedPathsMap(
-      pages,
-      this.globalLocaleRoutes,
-      this.filesLocaleRoutes,
-      parentPath,
-    )
+  public extractLocalizedPaths(pages: NuxtPage[], parentPath = ''): { [key: string]: { [locale: string]: string } } {
+    return getLocalizedPathsMap(pages, this.globalLocaleRoutes, this.filesLocaleRoutes, parentPath)
   }
 
   /**
    * Creates global and per-page translation JSON files for the current resolved locales.
    */
-  public ensureTranslationFilesExist(
-    pagesNames: string[],
-    translationDir: string,
-    rootDir: string,
-    disablePageLocales?: boolean,
-  ): void {
+  public ensureTranslationFilesExist(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean): void {
     this.locales.forEach((locale) => {
       const globalFilePath = path.join(rootDir, translationDir, `${locale.code}.json`)
       this.ensureFileExists(globalFilePath)
@@ -186,8 +172,7 @@ export class RouteGenerator {
     const normalizedRules = this.globalLocaleRoutes[normalizedPath]
     if (pathRules && typeof pathRules === 'object' && !Array.isArray(pathRules)) {
       customPath = (pathRules as Record<string, string>)[localeCode]
-    }
-    else if (normalizedRules && typeof normalizedRules === 'object' && !Array.isArray(normalizedRules)) {
+    } else if (normalizedRules && typeof normalizedRules === 'object' && !Array.isArray(normalizedRules)) {
       customPath = (normalizedRules as Record<string, string>)[localeCode]
     }
 
@@ -197,14 +182,11 @@ export class RouteGenerator {
     let shouldPrefix = false
     if (this.strategy === 'no_prefix') {
       shouldPrefix = false
-    }
-    else if (this.strategy === 'prefix') {
+    } else if (this.strategy === 'prefix') {
       shouldPrefix = true
-    }
-    else if (this.strategy === 'prefix_and_default') {
+    } else if (this.strategy === 'prefix_and_default') {
       shouldPrefix = true
-    }
-    else if (this.strategy === 'prefix_except_default') {
+    } else if (this.strategy === 'prefix_except_default') {
       shouldPrefix = localeCode !== this.defaultLocale.code
     }
 
@@ -225,9 +207,7 @@ export class RouteGenerator {
    */
   public generateDataRoutes(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean): string[] {
     const routes: string[] = []
-    const pagesNames = pages
-      .map(page => page.name)
-      .filter((name): name is string => typeof name === 'string' && name.length > 0)
+    const pagesNames = pages.map((page) => page.name).filter((name): name is string => typeof name === 'string' && name.length > 0)
 
     for (const locale of this.locales) {
       routes.push(`/${apiBaseUrl}/general/${locale.code}/data.json`)

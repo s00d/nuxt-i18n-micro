@@ -1,11 +1,11 @@
 // src/runtime/plugins/05.hooks.ts
 
-// УБИРАЕМ: import { useTranslationHelper } from '@i18n-micro/core'
-import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
-import { defineNuxtPlugin, useRouter, useNuxtApp } from '#imports'
+// УБИРАЕМ: import { useTranslationHelper } from '@i18n-micro/core'
+import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
+import { defineNuxtPlugin, useNuxtApp, useRouter } from '#imports'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
@@ -18,8 +18,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Получаем helper, созданный в плагине 01.plugin.ts
   // Он уже работает с изолированным кэшем для этого запроса.
   // Используем `nuxtApp.$i18n.helper` или `nuxtApp.helper`, в зависимости от того, как вы назвали в provide
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
+  // @ts-expect-error $i18n is dynamically provided
   const i18nHelper = nuxtApp.$i18n.helper
 
   // Проверяем, что helper доступен, на всякий случай
@@ -33,22 +32,28 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const locale = $getLocale()
   const routeName = $getRouteName()
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore i18n:register is custom hook
-  await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
-    i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
-  }, locale)
+  await nuxtApp.callHook(
+    // @ts-expect-error i18n:register is custom hook
+    'i18n:register',
+    (translations: Translations, selectedLocale?: string) => {
+      i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
+    },
+    locale,
+  )
 
   router.beforeEach(async (to, from, next) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
       const locale = $getLocale(to)
       const routeName = $getRouteName(to as RouteLocationResolvedGeneric)
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore i18n:register is custom hook
-      await nuxtApp.callHook('i18n:register', (translations: Translations, selectedLocale?: string) => {
-        i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
-      }, locale)
+      await nuxtApp.callHook(
+        // @ts-expect-error i18n:register is custom hook
+        'i18n:register',
+        (translations: Translations, selectedLocale?: string) => {
+          i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
+        },
+        locale,
+      )
     }
     if (next) {
       next()

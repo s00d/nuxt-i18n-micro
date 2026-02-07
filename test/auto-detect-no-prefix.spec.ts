@@ -62,11 +62,13 @@ test.describe('autoDetectLanguage with no_prefix strategy', () => {
 
   test('respects existing cookie over Accept-Language', async ({ page, goto, baseURL }) => {
     // First, set cookie to German
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'de',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'de',
+        url: baseURL!,
+      },
+    ])
 
     // Set Accept-Language to Russian (cookie should take precedence)
     await page.setExtraHTTPHeaders({

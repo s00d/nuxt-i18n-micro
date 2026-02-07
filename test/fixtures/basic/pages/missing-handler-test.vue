@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useNuxtApp } from '#imports'
 
 const { $t, $setMissingHandler } = useNuxtApp()

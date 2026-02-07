@@ -27,9 +27,7 @@ function makeCtx(strategy: StrategyName, extra?: Partial<PathStrategyContext>): 
 }
 
 function pathFromResult(result: unknown): string {
-  return typeof result === 'string'
-    ? result
-    : (result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : '')
+  return typeof result === 'string' ? result : result && typeof result === 'object' && 'path' in result ? (result as { path: string }).path : ''
 }
 
 function runSpecialCharTests(strategy: StrategyName, expectedPrefix: string) {

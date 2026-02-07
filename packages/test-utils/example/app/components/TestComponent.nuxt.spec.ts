@@ -1,10 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import path from 'node:path'
+
 import fs from 'node:fs'
+import path from 'node:path'
 import { mountSuspended, renderSuspended } from '@nuxt/test-utils/runtime'
-import { describe, expect, it, beforeEach } from 'vitest'
 import { screen } from '@testing-library/vue'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { setTranslationsFromJson } from '../../tests/unit-setup'
 
 import TestComponent from './TestComponent.vue'

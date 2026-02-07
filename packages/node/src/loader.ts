@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises'
-import { join, basename, relative, sep } from 'node:path'
+import { basename, join, relative, sep } from 'node:path'
 import type { Translations } from '@i18n-micro/types'
 
 export interface LoadedTranslations {
@@ -55,19 +55,16 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
             }
             result.routes[routeName][locale] = translations
           }
-        }
-        else {
+        } else {
           // Это глобальный файл (в корне или если disablePageLocales=true)
           // Пример: en.json или pages/en.json (если disablePageLocales=true)
           result.global[locale] = translations
         }
-      }
-      catch (error) {
+      } catch (error) {
         console.error(`Failed to load translation file ${fullPath}:`, error)
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     // Если папки нет, просто возвращаем пустой результат, чтобы не крашить приложение
     // (или можно прокидывать ошибку выше, если это критично)
     if (error && typeof error === 'object' && 'code' in error && error.code !== 'ENOENT') {

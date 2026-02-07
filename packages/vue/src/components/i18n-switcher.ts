@@ -1,7 +1,7 @@
-import { defineComponent, ref, computed, h, inject, onMounted, onUnmounted, nextTick, type PropType, type CSSProperties, type VNode } from 'vue'
 import type { Locale } from '@i18n-micro/types'
-import { I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from '../injection'
+import { type CSSProperties, computed, defineComponent, h, inject, nextTick, onMounted, onUnmounted, type PropType, ref, type VNode } from 'vue'
 import type { VueI18n } from '../composer'
+import { I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
 
 export const I18nSwitcher = defineComponent({
@@ -74,7 +74,9 @@ export const I18nSwitcher = defineComponent({
     }
 
     if (!injectedLocales && !props.locales) {
-      throw new Error('[i18n-micro] I18nSwitcher: locales not provided. Make sure app.provide(I18nLocalesKey, locales) is called or pass locales prop.')
+      throw new Error(
+        '[i18n-micro] I18nSwitcher: locales not provided. Make sure app.provide(I18nLocalesKey, locales) is called or pass locales prop.',
+      )
     }
 
     const locales = computed(() => props.locales || injectedLocales || [])
@@ -88,7 +90,7 @@ export const I18nSwitcher = defineComponent({
       if (props.getLocaleName) {
         return props.getLocaleName() || null
       }
-      const current = locales.value.find(l => l.code === i18n.locale.value)
+      const current = locales.value.find((l) => l.code === i18n.locale.value)
       return current?.displayName || null
     })
 
@@ -109,7 +111,7 @@ export const I18nSwitcher = defineComponent({
     }
 
     const currentLocaleLabel = computed(() => {
-      const current = locales.value.find(l => l.code === currentLocale.value)
+      const current = locales.value.find((l) => l.code === currentLocale.value)
       return current ? localeLabel(current) : currentLocaleName.value || currentLocale.value
     })
 
@@ -132,14 +134,14 @@ export const I18nSwitcher = defineComponent({
       const newPath = props.localeRoute
         ? (() => {
             const res = props.localeRoute(currentPath, code)
-            return typeof res === 'string' ? res : (res.path || '/')
+            return typeof res === 'string' ? res : res.path || '/'
           })()
-        : (routerStrategy?.resolvePath
-            ? (() => {
-                const res = routerStrategy.resolvePath(currentPath, code)
-                return typeof res === 'string' ? res : (res.path || '/')
-              })()
-            : currentPath)
+        : routerStrategy?.resolvePath
+          ? (() => {
+              const res = routerStrategy.resolvePath(currentPath, code)
+              return typeof res === 'string' ? res : res.path || '/'
+            })()
+          : currentPath
 
       routerStrategy.push({ path: newPath })
     }
@@ -258,28 +260,36 @@ export const I18nSwitcher = defineComponent({
       }
 
       buttonContent.push(
-        h('span', {
-          style: {
-            ...iconStyle,
-            ...(dropdownOpen.value ? openIconStyle : {}),
-            ...props.customIconStyle,
+        h(
+          'span',
+          {
+            style: {
+              ...iconStyle,
+              ...(dropdownOpen.value ? openIconStyle : {}),
+              ...props.customIconStyle,
+            },
           },
-        }, '▼'),
+          '▼',
+        ),
       )
 
       children.push(
-        h('button', {
-          class: 'i18n-switcher-button',
-          style: { ...buttonStyle, ...props.customButtonStyle },
-          onClick: (e: MouseEvent) => {
-            e.preventDefault()
-            e.stopPropagation()
-            toggleDropdown(e)
+        h(
+          'button',
+          {
+            class: 'i18n-switcher-button',
+            style: { ...buttonStyle, ...props.customButtonStyle },
+            onClick: (e: MouseEvent) => {
+              e.preventDefault()
+              e.stopPropagation()
+              toggleDropdown(e)
+            },
+            type: 'button',
+            ariaHaspopup: true,
+            ariaExpanded: dropdownOpen.value,
           },
-          type: 'button',
-          ariaHaspopup: true,
-          ariaExpanded: dropdownOpen.value,
-        }, buttonContent),
+          buttonContent,
+        ),
       )
 
       // 2. Dropdown rendering
@@ -313,28 +323,32 @@ export const I18nSwitcher = defineComponent({
           const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
           const result = props.localeRoute
             ? props.localeRoute(currentPath, localeItem.code)
-            : (routerStrategy?.resolvePath
-                ? routerStrategy.resolvePath(currentPath, localeItem.code)
-                : currentPath)
-          const routeTo = typeof result === 'string' ? result : (result.path || '#')
+            : routerStrategy?.resolvePath
+              ? routerStrategy.resolvePath(currentPath, localeItem.code)
+              : currentPath
+          const routeTo = typeof result === 'string' ? result : result.path || '#'
           const isActive = localeItem.code === currentLocale.value
 
           itemChildren.push(
-            h('a', {
-              class: `switcher-locale-${localeItem.code}`,
-              href: typeof routeTo === 'string' ? routeTo : '#',
-              style: {
-                ...linkStyle,
-                ...(isActive ? activeLinkStyle : {}),
-                ...props.customLinkStyle,
+            h(
+              'a',
+              {
+                class: `switcher-locale-${localeItem.code}`,
+                href: typeof routeTo === 'string' ? routeTo : '#',
+                style: {
+                  ...linkStyle,
+                  ...(isActive ? activeLinkStyle : {}),
+                  ...props.customLinkStyle,
+                },
+                // Предотвращаем стандартную навигацию, используем только handleSwitchLocale
+                onClick: (e: MouseEvent) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleSwitchLocale(localeItem.code)
+                },
               },
-              // Предотвращаем стандартную навигацию, используем только handleSwitchLocale
-              onClick: (e: MouseEvent) => {
-                e.preventDefault()
-                e.stopPropagation()
-                handleSwitchLocale(localeItem.code)
-              },
-            }, linkContent),
+              linkContent,
+            ),
           )
 
           if (slots['after-item']) {
@@ -342,10 +356,14 @@ export const I18nSwitcher = defineComponent({
           }
 
           dropdownItems.push(
-            h('li', {
-              key: localeItem.code,
-              style: { ...itemStyle, ...props.customItemStyle },
-            }, itemChildren),
+            h(
+              'li',
+              {
+                key: localeItem.code,
+                style: { ...itemStyle, ...props.customItemStyle },
+              },
+              itemChildren,
+            ),
           )
         })
 
@@ -355,10 +373,14 @@ export const I18nSwitcher = defineComponent({
 
         // Рендерим UL прямо здесь, БЕЗ Teleport
         children.push(
-          h('ul', {
-            class: 'i18n-switcher-dropdown',
-            style: { ...dropdownStyle, ...props.customDropdownStyle },
-          }, dropdownItems),
+          h(
+            'ul',
+            {
+              class: 'i18n-switcher-dropdown',
+              style: { ...dropdownStyle, ...props.customDropdownStyle },
+            },
+            dropdownItems,
+          ),
         )
       }
 
@@ -367,11 +389,15 @@ export const I18nSwitcher = defineComponent({
       }
 
       // Возвращаем wrapper с ref
-      return h('div', {
-        ref: wrapperRef,
-        class: 'i18n-switcher-wrapper',
-        style: { ...wrapperStyle, ...props.customWrapperStyle },
-      }, children)
+      return h(
+        'div',
+        {
+          ref: wrapperRef,
+          class: 'i18n-switcher-wrapper',
+          style: { ...wrapperStyle, ...props.customWrapperStyle },
+        },
+        children,
+      )
     }
   },
 })

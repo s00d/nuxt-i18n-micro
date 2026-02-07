@@ -1,7 +1,7 @@
-import { defineComponent, h, inject } from 'vue'
 import type { TranslationKey } from '@i18n-micro/types'
-import { I18nInjectionKey } from '../injection'
+import { defineComponent, h, inject } from 'vue'
 import type { VueI18n } from '../composer'
+import { I18nInjectionKey } from '../injection'
 
 interface I18nGroupProps {
   prefix: string
@@ -33,8 +33,13 @@ export const I18nGroup = defineComponent<I18nGroupProps>({
       return i18n.t(`${props.prefix}.${key}` as TranslationKey, params, undefined, i18n.getRoute())
     }
 
-    return () => h('div', {
-      class: ['i18n-group', props.groupClass],
-    }, slots.default?.({ prefix: props.prefix, t: translate }))
+    return () =>
+      h(
+        'div',
+        {
+          class: ['i18n-group', props.groupClass],
+        },
+        slots.default?.({ prefix: props.prefix, t: translate }),
+      )
   },
 })

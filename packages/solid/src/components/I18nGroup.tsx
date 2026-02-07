@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { splitProps, type Component, type JSX } from 'solid-js'
-import { useI18nContext } from '../injection'
+
 import type { TranslationKey } from '@i18n-micro/types'
+import { type Component, type JSX, splitProps } from 'solid-js'
+import { useI18nContext } from '../injection'
 
 interface I18nGroupProps extends JSX.HTMLAttributes<HTMLDivElement> {
   prefix: string
@@ -22,13 +22,17 @@ export const I18nGroup: Component<I18nGroupProps> = (props): JSX.Element => {
 
   return (
     // @ts-expect-error - Type conflict with Vue JSX in monorepo
-    <div
-      class={['i18n-group', local.groupClass].filter(Boolean).join(' ')}
-      {...(others as unknown as JSX.HTMLAttributes<HTMLDivElement>)}
-    >
-      {typeof props.children === 'function'
-        ? (props.children as (props: { prefix: string, t: (key: string, params?: Record<string, string | number | boolean>) => string }) => JSX.Element)({ prefix: local.prefix, t: translate })
-        : props.children}
-    </div>
-  ) as unknown as JSX.Element
+    (
+      <div class={['i18n-group', local.groupClass].filter(Boolean).join(' ')} {...(others as unknown as JSX.HTMLAttributes<HTMLDivElement>)}>
+        {typeof props.children === 'function'
+          ? (
+              props.children as (props: {
+                prefix: string
+                t: (key: string, params?: Record<string, string | number | boolean>) => string
+              }) => JSX.Element
+            )({ prefix: local.prefix, t: translate })
+          : props.children}
+      </div>
+    ) as unknown as JSX.Element
+  )
 }

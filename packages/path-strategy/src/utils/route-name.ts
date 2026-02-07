@@ -1,8 +1,9 @@
 /**
  * Route name utilities: base name, localized name.
  */
-import type { RouteLike } from '../core/types'
+
 import type { Locale } from '@i18n-micro/types'
+import type { RouteLike } from '../core/types'
 
 export interface GetRouteBaseNameOptions {
   locales: Pick<Locale, 'code'>[]
@@ -52,10 +53,7 @@ export interface IsIndexRouteNameOptions {
  * - Full route name: 'index', or 'localized-index-{locale}' for any locale in localeCodes.
  * Use this instead of ad-hoc checks like (name === 'index' || name.endsWith('-index') || name === 'localized-index-' + defaultLocale).
  */
-export function isIndexRouteName(
-  name: string | null | undefined,
-  options?: IsIndexRouteNameOptions,
-): boolean {
+export function isIndexRouteName(name: string | null | undefined, options?: IsIndexRouteNameOptions): boolean {
   if (name == null) return false
   const s = String(name).trim()
   if (s === '' || s === 'index') return true

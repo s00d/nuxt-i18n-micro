@@ -1,6 +1,6 @@
 import { defineEventHandler, getRouterParam } from 'h3'
-import indexEn from '../../../data/index/en.json'
 import indexDe from '../../../data/index/de.json'
+import indexEn from '../../../data/index/en.json'
 import indexRu from '../../../data/index/ru.json'
 
 const translations: Record<string, Record<string, unknown>> = {

@@ -1,7 +1,7 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { PathStrategyContext, ResolvedRouteLike } from '../src'
 import { createPathStrategy } from '../src'
 import { makePathStrategyContext } from './test-utils'
-import type { PathStrategyContext, ResolvedRouteLike } from '../src'
 
 const baseConfig: ModuleOptionsExtend = {
   defaultLocale: 'en',
@@ -189,45 +189,82 @@ describe('getRedirect', () => {
 describe('getSeoAttributes', () => {
   test('returns canonical and hreflangs', () => {
     const strategy = createPathStrategy(makeCtx('prefix_except_default'))
-    const route = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/about',
+      fullPath: '/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     const seo = strategy.getSeoAttributes(route)
     expect(seo.canonical).toBeDefined()
     expect(seo.hreflangs).toHaveLength(3)
-    expect(seo.hreflangs!.every(t => t.rel === 'alternate' && t.hreflang && t.href)).toBe(true)
+    expect(seo.hreflangs!.every((t) => t.rel === 'alternate' && t.hreflang && t.href)).toBe(true)
     expect(seo).toMatchSnapshot()
   })
 
   test('respects routeLocales by path: only allowed locales get hreflang', () => {
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { routeLocales: { '/about': ['en', 'de'] } }))
-    const route = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/about',
+      fullPath: '/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     const seo = strategy.getSeoAttributes(route)
     expect(seo.hreflangs).toHaveLength(2)
-    expect(seo.hreflangs!.map(t => t.hreflang).sort()).toEqual(['de', 'en'])
+    expect(seo.hreflangs!.map((t) => t.hreflang).sort()).toEqual(['de', 'en'])
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 
   test('respects routeLocales by base name', () => {
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { routeLocales: { about: ['en', 'ru'] } }))
-    const route = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/about',
+      fullPath: '/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     const seo = strategy.getSeoAttributes(route)
-    expect(seo.hreflangs!.map(t => t.hreflang).sort()).toEqual(['en', 'ru'])
+    expect(seo.hreflangs!.map((t) => t.hreflang).sort()).toEqual(['en', 'ru'])
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 
   test('respects routesLocaleLinks when resolving routeLocales key', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      routesLocaleLinks: { 'products-id': 'products' },
-      routeLocales: { products: ['en', 'de'] },
-    }))
-    const route = { name: 'localized-products-id-en', path: '/en/products/1', fullPath: '/en/products/1', params: { id: '1' }, query: {} as Record<string, unknown>, hash: '' }
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        routesLocaleLinks: { 'products-id': 'products' },
+        routeLocales: { products: ['en', 'de'] },
+      }),
+    )
+    const route = {
+      name: 'localized-products-id-en',
+      path: '/en/products/1',
+      fullPath: '/en/products/1',
+      params: { id: '1' },
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     const seo = strategy.getSeoAttributes(route)
-    expect(seo.hreflangs!.map(t => t.hreflang).sort()).toEqual(['de', 'en'])
+    expect(seo.hreflangs!.map((t) => t.hreflang).sort()).toEqual(['de', 'en'])
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 
   test('no routeLocales: all locales in hreflangs', () => {
     const strategy = createPathStrategy(makeCtx('prefix_except_default'))
-    const route = { name: 'localized-index-en', path: '/', fullPath: '/', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-index-en',
+      path: '/',
+      fullPath: '/',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     const seo = strategy.getSeoAttributes(route)
     expect(seo.hreflangs).toHaveLength(3)
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
@@ -235,27 +272,50 @@ describe('getSeoAttributes', () => {
 
   test('no_prefix: returns canonical and hreflangs for all locales', () => {
     const strategy = createPathStrategy(makeCtx('no_prefix'))
-    const route = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/about',
+      fullPath: '/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 
   test('prefix: returns canonical and hreflangs with locale prefix in href', () => {
     const strategy = createPathStrategy(makeCtx('prefix'))
-    const route = { name: 'localized-about-en', path: '/en/about', fullPath: '/en/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/en/about',
+      fullPath: '/en/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 
   test('prefix_and_default: returns canonical and hreflangs', () => {
     const strategy = createPathStrategy(makeCtx('prefix_and_default'))
-    const route = { name: 'localized-about-en', path: '/en/about', fullPath: '/en/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/en/about',
+      fullPath: '/en/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 
   test('routesLocaleLinks with multiple keys: each linked name used for routeLocales lookup', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      routesLocaleLinks: { 'products-id': 'products', 'blog-slug': 'blog', 'news-id': 'news' },
-      routeLocales: { products: ['en', 'de'], blog: ['en'], news: ['en', 'de', 'ru'] },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        routesLocaleLinks: { 'products-id': 'products', 'blog-slug': 'blog', 'news-id': 'news' },
+        routeLocales: { products: ['en', 'de'], blog: ['en'], news: ['en', 'de', 'ru'] },
+      }),
+    )
     const routeNews: ResolvedRouteLike = {
       name: 'localized-news-id-en',
       path: '/news/1',
@@ -273,7 +333,14 @@ describe('getSeoAttributes', () => {
       { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
     ]
     const strategy = createPathStrategy(makeCtx('prefix_except_default', { locales: localesWithBase as PathStrategyContext['locales'] }))
-    const route = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/about',
+      fullPath: '/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 })
@@ -294,7 +361,7 @@ describe('snapshots (documentation: how resolveLocaleFromPath, getRedirect, getS
   })
 
   test('getRedirect: path and target locale → where to redirect (null = no redirect)', () => {
-    const cases: Array<{ path: string, targetLocale: string, strategy: NonNullable<ModuleOptionsExtend['strategy']> }> = [
+    const cases: Array<{ path: string; targetLocale: string; strategy: NonNullable<ModuleOptionsExtend['strategy']> }> = [
       { path: '/', targetLocale: 'en', strategy: 'prefix' },
       { path: '/', targetLocale: 'en', strategy: 'prefix_except_default' },
       { path: '/about', targetLocale: 'de', strategy: 'prefix_except_default' },
@@ -311,25 +378,43 @@ describe('snapshots (documentation: how resolveLocaleFromPath, getRedirect, getS
 
   test('getSeoAttributes: canonical and hreflangs for /about page (prefix_except_default)', () => {
     const strategy = createPathStrategy(makeCtx('prefix_except_default'))
-    const route = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const route = {
+      name: 'localized-about-en',
+      path: '/about',
+      fullPath: '/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     const seo = strategy.getSeoAttributes(route)
     expect(seo).toMatchSnapshot()
   })
 
   test('getSeoAttributes with routeLocales: only en and de in hreflangs', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      routeLocales: { '/about': ['en', 'de'] },
-    }))
-    const route = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} as Record<string, unknown>, query: {} as Record<string, unknown>, hash: '' }
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        routeLocales: { '/about': ['en', 'de'] },
+      }),
+    )
+    const route = {
+      name: 'localized-about-en',
+      path: '/about',
+      fullPath: '/about',
+      params: {} as Record<string, unknown>,
+      query: {} as Record<string, unknown>,
+      hash: '',
+    }
     const seo = strategy.getSeoAttributes(route)
     expect(seo).toMatchSnapshot()
   })
 
   test('getSeoAttributes with routesLocaleLinks: products-id → products for routeLocales', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      routesLocaleLinks: { 'products-id': 'products' },
-      routeLocales: { products: ['en', 'de'] },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        routesLocaleLinks: { 'products-id': 'products' },
+        routeLocales: { products: ['en', 'de'] },
+      }),
+    )
     const route: ResolvedRouteLike = {
       name: 'localized-products-id-en',
       path: '/products/1',

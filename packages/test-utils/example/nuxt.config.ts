@@ -1,6 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-
   modules: ['@nuxt/test-utils/module', 'nuxt-i18n-micro'],
   components: {
     dirs: [{ path: '~/components', pathPrefix: false }],
@@ -11,8 +10,6 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-07-25',
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   i18n: {
     locales: [
       {

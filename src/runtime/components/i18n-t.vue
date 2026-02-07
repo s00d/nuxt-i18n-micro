@@ -1,9 +1,9 @@
 <script lang="ts">
-import { h as hyperscript, defineComponent } from 'vue'
-import type { VNode, PropType } from 'vue'
 import type { PluralFunc } from '@i18n-micro/types'
-import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
+import type { PropType, VNode } from 'vue'
+import { defineComponent, h as hyperscript } from 'vue'
 import { useNuxtApp, useRoute } from '#imports'
+import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
 
 export default defineComponent({
   name: 'I18nT',
@@ -71,17 +71,10 @@ export default defineComponent({
       }
 
       if (props.plural !== undefined) {
-        const count = Number.parseInt(props.plural.toString())
+        const count = Number.parseInt(props.plural.toString(), 10)
         if (props.customPluralRule) {
-          return hyperscript(props.tag, { ...attrs, innerHTML: props.customPluralRule(
-            props.keypath,
-            count,
-            props.params,
-            $getLocale(),
-            $t,
-          ) })
-        }
-        else {
+          return hyperscript(props.tag, { ...attrs, innerHTML: props.customPluralRule(props.keypath, count, props.params, $getLocale(), $t) })
+        } else {
           return hyperscript(props.tag, { ...attrs, innerHTML: $tc(props.keypath, { count, ...props.params }) })
         }
       }
@@ -97,11 +90,7 @@ export default defineComponent({
       }
 
       if (slots.default) {
-        return hyperscript(
-          props.tag,
-          attrs,
-          slots.default({ translation }),
-        )
+        return hyperscript(props.tag, attrs, slots.default({ translation }))
       }
 
       const children: (string | VNode)[] = []
@@ -127,11 +116,7 @@ export default defineComponent({
       }
 
       if (slots.default) {
-        return hyperscript(
-          props.tag,
-          attrs,
-          slots.default({ children }),
-        )
+        return hyperscript(props.tag, attrs, slots.default({ children }))
       }
 
       return hyperscript(props.tag, attrs, children)

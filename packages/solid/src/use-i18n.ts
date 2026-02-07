@@ -1,6 +1,6 @@
-import { createMemo } from 'solid-js'
-import { useI18nContext, useI18nLocales, useI18nDefaultLocale, useI18nRouter } from './injection'
 import type { Locale } from '@i18n-micro/types'
+import { createMemo } from 'solid-js'
+import { useI18nContext, useI18nDefaultLocale, useI18nLocales, useI18nRouter } from './injection'
 
 export interface UseI18nOptions {
   locales?: Locale[]
@@ -35,7 +35,7 @@ export function useI18n(options?: UseI18nOptions) {
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
       // Используем accessor для реактивности
-      const current = locales.find(l => l.code === i18n.localeAccessor())
+      const current = locales.find((l) => l.code === i18n.localeAccessor())
       return current?.displayName || null
     },
 
@@ -43,7 +43,7 @@ export function useI18n(options?: UseI18nOptions) {
     localeRoute: resolveLocalePath,
     localePath: (to: string | { path?: string }, locale?: string): string => {
       const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : (res.path || '/')
+      return typeof res === 'string' ? res : res.path || '/'
     },
     switchLocale: (newLocale: string) => {
       i18n.locale = newLocale

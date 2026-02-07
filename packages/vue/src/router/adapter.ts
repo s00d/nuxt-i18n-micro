@@ -1,25 +1,21 @@
-import { RouterLink } from 'vue-router'
-import type { Router } from 'vue-router'
-import type { I18nRoutingStrategy } from './types'
 import type { Locale } from '@i18n-micro/types'
+import type { Router } from 'vue-router'
+import { RouterLink } from 'vue-router'
+import type { I18nRoutingStrategy } from './types'
 
 /**
  * Factory for Vue Router adapter
  * Implements routing utilities for Vue Router
  * Uses vue-router APIs for navigation and path resolution
  */
-export function createVueRouterAdapter(
-  router: Router,
-  locales: Locale[],
-  defaultLocale: string,
-): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+export function createVueRouterAdapter(router: Router, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
+  const localeCodes = locales.map((loc) => loc.code)
 
   /**
    * Path resolution logic (add prefix or not)
    */
   const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
 
     // If path already starts with a locale, remove it
@@ -28,7 +24,7 @@ export function createVueRouterAdapter(
       pathSegments.shift()
     }
 
-    const cleanPath = '/' + pathSegments.join('/')
+    const cleanPath = `/${pathSegments.join('/')}`
 
     // If default locale - return clean path
     if (locale === defaultLocale) {

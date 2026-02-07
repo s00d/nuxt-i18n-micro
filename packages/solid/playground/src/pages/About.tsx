@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import type { Component } from 'solid-js'
+
 import { useI18n } from '@i18n-micro/solid'
+import type { Component } from 'solid-js'
 
 const About: Component = () => {
   const { t } = useI18n()

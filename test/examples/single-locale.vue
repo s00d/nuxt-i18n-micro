@@ -5,13 +5,12 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with single locale
 $defineI18nRoute({
   locales: ['en'],
   localeRoutes: {
-    'en': '/welcome'
-  }
+    en: '/welcome',
+  },
 })
 </script>

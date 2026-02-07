@@ -1,6 +1,6 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { ResolvedRouteLike } from '../src'
-import { getRouteBaseName, PrefixExceptDefaultPathStrategy, NoPrefixPathStrategy, PrefixPathStrategy } from '../src'
+import { getRouteBaseName, NoPrefixPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
 import { makePathStrategyContext } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -50,10 +50,7 @@ describe('getRouteBaseName (utility)', () => {
   })
 
   test('custom localizedRouteNamePrefix', () => {
-    const result = getRouteBaseName(
-      { name: 'i18n-about-en' },
-      { locales, localizedRouteNamePrefix: 'i18n-' },
-    )
+    const result = getRouteBaseName({ name: 'i18n-about-en' }, { locales, localizedRouteNamePrefix: 'i18n-' })
     expect(result).toBe('about')
     expect(result).toMatchSnapshot()
   })
@@ -117,9 +114,11 @@ describe('getRouteBaseName (strategy method)', () => {
   })
 
   test('custom localizedRouteNamePrefix in context', () => {
-    const strategy = new PrefixPathStrategy(makePathStrategyContext(baseConfig, 'prefix', {
-      localizedRouteNamePrefix: 'i18n-',
-    }))
+    const strategy = new PrefixPathStrategy(
+      makePathStrategyContext(baseConfig, 'prefix', {
+        localizedRouteNamePrefix: 'i18n-',
+      }),
+    )
     const result = strategy.getRouteBaseName({ name: 'i18n-about-en' })
     expect(result).toBe('about')
     expect(result).toMatchSnapshot()

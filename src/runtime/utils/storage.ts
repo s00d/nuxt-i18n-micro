@@ -66,14 +66,12 @@ class TranslationStorage {
 
   private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
     const { apiBaseUrl, baseURL, dateBuild } = options
-    const path = routeName
-      ? `/${apiBaseUrl}/${routeName}/${locale}/data.json`
-      : `/${apiBaseUrl}/general/${locale}/data.json`
+    const path = routeName ? `/${apiBaseUrl}/${routeName}/${locale}/data.json` : `/${apiBaseUrl}/general/${locale}/data.json`
 
-    return await $fetch(path.replace(/\/{2,}/g, '/'), {
+    return (await $fetch(path.replace(/\/{2,}/g, '/'), {
       baseURL,
       params: dateBuild ? { v: dateBuild } : undefined,
-    }) as Record<string, unknown>
+    })) as Record<string, unknown>
   }
 
   // ==========================================================================
@@ -121,9 +119,7 @@ class TranslationStorage {
     this.set(locale, routeName, data)
 
     // SERVER: Генерируем JSON для инъекции
-    const json = import.meta.server
-      ? JSON.stringify(data).replace(/</g, '\\u003c')
-      : undefined
+    const json = import.meta.server ? JSON.stringify(data).replace(/</g, '\\u003c') : undefined
 
     return { data: this.get(locale, routeName)!, cacheKey, json }
   }

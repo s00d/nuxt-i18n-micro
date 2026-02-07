@@ -1,5 +1,5 @@
-import { h } from 'preact'
 import type { JSX } from 'preact'
+import { h } from 'preact'
 import { useI18n } from '../context'
 import { useI18nRouter } from '../injection'
 
@@ -45,15 +45,15 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
 
     if (localeRoute) {
       const res = localeRoute(to)
-      return typeof res === 'string' ? res : (res.path || '/')
+      return typeof res === 'string' ? res : res.path || '/'
     }
 
     if (!router?.resolvePath) {
-      return typeof to === 'string' ? to : (to.path || '/')
+      return typeof to === 'string' ? to : to.path || '/'
     }
 
     const res = router.resolvePath(to, i18n.locale)
-    return typeof res === 'string' ? res : (res.path || '/')
+    return typeof res === 'string' ? res : res.path || '/'
   }
 
   const isActive = (): boolean => {
@@ -75,14 +75,14 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
 
     // Partial match: check if current path starts with link path
     // This allows parent routes to be marked as active
-    if (normalizedCurrent.startsWith(normalizedLink + '/')) {
+    if (normalizedCurrent.startsWith(`${normalizedLink}/`)) {
       return true
     }
 
     return false
   }
 
-  const computedStyle: Record<string, string | number> = isActive() ? (activeStyle || {}) : {}
+  const computedStyle: Record<string, string | number> = isActive() ? activeStyle || {} : {}
   const toValue = targetPath()
 
   const handleClick = (e: JSX.TargetedMouseEvent<HTMLAnchorElement>) => {
@@ -146,11 +146,7 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
       className?: string
       [key: string]: unknown
     }
-    return h(
-      Component,
-      componentProps,
-      children,
-    ) as JSX.Element
+    return h(Component, componentProps, children) as JSX.Element
   }
 
   // Fallback to anchor with onClick handler

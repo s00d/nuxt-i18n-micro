@@ -1,7 +1,7 @@
 /**
  * Pure functions for building route object (merge params, query, hash).
  */
-import type { RouteLike, ResolvedRouteLike } from './types'
+import type { ResolvedRouteLike, RouteLike } from './types'
 
 /**
  * Creates localized route object preserving params, query, hash from source.

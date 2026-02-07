@@ -41,16 +41,13 @@
 const { params } = useRoute()
 const { $switchLocaleRoute } = useI18n()
 
-const { data: articles } = await useAsyncData(
-  `articles-${params.id}`,
-  async () => {
-    return await $fetch('/api/getArticles', {
-      query: {
-        id: params.id,
-      },
-    })
-  },
-)
+const { data: articles } = await useAsyncData(`articles-${params.id}`, async () => {
+  return await $fetch('/api/getArticles', {
+    query: {
+      id: params.id,
+    },
+  })
+})
 </script>
 
 <style></style>

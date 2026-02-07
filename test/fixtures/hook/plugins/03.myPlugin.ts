@@ -7,11 +7,13 @@ export default defineNuxtPlugin((nuxtApp) => {
   //
   // console.log(translatedMessage, locale)
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   nuxtApp.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
-    register({
-      hook: 'hook value',
-    }, locale)
+    register(
+      {
+        hook: 'hook value',
+      },
+      locale,
+    )
   })
 })

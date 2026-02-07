@@ -22,10 +22,7 @@ const baseConfig: ModuleOptionsExtend = {
   disablePageLocales: false,
 }
 
-function makeCtx(
-  strategy: NonNullable<ModuleOptionsExtend['strategy']>,
-  extra?: Partial<PathStrategyContext>,
-): PathStrategyContext {
+function makeCtx(strategy: NonNullable<ModuleOptionsExtend['strategy']>, extra?: Partial<PathStrategyContext>): PathStrategyContext {
   return makePathStrategyContext(baseConfig, strategy, extra)
 }
 
@@ -36,9 +33,11 @@ describe('localeRoute + getSeoAttributes with baseUrl', () => {
       { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
       { code: 'ru', iso: 'ru-RU', baseUrl: 'https://ru.example.com/' },
     ]
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      locales: localesWithBase as PathStrategyContext['locales'],
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        locales: localesWithBase as PathStrategyContext['locales'],
+      }),
+    )
     const current: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -60,9 +59,11 @@ describe('localeRoute + getSeoAttributes with baseUrl', () => {
       { code: 'en', iso: 'en-US' },
       { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
     ]
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      locales: localesWithBase as PathStrategyContext['locales'],
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        locales: localesWithBase as PathStrategyContext['locales'],
+      }),
+    )
     const route: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -108,10 +109,7 @@ describe('buildPathFromBaseNameAndParams (router does not have route)', () => {
   })
 
   test('prefix: route name test-id with param id, router throws → hyphen form path test-:id', () => {
-    const router = makeRouterAdapter(
-      ['localized-test-id-en'],
-      { throwOnUnknownName: true },
-    )
+    const router = makeRouterAdapter(['localized-test-id-en'], { throwOnUnknownName: true })
     const strategy = createPathStrategy(makeCtx('prefix', { router }))
     const current: ResolvedRouteLike = {
       name: 'localized-test-id-en',
@@ -128,11 +126,13 @@ describe('buildPathFromBaseNameAndParams (router does not have route)', () => {
 
 describe('nested globalLocaleRoutes (parent key)', () => {
   test('prefix_except_default: nested route uses full path from globalLocaleRoutes when key matches path', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      globalLocaleRoutes: {
-        '/parent/child': { en: '/parent-en/child', de: '/eltern/kind' },
-      },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        globalLocaleRoutes: {
+          '/parent/child': { en: '/parent-en/child', de: '/eltern/kind' },
+        },
+      }),
+    )
     const current: ResolvedRouteLike = {
       name: 'localized-parent-child-en',
       path: '/parent/child',
@@ -187,10 +187,12 @@ describe('switchLocaleRoute with i18nRouteParams', () => {
 
 describe('routesLocaleLinks + routeLocales in getSeoAttributes', () => {
   test('routesLocaleLinks maps products-id to products for routeLocales lookup', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      routesLocaleLinks: { 'products-id': 'products', 'blog-slug': 'blog' },
-      routeLocales: { products: ['en', 'de'], blog: ['en'] },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        routesLocaleLinks: { 'products-id': 'products', 'blog-slug': 'blog' },
+        routeLocales: { products: ['en', 'de'], blog: ['en'] },
+      }),
+    )
     const routeProducts: ResolvedRouteLike = {
       name: 'localized-products-id-en',
       path: '/products/1',
@@ -219,9 +221,11 @@ describe('localeRoute with query and hash preserved when using baseUrl', () => {
       { code: 'en', iso: 'en-US' },
       { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
     ]
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      locales: localesWithBase as PathStrategyContext['locales'],
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        locales: localesWithBase as PathStrategyContext['locales'],
+      }),
+    )
     const current: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -250,7 +254,11 @@ describe('getRedirect edge cases for all strategies', () => {
 
   test('prefix_and_default: redirect / to /en, /about to /de/about', () => {
     const strategy = createPathStrategy(makeCtx('prefix_and_default'))
-    const result = { rootEn: strategy.getRedirect('/', 'en'), aboutDe: strategy.getRedirect('/about', 'de'), enAboutEn: strategy.getRedirect('/en/about', 'en') }
+    const result = {
+      rootEn: strategy.getRedirect('/', 'en'),
+      aboutDe: strategy.getRedirect('/about', 'de'),
+      enAboutEn: strategy.getRedirect('/en/about', 'en'),
+    }
     expect(result).toMatchSnapshot()
   })
 
@@ -268,9 +276,11 @@ describe('snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks
       { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
       { code: 'ru', iso: 'ru-RU', baseUrl: 'https://ru.example.com/' },
     ]
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      locales: localesWithBase as PathStrategyContext['locales'],
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        locales: localesWithBase as PathStrategyContext['locales'],
+      }),
+    )
     const current: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -292,9 +302,11 @@ describe('snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks
       { code: 'en', iso: 'en-US' },
       { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
     ]
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      locales: localesWithBase as PathStrategyContext['locales'],
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        locales: localesWithBase as PathStrategyContext['locales'],
+      }),
+    )
     const route: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',

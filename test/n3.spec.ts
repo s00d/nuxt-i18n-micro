@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
 import type { Page } from '@playwright/test'
 import availableLanguages from './fixtures/n3/app/locales/availableLanguages'
@@ -20,13 +20,7 @@ interface RouteTranslations {
 const routeTranslations = loadJsonFile<RouteTranslations>('./test/fixtures/n3/app/locales/routeTranslations.json')
 
 // Static pages that don't require parameters
-const staticRoutes = [
-  'home',
-  'search',
-  'info',
-  'sea',
-  'topic',
-]
+const staticRoutes = ['home', 'search', 'info', 'sea', 'topic']
 async function checkPageContent(page: Page, path: string) {
   // Check if we're on the correct URL
   await expect(page).toHaveURL(path)
@@ -117,12 +111,11 @@ test.describe('n3', () => {
           if (!translatedRoute) continue
 
           for (const select of route.params) {
-            const param = select as unknown as { country: string, state: string, id: number, section: string }
+            const param = select as unknown as { country: string; state: string; id: number; section: string }
             let path: string
             if (route.type === 'country') {
               path = `/${lang.code}/${translatedRoute}/${param.country}/${param.state}`
-            }
-            else {
+            } else {
               const section = routeTranslations[lang.code]?.[param.section] ?? param.section
               path = `/${lang.code}/${translatedRoute}/${param.id}/${section}`
             }

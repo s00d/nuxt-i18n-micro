@@ -5,10 +5,9 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Simple array format
 $defineI18nRoute({
-  locales: ['en', 'de', 'ru']
+  locales: ['en', 'de', 'ru'],
 })
 </script>

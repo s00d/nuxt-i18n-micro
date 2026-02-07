@@ -28,10 +28,7 @@ import { useAsyncData } from '#imports'
 const locale = 'en'
 
 // Load translations via API (same as i18n-micro does)
-const { data: translations } = await useAsyncData(
-  `translations-${locale}`,
-  () => $fetch(`/api/translations/${locale}`),
-)
+const { data: translations } = await useAsyncData(`translations-${locale}`, () => $fetch(`/api/translations/${locale}`))
 
 // Translation function similar to $t
 function t(path) {

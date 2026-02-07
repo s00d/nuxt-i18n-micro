@@ -1,22 +1,16 @@
+import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
 import React from 'react'
 // Use shim for React 17 compatibility
 import { useSyncExternalStore } from 'use-sync-external-store/shim'
 import type { ReactI18n } from './i18n'
-import type {
-  Translations,
-  Params,
-  TranslationKey,
-  CleanTranslation,
-  Locale,
-} from '@i18n-micro/types'
 import {
   I18nContext,
-  I18nLocalesContext,
   I18nDefaultLocaleContext,
+  I18nLocalesContext,
   I18nRouterContext,
   useI18nContext,
-  useI18nLocales,
   useI18nDefaultLocale,
+  useI18nLocales,
   useI18nRouter,
 } from './injection'
 import type { I18nRoutingStrategy } from './router/types'
@@ -41,13 +35,7 @@ export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, ch
             ? React.createElement(
                 I18nDefaultLocaleContext.Provider,
                 { value: defaultLocale },
-                routingStrategy
-                  ? React.createElement(
-                      I18nRouterContext.Provider,
-                      { value: routingStrategy },
-                      children,
-                    )
-                  : children,
+                routingStrategy ? React.createElement(I18nRouterContext.Provider, { value: routingStrategy }, children) : children,
               )
             : children,
         )
@@ -152,7 +140,7 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
     getLocales: () => locales,
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
-      const current = locales.find(l => l.code === i18n.locale)
+      const current = locales.find((l) => l.code === i18n.locale)
       return current?.displayName || null
     },
 
@@ -161,7 +149,7 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
     localeRoute: resolveLocalePath,
     localePath: (to: string | { path?: string }, locale?: string) => {
       const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : (res.path || '/')
+      return typeof res === 'string' ? res : res.path || '/'
     },
 
     // Translation management

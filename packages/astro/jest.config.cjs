@@ -10,8 +10,5 @@ module.exports = {
     '^@i18n-micro/core$': '<rootDir>/../core/src',
     '^@i18n-micro/types$': '<rootDir>/../types/src',
   },
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-  ],
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
 }

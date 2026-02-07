@@ -6,10 +6,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
-import { onDevtoolsClientConnected } from '@nuxt/devtools-kit/iframe-client'
-import { register } from '@i18n-micro/devtools-ui'
 import type { I18nDevToolsBridge } from '@i18n-micro/devtools-ui'
+import { register } from '@i18n-micro/devtools-ui'
+import { onDevtoolsClientConnected } from '@nuxt/devtools-kit/iframe-client'
+import { nextTick, onMounted, ref } from 'vue'
 import { createNuxtBridge } from './bridge/nuxt-bridge'
 
 interface I18nDevToolsElement extends HTMLElement {
@@ -20,7 +20,6 @@ interface I18nDevToolsElement extends HTMLElement {
 register()
 
 const appContainer = ref<HTMLElement | null>(null)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let devToolsClient: any = null
 
 const mountDevTools = async () => {

@@ -1,6 +1,6 @@
 ---
-import { useI18n } from '../utils'
 import type { I18nRoutingStrategy } from '../router/types'
+import { useI18n } from '../utils'
 
 interface Props {
   href: string
@@ -11,11 +11,11 @@ interface Props {
 
 const { href, locale, class: className, ...attrs } = Astro.props
 const { locale: currentLocale, defaultLocale, locales } = useI18n(Astro)
-const localeCodes = locales.map(l => l.code)
+const localeCodes = locales.map((l) => l.code)
 const currentPath = Astro.url.pathname
 
 // Get routing strategy from locals
-// @ts-ignore
+// @ts-expect-error
 const routingStrategy: I18nRoutingStrategy | null = Astro.locals.routingStrategy || null
 
 // Get current locale from path or use detected locale

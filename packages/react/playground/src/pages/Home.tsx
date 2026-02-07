@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-import type React from 'react'
 import { useI18n } from '@i18n-micro/react'
+import type React from 'react'
 
 // @ts-expect-error - React.FC type compatibility
 export const Home: React.FC<{}> = () => {
@@ -18,11 +17,7 @@ export const Home: React.FC<{}> = () => {
       <p>{t('number', { number: tn(1234.56) })}</p>
       <p>{t('date', { date: td(new Date()) })}</p>
       <p>{t('relativeDate', { relativeDate: tdr(Date.now() - 86400000) })}</p>
-      <p>
-        Current locale:
-        {' '}
-        {locale}
-      </p>
+      <p>Current locale: {locale}</p>
     </div>
   )
 }

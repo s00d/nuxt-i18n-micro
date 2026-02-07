@@ -8,7 +8,7 @@ function getProcessUsageMock() {
   }
 }
 
-(async () => {
+;(async () => {
   console.log('Starting build performance test...')
 
   const startTime = Date.now()

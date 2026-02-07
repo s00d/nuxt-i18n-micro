@@ -2,8 +2,6 @@
 export default defineNuxtConfig({
   extends: '../basic',
   devtools: { enabled: false },
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   i18n: {
     locales: [
       { code: 'ru', iso: 'ru_RU' },

@@ -237,6 +237,8 @@ export default defineNuxtModule<ModuleOptions>({
       noPrefixRedirect: options.noPrefixRedirect ?? false,
       debug: options.debug ?? false,
       customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
+      cacheMaxSize: options.cacheMaxSize ?? 0,
+      cacheTtl: options.cacheTtl ?? 0,
     }
 
     nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {}
@@ -288,11 +290,16 @@ export function createI18nStrategy(router) {
 
     // i18n config is only in #build/i18n.strategy.mjs (getI18nConfig, createI18nStrategy). runtimeConfig.public.i18nConfig is not used.
 
-    // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error
+    // Validate that all locale codes match the customRegexMatcher (if set)
     if (typeof options.customRegexMatcher !== 'undefined') {
       const localeCodes = routeGenerator.locales.map((l) => l.code)
-      if (!localeCodes.every((code) => code.match(options.customRegexMatcher as string | RegExp))) {
-        throw new Error('Nuxt-18n-micro: Some locale codes does not match customRegexMatcher')
+      const failedCodes = localeCodes.filter((code) => !code.match(options.customRegexMatcher as string | RegExp))
+      if (failedCodes.length > 0) {
+        throw new Error(
+          'Nuxt-i18n-micro: customRegexMatcher does not match the following locale codes: ' +
+            failedCodes.join(', ') +
+            '. The regex must match ALL locale codes in your configuration.',
+        )
       }
     }
 

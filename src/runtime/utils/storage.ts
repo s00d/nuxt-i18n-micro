@@ -1,7 +1,10 @@
 /**
  * Translation Storage
  * Unified translation storage for client and server.
+ * Cache control (TTL, maxSize) delegated to CacheControl.
  */
+import { CacheControl, type CacheControlOptions } from './cache-control'
+
 declare global {
   interface Window {
     __I18N__?: Record<string, unknown>
@@ -24,40 +27,37 @@ export interface LoadResult {
 // STORAGE CLASS
 // ============================================================================
 
-const CACHE_KEY = Symbol.for('__NUXT_I18N_STORAGE_CACHE__')
+const CC_KEY = Symbol.for('__NUXT_I18N_STORAGE_CC__')
+type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
-type StorageCache = Map<string, Record<string, unknown>>
-type GlobalWithCache = typeof globalThis & { [key: symbol]: StorageCache }
+function getStorageCacheControl(): CacheControl<Record<string, unknown>> {
+  const g = globalThis as GlobalWithCC
+  if (!g[CC_KEY]) {
+    g[CC_KEY] = new CacheControl<Record<string, unknown>>()
+  }
+  return g[CC_KEY] as CacheControl<Record<string, unknown>>
+}
 
 class TranslationStorage {
-  private cache: StorageCache
+  private cc: CacheControl<Record<string, unknown>>
 
   constructor() {
-    const g = globalThis as GlobalWithCache
-    if (!g[CACHE_KEY]) {
-      g[CACHE_KEY] = new Map()
-    }
-    this.cache = g[CACHE_KEY]
+    this.cc = getStorageCacheControl()
+  }
+
+  /**
+   * Configure cache limits. Call once from plugin with config values.
+   */
+  configure(options: CacheControlOptions): void {
+    this.cc.configure(options)
   }
 
   // ==========================================================================
-  // PRIVATE CACHE API
+  // HELPERS
   // ==========================================================================
 
   private getCacheKey(locale: string, routeName?: string): string {
     return routeName ? `${locale}:${routeName}` : `${locale}:general`
-  }
-
-  private has(locale: string, routeName?: string): boolean {
-    return this.cache.has(this.getCacheKey(locale, routeName))
-  }
-
-  private get(locale: string, routeName?: string): Record<string, unknown> | undefined {
-    return this.cache.get(this.getCacheKey(locale, routeName))
-  }
-
-  private set(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
-    this.cache.set(this.getCacheKey(locale, routeName), Object.freeze(data))
   }
 
   // ==========================================================================
@@ -80,22 +80,23 @@ class TranslationStorage {
 
   /**
    * Synchronous cache check and retrieval.
-   * Returns data if cached, otherwise null.
+   * Returns data if cached (and not expired), otherwise null.
    */
   getFromCache(locale: string, routeName?: string): LoadResult | null {
     const cacheKey = this.getCacheKey(locale, routeName)
 
     // From cache
-    if (this.has(locale, routeName)) {
-      return { data: this.get(locale, routeName)!, cacheKey }
+    const cached = this.cc.get(cacheKey)
+    if (cached) {
+      return { data: cached, cacheKey }
     }
 
     // CLIENT: Check SSR injection
     if (import.meta.client && typeof window !== 'undefined' && window.__I18N__?.[cacheKey]) {
       const data = window.__I18N__[cacheKey] as Record<string, unknown>
       window.__I18N__[cacheKey] = undefined
-      this.set(locale, routeName, data)
-      return { data: this.get(locale, routeName)!, cacheKey }
+      this.cc.set(cacheKey, Object.freeze(data))
+      return { data: this.cc.get(cacheKey)!, cacheKey }
     }
 
     return null
@@ -116,19 +117,19 @@ class TranslationStorage {
     const data = await this.fetchTranslations(locale, routeName, options)
 
     // Store in cache
-    this.set(locale, routeName, data)
+    this.cc.set(cacheKey, Object.freeze(data))
 
     // SERVER: Generate JSON for client injection
     const json = import.meta.server ? JSON.stringify(data).replace(/</g, '\\u003c') : undefined
 
-    return { data: this.get(locale, routeName)!, cacheKey, json }
+    return { data: this.cc.get(cacheKey)!, cacheKey, json }
   }
 
   /**
-   * Clear cache.
+   * Clear cache and metadata.
    */
   clear(): void {
-    this.cache.clear()
+    this.cc.clear()
   }
 }
 

@@ -10,21 +10,19 @@ export default function() {
       "30s",
       "40s",
       "50s",
-      "60s",
-      "70s"
+      "60s"
     ],
     "datasets": [
       {
         "label": "P95 Latency (ms)",
         "data": [
-          16,
-          646,
-          2466,
-          2725,
-          2725,
-          2725,
-          2725,
-          2671
+          478,
+          1864,
+          2566,
+          2566,
+          2566,
+          2516,
+          2516
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.2)",

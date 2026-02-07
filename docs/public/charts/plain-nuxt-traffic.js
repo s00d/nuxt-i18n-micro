@@ -17,14 +17,14 @@ export default function() {
       {
         "label": "http.request_rate",
         "data": [
-          53,
-          294,
-          333,
-          329,
-          335,
-          336,
-          335,
-          300
+          66,
+          273,
+          342,
+          342,
+          342,
+          343,
+          343,
+          321
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -37,14 +37,14 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          9,
-          596,
-          1496,
-          2369,
-          2417,
-          2369,
-          2369,
-          2417
+          8,
+          296,
+          854,
+          1526,
+          2144,
+          2322,
+          2322,
+          2322
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -57,14 +57,14 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          19,
-          483,
+          11,
+          384,
           600,
           600,
           600,
           600,
           600,
-          134
+          241
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -78,12 +78,12 @@ export default function() {
         "label": "vusers.active",
         "data": [
           0,
-          60,
-          60,
-          60,
-          19,
-          3,
-          0,
+          36,
+          38,
+          39,
+          38,
+          33,
+          7,
           0
         ],
         "borderColor": "rgb(46, 204, 113)",
@@ -101,10 +101,10 @@ export default function() {
           0,
           0,
           0,
-          37,
-          50,
-          55,
-          24
+          0,
+          5,
+          33,
+          27
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

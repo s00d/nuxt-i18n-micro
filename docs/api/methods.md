@@ -14,6 +14,7 @@ classDiagram
         +$getLocale() string
         +$getLocaleName() string
         +$getLocales() Locale[]
+        +$defaultLocale() string
         +$t(key, params?, defaultValue?) Translation
         +$ts(key, params?, defaultValue?) string
         +$tc(key, count, defaultValue?) string
@@ -22,10 +23,14 @@ classDiagram
         +$tdr(value, options?) string
         +$has(key) boolean
         +$switchLocale(locale) void
+        +$switchLocaleRoute(locale) RouteLocationRaw
         +$switchLocalePath(locale) string
+        +$switchRoute(route, locale?) void
         +$localeRoute(to, locale?) RouteLocation
         +$localePath(to, locale?) string
         +$mergeTranslations(translations) void
+        +$clearCache() void
+        +$loadPageTranslations(locale, routeName, translations) void
         +$setMissingHandler(handler) void
     }
     
@@ -89,6 +94,16 @@ const locale = $getLocaleName()
 ```typescript
 const locales = $getLocales()
 // Output: [{ code: 'en', iso: 'en-US', dir: 'ltr' }, { code: 'fr', iso: 'fr-FR', dir: 'ltr' }]
+```
+
+### `$defaultLocale`
+
+- **Type**: `() => string`
+- **Description**: Returns the default locale code from configuration.
+
+```typescript
+const defaultLocale = $defaultLocale()
+// Output: 'en'
 ```
 
 ## 🔍 Translation Methods
@@ -518,3 +533,88 @@ const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
 // or
 const i18n = useI18n()
 ```
+
+## 🔧 Cache & Utility Methods
+
+### `$has`
+
+- **Type**: `(key: string) => boolean`
+- **Description**: Checks if a translation key exists in the current translations (including previous page fallback if enabled).
+
+```typescript
+if ($has('welcome')) {
+  console.log($t('welcome'))
+} else {
+  console.log('Key not found')
+}
+```
+
+### `$clearCache`
+
+- **Type**: `() => void`
+- **Description**: Clears both the `TranslationStorage` cache and the plugin-level loaded chunks. Useful after dynamically updating translations.
+
+```typescript
+$clearCache()
+// All cached translations are removed; next render will re-fetch them
+```
+
+### `$loadPageTranslations`
+
+- **Type**: `(locale: string, routeName: string, translations: Record<string, string>) => Promise<void>`
+- **Description**: Manually loads translations for a specific locale and route into the cache. Triggers a re-render if the loaded translations match the current context.
+
+```typescript
+await $loadPageTranslations('en', 'about', {
+  title: 'About Us',
+  description: 'Learn more about our company'
+})
+```
+
+## 🧭 `useI18nLocale` Composable
+
+**Version introduced**: `v3.0.0`
+
+The centralized composable for locale state management. Use this instead of directly manipulating `useState('i18n-locale')` or `useCookie('user-locale')`.
+
+```typescript
+const {
+  setLocale,              // (locale: string) => void — updates state + cookie
+  getLocale,              // () => string | null — from state or cookie
+  getPreferredLocale,     // () => string | null — validated against locales list
+  getEffectiveLocale,     // (route, getLocaleFromRoute) => string
+  resolveInitialLocale,   // (options) => string
+  isValidLocale,          // (locale) => boolean
+  locale,                 // Ref<string | null> — reactive state
+  localeCookie,           // CookieRef — reactive cookie
+  syncLocale,             // (locale) => void — sync to cookie only
+  validLocales,           // string[] — list of valid locale codes
+} = useI18nLocale()
+```
+
+### Key Methods
+
+| Method | Description |
+|--------|-------------|
+| `setLocale(locale)` | Sets locale in both `useState` and cookie atomically |
+| `getLocale()` | Returns current locale from state or cookie |
+| `getPreferredLocale()` | Returns locale validated against `locales` list, or `null` |
+| `isValidLocale(locale)` | Checks if a locale code is in the configured `locales` list |
+
+### Usage in Custom Plugins
+
+```typescript
+// plugins/i18n-loader.server.ts
+export default defineNuxtPlugin({
+  name: 'i18n-custom-loader',
+  enforce: 'pre',
+  order: -10,
+  setup() {
+    const { setLocale } = useI18nLocale()
+    // Detect locale from headers, domain, etc.
+    setLocale('de')
+  }
+})
+```
+
+See [Custom Language Detection](/guide/custom-auto-detect) for detailed examples.

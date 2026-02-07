@@ -104,6 +104,15 @@ export default defineNuxtModule<ModuleOptions>({
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
     }
 
+    // Warn when redirects are enabled but localeCookie is not set for prefix strategies
+    if (options.strategy !== 'no_prefix' && options.redirects !== false && !options.localeCookie) {
+      logger.warn(
+        'Redirects are enabled but localeCookie is not set. ' +
+          "Locale-based redirects will not remember user's locale preference across page reloads. " +
+          "Set `localeCookie: 'user-locale'` to enable cookie-based locale persistence for redirects.",
+      )
+    }
+
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map((layer) => layer.config.rootDir).reverse()
 
@@ -230,6 +239,7 @@ export default defineNuxtModule<ModuleOptions>({
       routeDisableMeta: routeDisableMeta,
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
       missingWarn: options.missingWarn ?? true,
+      redirects: options.redirects !== false,
       previousPageFallback: options.previousPageFallback ?? false,
       hmr: options.hmr ?? true,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',

@@ -2,6 +2,12 @@
 
 This guide is for developers who want to customize or extend how translations are loaded, stored, cached, and updated in the i18n system. All translation data is stored in JSON files, and server-side logic is used to manage them with cache support.
 
+::: tip v3.0.0 Built-in Cache
+Starting from v3.0.0, the module includes a built-in `TranslationStorage` class (`src/runtime/utils/storage.ts`) that uses `globalThis` and `Symbol.for` for a singleton pattern. Translations are also injected into the client via `window.__I18N__` for optimal SSR hydration. The server-side loading is handled by an optimized `server-loader`.
+
+The examples below show how to **extend or customize** the caching behavior beyond what the built-in mechanism provides (e.g., building admin tools, external translation APIs, or custom cache invalidation).
+:::
+
 ## 📊 Cache Architecture Overview
 
 ### Storage Relationships

@@ -279,12 +279,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const tFast = (key: string, params?: Params, defaultValue?: string | null, route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): CleanTranslation => {
     if (!key) return '' as CleanTranslation
 
-    // Получаем переводы
+    // Читаем contextSignal для трекинга реактивности Vue.
+    // Это позволяет computed/watch отслеживать изменения при смене locale/route.
+    contextSignal.value
+
     const translations = route
       ? (loadedChunks.get(getCacheKey(
-          getCurrentLocale(route as unknown as ResolvedRouteLike),
-          getPluginRouteName(route as unknown as ResolvedRouteLike, getCurrentLocale(route as unknown as ResolvedRouteLike)),
-        )) || {})
+        getCurrentLocale(route as unknown as ResolvedRouteLike),
+        getPluginRouteName(route as unknown as ResolvedRouteLike, getCurrentLocale(route as unknown as ResolvedRouteLike)),
+      )) || {})
       : cachedTranslations
 
     // 1. Прямой доступ по ключу
@@ -336,6 +339,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   const hasTranslation = (key: string): boolean => {
+    contextSignal.value
+
     if (cachedTranslations[key] !== undefined) return true
     if (key.includes('.') && getByPath(cachedTranslations, key) !== undefined) return true
 
@@ -416,17 +421,21 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
     },
     tc: (key: string, params: number | Params, defaultValue?: string): string => {
+      contextSignal.value
       const { count, ..._params } = typeof params === 'number' ? { count: params } : params
       if (count === undefined) return defaultValue ?? key
       return plural(key, Number.parseInt(count.toString()), _params, currentLocale, tFast) as string ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {
+      contextSignal.value
       return translationService.formatNumber(value, currentLocale, options)
     },
     td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
+      contextSignal.value
       return translationService.formatDate(value, currentLocale, options)
     },
     tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string => {
+      contextSignal.value
       return translationService.formatRelativeTime(value, currentLocale, options)
     },
     has: hasTranslation,
@@ -508,7 +517,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     Object.entries(provideData).map(([key, value]) => [`$${key}`, value]),
   )
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   provideData.i18n = { ...provideData, ...$provideData }
 

@@ -6,7 +6,7 @@ import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 
-// Используем тот же ключ что и в server-loader.ts
+// Use the same key as in server-loader.ts
 const CACHE_KEY = Symbol.for('__NUXT_I18N_SERVER_CACHE__')
 type ServerCache = Map<string, unknown>
 type GlobalWithCache = typeof globalThis & { [key: symbol]: ServerCache }
@@ -64,7 +64,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             cache.delete(key)
             removed++
           }
-          // Также проверяем формат locale:routeName
+          // Also check locale:routeName format
           if (parts[0] === locale && targets.includes(parts[1] || '')) {
             cache.delete(key)
             removed++

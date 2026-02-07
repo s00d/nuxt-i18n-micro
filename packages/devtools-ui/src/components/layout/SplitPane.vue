@@ -4,7 +4,7 @@
     @mouseup="stopResize"
     @mouseleave="stopResize"
   >
-    <!-- Левая панель -->
+    <!-- Left pane -->
     <div
       class="split-pane__left"
       :style="{ width: leftWidth }"
@@ -12,7 +12,7 @@
       <slot name="left" />
     </div>
 
-    <!-- Разделитель -->
+    <!-- Divider -->
     <div
       class="split-pane__divider"
       :style="{ left: leftWidth }"
@@ -21,7 +21,7 @@
       <div class="divider-handle" />
     </div>
 
-    <!-- Правая панель -->
+    <!-- Right pane -->
     <div
       class="split-pane__right"
       :style="{ left: leftWidth, paddingLeft: '4px' }"
@@ -29,7 +29,7 @@
       <slot name="right" />
     </div>
 
-    <!-- Оверлей при ресайзе (чтобы iframe/input не перехватывали события) -->
+    <!-- Overlay during resize (to prevent iframe/input from intercepting events) -->
     <div
       v-if="isResizing"
       class="resize-overlay"

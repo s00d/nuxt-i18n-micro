@@ -6,20 +6,20 @@ import { flattenKeys } from './parser'
 export interface GeneratorOptions {
   srcDir: string
   translationDir: string
-  outputFile?: string // Куда класть d.ts файл
+  outputFile?: string // Where to put the d.ts file
 }
 
 /**
- * Генерирует строку с TypeScript типами для ключей переводов.
- * Не записывает файл, только возвращает содержимое.
+ * Generates a string with TypeScript types for translation keys.
+ * Does not write a file, only returns content.
  *
- * @param options - Опции генератора
- * @returns Строка с содержимым .d.ts файла
+ * @param options - Generator options
+ * @returns String with .d.ts file content
  */
 export async function getTypesString(options: GeneratorOptions): Promise<string> {
   const localesDir = resolve(options.srcDir, options.translationDir)
 
-  // Ищем все json файлы в папке переводов (включая подпапки pages)
+  // Find all JSON files in the translations directory (including pages subdirectories)
   const files = await globby('**/*.json', {
     cwd: localesDir,
     absolute: true,
@@ -40,8 +40,8 @@ export async function getTypesString(options: GeneratorOptions): Promise<string>
     }
   }
 
-  // Генерация контента файла .d.ts
-  // Важно: мы расширяем модуль '@i18n-micro/types'
+  // Generate .d.ts file content
+  // Important: we extend the '@i18n-micro/types' module
   const keysContent = Array.from(allKeys)
     .sort()
     .map((key) => `    '${key}': string;`)
@@ -63,24 +63,24 @@ ${keysContent}
 }
 
 /**
- * Генерирует TypeScript типы для ключей переводов из JSON файлов.
- * Записывает результат в файл.
+ * Generates TypeScript types for translation keys from JSON files.
+ * Writes the result to a file.
  *
- * @param options - Опции генератора
- * @returns Путь к сгенерированному файлу
+ * @param options - Generator options
+ * @returns Path to the generated file
  */
 export async function generateTypes(options: GeneratorOptions): Promise<string> {
   const fileContent = await getTypesString(options)
 
-  // Определяем путь для записи (по умолчанию в корень или .nuxt)
+  // Determine the output path (defaults to root or .nuxt)
   const outputPath = options.outputFile || resolve(options.srcDir, 'i18n-micro.d.ts')
 
-  // Создаем директорию если нет
+  // Create directory if it doesn't exist
   const outputDir = dirname(outputPath)
   try {
     mkdirSync(outputDir, { recursive: true })
   } catch {
-    // Директория уже существует
+    // Directory already exists
   }
 
   writeFileSync(outputPath, fileContent, 'utf-8')

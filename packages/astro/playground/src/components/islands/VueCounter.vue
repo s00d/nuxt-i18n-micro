@@ -10,11 +10,11 @@ const props = defineProps<{
   i18n: I18nClientProps
 }>()
 
-// Инициализируем провайдер и получаем состояние напрямую
+// Initialize provider and get state directly
 const state = provideI18n(props.i18n)
 const formatter = new FormatService()
 
-// Используем состояние напрямую вместо inject
+// Use state directly instead of inject
 const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => {
   return translate(state.value, key as string, params, defaultValue, routeName)
 }

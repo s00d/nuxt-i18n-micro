@@ -182,12 +182,12 @@ const emit = defineEmits<{
   'update:options': [value: { [key: string]: string }]
 }>()
 
-// Локальные переменные для v-model
+// Local variables for v-model
 const selectedDriver = ref(props.driver)
 const localApiToken = ref(props.apiToken)
 const localDriverOptions = ref({ ...props.options })
 
-// Синхронизация с пропсами (только входящие изменения)
+// Sync with props (incoming changes only)
 watch(
   () => props.driver,
   async (newValue: string) => {
@@ -219,7 +219,7 @@ watch(
   { deep: true },
 )
 
-// Эмиты при изменении локальных переменных (только исходящие изменения)
+// Emit on local variable changes (outgoing changes only)
 watch(selectedDriver, async (newValue: string) => {
   if (newValue !== props.driver) {
     await nextTick()
@@ -392,7 +392,7 @@ const openAIModels = [
   @apply pl-4 border-l-2 border-blue-100 ml-2 space-y-3;
 }
 
-/* Анимации */
+/* Animations */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.3s ease;

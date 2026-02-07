@@ -6,13 +6,13 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : 3,
   use: {
-    // В CI сохранять трейс при ошибке, локально — выключить
+    // In CI save trace on error, locally — disable
     trace: process.env.CI ? 'retain-on-failure' : 'off',
 
-    // В CI сохранять видео при ошибке, локально — выключить
+    // In CI save video on error, locally — disable
     video: process.env.CI ? 'retain-on-failure' : 'off',
 
-    // Скриншоты только при ошибке
+    // Screenshots only on error
     screenshot: 'only-on-failure',
   },
   testIgnore: [],

@@ -7,7 +7,7 @@ import dts from 'vite-plugin-dts'
 export default defineConfig({
   plugins: [
     tailwindcss({
-      // Плагин Tailwind CSS 4.0 с Vite
+      // Tailwind CSS 4.0 plugin with Vite
     }) as any,
     vue({
       customElement: true, // Enable custom element mode for .ce.vue files
@@ -20,7 +20,7 @@ export default defineConfig({
       copyDtsFiles: true,
       outDir: 'dist',
       tsconfigPath: resolve(__dirname, 'tsconfig.json'),
-      // Генерируем типы для плагина в dist/vite
+      // Generate types for the plugin in dist/vite
       beforeWriteFile: (filePath, content) => {
         if (filePath.includes('vite/plugin')) {
           return {
@@ -39,7 +39,7 @@ export default defineConfig({
       fileName: (format: string) => `index.${format === 'es' ? 'es' : 'umd'}.js`,
     },
     rollupOptions: {
-      // НЕ добавляем Vue в external - бандлим внутрь для независимости
+      // Do NOT add Vue to external - bundle it inside for independence
       external: ['@i18n-micro/types'],
       output: {
         exports: 'named',
@@ -48,8 +48,8 @@ export default defineConfig({
         },
       },
       onwarn(warning, warn) {
-        // Подавляем предупреждения о sourcemap от плагина Tailwind CSS
-        // Эти предупреждения не критичны, так как плагин работает корректно
+        // Suppress sourcemap warnings from the Tailwind CSS plugin
+        // These warnings are not critical as the plugin works correctly
         if (warning.message?.includes('Sourcemap is likely to be incorrect') || warning.plugin?.includes('tailwindcss')) {
           return
         }
@@ -57,13 +57,13 @@ export default defineConfig({
       },
     },
     outDir: 'dist',
-    cssCodeSplit: false, // Все CSS в один файл
-    sourcemap: true, // Sourcemap для JS
+    cssCodeSplit: false, // All CSS in one file
+    sourcemap: true, // Sourcemap for JS
   },
   define: {
     'process.env': {},
   },
   css: {
-    postcss: {}, // Используем пустую конфигурацию PostCSS, Vite плагин Tailwind обработает CSS
+    postcss: {}, // Use empty PostCSS config, Vite Tailwind plugin will handle CSS
   },
 })

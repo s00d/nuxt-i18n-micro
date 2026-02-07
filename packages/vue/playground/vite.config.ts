@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
     VueDevtools(),
-    // Подключаем i18n плагин для поддержки сохранения файлов
+    // Connect i18n plugin for file saving support
     i18nDevToolsPlugin({
       base: '/__i18n_api',
       translationDir: 'src/locales',

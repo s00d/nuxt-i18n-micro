@@ -11,9 +11,9 @@
           class="icon"
           viewBox="0 0 24 24"
         >
-          <!-- Элементы локализации -->
+          <!-- Localization elements -->
           <g transform="translate(4 4) scale(0.8)">
-            <!-- Глобус -->
+            <!-- Globe -->
             <circle
               cx="12"
               cy="12"
@@ -22,14 +22,14 @@
               stroke="currentColor"
               stroke-width="1.5"
             />
-            <!-- Меридианы -->
+            <!-- Meridians -->
             <path
               d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
               fill="none"
               stroke="currentColor"
               stroke-width="1"
             />
-            <!-- Параллели -->
+            <!-- Parallels -->
             <path
               d="M2 12h20M5 5.2l14 14M5 18.8l14-14"
               fill="none"
@@ -136,7 +136,7 @@ function toggleExpand() {
 function handleFileClick() {
   emit('fileSelected', props.node.fullPath, props.locale)
 }
-// Автоматически раскрываем папки по умолчанию
+// Auto-expand folders by default
 watch(
   () => props.defaultExpanded,
   (val) => {

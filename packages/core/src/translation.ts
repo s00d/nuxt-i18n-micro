@@ -1,8 +1,8 @@
 import type { Translations } from '@i18n-micro/types'
 
 /**
- * Bare Metal: Простое хранилище переводов без Ref, useState, devalue.
- * Ключ Map: locale (general) или locale:routeName (page-specific).
+ * Bare Metal: Simple translation storage without Ref, useState, devalue.
+ * Map key: locale (general) or locale:routeName (page-specific).
  */
 export interface TranslationStorage {
   translations: Map<string, Translations>
@@ -81,7 +81,7 @@ export function useTranslationHelper(storage?: TranslationStorage) {
     loadPageTranslations(locale: string, routeName: string, data: Translations): void {
       const key = `${locale}:${routeName}`
       const existing = translations.get(key)
-      // Perf: при пустом existing — сохраняем ссылку, избегаем O(n) копирования больших объектов
+      // Perf: when existing is empty — keep reference, avoid O(n) copying of large objects
       if (!existing || Object.keys(existing).length === 0) {
         translations.set(key, data)
       } else {

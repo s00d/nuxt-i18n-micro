@@ -312,7 +312,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
 }
 
 /**
- * Props для передачи в клиентские острова (Vue, React, Svelte, Preact)
+ * Props to pass to client islands (Vue, React, Svelte, Preact)
  */
 export interface I18nClientProps {
   locale: string
@@ -322,7 +322,7 @@ export interface I18nClientProps {
 }
 
 /**
- * Создает вложенную структуру из ключа (например, 'islands.vue.title' -> { islands: { vue: { title: value } } })
+ * Creates a nested structure from a key (e.g. 'islands.vue.title' -> { islands: { vue: { title: value } } })
  */
 function setNestedValue(obj: Translations, key: string, value: unknown): void {
   const parts = key.split('.')
@@ -341,30 +341,30 @@ function setNestedValue(obj: Translations, key: string, value: unknown): void {
 }
 
 /**
- * Подготавливает пропсы для передачи в клиентский остров.
- * Принимает список ключей, которые нужно передать в остров.
- * Использует методы i18n для правильной работы с routesLocaleLinks.
- * currentRoute уже нормализован через middleware (getRouteName), поэтому используем его напрямую.
+ * Prepares props to pass to a client island.
+ * Accepts a list of keys to pass to the island.
+ * Uses i18n methods for proper routesLocaleLinks support.
+ * currentRoute is already normalized via middleware (getRouteName), so we use it directly.
  */
 export function getI18nProps(astro: AstroGlobal, keys?: string[]): I18nClientProps {
   const i18n = getI18n(astro)
   const locale = getLocale(astro)
   const fallbackLocale = getDefaultLocale(astro)
-  // currentRoute уже нормализован через middleware.setRoute(getRouteName(...))
-  // getRouteName учитывает routesLocaleLinks, если они настроены
+  // currentRoute is already normalized via middleware.setRoute(getRouteName(...))
+  // getRouteName takes routesLocaleLinks into account if configured
   const currentRoute = i18n.getRoute()
 
   const translations: Record<string, Translations> = {}
 
-  // Если указаны ключи, извлекаем только их из кэша
+  // If keys are specified, extract only those from cache
   if (keys && keys.length > 0) {
     const extracted: Translations = {}
 
-    // Используем методы i18n для получения переводов
-    // Это гарантирует правильную работу с routesLocaleLinks
+    // Use i18n methods to get translations
+    // This guarantees proper routesLocaleLinks support
     for (const key of keys) {
-      // Используем i18n.t() который использует helper.getTranslation внутри
-      // и правильно резолвит ключ кэша с учетом routesLocaleLinks
+      // Use i18n.t() which internally uses helper.getTranslation
+      // and properly resolves the cache key considering routesLocaleLinks
       const value = i18n.t(key, undefined, undefined, currentRoute)
       if (value !== null && value !== undefined && value !== key) {
         setNestedValue(extracted, key, value)
@@ -375,8 +375,8 @@ export function getI18nProps(astro: AstroGlobal, keys?: string[]): I18nClientPro
       translations[currentRoute] = extracted
     }
   } else {
-    // Если ключи не указаны, берем route-specific переводы
-    // Используем публичный метод getRouteTranslations для безопасного доступа
+    // If no keys specified, get route-specific translations
+    // Use the public getRouteTranslations method for safe access
     const routeTrans = i18n.getRouteTranslations(locale, currentRoute)
     if (routeTrans) {
       translations[currentRoute] = routeTrans

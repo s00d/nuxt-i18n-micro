@@ -180,7 +180,7 @@ const headers: Header[] = [
   @apply text-slate-600 font-mono text-xs;
 }
 
-/* Анимация строк */
+/* Row animation */
 .locale-table__row {
   animation: slideInLeft 0.3s ease-out;
 }
@@ -196,7 +196,7 @@ const headers: Header[] = [
   }
 }
 
-/* Задержка анимации для каждой строки */
+/* Animation delay for each row */
 .locale-table__row:nth-child(1) { animation-delay: 0.1s; }
 .locale-table__row:nth-child(2) { animation-delay: 0.2s; }
 .locale-table__row:nth-child(3) { animation-delay: 0.3s; }

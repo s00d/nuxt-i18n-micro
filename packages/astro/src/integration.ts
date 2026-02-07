@@ -39,7 +39,7 @@ export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegrati
   return {
     name: '@i18n-micro/astro',
     hooks: {
-      // 1. Настройка Vite (Виртуальный модуль) происходит здесь
+      // 1. Vite setup (virtual module) happens here
       'astro:config:setup': (params) => {
         const { updateConfig } = params as HookParameters<'astro:config:setup'>
 
@@ -79,7 +79,7 @@ export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegrati
         })
       },
 
-      // 2. Инъекция типов происходит здесь (согласно документации Astro)
+      // 2. Type injection happens here (per Astro documentation)
       'astro:config:done': (params) => {
         const { injectTypes } = params as HookParameters<'astro:config:done'>
 

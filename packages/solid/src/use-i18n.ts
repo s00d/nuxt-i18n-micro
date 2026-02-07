@@ -27,14 +27,14 @@ export function useI18n(options?: UseI18nOptions) {
     // Direct access to instance
     instance: i18n,
 
-    // Locale (reactive) - используем accessor для отслеживания изменений
+    // Locale (reactive) - use accessor to track changes
     locale: createMemo(() => i18n.localeAccessor()),
 
     // Locale helpers
     getLocales: () => locales,
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
-      // Используем accessor для реактивности
+      // Use accessor for reactivity
       const current = locales.find((l) => l.code === i18n.localeAccessor())
       return current?.displayName || null
     },

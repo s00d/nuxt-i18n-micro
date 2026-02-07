@@ -1,10 +1,10 @@
 import { type InjectionKey, inject, readonly, ref } from 'vue'
 import type { I18nDevToolsBridge, LocaleData, ModuleOptions, TranslationContent } from '../types'
 
-// Ключ для injection состояния
+// Injection key for state
 export const I18N_STATE_KEY = Symbol('i18n-state') as InjectionKey<ReturnType<typeof createI18nState>>
 
-// Функция создания состояния (вызывается один раз в App.ce.vue)
+// State creation function (called once in App.ce.vue)
 export function createI18nState() {
   const isLoading = ref(true)
   const selectedFile = ref('')
@@ -12,7 +12,7 @@ export function createI18nState() {
   const configs = ref<ModuleOptions>({})
   const selectedFileContent = ref<TranslationContent>({})
 
-  // Bridge хранится в ref, чтобы можно было его установить позже
+  // Bridge is stored in a ref so it can be set later
   const bridge = ref<I18nDevToolsBridge | null>(null)
 
   const setBridge = (newBridge: I18nDevToolsBridge) => {
@@ -21,20 +21,20 @@ export function createI18nState() {
 
   // --- Methods ---
   const handleFileSelected = (file: string) => {
-    // Нормализуем путь: убираем ведущий слэш и нормализуем разделители
+    // Normalize path: remove leading slash and normalize separators
     const normalizedPath = file.replace(/^\/+/, '').replace(/\\/g, '/')
 
     selectedFile.value = file
 
-    // Пробуем найти по нормализованному пути
+    // Try to find by normalized path
     let content = locales.value[normalizedPath]
 
-    // Если не нашли, пробуем найти по оригинальному пути
+    // If not found, try to find by original path
     if (!content) {
       content = locales.value[file]
     }
 
-    // Если все еще не нашли, пробуем найти по пути без ведущего слэша
+    // If still not found, try to find by path without leading slash
     if (!content && file.startsWith('/')) {
       content = locales.value[file.slice(1)]
     }
@@ -79,25 +79,25 @@ export function createI18nState() {
     const defaultLocale = configs.value.defaultLocale as string
     if (!defaultLocale) return {} as TranslationContent
 
-    // Нормализуем путь выбранного файла
+    // Normalize the selected file path
     const normalizedSelected = selectedFile.value.replace(/^\/+/, '').replace(/\\/g, '/')
 
-    // Получаем имя файла (например, de.json)
+    // Get the file name (e.g. de.json)
     const currentFileName = normalizedSelected.split('/').pop() ?? ''
 
-    // Заменяем локаль в имени файла на дефолтную локаль
+    // Replace the locale in the file name with the default locale
     const defaultFileName = currentFileName.replace(/^[^.]*\./, `${defaultLocale}.`)
 
-    // Пробуем найти файл по разным вариантам пути
+    // Try to find the file by different path variants
     let defaultContent = locales.value[defaultFileName]
 
     if (!defaultContent) {
-      // Пробуем с ведущим слэшем
+      // Try with leading slash
       defaultContent = locales.value[`/${defaultFileName}`]
     }
 
     if (!defaultContent) {
-      // Пробуем найти любой файл с дефолтной локалью
+      // Try to find any file with the default locale
       const defaultLocaleKey = Object.keys(locales.value).find(
         (key) => key.includes(`${defaultLocale}.json`) || key.endsWith(`/${defaultLocale}.json`),
       )
@@ -171,7 +171,7 @@ export function createI18nState() {
   }
 }
 
-// Composable для использования в дочерних компонентах
+// Composable for use in child components
 export function useI18nState() {
   const state = inject(I18N_STATE_KEY)
   if (!state) {

@@ -1,6 +1,6 @@
 <template>
   <div class="i18n-devtools">
-    <!-- Показываем лоадер, пока нет данных ИЛИ пока bridge не передан -->
+    <!-- Show loader while there's no data OR bridge is not provided -->
     <Loader v-if="isLoading" />
 
     <template v-else>
@@ -34,7 +34,7 @@ import ConfigView from './views/ConfigView.vue'
 import I18nView from './views/I18nView.vue'
 import SettingsView from './views/SettingsView.vue'
 
-// Bridge приходит как проп, потому что мы передали его через .bridge в h()
+// Bridge comes as a prop because we passed it via .bridge in h()
 const props = defineProps({
   bridge: {
     type: Object as PropType<I18nDevToolsBridge>,
@@ -42,7 +42,7 @@ const props = defineProps({
   },
 })
 
-// Создаем стейт
+// Create state
 const state = createI18nState()
 provide(I18N_STATE_KEY, state)
 
@@ -53,17 +53,17 @@ const tabs = [
   { label: 'Server Info', value: 'config', icon: ServerIcon },
 ]
 
-// Логика инициализации упрощена
-// Мы просто следим за пропсом bridge. Как только он появится, инициализируем стейт.
+// Initialization logic simplified
+// We simply watch the bridge prop. Once it appears, we initialize the state.
 const initBridge = async (bridgeInstance: I18nDevToolsBridge) => {
-  if (state.bridge.value) return // Уже инициализирован
+  if (state.bridge.value) return // Already initialized
 
   console.log('[i18n-devtools] Bridge received, initializing...')
   state.setBridge(bridgeInstance)
   await state.init()
 }
 
-// Следим за изменениями пропса (на случай асинхронной передачи)
+// Watch for prop changes (in case of async delivery)
 watch(
   () => props.bridge,
   (newBridge) => {
@@ -74,16 +74,16 @@ watch(
   { immediate: true },
 )
 
-// Вычисляемое свойство для лоадера
-// Показываем лоадер если стейт грузится ИЛИ если bridge еще не получен
+// Computed property for loader
+// Show loader if state is loading OR if bridge is not yet received
 const isLoading = computed(() => {
   return state.isLoading.value || !state.bridge.value
 })
 
-// Fallback: иногда в Custom Elements пропсы приходят не сразу.
-// Если watch не сработал сразу, проверим при маунте.
+// Fallback: sometimes in Custom Elements props arrive with a delay.
+// If watch didn't trigger immediately, check on mount.
 onMounted(() => {
-  // Проверяем, есть ли bridge в props
+  // Check if bridge is present in props
   if (props.bridge) {
     initBridge(props.bridge)
   } else {

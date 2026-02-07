@@ -7,7 +7,7 @@ import { hasTranslation, type I18nState, translate } from './core'
 const formatter = new FormatService()
 
 /**
- * Создает Svelte store для i18n состояния
+ * Creates a Svelte store for i18n state
  */
 export function createI18nStore(props: I18nClientProps): Writable<I18nState> {
   return writable<I18nState>({
@@ -19,8 +19,8 @@ export function createI18nStore(props: I18nClientProps): Writable<I18nState> {
 }
 
 /**
- * Хук для использования i18n в Svelte компонентах
- * Используйте в <script> блоке компонента
+ * Hook for using i18n in Svelte components
+ * Use in the component's <script> block
  */
 export function useAstroI18n(store: Writable<I18nState>) {
   const getState = () => get(store)
@@ -71,7 +71,7 @@ export function useAstroI18n(store: Writable<I18nState>) {
   }
 
   return {
-    // Store для реактивности в шаблонах (используйте $i18nStore в шаблонах)
+    // Store for reactivity in templates (use $i18nStore in templates)
     store,
 
     // Translation methods
@@ -83,7 +83,7 @@ export function useAstroI18n(store: Writable<I18nState>) {
     tdr,
     has,
 
-    // Геттеры для текущего состояния (для использования в скриптах)
+    // Getters for current state (for use in scripts)
     get locale() {
       return getState().locale
     },

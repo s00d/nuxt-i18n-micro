@@ -16,8 +16,8 @@ export interface ResolveInitialLocaleOptions {
 }
 
 /**
- * Централизованная точка входа для работы с локалью i18n.
- * Объединяет useState('i18n-locale'), куки локали и утилиты синхронизации.
+ * Centralized entry point for i18n locale management.
+ * Combines useState('i18n-locale'), locale cookie, and sync utilities.
  */
 export function useI18nLocale() {
   const i18nConfig = getI18nConfig() as ModuleOptionsExtend
@@ -54,14 +54,14 @@ export function useI18nLocale() {
     return localeState.value ?? (i18nConfig.hashMode ? hashCookie.value : localeCookie.value) ?? null
   }
 
-  /** Локаль с fallback на serverContext (для инициализации noPrefix) */
+  /** Locale with fallback to serverContext (for noPrefix initialization) */
   const getLocaleWithServerFallback = (serverLocale?: string | null): string | null => {
     return localeState.value ?? localeCookie.value ?? serverLocale ?? null
   }
 
   /**
-   * Эффективная локаль для загрузки переводов и отображения.
-   * hashMode: приоритет localeState; иначе — из маршрута.
+   * Effective locale for loading translations and rendering.
+   * hashMode: localeState takes priority; otherwise — from route.
    */
   const getEffectiveLocale = (route: unknown, getLocaleFromRoute: GetLocaleFromRoute): string => {
     if (i18nConfig.hashMode && localeState.value != null) return localeState.value
@@ -69,8 +69,8 @@ export function useI18nLocale() {
   }
 
   /**
-   * Разрешает начальную локаль: localeState → serverContext → route.
-   * Синхронизирует в localeState при необходимости.
+   * Resolves initial locale: localeState → serverContext → route.
+   * Syncs to localeState when needed.
    */
   const resolveInitialLocale = (options: ResolveInitialLocaleOptions): string => {
     let locale = localeState.value

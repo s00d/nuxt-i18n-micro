@@ -1,24 +1,24 @@
 export type LocaleCode = string
 
-// Реестр ключей. Пользователь (через генератор) будет делать module augmentation этого интерфейса.
+// Key registry. Users (via generator) will do module augmentation of this interface.
 export interface DefineLocaleMessage {
   // Module augmentation point - will be extended by @i18n-micro/types-generator
   readonly __augmentation?: never
 }
 
-// Логика определения типа ключа.
-// Если интерфейс пустой (генератор не подключен), тип ключа — string.
-// Если в интерфейсе есть ключи, тип ключа — объединение этих ключей и string (Union Type).
-// Это позволяет использовать как строгие типы (автокомплит), так и обычные строки (динамические ключи).
+// Key type resolution logic.
+// If the interface is empty (generator not connected), key type is string.
+// If the interface has keys, key type is a union of those keys and string.
+// This allows both strict types (autocomplete) and regular strings (dynamic keys).
 export type TranslationKey = keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
 
 /**
- * Хелпер для создания типизированных префиксов.
- * Позволяет безопасно использовать динамические ключи.
+ * Helper for creating typed prefixes.
+ * Allows safe usage of dynamic keys.
  *
  * @example
  * ```typescript
- * // Допустим, есть ключи: 'errors.404', 'errors.500', 'btn.save'
+ * // Assuming keys: 'errors.404', 'errors.500', 'btn.save'
  * function getErrorText(code: string) {
  *   return t(`errors.${code}` as ScopedKey<'errors'>)
  * }

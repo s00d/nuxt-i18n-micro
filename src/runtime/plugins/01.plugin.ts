@@ -37,19 +37,19 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
   const runtimeConfig = useRuntimeConfig()
 
-  // === 1. ЛОКАЛЬНЫЙ КЭШ ===
-  // Ключ: `${locale}:${routeName}` или `${locale}:general`
-  // Значение: смёрдженные переводы (глобальные + страничные)
+  // === 1. LOCAL CACHE ===
+  // Key: `${locale}:${routeName}` or `${locale}:general`
+  // Value: merged translations (global + page-specific)
   const loadedChunks = new Map<string, Record<string, unknown>>()
 
-  // Текущие значения
+  // Current values
   let currentLocale = ''
   let currentRouteName = ''
 
-  // Кэшированная ссылка на текущие переводы (обновляется в switchContext)
+  // Cached reference to current translations (updated in switchContext)
   let cachedTranslations: Record<string, unknown> = {}
 
-  // Сигнал обновления (для реактивности при смене языка)
+  // Reactivity signal (triggers Vue re-renders on locale/route change)
   const contextSignal = shallowRef(0)
 
   // === LOCALE SERVICE ===
@@ -104,7 +104,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     return router.push(switchedRoute as RouteLocationRaw)
   }
 
-  // useState только для того, что реально нужно между компонентами
+  // useState only for what is actually shared between components
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
 
@@ -126,24 +126,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     dateBuild: i18nConfig.dateBuild,
   }
 
-  // === 2. ЗАГРУЗЧИК ПЕРЕВОДОВ ===
-  // API возвращает уже смёрдженные данные (глобальные + страничные)
-  // Один запрос на страницу, без дублирования
+  // === 2. TRANSLATION LOADER ===
+  // API returns already merged data (global + page-specific)
+  // One request per page, no duplication
 
   const getCacheKey = (locale: string, routeName?: string): string => {
     return routeName ? `${locale}:${routeName}` : `${locale}:general`
   }
 
-  // Синхронная проверка кэша
+  // Synchronous cache check
   const loadFromCacheSync = (locale: string, routeName?: string): Record<string, unknown> | null => {
     const cacheKey = getCacheKey(locale, routeName)
 
-    // Уже в локальном кэше
+    // Already in local cache
     if (loadedChunks.has(cacheKey)) {
       return loadedChunks.get(cacheKey)!
     }
 
-    // Проверяем storage (SSR инъекция)
+    // Check storage (SSR injection)
     const cached = translationStorage.getFromCache(locale, routeName)
     if (cached) {
       loadedChunks.set(cacheKey, cached.data)
@@ -153,7 +153,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     return null
   }
 
-  // Асинхронная загрузка
+  // Async loading
   const loadAsync = async (locale: string, routeName?: string): Promise<Record<string, unknown>> => {
     const cacheKey = getCacheKey(locale, routeName)
 
@@ -161,7 +161,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const result = await translationStorage.load(locale, routeName, loadOptions)
       loadedChunks.set(cacheKey, result.data)
 
-      // SERVER: Инъекция для клиента
+      // SERVER: Injection for client hydration
       if (import.meta.server && result.json) {
         const ctx = nuxtApp.ssrContext!.event.context
         if (!ctx._i18n) ctx._i18n = {}
@@ -175,27 +175,27 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
   }
 
-  // === 3. ПЕРЕКЛЮЧАТЕЛЬ КОНТЕКСТА ===
-  // Один запрос - API уже возвращает глобальные + страничные
+  // === 3. CONTEXT SWITCHER ===
+  // Single request - API already returns global + page-specific
   const switchContext = async (locale: string, routeName?: string) => {
-    // Быстрый путь: синхронно из кэша
+    // Fast path: synchronous from cache
     let data = loadFromCacheSync(locale, routeName)
 
     if (data === null) {
-      // Медленный путь: загружаем через fetch
+      // Slow path: load via fetch
       data = await loadAsync(locale, routeName)
     }
 
-    // Обновляем текущие значения
+    // Update current values
     currentLocale = locale
     currentRouteName = routeName || ''
     cachedTranslations = data
 
-    // Сигнализируем Vue обновить шаблоны
+    // Signal Vue to re-render templates
     triggerRef(contextSignal)
   }
 
-  // === 4. ИНИЦИАЛИЗАЦИЯ ===
+  // === 4. INITIALIZATION ===
   const serverLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
   const initialLocale = resolveInitialLocale({
     route: router.currentRoute.value,
@@ -211,7 +211,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
   }
 
-  // Инъекция скрипта (Server Only)
+  // Script injection (Server Only)
   if (import.meta.server) {
     const ctx = nuxtApp.ssrContext?.event.context
     if (ctx?._i18n && Object.keys(ctx._i18n).length > 0) {
@@ -239,9 +239,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const targetLocale = getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
       const targetRouteName = getPluginRouteName(to as unknown as ResolvedRouteLike, targetLocale)
 
-      // Если изменился язык или страница — меняем контекст
+      // If locale or page changed — switch context
       if (targetLocale !== currentLocale || targetRouteName !== currentRouteName) {
-        // Сохраняем информацию о предыдущей странице для fallback
+        // Save previous page info for fallback
         if (import.meta.client && enablePreviousPageFallback && from.path !== to.path) {
           const fromLocale = getCurrentLocale(from as unknown as ResolvedRouteLike)
           const fromRouteName = getPluginRouteName(from as unknown as ResolvedRouteLike, fromLocale)
@@ -270,8 +270,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   ): CleanTranslation => {
     if (!key) return '' as CleanTranslation
 
-    // Читаем contextSignal для трекинга реактивности Vue.
-    // Это позволяет computed/watch отслеживать изменения при смене locale/route.
+    // Read contextSignal for Vue reactivity tracking.
+    // This allows computed/watch to track changes on locale/route switch.
     contextSignal.value
 
     const translations = route
@@ -283,15 +283,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         ) || {}
       : cachedTranslations
 
-    // 1. Прямой доступ по ключу
+    // 1. Direct key access
     let val = translations[key]
 
-    // 2. Вложенные ключи
+    // 2. Nested keys
     if (val === undefined && key.includes('.')) {
       val = getByPath(translations, key)
     }
 
-    // 3. Fallback на предыдущую страницу
+    // 3. Fallback to previous page
     if (val === undefined && enablePreviousPageFallback && previousPageInfo.value) {
       const prev = previousPageInfo.value
       const prevTranslations = loadedChunks.get(getCacheKey(prev.locale, prev.routeName)) || {}
@@ -301,7 +301,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
     }
 
-    // 4. Не найдено
+    // 4. Not found
     if (val === undefined) {
       if (customMissingHandler.value) {
         customMissingHandler.value(currentLocale, key, currentRouteName)
@@ -311,13 +311,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return (defaultValue === undefined ? key : defaultValue) as CleanTranslation
     }
 
-    // 5. Не строка — возвращаем как есть
+    // 5. Not a string — return as is
     if (typeof val !== 'string') return val as CleanTranslation
 
-    // 6. Без параметров — быстрый возврат
+    // 6. No params — fast return
     if (!params) return val as CleanTranslation
 
-    // 7. Интерполяция
+    // 7. Interpolation
     return val.replace(RE_TOKEN, (_: string, k: string) => {
       return params[k] !== undefined ? String(params[k]) : `{${k}}`
     }) as CleanTranslation
@@ -336,7 +336,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (cachedTranslations[key] !== undefined) return true
     if (key.includes('.') && getByPath(cachedTranslations, key) !== undefined) return true
 
-    // Fallback на предыдущую страницу
+    // Fallback to previous page
     if (enablePreviousPageFallback && previousPageInfo.value) {
       const prev = previousPageInfo.value
       const prevTranslations = loadedChunks.get(getCacheKey(prev.locale, prev.routeName)) || {}
@@ -355,7 +355,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     triggerRef(contextSignal)
   }
 
-  // Helper для i18n:register хука
+  // Helper for i18n:register hook
   const helper = {
     async mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force = false): Promise<void> {
       const cacheKey = getCacheKey(locale, routeName)
@@ -370,7 +370,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
     },
     async mergeGlobalTranslation(locale: string, newTranslations: Translations, _force = false): Promise<void> {
-      // Глобальные переводы мёрджим в текущий контекст
+      // Merge global translations into current context
       const cacheKey = getCacheKey(locale, currentRouteName)
       if (!loadedChunks.has(cacheKey)) {
         await loadAsync(locale, currentRouteName || undefined)

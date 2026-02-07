@@ -8,8 +8,8 @@ export default defineConfig({
       'test/fixtures/**',
     ],
     testTimeout: 300_000, // 5 min per suite
-    // Один воркер: тесты не запускаются параллельно по файлам, чтобы фикстуры
-    // (strategy, async-components) не затирали друг другу .nuxt/.output при полном прогоне.
+    // Single worker: tests do not run in parallel by file, so fixtures
+    // (strategy, async-components) don't overwrite each other's .nuxt/.output during full runs.
     pool: 'forks',
     poolOptions: {
       forks: {

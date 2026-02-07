@@ -9,8 +9,8 @@ const formatter = new FormatService()
 const I18nSymbol = Symbol('i18n-astro') as InjectionKey<Ref<I18nState>>
 
 /**
- * Инициализирует i18n провайдер для Vue острова
- * Вызывайте в корневом компоненте острова
+ * Initializes the i18n provider for a Vue island
+ * Call in the island's root component
  */
 export function provideI18n(props: I18nClientProps): Ref<I18nState> {
   const state = ref<I18nState>({
@@ -24,7 +24,7 @@ export function provideI18n(props: I18nClientProps): Ref<I18nState> {
 }
 
 /**
- * Хук для использования i18n в Vue компонентах
+ * Hook for using i18n in Vue components
  */
 export function useAstroI18n() {
   const state = inject(I18nSymbol)

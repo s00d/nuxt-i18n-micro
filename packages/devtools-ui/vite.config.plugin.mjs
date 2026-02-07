@@ -4,11 +4,11 @@ import { defineConfig } from 'vite'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-// Отдельная конфигурация для сборки плагина
-// Плагин должен работать в Node.js окружении, не в браузере
+// Separate configuration for building the plugin
+// The plugin should work in a Node.js environment, not in the browser
 export default defineConfig({
   build: {
-    ssr: true, // SSR режим для Node.js окружения
+    ssr: true, // SSR mode for Node.js environment
     lib: {
       entry: resolve(__dirname, 'vite/plugin.ts'),
       name: 'i18nDevToolsPlugin',
@@ -17,8 +17,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: (id) => {
-        // Externalize все зависимости, включая node:*
-        // Плагин работает в Node.js, поэтому node: модули должны быть external
+        // Externalize all dependencies, including node:*
+        // The plugin runs in Node.js, so node: modules should be external
         return !id.startsWith('.') && !id.startsWith('/')
       },
       output: {

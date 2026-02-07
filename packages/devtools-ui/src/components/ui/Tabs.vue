@@ -34,15 +34,15 @@ interface Tab {
 }
 
 const props = defineProps<{
-  modelValue: string // Активная вкладка
-  tabs: Tab[] // Список вкладок
+  modelValue: string // Active tab
+  tabs: Tab[] // List of tabs
 }>()
 
 const emit = defineEmits(['update:modelValue'])
 
 const activeTab = ref(props.modelValue)
 
-// Следим за изменением активной вкладки
+// Watch for active tab changes
 watch(activeTab, (newValue) => {
   emit('update:modelValue', newValue)
 })

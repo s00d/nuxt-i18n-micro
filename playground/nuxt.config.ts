@@ -36,7 +36,7 @@ export default defineNuxtConfig({
   },
   experimental: {
     // typedPages: true,
-    // appManifest: false — отключение может ломать инициализацию payload в Nuxt 4
+    // appManifest: false — disabling may break payload initialization in Nuxt 4
   },
   // app: {
   //   baseURL: '/prefix/',

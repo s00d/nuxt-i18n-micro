@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Генерация случайного текста для каждой локали
+// Generate random text for each locale
 function generateTextForLocale(locale) {
   const loremIpsum = {
     en: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
@@ -17,7 +17,7 @@ function generateTextForLocale(locale) {
   return Array.from({ length }, () => words[Math.floor(Math.random() * words.length)]).join(' ')
 }
 
-// Генерация структуры переводов с заданной вложенностью
+// Generate translation structure with specified nesting depth
 function generateTranslations(locale, level = 5) {
   const translations = {}
   const numberOfKeys = Math.floor(Math.random() * 10) + 5
@@ -35,7 +35,7 @@ function generateTranslations(locale, level = 5) {
   return translations
 }
 
-// Генерация структуры переводов с одинаковыми ключами
+// Generate translation structure with the same keys
 function generateStructuredTranslations(locales, level = 5) {
   const baseStructure = generateTranslations(locales[0], level)
   const structuredTranslations = {}
@@ -54,20 +54,20 @@ function generateStructuredTranslations(locales, level = 5) {
   return structuredTranslations
 }
 
-// Запись переводов в файл
+// Write translations to file
 function writeTranslationsToFile(filePath, translations) {
   fs.writeFileSync(filePath, JSON.stringify(translations, null, 2), 'utf8')
 }
 
-// Путь к папке с переводами
+// Path to the translations directory
 const localesDir = path.resolve(__dirname)
 
-// Создание папки locales, если она не существует
+// Create locales directory if it doesn't exist
 if (!fs.existsSync(localesDir)) {
   fs.mkdirSync(localesDir)
 }
 
-// Генерация и запись переводов для каждого языка
+// Generate and write translations for each language
 const locales = ['en', 'ru', 'de']
 const translations = generateStructuredTranslations(locales)
 locales.forEach((locale) => {

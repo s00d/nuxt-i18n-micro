@@ -7,22 +7,24 @@ import { useStorage } from 'nitropack/runtime'
 import type { Storage } from 'unstorage'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getI18nConfig } from '#i18n-internal/strategy'
+import { CacheControl } from '../../utils/cache-control'
 
 // ============================================================================
-// SERVER CACHE (process-global result cache)
+// SERVER CACHE (process-global CacheControl singleton)
 // ============================================================================
 
-const CACHE_KEY = Symbol.for('__NUXT_I18N_SERVER_RESULT_CACHE__')
 type CacheEntry = { data: Translations; json: string }
-type ServerCache = Map<string, CacheEntry>
-type GlobalWithCache = typeof globalThis & { [key: symbol]: ServerCache }
 
-function getServerCache(): ServerCache {
-  const g = globalThis as GlobalWithCache
-  if (!g[CACHE_KEY]) {
-    g[CACHE_KEY] = new Map()
+const CC_KEY = Symbol.for('__NUXT_I18N_SERVER_CACHE_CC__')
+type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
+
+function getServerCacheControl(): CacheControl<CacheEntry> {
+  const g = globalThis as GlobalWithCC
+  if (!g[CC_KEY]) {
+    const cfg = getI18nConfig() as ModuleOptionsExtend
+    g[CC_KEY] = new CacheControl<CacheEntry>({ maxSize: cfg.cacheMaxSize ?? 0, ttl: cfg.cacheTtl ?? 0 })
   }
-  return g[CACHE_KEY]
+  return g[CC_KEY] as CacheControl<CacheEntry>
 }
 
 // ============================================================================
@@ -101,14 +103,14 @@ async function loadMergedFromServer(locale: string, page: string | undefined): P
 /**
  * Load translations from Nitro storage with fallback locale support.
  * Used in API routes and server middleware.
- * Results are cached at the process level — loaded once, then served from memory.
+ * Results are cached at the process level with TTL and maxSize support.
  */
 export async function loadTranslationsFromServer(locale: string, routeName?: string): Promise<{ data: Translations; json: string }> {
-  const cache = getServerCache()
+  const cc = getServerCacheControl()
   const cacheKey = `${locale}:${routeName || 'general'}`
 
   // Fast path: from cache
-  const cached = cache.get(cacheKey)
+  const cached = cc.get(cacheKey)
   if (cached) {
     return cached
   }
@@ -120,7 +122,7 @@ export async function loadTranslationsFromServer(locale: string, routeName?: str
   const localeConfig = locales?.find((l) => l.code === locale)
   if (!localeConfig) {
     const empty = { data: {}, json: '{}' }
-    cache.set(cacheKey, empty)
+    cc.set(cacheKey, empty)
     return empty
   }
 
@@ -140,7 +142,7 @@ export async function loadTranslationsFromServer(locale: string, routeName?: str
   const entry = { data: result, json }
 
   // Store in cache
-  cache.set(cacheKey, entry)
+  cc.set(cacheKey, entry)
 
   return entry
 }

@@ -67,7 +67,6 @@ export default defineNuxtModule<ModuleOptions>({
     disableWatcher: false,
     // previousPageFallback and hmr are now main options (not experimental)
     noPrefixRedirect: false,
-    includeDefaultLocaleRoute: undefined,
     fallbackLocale: undefined,
     localeCookie: null,
     apiBaseUrl: '_locales',
@@ -88,15 +87,6 @@ export default defineNuxtModule<ModuleOptions>({
     const isSSG = nuxt.options.nitro.static ?? (nuxt.options as any)._generate ?? false /* TODO: remove in future */
 
     const logger = useLogger('nuxt-i18n-micro')
-
-    if (options.includeDefaultLocaleRoute !== undefined) {
-      logger.debug("The 'includeDefaultLocaleRoute' option is deprecated. Use 'strategy' instead.")
-      if (options.includeDefaultLocaleRoute) {
-        options.strategy = 'prefix'
-      } else {
-        options.strategy = 'prefix_except_default'
-      }
-    }
 
     // For no_prefix strategy, localeCookie is required - set default if not provided
     if (options.strategy === 'no_prefix' && !options.localeCookie) {
@@ -247,7 +237,6 @@ export default defineNuxtModule<ModuleOptions>({
       noPrefixRedirect: options.noPrefixRedirect ?? false,
       debug: options.debug ?? false,
       customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
-      includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
     }
 
     nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {}
@@ -292,7 +281,6 @@ export function createI18nStrategy(router) {
     router: routerAdapter,
     hashMode: __fullConfig.hashMode,
     disablePageLocales: __fullConfig.disablePageLocales,
-    includeDefaultLocaleRoute: __fullConfig.includeDefaultLocaleRoute,
   })
 }
 `,

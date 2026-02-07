@@ -28,6 +28,6 @@ export default defineNuxtConfig({
       { code: 'de', iso: 'de_DE', displayName: 'German' },
     ],
     defaultLocale: 'en',
-    includeDefaultLocaleRoute: true,
+    strategy: 'prefix',
   },
 })

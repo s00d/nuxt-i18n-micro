@@ -42,7 +42,6 @@ export interface PathStrategyContext {
   globalLocaleRoutes?: GlobalLocaleRoutes
   routeLocales?: Record<string, string[]>
   routesLocaleLinks?: Record<string, string>
-  includeDefaultLocaleRoute?: boolean
   noPrefixRedirect?: boolean
   debug?: boolean
   router: RouterAdapter

@@ -187,12 +187,19 @@ i18n: {
 }
 ```
 
-### Deprecated: `includeDefaultLocaleRoute`
+### Removed: `includeDefaultLocaleRoute`
 
-The `includeDefaultLocaleRoute` option is deprecated. Use the `strategy` option instead:
+The `includeDefaultLocaleRoute` option has been removed. Use the `strategy` option instead:
 
-- `includeDefaultLocaleRoute: true` → `strategy: 'prefix_and_default'`
-- `includeDefaultLocaleRoute: false` → `strategy: 'prefix_except_default'`
+- `includeDefaultLocaleRoute: true` → `strategy: 'prefix'`
+- `includeDefaultLocaleRoute: false` → `strategy: 'prefix_except_default'` (the default)
+
+```diff
+ i18n: {
+-  includeDefaultLocaleRoute: true,
++  strategy: 'prefix',
+ }
+```
 
 ### Redirect Architecture
 

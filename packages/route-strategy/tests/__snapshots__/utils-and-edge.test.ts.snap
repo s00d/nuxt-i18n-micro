@@ -281,7 +281,7 @@ exports[`RouteGenerator - Exported utils isInternalPath sitemap.xml 1`] = `true`
 
 exports[`RouteGenerator - Exported utils isLocaleDefault object locale 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isLocaleDefault string locale, default, includeDefault false -> true 1`] = `true`;
+exports[`RouteGenerator - Exported utils isLocaleDefault string locale, default -> true 1`] = `true`;
 
 exports[`RouteGenerator - Exported utils isPageRedirectOnly page with file is not redirect-only 1`] = `false`;
 
@@ -307,6 +307,6 @@ exports[`RouteGenerator - Exported utils removeLeadingSlash no slash unchanged 1
 
 exports[`RouteGenerator - Exported utils removeLeadingSlash removes leading slash 1`] = `"about"`;
 
-exports[`RouteGenerator - Exported utils shouldAddLocalePrefix addLocalePrefix true, default locale, includeDefault false -> false 1`] = `false`;
+exports[`RouteGenerator - Exported utils shouldAddLocalePrefix addLocalePrefix true, default locale -> false 1`] = `false`;
 
 exports[`RouteGenerator - Exported utils shouldAddLocalePrefix addLocalePrefix true, non-default -> true 1`] = `true`;

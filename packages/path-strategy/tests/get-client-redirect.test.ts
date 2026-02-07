@@ -184,44 +184,6 @@ describe('getClientRedirect', () => {
       expect(result?.endsWith('/')).toBe(false)
     })
 
-    describe('with includeDefaultLocaleRoute: true', () => {
-      const makeContextWithInclude = (extra?: Partial<PathStrategyContext>): PathStrategyContext => ({
-        strategy: 'prefix_except_default',
-        defaultLocale: 'en',
-        locales: [{ code: 'en' }, { code: 'de' }, { code: 'ru' }],
-        localizedRouteNamePrefix: 'localized-',
-        router: makeRouterAdapter(),
-        includeDefaultLocaleRoute: true,
-        ...extra,
-      })
-
-      it('redirects from / to /en when preferred is default locale', () => {
-        const strategy = createPathStrategy(makeContextWithInclude())
-        const result = strategy.getClientRedirect('/', 'en')
-        expect(result).toBe('/en')
-      })
-
-      it('redirects from /page to /en/page when preferred is default locale', () => {
-        const strategy = createPathStrategy(makeContextWithInclude())
-        const result = strategy.getClientRedirect('/page', 'en')
-        expect(result).toBe('/en/page')
-      })
-
-      it('uses custom path with prefix for default locale', () => {
-        const strategy = createPathStrategy(
-          makeContextWithInclude({
-            globalLocaleRoutes: {
-              page2: {
-                en: '/custom-page2-en',
-                de: '/custom-page2-de',
-              },
-            },
-          }),
-        )
-        const result = strategy.getClientRedirect('/page2', 'en')
-        expect(result).toBe('/en/custom-page2-en')
-      })
-    })
   })
 
   describe('no_prefix strategy', () => {

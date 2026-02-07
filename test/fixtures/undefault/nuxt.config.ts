@@ -17,7 +17,7 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
     translationDir: 'locales',
     autoDetectLanguage: false,
-    includeDefaultLocaleRoute: true,
+    strategy: 'prefix',
     routesLocaleLinks: {
       'dir1-slug': 'index',
       'post-id-status-section': 'post-id',

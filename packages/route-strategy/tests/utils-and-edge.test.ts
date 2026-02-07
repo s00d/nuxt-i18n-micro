@@ -88,21 +88,21 @@ describe('RouteGenerator - Exported utils', () => {
 
   describe('shouldAddLocalePrefix', () => {
     const defaultLocale: Locale = { code: 'en' }
-    test('addLocalePrefix true, default locale, includeDefault false -> false', () => {
-      expect(shouldAddLocalePrefix('en', defaultLocale, true, false)).toMatchSnapshot()
+    test('addLocalePrefix true, default locale -> false', () => {
+      expect(shouldAddLocalePrefix('en', defaultLocale, true)).toMatchSnapshot()
     })
     test('addLocalePrefix true, non-default -> true', () => {
-      expect(shouldAddLocalePrefix('de', defaultLocale, true, false)).toMatchSnapshot()
+      expect(shouldAddLocalePrefix('de', defaultLocale, true)).toMatchSnapshot()
     })
   })
 
   describe('isLocaleDefault', () => {
     const defaultLocale: Locale = { code: 'en' }
-    test('string locale, default, includeDefault false -> true', () => {
-      expect(isLocaleDefault('en', defaultLocale, false)).toMatchSnapshot()
+    test('string locale, default -> true', () => {
+      expect(isLocaleDefault('en', defaultLocale)).toMatchSnapshot()
     })
     test('object locale', () => {
-      expect(isLocaleDefault({ code: 'en' }, defaultLocale, false)).toMatchSnapshot()
+      expect(isLocaleDefault({ code: 'en' }, defaultLocale)).toMatchSnapshot()
     })
   })
 

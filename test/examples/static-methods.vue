@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with static methods
 class LocaleManager {
@@ -15,15 +14,15 @@ class LocaleManager {
 
   static getLocalePaths() {
     return {
-      'en': '/welcome',
-      'de': '/willkommen',
-      'fr': '/bienvenue'
+      en: '/welcome',
+      de: '/willkommen',
+      fr: '/bienvenue',
     }
   }
 }
 
 $defineI18nRoute({
   locales: LocaleManager.getSupportedLocales(),
-  localeRoutes: LocaleManager.getLocalePaths()
+  localeRoutes: LocaleManager.getLocalePaths(),
 })
 </script>

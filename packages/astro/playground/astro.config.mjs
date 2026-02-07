@@ -1,12 +1,12 @@
-import { defineConfig } from 'astro/config'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import node from '@astrojs/node'
-import vue from '@astrojs/vue'
 import react from '@astrojs/react'
 import svelte from '@astrojs/svelte'
-import { i18nIntegration, createAstroRouterAdapter } from '@i18n-micro/astro'
+import vue from '@astrojs/vue'
+import { createAstroRouterAdapter, i18nIntegration } from '@i18n-micro/astro'
 import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
-import { copyFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { defineConfig } from 'astro/config'
 
 export default defineConfig({
   output: 'server',

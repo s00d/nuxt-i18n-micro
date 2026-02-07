@@ -4,14 +4,17 @@ module.exports = {
   roots: ['<rootDir>/src', '<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.{ts,tsx}', '**/?(*.)+(spec|test).{ts,tsx}'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      useESM: true,
-      tsconfig: {
-        module: 'esnext',
-        jsx: 'preserve',
-        jsxImportSource: 'solid-js',
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+        tsconfig: {
+          module: 'esnext',
+          jsx: 'preserve',
+          jsxImportSource: 'solid-js',
+        },
       },
-    }],
+    ],
   },
   moduleNameMapper: {
     '^@i18n-micro/core$': '<rootDir>/../core/src',
@@ -21,9 +24,6 @@ module.exports = {
     '^solid-js/web$': '<rootDir>/tests/mocks/solid-web-mock.ts',
     '^solid-js/store$': '<rootDir>/tests/mocks/solid-store-mock.ts',
   },
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-  ],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
 }

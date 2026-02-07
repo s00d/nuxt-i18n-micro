@@ -3,13 +3,7 @@
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
-import {
-  createPathStrategy,
-  PrefixExceptDefaultPathStrategy,
-  PrefixPathStrategy,
-  PrefixAndDefaultPathStrategy,
-  NoPrefixPathStrategy,
-} from '../src'
+import { createPathStrategy, NoPrefixPathStrategy, PrefixAndDefaultPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -118,7 +112,7 @@ describe('localeRoute with nested routes', () => {
   test('handles nested route with parent custom path', () => {
     const ctx = makeCtx('prefix_except_default', {
       globalLocaleRoutes: {
-        'docs': { en: '/documentation', de: '/dokumentation' },
+        docs: { en: '/documentation', de: '/dokumentation' },
         'docs-guide': { en: '/guide', de: '/anleitung' },
       },
     })

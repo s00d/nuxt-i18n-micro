@@ -1,6 +1,6 @@
-import { defineComponent, computed, h, inject, type PropType, type CSSProperties } from 'vue'
-import { I18nRouterKey, I18nInjectionKey } from '../injection'
+import { type CSSProperties, computed, defineComponent, h, inject, type PropType } from 'vue'
 import type { VueI18n } from '../composer'
+import { I18nInjectionKey, I18nRouterKey } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
 
 export const I18nLink = defineComponent({
@@ -41,15 +41,15 @@ export const I18nLink = defineComponent({
 
       if (props.localeRoute) {
         const res = props.localeRoute(props.to)
-        return typeof res === 'string' ? res : (res.path || '/')
+        return typeof res === 'string' ? res : res.path || '/'
       }
 
       if (!routerStrategy?.resolvePath) {
-        return typeof props.to === 'string' ? props.to : (props.to.path || '/')
+        return typeof props.to === 'string' ? props.to : props.to.path || '/'
       }
 
       const res = routerStrategy.resolvePath(props.to, i18n.locale.value)
-      return typeof res === 'string' ? res : (res.path || '/')
+      return typeof res === 'string' ? res : res.path || '/'
     })
 
     const isActive = computed(() => {
@@ -63,38 +63,49 @@ export const I18nLink = defineComponent({
       return currentPath === linkPath
     })
 
-    const computedStyle = computed(() => isActive.value ? props.activeStyle : {})
+    const computedStyle = computed(() => (isActive.value ? props.activeStyle : {}))
 
     return () => {
       if (isExternalLink.value) {
-        return h('a', {
-          href: targetPath.value,
-          target: '_blank',
-          rel: 'noopener noreferrer',
-          style: computedStyle.value,
-        }, slots.default?.())
+        return h(
+          'a',
+          {
+            href: targetPath.value,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            style: computedStyle.value,
+          },
+          slots.default?.(),
+        )
       }
 
       if (routerStrategy?.linkComponent) {
-        return h(routerStrategy.linkComponent, {
-          to: targetPath.value,
-          style: computedStyle.value,
-        }, { default: slots.default })
+        return h(
+          routerStrategy.linkComponent,
+          {
+            to: targetPath.value,
+            style: computedStyle.value,
+          },
+          { default: slots.default },
+        )
       }
 
-      return h('a', {
-        href: targetPath.value,
-        style: computedStyle.value,
-        onClick: (e: MouseEvent) => {
-          e.preventDefault()
-          if (routerStrategy) {
-            routerStrategy.push({ path: targetPath.value })
-          }
-          else {
-            window.location.href = targetPath.value
-          }
+      return h(
+        'a',
+        {
+          href: targetPath.value,
+          style: computedStyle.value,
+          onClick: (e: MouseEvent) => {
+            e.preventDefault()
+            if (routerStrategy) {
+              routerStrategy.push({ path: targetPath.value })
+            } else {
+              window.location.href = targetPath.value
+            }
+          },
         },
-      }, slots.default?.())
+        slots.default?.(),
+      )
     }
   },
 })

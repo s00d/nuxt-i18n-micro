@@ -21,7 +21,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router'
-import { useI18n, useAsyncData, createError, watch, ref } from '#imports'
+import { createError, ref, useAsyncData, useI18n, watch } from '#imports'
 
 const route = useRoute()
 const { $getLocale, $localeRoute } = useI18n()
@@ -36,28 +36,28 @@ const loadContent = async (path) => {
     const pathWithoutLocale = path.replace(`/${$getLocale()}`, '')
 
     // Загружаем контент, удаляя начальный "/" для корректного пути в queryContent
-    const docPath = pathWithoutLocale.startsWith('/')
-      ? pathWithoutLocale.slice(1)
-      : pathWithoutLocale
+    const docPath = pathWithoutLocale.startsWith('/') ? pathWithoutLocale.slice(1) : pathWithoutLocale
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error
     const { data } = await useAsyncData(`content-${docPath}`, () => queryCollection('content').path(`/${docPath}`).first())
 
     doc.value = data.value
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to load content:', error)
     doc.value = null
   }
 }
 
 // Следим за изменениями маршрута и обновляем контент
-watch(() => route.path, async (newPath) => {
-  if (newPath) {
-    await loadContent(newPath)
-  }
-}, { immediate: true })
+watch(
+  () => route.path,
+  async (newPath) => {
+    if (newPath) {
+      await loadContent(newPath)
+    }
+  },
+  { immediate: true },
+)
 
 // Проверяем наличие контента
 watch(doc, (newDoc) => {

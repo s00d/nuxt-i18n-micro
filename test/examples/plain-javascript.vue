@@ -5,18 +5,17 @@
 </template>
 
 <script>
-/* eslint-disable */
 // @ts-nocheck
 // Test with plain JavaScript (no TypeScript)
 const locales = ['en', 'de', 'fr']
 const localeRoutes = {
-  'en': '/welcome',
-  'de': '/willkommen',
-  'fr': '/bienvenue'
+  en: '/welcome',
+  de: '/willkommen',
+  fr: '/bienvenue',
 }
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

@@ -99,9 +99,11 @@ describe('localeRoute - prefix', () => {
   })
 
   test('with globalLocaleRoutes: uses custom path for locale', () => {
-    const strategy = createPathStrategy(makeCtx('prefix', {
-      globalLocaleRoutes: { '/about': { en: '/about-us', de: '/ueber-uns', ru: '/o-nas' } },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix', {
+        globalLocaleRoutes: { '/about': { en: '/about-us', de: '/ueber-uns', ru: '/o-nas' } },
+      }),
+    )
     const result = { en: strategy.localeRoute('en', '/about', currentRoute), de: strategy.localeRoute('de', '/about', currentRoute) }
     expect(result.en.path).toBe('/en/about-us')
     expect(result.de.path).toBe('/de/ueber-uns')
@@ -142,9 +144,11 @@ describe('localeRoute - prefix_except_default', () => {
   })
 
   test('with globalLocaleRoutes: custom paths per locale', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      globalLocaleRoutes: { '/about': { en: '/about-us', de: '/ueber-uns' } },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        globalLocaleRoutes: { '/about': { en: '/about-us', de: '/ueber-uns' } },
+      }),
+    )
     const result = { en: strategy.localeRoute('en', '/about', currentRoute), de: strategy.localeRoute('de', '/about', currentRoute) }
     expect(result.en.path).toBe('/about-us')
     expect(result.de.path).toBe('/de/ueber-uns')
@@ -198,9 +202,11 @@ describe('localeRoute - prefix_and_default', () => {
   })
 
   test('with globalLocaleRoutes unlocalized: false returns path without locale prefix', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_and_default', {
-      globalLocaleRoutes: { unlocalized: false, page2: { en: '/custom-page2-en', de: '/custom-page2-de' } },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_and_default', {
+        globalLocaleRoutes: { unlocalized: false, page2: { en: '/custom-page2-en', de: '/custom-page2-de' } },
+      }),
+    )
     const result = { en: strategy.localeRoute('en', { name: 'unlocalized' }), de: strategy.localeRoute('de', { name: 'unlocalized' }) }
     expect(result).toMatchSnapshot()
   })
@@ -217,7 +223,7 @@ describe('snapshots (documentation: how localeRoute works per strategy)', () => 
       query: {},
       hash: '',
     }
-    const out: Record<string, { en: RouteLike, de: RouteLike }> = {}
+    const out: Record<string, { en: RouteLike; de: RouteLike }> = {}
     for (const s of strategies) {
       const strategy = createPathStrategy(makeCtx(s))
       out[s] = {
@@ -245,9 +251,11 @@ describe('snapshots (documentation: how localeRoute works per strategy)', () => 
   })
 
   test('localeRoute with globalLocaleRoutes: custom paths per locale', () => {
-    const strategy = createPathStrategy(makeCtx('prefix_except_default', {
-      globalLocaleRoutes: { '/about': { en: '/about-us', de: '/ueber-uns', ru: '/o-nas' } },
-    }))
+    const strategy = createPathStrategy(
+      makeCtx('prefix_except_default', {
+        globalLocaleRoutes: { '/about': { en: '/about-us', de: '/ueber-uns', ru: '/o-nas' } },
+      }),
+    )
     const currentRoute: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',

@@ -1,5 +1,5 @@
-import type React from 'react'
 import { useI18n } from '@i18n-micro/preact'
+import type React from 'react'
 
 // @ts-expect-error - Preact/React type incompatibility
 export const About: React.FC = () => {

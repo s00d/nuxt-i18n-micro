@@ -44,15 +44,15 @@ export const I18nLink = (props: I18nLinkProps): React.ReactElement => {
 
     if (localeRoute) {
       const res = localeRoute(to)
-      return typeof res === 'string' ? res : (res.path || '/')
+      return typeof res === 'string' ? res : res.path || '/'
     }
 
     if (!router?.resolvePath) {
-      return typeof to === 'string' ? to : (to.path || '/')
+      return typeof to === 'string' ? to : to.path || '/'
     }
 
     const res = router.resolvePath(to, i18n.locale)
-    return typeof res === 'string' ? res : (res.path || '/')
+    return typeof res === 'string' ? res : res.path || '/'
   }
 
   const isActive = (): boolean => {
@@ -74,14 +74,14 @@ export const I18nLink = (props: I18nLinkProps): React.ReactElement => {
 
     // Partial match: check if current path starts with link path
     // This allows parent routes to be marked as active
-    if (normalizedCurrent.startsWith(normalizedLink + '/')) {
+    if (normalizedCurrent.startsWith(`${normalizedLink}/`)) {
       return true
     }
 
     return false
   }
 
-  const computedStyle: React.CSSProperties = isActive() ? (activeStyle || {}) : {}
+  const computedStyle: React.CSSProperties = isActive() ? activeStyle || {} : {}
   const toValue = targetPath()
 
   if (isExternalLink()) {
@@ -123,8 +123,7 @@ export const I18nLink = (props: I18nLinkProps): React.ReactElement => {
         e.preventDefault()
         if (router) {
           router.push({ path: toValue })
-        }
-        else {
+        } else {
           window.location.href = toValue
         }
       },

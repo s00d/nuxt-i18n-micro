@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with try-catch and error handling
 let locales: string[] = []
@@ -16,7 +15,7 @@ try {
   localeRoutes = {
     en: '/welcome',
     de: '/willkommen',
-    fr: '/bienvenue'
+    fr: '/bienvenue',
   }
 } catch (error) {
   console.error('Error setting up locales:', error)
@@ -26,6 +25,6 @@ try {
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

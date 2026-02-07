@@ -1,17 +1,17 @@
-import { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 import { extractLocalizedPaths, type LocalizedPathsMap } from './core/localized-paths'
+import { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 import {
-  isInternalPath,
-  normalizeRouteKey,
-  normalizePath,
-  cloneArray,
-  isPageRedirectOnly,
-  removeLeadingSlash,
-  buildRouteName,
-  shouldAddLocalePrefix,
-  isLocaleDefault,
   buildFullPath,
   buildFullPathNoPrefix,
+  buildRouteName,
+  cloneArray,
+  isInternalPath,
+  isLocaleDefault,
+  isPageRedirectOnly,
+  normalizePath,
+  normalizeRouteKey,
+  removeLeadingSlash,
+  shouldAddLocalePrefix,
 } from './utils'
 
 export {

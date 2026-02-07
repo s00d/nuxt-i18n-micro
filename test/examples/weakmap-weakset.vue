@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with WeakMap and WeakSet
 const localeSet = new WeakSet()
@@ -18,7 +17,7 @@ localeSet.add(localeObj)
 pathMap.set(pathObj, {
   en: '/welcome',
   de: '/willkommen',
-  fr: '/bienvenue'
+  fr: '/bienvenue',
 })
 
 // Note: This is a contrived example since WeakMap/WeakSet don't work well for this
@@ -26,11 +25,11 @@ const locales = ['en', 'de', 'fr']
 const localeRoutes = {
   en: '/welcome',
   de: '/willkommen',
-  fr: '/bienvenue'
+  fr: '/bienvenue',
 }
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

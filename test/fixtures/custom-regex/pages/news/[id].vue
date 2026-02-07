@@ -71,26 +71,28 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useRouter, useRoute, useAsyncData } from '#app'
+import { useAsyncData, useRoute, useRouter } from '#app'
 import { useI18n } from '#imports'
 
 const { params } = useRoute()
 const router = useRouter()
 const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n()
 
-const newsLink = computed(() => $localeRoute({
-  name: 'news-id',
-  params: { id: '2' },
-  hash: '#tada',
-  query: { a: 'b' },
-}))
+const newsLink = computed(() =>
+  $localeRoute({
+    name: 'news-id',
+    params: { id: '2' },
+    hash: '#tada',
+    query: { a: 'b' },
+  }),
+)
 
 const { data: news } = await useAsyncData(`articles-${params.id}`, async () => {
-  const response = await $fetch('/api/getNews', {
+  const response = (await $fetch('/api/getNews', {
     query: {
       id: params.id,
     },
-  }) as { metadata: { [key: string]: { id: string } } }
+  })) as { metadata: { [key: string]: { id: string } } }
   if (response?.metadata) {
     $setI18nRouteParams(response?.metadata)
   }

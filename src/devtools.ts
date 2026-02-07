@@ -1,10 +1,10 @@
 import * as fs from 'node:fs'
 import path, { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { ModuleOptions } from '@i18n-micro/types'
+import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
 import type { Resolver } from '@nuxt/kit'
 import { useNuxt } from '@nuxt/kit'
-import { extendServerRpc, onDevToolsInitialized } from '@nuxt/devtools-kit'
-import type { ModuleOptions } from '@i18n-micro/types'
 
 export const DEVTOOLS_UI_PORT = 3030
 export const DEVTOOLS_UI_ROUTE = '/__nuxt-i18n-micro'
@@ -56,8 +56,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
       c.server.proxy![`${ROUTE_CLIENT}/`] = proxyConfig
       c.server.proxy![`${ROUTE_CLIENT}/*`] = proxyConfig
     })
-  }
-  else {
+  } else {
     nuxt.hook('vite:extendConfig', (config) => {
       const c = config as ViteConfigMutable
       c.server = c.server || {}
@@ -94,8 +93,7 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
 
         if (fs.existsSync(filePath)) {
           fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
-        }
-        else {
+        } else {
           throw new Error(`File not found: ${filePath}`)
         }
       },
@@ -119,16 +117,14 @@ export function setupDevToolsUI(options: ModuleOptions, resolve: Resolver['resol
 
               if (stat.isDirectory()) {
                 processDirectory(filePath, baseDir) // Recursive traversal of subdirectories
-              }
-              else if (file.endsWith('.json')) {
+              } else if (file.endsWith('.json')) {
                 try {
                   // Use relative path from localesDir for proper tree display
                   const relativePath = path.relative(baseDir, filePath)
                   // Normalize path separators to forward slashes for consistency
                   const normalizedPath = relativePath.replace(/\\/g, '/')
                   filesList[normalizedPath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-                }
-                catch (e) {
+                } catch (e) {
                   console.error(`Error parsing locale file ${filePath}:`, e)
                 }
               }

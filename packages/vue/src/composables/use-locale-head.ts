@@ -1,8 +1,8 @@
-import { ref, inject } from 'vue'
-import { useI18n } from '../use-i18n'
-import { I18nRouterKey } from '../injection'
 import type { Locale } from '@i18n-micro/types'
+import { inject, ref } from 'vue'
+import { I18nRouterKey } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
+import { useI18n } from '../use-i18n'
 
 interface MetaLink {
   [key: string]: string | undefined
@@ -34,12 +34,7 @@ export interface UseLocaleHeadOptions {
 }
 
 export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
-  const {
-    addDirAttribute = true,
-    identifierAttribute = 'id',
-    addSeoAttributes = true,
-    baseUrl = '/',
-  } = options
+  const { addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = options
 
   const { getLocale, getLocales, localeRoute: i18nLocaleRoute } = useI18n()
   const routerStrategy = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
@@ -94,8 +89,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     if (matchedLocale) {
       localizedPath = fullPath.slice(matchedLocale.code.length + 1) || '/'
       canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist)
-    }
-    else {
+    } else {
       canonicalPath = filterQuery(fullPath, canonicalQueryWhitelist)
     }
 
@@ -149,7 +143,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       const currentPath = routerStrategy.getCurrentPath()
       // Use i18n's localeRoute which delegates to router strategy
       const switchedPathResult = i18nLocaleRoute(currentPath, loc.code)
-      const switchedPath = typeof switchedPathResult === 'string' ? switchedPathResult : (switchedPathResult?.path || '/')
+      const switchedPath = typeof switchedPathResult === 'string' ? switchedPathResult : switchedPathResult?.path || '/'
       if (!switchedPath) {
         return []
       }
@@ -157,18 +151,19 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       let href: string
       if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
         href = switchedPath
-      }
-      else {
+      } else {
         const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
         href = `${baseUrlValue}${switchedPath.startsWith('/') ? '' : '/'}${switchedPath}`
       }
 
-      const links: MetaLink[] = [{
-        [identifierAttribute]: `i18n-alternate-${loc.code}`,
-        rel: 'alternate',
-        href,
-        hreflang: loc.code,
-      }]
+      const links: MetaLink[] = [
+        {
+          [identifierAttribute]: `i18n-alternate-${loc.code}`,
+          rel: 'alternate',
+          href,
+          hreflang: loc.code,
+        },
+      ]
 
       if (loc.iso && loc.iso !== loc.code) {
         links.push({

@@ -2,12 +2,10 @@
  * Server-side translation loader
  * Загрузка переводов из Nitro storage (только для сервера)
  */
-import type { Translations, ModuleOptionsExtend } from '@i18n-micro/types'
-import type { Storage } from 'unstorage'
+import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { useStorage } from 'nitropack/runtime'
-// eslint-disable-next-line import/no-duplicates
+import type { Storage } from 'unstorage'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
-// eslint-disable-next-line import/no-duplicates
 import { getI18nConfig } from '#i18n-internal/strategy'
 
 // ============================================================================
@@ -15,7 +13,7 @@ import { getI18nConfig } from '#i18n-internal/strategy'
 // ============================================================================
 
 const CACHE_KEY = Symbol.for('__NUXT_I18N_SERVER_RESULT_CACHE__')
-type CacheEntry = { data: Translations, json: string }
+type CacheEntry = { data: Translations; json: string }
 type ServerCache = Map<string, CacheEntry>
 type GlobalWithCache = typeof globalThis & { [key: symbol]: ServerCache }
 
@@ -42,8 +40,7 @@ function deepMerge(target: Translations, source: Translations): Translations {
     const dst = output[key]
     if (src && typeof src === 'object' && !Array.isArray(src) && dst && typeof dst === 'object' && !Array.isArray(dst)) {
       output[key] = deepMerge(dst as Translations, src as Translations)
-    }
-    else {
+    } else {
       output[key] = src
     }
   }
@@ -68,14 +65,12 @@ async function loadFromNitroStorage(storage: Storage, locale: string, pageName?:
   const routesLocaleLinks = privateConfig.routesLocaleLinks || {}
 
   let merged: Translations = {}
-  const fileLookupPage = pageName ? (routesLocaleLinks[pageName] || pageName) : undefined
+  const fileLookupPage = pageName ? routesLocaleLinks[pageName] || pageName : undefined
   const normalizedPage = fileLookupPage?.replace(/\//g, ':')
 
   for (let i = 0; i < rootDirs.length; i++) {
     const prefix = `assets:i18n_layer_${i}`
-    const key = normalizedPage
-      ? `${prefix}:pages:${normalizedPage}:${locale}.json`
-      : `${prefix}:${locale}.json`
+    const key = normalizedPage ? `${prefix}:pages:${normalizedPage}:${locale}.json` : `${prefix}:${locale}.json`
 
     if (await storage.hasItem(key)) {
       const raw = await storage.getItem(key)
@@ -108,7 +103,7 @@ async function loadMergedFromServer(locale: string, page: string | undefined): P
  * Используется в API route и server middleware.
  * Результат кэшируется на уровне процесса - один раз загружаем, потом отдаём из памяти.
  */
-export async function loadTranslationsFromServer(locale: string, routeName?: string): Promise<{ data: Translations, json: string }> {
+export async function loadTranslationsFromServer(locale: string, routeName?: string): Promise<{ data: Translations; json: string }> {
   const cache = getServerCache()
   const cacheKey = `${locale}:${routeName || 'general'}`
 
@@ -122,7 +117,7 @@ export async function loadTranslationsFromServer(locale: string, routeName?: str
   const config = getI18nConfig() as ModuleOptionsExtend
   const { locales, fallbackLocale } = config
 
-  const localeConfig = locales?.find(l => l.code === locale)
+  const localeConfig = locales?.find((l) => l.code === locale)
   if (!localeConfig) {
     const empty = { data: {}, json: '{}' }
     cache.set(cacheKey, empty)

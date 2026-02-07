@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
-import solidPlugin from 'vite-plugin-solid'
 import dts from 'vite-plugin-dts'
+import solidPlugin from 'vite-plugin-solid'
 
 export default defineConfig({
   plugins: [
@@ -18,17 +18,10 @@ export default defineConfig({
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'I18nMicroSolid',
       formats: ['es', 'cjs'],
-      fileName: format => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
+      fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,
     },
     rollupOptions: {
-      external: [
-        'solid-js',
-        'solid-js/web',
-        'solid-js/store',
-        '@solidjs/router',
-        '@i18n-micro/core',
-        '@i18n-micro/types',
-      ],
+      external: ['solid-js', 'solid-js/web', 'solid-js/store', '@solidjs/router', '@i18n-micro/core', '@i18n-micro/types'],
       output: {
         exports: 'named',
       },

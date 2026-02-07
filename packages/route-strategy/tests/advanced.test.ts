@@ -1,14 +1,11 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
-import { locales, defaultLocaleCode, createBasicPages, createNestedPages, createManager } from './helpers'
+import { createBasicPages, createManager, createNestedPages, defaultLocaleCode, locales } from './helpers'
 
 describe('RouteGenerator - Advanced Scenarios', () => {
   test('33. should not create route when globalLocaleRoutes defines custom path for locale forbidden in routeLocales', () => {
     const pages = createBasicPages()
-    const manager = createManager('prefix_except_default',
-      { '/about': { de: '/ueber-uns', ru: '/o-nas' } },
-      { '/about': ['en', 'de'] },
-    )
+    const manager = createManager('prefix_except_default', { '/about': { de: '/ueber-uns', ru: '/o-nas' } }, { '/about': ['en', 'de'] })
     manager.extendPages(pages)
 
     expect(pages).toMatchSnapshot()
@@ -118,7 +115,10 @@ describe('RouteGenerator - Advanced Scenarios', () => {
   test('42. should handle defaultLocale not in locales list', () => {
     const pages = createBasicPages()
     const manager = new RouteGenerator({
-      locales: [{ code: 'de', iso: 'de-DE' }, { code: 'ru', iso: 'ru-RU' }],
+      locales: [
+        { code: 'de', iso: 'de-DE' },
+        { code: 'ru', iso: 'ru-RU' },
+      ],
       defaultLocaleCode: 'en',
       strategy: 'prefix_except_default',
       globalLocaleRoutes: {},
@@ -142,10 +142,14 @@ describe('RouteGenerator - Advanced Scenarios', () => {
 
   test('44. should handle nested routes with restrictions at different levels', () => {
     const pages = createNestedPages()
-    const manager = createManager('prefix_except_default', {}, {
-      '/parent': ['en', 'de', 'ru'],
-      '/parent/child': ['en', 'ru'],
-    })
+    const manager = createManager(
+      'prefix_except_default',
+      {},
+      {
+        '/parent': ['en', 'de', 'ru'],
+        '/parent/child': ['en', 'ru'],
+      },
+    )
     manager.extendPages(pages)
 
     expect(pages).toMatchSnapshot()

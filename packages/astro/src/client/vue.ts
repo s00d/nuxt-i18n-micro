@@ -1,8 +1,8 @@
-import { provide, inject, ref, computed, type InjectionKey, type Ref } from 'vue'
-import type { I18nClientProps } from '../utils'
-import { translate, hasTranslation, type I18nState } from './core'
 import { defaultPlural, FormatService } from '@i18n-micro/core'
-import type { Params, TranslationKey, CleanTranslation } from '@i18n-micro/types'
+import type { CleanTranslation, Params, TranslationKey } from '@i18n-micro/types'
+import { computed, type InjectionKey, inject, provide, type Ref, ref } from 'vue'
+import type { I18nClientProps } from '../utils'
+import { hasTranslation, type I18nState, translate } from './core'
 
 const formatter = new FormatService()
 
@@ -32,21 +32,11 @@ export function useAstroI18n() {
     throw new Error('useAstroI18n must be used within a component that calls provideI18n')
   }
 
-  const t = (
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string | null,
-    routeName?: string,
-  ): CleanTranslation => {
+  const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation => {
     return translate(state.value, key as string, params, defaultValue, routeName)
   }
 
-  const ts = (
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string,
-    routeName?: string,
-  ): string => {
+  const ts = (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string => {
     const value = t(key, params, defaultValue, routeName)
     return value?.toString() ?? defaultValue ?? (key as string)
   }
@@ -62,13 +52,7 @@ export function useAstroI18n() {
       return t(k, p, dv)
     }
 
-    const result = defaultPlural(
-      key,
-      Number.parseInt(countValue.toString(), 10),
-      params,
-      state.value.locale,
-      getter,
-    )
+    const result = defaultPlural(key, Number.parseInt(countValue.toString(), 10), params, state.value.locale, getter)
 
     return result ?? defaultValue ?? (key as string)
   }

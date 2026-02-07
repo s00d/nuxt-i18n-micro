@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { expect, test as baseTest } from '@nuxt/test-utils/playwright'
+import { test as baseTest, expect } from '@nuxt/test-utils/playwright'
 
 // Test: pages: false with i18n (prefix_except_default strategy)
 // Note: With pages: false, redirect functionality is limited because
@@ -25,11 +25,13 @@ testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)
 
   testPrefixExceptDefault('prefix_except_default: respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
     // Set Chinese locale cookie
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'zh',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'zh',
+        url: baseURL!,
+      },
+    ])
 
     await goto('/', { waitUntil: 'hydration' })
 
@@ -41,11 +43,13 @@ testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)
 
   testPrefixExceptDefault('prefix_except_default: handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
     // Set invalid locale cookie
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'invalid-locale',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'invalid-locale',
+        url: baseURL!,
+      },
+    ])
 
     await goto('/', { waitUntil: 'hydration' })
 
@@ -87,11 +91,13 @@ testNoPrefix.describe('pages: false with i18n (no_prefix)', () => {
 
   testNoPrefix('no_prefix: respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
     // Set Chinese locale cookie
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'zh',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'zh',
+        url: baseURL!,
+      },
+    ])
 
     await goto('/', { waitUntil: 'hydration' })
 
@@ -109,11 +115,13 @@ testNoPrefix.describe('pages: false with i18n (no_prefix)', () => {
 
   testNoPrefix('no_prefix: handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
     // Set invalid locale cookie
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'invalid-locale',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'invalid-locale',
+        url: baseURL!,
+      },
+    ])
 
     await goto('/', { waitUntil: 'hydration' })
 

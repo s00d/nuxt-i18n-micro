@@ -110,7 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted } from 'vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useNuxtApp } from '#imports'
 
 definePageMeta({ ssr: false })
@@ -211,8 +211,7 @@ const switchToLocale = async (locale: string) => {
   try {
     await $switchLocale(locale)
     translationsLoaded.value = true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error switching locale:', error)
   }
 }

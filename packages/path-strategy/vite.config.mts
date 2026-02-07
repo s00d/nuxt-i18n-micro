@@ -5,12 +5,12 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        'index': 'src/index.ts',
+        index: 'src/index.ts',
         'prefix-strategy': 'src/strategies/prefix.ts',
         'no-prefix-strategy': 'src/strategies/no-prefix.ts',
         'prefix-except-default-strategy': 'src/strategies/prefix-except-default.ts',
         'prefix-and-default-strategy': 'src/strategies/prefix-and-default.ts',
-        'types': 'src/types.ts',
+        types: 'src/types.ts',
       },
       name: 'I18nMicroPathStrategy',
       fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'mjs' : 'cjs'}`,

@@ -9,7 +9,7 @@ describe('resolveLocales (utils/locales)', () => {
     ]
     const result = resolveLocales(locales, 'en')
     expect(result.locales).toHaveLength(2)
-    expect(result.locales.map(l => l.code)).toEqual(['en', 'de'])
+    expect(result.locales.map((l) => l.code)).toEqual(['en', 'de'])
     expect(result.defaultLocale).toEqual({ code: 'en', iso: 'en-US' })
   })
 
@@ -42,7 +42,7 @@ describe('resolveLocales (utils/locales)', () => {
     ]
     const result = resolveLocales(locales, 'en')
     expect(result.locales).toHaveLength(2)
-    expect(result.locales.map(l => l.code)).toEqual(['en', 'ru'])
+    expect(result.locales.map((l) => l.code)).toEqual(['en', 'ru'])
     expect(result.defaultLocale.code).toBe('en')
   })
 

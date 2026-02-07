@@ -17,8 +17,7 @@ const baseConfig: ModuleOptionsExtend = {
   disablePageLocales: false,
 }
 
-const makeCtx = (extra?: Partial<PathStrategyContext>): PathStrategyContext =>
-  makePathStrategyContext(baseConfig, 'prefix_except_default', extra)
+const makeCtx = (extra?: Partial<PathStrategyContext>): PathStrategyContext => makePathStrategyContext(baseConfig, 'prefix_except_default', extra)
 
 describe('PrefixExceptDefaultPathStrategy - switchLocaleRoute', () => {
   test('should build localized route when exact localized name exists', () => {

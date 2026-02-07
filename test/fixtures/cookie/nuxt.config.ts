@@ -1,9 +1,7 @@
 import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
-  modules: [
-    MyModule,
-  ],
+  modules: [MyModule],
   devtools: { enabled: false },
   experimental: {
     // typedPages: true,

@@ -1,6 +1,9 @@
-import path, { join, dirname } from 'node:path'
-import { createRequire } from 'node:module'
 import fs, { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import path, { dirname, join } from 'node:path'
+import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
+import { isInternalPath, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
+import type { Getter, GlobalLocaleRoutes, Locale, LocaleCode, ModuleOptions, PluralFunc, Strategies } from '@i18n-micro/types'
 import {
   addComponentsDir,
   addImportsDir,
@@ -14,18 +17,11 @@ import {
   useLogger,
 } from '@nuxt/kit'
 import type { HookResult, NuxtPage } from '@nuxt/schema'
-import type { ModuleOptions, Locale, PluralFunc, GlobalLocaleRoutes, Getter, LocaleCode, Strategies } from '@i18n-micro/types'
-import {
-  isNoPrefixStrategy,
-  withPrefixStrategy,
-  defaultPlural,
-} from '@i18n-micro/core'
-import { setupDevToolsUI } from './devtools'
-import { RouteGenerator, isInternalPath, normalizePath } from '@i18n-micro/route-strategy'
-import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { generateHmrPlugin } from './hmr-plugin'
-import { extractDefineI18nRouteData } from './utils'
 import { globby } from 'globby'
+import { setupDevToolsUI } from './devtools'
+import { generateHmrPlugin } from './hmr-plugin'
+import type { PluginsInjections } from './runtime/plugins/01.plugin'
+import { extractDefineI18nRouteData } from './utils'
 
 function generateI18nTypes() {
   return `
@@ -89,17 +85,15 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isSSG = nuxt.options.nitro.static ?? (nuxt.options as any)._generate ?? false /* TODO: remove in future */
 
     const logger = useLogger('nuxt-i18n-micro')
 
     if (options.includeDefaultLocaleRoute !== undefined) {
-      logger.debug('The \'includeDefaultLocaleRoute\' option is deprecated. Use \'strategy\' instead.')
+      logger.debug("The 'includeDefaultLocaleRoute' option is deprecated. Use 'strategy' instead.")
       if (options.includeDefaultLocaleRoute) {
         options.strategy = 'prefix'
-      }
-      else {
+      } else {
         options.strategy = 'prefix_except_default'
       }
     }
@@ -107,11 +101,11 @@ export default defineNuxtModule<ModuleOptions>({
     // For no_prefix strategy, localeCookie is required - set default if not provided
     if (options.strategy === 'no_prefix' && !options.localeCookie) {
       options.localeCookie = 'user-locale'
-      logger.info('Strategy \'no_prefix\': localeCookie automatically set to \'user-locale\' for locale persistence.')
+      logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
     }
 
     const resolver = createResolver(import.meta.url)
-    const rootDirs = nuxt.options._layers.map(layer => layer.config.rootDir).reverse()
+    const rootDirs = nuxt.options._layers.map((layer) => layer.config.rootDir).reverse()
 
     // Extract routeLocales and localeRoutes from pages before creating template
     const routeLocales: Record<string, string[]> = {}
@@ -143,8 +137,7 @@ export default defineNuxtModule<ModuleOptions>({
         if (extractedLocales) {
           if (Array.isArray(extractedLocales)) {
             routeLocales[routePath] = extractedLocales
-          }
-          else if (typeof extractedLocales === 'object') {
+          } else if (typeof extractedLocales === 'object') {
             routeLocales[routePath] = Object.keys(extractedLocales)
           }
         }
@@ -157,8 +150,7 @@ export default defineNuxtModule<ModuleOptions>({
         if (disableMeta !== undefined) {
           routeDisableMeta[routePath] = disableMeta
         }
-      }
-      catch {
+      } catch {
         // Ignore files that can't be read
       }
     }
@@ -203,11 +195,11 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
-    if (apiBaseClientHost && apiBaseClientHost.endsWith('/')) {
+    if (apiBaseClientHost?.endsWith('/')) {
       apiBaseClientHost = apiBaseClientHost.slice(0, -1)
     }
     let apiBaseServerHost = process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost ?? undefined
-    if (apiBaseServerHost && apiBaseServerHost.endsWith('/')) {
+    if (apiBaseServerHost?.endsWith('/')) {
       apiBaseServerHost = apiBaseServerHost.slice(0, -1)
     }
     const rawUrl = process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales'
@@ -244,9 +236,7 @@ export default defineNuxtModule<ModuleOptions>({
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       noPrefixRedirect: options.noPrefixRedirect ?? false,
       debug: options.debug ?? false,
-      customRegexMatcher: options.customRegexMatcher instanceof RegExp
-        ? options.customRegexMatcher.source
-        : options.customRegexMatcher,
+      customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
       includeDefaultLocaleRoute: options.includeDefaultLocaleRoute ?? false,
     }
 
@@ -302,8 +292,8 @@ export function createI18nStrategy(router) {
 
     // if there is a customRegexMatcher set and all locales don't match the custom matcher, throw error
     if (typeof options.customRegexMatcher !== 'undefined') {
-      const localeCodes = routeGenerator.locales.map(l => l.code)
-      if (!localeCodes.every(code => code.match(options.customRegexMatcher as string | RegExp))) {
+      const localeCodes = routeGenerator.locales.map((l) => l.code)
+      if (!localeCodes.every((code) => code.match(options.customRegexMatcher as string | RegExp))) {
         throw new Error('Nuxt-18n-micro: Some locale codes does not match customRegexMatcher')
       }
     }
@@ -314,9 +304,7 @@ export function createI18nStrategy(router) {
       debug: options.debug ?? false,
       fallbackLocale: options.fallbackLocale ?? undefined,
       translationDir: options.translationDir ?? 'locales',
-      customRegexMatcher: options.customRegexMatcher instanceof RegExp
-        ? options.customRegexMatcher.source
-        : options.customRegexMatcher,
+      customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       apiBaseUrl,
       apiBaseClientHost,
@@ -392,7 +380,7 @@ export function getI18nPrivateConfig() { return __privateConfig }
       const tpl = addTemplate({
         filename: 'i18n.hmr.mjs',
         write: true,
-        getContents: () => generateHmrPlugin(files.map(f => f.replace(/\\/g, '/'))),
+        getContents: () => generateHmrPlugin(files.map((f) => f.replace(/\\/g, '/'))),
       })
       addPlugin({
         src: tpl.dst,
@@ -458,16 +446,14 @@ declare module '#i18n-internal/plural' {
     })
 
     const addDataRoutes = (pages: NuxtPage[] = []) => {
-      const pagesForDataRoutes = pages.filter(
-        p => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]),
-      )
+      const pagesForDataRoutes = pages.filter((p) => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]))
       const dataRoutes = routeGenerator.generateDataRoutes(pagesForDataRoutes, apiBaseUrl, !!options.disablePageLocales)
       addPrerenderRoutes(dataRoutes)
     }
 
     nuxt.hook('pages:resolved', (pages) => {
       const pagesNames = pages
-        .map(page => page.name)
+        .map((page) => page.name)
         .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
 
       if (!options.disableWatcher) {
@@ -489,8 +475,18 @@ declare module '#i18n-internal/plural' {
       ;(viteConfig as { resolve: typeof resolve }).resolve = resolve
       const alias = resolve.alias || {}
       resolve.alias = Array.isArray(alias)
-        ? [...alias, { find: '#i18n-internal/plural', replacement: pluralTemplate.dst }, { find: '#i18n-internal/strategy', replacement: strategyTemplate.dst }, { find: '#i18n-internal/config', replacement: configTemplate.dst }]
-        : { ...alias, '#i18n-internal/plural': pluralTemplate.dst, '#i18n-internal/strategy': strategyTemplate.dst, '#i18n-internal/config': configTemplate.dst }
+        ? [
+            ...alias,
+            { find: '#i18n-internal/plural', replacement: pluralTemplate.dst },
+            { find: '#i18n-internal/strategy', replacement: strategyTemplate.dst },
+            { find: '#i18n-internal/config', replacement: configTemplate.dst },
+          ]
+        : {
+            ...alias,
+            '#i18n-internal/plural': pluralTemplate.dst,
+            '#i18n-internal/strategy': strategyTemplate.dst,
+            '#i18n-internal/config': configTemplate.dst,
+          }
     })
 
     nuxt.hook('nitro:config', (nitroConfig) => {
@@ -559,14 +555,13 @@ declare module '#i18n-internal/plural' {
     nuxt.hook('nitro:build:public-assets', (nitro) => {
       const isProd = nuxt.options.dev === false
       if (isProd) {
-        const publicDir = path.join((nitro.options.output.publicDir ?? './dist'), options.translationDir ?? 'locales')
+        const publicDir = path.join(nitro.options.output.publicDir ?? './dist', options.translationDir ?? 'locales')
         const translationDir = path.join(nuxt.options.rootDir, options.translationDir ?? 'locales')
 
         try {
           fs.cpSync(translationDir, publicDir, { recursive: true })
           logger.log(`Translations copied successfully to ${translationDir} directory`)
-        }
-        catch (err) {
+        } catch (err) {
           logger.error('Error copying translations:', err)
         }
       }
@@ -631,7 +626,7 @@ declare module '#i18n-internal/plural' {
       // registers file-based routes like /contact, /about; prerendering them causes 500.
       // Remove them from the list so the crawler doesn't request them.
       if (withPrefixStrategy(options.strategy!)) {
-        const localeCodes = new Set(routeGenerator.locales.map(l => l.code))
+        const localeCodes = new Set(routeGenerator.locales.map((l) => l.code))
         const deleted: string[] = []
         for (const route of routesSet) {
           if (route === '/' || route === '') continue // Keep / for redirect to default locale
@@ -655,14 +650,10 @@ declare module '#i18n-internal/plural' {
 })
 
 export interface ModuleHooks {
-  'i18n:register': (
-    registerModule: (translations: unknown, locale?: string) => void,
-    locale: string
-  ) => HookResult
+  'i18n:register': (registerModule: (translations: unknown, locale?: string) => void, locale: string) => HookResult
 }
 
 declare module '@nuxt/schema' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface NuxtHooks extends ModuleHooks {}
 }
 

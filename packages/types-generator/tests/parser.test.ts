@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals'
+import { describe, expect, test } from '@jest/globals'
 import { flattenKeys } from '../src/core/parser'
 
 describe('flattenKeys', () => {
@@ -36,11 +36,7 @@ describe('flattenKeys', () => {
       },
     }
     const keys = flattenKeys(obj)
-    expect(keys.sort()).toEqual([
-      'errors.validation.required',
-      'errors.validation.email',
-      'errors.server.500',
-    ].sort())
+    expect(keys.sort()).toEqual(['errors.validation.required', 'errors.validation.email', 'errors.server.500'].sort())
   })
 
   test('should handle pluralization as single key', () => {
@@ -77,13 +73,6 @@ describe('flattenKeys', () => {
       array: [1, 2, 3],
     }
     const keys = flattenKeys(obj)
-    expect(keys.sort()).toEqual([
-      'string',
-      'number',
-      'boolean',
-      'null',
-      'nested.key',
-      'array',
-    ].sort())
+    expect(keys.sort()).toEqual(['string', 'number', 'boolean', 'null', 'nested.key', 'array'].sort())
   })
 })

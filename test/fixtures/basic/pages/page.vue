@@ -76,6 +76,14 @@
       {{ $has('page2.content', 'page2') ? 'true' : 'false' }}
     </p>
 
+    <!-- Test computed reactivity with $ts (issue: computed should update on locale change) -->
+    <p id="computed-ts">
+      {{ computedLabel }}
+    </p>
+    <p id="computed-t">
+      {{ computedTranslation }}
+    </p>
+
     <div id="locale-switcher">
       <i18n-switcher />
     </div>
@@ -117,9 +125,20 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useNuxtApp, useRoute } from '#imports'
 
-const { $t, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath, $has } = useNuxtApp()
+const { $t, $ts, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath, $has } = useNuxtApp()
+
+// Test: computed with $ts should be reactive on locale change
+const computedLabel = computed(() => {
+  return $ts('page.example')
+})
+
+// Test: computed with $t should also be reactive
+const computedTranslation = computed(() => {
+  return String($t('generic.example'))
+})
 const $route = useRoute()
 
 const customPluralRule = (key, count, _params, _locale, t) => {

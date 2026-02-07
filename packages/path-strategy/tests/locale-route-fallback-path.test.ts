@@ -41,7 +41,14 @@ const fallbackRouterNoRoute: RouterAdapter = {
   resolve: (to: RouteLike | string) => {
     if (typeof to === 'string') return { name: null, path: to, fullPath: to, params: {}, query: {}, hash: '' }
     const r = to as RouteLike
-    return { name: r.name ?? null, path: r.path ?? '/', fullPath: r.fullPath ?? r.path ?? '/', params: r.params ?? {}, query: r.query ?? {}, hash: r.hash ?? '' }
+    return {
+      name: r.name ?? null,
+      path: r.path ?? '/',
+      fullPath: r.fullPath ?? r.path ?? '/',
+      params: r.params ?? {},
+      query: r.query ?? {},
+      hash: r.hash ?? '',
+    }
   },
 }
 
@@ -68,12 +75,7 @@ function runFallbackNameKeyTests(strategy: StrategyName, _enPrefix: string, _deP
   })
 }
 
-function runFallbackParamsTests(
-  strategy: StrategyName,
-  enPrefix: string,
-  dePrefix: string,
-  opts?: { skipNoRouteFallback?: boolean },
-) {
+function runFallbackParamsTests(strategy: StrategyName, _enPrefix: string, _dePrefix: string, opts?: { skipNoRouteFallback?: boolean }) {
   const routerWithTestId: RouterAdapter = {
     hasRoute: (name: string) => name === 'test-id',
     resolve: (to: RouteLike | string) => {
@@ -104,7 +106,9 @@ function runFallbackParamsTests(
     test('router does not have baseName: with params strategy builds path from baseName+params (hyphen form for test-id+id)', () => {
       const routerNoRoute: RouterAdapter = {
         hasRoute: () => false,
-        resolve: () => { throw new Error('no route') },
+        resolve: () => {
+          throw new Error('no route')
+        },
       }
       const s = createPathStrategy(makeCtx(strategy, { router: routerNoRoute }))
       const result = s.localeRoute('en', { name: 'test-id', params: { id: 'my-id' } }, currentRoute)

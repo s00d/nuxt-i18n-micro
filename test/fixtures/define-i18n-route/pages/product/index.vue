@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNuxtApp, useFetch, createError } from '#imports'
+import { createError, useFetch, useNuxtApp } from '#imports'
 
 interface Product {
   id: string
@@ -13,11 +13,12 @@ type ProductsByLocale = Record<string, Product[]>
 const { $t, $defineI18nRoute, $getLocale, $switchLocalePath } = useNuxtApp()
 
 const { data: products, error } = await useFetch<ProductsByLocale>('/api/product')
-if (error.value) throw createError({
-  statusCode: error.value?.statusCode,
-  statusMessage: error.value?.statusMessage,
-  fatal: true,
-})
+if (error.value)
+  throw createError({
+    statusCode: error.value?.statusCode,
+    statusMessage: error.value?.statusMessage,
+    fatal: true,
+  })
 
 $defineI18nRoute({
   locales: {

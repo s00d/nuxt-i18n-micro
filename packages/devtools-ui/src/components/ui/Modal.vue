@@ -62,22 +62,25 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
-const props = withDefaults(defineProps<{
-  show: boolean
-  title?: string
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'custom'
-  width?: string
-  height?: string
-  disableOutsideClick?: boolean
-  disableEsc?: boolean
-  showCloseButton?: boolean
-  headerClass?: string
-}>(), {
-  size: 'md',
-  showCloseButton: true,
-  disableOutsideClick: false,
-  disableEsc: false,
-})
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    title?: string
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'custom'
+    width?: string
+    height?: string
+    disableOutsideClick?: boolean
+    disableEsc?: boolean
+    showCloseButton?: boolean
+    headerClass?: string
+  }>(),
+  {
+    size: 'md',
+    showCloseButton: true,
+    disableOutsideClick: false,
+    disableEsc: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
@@ -92,13 +95,9 @@ const sizeMap = {
   custom: { width: props.width || 'auto', height: props.height || 'auto' },
 }
 
-const customWidth = computed(() =>
-  props.size === 'custom' ? props.width : null,
-)
+const customWidth = computed(() => (props.size === 'custom' ? props.width : null))
 
-const customHeight = computed(() =>
-  props.size === 'custom' ? props.height : null,
-)
+const customHeight = computed(() => (props.size === 'custom' ? props.height : null))
 
 const closeModal = () => {
   emit('update:show', false)
@@ -149,18 +148,20 @@ onUnmounted(() => {
 })
 
 // Отслеживаем изменения show для блокировки/разблокировки скролла
-watch(() => props.show, (isOpen) => {
-  const appContainer = document.querySelector('i18n-devtools-ui')
-  if (appContainer) {
-    if (isOpen) {
-      originalOverflow.value = (appContainer as HTMLElement).style.overflow || ''
-      ;(appContainer as HTMLElement).style.overflow = 'hidden'
+watch(
+  () => props.show,
+  (isOpen) => {
+    const appContainer = document.querySelector('i18n-devtools-ui')
+    if (appContainer) {
+      if (isOpen) {
+        originalOverflow.value = (appContainer as HTMLElement).style.overflow || ''
+        ;(appContainer as HTMLElement).style.overflow = 'hidden'
+      } else {
+        ;(appContainer as HTMLElement).style.overflow = originalOverflow.value
+      }
     }
-    else {
-      ;(appContainer as HTMLElement).style.overflow = originalOverflow.value
-    }
-  }
-})
+  },
+)
 </script>
 
 <style scoped>

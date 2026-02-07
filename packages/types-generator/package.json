@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/types-generator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Type generator for i18n-micro translation keys",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -66,4 +66,3 @@
     "@types/jest": "catalog:"
   }
 }
-

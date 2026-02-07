@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
@@ -16,15 +15,7 @@ export default defineConfig({
       fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: [
-        '@i18n-micro/types',
-        'globby',
-        'chokidar',
-        'unplugin',
-        '@nuxt/kit',
-        'node:fs',
-        'node:path',
-      ],
+      external: ['@i18n-micro/types', 'globby', 'chokidar', 'unplugin', '@nuxt/kit', 'node:fs', 'node:path'],
       output: {
         exports: 'named',
       },

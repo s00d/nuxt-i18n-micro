@@ -1,7 +1,7 @@
-import type { ResolvedRouteLike, RouteLike } from '../core/types'
-import { BasePathStrategy } from './base-strategy'
 import { cleanDoubleSlashes } from 'ufo'
+import type { ResolvedRouteLike, RouteLike } from '../core/types'
 import { normalizePath } from '../utils/path'
+import { BasePathStrategy } from './base-strategy'
 
 export class NoPrefixPathStrategy extends BasePathStrategy {
   protected buildLocalizedPath(path: string, _locale: string, _isCustom: boolean): string {
@@ -41,7 +41,7 @@ export class NoPrefixPathStrategy extends BasePathStrategy {
     if (!pathLocale) return null
     const prefix = `/${pathLocale}`
     let newPath = currentPath.slice(prefix.length)
-    if (!newPath || !newPath.startsWith('/')) newPath = '/' + (newPath || '')
+    if (!newPath || !newPath.startsWith('/')) newPath = `/${newPath || ''}`
     return cleanDoubleSlashes(newPath) || '/'
   }
 

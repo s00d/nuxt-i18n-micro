@@ -3,13 +3,7 @@
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
-import {
-  createPathStrategy,
-  PrefixExceptDefaultPathStrategy,
-  PrefixPathStrategy,
-  PrefixAndDefaultPathStrategy,
-  NoPrefixPathStrategy,
-} from '../src'
+import { createPathStrategy, NoPrefixPathStrategy, PrefixAndDefaultPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -334,7 +328,6 @@ describe('applyBaseUrl - external URL handling', () => {
 describe('NoPrefixPathStrategy - formatPathForResolve', () => {
   test('returns path unchanged', () => {
     const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix'))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((strategy as any).formatPathForResolve('/about', 'en', 'de')).toBe('/about')
   })
 })
@@ -342,7 +335,6 @@ describe('NoPrefixPathStrategy - formatPathForResolve', () => {
 describe('PrefixPathStrategy - formatPathForResolve', () => {
   test('returns path with locale prefix', () => {
     const strategy = new PrefixPathStrategy(makeCtx('prefix'))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((strategy as any).formatPathForResolve('/about', 'en', 'de')).toBe('/en/about')
   })
 })
@@ -382,7 +374,6 @@ describe('BasePathStrategy - applyBaseUrl edge cases', () => {
     }
 
     // When route already has protocol, return as-is
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = (strategy as any).applyBaseUrl('fr', route)
     expect(result).toEqual(route)
   })
@@ -406,7 +397,6 @@ describe('BasePathStrategy - applyBaseUrl edge cases', () => {
     }
 
     // When baseUrl doesn't have protocol, return route object
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = (strategy as any).applyBaseUrl('de', route)
     expect(typeof result).toBe('object')
     expect(result.path).toBe('/de-prefix/page')
@@ -522,7 +512,7 @@ describe('BasePathStrategy - resolveLocaleRoute edge cases', () => {
   test('handles nested routes with custom segments (lines 638-647)', () => {
     const ctx = makeCtx('prefix', {
       globalLocaleRoutes: {
-        'parent': { en: '/parent-en', de: '/eltern' },
+        parent: { en: '/parent-en', de: '/eltern' },
         'parent/child': { en: '/child-en', de: '/kind' },
       },
     })

@@ -29,11 +29,7 @@ export function getRouteName(path: string, locales: string[] = []): string {
  * Get locale from path
  * Checks if first segment is a locale code
  */
-export function getLocaleFromPath(
-  path: string,
-  defaultLocale: string = 'en',
-  locales: string[] = [],
-): string {
+export function getLocaleFromPath(path: string, defaultLocale: string = 'en', locales: string[] = []): string {
   const segments = path.split('/').filter(Boolean)
   const firstSegment = segments[0]
   if (firstSegment && locales.includes(firstSegment)) {
@@ -47,12 +43,7 @@ export function getLocaleFromPath(
  * Switch locale in path
  * Replaces or adds locale prefix to path
  */
-export function switchLocalePath(
-  path: string,
-  newLocale: string,
-  locales: string[] = [],
-  defaultLocale?: string,
-): string {
+export function switchLocalePath(path: string, newLocale: string, locales: string[] = [], defaultLocale?: string): string {
   const segments = path.split('/').filter(Boolean)
 
   // Remove existing locale if present
@@ -72,12 +63,7 @@ export function switchLocalePath(
 /**
  * Localize path with locale prefix
  */
-export function localizePath(
-  path: string,
-  locale: string,
-  locales: string[] = [],
-  defaultLocale?: string,
-): string {
+export function localizePath(path: string, locale: string, locales: string[] = [], defaultLocale?: string): string {
   const cleanPath = path.replace(/^\//, '').replace(/\/$/, '') || ''
   const segments = cleanPath.split('/').filter(Boolean)
 

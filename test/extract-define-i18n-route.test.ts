@@ -3,10 +3,10 @@
  * Tests for extractDefineI18nRouteData function using real Vue files
  */
 
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { readFileSync } from 'node:fs'
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { extractDefineI18nRouteData } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */

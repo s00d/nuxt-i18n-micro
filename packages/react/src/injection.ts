@@ -1,6 +1,6 @@
+import type { Locale } from '@i18n-micro/types'
 import { createContext, useContext } from 'react'
 import type { ReactI18n } from './i18n'
-import type { Locale } from '@i18n-micro/types'
 import type { I18nRoutingStrategy } from './router/types'
 
 // Context keys (analogous to Vue's InjectionKey)

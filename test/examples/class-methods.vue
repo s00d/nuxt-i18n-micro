@@ -24,7 +24,6 @@ class LocaleConfig {
 
 const config = new LocaleConfig()
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: config.getLocales(),

@@ -1,6 +1,6 @@
 ---
-import { useI18n } from '../utils'
 import type { Params } from '@i18n-micro/types'
+import { useI18n } from '../utils'
 
 interface Props {
   keypath: string
@@ -14,17 +14,7 @@ interface Props {
   relativeDate?: Date | string | number
 }
 
-const {
-  keypath,
-  plural,
-  params = {},
-  defaultValue = '',
-  tag = 'span',
-  html: renderHtml = false,
-  number,
-  date,
-  relativeDate,
-} = Astro.props
+const { keypath, plural, params = {}, defaultValue = '', tag = 'span', html: renderHtml = false, number, date, relativeDate } = Astro.props
 
 const { t, tc, tn, td, tdr } = useI18n(Astro)
 
@@ -48,7 +38,7 @@ else if (relativeDate !== undefined) {
 }
 // Handle pluralization
 else if (plural !== undefined) {
-  const count = Number.parseInt(plural.toString())
+  const count = Number.parseInt(plural.toString(), 10)
   translation = tc(keypath, { count, ...params }, defaultValue)
 }
 // Regular translation

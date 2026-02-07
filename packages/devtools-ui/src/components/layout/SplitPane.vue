@@ -38,18 +38,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
-const props = withDefaults(defineProps<{
-  storageKey?: string
-  defaultLeftWidth?: string
-  minLeftWidth?: number
-  minRightWidth?: number
-}>(), {
-  defaultLeftWidth: '300px',
-  minLeftWidth: 150,
-  minRightWidth: 300,
-})
+const props = withDefaults(
+  defineProps<{
+    storageKey?: string
+    defaultLeftWidth?: string
+    minLeftWidth?: number
+    minRightWidth?: number
+  }>(),
+  {
+    defaultLeftWidth: '300px',
+    minLeftWidth: 150,
+    minRightWidth: 300,
+  },
+)
 
 const leftWidth = ref(props.defaultLeftWidth)
 const isResizing = ref(false)

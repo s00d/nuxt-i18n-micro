@@ -1,6 +1,6 @@
 import type { I18nDevToolsBridge } from '../bridge/interface'
 import type { TranslationContent } from '../types'
-import type { JsonRpcRequest, JsonRpcResponse, JsonRpcEvent } from './types'
+import type { JsonRpcEvent, JsonRpcRequest, JsonRpcResponse } from './types'
 
 /**
  * Connects an iframe to an existing Bridge.
@@ -31,7 +31,7 @@ export function setupRpcHost(iframeWindow: Window, bridge: I18nDevToolsBridge): 
           response.result = await bridge.getConfigs()
           break
         case 'saveTranslation': {
-          const params = data.params as { file: string, content: TranslationContent }
+          const params = data.params as { file: string; content: TranslationContent }
           await bridge.saveTranslation(params.file, params.content)
           response.result = true
           break
@@ -39,8 +39,7 @@ export function setupRpcHost(iframeWindow: Window, bridge: I18nDevToolsBridge): 
         default:
           throw new Error(`Method ${data.method} not found`)
       }
-    }
-    catch (e: unknown) {
+    } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : String(e)
       response.error = { code: -32603, message: errorMessage }
     }

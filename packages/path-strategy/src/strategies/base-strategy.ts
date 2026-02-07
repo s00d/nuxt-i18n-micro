@@ -1,10 +1,19 @@
-import type { PathStrategyContext, PathStrategy, NormalizedRouteInput, ResolvedRouteLike, RouteLike, SeoAttributes, SwitchLocaleOptions, RouterAdapter } from '../core/types'
 import type { Locale } from '@i18n-micro/types'
+import { hasProtocol, withoutTrailingSlash } from 'ufo'
+import { getLocaleFromPath as normalizerGetLocaleFromPath, getPathWithoutLocale as normalizerGetPathWithoutLocale } from '../core/normalizer'
 import { RouteResolver } from '../core/resolver'
-import { getPathWithoutLocale as normalizerGetPathWithoutLocale, getLocaleFromPath as normalizerGetLocaleFromPath } from '../core/normalizer'
-import { getRouteBaseName as utilGetRouteBaseName, buildLocalizedName as utilBuildLocalizedName, isIndexRouteName } from '../utils/route-name'
-import { withoutTrailingSlash, hasProtocol } from 'ufo'
-import { buildUrl, getPathSegments, joinUrl, normalizePath, nameKeyFirstSlash, nameKeyLastSlash, transformNameKeyToPath } from '../utils/path'
+import type {
+  NormalizedRouteInput,
+  PathStrategy,
+  PathStrategyContext,
+  ResolvedRouteLike,
+  RouteLike,
+  RouterAdapter,
+  SeoAttributes,
+  SwitchLocaleOptions,
+} from '../core/types'
+import { buildUrl, getPathSegments, joinUrl, nameKeyFirstSlash, nameKeyLastSlash, normalizePath, transformNameKeyToPath } from '../utils/path'
+import { isIndexRouteName, buildLocalizedName as utilBuildLocalizedName, getRouteBaseName as utilGetRouteBaseName } from '../utils/route-name'
 
 export abstract class BasePathStrategy implements PathStrategy {
   protected resolver: RouteResolver
@@ -91,14 +100,13 @@ export abstract class BasePathStrategy implements PathStrategy {
   protected abstract buildLocalizedRouteName(baseName: string, locale: string): string
 
   protected getLocaleObject(code: string): Locale | undefined {
-    return this.ctx.locales.find(l => l.code === code)
+    return this.ctx.locales.find((l) => l.code === code)
   }
 
   protected applyBaseUrl(localeCode: string, route: RouteLike | string): RouteLike | string {
     if (typeof route === 'string') {
       if (hasProtocol(route)) return route
-    }
-    else if (route.path && hasProtocol(route.path)) {
+    } else if (route.path && hasProtocol(route.path)) {
       return route
     }
 
@@ -131,17 +139,12 @@ export abstract class BasePathStrategy implements PathStrategy {
    * Merges target route (strategy result) with query and hash from source route.
    * Returns normalized RouteLike object.
    */
-  protected preserveQueryAndHash(
-    target: RouteLike | string,
-    source?: RouteLike | null,
-  ): RouteLike | string {
+  protected preserveQueryAndHash(target: RouteLike | string, source?: RouteLike | null): RouteLike | string {
     if (!source || (!source.query && !source.hash)) {
       return target
     }
 
-    const result: RouteLike = typeof target === 'string'
-      ? { path: target }
-      : { ...target }
+    const result: RouteLike = typeof target === 'string' ? { path: target } : { ...target }
 
     if (source.query) {
       result.query = { ...source.query, ...result.query }
@@ -160,7 +163,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     return this.resolver.resolvePathWithParams(path, params)
   }
 
-  protected getPathWithoutLocaleAndBaseName(route: ResolvedRouteLike): { pathWithoutLocale: string, baseRouteName: string | null } {
+  protected getPathWithoutLocaleAndBaseName(route: ResolvedRouteLike): { pathWithoutLocale: string; baseRouteName: string | null } {
     return this.resolver.getPathWithoutLocaleAndBaseName(route)
   }
 
@@ -193,12 +196,15 @@ export abstract class BasePathStrategy implements PathStrategy {
     let localizedName: string
     if (this.ctx.router.hasRoute(localizedNameWithSuffix)) {
       localizedName = localizedNameWithSuffix
-    }
-    else if (this.ctx.router.hasRoute(localizedNameWithoutSuffix)) {
+    } else if (this.ctx.router.hasRoute(localizedNameWithoutSuffix)) {
       localizedName = localizedNameWithoutSuffix
-    }
-    else {
-      this.debugLog('tryResolveByLocalizedName', { routeName, targetLocale, tried: [localizedNameWithSuffix, localizedNameWithoutSuffix], found: false })
+    } else {
+      this.debugLog('tryResolveByLocalizedName', {
+        routeName,
+        targetLocale,
+        tried: [localizedNameWithSuffix, localizedNameWithoutSuffix],
+        found: false,
+      })
       return null
     }
 
@@ -216,8 +222,7 @@ export abstract class BasePathStrategy implements PathStrategy {
         query: sourceRoute?.query,
         hash: sourceRoute?.hash,
       })
-    }
-    catch {
+    } catch {
       // Router threw error (e.g. missing required param) - try path-based fallback
       this.debugLog('tryResolveByLocalizedName resolve error', { localizedName, params })
       return null
@@ -251,12 +256,16 @@ export abstract class BasePathStrategy implements PathStrategy {
     let localizedName: string
     if (this.ctx.router.hasRoute(localizedNameWithSuffix)) {
       localizedName = localizedNameWithSuffix
-    }
-    else if (this.ctx.router.hasRoute(localizedNameWithoutSuffix)) {
+    } else if (this.ctx.router.hasRoute(localizedNameWithoutSuffix)) {
       localizedName = localizedNameWithoutSuffix
-    }
-    else {
-      this.debugLog('tryResolveByLocalizedNameWithParams', { routeName, targetLocale, params, tried: [localizedNameWithSuffix, localizedNameWithoutSuffix], found: false })
+    } else {
+      this.debugLog('tryResolveByLocalizedNameWithParams', {
+        routeName,
+        targetLocale,
+        params,
+        tried: [localizedNameWithSuffix, localizedNameWithoutSuffix],
+        found: false,
+      })
       return null
     }
 
@@ -274,8 +283,7 @@ export abstract class BasePathStrategy implements PathStrategy {
         query: sourceRoute?.query,
         hash: sourceRoute?.hash,
       })
-    }
-    catch {
+    } catch {
       // Router threw error (e.g. missing required param) - return null
       this.debugLog('tryResolveByLocalizedNameWithParams resolve error', { localizedName, resolveParams })
       return null
@@ -302,38 +310,38 @@ export abstract class BasePathStrategy implements PathStrategy {
    * 1) Hyphen form (Nuxt test-[id].vue → /test-:id): when single param key equals last baseName segment (e.g. test-id + id → test-:id).
    * 2) Slash form (kebab→slash): path segments from baseName, last N replaced by :paramKey (e.g. test-id → /test/:id).
    */
-  protected buildPathFromBaseNameAndParams(
-    baseName: string,
-    params: Record<string, unknown>,
-    targetLocale: string,
-  ): string | null {
-    const paramKeys = Object.keys(params).filter(k => params[k] !== undefined && params[k] !== null && params[k] !== '')
+  protected buildPathFromBaseNameAndParams(baseName: string, params: Record<string, unknown>, targetLocale: string): string | null {
+    const paramKeys = Object.keys(params).filter((k) => params[k] !== undefined && params[k] !== null && params[k] !== '')
     if (paramKeys.length === 0) return null
     let pathTemplate: string
     const firstKey = paramKeys[0]
-    if (paramKeys.length === 1 && firstKey !== undefined && baseName.endsWith('-' + firstKey)) {
-      pathTemplate = joinUrl('/', baseName.slice(0, baseName.length - firstKey.length - 1) + '-:' + firstKey)
-    }
-    else {
+    if (paramKeys.length === 1 && firstKey !== undefined && baseName.endsWith(`-${firstKey}`)) {
+      pathTemplate = joinUrl('/', `${baseName.slice(0, baseName.length - firstKey.length - 1)}-:${firstKey}`)
+    } else {
       const pathForm = transformNameKeyToPath(baseName)
       const pathSegments = pathForm ? pathForm.split('/').filter(Boolean) : [baseName]
       const replaceCount = Math.min(paramKeys.length, pathSegments.length)
-      const templateSegments = pathSegments.slice(0, pathSegments.length - replaceCount)
-        .concat(paramKeys.slice(0, replaceCount).map(k => `:${k}`))
+      const templateSegments = pathSegments.slice(0, pathSegments.length - replaceCount).concat(paramKeys.slice(0, replaceCount).map((k) => `:${k}`))
       pathTemplate = joinUrl('/', ...templateSegments)
     }
     const pathWithParams = this.resolvePathWithParams(pathTemplate, params)
     const finalPath = this.buildLocalizedPath(pathWithParams, targetLocale, false)
     const withBase = this.applyBaseUrl(targetLocale, finalPath)
-    return typeof withBase === 'string' ? withBase : (withBase as RouteLike).path ?? finalPath
+    return typeof withBase === 'string' ? withBase : ((withBase as RouteLike).path ?? finalPath)
   }
 
-  protected getPathWithoutLocale(path: string): { pathWithoutLocale: string, localeFromPath: string | null } {
-    return normalizerGetPathWithoutLocale(path, this.ctx.locales.map(l => l.code))
+  protected getPathWithoutLocale(path: string): { pathWithoutLocale: string; localeFromPath: string | null } {
+    return normalizerGetPathWithoutLocale(
+      path,
+      this.ctx.locales.map((l) => l.code),
+    )
   }
 
   getLocaleFromPath(path: string): string | null {
-    return normalizerGetLocaleFromPath(path, this.ctx.locales.map(l => l.code))
+    return normalizerGetLocaleFromPath(
+      path,
+      this.ctx.locales.map((l) => l.code),
+    )
   }
 
   abstract resolveLocaleFromPath(path: string): string | null
@@ -374,8 +382,8 @@ export abstract class BasePathStrategy implements PathStrategy {
     if (rl && Object.keys(rl).length > 0) {
       const allowed = rl[pathWithoutLocale] ?? rl[pathKey]
       if (Array.isArray(allowed) && allowed.length > 0) {
-        const validCodes = this.ctx.locales.map(l => l.code)
-        const allowedCodes = allowed.filter(code => validCodes.includes(code))
+        const validCodes = this.ctx.locales.map((l) => l.code)
+        const allowedCodes = allowed.filter((code) => validCodes.includes(code))
         if (allowedCodes.length > 0 && !allowedCodes.includes(localeFromPath)) {
           return 'Locale not allowed for this route'
         }
@@ -396,7 +404,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     const canonical = this.buildFullUrl(currentLocale, canonicalPath)
 
     const allowedCodes = this.getAllowedLocalesForRoute(currentRoute)
-    const localesToEmit = this.ctx.locales.filter(l => allowedCodes.includes(l.code))
+    const localesToEmit = this.ctx.locales.filter((l) => allowedCodes.includes(l.code))
     const hreflangs = localesToEmit.map((locale) => {
       const localized = this.localeRoute(locale.code, currentRoute, currentRoute)
       const pathStr = localized.path ?? localized.fullPath ?? ''
@@ -427,12 +435,7 @@ export abstract class BasePathStrategy implements PathStrategy {
   /**
    * Default: baseName → buildLocalizedRouteName → hasRoute → applyBaseUrl; fallback to baseName.
    */
-  switchLocaleRoute(
-    fromLocale: string,
-    toLocale: string,
-    route: ResolvedRouteLike,
-    options: SwitchLocaleOptions,
-  ): RouteLike | string {
+  switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
     const baseName = this.getBaseRouteName(route, fromLocale)
     if (!baseName) return route
 
@@ -444,15 +447,12 @@ export abstract class BasePathStrategy implements PathStrategy {
 
     if (this.ctx.router.hasRoute(nameWithSuffix)) {
       targetName = nameWithSuffix
-    }
-    else if (this.ctx.router.hasRoute(nameWithoutSuffix)) {
+    } else if (this.ctx.router.hasRoute(nameWithoutSuffix)) {
       targetName = nameWithoutSuffix
       needsLocaleParam = true
-    }
-    else if (this.ctx.router.hasRoute(baseName)) {
+    } else if (this.ctx.router.hasRoute(baseName)) {
       targetName = baseName
-    }
-    else {
+    } else {
       return this.getSwitchLocaleFallbackWhenNoRoute(route, nameWithSuffix)
     }
 
@@ -461,8 +461,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     // Add locale param if using route without locale suffix (e.g. localized-index with /:locale param)
     if (needsLocaleParam) {
       newParams.locale = toLocale
-    }
-    else {
+    } else {
       delete (newParams as Record<string, unknown>).locale
     }
 
@@ -479,14 +478,13 @@ export abstract class BasePathStrategy implements PathStrategy {
    * Template Method: BaseStrategy knows "how" (normalize → delegate to strategy).
    * Always returns RouteLike with path and fullPath (never a string).
    */
-  localeRoute(
-    targetLocale: string,
-    routeOrPath: RouteLike | string,
-    currentRoute?: ResolvedRouteLike,
-  ): RouteLike {
+  localeRoute(targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike): RouteLike {
     const normalized = this.normalizeRouteInput(routeOrPath, currentRoute)
     const raw = this.resolveLocaleRoute(targetLocale, normalized, currentRoute)
-    this.debugLog('localeRoute raw', { rawPath: typeof raw === 'string' ? raw : (raw as RouteLike).path, rawFullPath: typeof raw === 'string' ? raw : (raw as RouteLike).fullPath })
+    this.debugLog('localeRoute raw', {
+      rawPath: typeof raw === 'string' ? raw : (raw as RouteLike).path,
+      rawFullPath: typeof raw === 'string' ? raw : (raw as RouteLike).fullPath,
+    })
     const result = this.ensureRouteLike(raw, normalized.kind === 'route' ? normalized.sourceRoute : undefined)
     this.debugLog('localeRoute after ensureRouteLike', { path: result.path, fullPath: result.fullPath })
     return result
@@ -496,9 +494,7 @@ export abstract class BasePathStrategy implements PathStrategy {
   protected ensureRouteLike(value: RouteLike | string, source?: RouteLike | null): RouteLike {
     if (typeof value === 'string') {
       const path = value
-      const fullPath = source?.query || source?.hash
-        ? buildUrl(path, source?.query, source?.hash)
-        : path
+      const fullPath = source?.query || source?.hash ? buildUrl(path, source?.query, source?.hash) : path
       return {
         path,
         fullPath,
@@ -506,14 +502,16 @@ export abstract class BasePathStrategy implements PathStrategy {
         ...(source?.hash && { hash: source.hash }),
       }
     }
-    let fullPath = (value.fullPath ?? value.path ?? '')
-    let path = (value.path ?? fullPath.split('?')[0]?.split('#')[0] ?? fullPath)
+    let fullPath = value.fullPath ?? value.path ?? ''
+    let path = value.path ?? fullPath.split('?')[0]?.split('#')[0] ?? fullPath
     if (!path && !fullPath) {
       const name = value.name?.toString() ?? source?.name?.toString() ?? ''
-      if (isIndexRouteName(name, {
-        localizedRouteNamePrefix: this.getLocalizedRouteNamePrefix(),
-        localeCodes: this.ctx.locales.map(l => l.code),
-      })) {
+      if (
+        isIndexRouteName(name, {
+          localizedRouteNamePrefix: this.getLocalizedRouteNamePrefix(),
+          localeCodes: this.ctx.locales.map((l) => l.code),
+        })
+      ) {
         path = '/'
         fullPath = '/'
       }
@@ -524,10 +522,7 @@ export abstract class BasePathStrategy implements PathStrategy {
   /**
    * Normalizes localeRoute input into a single structure (path string or route with resolved).
    */
-  protected normalizeRouteInput(
-    routeOrPath: RouteLike | string,
-    _currentRoute?: ResolvedRouteLike,
-  ): NormalizedRouteInput {
+  protected normalizeRouteInput(routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): NormalizedRouteInput {
     if (typeof routeOrPath === 'string') {
       return { kind: 'path', path: routeOrPath }
     }
@@ -537,8 +532,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     try {
       resolved = this.ctx.router.resolve(routeOrPath)
       this.debugLog('normalizeRouteInput router.resolve ok', { inputName, resolvedPath: resolved.path, resolvedName: resolved.name })
-    }
-    catch {
+    } catch {
       resolved = {
         name: inputName,
         path: sourceRoute.path ?? '/',
@@ -561,11 +555,7 @@ export abstract class BasePathStrategy implements PathStrategy {
    * Default resolution: uses buildLocalizedPath and buildLocalizedRouteName.
    * Strategies with different logic (e.g. prefix-except-default) override this method.
    */
-  protected resolveLocaleRoute(
-    targetLocale: string,
-    normalized: NormalizedRouteInput,
-    _currentRoute?: ResolvedRouteLike,
-  ): RouteLike | string {
+  protected resolveLocaleRoute(targetLocale: string, normalized: NormalizedRouteInput, _currentRoute?: ResolvedRouteLike): RouteLike | string {
     if (normalized.kind === 'path') {
       const resolvedPath = this.resolvePathForLocale(normalized.path, targetLocale)
       const finalPath = this.buildLocalizedPath(resolvedPath, targetLocale, false)
@@ -579,7 +569,15 @@ export abstract class BasePathStrategy implements PathStrategy {
     const baseName = this.getRouteBaseName(resolved) ?? inputName ?? resolved.name?.toString() ?? null
     const resolvedNameStr = resolved.name?.toString()
 
-    this.debugLog('input', { targetLocale, inputName, resolvedPath: resolved.path, resolvedName: resolved.name, params: src.params, hasParams, baseName })
+    this.debugLog('input', {
+      targetLocale,
+      inputName,
+      resolvedPath: resolved.path,
+      resolvedName: resolved.name,
+      params: src.params,
+      hasParams,
+      baseName,
+    })
 
     if (inputName) {
       const unlocalizedByName = this.getPathForUnlocalizedRouteByName(inputName)
@@ -590,12 +588,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     }
 
     if (inputName && hasParams) {
-      const routeWithParams = this.tryResolveByLocalizedNameWithParams(
-        inputName,
-        targetLocale,
-        src.params ?? {},
-        src,
-      )
+      const routeWithParams = this.tryResolveByLocalizedNameWithParams(inputName, targetLocale, src.params ?? {}, src)
       if (routeWithParams !== null) {
         this.debugLog('branch=routeWithParams', { inputName, path: routeWithParams.path, fullPath: routeWithParams.fullPath })
         return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeWithParams), src)
@@ -637,16 +630,14 @@ export abstract class BasePathStrategy implements PathStrategy {
       if (isNested) {
         const nameSegments = getPathSegments(keyWithSlash)
         const parentKey = nameSegments.length > 1 ? nameSegments.slice(0, -1).join('-') : ''
-        const parentRules = parentKey && gr?.[parentKey] && typeof gr[parentKey] === 'object' && !Array.isArray(gr[parentKey])
-          ? (gr[parentKey] as Record<string, string>)
-          : null
-        const parentPath = parentRules?.[targetLocale]
-          ? normalizePath(parentRules[targetLocale])
-          : joinUrl('/', ...nameSegments.slice(0, -1))
+        const parentRules =
+          parentKey && gr?.[parentKey] && typeof gr[parentKey] === 'object' && !Array.isArray(gr[parentKey])
+            ? (gr[parentKey] as Record<string, string>)
+            : null
+        const parentPath = parentRules?.[targetLocale] ? normalizePath(parentRules[targetLocale]) : joinUrl('/', ...nameSegments.slice(0, -1))
         const segment = customSegment.startsWith('/') ? customSegment.slice(1) : customSegment
         pathWithoutLocale = joinUrl(parentPath, segment)
-      }
-      else {
+      } else {
         pathWithoutLocale = normalizePath(customSegment)
       }
       const finalPath = this.buildLocalizedPath(pathWithoutLocale, targetLocale, true)
@@ -664,16 +655,15 @@ export abstract class BasePathStrategy implements PathStrategy {
     if (!hasParams && resolved.path && resolved.path !== '/' && resolved.name) {
       const { pathWithoutLocale, baseRouteName } = this.getPathWithoutLocaleAndBaseName(resolved)
       if (pathWithoutLocale && pathWithoutLocale !== '/') {
-        const pathToUse = baseRouteName && pathWithoutLocale === baseRouteName
-          ? joinUrl('/', transformNameKeyToPath(baseRouteName))
-          : pathWithoutLocale
+        const pathToUse =
+          baseRouteName && pathWithoutLocale === baseRouteName ? joinUrl('/', transformNameKeyToPath(baseRouteName)) : pathWithoutLocale
         const finalPath = this.buildLocalizedPath(pathToUse, targetLocale, false)
         this.debugLog('branch=pathFromResolved', { pathWithoutLocale, baseRouteName, pathToUse, finalPath })
         return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, finalPath), src)
       }
     }
 
-    const baseNameForPath = (resolvedNameStr === inputName ? effectiveBaseName : (inputName ?? effectiveBaseName))
+    const baseNameForPath = resolvedNameStr === inputName ? effectiveBaseName : (inputName ?? effectiveBaseName)
     this.debugLog('fallback build', { resolvedNameStr, inputName, baseNameForPath, targetLocale, hasParams })
     const targetName = this.buildLocalizedRouteName(baseNameForPath, targetLocale)
     const newRoute: RouteLike = {
@@ -682,33 +672,30 @@ export abstract class BasePathStrategy implements PathStrategy {
       params: { ...src.params },
     }
     if (!hasParams) {
-      const pathWithoutLocale = isIndexRouteName(baseNameForPath)
-        ? '/'
-        : joinUrl('/', transformNameKeyToPath(baseNameForPath))
+      const pathWithoutLocale = isIndexRouteName(baseNameForPath) ? '/' : joinUrl('/', transformNameKeyToPath(baseNameForPath))
       const finalPath = this.buildLocalizedPath(pathWithoutLocale, targetLocale, false)
       const withBase = this.applyBaseUrl(targetLocale, finalPath)
-      const pathStr = typeof withBase === 'string' ? withBase : (withBase as RouteLike).path ?? finalPath
+      const pathStr = typeof withBase === 'string' ? withBase : ((withBase as RouteLike).path ?? finalPath)
       this.debugLog('fallback !hasParams', { pathWithoutLocale, finalPath, pathStr })
       newRoute.path = pathStr
       newRoute.fullPath = pathStr
-    }
-    else {
+    } else {
       let pathStr: string | null = null
       try {
         const resolvedWithParams = this.ctx.router.resolve({ name: baseNameForPath, params: src.params })
         if (resolvedWithParams?.path) {
-          const pathToUse = resolvedWithParams.path === '/'
-            ? '/'
-            : (() => {
-                const { pathWithoutLocale } = this.getPathWithoutLocale(resolvedWithParams.path)
-                return pathWithoutLocale && pathWithoutLocale !== '/' ? pathWithoutLocale : resolvedWithParams.path
-              })()
+          const pathToUse =
+            resolvedWithParams.path === '/'
+              ? '/'
+              : (() => {
+                  const { pathWithoutLocale } = this.getPathWithoutLocale(resolvedWithParams.path)
+                  return pathWithoutLocale && pathWithoutLocale !== '/' ? pathWithoutLocale : resolvedWithParams.path
+                })()
           const finalPath = this.buildLocalizedPath(pathToUse, targetLocale, false)
           const withBase = this.applyBaseUrl(targetLocale, finalPath)
-          pathStr = typeof withBase === 'string' ? withBase : (withBase as RouteLike).path ?? finalPath
+          pathStr = typeof withBase === 'string' ? withBase : ((withBase as RouteLike).path ?? finalPath)
         }
-      }
-      catch {
+      } catch {
         // Router does not have baseName route: build path from baseNameForPath + params (path template)
         pathStr = this.buildPathFromBaseNameAndParams(baseNameForPath, src.params ?? {}, targetLocale)
       }
@@ -722,7 +709,13 @@ export abstract class BasePathStrategy implements PathStrategy {
       delete newRoute.name
     }
     const out = this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, newRoute), src)
-    this.debugLog('branch=fallbackNewRoute return', { baseName, targetName, hasParams, newRoutePath: newRoute.path, outPath: typeof out === 'string' ? out : (out as RouteLike).path })
+    this.debugLog('branch=fallbackNewRoute return', {
+      baseName,
+      targetName,
+      hasParams,
+      newRoutePath: newRoute.path,
+      outPath: typeof out === 'string' ? out : (out as RouteLike).path,
+    })
     return out
   }
 
@@ -744,7 +737,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     const firstSegment = pathSegments[0]
     if (!firstSegment) return null
 
-    const availableLocales = this.ctx.locales.map(l => l.code)
+    const availableLocales = this.ctx.locales.map((l) => l.code)
     if (availableLocales.includes(firstSegment)) {
       return firstSegment
     }
@@ -816,9 +809,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     if (!baseName) {
       // Fallback: extract from route name
       const name = (route.name ?? '').toString()
-      return name
-        .replace(this.getLocalizedRouteNamePrefix(), '')
-        .replace(new RegExp(`-${locale}$`), '')
+      return name.replace(this.getLocalizedRouteNamePrefix(), '').replace(new RegExp(`-${locale}$`), '')
     }
     return baseName
   }
@@ -828,7 +819,7 @@ export abstract class BasePathStrategy implements PathStrategy {
    */
   getCurrentLocaleName(route: ResolvedRouteLike): string | null {
     const currentLocaleCode = this.getCurrentLocale(route)
-    const localeObj = this.ctx.locales.find(l => l.code === currentLocaleCode)
+    const localeObj = this.ctx.locales.find((l) => l.code === currentLocaleCode)
     return localeObj?.displayName ?? null
   }
 

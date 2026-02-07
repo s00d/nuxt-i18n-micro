@@ -1,5 +1,5 @@
-import type { PluginsInjections } from '../plugins/01.plugin'
 import { useNuxtApp } from '#imports'
+import type { PluginsInjections } from '../plugins/01.plugin'
 
 type RemoveDollarSign<T> = {
   [K in keyof T as K extends `$${infer Rest}` ? Rest : K]: T[K]
@@ -41,9 +41,7 @@ export function useI18n(): PluginsInjectionsWithAliases {
     helper: nuxtApp.helper,
   } as const
 
-  const noDollarInjections = Object.fromEntries(
-    Object.entries(injections).map(([key, value]) => [key.slice(1), value]),
-  )
+  const noDollarInjections = Object.fromEntries(Object.entries(injections).map(([key, value]) => [key.slice(1), value]))
 
   return {
     ...injections,

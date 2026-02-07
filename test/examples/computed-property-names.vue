@@ -9,7 +9,6 @@
 const locale = 'en'
 const path = 'welcome'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: [locale, 'de', 'fr'],

@@ -11,10 +11,7 @@ interface GlobbyOptions {
   ignore?: string[]
 }
 
-export async function globby(
-  pattern: string | string[],
-  options?: GlobbyOptions,
-): Promise<string[]> {
+export async function globby(pattern: string | string[], options?: GlobbyOptions): Promise<string[]> {
   const patterns = Array.isArray(pattern) ? pattern : [pattern]
   const cwd = options?.cwd || process.cwd()
   const absolute = options?.absolute ?? false
@@ -27,10 +24,7 @@ export async function globby(
     return ignore.some((ignorePattern) => {
       const normalizedIgnore = ignorePattern.replace(/\\/g, '/')
       // Convert glob pattern to regex
-      const regexPattern = normalizedIgnore
-        .replace(/\*\*/g, '.*')
-        .replace(/\*/g, '[^/]*')
-        .replace(/\./g, '\\.')
+      const regexPattern = normalizedIgnore.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\./g, '\\.')
       const regex = new RegExp(`^${regexPattern}$`)
       return regex.test(normalizedPath)
     })
@@ -39,10 +33,7 @@ export async function globby(
   function matchesPattern(filePath: string, pattern: string): boolean {
     const normalizedPath = filePath.replace(/\\/g, '/')
     // Convert glob pattern to regex
-    const regexPattern = pattern
-      .replace(/\*\*/g, '.*')
-      .replace(/\*/g, '[^/]*')
-      .replace(/\./g, '\\.')
+    const regexPattern = pattern.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*').replace(/\./g, '\\.')
     const regex = new RegExp(`^${regexPattern}$`)
     return regex.test(normalizedPath)
   }
@@ -63,8 +54,7 @@ export async function globby(
 
         if (stat.isDirectory()) {
           walkDir(fullPath, baseDir)
-        }
-        else if (stat.isFile()) {
+        } else if (stat.isFile()) {
           // Check if file matches any pattern
           // For patterns like '**/*.json', we need to match against the relative path
           const matches = patterns.some((pattern) => {
@@ -84,8 +74,7 @@ export async function globby(
           }
         }
       }
-    }
-    catch {
+    } catch {
       // Ignore errors (e.g., permission denied)
     }
   }

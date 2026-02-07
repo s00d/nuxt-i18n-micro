@@ -14,11 +14,13 @@ test.describe('cookie-based redirect - prefix strategy', () => {
     await page.context().clearCookies()
 
     // Set valid locale cookie
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'en',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'en',
+        url: baseURL!,
+      },
+    ])
 
     await goto('/', { waitUntil: 'hydration' })
 
@@ -31,11 +33,13 @@ test.describe('cookie-based redirect - prefix strategy', () => {
     await page.context().clearCookies()
 
     // Set INVALID locale cookie (locale that doesn't exist)
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'fr', // 'fr' is not in locales: ['de', 'en']
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'fr', // 'fr' is not in locales: ['de', 'en']
+        url: baseURL!,
+      },
+    ])
 
     await goto('/', { waitUntil: 'hydration' })
 
@@ -58,11 +62,13 @@ test.describe('cookie-based redirect - prefix strategy', () => {
     await page.context().clearCookies()
 
     // Set cookie to 'en' (non-default, default is 'de')
-    await page.context().addCookies([{
-      name: 'user-locale',
-      value: 'en',
-      url: baseURL!,
-    }])
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'en',
+        url: baseURL!,
+      },
+    ])
 
     await goto('/', { waitUntil: 'hydration' })
 

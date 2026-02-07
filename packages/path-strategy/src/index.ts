@@ -1,3 +1,9 @@
 export * from './core'
 export * from './strategies'
-export { getRouteBaseName, buildLocalizedName, isIndexRouteName, type GetRouteBaseNameOptions, type IsIndexRouteNameOptions } from './utils/route-name'
+export {
+  buildLocalizedName,
+  type GetRouteBaseNameOptions,
+  getRouteBaseName,
+  type IsIndexRouteNameOptions,
+  isIndexRouteName,
+} from './utils/route-name'

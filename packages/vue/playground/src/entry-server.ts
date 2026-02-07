@@ -1,11 +1,11 @@
-import { renderToString } from 'vue/server-renderer'
-import { createSSRApp } from 'vue'
-import { createMemoryHistory, createRouter } from 'vue-router'
 import { createI18n } from '@i18n-micro/vue'
+import { createSSRApp } from 'vue'
+import { renderToString } from 'vue/server-renderer'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import App from './App.vue'
-import { routes, defaultLocale, localesConfig } from './app-config'
-import { createVueRouterAdapter } from './router-adapter'
+import { defaultLocale, localesConfig, routes } from './app-config'
 import { loadTranslations, setupApp } from './app-utils'
+import { createVueRouterAdapter } from './router-adapter'
 
 export async function render(url: string) {
   console.log('[SSR] render() called with URL:', url)
@@ -26,15 +26,11 @@ export async function render(url: string) {
   // Determine current locale from URL
   const route = router.currentRoute.value
   const localeParam = route.params.locale as string | undefined
-  const localeCodes = localesConfig.map(locale => locale.code)
+  const localeCodes = localesConfig.map((locale) => locale.code)
   const currentLocale = localeParam && localeCodes.includes(localeParam) ? localeParam : defaultLocale
 
   // Create adapter BEFORE creating i18n instance
-  const routingStrategy = createVueRouterAdapter(
-    router,
-    localesConfig,
-    defaultLocale,
-  )
+  const routingStrategy = createVueRouterAdapter(router, localesConfig, defaultLocale)
 
   // Create i18n instance with routingStrategy
   const i18n = createI18n({

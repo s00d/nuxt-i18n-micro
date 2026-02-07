@@ -92,8 +92,7 @@ const availableLocales = [
 const switchToLocale = async (locale: string) => {
   try {
     await $switchLocale(locale)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error switching locale:', error)
   }
 }

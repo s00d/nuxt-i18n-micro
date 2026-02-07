@@ -1,5 +1,5 @@
-import type { Params, Translation, Translations, TranslationKey } from '@i18n-micro/types'
-import { useTranslationHelper, interpolate } from '@i18n-micro/core'
+import { interpolate, useTranslationHelper } from '@i18n-micro/core'
+import type { Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
 
 type LocaleCode = string
 
@@ -21,7 +21,7 @@ const plural = (key: TranslationKey, count: number, params: Params, _locale: str
     return null
   }
   const forms = translation.toString().split('|')
-  const formIndex = count < forms.length ? count : (forms.length > 0 ? forms.length - 1 : 0)
+  const formIndex = count < forms.length ? count : forms.length > 0 ? forms.length - 1 : 0
   const form = forms[formIndex]
   if (!form) {
     return null
@@ -64,7 +64,7 @@ export function tc(key: TranslationKey, params: number | Params, defaultValue?: 
   const { count, ...otherParams } = typeof params === 'number' ? { count: params } : params
   const countValue = count ?? 0
 
-  return plural(key, Number.parseInt(countValue.toString()), otherParams, locale, t) ?? defaultValue ?? key
+  return plural(key, Number.parseInt(countValue.toString(), 10), otherParams, locale, t) ?? defaultValue ?? key
 }
 
 export async function setTranslationsFromJson(locale: string, translations: Record<string, unknown>) {
@@ -72,41 +72,38 @@ export async function setTranslationsFromJson(locale: string, translations: Reco
 }
 
 export const getLocale = () => locale
-export const setLocale = (val: string) => locale = val
+export const setLocale = (val: string) => (locale = val)
 
 export const getLocaleName = () => localeName
-export const setLocaleName = (val: string | null) => localeName = val
+export const setLocaleName = (val: string | null) => (localeName = val)
 
 export const getLocales = () => locales
-export const setLocales = (val: Locale[]) => locales = val
+export const setLocales = (val: Locale[]) => (locales = val)
 
 export const defaultLocale = () => defLocale
-export const setDefaultLocale = (val: string | undefined) => defLocale = val
+export const setDefaultLocale = (val: string | undefined) => (defLocale = val)
 
 export const getRouteName = (_route?: unknown, _locale?: string) => routeName
-export const settRouteName = (val: string) => routeName = val
+export const settRouteName = (val: string) => (routeName = val)
 
 export const ts = (key: TranslationKey, params?: Params, defaultValue?: string) => {
   const value = t(key, params, defaultValue)
   return value?.toString() ?? defaultValue ?? key
 }
 
-export const tn = (value: number, options?: Intl.NumberFormatOptions) =>
-  formatNumber(value, locale, options)
+export const tn = (value: number, options?: Intl.NumberFormatOptions) => formatNumber(value, locale, options)
 
-export const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) =>
-  formatDate(value, locale, options)
+export const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => formatDate(value, locale, options)
 
 export const has = (key: TranslationKey): boolean => i18nHelper.hasTranslation(locale, key)
 
-export const mergeTranslations = (newTranslations: Translations): void =>
-  i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)
+export const mergeTranslations = (newTranslations: Translations): void => i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)
 
-export const switchLocaleRoute = (val: string) => locale = val
+export const switchLocaleRoute = (val: string) => (locale = val)
 
-export const switchLocalePath = (val: string) => locale = val
+export const switchLocalePath = (val: string) => (locale = val)
 
-export const switchLocale = (val: string) => locale = val
+export const switchLocale = (val: string) => (locale = val)
 
 export const switchRoute = (_route: unknown, _toLocale?: string): void => {}
 

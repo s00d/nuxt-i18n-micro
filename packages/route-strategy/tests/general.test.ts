@@ -1,13 +1,9 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { createBasicPages, createNestedPages, createManager } from './helpers'
+import { createBasicPages, createManager, createNestedPages } from './helpers'
 
 describe('RouteGenerator - General Functionality (Cross-Strategy)', () => {
   test('21. should exclude routes based on `excludePatterns`', () => {
-    const pages = [
-      ...createBasicPages(),
-      { path: '/admin', name: 'admin' },
-      { path: '/api/users', name: 'api-users' },
-    ]
+    const pages = [...createBasicPages(), { path: '/admin', name: 'admin' }, { path: '/api/users', name: 'api-users' }]
     const manager = createManager('prefix_except_default', {}, {}, false, ['/admin', /^\/api/])
     manager.extendPages(pages)
 
@@ -42,10 +38,7 @@ describe('RouteGenerator - General Functionality (Cross-Strategy)', () => {
 
   test('25. should combine `routeLocales` and `globalLocaleRoutes` correctly', () => {
     const pages = createBasicPages()
-    const manager = createManager('prefix_except_default',
-      { '/about': { de: '/ueber-uns', ru: '/o-nas' } },
-      { '/about': ['en', 'de'] },
-    )
+    const manager = createManager('prefix_except_default', { '/about': { de: '/ueber-uns', ru: '/o-nas' } }, { '/about': ['en', 'de'] })
     manager.extendPages(pages)
 
     expect(pages).toMatchSnapshot()

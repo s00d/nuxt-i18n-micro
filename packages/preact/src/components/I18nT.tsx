@@ -1,7 +1,7 @@
-import { h, Fragment } from 'preact'
+import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
 import type { JSX } from 'preact'
+import { Fragment, h } from 'preact'
 import { useI18n } from '../context'
-import type { TranslationKey, PluralFunc } from '@i18n-micro/types'
 
 export interface I18nTProps extends Omit<JSX.HTMLAttributes<HTMLElement>, 'children'> {
   keypath: TranslationKey
@@ -38,11 +38,7 @@ export const I18nT = (props: I18nTProps): JSX.Element | null => {
   const route = getRoute()
 
   // Helper function to create element with proper typing
-  const createElement = (
-    elementTag: keyof JSX.IntrinsicElements,
-    elementProps: JSX.HTMLAttributes<HTMLElement>,
-    children?: string,
-  ): JSX.Element => {
+  const createElement = (elementTag: keyof JSX.IntrinsicElements, elementProps: JSX.HTMLAttributes<HTMLElement>, children?: string): JSX.Element => {
     return h(
       elementTag as unknown as keyof JSX.IntrinsicElements,
       elementProps as unknown as JSX.HTMLAttributes<HTMLElement>,
@@ -86,7 +82,7 @@ export const I18nT = (props: I18nTProps): JSX.Element | null => {
 
   // Handle pluralization
   if (plural !== undefined) {
-    const count = Number.parseInt(plural.toString())
+    const count = Number.parseInt(plural.toString(), 10)
     let translation: string
     if (customPluralRule) {
       const result = customPluralRule(
@@ -100,8 +96,7 @@ export const I18nT = (props: I18nTProps): JSX.Element | null => {
         },
       )
       translation = result || ''
-    }
-    else {
+    } else {
       translation = tc(keypath, { count, ...(params || {}) }, defaultValue)
     }
     if (html) {

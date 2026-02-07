@@ -1,12 +1,8 @@
-import { useCookie } from '#imports'
+import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { useState } from '#app'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
-import {
-  getLocaleCookieName,
-  getHashCookieName,
-  getLocaleCookieOptions,
-} from '../utils/cookie'
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { useCookie } from '#imports'
+import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
 
 type CookieRef = { value: string | null }
 
@@ -25,20 +21,16 @@ export interface ResolveInitialLocaleOptions {
  */
 export function useI18nLocale() {
   const i18nConfig = getI18nConfig() as ModuleOptionsExtend
-  const validLocales = i18nConfig.locales?.map(l => l.code) || []
+  const validLocales = i18nConfig.locales?.map((l) => l.code) || []
 
   const localeState = useState<string | null>('i18n-locale', () => null)
 
   const localeCookieName = getLocaleCookieName(i18nConfig)
   const hashCookieName = getHashCookieName(i18nConfig)
 
-  const localeCookie = localeCookieName
-    ? useCookie<string | null>(localeCookieName, getLocaleCookieOptions())
-    : ({ value: null } as CookieRef)
+  const localeCookie = localeCookieName ? useCookie<string | null>(localeCookieName, getLocaleCookieOptions()) : ({ value: null } as CookieRef)
 
-  const hashCookie = hashCookieName
-    ? useCookie<string | null>(hashCookieName, getLocaleCookieOptions())
-    : ({ value: null } as CookieRef)
+  const hashCookie = hashCookieName ? useCookie<string | null>(hashCookieName, getLocaleCookieOptions()) : ({ value: null } as CookieRef)
 
   const syncLocale = (locale: string | null) => {
     if (!locale) return
@@ -88,8 +80,7 @@ export function useI18nLocale() {
     return locale ?? ''
   }
 
-  const isValidLocale = (locale: string | null | undefined): locale is string =>
-    !!locale && validLocales.includes(locale)
+  const isValidLocale = (locale: string | null | undefined): locale is string => !!locale && validLocales.includes(locale)
 
   return {
     locale: localeState,

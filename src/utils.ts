@@ -3,7 +3,7 @@ import type { DefineI18nRouteConfig } from '@i18n-micro/types'
 // Helper function to extract script content from Vue file
 function extractScriptContent(content: string): string | null {
   const scriptMatch = content.match(/<script[^>]*>([\s\S]*?)<\/script>/)
-  return scriptMatch && scriptMatch[1] ? scriptMatch[1] : null
+  return scriptMatch?.[1] ? scriptMatch[1] : null
 }
 
 // Helper function to remove TypeScript types from function parameters
@@ -54,24 +54,22 @@ function findDefineI18nRouteConfig(scriptContent: string): DefineI18nRouteConfig
 
       try {
         // Try to execute only the config object directly
-        const configObject = Function('"use strict";return (' + cleanConfigStr + ')')()
+        const configObject = Function(`"use strict";return (${cleanConfigStr})`)()
 
         // Use JSON.stringify to serialize and then JSON.parse to deserialize
         // This will remove functions and other non-serializable values
         try {
           const serialized = JSON.stringify(configObject)
           return JSON.parse(serialized)
-        }
-        catch {
+        } catch {
           // If JSON.stringify fails, return the object as is
           return configObject
         }
-      }
-      catch {
+      } catch {
         // If direct execution fails, try with mocked functions but skip imports
         const scriptWithoutImports = scriptContent
           .split('\n')
-          .filter(line => !line.trim().startsWith('import '))
+          .filter((line) => !line.trim().startsWith('import '))
           .join('\n')
 
         const cleanScript = removeTypeScriptTypes(scriptWithoutImports)
@@ -91,25 +89,22 @@ function findDefineI18nRouteConfig(scriptContent: string): DefineI18nRouteConfig
           return (${cleanConfigStr})
         `
 
-        const configObject = Function('"use strict";' + safeScript)()
+        const configObject = Function(`"use strict";${safeScript}`)()
 
         // Use JSON.stringify to serialize and then JSON.parse to deserialize
         // This will remove functions and other non-serializable values
         try {
           const serialized = JSON.stringify(configObject)
           return JSON.parse(serialized)
-        }
-        catch {
+        } catch {
           // If JSON.stringify fails, return the object as is
           return configObject
         }
       }
-    }
-    catch {
+    } catch {
       return null
     }
-  }
-  catch {
+  } catch {
     return null
   }
 }
@@ -143,7 +138,10 @@ export function extractDefineI18nRouteData(content: string, _filePath: string): 
       return {
         ...configObject,
         locales: normalizedLocales,
-        localeRoutes: configObject.localeRoutes || Object.keys(normalizedLocaleRoutes).length > 0 ? { ...configObject.localeRoutes, ...normalizedLocaleRoutes } : undefined,
+        localeRoutes:
+          configObject.localeRoutes || Object.keys(normalizedLocaleRoutes).length > 0
+            ? { ...configObject.localeRoutes, ...normalizedLocaleRoutes }
+            : undefined,
       }
     }
 
@@ -164,8 +162,7 @@ export function extractDefineI18nRouteData(content: string, _filePath: string): 
 
     // Return the config object directly
     return configObject
-  }
-  catch {
+  } catch {
     return null
   }
 }

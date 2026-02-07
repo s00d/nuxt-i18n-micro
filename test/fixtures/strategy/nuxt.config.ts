@@ -1,10 +1,8 @@
-import MyModule from '../../../src/module'
 import type { Strategies } from '../../../src/module'
+import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
-  modules: [
-    MyModule,
-  ],
+  modules: [MyModule],
   devtools: { enabled: false },
   experimental: {
     // typedPages: true,
@@ -20,8 +18,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   i18n: {
     locales: [
       { code: 'en', iso: 'en_EN', displayName: 'English' },

@@ -1,15 +1,12 @@
-import { createUnplugin } from 'unplugin'
-import { generateTypes, type GeneratorOptions } from './core/generator'
-import chokidar from 'chokidar'
 import { resolve } from 'node:path'
+import chokidar from 'chokidar'
+import { createUnplugin } from 'unplugin'
+import { type GeneratorOptions, generateTypes } from './core/generator'
 
 let watcher: chokidar.FSWatcher | null = null
 let generateTimeout: NodeJS.Timeout | null = null
 
-function debounce<T extends (...args: unknown[]) => void>(
-  func: T,
-  wait: number,
-): (...args: Parameters<T>) => void {
+function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void {
   return function executedFunction(...args: Parameters<T>) {
     const later = () => {
       if (generateTimeout) clearTimeout(generateTimeout)
@@ -29,8 +26,7 @@ export const I18nTypesPlugin = createUnplugin((options: GeneratorOptions) => {
       // Первичная генерация
       try {
         await generateTypes(options)
-      }
-      catch (error) {
+      } catch (error) {
         console.warn('[i18n-types] Failed to generate types:', error)
       }
 
@@ -42,8 +38,7 @@ export const I18nTypesPlugin = createUnplugin((options: GeneratorOptions) => {
         const debouncedGenerate = debounce(async () => {
           try {
             await generateTypes(options)
-          }
-          catch (error) {
+          } catch (error) {
             console.warn('[i18n-types] Failed to regenerate types:', error)
           }
         }, 300)

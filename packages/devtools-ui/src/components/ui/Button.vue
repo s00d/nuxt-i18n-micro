@@ -10,21 +10,22 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
-  size?: 'sm' | 'md' | 'lg'
-  disabled?: boolean
-  type?: 'button' | 'submit' | 'reset'
-}>(), {
-  variant: 'primary',
-  size: 'md',
-  disabled: false,
-  type: 'button',
-})
+const props = withDefaults(
+  defineProps<{
+    variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+    size?: 'sm' | 'md' | 'lg'
+    disabled?: boolean
+    type?: 'button' | 'submit' | 'reset'
+  }>(),
+  {
+    variant: 'primary',
+    size: 'md',
+    disabled: false,
+    type: 'button',
+  },
+)
 
-const emit = defineEmits<{
-  (e: 'click', event: MouseEvent): void
-}>()
+const emit = defineEmits<(e: 'click', event: MouseEvent) => void>()
 
 const handleClick = (event: MouseEvent) => {
   if (!props.disabled) {

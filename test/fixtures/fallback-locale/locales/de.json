@@ -3,9 +3,7 @@
     "welcome": "Willkommen auf der Seite!"
   },
   "global": "global de",
-  "arr": [
-    "dddd"
-  ],
+  "arr": ["dddd"],
   "arr_obj": [
     {
       "key": "vvvv"

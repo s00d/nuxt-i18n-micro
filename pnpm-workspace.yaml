@@ -22,7 +22,6 @@ catalog:
   '@nuxt/devtools': ^2.6.3
   '@nuxt/devtools-kit': ^2.6.3
   '@nuxt/devtools-ui-kit': ^2.6.3
-  '@nuxt/eslint-config': ^1.9.0
   '@nuxt/module-builder': ^1.0.0
   '@nuxt/test-utils': ^3.19.2
   '@nuxt/content': 3.6.3
@@ -79,7 +78,7 @@ catalog:
   '@babel/preset-env': ^7.26.0
   # Docs & lint
   vitepress: ^1.6.4
-  eslint: ^9.39.1
+  '@biomejs/biome': ^2.3.14
   changelogen: ^0.5.7
   # Utils
   chokidar: ^3.6.0

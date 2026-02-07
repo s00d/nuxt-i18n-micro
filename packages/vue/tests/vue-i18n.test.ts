@@ -1,7 +1,7 @@
-import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals'
-import { createApp } from 'vue'
-import { createI18n, useI18n, VueI18n, I18nLocalesKey, I18nDefaultLocaleKey } from '../src'
 import type { Locale } from '@i18n-micro/types'
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals'
+import { createApp } from 'vue'
+import { createI18n, I18nDefaultLocaleKey, I18nLocalesKey, useI18n, VueI18n } from '../src'
 
 // Suppress expected Vue warnings about router injection in tests
 // These warnings are expected when router is not installed (e.g., in unit tests)
@@ -13,11 +13,12 @@ beforeEach(() => {
   // These are expected in tests where router is not set up
   warnSpy = jest.spyOn(console, 'warn').mockImplementation((message: string) => {
     // Only suppress router-related warnings
-    if (typeof message === 'string' && (
-      message.includes('injection "Symbol(router)" not found')
-      || message.includes('injection "Symbol(route location)" not found')
-      || message.includes('RouterStrategy not found')
-    )) {
+    if (
+      typeof message === 'string' &&
+      (message.includes('injection "Symbol(router)" not found') ||
+        message.includes('injection "Symbol(route location)" not found') ||
+        message.includes('RouterStrategy not found'))
+    ) {
       return
     }
     // Let other warnings through using original function
@@ -114,9 +115,14 @@ describe('VueI18n', () => {
       },
     })
 
-    i18n.addRouteTranslations('en', 'home', {
-      title: 'Home Title',
-    }, false) // Use merge: false to avoid warning
+    i18n.addRouteTranslations(
+      'en',
+      'home',
+      {
+        title: 'Home Title',
+      },
+      false,
+    ) // Use merge: false to avoid warning
 
     i18n.setRoute('home')
     expect(i18n.t('title')).toBe('Home Title')
@@ -263,9 +269,14 @@ describe('useI18n composable', () => {
       },
     })
 
-    i18nPlugin.global.addRouteTranslations('en', 'home', {
-      title: 'Home Title',
-    }, false)
+    i18nPlugin.global.addRouteTranslations(
+      'en',
+      'home',
+      {
+        title: 'Home Title',
+      },
+      false,
+    )
 
     app.use(i18nPlugin)
     app.provide(I18nLocalesKey, locales)

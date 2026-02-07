@@ -4,8 +4,8 @@
   "many_apples": "no apples | many apples",
   "user_apples": "{username} has no apple|{username} has one apple|{username} has {count} apples",
   "feedback": {
-    "text":  "test link: {link}",
-    "link":  "click"
+    "text": "test link: {link}",
+    "link": "click"
   },
   "text_escaping": "test {text_escaping} } { { ",
   "product": {

@@ -1,9 +1,9 @@
-import { h } from 'preact'
-import { useState, useEffect, useRef } from 'preact/hooks'
-import type { JSX } from 'preact'
-import { useI18n } from '../context'
-import { useI18nRouter, useI18nLocales, useI18nContext } from '../injection'
 import type { Locale } from '@i18n-micro/types'
+import type { JSX } from 'preact'
+import { h } from 'preact'
+import { useEffect, useRef, useState } from 'preact/hooks'
+import { useI18n } from '../context'
+import { useI18nContext, useI18nLocales, useI18nRouter } from '../injection'
 
 export interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   locales?: Locale[]
@@ -77,8 +77,8 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
   }
 
   const currentLocaleLabel = (): string => {
-    const current = locales.find(l => l.code === currentLocale)
-    return current ? localeLabel(current) : (currentLocaleName || currentLocale)
+    const current = locales.find((l) => l.code === currentLocale)
+    return current ? localeLabel(current) : currentLocaleName || currentLocale
   }
 
   const handleSwitchLocale = (code: string) => {
@@ -98,14 +98,14 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
     const newPath = props.localeRoute
       ? (() => {
           const res = props.localeRoute(currentPath, code)
-          return typeof res === 'string' ? res : (res.path || '/')
+          return typeof res === 'string' ? res : res.path || '/'
         })()
-      : (router?.resolvePath
-          ? (() => {
-              const res = router.resolvePath(currentPath, code)
-              return typeof res === 'string' ? res : (res.path || '/')
-            })()
-          : currentPath)
+      : router?.resolvePath
+        ? (() => {
+            const res = router.resolvePath(currentPath, code)
+            return typeof res === 'string' ? res : res.path || '/'
+          })()
+        : currentPath
 
     router.push({ path: newPath })
   }

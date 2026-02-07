@@ -683,6 +683,6 @@ test.describe('basic', () => {
     // Check that console warnings count is tracked
     const warningsCount = await page.locator('#console-warnings').textContent()
     // In dev mode, warnings should be present (at least 1 for the missing key)
-    expect(Number.parseInt(warningsCount || '0')).toBeGreaterThanOrEqual(0)
+    expect(Number.parseInt(warningsCount || '0', 10)).toBeGreaterThanOrEqual(0)
   })
 })

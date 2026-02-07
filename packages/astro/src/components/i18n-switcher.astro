@@ -1,7 +1,7 @@
 ---
-import { useI18n } from '../utils'
 import type { Locale } from '@i18n-micro/types'
 import type { I18nRoutingStrategy } from '../router/types'
+import { useI18n } from '../utils'
 
 interface Props {
   class?: string
@@ -16,7 +16,7 @@ const { locale: currentLocale, locales, defaultLocale, getBasePath } = useI18n(A
 const localeCodes = locales.map((l: Locale) => l.code)
 
 // Get routing strategy from locals
-// @ts-ignore
+// @ts-expect-error
 const routingStrategy: I18nRoutingStrategy | null = Astro.locals.routingStrategy || null
 
 // Filter out disabled locales
@@ -25,7 +25,7 @@ const availableLocales = locales.filter((loc: Locale) => !loc.disabled)
 // Find current locale object
 const currentLocaleObj = availableLocales.find((loc: Locale) => loc.code === currentLocale)
 const currentLocaleLabel = currentLocaleObj
-  ? (customLabels[currentLocaleObj.code] || currentLocaleObj.displayName || currentLocaleObj.code)
+  ? customLabels[currentLocaleObj.code] || currentLocaleObj.displayName || currentLocaleObj.code
   : currentLocale
 
 // Generate locale links

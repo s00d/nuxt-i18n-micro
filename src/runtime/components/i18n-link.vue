@@ -19,12 +19,10 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from 'vue'
 import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
 import { useNuxtApp, useRoute, useRouter } from '#imports'
-import { computed } from 'vue'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 const { $localePath } = useNuxtApp()
 
 interface Props {
@@ -61,8 +59,6 @@ const isActive = computed(() => {
 })
 
 const computedStyle = computed((): Partial<CSSStyleValue> => {
-  return isActive.value
-    ? { ...props.activeStyle }
-    : {}
+  return isActive.value ? { ...props.activeStyle } : {}
 })
 </script>

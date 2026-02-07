@@ -1,10 +1,10 @@
-import type { NuxtPage } from '@nuxt/schema'
-import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
-import type { LocaleRoutesConfig } from '../strategies/types'
 import { isPrefixAndDefaultStrategy, isPrefixStrategy } from '@i18n-micro/core'
+import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
+import type { NuxtPage } from '@nuxt/schema'
+import type { LocaleRoutesConfig } from '../strategies/types'
 import { normalizeRouteKey } from '../utils'
-import { extractLocalizedPaths, pathKeyForLocalizedPaths } from './localized-paths'
 import type { LocalizedPathsMap } from './localized-paths'
+import { extractLocalizedPaths, pathKeyForLocalizedPaths } from './localized-paths'
 
 export interface GeneratorContextOptions {
   locales: Locale[]
@@ -41,8 +41,7 @@ function normalizeGlobalLocaleRoutes(globalLocaleRoutes: GlobalLocaleRoutes): Lo
         }
       }
       normalized[newKey] = normalizedLocalePaths
-    }
-    else {
+    } else {
       normalized[newKey] = localePaths as false | boolean
     }
   }
@@ -72,19 +71,10 @@ export class GeneratorContext {
     this.globalLocaleRoutes = normalizeGlobalLocaleRoutes(options.globalLocaleRoutes ?? {})
     this.filesLocaleRoutes = options.filesLocaleRoutes ?? {}
     this.routeLocales = options.routeLocales ?? {}
-    this.localizedPaths = extractLocalizedPaths(
-      options.pages,
-      this.globalLocaleRoutes,
-      this.filesLocaleRoutes,
-    )
+    this.localizedPaths = extractLocalizedPaths(options.pages, this.globalLocaleRoutes, this.filesLocaleRoutes)
     this.activeLocaleCodes = this.locales
-      .filter(
-        locale =>
-          locale.code !== this.defaultLocale.code
-          || isPrefixAndDefaultStrategy(this.strategy)
-          || isPrefixStrategy(this.strategy),
-      )
-      .map(locale => locale.code)
+      .filter((locale) => locale.code !== this.defaultLocale.code || isPrefixAndDefaultStrategy(this.strategy) || isPrefixStrategy(this.strategy))
+      .map((locale) => locale.code)
     this.excludePatterns = options.excludePatterns
     this.customRegex = options.customRegex
     this.noPrefixRedirect = options.noPrefixRedirect ?? false
@@ -94,7 +84,7 @@ export class GeneratorContext {
   }
 
   private findLocaleByCode(locales: Locale[], code: string): Locale | undefined {
-    return locales.find(locale => locale.code === code)
+    return locales.find((locale) => locale.code === code)
   }
 
   /**
@@ -103,11 +93,9 @@ export class GeneratorContext {
   getAllowedLocales(pagePath: string, pageName: string): string[] {
     const allowedLocales = this.routeLocales[pagePath] ?? this.routeLocales[pageName]
     if (allowedLocales?.length) {
-      return allowedLocales.filter(locale =>
-        this.locales.some(l => l.code === locale),
-      )
+      return allowedLocales.filter((locale) => this.locales.some((l) => l.code === locale))
     }
-    return this.locales.map(locale => locale.code)
+    return this.locales.map((locale) => locale.code)
   }
 
   /**
@@ -133,6 +121,6 @@ export class GeneratorContext {
 
   filterLocaleCodesWithoutCustomPaths(fullPath: string): string[] {
     const key = pathKeyForLocalizedPaths(fullPath)
-    return this.activeLocaleCodes.filter(code => !this.localizedPaths[key]?.[code])
+    return this.activeLocaleCodes.filter((code) => !this.localizedPaths[key]?.[code])
   }
 }

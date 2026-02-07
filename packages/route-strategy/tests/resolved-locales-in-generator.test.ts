@@ -17,7 +17,7 @@ describe('RouteGenerator – resolved locales from raw options', () => {
       noPrefixRedirect: false,
     })
     expect(generator.locales).toHaveLength(2)
-    expect(generator.locales.map(l => l.code)).toEqual(['en', 'de'])
+    expect(generator.locales.map((l) => l.code)).toEqual(['en', 'de'])
     expect(generator.defaultLocale).toMatchObject({ code: 'en', iso: 'en-US', displayName: 'English' })
   })
 
@@ -36,7 +36,7 @@ describe('RouteGenerator – resolved locales from raw options', () => {
       noPrefixRedirect: false,
     })
     expect(generator.locales).toHaveLength(2)
-    expect(generator.locales.map(l => l.code)).toEqual(['en', 'ru'])
+    expect(generator.locales.map((l) => l.code)).toEqual(['en', 'ru'])
     expect(generator.defaultLocale.code).toBe('en')
   })
 

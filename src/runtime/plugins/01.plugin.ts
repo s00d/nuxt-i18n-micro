@@ -1,18 +1,18 @@
+import { FormatService, isNoPrefixStrategy } from '@i18n-micro/core'
+import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
+import type { CleanTranslation, I18nRouteParams, Locale, MissingHandler, ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
+import { shallowRef, triggerRef, unref } from 'vue'
 import type {
+  RouteLocationNamedRaw,
   RouteLocationNormalizedLoaded,
   RouteLocationRaw,
   RouteLocationResolved,
   RouteLocationResolvedGeneric,
-  RouteLocationNamedRaw,
 } from 'vue-router'
-import { isNoPrefixStrategy, FormatService } from '@i18n-micro/core'
-import type { ModuleOptionsExtend, Locale, I18nRouteParams, Params, Translations, CleanTranslation, MissingHandler } from '@i18n-micro/types'
-import type { PathStrategy, RouteLike, ResolvedRouteLike } from '@i18n-micro/path-strategy'
-import { useRouter, navigateTo, defineNuxtPlugin, createError, useRuntimeConfig, useHead } from '#imports'
-import { unref, shallowRef, triggerRef } from 'vue'
 import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
-import { getI18nConfig, createI18nStrategy } from '#build/i18n.strategy.mjs'
+import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
+import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { translationStorage } from '../utils/storage'
 
@@ -53,14 +53,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const contextSignal = shallowRef(0)
 
   // === LOCALE SERVICE ===
-  const {
-    locale: localeState,
-    setLocale,
-    getLocale,
-    getEffectiveLocale,
-    resolveInitialLocale,
-    isValidLocale,
-  } = useI18nLocale()
+  const { locale: localeState, setLocale, getLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale } = useI18nLocale()
 
   // Getter for locale state (used by getCurrentLocale for hashMode/noPrefix)
   const getDefaultLocaleGetter = () => getLocale() ?? null
@@ -69,7 +62,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // Helper: get current locale from route using i18nStrategy
   const getCurrentLocale = (route?: ResolvedRouteLike): string => {
-    const r = route ?? router.currentRoute.value as unknown as ResolvedRouteLike
+    const r = route ?? (router.currentRoute.value as unknown as ResolvedRouteLike)
     return i18nStrategy.getCurrentLocale(r, getDefaultLocaleGetter)
   }
 
@@ -89,18 +82,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       // Strategy decides how to format path for resolve
       const formattedPath = i18nStrategy.formatPathForResolve(to, fromLocale, toLocale)
       resolvedTarget = router.resolve(formattedPath)
-    }
-    else {
+    } else {
       resolvedTarget = (to ?? currentRoute) as RouteLocationResolvedGeneric
     }
 
     // Get switched route from strategy
-    const switchedRoute = i18nStrategy.switchLocaleRoute(
-      fromLocale,
-      toLocale,
-      resolvedTarget as unknown as ResolvedRouteLike,
-      { i18nRouteParams: i18nParams },
-    )
+    const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, resolvedTarget as unknown as ResolvedRouteLike, {
+      i18nRouteParams: i18nParams,
+    })
 
     // Handle external navigation (baseUrl with protocol)
     if (typeof switchedRoute === 'string' && (switchedRoute.startsWith('http://') || switchedRoute.startsWith('https://'))) {
@@ -109,7 +98,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     // Handle forced navigation (no_prefix strategy)
     if (isNoPrefixStrategy(i18nConfig.strategy!)) {
-      (switchedRoute as RouteLocationRaw & { force?: boolean }).force = true
+      ;(switchedRoute as RouteLocationRaw & { force?: boolean }).force = true
     }
 
     return router.push(switchedRoute as RouteLocationRaw)
@@ -121,7 +110,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   // Previous page fallback
   const enablePreviousPageFallback = i18nConfig.previousPageFallback ?? false
-  const previousPageInfo = useState<{ locale: string, routeName: string } | null>('i18n-previous-page', () => null)
+  const previousPageInfo = useState<{ locale: string; routeName: string } | null>('i18n-previous-page', () => null)
 
   nuxtApp.hook('page:finish', () => {
     if (import.meta.client) {
@@ -180,8 +169,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       }
 
       return result.data
-    }
-    catch (e) {
+    } catch (e) {
       if (isDev) console.error('[i18n] Load error:', e)
       return {}
     }
@@ -212,14 +200,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const initialLocale = resolveInitialLocale({
     route: router.currentRoute.value,
     serverLocale,
-    getLocaleFromRoute: r => getCurrentLocale(r as unknown as ResolvedRouteLike),
+    getLocaleFromRoute: (r) => getCurrentLocale(r as unknown as ResolvedRouteLike),
   })
   const initialRouteName = getPluginRouteName(router.currentRoute.value as unknown as ResolvedRouteLike, initialLocale)
 
   try {
     await switchContext(initialLocale, initialRouteName)
-  }
-  catch (e) {
+  } catch (e) {
     if (isDev) console.error('[i18n] Initial load error:', e)
     throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
   }
@@ -249,7 +236,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     }
 
     try {
-      const targetLocale = getEffectiveLocale(to, r => getCurrentLocale(r as unknown as ResolvedRouteLike))
+      const targetLocale = getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
       const targetRouteName = getPluginRouteName(to as unknown as ResolvedRouteLike, targetLocale)
 
       // Если изменился язык или страница — меняем контекст
@@ -267,8 +254,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       if (targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
         setLocale(targetLocale)
       }
-    }
-    catch (e) {
+    } catch (e) {
       if (isDev) console.error('[i18n] Navigation error:', e)
     }
 
@@ -276,7 +262,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   })
 
   // === 6. T-FUNCTION ===
-  const tFast = (key: string, params?: Params, defaultValue?: string | null, route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): CleanTranslation => {
+  const tFast = (
+    key: string,
+    params?: Params,
+    defaultValue?: string | null,
+    route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric,
+  ): CleanTranslation => {
     if (!key) return '' as CleanTranslation
 
     // Читаем contextSignal для трекинга реактивности Vue.
@@ -284,10 +275,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     contextSignal.value
 
     const translations = route
-      ? (loadedChunks.get(getCacheKey(
-        getCurrentLocale(route as unknown as ResolvedRouteLike),
-        getPluginRouteName(route as unknown as ResolvedRouteLike, getCurrentLocale(route as unknown as ResolvedRouteLike)),
-      )) || {})
+      ? loadedChunks.get(
+          getCacheKey(
+            getCurrentLocale(route as unknown as ResolvedRouteLike),
+            getPluginRouteName(route as unknown as ResolvedRouteLike, getCurrentLocale(route as unknown as ResolvedRouteLike)),
+          ),
+        ) || {}
       : cachedTranslations
 
     // 1. Прямой доступ по ключу
@@ -312,8 +305,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     if (val === undefined) {
       if (customMissingHandler.value) {
         customMissingHandler.value(currentLocale, key, currentRouteName)
-      }
-      else if (missingWarn && isDev && import.meta.client) {
+      } else if (missingWarn && isDev && import.meta.client) {
         console.warn(`[i18n] Missing key '${key}' in '${currentLocale}' for route '${currentRouteName}'`)
       }
       return (defaultValue === undefined ? key : defaultValue) as CleanTranslation
@@ -399,7 +391,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     helper,
     i18nStrategy,
     getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
-      getEffectiveLocale(route, r => getCurrentLocale(r as unknown as ResolvedRouteLike)),
+      getEffectiveLocale(route, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike)),
     getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value as unknown as ResolvedRouteLike),
     defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
@@ -424,7 +416,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       contextSignal.value
       const { count, ..._params } = typeof params === 'number' ? { count: params } : params
       if (count === undefined) return defaultValue ?? key
-      return plural(key, Number.parseInt(count.toString()), _params, currentLocale, tFast) as string ?? defaultValue ?? key
+      return (plural(key, Number.parseInt(count.toString(), 10), _params, currentLocale, tFast) as string) ?? defaultValue ?? key
     },
     tn: (value: number, options?: Intl.NumberFormatOptions) => {
       contextSignal.value
@@ -476,21 +468,25 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },
     switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {
-      return switchLocaleLogic(toLocale ?? getCurrentLocale(), unref(i18nRouteParams.value), route as RouteLocationNamedRaw | RouteLocationResolvedGeneric | string)
+      return switchLocaleLogic(
+        toLocale ?? getCurrentLocale(),
+        unref(i18nRouteParams.value),
+        route as RouteLocationNamedRaw | RouteLocationResolvedGeneric | string,
+      )
     },
     localeRoute(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): RouteLocationResolved {
-      const targetLocale = (locale !== undefined && locale !== '') ? String(locale) : getCurrentLocale()
+      const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const currentRoute = router.currentRoute.value as unknown as ResolvedRouteLike
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, currentRoute)
       const fullPath = result.fullPath ?? result.path ?? ''
       const path = result.path ?? fullPath.split('?')[0]?.split('#')[0] ?? fullPath
-      const out: { path: string, fullPath: string, href: string, query?: Record<string, string>, hash?: string } = { path, fullPath, href: fullPath }
+      const out: { path: string; fullPath: string; href: string; query?: Record<string, string>; hash?: string } = { path, fullPath, href: fullPath }
       if (result.query && Object.keys(result.query).length) out.query = result.query as Record<string, string>
       if (result.hash) out.hash = result.hash
       return out as RouteLocationResolved
     },
     localePath(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): string {
-      const targetLocale = (locale !== undefined && locale !== '') ? String(locale) : getCurrentLocale()
+      const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const currentRoute = router.currentRoute.value as unknown as ResolvedRouteLike
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, currentRoute)
       return (result.fullPath ?? result.path ?? '') as string
@@ -513,9 +509,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
   }
 
-  const $provideData = Object.fromEntries(
-    Object.entries(provideData).map(([key, value]) => [`$${key}`, value]),
-  )
+  const $provideData = Object.fromEntries(Object.entries(provideData).map(([key, value]) => [`$${key}`, value]))
 
   // @ts-expect-error
   provideData.i18n = { ...provideData, ...$provideData }

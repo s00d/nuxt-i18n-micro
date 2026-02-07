@@ -5,20 +5,19 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with module imports simulation
 const { locales, localeRoutes } = {
   locales: ['en', 'de', 'fr'],
   localeRoutes: {
-    'en': '/welcome',
-    'de': '/willkommen',
-    'fr': '/bienvenue'
-  }
+    en: '/welcome',
+    de: '/willkommen',
+    fr: '/bienvenue',
+  },
 }
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: localeRoutes
+  localeRoutes: localeRoutes,
 })
 </script>

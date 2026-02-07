@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals'
+import { describe, expect, test } from '@jest/globals'
 import { createI18n, ReactI18n } from '../src/i18n'
 
 describe('ReactI18n', () => {
@@ -83,9 +83,14 @@ describe('ReactI18n', () => {
       },
     })
 
-    i18n.addRouteTranslations('en', 'home', {
-      title: 'Home Title',
-    }, false)
+    i18n.addRouteTranslations(
+      'en',
+      'home',
+      {
+        title: 'Home Title',
+      },
+      false,
+    )
 
     i18n.setRoute('home')
     expect(i18n.t('title')).toBe('Home Title')

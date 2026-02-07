@@ -1,12 +1,6 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
-import {
-  locales,
-  defaultLocaleCode,
-  createDeepNestedPages,
-  createVeryDeepNestedPages,
-  createManager,
-} from './helpers'
+import { createDeepNestedPages, createManager, createVeryDeepNestedPages, defaultLocaleCode, locales } from './helpers'
 
 describe('RouteGenerator - Deep nesting (4 levels)', () => {
   test('prefix_except_default: deep nested without custom paths', () => {
@@ -78,7 +72,7 @@ describe('RouteGenerator - Deep nesting (4 levels)', () => {
 
   test('filesLocaleRoutes at every level', () => {
     const filesLocaleRoutes = {
-      'section': { en: '/section', de: '/bereich' },
+      section: { en: '/section', de: '/bereich' },
       'section-category': { en: '/section/category', de: '/bereich/kategorie' },
       'section-category-item': { en: '/section/category/item', de: '/bereich/kategorie/artikel' },
       'section-category-item-detail': {
@@ -226,14 +220,7 @@ describe('RouteGenerator - Deep nesting (4 levels)', () => {
         de: '/bereich/kategorie/artikel/detail',
       },
     }
-    const generator = createManager(
-      'prefix_except_default',
-      globalLocaleRoutes,
-      {},
-      false,
-      [],
-      filesLocaleRoutes,
-    )
+    const generator = createManager('prefix_except_default', globalLocaleRoutes, {}, false, [], filesLocaleRoutes)
     const pages = createDeepNestedPages()
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()
@@ -341,9 +328,7 @@ describe('RouteGenerator - Deep nesting with multiple branches', () => {
                 path: 'product',
                 name: 'shop-category-product',
                 file: '/pages/shop/category/product.vue',
-                children: [
-                  { path: 'reviews', name: 'shop-category-product-reviews', file: '/pages/shop/category/product/reviews.vue' },
-                ],
+                children: [{ path: 'reviews', name: 'shop-category-product-reviews', file: '/pages/shop/category/product/reviews.vue' }],
               },
             ],
           },
@@ -356,9 +341,7 @@ describe('RouteGenerator - Deep nesting with multiple branches', () => {
                 path: 'item',
                 name: 'shop-brand-item',
                 file: '/pages/shop/brand/item.vue',
-                children: [
-                  { path: 'specs', name: 'shop-brand-item-specs', file: '/pages/shop/brand/item/specs.vue' },
-                ],
+                children: [{ path: 'specs', name: 'shop-brand-item-specs', file: '/pages/shop/brand/item/specs.vue' }],
               },
             ],
           },
@@ -392,9 +375,7 @@ describe('RouteGenerator - Deep nesting with multiple branches', () => {
                   {
                     path: 'step1',
                     name: 'docs-guide-intro-step1',
-                    children: [
-                      { path: 'example', name: 'docs-guide-intro-step1-example' },
-                    ],
+                    children: [{ path: 'example', name: 'docs-guide-intro-step1-example' }],
                   },
                 ],
               },

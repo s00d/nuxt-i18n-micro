@@ -166,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
 interface Props {
   driver: string
@@ -188,26 +188,36 @@ const localApiToken = ref(props.apiToken)
 const localDriverOptions = ref({ ...props.options })
 
 // Синхронизация с пропсами (только входящие изменения)
-watch(() => props.driver, async (newValue: string) => {
-  if (newValue !== selectedDriver.value) {
-    await nextTick()
-    selectedDriver.value = newValue
-  }
-})
+watch(
+  () => props.driver,
+  async (newValue: string) => {
+    if (newValue !== selectedDriver.value) {
+      await nextTick()
+      selectedDriver.value = newValue
+    }
+  },
+)
 
-watch(() => props.apiToken, async (newValue: string) => {
-  if (newValue !== localApiToken.value) {
-    await nextTick()
-    localApiToken.value = newValue
-  }
-})
+watch(
+  () => props.apiToken,
+  async (newValue: string) => {
+    if (newValue !== localApiToken.value) {
+      await nextTick()
+      localApiToken.value = newValue
+    }
+  },
+)
 
-watch(() => props.options, async (newValue: { [key: string]: string }) => {
-  if (JSON.stringify(newValue) !== JSON.stringify(localDriverOptions.value)) {
-    await nextTick()
-    localDriverOptions.value = { ...newValue }
-  }
-}, { deep: true })
+watch(
+  () => props.options,
+  async (newValue: { [key: string]: string }) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(localDriverOptions.value)) {
+      await nextTick()
+      localDriverOptions.value = { ...newValue }
+    }
+  },
+  { deep: true },
+)
 
 // Эмиты при изменении локальных переменных (только исходящие изменения)
 watch(selectedDriver, async (newValue: string) => {
@@ -224,12 +234,16 @@ watch(localApiToken, async (newValue: string) => {
   }
 })
 
-watch(localDriverOptions, async (newValue: { [key: string]: string }) => {
-  if (JSON.stringify(newValue) !== JSON.stringify(props.options)) {
-    await nextTick()
-    emit('update:options', { ...newValue })
-  }
-}, { deep: true })
+watch(
+  localDriverOptions,
+  async (newValue: { [key: string]: string }) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(props.options)) {
+      await nextTick()
+      emit('update:options', { ...newValue })
+    }
+  },
+  { deep: true },
+)
 
 const translationDrivers = [
   { label: 'Disabled', value: 'disabled' },

@@ -20,11 +20,7 @@ test.describe('$defineI18nRoute behavior', () => {
     const count = await alternateLinks.count()
 
     // Should only be alternate links for 'en' locale
-    const hreflangs = await Promise.all(
-      Array.from({ length: count }).map((_, i) =>
-        alternateLinks.nth(i).getAttribute('hreflang'),
-      ),
-    )
+    const hreflangs = await Promise.all(Array.from({ length: count }).map((_, i) => alternateLinks.nth(i).getAttribute('hreflang')))
 
     // Check that there's only 'en' and 'en_EN' (ISO code)
     expect(hreflangs).toContain('en')
@@ -53,7 +49,7 @@ test.describe('$defineI18nRoute behavior', () => {
     await goto('/test', { waitUntil: 'domcontentloaded' })
 
     const ogAlternate = await page.locator('meta[property="og:locale:alternate"]').all()
-    const contents = await Promise.all(ogAlternate.map(el => el.getAttribute('content')))
+    const contents = await Promise.all(ogAlternate.map((el) => el.getAttribute('content')))
 
     // Should only be 'en_EN'
     expect(contents).toContain('en_EN')
@@ -80,9 +76,7 @@ test.describe('$defineI18nRoute behavior', () => {
     // Check that alternate links are correct
     const alternateLinks = page.locator('link[rel="alternate"]')
     const hreflangs = await Promise.all(
-      Array.from({ length: await alternateLinks.count() }).map((_, i) =>
-        alternateLinks.nth(i).getAttribute('hreflang'),
-      ),
+      Array.from({ length: await alternateLinks.count() }).map((_, i) => alternateLinks.nth(i).getAttribute('hreflang')),
     )
 
     expect(hreflangs).toContain('en')
@@ -153,19 +147,25 @@ test.describe('Product index page with localeRoutes', () => {
     // Test English route
     await goto('/our-products', { waitUntil: 'domcontentloaded' })
     // Check that page loaded (title may be from global translations, but description should be from $defineI18nRoute)
-    await expect(page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.')).toBeVisible()
+    await expect(
+      page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.'),
+    ).toBeVisible()
 
     // Test Spanish route
     await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
     // Check that page loaded
-    await expect(page.getByText('Descubra nuestra colección de productos de alta calidad diseñados para satisfacer sus necesidades y superar sus expectativas.')).toBeVisible()
+    await expect(
+      page.getByText('Descubra nuestra colección de productos de alta calidad diseñados para satisfacer sus necesidades y superar sus expectativas.'),
+    ).toBeVisible()
   })
 
   test('should display correct translations for English locale', async ({ page, goto }) => {
     await goto('/our-products', { waitUntil: 'domcontentloaded' })
 
     // Check English description (from $defineI18nRoute)
-    await expect(page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.')).toBeVisible()
+    await expect(
+      page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.'),
+    ).toBeVisible()
 
     // Check that products are displayed
     await expect(page.getByText('Coffee Filter')).toBeVisible()
@@ -176,7 +176,9 @@ test.describe('Product index page with localeRoutes', () => {
     await goto('/es/nuestros-productos', { waitUntil: 'domcontentloaded' })
 
     // Check Spanish description (from $defineI18nRoute)
-    await expect(page.getByText('Descubra nuestra colección de productos de alta calidad diseñados para satisfacer sus necesidades y superar sus expectativas.')).toBeVisible()
+    await expect(
+      page.getByText('Descubra nuestra colección de productos de alta calidad diseñados para satisfacer sus necesidades y superar sus expectativas.'),
+    ).toBeVisible()
 
     // Check that products are displayed
     await expect(page.getByText('Filtro de Café')).toBeVisible()
@@ -229,7 +231,9 @@ test.describe('Product index page with localeRoutes', () => {
     expect(response?.status()).toBeLessThan(400)
 
     // Check that we're on the correct page by checking description
-    await expect(page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.')).toBeVisible()
+    await expect(
+      page.getByText('Discover our collection of high-quality products designed to meet your needs and exceed your expectations.'),
+    ).toBeVisible()
   })
 
   test('should have correct canonical URL for English page', async ({ page, goto }) => {
@@ -253,9 +257,7 @@ test.describe('Product index page with localeRoutes', () => {
 
     const alternateLinks = page.locator('link[rel="alternate"]')
     const hreflangs = await Promise.all(
-      Array.from({ length: await alternateLinks.count() }).map((_, i) =>
-        alternateLinks.nth(i).getAttribute('hreflang'),
-      ),
+      Array.from({ length: await alternateLinks.count() }).map((_, i) => alternateLinks.nth(i).getAttribute('hreflang')),
     )
 
     // Should have alternates for both locales

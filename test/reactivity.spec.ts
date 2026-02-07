@@ -37,6 +37,30 @@ test.describe('Critical i18n scenarios', () => {
     await expect(page.locator('#translation')).toHaveText('Page example in en')
   })
 
+  test('reactivity: computed with $ts updates on locale switch without $getLocaleName workaround', async ({ page, goto }) => {
+    await goto('/page', { waitUntil: 'hydration' })
+
+    // 1. Проверяем исходное состояние (EN) — computed с $ts
+    await expect(page.locator('#computed-ts')).toHaveText('Page example in en')
+    await expect(page.locator('#computed-t')).toHaveText('example en')
+
+    // 2. Переключаем язык на немецкий
+    await page.click('#link-de')
+    await expect(page).toHaveURL('/de/page')
+
+    // 3. Проверяем, что computed с $ts обновился реактивно (БЕЗ $getLocaleName хака)
+    await expect(page.locator('#computed-ts')).toHaveText('Page example in de')
+    await expect(page.locator('#computed-t')).toHaveText('example de')
+
+    // 4. Переключаем обратно на английский
+    await page.click('#link-en')
+    await expect(page).toHaveURL('/page')
+
+    // 5. Проверяем, что computed снова обновился
+    await expect(page.locator('#computed-ts')).toHaveText('Page example in en')
+    await expect(page.locator('#computed-t')).toHaveText('example en')
+  })
+
   test('routing: preserves query params and hash when switching locale', async ({ page, goto }) => {
     // Заходим на страницу с query параметрами и hash
     await goto('/news/2?search=vue&page=1#top', { waitUntil: 'hydration' })
@@ -142,8 +166,8 @@ test.describe('Critical i18n scenarios', () => {
     // Проверяем, что запросы были только для английской локали (или общие)
     // В SSR режиме могут быть запросы для всех локалей при пререндеринге,
     // но в клиентской навигации должны загружаться только нужные
-    const _deRequests = requestedUrls.filter(url => url.includes('/de/') && !url.includes('/general/'))
-    const _ruRequests = requestedUrls.filter(url => url.includes('/ru/') && !url.includes('/general/'))
+    const _deRequests = requestedUrls.filter((url) => url.includes('/de/') && !url.includes('/general/'))
+    const _ruRequests = requestedUrls.filter((url) => url.includes('/ru/') && !url.includes('/general/'))
 
     // В идеале не должно быть запросов для других локалей при первой загрузке
     // Но из-за SSR/пререндеринга это может быть сложно проверить точно

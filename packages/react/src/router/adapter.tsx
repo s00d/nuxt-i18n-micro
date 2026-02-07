@@ -1,8 +1,8 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import type { useNavigate, useLocation } from 'react-router-dom'
-import type { I18nRoutingStrategy } from './types'
 import type { Locale } from '@i18n-micro/types'
+import React from 'react'
+import type { useLocation, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import type { I18nRoutingStrategy } from './types'
 
 /**
  * Factory for React Router adapter
@@ -15,13 +15,13 @@ export function createReactRouterAdapter(
   location: ReturnType<typeof useLocation>,
   navigate: ReturnType<typeof useNavigate>,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code)
 
   /**
    * Path resolution logic (add prefix or not)
    */
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
 
     // If path already starts with a locale, remove it
@@ -30,7 +30,7 @@ export function createReactRouterAdapter(
       pathSegments.shift()
     }
 
-    const cleanPath = '/' + pathSegments.join('/')
+    const cleanPath = `/${pathSegments.join('/')}`
 
     // If default locale - return clean path
     if (locale === defaultLocale) {

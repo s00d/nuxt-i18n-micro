@@ -1,5 +1,5 @@
 import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
-import type { Translations, PluralFunc, TranslationKey } from '@i18n-micro/types'
+import type { PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { loadTranslations } from './loader'
 
 export interface I18nOptions {
@@ -84,12 +84,7 @@ export class I18n extends BaseI18n {
     super.loadTranslationsCore(locale, translations, merge)
   }
 
-  public addRouteTranslations(
-    locale: string,
-    routeName: string,
-    translations: Translations,
-    merge = true,
-  ): void {
+  public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
   }
 

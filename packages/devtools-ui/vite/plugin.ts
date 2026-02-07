@@ -1,8 +1,8 @@
-import type { PluginOption, ViteDevServer, IndexHtmlTransformResult } from 'vite'
-import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as fs from 'node:fs'
-import * as path from 'node:path'
 import { readdir } from 'node:fs/promises'
+import type { IncomingMessage, ServerResponse } from 'node:http'
+import * as path from 'node:path'
+import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite'
 
 export interface DevToolsPluginOptions {
   base?: string
@@ -34,14 +34,12 @@ async function scanTranslationFiles(dir: string, baseDir: string): Promise<strin
       if (entry.isDirectory()) {
         const subFiles = await scanTranslationFiles(fullPath, baseDir)
         files.push(...subFiles)
-      }
-      else if (entry.isFile() && entry.name.endsWith('.json')) {
+      } else if (entry.isFile() && entry.name.endsWith('.json')) {
         const relativePath = path.relative(baseDir, fullPath)
         files.push(relativePath.replace(/\\/g, '/')) // Нормализуем для кроссплатформенности
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     // Игнорируем ошибки доступа к директориям
     console.warn(`[i18n-devtools] Cannot scan directory ${dir}:`, error)
   }
@@ -397,21 +395,24 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
         try {
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({
-            defaultLocale: 'en',
-            fallbackLocale: 'en',
-            locales: [],
-            translationDir,
-          }))
-        }
-        catch (e) {
+          res.end(
+            JSON.stringify({
+              defaultLocale: 'en',
+              fallbackLocale: 'en',
+              locales: [],
+              translationDir,
+            }),
+          )
+        } catch (e) {
           console.error('[i18n-devtools] Config error:', e)
           res.statusCode = 500
           res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({
-            success: false,
-            error: e instanceof Error ? e.message : String(e),
-          }))
+          res.end(
+            JSON.stringify({
+              success: false,
+              error: e instanceof Error ? e.message : String(e),
+            }),
+          )
         }
       })
 
@@ -457,15 +458,16 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify({ files, structure }))
-        }
-        catch (e) {
+        } catch (e) {
           console.error('[i18n-devtools] Files list error:', e)
           res.statusCode = 500
           res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({
-            success: false,
-            error: e instanceof Error ? e.message : String(e),
-          }))
+          res.end(
+            JSON.stringify({
+              success: false,
+              error: e instanceof Error ? e.message : String(e),
+            }),
+          )
         }
       })
 
@@ -504,15 +506,16 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify({ success: true, content: parsed, path: filePath }))
-        }
-        catch (e) {
+        } catch (e) {
           console.error('[i18n-devtools] File read error:', e)
           res.statusCode = 500
           res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({
-            success: false,
-            error: e instanceof Error ? e.message : String(e),
-          }))
+          res.end(
+            JSON.stringify({
+              success: false,
+              error: e instanceof Error ? e.message : String(e),
+            }),
+          )
         }
       })
 
@@ -563,15 +566,16 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify({ success: true }))
-        }
-        catch (e) {
+        } catch (e) {
           console.error('[i18n-devtools] Save error:', e)
           res.statusCode = 500
           res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({
-            success: false,
-            error: e instanceof Error ? e.message : String(e),
-          }))
+          res.end(
+            JSON.stringify({
+              success: false,
+              error: e instanceof Error ? e.message : String(e),
+            }),
+          )
         }
       })
     },

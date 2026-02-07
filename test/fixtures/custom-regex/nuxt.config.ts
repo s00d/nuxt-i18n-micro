@@ -1,9 +1,7 @@
 import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
-  modules: [
-    MyModule,
-  ],
+  modules: [MyModule],
   devtools: { enabled: false },
   experimental: {
     // typedPages: true,
@@ -11,8 +9,6 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-08-16',
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   i18n: {
     locales: [
       { code: 'en-us', iso: 'en_EN' },

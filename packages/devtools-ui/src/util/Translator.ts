@@ -104,9 +104,7 @@ export class Translator {
     }, text)
 
     // Remove extra spaces and non-breaking spaces
-    return restoredText
-      .replace(/ {2,}|^ |^\xA0|\xA0{2,}|\xA0$/gmu, '')
-      .replace(/&nbsp;/g, ' ')
+    return restoredText.replace(/ {2,}|^ |^\xA0|\xA0{2,}|\xA0$/gmu, '').replace(/&nbsp;/g, ' ')
   }
 
   /**
@@ -139,7 +137,7 @@ export class Translator {
     const url = 'https://translate.api.cloud.yandex.net/translate/v2/translate'
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Api-Key ${this.apiKey}`,
+      Authorization: `Api-Key ${this.apiKey}`,
     }
     const body = JSON.stringify({
       folderId: this.options.folderId as string,
@@ -197,7 +195,7 @@ export class Translator {
     const url = 'https://api.openai.com/v1/chat/completions'
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.apiKey}`,
+      Authorization: `Bearer ${this.apiKey}`,
     }
     const body = JSON.stringify({
       model: this.options.model as string,
@@ -234,7 +232,7 @@ export class Translator {
     const url = 'https://api.deepseek.com/chat/completions'
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.apiKey}`,
+      Authorization: `Bearer ${this.apiKey}`,
     }
     const body = JSON.stringify({
       model: this.options.model as string,
@@ -290,7 +288,7 @@ export class Translator {
     }
 
     // Extract translated text from response
-    return data[0].map(item => (item[0] ? item[0] : '')).join('')
+    return data[0].map((item) => (item[0] ? item[0] : '')).join('')
   }
 
   /**
@@ -300,7 +298,7 @@ export class Translator {
     const url = 'https://translate.api.cloud.yandex.net/translate/v2/translate'
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Api-Key ${this.apiKey}`,
+      Authorization: `Api-Key ${this.apiKey}`,
     }
     const body = JSON.stringify({
       folderId: this.options.folderId as string,
@@ -334,11 +332,9 @@ export class Translator {
       const g = text.charCodeAt(f)
       if (g < 128) {
         e.push(g)
-      }
-      else if (g < 2048) {
+      } else if (g < 2048) {
         e.push((g >> 6) | 192)
-      }
-      else {
+      } else {
         e.push((g >> 12) | 224)
         e.push(((g >> 6) & 63) | 128)
       }
@@ -358,7 +354,7 @@ export class Translator {
       a = (a & 2147483647) + 2147483648
     }
     a %= 1e6
-    return a.toString() + '.' + (a ^ tkk)
+    return `${a.toString()}.${a ^ tkk}`
   }
 
   private tokenTransform(value: number, seed: string): number {
@@ -366,14 +362,12 @@ export class Translator {
       const c = seed.charCodeAt(d + 2) >= 97 ? seed.charCodeAt(d + 2) - 87 : Number(seed.charAt(d + 2))
       if (seed.charAt(d + 1) === '+') {
         value = value >>> c
-      }
-      else {
+      } else {
         value = value << c
       }
       if (seed.charAt(d) === '+') {
         value = (value + c) & 4294967295
-      }
-      else {
+      } else {
         value = value ^ c
       }
     }

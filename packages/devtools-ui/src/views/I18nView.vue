@@ -119,15 +119,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
-import Loader from '../components/ui/Loader.vue'
-import TranslationEditor from '../components/editor/TranslationEditor.vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import LocalesList from '../components/data/LocalesList.vue'
-import Modal from '../components/ui/Modal.vue'
 import Statistics from '../components/data/Statistics.vue'
+import TranslationEditor from '../components/editor/TranslationEditor.vue'
 import ActionBar from '../components/layout/ActionBar.vue'
 import SplitPane from '../components/layout/SplitPane.vue'
 import Button from '../components/ui/Button.vue'
+import Loader from '../components/ui/Loader.vue'
+import Modal from '../components/ui/Modal.vue'
 import { useI18nState } from '../composables/useI18nState'
 import type { TranslationContent } from '../types'
 import { flattenTranslations, unflattenTranslations } from '../util/i18nUtils'
@@ -214,7 +214,7 @@ const translateMissingKeys = async () => {
   const defaultContent = getDefaultLocaleTranslation()
   const defaultFlatContent = flattenTranslations(defaultContent)
   const currentFlatContent = flattenTranslations(localContent.value)
-  const missingKeys = Object.keys(defaultFlatContent).filter(key => !currentFlatContent[key])
+  const missingKeys = Object.keys(defaultFlatContent).filter((key) => !currentFlatContent[key])
 
   if (missingKeys.length === 0) {
     alert('No missing keys.')
@@ -239,8 +239,7 @@ const translateMissingKeys = async () => {
 
     localContent.value = unflattenTranslations(currentFlatContent)
     alert('Translated.')
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error)
     alert('Error.')
   }
@@ -254,8 +253,7 @@ const loadSettings = () => {
       selectedDriver.value = settings.driver || 'disabled'
       apiToken.value = settings.token || ''
       driverOptions.value = settings.options || {}
-    }
-    catch {
+    } catch {
       localStorage.removeItem('translationSettings')
     }
   }

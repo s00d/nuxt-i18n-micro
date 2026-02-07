@@ -1,8 +1,8 @@
-import { writable, get, type Writable } from 'svelte/store'
-import type { I18nClientProps } from '../utils'
-import { translate, hasTranslation, type I18nState } from './core'
 import { defaultPlural, FormatService } from '@i18n-micro/core'
-import type { Params, TranslationKey, CleanTranslation } from '@i18n-micro/types'
+import type { CleanTranslation, Params, TranslationKey } from '@i18n-micro/types'
+import { get, type Writable, writable } from 'svelte/store'
+import type { I18nClientProps } from '../utils'
+import { hasTranslation, type I18nState, translate } from './core'
 
 const formatter = new FormatService()
 
@@ -25,21 +25,11 @@ export function createI18nStore(props: I18nClientProps): Writable<I18nState> {
 export function useAstroI18n(store: Writable<I18nState>) {
   const getState = () => get(store)
 
-  const t = (
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string | null,
-    routeName?: string,
-  ): CleanTranslation => {
+  const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation => {
     return translate(getState(), key as string, params, defaultValue, routeName)
   }
 
-  const ts = (
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string,
-    routeName?: string,
-  ): string => {
+  const ts = (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string => {
     const value = t(key, params, defaultValue, routeName)
     return value?.toString() ?? defaultValue ?? (key as string)
   }
@@ -56,13 +46,7 @@ export function useAstroI18n(store: Writable<I18nState>) {
       return t(k, p, dv)
     }
 
-    const result = defaultPlural(
-      key,
-      Number.parseInt(countValue.toString(), 10),
-      params,
-      state.locale,
-      getter,
-    )
+    const result = defaultPlural(key, Number.parseInt(countValue.toString(), 10), params, state.locale, getter)
 
     return result ?? defaultValue ?? (key as string)
   }
@@ -112,10 +96,10 @@ export function useAstroI18n(store: Writable<I18nState>) {
 
     // Route management
     setLocale: (locale: string) => {
-      store.update(state => ({ ...state, locale }))
+      store.update((state) => ({ ...state, locale }))
     },
     setRoute: (routeName: string) => {
-      store.update(state => ({ ...state, currentRoute: routeName }))
+      store.update((state) => ({ ...state, currentRoute: routeName }))
     },
     getRoute: (): string => {
       return getState().currentRoute

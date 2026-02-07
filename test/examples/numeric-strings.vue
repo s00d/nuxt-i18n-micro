@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with numeric strings
 $defineI18nRoute({
@@ -13,7 +12,7 @@ $defineI18nRoute({
   localeRoutes: {
     '1': '/welcome',
     '2': '/willkommen',
-    '3': '/bienvenue'
-  }
+    '3': '/bienvenue',
+  },
 })
 </script>

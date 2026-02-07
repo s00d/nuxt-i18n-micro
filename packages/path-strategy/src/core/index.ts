@@ -1,4 +1,4 @@
-export * from './types'
-export { RouteResolver } from './resolver'
-export { getPathWithoutLocale, getLocaleFromPath, type PathWithoutLocaleResult } from './normalizer'
 export { createLocalizedRouteObject } from './builder'
+export { getLocaleFromPath, getPathWithoutLocale, type PathWithoutLocaleResult } from './normalizer'
+export { RouteResolver } from './resolver'
+export * from './types'

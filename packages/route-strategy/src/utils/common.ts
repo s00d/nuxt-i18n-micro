@@ -1,7 +1,7 @@
-import type { NuxtPage } from '@nuxt/schema'
 import type { Locale } from '@i18n-micro/types'
+import type { NuxtPage } from '@nuxt/schema'
 
-export const cloneArray = <T extends object>(array: T[]): T[] => array.map(item => ({ ...item }))
+export const cloneArray = <T extends object>(array: T[]): T[] => array.map((item) => ({ ...item }))
 
 export const isPageRedirectOnly = (page: NuxtPage): boolean => !!(page.redirect && !page.file)
 
@@ -46,12 +46,10 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
         if (pattern.includes('*') || pattern.includes('?')) {
           const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\?/g, '.'))
           if (regex.test(path)) return true
-        }
-        else if (path === pattern || path.startsWith(pattern)) {
+        } else if (path === pattern || path.startsWith(pattern)) {
           return true
         }
-      }
-      else if (pattern instanceof RegExp) {
+      } else if (pattern instanceof RegExp) {
         if (pattern.test(path)) return true
       }
     }

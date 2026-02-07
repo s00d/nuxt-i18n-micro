@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent, nextTick, onMounted, type Component } from 'vue'
+import { type Component, defineAsyncComponent, nextTick, onMounted, ref } from 'vue'
 import { useNuxtApp } from '#imports'
 
 // Отключаем SSR для этой страницы, чтобы избежать проблем с гидратацией асинхронных компонентов
@@ -135,21 +135,13 @@ definePageMeta({
 })
 
 // Импортируем асинхронные компоненты
-const SimpleAsyncComponent = defineAsyncComponent(() =>
-  import('../components/test/SimpleAsyncComponent.vue'),
-)
+const SimpleAsyncComponent = defineAsyncComponent(() => import('../components/test/SimpleAsyncComponent.vue'))
 
-const AsyncComponentWithTranslations = defineAsyncComponent(() =>
-  import('../components/test/AsyncComponentWithTranslations.vue'),
-)
+const AsyncComponentWithTranslations = defineAsyncComponent(() => import('../components/test/AsyncComponentWithTranslations.vue'))
 
-const AsyncComponentWithI18nRoute = defineAsyncComponent(() =>
-  import('../components/test/AsyncComponentWithI18nRoute.vue'),
-)
+const AsyncComponentWithI18nRoute = defineAsyncComponent(() => import('../components/test/AsyncComponentWithI18nRoute.vue'))
 
-const AsyncComponentWithError = defineAsyncComponent(() =>
-  import('../components/test/AsyncComponentWithError.vue'),
-)
+const AsyncComponentWithError = defineAsyncComponent(() => import('../components/test/AsyncComponentWithError.vue'))
 
 const { $defineI18nRoute, $getLocale, $getRouteName, $switchLocale, $t } = useNuxtApp()
 
@@ -254,17 +246,13 @@ const availableLocales = [
 const loadDynamicComponent = async () => {
   isLoading.value = true
   try {
-    const AsyncDynamicComponent = defineAsyncComponent(() =>
-      import('../components/test/AsyncDynamicComponent.vue'),
-    )
+    const AsyncDynamicComponent = defineAsyncComponent(() => import('../components/test/AsyncDynamicComponent.vue'))
     DynamicComponent.value = AsyncDynamicComponent
     showDynamicComponent.value = true
     await nextTick()
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error loading dynamic component:', error)
-  }
-  finally {
+  } finally {
     isLoading.value = false
   }
 }
@@ -273,8 +261,7 @@ const switchToLocale = async (locale: string) => {
   try {
     await $switchLocale(locale)
     translationsLoaded.value = true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Error switching locale:', error)
   }
 }

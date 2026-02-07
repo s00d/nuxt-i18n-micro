@@ -68,8 +68,8 @@
 
 <script setup lang="ts">
 import type { Component } from 'vue'
-import StatusIndicator from '../ui/StatusIndicator.vue'
 import GlobeIcon from '../ui/icons/GlobeIcon.vue'
+import StatusIndicator from '../ui/StatusIndicator.vue'
 
 interface Locale {
   code: string

@@ -96,8 +96,8 @@
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
 import { computed } from 'vue'
+import { useNuxtApp } from '#imports'
 
 const { $defineI18nRoute, $tn, $td, $tdr } = useNuxtApp()
 

@@ -22,14 +22,14 @@ const globalLocaleRoutes = {
   'products-id': { en: '/products/:id', de: '/produkte/:id', ru: '/produkty/:id', fr: '/produits/:id' },
   '/parent/child': { en: '/parent-en/child', de: '/eltern/kind', ru: '/roditel/rebenok', fr: '/parent/enfant' },
   'parent-child': { en: '/parent-en/child', de: '/eltern/kind' },
-  'unlocalized': false as const,
+  unlocalized: false as const,
 }
 
 const routeLocales: Record<string, string[]> = {
   '/about': ['en', 'de', 'ru'],
-  'about': ['en', 'de', 'ru'],
+  about: ['en', 'de', 'ru'],
   'products-id': ['en', 'de'],
-  'products': ['en', 'de'],
+  products: ['en', 'de'],
   'blog-slug': ['en'],
   'parent-child': ['en', 'de', 'ru'],
 }
@@ -73,7 +73,18 @@ function buildDeepContext(strategy: StrategyName): PathStrategyContext {
   })
 }
 
-const pathsToResolve = ['/', '/about', '/about-us', '/en/about', '/de/about', '/de/ueber-uns', '/ru/o-nas', '/products/1', '/parent/child', '/en/parent-en/child']
+const pathsToResolve = [
+  '/',
+  '/about',
+  '/about-us',
+  '/en/about',
+  '/de/about',
+  '/de/ueber-uns',
+  '/ru/o-nas',
+  '/products/1',
+  '/parent/child',
+  '/en/parent-en/child',
+]
 
 const targetLocales = ['en', 'de', 'ru', 'fr']
 
@@ -117,7 +128,7 @@ function snapshotState(strategyName: StrategyName) {
     getLocaleFromPath[p] = strategy.getLocaleFromPath(p)
   }
 
-  const getRedirect: Array<{ path: string, targetLocale: string, redirect: string | null }> = []
+  const getRedirect: Array<{ path: string; targetLocale: string; redirect: string | null }> = []
   for (const p of ['/', '/about', '/en/about', '/de/about', '/de/ueber-uns']) {
     for (const loc of targetLocales) {
       getRedirect.push({ path: p, targetLocale: loc, redirect: strategy.getRedirect(p, loc) })
@@ -229,7 +240,7 @@ describe('strategies deep snapshots — defaultLocale and two locales only', () 
     for (const p of pathsToResolve.slice(0, 6)) {
       resolveFromPath[p] = strategy.resolveLocaleFromPath(p)
     }
-    const redirects: Array<{ path: string, locale: string, redirect: string | null }> = []
+    const redirects: Array<{ path: string; locale: string; redirect: string | null }> = []
     for (const p of ['/', '/about', '/de/about']) {
       for (const loc of ['en', 'de'] as const) {
         redirects.push({ path: p, locale: loc, redirect: strategy.getRedirect(p, loc) })

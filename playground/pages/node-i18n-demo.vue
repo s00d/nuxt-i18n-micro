@@ -150,27 +150,31 @@ async function loadData() {
       },
     })
     data.value = response
-  }
-  catch (err) {
+  } catch (err) {
     error.value = err.message || 'Failed to load data'
     console.error('Error loading i18n data:', err)
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }
 
 // Watch for locale changes
-watch(() => $getLocale(), (newLocale) => {
-  selectedLocale.value = newLocale
-  loadData()
-})
+watch(
+  () => $getLocale(),
+  (newLocale) => {
+    selectedLocale.value = newLocale
+    loadData()
+  },
+)
 
 // Watch for route changes
-watch(() => $getRouteName(), (newRoute) => {
-  selectedRoute.value = newRoute || 'node-i18n-demo'
-  loadData()
-})
+watch(
+  () => $getRouteName(),
+  (newRoute) => {
+    selectedRoute.value = newRoute || 'node-i18n-demo'
+    loadData()
+  },
+)
 
 // Load data on mount
 onMounted(() => {

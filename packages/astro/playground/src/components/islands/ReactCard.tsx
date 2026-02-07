@@ -1,8 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import React, { useState } from 'react'
-import { I18nProvider, useAstroI18n } from '@i18n-micro/astro/client/react'
+
 import type { I18nClientProps } from '@i18n-micro/astro'
+import { I18nProvider, useAstroI18n } from '@i18n-micro/astro/client/react'
+import React, { useState } from 'react'
 import './ReactCard.css'
 
 interface ReactCardProps {
@@ -18,7 +18,9 @@ function CardContent() {
       <h3>{t('islands.react.title')}</h3>
       <p>{t('islands.react.description')}</p>
       <div className="counter">
-        <button type="button" onClick={() => setCount(count + 1)}>+</button>
+        <button type="button" onClick={() => setCount(count + 1)}>
+          +
+        </button>
         <span>{count}</span>
         <p>{tc('islands.apples', count)}</p>
         <p>{t('islands.number', { number: tn(count) })}</p>

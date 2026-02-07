@@ -1,5 +1,5 @@
 import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
-import type { Translations, PluralFunc } from '@i18n-micro/types'
+import type { PluralFunc, Translations } from '@i18n-micro/types'
 
 export interface PreactI18nOptions {
   locale: string
@@ -51,7 +51,7 @@ export class PreactI18n extends BaseI18n {
 
   private notify() {
     this.revision++
-    this.listeners.forEach(listener => listener())
+    this.listeners.forEach((listener) => listener())
   }
 
   get locale(): string {
@@ -101,12 +101,7 @@ export class PreactI18n extends BaseI18n {
     this.notify()
   }
 
-  public addRouteTranslations(
-    locale: string,
-    routeName: string,
-    translations: Translations,
-    merge = true,
-  ): void {
+  public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
     this.notify()
   }

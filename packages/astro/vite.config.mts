@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       // Точки входа
       entry: {
-        'index': resolve(__dirname, 'src/index.ts'),
+        index: resolve(__dirname, 'src/index.ts'),
         'client/index': resolve(__dirname, 'src/client/index.ts'),
         'client/vue': resolve(__dirname, 'src/client/vue.ts'),
         'client/react': resolve(__dirname, 'src/client/react.tsx'),
@@ -73,7 +73,6 @@ export default defineConfig({
         if (options.format === 'cjs') {
           for (const fileName in bundle) {
             if (fileName.startsWith('client/')) {
-              // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
               delete bundle[fileName]
             }
           }

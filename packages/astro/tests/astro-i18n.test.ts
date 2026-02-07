@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals'
+import { describe, expect, test } from '@jest/globals'
 import { AstroI18n, createI18n } from '../src'
 
 describe('AstroI18n', () => {
@@ -83,9 +83,14 @@ describe('AstroI18n', () => {
       },
     })
 
-    i18n.addRouteTranslations('en', 'home', {
-      title: 'Home Title',
-    }, false) // Use merge: false to avoid warning
+    i18n.addRouteTranslations(
+      'en',
+      'home',
+      {
+        title: 'Home Title',
+      },
+      false,
+    ) // Use merge: false to avoid warning
 
     i18n.setRoute('home')
     expect(i18n.t('title')).toBe('Home Title')

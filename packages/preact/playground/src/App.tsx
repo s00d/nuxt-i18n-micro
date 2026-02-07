@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { h, Fragment } from 'preact'
-import { useEffect } from 'preact/hooks'
-import { Router, Route, Switch, useLocation, useRoute } from 'wouter-preact'
-import { createI18n, I18nProvider, useI18n, I18nLink, I18nSwitcher } from '@i18n-micro/preact'
+
+import { createI18n, I18nLink, I18nProvider, I18nSwitcher, useI18n } from '@i18n-micro/preact'
 import type { Locale } from '@i18n-micro/types'
-import { createWouterAdapter } from './router-adapter'
-import { Home } from './pages/Home'
+import { Fragment, h } from 'preact'
+import { useEffect } from 'preact/hooks'
+import { Route, Router, Switch, useLocation, useRoute } from 'wouter-preact'
 import { About } from './pages/About'
 import { Components } from './pages/Components'
+import { Home } from './pages/Home'
+import { createWouterAdapter } from './router-adapter'
 
 const localesConfig: Locale[] = [
   { code: 'en', displayName: 'English', iso: 'en-US' },
@@ -21,8 +21,7 @@ async function loadTranslations(locale: string) {
   try {
     const messages = await import(`./locales/${locale}.json`)
     return messages.default
-  }
-  catch (error) {
+  } catch (error) {
     console.error(`Failed to load translations for locale: ${locale}`, error)
     return {}
   }
@@ -41,7 +40,7 @@ const i18n = createI18n({
 async function initApp() {
   const path = window.location.pathname
   const firstSegment = path.split('/')[1]
-  const initialLocale = localesConfig.some(l => l.code === firstSegment) ? firstSegment : 'en'
+  const initialLocale = localesConfig.some((l) => l.code === firstSegment) ? firstSegment : 'en'
 
   const translations = await loadTranslations(initialLocale)
   i18n.addTranslations(initialLocale, translations, false)
@@ -49,8 +48,8 @@ async function initApp() {
     i18n.locale = initialLocale
   }
 
-  const otherLocales = localesConfig.map(l => l.code).filter(c => c !== initialLocale)
-  Promise.all(otherLocales.map(code => loadTranslations(code).then(msgs => ({ code, msgs }))))
+  const otherLocales = localesConfig.map((l) => l.code).filter((c) => c !== initialLocale)
+  Promise.all(otherLocales.map((code) => loadTranslations(code).then((msgs) => ({ code, msgs }))))
     .then((results) => {
       results.forEach(({ code, msgs }) => {
         i18n.addTranslations(code, msgs, false)
@@ -68,7 +67,7 @@ const LocaleHandler = ({ children }) => {
   const localeParam = params?.locale
 
   useEffect(() => {
-    const targetLocale = localeParam && localesConfig.some(l => l.code === localeParam) ? localeParam : 'en'
+    const targetLocale = localeParam && localesConfig.some((l) => l.code === localeParam) ? localeParam : 'en'
     if (currentLocale !== targetLocale) {
       setLocale(targetLocale)
     }

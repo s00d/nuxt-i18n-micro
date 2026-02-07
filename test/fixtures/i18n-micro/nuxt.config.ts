@@ -10,8 +10,6 @@ export default defineNuxtConfig({
     appManifest: false,
   },
   compatibilityDate: '2024-08-14',
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   i18n: {
     locales: [
       { code: 'en', iso: 'en_EN' },

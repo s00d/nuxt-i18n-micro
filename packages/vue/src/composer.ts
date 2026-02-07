@@ -1,6 +1,6 @@
-import { shallowRef, type Ref } from 'vue'
 import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
-import type { Translations, PluralFunc } from '@i18n-micro/types'
+import type { PluralFunc, Translations } from '@i18n-micro/types'
+import { type Ref, shallowRef } from 'vue'
 
 export interface VueI18nOptions {
   locale: string
@@ -53,8 +53,7 @@ export class VueI18n extends BaseI18n {
   set locale(val: Ref<string> | string) {
     if (typeof val === 'string') {
       this._locale.value = val
-    }
-    else {
+    } else {
       this._locale = val
     }
   }
@@ -66,8 +65,7 @@ export class VueI18n extends BaseI18n {
   set fallbackLocale(val: Ref<string> | string) {
     if (typeof val === 'string') {
       this._fallbackLocale.value = val
-    }
-    else {
+    } else {
       this._fallbackLocale = val
     }
   }
@@ -98,12 +96,7 @@ export class VueI18n extends BaseI18n {
     this.notifyListeners()
   }
 
-  public addRouteTranslations(
-    locale: string,
-    routeName: string,
-    translations: Translations,
-    merge = true,
-  ): void {
+  public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
     this._revision.value++
     this.notifyListeners()
@@ -133,7 +126,7 @@ export class VueI18n extends BaseI18n {
   }
 
   private notifyListeners(): void {
-    this.listeners.forEach(cb => cb())
+    this.listeners.forEach((cb) => cb())
   }
 
   public getAllTranslations(): Record<string, Translations> {
@@ -141,8 +134,7 @@ export class VueI18n extends BaseI18n {
     for (const [key, translations] of this.storage.translations) {
       if (!key.includes(':')) {
         result[key] = translations
-      }
-      else {
+      } else {
         const locale = key.split(':')[0]
         if (locale) {
           if (!result[locale]) result[locale] = {}

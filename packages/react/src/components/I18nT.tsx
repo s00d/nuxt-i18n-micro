@@ -1,6 +1,6 @@
+import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
 import React from 'react'
 import { useI18n } from '../context'
-import type { TranslationKey, PluralFunc } from '@i18n-micro/types'
 
 export interface I18nTProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {
   keypath: TranslationKey
@@ -73,7 +73,7 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
 
   // Handle pluralization
   if (plural !== undefined) {
-    const count = Number.parseInt(plural.toString())
+    const count = Number.parseInt(plural.toString(), 10)
     let translation: string
     if (customPluralRule) {
       const result = customPluralRule(
@@ -87,8 +87,7 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
         },
       )
       translation = result || ''
-    }
-    else {
+    } else {
       translation = tc(keypath, { count, ...(params || {}) }, defaultValue)
     }
     if (html) {
@@ -102,7 +101,7 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
   const content = typeof translation === 'string' ? translation : String(translation)
 
   if (hideIfEmpty && !content.trim()) {
-    return defaultValue ? React.createElement(React.Fragment, null, defaultValue) as React.ReactElement : null
+    return defaultValue ? (React.createElement(React.Fragment, null, defaultValue) as React.ReactElement) : null
   }
 
   if (html) {

@@ -1,6 +1,6 @@
 import fs from 'node:fs'
-import path from 'node:path'
 import os from 'node:os'
+import path from 'node:path'
 import type { Locale } from '@i18n-micro/types'
 import { RouteGenerator } from '../src/index'
 
@@ -18,8 +18,7 @@ describe('RouteGenerator.ensureTranslationFilesExist', () => {
   afterEach(() => {
     try {
       fs.rmSync(tmpDir, { recursive: true, force: true })
-    }
-    catch {
+    } catch {
       // ignore
     }
   })

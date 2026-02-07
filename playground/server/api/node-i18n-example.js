@@ -1,6 +1,6 @@
-import { defineEventHandler, getQuery } from 'h3'
-import { createI18n } from '@i18n-micro/node'
 import { join } from 'node:path'
+import { createI18n } from '@i18n-micro/node'
+import { defineEventHandler, getQuery } from 'h3'
 
 // Create a singleton I18n instance (in production, you'd want to cache this)
 let i18nInstance = null

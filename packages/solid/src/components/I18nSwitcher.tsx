@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { createSignal, onMount, onCleanup, splitProps, type Accessor, type Component, type JSX } from 'solid-js'
-import { createMemo } from 'solid-js'
+
 import type { Locale } from '@i18n-micro/types'
+import { type Accessor, type Component, createMemo, createSignal, type JSX, onCleanup, onMount, splitProps } from 'solid-js'
 import { useI18nContext, useI18nLocales, useI18nRouter } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
 
@@ -61,7 +60,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
       return local.getLocaleName() || null
     }
     // Используем реактивный accessor для отслеживания изменений
-    const current = locales().find(l => l.code === i18n.localeAccessor())
+    const current = locales().find((l) => l.code === i18n.localeAccessor())
     return current?.displayName || null
   })
 
@@ -79,8 +78,8 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
   }
 
   const currentLocaleLabel = createMemo(() => {
-    const current = locales().find(l => l.code === currentLocale())
-    return current ? localeLabel(current) : (currentLocaleName() || currentLocale())
+    const current = locales().find((l) => l.code === currentLocale())
+    return current ? localeLabel(current) : currentLocaleName() || currentLocale()
   })
 
   const handleSwitchLocale = async (code: string) => {
@@ -103,47 +102,47 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
     const newPath = local.localeRoute
       ? (() => {
           const res = local.localeRoute(currentPath, code)
-          return typeof res === 'string' ? res : (res.path || '/')
+          return typeof res === 'string' ? res : res.path || '/'
         })()
-      : (router?.resolvePath
-          ? (() => {
-              const res = router.resolvePath(currentPath, code)
-              return typeof res === 'string' ? res : (res.path || '/')
-            })()
-          : currentPath)
+      : router?.resolvePath
+        ? (() => {
+            const res = router.resolvePath(currentPath, code)
+            return typeof res === 'string' ? res : res.path || '/'
+          })()
+        : currentPath
 
     router.push({ path: newPath })
   }
 
   // Default Styles
   const wrapperStyle: JSX.CSSProperties = {
-    'position': 'relative',
-    'display': 'inline-block',
+    position: 'relative',
+    display: 'inline-block',
     'vertical-align': 'middle',
   }
 
   const buttonStyle: JSX.CSSProperties = {
-    'padding': '4px 12px',
+    padding: '4px 12px',
     'font-size': '16px',
-    'cursor': 'pointer',
+    cursor: 'pointer',
     'background-color': '#fff',
-    'border': '1px solid #333',
-    'transition': 'background-color 0.3s ease',
-    'display': 'flex',
+    border: '1px solid #333',
+    transition: 'background-color 0.3s ease',
+    display: 'flex',
     'align-items': 'center',
     'justify-content': 'space-between',
   }
 
   const dropdownStyle: JSX.CSSProperties = {
-    'position': 'absolute',
-    'top': '100%',
-    'left': '0',
+    position: 'absolute',
+    top: '100%',
+    left: '0',
     'z-index': 1000,
     'background-color': '#fff',
-    'border': '1px solid #333',
+    border: '1px solid #333',
     'list-style': 'none',
-    'padding': '0',
-    'margin': '4px 0 0 0',
+    padding: '0',
+    margin: '4px 0 0 0',
     'min-width': '150px',
     'box-shadow': '0 2px 8px rgba(0,0,0,0.15)',
   }
@@ -154,23 +153,23 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
   }
 
   const linkStyle: JSX.CSSProperties = {
-    'display': 'block',
-    'padding': '8px 12px',
-    'color': '#333',
+    display: 'block',
+    padding: '8px 12px',
+    color: '#333',
     'text-decoration': 'none',
-    'transition': 'background-color 0.3s ease',
-    'cursor': 'pointer',
+    transition: 'background-color 0.3s ease',
+    cursor: 'pointer',
   }
 
   const activeLinkStyle: JSX.CSSProperties = {
     'font-weight': 'bold',
-    'color': '#007bff',
+    color: '#007bff',
   }
 
   const iconStyle: JSX.CSSProperties = {
     'margin-left': '8px',
-    'display': 'inline-block',
-    'transition': 'transform 0.3s ease',
+    display: 'inline-block',
+    transition: 'transform 0.3s ease',
   }
 
   const openIconStyle: JSX.CSSProperties = {
@@ -202,7 +201,9 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
   return (
     <div
       // @ts-expect-error - ref type conflict with Vue JSX
-      ref={(el: HTMLDivElement) => { wrapperRef = el }}
+      ref={(el: HTMLDivElement) => {
+        wrapperRef = el
+      }}
       class="i18n-switcher-wrapper"
       style={{ ...wrapperStyle, ...local.customWrapperStyle }}
       {...(others as unknown as JSX.HTMLAttributes<HTMLDivElement>)}
@@ -232,28 +233,23 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
       </button>
 
       {dropdownOpen() && (
-        <ul
-          class="i18n-switcher-dropdown"
-          style={{ ...dropdownStyle, ...local.customDropdownStyle }}
-        >
+        <ul class="i18n-switcher-dropdown" style={{ ...dropdownStyle, ...local.customDropdownStyle }}>
           {locales().map((localeItem) => {
             const isActive = localeItem.code === currentLocale()
             // Используем accessor для реактивного отслеживания пути
             const extendedRouter = router as I18nRoutingStrategy & { getCurrentPathAccessor?: Accessor<string> }
             const currentPath = extendedRouter?.getCurrentPathAccessor
               ? extendedRouter.getCurrentPathAccessor()
-              : (router?.getCurrentPath() || (typeof window !== 'undefined' ? window.location.pathname : '/'))
+              : router?.getCurrentPath() || (typeof window !== 'undefined' ? window.location.pathname : '/')
             const result = local.localeRoute
               ? local.localeRoute(currentPath, localeItem.code)
-              : (router?.resolvePath
-                  ? router.resolvePath(currentPath, localeItem.code)
-                  : currentPath)
-            const routeTo = typeof result === 'string' ? result : (result?.path || '#')
+              : router?.resolvePath
+                ? router.resolvePath(currentPath, localeItem.code)
+                : currentPath
+            const routeTo = typeof result === 'string' ? result : result?.path || '#'
 
             return (
-              <li
-                style={{ ...itemStyle, ...local.customItemStyle }}
-              >
+              <li style={{ ...itemStyle, ...local.customItemStyle }}>
                 <a
                   class={`switcher-locale-${localeItem.code}`}
                   href={typeof routeTo === 'string' ? routeTo : '#'}

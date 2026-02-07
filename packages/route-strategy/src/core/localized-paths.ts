@@ -47,8 +47,7 @@ export function extractLocalizedPaths(
       if (filesLocalePath && typeof filesLocalePath === 'object' && !Array.isArray(filesLocalePath)) {
         localizedPaths[pathKey] = filesLocalePath as Record<string, string>
       }
-    }
-    else if (typeof globalLocalePath === 'object') {
+    } else if (typeof globalLocalePath === 'object') {
       localizedPaths[pathKey] = globalLocalePath
     }
 

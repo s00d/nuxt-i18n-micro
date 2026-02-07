@@ -1,9 +1,9 @@
-import { joinURL, parseURL, withQuery } from 'ufo'
-import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { isNoPrefixStrategy } from '@i18n-micro/core'
-import { useRoute, useNuxtApp } from '#imports'
-import { findAllowedLocalesForRoute } from '../utils/route-utils'
+import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { joinURL, parseURL, withQuery } from 'ufo'
 import { ref, unref } from 'vue'
+import { useNuxtApp, useRoute } from '#imports'
+import { findAllowedLocalesForRoute } from '../utils/route-utils'
 
 interface MetaLink {
   [key: string]: string | undefined
@@ -51,7 +51,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
     // On 404 pages, route.matched will be empty.
     // We should not generate SEO tags for pages that don't exist.
-    if (route.matched.length === 0 || route.matched.some(record => record.name === 'custom-fallback-route')) {
+    if (route.matched.length === 0 || route.matched.some((record) => record.name === 'custom-fallback-route')) {
       // Clear metaObject to ensure no tags are generated for 404 pages
       metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
       return
@@ -64,13 +64,9 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const { $getLocales, $getLocale, $switchLocalePath } = useNuxtApp()
 
     if (!$getLocale || !$getLocales) return
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const locale = unref($getLocale())
     const allLocales = unref($getLocales())
     const routeName = (route.name ?? '').toString()
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const currentLocale = unref($getLocales().find((loc: Locale) => loc.code === locale))
     if (!currentLocale) return
 
@@ -78,9 +74,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const currentRouteLocales = findAllowedLocalesForRoute(route, routeLocales, localizedRouteNamePrefixResolved)
 
     // If there's $defineI18nRoute configuration, use only specified locales
-    const locales = currentRouteLocales
-      ? allLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code))
-      : allLocales
+    const locales = currentRouteLocales ? allLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code)) : allLocales
 
     const currentIso = currentLocale.iso || locale
     const currentDir = currentLocale.dir || 'auto'
@@ -92,9 +86,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
 
     // Сортируем локали по длине кода (от длинных к коротким), чтобы избежать
     // частичного совпадения (например, чтобы 'en' не матчилось внутри '/enGB')
-    const matchedLocale = [...locales]
-      .sort((a, b) => b.code.length - a.code.length)
-      .find(locale => fullPath.startsWith(`/${locale.code}`))
+    const matchedLocale = [...locales].sort((a, b) => b.code.length - a.code.length).find((locale) => fullPath.startsWith(`/${locale.code}`))
 
     let localizedPath = fullPath
     let ogUrl: string
@@ -104,8 +96,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       localizedPath = fullPath.slice(matchedLocale.code.length + 1)
       canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist ?? [])
       ogUrl = joinURL(unref(baseUrl), locale, canonicalPath)
-    }
-    else {
+    } else {
       canonicalPath = filterQuery(fullPath, canonicalQueryWhitelist ?? [])
       ogUrl = joinURL(unref(baseUrl), canonicalPath)
     }
@@ -151,8 +142,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
           const switchedPath = $switchLocalePath(loc.code)
           if (!switchedPath) {
             return []
@@ -163,18 +152,19 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
           if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
             // It's already a full URL, use it as-is
             href = switchedPath
-          }
-          else {
+          } else {
             // It's just a path, prepend baseUrl
             href = joinURL(unref(baseUrl), switchedPath.startsWith('/') ? switchedPath : `/${switchedPath}`)
           }
 
-          const links = [{
-            [identifierAttribute]: `i18n-alternate-${loc.code}`,
-            rel: 'alternate',
-            href,
-            hreflang: unref(loc.code),
-          }]
+          const links = [
+            {
+              [identifierAttribute]: `i18n-alternate-${loc.code}`,
+              rel: 'alternate',
+              href,
+              hreflang: unref(loc.code),
+            },
+          ]
 
           if (loc.iso && loc.iso !== loc.code) {
             links.push({

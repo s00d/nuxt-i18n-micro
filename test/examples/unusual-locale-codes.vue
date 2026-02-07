@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with unusual locale codes
 $defineI18nRoute({
@@ -19,7 +18,7 @@ $defineI18nRoute({
     'zh-cn': '/huan-ying',
     'zh-tw': '/huan-ying',
     'en-gb': '/welcome',
-    'fr-ca': '/bienvenue'
-  }
+    'fr-ca': '/bienvenue',
+  },
 })
 </script>

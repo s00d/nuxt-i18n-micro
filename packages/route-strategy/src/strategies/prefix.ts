@@ -1,7 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
-import { buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
 import { createRoute } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
+import { buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
 import { BaseStrategy } from './abstract'
 
 function getAliasRoutes(page: NuxtPage): string[] {
@@ -25,14 +25,7 @@ export class PrefixStrategy extends BaseStrategy {
         const routePath = buildFullPath(locale, basePath, context.customRegex)
         const routeName = buildRouteName(pageName, locale, !!customPath, context.localizedRouteNamePrefix)
         const parentLocalizedPath = customPath ?? originalPath
-        const children = this.localizeChildren(
-          originalChildren,
-          parentLocalizedPath,
-          originalPath,
-          locale,
-          context,
-          true,
-        )
+        const children = this.localizeChildren(originalChildren, parentLocalizedPath, originalPath, locale, context, true)
         result.push(
           createRoute(page, {
             path: routePath,
@@ -43,17 +36,10 @@ export class PrefixStrategy extends BaseStrategy {
           }),
         )
       }
-    }
-    else {
+    } else {
       const routePath = buildFullPath(allowedLocales, originalPath, context.customRegex)
       const routeName = buildRouteName(pageName, allowedLocales[0]!, false, context.localizedRouteNamePrefix)
-      const children = this.localizeChildrenAllLocales(
-        originalChildren,
-        originalPath,
-        originalPath,
-        allowedLocales,
-        context,
-      )
+      const children = this.localizeChildrenAllLocales(originalChildren, originalPath, originalPath, allowedLocales, context)
       result.push(
         createRoute(page, {
           path: routePath,

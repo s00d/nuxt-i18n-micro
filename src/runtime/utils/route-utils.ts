@@ -40,19 +40,20 @@ export function findAllowedLocalesForRoute(
   const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
 
   // Try to find allowed locales for this route (module uses path without leading slash, e.g. 'test' for pages/test/)
-  let allowedLocales = (routeName && routeLocales?.[routeName])
-    || (normalizedRouteName && routeLocales?.[normalizedRouteName])
-    || (normalizedRoutePath && routeLocales?.[normalizedRoutePath])
-    || (normalizedRoutePath && routeLocales?.[normalizedRoutePath.replace(/^\//, '')])
-    || routeLocales?.[routePath]
-    || (routePath && routeLocales?.[routePath.replace(/^\//, '')])
+  let allowedLocales =
+    (routeName && routeLocales?.[routeName]) ||
+    (normalizedRouteName && routeLocales?.[normalizedRouteName]) ||
+    (normalizedRoutePath && routeLocales?.[normalizedRoutePath]) ||
+    (normalizedRoutePath && routeLocales?.[normalizedRoutePath.replace(/^\//, '')]) ||
+    routeLocales?.[routePath] ||
+    (routePath && routeLocales?.[routePath.replace(/^\//, '')])
 
   // Path-based lookup when path has locale prefix (e.g. /es/test) and route might not be matched yet (SSR/direct request)
   if (!allowedLocales && routeLocales && localeCodes?.length) {
     const segments = routePath.split('/').filter(Boolean)
     const first = segments[0]
     if (first && localeCodes.includes(first) && segments.length > 1) {
-      const pathWithoutLocale = '/' + segments.slice(1).join('/')
+      const pathWithoutLocale = `/${segments.slice(1).join('/')}`
       const pathKey = pathWithoutLocale === '/' ? '/' : pathWithoutLocale.replace(/^\//, '')
       allowedLocales = routeLocales[pathWithoutLocale] ?? routeLocales[pathKey] ?? undefined
     }
@@ -116,10 +117,12 @@ export function isMetaDisabledForRoute(
   }
 
   // Check if meta is disabled for this route
-  if (checkDisableMeta(routeDisableMeta[routePath])
-    || (routeName && checkDisableMeta(routeDisableMeta[routeName]))
-    || (normalizedRouteName && checkDisableMeta(routeDisableMeta[normalizedRouteName]))
-    || (normalizedRoutePath && checkDisableMeta(routeDisableMeta[normalizedRoutePath]))) {
+  if (
+    checkDisableMeta(routeDisableMeta[routePath]) ||
+    (routeName && checkDisableMeta(routeDisableMeta[routeName])) ||
+    (normalizedRouteName && checkDisableMeta(routeDisableMeta[normalizedRouteName])) ||
+    (normalizedRoutePath && checkDisableMeta(routeDisableMeta[normalizedRoutePath]))
+  ) {
     return true
   }
 

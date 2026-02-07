@@ -3,13 +3,7 @@
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike } from '../src'
-import {
-  createPathStrategy,
-  PrefixExceptDefaultPathStrategy,
-  PrefixPathStrategy,
-  PrefixAndDefaultPathStrategy,
-  NoPrefixPathStrategy,
-} from '../src'
+import { createPathStrategy, NoPrefixPathStrategy, PrefixAndDefaultPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
 import { makePathStrategyContext } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -148,7 +142,6 @@ describe('getCurrentLocale', () => {
 
     test('handles null/undefined path', () => {
       const strategy = new PrefixPathStrategy(makeCtx('prefix'))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const route: ResolvedRouteLike = { name: 'index', params: {} } as any
 
       expect(strategy.getCurrentLocale(route, () => 'de')).toBe('de')
@@ -218,7 +211,6 @@ describe('extractLocaleFromPath - edge cases', () => {
     const route: ResolvedRouteLike = { name: 'index', path: '', fullPath: '', params: {} }
 
     // Will use getter fallback
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(strategy.getCurrentLocale(route, () => null as any)).toBe('en')
   })
 

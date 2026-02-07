@@ -46,8 +46,7 @@ export function createRoute(page: NuxtPage, options: CreateRouteOptions): NuxtPa
   if (aliasOverride !== undefined) {
     route.alias = aliasOverride
     route.meta = { ...route.meta, alias: aliasOverride }
-  }
-  else if ('alias' in options) {
+  } else if ('alias' in options) {
     route.alias = undefined
     route.meta = { ...route.meta, alias: undefined }
   }

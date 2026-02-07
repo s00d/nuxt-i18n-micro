@@ -137,9 +137,13 @@ function handleFileClick() {
   emit('fileSelected', props.node.fullPath, props.locale)
 }
 // Автоматически раскрываем папки по умолчанию
-watch(() => props.defaultExpanded, (val) => {
-  isExpanded.value = val === true
-}, { immediate: true })
+watch(
+  () => props.defaultExpanded,
+  (val) => {
+    isExpanded.value = val === true
+  },
+  { immediate: true },
+)
 
 function handleFileSelected(fullPath: string, locale: string) {
   emit('fileSelected', fullPath, locale)

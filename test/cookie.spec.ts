@@ -5,8 +5,6 @@ test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/cookie', import.meta.url)),
     nuxtConfig: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       i18n: {
         autoDetectPath: '*',
       },
@@ -24,7 +22,7 @@ test.describe('cookie', () => {
 
     // Check that the cookie 'user-locale' is set to 'en'
     const cookies = await page.context().cookies()
-    const userLocaleCookie = cookies.find(cookie => cookie.name === 'user-locale')
+    const userLocaleCookie = cookies.find((cookie) => cookie.name === 'user-locale')
 
     expect(userLocaleCookie).toBeDefined()
     expect(userLocaleCookie?.value).toBe('en')

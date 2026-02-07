@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { splitProps, createMemo, type Component, type JSX } from 'solid-js'
+
+import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
+import { type Component, createMemo, type JSX, splitProps } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
 import { useI18nContext } from '../injection'
-import type { TranslationKey, PluralFunc } from '@i18n-micro/types'
 
 interface I18nTProps extends JSX.HTMLAttributes<HTMLElement> {
   keypath: TranslationKey
@@ -66,7 +66,7 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
 
     // Handle pluralization
     if (local.plural !== undefined) {
-      const count = Number.parseInt(local.plural.toString())
+      const count = Number.parseInt(local.plural.toString(), 10)
       if (local.customPluralRule) {
         const translationResult = local.customPluralRule(
           local.keypath,
@@ -76,8 +76,7 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
           (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => i18n.t(k, p, dv, route),
         )
         return translationResult || ''
-      }
-      else {
+      } else {
         return i18n.tc(local.keypath, { count, ...(local.params || {}) }, local.defaultValue)
       }
     }
@@ -96,12 +95,10 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
   if (local.html) {
     return (
       // @ts-expect-error - Dynamic component type conflict with Vue JSX
-      <Dynamic
-        component={local.tag || 'span'}
-        {...(others as unknown as Record<string, unknown>)}
-        innerHTML={translation()}
-      />
-    ) as unknown as JSX.Element
+      (
+        <Dynamic component={local.tag || 'span'} {...(others as unknown as Record<string, unknown>)} innerHTML={translation()} />
+      ) as unknown as JSX.Element
+    )
   }
 
   // Если html=false, рендерим как текст (Solid автоматически экранирует HTML)
@@ -109,10 +106,7 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
   if (local.hideIfEmpty && !translationValue.trim()) {
     if (local.defaultValue) {
       return (
-        <Dynamic
-          component={local.tag || 'span'}
-          {...(others as unknown as Record<string, unknown>)}
-        >
+        <Dynamic component={local.tag || 'span'} {...(others as unknown as Record<string, unknown>)}>
           {local.defaultValue}
         </Dynamic>
       ) as unknown as JSX.Element
@@ -122,11 +116,10 @@ export const I18nT: Component<I18nTProps> = (props): JSX.Element => {
 
   return (
     // @ts-expect-error - Dynamic component type conflict with Vue JSX
-    <Dynamic
-      component={local.tag || 'span'}
-      {...(others as unknown as Record<string, unknown>)}
-    >
-      {translationValue}
-    </Dynamic>
-  ) as unknown as JSX.Element
+    (
+      <Dynamic component={local.tag || 'span'} {...(others as unknown as Record<string, unknown>)}>
+        {translationValue}
+      </Dynamic>
+    ) as unknown as JSX.Element
+  )
 }

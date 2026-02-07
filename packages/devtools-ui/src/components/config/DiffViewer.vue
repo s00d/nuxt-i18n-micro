@@ -63,8 +63,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { flattenTranslations } from '../../util/i18nUtils'
 import type { TranslationContent } from '../../types'
+import { flattenTranslations } from '../../util/i18nUtils'
 
 type ChangeType = 'added' | 'modified' | 'removed'
 
@@ -99,37 +99,37 @@ const changes = computed(() => {
   const baseFlat = flattenTranslations(props.base)
   const allKeys = new Set([...Object.keys(currentFlat), ...Object.keys(baseFlat)])
 
-  return Array.from(allKeys).map((key): DiffItem | null => {
-    const currentVal = currentFlat[key]
-    const baseVal = baseFlat[key]
+  return Array.from(allKeys)
+    .map((key): DiffItem | null => {
+      const currentVal = currentFlat[key]
+      const baseVal = baseFlat[key]
 
-    if (!currentVal && baseVal) {
-      return { key, type: 'removed', baseValue: baseVal }
-    }
-    if (currentVal && !baseVal) {
-      return { key, type: 'added', currentValue: currentVal }
-    }
-    if (currentVal !== baseVal) {
-      return {
-        key,
-        type: 'modified',
-        baseValue: baseVal,
-        currentValue: currentVal,
+      if (!currentVal && baseVal) {
+        return { key, type: 'removed', baseValue: baseVal }
       }
-    }
-    return null
-  }).filter(Boolean) as DiffItem[]
+      if (currentVal && !baseVal) {
+        return { key, type: 'added', currentValue: currentVal }
+      }
+      if (currentVal !== baseVal) {
+        return {
+          key,
+          type: 'modified',
+          baseValue: baseVal,
+          currentValue: currentVal,
+        }
+      }
+      return null
+    })
+    .filter(Boolean) as DiffItem[]
 })
 
 const counts = computed(() => ({
-  added: changes.value.filter(c => c.type === 'added').length,
-  modified: changes.value.filter(c => c.type === 'modified').length,
-  removed: changes.value.filter(c => c.type === 'removed').length,
+  added: changes.value.filter((c) => c.type === 'added').length,
+  modified: changes.value.filter((c) => c.type === 'modified').length,
+  removed: changes.value.filter((c) => c.type === 'removed').length,
 }))
 
-const filteredChanges = computed(() =>
-  changes.value.filter(c => activeFilters.value.includes(c.type)),
-)
+const filteredChanges = computed(() => changes.value.filter((c) => activeFilters.value.includes(c.type)))
 </script>
 
 <style scoped>

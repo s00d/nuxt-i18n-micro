@@ -6,7 +6,6 @@ const RPC_NAMESPACE = 'nuxt-i18n-micro'
 /**
  * Create a Nuxt RPC bridge that adapts Nuxt DevTools RPC to I18nDevToolsBridge interface
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createNuxtBridge(client: any): I18nDevToolsBridge {
   const rpc = client.devtools.extendClientRpc(RPC_NAMESPACE, {
     localesUpdated(_updatedLocales: LocaleData) {
@@ -21,8 +20,7 @@ export function createNuxtBridge(client: any): I18nDevToolsBridge {
         const result = await rpc.getLocalesAndTranslations()
         console.log('[i18n-devtools] Bridge: getLocalesAndTranslations result', { count: Object.keys(result).length })
         return result
-      }
-      catch (error) {
+      } catch (error) {
         console.error('[i18n-devtools] Bridge: getLocalesAndTranslations error', error)
         throw error
       }
@@ -34,8 +32,7 @@ export function createNuxtBridge(client: any): I18nDevToolsBridge {
         const result = await rpc.getConfigs()
         console.log('[i18n-devtools] Bridge: getConfigs result', result)
         return result
-      }
-      catch (error) {
+      } catch (error) {
         console.error('[i18n-devtools] Bridge: getConfigs error', error)
         throw error
       }

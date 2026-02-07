@@ -1,20 +1,20 @@
-import type { NuxtPage } from '@nuxt/schema'
 import type { GlobalLocaleRoutes, Locale } from '@i18n-micro/types'
+import type { NuxtPage } from '@nuxt/schema'
 import {
-  normalizeRouteKey,
-  normalizePath,
-  cloneArray,
-  isPageRedirectOnly,
-  removeLeadingSlash,
-  buildRouteName,
-  shouldAddLocalePrefix,
-  isLocaleDefault,
   buildFullPath,
   buildFullPathNoPrefix,
+  buildRouteName,
+  cloneArray,
   isInternalPath,
+  isLocaleDefault,
+  isPageRedirectOnly,
+  normalizePath,
+  normalizeRouteKey,
   RouteGenerator,
+  removeLeadingSlash,
+  shouldAddLocalePrefix,
 } from '../src/index'
-import { locales, defaultLocaleCode, createBasicPages, createManager } from './helpers'
+import { createBasicPages, createManager, defaultLocaleCode, locales } from './helpers'
 
 describe('RouteGenerator - Exported utils', () => {
   describe('normalizeRouteKey', () => {
@@ -156,21 +156,43 @@ describe('RouteGenerator - Edge cases', () => {
 
   test('single locale in config', () => {
     const singleLocale: Locale[] = [{ code: 'en', iso: 'en-US' }]
-    const generator = new RouteGenerator({ locales: singleLocale, defaultLocaleCode: 'en', strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
+    const generator = new RouteGenerator({
+      locales: singleLocale,
+      defaultLocaleCode: 'en',
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [{ path: '/about', name: 'about' }]
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()
   })
 
   test('constructor with undefined globalLocaleRoutes', () => {
-    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: undefined as unknown as GlobalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
+    const generator = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: undefined as unknown as GlobalLocaleRoutes,
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages = createBasicPages()
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()
   })
 
   test('constructor with undefined filesLocaleRoutes', () => {
-    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, filesLocaleRoutes: undefined as unknown as GlobalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
+    const generator = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: {},
+      filesLocaleRoutes: undefined as unknown as GlobalLocaleRoutes,
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [{ path: '/test', name: 'test' }]
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()
@@ -178,17 +200,52 @@ describe('RouteGenerator - Edge cases', () => {
 
   test('localizedPaths populated after extendPages', () => {
     const globalLocaleRoutes = { '/about': { en: '/about', de: '/ueber-uns' } }
-    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
+    const generator = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes,
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [{ path: '/about', name: 'about' }]
     generator.extendPages(pages)
     expect(generator.localizedPaths).toMatchSnapshot()
   })
 
   test('activeLocaleCodes for each strategy', () => {
-    const prefixExceptDefault = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
-    const prefix = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
-    const noPrefix = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'no_prefix', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
-    const prefixAndDefault = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_and_default', globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false })
+    const prefixExceptDefault = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
+    const prefix = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
+    const noPrefix = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'no_prefix',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
+    const prefixAndDefault = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix_and_default',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     expect({
       prefix_except_default: prefixExceptDefault.activeLocaleCodes,
       prefix: prefix.activeLocaleCodes,
@@ -248,7 +305,14 @@ describe('RouteGenerator - Edge cases', () => {
     const globalLocaleRoutes = {
       '/users/[id]': { en: '/users/:id', de: '/benutzer/:id' },
     }
-    const generator = new RouteGenerator({ locales, defaultLocaleCode, strategy: 'prefix_except_default', globalLocaleRoutes, routeLocales: {}, noPrefixRedirect: false })
+    const generator = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes,
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
     const pages: NuxtPage[] = [{ path: '/users/[id]', name: 'users-id' }]
     generator.extendPages(pages)
     expect(pages).toMatchSnapshot()

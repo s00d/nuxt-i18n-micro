@@ -1,15 +1,7 @@
-import { useTranslationHelper, type TranslationStorage } from './translation'
+import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService } from './format-service'
-import { interpolate, defaultPlural } from './helpers'
-import type {
-  Translations,
-  Params,
-  PluralFunc,
-  Getter,
-  CleanTranslation,
-  TranslationKey,
-  MissingHandler,
-} from '@i18n-micro/types'
+import { defaultPlural, interpolate } from './helpers'
+import { type TranslationStorage, useTranslationHelper } from './translation'
 
 export interface BaseI18nOptions {
   storage?: TranslationStorage
@@ -17,7 +9,7 @@ export interface BaseI18nOptions {
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
   // Optional hooks for Nuxt runtime specific features
-  getPreviousPageInfo?: () => { locale: string, routeName: string } | null
+  getPreviousPageInfo?: () => { locale: string; routeName: string } | null
   getCustomMissingHandler?: () => MissingHandler | null
   enablePreviousPageFallback?: boolean
 }
@@ -36,7 +28,7 @@ export abstract class BaseI18n {
   public missingWarn: boolean
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   // Optional hooks for Nuxt runtime specific features
-  public getPreviousPageInfo?: () => { locale: string, routeName: string } | null
+  public getPreviousPageInfo?: () => { locale: string; routeName: string } | null
   public getCustomMissingHandler?: () => MissingHandler | null
   public enablePreviousPageFallback: boolean
 
@@ -74,12 +66,7 @@ export abstract class BaseI18n {
    * Get translation for a key
    * Based on logic from src/runtime/plugins/01.plugin.ts
    */
-  public t(
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string | null,
-    routeName?: string,
-  ): CleanTranslation {
+  public t(key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation {
     if (!key) return ''
 
     // Use abstract getters to get current state
@@ -118,33 +105,26 @@ export abstract class BaseI18n {
       const customHandler = this.getCustomMissingHandler?.()
       if (customHandler) {
         customHandler(locale, key, route)
-      }
-      else if (this.missingHandler) {
+      } else if (this.missingHandler) {
         this.missingHandler(locale, key as string, route)
-      }
-      else if (this.missingWarn) {
+      } else if (this.missingWarn) {
         const isDev = process.env.NODE_ENV !== 'production'
         const isClient = typeof window !== 'undefined'
         if (isDev && isClient) {
           console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${route}'.`)
         }
       }
-      value = defaultValue === undefined ? key : (defaultValue || key)
+      value = defaultValue === undefined ? key : defaultValue || key
     }
 
     // 5. Interpolate
-    return typeof value === 'string' && params ? interpolate(value, params) : value as CleanTranslation
+    return typeof value === 'string' && params ? interpolate(value, params) : (value as CleanTranslation)
   }
 
   /**
    * Get translation as string
    */
-  public ts(
-    key: TranslationKey,
-    params?: Params,
-    defaultValue?: string,
-    routeName?: string,
-  ): string {
+  public ts(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string {
     const value = this.t(key, params, defaultValue, routeName)
     return value?.toString() ?? defaultValue ?? key
   }
@@ -164,13 +144,7 @@ export abstract class BaseI18n {
       return this.t(k, p, dv)
     }
 
-    const result = this.pluralFunc(
-      key,
-      Number.parseInt(countValue.toString()),
-      params,
-      this.getLocale(),
-      getter,
-    )
+    const result = this.pluralFunc(key, Number.parseInt(countValue.toString(), 10), params, this.getLocale(), getter)
 
     return result ?? defaultValue ?? key
   }
@@ -224,8 +198,7 @@ export abstract class BaseI18n {
   public loadTranslationsCore(locale: string, translations: Translations, merge: boolean): void {
     if (merge) {
       this.helper.mergeGlobalTranslation(locale, translations, true)
-    }
-    else {
+    } else {
       this.helper.setTranslations(locale, translations)
     }
   }
@@ -234,16 +207,10 @@ export abstract class BaseI18n {
    * Core route translation loading logic (without reactivity)
    * Subclasses can override addRouteTranslations to add reactivity
    */
-  public loadRouteTranslationsCore(
-    locale: string,
-    routeName: string,
-    translations: Translations,
-    merge: boolean,
-  ): void {
+  public loadRouteTranslationsCore(locale: string, routeName: string, translations: Translations, merge: boolean): void {
     if (merge) {
       this.helper.mergeTranslation(locale, routeName, translations, true)
-    }
-    else {
+    } else {
       this.helper.loadPageTranslations(locale, routeName, translations)
     }
   }

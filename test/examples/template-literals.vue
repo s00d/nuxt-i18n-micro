@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Test with template literals
 const baseUrl = '/api'
@@ -15,8 +14,8 @@ $defineI18nRoute({
   locales: [`${locale}`, 'de', 'fr'],
   localeRoutes: {
     [`${locale}`]: `${baseUrl}/welcome`,
-    'de': `${baseUrl}/willkommen`,
-    'fr': `${baseUrl}/bienvenue`
-  }
+    de: `${baseUrl}/willkommen`,
+    fr: `${baseUrl}/bienvenue`,
+  },
 })
 </script>

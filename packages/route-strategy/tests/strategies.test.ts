@@ -1,6 +1,6 @@
-import type { NuxtPage } from '@nuxt/schema'
 import type { Strategies } from '@i18n-micro/types'
-import { createBasicPages, createNestedPages, createManager } from './helpers'
+import type { NuxtPage } from '@nuxt/schema'
+import { createBasicPages, createManager, createNestedPages } from './helpers'
 
 describe('RouteGenerator - Strategy: prefix_except_default', () => {
   const strategy: Strategies = 'prefix_except_default'

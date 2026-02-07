@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 // Test with nested objects and arrays
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 $defineI18nRoute({
   locales: {

@@ -52,7 +52,14 @@ describe('localeRoute by route name + globalLocaleRoutes (locale-test style)', (
     const router = makeRouterAdapter([])
     const resolveOriginal = router.resolve.bind(router)
     router.resolve = (to: RouteLike | string) => {
-      const r = resolveOriginal(to) as { name: string | null, path: string, fullPath: string, params: Record<string, unknown>, query: Record<string, unknown>, hash: string }
+      const r = resolveOriginal(to) as {
+        name: string | null
+        path: string
+        fullPath: string
+        params: Record<string, unknown>
+        query: Record<string, unknown>
+        hash: string
+      }
       const name = (to as { name?: string }).name
       if (name && (r.path === '/' || !r.path)) {
         return { ...r, path: `/${name}`, fullPath: `/${name}` }
@@ -90,7 +97,11 @@ describe('localeRoute by route name + globalLocaleRoutes (locale-test style)', (
     }
     const router = makeRouterAdapter([])
     router.resolve = (to: RouteLike | string) => {
-      const r = (typeof to === 'string' ? { name: to, path: to, fullPath: to } : { name: (to as RouteLike).name, path: `/${(to as RouteLike).name}`, fullPath: `/${(to as RouteLike).name}` }) as { name: string | null, path: string, fullPath: string }
+      const r = (
+        typeof to === 'string'
+          ? { name: to, path: to, fullPath: to }
+          : { name: (to as RouteLike).name, path: `/${(to as RouteLike).name}`, fullPath: `/${(to as RouteLike).name}` }
+      ) as { name: string | null; path: string; fullPath: string }
       return { ...r, params: {}, query: {}, hash: '' }
     }
     const strategy = createPathStrategy(makeCtxAny('prefix', { globalLocaleRoutes, router }))
@@ -108,7 +119,11 @@ describe('localeRoute by route name + globalLocaleRoutes (locale-test style)', (
     }
     const router = makeRouterAdapter([])
     router.resolve = (to: RouteLike | string) => {
-      const r = (typeof to === 'string' ? { name: to, path: to, fullPath: to } : { name: (to as RouteLike).name, path: `/${(to as RouteLike).name}`, fullPath: `/${(to as RouteLike).name}` }) as { name: string | null, path: string, fullPath: string }
+      const r = (
+        typeof to === 'string'
+          ? { name: to, path: to, fullPath: to }
+          : { name: (to as RouteLike).name, path: `/${(to as RouteLike).name}`, fullPath: `/${(to as RouteLike).name}` }
+      ) as { name: string | null; path: string; fullPath: string }
       return { ...r, params: {}, query: {}, hash: '' }
     }
     const strategy = createPathStrategy(makeCtxAny('prefix_and_default', { globalLocaleRoutes, router }))
@@ -125,11 +140,18 @@ describe('localeRoute by route name + globalLocaleRoutes (locale-test style)', (
     }
     const router = makeRouterAdapter([])
     router.resolve = (to: RouteLike | string) => {
-      const r = (typeof to === 'string' ? { name: to, path: to, fullPath: to } : { name: (to as RouteLike).name, path: `/${(to as RouteLike).name}`, fullPath: `/${(to as RouteLike).name}` }) as { name: string | null, path: string, fullPath: string }
+      const r = (
+        typeof to === 'string'
+          ? { name: to, path: to, fullPath: to }
+          : { name: (to as RouteLike).name, path: `/${(to as RouteLike).name}`, fullPath: `/${(to as RouteLike).name}` }
+      ) as { name: string | null; path: string; fullPath: string }
       return { ...r, params: {}, query: {}, hash: '' }
     }
     const strategy = createPathStrategy(makeCtxAny('no_prefix', { globalLocaleRoutes, router }))
-    const result = { en: strategy.localeRoute('en', { name: 'locale-test' }, currentRouteEn), de: strategy.localeRoute('de', { name: 'locale-test' }, currentRouteEn) }
+    const result = {
+      en: strategy.localeRoute('en', { name: 'locale-test' }, currentRouteEn),
+      de: strategy.localeRoute('de', { name: 'locale-test' }, currentRouteEn),
+    }
     expect(result).toMatchSnapshot()
   })
 })

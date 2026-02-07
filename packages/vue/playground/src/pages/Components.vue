@@ -86,8 +86,8 @@
 </template>
 
 <script setup lang="ts">
+import { I18nGroup, I18nLink, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/vue'
 import { computed } from 'vue'
-import { I18nT, I18nLink, I18nGroup, I18nSwitcher, useI18n } from '@i18n-micro/vue'
 
 const { t, tn, td, tdr } = useI18n()
 

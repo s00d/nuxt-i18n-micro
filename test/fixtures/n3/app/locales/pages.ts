@@ -19,8 +19,18 @@ const pages: Record<string, Record<string, string>> = {}
 const directoryListing = globSync(`${pagesDir}**/*.vue`)
 
 directoryListing.forEach((path) => {
-  const pageIdentifier: string = path.replace(pagesDir, '').replace(/\.vue$/, '').replace(/\/index$/, '').replace(/\//g, '-').replaceAll(/\[/g, '').replaceAll(/\]/g, '')
-  const partsBase: string = path.replace(pagesDir, '').replace(/\.vue$/, '').replace(/\[/g, ':').replace(/\]/g, '()')
+  const pageIdentifier: string = path
+    .replace(pagesDir, '')
+    .replace(/\.vue$/, '')
+    .replace(/\/index$/, '')
+    .replace(/\//g, '-')
+    .replaceAll(/\[/g, '')
+    .replaceAll(/\]/g, '')
+  const partsBase: string = path
+    .replace(pagesDir, '')
+    .replace(/\.vue$/, '')
+    .replace(/\[/g, ':')
+    .replace(/\]/g, '()')
 
   if (pageIdentifier !== 'index' && !pageIdentifier.startsWith('[')) {
     pages[pageIdentifier] = {}
@@ -35,8 +45,7 @@ directoryListing.forEach((path) => {
           if (routeTranslations[part]) {
             newParts[i] = routeTranslations[part]
           }
-        }
-        else {
+        } else {
           const part = parts[i]
           if (part) {
             newParts[i] = part // .replace(/^_$/, '*').replace(/^_/, ':');
@@ -44,7 +53,7 @@ directoryListing.forEach((path) => {
         }
       }
       pages[pageIdentifier][lang] = newParts.join('/')
-      pages[pageIdentifier][lang] = '/' + pages[pageIdentifier][lang].replace(/\/index$/, '')
+      pages[pageIdentifier][lang] = `/${pages[pageIdentifier][lang].replace(/\/index$/, '')}`
     }
   }
 })

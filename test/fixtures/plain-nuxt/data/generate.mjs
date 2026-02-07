@@ -31,7 +31,7 @@ function generateText(seed) {
   const length = (seed % 10) + 5
   let result = ''
   for (let i = 0; i < length; i++) {
-    result += words[(seed + i) % words.length] + ' '
+    result += `${words[(seed + i) % words.length]} `
   }
   return result.trim()
 }
@@ -46,8 +46,7 @@ function generateIndexTranslations(locale, level = 5, seed = 0) {
     const key = keys[i]
     if (level > 1) {
       translations[key] = generateIndexTranslations(locale, level - 1, seed + i * 100 + localeSeed)
-    }
-    else {
+    } else {
       translations[key] = generateText(seed + i + localeSeed)
     }
   }
@@ -110,13 +109,7 @@ for (const locale of LOCALES) {
 }
 
 // Keep root index.json and page.json for backward compat (en)
-fs.writeFileSync(
-  path.join(dataDir, 'index.json'),
-  fs.readFileSync(path.join(indexDir, 'en.json'), 'utf8'),
-)
-fs.writeFileSync(
-  path.join(dataDir, 'page.json'),
-  fs.readFileSync(path.join(pageDir, 'en.json'), 'utf8'),
-)
+fs.writeFileSync(path.join(dataDir, 'index.json'), fs.readFileSync(path.join(indexDir, 'en.json'), 'utf8'))
+fs.writeFileSync(path.join(dataDir, 'page.json'), fs.readFileSync(path.join(pageDir, 'en.json'), 'utf8'))
 
 console.log('Data files generated successfully!')

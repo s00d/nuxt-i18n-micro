@@ -1,8 +1,8 @@
-import type { NormalizedRouteInput, ResolvedRouteLike, RouteLike, SwitchLocaleOptions } from '../core/types'
-import { BasePathStrategy } from './base-strategy'
 import { isSamePath, withLeadingSlash, withoutLeadingSlash } from 'ufo'
+import type { NormalizedRouteInput, ResolvedRouteLike, RouteLike, SwitchLocaleOptions } from '../core/types'
 import { buildUrl, getCleanPath, joinUrl, normalizePath, normalizePathForCompare, transformNameKeyToPath } from '../utils/path'
 import { isIndexRouteName } from '../utils/route-name'
+import { BasePathStrategy } from './base-strategy'
 
 /**
  * prefix_and_default: default locale has both /path and /en/path.
@@ -17,12 +17,7 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
     return this.buildLocalizedName(baseName, locale)
   }
 
-  override switchLocaleRoute(
-    fromLocale: string,
-    toLocale: string,
-    route: ResolvedRouteLike,
-    options: SwitchLocaleOptions,
-  ): RouteLike | string {
+  override switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
     const baseName = this.getBaseRouteName(route, fromLocale)
     if (!baseName) return route
 
@@ -34,15 +29,12 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
 
     if (this.ctx.router.hasRoute(nameWithSuffix)) {
       targetName = nameWithSuffix
-    }
-    else if (this.ctx.router.hasRoute(nameWithoutSuffix)) {
+    } else if (this.ctx.router.hasRoute(nameWithoutSuffix)) {
       targetName = nameWithoutSuffix
       needsLocaleParam = true
-    }
-    else if (this.ctx.router.hasRoute(baseName)) {
+    } else if (this.ctx.router.hasRoute(baseName)) {
       targetName = baseName
-    }
-    else {
+    } else {
       return { ...route, name: nameWithSuffix }
     }
 
@@ -50,8 +42,7 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
     const newParams: Record<string, unknown> = { ...(route.params || {}), ...i18nParams }
     if (needsLocaleParam) {
       newParams.locale = toLocale
-    }
-    else {
+    } else {
       delete (newParams as Record<string, unknown>).locale
     }
 
@@ -81,18 +72,14 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
     }
     const hasParams = sourceRoute.params && Object.keys(sourceRoute.params ?? {}).length > 0
     if (inputName && hasParams) {
-      const routeWithParams = this.tryResolveByLocalizedNameWithParams(
-        inputName,
-        targetLocale,
-        sourceRoute.params ?? {},
-        sourceRoute,
-      )
+      const routeWithParams = this.tryResolveByLocalizedNameWithParams(inputName, targetLocale, sourceRoute.params ?? {}, sourceRoute)
       if (routeWithParams !== null) {
         const resolvedPath = routeWithParams.path ?? ''
         const { pathWithoutLocale } = this.getPathWithoutLocale(resolvedPath)
-        const pathWithLocale = pathWithoutLocale === '/' || pathWithoutLocale === ''
-          ? `/${targetLocale}`
-          : joinUrl(`/${targetLocale}`, withLeadingSlash(pathWithoutLocale))
+        const pathWithLocale =
+          pathWithoutLocale === '/' || pathWithoutLocale === ''
+            ? `/${targetLocale}`
+            : joinUrl(`/${targetLocale}`, withLeadingSlash(pathWithoutLocale))
         const fullPathWithLocale = buildUrl(pathWithLocale, routeWithParams.query, routeWithParams.hash)
         const routeWithPath: RouteLike = {
           ...routeWithParams,
@@ -123,9 +110,10 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
         // we always need path with locale (e.g. /en/contact).
         const resolvedPath = routeByLocalizedName.path ?? ''
         const { pathWithoutLocale } = this.getPathWithoutLocale(resolvedPath)
-        const pathWithLocale = pathWithoutLocale === '/' || pathWithoutLocale === ''
-          ? `/${targetLocale}`
-          : joinUrl(`/${targetLocale}`, withLeadingSlash(pathWithoutLocale))
+        const pathWithLocale =
+          pathWithoutLocale === '/' || pathWithoutLocale === ''
+            ? `/${targetLocale}`
+            : joinUrl(`/${targetLocale}`, withLeadingSlash(pathWithoutLocale))
         const fullPathWithLocale = buildUrl(pathWithLocale, routeByLocalizedName.query, routeByLocalizedName.hash)
         const routeWithPath: RouteLike = {
           ...routeByLocalizedName,
@@ -142,20 +130,15 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
       }
     }
 
-    const fromLocale = currentRoute
-      ? this.detectLocaleFromName(currentRoute.name)
-      : this.detectLocaleFromName(resolved.name)
+    const fromLocale = currentRoute ? this.detectLocaleFromName(currentRoute.name) : this.detectLocaleFromName(resolved.name)
 
-    const fallbackBaseName = fromLocale
-      ? this.getBaseRouteName(resolved, fromLocale)
-      : baseName
+    const fallbackBaseName = fromLocale ? this.getBaseRouteName(resolved, fromLocale) : baseName
 
     if (!fallbackBaseName) {
       // Never return unprefixed path for prefix_and_default. Build path from resolved.
       const { pathWithoutLocale } = this.getPathWithoutLocale(resolved.path ?? '/')
-      const pathWithLocale = pathWithoutLocale === '/' || pathWithoutLocale === ''
-        ? `/${targetLocale}`
-        : joinUrl(`/${targetLocale}`, withLeadingSlash(pathWithoutLocale))
+      const pathWithLocale =
+        pathWithoutLocale === '/' || pathWithoutLocale === '' ? `/${targetLocale}` : joinUrl(`/${targetLocale}`, withLeadingSlash(pathWithoutLocale))
       const fullPathWithLocale = buildUrl(pathWithLocale, sourceRoute.query, sourceRoute.hash)
       return this.applyBaseUrl(targetLocale, {
         ...sourceRoute,
@@ -166,12 +149,10 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
 
     const targetName = this.buildLocalizedName(fallbackBaseName, targetLocale)
 
-    const pathWithoutLocale = isIndexRouteName(fallbackBaseName)
-      ? '/'
-      : joinUrl('/', transformNameKeyToPath(fallbackBaseName))
+    const pathWithoutLocale = isIndexRouteName(fallbackBaseName) ? '/' : joinUrl('/', transformNameKeyToPath(fallbackBaseName))
     const pathForLocale = joinUrl(`/${targetLocale}`, withLeadingSlash(pathWithoutLocale))
     const withBase = this.applyBaseUrl(targetLocale, pathForLocale)
-    const pathStr = typeof withBase === 'string' ? withBase : (withBase as RouteLike).path ?? pathForLocale
+    const pathStr = typeof withBase === 'string' ? withBase : ((withBase as RouteLike).path ?? pathForLocale)
 
     const newRoute: RouteLike = {
       name: targetName,

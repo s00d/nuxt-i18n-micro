@@ -10,24 +10,20 @@ export function flattenTranslations(obj: Record<string, unknown>, parentKey = ''
           value.forEach((item, index) => {
             flattenTranslations(item as Record<string, unknown>, `${newKey}.[]${index}`, result)
           })
-        }
-        else {
+        } else {
           // If it's an object, recursively call flattenTranslations
           flattenTranslations(value as Record<string, unknown>, newKey, result)
         }
-      }
-      else {
+      } else {
         // If it's a primitive, save the value
-        result[newKey] = value?.toString() ?? '' as string
+        result[newKey] = value?.toString() ?? ('' as string)
       }
     }
   }
   return result
 }
 
-export const unflattenTranslations = <T = Record<string, unknown>>(
-  flat: Record<string, string>,
-): T => {
+export const unflattenTranslations = <T = Record<string, unknown>>(flat: Record<string, string>): T => {
   const result = {} as T
 
   for (const key in flat) {
@@ -52,20 +48,16 @@ export const unflattenTranslations = <T = Record<string, unknown>>(
             if (typeof value === 'string') {
               if (value === 'true' || value === 'false') {
                 currentObj[part] = value === 'true'
-              }
-              else if (!Number.isNaN(Number(value)) && value.trim() !== '') {
+              } else if (!Number.isNaN(Number(value)) && value.trim() !== '') {
                 currentObj[part] = Number(value)
-              }
-              else {
+              } else {
                 currentObj[part] = value
               }
-            }
-            else {
+            } else {
               currentObj[part] = value
             }
           }
-        }
-        else {
+        } else {
           if (typeof current !== 'object' || current === null) {
             current = {}
           }
@@ -77,11 +69,10 @@ export const unflattenTranslations = <T = Record<string, unknown>>(
             if (!Array.isArray(currentObj)) {
               const newArray: unknown[] = []
               if (parent !== null && parentKey !== null && typeof parentKey === 'string') {
-                (parent as Record<string, unknown>)[parentKey] = newArray
-              }
-              else if (part) {
+                ;(parent as Record<string, unknown>)[parentKey] = newArray
+              } else if (part) {
                 // Если это корневой элемент (не должен случаться для массива)
-                (result as Record<string, unknown>)[part] = newArray
+                ;(result as Record<string, unknown>)[part] = newArray
               }
               current = newArray
             }
@@ -100,8 +91,7 @@ export const unflattenTranslations = <T = Record<string, unknown>>(
             parent = arr
             parentKey = arrayIndex
             current = arr[arrayIndex]
-          }
-          else if (part) {
+          } else if (part) {
             // Обработка обычного объекта
             if (currentObj[part] === undefined) {
               currentObj[part] = {}

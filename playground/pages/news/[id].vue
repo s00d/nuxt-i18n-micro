@@ -49,12 +49,14 @@ const { params } = useRoute()
 const router = useRouter()
 const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n()
 
-const newsLink = computed(() => $localeRoute({
-  name: 'news-id',
-  params: { id: '2' },
-  hash: '#tada',
-  query: { a: 'b' },
-}))
+const newsLink = computed(() =>
+  $localeRoute({
+    name: 'news-id',
+    params: { id: '2' },
+    hash: '#tada',
+    query: { a: 'b' },
+  }),
+)
 
 // definePageMeta({
 //   middleware: ['my-middleware'],

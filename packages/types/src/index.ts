@@ -10,9 +10,7 @@ export interface DefineLocaleMessage {
 // Если интерфейс пустой (генератор не подключен), тип ключа — string.
 // Если в интерфейсе есть ключи, тип ключа — объединение этих ключей и string (Union Type).
 // Это позволяет использовать как строгие типы (автокомплит), так и обычные строки (динамические ключи).
-export type TranslationKey = keyof DefineLocaleMessage extends never
-  ? string
-  : keyof DefineLocaleMessage | string
+export type TranslationKey = keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
 
 /**
  * Хелпер для создания типизированных префиксов.
@@ -56,13 +54,7 @@ export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | fal
 
 export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
 
-export type MissingHandler = (
-  locale: string,
-  key: TranslationKey,
-  routeName: string,
-  instance?: unknown,
-  type?: string
-) => void
+export type MissingHandler = (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
 
 export interface ModuleOptions {
   locales?: Locale[]

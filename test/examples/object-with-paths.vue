@@ -5,20 +5,19 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 // @ts-nocheck
 // Object format with custom paths
 $defineI18nRoute({
   locales: {
-    'en': {
-      path: '/welcome'
+    en: {
+      path: '/welcome',
     },
-    'de': {
-      path: '/willkommen'
+    de: {
+      path: '/willkommen',
     },
-    'ru': {
-      path: '/dobro-pozhalovat'
-    }
-  }
+    ru: {
+      path: '/dobro-pozhalovat',
+    },
+  },
 })
 </script>

@@ -1,8 +1,19 @@
-import type { NormalizedRouteInput, ResolvedRouteLike, RouteLike, SwitchLocaleOptions } from '../core/types'
-import { BasePathStrategy } from './base-strategy'
 import { cleanDoubleSlashes, isSamePath, withoutLeadingSlash } from 'ufo'
-import { getCleanPath, getPathSegments, joinUrl, normalizePath, normalizePathForCompare, nameKeyFirstSlash, nameKeyLastSlash, parentKeyFromSlashKey, lastPathSegment, transformNameKeyToPath } from '../utils/path'
+import type { NormalizedRouteInput, ResolvedRouteLike, RouteLike, SwitchLocaleOptions } from '../core/types'
+import {
+  getCleanPath,
+  getPathSegments,
+  joinUrl,
+  lastPathSegment,
+  nameKeyFirstSlash,
+  nameKeyLastSlash,
+  normalizePath,
+  normalizePathForCompare,
+  parentKeyFromSlashKey,
+  transformNameKeyToPath,
+} from '../utils/path'
 import { isIndexRouteName } from '../utils/route-name'
+import { BasePathStrategy } from './base-strategy'
 
 export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
   /**
@@ -13,7 +24,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     if (this.ctx.includeDefaultLocaleRoute) return true
     if (locale === this.ctx.defaultLocale) return false
     // When locale has baseUrl with baseDefault=true, no prefix needed (uses root on separate domain)
-    const localeObj = this.ctx.locales.find(l => l.code === locale)
+    const localeObj = this.ctx.locales.find((l) => l.code === locale)
     if (localeObj?.baseUrl && localeObj?.baseDefault) return false
     return true
   }
@@ -28,12 +39,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     return this.buildLocalizedName(baseName, locale)
   }
 
-  override switchLocaleRoute(
-    fromLocale: string,
-    toLocale: string,
-    route: ResolvedRouteLike,
-    options: SwitchLocaleOptions,
-  ): RouteLike | string {
+  override switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
     const baseName = this.getBaseRouteName(route, fromLocale)
     if (!baseName) return route
 
@@ -44,8 +50,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       const nameWithSuffix = this.buildLocalizedName(baseName, toLocale)
       const nameWithoutSuffix = `${this.getLocalizedRouteNamePrefix()}${baseName}`
       targetName = this.ctx.router.hasRoute(nameWithSuffix) ? nameWithSuffix : nameWithoutSuffix
-    }
-    else {
+    } else {
       targetName = baseName
     }
 
@@ -55,8 +60,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       // Always set locale param for non-default locales because routes may have /:locale(...) in path
       if (this.shouldHavePrefix(toLocale)) {
         newParams.locale = toLocale
-      }
-      else {
+      } else {
         delete newParams.locale
       }
 
@@ -97,7 +101,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       const unlocalizedByName = this.getPathForUnlocalizedRouteByName(inputName)
       if (unlocalizedByName !== null) return this.preserveQueryAndHash(unlocalizedByName, sourceRoute)
       const keyLastSlash = nameKeyLastSlash(inputName)
-      const syntheticPath = '/' + keyLastSlash
+      const syntheticPath = `/${keyLastSlash}`
       const syntheticResolved: ResolvedRouteLike = {
         name: inputName,
         path: syntheticPath,
@@ -112,8 +116,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
           const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
           const segment = customBySynthetic.startsWith('/') ? customBySynthetic.slice(1) : customBySynthetic
           pathNorm = parentPath ? joinUrl(parentPath, segment) : normalizePath(customBySynthetic)
-        }
-        else {
+        } else {
           pathNorm = normalizePath(customBySynthetic)
         }
         if (!this.shouldHavePrefix(targetLocale)) {
@@ -146,12 +149,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
           return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeResult), sourceRoute)
         }
       }
-      const routeWithParams = this.tryResolveByLocalizedNameWithParams(
-        inputName,
-        targetLocale,
-        sourceRoute.params ?? {},
-        sourceRoute,
-      )
+      const routeWithParams = this.tryResolveByLocalizedNameWithParams(inputName, targetLocale, sourceRoute.params ?? {}, sourceRoute)
       if (routeWithParams !== null) {
         const applied = this.applyBaseUrl(targetLocale, routeWithParams)
         return this.preserveQueryAndHash(applied, sourceRoute)
@@ -173,8 +171,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
           const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
           const segment = customSegment.startsWith('/') ? customSegment.slice(1) : customSegment
           path = joinUrl(parentPath, segment)
-        }
-        else {
+        } else {
           path = normalizePath(customSegment)
         }
         if (!this.shouldHavePrefix(targetLocale)) {
@@ -194,26 +191,27 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
           const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
           const segment = customForTarget.startsWith('/') ? customForTarget.slice(1) : customForTarget
           pathToUse = joinUrl(parentPath, segment)
-        }
-        else if (isNested && customForTarget === null && pathWithoutLocale && pathWithoutLocale !== '/' && nestedInfo) {
+        } else if (isNested && customForTarget === null && pathWithoutLocale && pathWithoutLocale !== '/' && nestedInfo) {
           const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
           const segment = lastPathSegment(pathWithoutLocale)
-          pathToUse = parentPath ? joinUrl(parentPath, segment) : (pathWithoutLocale !== '/' ? pathWithoutLocale : null)
-        }
-        else {
-          pathToUse = customForTarget !== null && !isNested
-            ? normalizePath(customForTarget)
-            : (pathWithoutLocale && pathWithoutLocale !== '/' ? pathWithoutLocale : null)
+          pathToUse = parentPath ? joinUrl(parentPath, segment) : pathWithoutLocale !== '/' ? pathWithoutLocale : null
+        } else {
+          pathToUse =
+            customForTarget !== null && !isNested
+              ? normalizePath(customForTarget)
+              : pathWithoutLocale && pathWithoutLocale !== '/'
+                ? pathWithoutLocale
+                : null
         }
         if (pathToUse) {
           const fromLocale = this.detectLocaleFromName(resolved.name)
-          const baseName = fromLocale ? this.getBaseRouteName(resolved, fromLocale) : (resolved.name ? this.getRouteBaseName(resolved) : null)
+          const baseName = fromLocale ? this.getBaseRouteName(resolved, fromLocale) : resolved.name ? this.getRouteBaseName(resolved) : null
           const targetName = baseName
-            ? (this.shouldHavePrefix(targetLocale) ? this.buildLocalizedName(baseName, targetLocale) : baseName.toString())
+            ? this.shouldHavePrefix(targetLocale)
+              ? this.buildLocalizedName(baseName, targetLocale)
+              : baseName.toString()
             : undefined
-          const pathForLocale = this.shouldHavePrefix(targetLocale)
-            ? joinUrl(targetLocale, pathToUse)
-            : pathToUse
+          const pathForLocale = this.shouldHavePrefix(targetLocale) ? joinUrl(targetLocale, pathToUse) : pathToUse
           const routeWithName: RouteLike = {
             ...(targetName ? { name: targetName } : {}),
             path: pathForLocale,
@@ -229,7 +227,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     // When resolved failed (e.g. router has only localized names), try getCustomPathSegment by synthetic path from inputName
     if (inputName) {
       const keyLastSlash = nameKeyLastSlash(inputName)
-      const syntheticPath = '/' + keyLastSlash
+      const syntheticPath = `/${keyLastSlash}`
       const syntheticResolved: ResolvedRouteLike = {
         name: inputName,
         path: syntheticPath,
@@ -244,8 +242,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
           const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
           const segment = customBySynthetic.startsWith('/') ? customBySynthetic.slice(1) : customBySynthetic
           pathNorm = joinUrl(parentPath || '/', segment)
-        }
-        else {
+        } else {
           pathNorm = normalizePath(customBySynthetic)
         }
         if (!this.shouldHavePrefix(targetLocale)) {
@@ -260,47 +257,44 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       if (!this.shouldHavePrefix(targetLocale)) {
         // Default locale: try to resolve baseName directly
         if (this.ctx.router.hasRoute(inputName)) {
-          const resolvedBase = this.ctx.router.resolve({ name: inputName, params: sourceRoute.params, query: sourceRoute.query, hash: sourceRoute.hash })
+          const resolvedBase = this.ctx.router.resolve({
+            name: inputName,
+            params: sourceRoute.params,
+            query: sourceRoute.query,
+            hash: sourceRoute.hash,
+          })
           if (resolvedBase?.path) {
-            return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, {
-              name: inputName,
-              path: resolvedBase.path,
-              fullPath: resolvedBase.fullPath,
-              params: resolvedBase.params,
-              query: resolvedBase.query ?? sourceRoute.query,
-              hash: resolvedBase.hash ?? sourceRoute.hash,
-            }), sourceRoute)
+            return this.preserveQueryAndHash(
+              this.applyBaseUrl(targetLocale, {
+                name: inputName,
+                path: resolvedBase.path,
+                fullPath: resolvedBase.fullPath,
+                params: resolvedBase.params,
+                query: resolvedBase.query ?? sourceRoute.query,
+                hash: resolvedBase.hash ?? sourceRoute.hash,
+              }),
+              sourceRoute,
+            )
           }
         }
-      }
-      else {
+      } else {
         const routeByLocalizedName = this.tryResolveByLocalizedName(inputName, targetLocale, sourceRoute)
         if (routeByLocalizedName !== null) return this.preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeByLocalizedName), sourceRoute)
       }
     }
 
-    const fromLocale = currentRoute
-      ? this.detectLocaleFromName(currentRoute.name)
-      : this.detectLocaleFromName(resolved.name)
+    const fromLocale = currentRoute ? this.detectLocaleFromName(currentRoute.name) : this.detectLocaleFromName(resolved.name)
 
-    const baseName = fromLocale
-      ? this.getBaseRouteName(resolved, fromLocale)
-      : resolved.name ?? null
+    const baseName = fromLocale ? this.getBaseRouteName(resolved, fromLocale) : (resolved.name ?? null)
 
     if (!baseName) return sourceRoute
 
-    const targetName = this.shouldHavePrefix(targetLocale)
-      ? this.buildLocalizedName(baseName, targetLocale)
-      : baseName.toString()
+    const targetName = this.shouldHavePrefix(targetLocale) ? this.buildLocalizedName(baseName, targetLocale) : baseName.toString()
 
-    const pathWithoutLocale = isIndexRouteName(baseName)
-      ? '/'
-      : joinUrl('/', transformNameKeyToPath(baseName))
-    const pathForLocale = this.shouldHavePrefix(targetLocale)
-      ? joinUrl(targetLocale, pathWithoutLocale)
-      : pathWithoutLocale
+    const pathWithoutLocale = isIndexRouteName(baseName) ? '/' : joinUrl('/', transformNameKeyToPath(baseName))
+    const pathForLocale = this.shouldHavePrefix(targetLocale) ? joinUrl(targetLocale, pathWithoutLocale) : pathWithoutLocale
     const withBase = this.applyBaseUrl(targetLocale, pathForLocale)
-    const pathStr = typeof withBase === 'string' ? withBase : (withBase as RouteLike).path ?? pathForLocale
+    const pathStr = typeof withBase === 'string' ? withBase : ((withBase as RouteLike).path ?? pathForLocale)
 
     const newRoute: RouteLike = {
       name: targetName,
@@ -392,7 +386,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
    * For a nested route name (e.g. activity-locale-hiking), returns parent key and slash-key
    * when the route is nested (child or parent in globalLocaleRoutes). Otherwise null.
    */
-  private getNestedRouteInfo(baseRouteName: string): { parentKey: string, keyWithSlash: string } | null {
+  private getNestedRouteInfo(baseRouteName: string): { parentKey: string; keyWithSlash: string } | null {
     const gr = this.ctx.globalLocaleRoutes
     if (!gr) return null
     const keyLast = nameKeyLastSlash(baseRouteName)
@@ -415,16 +409,12 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
   }
 
   /** Parent path for target locale from gr or currentRoute. */
-  private getParentPathForTarget(
-    parentKey: string,
-    keyWithSlash: string,
-    targetLocale: string,
-    currentRoute?: ResolvedRouteLike,
-  ): string {
+  private getParentPathForTarget(parentKey: string, keyWithSlash: string, targetLocale: string, currentRoute?: ResolvedRouteLike): string {
     const gr = this.ctx.globalLocaleRoutes
-    const parentRules = (parentKey && gr?.[parentKey] && typeof gr[parentKey] === 'object' && !Array.isArray(gr[parentKey]))
-      ? (gr[parentKey] as Record<string, string>)
-      : null
+    const parentRules =
+      parentKey && gr?.[parentKey] && typeof gr[parentKey] === 'object' && !Array.isArray(gr[parentKey])
+        ? (gr[parentKey] as Record<string, string>)
+        : null
     let parentPath = parentRules?.[targetLocale] ? normalizePath(parentRules[targetLocale]) : ''
     if (!parentPath && currentRoute?.path) {
       const curPathOnly = getCleanPath(currentRoute.path)
@@ -497,8 +487,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     let targetPath: string
     if (needsPrefix) {
       targetPath = cleanDoubleSlashes(`/${preferredLocale}${customPath.startsWith('/') ? customPath : `/${customPath}`}`)
-    }
-    else {
+    } else {
       targetPath = customPath.startsWith('/') ? customPath : `/${customPath}`
     }
 

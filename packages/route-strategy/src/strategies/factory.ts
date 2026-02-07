@@ -1,9 +1,9 @@
 import type { Strategies } from '@i18n-micro/types'
-import type { RouteStrategy } from './types'
 import { NoPrefixStrategy } from './no-prefix'
 import { PrefixStrategy } from './prefix'
 import { PrefixAndDefaultStrategy } from './prefix-and-default'
 import { PrefixExceptDefaultStrategy } from './prefix-except-default'
+import type { RouteStrategy } from './types'
 
 export function getStrategy(name: Strategies): RouteStrategy {
   switch (name) {

@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import React from 'react'
+
+import { describe, expect, jest, test } from '@jest/globals'
+import { act, render, screen, waitFor } from '@testing-library/preact'
 import { h } from 'preact'
-import { describe, test, expect, jest } from '@jest/globals'
-import { render, screen, waitFor, act } from '@testing-library/preact'
+import React from 'react'
 import { createI18n, I18nProvider, useI18n } from '../src'
 
 // Test component that uses useI18n
@@ -39,9 +39,7 @@ describe('I18nProvider and useI18n', () => {
     })
 
     // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(
-      h(I18nProvider, { i18n }, h(TestComponent, null)),
-    )
+    render(h(I18nProvider, { i18n }, h(TestComponent, null)))
 
     expect(screen.getByTestId('greeting').textContent).toBe('Hello')
     expect(screen.getByTestId('locale').textContent).toBe('en')
@@ -78,9 +76,7 @@ describe('I18nProvider and useI18n', () => {
     })
 
     // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(
-      h(I18nProvider, { i18n }, h(TestComponent, null)),
-    )
+    render(h(I18nProvider, { i18n }, h(TestComponent, null)))
 
     expect(screen.getByTestId('plural-0').textContent).toBe('no apples')
     expect(screen.getByTestId('plural-1').textContent).toBe('one apple')
@@ -99,9 +95,7 @@ describe('I18nProvider and useI18n', () => {
     })
 
     // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(
-      h(I18nProvider, { i18n }, h(TestComponent, null)),
-    )
+    render(h(I18nProvider, { i18n }, h(TestComponent, null)))
 
     expect(screen.getByTestId('number').textContent).toMatch(/1[,.]234[.,]56/)
     expect(screen.getByTestId('date').textContent).toBeTruthy()
@@ -124,9 +118,7 @@ describe('I18nProvider and useI18n', () => {
     })
 
     // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(
-      h(I18nProvider, { i18n }, h(TestComponent, null)),
-    )
+    render(h(I18nProvider, { i18n }, h(TestComponent, null)))
 
     expect(screen.getByTestId('greeting').textContent).toBe('Hello')
     expect(screen.getByTestId('locale').textContent).toBe('en')
@@ -153,23 +145,22 @@ describe('I18nProvider and useI18n', () => {
       },
     })
 
-    i18n.addRouteTranslations('en', 'home', {
-      title: 'Home Title',
-    }, false)
+    i18n.addRouteTranslations(
+      'en',
+      'home',
+      {
+        title: 'Home Title',
+      },
+      false,
+    )
 
     const RouteTestComponent = () => {
       const { ts } = useI18n()
-      return React.createElement(
-        'div',
-        null,
-        React.createElement('div', { 'data-testid': 'route-title' }, ts('title')),
-      )
+      return React.createElement('div', null, React.createElement('div', { 'data-testid': 'route-title' }, ts('title')))
     }
 
     // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(
-      h(I18nProvider, { i18n }, h(RouteTestComponent, null)),
-    )
+    render(h(I18nProvider, { i18n }, h(RouteTestComponent, null)))
 
     expect(screen.getByTestId('route-title').textContent).toBe('Global Title')
 

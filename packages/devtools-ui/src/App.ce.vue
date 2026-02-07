@@ -22,17 +22,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, provide, computed, type PropType } from 'vue'
+import { computed, onMounted, type PropType, provide, ref, watch } from 'vue'
 import type { I18nDevToolsBridge } from './bridge/interface'
-import { createI18nState, I18N_STATE_KEY } from './composables/useI18nState'
+import GlobeIcon from './components/ui/icons/GlobeIcon.vue'
+import ServerIcon from './components/ui/icons/ServerIcon.vue'
+import SettingsIcon from './components/ui/icons/SettingsIcon.vue'
+import Loader from './components/ui/Loader.vue'
 import Tabs from './components/ui/Tabs.vue'
+import { createI18nState, I18N_STATE_KEY } from './composables/useI18nState'
+import ConfigView from './views/ConfigView.vue'
 import I18nView from './views/I18nView.vue'
 import SettingsView from './views/SettingsView.vue'
-import ConfigView from './views/ConfigView.vue'
-import Loader from './components/ui/Loader.vue'
-import GlobeIcon from './components/ui/icons/GlobeIcon.vue'
-import SettingsIcon from './components/ui/icons/SettingsIcon.vue'
-import ServerIcon from './components/ui/icons/ServerIcon.vue'
 
 // Bridge приходит как проп, потому что мы передали его через .bridge в h()
 const props = defineProps({
@@ -86,8 +86,7 @@ onMounted(() => {
   // Проверяем, есть ли bridge в props
   if (props.bridge) {
     initBridge(props.bridge)
-  }
-  else {
+  } else {
     console.log('[i18n-devtools] Waiting for bridge...')
   }
 })

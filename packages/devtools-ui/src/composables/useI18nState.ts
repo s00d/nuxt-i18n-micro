@@ -1,5 +1,5 @@
-import { ref, inject, readonly, type InjectionKey } from 'vue'
-import type { I18nDevToolsBridge, LocaleData, TranslationContent, ModuleOptions } from '../types'
+import { type InjectionKey, inject, readonly, ref } from 'vue'
+import type { I18nDevToolsBridge, LocaleData, ModuleOptions, TranslationContent } from '../types'
 
 // Ключ для injection состояния
 export const I18N_STATE_KEY = Symbol('i18n-state') as InjectionKey<ReturnType<typeof createI18nState>>
@@ -41,8 +41,7 @@ export function createI18nState() {
 
     if (content) {
       selectedFileContent.value = { ...content } as TranslationContent
-    }
-    else {
+    } else {
       console.warn('[i18n-state] No content found for file:', file, 'or normalized:', normalizedPath)
       selectedFileContent.value = {} as TranslationContent
     }
@@ -67,8 +66,7 @@ export function createI18nState() {
         reader.onload = (e) => {
           try {
             selectedFileContent.value = JSON.parse(e.target?.result as string)
-          }
-          catch {
+          } catch {
             console.error('Invalid JSON file')
           }
         }
@@ -100,8 +98,8 @@ export function createI18nState() {
 
     if (!defaultContent) {
       // Пробуем найти любой файл с дефолтной локалью
-      const defaultLocaleKey = Object.keys(locales.value).find(key =>
-        key.includes(`${defaultLocale}.json`) || key.endsWith(`/${defaultLocale}.json`),
+      const defaultLocaleKey = Object.keys(locales.value).find(
+        (key) => key.includes(`${defaultLocale}.json`) || key.endsWith(`/${defaultLocale}.json`),
       )
       if (defaultLocaleKey) {
         defaultContent = locales.value[defaultLocaleKey]
@@ -121,10 +119,7 @@ export function createI18nState() {
     try {
       isLoading.value = true
 
-      const [localesData, configsData] = await Promise.all([
-        bridge.value.getLocalesAndTranslations(),
-        bridge.value.getConfigs(),
-      ])
+      const [localesData, configsData] = await Promise.all([bridge.value.getLocalesAndTranslations(), bridge.value.getConfigs()])
 
       locales.value = localesData
       configs.value = configsData
@@ -137,13 +132,11 @@ export function createI18nState() {
           selectedFileContent.value = { ...locales.value[selectedFile.value] }
         }
       })
-    }
-    catch (error) {
+    } catch (error) {
       console.error('[i18n-devtools] Failed to initialize:', error)
       // Set loading to false even on error to show UI
       isLoading.value = false
-    }
-    finally {
+    } finally {
       isLoading.value = false
       console.log('[i18n-devtools] Initialization complete')
     }
@@ -155,8 +148,7 @@ export function createI18nState() {
       await bridge.value.saveTranslation(selectedFile.value, selectedFileContent.value)
       // Optimistic update
       locales.value[selectedFile.value] = { ...selectedFileContent.value }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to save translation:', error)
       throw error
     }

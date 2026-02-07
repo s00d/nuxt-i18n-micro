@@ -2,17 +2,12 @@
  * RouteResolver — single point for resolving custom paths from globalLocaleRoutes.
  * Uses normalizer and route-name utilities; lookup keys in one place (getLookupKeys).
  */
-import type { PathStrategyContext, ResolvedRouteLike } from './types'
+
 import { withoutLeadingSlash } from 'ufo'
-import {
-  joinUrl,
-  normalizePath,
-  transformNameKeyToPath,
-  nameKeyFirstSlash,
-  nameKeyLastSlash,
-} from '../utils/path'
+import { joinUrl, nameKeyFirstSlash, nameKeyLastSlash, normalizePath, transformNameKeyToPath } from '../utils/path'
 import { getRouteBaseName } from '../utils/route-name'
 import { getPathWithoutLocale } from './normalizer'
+import type { PathStrategyContext, ResolvedRouteLike } from './types'
 
 /** Escapes special regex characters in a string for use in RegExp. */
 function escapeRegex(s: string): string {
@@ -34,10 +29,7 @@ export class RouteResolver {
 
       const strValue = Array.isArray(value) ? (value as unknown[]).join('/') : String(value)
       const escaped = escapeRegex(key)
-      const pattern = new RegExp(
-        `:${escaped}\\(\\)|:${escaped}(?![\\w])|\\[\\.\\.\\.${escaped}\\]`,
-        'g',
-      )
+      const pattern = new RegExp(`:${escaped}\\(\\)|:${escaped}(?![\\w])|\\[\\.\\.\\.${escaped}\\]`, 'g')
       resolved = resolved.replace(pattern, strValue)
     }
     return resolved
@@ -46,8 +38,8 @@ export class RouteResolver {
   /**
    * Analyzes route: path without locale and base name (normalizer + route-name).
    */
-  private analyzeRoute(route: ResolvedRouteLike): { pathWithoutLocale: string, baseRouteName: string | null } {
-    const localeCodes = this.ctx.locales.map(l => l.code)
+  private analyzeRoute(route: ResolvedRouteLike): { pathWithoutLocale: string; baseRouteName: string | null } {
+    const localeCodes = this.ctx.locales.map((l) => l.code)
     const { pathWithoutLocale } = getPathWithoutLocale(route.path || '/', localeCodes)
 
     let baseRouteName: string | null = null
@@ -62,7 +54,7 @@ export class RouteResolver {
   }
 
   /** Public access to route analysis (for strategies). */
-  getPathWithoutLocaleAndBaseName(route: ResolvedRouteLike): { pathWithoutLocale: string, baseRouteName: string | null } {
+  getPathWithoutLocaleAndBaseName(route: ResolvedRouteLike): { pathWithoutLocale: string; baseRouteName: string | null } {
     return this.analyzeRoute(route)
   }
 
@@ -149,16 +141,12 @@ export class RouteResolver {
     const gr = this.ctx.globalLocaleRoutes
     if (!gr) return null
 
-    const keys = [
-      routeName,
-      `/${routeName}`,
-      withoutLeadingSlash(routeName),
-    ]
+    const keys = [routeName, `/${routeName}`, withoutLeadingSlash(routeName)]
 
     for (const key of keys) {
       if (gr[key] === false) {
         const pathForm = transformNameKeyToPath(key.startsWith('/') ? key.slice(1) : key)
-        return pathForm ? joinUrl('/', pathForm) : (key.startsWith('/') ? key : `/${key}`)
+        return pathForm ? joinUrl('/', pathForm) : key.startsWith('/') ? key : `/${key}`
       }
     }
     return null
@@ -170,7 +158,7 @@ export class RouteResolver {
   getAllowedLocalesForRoute(route: ResolvedRouteLike): string[] {
     const rl = this.ctx.routeLocales
     if (!rl || Object.keys(rl).length === 0) {
-      return this.ctx.locales.map(l => l.code)
+      return this.ctx.locales.map((l) => l.code)
     }
 
     const { pathWithoutLocale, baseRouteName } = this.analyzeRoute(route)
@@ -184,11 +172,11 @@ export class RouteResolver {
     for (const key of keys) {
       const allowed = rl[key]
       if (Array.isArray(allowed) && allowed.length > 0) {
-        return allowed.filter(code => this.ctx.locales.some(l => l.code === code))
+        return allowed.filter((code) => this.ctx.locales.some((l) => l.code === code))
       }
     }
 
-    return this.ctx.locales.map(l => l.code)
+    return this.ctx.locales.map((l) => l.code)
   }
 
   /**

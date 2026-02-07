@@ -1,8 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
   "files": {
-    "includes": ["src/**", "packages/**", "test/**", "client/**", "playground/**", "build.config.ts"],
-    "maxSize": 10485760
+    "includes": ["src/**", "packages/**", "test/**", "client/**", "playground/**", "build.config.ts", "!**/.astro"],
+    "maxSize": 10485760,
+    "ignoreUnknown": true
   },
   "vcs": {
     "enabled": true,
@@ -50,6 +51,7 @@
         "noAsyncPromiseExecutor": "off",
         "noThenProperty": "off",
         "noImplicitAnyLet": "off",
+        "noTsIgnore": "off",
         "useIterableCallbackReturn": "off"
       },
       "security": {

@@ -12,7 +12,7 @@ export function getI18n(astro: AstroGlobal): AstroI18n {
   if (!i18n) {
     throw new Error('i18n instance not found. Make sure i18n middleware is configured.')
   }
-  // @ts-expect-error private property mismatch between src and dist types
+  // @ts-ignore private property mismatch between src and dist types
   return i18n
 }
 

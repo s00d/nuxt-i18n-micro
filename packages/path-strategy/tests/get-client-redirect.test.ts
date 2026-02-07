@@ -183,7 +183,6 @@ describe('getClientRedirect', () => {
       expect(result).toBe('/de')
       expect(result?.endsWith('/')).toBe(false)
     })
-
   })
 
   describe('no_prefix strategy', () => {

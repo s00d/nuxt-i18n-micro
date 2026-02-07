@@ -112,88 +112,91 @@ export default defineNuxtPlugin({
         throw createError({ statusCode: 404, statusMessage: 'Page Not Found' })
       }
 
-      // Skip during prerender (but not when autoDetectPath === '*')
-      const prerenderHeader = getHeader(event, 'x-nitro-prerender')
-      const userAgent = getHeader(event, 'user-agent') || ''
-      const isRootPath = path === '/' || path === ''
-      const isPrerenderOrBot = !!(prerenderHeader || userAgent.includes('Nitro') || !userAgent)
-      const skipRedirect = !isRootPath && autoDetectPath !== '*' && isPrerenderOrBot
-
-      if (skipRedirect) return
-
-      // Detect preferred locale
-      // Priority: useState (from server plugin) > cookie > Accept-Language > defaultLocale
-      // Exception: for autoDetectPath: '*', ignore useState (which is set from URL)
-      let preferredLocale = defaultLocale
-
-      // 1. Check useState (set by server plugins, has highest priority unless autoDetectPath: '*')
-      if (autoDetectPath !== '*') {
-        const localeState = useState<string | null>('i18n-locale', () => null)
-        if (localeState.value && validLocales.includes(localeState.value)) {
-          preferredLocale = localeState.value
-        }
-      }
-
-      // 2. Check cookie (if useState didn't set locale)
-      if (preferredLocale === defaultLocale && cookieName) {
-        const cookieVal = getCookie(event, cookieName)
-        if (cookieVal && validLocales.includes(cookieVal)) {
-          preferredLocale = cookieVal
-        }
-      }
-
-      // 3. Apply Accept-Language detection if nothing else set locale
-      if (i18nConfig.autoDetectLanguage && preferredLocale === defaultLocale) {
-        const acceptHeader = getHeader(event, 'accept-language')
-        const langs = parseAcceptLanguage(acceptHeader)
-        for (const lang of langs) {
-          const lowerCaseLanguage = lang.toLowerCase()
-          const primaryLanguage = lowerCaseLanguage.split('-')[0]
-          const found = validLocales.find((l) => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
-          if (found) {
-            preferredLocale = found
-            break
-          }
-        }
-      }
-
       const hasLocalePrefix = Boolean(firstSegment && validLocales.includes(firstSegment))
 
-      // autoDetectPath: '*' means redirect on all paths, including those with locale prefix
-      if (autoDetectPath === '*' && hasLocalePrefix && firstSegment !== preferredLocale) {
-        const rest = pathSegments.slice(1).join('/')
-        let targetPath: string
-        if (preferredLocale === defaultLocale && i18nConfig.strategy === 'prefix_except_default') {
-          targetPath = rest ? `/${rest}` : '/'
-        } else {
-          targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
-        }
-        // Sync cookie to preferred locale BEFORE redirect
-        if (cookieName) {
-          const { watch: _w, ...cookieOpts } = getLocaleCookieOptions()
-          setCookie(event, cookieName, preferredLocale, cookieOpts)
-        }
-        if (DEBUG) console.error('[i18n-redirect] REDIRECT autoDetectPath *', { path, targetPath, preferredLocale })
-        return sendRedirect(event, targetPath + (url.search || '') + (url.hash || ''), 302)
-      }
-
-      // Sync cookie with current locale from URL (when not redirecting)
+      // Sync cookie with current locale from URL (always, even when redirects are disabled)
       if (hasLocalePrefix && cookieName) {
         const currentLocale = firstSegment!
         const { watch: _w, ...cookieOpts } = getLocaleCookieOptions()
         setCookie(event, cookieName, currentLocale, cookieOpts)
       }
 
-      // Use path-strategy for redirect (handles paths without locale prefix)
-      const redirectPath = i18nStrategy.getClientRedirect(path, preferredLocale)
-      if (redirectPath) {
-        if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, redirectPath, preferredLocale })
-        return sendRedirect(event, redirectPath + (url.search || '') + (url.hash || ''), 302)
+      // === REDIRECT LOGIC (only when redirects are enabled) ===
+      if (i18nConfig.redirects !== false) {
+        // Skip during prerender (but not when autoDetectPath === '*')
+        const prerenderHeader = getHeader(event, 'x-nitro-prerender')
+        const userAgent = getHeader(event, 'user-agent') || ''
+        const isRootPath = path === '/' || path === ''
+        const isPrerenderOrBot = !!(prerenderHeader || userAgent.includes('Nitro') || !userAgent)
+        const skipRedirect = !isRootPath && autoDetectPath !== '*' && isPrerenderOrBot
+
+        if (!skipRedirect) {
+          // Detect preferred locale
+          // Priority: useState (from server plugin) > cookie > Accept-Language > defaultLocale
+          // Exception: for autoDetectPath: '*', ignore useState (which is set from URL)
+          let preferredLocale = defaultLocale
+
+          // 1. Check useState (set by server plugins, has highest priority unless autoDetectPath: '*')
+          if (autoDetectPath !== '*') {
+            const localeState = useState<string | null>('i18n-locale', () => null)
+            if (localeState.value && validLocales.includes(localeState.value)) {
+              preferredLocale = localeState.value
+            }
+          }
+
+          // 2. Check cookie (if useState didn't set locale)
+          if (preferredLocale === defaultLocale && cookieName) {
+            const cookieVal = getCookie(event, cookieName)
+            if (cookieVal && validLocales.includes(cookieVal)) {
+              preferredLocale = cookieVal
+            }
+          }
+
+          // 3. Apply Accept-Language detection if nothing else set locale
+          if (i18nConfig.autoDetectLanguage && preferredLocale === defaultLocale) {
+            const acceptHeader = getHeader(event, 'accept-language')
+            const langs = parseAcceptLanguage(acceptHeader)
+            for (const lang of langs) {
+              const lowerCaseLanguage = lang.toLowerCase()
+              const primaryLanguage = lowerCaseLanguage.split('-')[0]
+              const found = validLocales.find((l) => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
+              if (found) {
+                preferredLocale = found
+                break
+              }
+            }
+          }
+
+          // autoDetectPath: '*' means redirect on all paths, including those with locale prefix
+          if (autoDetectPath === '*' && hasLocalePrefix && firstSegment !== preferredLocale) {
+            const rest = pathSegments.slice(1).join('/')
+            let targetPath: string
+            if (preferredLocale === defaultLocale && i18nConfig.strategy === 'prefix_except_default') {
+              targetPath = rest ? `/${rest}` : '/'
+            } else {
+              targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
+            }
+            // Sync cookie to preferred locale BEFORE redirect
+            if (cookieName) {
+              const { watch: _w2, ...cookieOpts2 } = getLocaleCookieOptions()
+              setCookie(event, cookieName, preferredLocale, cookieOpts2)
+            }
+            if (DEBUG) console.error('[i18n-redirect] REDIRECT autoDetectPath *', { path, targetPath, preferredLocale })
+            return sendRedirect(event, targetPath + (url.search || '') + (url.hash || ''), 302)
+          }
+
+          // Use path-strategy for redirect (handles paths without locale prefix)
+          const redirectPath = i18nStrategy.getClientRedirect(path, preferredLocale)
+          if (redirectPath) {
+            if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, redirectPath, preferredLocale })
+            return sendRedirect(event, redirectPath + (url.search || '') + (url.hash || ''), 302)
+          }
+        }
       }
     }
 
-    // === CLIENT-SIDE LOGIC ===
-    if (import.meta.client) {
+    // === CLIENT-SIDE LOGIC (only when redirects are enabled) ===
+    if (import.meta.client && i18nConfig.redirects !== false) {
       const runRedirect = () => {
         const { getPreferredLocale } = useI18nLocale()
         const preferredLocale = getPreferredLocale()

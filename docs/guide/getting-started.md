@@ -624,7 +624,7 @@ export default defineNuxtConfig({
 
 ## 🔄 Caching Mechanism
 
-One of the standout features of `Nuxt I18n Micro` is its **intelligent caching system**. When a translation is requested during server-side rendering (SSR), the result is stored in a cache. This means that subsequent requests for the same translation can retrieve the data from the cache rather than searching through the translation files again.
+Nuxt I18n Micro v3 uses a multi-layer caching architecture built around `TranslationStorage` — a singleton class that uses `Symbol.for` on `globalThis` to ensure a single cache instance across bundles.
 
 ### Translation Loading Flow
 
@@ -633,21 +633,21 @@ flowchart TB
     subgraph Client["🖥️ Client Side"]
         A[Page Request] --> B{window.__I18N__?}
         B -->|Found| C[Use SSR Data]
-        B -->|Not Found| D{Local Cache?}
+        B -->|Not Found| D{TranslationStorage cache?}
         D -->|Hit| E[Return Cached]
-        D -->|Miss| F["$fetch API"]
-        F --> G[Store in Cache]
+        D -->|Miss| F["$fetch /_locales/..."]
+        F --> G[Store in TranslationStorage]
         G --> E
     end
 
     subgraph Server["🖧 Server Side"]
-        H[SSR Request] --> I{Server Cache?}
+        H[SSR Request] --> I{Server process cache?}
         I -->|Hit| J[Return Cached]
-        I -->|Miss| K[Load from Storage]
-        K --> L[Merge Translations]
-        L --> M[Cache Result]
+        I -->|Miss| K[loadTranslationsFromServer]
+        K --> L["Merge: fallback + global + page"]
+        L --> M[Cache in process-global Map]
         M --> J
-        J --> N[Inject window.__I18N__]
+        J --> N["Inject window.__I18N__"]
     end
 
     A -.->|First Load| H
@@ -656,19 +656,42 @@ flowchart TB
     C --> O
 ```
 
-### Benefits
+### Key Characteristics
 
-- 🚀 **Faster Response Times**: Cached translations load instantly
-- 💾 **Reduced Memory Usage**: Efficient storage of frequently used translations
-- ⚡ **Lower Server Load**: Fewer file system operations
-- 🔄 **Smart Invalidation**: Cache updates automatically when files change
+- 🚀 **Zero extra requests on first load**: SSR-injected data in `window.__I18N__` is consumed synchronously on hydration
+- 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
+- ⚡ **Single request per page**: The API returns already-merged translations (global + page-specific + fallback) — no client-side merging needed
+- 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically
+
+See the [Cache & Storage Architecture](../api/i18n-cache-api.md) for in-depth details.
+
+## 🌍 Locale State Management
+
+In v3, all locale management goes through the centralized `useI18nLocale()` composable:
+
+```ts
+const { setLocale, getLocale, getPreferredLocale } = useI18nLocale()
+
+// Set locale (updates useState + cookie atomically)
+setLocale('fr')
+
+// Get current locale
+const locale = getLocale()
+```
+
+**Do not** use `useState('i18n-locale')` or `useCookie('user-locale')` directly. The `useI18nLocale()` composable manages both internally, ensuring consistency between server and client.
+
+See the [Custom Language Detection](./custom-auto-detect.md) guide for advanced usage.
 
 ## 📚 Next Steps
 
 Now that you have the basics set up, explore these advanced topics:
 
+- **[Routing Strategies](./strategy.md)** - How locale prefixes and redirects work
 - **[Per-Component Translations](./per-component-translations.md)** - Learn about `$defineI18nRoute`
+- **[Custom Language Detection](./custom-auto-detect.md)** - Programmatic locale management with `useI18nLocale()`
 - **[API Reference](../api/methods.md)** - Complete method documentation
+- **[Cache & Storage](../api/i18n-cache-api.md)** - Translation cache architecture
 - **[Examples](../examples.md)** - Real-world usage examples
-- **[Migration Guide](./migration.md)** - Migrating from other i18n solutions
+- **[Migration Guide](./migration.md)** - Migrating from other i18n solutions or v2
 

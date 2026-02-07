@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.4.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.5.0...v3.4.1)
+
+### 🏡 Chore
+
+- **package:** Downgrade version from 3.5.0 to 3.4.0 in package.json ([1c09387](https://github.com/s00d/nuxt-i18n-micro/commit/1c09387))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.4.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.3.0...v3.4.0)

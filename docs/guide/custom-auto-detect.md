@@ -67,7 +67,7 @@ export default defineNuxtPlugin(async (_nuxtApp) => {
   }
 
   // Check if the user-locale cookie is already set
-  const userLocaleCookie = useCookie('user-locale-change')
+  const userLocaleCookie = useCookie('user-locale')
 
   // If the cookie does not exist, store the new locale
   if (!userLocaleCookie.value) {

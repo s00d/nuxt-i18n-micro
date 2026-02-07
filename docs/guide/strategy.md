@@ -127,10 +127,10 @@ i18n: {
 
 ### 🔄 **prefix_and_default**
 
-This strategy combines both the `prefix` and `prefix_except_default` behaviors. It ensures that all languages have a locale prefix in their URLs, but the default language also has a non-prefixed URL version available. When the `detectBrowserLanguage` feature is enabled, the prefixed version of the default language will be preferred.
+This strategy combines both the `prefix` and `prefix_except_default` behaviors. It ensures that all languages have a locale prefix in their URLs, but the default language also has a non-prefixed URL version available. When `autoDetectLanguage` is enabled, the module will attempt to redirect users to the prefixed route matching their preferred language if it differs from the default locale.
 
 - **Behavior**: Every language gets a URL with a locale prefix, but the default language also has a non-prefixed version.
-- **Locale Handling**: The default language has both a prefixed and non-prefixed URL, but the prefixed version takes priority when the browser language is detected.
+- **Locale Handling**: The default language has both a prefixed and non-prefixed URL. With `autoDetectLanguage: true`, the module redirects users to the prefixed route of their preferred locale if it is not the default locale.
 
 **Use Case**: Best for applications that want to support both prefixed and non-prefixed URLs for the default language while maintaining a locale prefix for other languages.
 

@@ -51,6 +51,10 @@ console.log($t('test_key'))  // "Hello World!"
 </script>
 ```
 
+::: tip `$t` vs `$ts` — choosing the right method
+`$t` can return **objects** if the key points to a nested JSON node (e.g. `$t('header')` → `{ title: "Hi" }`). In templates this renders as `[object Object]`. Use `$ts` when you need a guaranteed string, or provide a more specific key like `$t('header.title')`. See [API Reference — $t vs $ts](/api/methods#t) for details.
+:::
+
 ## 3. Switching the Current Locale
 
 To change languages in your app, you can retrieve `$locale` from `useI18n()` and assign it a new code:

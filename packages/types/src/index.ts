@@ -101,6 +101,7 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   isSSG: boolean
   apiBaseUrl: string
   disablePageLocales: boolean
+  redirects?: boolean
 }
 
 export interface ModulePrivateOptionsExtend extends ModuleOptions {

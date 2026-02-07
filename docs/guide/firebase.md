@@ -480,7 +480,7 @@ To further optimize:
 - Use route-specific translation files for page content
 
 ::: tip Module Version
-The module automatically sets proper `Content-Type` headers starting from version **1.35.0**. If you're experiencing issues, update to the latest version:
+The module automatically sets proper `Content-Type` headers starting from version **v3.0.0+**. If you're experiencing issues, update to the latest version:
 
 ```bash
 pnpm update nuxt-i18n-micro@latest

@@ -19,6 +19,7 @@ dist
 # Nuxt
 .nuxt
 .output
+**/.astro
 .data
 .vercel_build_output
 .build-*

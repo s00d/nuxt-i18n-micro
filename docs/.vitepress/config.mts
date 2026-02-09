@@ -5,12 +5,32 @@ import pkg from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
 export default withFolderTree(withChartjs(withMermaid({
+  vite: {
+    build: {
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('chart.js')) return 'chartjs'
+            if (id.includes('mermaid')) return 'mermaid'
+            if (id.includes('vitepress-plugin-folder-tree')) return 'folder-tree'
+            if (id.includes('vitepress-plugin-chartjs')) return 'vp-chartjs'
+          },
+        },
+      },
+    },
+  },
   lang: 'en-US',
   title: 'Nuxt I18n Micro',
   description: 'Fast, simple, and lightweight i18n for Nuxt',
   lastUpdated: true,
   cleanUrls: true,
   base: process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/',
+
+  head: [
+    // DNS prefetch for GitHub
+    ['link', { rel: 'dns-prefetch', href: 'https://github.com' }],
+  ],
 
   themeConfig: {
     search: {

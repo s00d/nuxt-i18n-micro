@@ -211,6 +211,7 @@ export default withFolderTree(withChartjs(withMermaid({
   // Chart.js configuration
   chartjs: {
     defaultHeight: '400px',
+    root: new URL('../', import.meta.url).pathname,
     colorPalette: [
       'rgba(75, 192, 192, 0.8)',
       'rgba(255, 99, 132, 0.8)',

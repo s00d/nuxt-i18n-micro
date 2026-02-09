@@ -16,20 +16,20 @@ Organizing your translation files effectively is essential for maintaining a sca
 
 Here’s a basic example of the folder structure you should follow:
 
-```plaintext
-  /locales
-  ├── /pages
-  │   ├── /index
-  │   │   ├── en.json
-  │   │   ├── fr.json
-  │   │   └── ar.json
-  │   ├── /about
-  │   │   ├── en.json
-  │   │   ├── fr.json
-  │   │   └── ar.json
-  ├── en.json
-  ├── fr.json
-  └── ar.json
+```tree
+locales/
+├── pages/
+│   ├── index/
+│   │   ├── en.json
+│   │   ├── fr.json
+│   │   └── ar.json
+│   ├── about/
+│   │   ├── en.json
+│   │   ├── fr.json
+│   │   └── ar.json
+├── en.json
+├── fr.json
+└── ar.json
 ```
 
 ### 📄 Explanation of Structure
@@ -86,36 +86,36 @@ When dealing with dynamic routes, such as `/products/[id]`, the module converts 
 
 For a route like `/products/[id]`, the translation files would be stored in a folder named `products-id`:
 
-```plaintext
-  /locales/pages
-  ├── /products-id
-  │   ├── en.json
-  │   ├── fr.json
-  │   └── ar.json
+```tree
+locales/pages/
+├── products-id/
+│   ├── en.json
+│   ├── fr.json
+│   └── ar.json
 ```
 
 **Example Folder Structure for Nested Dynamic Routes:**
 
 For a nested route like `/products/key/[id]`, the translation files would be stored in a folder named `products-key-id`:
 
-```plaintext
-  /locales/pages
-  ├── /products-key-id
-  │   ├── en.json
-  │   ├── fr.json
-  │   └── ar.json
+```tree
+locales/pages/
+├── products-key-id/
+│   ├── en.json
+│   ├── fr.json
+│   └── ar.json
 ```
 
 **Example Folder Structure for Multi-Level Nested Routes:**
 
 For a more complex nested route like `/products/category/[id]/details`, the translation files would be stored in a folder named `products-category-id-details`:
 
-```plaintext
-  /locales/pages
-  ├── /products-category-id-details
-  │   ├── en.json
-  │   ├── fr.json
-  │   └── ar.json
+```tree
+locales/pages/
+├── products-category-id-details/
+│   ├── en.json
+│   ├── fr.json
+│   └── ar.json
 ```
 
 ### 🛠 Customizing the Directory Structure

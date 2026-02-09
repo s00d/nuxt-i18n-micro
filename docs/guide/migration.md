@@ -202,13 +202,13 @@ export default defineNuxtConfig({
 
 Move translations to the `locales` directory in JSON format:
 
-```plaintext
-/locales
-├── /pages
-│   ├── /index
+```tree
+locales/
+├── pages/
+│   ├── index/
 │   │   ├── en.json
 │   │   └── fr.json
-│   └── /about
+│   └── about/
 │       ├── en.json
 │       └── fr.json
 ├── en.json

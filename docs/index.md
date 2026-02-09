@@ -150,18 +150,18 @@ Starting from v2.14+/v3.0.0, the i18n-micro ecosystem includes standalone packag
 
 Translations are organized into **global** and **page-specific** files:
 
-```plaintext
-  /locales
-  ├── /pages
-  │   ├── /index
-  │   │   ├── en.json
-  │   │   ├── fr.json
-  │   │   └── ar.json
-  │   ├── /about
-  │   │   ├── en.json
-  │   │   ├── fr.json
-  │   │   └── ar.json
-  ├── en.json
-  ├── fr.json
-  └── ar.json
+```tree
+locales/
+├── pages/
+│   ├── index/
+│   │   ├── en.json
+│   │   ├── fr.json
+│   │   └── ar.json
+│   ├── about/
+│   │   ├── en.json
+│   │   ├── fr.json
+│   │   └── ar.json
+├── en.json
+├── fr.json
+└── ar.json
 ```

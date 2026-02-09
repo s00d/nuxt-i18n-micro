@@ -129,7 +129,8 @@
     "ts-jest": "catalog:",
     "typescript": "catalog:",
     "vitepress": "catalog:",
-    "vitepress-plugin-chartjs": "^1.1.2",
+    "vitepress-plugin-chartjs": "^1.2.1",
+    "vitepress-plugin-folder-tree": "^1.1.2",
     "vitepress-plugin-mermaid": "^2.0.17",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"

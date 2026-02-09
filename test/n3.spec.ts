@@ -46,7 +46,9 @@ test.use({
 
 test.describe('n3', () => {
   test.describe('Page tests', async () => {
+    // 27 languages * 5 routes = 135 page navigations — needs generous timeout
     test('static pages should work in all languages', async ({ page }) => {
+      test.setTimeout(180000)
       await page.goto('/', { waitUntil: 'domcontentloaded' })
       for (const lang of availableLanguages) {
         for (const route of staticRoutes) {
@@ -57,7 +59,7 @@ test.describe('n3', () => {
 
           const path = encodeURI(`/${lang.code}/${translatedRoute}`)
           console.log(`Testing static route: ${path}`)
-          await page.goto(path, { waitUntil: 'domcontentloaded' })
+          await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 15000 })
 
           await checkPageContent(page, path)
         }
@@ -65,6 +67,7 @@ test.describe('n3', () => {
     })
 
     test('pages with dynamic parameters should work in all languages', async ({ page }) => {
+      test.setTimeout(180000)
       const dynamicParams = {
         city: ['berlin', 'paris', 'rome'],
         country: ['germany', 'france', 'italy'],
@@ -80,7 +83,7 @@ test.describe('n3', () => {
           for (const param of params) {
             const path = `/${lang.code}/${translatedRoute}/${param}`
             console.log(`Testing dynamic route: ${path}`)
-            await page.goto(path, { waitUntil: 'domcontentloaded' })
+            await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 15000 })
             await checkPageContent(page, path)
           }
         }
@@ -88,6 +91,7 @@ test.describe('n3', () => {
     })
 
     test('nested pages should work in all languages', async ({ page }) => {
+      test.setTimeout(180000)
       const nestedRoutes = [
         {
           type: 'country',
@@ -121,7 +125,7 @@ test.describe('n3', () => {
             }
 
             console.log(`Testing nested route: ${path}`)
-            await page.goto(path, { waitUntil: 'domcontentloaded' })
+            await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 15000 })
             await checkPageContent(page, path)
           }
         }
@@ -129,6 +133,7 @@ test.describe('n3', () => {
     })
 
     test('should handle invalid routes properly', async ({ page }) => {
+      test.setTimeout(60000)
       const firstLang = availableLanguages[0]
       if (!firstLang) return
       const invalidRoutes = [
@@ -140,17 +145,18 @@ test.describe('n3', () => {
 
       for (const route of invalidRoutes) {
         console.log(`Testing invalid route: ${route}`)
-        await page.goto(route, { waitUntil: 'domcontentloaded' })
+        await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 15000 })
         const content = await page.textContent('body')
         expect(content?.trim().length).toBeGreaterThan(0)
       }
     })
 
     test('pages should have correct metadata in all languages', async ({ page }) => {
+      test.setTimeout(120000)
       for (const lang of availableLanguages) {
         const homePath = `/${lang.code}`
         console.log(`Testing metadata for: ${homePath}`)
-        await page.goto(homePath, { waitUntil: 'domcontentloaded' })
+        await page.goto(homePath, { waitUntil: 'domcontentloaded', timeout: 15000 })
 
         // Check HTML lang attribute
         const htmlLang = await page.getAttribute('html', 'lang')

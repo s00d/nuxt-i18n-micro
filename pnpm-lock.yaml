@@ -342,8 +342,8 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1(chart.js@4.5.1)(vitepress@1.6.4(@algolia/client-search@5.20.3)(@types/node@20.19.26)(@types/react@18.3.27)(axios@1.13.2)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.30.2)(postcss@8.5.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)(search-insights@2.17.3)(terser@5.39.0)(typescript@5.9.3))
       vitepress-plugin-folder-tree:
-        specifier: ^1.2.0
-        version: 1.2.0(vitepress@1.6.4(@algolia/client-search@5.20.3)(@types/node@20.19.26)(@types/react@18.3.27)(axios@1.13.2)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.30.2)(postcss@8.5.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)(search-insights@2.17.3)(terser@5.39.0)(typescript@5.9.3))
+        specifier: ^1.2.1
+        version: 1.2.1(vitepress@1.6.4(@algolia/client-search@5.20.3)(@types/node@20.19.26)(@types/react@18.3.27)(axios@1.13.2)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.30.2)(postcss@8.5.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)(search-insights@2.17.3)(terser@5.39.0)(typescript@5.9.3))
       vitepress-plugin-mermaid:
         specifier: ^2.0.17
         version: 2.0.17(mermaid@11.12.2)(vitepress@1.6.4(@algolia/client-search@5.20.3)(@types/node@20.19.26)(@types/react@18.3.27)(axios@1.13.2)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.30.2)(postcss@8.5.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)(search-insights@2.17.3)(terser@5.39.0)(typescript@5.9.3))
@@ -12138,8 +12138,8 @@ packages:
       chart.js: ^4.0.0
       vitepress: ^1.0.0
 
-  vitepress-plugin-folder-tree@1.2.0:
-    resolution: {integrity: sha512-eY5dnS+nDJZgSRWXZjcHyVhmI2V/nIkSftsf+9j+ifJW9JbxOAdM8GhLtasl//m+TvwpmrFGOHiCqEErxUoPYg==}
+  vitepress-plugin-folder-tree@1.2.1:
+    resolution: {integrity: sha512-DP009qCKVH3X2BVYbyK9lfwrb9fai7cIKzUwUIat7rE2/M3C3DTkmgsyK3UF8wReSIWdVdHFHFNQAcjwBV3pNw==}
     engines: {node: '>=18'}
     peerDependencies:
       vitepress: ^1.0.0
@@ -26745,7 +26745,7 @@ snapshots:
       yaml: 2.8.2
       zod: 4.3.6
 
-  vitepress-plugin-folder-tree@1.2.0(vitepress@1.6.4(@algolia/client-search@5.20.3)(@types/node@20.19.26)(@types/react@18.3.27)(axios@1.13.2)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.30.2)(postcss@8.5.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)(search-insights@2.17.3)(terser@5.39.0)(typescript@5.9.3)):
+  vitepress-plugin-folder-tree@1.2.1(vitepress@1.6.4(@algolia/client-search@5.20.3)(@types/node@20.19.26)(@types/react@18.3.27)(axios@1.13.2)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.30.2)(postcss@8.5.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)(search-insights@2.17.3)(terser@5.39.0)(typescript@5.9.3)):
     dependencies:
       vitepress: 1.6.4(@algolia/client-search@5.20.3)(@types/node@20.19.26)(@types/react@18.3.27)(axios@1.13.2)(change-case@5.4.4)(fuse.js@7.1.0)(jwt-decode@4.0.0)(lightningcss@1.30.2)(postcss@8.5.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.94.2)(search-insights@2.17.3)(terser@5.39.0)(typescript@5.9.3)
       yaml: 2.8.2

@@ -1,9 +1,10 @@
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { withChartjs } from 'vitepress-plugin-chartjs'
+import { withFolderTree } from 'vitepress-plugin-folder-tree'
 import pkg from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
-export default withChartjs(withMermaid({
+export default withFolderTree(withChartjs(withMermaid({
   lang: 'en-US',
   title: 'Nuxt I18n Micro',
   description: 'Fast, simple, and lightweight i18n for Nuxt',
@@ -216,4 +217,4 @@ export default withChartjs(withMermaid({
       'rgba(153, 102, 255, 0.8)',
     ],
   },
-}))
+})))

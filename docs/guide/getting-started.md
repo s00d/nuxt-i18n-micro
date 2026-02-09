@@ -104,29 +104,98 @@ export default defineNuxtConfig({
 
 ### Folder Structure
 
-Your translation files will be automatically generated when you run the application:
+Your translation files will be automatically generated when you run the application. Here is the full project structure:
 
-```
-/locales
-├── /pages
-│   ├── /index
-│   │   ├── en.json
-│   │   ├── fr.json
-│   │   └── ar.json
-│   └── /about
-│       ├── en.json
-│       ├── fr.json
-│       └── ar.json
-├── en.json
-├── fr.json
-└── ar.json
+```tree
+- name: my-nuxt-app
+  description: "Nuxt project with i18n-micro"
+  children:
+    - name: nuxt.config.ts
+      description: "module config"
+      highlight: true
+      preview: "export default defineNuxtConfig({\n  modules: ['nuxt-i18n-micro'],\n  i18n: {\n    locales: [\n      { code: 'en', iso: 'en-US', dir: 'ltr' },\n      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },\n      { code: 'ar', iso: 'ar-SA', dir: 'rtl' },\n    ],\n    defaultLocale: 'en',\n    translationDir: 'locales',\n    meta: true,\n  },\n})"
+    - name: package.json
+      preview: "{\n  \"name\": \"my-nuxt-app\",\n  \"private\": true,\n  \"scripts\": {\n    \"dev\": \"nuxt dev\",\n    \"build\": \"nuxt build\",\n    \"generate\": \"nuxt generate\"\n  },\n  \"dependencies\": {\n    \"nuxt\": \"^3.x\",\n    \"nuxt-i18n-micro\": \"^3.x\"\n  }\n}"
+    - name: pages
+      description: "your Nuxt pages"
+      children:
+        - name: index.vue
+          description: "home page"
+          preview: "<template>\n  <div>\n    <h1>{{ $t('welcome') }}</h1>\n    <p>{{ $t('description') }}</p>\n  </div>\n</template>"
+        - name: about.vue
+          description: "about page"
+          preview: "<template>\n  <div>\n    <h1>{{ $t('title') }}</h1>\n    <p>{{ $t('content') }}</p>\n  </div>\n</template>"
+        - name: articles
+          description: "dynamic route"
+          children:
+            - name: "[id].vue"
+              preview: "<template>\n  <div>\n    <h1>{{ $t('article_title') }}</h1>\n  </div>\n</template>\n\n<script setup>\nconst route = useRoute()\nconst id = route.params.id\n</script>"
+    - name: components
+      children:
+        - name: Header.vue
+          preview: "<template>\n  <nav>\n    <i18n-link :to=\"{ name: 'index' }\">\n      {{ $t('menu.home') }}\n    </i18n-link>\n    <i18n-link :to=\"{ name: 'about' }\">\n      {{ $t('menu.about') }}\n    </i18n-link>\n    <i18n-switcher />\n  </nav>\n</template>"
+        - name: Footer.vue
+          preview: "<template>\n  <footer>\n    <p>{{ $t('footer.copyright') }}</p>\n  </footer>\n</template>"
+    - name: locales
+      description: "translation files"
+      highlight: true
+      children:
+        - name: en.json
+          description: "global translations"
+          preview: "{\n  \"menu\": {\n    \"home\": \"Home\",\n    \"about\": \"About Us\"\n  },\n  \"footer\": {\n    \"copyright\": \"© 2025 My App\"\n  }\n}"
+        - name: fr.json
+          description: "global translations"
+          preview: "{\n  \"menu\": {\n    \"home\": \"Accueil\",\n    \"about\": \"À propos\"\n  },\n  \"footer\": {\n    \"copyright\": \"© 2025 Mon App\"\n  }\n}"
+        - name: ar.json
+          description: "global translations"
+          preview: "{\n  \"menu\": {\n    \"home\": \"الرئيسية\",\n    \"about\": \"من نحن\"\n  },\n  \"footer\": {\n    \"copyright\": \"© 2025 تطبيقي\"\n  }\n}"
+        - name: pages
+          description: "page-specific translations"
+          children:
+            - name: index
+              note: "matches pages/index.vue"
+              children:
+                - name: en.json
+                  preview: "{\n  \"welcome\": \"Welcome to My App\",\n  \"description\": \"A fast Nuxt application with i18n support.\"\n}"
+                - name: fr.json
+                  preview: "{\n  \"welcome\": \"Bienvenue sur Mon App\",\n  \"description\": \"Une application Nuxt rapide avec support i18n.\"\n}"
+                - name: ar.json
+                  preview: "{\n  \"welcome\": \"مرحباً بك في تطبيقي\",\n  \"description\": \"تطبيق Nuxt سريع مع دعم الترجمة.\"\n}"
+            - name: about
+              note: "matches pages/about.vue"
+              children:
+                - name: en.json
+                  preview: "{\n  \"title\": \"About Us\",\n  \"content\": \"Learn more about our mission.\"\n}"
+                - name: fr.json
+                  preview: "{\n  \"title\": \"À propos\",\n  \"content\": \"En savoir plus sur notre mission.\"\n}"
+                - name: ar.json
+                  preview: "{\n  \"title\": \"من نحن\",\n  \"content\": \"تعرف على مهمتنا.\"\n}"
+            - name: articles-id
+              note: "matches pages/articles/[id].vue"
+              children:
+                - name: en.json
+                  preview: "{\n  \"article_title\": \"Article Details\"\n}"
+                - name: fr.json
+                  preview: "{\n  \"article_title\": \"Détails de l'article\"\n}"
+                - name: ar.json
+                  preview: "{\n  \"article_title\": \"تفاصيل المقال\"\n}"
+    - name: server
+      open: false
+      children:
+        - name: api
+          children:
+            - name: example.ts
+              preview: "export default defineEventHandler((event) => {\n  return { hello: 'world' }\n})"
+        - name: tsconfig.json
+          preview: "{\n  \"extends\": \"../.nuxt/tsconfig.server.json\"\n}"
 ```
 
 ::: tip Folder Structure Explanation
 
-- **Global Files**: Contain translations shared across the entire app
-- **Page-Specific Files**: Contain translations unique to specific pages
-- **Auto-Generation**: Files are automatically created when missing during development
+- **Global Files** (`locales/en.json`, etc.) — translations shared across the entire app (menus, footer, common UI)
+- **Page-Specific Files** (`locales/pages/<route>/<locale>.json`) — translations unique to specific pages, loaded only when the page is visited
+- **Dynamic Routes** — `pages/articles/[id].vue` maps to `locales/pages/articles-id/` (brackets replaced with dashes)
+- **Auto-Generation** — all translation files are automatically created when missing during `nuxt dev`
 
 :::
 
@@ -271,8 +340,8 @@ Disables page-specific translations, using only global files.
 
 When enabled, only global translation files are used:
 
-```
-/locales
+```tree
+locales/
 ├── en.json
 ├── fr.json
 └── ar.json

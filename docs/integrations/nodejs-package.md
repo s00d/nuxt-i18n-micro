@@ -40,17 +40,17 @@ console.log(i18n.tc('apples', 5)) // "5 apples"
 
 The package supports the same file structure as the Nuxt module:
 
-```
+```tree
 locales/
-├── en.json              # Global English translations
-├── de.json              # Global German translations
+├── en.json
+├── de.json
 └── pages/
     ├── home/
-    │   ├── en.json      # Home page English translations
-    │   └── de.json      # Home page German translations
+    │   ├── en.json
+    │   └── de.json
     └── about/
-        ├── en.json      # About page English translations
-        └── de.json      # About page German translations
+        ├── en.json
+        └── de.json
 ```
 
 ## 🔧 API Reference

@@ -6,15 +6,15 @@ Once the module is installed and configured, you can display translations by cal
 
 1. **Global** translations reside directly under the `/locales` folder (e.g. `/locales/en.json`, `/locales/fr.json`), making them available throughout your application.
 2. **Page-specific** translations live under `/locales/pages/...`, matching your Nuxt pages folder structure:
-   ```
-   locales
-   ├── en.json                      # Global
-   ├── fr.json                      # Global
-   └── pages
-       └── dir1
-           ├── en.json             # Used only in pages under /dir1
-           └── fr.json
-   ```
+```tree
+locales/
+├── en.json
+├── fr.json
+└── pages/
+    └── dir1/
+        ├── en.json
+        └── fr.json
+```
 
 ## 2. Template Usage with `$t`
 

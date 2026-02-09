@@ -3,8 +3,9 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './test',
   testMatch: '*.spec.ts',
+  timeout: process.env.CI ? 60000 : 30000,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : 3,
+  workers: process.env.CI ? 1 : 3,
   use: {
     // In CI save trace on error, locally — disable
     trace: process.env.CI ? 'retain-on-failure' : 'off',
@@ -14,6 +15,10 @@ export default defineConfig({
 
     // Screenshots only on error
     screenshot: 'only-on-failure',
+
+    // Navigation timeout
+    navigationTimeout: 15000,
+    actionTimeout: 10000,
   },
   testIgnore: [],
   projects: [

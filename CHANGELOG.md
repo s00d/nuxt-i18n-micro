@@ -1,6 +1,41 @@
 # Changelog
 
 
+## v3.5.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.4.1...v3.5.0)
+
+### 🚀 Enhancements
+
+- **docs:** Configure Vite build options and add DNS prefetch ([f7a8ff43](https://github.com/s00d/nuxt-i18n-micro/commit/f7a8ff43))
+- **redirect:** Improve redirect handling during prerendering ([95cdca99](https://github.com/s00d/nuxt-i18n-micro/commit/95cdca99))
+
+### 🩹 Fixes
+
+- **deps:** Update `vitepress-plugin-folder-tree` to version `1.1.3` ([40919635](https://github.com/s00d/nuxt-i18n-micro/commit/40919635))
+- **deps:** Update `vitepress-plugin-folder-tree` to version `1.2.1` ([58417f74](https://github.com/s00d/nuxt-i18n-micro/commit/58417f74))
+- **tests:** Increase timeouts and improve locale switching in tests ([6e03afb3](https://github.com/s00d/nuxt-i18n-micro/commit/6e03afb3))
+
+### 📖 Documentation
+
+- **api:** Update warning in methods documentation for clarity ([d132796f](https://github.com/s00d/nuxt-i18n-micro/commit/d132796f))
+- **migration:** Add folder structure examples to use tree syntax ([88a1d46b](https://github.com/s00d/nuxt-i18n-micro/commit/88a1d46b))
+- **migration:** Update migration guide and add v2 to v3 upgrade instructions ([0f10891a](https://github.com/s00d/nuxt-i18n-micro/commit/0f10891a))
+- **config:** Update Chart.js root path configuration ([5d81f9ee](https://github.com/s00d/nuxt-i18n-micro/commit/5d81f9ee))
+
+### 🏡 Chore
+
+- **changelog:** Update CHANGELOG.md for v3.4.1 release ([b93e2c1a](https://github.com/s00d/nuxt-i18n-micro/commit/b93e2c1a))
+
+### ✅ Tests
+
+- **generate-prefix:** Add regression test for nuxi generate with prefix strategy ([c2de8bdf](https://github.com/s00d/nuxt-i18n-micro/commit/c2de8bdf))
+- **redirect-prerender:** Add tests for prefix strategy redirection ([3cb6129d](https://github.com/s00d/nuxt-i18n-micro/commit/3cb6129d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.4.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.4.0...v3.4.1)

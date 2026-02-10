@@ -81,6 +81,18 @@ export default defineNuxtPlugin({
       const url = getRequestURL(event)
       const path = url.pathname
 
+      // During prerendering, sendRedirect does not abort the Nuxt rendering pipeline,
+      // so the renderer continues and may overwrite the 302 with a 404.
+      // navigateTo sets ssrContext._renderResponse which properly aborts rendering.
+      // At runtime, sendRedirect is more reliable as it immediately ends the HTTP response.
+      const isPrerender = !!getHeader(event, 'x-nitro-prerender')
+      const performRedirect = (targetUrl: string, code: number = 302): Promise<void> => {
+        if (isPrerender) {
+          return navigateTo(targetUrl, { redirectCode: code }) as Promise<void>
+        }
+        return sendRedirect(event, targetUrl, code)
+      }
+
       // Skip internal paths
       if (path.startsWith('/api') || path.startsWith('/_nuxt') || path.startsWith('/_locales') || path.startsWith('/__')) return
       if (path.includes('.') && !path.endsWith('.html')) return
@@ -182,14 +194,14 @@ export default defineNuxtPlugin({
               setCookie(event, cookieName, preferredLocale, cookieOpts2)
             }
             if (DEBUG) console.error('[i18n-redirect] REDIRECT autoDetectPath *', { path, targetPath, preferredLocale })
-            return sendRedirect(event, targetPath + (url.search || '') + (url.hash || ''), 302)
+            return performRedirect(targetPath + (url.search || '') + (url.hash || ''))
           }
 
           // Use path-strategy for redirect (handles paths without locale prefix)
           const redirectPath = i18nStrategy.getClientRedirect(path, preferredLocale)
           if (redirectPath) {
             if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, redirectPath, preferredLocale })
-            return sendRedirect(event, redirectPath + (url.search || '') + (url.hash || ''), 302)
+            return performRedirect(redirectPath + (url.search || '') + (url.hash || ''))
           }
         }
       }

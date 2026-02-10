@@ -1,6 +1,44 @@
 # Changelog
 
 
+## v3.6.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.4.1...v3.6.0)
+
+### 🚀 Enhancements
+
+- **docs:** Configure Vite build options and add DNS prefetch ([f7a8ff43](https://github.com/s00d/nuxt-i18n-micro/commit/f7a8ff43))
+- **redirect:** Improve redirect handling during prerendering ([95cdca99](https://github.com/s00d/nuxt-i18n-micro/commit/95cdca99))
+
+### 🩹 Fixes
+
+- **deps:** Update `vitepress-plugin-folder-tree` to version `1.1.3` ([40919635](https://github.com/s00d/nuxt-i18n-micro/commit/40919635))
+- **deps:** Update `vitepress-plugin-folder-tree` to version `1.2.1` ([58417f74](https://github.com/s00d/nuxt-i18n-micro/commit/58417f74))
+- **tests:** Increase timeouts and improve locale switching in tests ([6e03afb3](https://github.com/s00d/nuxt-i18n-micro/commit/6e03afb3))
+- **module:** Resolve ESM loader issue on Windows for strategy paths ([4779e045](https://github.com/s00d/nuxt-i18n-micro/commit/4779e045))
+- **module:** Simplify resolvedStrategyPath assignment ([7ac49fe9](https://github.com/s00d/nuxt-i18n-micro/commit/7ac49fe9))
+
+### 📖 Documentation
+
+- **api:** Update warning in methods documentation for clarity ([d132796f](https://github.com/s00d/nuxt-i18n-micro/commit/d132796f))
+- **migration:** Add folder structure examples to use tree syntax ([88a1d46b](https://github.com/s00d/nuxt-i18n-micro/commit/88a1d46b))
+- **migration:** Update migration guide and add v2 to v3 upgrade instructions ([0f10891a](https://github.com/s00d/nuxt-i18n-micro/commit/0f10891a))
+- **config:** Update Chart.js root path configuration ([5d81f9ee](https://github.com/s00d/nuxt-i18n-micro/commit/5d81f9ee))
+
+### 🏡 Chore
+
+- **changelog:** Update CHANGELOG.md for v3.4.1 release ([b93e2c1a](https://github.com/s00d/nuxt-i18n-micro/commit/b93e2c1a))
+- **release:** V3.5.0 ([b5208573](https://github.com/s00d/nuxt-i18n-micro/commit/b5208573))
+
+### ✅ Tests
+
+- **generate-prefix:** Add regression test for nuxi generate with prefix strategy ([c2de8bdf](https://github.com/s00d/nuxt-i18n-micro/commit/c2de8bdf))
+- **redirect-prerender:** Add tests for prefix strategy redirection ([3cb6129d](https://github.com/s00d/nuxt-i18n-micro/commit/3cb6129d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.5.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.4.1...v3.5.0)

@@ -176,9 +176,7 @@ export default defineNuxtModule<ModuleOptions>({
     const absoluteStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
     // On Windows, absolute paths like C:\... are rejected by Node.js ESM loader
     // (ERR_UNSUPPORTED_ESM_URL_SCHEME), so convert to file:// URL
-    const resolvedStrategyPath = process.platform === 'win32'
-      ? pathToFileURL(absoluteStrategyPath).href
-      : absoluteStrategyPath.replace(/\\/g, '/')
+    const resolvedStrategyPath = process.platform === 'win32' ? pathToFileURL(absoluteStrategyPath).href : absoluteStrategyPath.replace(/\\/g, '/')
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],

@@ -1,6 +1,7 @@
 import fs, { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path, { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
 import { isInternalPath, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
 import type { Getter, GlobalLocaleRoutes, Locale, LocaleCode, ModuleOptions, PluralFunc, Strategies } from '@i18n-micro/types'
@@ -172,7 +173,12 @@ export default defineNuxtModule<ModuleOptions>({
     }
     const strategyFile = strategyFiles[options.strategy!] ?? strategyFiles.prefix_except_default
     const pkgPath = require.resolve('@i18n-micro/path-strategy/package.json')
-    const resolvedStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
+    const absoluteStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
+    // On Windows, absolute paths like C:\... are rejected by Node.js ESM loader
+    // (ERR_UNSUPPORTED_ESM_URL_SCHEME), so convert to file:// URL
+    const resolvedStrategyPath = process.platform === 'win32'
+      ? pathToFileURL(absoluteStrategyPath).href
+      : absoluteStrategyPath.replace(/\\/g, '/')
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],

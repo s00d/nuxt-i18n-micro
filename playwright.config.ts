@@ -5,7 +5,7 @@ export default defineConfig({
   testMatch: '*.spec.ts',
   timeout: process.env.CI ? 60000 : 30000,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : 3,
+  workers: process.env.CI ? 1 : 2,
   use: {
     // In CI save trace on error, locally — disable
     trace: process.env.CI ? 'retain-on-failure' : 'off',

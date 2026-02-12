@@ -118,23 +118,6 @@ describe('BaseI18n', () => {
       expect(i18n.t('title', undefined, undefined, 'about')).toBe('Route Title')
     })
 
-    test('should use previousPageInfo fallback when enabled', async () => {
-      const storage = { translations: new Map<string, Translations>() }
-      const prevInfo = { locale: 'fr', routeName: 'previous' }
-      const i18n = new TestI18n('en', 'en', 'general', {
-        storage,
-        getPreviousPageInfo: () => prevInfo,
-        enablePreviousPageFallback: true,
-      })
-
-      const translations: Translations = { greeting: 'Bonjour' }
-      await i18n['helper'].loadPageTranslations('fr', 'previous', translations)
-
-      // Current locale is 'en', route is 'general', translation not found
-      // Should fallback to previous page info: locale 'fr', route 'previous'
-      expect(i18n.t('greeting')).toBe('Bonjour')
-    })
-
     test('should call missingHandler when translation is missing', () => {
       const handler = jest.fn()
       const i18n = new TestI18n('en', 'en', 'general', { missingHandler: handler })

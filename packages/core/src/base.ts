@@ -8,10 +8,7 @@ export interface BaseI18nOptions {
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
-  // Optional hooks for Nuxt runtime specific features
-  getPreviousPageInfo?: () => { locale: string; routeName: string } | null
   getCustomMissingHandler?: () => MissingHandler | null
-  enablePreviousPageFallback?: boolean
 }
 
 /**
@@ -27,10 +24,7 @@ export abstract class BaseI18n {
   public pluralFunc: PluralFunc
   public missingWarn: boolean
   public missingHandler?: (locale: string, key: string, routeName: string) => void
-  // Optional hooks for Nuxt runtime specific features
-  public getPreviousPageInfo?: () => { locale: string; routeName: string } | null
   public getCustomMissingHandler?: () => MissingHandler | null
-  public enablePreviousPageFallback: boolean
 
   constructor(options: BaseI18nOptions = {}) {
     this.helper = useTranslationHelper(options.storage)
@@ -38,9 +32,7 @@ export abstract class BaseI18n {
     this.pluralFunc = options.plural || defaultPlural
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
-    this.getPreviousPageInfo = options.getPreviousPageInfo
     this.getCustomMissingHandler = options.getCustomMissingHandler
-    this.enablePreviousPageFallback = options.enablePreviousPageFallback ?? false
   }
 
   // --- Abstract methods (must be implemented by subclasses) ---
@@ -77,21 +69,7 @@ export abstract class BaseI18n {
     // Note: In Nuxt runtime, server already merges global translations, so we don't need explicit fallback
     let value = this.helper.getTranslation<string>(locale, route, key)
 
-    // 2. If translation not found and there are saved previous translations, use them (only if enabled)
-    if (!value && this.enablePreviousPageFallback && this.getPreviousPageInfo) {
-      const prev = this.getPreviousPageInfo()
-      if (prev) {
-        const prevValue = this.helper.getTranslation<string>(prev.locale, prev.routeName, key)
-        if (prevValue) {
-          value = prevValue
-          if (process.env.NODE_ENV !== 'production') {
-            console.log(`Using fallback translation from previous route: ${prev.routeName} -> ${key}`)
-          }
-        }
-      }
-    }
-
-    // 3. Fallback to fallbackLocale if not found and different (for non-Nuxt adapters)
+    // 2. Fallback to fallbackLocale if not found and different (for non-Nuxt adapters)
     if (!value) {
       const fallbackLocale = this.getFallbackLocale()
       if (locale !== fallbackLocale) {
@@ -99,7 +77,7 @@ export abstract class BaseI18n {
       }
     }
 
-    // 4. Handle missing
+    // 3. Handle missing
     if (!value) {
       // Call custom handler if set (Nuxt runtime), otherwise use instance handler
       const customHandler = this.getCustomMissingHandler?.()
@@ -117,7 +95,7 @@ export abstract class BaseI18n {
       value = defaultValue === undefined ? key : defaultValue || key
     }
 
-    // 5. Interpolate
+    // 4. Interpolate
     return typeof value === 'string' && params ? interpolate(value, params) : (value as CleanTranslation)
   }
 

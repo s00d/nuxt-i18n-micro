@@ -8,7 +8,7 @@ export default defineNuxtConfig({
 
   app: {
     // Slow transition so we can observe stale translations during leave phase
-    pageTransition: { name: 'page', mode: '' },
+    pageTransition: { name: 'page', mode: 'default' },
   },
 
   i18n: {

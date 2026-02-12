@@ -94,7 +94,6 @@ export default defineNuxtConfig({
     },
     // Test excludePatterns functionality
     excludePatterns: ['/sitemap*.xml', '/robots.txt', '/api/**', /\.(pdf|doc)$/],
-    previousPageFallback: false,
   },
   i18nTypes: {
     translationDir: 'locales',

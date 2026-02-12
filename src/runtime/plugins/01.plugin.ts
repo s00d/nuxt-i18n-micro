@@ -55,6 +55,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // Cached reference to current translations (updated in switchContext)
   let cachedTranslations: Record<string, unknown> = {}
 
+  // Buffer: clean translations for the NEW page only (no old-page leftovers).
+  // Applied in page:finish after the transition animation completes.
+  let pendingCleanState: Record<string, unknown> | null = null
+
   // Reactivity signal (triggers Vue re-renders on locale/route change)
   const contextSignal = shallowRef(0)
 
@@ -114,13 +118,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
 
-  // Previous page fallback
-  const enablePreviousPageFallback = i18nConfig.previousPageFallback ?? false
-  const previousPageInfo = useState<{ locale: string; routeName: string } | null>('i18n-previous-page', () => null)
-
+  // Garbage collection: once the page transition animation finishes,
+  // swap the merged (dirty) dictionary for the clean one that contains
+  // only the keys needed by the current page. This releases references
+  // to old-page keys so the GC can reclaim memory.
   nuxtApp.hook('page:finish', () => {
-    if (import.meta.client) {
-      previousPageInfo.value = null
+    if (pendingCleanState) {
+      cachedTranslations = pendingCleanState
+      pendingCleanState = null
     }
   })
 
@@ -205,10 +210,22 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       data = await loadAsync(locale, routeName)
     }
 
+    if (currentLocale === locale) {
+      // Same language, page navigation:
+      // 1. Merge old + new so the leaving component keeps its keys during transition.
+      cachedTranslations = { ...cachedTranslations, ...data }
+      // 2. Schedule cleanup: page:finish will replace the merged dict with `data`
+      //    (which already contains global + new-page keys), freeing old-page keys.
+      pendingCleanState = data
+    } else {
+      // Language change: hard replace, no cross-language mixing.
+      cachedTranslations = data
+      pendingCleanState = null
+    }
+
     // Update current values
     currentLocale = locale
     currentRouteName = routeName || ''
-    cachedTranslations = data
 
     // Signal Vue to re-render templates
     triggerRef(contextSignal)
@@ -260,13 +277,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
       // If locale or page changed — switch context
       if (targetLocale !== currentLocale || targetRouteName !== currentRouteName) {
-        // Save previous page info for fallback
-        if (import.meta.client && enablePreviousPageFallback && from.path !== to.path) {
-          const fromLocale = getCurrentLocale(from as unknown as ResolvedRouteLike)
-          const fromRouteName = getPluginRouteName(from as unknown as ResolvedRouteLike, fromLocale)
-          previousPageInfo.value = { locale: fromLocale, routeName: fromRouteName }
-        }
-
         await switchContext(targetLocale, targetRouteName)
       }
 
@@ -310,17 +320,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       val = getByPath(translations, key)
     }
 
-    // 3. Fallback to previous page
-    if (val === undefined && enablePreviousPageFallback && previousPageInfo.value) {
-      const prev = previousPageInfo.value
-      const prevTranslations = loadedChunks.get(getCacheKey(prev.locale, prev.routeName)) || {}
-      val = prevTranslations[key]
-      if (val === undefined && key.includes('.')) {
-        val = getByPath(prevTranslations, key)
-      }
-    }
-
-    // 4. Not found
+    // 3. Not found
     if (val === undefined) {
       if (customMissingHandler.value) {
         customMissingHandler.value(currentLocale, key, currentRouteName)
@@ -354,14 +354,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (cachedTranslations[key] !== undefined) return true
     if (key.includes('.') && getByPath(cachedTranslations, key) !== undefined) return true
-
-    // Fallback to previous page
-    if (enablePreviousPageFallback && previousPageInfo.value) {
-      const prev = previousPageInfo.value
-      const prevTranslations = loadedChunks.get(getCacheKey(prev.locale, prev.routeName)) || {}
-      if (prevTranslations[key] !== undefined) return true
-      if (key.includes('.') && getByPath(prevTranslations, key) !== undefined) return true
-    }
     return false
   }
 
@@ -370,7 +362,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const current = loadedChunks.get(cacheKey) || {}
     const merged = { ...current, ...newTranslations }
     loadedChunks.set(cacheKey, merged)
-    cachedTranslations = merged
+    cachedTranslations = { ...cachedTranslations, ...merged }
+    // Keep pendingCleanState in sync to avoid race condition
+    if (pendingCleanState) {
+      pendingCleanState = merged
+    }
     triggerRef(contextSignal)
   }
 
@@ -382,22 +378,31 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         await loadAsync(locale, routeName || undefined)
       }
       const existing = loadedChunks.get(cacheKey) || {}
-      loadedChunks.set(cacheKey, { ...existing, ...newTranslations })
+      const mergedChunk = { ...existing, ...newTranslations }
+      loadedChunks.set(cacheKey, mergedChunk)
       if (locale === currentLocale && routeName === currentRouteName) {
-        cachedTranslations = loadedChunks.get(cacheKey)!
+        cachedTranslations = { ...cachedTranslations, ...mergedChunk }
+        // Keep pendingCleanState in sync to avoid race condition
+        if (pendingCleanState) {
+          pendingCleanState = mergedChunk
+        }
         triggerRef(contextSignal)
       }
     },
     async mergeGlobalTranslation(locale: string, newTranslations: Translations, _force = false): Promise<void> {
-      // Merge global translations into current context
       const cacheKey = getCacheKey(locale, currentRouteName)
       if (!loadedChunks.has(cacheKey)) {
         await loadAsync(locale, currentRouteName || undefined)
       }
       const existing = loadedChunks.get(cacheKey) || {}
-      loadedChunks.set(cacheKey, { ...existing, ...newTranslations })
+      const mergedChunk = { ...existing, ...newTranslations }
+      loadedChunks.set(cacheKey, mergedChunk)
       if (locale === currentLocale) {
-        cachedTranslations = loadedChunks.get(cacheKey)!
+        cachedTranslations = { ...cachedTranslations, ...mergedChunk }
+        // Keep pendingCleanState in sync to avoid race condition
+        if (pendingCleanState) {
+          pendingCleanState = mergedChunk
+        }
         triggerRef(contextSignal)
       }
     },
@@ -517,9 +522,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     loadPageTranslations: async (locale: string, routeName: string, translations: Translations) => {
       const cacheKey = getCacheKey(locale, routeName)
       const current = loadedChunks.get(cacheKey) || {}
-      loadedChunks.set(cacheKey, { ...current, ...translations })
+      const mergedChunk = { ...current, ...translations }
+      loadedChunks.set(cacheKey, mergedChunk)
       if (locale === currentLocale && routeName === currentRouteName) {
-        cachedTranslations = loadedChunks.get(cacheKey)!
+        cachedTranslations = { ...cachedTranslations, ...mergedChunk }
+        // Keep pendingCleanState in sync to avoid race condition
+        if (pendingCleanState) {
+          pendingCleanState = mergedChunk
+        }
         triggerRef(contextSignal)
       }
     },

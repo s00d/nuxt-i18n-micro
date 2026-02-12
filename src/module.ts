@@ -66,7 +66,6 @@ export default defineNuxtModule<ModuleOptions>({
     autoDetectLanguage: true,
     disablePageLocales: false,
     disableWatcher: false,
-    // previousPageFallback and hmr are now main options (not experimental)
     noPrefixRedirect: false,
     fallbackLocale: undefined,
     localeCookie: null,
@@ -81,6 +80,8 @@ export default defineNuxtModule<ModuleOptions>({
     excludePatterns: undefined,
     localizedRouteNamePrefix: 'localized-',
     missingWarn: true,
+    metaTrustForwardedHost: true,
+    metaTrustForwardedProto: true,
   },
   async setup(options, nuxt) {
     const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
@@ -213,7 +214,9 @@ export default defineNuxtModule<ModuleOptions>({
 
     const fullConfig = {
       locales: routeGenerator.locales ?? [],
-      metaBaseUrl: options.metaBaseUrl ?? undefined,
+      metaBaseUrl: options.metaBaseUrl || undefined,
+      metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
+      metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
       defaultLocale: defaultLocale,
       fallbackLocale: options.fallbackLocale ?? undefined,
       localeCookie: options.localeCookie ?? null,
@@ -234,7 +237,6 @@ export default defineNuxtModule<ModuleOptions>({
       globalLocaleRoutes: mergedGlobalLocaleRoutes,
       missingWarn: options.missingWarn ?? true,
       redirects: options.redirects !== false,
-      previousPageFallback: options.previousPageFallback ?? false,
       hmr: options.hmr ?? true,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
       routesLocaleLinks: options.routesLocaleLinks ?? {},

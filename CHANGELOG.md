@@ -1,6 +1,47 @@
 # Changelog
 
 
+## v3.7.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.6.0...v3.7.0)
+
+### 🚀 Enhancements
+
+- **meta:** Enhance base URL resolution for SEO meta tags ([2d95c559](https://github.com/s00d/nuxt-i18n-micro/commit/2d95c559))
+- **module:** Add metaTrustForwarded options for improved security ([83e86792](https://github.com/s00d/nuxt-i18n-micro/commit/83e86792))
+
+### 🩹 Fixes
+
+- **nuxt.config:** Remove previousPageFallback option ([f3870a78](https://github.com/s00d/nuxt-i18n-micro/commit/f3870a78))
+- **transition:** Set default mode for page transition ([aa771142](https://github.com/s00d/nuxt-i18n-micro/commit/aa771142))
+
+### 💅 Refactors
+
+- **core:** Remove previous page fallback functionality ([024a6d89](https://github.com/s00d/nuxt-i18n-micro/commit/024a6d89))
+- **types:** Improve type definitions and documentation for i18n ([cd0f9a4c](https://github.com/s00d/nuxt-i18n-micro/commit/cd0f9a4c))
+- **plugins:** Improve translation cache management during page transitions ([611db2ad](https://github.com/s00d/nuxt-i18n-micro/commit/611db2ad))
+
+### 📖 Documentation
+
+- **getting-started:** Clarify `metaBaseUrl` behavior and types ([410b6acb](https://github.com/s00d/nuxt-i18n-micro/commit/410b6acb))
+- **seo:** Add dynamic `metaBaseUrl` support for multi-domain deployments ([2538bf73](https://github.com/s00d/nuxt-i18n-micro/commit/2538bf73))
+- **performance-results:** Update performance metrics for i18n projects ([7aeb438a](https://github.com/s00d/nuxt-i18n-micro/commit/7aeb438a))
+
+### 🏡 Chore
+
+- **github:** Add FUNDING.yml for sponsorship options ([f6d2b868](https://github.com/s00d/nuxt-i18n-micro/commit/f6d2b868))
+- **playwright:** Reduce number of workers for local testing ([1f98f452](https://github.com/s00d/nuxt-i18n-micro/commit/1f98f452))
+
+### ✅ Tests
+
+- Add SEO tests for dynamic `metaBaseUrl` handling ([172ab2a0](https://github.com/s00d/nuxt-i18n-micro/commit/172ab2a0))
+- **transitions:** Add tests for translation persistence during navigation ([2d7d3a06](https://github.com/s00d/nuxt-i18n-micro/commit/2d7d3a06))
+- **seo-auto:** Import Page type from correct package ([26ca6654](https://github.com/s00d/nuxt-i18n-micro/commit/26ca6654))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.6.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.4.1...v3.6.0)

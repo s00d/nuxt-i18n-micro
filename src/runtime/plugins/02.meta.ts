@@ -17,9 +17,16 @@ export default defineNuxtPlugin((nuxtApp) => {
     return
   }
 
-  // useRequestURL() works everywhere (Node, Edge, Browser) and respects proxy headers (X-Forwarded-Proto, etc.)
-  const url = useRequestURL()
-  const baseUrl = (i18nConfig.metaBaseUrl || url.origin).toString()
+  // Resolve base URL for SEO meta tags.
+  // undefined → dynamically resolve from the current request (supports multi-domain).
+  // Proxy-header options so the origin is correct behind nginx / Cloudflare / ALB / etc.:
+  //   X-Forwarded-Host  → real hostname  (controlled by metaTrustForwardedHost)
+  //   X-Forwarded-Proto → real protocol  (controlled by metaTrustForwardedProto)
+  const url = useRequestURL({
+    xForwardedHost: i18nConfig.metaTrustForwardedHost !== false,
+    xForwardedProto: i18nConfig.metaTrustForwardedProto !== false,
+  })
+  const baseUrl = i18nConfig.metaBaseUrl || url.origin
 
   const { metaObject, updateMeta } = useLocaleHead({
     addDirAttribute: true,

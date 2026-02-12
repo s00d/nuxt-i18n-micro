@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "transition-merge",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build"
+  },
+  "dependencies": {
+    "nuxt": "catalog:nuxt3"
+  }
+}

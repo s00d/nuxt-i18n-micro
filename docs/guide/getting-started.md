@@ -381,12 +381,19 @@ meta: true // Generate alternate links, canonical URLs, etc.
 
 #### `metaBaseUrl`
 
-Sets the base URL for SEO meta tags.
+Sets the base URL for SEO meta tags (canonical, og:url, hreflang).
 
-**Type**: `string`  
-**Default**: `'/'`
+**Type**: `string | undefined`  
+**Default**: `undefined`
+
+- `undefined` (or omitted) — the base URL is resolved dynamically from the incoming request on the server (`useRequestURL().origin`, respects `X-Forwarded-Host` / `X-Forwarded-Proto` proxy headers) and from `window.location.origin` on the client. Ideal for **multi-domain** deployments where the same application serves multiple hostnames.
+- Any other string — used as a static base URL.
 
 ```typescript
+// Dynamic — automatically uses the current request hostname (recommended for multi-domain)
+// Simply omit metaBaseUrl or set it to undefined
+
+// Static — always uses the specified URL
 metaBaseUrl: 'https://example.com'
 ```
 

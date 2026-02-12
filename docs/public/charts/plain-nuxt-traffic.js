@@ -17,14 +17,14 @@ export default function() {
       {
         "label": "http.request_rate",
         "data": [
-          66,
-          273,
+          228,
           342,
           342,
           342,
-          343,
-          343,
-          321
+          244,
+          193,
+          140,
+          219
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -37,14 +37,14 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          8,
-          296,
-          854,
+          257,
+          872,
           1526,
-          2144,
-          2322,
-          2322,
-          2322
+          2187,
+          4147,
+          3464,
+          7710,
+          5598
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -57,14 +57,14 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          11,
-          384,
+          284,
+          599,
           600,
           600,
-          600,
-          600,
-          600,
-          241
+          596,
+          604,
+          353,
+          0
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -77,13 +77,13 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          0,
-          36,
-          38,
-          39,
-          38,
           33,
-          7,
+          40,
+          40,
+          40,
+          211,
+          109,
+          0,
           0
         ],
         "borderColor": "rgb(46, 204, 113)",
@@ -101,10 +101,10 @@ export default function() {
           0,
           0,
           0,
-          0,
-          5,
-          33,
-          27
+          22,
+          235,
+          396,
+          80
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

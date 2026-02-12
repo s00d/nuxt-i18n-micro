@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Avg",
         "data": [
-          54,
-          780,
-          55
+          53,
+          806,
+          56
         ],
         "backgroundColor": "rgba(75, 192, 192, 0.8)",
         "borderColor": "rgb(75, 192, 192)",
@@ -23,9 +23,9 @@ export default function() {
       {
         "label": "P50",
         "data": [
-          52,
-          769,
-          48
+          51,
+          784,
+          49
         ],
         "backgroundColor": "rgba(255, 206, 86, 0.8)",
         "borderColor": "rgb(255, 206, 86)",
@@ -34,9 +34,9 @@ export default function() {
       {
         "label": "P95",
         "data": [
-          63,
-          1424,
-          97
+          66,
+          1706,
+          101
         ],
         "backgroundColor": "rgba(255, 159, 64, 0.8)",
         "borderColor": "rgb(255, 159, 64)",
@@ -45,9 +45,9 @@ export default function() {
       {
         "label": "P99",
         "data": [
-          69,
-          2195,
-          102
+          68,
+          2406,
+          108
         ],
         "backgroundColor": "rgba(255, 99, 132, 0.8)",
         "borderColor": "rgb(255, 99, 132)",

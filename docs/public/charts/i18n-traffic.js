@@ -11,16 +11,14 @@ export default function() {
       "40s",
       "50s",
       "60s",
-      "70s",
-      "80s"
+      "70s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
-          25,
-          69,
-          68,
+          52,
+          75,
           60,
           60,
           60,
@@ -39,10 +37,9 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          925,
-          4317,
-          8521,
-          0,
+          2101,
+          6838,
+          327,
           0,
           0,
           0,
@@ -60,14 +57,13 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          18,
-          472,
+          142,
           600,
           600,
           600,
           600,
           600,
-          146,
+          494,
           0
         ],
         "borderColor": "rgb(153, 102, 255)",
@@ -81,13 +77,12 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          18,
-          438,
-          21,
-          18,
+          127,
+          366,
+          2,
           0,
-          0,
-          0,
+          1,
+          1,
           0,
           0
         ],
@@ -103,14 +98,13 @@ export default function() {
         "label": "vusers.failed",
         "data": [
           0,
-          0,
-          560,
-          582,
-          600,
-          603,
-          601,
-          556,
-          81
+          202,
+          595,
+          602,
+          599,
+          599,
+          598,
+          391
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

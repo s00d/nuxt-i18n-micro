@@ -10,19 +10,21 @@ export default function() {
       "30s",
       "40s",
       "50s",
-      "60s"
+      "60s",
+      "70s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
-          219,
-          316,
-          315,
-          316,
-          318,
-          318,
-          299
+          51,
+          282,
+          314,
+          290,
+          312,
+          314,
+          314,
+          288
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -35,13 +37,14 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          478,
-          1864,
+          10,
+          925,
+          2466,
+          2618,
+          2618,
+          2618,
           2566,
-          2566,
-          2566,
-          2516,
-          2516
+          2566
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -54,13 +57,14 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          313,
+          21,
+          486,
           600,
           600,
           600,
           600,
           600,
-          323
+          129
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -73,10 +77,11 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          55,
-          94,
-          71,
-          15,
+          0,
+          89,
+          99,
+          93,
+          0,
           0,
           0,
           0
@@ -94,11 +99,12 @@ export default function() {
         "data": [
           0,
           0,
-          18,
-          76,
-          92,
-          95,
-          60
+          0,
+          51,
+          138,
+          107,
+          96,
+          36
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

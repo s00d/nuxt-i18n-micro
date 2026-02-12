@@ -11,17 +11,15 @@ export default function() {
       "40s",
       "50s",
       "60s",
-      "70s",
-      "80s"
+      "70s"
     ],
     "datasets": [
       {
         "label": "P95 Latency (ms)",
         "data": [
-          925,
-          4317,
-          8521,
-          0,
+          2101,
+          6838,
+          327,
           0,
           0,
           0,

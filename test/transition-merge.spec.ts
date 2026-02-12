@@ -25,7 +25,7 @@ test.describe('Cumulative merge: translations survive page transition', () => {
     // 4. Page A is still in the DOM (leave animation running).
     //    Its text must NOT be the raw translation key — the old translations must survive.
     const pageATitle = page.locator('#page-a-title')
-    if (await pageATitle.count() > 0) {
+    if ((await pageATitle.count()) > 0) {
       const text = await pageATitle.textContent()
       // The text must be the translated value, not the raw key
       expect(text).not.toBe('pageA.title')
@@ -47,7 +47,7 @@ test.describe('Cumulative merge: translations survive page transition', () => {
     await page.waitForTimeout(300)
 
     const pageBTitle = page.locator('#page-b-title')
-    if (await pageBTitle.count() > 0) {
+    if ((await pageBTitle.count()) > 0) {
       const text = await pageBTitle.textContent()
       expect(text).not.toBe('pageB.title')
       expect(text).toBe('Page B Title EN')

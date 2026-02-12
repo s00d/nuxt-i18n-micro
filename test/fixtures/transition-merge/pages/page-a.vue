@@ -9,5 +9,6 @@
 
 <script setup>
 import { useNuxtApp } from '#imports'
+
 const { $t } = useNuxtApp()
 </script>

@@ -70,6 +70,41 @@ export default defineNuxtConfig({
 })
 ```
 
+### 🌍 Dynamic `metaBaseUrl` for Multi-Domain Deployments
+
+By default (`metaBaseUrl` is `undefined`), canonical URLs, `og:url`, and `hreflang` links are generated using the hostname from the current request. This is resolved via `useRequestURL()` on the server and `window.location.origin` on the client.
+
+The module respects reverse-proxy headers (`X-Forwarded-Host`, `X-Forwarded-Proto`), so it works correctly behind nginx, Cloudflare, AWS ALB, and similar proxies.
+
+This means a single application instance can serve **multiple domains** with correct SEO tags for each:
+
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    meta: true,
+    // metaBaseUrl is undefined by default — resolved dynamically from the request
+  },
+})
+```
+
+For example, a request to `https://site-a.com/en/about` will produce:
+```html
+<link rel="canonical" href="https://site-a.com/en/about">
+<meta property="og:url" content="https://site-a.com/en/about">
+```
+
+While the same app serving `https://site-b.com/en/about` will produce:
+```html
+<link rel="canonical" href="https://site-b.com/en/about">
+<meta property="og:url" content="https://site-b.com/en/about">
+```
+
+If you need a fixed base URL instead, pass a static string:
+
+```typescript
+metaBaseUrl: 'https://example.com'
+```
+
 ### 🎯 Benefits
 
 By enabling the `meta` option, you benefit from:

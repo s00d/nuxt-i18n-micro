@@ -180,8 +180,9 @@ The `$t()` function uses a direct lookup strategy optimized for speed:
 
 1. **Pre-computed context**: Locale and route name are calculated once during navigation, not on every `$t()` call
 2. **Single-source lookup**: All translations (root + page-specific + fallback) are pre-merged at build time into a single file per page — no layered search needed
-3. **Cumulative merge on navigation**: When navigating within the same locale, new page translations are merged into the active dictionary, so keys from the previous page remain visible during transition animations
-4. **Direct property access**: Uses `obj[key]` instead of Map lookups for hot paths
+3. **Cumulative deep merge on navigation**: When navigating within the same locale, new page translations are deep-merged (2-level depth) into the active dictionary, so keys from the previous page remain visible during transition animations — even when pages share overlapping nested prefixes (e.g., both pages have keys under `common.*`)
+4. **Garbage collection via `page:transition:finish`**: After the transition animation is fully complete, the merged dictionary is replaced with the clean translations for the new page only, freeing memory from old-page keys
+5. **Direct property access**: Uses `obj[key]` instead of Map lookups for hot paths
 
 ```mermaid
 flowchart TB

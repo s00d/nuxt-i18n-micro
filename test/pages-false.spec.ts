@@ -111,7 +111,7 @@ testNoPrefix.describe('pages: false with i18n (no_prefix)', () => {
   // translation reloading. This is a known limitation.
   // For dynamic locale switching with pages: false, consider:
   // 1. Using a full page reload after switching locale
-  // 2. Manually loading translations via $mergeGlobalTranslations
+  // 2. Manually loading translations via $mergeTranslations
 
   testNoPrefix('no_prefix: handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
     // Set invalid locale cookie

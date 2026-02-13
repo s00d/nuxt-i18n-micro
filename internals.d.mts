@@ -5,7 +5,6 @@ declare module '#build/i18n.plural.mjs' {
 /** Приватный конфиг i18n (серверный): rootDir, rootDirs, debug, translationDir и т.д. Копия полей ModulePrivateOptionsExtend без импорта. */
 interface I18nPrivateConfig {
   rootDir: string
-  rootDirs: string[]
   debug: boolean
   translationDir: string
   fallbackLocale?: string

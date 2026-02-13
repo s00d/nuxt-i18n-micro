@@ -2,9 +2,9 @@
 
 Once the module is installed and configured, you can display translations by calling `$t('your_key')` within your Vue templates and scripts.
 
-## 1. Global & Page-Specific Translation Files
+## 1. Root-Level & Page-Specific Translation Files
 
-1. **Global** translations reside directly under the `/locales` folder (e.g. `/locales/en.json`, `/locales/fr.json`), making them available throughout your application.
+1. **Root-level** translations reside directly under the `/locales` folder (e.g. `/locales/en.json`, `/locales/fr.json`). At build time, they are automatically merged into every page-specific file, making them available on all pages.
 2. **Page-specific** translations live under `/locales/pages/...`, matching your Nuxt pages folder structure:
 ```tree
 locales/
@@ -23,7 +23,7 @@ In your `.vue` files, you can directly use `$t` in the template:
 ```vue
 <template>
   <div>
-    <!-- Global translation -->
+    <!-- Root-level translation (available on all pages) -->
     <p>{{ $t('test_key') }}</p>
     <!-- Displays: Hello World! -->
 
@@ -31,7 +31,7 @@ In your `.vue` files, you can directly use `$t` in the template:
     <p>{{ $t('local_key') }}</p>
     <!-- Displays: This is a page-specific translation for /dir1. -->
 
-    <!-- Nested global key -->
+    <!-- Nested key -->
     <p>{{ $t('nested.key.deeper') }}</p>
     <!-- Displays: Nested translation here -->
 
@@ -87,11 +87,11 @@ const { $t, $switchLocale } = useI18n()
 
 ## 5. Tips & Best Practices
 
-- **Conflicting Keys**: If a page-specific file contains the same key as a global file, the page-specific version overrides the global one for that page’s routes.
-- **Disabling Page Files**: If you’d rather not use page-specific translations, you can set `disablePageLocales: true` in your Nuxt config. This way, only the `/locales/*.json` files are used.
-- **No Direct Imports**: You don’t need to do `import { useI18n } from 'nuxt-i18n-micro'`; the module’s auto-injection feature handles it for you.
+- **Conflicting Keys**: If a page-specific file contains the same key as a root-level file, the page-specific version takes priority (root translations are merged as a base at build time).
+- **Disabling Page Files**: If you'd rather not use page-specific translations, you can set `disablePageLocales: true` in your Nuxt config. This way, only the `/locales/*.json` files are used.
+- **No Direct Imports**: You don't need to do `import { useI18n } from 'nuxt-i18n-micro'`; the module's auto-injection feature handles it for you.
 
-That’s it! With these steps, you can quickly **start retrieving translations** from global or page-specific JSON files and **display them** in your Nuxt application using `$t`.
+That's it! With these steps, you can quickly **start retrieving translations** from root-level or page-specific JSON files and **display them** in your Nuxt application using `$t`.
 
 ## Additional Resources
 

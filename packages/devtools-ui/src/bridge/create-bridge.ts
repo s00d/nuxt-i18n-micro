@@ -7,13 +7,8 @@ import type { I18nDevToolsBridge, LocaleData, TranslationContent } from './inter
  */
 export interface BridgeAdapter {
   /**
-   * Get general (global) translations cache
-   */
-  getGeneralCache: () => Record<string, TranslationContent>
-
-  /**
-   * Get route-specific translations cache
-   * Keys are in format "locale:routeName" (e.g., "en:home")
+   * Get translations cache
+   * Keys are in format "locale:routeName" (e.g., "en:index", "en:home")
    */
   getRouteCache: () => Record<string, TranslationContent>
 
@@ -62,23 +57,13 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
   const buildLocaleData = (): LocaleData => {
     const data: LocaleData = {}
 
-    // 1. Global translations -> {locale}.json
-    const generalCache = adapter.getGeneralCache()
-    for (const [locale, content] of Object.entries(generalCache)) {
-      if (content && typeof content === 'object' && !Array.isArray(content) && Object.keys(content).length > 0) {
-        data[`${locale}.json`] = content
-      }
-    }
-
-    // 2. Route-specific translations -> pages/{routeName}/{locale}.json
-    // routeCache has structure: key = "${locale}:${routeName}" -> content
+    // All translations are stored as "locale:routeName" (e.g., "en:index", "en:about")
     const routeCache = adapter.getRouteCache()
     for (const [key, content] of Object.entries(routeCache)) {
       if (!content || typeof content !== 'object' || Array.isArray(content) || Object.keys(content).length === 0) {
         continue
       }
 
-      // Parse key "en:home-page" or "fr:about"
       const separatorIndex = key.indexOf(':')
       if (separatorIndex === -1) {
         continue
@@ -87,9 +72,13 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
       const locale = key.substring(0, separatorIndex)
       const routeName = key.substring(separatorIndex + 1)
 
-      // Create virtual file path: pages/{routeName}/{locale}.json
-      const path = `pages/${routeName}/${locale}.json`
-      data[path] = content
+      if (routeName === 'index') {
+        // Index (root-level) translations -> {locale}.json
+        data[`${locale}.json`] = content
+      } else {
+        // Page-specific translations -> pages/{routeName}/{locale}.json
+        data[`pages/${routeName}/${locale}.json`] = content
+      }
     }
 
     return data

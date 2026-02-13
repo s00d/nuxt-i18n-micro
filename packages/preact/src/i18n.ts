@@ -13,7 +13,7 @@ export interface PreactI18nOptions {
 export class PreactI18n extends BaseI18n {
   private _locale: string
   private _fallbackLocale: string
-  private _currentRoute: string = 'general'
+  private _currentRoute: string = 'index'
   private listeners = new Set<() => void>()
   private revision = 0
 

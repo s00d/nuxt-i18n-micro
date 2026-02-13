@@ -2,5 +2,8 @@
   "pageB": {
     "title": "Seite B Titel DE",
     "body": "Seite B Inhalt DE"
+  },
+  "common": {
+    "fromB": "Von B"
   }
 }

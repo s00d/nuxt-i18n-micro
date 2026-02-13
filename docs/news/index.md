@@ -22,9 +22,9 @@ The translation loading and caching system has been completely rewritten for max
 
 - **Centralized TranslationStorage class** — A new `TranslationStorage` class (`src/runtime/utils/storage.ts`) provides a unified storage for both client and server. Uses `globalThis` with `Symbol.for` to guarantee a true singleton across the entire Node.js process, preventing cache duplication across bundled modules.
 
-- **Optimized `$t()` function (tFast)** — The translation function now uses a layered lookup strategy:
-  1. First searches in page-specific translations (highest priority)
-  2. Then falls back to general translations
+- **Optimized `$t()` function (tFast)** — The translation function uses a direct lookup against a single active dictionary:
+  1. All translations (root + page-specific + fallback) are pre-merged at build time into a single file per page
+  2. On same-locale navigation, new page translations are cumulatively merged into the active dictionary (prevents key flickering during transition animations)
   3. Supports nested keys (`key.subkey.subsubkey`) with optimized path resolution
   4. No Map lookups or locale/route calculations on each call — uses pre-computed context
 
@@ -32,7 +32,7 @@ The translation loading and caching system has been completely rewritten for max
 
 - **Local chunk cache in plugin** — The plugin maintains a local `loadedChunks` Map that stores all loaded translation chunks. Once loaded, translations are never re-fetched during the page lifecycle.
 
-- **Server-side Nitro storage loader** — A dedicated `server-loader.ts` handles loading translations from Nitro's storage layer with proper fallback locale support and deep merging.
+- **Build-time pre-merge** — A `preMergeLocales` step in `module.ts` merges all layers, fallback locale chains, and root-level translations into every page file at build time. The server-loader simply reads a single pre-built file — no runtime merging needed.
 
 **Performance improvements:**
 - Reduced memory allocation per request (no object re-creation on each `$t()` call)
@@ -73,7 +73,7 @@ All integration packages (`@i18n-micro/vue`, `@i18n-micro/astro`, `@i18n-micro/n
 
 #### Configuration Changes
 
-- **`previousPageFallback`** — Moved from `experimental.i18nPreviousPageFallback` to a top-level option. Enables fallback to previous page translations during page transitions.
+- **`previousPageFallback` removed** — This option is no longer needed. The new cumulative merge strategy automatically keeps previous page translations available during transition animations, then cleans them up via the `page:transition:finish` hook.
 - **`hmr`** — Moved from `experimental.hmr` to a top-level option. Controls server-side HMR for translation files (enabled by default in development).
 
 ```typescript
@@ -81,7 +81,6 @@ All integration packages (`@i18n-micro/vue`, `@i18n-micro/astro`, `@i18n-micro/n
 export default defineNuxtConfig({
   i18n: {
     experimental: {
-      i18nPreviousPageFallback: true,
       hmr: true,
     }
   }
@@ -90,7 +89,6 @@ export default defineNuxtConfig({
 // After (v3.0.0)
 export default defineNuxtConfig({
   i18n: {
-    previousPageFallback: true,
     hmr: true,
   }
 })
@@ -100,7 +98,7 @@ export default defineNuxtConfig({
 
 - **`fallbackRedirectComponentPath`** — Removed. The module no longer uses a fallback route component for redirects. If you had a custom component path configured, remove it from your config.
 - **`useLocaleCookies`** — Removed. Use `useI18nLocale()` instead. The new composable provides `locale`, `localeCookie`, `hashCookie`, `setLocale()`, `syncLocale()`, and more.
-- **`experimental.i18nPreviousPageFallback`** — Moved to `previousPageFallback`. Update your config if you were using this option.
+- **`experimental.i18nPreviousPageFallback` / `previousPageFallback`** — Removed entirely. The cumulative merge strategy handles transition flickering automatically. Remove this option from your config.
 - **`experimental.hmr`** — Moved to `hmr`. Update your config if you were using this option.
 - **Custom plugins** — If your custom locale-detection plugin used `useRuntimeConfig().public.i18nConfig`, switch to `getI18nConfig()` from `#build/i18n.strategy.mjs`. Prefer `useI18nLocale().setLocale()` over `useState('i18n-locale')`. See [Custom Language Detection](/guide/custom-auto-detect) for updated examples.
 - **Internal file changes** — `load-from-storage.ts` and `translation-loader.ts` have been removed and replaced with `storage.ts` and `server-loader.ts`. If you were importing from these files directly (not recommended), update your imports.
@@ -176,7 +174,7 @@ We’re introducing server‑side HMR for translation files in development. When
 
 - Watcher in `src/runtime/server/plugins/watcher.dev.ts` observes `<rootDir>/<translationDir>/**/*.json`
 - Page files (e.g., `pages/<page>/<locale>.json`) invalidate `_locales:merged:<page>:<locale>`
-- Global files (e.g., `<locale>.json`) invalidate all merged keys for that locale
+- Root-level files (e.g., `<locale>.json`) invalidate all merged keys for that locale
 - Auto‑registered from `src/module.ts` in dev when `experimental.hmr !== false`
 
 ### Configuration

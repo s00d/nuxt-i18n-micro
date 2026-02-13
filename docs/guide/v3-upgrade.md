@@ -96,7 +96,7 @@ See [Custom Language Detection](/guide/custom-auto-detect) for detailed examples
 
 ## Experimental Options Moved / Removed
 
-`hmr` has moved from `experimental` to root-level. `previousPageFallback` has been removed entirely — the module now uses a cumulative merge strategy that automatically preserves translations from the previous page during transition animations, then cleans up via the `page:transition:finish` hook.
+`hmr` has moved from `experimental` to root-level. `previousPageFallback` has been removed entirely — the module now uses a cumulative deep merge strategy (2-level depth) that automatically preserves translations from the previous page during transition animations, even when pages share overlapping nested keys. After the transition animation completes, the `page:transition:finish` hook cleans up old-page keys from memory.
 
 ```diff
  i18n: {

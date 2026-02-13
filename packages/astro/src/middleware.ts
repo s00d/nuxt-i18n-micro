@@ -93,7 +93,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     const requestI18n = globalI18n.clone(detectedLocale)
 
     // 4. Set route name using routing strategy
-    const routeName = contextStrategy.getRouteName ? contextStrategy.getRouteName(pathname, locales) : 'general'
+    const routeName = contextStrategy.getRouteName ? contextStrategy.getRouteName(pathname, locales) : 'index'
     requestI18n.setRoute(routeName)
 
     // 5. Store in locals (Type-safe now thanks to astro-shim.d.ts)

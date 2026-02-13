@@ -26,7 +26,7 @@ export interface LoadTranslationsOptions {
 }
 
 export interface LoadedTranslations {
-  general: Record<string, Translations>
+  root: Record<string, Translations>
   routes: Record<string, Record<string, Translations>>
 }
 
@@ -43,10 +43,10 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
 
   if (!existsSync(fullTranslationDir)) {
     console.warn(`[i18n] Translation directory not found: ${fullTranslationDir}`)
-    return { general: {}, routes: {} }
+    return { root: {}, routes: {} }
   }
 
-  const general: Record<string, Translations> = {}
+  const root: Record<string, Translations> = {}
   const routes: Record<string, Record<string, Translations>> = {}
 
   /**
@@ -84,8 +84,8 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
             }
             routes[routePrefix][locale] = translations
           } else {
-            // General translation
-            general[locale] = translations
+            // Root-level translation
+            root[locale] = translations
           }
         } catch (error) {
           console.error(`[i18n] Failed to load translation file: ${fullPath}`, error)
@@ -96,7 +96,7 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
 
   loadFiles(fullTranslationDir)
 
-  return { general, routes }
+  return { root, routes }
 }
 
 /**
@@ -112,17 +112,18 @@ export function loadTranslationsIntoI18n(
   },
   options: LoadTranslationsOptions,
 ): void {
-  const { general, routes } = loadTranslationsFromDir(options)
+  const { root, routes } = loadTranslationsFromDir(options)
 
-  // Load general translations
-  for (const [locale, translations] of Object.entries(general)) {
+  // Load root-level translations as index
+  for (const [locale, translations] of Object.entries(root)) {
     i18n.addTranslations(locale, translations, false)
   }
 
-  // Load route-specific translations
+  // Load route-specific translations (with root baked in)
   for (const [routeName, routeTranslations] of Object.entries(routes)) {
     for (const [locale, translations] of Object.entries(routeTranslations)) {
-      i18n.addRouteTranslations(locale, routeName, translations, false)
+      const base = root[locale] || {}
+      i18n.addRouteTranslations(locale, routeName, { ...base, ...translations }, false)
     }
   }
 }

@@ -68,7 +68,7 @@ export function tc(key: TranslationKey, params: number | Params, defaultValue?: 
 }
 
 export async function setTranslationsFromJson(locale: string, translations: Record<string, unknown>) {
-  await i18nHelper.loadTranslations(locale, translations)
+  await i18nHelper.loadTranslations(locale, translations, routeName)
 }
 
 export const getLocale = () => locale

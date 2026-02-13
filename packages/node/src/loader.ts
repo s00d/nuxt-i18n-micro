@@ -3,7 +3,7 @@ import { basename, join, relative, sep } from 'node:path'
 import type { Translations } from '@i18n-micro/types'
 
 export interface LoadedTranslations {
-  global: Record<string, Translations>
+  root: Record<string, Translations>
   routes: Record<string, Record<string, Translations>>
 }
 
@@ -16,7 +16,7 @@ export interface LoadedTranslations {
  */
 export async function loadTranslations(dir: string, disablePageLocales: boolean = false): Promise<LoadedTranslations> {
   const result: LoadedTranslations = {
-    global: {},
+    root: {},
     routes: {},
   }
 
@@ -39,7 +39,7 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
         const content = await readFile(fullPath, 'utf-8')
         const translations = JSON.parse(content) as Translations
 
-        // Logic for determining file type (global or page-specific)
+        // Logic for determining file type (root or page-specific)
         if (!disablePageLocales && parts[0] === 'pages' && parts.length >= 2) {
           // This is a page.
           // Example: pages/user/profile/en.json
@@ -56,9 +56,9 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
             result.routes[routeName][locale] = translations
           }
         } else {
-          // This is a global file (at root or if disablePageLocales=true)
+          // This is a root-level file (at root or if disablePageLocales=true)
           // Example: en.json or pages/en.json (if disablePageLocales=true)
-          result.global[locale] = translations
+          result.root[locale] = translations
         }
       } catch (error) {
         console.error(`Failed to load translation file ${fullPath}:`, error)
@@ -76,11 +76,11 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
 }
 
 /**
- * Load only global translations from a directory
+ * Load only root-level translations from a directory
  * @param dir - Directory path containing translation files
- * @param disablePageLocales - If true, ignores pages/ folder and treats all files as global translations
+ * @param disablePageLocales - If true, ignores pages/ folder and treats all files as root translations
  */
-export async function loadGlobalTranslations(dir: string, disablePageLocales: boolean = false): Promise<Record<string, Translations>> {
-  const { global } = await loadTranslations(dir, disablePageLocales)
-  return global
+export async function loadRootTranslations(dir: string, disablePageLocales: boolean = false): Promise<Record<string, Translations>> {
+  const { root } = await loadTranslations(dir, disablePageLocales)
+  return root
 }

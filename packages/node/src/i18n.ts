@@ -18,7 +18,7 @@ export class I18n extends BaseI18n {
   public translationDir?: string
   private disablePageLocales: boolean
 
-  public currentRoute: string = 'general'
+  public currentRoute: string = 'index'
 
   constructor(options: I18nOptions) {
     const storage: TranslationStorage = {
@@ -61,15 +61,19 @@ export class I18n extends BaseI18n {
       return
     }
 
-    const { global, routes } = await loadTranslations(targetDir, this.disablePageLocales)
+    const { root, routes } = await loadTranslations(targetDir, this.disablePageLocales)
 
-    for (const [locale, translations] of Object.entries(global)) {
-      this.helper.mergeGlobalTranslation(locale, translations, true)
+    // Load root translations as index (base for all pages)
+    for (const [locale, translations] of Object.entries(root)) {
+      this.helper.mergeTranslation(locale, 'index', translations, true)
     }
 
+    // Load page translations with index (base) baked in
     for (const [routeName, routeLocales] of Object.entries(routes)) {
       for (const [locale, translations] of Object.entries(routeLocales)) {
-        this.helper.loadPageTranslations(locale, routeName, translations)
+        const base = this.helper.getCache(locale, 'index')
+        const merged = base ? { ...base, ...translations } : translations
+        this.helper.loadPageTranslations(locale, routeName, merged)
       }
     }
   }

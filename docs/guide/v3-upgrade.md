@@ -19,7 +19,8 @@ flowchart LR
 - **Config access** — `useRuntimeConfig().public.i18nConfig` → `getI18nConfig()` from `#build/i18n.strategy.mjs`
 - **Redirect component** — `fallbackRedirectComponentPath` option → Server middleware + client plugin (automatic)
 - **`includeDefaultLocaleRoute`** — Supported (deprecated) → Removed, use `strategy` option
-- **`experimental.hmr` / `previousPageFallback`** — Under `experimental` → Root-level options
+- **`experimental.hmr`** — Under `experimental` → Root-level option
+- **`previousPageFallback`** — Removed entirely (cumulative merge strategy handles this automatically)
 - **Caching** — `useStorage('cache')` → `TranslationStorage` singleton (`Symbol.for` on `globalThis`)
 - **SSR transfer** — Runtime config → `window.__I18N__` script injection
 - **Strategy classes** — Internal → Separate packages (`@i18n-micro/route-strategy`, `@i18n-micro/path-strategy`)
@@ -93,9 +94,9 @@ In v2, you may have used `useState('i18n-locale')` or `useCookie('user-locale')`
 
 See [Custom Language Detection](/guide/custom-auto-detect) for detailed examples.
 
-## Experimental Options Moved to Root
+## Experimental Options Moved / Removed
 
-Options previously under `experimental` are now root-level:
+`hmr` has moved from `experimental` to root-level. `previousPageFallback` has been removed entirely — the module now uses a cumulative merge strategy that automatically preserves translations from the previous page during transition animations, then cleans up via the `page:transition:finish` hook.
 
 ```diff
  i18n: {
@@ -104,7 +105,7 @@ Options previously under `experimental` are now root-level:
 -    previousPageFallback: true
 -  }
 +  hmr: true,
-+  previousPageFallback: true
++  // previousPageFallback removed — handled automatically
  }
 ```
 

@@ -1,6 +1,6 @@
-import fs, { readFileSync } from 'node:fs'
+import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import path, { dirname, join } from 'node:path'
+import path, { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
 import { isInternalPath, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
@@ -23,6 +23,153 @@ import { setupDevToolsUI } from './devtools'
 import { generateHmrPlugin } from './hmr-plugin'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { extractDefineI18nRouteData } from './utils'
+
+// Deep merge helper for translation objects (build-time)
+function deepMergeTranslations(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+  if (!target || Object.keys(target).length === 0) return { ...source }
+  const output = { ...target }
+  for (const key in source) {
+    if (key === '__proto__' || key === 'constructor') continue
+    const src = source[key]
+    const dst = output[key]
+    if (src && typeof src === 'object' && !Array.isArray(src) && dst && typeof dst === 'object' && !Array.isArray(dst)) {
+      output[key] = deepMergeTranslations(dst as Record<string, unknown>, src as Record<string, unknown>)
+    } else {
+      output[key] = src
+    }
+  }
+  return output
+}
+
+interface PreMergeLocaleInfo {
+  code: string
+  fallbackLocale?: string
+}
+
+/**
+ * Pre-merge all translation files at build time.
+ *
+ * Input:  rootDirs (Nuxt layers), each with `locales/` containing:
+ *         - Root files:  en.json, de.json, ...
+ *         - Page files:  pages/about/en.json, pages/index/en.json, ...
+ *
+ * Output: A single flat directory (`outputDir`) with structure:
+ *         pages/{routeName}/{locale}.json
+ *
+ * Each output file = layers merged + fallback locales merged + root translations baked in.
+ * The server loader just reads one file and returns it — zero runtime merging.
+ */
+async function preMergeLocales(
+  rootDirs: string[],
+  translationDirName: string,
+  outputDir: string,
+  locales: PreMergeLocaleInfo[],
+  globalFallbackLocale?: string,
+  disablePageLocales?: boolean,
+): Promise<void> {
+  if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
+  mkdirSync(outputDir, { recursive: true })
+
+  const layerPaths = rootDirs.map((dir) => join(dir, translationDirName))
+
+  // ── 1. Collect all JSON files from all layers ──
+  const allFiles = new Set<string>()
+  for (const lp of layerPaths) {
+    if (!existsSync(lp)) continue
+    const files = await globby('**/*.json', { cwd: lp })
+    files.forEach((f) => allFiles.add(f))
+  }
+
+  // ── 2. Merge layers: for each file, deep-merge base → top ──
+  // Result: Map<relativePath, mergedContent>
+  const merged = new Map<string, Record<string, unknown>>()
+  for (const file of allFiles) {
+    let content: Record<string, unknown> = {}
+    for (const lp of layerPaths) {
+      const fp = join(lp, file)
+      if (existsSync(fp)) {
+        try {
+          content = deepMergeTranslations(content, JSON.parse(readFileSync(fp, 'utf-8')))
+        } catch {
+          /* skip */
+        }
+      }
+    }
+    merged.set(file, content)
+  }
+
+  // ── 3. Split into root translations and page translations ──
+  // root:  "en.json"             → rootMap["en"] = {...}
+  // page:  "pages/about/en.json" → pageMap["pages/about"]["en"] = {...}
+  const rootMap = new Map<string, Record<string, unknown>>() // locale → data
+  const pageMap = new Map<string, Map<string, Record<string, unknown>>>() // context → locale → data
+
+  for (const [file, content] of merged) {
+    const dir = dirname(file)
+    const locale = file.slice(file.lastIndexOf('/') + 1).replace('.json', '')
+
+    if (dir === '.') {
+      // Root-level file (en.json)
+      rootMap.set(locale, content)
+    } else {
+      // Page file (pages/about/en.json)
+      if (!pageMap.has(dir)) pageMap.set(dir, new Map())
+      pageMap.get(dir)!.set(locale, content)
+    }
+  }
+
+  // ── 4. Apply fallback locale chains ──
+  const knownCodes = new Set(locales.map((l) => l.code))
+
+  const applyFallback = (map: Map<string, Record<string, unknown>>) => {
+    for (const locale of locales) {
+      const chain = [globalFallbackLocale, locale.fallbackLocale, locale.code]
+        .filter((l): l is string => !!l && knownCodes.has(l))
+        .filter((v, i, arr) => arr.indexOf(v) === i)
+      if (chain.length <= 1) continue
+
+      let result: Record<string, unknown> = {}
+      for (const code of chain) {
+        const data = map.get(code)
+        if (data) result = deepMergeTranslations(result, data)
+      }
+      map.set(locale.code, result)
+    }
+  }
+
+  applyFallback(rootMap)
+  for (const localeMap of pageMap.values()) {
+    applyFallback(localeMap)
+  }
+
+  // ── 5. Bake root into pages ──
+  if (disablePageLocales || pageMap.size === 0) {
+    // No page files (disablePageLocales or project has only root files).
+    // Put root translations as pages/index so server-loader finds them.
+    const indexMap = new Map<string, Record<string, unknown>>()
+    for (const [locale, data] of rootMap) {
+      indexMap.set(locale, { ...data })
+    }
+    pageMap.set('pages/index', indexMap)
+  } else {
+    // Merge root into every page (root = base, page = override)
+    for (const [, localeMap] of pageMap) {
+      for (const [locale, rootData] of rootMap) {
+        const pageData = localeMap.get(locale)
+        localeMap.set(locale, pageData ? deepMergeTranslations(rootData, pageData) : { ...rootData })
+      }
+    }
+  }
+
+  // ── 6. Write output ──
+  for (const [context, localeMap] of pageMap) {
+    for (const [locale, data] of localeMap) {
+      const targetPath = join(outputDir, context, `${locale}.json`)
+      mkdirSync(dirname(targetPath), { recursive: true })
+      writeFileSync(targetPath, JSON.stringify(data))
+    }
+  }
+}
 
 function generateI18nTypes() {
   return `
@@ -107,6 +254,20 @@ export default defineNuxtModule<ModuleOptions>({
 
     const resolver = createResolver(import.meta.url)
     const rootDirs = nuxt.options._layers.map((layer) => layer.config.rootDir).reverse()
+
+    // Pre-merge translations from all layers into a single directory (build-time).
+    // This eliminates per-request layer iteration on the server.
+    // Executed in build:before hook to ensure buildDir exists.
+    const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
+    const translationDirName = options.translationDir || 'locales'
+    const localeInfos: PreMergeLocaleInfo[] = (options.locales ?? []).map((l) =>
+      typeof l === 'string' ? { code: l } : { code: l.code, fallbackLocale: l.fallbackLocale },
+    )
+
+    nuxt.hook('build:before', async () => {
+      await preMergeLocales(rootDirs, translationDirName, mergedLocalesDir, localeInfos, options.fallbackLocale, options.disablePageLocales)
+      logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
+    })
 
     // Extract routeLocales and localeRoutes from pages before creating template
     const routeLocales: Record<string, string[]> = {}
@@ -311,7 +472,6 @@ export function createI18nStrategy(router) {
 
     const privateConfig = {
       rootDir: nuxt.options.rootDir,
-      rootDirs,
       debug: options.debug ?? false,
       fallbackLocale: options.fallbackLocale ?? undefined,
       translationDir: options.translationDir ?? 'locales',
@@ -475,7 +635,7 @@ declare module '#i18n-internal/plural' {
       routeGenerator.extendPages(pages)
     })
 
-    // When pages: false, pages:resolved may not run — ensure general data routes are added
+    // When pages: false, pages:resolved may not run — ensure data routes are added
     if (options.disablePageLocales) {
       nuxt.hook('build:before', () => addDataRoutes([] as NuxtPage[]))
     }
@@ -507,18 +667,13 @@ declare module '#i18n-internal/plural' {
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
 
-      // Mount translation directories as server assets.
+      // Mount pre-merged translation directory as a single server asset.
+      // Translations from all layers were merged at build time in preMergeLocales().
       // This is critical for serverless support (Cloudflare Workers) where there is no direct FS access.
       nitroConfig.serverAssets = nitroConfig.serverAssets || []
-      rootDirs.forEach((dir, index) => {
-        const dirPath = path.resolve(dir, options.translationDir || 'locales')
-        if (fs.existsSync(dirPath)) {
-          nitroConfig.serverAssets!.push({
-            // Give each layer a unique name so we can find them at runtime
-            baseName: `i18n_layer_${index}`,
-            dir: dirPath,
-          })
-        }
+      nitroConfig.serverAssets.push({
+        baseName: 'i18n',
+        dir: mergedLocalesDir,
       })
 
       if (nitroConfig.imports) {
@@ -567,11 +722,15 @@ declare module '#i18n-internal/plural' {
       const isProd = nuxt.options.dev === false
       if (isProd) {
         const publicDir = path.join(nitro.options.output.publicDir ?? './dist', options.translationDir ?? 'locales')
-        const translationDir = path.join(nuxt.options.rootDir, options.translationDir ?? 'locales')
 
         try {
-          fs.cpSync(translationDir, publicDir, { recursive: true })
-          logger.log(`Translations copied successfully to ${translationDir} directory`)
+          // Copy pre-merged translations (already contains all layers)
+          if (existsSync(mergedLocalesDir)) {
+            fs.cpSync(mergedLocalesDir, publicDir, { recursive: true })
+            logger.log(`Pre-merged translations copied to public directory`)
+          } else {
+            logger.warn(`Pre-merged translations directory not found: ${mergedLocalesDir}`)
+          }
         } catch (err) {
           logger.error('Error copying translations:', err)
         }

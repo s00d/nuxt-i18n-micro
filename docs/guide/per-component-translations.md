@@ -518,7 +518,7 @@ Embedding translations in Single File Components (SFCs) can impact performance:
 - **Use page-by-page translations** for optimal performance
 - **Reserve component-level translations** for specific cases like:
   - Reusable components published on npm
-  - Translations unsuitable for global files
+  - Translations unsuitable for root-level files
   - Components that need to be self-contained
 
 ### Performance vs Modularity
@@ -528,7 +528,7 @@ Balance your project's needs when choosing an approach:
 ```mermaid
 flowchart TB
     subgraph Approaches["Translation Approaches"]
-        G["🌍 Global Files<br/>⭐⭐⭐⭐⭐ Performance<br/>⭐⭐⭐ Modularity"]
+        G["🌍 Root-Level Files<br/>⭐⭐⭐⭐⭐ Performance<br/>⭐⭐⭐ Modularity"]
         P["📄 Page-Specific<br/>⭐⭐⭐⭐ Performance<br/>⭐⭐⭐⭐ Modularity"]
         C["🧩 Component-Level<br/>⭐⭐ Performance<br/>⭐⭐⭐⭐⭐ Modularity"]
     end
@@ -544,7 +544,7 @@ flowchart TB
 
 | Approach | Performance | Modularity | Use Case |
 |----------|-------------|------------|----------|
-| **Global Files** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Most applications |
+| **Root-Level Files** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Most applications |
 | **Page-Specific** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Large applications |
 | **Component-Level** | ⭐⭐ | ⭐⭐⭐⭐⭐ | Reusable components |
 

@@ -72,7 +72,7 @@ const getLocales = (): string[] => {
 
 const mergeTranslations = () => {
   const localesDir = path.join(__dirname, '../', localesRoot)
-  const outputDir = path.join(__dirname, '../storybook_locales/_locales/general')
+  const outputDir = path.join(__dirname, '../storybook_locales/_locales/index')
   const locales = getLocales()
 
   const collectAllTranslations = (dir: string, lang: string): TranslationStructure => {
@@ -96,7 +96,7 @@ const mergeTranslations = () => {
     // 1. Collect all page translations
     let merged = collectAllTranslations(path.join(localesDir, 'pages'), lang)
 
-    // 2. Add general translations with priority
+    // 2. Add root-level translations with priority
     const generalFilePath = path.join(localesDir, `${lang}.json`)
     if (fs.existsSync(generalFilePath)) {
       const generalContent = JSON.parse(fs.readFileSync(generalFilePath, 'utf-8'))

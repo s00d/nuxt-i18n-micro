@@ -57,7 +57,7 @@ class TranslationStorage {
   // ==========================================================================
 
   private getCacheKey(locale: string, routeName?: string): string {
-    return routeName ? `${locale}:${routeName}` : `${locale}:general`
+    return `${locale}:${routeName || 'index'}`
   }
 
   // ==========================================================================
@@ -66,7 +66,8 @@ class TranslationStorage {
 
   private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
     const { apiBaseUrl, baseURL, dateBuild } = options
-    const path = routeName ? `/${apiBaseUrl}/${routeName}/${locale}/data.json` : `/${apiBaseUrl}/general/${locale}/data.json`
+    const page = routeName || 'index'
+    const path = `/${apiBaseUrl}/${page}/${locale}/data.json`
 
     return (await $fetch(path.replace(/\/{2,}/g, '/'), {
       baseURL,

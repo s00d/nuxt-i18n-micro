@@ -13,7 +13,7 @@ export interface ReactI18nOptions {
 export class ReactI18n extends BaseI18n {
   private _locale: string
   private _fallbackLocale: string
-  private _currentRoute: string = 'general'
+  private _currentRoute: string = 'index'
   private listeners = new Set<() => void>()
   private revision = 0
 

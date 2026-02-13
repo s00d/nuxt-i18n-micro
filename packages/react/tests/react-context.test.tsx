@@ -202,9 +202,9 @@ describe('I18nProvider and useI18n', () => {
       expect(screen.getByTestId('route-title').textContent).toBe('Home Title')
     })
 
-    // Set route back to general
+    // Set route back to index
     act(() => {
-      i18n.setRoute('general')
+      i18n.setRoute('index')
     })
     await waitFor(() => {
       expect(screen.getByTestId('route-title').textContent).toBe('Global Title')

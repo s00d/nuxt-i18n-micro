@@ -25,7 +25,7 @@ export default function() {
         "data": [
           0.6,
           38.1,
-          61
+          55.8
         ],
         "backgroundColor": "rgba(255, 206, 86, 0.8)",
         "borderColor": "rgb(255, 206, 86)",

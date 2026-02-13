@@ -1527,21 +1527,17 @@ const { clearCache } = useI18n()
 clearCache()
 ```
 
-### Route-Specific vs Global Translations
+### Route-Specific vs Base Translations
 
-Translations are resolved in this priority order:
-
-1. Route-specific translations (if route is set)
-2. Global translations
-3. Fallback locale translations
+`addTranslations` loads base translations (stored as `index`). When you call `addRouteTranslations`, these base translations are automatically merged in. Page-specific keys override base ones.
 
 ```typescript
-// Global translation
+// Base translations (index)
 i18n.addTranslations('en', {
-  title: 'Global Title',
+  title: 'Default Title',
 })
 
-// Route-specific translation (higher priority)
+// Route-specific translation (overrides root for this route)
 i18n.addRouteTranslations('en', 'home', {
   title: 'Home Page Title',
 })

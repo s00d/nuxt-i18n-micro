@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Locale not found' })
   }
 
-  const { json } = await loadTranslationsFromServer(locale, page === 'general' ? undefined : page)
+  const { json } = await loadTranslationsFromServer(locale, page)
 
   // Send pre-serialized JSON directly (no repeated serialization)
   setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')

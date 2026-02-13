@@ -1,20 +1,20 @@
 <script setup>
 import { useNuxtApp } from '#imports'
 
-const { $getLocale, $t, $switchLocale, $mergeGlobalTranslations } = useNuxtApp()
+const { $getLocale, $t, $switchLocale, $mergeTranslations } = useNuxtApp()
 
 // For no_prefix with pages: false, we need to manually reload translations
 async function switchToZh() {
   // Load Chinese translations
   const data = await $fetch('/locales/zh.json')
-  $mergeGlobalTranslations(data)
+  $mergeTranslations(data)
   $switchLocale('zh')
 }
 
 async function switchToEn() {
   // Load English translations
   const data = await $fetch('/locales/en.json')
-  $mergeGlobalTranslations(data)
+  $mergeTranslations(data)
   $switchLocale('en')
 }
 </script>

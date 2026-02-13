@@ -112,7 +112,7 @@ Move translations to the `locales` directory in JSON format. Here is a full proj
           children:
             - name: en.json
               status: added
-              note: "global translations"
+              note: "root-level translations"
             - name: ru.json
               status: added
             - name: de.json

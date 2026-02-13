@@ -144,7 +144,7 @@ export interface PathStrategy {
 
   /**
    * Returns the route name for plugin translation loading.
-   * If disablePageLocales is true, returns 'general'.
+   * If disablePageLocales is true, returns 'index'.
    */
   getPluginRouteName(route: ResolvedRouteLike, locale: string): string
 

@@ -150,12 +150,12 @@ describe('getCurrentLocale', () => {
 })
 
 describe('getPluginRouteName', () => {
-  test('returns "general" when disablePageLocales is true', () => {
+  test('returns "index" when disablePageLocales is true', () => {
     const ctx = makeCtx('prefix_except_default', { disablePageLocales: true })
     const strategy = createPathStrategy(ctx)
     const route: ResolvedRouteLike = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} }
 
-    expect(strategy.getPluginRouteName(route, 'en')).toBe('general')
+    expect(strategy.getPluginRouteName(route, 'en')).toBe('index')
   })
 
   test('returns base name from route', () => {

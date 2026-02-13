@@ -799,11 +799,11 @@ export abstract class BasePathStrategy implements PathStrategy {
 
   /**
    * Returns the route name for plugin translation loading.
-   * If disablePageLocales is true, returns 'general'.
+   * If disablePageLocales is true, returns 'index'.
    */
   getPluginRouteName(route: ResolvedRouteLike, locale: string): string {
     if (this.ctx.disablePageLocales) {
-      return 'general'
+      return 'index'
     }
     const baseName = this.getRouteBaseName(route)
     if (!baseName) {

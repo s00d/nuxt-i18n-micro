@@ -63,12 +63,12 @@ describe('Translation Helper', () => {
     expect(helper.getTranslation('en', 'home', 'newKey')).toBe('New value')
   })
 
-  test('mergeGlobalTranslation updates general translations', () => {
+  test('mergeTranslation with index routeName updates index translations', () => {
     const helper = useTranslationHelper()
     helper.loadTranslations('en', translations.en)
 
-    helper.mergeGlobalTranslation('en', { newGlobalKey: 'Global value' })
-    expect(helper.getTranslation('en', 'index', 'newGlobalKey')).toBe('Global value')
+    helper.mergeTranslation('en', 'index', { newKey: 'New value' })
+    expect(helper.getTranslation('en', 'index', 'newKey')).toBe('New value')
   })
 
   test('deepClone creates a deep copy of objects', () => {

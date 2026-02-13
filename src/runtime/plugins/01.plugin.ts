@@ -44,7 +44,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   })
 
   // === 1. LOCAL CACHE ===
-  // Key: `${locale}:${routeName}` or `${locale}:general`
+  // Key: `${locale}:${routeName}`
   // Value: merged translations (global + page-specific)
   const loadedChunks = new Map<string, Record<string, unknown>>()
 
@@ -52,11 +52,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   let currentLocale = ''
   let currentRouteName = ''
 
-  // Cached reference to current translations (updated in switchContext)
+  // Cached reference to current translations (updated in switchContext).
+  // During transitions this contains merged keys (old + new page) to prevent flickering.
   let cachedTranslations: Record<string, unknown> = {}
 
-  // Buffer: clean translations for the NEW page only (no old-page leftovers).
-  // Applied in page:finish after the transition animation completes.
+  // Buffer: clean translations for the new page only.
+  // Applied in page:transition:finish (after the leave animation is fully complete)
+  // to free memory from old-page keys.
   let pendingCleanState: Record<string, unknown> | null = null
 
   // Reactivity signal (triggers Vue re-renders on locale/route change)
@@ -114,20 +116,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     return router.push(switchedRoute as RouteLocationRaw)
   }
 
-  // useState only for what is actually shared between components
-  const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
-  const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
-
-  // Garbage collection: once the page transition animation finishes,
-  // swap the merged (dirty) dictionary for the clean one that contains
-  // only the keys needed by the current page. This releases references
-  // to old-page keys so the GC can reclaim memory.
-  nuxtApp.hook('page:finish', () => {
+  // Garbage collection: fires strictly AFTER the transition animation is complete.
+  // At this point the old page is unmounted, so it's safe to drop its keys.
+  nuxtApp.hook('page:transition:finish', () => {
     if (pendingCleanState) {
       cachedTranslations = pendingCleanState
       pendingCleanState = null
     }
   })
+
+  // useState only for what is actually shared between components
+  const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
+  const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
 
   const missingWarn = i18nConfig.missingWarn ?? true
 
@@ -142,7 +142,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // One request per page, no duplication
 
   const getCacheKey = (locale: string, routeName?: string): string => {
-    return routeName ? `${locale}:${routeName}` : `${locale}:general`
+    return `${locale}:${routeName || 'index'}`
   }
 
   // Synchronous cache check
@@ -212,13 +212,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (currentLocale === locale) {
       // Same language, page navigation:
-      // 1. Merge old + new so the leaving component keeps its keys during transition.
+      // 1. Merge old + new so the leaving page keeps its keys during transition animation.
       cachedTranslations = { ...cachedTranslations, ...data }
-      // 2. Schedule cleanup: page:finish will replace the merged dict with `data`
-      //    (which already contains global + new-page keys), freeing old-page keys.
+      // 2. Schedule cleanup: page:transition:finish will replace merged dict with clean data.
       pendingCleanState = data
     } else {
-      // Language change: hard replace, no cross-language mixing.
+      // Language switch: hard replace (no cross-language mixing).
       cachedTranslations = data
       pendingCleanState = null
     }
@@ -363,10 +362,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const merged = { ...current, ...newTranslations }
     loadedChunks.set(cacheKey, merged)
     cachedTranslations = { ...cachedTranslations, ...merged }
-    // Keep pendingCleanState in sync to avoid race condition
-    if (pendingCleanState) {
-      pendingCleanState = merged
-    }
+    if (pendingCleanState) pendingCleanState = merged
     triggerRef(contextSignal)
   }
 
@@ -382,27 +378,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       loadedChunks.set(cacheKey, mergedChunk)
       if (locale === currentLocale && routeName === currentRouteName) {
         cachedTranslations = { ...cachedTranslations, ...mergedChunk }
-        // Keep pendingCleanState in sync to avoid race condition
-        if (pendingCleanState) {
-          pendingCleanState = mergedChunk
-        }
-        triggerRef(contextSignal)
-      }
-    },
-    async mergeGlobalTranslation(locale: string, newTranslations: Translations, _force = false): Promise<void> {
-      const cacheKey = getCacheKey(locale, currentRouteName)
-      if (!loadedChunks.has(cacheKey)) {
-        await loadAsync(locale, currentRouteName || undefined)
-      }
-      const existing = loadedChunks.get(cacheKey) || {}
-      const mergedChunk = { ...existing, ...newTranslations }
-      loadedChunks.set(cacheKey, mergedChunk)
-      if (locale === currentLocale) {
-        cachedTranslations = { ...cachedTranslations, ...mergedChunk }
-        // Keep pendingCleanState in sync to avoid race condition
-        if (pendingCleanState) {
-          pendingCleanState = mergedChunk
-        }
+        if (pendingCleanState) pendingCleanState = mergedChunk
         triggerRef(contextSignal)
       }
     },
@@ -456,7 +432,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
     has: hasTranslation,
     mergeTranslations,
-    mergeGlobalTranslations: mergeTranslations,
     switchLocaleRoute: (toLocale: string) => {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike
       const fromLocale = getCurrentLocale(route)
@@ -526,10 +501,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       loadedChunks.set(cacheKey, mergedChunk)
       if (locale === currentLocale && routeName === currentRouteName) {
         cachedTranslations = { ...cachedTranslations, ...mergedChunk }
-        // Keep pendingCleanState in sync to avoid race condition
-        if (pendingCleanState) {
-          pendingCleanState = mergedChunk
-        }
+        if (pendingCleanState) pendingCleanState = mergedChunk
         triggerRef(contextSignal)
       }
     },
@@ -569,7 +541,6 @@ export interface PluginsInjections {
   $tdr: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   $has: (key: string) => boolean
   $mergeTranslations: (newTranslations: Translations) => void
-  $mergeGlobalTranslations: (newTranslations: Translations) => void
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
   $switchLocalePath: (locale: string) => string
   $switchLocale: (locale: string) => void

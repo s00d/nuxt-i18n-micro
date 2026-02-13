@@ -35,7 +35,7 @@ export class AstroI18n extends BaseI18n {
     this.storage = storage
     this._locale = options.locale
     this._fallbackLocale = options.fallbackLocale || options.locale
-    this._currentRoute = 'general'
+    this._currentRoute = 'index'
 
     if (options.messages) {
       this.initialMessages = { ...options.messages }
@@ -113,10 +113,6 @@ export class AstroI18n extends BaseI18n {
 
   public mergeTranslations(locale: string, routeName: string, translations: Translations): void {
     this.helper.mergeTranslation(locale, routeName, translations, true)
-  }
-
-  public mergeGlobalTranslations(locale: string, translations: Translations): void {
-    this.helper.mergeGlobalTranslation(locale, translations, true)
   }
 
   public override clearCache(): void {

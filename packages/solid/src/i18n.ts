@@ -38,7 +38,7 @@ export class SolidI18n extends BaseI18n {
 
     const [locale, setLocale] = createSignal(options.locale)
     const [fallback] = createSignal(options.fallbackLocale || options.locale)
-    const [route, setRoute] = createSignal('general')
+    const [route, setRoute] = createSignal('index')
 
     this._locale = locale
     this._setLocale = setLocale

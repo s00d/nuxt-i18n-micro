@@ -427,8 +427,6 @@ export interface ModuleOptionsExtend extends ModuleOptions {
 export interface ModulePrivateOptionsExtend extends ModuleOptions {
   /** Absolute path to the Nuxt project root directory. */
   rootDir: string
-  /** List of all root directories (includes layer roots in a multi-layer setup). */
-  rootDirs: string[]
   /** Resolved debug flag. */
   debug: boolean
   /** Resolved path to the translations directory. */

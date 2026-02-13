@@ -278,7 +278,7 @@ The generator automatically includes keys from route-specific translation files:
 
 ```
 locales/
-  en.json                    # Global translations
+  en.json                    # Root-level translations
   pages/
     home/
       en.json               # Route-specific translations
@@ -286,11 +286,11 @@ locales/
       en.json
 ```
 
-All keys from both global and route-specific files are included in the generated types.
+All keys from both root-level and route-specific files are included in the generated types.
 
 ### Disabling Page Locales
 
-If you use `disablePageLocales: true` in your i18n config, the generator will treat all files (including those in `pages/`) as global translations.
+If you use `disablePageLocales: true` in your i18n config, the generator will treat all files (including those in `pages/`) as root-level translations.
 
 ## 🐛 Troubleshooting
 

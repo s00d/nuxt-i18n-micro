@@ -419,7 +419,7 @@ i18n-micro diff
 
 ### 🔍 `check-duplicates` Command
 
-**Description**: The `check-duplicates` command checks for duplicate translation values within each locale across all translation files, including both global and page-specific translations. It ensures that different keys within the same language do not share identical translation values, helping maintain clarity and consistency in your translations.
+**Description**: The `check-duplicates` command checks for duplicate translation values within each locale across all translation files, including both root-level and page-specific translations. It ensures that different keys within the same language do not share identical translation values, helping maintain clarity and consistency in your translations.
 
 **Usage**:
 
@@ -434,8 +434,8 @@ i18n-micro check-duplicates
 ```
 
 **How it works**:
-- The command checks both global and page-specific translation files for each locale.
-- If a translation value appears in multiple locations (either within global translations or across different pages), it reports the duplicate values along with the file and key where they are found.
+- The command checks both root-level and page-specific translation files for each locale.
+- If a translation value appears in multiple locations (either within root-level translations or across different pages), it reports the duplicate values along with the file and key where they are found.
 - If no duplicates are found, the command confirms that the locale is free of duplicated translation values.
 
 This command helps ensure that translation keys maintain unique values, preventing accidental repetition within the same locale.

@@ -173,7 +173,6 @@ import type { BridgeAdapter } from '@i18n-micro/devtools-ui'
 
 // Create an adapter for your i18n instance
 const adapter: BridgeAdapter = {
-  getGeneralCache: () => i18nInstance.cache.general,
   getRouteCache: () => i18nInstance.cache.route,
   addTranslations: (locale, content, merge) => {
     i18nInstance.addTranslations(locale, content, merge)
@@ -201,11 +200,8 @@ const bridge = createBridge({
 
 ```typescript
 interface BridgeAdapter {
-  // Get general (global) translations cache
-  getGeneralCache: () => Record<string, TranslationContent>
-
-  // Get route-specific translations cache
-  // Keys are in format "locale:routeName" (e.g., "en:home")
+  // Get translations cache
+  // Keys are in format "locale:routeName" (e.g., "en:index", "en:home")
   getRouteCache: () => Record<string, TranslationContent>
 
   // Add or update translations for a locale
@@ -342,12 +338,12 @@ import type { BridgeAdapter } from '@i18n-micro/devtools-ui'
 
 class CustomI18n {
   private cache = {
-    general: {},
+    root: {},
     route: {},
   }
 
   addTranslations(locale: string, content: Record<string, unknown>) {
-    this.cache.general[locale] = content
+    this.cache.root[locale] = content
   }
 
   subscribe(callback: () => void) {
@@ -359,7 +355,6 @@ class CustomI18n {
 const customI18n = new CustomI18n()
 
 const adapter: BridgeAdapter = {
-  getGeneralCache: () => customI18n.cache.general,
   getRouteCache: () => customI18n.cache.route,
   addTranslations: (locale, content) => {
     customI18n.addTranslations(locale, content)

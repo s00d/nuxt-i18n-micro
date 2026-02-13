@@ -163,8 +163,7 @@ flowchart LR
     
     G --> Cache["Single Map Instance"]
     Cache --> D1["en:index → translations"]
-    Cache --> D2["en:general → translations"]
-    Cache --> D3["de:index → translations"]
+    Cache --> D2["en:about → translations"
 ```
 
 ```typescript
@@ -177,39 +176,35 @@ if (!globalThis[CACHE_KEY]) {
 
 ### ⚡ Optimized Translation Function (tFast)
 
-The `$t()` function uses a layered lookup strategy optimized for speed:
+The `$t()` function uses a direct lookup strategy optimized for speed:
 
 1. **Pre-computed context**: Locale and route name are calculated once during navigation, not on every `$t()` call
-2. **Layered search**: First searches page-specific translations, then falls back to general translations
-3. **Direct property access**: Uses `obj[key]` instead of Map lookups for hot paths
-4. **Frozen objects**: Loaded translations are frozen with `Object.freeze()` for V8 optimization
+2. **Single-source lookup**: All translations (root + page-specific + fallback) are pre-merged at build time into a single file per page — no layered search needed
+3. **Cumulative merge on navigation**: When navigating within the same locale, new page translations are merged into the active dictionary, so keys from the previous page remain visible during transition animations
+4. **Direct property access**: Uses `obj[key]` instead of Map lookups for hot paths
 
 ```mermaid
 flowchart TB
     A["$t('key')"] --> B{Direct Access}
-    B -->|"translations[key]"| C{Found?}
+    B -->|"cachedTranslations[key]"| C{Found?}
     C -->|Yes| R[Return Value]
     C -->|No| D{Contains '.'?}
     D -->|Yes| E[getByPath lookup]
     E --> F{Found?}
     F -->|Yes| R
-    F -->|No| G{Previous Page Fallback?}
-    D -->|No| G
-    G -->|Enabled| H[Search Previous Page]
-    H --> I{Found?}
-    I -->|Yes| R
-    I -->|No| J[Return Key / Default]
-    G -->|Disabled| J
+    F -->|No| J[Return Key / Default]
+    D -->|No| J
     
     style R fill:#2ed573
     style J fill:#ff9f43
 ```
 
 ```typescript
-// Simplified lookup logic
-const page = loadedChunks.get(`${locale}:${routeName}`) || {}
-const general = loadedChunks.get(`${locale}:general`) || {}
-let val = page[key] ?? general[key]
+// Simplified lookup logic — single active dictionary
+let val = cachedTranslations[key]
+if (val === undefined && key.includes('.')) {
+  val = getByPath(cachedTranslations, key)
+}
 ```
 
 ### 💉 Server-Side Injection
@@ -217,7 +212,7 @@ let val = page[key] ?? general[key]
 During SSR, translations are injected directly into the HTML as a script tag:
 
 ```html
-<script>window.__I18N__={"en:general":{...},"en:index":{...}};</script>
+<script>window.__I18N__={"en:index":{...},"en:about":{...}};</script>
 ```
 
 On the client, the plugin reads from `window.__I18N__` on initial hydration, completely avoiding duplicate fetch requests. This approach:

@@ -735,7 +735,7 @@ The core i18n instance class that handles all translation logic.
 - `fallbackLocale: string` - Fallback locale (getter)
 - `currentRoute: string` - Current route name (getter)
 - `routeAccessor: Accessor<string>` - Reactive accessor for current route
-- `cacheStore: { general: Record<string, Translations>, route: Record<string, Translations> }` - Translation cache (reactive store)
+- `cacheStore: { root: Record<string, Translations>, route: Record<string, Translations> }` - Translation cache (reactive store)
 
 #### Methods
 

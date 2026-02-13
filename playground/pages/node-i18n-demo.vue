@@ -33,8 +33,8 @@
           v-model="selectedRoute"
           @change="loadData"
         >
-          <option value="general">
-            General
+          <option value="index">
+            Index
           </option>
           <option value="node-i18n-demo">
             Node I18n Demo

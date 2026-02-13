@@ -179,6 +179,40 @@ Use consistent naming conventions for your translation keys across files. This h
 
 Group related translations together within your files. For example, group all button labels under a `buttons` key and all form-related texts under a `forms` key. This not only improves readability but also makes it easier to manage translations across different locales.
 
+### ⚠️ Nesting Depth Limit (2 Levels Recommended)
+
+During client-side navigation, `Nuxt I18n Micro` uses an optimized 2-level deep merge to combine translations from the leaving and entering pages. This ensures that overlapping nested keys (e.g., both pages have keys under `common.*`) are preserved during transition animations.
+
+**This works correctly for the standard `Section → Key → Value` structure (2 levels):**
+
+```json
+// Page A translations
+{ "common": { "fromA": "Text A" } }
+
+// Page B translations
+{ "common": { "fromB": "Text B" } }
+
+// During transition, both are available:
+// { "common": { "fromA": "Text A", "fromB": "Text B" } }
+```
+
+**However, if you use 3+ levels of nesting, deeper keys may be overwritten during transitions:**
+
+```json
+// Page A translations
+{ "auth": { "form": { "login": "Login" } } }
+
+// Page B translations
+{ "auth": { "form": { "register": "Register" } } }
+
+// During transition: "login" key is lost
+// { "auth": { "form": { "register": "Register" } } }
+```
+
+::: tip
+For 99% of i18n projects, the `Section → Key → Value` structure is sufficient and performs best. If you need deeper nesting, ensure that different pages don't share the same nested prefix at level 3+, or flatten your keys (e.g., `auth.form.login` → `authFormLogin`).
+:::
+
 ### 🧹 Regularly Clean Up Unused Translations
 
 Over time, your application might accumulate unused translation keys, especially if features are removed or restructured. Periodically review and clean up your translation files to keep them lean and maintainable.

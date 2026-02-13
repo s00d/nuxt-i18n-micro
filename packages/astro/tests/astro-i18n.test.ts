@@ -95,7 +95,7 @@ describe('AstroI18n', () => {
     i18n.setRoute('home')
     expect(i18n.t('title')).toBe('Home Title')
 
-    i18n.setRoute('general')
+    i18n.setRoute('index')
     expect(i18n.t('title')).toBe('Global Title')
   })
 
@@ -198,7 +198,7 @@ describe('Translation management', () => {
       },
     })
 
-    i18n.mergeGlobalTranslations('en', {
+    i18n.mergeTranslations('en', '', {
       newKey: 'New',
     })
 

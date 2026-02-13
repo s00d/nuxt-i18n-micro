@@ -221,7 +221,7 @@ for (const [path, module] of Object.entries(translationModules)) {
     
     if (isPageTranslation) {
       const routeMatch = path.match(/\/pages\/([^/]+)\//)
-      const routeName = routeMatch ? routeMatch[1] : 'general'
+      const routeName = routeMatch ? routeMatch[1] : 'index'
       globalI18n.addRouteTranslations(locale, routeName, translations, false)
     }
     else {
@@ -1352,7 +1352,7 @@ Creates and configures the Astro integration for i18n-micro.
 | `autoDetect` | `boolean` | ❌ | `true` | Enable automatic locale detection |
 | `redirectToDefault` | `boolean` | ❌ | `false` | Redirect to default locale if not found |
 | `translationDir` | `string` | ❌ | `'src/locales'` | Directory path for translation files |
-| `disablePageLocales` | `boolean` | ❌ | `false` | If `true`, ignores `pages/` folder and treats all files as global translations |
+| `disablePageLocales` | `boolean` | ❌ | `false` | If `true`, ignores `pages/` folder and treats all files as root-level translations |
 | `routingStrategy` | `I18nRoutingStrategy` | ❌ | - | Router adapter for routing features |
 
 **Returns:** `AstroIntegration`
@@ -1604,10 +1604,6 @@ i18n.addRouteTranslations('en', 'home', {
 
 Merges translations into existing route translations.
 
-##### `mergeGlobalTranslations(locale: string, translations: Translations): void`
-
-Merges translations into global translations.
-
 ##### `clearCache(): void`
 
 Clears the translation cache while preserving initial messages.
@@ -1749,7 +1745,6 @@ Provides helper functions for translations and routing in Astro components and p
   addTranslations(locale: string, translations: Record<string, unknown>, merge?: boolean): void
   addRouteTranslations(locale: string, routeName: string, translations: Record<string, unknown>, merge?: boolean): void
   mergeTranslations(locale: string, routeName: string, translations: Record<string, unknown>): void
-  mergeGlobalTranslations(locale: string, translations: Record<string, unknown>): void
   clearCache(): void
   
   // Get i18n instance

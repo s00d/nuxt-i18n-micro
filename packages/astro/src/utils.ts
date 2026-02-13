@@ -179,9 +179,6 @@ export function useI18n(astro: AstroGlobal) {
     mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>): void => {
       i18n.mergeTranslations(locale, routeName, translations)
     },
-    mergeGlobalTranslations: (locale: string, translations: Record<string, unknown>): void => {
-      i18n.mergeGlobalTranslations(locale, translations)
-    },
     clearCache: (): void => {
       i18n.clearCache()
     },

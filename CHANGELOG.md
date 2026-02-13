@@ -1,6 +1,34 @@
 # Changelog
 
 
+## v3.9.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.8.1...v3.9.0)
+
+### 🚀 Enhancements
+
+- **utils:** Add optimized deep merge function for translations ([779ad9f9](https://github.com/s00d/nuxt-i18n-micro/commit/779ad9f9))
+
+### 💅 Refactors
+
+- **plugins:** Use deepMergeTranslations for caching translations ([222fc8e5](https://github.com/s00d/nuxt-i18n-micro/commit/222fc8e5))
+
+### 📖 Documentation
+
+- **performance-results:** Update performance metrics and dependencies ([252df9ef](https://github.com/s00d/nuxt-i18n-micro/commit/252df9ef))
+- **guide:** Add nesting depth limit recommendation for translations ([319a4591](https://github.com/s00d/nuxt-i18n-micro/commit/319a4591))
+- **performance:** Enhance performance guidelines for translation handling ([735d3af4](https://github.com/s00d/nuxt-i18n-micro/commit/735d3af4))
+- **guide:** Update v3-upgrade.md to clarify changes in options ([907820fd](https://github.com/s00d/nuxt-i18n-micro/commit/907820fd))
+
+### ✅ Tests
+
+- **transition-merge:** Add tests for deep merging of overlapping nested keys ([720a3533](https://github.com/s00d/nuxt-i18n-micro/commit/720a3533))
+- **transition-merge:** Add tests for deep merging of overlapping nested keys ([041de9c5](https://github.com/s00d/nuxt-i18n-micro/commit/041de9c5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.8.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.8.0...v3.8.1)

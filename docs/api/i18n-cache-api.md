@@ -10,15 +10,15 @@ Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. Thi
 
 ```mermaid
 flowchart TB
-    subgraph Build["Build Time"]
-        F1["locales/*.json"] -->|Mount| NS["Nitro Storage<br/>(assets:i18n_layer_N)"]
-        F2["locales/pages/**/*.json"] -->|Mount| NS
+    subgraph Build["Build Time (preMergeLocales)"]
+        F1["locales/*.json (root-level)"] -->|Merge layers + fallback| PM["Pre-Merge Engine<br/>(module.ts)"]
+        F2["locales/pages/**/*.json"] -->|Merge layers + fallback| PM
+        PM -->|"Root baked into every page"| NS["Nitro Storage<br/>(assets:i18n — single dir)"]
     end
 
     subgraph Server["Server Runtime"]
-        NS -->|loadFromNitroStorage| SL["server-loader.ts<br/>loadTranslationsFromServer()"]
-        SL -->|deepMerge| MR["Merged Result<br/>(global + page + fallback)"]
-        MR -->|Symbol.for cache| SC["Server Cache<br/>(process-global Map)"]
+        NS -->|"Read single pre-built file"| SL["server-loader.ts<br/>loadTranslationsFromServer()"]
+        SL -->|Symbol.for cache| SC["Server Cache<br/>(process-global Map)"]
         SC -->|JSON response| API["/_locales/:page/:locale/data.json"]
     end
 
@@ -45,7 +45,7 @@ A singleton class that provides unified translation storage for both client and 
 | `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
 | `clear()` | Clears the entire cache |
 
-**Cache key format**: `{locale}:{routeName}` (e.g., `en:index`, `fr:general`)
+**Cache key format**: `{locale}:{routeName}` (e.g., `en:index`, `fr:about`)
 
 ```typescript
 import { translationStorage } from '../utils/storage'
@@ -68,13 +68,7 @@ const result = await translationStorage.load('en', 'index', {
 
 **File**: `src/runtime/server/utils/server-loader.ts`
 
-Loads translations from Nitro storage (read-only `assets:i18n_layer_N`), merges global + page-specific + fallback locale data, and caches the result in a process-global `Map` via `Symbol.for('__NUXT_I18N_SERVER_RESULT_CACHE__')`.
-
-**Merge order** (last wins):
-1. Global fallback locale translations (`locales/{fallbackLocale}.json`)
-2. Per-locale fallback translations (if `locale.fallbackLocale` is set)
-3. Target locale translations (`locales/{locale}.json`)
-4. Page-specific translations for each of the above
+Reads a single pre-built translation file from Nitro storage (`assets:i18n`). All merging (root + page-specific + fallback locale chains + layers) is done at build time by `preMergeLocales` in `module.ts`. The server-loader simply fetches and caches the result in a process-global `Map` via `Symbol.for('__NUXT_I18N_SERVER_CACHE_CC__')`.
 
 ```typescript
 import { loadTranslationsFromServer } from '../server/utils/server-loader'
@@ -91,7 +85,7 @@ During server-side rendering, the main plugin (`01.plugin.ts`) collects all load
 <script>
 window.__I18N__={};
 window.__I18N__["en:index"]={...};
-window.__I18N__["en:general"]={...};
+window.__I18N__["en:index"]={...};
 </script>
 ```
 
@@ -221,7 +215,7 @@ export default defineNuxtConfig({
 | Client cache | `useStorage('cache')` | `TranslationStorage` singleton (Symbol.for on globalThis) |
 | SSR transfer | Runtime config | `window.__I18N__` script injection |
 | Server cache | Nitro cache storage | Process-global `Map` via `Symbol.for` |
-| Merge logic | Client-side | Server-side (`loadTranslationsFromServer`) |
+| Merge logic | Client-side | Build-time pre-merge (`preMergeLocales` in `module.ts`) |
 | Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}` |
 
 ## 📚 Related

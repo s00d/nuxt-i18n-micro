@@ -127,7 +127,7 @@ describe('VueI18n', () => {
     i18n.setRoute('home')
     expect(i18n.t('title')).toBe('Home Title')
 
-    i18n.setRoute('general')
+    i18n.setRoute('index')
     expect(i18n.t('title')).toBe('Global Title')
   })
 
@@ -172,7 +172,7 @@ describe('createI18n plugin', () => {
       template: '<div></div>',
       setup() {
         const { t } = useI18n()
-        expect(t('greeting', undefined, undefined, 'general')).toBe('Hello')
+        expect(t('greeting', undefined, undefined, 'index')).toBe('Hello')
         return {}
       },
     })
@@ -254,7 +254,7 @@ describe('useI18n composable', () => {
         const { t, setRoute } = useI18n()
         setRoute('home')
         expect(t('title')).toBe('Home Title')
-        setRoute('general')
+        setRoute('index')
         expect(t('title')).toBe('Global Title')
         return {}
       },

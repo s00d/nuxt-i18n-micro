@@ -583,10 +583,6 @@ i18n.global.addRouteTranslations('en', 'home', {
 
 Merges translations into existing route translations.
 
-##### `mergeGlobalTranslations(locale: string, translations: Translations): void`
-
-Merges translations into global translations.
-
 ##### `clearCache(): void`
 
 Clears the translation cache.
@@ -652,7 +648,6 @@ interface UseI18nOptions {
   addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
   addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
   mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
-  mergeGlobalTranslations: (locale: string, translations: Translations) => void
   clearCache: () => void
 }
 ```

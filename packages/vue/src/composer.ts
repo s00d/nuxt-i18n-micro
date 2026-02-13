@@ -36,7 +36,7 @@ export class VueI18n extends BaseI18n {
     this.storage = storage
     this._locale = shallowRef(options.locale)
     this._fallbackLocale = shallowRef(options.fallbackLocale || options.locale)
-    this._currentRoute = shallowRef('general')
+    this._currentRoute = shallowRef('index')
     this._revision = shallowRef(0)
 
     if (options.messages) {
@@ -108,12 +108,6 @@ export class VueI18n extends BaseI18n {
     this.notifyListeners()
   }
 
-  public mergeGlobalTranslations(locale: string, translations: Translations): void {
-    this.helper.mergeGlobalTranslation(locale, translations, true)
-    this._revision.value++
-    this.notifyListeners()
-  }
-
   public override clearCache(): void {
     super.clearCache()
     this._revision.value++
@@ -149,18 +143,10 @@ export class VueI18n extends BaseI18n {
     return this.storage
   }
 
-  public getGeneralCache(): Record<string, Translations> {
-    const result: Record<string, Translations> = {}
-    for (const [key, value] of this.storage.translations) {
-      if (!key.includes(':')) result[key] = value
-    }
-    return result
-  }
-
   public getRouteCache(): Record<string, Translations> {
     const result: Record<string, Translations> = {}
     for (const [key, value] of this.storage.translations) {
-      if (key.includes(':')) result[key] = value
+      result[key] = value
     }
     return result
   }

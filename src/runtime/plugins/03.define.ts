@@ -21,14 +21,14 @@ const normalizeLocales = (locales?: string[] | LocalesObject): LocalesObject => 
 
 export default defineNuxtPlugin(() => {
   const defineI18nRoute = async (routeDefinition: DefineI18nRouteConfig) => {
-    const { $getLocale, $mergeGlobalTranslations } = useNuxtApp()
+    const { $getLocale, $mergeTranslations } = useNuxtApp()
     let currentLocale: Ref<string> | null = computed(() => $getLocale())
     const normalizedLocales = normalizeLocales(routeDefinition.locales)
 
     const updateTranslations = () => {
       const localeValue = unref(currentLocale)
       if (localeValue && normalizedLocales[localeValue]) {
-        $mergeGlobalTranslations?.(normalizedLocales[localeValue])
+        $mergeTranslations?.(normalizedLocales[localeValue])
       }
     }
 

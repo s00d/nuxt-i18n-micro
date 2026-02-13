@@ -141,13 +141,13 @@ Your translation files will be automatically generated when you run the applicat
       highlight: true
       children:
         - name: en.json
-          description: "global translations"
+          description: "root-level translations (shared across all pages)"
           preview: "{\n  \"menu\": {\n    \"home\": \"Home\",\n    \"about\": \"About Us\"\n  },\n  \"footer\": {\n    \"copyright\": \"© 2025 My App\"\n  }\n}"
         - name: fr.json
-          description: "global translations"
+          description: "root-level translations (shared across all pages)"
           preview: "{\n  \"menu\": {\n    \"home\": \"Accueil\",\n    \"about\": \"À propos\"\n  },\n  \"footer\": {\n    \"copyright\": \"© 2025 Mon App\"\n  }\n}"
         - name: ar.json
-          description: "global translations"
+          description: "root-level translations (shared across all pages)"
           preview: "{\n  \"menu\": {\n    \"home\": \"الرئيسية\",\n    \"about\": \"من نحن\"\n  },\n  \"footer\": {\n    \"copyright\": \"© 2025 تطبيقي\"\n  }\n}"
         - name: pages
           description: "page-specific translations"
@@ -192,7 +192,7 @@ Your translation files will be automatically generated when you run the applicat
 
 ::: tip Folder Structure Explanation
 
-- **Global Files** (`locales/en.json`, etc.) — translations shared across the entire app (menus, footer, common UI)
+- **Root-Level Files** (`locales/en.json`, etc.) — translations shared across the entire app (menus, footer, common UI), merged into every page at build time
 - **Page-Specific Files** (`locales/pages/<route>/<locale>.json`) — translations unique to specific pages, loaded only when the page is visited
 - **Dynamic Routes** — `pages/articles/[id].vue` maps to `locales/pages/articles-id/` (brackets replaced with dashes)
 - **Auto-Generation** — all translation files are automatically created when missing during `nuxt dev`
@@ -333,12 +333,12 @@ translationDir: 'i18n' // Custom directory
 
 #### `disablePageLocales`
 
-Disables page-specific translations, using only global files.
+Disables page-specific translations, using only root-level files.
 
 **Type**: `boolean`  
 **Default**: `false`
 
-When enabled, only global translation files are used:
+When enabled, only root-level translation files are used:
 
 ```tree
 locales/
@@ -647,7 +647,7 @@ Defines the path prefix for fetching cached translations. This is a path prefix 
 apiBaseUrl: 'api/_locales'
 ```
 
-The translations will be fetched from `/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `/api/_locales/general/en/data.json`).
+The translations will be fetched from `/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `/api/_locales/index/en/data.json`).
 
 #### `apiBaseClientHost`
 
@@ -661,7 +661,7 @@ Defines the base host URL for fetching translations from a CDN or external serve
 apiBaseClientHost: 'https://cdn.example.com'
 ```
 
-When `apiBaseClientHost` is set, client-side translations will be fetched from `{apiBaseClientHost}/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `https://cdn.example.com/_locales/general/en/data.json`).
+When `apiBaseClientHost` is set, client-side translations will be fetched from `{apiBaseClientHost}/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `https://cdn.example.com/_locales/index/en/data.json`).
 
 #### `apiBaseServerHost`
 
@@ -675,34 +675,13 @@ Defines the base host URL for fetching translations from a CDN or external serve
 apiBaseServerHost: 'https://internal-cdn.example.com'
 ```
 
-When `apiBaseServerHost` is set, server-side translations will be fetched from `{apiBaseServerHost}/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `https://internal-cdn.example.com/_locales/general/en/data.json`).
+When `apiBaseServerHost` is set, server-side translations will be fetched from `{apiBaseServerHost}/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `https://internal-cdn.example.com/_locales/index/en/data.json`).
 
 ::: tip
 Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/external domain hosting, and `apiBaseServerHost` for server-side CDN/external domain hosting. This allows you to use different CDNs for client and server requests.
 :::
 
 ### 🔄 Additional Features
-
-#### `previousPageFallback`
-
-Enables fallback to previous page translations during page transitions. When navigating between pages, if a translation key is not found on the new page, the module will look for it in the translations from the previous page.
-
-**Type**: `boolean`  
-**Default**: `false`
-
-```typescript
-export default defineNuxtConfig({
-  i18n: {
-    previousPageFallback: true
-  }
-})
-```
-
-:::: tip Use Case
-
-This is especially helpful for pages with asynchronous data loading (`useAsyncData`, `defineAsyncComponent`) that may cause translation keys to be displayed as raw paths during loading.
-
-::::
 
 #### `hmr`
 
@@ -775,7 +754,7 @@ flowchart TB
         H[SSR Request] --> I{Server process cache?}
         I -->|Hit| J[Return Cached]
         I -->|Miss| K[loadTranslationsFromServer]
-        K --> L["Merge: fallback + global + page"]
+        K --> L["Read pre-built file (root + page + fallback already merged)"]
         L --> M[Cache in process-global Map]
         M --> J
         J --> N["Inject window.__I18N__"]
@@ -791,7 +770,7 @@ flowchart TB
 
 - 🚀 **Zero extra requests on first load**: SSR-injected data in `window.__I18N__` is consumed synchronously on hydration
 - 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
-- ⚡ **Single request per page**: The API returns already-merged translations (global + page-specific + fallback) — no client-side merging needed
+- ⚡ **Single request per page**: The API returns a pre-built file (root + page-specific + fallback merged at build time) — no runtime merging needed
 - 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically
 
 See the [Cache & Storage Architecture](../api/i18n-cache-api.md) for in-depth details.

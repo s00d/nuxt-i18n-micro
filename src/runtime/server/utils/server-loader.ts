@@ -1,16 +1,15 @@
 /**
- * Server-side translation loader
- * Load translations from Nitro storage (server only)
+ * Server-side translation loader.
+ * All merging (layers, fallback locales, global + page) is done at build time.
+ * This loader simply reads a single pre-built file from Nitro storage and returns it.
  */
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { useStorage } from 'nitropack/runtime'
-import type { Storage } from 'unstorage'
-import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getI18nConfig } from '#i18n-internal/strategy'
 import { CacheControl } from '../../utils/cache-control'
 
 // ============================================================================
-// SERVER CACHE (process-global CacheControl singleton)
+// SERVER CACHE
 // ============================================================================
 
 type CacheEntry = { data: Translations; json: string }
@@ -31,23 +30,7 @@ function getServerCacheControl(): CacheControl<CacheEntry> {
 // HELPERS
 // ============================================================================
 
-function deepMerge(target: Translations, source: Translations): Translations {
-  if (!target || Object.keys(target).length === 0) {
-    return { ...source }
-  }
-  const output = { ...target }
-  for (const key in source) {
-    if (key === '__proto__' || key === 'constructor') continue
-    const src = source[key]
-    const dst = output[key]
-    if (src && typeof src === 'object' && !Array.isArray(src) && dst && typeof dst === 'object' && !Array.isArray(dst)) {
-      output[key] = deepMerge(dst as Translations, src as Translations)
-    } else {
-      output[key] = src
-    }
-  }
-  return output
-}
+const ASSETS_PREFIX = 'assets:i18n'
 
 function toTranslations(data: unknown): Translations {
   if (!data) return {}
@@ -58,91 +41,40 @@ function toTranslations(data: unknown): Translations {
 }
 
 // ============================================================================
-// LOADERS
-// ============================================================================
-
-async function loadFromNitroStorage(storage: Storage, locale: string, pageName?: string): Promise<Translations> {
-  const privateConfig = getI18nPrivateConfig()
-  const rootDirs = privateConfig.rootDirs || []
-  const routesLocaleLinks = privateConfig.routesLocaleLinks || {}
-
-  let merged: Translations = {}
-  const fileLookupPage = pageName ? routesLocaleLinks[pageName] || pageName : undefined
-  const normalizedPage = fileLookupPage?.replace(/\//g, ':')
-
-  for (let i = 0; i < rootDirs.length; i++) {
-    const prefix = `assets:i18n_layer_${i}`
-    const key = normalizedPage ? `${prefix}:pages:${normalizedPage}:${locale}.json` : `${prefix}:${locale}.json`
-
-    if (await storage.hasItem(key)) {
-      const raw = await storage.getItem(key)
-      if (raw) {
-        merged = deepMerge(merged, toTranslations(raw))
-      }
-    }
-  }
-  return merged
-}
-
-async function loadMergedFromServer(locale: string, page: string | undefined): Promise<Translations> {
-  const storage = useStorage()
-
-  const general = await loadFromNitroStorage(storage, locale)
-  if (!page || page === 'general') {
-    return general
-  }
-
-  const pageSpecific = await loadFromNitroStorage(storage, locale, page)
-  return deepMerge(general, pageSpecific)
-}
-
-// ============================================================================
 // PUBLIC API
 // ============================================================================
 
 /**
- * Load translations from Nitro storage with fallback locale support.
- * Used in API routes and server middleware.
- * Results are cached at the process level with TTL and maxSize support.
+ * Load translations for a given locale and page.
+ * Returns a single pre-built file (global + page + fallback already baked in at build time).
  */
-export async function loadTranslationsFromServer(locale: string, routeName?: string): Promise<{ data: Translations; json: string }> {
+export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<{ data: Translations; json: string }> {
   const cc = getServerCacheControl()
-  const cacheKey = `${locale}:${routeName || 'general'}`
+  const cacheKey = `${locale}:${routeName}`
 
-  // Fast path: from cache
   const cached = cc.get(cacheKey)
   if (cached) {
     return cached
   }
 
-  // Slow path: load and merge
   const config = getI18nConfig() as ModuleOptionsExtend
-  const { locales, fallbackLocale } = config
-
-  const localeConfig = locales?.find((l) => l.code === locale)
-  if (!localeConfig) {
+  if (!config.locales?.find((l) => l.code === locale)) {
     const empty = { data: {}, json: '{}' }
     cc.set(cacheKey, empty)
     return empty
   }
 
-  const localesToMerge: string[] = [fallbackLocale, localeConfig.fallbackLocale, locale]
-    .filter((l): l is string => !!l)
-    .filter((v, i, arr) => arr.indexOf(v) === i)
+  const storage = useStorage()
+  const routesLocaleLinks = config.routesLocaleLinks || {}
+  const resolvedPage = routesLocaleLinks[routeName] || routeName
+  const normalizedPage = resolvedPage.replace(/\//g, ':')
+  const key = `${ASSETS_PREFIX}:pages:${normalizedPage}:${locale}.json`
 
-  const page = routeName === 'general' ? undefined : routeName
+  const data: Translations = (await storage.hasItem(key)) ? toTranslations(await storage.getItem(key)) : {}
 
-  let result: Translations = {}
-  for (const loc of localesToMerge) {
-    const data = await loadMergedFromServer(loc, page)
-    result = localesToMerge.length === 1 ? data : deepMerge(result, data)
-  }
+  const json = JSON.stringify(data).replace(/</g, '\\u003c')
+  const entry = { data, json }
 
-  const json = JSON.stringify(result).replace(/</g, '\\u003c')
-  const entry = { data: result, json }
-
-  // Store in cache
   cc.set(cacheKey, entry)
-
   return entry
 }

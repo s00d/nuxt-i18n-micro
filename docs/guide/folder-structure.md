@@ -6,11 +6,11 @@ outline: deep
 
 ## 📖 Introduction
 
-Organizing your translation files effectively is essential for maintaining a scalable and efficient internationalization (i18n) system. `Nuxt I18n Micro` simplifies this process by offering a clear approach to managing global and page-specific translations. This guide will walk you through the recommended folder structure and explain how `Nuxt I18n Micro` handles these translations.
+Organizing your translation files effectively is essential for maintaining a scalable and efficient internationalization (i18n) system. `Nuxt I18n Micro` simplifies this process by offering a clear approach to managing root-level and page-specific translations. This guide will walk you through the recommended folder structure and explain how `Nuxt I18n Micro` handles these translations.
 
 ## 🗂️ Recommended Folder Structure
 
-`Nuxt I18n Micro` organizes translations into global files and page-specific files within the `pages` directory. This ensures that only the necessary translation data is loaded when required, optimizing both performance and organization.
+`Nuxt I18n Micro` organizes translations into root-level files and page-specific files within the `pages` directory. At build time, root-level translations are automatically merged into every page file, so each page has a complete set of translations without runtime merging overhead.
 
 ### 🔧 Basic Structure
 
@@ -34,10 +34,10 @@ locales/
 
 ### 📄 Explanation of Structure
 
-#### 1. 🌍 Global Translation Files
+#### 1. 🌍 Root-Level Translation Files
 
 - **Path:** `/locales/{locale}.json` (e.g., `/locales/en.json`)
-- **Purpose:** These files contain translations that are shared across the entire application. This is useful for common elements like navigation menus, headers, footers, or any text that appears on multiple pages.
+- **Purpose:** These files contain translations shared across the entire application (navigation menus, headers, footers, etc.). At build time, they are automatically merged into every page-specific file, so the server returns a single pre-built file per page — no runtime merging needed.
 
   **Example Content (`/locales/en.json`):**
   ```json
@@ -56,7 +56,7 @@ locales/
 #### 2. 📄 Page-Specific Translation Files
 
 - **Path:** `/locales/pages/{routeName}/{locale}.json` (e.g., `/locales/pages/index/en.json`)
-- **Purpose:** These files are used for translations that are specific to individual pages. This allows you to load only the necessary translations when a user visits a particular page, which enhances performance by reducing the amount of data that needs to be loaded.
+- **Purpose:** These files contain translations specific to individual pages. At build time, root-level translations are merged in as a base, so each page file becomes self-contained. The server returns a single file per page request.
 
   **Example Content (`/locales/pages/index/en.json`):**
   ```json
@@ -145,19 +145,12 @@ flowchart TB
     A["📥 Request: /fr/about"] --> B["🔍 Detect locale: fr"]
     A --> C["🔍 Detect route: about"]
     
-    B --> D["📂 Load: locales/fr.json"]
-    C --> E["📂 Load: locales/pages/about/fr.json"]
+    B --> D["📂 Load pre-built: .nuxt/i18n-merged/pages/about/fr.json"]
+    C --> D
     
-    D --> F["🔀 Merge Translations"]
-    E --> F
+    D --> E["✅ Translations ready (root + page + fallback already merged at build time)"]
     
-    F --> G{Fallback configured?}
-    G -->|Yes| H["📂 Load: locales/en.json"]
-    H --> I["🔀 Deep merge with fallback"]
-    G -->|No| J["✅ Translations ready"]
-    I --> J
-    
-    J --> K["Available via $t()"]
+    E --> F["Available via $t()"]
 ```
 
 For example:
@@ -176,7 +169,7 @@ To further enhance performance, `Nuxt I18n Micro` supports caching and pre-rende
 
 ### 📂 Use Page-Specific Files Wisely
 
-Leverage page-specific files to avoid bloating global translation files. This keeps each page’s translations lean and fast to load, which is especially important for pages with complex or large content.
+Leverage page-specific files to keep translations organized. This keeps each page’s translations lean and fast to load, which is especially important for pages with complex or large content.
 
 ### 🔑 Keep Translation Keys Consistent
 

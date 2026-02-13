@@ -191,7 +191,6 @@ After building, check that translation files are generated:
 pnpm build
 
 # Check prerendered translations
-ls -la .output/public/_locales/general/
 ls -la .output/public/_locales/index/
 ```
 
@@ -374,7 +373,7 @@ firebase deploy --only hosting,functions
 1. Visit your deployed site
 2. Open DevTools → Network tab
 3. Navigate to a page
-4. Check that `/_locales/general/en/data.json` (or your default locale) loads with:
+4. Check that `/_locales/index/en/data.json` (or your default locale) loads with:
    - Status: 200
    - Content-Type: application/json
    - Response contains valid JSON
@@ -476,7 +475,7 @@ export default defineNuxtConfig({
 
 To further optimize:
 - Use `disablePageLocales: false` (default) to enable page-specific translations
-- Keep global translations minimal
+- Keep root-level translations minimal
 - Use route-specific translation files for page content
 
 ::: tip Module Version

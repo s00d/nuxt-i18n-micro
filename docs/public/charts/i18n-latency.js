@@ -17,11 +17,11 @@ export default function() {
       {
         "label": "P95 Latency (ms)",
         "data": [
-          2417,
-          7557,
+          2187,
+          7261,
           0,
-          0,
-          0,
+          9999,
+          9999,
           0,
           0,
           9999

@@ -94,7 +94,6 @@ export function useI18n(options?: UseI18nOptions) {
     addTranslations: i18n.addTranslations.bind(i18n),
     addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
     mergeTranslations: i18n.mergeTranslations.bind(i18n),
-    mergeGlobalTranslations: i18n.mergeGlobalTranslations.bind(i18n),
     clearCache: i18n.clearCache.bind(i18n),
   }
 }

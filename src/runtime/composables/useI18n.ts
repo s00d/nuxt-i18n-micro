@@ -28,7 +28,6 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $has: nuxtApp.$has,
     $tc: nuxtApp.$tc,
     $mergeTranslations: nuxtApp.$mergeTranslations,
-    $mergeGlobalTranslations: nuxtApp.$mergeGlobalTranslations,
     $setI18nRouteParams: nuxtApp.$setI18nRouteParams,
     $switchLocaleRoute: nuxtApp.$switchLocaleRoute,
     $switchLocalePath: nuxtApp.$switchLocalePath,

@@ -10,7 +10,7 @@ Nuxt I18n Micro supports server-side translations and locale information, allowi
 
 The translations use locale messages defined in the Nuxt I18n configuration and are dynamically resolved based on the detected locale. 
 
-To clarify, the translations used by Nuxt I18n Micro in server-side handling are only sourced from the root-level translation files. Any nested translation files or subdirectories are not utilized in this context. The system will only retrieve translations from the root folder, ensuring a consistent and manageable approach to server-side translation retrieval.
+All translations are pre-merged at build time (root-level files are baked into every page file). The server-side middleware loads the same pre-built files as the client, so all keys (both shared and page-specific) are available in server handlers.
 
 ## 🛠️ Setting Up Server-Side Middleware
 

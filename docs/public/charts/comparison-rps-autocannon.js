@@ -12,7 +12,7 @@ export default function() {
       {
         "label": "Requests per Second",
         "data": [
-          187,
+          161,
           12,
           178
         ],

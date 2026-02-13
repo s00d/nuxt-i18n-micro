@@ -17,14 +17,14 @@ export default function() {
       {
         "label": "http.request_rate",
         "data": [
-          228,
-          342,
-          342,
-          342,
-          244,
-          193,
-          140,
-          219
+          101,
+          333,
+          336,
+          340,
+          338,
+          339,
+          336,
+          282
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -37,14 +37,14 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          257,
-          872,
-          1526,
-          2187,
-          4147,
-          3464,
-          7710,
-          5598
+          25,
+          672,
+          1496,
+          2231,
+          2369,
+          2369,
+          2322,
+          2322
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -57,13 +57,13 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          284,
-          599,
+          72,
           600,
           600,
-          596,
-          604,
-          353,
+          600,
+          600,
+          600,
+          564,
           0
         ],
         "borderColor": "rgb(153, 102, 255)",
@@ -77,12 +77,12 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          33,
-          40,
-          40,
-          40,
-          211,
-          109,
+          10,
+          57,
+          47,
+          44,
+          35,
+          0,
           0,
           0
         ],
@@ -101,10 +101,10 @@ export default function() {
           0,
           0,
           0,
-          22,
-          235,
-          396,
-          80
+          12,
+          48,
+          33,
+          9
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

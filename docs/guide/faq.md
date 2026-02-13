@@ -71,22 +71,11 @@ When using `nuxt-i18n-micro` with page transitions, translations may briefly sto
 - `defineAsyncComponent` and `useAsyncData` can delay translation loading
 - Translation keys may appear as raw paths during loading
 
-**Solution 1: Enable Previous Page Fallback (Recommended)**
+**Solution 1: Cumulative Merge (Built-in, No Config Needed)**
 
-Use the `previousPageFallback` feature to automatically fall back to previous page translations during transitions:
+In v3, the module automatically uses a cumulative merge strategy. When navigating within the same locale, new page translations are merged into the active dictionary instead of replacing it. This means translations from the previous page remain available during the transition animation. After the transition finishes (`page:transition:finish` hook), old keys are cleaned up automatically.
 
-```typescript
-export default defineNuxtConfig({
-  i18n: {
-    previousPageFallback: true
-  }
-})
-```
-
-**How it works:**
-- Saves previous page translation information during navigation
-- Uses previous page translations as fallback when current page translations are not available
-- Cleans up previous page translations only after the new page is fully loaded
+No configuration is needed — this works out of the box.
 
 **Solution 2: Explicit Route Context**
 

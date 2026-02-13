@@ -7,7 +7,7 @@ export const createStore = <T extends Record<string, unknown>>(initial: T): [T, 
   const store: Record<string, unknown> = { ...initial }
   const setStore: SetStoreFunction<T> = (key: keyof T, subKeyOrValue?: unknown, value?: unknown) => {
     if (value !== undefined) {
-      // Handle nested updates like setStore('general', 'en', translations)
+      // Handle nested updates like setStore('index', 'en', translations)
       const keyStr = String(key)
       if (!store[keyStr]) {
         store[keyStr] = {}
@@ -21,7 +21,7 @@ export const createStore = <T extends Record<string, unknown>>(initial: T): [T, 
         nestedStore[subKeyStr] = value
       }
     } else if (typeof subKeyOrValue === 'function') {
-      // Handle function updates like setStore('general', (prev) => ({ ...prev, ...new }))
+      // Handle function updates like setStore('index', (prev) => ({ ...prev, ...new }))
       const keyStr = String(key)
       store[keyStr] = (subKeyOrValue as (prev: unknown) => unknown)(store[keyStr])
     } else if (subKeyOrValue !== undefined) {

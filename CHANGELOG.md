@@ -1,6 +1,64 @@
 # Changelog
 
 
+## v3.8.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.7.0...v3.8.0)
+
+### 🚀 Enhancements
+
+- **locales:** Implement build-time pre-merging of translation files ([a29ac6bb](https://github.com/s00d/nuxt-i18n-micro/commit/a29ac6bb))
+- **playground:** Update option value in node-i18n-demo.vue ([966e29fb](https://github.com/s00d/nuxt-i18n-micro/commit/966e29fb))
+- **test-utils:** Add routeName parameter to loadTranslations function ([5f0a66af](https://github.com/s00d/nuxt-i18n-micro/commit/5f0a66af))
+
+### 🩹 Fixes
+
+- **i18n:** Update page parameter handling in loadTranslationsFromServer ([7052f54d](https://github.com/s00d/nuxt-i18n-micro/commit/7052f54d))
+- **useI18n:** Remove unused `$mergeGlobalTranslations` property ([6da3bd25](https://github.com/s00d/nuxt-i18n-micro/commit/6da3bd25))
+- **tests:** Update comment for manual translation loading guidance ([893bba48](https://github.com/s00d/nuxt-i18n-micro/commit/893bba48))
+- **docs:** Update storybook output directory path in documentation ([d1339928](https://github.com/s00d/nuxt-i18n-micro/commit/d1339928))
+- **path-strategy:** Update return value in getPluginRouteName method ([31af304f](https://github.com/s00d/nuxt-i18n-micro/commit/31af304f))
+- **i18n:** Update default currentRoute to 'index' ([90e98af9](https://github.com/s00d/nuxt-i18n-micro/commit/90e98af9))
+- **i18n:** Update default route signal to 'index' ([72707dc0](https://github.com/s00d/nuxt-i18n-micro/commit/72707dc0))
+- **i18n:** Update default route signal to 'index' ([f6c07b74](https://github.com/s00d/nuxt-i18n-micro/commit/f6c07b74))
+
+### 💅 Refactors
+
+- **plugins:** Simplify cache key generation and cleanup logic ([6eb772a6](https://github.com/s00d/nuxt-i18n-micro/commit/6eb772a6))
+- **server-loader:** Simplify translation loading logic ([4e7717d2](https://github.com/s00d/nuxt-i18n-micro/commit/4e7717d2))
+- **translation-server-middleware:** Streamline translation storage handling ([c48df9e9](https://github.com/s00d/nuxt-i18n-micro/commit/c48df9e9))
+- **plugins:** Rename $mergeGlobalTranslations to $mergeTranslations ([2ffddf80](https://github.com/s00d/nuxt-i18n-micro/commit/2ffddf80))
+- **internals:** Remove unused `rootDirs` property from I18nPrivateConfig. ([14a76a9c](https://github.com/s00d/nuxt-i18n-micro/commit/14a76a9c))
+- **translations:** Rename 'general' to 'root' for clarity ([5fe4860a](https://github.com/s00d/nuxt-i18n-micro/commit/5fe4860a))
+- **translation:** Simplify translation cache management logic ([1a635278](https://github.com/s00d/nuxt-i18n-micro/commit/1a635278))
+- **bridge:** Streamline translation cache retrieval and structure ([1b4550d4](https://github.com/s00d/nuxt-i18n-micro/commit/1b4550d4))
+- **loader:** Rename global translations to root translations ([ed1e9538](https://github.com/s00d/nuxt-i18n-micro/commit/ed1e9538))
+- **preact:** Update default current route from 'general' to 'index' ([f87fb97d](https://github.com/s00d/nuxt-i18n-micro/commit/f87fb97d))
+- **types:** Remove unused `rootDirs` property from `ModulePrivateOptionsExtend` ([25139fdd](https://github.com/s00d/nuxt-i18n-micro/commit/25139fdd))
+- **composer:** Update current route and simplify cache methods ([c304c6d8](https://github.com/s00d/nuxt-i18n-micro/commit/c304c6d8))
+
+### 📖 Documentation
+
+- **events:** Clarify terminology in `i18n:register` event documentation ([9eff7c98](https://github.com/s00d/nuxt-i18n-micro/commit/9eff7c98))
+- **i18n-cache-api:** Update cache API documentation for clarity ([793b863c](https://github.com/s00d/nuxt-i18n-micro/commit/793b863c))
+- **cli:** Update description for `check-duplicates` command ([3ac8931b](https://github.com/s00d/nuxt-i18n-micro/commit/3ac8931b))
+- **faq:** Update translation fallback solution details ([1c7f3dc0](https://github.com/s00d/nuxt-i18n-micro/commit/1c7f3dc0))
+- **firebase:** Update paths in Firebase guide for localization files ([38f85ba7](https://github.com/s00d/nuxt-i18n-micro/commit/38f85ba7))
+- **guide:** Update folder structure documentation for clarity ([1f5779ec](https://github.com/s00d/nuxt-i18n-micro/commit/1f5779ec))
+- **getting-started:** Clarify translation file descriptions ([111b7863](https://github.com/s00d/nuxt-i18n-micro/commit/111b7863))
+- **migration:** Update note for global translations to root-level ([523e5462](https://github.com/s00d/nuxt-i18n-micro/commit/523e5462))
+- **guide:** Update terminology from 'global files' to 'root-level files' ([cb68266e](https://github.com/s00d/nuxt-i18n-micro/commit/cb68266e))
+- **performance:** Update translation caching details and optimize lookup ([62e84914](https://github.com/s00d/nuxt-i18n-micro/commit/62e84914))
+- **performance-results:** Update performance metrics for i18n-micro ([99f50a64](https://github.com/s00d/nuxt-i18n-micro/commit/99f50a64))
+- **guide:** Update server-side translations explanation ([1b4cd146](https://github.com/s00d/nuxt-i18n-micro/commit/1b4cd146))
+- **guide:** Update terminology for translation file sections ([c95eaa6a](https://github.com/s00d/nuxt-i18n-micro/commit/c95eaa6a))
+- **guide:** Update v3 upgrade notes for experimental options ([728b3e9e](https://github.com/s00d/nuxt-i18n-micro/commit/728b3e9e))
+- **news:** Update news for v3.0.0 release with feature optimizations ([ccb47c8c](https://github.com/s00d/nuxt-i18n-micro/commit/ccb47c8c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.7.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.6.0...v3.7.0)

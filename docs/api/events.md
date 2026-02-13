@@ -6,7 +6,7 @@ outline: deep
 
 ## 🔄 `i18n:register`
 
-The `i18n:register` event in `Nuxt I18n Micro` enables dynamic addition of translations to your application's global i18n context, making the internationalization process seamless and flexible. This event allows you to integrate new translations as needed, enhancing your application's localization capabilities.
+The `i18n:register` event in `Nuxt I18n Micro` enables dynamic addition of translations to your application's i18n context, making the internationalization process seamless and flexible. This event allows you to integrate new translations as needed, enhancing your application's localization capabilities.
 
 ### 📝 Event Details
 
@@ -22,7 +22,7 @@ The `i18n:register` event in `Nuxt I18n Micro` enables dynamic addition of trans
         - The locale code (e.g., `'en'`, `'ru'`) for which the translations are registered. Defaults to the locale provided by the event if not specified.
 
 - **Behavior**:
-  - When triggered, the `register` function merges the new translations into the global context for the specified locale, updating the available translations across the application.
+  - When triggered, the `register` function merges the new translations into the current context for the specified locale, updating the available translations across the application.
 
 ### 💡 Example Usage
 
@@ -136,7 +136,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 2. **Registering Translations**:
   - The plugin hooks into the `i18n:register` event using `nuxtApp.hook`.
   - When the event is triggered, the `register` function is called with the loaded translations and the corresponding locale.
-  - This merges the new translations into the global i18n context for the specified locale, updating the available translations throughout the application.
+  - This merges the new translations into the i18n context for the specified locale, updating the available translations throughout the application.
 
 ### 🔗 Benefits of Using Plugins for Translation Modifications
 

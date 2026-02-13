@@ -14,6 +14,7 @@ import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
+import { deepMergeTranslations } from '../utils/deep-merge'
 import { translationStorage } from '../utils/storage'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -212,8 +213,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
     if (currentLocale === locale) {
       // Same language, page navigation:
-      // 1. Merge old + new so the leaving page keeps its keys during transition animation.
-      cachedTranslations = { ...cachedTranslations, ...data }
+      // 1. Deep merge old + new so overlapping nested keys survive during transition animation.
+      cachedTranslations = deepMergeTranslations(cachedTranslations, data)
       // 2. Schedule cleanup: page:transition:finish will replace merged dict with clean data.
       pendingCleanState = data
     } else {
@@ -361,7 +362,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const current = loadedChunks.get(cacheKey) || {}
     const merged = { ...current, ...newTranslations }
     loadedChunks.set(cacheKey, merged)
-    cachedTranslations = { ...cachedTranslations, ...merged }
+    cachedTranslations = deepMergeTranslations(cachedTranslations, merged)
     if (pendingCleanState) pendingCleanState = merged
     triggerRef(contextSignal)
   }
@@ -377,7 +378,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const mergedChunk = { ...existing, ...newTranslations }
       loadedChunks.set(cacheKey, mergedChunk)
       if (locale === currentLocale && routeName === currentRouteName) {
-        cachedTranslations = { ...cachedTranslations, ...mergedChunk }
+        cachedTranslations = deepMergeTranslations(cachedTranslations, mergedChunk)
         if (pendingCleanState) pendingCleanState = mergedChunk
         triggerRef(contextSignal)
       }
@@ -500,7 +501,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const mergedChunk = { ...current, ...translations }
       loadedChunks.set(cacheKey, mergedChunk)
       if (locale === currentLocale && routeName === currentRouteName) {
-        cachedTranslations = { ...cachedTranslations, ...mergedChunk }
+        cachedTranslations = deepMergeTranslations(cachedTranslations, mergedChunk)
         if (pendingCleanState) pendingCleanState = mergedChunk
         triggerRef(contextSignal)
       }

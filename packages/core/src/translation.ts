@@ -2,7 +2,7 @@ import type { Translations } from '@i18n-micro/types'
 
 /**
  * Bare Metal: Simple translation storage without Ref, useState, devalue.
- * Map key: locale (general) or locale:routeName (page-specific).
+ * Map key: `${locale}:${routeName}` (page-specific).
  */
 export interface TranslationStorage {
   translations: Map<string, Translations>
@@ -36,52 +36,46 @@ export function useTranslationHelper(storage?: TranslationStorage) {
 
   return {
     hasCache(locale: string, page: string) {
-      const cacheKey = `${locale}:${page}`
-      return translations.has(cacheKey) || translations.has(locale)
+      const p = page || 'index'
+      return translations.has(`${locale}:${p}`)
     },
     getCache(locale: string, routeName: string) {
-      const cacheKey = `${locale}:${routeName}`
-      return translations.get(cacheKey)
+      const rn = routeName || 'index'
+      return translations.get(`${locale}:${rn}`)
     },
     setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>) {
       // No-op for bare metal
     },
     hasTranslation(locale: string, key: string): boolean {
       for (const [k, v] of translations) {
-        if ((k === locale || k.startsWith(`${locale}:`)) && findValue(v, key) !== null) {
+        if (k.startsWith(`${locale}:`) && findValue(v, key) !== null) {
           return true
         }
       }
       return false
     },
-    hasGeneralTranslation(locale: string): boolean {
-      return translations.has(locale)
-    },
     hasPageTranslation(locale: string, routeName: string): boolean {
-      return translations.has(`${locale}:${routeName}`)
+      const rn = routeName || 'index'
+      return translations.has(`${locale}:${rn}`)
     },
     getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null {
-      const routeKey = `${locale}:${routeName}`
-      const routeData = translations.get(routeKey)
-      const val = findValue<T>(routeData, key)
-      if (val !== null) return val
-
-      const generalData = translations.get(locale)
-      return findValue<T>(generalData, key)
+      const rn = routeName || 'index'
+      return findValue<T>(translations.get(`${locale}:${rn}`), key)
     },
-    loadTranslations(locale: string, data: Translations): void {
-      // Merge with existing, replacing duplicate keys
-      const existing = translations.get(locale) ?? {}
-      translations.set(locale, { ...existing, ...data })
+    loadTranslations(locale: string, data: Translations, routeName = 'index'): void {
+      const rn = routeName || 'index'
+      const key = `${locale}:${rn}`
+      const existing = translations.get(key) ?? {}
+      translations.set(key, { ...existing, ...data })
     },
-    setTranslations(locale: string, data: Translations): void {
-      // Replace all translations for locale (no merge)
-      translations.set(locale, data)
+    setTranslations(locale: string, data: Translations, routeName = 'index'): void {
+      const rn = routeName || 'index'
+      translations.set(`${locale}:${rn}`, data)
     },
     loadPageTranslations(locale: string, routeName: string, data: Translations): void {
-      const key = `${locale}:${routeName}`
+      const rn = routeName || 'index'
+      const key = `${locale}:${rn}`
       const existing = translations.get(key)
-      // Perf: when existing is empty — keep reference, avoid O(n) copying of large objects
       if (!existing || Object.keys(existing).length === 0) {
         translations.set(key, data)
       } else {
@@ -89,13 +83,10 @@ export function useTranslationHelper(storage?: TranslationStorage) {
       }
     },
     mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force = false): void {
-      const key = `${locale}:${routeName}`
+      const rn = routeName || 'index'
+      const key = `${locale}:${rn}`
       const existing = translations.get(key) ?? {}
       translations.set(key, { ...existing, ...newTranslations })
-    },
-    mergeGlobalTranslation(locale: string, newTranslations: Translations, _force = false): void {
-      const existing = translations.get(locale) ?? {}
-      translations.set(locale, { ...existing, ...newTranslations })
     },
     clearCache(): void {
       translations.clear()

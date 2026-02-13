@@ -93,10 +93,6 @@ console.log(localizedRoute) // Localized route object
   Sets the cache for a specific route and locale.
 - **`mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false): void`**:
   Merges new translations into the cache for a specific route and locale.
-- **`mergeGlobalTranslation(locale: string, newTranslations: Translations, force = false): void`**:
-  Merges new translations into the global cache for a specific locale.
-- **`hasGeneralTranslation(locale: string): boolean`**:
-  Checks if global translations are loaded for the specified locale.
 - **`hasPageTranslation(locale: string, routeName: string): boolean`**:
   Checks if translations for a specific route and locale are loaded.
 - **`hasTranslation(locale: string, key: string): boolean`**:

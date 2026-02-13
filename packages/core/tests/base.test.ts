@@ -38,44 +38,44 @@ class TestI18n extends BaseI18n {
 describe('BaseI18n', () => {
   describe('Constructor', () => {
     test('should initialize with default options', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.getLocale()).toBe('en')
       expect(i18n.getFallbackLocale()).toBe('en')
-      expect(i18n.getRoute()).toBe('general')
+      expect(i18n.getRoute()).toBe('index')
     })
 
     test('should initialize with custom storage', () => {
       const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'en', 'general', { storage })
+      const i18n = new TestI18n('en', 'en', 'index', { storage })
       expect(i18n).toBeDefined()
     })
 
     test('should initialize with custom plural function', () => {
       const customPlural: PluralFunc = () => 'custom'
-      const i18n = new TestI18n('en', 'en', 'general', { plural: customPlural })
+      const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural })
       expect(i18n).toBeDefined()
     })
 
     test('should initialize with missingWarn option', () => {
-      const i18n = new TestI18n('en', 'en', 'general', { missingWarn: false })
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
       expect(i18n).toBeDefined()
     })
 
     test('should initialize with missingHandler', () => {
       const handler = jest.fn()
-      const i18n = new TestI18n('en', 'en', 'general', { missingHandler: handler })
+      const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
       expect(i18n).toBeDefined()
     })
   })
 
   describe('t() method', () => {
     test('should return empty string for empty key', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.t('')).toBe('')
     })
 
     test('should return translation for existing key', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { greeting: 'Hello' }
       i18n['helper'].loadTranslations('en', translations)
 
@@ -84,7 +84,7 @@ describe('BaseI18n', () => {
 
     test('should interpolate params in translation', async () => {
       const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'en', 'general', { storage })
+      const i18n = new TestI18n('en', 'en', 'index', { storage })
       const translations: Translations = { greeting: 'Hello, {name}!' }
       await i18n['helper'].loadTranslations('en', translations)
 
@@ -92,18 +92,18 @@ describe('BaseI18n', () => {
     })
 
     test('should use defaultValue when translation is missing', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.t('missing.key', undefined, 'Default value')).toBe('Default value')
     })
 
     test('should return key when translation is missing and no defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.t('missing.key')).toBe('missing.key')
     })
 
     test('should fallback to fallbackLocale when translation is missing', async () => {
       const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'fr', 'general', { storage })
+      const i18n = new TestI18n('en', 'fr', 'index', { storage })
       const translations: Translations = { greeting: 'Bonjour' }
       await i18n['helper'].loadTranslations('fr', translations)
 
@@ -111,7 +111,7 @@ describe('BaseI18n', () => {
     })
 
     test('should use route-specific translation when routeName is provided', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const routeTranslations: Translations = { title: 'Route Title' }
       await i18n['helper'].loadPageTranslations('en', 'about', routeTranslations)
 
@@ -120,27 +120,27 @@ describe('BaseI18n', () => {
 
     test('should call missingHandler when translation is missing', () => {
       const handler = jest.fn()
-      const i18n = new TestI18n('en', 'en', 'general', { missingHandler: handler })
+      const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
 
       i18n.t('missing.key')
 
-      expect(handler).toHaveBeenCalledWith('en', 'missing.key', 'general')
+      expect(handler).toHaveBeenCalledWith('en', 'missing.key', 'index')
     })
 
     test('should call customMissingHandler when set (Nuxt runtime)', () => {
       const customHandler = jest.fn()
-      const i18n = new TestI18n('en', 'en', 'general', {
+      const i18n = new TestI18n('en', 'en', 'index', {
         getCustomMissingHandler: () => customHandler,
       })
 
       i18n.t('missing.key')
 
-      expect(customHandler).toHaveBeenCalledWith('en', 'missing.key', 'general')
+      expect(customHandler).toHaveBeenCalledWith('en', 'missing.key', 'index')
     })
 
     test('should not warn when missingWarn is false', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
-      const i18n = new TestI18n('en', 'en', 'general', { missingWarn: false })
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
 
       i18n.t('missing.key')
 
@@ -151,7 +151,7 @@ describe('BaseI18n', () => {
 
   describe('ts() method', () => {
     test('should return translation as string', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { greeting: 'Hello' }
       i18n['helper'].loadTranslations('en', translations)
 
@@ -159,17 +159,17 @@ describe('BaseI18n', () => {
     })
 
     test('should return defaultValue when translation is missing', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.ts('missing.key', undefined, 'Default')).toBe('Default')
     })
 
     test('should return key when translation is missing and no defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.ts('missing.key')).toBe('missing.key')
     })
 
     test('should convert non-string values to string', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { count: 42 }
       i18n['helper'].loadTranslations('en', translations)
 
@@ -179,12 +179,12 @@ describe('BaseI18n', () => {
 
   describe('tc() method', () => {
     test('should return defaultValue when count is undefined', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.tc('apples', { other: 'params' }, 'No count')).toBe('No count')
     })
 
     test('should use plural function with count', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { apples: 'apple|apples' }
       await i18n['helper'].loadTranslations('en', translations)
 
@@ -196,7 +196,7 @@ describe('BaseI18n', () => {
     })
 
     test('should handle count as number', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { apples: 'apple|apples' }
       i18n['helper'].loadTranslations('en', translations)
 
@@ -204,7 +204,7 @@ describe('BaseI18n', () => {
     })
 
     test('should handle count as Params object', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { apples: 'apple|apples' }
       i18n['helper'].loadTranslations('en', translations)
 
@@ -212,7 +212,7 @@ describe('BaseI18n', () => {
     })
 
     test('should return defaultValue when plural function returns null', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       // When translation is missing, t() returns key, which is passed to pluralFunc
       // pluralFunc tries to process 'missing.key' as translation, but since it doesn't contain '|',
       // it returns the key itself. So tc returns the key, not defaultValue.
@@ -224,19 +224,19 @@ describe('BaseI18n', () => {
 
   describe('tn() method', () => {
     test('should format number with default locale', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const result = i18n.tn(1234.56)
       expect(result).toMatch(/1[,.]234[.,]56/)
     })
 
     test('should format number with custom options', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const result = i18n.tn(1234.56, { style: 'currency', currency: 'USD' })
       expect(result).toContain('1,234.56')
     })
 
     test('should use current locale for formatting', () => {
-      const i18n = new TestI18n('ru', 'en', 'general')
+      const i18n = new TestI18n('ru', 'en', 'index')
       const result = i18n.tn(1234.56)
       // Russian locale uses different number formatting
       expect(result).toBeDefined()
@@ -245,7 +245,7 @@ describe('BaseI18n', () => {
 
   describe('td() method', () => {
     test('should format date with default locale', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const date = new Date('2024-01-15')
       const result = i18n.td(date)
       expect(result).toBeDefined()
@@ -253,7 +253,7 @@ describe('BaseI18n', () => {
     })
 
     test('should format date with custom options', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const date = new Date('2024-01-15')
       const result = i18n.td(date, { year: 'numeric', month: 'long', day: 'numeric' })
       expect(result).toContain('2024')
@@ -261,7 +261,7 @@ describe('BaseI18n', () => {
     })
 
     test('should handle date as number (timestamp)', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const timestamp = new Date('2024-01-15').getTime()
       const result = i18n.td(timestamp)
       expect(result).toBeDefined()
@@ -269,7 +269,7 @@ describe('BaseI18n', () => {
     })
 
     test('should handle date as string', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const result = i18n.td('2024-01-15')
       expect(result).toBeDefined()
       expect(result).not.toBe('Invalid Date')
@@ -278,7 +278,7 @@ describe('BaseI18n', () => {
 
   describe('tdr() method', () => {
     test('should format relative time', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const yesterday = new Date(Date.now() - 86400000)
       const result = i18n.tdr(yesterday)
       expect(result).toBeDefined()
@@ -286,14 +286,14 @@ describe('BaseI18n', () => {
     })
 
     test('should format relative time with custom options', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const yesterday = new Date(Date.now() - 86400000)
       const result = i18n.tdr(yesterday, { numeric: 'always' })
       expect(result).toBeDefined()
     })
 
     test('should handle invalid date gracefully', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const invalidDate = new Date('invalid')
       const result = i18n.tdr(invalidDate)
       expect(result).toBeDefined()
@@ -302,7 +302,7 @@ describe('BaseI18n', () => {
 
   describe('has() method', () => {
     test('should return true when translation exists', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { greeting: 'Hello' }
       i18n['helper'].loadTranslations('en', translations)
 
@@ -310,17 +310,17 @@ describe('BaseI18n', () => {
     })
 
     test('should return false when translation does not exist', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.has('missing.key')).toBe(false)
     })
 
     test('should check route-specific translation when routeName is provided', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const routeTranslations: Translations = { title: 'Route Title' }
       await i18n['helper'].loadPageTranslations('en', 'about', routeTranslations)
 
       expect(i18n.has('title', 'about')).toBe(true)
-      expect(i18n.has('title', 'general')).toBe(false)
+      expect(i18n.has('title', 'index')).toBe(false)
     })
 
     test('should use current route when routeName is not provided', async () => {
@@ -334,7 +334,7 @@ describe('BaseI18n', () => {
 
   describe('clearCache() method', () => {
     test('should clear all translations from cache', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { greeting: 'Hello' }
       i18n['helper'].loadTranslations('en', translations)
 
@@ -348,7 +348,7 @@ describe('BaseI18n', () => {
 
   describe('loadTranslationsCore() method', () => {
     test('should load translations when merge is false', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { greeting: 'Hello' }
 
       i18n['loadTranslationsCore']('en', translations, false)
@@ -359,7 +359,7 @@ describe('BaseI18n', () => {
     })
 
     test('should merge translations when merge is true', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const initial: Translations = { greeting: 'Hello' }
       const additional: Translations = { farewell: 'Goodbye' }
 
@@ -375,7 +375,7 @@ describe('BaseI18n', () => {
 
   describe('loadRouteTranslationsCore() method', () => {
     test('should load route translations when merge is false', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { title: 'Page Title' }
 
       i18n['loadRouteTranslationsCore']('en', 'about', translations, false)
@@ -386,7 +386,7 @@ describe('BaseI18n', () => {
     })
 
     test('should merge route translations when merge is true', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const initial: Translations = { title: 'Page Title' }
       const additional: Translations = { description: 'Page Description' }
 
@@ -402,7 +402,7 @@ describe('BaseI18n', () => {
 
   describe('Edge cases', () => {
     test('should handle nested translation keys', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = {
         nested: {
           deep: {
@@ -416,7 +416,7 @@ describe('BaseI18n', () => {
     })
 
     test('should handle multiple params in interpolation', async () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = {
         message: 'Hello, {name}! You are {age} years old.',
       }
@@ -426,23 +426,25 @@ describe('BaseI18n', () => {
     })
 
     test('should handle null defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       expect(i18n.t('missing.key', undefined, null)).toBe('missing.key')
     })
 
     test('should handle empty string defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'general')
+      const i18n = new TestI18n('en', 'en', 'index')
       // Empty string is falsy, so it will fall back to key (as per defaultValue || key logic)
       expect(i18n.t('missing.key', undefined, '')).toBe('missing.key')
     })
 
     test('should handle route change', async () => {
       const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'en', 'general', { storage })
-      const generalTranslations: Translations = { greeting: 'Hello' }
-      const routeTranslations: Translations = { title: 'About Page' }
+      const i18n = new TestI18n('en', 'en', 'index', { storage })
+      const rootTranslations: Translations = { greeting: 'Hello' }
+      // Packages (vue, node, etc.) merge root into pages automatically.
+      // Core does not — so we simulate pre-merged data here.
+      const routeTranslations: Translations = { greeting: 'Hello', title: 'About Page' }
 
-      await i18n['helper'].loadTranslations('en', generalTranslations)
+      await i18n['helper'].loadTranslations('en', rootTranslations)
       await i18n['helper'].loadPageTranslations('en', 'about', routeTranslations)
 
       // Verify translations are loaded
@@ -450,14 +452,13 @@ describe('BaseI18n', () => {
       expect(i18n.has('title', 'about')).toBe(true)
 
       // Check route-specific translation with explicit routeName
-      // Note: getTranslation uses routeName parameter, so this should work
       const titleValue = i18n.t('title', undefined, undefined, 'about')
       expect(titleValue).toBe('About Page')
 
       // Change route and check
       i18n.setRoute('about')
       expect(i18n.t('title')).toBe('About Page')
-      expect(i18n.t('greeting')).toBe('Hello') // Should still work from general
+      expect(i18n.t('greeting')).toBe('Hello')
     })
   })
 })

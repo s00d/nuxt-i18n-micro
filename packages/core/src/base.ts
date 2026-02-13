@@ -66,10 +66,9 @@ export abstract class BaseI18n {
     const route = routeName || this.getRoute()
 
     // 1. Try to find translation in current locale
-    // Note: In Nuxt runtime, server already merges global translations, so we don't need explicit fallback
     let value = this.helper.getTranslation<string>(locale, route, key)
 
-    // 2. Fallback to fallbackLocale if not found and different (for non-Nuxt adapters)
+    // 2. Fallback to fallbackLocale if not found and different
     if (!value) {
       const fallbackLocale = this.getFallbackLocale()
       if (locale !== fallbackLocale) {
@@ -173,11 +172,11 @@ export abstract class BaseI18n {
    * Core translation loading logic (without reactivity)
    * Subclasses can override addTranslations/addRouteTranslations to add reactivity
    */
-  public loadTranslationsCore(locale: string, translations: Translations, merge: boolean): void {
+  public loadTranslationsCore(locale: string, translations: Translations, merge: boolean, routeName = 'index'): void {
     if (merge) {
-      this.helper.mergeGlobalTranslation(locale, translations, true)
+      this.helper.mergeTranslation(locale, routeName, translations, true)
     } else {
-      this.helper.setTranslations(locale, translations)
+      this.helper.setTranslations(locale, translations, routeName)
     }
   }
 

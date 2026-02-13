@@ -165,7 +165,7 @@ await i18n.loadTranslations()
 // Middleware to set locale and route per request
 app.use(async (req, res, next) => {
   const locale = req.headers['accept-language']?.split(',')[0] || 'en'
-  const route = req.path.split('/').filter(Boolean)[0] || 'general'
+  const route = req.path.split('/').filter(Boolean)[0] || 'index'
   
   i18n.locale = locale
   i18n.setRoute(route)
@@ -277,7 +277,7 @@ await i18n.loadTranslations()
 
 // Now t() will automatically use 'home' route
 console.log(i18n.t('title')) // Looks in 'home' route translations
-console.log(i18n.t('welcome')) // Falls back to global translations
+console.log(i18n.t('welcome')) // Base translation (from index, merged into route)
 
 // Can still override with explicit routeName
 console.log(i18n.t('title', undefined, undefined, 'about')) // Uses 'about' route
@@ -324,7 +324,7 @@ async function getI18n() {
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const locale = query.locale || 'en'
-  const route = query.route || 'general'
+  const route = query.route || 'index'
 
   const i18n = await getI18n()
 
@@ -498,7 +498,7 @@ const i18n = createI18n({
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const locale = (query.locale as string) || 'en'
-  const route = (query.route as string) || 'general'
+  const route = (query.route as string) || 'index'
 
   // Set locale and route for this request
   i18n.locale = locale
@@ -512,7 +512,7 @@ export default defineEventHandler(async (event) => {
     route: i18n.getRoute(),
     // Route-specific translation
     title: i18n.t('title'),
-    // Global translation (falls back if not in route)
+    // Base translation (from index, merged into route)
     welcome: i18n.t('welcome'),
   }
 })

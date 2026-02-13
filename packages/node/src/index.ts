@@ -1,9 +1,9 @@
 import { createI18n, I18n, type I18nOptions } from './i18n'
-import { type LoadedTranslations, loadGlobalTranslations, loadTranslations } from './loader'
+import { type LoadedTranslations, loadRootTranslations, loadTranslations } from './loader'
 
 export type { LoadedTranslations, I18nOptions }
 
-export { I18n, createI18n, loadTranslations, loadGlobalTranslations }
+export { I18n, createI18n, loadTranslations, loadRootTranslations }
 
 // Re-export utilities from core
 export { FormatService, interpolate } from '@i18n-micro/core'

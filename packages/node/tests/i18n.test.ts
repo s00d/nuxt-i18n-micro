@@ -129,12 +129,12 @@ describe('I18n (Simple API)', () => {
   })
 
   describe('currentRoute and setRoute/getRoute', () => {
-    test('defaults to general route', () => {
+    test('defaults to index route', () => {
       const i18n = createI18n({
         locale: 'en',
       })
-      expect(i18n.currentRoute).toBe('general')
-      expect(i18n.getRoute()).toBe('general')
+      expect(i18n.currentRoute).toBe('index')
+      expect(i18n.getRoute()).toBe('index')
     })
 
     test('setRoute changes current route', () => {
@@ -156,7 +156,7 @@ describe('I18n (Simple API)', () => {
       i18n.addTranslations('en', translations.en)
       i18n.addRouteTranslations('en', 'home', { title: 'Home Page' })
 
-      // Default route (general) doesn't have 'title'
+      // Default route (index) doesn't have 'title'
       expect(i18n.t('title')).toBe('title')
 
       // Set route to 'home'
@@ -164,7 +164,7 @@ describe('I18n (Simple API)', () => {
       expect(i18n.t('title')).toBe('Home Page')
 
       // Can still override with explicit routeName
-      expect(i18n.t('title', undefined, undefined, 'general')).toBe('title')
+      expect(i18n.t('title', undefined, undefined, 'index')).toBe('title')
 
       warnSpy.mockRestore()
     })

@@ -3,7 +3,6 @@
 exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) no_prefix activity-hiking -> path form 1`] = `
 {
   "fullPath": "/activity/hiking",
-  "params": {},
   "path": "/activity/hiking",
 }
 `;
@@ -11,7 +10,6 @@ exports[`localeRoute fallback: name key -> path form (activity-skiing -> activit
 exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) no_prefix router does not have localized name: strategy returns object with fullPath from transformNameKeyToPath 1`] = `
 {
   "fullPath": "/activity/skiing",
-  "params": {},
   "path": "/activity/skiing",
 }
 `;
@@ -19,7 +17,6 @@ exports[`localeRoute fallback: name key -> path form (activity-skiing -> activit
 exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) no_prefix same for de locale 1`] = `
 {
   "fullPath": "/activity/skiing",
-  "params": {},
   "path": "/activity/skiing",
 }
 `;
@@ -27,7 +24,6 @@ exports[`localeRoute fallback: name key -> path form (activity-skiing -> activit
 exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix activity-hiking -> path form 1`] = `
 {
   "fullPath": "/en/activity/hiking",
-  "params": {},
   "path": "/en/activity/hiking",
 }
 `;
@@ -35,7 +31,6 @@ exports[`localeRoute fallback: name key -> path form (activity-skiing -> activit
 exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix router does not have localized name: strategy returns object with fullPath from transformNameKeyToPath 1`] = `
 {
   "fullPath": "/en/activity/skiing",
-  "params": {},
   "path": "/en/activity/skiing",
 }
 `;
@@ -43,7 +38,6 @@ exports[`localeRoute fallback: name key -> path form (activity-skiing -> activit
 exports[`localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing) prefix same for de locale 1`] = `
 {
   "fullPath": "/de/activity/skiing",
-  "params": {},
   "path": "/de/activity/skiing",
 }
 `;

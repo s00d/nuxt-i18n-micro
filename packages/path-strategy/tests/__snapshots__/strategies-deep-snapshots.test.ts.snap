@@ -122,61 +122,6 @@ exports[`strategies deep snapshots (large configs, full state) no_prefix: full s
       "targetLocale": "fr",
     },
   ],
-  "getSeoAbout": {
-    "canonical": "/about-us",
-    "hreflangs": [
-      {
-        "href": "/",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoProducts": {
-    "canonical": "/products/1",
-    "hreflangs": [
-      {
-        "href": "/products/1",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/produkte/1",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoWithQuery": {
-    "canonical": "/about-us",
-    "hreflangs": [
-      {
-        "href": "/",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
   "localeRouteByName": {
     "de": {
       "fullPath": "https://de.example.com",
@@ -396,61 +341,6 @@ exports[`strategies deep snapshots (large configs, full state) prefix: full stat
       "targetLocale": "fr",
     },
   ],
-  "getSeoAbout": {
-    "canonical": "/en/about-us",
-    "hreflangs": [
-      {
-        "href": "/",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoProducts": {
-    "canonical": "/en/products/1",
-    "hreflangs": [
-      {
-        "href": "/en/products/1",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/de/produkte/1",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoWithQuery": {
-    "canonical": "/en/about-us",
-    "hreflangs": [
-      {
-        "href": "/",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
   "localeRouteByName": {
     "de": {
       "fullPath": "https://de.example.com",
@@ -670,61 +560,6 @@ exports[`strategies deep snapshots (large configs, full state) prefix_and_defaul
       "targetLocale": "fr",
     },
   ],
-  "getSeoAbout": {
-    "canonical": "/en/about-us",
-    "hreflangs": [
-      {
-        "href": "/en/about-us",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/de/ueber-uns",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com/ru/o-nas",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoProducts": {
-    "canonical": "/en/products/1",
-    "hreflangs": [
-      {
-        "href": "/en/products/1",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/de/produkte/1",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoWithQuery": {
-    "canonical": "/en/about-us",
-    "hreflangs": [
-      {
-        "href": "/en/about-us",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/de/ueber-uns",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com/ru/o-nas",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
   "localeRouteByName": {
     "de": {
       "fullPath": "https://de.example.com/de/ueber-uns",
@@ -940,61 +775,6 @@ exports[`strategies deep snapshots (large configs, full state) prefix_except_def
       "targetLocale": "fr",
     },
   ],
-  "getSeoAbout": {
-    "canonical": "/about-us",
-    "hreflangs": [
-      {
-        "href": "/about-us",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/de/ueber-uns",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com/ru/o-nas",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoProducts": {
-    "canonical": "/products/1",
-    "hreflangs": [
-      {
-        "href": "/products/1",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/de/produkte/1",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "getSeoWithQuery": {
-    "canonical": "/about-us",
-    "hreflangs": [
-      {
-        "href": "/about-us",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://de.example.com/de/ueber-uns",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-      {
-        "href": "https://ru.example.com/ru/o-nas",
-        "hreflang": "ru",
-        "rel": "alternate",
-      },
-    ],
-  },
   "localeRouteByName": {
     "de": {
       "fullPath": "https://de.example.com/de/ueber-uns",
@@ -1143,21 +923,6 @@ exports[`strategies deep snapshots — defaultLocale and two locales only prefix
     "/de/about": "de",
     "/de/ueber-uns": "de",
     "/en/about": "en",
-  },
-  "seoResult": {
-    "canonical": "/about-us",
-    "hreflangs": [
-      {
-        "href": "/about-us",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "/de/ueber-uns",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-    ],
   },
 }
 `;

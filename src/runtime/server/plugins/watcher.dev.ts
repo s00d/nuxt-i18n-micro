@@ -1,22 +1,68 @@
 // src/runtime/server/plugins/watcher.dev.ts
 
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 
-// Use the same key as in server-loader.ts
-const CACHE_KEY = Symbol.for('__NUXT_I18N_SERVER_CACHE__')
-type ServerCache = Map<string, unknown>
-type GlobalWithCache = typeof globalThis & { [key: symbol]: ServerCache }
+// Must match keys used in server-loader.ts and storage.ts
+const SERVER_CC_KEY = Symbol.for('__NUXT_I18N_SERVER_CACHE_CC__')
+const STORAGE_CC_KEY = Symbol.for('__NUXT_I18N_STORAGE_CC__')
+type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
-function getCache(): ServerCache {
-  const g = globalThis as GlobalWithCache
-  if (!g[CACHE_KEY]) {
-    g[CACHE_KEY] = new Map()
+interface CacheLike {
+  keys(): IterableIterator<string>
+  delete(key: string): boolean
+  set(key: string, value: unknown): void
+  clear(): void
+}
+
+function getCacheByKey(key: symbol): CacheLike | null {
+  const g = globalThis as GlobalWithCC
+  const cc = g[key]
+  if (cc && typeof cc === 'object' && 'keys' in (cc as object) && 'set' in (cc as object)) {
+    return cc as CacheLike
   }
-  return g[CACHE_KEY]
+  return null
+}
+
+function getServerCache(): CacheLike | null {
+  return getCacheByKey(SERVER_CC_KEY)
+}
+
+function getStorageCache(): CacheLike | null {
+  return getCacheByKey(STORAGE_CC_KEY)
+}
+
+function readJsonSafe(filePath: string): Record<string, unknown> {
+  try {
+    if (existsSync(filePath)) {
+      return JSON.parse(readFileSync(filePath, 'utf-8'))
+    }
+  } catch { /* skip */ }
+  return {}
+}
+
+function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target }
+  for (const key in source) {
+    if (key === '__proto__' || key === 'constructor') continue
+    const src = source[key]
+    const dst = result[key]
+    if (src !== null && typeof src === 'object' && !Array.isArray(src) && dst !== null && typeof dst === 'object' && !Array.isArray(dst)) {
+      result[key] = { ...(dst as Record<string, unknown>), ...(src as Record<string, unknown>) }
+    } else {
+      result[key] = src
+    }
+  }
+  return result
+}
+
+function buildCacheEntry(data: Record<string, unknown>): { data: Record<string, unknown>; json: string } {
+  const json = JSON.stringify(data).replace(/</g, '\\u003c')
+  return { data, json }
 }
 
 let watcherInstance: FSWatcher | null = null
@@ -39,70 +85,90 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const translationsRoot = path.resolve(i18nConfig.rootDir, i18nConfig.translationDir)
   log(`Watching for translation changes in: ${translationsRoot}`)
 
-  const invalidateCache = async (filePath: string) => {
+  function mergeAndSet(serverCache: CacheLike, locale: string, pageName: string): void {
+    const rootData = readJsonSafe(path.join(translationsRoot, `${locale}.json`))
+    const pageData = readJsonSafe(path.join(translationsRoot, 'pages', pageName, `${locale}.json`))
+    const merged = deepMerge(rootData, pageData)
+    const cacheKey = `${locale}:${pageName}`
+
+    // Update server-loader cache (used by API route /_locales/...)
+    serverCache.set(cacheKey, buildCacheEntry(merged))
+
+    // Clear TranslationStorage cache (used by plugin during SSR)
+    // so the next SSR request re-fetches from the API route and gets fresh data
+    const storageCache = getStorageCache()
+    if (storageCache) {
+      storageCache.delete(cacheKey)
+    }
+
+    log(`Re-merged and cached '${cacheKey}'`)
+
+    // Also update aliases that point to this page
+    const aliases = Object.keys(routesLocaleLinks).filter((alias) => routesLocaleLinks[alias] === pageName)
+    for (const alias of aliases) {
+      const aliasKey = `${locale}:${alias}`
+      serverCache.set(aliasKey, buildCacheEntry(merged))
+      if (storageCache) {
+        storageCache.delete(aliasKey)
+      }
+      log(`Re-merged and cached alias '${aliasKey}'`)
+    }
+  }
+
+  const invalidateAndRefresh = async (filePath: string) => {
     if (!filePath.endsWith('.json')) return
 
     const relativePath = path.relative(translationsRoot, filePath).replace(/\\/g, '/')
     const isPageTranslation = relativePath.startsWith('pages/')
-    const cache = getCache()
+    const serverCache = getServerCache()
+
+    if (!serverCache) {
+      log('Server cache not yet initialized, skipping invalidation for', relativePath)
+      return
+    }
 
     try {
       if (isPageTranslation) {
         const match = relativePath.match(/^pages\/([^/]+)\/(.+)\.json$/)
-        if (!match) return
+        if (!match || !match[1] || !match[2]) return
 
-        const filePageName = match[1]
+        const pageName = match[1]
         const locale = match[2]
 
-        const aliases = Object.keys(routesLocaleLinks).filter((alias) => routesLocaleLinks[alias] === filePageName)
-        const targets = [filePageName, ...aliases]
-
-        let removed = 0
-        for (const key of cache.keys()) {
-          const parts = key.split(':')
-          if (parts.length === 2 && targets.includes(parts[1]) && parts[0] === locale) {
-            cache.delete(key)
-            removed++
-          }
-          // Also check locale:routeName format
-          if (parts[0] === locale && targets.includes(parts[1] || '')) {
-            cache.delete(key)
-            removed++
-          }
-        }
-
-        if (removed > 0) {
-          log(
-            `Invalidated page cache for '${filePageName}:${locale}' (including aliases: ${aliases.join(', ') || 'none'}). Removed ${removed} entries.`,
-          )
-        }
+        mergeAndSet(serverCache, locale, pageName)
       } else {
+        // Root file changed — re-merge all pages for this locale
         const match = relativePath.match(/^([^/]+)\.json$/)
-        if (!match) return
+        if (!match || !match[1]) return
 
         const locale = match[1]
+        const pagesDir = path.join(translationsRoot, 'pages')
 
-        let removed = 0
-        for (const key of cache.keys()) {
-          if (key.startsWith(`${locale}:`)) {
-            cache.delete(key)
-            removed++
+        // Re-merge every known page for this locale
+        if (existsSync(pagesDir)) {
+          const pageDirs = readdirSync(pagesDir, { withFileTypes: true })
+            .filter(d => d.isDirectory())
+            .map(d => d.name)
+
+          for (const pageName of pageDirs) {
+            mergeAndSet(serverCache, locale, pageName)
           }
         }
 
-        if (removed > 0) {
-          log(`Invalidated ALL page caches for locale '${locale}'. Removed ${removed} entries.`)
-        }
+        // Also re-merge 'index' (root-only pages that don't have a pages/ subdir)
+        mergeAndSet(serverCache, locale, 'index')
+
+        log(`Re-merged ALL pages for locale '${locale}'`)
       }
     } catch (e) {
-      warn('Failed to invalidate server cache for', filePath, e)
+      warn('Failed to refresh server cache for', filePath, e)
     }
   }
 
   const watcher = watch(translationsRoot, { persistent: true, ignoreInitial: true, depth: 5 })
-  watcher.on('add', invalidateCache)
-  watcher.on('change', invalidateCache)
-  watcher.on('unlink', invalidateCache)
+  watcher.on('add', invalidateAndRefresh)
+  watcher.on('change', invalidateAndRefresh)
+  watcher.on('unlink', invalidateAndRefresh)
 
   watcherInstance = watcher
 

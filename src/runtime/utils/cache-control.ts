@@ -113,6 +113,11 @@ export class CacheControl<T> {
     this.expiry.clear()
   }
 
+  /** Iterate over all cache keys. */
+  keys(): IterableIterator<string> {
+    return this.cache.keys()
+  }
+
   /** Current number of entries. */
   get size(): number {
     return this.cache.size

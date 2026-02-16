@@ -50,11 +50,6 @@ interface I18nStrategyResolvedRoute {
   hash?: string
 }
 
-interface I18nStrategySeoAttributes {
-  canonical?: string
-  hreflangs?: Array<{ rel: 'alternate', href: string, hreflang: string }>
-}
-
 /** Экземпляр стратегии (копия PathStrategy). */
 export interface I18nStrategyInstance {
   getRedirect(currentPath: string, targetLocale: string): string | null
@@ -63,8 +58,10 @@ export interface I18nStrategyInstance {
   localeRoute(targetLocale: string, routeOrPath: I18nStrategyResolvedRoute | string, currentRoute?: I18nStrategyResolvedRoute): I18nStrategyResolvedRoute | string
   switchLocaleRoute(fromLocale: string, toLocale: string, route: I18nStrategyResolvedRoute, options?: { i18nRouteParams?: Record<string, Record<string, unknown>> }): I18nStrategyResolvedRoute | string
   getCanonicalPath(route: I18nStrategyResolvedRoute, targetLocale: string): string | null
-  getSeoAttributes(currentRoute: I18nStrategyResolvedRoute): I18nStrategySeoAttributes
   setRouter(router: I18nStrategyRouterLike): void
+  getCurrentLocale(route: I18nStrategyResolvedRoute, getDefaultLocale?: () => string | null | undefined): string
+  getPluginRouteName(route: I18nStrategyResolvedRoute, locale: string): string
+  getCurrentLocaleName(route: I18nStrategyResolvedRoute, getDefaultLocale?: () => string | null | undefined): string | null
   getDefaultLocale(): string
   getLocales(): Array<{ code: string, [key: string]: unknown }>
   getStrategy(): 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'

@@ -109,6 +109,72 @@ If you need a fixed base URL instead, pass a static string:
 metaBaseUrl: 'https://example.com'
 ```
 
+### 🔍 Canonical Query Whitelist
+
+By default, query parameters are stripped from canonical and `og:url` to avoid duplicate content. You can whitelist specific query parameters that should be preserved:
+
+```typescript
+i18n: {
+  canonicalQueryWhitelist: ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
+}
+```
+
+Only parameters listed in `canonicalQueryWhitelist` will appear in canonical URLs. All other query parameters (e.g. tracking, session IDs) are removed.
+
+### 🚫 Disabling Meta Tags Per Page
+
+You can disable SEO meta tag generation for specific pages using `defineI18nRoute()`:
+
+```vue
+<script setup>
+// Disable all SEO meta tags for this page
+defineI18nRoute({
+  disableMeta: true
+})
+</script>
+```
+
+You can also disable meta only for specific locales:
+
+```vue
+<script setup>
+// Disable meta tags only for English locale on this page
+defineI18nRoute({
+  disableMeta: ['en']
+})
+</script>
+```
+
+When `disableMeta` is active, no `hreflang`, `canonical`, `og:locale`, `og:url`, or `x-default` tags are generated for the affected page/locale.
+
+### 🔇 Disabled Locales
+
+Locales with `disabled: true` are automatically excluded from all SEO tag generation — no `hreflang`, `og:locale:alternate`, or alternate links are created for them:
+
+```typescript
+i18n: {
+  locales: [
+    { code: 'en', iso: 'en-US' },
+    { code: 'fr', iso: 'fr-FR', disabled: true }, // excluded from SEO tags
+  ]
+}
+```
+
+### 📌 Strategy-Specific Behavior
+
+| Strategy | hreflang links | x-default | canonical | og:url |
+|----------|---------------|-----------|-----------|--------|
+| `prefix` | ✅ All locales | ✅ Default locale URL | ✅ Current URL | ✅ |
+| `prefix_except_default` | ✅ All locales | ✅ Unprefixed URL | ✅ Current URL | ✅ |
+| `prefix_and_default` | ✅ All locales | ✅ Default locale URL | ✅ Current URL | ✅ |
+| `no_prefix` | ❌ Not generated | ❌ Not generated | ✅ Current URL | ✅ |
+
+For the `no_prefix` strategy, only `canonical`, `og:url`, `og:locale`, and `html` attributes (`lang`, `dir`) are generated. Alternate language links (`hreflang`) and `x-default` are not generated because there are no distinct URLs per locale.
+
+### ⚠️ Trailing Slash
+
+The module generates canonical and `hreflang` URLs based on the actual path from `useRoute().fullPath`. If your application uses trailing slashes (e.g., via Nuxt's `router.options`), the generated URLs will reflect this. However, `$switchLocalePath` may normalize paths and remove trailing slashes. If trailing slash consistency is critical for your SEO, verify the generated URLs match your application's URL structure.
+
 ### 🎯 Benefits
 
 By enabling the `meta` option, you benefit from:

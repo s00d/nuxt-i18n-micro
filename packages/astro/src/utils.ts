@@ -215,7 +215,8 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
 
   const locale = getLocale(astro)
   const defaultLocale = getDefaultLocale(astro)
-  const locales = getLocales(astro)
+  const allLocales = getLocales(astro)
+  const locales = allLocales.filter((l) => !l.disabled)
   const currentLocaleObj = locales.find((l) => l.code === locale)
 
   if (!currentLocaleObj) {
@@ -238,7 +239,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
     return result
   }
 
-  // Canonical URL
+  // Canonical URL (uses pathname only — query params are excluded)
   const canonicalUrl = `${baseUrl}${astro.url.pathname}`
   result.link.push({
     rel: 'canonical',
@@ -249,10 +250,8 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   const routingStrategy = getRoutingStrategy(astro)
   const allLocaleCodes = locales.map((l) => l.code)
 
-  // Alternate languages
+  // Alternate languages (includes current locale for self-referencing hreflang, per Google guidelines)
   for (const loc of locales) {
-    if (loc.code === locale) continue
-
     let alternatePath = astro.url.pathname
     if (routingStrategy?.switchLocalePath) {
       alternatePath = routingStrategy.switchLocalePath(astro.url.pathname, loc.code, allLocaleCodes, defaultLocale)

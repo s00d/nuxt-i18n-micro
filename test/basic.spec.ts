@@ -122,6 +122,8 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
     await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
+    await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
+    await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
 
     // Test for German locale
     await goto('/de', { waitUntil: 'hydration' })
@@ -139,6 +141,8 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
     await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
+    await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
+    await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
 
     // Test for Russian locale
     await goto('/ru', { waitUntil: 'hydration' })
@@ -156,6 +160,8 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
     await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
+    await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
+    await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
   })
 
   test('test links', async ({ page, goto }) => {
@@ -596,6 +602,7 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
 
     // Test German locale - meta tags should also be disabled
     await goto('/de/disable-meta-all', { waitUntil: 'hydration' })
@@ -607,6 +614,7 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
 
     // Test French locale - meta tags should also be disabled
     await goto('/fr/disable-meta-all', { waitUntil: 'hydration' })
@@ -618,6 +626,7 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
   })
 
   test('disable meta tags for specific locale', async ({ page, goto, baseURL }) => {
@@ -633,6 +642,7 @@ test.describe('basic', () => {
     await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
     await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
 
     // Test German locale - meta tags should be present
     await goto('/de/disable-meta-locale', { waitUntil: 'hydration' })

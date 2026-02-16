@@ -125,11 +125,16 @@ These tests clearly indicate that `Nuxt I18n Micro` offers superior performance 
 
 ### 🛠️ Minimalist Design
 
-`Nuxt I18n Micro` is built around a minimalist architecture, using only 5 components (1 module and 4 plugins). This reduces overhead and simplifies the internal logic, leading to improved performance.
+`Nuxt I18n Micro` is built around a minimalist architecture with a small core and dedicated strategy packages. This reduces overhead and simplifies the internal logic, leading to improved performance.
 
 ### 🚦 Efficient Routing
 
-Unlike other i18n modules that generate a separate route for each locale, `Nuxt I18n Micro` uses dynamic regex-based routing. This approach generates only two routes regardless of the number of locales, significantly reducing the complexity of your routing configuration and speeding up route resolution.
+In v3, route generation and runtime path logic are split into dedicated packages for optimal tree-shaking:
+
+- **`@i18n-micro/route-strategy`** — Build-time route generation: extends Nuxt pages with localized routes. Only the selected strategy (`no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`) is included.
+- **`@i18n-micro/path-strategy`** — Runtime path resolution, redirects, and link generation. Uses pure functions and pre-computed context flags to minimize allocations on hot paths. Subpath exports (`/prefix`, `/no-prefix`, etc.) ensure only the chosen implementation is bundled.
+
+This approach keeps the routing configuration lightweight and ensures fast route resolution regardless of the number of locales.
 
 ### 📂 Streamlined Translation Loading
 

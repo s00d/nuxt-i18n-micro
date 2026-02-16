@@ -1,6 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
 import { inject, ref } from 'vue'
-import { I18nRouterKey } from '../injection'
+import { I18nDefaultLocaleKey, I18nRouterKey } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
 import { useI18n } from '../use-i18n'
 
@@ -177,8 +177,34 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       return links
     })
 
+    // Generate x-default hreflang link pointing to the default locale's URL.
+    // x-default tells search engines which URL to show when none of the
+    // specified languages match the user's browser settings.
+    const injectedDefaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined)
+    let xDefaultLink: MetaLink | null = null
+    if (i18nLocaleRoute && routerStrategy && injectedDefaultLocale) {
+      const currentPath = routerStrategy.getCurrentPath()
+      const defaultPathResult = i18nLocaleRoute(currentPath, injectedDefaultLocale)
+      const defaultPath = typeof defaultPathResult === 'string' ? defaultPathResult : defaultPathResult?.path || '/'
+      if (defaultPath) {
+        let xDefaultHref: string
+        if (defaultPath.startsWith('http://') || defaultPath.startsWith('https://')) {
+          xDefaultHref = defaultPath
+        } else {
+          const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
+          xDefaultHref = `${baseUrlValue}${defaultPath.startsWith('/') ? '' : '/'}${defaultPath}`
+        }
+        xDefaultLink = {
+          [identifierAttribute]: 'i18n-xd',
+          rel: 'alternate',
+          href: xDefaultHref,
+          hreflang: 'x-default',
+        }
+      }
+    }
+
     metaObject.value.meta = [ogLocaleMeta, ogUrlMeta, ...alternateOgLocalesMeta]
-    metaObject.value.link = [canonicalLink, ...alternateLinks]
+    metaObject.value.link = [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])]
   }
 
   return {

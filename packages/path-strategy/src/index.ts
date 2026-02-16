@@ -1,9 +1,11 @@
-export * from './core'
-export * from './strategies'
 export {
+  analyzeRoute,
   buildLocalizedName,
   type GetRouteBaseNameOptions,
   getRouteBaseName,
   type IsIndexRouteNameOptions,
   isIndexRouteName,
-} from './utils/route-name'
+  type RouteAnalysis,
+} from './resolver'
+export * from './strategies'
+export * from './types'

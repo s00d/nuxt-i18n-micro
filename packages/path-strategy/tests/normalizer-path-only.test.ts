@@ -2,7 +2,7 @@
  * TDD: getPathWithoutLocale must return pathWithoutLocale without query and hash,
  * otherwise getRedirect gives wrong result and redirect loop / query loss on navigation may occur.
  */
-import { getPathWithoutLocale } from '../src/core/normalizer'
+import { getPathWithoutLocale } from '../src/path'
 
 const localeCodes = ['en', 'de', 'ru']
 

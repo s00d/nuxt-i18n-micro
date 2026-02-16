@@ -1,9 +1,10 @@
 /**
  * Tests for resolver.ts - coverage for uncovered lines
+ * Adapted to pure functions (no RouteResolver class).
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike } from '../src'
-import { RouteResolver } from '../src/core/resolver'
+import { getAllowedLocalesForRoute, getParentPathForNested, getPathForUnlocalizedRoute, getPathForUnlocalizedRouteByName } from '../src/resolver'
 import { makePathStrategyContext } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -30,7 +31,6 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { about: false },
     })
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -38,7 +38,7 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
       params: {},
     }
 
-    const result = resolver.getPathForUnlocalizedRoute(route)
+    const result = getPathForUnlocalizedRoute(ctx, route)
     expect(result).toBe('/about')
   })
 
@@ -46,7 +46,6 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { 'special-page': false },
     })
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'localized-special-page-en',
       path: '/special/page',
@@ -54,7 +53,7 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
       params: {},
     }
 
-    const result = resolver.getPathForUnlocalizedRoute(route)
+    const result = getPathForUnlocalizedRoute(ctx, route)
     expect(result).toBe('/special/page')
   })
 
@@ -62,7 +61,6 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { 'my-page': false },
     })
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'localized-my-page-en',
       path: '/my/page',
@@ -70,7 +68,7 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
       params: {},
     }
 
-    const result = resolver.getPathForUnlocalizedRoute(route)
+    const result = getPathForUnlocalizedRoute(ctx, route)
     expect(result).toBe('/my/page')
   })
 
@@ -78,7 +76,6 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { other: { en: '/other-en', de: '/other-de' } },
     })
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -86,7 +83,7 @@ describe('PathResolver - getPathForUnlocalizedRoute', () => {
       params: {},
     }
 
-    const result = resolver.getPathForUnlocalizedRoute(route)
+    const result = getPathForUnlocalizedRoute(ctx, route)
     expect(result).toBeNull()
   })
 })
@@ -96,9 +93,8 @@ describe('PathResolver - getPathForUnlocalizedRouteByName', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { about: false },
     })
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getPathForUnlocalizedRouteByName('about')
+    const result = getPathForUnlocalizedRouteByName(ctx, 'about')
     expect(result).toBe('/about')
   })
 
@@ -106,9 +102,8 @@ describe('PathResolver - getPathForUnlocalizedRouteByName', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { '/contact': false },
     })
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getPathForUnlocalizedRouteByName('/contact')
+    const result = getPathForUnlocalizedRouteByName(ctx, '/contact')
     expect(result).toBe('/contact')
   })
 
@@ -116,17 +111,15 @@ describe('PathResolver - getPathForUnlocalizedRouteByName', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { page: { en: '/page-en', de: '/seite' } },
     })
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getPathForUnlocalizedRouteByName('page')
+    const result = getPathForUnlocalizedRouteByName(ctx, 'page')
     expect(result).toBeNull()
   })
 
   test('returns null when globalLocaleRoutes is empty', () => {
     const ctx = makeCtx({})
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getPathForUnlocalizedRouteByName('page')
+    const result = getPathForUnlocalizedRouteByName(ctx, 'page')
     expect(result).toBeNull()
   })
 })
@@ -134,7 +127,6 @@ describe('PathResolver - getPathForUnlocalizedRouteByName', () => {
 describe('PathResolver - getAllowedLocalesForRoute', () => {
   test('returns all locales when routeLocales is empty', () => {
     const ctx = makeCtx({})
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'about',
       path: '/about',
@@ -142,7 +134,7 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
       params: {},
     }
 
-    const result = resolver.getAllowedLocalesForRoute(route)
+    const result = getAllowedLocalesForRoute(ctx, route)
     expect(result).toEqual(['en', 'de', 'ru'])
   })
 
@@ -150,7 +142,6 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
     const ctx = makeCtx({
       routeLocales: { about: ['en', 'de'] },
     })
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -158,7 +149,7 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
       params: {},
     }
 
-    const result = resolver.getAllowedLocalesForRoute(route)
+    const result = getAllowedLocalesForRoute(ctx, route)
     expect(result).toEqual(['en', 'de'])
   })
 
@@ -166,7 +157,6 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
     const ctx = makeCtx({
       routeLocales: { page: ['en', 'fr', 'invalid'] },
     })
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'localized-page-en',
       path: '/page',
@@ -174,8 +164,7 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
       params: {},
     }
 
-    const result = resolver.getAllowedLocalesForRoute(route)
-    // Only en is valid from the list
+    const result = getAllowedLocalesForRoute(ctx, route)
     expect(result).toEqual(['en'])
   })
 
@@ -184,7 +173,6 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
       routeLocales: { 'main-page': ['en', 'ru'] },
       routesLocaleLinks: { about: 'main-page' },
     })
-    const resolver = new RouteResolver(ctx)
     const route: ResolvedRouteLike = {
       name: 'localized-about-en',
       path: '/about',
@@ -192,7 +180,7 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
       params: {},
     }
 
-    const result = resolver.getAllowedLocalesForRoute(route)
+    const result = getAllowedLocalesForRoute(ctx, route)
     expect(result).toEqual(['en', 'ru'])
   })
 })
@@ -200,9 +188,8 @@ describe('PathResolver - getAllowedLocalesForRoute', () => {
 describe('PathResolver - getParentPathForNested', () => {
   test('returns "/" for single segment', () => {
     const ctx = makeCtx({})
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getParentPathForNested(['index'], 'en')
+    const result = getParentPathForNested(ctx, ['index'], 'en')
     expect(result).toBe('/')
   })
 
@@ -212,9 +199,8 @@ describe('PathResolver - getParentPathForNested', () => {
         docs: { en: '/documentation', de: '/dokumentation' },
       },
     })
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getParentPathForNested(['docs', 'intro'], 'en')
+    const result = getParentPathForNested(ctx, ['docs', 'intro'], 'en')
     expect(result).toBe('/documentation')
   })
 
@@ -224,9 +210,8 @@ describe('PathResolver - getParentPathForNested', () => {
         docs: { en: '/documentation', de: '/dokumentation' },
       },
     })
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getParentPathForNested(['docs', 'intro'], 'de')
+    const result = getParentPathForNested(ctx, ['docs', 'intro'], 'de')
     expect(result).toBe('/dokumentation')
   })
 
@@ -234,17 +219,15 @@ describe('PathResolver - getParentPathForNested', () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { other: { en: '/other' } },
     })
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getParentPathForNested(['docs', 'guide', 'intro'], 'en')
+    const result = getParentPathForNested(ctx, ['docs', 'guide', 'intro'], 'en')
     expect(result).toBe('/docs/guide')
   })
 
   test('returns joined path when globalLocaleRoutes is empty', () => {
     const ctx = makeCtx({})
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getParentPathForNested(['parent', 'child'], 'de')
+    const result = getParentPathForNested(ctx, ['parent', 'child'], 'de')
     expect(result).toBe('/parent')
   })
 
@@ -254,9 +237,8 @@ describe('PathResolver - getParentPathForNested', () => {
         'a-b-c': { en: '/nested/path', de: '/verschachtelt/pfad' },
       },
     })
-    const resolver = new RouteResolver(ctx)
 
-    const result = resolver.getParentPathForNested(['a', 'b', 'c', 'd'], 'de')
+    const result = getParentPathForNested(ctx, ['a', 'b', 'c', 'd'], 'de')
     expect(result).toBe('/verschachtelt/pfad')
   })
 })

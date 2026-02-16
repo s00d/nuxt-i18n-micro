@@ -1,6 +1,6 @@
 /**
  * Deep tests: large configs for all strategies, full state in snapshots.
- * Documents resolveLocaleFromPath, getRedirect, localeRoute, getSeoAttributes, switchLocaleRoute, getCanonicalPath behavior.
+ * Documents resolveLocaleFromPath, getRedirect, localeRoute, switchLocaleRoute, getCanonicalPath behavior.
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
@@ -148,10 +148,6 @@ function snapshotState(strategyName: StrategyName) {
     localeRouteByName[loc] = strategy.localeRoute(loc, { name: 'localized-about-en', path: '/about' }, currentRouteAbout)
   }
 
-  const getSeoAbout = strategy.getSeoAttributes(currentRouteAbout)
-  const getSeoProducts = strategy.getSeoAttributes(currentRouteProducts)
-  const getSeoWithQuery = strategy.getSeoAttributes(currentRouteWithQuery)
-
   const switchFromEnToDe = strategy.switchLocaleRoute('en', 'de', currentRouteAbout, {})
   const switchWithParams = strategy.switchLocaleRoute('en', 'de', currentRouteProducts, {
     i18nRouteParams: { de: { id: '2' } },
@@ -168,9 +164,6 @@ function snapshotState(strategyName: StrategyName) {
     getRedirect,
     localeRouteByPath,
     localeRouteByName,
-    getSeoAbout,
-    getSeoProducts,
-    getSeoWithQuery,
     switchFromEnToDe,
     switchWithParams,
     getCanonical,
@@ -253,7 +246,6 @@ describe('strategies deep snapshots — defaultLocale and two locales only', () 
         en: strategy.localeRoute('en', '/about', currentRouteAbout),
         de: strategy.localeRoute('de', '/about', currentRouteAbout),
       },
-      seoResult: strategy.getSeoAttributes(currentRouteAbout),
       canonicalResult: { en: strategy.getCanonicalPath(currentRouteAbout, 'en'), de: strategy.getCanonicalPath(currentRouteAbout, 'de') },
     }
     expect(state).toMatchSnapshot()

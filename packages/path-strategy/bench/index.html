@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>path-strategy perf benchmark</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; background: #0d1117; color: #c9d1d9; padding: 24px; }
+    h1 { font-size: 18px; margin-bottom: 12px; color: #58a6ff; }
+    .meta { font-size: 12px; color: #8b949e; margin-bottom: 16px; }
+    #progress { margin-bottom: 16px; }
+    .progress-bar { width: 100%; height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+    .progress-fill { height: 100%; background: #58a6ff; transition: width 0.1s; }
+    #status { font-size: 13px; color: #8b949e; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+    th { text-align: left; padding: 6px 10px; background: #161b22; border-bottom: 1px solid #30363d; color: #8b949e; font-weight: 600; }
+    td { padding: 5px 10px; border-bottom: 1px solid #21262d; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pos { color: #3fb950; }
+    .neg { color: #f85149; }
+    .regression { background: rgba(248, 81, 73, 0.1); }
+    .suite-header td { background: #161b22; font-weight: 600; color: #58a6ff; padding: 8px 10px; }
+    .btn { padding: 8px 16px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; border-radius: 6px; cursor: pointer; font-size: 13px; margin-right: 8px; }
+    .btn:hover { background: #30363d; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .actions { margin-bottom: 16px; }
+    #summary { margin-top: 12px; padding: 12px; background: #161b22; border-radius: 6px; font-size: 13px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>@i18n-micro/path-strategy — Browser Performance</h1>
+  <div class="meta" id="env"></div>
+
+  <div class="actions">
+    <button class="btn" id="runBtn" onclick="start()">Run Benchmark</button>
+    <button class="btn" id="clearBtn" onclick="clearBaseline()">Clear Baseline</button>
+  </div>
+
+  <div id="progress" style="display:none">
+    <div id="status">Warming up...</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div id="results"></div>
+  <div id="summary" style="display:none"></div>
+
+  <script type="module">
+    import { runBenchmarks } from './main.ts'
+
+    const envEl = document.getElementById('env')
+    envEl.textContent = `${navigator.userAgent.split(') ')[0]}) | ${new Date().toLocaleString()}`
+
+    window.start = () => {
+      const btn = document.getElementById('runBtn')
+      const prog = document.getElementById('progress')
+      const fill = document.getElementById('progressFill')
+      const statusEl = document.getElementById('status')
+      const resultsEl = document.getElementById('results')
+      const summaryEl = document.getElementById('summary')
+
+      btn.disabled = true
+      prog.style.display = 'block'
+      resultsEl.innerHTML = ''
+      summaryEl.style.display = 'none'
+
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const { results, baseline } = runBenchmarks((p) => {
+            const pct = ((p.current / p.total) * 100).toFixed(0)
+            fill.style.width = `${pct}%`
+            statusEl.textContent = `[${p.current + 1}/${p.total}] ${p.name}`
+          })
+
+          fill.style.width = '100%'
+          statusEl.textContent = 'Done!'
+
+          renderResults(results, baseline)
+
+          window.__BENCH_RESULTS__ = results
+          window.__BENCH_DONE__ = true
+
+          btn.disabled = false
+        }, 50)
+      })
+    }
+
+    window.clearBaseline = () => {
+      localStorage.removeItem('path-strategy-perf-baseline')
+      document.getElementById('summary').textContent = 'Baseline cleared.'
+      document.getElementById('summary').style.display = 'block'
+    }
+
+    function renderResults(results, baseline) {
+      const el = document.getElementById('results')
+      const sumEl = document.getElementById('summary')
+
+      // Split into path utils and strategies
+      const pathUtils = results.filter(r => !r.name.includes(':'))
+      const strategies = results.filter(r => r.name.includes(':'))
+
+      let html = ''
+      html += renderTable('Path Utilities', pathUtils, baseline)
+      html += renderTable('Strategies', strategies, baseline)
+      el.innerHTML = html
+
+      const regressions = results.filter(r => r.regression)
+      let summary = baseline
+        ? `Baseline: ${Object.keys(baseline).length} entries\n`
+        : 'No previous baseline — saved current as new baseline.\n'
+      if (regressions.length > 0) {
+        summary += `\n${regressions.length} REGRESSION(S):\n`
+        for (const r of regressions) {
+          summary += `  ${r.name}: ${r.opsPerMs.toFixed(1)} vs ${r.prevOpsPerMs?.toFixed(1)} ops/ms (${r.deltaPct?.toFixed(1)}%)\n`
+        }
+      } else {
+        summary += 'No regressions.'
+      }
+      sumEl.textContent = summary
+      sumEl.style.display = 'block'
+    }
+
+    function renderTable(title, rows, baseline) {
+      const hasBaseline = baseline !== null
+      let html = '<table>'
+      html += `<tr class="suite-header"><td colspan="5">${title}</td></tr>`
+      html += '<tr><th>Function</th><th class="num">ops/ms</th>'
+      if (hasBaseline) html += '<th class="num">prev</th><th class="num">delta</th><th></th>'
+      else html += '<th class="num">ms</th><th></th><th></th>'
+      html += '</tr>'
+
+      for (const r of rows) {
+        const cls = r.regression ? ' class="regression"' : ''
+        html += `<tr${cls}>`
+        html += `<td>${r.name}</td>`
+        html += `<td class="num">${r.opsPerMs.toFixed(1)}</td>`
+
+        if (hasBaseline && r.prevOpsPerMs !== null) {
+          const sign = r.deltaPct >= 0 ? '+' : ''
+          const colorCls = r.deltaPct > 10 ? 'pos' : r.regression ? 'neg' : ''
+          html += `<td class="num">${r.prevOpsPerMs.toFixed(1)}</td>`
+          html += `<td class="num ${colorCls}">${sign}${r.deltaPct.toFixed(1)}%</td>`
+          html += `<td>${r.regression ? '!!' : r.deltaPct > 10 ? '^^' : ''}</td>`
+        } else {
+          html += `<td class="num">${r.totalMs.toFixed(2)}</td><td></td><td></td>`
+        }
+        html += '</tr>'
+      }
+      html += '</table>'
+      return html
+    }
+  </script>
+</body>
+</html>

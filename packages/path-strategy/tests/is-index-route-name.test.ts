@@ -1,4 +1,4 @@
-import { isIndexRouteName } from '../src/utils/route-name'
+import { isIndexRouteName } from '../src/resolver'
 
 const localeCodes = ['en', 'de', 'ru', 'en-US']
 

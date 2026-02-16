@@ -10,7 +10,7 @@ import {
   normalizePath,
   parentKeyFromSlashKey,
   transformNameKeyToPath,
-} from '../src/utils/path'
+} from '../src/path'
 
 describe('parentKeyFromSlashKey', () => {
   test('activity-locale/hiking -> activity-locale', () => {

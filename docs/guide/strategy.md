@@ -160,13 +160,13 @@ The redirect plugin determines the preferred locale in this order:
 
 ```typescript
 i18n: {
-  redirects: false // Disables all redirect logic; 404 checks still active
+  redirects: false // Disables automatic locale redirects
 }
 ```
 
-When `redirects: false`, the redirect plugin still performs:
-- 404 checks for invalid locale prefixes
-- Cookie synchronization from URL prefix
+When `redirects: false`, the redirect plugin (`06.redirect`) is still registered but only the redirect logic is disabled. The plugin continues to perform:
+- **404 checks** for invalid locale prefixes (e.g. `/xx/about` where `xx` is not a valid locale)
+- **Cookie synchronization** from URL prefix (e.g. visiting `/fr/about` syncs the cookie to `fr`)
 
 ## 🍪 Cookie-Based Locale Persistence
 

@@ -1,4 +1,4 @@
-import type { PathStrategy, PathStrategyContext } from '../core/types'
+import type { PathStrategy, PathStrategyContext } from '../types'
 import { NoPrefixPathStrategy } from './no-prefix'
 import { PrefixPathStrategy } from './prefix'
 import { PrefixAndDefaultPathStrategy } from './prefix-and-default'

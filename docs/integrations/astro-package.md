@@ -2437,6 +2437,7 @@ const { htmlAttrs, link, meta } = useLocaleHead(Astro, {
 - `html[dir]` - Text direction (if enabled)
 - `link[rel="canonical"]` - Canonical URL
 - `link[rel="alternate"][hreflang]` - Alternate language links (uses routing strategy if available)
+- `link[rel="alternate"][hreflang="x-default"]` - Default language fallback for unmatched user languages
 - `meta[property="og:locale"]` - Open Graph locale
 - `meta[property="og:url"]` - Open Graph URL
 - `meta[property="og:locale:alternate"]` - Alternate Open Graph locales

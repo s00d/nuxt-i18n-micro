@@ -68,15 +68,12 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   // === LOCALE SERVICE ===
   const { locale: localeState, setLocale, getLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale } = useI18nLocale()
 
-  // Getter for locale state (used by getCurrentLocale for hashMode/noPrefix)
-  const getDefaultLocaleGetter = () => getLocale() ?? null
-
   const translationService = new FormatService()
 
   // Helper: get current locale from route using i18nStrategy
   const getCurrentLocale = (route?: ResolvedRouteLike): string => {
     const r = route ?? (router.currentRoute.value as unknown as ResolvedRouteLike)
-    return i18nStrategy.getCurrentLocale(r, getDefaultLocaleGetter)
+    return i18nStrategy.getCurrentLocale(r, getLocale() ?? null)
   }
 
   // Helper: get plugin route name for translation loading
@@ -393,7 +390,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     i18nStrategy,
     getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) =>
       getEffectiveLocale(route, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike)),
-    getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value as unknown as ResolvedRouteLike),
+    getLocaleName: () => i18nStrategy.getCurrentLocaleName(router.currentRoute.value as unknown as ResolvedRouteLike, getLocale() ?? null),
     defaultLocale: () => i18nConfig.defaultLocale,
     getLocales: () => i18nConfig.locales || [],
     getRouteName,

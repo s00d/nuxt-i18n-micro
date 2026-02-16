@@ -680,7 +680,7 @@ switchLocale('fr')
 
 ### `useLocaleHead(options?: UseLocaleHeadOptions)`
 
-Generates SEO meta tags and links for locale switching.
+Generates SEO meta tags and links for locale switching. Includes canonical URL, `hreflang` alternate links for all locales, `hreflang="x-default"` link pointing to the default locale URL, and Open Graph locale meta tags.
 
 **Options:**
 

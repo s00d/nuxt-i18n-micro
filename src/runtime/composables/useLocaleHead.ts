@@ -139,6 +139,8 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       href: ogUrl,
     }
 
+    const defaultLocale = i18nConfig.defaultLocale || 'en'
+
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
@@ -157,7 +159,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
             href = joinURL(unref(baseUrl), switchedPath.startsWith('/') ? switchedPath : `/${switchedPath}`)
           }
 
-          const links = [
+          const links: MetaLink[] = [
             {
               [identifierAttribute]: `i18n-alternate-${loc.code}`,
               rel: 'alternate',
@@ -178,8 +180,30 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
           return links
         })
 
+    // Generate x-default hreflang link pointing to the default locale's URL.
+    // x-default tells search engines which URL to show when none of the
+    // specified languages match the user's browser settings.
+    let xDefaultLink: MetaLink | null = null
+    if (!isNoPrefixStrategy(strategy!)) {
+      const defaultSwitchedPath = $switchLocalePath(defaultLocale)
+      if (defaultSwitchedPath) {
+        let xDefaultHref: string
+        if (defaultSwitchedPath.startsWith('http://') || defaultSwitchedPath.startsWith('https://')) {
+          xDefaultHref = defaultSwitchedPath
+        } else {
+          xDefaultHref = joinURL(unref(baseUrl), defaultSwitchedPath.startsWith('/') ? defaultSwitchedPath : `/${defaultSwitchedPath}`)
+        }
+        xDefaultLink = {
+          [identifierAttribute]: 'i18n-xd',
+          rel: 'alternate',
+          href: xDefaultHref,
+          hreflang: 'x-default',
+        }
+      }
+    }
+
     metaObject.value.meta = [ogLocaleMeta, ogUrlMeta, ...alternateOgLocalesMeta]
-    metaObject.value.link = [canonicalLink, ...alternateLinks]
+    metaObject.value.link = [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])]
   }
 
   return { metaObject, updateMeta }

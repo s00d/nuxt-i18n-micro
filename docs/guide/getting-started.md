@@ -572,10 +572,10 @@ components: false // Disable built-in i18n components
 Automatically detects user's preferred language.
 
 **Type**: `boolean`  
-**Default**: `false`
+**Default**: `true`
 
 ```typescript
-autoDetectLanguage: true
+autoDetectLanguage: false
 ```
 
 #### `autoDetectPath`
@@ -651,7 +651,7 @@ localeCookie: null
 Defines the path prefix for fetching cached translations. This is a path prefix only, not a full URL.
 
 **Type**: `string`  
-**Default**: `'/_locales'`  
+**Default**: `'_locales'`  
 **Environment Variable**: `NUXT_I18N_APP_BASE_URL`
 
 ```typescript
@@ -692,7 +692,64 @@ When `apiBaseServerHost` is set, server-side translations will be fetched from `
 Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/external domain hosting, and `apiBaseServerHost` for server-side CDN/external domain hosting. This allows you to use different CDNs for client and server requests.
 :::
 
+### 🔒 Proxy & Security
+
+#### `metaTrustForwardedHost`
+
+Trust the `X-Forwarded-Host` header when resolving the base URL for meta tags. Enable when the app runs behind a reverse proxy (nginx, Cloudflare, AWS ALB, etc.) that sets this header to the real client-facing hostname.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+metaTrustForwardedHost: false // Ignore X-Forwarded-Host header
+```
+
+#### `metaTrustForwardedProto`
+
+Trust the `X-Forwarded-Proto` header when resolving the protocol for meta tags. Enable when the app runs behind a TLS-terminating proxy so that canonical URLs use `https://` even though the app itself listens on HTTP.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+metaTrustForwardedProto: false // Ignore X-Forwarded-Proto header
+```
+
 ### 🔄 Additional Features
+
+#### `noPrefixRedirect`
+
+When using `no_prefix` strategy, controls whether paths that start with a locale segment (e.g. `/en/about`) are automatically redirected to the unprefixed version (`/about`).
+
+**Type**: `boolean`  
+**Default**: `false`
+
+```typescript
+noPrefixRedirect: true // Enable stripping locale prefix in no_prefix strategy
+```
+
+#### `excludePatterns`
+
+URL patterns (strings or RegExp) to exclude from i18n processing entirely. Matching routes won't get locale prefixes, redirects, or translation loading. Internal Nuxt paths (`/__nuxt_error`, etc.) are always excluded automatically.
+
+**Type**: `(string | RegExp)[]`  
+**Default**: `undefined`
+
+```typescript
+excludePatterns: ['/api', '/admin', /^\/internal\/.*/]
+```
+
+#### `localizedRouteNamePrefix`
+
+Prefix prepended to localized route names (e.g. `localized-index`). Used internally to distinguish original routes from generated locale variants. You rarely need to change this.
+
+**Type**: `string`  
+**Default**: `'localized-'`
+
+```typescript
+localizedRouteNamePrefix: 'i18n-' // Custom prefix for localized route names
+```
 
 #### `hmr`
 

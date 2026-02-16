@@ -21,8 +21,13 @@ export default defineConfig({
       output: {
         exports: 'named',
       },
+      onwarn(warning, warn) {
+        if (warning.code === 'EMPTY_BUNDLE') return
+        warn(warning)
+      },
     },
     sourcemap: true,
+    minify: 'esbuild',
   },
   plugins: [
     dts({

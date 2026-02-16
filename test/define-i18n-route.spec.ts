@@ -99,6 +99,17 @@ test.describe('$defineI18nRoute behavior', () => {
     // Check that there are alternate links for 'en'
     expect(html).toContain('hreflang="en"')
     expect(html).toContain('hreflang="en_EN"')
+
+    // Check that x-default hreflang link is present
+    expect(html).toContain('hreflang="x-default"')
+  })
+
+  test('should generate x-default hreflang pointing to the default locale URL', async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+    await goto('/test', { waitUntil: 'domcontentloaded' })
+
+    const xDefault = page.locator('link[hreflang="x-default"]')
+    await expect(xDefault).toHaveAttribute('href', `${normalizedBaseURL}/test`)
   })
 })
 

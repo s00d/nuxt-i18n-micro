@@ -1,6 +1,53 @@
 # Changelog
 
 
+## v3.10.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.9.0...v3.10.0)
+
+### 🚀 Enhancements
+
+- **path:** Add path utility functions for i18n routing ([fa4f4265](https://github.com/s00d/nuxt-i18n-micro/commit/fa4f4265))
+- **resolver:** Add path resolver for custom locale routes ([3919379f](https://github.com/s00d/nuxt-i18n-micro/commit/3919379f))
+- **path-strategy:** Add standalone strategy helper functions ([ec92229e](https://github.com/s00d/nuxt-i18n-micro/commit/ec92229e))
+- **path-strategy:** Add default implementations for locale route handling ([de0dc198](https://github.com/s00d/nuxt-i18n-micro/commit/de0dc198))
+
+### 🩹 Fixes
+
+- **path-strategy:** Update import path for types ([9937e090](https://github.com/s00d/nuxt-i18n-micro/commit/9937e090))
+- **locale:** Streamline locale retrieval in i18n plugin ([ef7000f6](https://github.com/s00d/nuxt-i18n-micro/commit/ef7000f6))
+
+### 💅 Refactors
+
+- **path-strategy:** Reorganize exports for improved clarity ([8cf248c8](https://github.com/s00d/nuxt-i18n-micro/commit/8cf248c8))
+- **types:** Consolidate and enhance type definitions for path strategy ([846ce953](https://github.com/s00d/nuxt-i18n-micro/commit/846ce953))
+- **path-strategy:** Remove unused path and route name utilities ([f0fb25f6](https://github.com/s00d/nuxt-i18n-micro/commit/f0fb25f6))
+- **path-strategy:** Remove unused route building and normalization code ([fb3da70c](https://github.com/s00d/nuxt-i18n-micro/commit/fb3da70c))
+- **path-strategy:** Simplify no-prefix strategy implementation ([051d36a3](https://github.com/s00d/nuxt-i18n-micro/commit/051d36a3))
+- **prefix:** Simplify no-prefix strategy implementation ([4932534c](https://github.com/s00d/nuxt-i18n-micro/commit/4932534c))
+- **prefix-and-default:** Simplify no-prefix strategy implementation ([ec6f1a66](https://github.com/s00d/nuxt-i18n-micro/commit/ec6f1a66))
+- **prefix-except-default:** Simplify no-prefix strategy implementation ([f4383d24](https://github.com/s00d/nuxt-i18n-micro/commit/f4383d24))
+- **base:** Simplify strategy implementation ([3f6db7d7](https://github.com/s00d/nuxt-i18n-micro/commit/3f6db7d7))
+- **tests:** Remove obsolete snapshot data for SEO attributes ([4c024cc9](https://github.com/s00d/nuxt-i18n-micro/commit/4c024cc9))
+- **tests:** Remove obsolete tests and streamline test structure ([e7faf82c](https://github.com/s00d/nuxt-i18n-micro/commit/e7faf82c))
+- **internals:** Remove unused `I18nStrategySeoAttributes` interface ([5a422b87](https://github.com/s00d/nuxt-i18n-micro/commit/5a422b87))
+
+### 📖 Documentation
+
+- **path-strategy:** Update README with new API methods and optimizations ([ed799064](https://github.com/s00d/nuxt-i18n-micro/commit/ed799064))
+- **performance:** Update performance guide with routing strategy details ([e08dce76](https://github.com/s00d/nuxt-i18n-micro/commit/e08dce76))
+- **performance:** Update performance guide with routing strategy details ([64210d2e](https://github.com/s00d/nuxt-i18n-micro/commit/64210d2e))
+
+### 🏡 Chore
+
+- **path-strategy:** Enhance Vite config for warnings and minification ([6807d16d](https://github.com/s00d/nuxt-i18n-micro/commit/6807d16d))
+- **path-strategy:** Bump version to 1.3.0 and update scripts ([f8c9b925](https://github.com/s00d/nuxt-i18n-micro/commit/f8c9b925))
+- **.gitignore:** Add pattern to ignore performance test output ([1f8c81df](https://github.com/s00d/nuxt-i18n-micro/commit/1f8c81df))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.9.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.8.1...v3.9.0)

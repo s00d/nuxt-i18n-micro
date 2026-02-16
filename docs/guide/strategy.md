@@ -203,7 +203,7 @@ When `true`, the server middleware checks the `Accept-Language` header to detect
 
 ```typescript
 i18n: {
-  autoDetectLanguage: true // Default: false
+  autoDetectLanguage: true // Default: true
 }
 ```
 

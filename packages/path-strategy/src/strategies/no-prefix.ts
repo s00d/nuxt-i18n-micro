@@ -1,69 +1,54 @@
-import { cleanDoubleSlashes } from 'ufo'
-import type { ResolvedRouteLike, RouteLike } from '../core/types'
-import { normalizePath } from '../utils/path'
+import { cleanDoubleSlashes, normalizePath } from '../path'
+import { resolveCustomPath } from '../resolver'
+import type { NormalizedRouteInput, ResolvedRouteLike, RouteLike, SwitchLocaleOptions } from '../types'
 import { BasePathStrategy } from './base-strategy'
+import { defaultResolveLocaleRoute, defaultSwitchLocaleRoute } from './common'
 
 export class NoPrefixPathStrategy extends BasePathStrategy {
-  protected buildLocalizedPath(path: string, _locale: string, _isCustom: boolean): string {
+  override buildLocalizedPath(path: string, _locale: string, _isCustom: boolean): string {
     return normalizePath(path)
   }
 
-  protected buildLocalizedRouteName(baseName: string, locale: string): string {
-    return this.buildLocalizedName(baseName, locale)
-  }
-
   override getCanonicalPath(route: ResolvedRouteLike, targetLocale: string): string | null {
-    const segment = this.getCustomPathSegment(route, targetLocale)
+    const segment = resolveCustomPath(this.ctx, route, targetLocale) ?? ''
     if (!segment) return null
-    return segment.startsWith('/') ? segment : `/${segment}`
+    return segment.charCodeAt(0) === 47 ? segment : `/${segment}`
   }
 
-  resolveLocaleFromPath(_path: string): string | null {
+  override resolveLocaleFromPath(_path: string): string | null {
     return null
   }
 
-  override getLocaleFromPath(path: string): string | null {
-    return super.getLocaleFromPath(path)
-  }
-
-  /** NoPrefix: when router does not know the route — return source route unchanged. */
-  protected override getSwitchLocaleFallbackWhenNoRoute(route: ResolvedRouteLike, _targetName: string): RouteLike | string {
+  override getSwitchLocaleFallbackWhenNoRoute(route: ResolvedRouteLike, _targetName: string): RouteLike | string {
     return route
   }
 
-  /**
-   * In no_prefix strategy, URL should not contain locale. If path starts with a locale segment,
-   * redirect to path without it. Controlled by ctx.noPrefixRedirect (default: true).
-   */
+  switchLocaleRoute(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions): RouteLike | string {
+    return defaultSwitchLocaleRoute(this, fromLocale, toLocale, route, options)
+  }
+
+  resolveLocaleRoute(targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike): RouteLike | string {
+    return defaultResolveLocaleRoute(this, targetLocale, normalized, currentRoute)
+  }
+
   getRedirect(currentPath: string, _targetLocale: string): string | null {
     if (this.ctx.noPrefixRedirect === false) return null
     const pathLocale = this.getLocaleFromPath(currentPath)
     if (!pathLocale) return null
     const prefix = `/${pathLocale}`
     let newPath = currentPath.slice(prefix.length)
-    if (!newPath || !newPath.startsWith('/')) newPath = `/${newPath || ''}`
+    if (!newPath || newPath.charCodeAt(0) !== 47) newPath = `/${newPath || ''}`
     return cleanDoubleSlashes(newPath) || '/'
   }
 
-  /**
-   * Formats path for router.resolve.
-   * no_prefix: path as-is, no locale prefix.
-   */
-  formatPathForResolve(path: string, _fromLocale: string, _toLocale: string): string {
+  override formatPathForResolve(path: string, _fromLocale: string, _toLocale: string): string {
     return path
   }
 
-  /**
-   * no_prefix strategy: never redirect based on locale preference.
-   * Locale is handled via cookie/useState only, not URL.
-   */
   getClientRedirect(_currentPath: string, _preferredLocale: string): string | null {
     return null
   }
 
-  /**
-   * no_prefix strategy: no 404 checks related to locale prefix.
-   */
   override shouldReturn404(_currentPath: string): string | null {
     return null
   }

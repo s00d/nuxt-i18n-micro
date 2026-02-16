@@ -32,6 +32,7 @@ flowchart LR
 | HTML attributes | `<html lang="en" dir="ltr">` |
 | Canonical | `<link rel="canonical" href="...">` |
 | hreflang | `<link rel="alternate" hreflang="en" href="...">` |
+| x-default | `<link rel="alternate" hreflang="x-default" href="...">` |
 | Open Graph | `<meta property="og:locale" content="en_US">` |
 
 ### 🔑 Key SEO Features
@@ -47,7 +48,10 @@ When the `meta` option is enabled in `Nuxt I18n Micro`, the module automatically
 3. **🌐 Alternate Language Links (`hreflang`)**:
    - The module automatically generates `<link rel="alternate" hreflang="">` tags for all available locales. This helps search engines understand which language versions of your content are available, improving the user experience for global audiences.
 
-4. **🔖 Open Graph Metadata**:
+4. **🌏 `x-default` Hreflang**:
+   - The module automatically generates a `<link rel="alternate" hreflang="x-default">` tag pointing to the default locale's URL. This tells search engines which URL to show users whose language doesn't match any of the defined locales. No additional configuration is required — it works automatically when `meta: true` is set.
+
+5. **🔖 Open Graph Metadata**:
    - The module generates Open Graph meta tags (`og:locale`, `og:url`, etc.) for each locale, which is particularly useful for social media sharing and search engine indexing.
 
 ### 🛠️ Configuration

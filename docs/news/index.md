@@ -43,8 +43,8 @@ The translation loading and caching system has been completely rewritten for max
 #### Route & Path Strategy Packages
 
 - **@i18n-micro/route-strategy** — Build-time route generation: extends Nuxt pages with localized routes, handles aliases, nested routes, and custom paths per strategy. Single entry point: `new RouteGenerator(options)` and `extendPages(pages)`. Strategies (`no_prefix`, `prefix`, `prefix_except_default`, `prefix_and_default`) are implemented as separate classes and selected via a factory.
-- **@i18n-micro/path-strategy** — Runtime path and locale handling: provides `PathStrategy` for building localized paths, resolving redirects, and locale switching. Tree-shakeable subpath exports (`/prefix`, `/no-prefix`, etc.) so only the selected strategy is bundled.
-- **Structured package layout** — Route logic in `core/`, `strategies/`, and `utils/`. Path strategy in `strategies/` with shared types in `types`.
+- **@i18n-micro/path-strategy** — Runtime path and locale handling: provides `PathStrategy` for building localized paths, resolving redirects, and locale switching. Tree-shakeable subpath exports (`/prefix`, `/no-prefix`, etc.) so only the selected strategy is bundled. Uses pure functions for route resolution and pre-computed context flags for minimal allocations.
+- **Structured package layout** — Route logic in `@i18n-micro/route-strategy` with `core/`, `strategies/`. Path strategy in `@i18n-micro/path-strategy` with a flat `src/` structure: `types.ts`, `path.ts`, `resolver.ts`, `helpers.ts`, and `strategies/`.
 - **Consistent behavior** — Alias handling, parent–child path joining, custom `globalLocaleRoutes` / `filesLocaleRoutes` / `routeLocales`, and immutability guarantees are covered by a dedicated test suite.
 
 #### Redirect Architecture Overhaul

@@ -11,20 +11,22 @@ export default function() {
       "40s",
       "50s",
       "60s",
-      "70s"
+      "70s",
+      "80s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
-          54,
+          23,
           75,
+          65,
           60,
           60,
-          61,
           60,
           60,
-          10
+          43,
+          0
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -37,14 +39,15 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          2187,
-          7261,
-          0,
-          9999,
-          9999,
+          1108,
+          6065,
+          758,
           0,
           0,
-          9999
+          0,
+          0,
+          0,
+          0
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -57,13 +60,14 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          199,
+          30,
+          563,
           600,
           600,
           600,
           600,
           600,
-          437,
+          43,
           0
         ],
         "borderColor": "rgb(153, 102, 255)",
@@ -77,10 +81,11 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          180,
-          295,
-          26,
+          23,
+          532,
           0,
+          14,
+          8,
           0,
           0,
           0,
@@ -98,13 +103,14 @@ export default function() {
         "label": "vusers.failed",
         "data": [
           0,
-          270,
-          574,
-          606,
-          599,
-          601,
-          596,
-          333
+          0,
+          667,
+          586,
+          592,
+          609,
+          600,
+          499,
+          32
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

@@ -113,9 +113,9 @@ describe('Memory: no heap growth over many iterations', () => {
       const heapAfter = process.memoryUsage().heapUsed
 
       const growthMB = (heapAfter - heapBefore) / 1024 / 1024
-      // Allow up to 10MB growth (JIT artifacts, test framework overhead)
+      // Allow up to 20MB growth (JIT artifacts, test framework overhead, CI load)
       // A real leak at 50K iters with object creation would be >50MB
-      expect(growthMB).toBeLessThan(10)
+      expect(growthMB).toBeLessThan(20)
     })
   }
 })

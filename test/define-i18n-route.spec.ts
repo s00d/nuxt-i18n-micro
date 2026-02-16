@@ -51,11 +51,10 @@ test.describe('$defineI18nRoute behavior', () => {
     const ogAlternate = await page.locator('meta[property="og:locale:alternate"]').all()
     const contents = await Promise.all(ogAlternate.map((el) => el.getAttribute('content')))
 
-    // Should only be 'en_EN'
-    expect(contents).toContain('en_EN')
-
-    // Should NOT be 'es-ES'
+    // Page only has 'en' locale, and we're on 'en' — current locale is excluded from og:locale:alternate
+    // So there should be no og:locale:alternate tags at all
     expect(contents).not.toContain('es-ES')
+    expect(contents.length).toBe(0)
   })
 
   test('should return 404 for non-specified locale when accessing directly', async ({ page }) => {

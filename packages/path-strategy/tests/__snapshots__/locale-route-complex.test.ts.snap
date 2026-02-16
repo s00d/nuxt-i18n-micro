@@ -65,25 +65,7 @@ exports[`getRedirect edge cases for all strategies prefix_except_default: redire
 }
 `;
 
-exports[`localeRoute + getSeoAttributes with baseUrl getSeoAttributes canonical and hreflangs include baseUrl when locale has baseUrl 1`] = `
-{
-  "canonical": "/about",
-  "hreflangs": [
-    {
-      "href": "/about",
-      "hreflang": "en",
-      "rel": "alternate",
-    },
-    {
-      "href": "https://de.example.com/de/about",
-      "hreflang": "de",
-      "rel": "alternate",
-    },
-  ],
-}
-`;
-
-exports[`localeRoute + getSeoAttributes with baseUrl localeRoute applies baseUrl when locale has baseUrl 1`] = `
+exports[`localeRoute with baseUrl localeRoute applies baseUrl when locale has baseUrl 1`] = `
 {
   "de": {
     "fullPath": "https://de.example.com/de/about",
@@ -124,55 +106,7 @@ exports[`nested globalLocaleRoutes (parent key) prefix_except_default: nested ro
 }
 `;
 
-exports[`routesLocaleLinks + routeLocales in getSeoAttributes routesLocaleLinks maps products-id to products for routeLocales lookup 1`] = `
-{
-  "seoBlog": {
-    "canonical": "/blog/hello",
-    "hreflangs": [
-      {
-        "href": "/blog/hello",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-    ],
-  },
-  "seoProducts": {
-    "canonical": "/products/1",
-    "hreflangs": [
-      {
-        "href": "/products/1",
-        "hreflang": "en",
-        "rel": "alternate",
-      },
-      {
-        "href": "/de/products/1",
-        "hreflang": "de",
-        "rel": "alternate",
-      },
-    ],
-  },
-}
-`;
-
-exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute) getSeoAttributes with baseUrl: canonical and hreflangs 1`] = `
-{
-  "canonical": "/about",
-  "hreflangs": [
-    {
-      "href": "/about",
-      "hreflang": "en",
-      "rel": "alternate",
-    },
-    {
-      "href": "https://de.example.com/de/about",
-      "hreflang": "de",
-      "rel": "alternate",
-    },
-  ],
-}
-`;
-
-exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute) localeRoute with baseUrl: path per locale with baseUrl 1`] = `
+exports[`snapshots (documentation: baseUrl, routesLocaleLinks, switchLocaleRoute) localeRoute with baseUrl: path per locale with baseUrl 1`] = `
 {
   "de": {
     "fullPath": "https://de.example.com/de/about",
@@ -189,7 +123,7 @@ exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks,
 }
 `;
 
-exports[`snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute) switchLocaleRoute with i18nRouteParams: merged params result 1`] = `
+exports[`snapshots (documentation: baseUrl, routesLocaleLinks, switchLocaleRoute) switchLocaleRoute with i18nRouteParams: merged params result 1`] = `
 {
   "fullPath": "/products/2",
   "hash": "",

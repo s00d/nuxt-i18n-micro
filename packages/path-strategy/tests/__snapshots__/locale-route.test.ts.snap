@@ -4,12 +4,10 @@ exports[`localeRoute - no_prefix { name: "index" } returns root path / 1`] = `
 {
   "de": {
     "fullPath": "/",
-    "params": {},
     "path": "/",
   },
   "en": {
     "fullPath": "/",
-    "params": {},
     "path": "/",
   },
 }

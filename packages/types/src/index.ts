@@ -396,7 +396,7 @@ export interface ModuleOptions {
   cacheMaxSize?: number
 
   /**
-   * Time-to-live (in milliseconds) for cached translation entries.
+   * Time-to-live (in seconds) for cached translation entries.
    * `0` means entries never expire.
    * @default 0
    */

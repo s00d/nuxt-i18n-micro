@@ -1,6 +1,6 @@
 /**
  * Complex path-strategy scenarios: baseUrl, buildPathFromBaseNameAndParams,
- * nested globalLocaleRoutes, i18nRouteParams, getSeoAttributes with baseUrl.
+ * nested globalLocaleRoutes, i18nRouteParams.
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
@@ -26,7 +26,7 @@ function makeCtx(strategy: NonNullable<ModuleOptionsExtend['strategy']>, extra?:
   return makePathStrategyContext(baseConfig, strategy, extra)
 }
 
-describe('localeRoute + getSeoAttributes with baseUrl', () => {
+describe('localeRoute with baseUrl', () => {
   test('localeRoute applies baseUrl when locale has baseUrl', () => {
     const localesWithBase = [
       { code: 'en', iso: 'en-US' },
@@ -52,28 +52,6 @@ describe('localeRoute + getSeoAttributes with baseUrl', () => {
       ru: strategy.localeRoute('ru', '/about', current),
     }
     expect(result).toMatchSnapshot()
-  })
-
-  test('getSeoAttributes canonical and hreflangs include baseUrl when locale has baseUrl', () => {
-    const localesWithBase = [
-      { code: 'en', iso: 'en-US' },
-      { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
-    ]
-    const strategy = createPathStrategy(
-      makeCtx('prefix_except_default', {
-        locales: localesWithBase as PathStrategyContext['locales'],
-      }),
-    )
-    const route: ResolvedRouteLike = {
-      name: 'localized-about-en',
-      path: '/about',
-      fullPath: '/about',
-      params: {},
-      query: {},
-      hash: '',
-    }
-    const seo = strategy.getSeoAttributes(route)
-    expect(seo).toMatchSnapshot()
   })
 })
 
@@ -185,36 +163,6 @@ describe('switchLocaleRoute with i18nRouteParams', () => {
   })
 })
 
-describe('routesLocaleLinks + routeLocales in getSeoAttributes', () => {
-  test('routesLocaleLinks maps products-id to products for routeLocales lookup', () => {
-    const strategy = createPathStrategy(
-      makeCtx('prefix_except_default', {
-        routesLocaleLinks: { 'products-id': 'products', 'blog-slug': 'blog' },
-        routeLocales: { products: ['en', 'de'], blog: ['en'] },
-      }),
-    )
-    const routeProducts: ResolvedRouteLike = {
-      name: 'localized-products-id-en',
-      path: '/products/1',
-      fullPath: '/products/1',
-      params: { id: '1' },
-      query: {},
-      hash: '',
-    }
-    const seoProducts = strategy.getSeoAttributes(routeProducts)
-    const routeBlog: ResolvedRouteLike = {
-      name: 'localized-blog-slug-en',
-      path: '/blog/hello',
-      fullPath: '/blog/hello',
-      params: { slug: 'hello' },
-      query: {},
-      hash: '',
-    }
-    const seoBlog = strategy.getSeoAttributes(routeBlog)
-    expect({ seoProducts, seoBlog }).toMatchSnapshot()
-  })
-})
-
 describe('localeRoute with query and hash preserved when using baseUrl', () => {
   test('applyBaseUrl on RouteLike preserves query and hash in fullPath', () => {
     const localesWithBase = [
@@ -269,7 +217,7 @@ describe('getRedirect edge cases for all strategies', () => {
   })
 })
 
-describe('snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks, switchLocaleRoute)', () => {
+describe('snapshots (documentation: baseUrl, routesLocaleLinks, switchLocaleRoute)', () => {
   test('localeRoute with baseUrl: path per locale with baseUrl', () => {
     const localesWithBase = [
       { code: 'en', iso: 'en-US' },
@@ -295,27 +243,6 @@ describe('snapshots (documentation: baseUrl, getSeoAttributes, routesLocaleLinks
       ru: strategy.localeRoute('ru', '/about', current),
     }
     expect(out).toMatchSnapshot()
-  })
-
-  test('getSeoAttributes with baseUrl: canonical and hreflangs', () => {
-    const localesWithBase = [
-      { code: 'en', iso: 'en-US' },
-      { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
-    ]
-    const strategy = createPathStrategy(
-      makeCtx('prefix_except_default', {
-        locales: localesWithBase as PathStrategyContext['locales'],
-      }),
-    )
-    const route: ResolvedRouteLike = {
-      name: 'localized-about-en',
-      path: '/about',
-      fullPath: '/about',
-      params: {},
-      query: {},
-      hash: '',
-    }
-    expect(strategy.getSeoAttributes(route)).toMatchSnapshot()
   })
 
   test('switchLocaleRoute with i18nRouteParams: merged params result', () => {

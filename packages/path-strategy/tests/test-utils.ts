@@ -49,11 +49,15 @@ export const makePathStrategyContext = (
   baseConfig: ModuleOptionsExtend,
   strategy: NonNullable<ModuleOptionsExtend['strategy']>,
   extra?: Partial<PathStrategyContext>,
-): PathStrategyContext => ({
-  strategy,
-  defaultLocale: baseConfig.defaultLocale!,
-  locales: baseConfig.locales!,
-  localizedRouteNamePrefix: baseConfig.localizedRouteNamePrefix || 'localized-',
-  router: makeRouterAdapter(),
-  ...extra,
-})
+): PathStrategyContext => {
+  const locales = baseConfig.locales!
+  return {
+    strategy,
+    defaultLocale: baseConfig.defaultLocale!,
+    locales,
+    localeCodes: locales.map((l) => l.code),
+    localizedRouteNamePrefix: baseConfig.localizedRouteNamePrefix || 'localized-',
+    router: makeRouterAdapter(),
+    ...extra,
+  }
+}

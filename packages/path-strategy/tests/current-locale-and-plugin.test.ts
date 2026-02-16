@@ -1,9 +1,9 @@
 /**
- * Tests for getCurrentLocale, getPluginRouteName, getCurrentLocaleName, extractLocaleFromPath
+ * Tests for strategy.getCurrentLocale, strategy.getPluginRouteName, strategy.getCurrentLocaleName
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike } from '../src'
-import { createPathStrategy, NoPrefixPathStrategy, PrefixAndDefaultPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
+import { createPathStrategy } from '../src'
 import { makePathStrategyContext } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -28,16 +28,14 @@ function makeCtx(strategy: NonNullable<ModuleOptionsExtend['strategy']>, extra?:
 describe('getCurrentLocale', () => {
   describe('hashMode', () => {
     test('returns locale from getter when hashMode is true', () => {
-      const ctx = makeCtx('prefix_except_default', { hashMode: true })
-      const strategy = createPathStrategy(ctx)
+      const strategy = createPathStrategy(makeCtx('prefix_except_default', { hashMode: true }))
       const route: ResolvedRouteLike = { name: 'index', path: '/', fullPath: '/', params: {} }
 
-      expect(strategy.getCurrentLocale(route, () => 'de')).toBe('de')
+      expect(strategy.getCurrentLocale(route, 'de')).toBe('de')
     })
 
-    test('returns defaultLocale when hashMode is true and no getter', () => {
-      const ctx = makeCtx('prefix_except_default', { hashMode: true })
-      const strategy = createPathStrategy(ctx)
+    test('returns defaultLocale when hashMode is true and no override', () => {
+      const strategy = createPathStrategy(makeCtx('prefix_except_default', { hashMode: true }))
       const route: ResolvedRouteLike = { name: 'index', path: '/', fullPath: '/', params: {} }
 
       expect(strategy.getCurrentLocale(route)).toBe('en')
@@ -45,15 +43,15 @@ describe('getCurrentLocale', () => {
   })
 
   describe('no_prefix strategy', () => {
-    test('returns locale from getter', () => {
-      const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix'))
+    test('returns override locale', () => {
+      const strategy = createPathStrategy(makeCtx('no_prefix'))
       const route: ResolvedRouteLike = { name: 'about', path: '/about', fullPath: '/about', params: {} }
 
-      expect(strategy.getCurrentLocale(route, () => 'ru')).toBe('ru')
+      expect(strategy.getCurrentLocale(route, 'ru')).toBe('ru')
     })
 
-    test('returns defaultLocale when no getter', () => {
-      const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix'))
+    test('returns defaultLocale when no override', () => {
+      const strategy = createPathStrategy(makeCtx('no_prefix'))
       const route: ResolvedRouteLike = { name: 'about', path: '/about', fullPath: '/about', params: {} }
 
       expect(strategy.getCurrentLocale(route)).toBe('en')
@@ -61,24 +59,24 @@ describe('getCurrentLocale', () => {
   })
 
   describe('prefix_and_default at root', () => {
-    test('returns locale from getter when at root path', () => {
-      const strategy = new PrefixAndDefaultPathStrategy(makeCtx('prefix_and_default'))
+    test('returns override locale when at root path', () => {
+      const strategy = createPathStrategy(makeCtx('prefix_and_default'))
       const route: ResolvedRouteLike = { name: 'index', path: '/', fullPath: '/', params: {} }
 
-      expect(strategy.getCurrentLocale(route, () => 'de')).toBe('de')
+      expect(strategy.getCurrentLocale(route, 'de')).toBe('de')
     })
 
-    test('returns locale from getter when path is empty', () => {
-      const strategy = new PrefixAndDefaultPathStrategy(makeCtx('prefix_and_default'))
+    test('returns override locale when path is empty', () => {
+      const strategy = createPathStrategy(makeCtx('prefix_and_default'))
       const route: ResolvedRouteLike = { name: 'index', path: '', fullPath: '', params: {} }
 
-      expect(strategy.getCurrentLocale(route, () => 'ru')).toBe('ru')
+      expect(strategy.getCurrentLocale(route, 'ru')).toBe('ru')
     })
   })
 
   describe('locale from route.params', () => {
     test('returns locale from route.params.locale', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'localized-about', path: '/de/about', fullPath: '/de/about', params: { locale: 'de' } }
 
       expect(strategy.getCurrentLocale(route)).toBe('de')
@@ -87,38 +85,37 @@ describe('getCurrentLocale', () => {
 
   describe('locale from path extraction', () => {
     test('extracts locale from path when params not available', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'not-found', path: '/ru/some-page', fullPath: '/ru/some-page', params: {} }
 
       expect(strategy.getCurrentLocale(route)).toBe('ru')
     })
 
     test('handles path with query params', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'page', path: '/de/page?foo=bar', fullPath: '/de/page?foo=bar', params: {} }
 
       expect(strategy.getCurrentLocale(route)).toBe('de')
     })
 
     test('handles path with hash', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'page', path: '/ru/page#section', fullPath: '/ru/page#section', params: {} }
 
       expect(strategy.getCurrentLocale(route)).toBe('ru')
     })
 
     test('returns null for non-locale first segment', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'page', path: '/other/page', fullPath: '/other/page', params: {} }
 
-      // Should fallback to getter or default
-      expect(strategy.getCurrentLocale(route, () => 'de')).toBe('de')
+      expect(strategy.getCurrentLocale(route, 'de')).toBe('de')
     })
   })
 
   describe('prefix_except_default fallback', () => {
     test('returns defaultLocale for path without locale prefix', () => {
-      const strategy = new PrefixExceptDefaultPathStrategy(makeCtx('prefix_except_default'))
+      const strategy = createPathStrategy(makeCtx('prefix_except_default'))
       const route: ResolvedRouteLike = { name: 'about', path: '/about', fullPath: '/about', params: {} }
 
       expect(strategy.getCurrentLocale(route)).toBe('en')
@@ -127,32 +124,31 @@ describe('getCurrentLocale', () => {
 
   describe('edge cases', () => {
     test('handles empty path', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'index', path: '', fullPath: '', params: {} }
 
-      expect(strategy.getCurrentLocale(route, () => 'de')).toBe('de')
+      expect(strategy.getCurrentLocale(route, 'de')).toBe('de')
     })
 
     test('handles root path', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'index', path: '/', fullPath: '/', params: {} }
 
-      expect(strategy.getCurrentLocale(route, () => 'ru')).toBe('ru')
+      expect(strategy.getCurrentLocale(route, 'ru')).toBe('ru')
     })
 
     test('handles null/undefined path', () => {
-      const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+      const strategy = createPathStrategy(makeCtx('prefix'))
       const route: ResolvedRouteLike = { name: 'index', params: {} } as any
 
-      expect(strategy.getCurrentLocale(route, () => 'de')).toBe('de')
+      expect(strategy.getCurrentLocale(route, 'de')).toBe('de')
     })
   })
 })
 
 describe('getPluginRouteName', () => {
   test('returns "index" when disablePageLocales is true', () => {
-    const ctx = makeCtx('prefix_except_default', { disablePageLocales: true })
-    const strategy = createPathStrategy(ctx)
+    const strategy = createPathStrategy(makeCtx('prefix_except_default', { disablePageLocales: true }))
     const route: ResolvedRouteLike = { name: 'localized-about-en', path: '/about', fullPath: '/about', params: {} }
 
     expect(strategy.getPluginRouteName(route, 'en')).toBe('index')
@@ -189,7 +185,7 @@ describe('getCurrentLocaleName', () => {
   })
 
   test('returns displayName for locale with prefix', () => {
-    const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+    const strategy = createPathStrategy(makeCtx('prefix'))
     const route: ResolvedRouteLike = { name: 'localized-about', path: '/de/about', fullPath: '/de/about', params: { locale: 'de' } }
 
     expect(strategy.getCurrentLocaleName(route)).toBe('Deutsch')
@@ -206,23 +202,22 @@ describe('getCurrentLocaleName', () => {
 })
 
 describe('extractLocaleFromPath - edge cases', () => {
-  test('returns null for empty path', () => {
-    const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+  test('returns defaultLocale for empty path', () => {
+    const strategy = createPathStrategy(makeCtx('prefix'))
     const route: ResolvedRouteLike = { name: 'index', path: '', fullPath: '', params: {} }
 
-    // Will use getter fallback
-    expect(strategy.getCurrentLocale(route, () => null as any)).toBe('en')
+    expect(strategy.getCurrentLocale(route, null)).toBe('en')
   })
 
   test('handles path with only slashes', () => {
-    const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+    const strategy = createPathStrategy(makeCtx('prefix'))
     const route: ResolvedRouteLike = { name: 'index', path: '///', fullPath: '///', params: {} }
 
-    expect(strategy.getCurrentLocale(route, () => 'de')).toBe('de')
+    expect(strategy.getCurrentLocale(route, 'de')).toBe('de')
   })
 
   test('handles path with query and hash combined', () => {
-    const strategy = new PrefixPathStrategy(makeCtx('prefix'))
+    const strategy = createPathStrategy(makeCtx('prefix'))
     const route: ResolvedRouteLike = { name: 'page', path: '/de/page?a=1&b=2#section', fullPath: '/de/page?a=1&b=2#section', params: {} }
 
     expect(strategy.getCurrentLocale(route)).toBe('de')

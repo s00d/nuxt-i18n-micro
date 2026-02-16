@@ -89,6 +89,24 @@ test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
     }
   })
 
+  test('SSR: x-default hreflang link points to default locale URL', async ({ request }) => {
+    const res = await request.get('/en/about', {
+      headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
+    })
+    const html = await res.text()
+
+    expect(html).toMatch(/<link[^>]*hreflang="x-default"[^>]*href="https:\/\/example\.com\/en\/about"/)
+  })
+
+  test('SSR: x-default hreflang uses forwarded domain', async ({ request }) => {
+    const res = await request.get('/de', {
+      headers: { 'X-Forwarded-Host': 'multi.example.org', 'X-Forwarded-Proto': 'https' },
+    })
+    const html = await res.text()
+
+    expect(html).toMatch(/<link[^>]*hreflang="x-default"[^>]*href="https:\/\/multi\.example\.org\/en"/)
+  })
+
   test('SSR: og:locale and html lang are correct for a non-default locale', async ({ request }) => {
     const res = await request.get('/de', {
       headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
@@ -142,6 +160,16 @@ test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
       expect(href).toBeTruthy()
       expect(href!.startsWith(`${domain}/`)).toBe(true)
     }
+  })
+
+  test('client: x-default hreflang link uses emulated domain and points to default locale', async ({ page, baseURL }) => {
+    const domain = 'https://xd-test.example.com'
+    await emulateDomain(page, domain, baseURL!)
+
+    await page.goto(`${domain}/de/about`, { waitUntil: 'networkidle' })
+
+    const xDefault = page.locator('link[hreflang="x-default"]')
+    await expect(xDefault).toHaveAttribute('href', `${domain}/en/about`)
   })
 
   test('client: canonical updates to correct path after SPA navigation', async ({ page, baseURL }) => {

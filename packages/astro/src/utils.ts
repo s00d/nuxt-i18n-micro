@@ -285,6 +285,28 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
     }
   }
 
+  // x-default hreflang — points to the default locale's URL.
+  // Tells search engines which URL to show when none of the
+  // specified languages match the user's browser settings.
+  {
+    let xDefaultPath = astro.url.pathname
+    if (routingStrategy?.switchLocalePath) {
+      xDefaultPath = routingStrategy.switchLocalePath(astro.url.pathname, defaultLocale, allLocaleCodes, defaultLocale)
+    } else {
+      const segments = astro.url.pathname.split('/').filter(Boolean)
+      const firstSegment = segments[0]
+      if (firstSegment && allLocaleCodes.includes(firstSegment)) {
+        segments.shift()
+      }
+      xDefaultPath = `/${segments.join('/')}`
+    }
+    result.link.push({
+      rel: 'alternate',
+      href: `${baseUrl}${xDefaultPath}`,
+      hreflang: 'x-default',
+    })
+  }
+
   // Open Graph locale
   result.meta.push({
     property: 'og:locale',

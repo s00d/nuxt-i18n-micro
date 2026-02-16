@@ -34,6 +34,7 @@ coverage
 *.lcov
 .nyc_output
 test/.perf-output
+**/__perf__
 
 # VSCode
 .vscode

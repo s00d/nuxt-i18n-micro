@@ -523,13 +523,13 @@ define: false // Disables $defineI18nRoute
 
 #### `redirects`
 
-Enables automatic redirection logic.
+Enables automatic locale-based redirects. When `true`, visitors are redirected to their preferred locale (detected from cookie, `Accept-Language` header, or the default) on the first visit. When `false`, only the redirect logic is disabled — the plugin still handles 404 checks and cookie synchronization.
 
 **Type**: `boolean`  
 **Default**: `true`
 
 ```typescript
-redirects: false // Disable automatic locale redirection
+redirects: false // Disable automatic locale redirection (404 checks and cookie sync remain active)
 ```
 
 #### `plugin`
@@ -552,6 +552,17 @@ Enables hooks integration.
 
 ```typescript
 hooks: false
+```
+
+#### `components`
+
+Registers the built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`). Set to `false` to disable automatic component registration — useful if you don't use the built-in components and want to reduce the module footprint.
+
+**Type**: `boolean`  
+**Default**: `true`
+
+```typescript
+components: false // Disable built-in i18n components
 ```
 
 ### 🌐 Language Detection

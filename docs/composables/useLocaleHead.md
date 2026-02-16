@@ -75,15 +75,18 @@ The `useLocaleHead` composable returns a reactive object and an updater function
   watch(() => route.fullPath, () => updateMeta(), { immediate: true })
   ```
 
-### `link`
+### Accessing `link` and `meta`
 
-- **Type**: `Array<Record<string, string>>`
-- **Description**: Contains link tags for canonical URLs and alternate language versions of the page.
+The `link` and `meta` arrays are accessible via `metaObject.value`:
+
 - **Example**:
   ```js
-  const { link } = useLocaleHead()
-  console.log(link)
+  const { metaObject, updateMeta } = useLocaleHead()
+  updateMeta()
+  console.log(metaObject.value.link)
   // Output: [{ id: 'i18n-can', rel: 'canonical', href: 'https://example.com/about' }, ...]
+  console.log(metaObject.value.meta)
+  // Output: [{ id: 'i18n-og', property: 'og:locale', content: 'en_US' }, ...]
   ```
 
 ## 🛠️ Example Usages

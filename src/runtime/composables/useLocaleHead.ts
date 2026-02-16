@@ -73,8 +73,9 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     // Find allowed locales for this route using the utility function
     const currentRouteLocales = findAllowedLocalesForRoute(route, routeLocales, localizedRouteNamePrefixResolved)
 
-    // If there's $defineI18nRoute configuration, use only specified locales
-    const locales = currentRouteLocales ? allLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code)) : allLocales
+    // Filter out disabled locales and apply $defineI18nRoute restrictions
+    const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
+    const locales = currentRouteLocales ? enabledLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code)) : enabledLocales
 
     const currentIso = currentLocale.iso || locale
     const currentDir = currentLocale.dir || 'auto'
@@ -127,11 +128,13 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       content: ogUrl,
     }
 
-    const alternateOgLocalesMeta = alternateLocales.map((loc: Locale) => ({
-      [identifierAttribute]: `i18n-og-alt-${loc.iso || loc.code}`,
-      property: 'og:locale:alternate',
-      content: unref(loc.iso || loc.code),
-    }))
+    const alternateOgLocalesMeta = alternateLocales
+      .filter((loc: Locale) => loc.code !== locale)
+      .map((loc: Locale) => ({
+        [identifierAttribute]: `i18n-og-alt-${loc.iso || loc.code}`,
+        property: 'og:locale:alternate',
+        content: unref(loc.iso || loc.code),
+      }))
 
     const canonicalLink = {
       [identifierAttribute]: 'i18n-can',

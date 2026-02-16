@@ -129,6 +129,7 @@ When `addSeoAttributes` is enabled, the composable automatically generates the f
 - `og:url` for the canonical URL of the page.
 - `og:locale:alternate` for alternate language versions.
 - `rel="canonical"` and `rel="alternate"` links for SEO optimization.
+- `hreflang="x-default"` link pointing to the default locale's URL. This tells search engines which URL to show users whose language doesn't match any of the defined locales.
 
 ### Dynamic Locale and Direction
 
@@ -167,7 +168,7 @@ watch(() => route.fullPath, () => updateMeta(), { immediate: true })
 
 - **`<head>` Section**:
   - **Meta Tags**: SEO-related meta tags are generated, including `og:locale`, `og:url`, and `rel="canonical"` and `rel="alternate"` tags to specify alternate language versions of the page.
-  - **Link Tags**: Canonical links and links to alternate language versions are included.
+  - **Link Tags**: Canonical links, links to alternate language versions, and the `hreflang="x-default"` link (pointing to the default locale URL) are included.
 
 - **`<body>` Section**: The main content of the page is displayed here. In this example, a simple header and paragraph are used.
 

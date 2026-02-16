@@ -60,6 +60,30 @@ test.describe('autoDetectLanguage with no_prefix strategy', () => {
     await expect(page.locator('#greeting')).toHaveText('Hello')
   })
 
+  test('SEO: generates canonical and og:url but no hreflang or x-default for no_prefix', async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+
+    await goto('/', { waitUntil: 'hydration' })
+
+    // canonical and og:url should be present
+    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', normalizedBaseURL)
+    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', normalizedBaseURL)
+
+    // og:locale should be set
+    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'en_EN')
+
+    // html lang should be set
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en_EN')
+
+    // hreflang alternate links should NOT be present (no_prefix has no locale-specific URLs)
+    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+
+    // x-default should NOT be present
+    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
+  })
+
   test('respects existing cookie over Accept-Language', async ({ page, goto, baseURL }) => {
     // First, set cookie to German
     await page.context().addCookies([

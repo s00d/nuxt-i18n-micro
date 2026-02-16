@@ -196,6 +196,14 @@ export interface ModuleOptions {
   hooks?: boolean
 
   /**
+   * Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`).
+   * Set to `false` to disable automatic component registration (e.g. if you don't use them
+   * and want to reduce the module footprint).
+   * @default true
+   */
+  components?: boolean
+
+  /**
    * The locale to use when no locale can be determined from URL or user preferences.
    * Also used as the fallback locale for missing translations when `fallbackLocale` is not set.
    * @default 'en'

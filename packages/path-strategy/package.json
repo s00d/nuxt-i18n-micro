@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/path-strategy",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Shared strategy-based path and route name builder for Nuxt I18n Micro frontend routing.",
   "repository": "s00d/nuxt-i18n-micro",
   "license": "MIT",
@@ -60,6 +60,9 @@
   "scripts": {
     "build": "vite build",
     "test": "jest",
+    "test:perf": "jest --config jest.perf.config.cjs",
+    "bench:browser": "vite --config bench/vite.config.ts",
+    "bench:browser:ci": "tsx bench/run-headless.ts",
     "prepublishOnly": "pnpm run build"
   },
   "publishConfig": {
@@ -77,8 +80,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@i18n-micro/types": "workspace:*",
-    "ufo": "catalog:"
+    "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
     "vite": "catalog:",

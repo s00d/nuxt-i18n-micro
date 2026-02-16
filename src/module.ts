@@ -205,6 +205,7 @@ export default defineNuxtModule<ModuleOptions>({
     redirects: true,
     plugin: true,
     hooks: true,
+    components: true,
     types: true,
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
@@ -525,7 +526,9 @@ export function getI18nPrivateConfig() { return __privateConfig }
       })
     }
 
-    // Universal redirect plugin (server + client)
+    // Universal redirect plugin (server + client).
+    // Always registered: handles 404 checks and cookie sync even when redirects are disabled.
+    // The redirect logic itself is gated by `i18nConfig.redirects !== false` inside the plugin.
     addPlugin({
       src: resolver.resolve('./runtime/plugins/06.redirect'),
       mode: 'all',
@@ -538,11 +541,13 @@ export function getI18nPrivateConfig() { return __privateConfig }
       handler: resolver.resolve('./runtime/server/routes/i18n'),
     })
 
-    addComponentsDir({
-      path: resolver.resolve('./runtime/components'),
-      pathPrefix: false,
-      extensions: ['vue'],
-    })
+    if (options.components !== false) {
+      addComponentsDir({
+        path: resolver.resolve('./runtime/components'),
+        pathPrefix: false,
+        extensions: ['vue'],
+      })
+    }
 
     // HMR for translations
     if (nuxt.options.dev && (options.hmr ?? true)) {

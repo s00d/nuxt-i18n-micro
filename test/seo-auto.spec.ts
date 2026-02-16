@@ -95,7 +95,8 @@ test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
     })
     const html = await res.text()
 
-    expect(html).toMatch(/<link[^>]*hreflang="x-default"[^>]*href="https:\/\/example\.com\/en\/about"/)
+    const xdHref = html.match(/<link[^>]*id="i18n-xd"[^>]*href="([^"]+)"/)?.[1]
+    expect(xdHref).toBe('https://example.com/en/about')
   })
 
   test('SSR: x-default hreflang uses forwarded domain', async ({ request }) => {
@@ -104,7 +105,8 @@ test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
     })
     const html = await res.text()
 
-    expect(html).toMatch(/<link[^>]*hreflang="x-default"[^>]*href="https:\/\/multi\.example\.org\/en"/)
+    const xdHref = html.match(/<link[^>]*id="i18n-xd"[^>]*href="([^"]+)"/)?.[1]
+    expect(xdHref).toBe('https://multi.example.org/en')
   })
 
   test('SSR: og:locale and html lang are correct for a non-default locale', async ({ request }) => {

@@ -86,15 +86,18 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     let localizedPath = fullPath
     let canonicalPath: string
 
+    let ogUrl: string
+    const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
+
     if (matchedLocale) {
       localizedPath = fullPath.slice(matchedLocale.code.length + 1) || '/'
       canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist)
+      const localePrefix = `/${locale}`
+      ogUrl = `${baseUrlValue}${localePrefix}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`
     } else {
       canonicalPath = filterQuery(fullPath, canonicalQueryWhitelist)
+      ogUrl = `${baseUrlValue}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`
     }
-
-    const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
-    const ogUrl = `${baseUrlValue}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`
 
     metaObject.value = {
       htmlAttrs: {
@@ -109,7 +112,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       return
     }
 
-    const alternateLocales = allLocales
+    const alternateLocales = allLocales.filter((loc: Locale) => !loc.disabled)
 
     const ogLocaleMeta: MetaTag = {
       [identifierAttribute]: 'i18n-og',
@@ -123,11 +126,13 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       content: ogUrl,
     }
 
-    const alternateOgLocalesMeta = alternateLocales.map((loc: Locale) => ({
-      [identifierAttribute]: `i18n-og-alt-${loc.iso || loc.code}`,
-      property: 'og:locale:alternate',
-      content: loc.iso || loc.code,
-    }))
+    const alternateOgLocalesMeta = alternateLocales
+      .filter((loc: Locale) => loc.code !== locale)
+      .map((loc: Locale) => ({
+        [identifierAttribute]: `i18n-og-alt-${loc.iso || loc.code}`,
+        property: 'og:locale:alternate',
+        content: loc.iso || loc.code,
+      }))
 
     const canonicalLink: MetaLink = {
       [identifierAttribute]: 'i18n-can',

@@ -1,6 +1,57 @@
 # Changelog
 
 
+## v3.11.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.10.0...v3.11.0)
+
+### 🚀 Enhancements
+
+- **types:** Add option to disable built-in i18n component registration ([aa2ac38e](https://github.com/s00d/nuxt-i18n-micro/commit/aa2ac38e))
+- **module:** Enable component registration in i18n configuration ([93b3df45](https://github.com/s00d/nuxt-i18n-micro/commit/93b3df45))
+- **astro:** Add support for x-default hreflang in utils ([f34d251a](https://github.com/s00d/nuxt-i18n-micro/commit/f34d251a))
+- **composables:** Add x-default hreflang link for default locale ([c411b843](https://github.com/s00d/nuxt-i18n-micro/commit/c411b843))
+- **locale:** Add x-default hreflang link for default locale support ([3be23d1b](https://github.com/s00d/nuxt-i18n-micro/commit/3be23d1b))
+- **watcher:** Improve cache handling for translation changes ([e770897d](https://github.com/s00d/nuxt-i18n-micro/commit/e770897d))
+- **utils:** Add keys() method to cache-control for key iteration. ([d7816dd8](https://github.com/s00d/nuxt-i18n-micro/commit/d7816dd8))
+
+### 🩹 Fixes
+
+- **types:** Correct time unit in cache TTL documentation ([e7a4a969](https://github.com/s00d/nuxt-i18n-micro/commit/e7a4a969))
+- **use-locale-head:** Correct ogUrl assignment and filter alternate locales ([fb9bc0e9](https://github.com/s00d/nuxt-i18n-micro/commit/fb9bc0e9))
+- **locale-head:** Filter out disabled locales in locale selection logic ([eefacbf2](https://github.com/s00d/nuxt-i18n-micro/commit/eefacbf2))
+
+### 💅 Refactors
+
+- **utils:** Rename variable for clarity and filter disabled locales ([4e0f997a](https://github.com/s00d/nuxt-i18n-micro/commit/4e0f997a))
+
+### 📖 Documentation
+
+- **useLocaleHead:** Add hreflang link for default locale in documentation ([2ed38230](https://github.com/s00d/nuxt-i18n-micro/commit/2ed38230))
+- **guide:** Enhance getting started with detailed redirects and components ([02b3b221](https://github.com/s00d/nuxt-i18n-micro/commit/02b3b221))
+- **seo:** Add x-default hreflang support in SEO documentation ([c64f1aaa](https://github.com/s00d/nuxt-i18n-micro/commit/c64f1aaa))
+- **strategy:** Clarify behavior of redirects option in guide ([8004f5e4](https://github.com/s00d/nuxt-i18n-micro/commit/8004f5e4))
+- **integrations:** Add default language fallback to astro package guide ([a08f6240](https://github.com/s00d/nuxt-i18n-micro/commit/a08f6240))
+- **integrations/vue-package:** Enhance description of `useLocaleHead` ([99e7851d](https://github.com/s00d/nuxt-i18n-micro/commit/99e7851d))
+- **composables:** Update `useLocaleHead` documentation for clarity ([711fdbd8](https://github.com/s00d/nuxt-i18n-micro/commit/711fdbd8))
+- **guide:** Update default values and add new configuration options ([31495fd4](https://github.com/s00d/nuxt-i18n-micro/commit/31495fd4))
+- **seo:** Add canonical query whitelist and meta tag controls ([ac7292dc](https://github.com/s00d/nuxt-i18n-micro/commit/ac7292dc))
+- **guide:** Update default value for `autoDetectLanguage` in strategy ([f97a4940](https://github.com/s00d/nuxt-i18n-micro/commit/f97a4940))
+
+### ✅ Tests
+
+- **basic:** Add tests for hreflang and href attributes of x-default link ([13bd3dfe](https://github.com/s00d/nuxt-i18n-micro/commit/13bd3dfe))
+- **define-i18n-route:** Add test for x-default hreflang link generation ([2169ad87](https://github.com/s00d/nuxt-i18n-micro/commit/2169ad87))
+- **seo-auto:** Add tests for x-default hreflang link behavior ([7c21f06f](https://github.com/s00d/nuxt-i18n-micro/commit/7c21f06f))
+- **auto-detect-no-prefix:** Add test for SEO tags without locale prefix ([74dfa56a](https://github.com/s00d/nuxt-i18n-micro/commit/74dfa56a))
+- **define-i18n-route:** Update expectations for og:locale:alternate tags ([52b0a445](https://github.com/s00d/nuxt-i18n-micro/commit/52b0a445))
+- **seo-auto:** Update tests to check hreflang link by id ([c34c2a5e](https://github.com/s00d/nuxt-i18n-micro/commit/c34c2a5e))
+- **tests:** Increase memory leak threshold in unit test ([46a682ea](https://github.com/s00d/nuxt-i18n-micro/commit/46a682ea))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.10.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.9.0...v3.10.0)

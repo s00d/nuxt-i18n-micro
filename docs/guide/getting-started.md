@@ -644,18 +644,136 @@ autoDetectPath: "*" // On all routes (use with caution)
 
 #### `plural`
 
-Custom function for handling pluralization.
+Custom function for handling pluralization, used by `$tc()`.
 
-**Type**: `(key: string, count: number, params: Record<string, string | number | boolean>, locale: string, t: Getter) => string`
+**Type**: `PluralFunc` — `(key: string, count: number, params: Record<string, string | number | boolean>, locale: string, t: Getter) => string | null`
+
+**Default**: Built-in function that splits the translation value by `|` and picks the form by index.
+
+##### How it works
+
+Translations use `|` to separate plural forms:
+
+```json
+{
+  "apples": "no apples | one apple | {count} apples"
+}
+```
+
+The `$tc('apples', count)` call invokes the `plural` function, which:
+1. Calls `t(key)` to get the raw translation string (e.g. `"no apples | one apple | {count} apples"`)
+2. Splits by `|` to get the forms array
+3. Selects a form based on `count`
+4. Replaces `{count}` with the actual number
+
+The **default** implementation selects by index: `count < forms.length ? forms[count] : forms[last]`. This works for simple cases (0 → first form, 1 → second, 2+ → last).
+
+##### Custom plural function
+
+For languages with complex pluralization rules (e.g., Russian, Arabic, Polish), override the `plural` option.
+
+::: danger Serialization requirement
+The function is serialized via `.toString()` and injected into a virtual module at build time. This means:
+- **Must use `function` keyword** — NOT shorthand method syntax, NOT arrow functions with external references
+- **No imports or external references** — the function must be fully self-contained
+- **No TypeScript-only syntax** that doesn't survive `.toString()` (type annotations are fine in `nuxt.config.ts` because Nuxt strips them)
+:::
+
+**Example: Russian pluralization** (4 forms: zero, one, few, many):
 
 ```typescript
-plural: (key, count, _params, _locale, t) => {
+// nuxt.config.ts
+export default defineNuxtConfig({
+  i18n: {
+    plural: function (key, count, _params, _locale, t) {
+      const translation = t(key)
+      if (!translation) return key
+
+      const forms = translation.toString().split('|').map(function (s) { return s.trim() })
+      let idx
+
+      if (count === 0) {
+        idx = 0
+      } else {
+        const mod10 = count % 10
+        const mod100 = count % 100
+        if (mod10 === 1 && mod100 !== 11) {
+          idx = 1
+        } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+          idx = 2
+        } else {
+          idx = 3
+        }
+      }
+
+      if (idx >= forms.length) idx = forms.length - 1
+      return (forms[idx] || '').replace('{count}', String(count))
+    },
+  },
+})
+```
+
+With this translation:
+
+```json
+{
+  "apples": "нет яблок | {count} яблоко | {count} яблока | {count} яблок"
+}
+```
+
+Results:
+- `$tc('apples', 0)` → `"нет яблок"`
+- `$tc('apples', 1)` → `"1 яблоко"`
+- `$tc('apples', 3)` → `"3 яблока"`
+- `$tc('apples', 5)` → `"5 яблок"`
+- `$tc('apples', 21)` → `"21 яблоко"`
+
+**Example: Simple English (default behavior)**:
+
+```typescript
+// This is the built-in default — you don't need to set it explicitly
+plural: function (key, count, params, _locale, t) {
+  const translation = t(key, params)
+  if (!translation) return null
+
+  const forms = translation.toString().split('|')
+  if (forms.length === 0) return null
+  const form = count < forms.length ? forms[count] : forms[forms.length - 1]
+  if (!form) return null
+  return form.trim().replace('{count}', count.toString())
+}
+```
+
+##### Per-locale pluralization
+
+If different locales need different plural rules, use the `locale` parameter:
+
+```typescript
+plural: function (key, count, _params, locale, t) {
   const translation = t(key)
   if (!translation) return key
-  
-  const forms = translation.toString().split('|')
-  return (count < forms.length ? forms[count].trim() : forms[forms.length - 1].trim())
-    .replace('{count}', count.toString())
+
+  const forms = translation.toString().split('|').map(function (s) { return s.trim() })
+
+  // Russian/Ukrainian plural rules
+  if (locale === 'ru' || locale === 'uk') {
+    let idx
+    if (count === 0) {
+      idx = 0
+    } else {
+      const mod10 = count % 10
+      const mod100 = count % 100
+      if (mod10 === 1 && mod100 !== 11) idx = 1
+      else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) idx = 2
+      else idx = 3
+    }
+    if (idx >= forms.length) idx = forms.length - 1
+    return (forms[idx] || '').replace('{count}', String(count))
+  }
+
+  // Default: English-like (index-based)
+  const idx = count < forms.length ? count : forms.length - 1
+  return (forms[idx] || '').replace('{count}', String(count))
 }
 ```
 

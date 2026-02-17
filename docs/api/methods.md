@@ -154,17 +154,28 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 ### `$tc`
 
 - **Type**: `(key: string, count: number, defaultValue?: string) => string`
-- **Description**: Fetches a pluralized translation for the given key based on the count.
+- **Description**: Fetches a pluralized translation for the given key based on the count. Internally calls the `plural` function configured in `nuxt.config.ts` (see [Pluralization Guide](/guide/getting-started#plural)).
 
 **Parameters**:
-- **key**: `string` — The translation key
-- **count**: `number` — The count for pluralization
+- **key**: `string` — The translation key whose value contains `|`-separated plural forms
+- **count**: `number` — The count used to select the correct plural form
 - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found
 
-```typescript
-const appleCountMessage = $tc('apples', 10)
-// Output: "10 apples" (assuming the plural rule for 'apples' is defined correctly)
+**Translation format**: forms separated by `|`, with `{count}` placeholder:
+
+```json
+{ "apples": "no apples | one apple | {count} apples" }
 ```
+
+```typescript
+$tc('apples', 0)  // "no apples"
+$tc('apples', 1)  // "one apple"
+$tc('apples', 10) // "10 apples"
+```
+
+::: tip
+The form selection logic depends on the `plural` function in your config. The default selects by index (0 → first form, 1 → second, etc.). For languages like Russian, Arabic, or Polish, configure a custom `plural` function. See [Getting Started → plural](/guide/getting-started#plural).
+:::
 
 ### `$mergeTranslations`
 

@@ -33,6 +33,29 @@ export type TranslationKey = keyof DefineLocaleMessage extends never ? string : 
  */
 export type ScopedKey<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>
 
+/**
+ * Locale configuration object.
+ *
+ * Supports arbitrary custom properties via the index signature `[key: string]: unknown`.
+ * To get full TypeScript support for your custom properties, use module augmentation:
+ *
+ * ```typescript
+ * // app/i18n.d.ts (or any .d.ts file included in your tsconfig)
+ * declare module '@i18n-micro/types' {
+ *   interface Locale {
+ *     flag?: string
+ *     currency?: string
+ *   }
+ * }
+ * ```
+ *
+ * Then access them with full typing:
+ * ```typescript
+ * const locales = $getLocales()
+ * locales[0].flag     // string | undefined  (typed!)
+ * locales[0].currency // string | undefined  (typed!)
+ * ```
+ */
 export interface Locale {
   /** BCP-47 locale code (e.g. `'en'`, `'de-DE'`, `'zh-Hans'`). Used in URLs and as file/key identifier. */
   code: LocaleCode

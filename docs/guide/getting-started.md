@@ -250,6 +250,8 @@ Each locale object supports:
 | `disabled` | `boolean` | ❌ | Disable in dropdown if `true` |
 | `baseUrl` | `string` | ❌ | Base URL for locale-specific domains |
 | `baseDefault` | `boolean` | ❌ | Remove locale prefix from URLs |
+| `fallbackLocale` | `string` | ❌ | Per-locale fallback (overrides global) |
+| `[key: string]` | `unknown` | ❌ | Any custom properties (see below) |
 
 **Example**:
 
@@ -272,6 +274,54 @@ locales: [
 
 Using `baseUrl` can lead to duplication of internal routes as external links, complicating routing and maintenance. Consider creating external links directly for specific locales instead.
 
+:::
+
+#### Custom Locale Properties
+
+You can add any custom properties to locale objects. They are passed through to the runtime and accessible via `$getLocales()`:
+
+```typescript
+locales: [
+  { code: 'en', iso: 'en-US', flag: '🇬🇧', currency: 'GBP' },
+  { code: 'de', iso: 'de-DE', flag: '🇩🇪', currency: 'EUR' },
+  { code: 'ru', iso: 'ru-RU', flag: '🇷🇺', currency: 'RUB' },
+]
+```
+
+Access them in components:
+
+```vue
+<template>
+  <ul>
+    <li v-for="locale in $getLocales()" :key="locale.code">
+      {{ locale.flag }} {{ locale.displayName }} ({{ locale.currency }})
+    </li>
+  </ul>
+</template>
+```
+
+By default, custom properties are typed as `unknown`. To get full TypeScript support, use **module augmentation**. Create a declaration file (e.g., `app/i18n.d.ts` or any `.d.ts` included in your `tsconfig`):
+
+```typescript
+// app/i18n.d.ts
+declare module '@i18n-micro/types' {
+  interface Locale {
+    flag?: string
+    currency?: string
+  }
+}
+```
+
+After this, all custom properties are fully typed:
+
+```typescript
+const locales = $getLocales()
+locales[0].flag     // string | undefined ✅
+locales[0].currency // string | undefined ✅
+```
+
+::: tip
+Module augmentation works because `Locale` is an `interface` (not a `type`), so TypeScript merges your declarations with the original definition. This applies everywhere — `$getLocales()`, `useI18n()`, server middleware, etc.
 :::
 
 #### `defaultLocale`

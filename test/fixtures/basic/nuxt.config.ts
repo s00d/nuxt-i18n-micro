@@ -12,11 +12,11 @@ export default defineNuxtConfig({
   i18n: {
     debug: true,
     locales: [
-      { code: 'en', iso: 'en_EN', displayName: 'English' },
-      { code: 'de', iso: 'de_DE', displayName: 'German' },
-      { code: 'ru', iso: 'ru_RU', displayName: 'Russian' },
-      { code: 'fr', iso: 'fr_FR', displayName: 'French', baseUrl: 'https://fr.example.com', baseDefault: true },
-      { code: 'ch', iso: 'ch_CH', displayName: 'Chinese', baseUrl: 'https://test.example.com' },
+      { code: 'en', iso: 'en_EN', displayName: 'English', flag: '🇬🇧', currency: 'GBP' },
+      { code: 'de', iso: 'de_DE', displayName: 'German', flag: '🇩🇪', currency: 'EUR' },
+      { code: 'ru', iso: 'ru_RU', displayName: 'Russian', flag: '🇷🇺', currency: 'RUB' },
+      { code: 'fr', iso: 'fr_FR', displayName: 'French', baseUrl: 'https://fr.example.com', baseDefault: true, flag: '🇫🇷', currency: 'EUR' },
+      { code: 'ch', iso: 'ch_CH', displayName: 'Chinese', baseUrl: 'https://test.example.com', flag: '🇨🇳', currency: 'CNY' },
     ],
     meta: true,
     defaultLocale: 'en',

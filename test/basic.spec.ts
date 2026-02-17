@@ -591,6 +591,29 @@ test.describe('basic', () => {
     expect(switchLocaleRouteDeN).toContain('/de/locale-conf-modif')
   })
 
+  test('custom locale properties are accessible via $getLocales', async ({ page, goto }) => {
+    await goto('/custom-props', { waitUntil: 'hydration' })
+
+    // Current locale custom props
+    await expect(page.locator('#current-locale')).toHaveText('en')
+    await expect(page.locator('#current-flag')).toHaveText('🇬🇧')
+    await expect(page.locator('#current-currency')).toHaveText('GBP')
+
+    // All locales have custom props in data attributes
+    await expect(page.locator('#locale-list li[data-code="en"]')).toHaveAttribute('data-flag', '🇬🇧')
+    await expect(page.locator('#locale-list li[data-code="en"]')).toHaveAttribute('data-currency', 'GBP')
+    await expect(page.locator('#locale-list li[data-code="de"]')).toHaveAttribute('data-flag', '🇩🇪')
+    await expect(page.locator('#locale-list li[data-code="de"]')).toHaveAttribute('data-currency', 'EUR')
+    await expect(page.locator('#locale-list li[data-code="ru"]')).toHaveAttribute('data-flag', '🇷🇺')
+    await expect(page.locator('#locale-list li[data-code="ru"]')).toHaveAttribute('data-currency', 'RUB')
+
+    // Switch to German and verify current locale props update
+    await goto('/de/custom-props', { waitUntil: 'hydration' })
+    await expect(page.locator('#current-locale')).toHaveText('de')
+    await expect(page.locator('#current-flag')).toHaveText('🇩🇪')
+    await expect(page.locator('#current-currency')).toHaveText('EUR')
+  })
+
   test('disable meta tags completely', async ({ page, goto }) => {
     // Test English locale - meta tags should be disabled
     await goto('/disable-meta-all', { waitUntil: 'hydration' })

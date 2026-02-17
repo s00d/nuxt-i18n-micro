@@ -41,7 +41,9 @@ function readJsonSafe(filePath: string): Record<string, unknown> {
     if (existsSync(filePath)) {
       return JSON.parse(readFileSync(filePath, 'utf-8'))
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
   return {}
 }
 
@@ -147,8 +149,8 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         // Re-merge every known page for this locale
         if (existsSync(pagesDir)) {
           const pageDirs = readdirSync(pagesDir, { withFileTypes: true })
-            .filter(d => d.isDirectory())
-            .map(d => d.name)
+            .filter((d) => d.isDirectory())
+            .map((d) => d.name)
 
           for (const pageName of pageDirs) {
             mergeAndSet(serverCache, locale, pageName)

@@ -1,6 +1,48 @@
 # Changelog
 
 
+## v3.12.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.11.0...v3.12.0)
+
+### 🚀 Enhancements
+
+- **types:** Add locale configuration object with index signature support ([a6d02187](https://github.com/s00d/nuxt-i18n-micro/commit/a6d02187))
+- **pages:** Add custom props component for locale display ([a20e1f41](https://github.com/s00d/nuxt-i18n-micro/commit/a20e1f41))
+- **i18n:** Enhance locale configuration with flags and currencies ([4ec28b66](https://github.com/s00d/nuxt-i18n-micro/commit/4ec28b66))
+- **route-generator:** Update data routes generation logic for prerender ([255645ea](https://github.com/s00d/nuxt-i18n-micro/commit/255645ea))
+
+### 🩹 Fixes
+
+- **core:** Remove redundant fallback logic in translation functions ([c6c3d56f](https://github.com/s00d/nuxt-i18n-micro/commit/c6c3d56f))
+
+### 💅 Refactors
+
+- **text:** Remove unused `text.ts` file and related code ([74e093e7](https://github.com/s00d/nuxt-i18n-micro/commit/74e093e7))
+
+### 📖 Documentation
+
+- **getting-started:** Add custom locale properties to documentation ([4119bc6b](https://github.com/s00d/nuxt-i18n-micro/commit/4119bc6b))
+- **getting-started:** Update plural function documentation ([4d9f505d](https://github.com/s00d/nuxt-i18n-micro/commit/4d9f505d))
+- **api:** Update `$tc` method description with pluralization details ([209a1662](https://github.com/s00d/nuxt-i18n-micro/commit/209a1662))
+
+### 🏡 Chore
+
+- **pnpm:** Remove outdated `ufo` dependency and clean up lock file ([20a30938](https://github.com/s00d/nuxt-i18n-micro/commit/20a30938))
+
+### ✅ Tests
+
+- **locales:** Add tests for custom locale properties accessibility ([804913e1](https://github.com/s00d/nuxt-i18n-micro/commit/804913e1))
+- **route-generator:** Update tests to reflect index route generation ([4956b54d](https://github.com/s00d/nuxt-i18n-micro/commit/4956b54d))
+
+### 🎨 Styles
+
+- **watcher.dev:** Format code for improved readability ([77df0539](https://github.com/s00d/nuxt-i18n-micro/commit/77df0539))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.11.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.10.0...v3.11.0)

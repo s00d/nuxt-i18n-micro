@@ -65,7 +65,6 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
         if (entry === 'pages' && !disablePageLocales) {
           loadFiles(fullPath, '')
         } else if (routePrefix || disablePageLocales) {
-          // Continue in general translations
           loadFiles(fullPath, routePrefix)
         } else {
           // This is a route directory (e.g., pages/home/)

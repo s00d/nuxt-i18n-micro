@@ -140,7 +140,7 @@ describe('RouteGenerator.resolveLocalizedPath', () => {
 describe('RouteGenerator.generateDataRoutes', () => {
   const apiBaseUrl = '_locales'
 
-  test('returns general data route for each locale', () => {
+  test('returns index data route for each locale when disablePageLocales', () => {
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
@@ -150,13 +150,13 @@ describe('RouteGenerator.generateDataRoutes', () => {
       noPrefixRedirect: false,
     })
     const routes = generator.generateDataRoutes([], apiBaseUrl, true)
-    expect(routes).toContain(`/${apiBaseUrl}/general/en/data.json`)
-    expect(routes).toContain(`/${apiBaseUrl}/general/de/data.json`)
-    expect(routes).toContain(`/${apiBaseUrl}/general/ru/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/index/en/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/index/de/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/index/ru/data.json`)
     expect(routes).toHaveLength(3)
   })
 
-  test('when disablePageLocales is false, includes per-page routes for each locale', () => {
+  test('when disablePageLocales is false, includes index + per-page routes for each locale', () => {
     const pages: NuxtPage[] = [
       { path: '/', name: 'index', file: '/pages/index.vue' },
       { path: '/about', name: 'about', file: '/pages/about.vue' },
@@ -170,16 +170,16 @@ describe('RouteGenerator.generateDataRoutes', () => {
       noPrefixRedirect: false,
     })
     const routes = generator.generateDataRoutes(pages, apiBaseUrl, false)
-    expect(routes).toContain(`/${apiBaseUrl}/general/en/data.json`)
-    expect(routes).toContain(`/${apiBaseUrl}/general/de/data.json`)
     expect(routes).toContain(`/${apiBaseUrl}/index/en/data.json`)
     expect(routes).toContain(`/${apiBaseUrl}/index/de/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/index/ru/data.json`)
     expect(routes).toContain(`/${apiBaseUrl}/about/en/data.json`)
     expect(routes).toContain(`/${apiBaseUrl}/about/de/data.json`)
-    expect(routes).toHaveLength(3 + 3 * 2) // 3 general + 3 locales * 2 pages
+    expect(routes).toContain(`/${apiBaseUrl}/about/ru/data.json`)
+    expect(routes).toHaveLength(3 + 3 * 2) // 3 index + 3 locales * 2 pages
   })
 
-  test('when disablePageLocales is true, only general routes', () => {
+  test('when disablePageLocales is true, only index routes', () => {
     const pages = createBasicPages()
     const generator = new RouteGenerator({
       locales,
@@ -190,9 +190,8 @@ describe('RouteGenerator.generateDataRoutes', () => {
       noPrefixRedirect: false,
     })
     const routes = generator.generateDataRoutes(pages, apiBaseUrl, true)
-    const generalCount = 3
-    expect(routes).toHaveLength(generalCount)
-    expect(routes.every((r) => r.includes('/general/'))).toBe(true)
+    expect(routes).toHaveLength(3)
+    expect(routes.every((r) => r.includes('/index/'))).toBe(true)
   })
 
   test('skips pages without name', () => {
@@ -211,7 +210,30 @@ describe('RouteGenerator.generateDataRoutes', () => {
     const routes = generator.generateDataRoutes(pages, apiBaseUrl, false)
     expect(routes).toContain(`/${apiBaseUrl}/about/en/data.json`)
     expect(routes.filter((r) => r.includes('/noname/'))).toHaveLength(0)
-    expect(routes).toHaveLength(3 + 3 * 1) // 3 general + 3 locales * 1 named page
+    expect(routes).toHaveLength(3 + 3 * 1) // 3 index + 3 locales * 1 named page
+  })
+
+  test('disablePageLocales: true generates routes matching client request path (index)', () => {
+    const pages: NuxtPage[] = [
+      { path: '/', name: 'index', file: '/pages/index.vue' },
+      { path: '/about', name: 'about', file: '/pages/about.vue' },
+      { path: '/contact', name: 'contact', file: '/pages/contact.vue' },
+    ]
+    const generator = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'no_prefix',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
+    const routes = generator.generateDataRoutes(pages, apiBaseUrl, true)
+    expect(routes).toHaveLength(3)
+    for (const locale of locales) {
+      expect(routes).toContain(`/${apiBaseUrl}/index/${locale.code}/data.json`)
+    }
+    expect(routes.some((r) => r.includes('/about/'))).toBe(false)
+    expect(routes.some((r) => r.includes('/contact/'))).toBe(false)
   })
 
   test('uses resolved locales (disabled locales excluded)', () => {
@@ -224,9 +246,9 @@ describe('RouteGenerator.generateDataRoutes', () => {
       noPrefixRedirect: false,
     })
     const routes = generator.generateDataRoutes([], apiBaseUrl, true)
-    expect(routes).toContain(`/${apiBaseUrl}/general/en/data.json`)
-    expect(routes).toContain(`/${apiBaseUrl}/general/ru/data.json`)
-    expect(routes).not.toContain(`/${apiBaseUrl}/general/de/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/index/en/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/index/ru/data.json`)
+    expect(routes).not.toContain(`/${apiBaseUrl}/index/de/data.json`)
     expect(routes).toHaveLength(2)
   })
 })

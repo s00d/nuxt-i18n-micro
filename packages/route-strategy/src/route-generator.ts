@@ -207,15 +207,17 @@ export class RouteGenerator {
   }
 
   /**
-   * Generates the list of data.json routes for prerender (general + per-page per locale).
+   * Generates the list of data.json routes for prerender.
+   * When disablePageLocales is true, only index routes are generated (all pages share root translations).
+   * Otherwise, generates index + per-page routes for each locale.
    */
   public generateDataRoutes(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean): string[] {
     const routes: string[] = []
-    const pagesNames = pages.map((page) => page.name).filter((name): name is string => typeof name === 'string' && name.length > 0)
 
     for (const locale of this.locales) {
-      routes.push(`/${apiBaseUrl}/general/${locale.code}/data.json`)
+      routes.push(`/${apiBaseUrl}/index/${locale.code}/data.json`)
       if (!disablePageLocales) {
+        const pagesNames = pages.map((page) => page.name).filter((name): name is string => typeof name === 'string' && name.length > 0)
         for (const name of pagesNames) {
           routes.push(`/${apiBaseUrl}/${name}/${locale.code}/data.json`)
         }

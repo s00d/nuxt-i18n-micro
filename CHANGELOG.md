@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v3.13.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.12.0...v3.13.0)
+
+### 🚀 Enhancements
+
+- **watcher:** Improve server cache handling and locale validation ([a6d39dcb](https://github.com/s00d/nuxt-i18n-micro/commit/a6d39dcb))
+- **playground:** Add Spanish language support in configuration ([8cbf5146](https://github.com/s00d/nuxt-i18n-micro/commit/8cbf5146))
+
+### 🩹 Fixes
+
+- **plugin:** Ensure safe key handling in i18n script generation ([2dacb772](https://github.com/s00d/nuxt-i18n-micro/commit/2dacb772))
+- **i18n-link:** Update router reference for path resolution ([1492ee00](https://github.com/s00d/nuxt-i18n-micro/commit/1492ee00))
+- **server-loader:** Simplify data loading from storage ([80ef9875](https://github.com/s00d/nuxt-i18n-micro/commit/80ef9875))
+- **storage:** Use `delete` instead of assignment for cache cleanup ([9bb8699e](https://github.com/s00d/nuxt-i18n-micro/commit/9bb8699e))
+- **hmr-plugin:** Improve regex for page name extraction ([59f565c0](https://github.com/s00d/nuxt-i18n-micro/commit/59f565c0))
+- **module:** Improve URL normalization for API base URL ([2e66e763](https://github.com/s00d/nuxt-i18n-micro/commit/2e66e763))
+
+### 💅 Refactors
+
+- **watcher:** Reorganize imports and streamline locale filtering logic ([92138e48](https://github.com/s00d/nuxt-i18n-micro/commit/92138e48))
+
+### 🏡 Chore
+
+- **locales:** Update `es.json` file to ensure proper formatting ([1cfa9b58](https://github.com/s00d/nuxt-i18n-micro/commit/1cfa9b58))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.12.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.11.0...v3.12.0)

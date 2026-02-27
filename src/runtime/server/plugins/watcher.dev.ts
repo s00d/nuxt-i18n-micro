@@ -5,6 +5,7 @@ import path from 'node:path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
+import { CacheControl } from '../../utils/cache-control'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 
 // Must match keys used in server-loader.ts and storage.ts
@@ -30,6 +31,17 @@ function getCacheByKey(key: symbol): CacheLike | null {
 
 function getServerCache(): CacheLike | null {
   return getCacheByKey(SERVER_CC_KEY)
+}
+
+function getOrCreateServerCache(): CacheLike {
+  const existing = getServerCache()
+  if (existing) {
+    return existing
+  }
+  const g = globalThis as GlobalWithCC
+  const created = new CacheControl<{ data: Record<string, unknown>; json: string }>()
+  g[SERVER_CC_KEY] = created
+  return created
 }
 
 function getStorageCache(): CacheLike | null {
@@ -82,6 +94,12 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
   const log = (...args: unknown[]) => i18nConfig.debug && console.log('[i18n-hmr]', ...args)
   const warn = (...args: unknown[]) => i18nConfig.debug && console.warn('[i18n-hmr]', ...args)
+  const rawLocales = (i18nConfig as { locales?: Array<{ code?: string }> }).locales
+  const configuredLocales = new Set(
+    (Array.isArray(rawLocales) ? rawLocales : [])
+      .map((l) => l.code)
+      .filter((code): code is string => typeof code === 'string' && code.length > 0),
+  )
 
   const routesLocaleLinks = i18nConfig.routesLocaleLinks || {}
   const translationsRoot = path.resolve(i18nConfig.rootDir, i18nConfig.translationDir)
@@ -117,17 +135,12 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     }
   }
 
-  const invalidateAndRefresh = async (filePath: string) => {
+  const invalidateAndRefresh = async (filePath: string, event: 'add' | 'change' | 'unlink') => {
     if (!filePath.endsWith('.json')) return
 
     const relativePath = path.relative(translationsRoot, filePath).replace(/\\/g, '/')
     const isPageTranslation = relativePath.startsWith('pages/')
-    const serverCache = getServerCache()
-
-    if (!serverCache) {
-      log('Server cache not yet initialized, skipping invalidation for', relativePath)
-      return
-    }
+    const serverCache = getOrCreateServerCache()
 
     try {
       if (isPageTranslation) {
@@ -144,6 +157,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         if (!match || !match[1]) return
 
         const locale = match[1]
+        if (!configuredLocales.has(locale)) {
+          warn(`Detected ${event} for '${relativePath}', but locale '${locale}' is not in i18n.locales. Update config and restart dev server.`)
+          return
+        }
         const pagesDir = path.join(translationsRoot, 'pages')
 
         // Re-merge every known page for this locale
@@ -168,9 +185,9 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   }
 
   const watcher = watch(translationsRoot, { persistent: true, ignoreInitial: true, depth: 5 })
-  watcher.on('add', invalidateAndRefresh)
-  watcher.on('change', invalidateAndRefresh)
-  watcher.on('unlink', invalidateAndRefresh)
+  watcher.on('add', (filePath) => invalidateAndRefresh(filePath, 'add'))
+  watcher.on('change', (filePath) => invalidateAndRefresh(filePath, 'change'))
+  watcher.on('unlink', (filePath) => invalidateAndRefresh(filePath, 'unlink'))
 
   watcherInstance = watcher
 

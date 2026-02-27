@@ -1,0 +1,22 @@
+{
+  "test_key": "valor de prueba",
+  "fallback": {
+    "value": "texto fallback en espanol"
+  },
+  "navigation": {
+    "contact": "Contacto"
+  },
+  "navigation_component": {
+    "title": "Navegacion ES",
+    "home": "Inicio"
+  },
+  "key1": {
+    "key1": {
+      "key1": {
+        "key1": {
+          "key1": "es es es"
+        }
+      }
+    }
+  }
+}

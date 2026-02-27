@@ -164,6 +164,11 @@ $defineI18nRoute({
         contact: 'Contect de',
       },
     },
+    es: {
+      navigation: {
+        contact: 'Contect es',
+      },
+    },
     ru: {},
     fr: {},
     ch: {},

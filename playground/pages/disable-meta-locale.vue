@@ -15,7 +15,7 @@
 const { $defineI18nRoute } = useNuxtApp()
 
 $defineI18nRoute({
-  locales: ['de'],
+  locales: ['de', 'es'],
   disableMeta: ['en'],
 })
 </script>

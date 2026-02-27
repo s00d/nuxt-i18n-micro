@@ -8,7 +8,7 @@ export function generateHmrPlugin(files: string[]): string {
       let pageName = ''
       let locale = ''
       if (isPage) {
-        const m = /\/pages\/([^/]+)\/([^/]+)\.json$/.exec(file)
+        const m = /\/pages\/(.+)\/([^/]+)\.json$/.exec(file)
         pageName = m?.[1] || ''
         locale = m?.[2] || ''
       } else {

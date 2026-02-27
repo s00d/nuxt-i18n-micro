@@ -70,7 +70,8 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   const normalizedPage = resolvedPage.replace(/\//g, ':')
   const key = `${ASSETS_PREFIX}:pages:${normalizedPage}:${locale}.json`
 
-  const data: Translations = (await storage.hasItem(key)) ? toTranslations(await storage.getItem(key)) : {}
+  const loaded = await storage.getItem(key)
+  const data: Translations = toTranslations(loaded)
 
   const json = JSON.stringify(data).replace(/</g, '\\u003c')
   const entry = { data, json }

@@ -95,7 +95,7 @@ class TranslationStorage {
     // CLIENT: Check SSR injection
     if (import.meta.client && typeof window !== 'undefined' && window.__I18N__?.[cacheKey]) {
       const data = window.__I18N__[cacheKey] as Record<string, unknown>
-      window.__I18N__[cacheKey] = undefined
+      delete window.__I18N__[cacheKey]
       this.cc.set(cacheKey, Object.freeze(data))
       return { data: this.cc.get(cacheKey)!, cacheKey }
     }

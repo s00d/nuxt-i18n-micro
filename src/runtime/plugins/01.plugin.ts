@@ -249,8 +249,9 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const ctx = nuxtApp.ssrContext?.event.context
     if (ctx?._i18n && Object.keys(ctx._i18n).length > 0) {
       let script = 'window.__I18N__={};'
-      for (const [k, v] of Object.entries(ctx._i18n)) {
-        script += `window.__I18N__["${k}"]=${v};`
+      for (const [key, value] of Object.entries(ctx._i18n)) {
+        const safeKey = JSON.stringify(key)
+        script += `window.__I18N__[${safeKey}]=${value};`
       }
       useHead({
         script: [{ innerHTML: script, type: 'text/javascript', tagPosition: 'bodyClose' }],
@@ -283,7 +284,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     } catch (e) {
       if (isDev) console.error('[i18n] Navigation error:', e)
     }
-
     if (next) next()
   })
 
@@ -454,13 +454,18 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       return ''
     },
     switchLocale: async (toLocale: string) => {
-      if (isValidLocale(toLocale)) {
-        setLocale(toLocale)
-        if (isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode) {
-          const route = router.currentRoute.value as unknown as ResolvedRouteLike
-          const routeName = getPluginRouteName(route, toLocale)
-          await switchContext(toLocale, routeName)
+      if (!isValidLocale(toLocale)) {
+        if (isDev) {
+          console.warn(`[i18n] Invalid locale '${toLocale}'`)
         }
+        return
+      }
+
+      setLocale(toLocale)
+      if (isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode) {
+        const route = router.currentRoute.value as unknown as ResolvedRouteLike
+        const routeName = getPluginRouteName(route, toLocale)
+        await switchContext(toLocale, routeName)
       }
       return switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },

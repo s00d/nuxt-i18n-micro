@@ -372,7 +372,7 @@ export default defineNuxtModule<ModuleOptions>({
     if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
       throw new Error('Nuxt-i18n-micro: Please use NUXT_I18N_APP_BASE_CLIENT_HOST or NUXT_I18N_APP_BASE_SERVER_HOST instead.')
     }
-    const apiBaseUrl = rawUrl.replace(/^\/+|\/+$|\/{2,}/, '')
+    const apiBaseUrl = rawUrl.replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
 
     const fullConfig = {
       locales: routeGenerator.locales ?? [],
@@ -474,6 +474,7 @@ export function createI18nStrategy(router) {
     const privateConfig = {
       rootDir: nuxt.options.rootDir,
       debug: options.debug ?? false,
+      locales: routeGenerator.locales ?? [],
       fallbackLocale: options.fallbackLocale ?? undefined,
       translationDir: options.translationDir ?? 'locales',
       customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,

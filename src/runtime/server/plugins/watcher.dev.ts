@@ -5,8 +5,8 @@ import path from 'node:path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
-import { CacheControl } from '../../utils/cache-control'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
+import { CacheControl } from '../../utils/cache-control'
 
 // Must match keys used in server-loader.ts and storage.ts
 const SERVER_CC_KEY = Symbol.for('__NUXT_I18N_SERVER_CACHE_CC__')
@@ -96,9 +96,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const warn = (...args: unknown[]) => i18nConfig.debug && console.warn('[i18n-hmr]', ...args)
   const rawLocales = (i18nConfig as { locales?: Array<{ code?: string }> }).locales
   const configuredLocales = new Set(
-    (Array.isArray(rawLocales) ? rawLocales : [])
-      .map((l) => l.code)
-      .filter((code): code is string => typeof code === 'string' && code.length > 0),
+    (Array.isArray(rawLocales) ? rawLocales : []).map((l) => l.code).filter((code): code is string => typeof code === 'string' && code.length > 0),
   )
 
   const routesLocaleLinks = i18nConfig.routesLocaleLinks || {}
@@ -144,7 +142,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
     try {
       if (isPageTranslation) {
-        const match = relativePath.match(/^pages\/([^/]+)\/(.+)\.json$/)
+        const match = relativePath.match(/^pages\/(.+)\/([^/]+)\.json$/)
         if (!match || !match[1] || !match[2]) return
 
         const pageName = match[1]

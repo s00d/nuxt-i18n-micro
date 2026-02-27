@@ -32,6 +32,7 @@ interface Props {
 
 const props = defineProps<Props>()
 const route = useRoute()
+const router = useRouter()
 
 const isExternalLink = computed(() => {
   if (typeof props.to === 'string') {
@@ -42,6 +43,9 @@ const isExternalLink = computed(() => {
 
 const externalHref = computed(() => {
   if (isExternalLink.value && typeof props.to === 'string') {
+    if (props.to.startsWith('//')) {
+      return props.to
+    }
     if (!/^https?:\/\//.test(props.to)) {
       return `https://${props.to}`
     }
@@ -55,7 +59,7 @@ const isActive = computed(() => {
     return false
   }
   const pathStr = $localePath(props.to)
-  return route.path === useRouter().resolve(pathStr).path
+  return route.path === router.resolve(pathStr).path
 })
 
 const computedStyle = computed((): Partial<CSSStyleValue> => {

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.13.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.0...v3.13.1)
+
+### 🩹 Fixes
+
+- **router:** Remove unnecessary `next` calls in navigation guards ([c94f3ca7](https://github.com/s00d/nuxt-i18n-micro/commit/c94f3ca7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.13.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.12.0...v3.13.0)

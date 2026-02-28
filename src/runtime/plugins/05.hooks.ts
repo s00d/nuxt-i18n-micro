@@ -39,7 +39,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     locale,
   )
 
-  router.beforeEach(async (to, from, next) => {
+  router.beforeEach(async (to, from) => {
     if (to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)) {
       const locale = $getLocale(to)
       const routeName = $getRouteName(to as RouteLocationResolvedGeneric)
@@ -53,8 +53,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         locale,
       )
     }
-    if (next) {
-      next()
-    }
+    return
   })
 })

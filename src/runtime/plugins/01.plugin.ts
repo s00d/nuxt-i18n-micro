@@ -260,12 +260,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 
   // === 5. HOOKS (Client Navigation) ===
-  router.beforeEach(async (to, from, next) => {
+  router.beforeEach(async (to, from) => {
     if (to.name !== from.name) {
       i18nRouteParams.value = {}
     }
     if (to.path === from.path && !isNoPrefixStrategy(i18nConfig.strategy!)) {
-      if (next) next()
       return
     }
 
@@ -284,7 +283,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     } catch (e) {
       if (isDev) console.error('[i18n] Navigation error:', e)
     }
-    if (next) next()
+    return
   })
 
   // === 6. T-FUNCTION ===

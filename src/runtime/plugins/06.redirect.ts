@@ -4,7 +4,7 @@
  */
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import { getCookie, getHeader, getRequestURL, sendRedirect, setCookie } from 'h3'
+import { getCookie, getHeader, getRequestURL, setCookie } from 'h3'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRoute, useRouter, useState } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
@@ -81,16 +81,11 @@ export default defineNuxtPlugin({
       const url = getRequestURL(event)
       const path = url.pathname
 
-      // During prerendering, sendRedirect does not abort the Nuxt rendering pipeline,
-      // so the renderer continues and may overwrite the 302 with a 404.
-      // navigateTo sets ssrContext._renderResponse which properly aborts rendering.
-      // At runtime, sendRedirect is more reliable as it immediately ends the HTTP response.
-      const isPrerender = !!getHeader(event, 'x-nitro-prerender')
       const performRedirect = (targetUrl: string, code: number = 302): Promise<void> => {
-        if (isPrerender) {
-          return navigateTo(targetUrl, { redirectCode: code }) as Promise<void>
-        }
-        return sendRedirect(event, targetUrl, code)
+        // Use navigateTo in all SSR cases to avoid ending response too early.
+        // This keeps compatibility with modules/hooks that still mutate headers
+        // later in the rendering pipeline (e.g. render:response hooks).
+        return navigateTo(targetUrl, { redirectCode: code }) as Promise<void>
       }
 
       // Skip internal paths

@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v3.13.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.1...v3.13.2)
+
+### 🩹 Fixes
+
+- **redirect:** Avoid early SSR response finalization ([ed8c0e43](https://github.com/s00d/nuxt-i18n-micro/commit/ed8c0e43))
+- **module:** Allow overriding canonicalQueryWhitelist ([66c7a702](https://github.com/s00d/nuxt-i18n-micro/commit/66c7a702))
+- **useLocaleHead:** Auto-populate metaObject for manual usage ([415be77a](https://github.com/s00d/nuxt-i18n-micro/commit/415be77a))
+- **runtime:** Stabilize locale cookie and meta updates ([c4ae430b](https://github.com/s00d/nuxt-i18n-micro/commit/c4ae430b))
+
+### ✅ Tests
+
+- **path-strategy:** Relax memory growth threshold in leak test ([125c2c2d](https://github.com/s00d/nuxt-i18n-micro/commit/125c2c2d))
+- **fixtures:** Type redirect-security nitro plugin ([c1789def](https://github.com/s00d/nuxt-i18n-micro/commit/c1789def))
+- **useLocaleHead:** Assert metaObject payload directly ([a90c6f4f](https://github.com/s00d/nuxt-i18n-micro/commit/a90c6f4f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.13.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.0...v3.13.1)

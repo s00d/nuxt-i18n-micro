@@ -1,7 +1,7 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { joinURL, parseURL, withQuery } from 'ufo'
-import { ref, unref } from 'vue'
+import { ref, unref, watch } from 'vue'
 import { useNuxtApp, useRoute } from '#imports'
 import { findAllowedLocalesForRoute } from '../utils/route-utils'
 
@@ -28,6 +28,8 @@ interface MetaObject {
 }
 
 export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = {}) => {
+  const nuxtApp = useNuxtApp()
+  const route = useRoute()
   const metaObject = ref<MetaObject>({
     htmlAttrs: {},
     link: [],
@@ -47,8 +49,6 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
   }
 
   function updateMeta() {
-    const route = useRoute()
-
     // On 404 pages, route.matched will be empty.
     // We should not generate SEO tags for pages that don't exist.
     if (route.matched.length === 0 || route.matched.some((record) => record.name === 'custom-fallback-route')) {
@@ -57,17 +57,18 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
       return
     }
 
-    const i18nConfig = useNuxtApp().$getI18nConfig() as ModuleOptionsExtend
+    const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
     const { canonicalQueryWhitelist, routeLocales, localizedRouteNamePrefix } = i18nConfig
     const strategy = i18nConfig.strategy
     const localizedRouteNamePrefixResolved = localizedRouteNamePrefix || 'localized-'
-    const { $getLocales, $getLocale, $switchLocalePath } = useNuxtApp()
-
-    if (!$getLocale || !$getLocales) return
-    const locale = unref($getLocale())
-    const allLocales = unref($getLocales())
+    const { $getLocales, $getLocale, $switchLocalePath } = nuxtApp
+    const allLocales = ($getLocales ? unref($getLocales()) : i18nConfig.locales) ?? []
+    const firstSegment = route.path.replace(/^\//, '').split('/').filter(Boolean)[0]
+    const fallbackLocale = allLocales.find((loc: Locale) => loc.code === firstSegment)?.code || i18nConfig.defaultLocale || 'en'
+    const locale = ($getLocale ? unref($getLocale()) : fallbackLocale) || fallbackLocale
+    const switchLocalePath = $switchLocalePath || (() => '')
     const routeName = (route.name ?? '').toString()
-    const currentLocale = unref($getLocales().find((loc: Locale) => loc.code === locale))
+    const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
     if (!currentLocale) return
 
     // Find allowed locales for this route using the utility function
@@ -147,7 +148,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
       : alternateLocales.flatMap((loc: Locale) => {
-          const switchedPath = $switchLocalePath(loc.code)
+          const switchedPath = switchLocalePath(loc.code)
           if (!switchedPath) {
             return []
           }
@@ -188,7 +189,7 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     // specified languages match the user's browser settings.
     let xDefaultLink: MetaLink | null = null
     if (!isNoPrefixStrategy(strategy!)) {
-      const defaultSwitchedPath = $switchLocalePath(defaultLocale)
+      const defaultSwitchedPath = switchLocalePath(defaultLocale)
       if (defaultSwitchedPath) {
         let xDefaultHref: string
         if (defaultSwitchedPath.startsWith('http://') || defaultSwitchedPath.startsWith('https://')) {
@@ -208,6 +209,14 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     metaObject.value.meta = [ogLocaleMeta, ogUrlMeta, ...alternateOgLocalesMeta]
     metaObject.value.link = [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])]
   }
+
+  // Keep head payload in sync automatically for manual usage
+  // (e.g. when 02.meta plugin is disabled with `meta: false`).
+  watch(
+    () => [route.fullPath, route.name, route.matched.length],
+    () => updateMeta(),
+    { immediate: true },
+  )
 
   return { metaObject, updateMeta }
 }

@@ -46,6 +46,8 @@ interface PreMergeLocaleInfo {
   fallbackLocale?: string
 }
 
+const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
+
 /**
  * Pre-merge all translation files at build time.
  *
@@ -222,7 +224,7 @@ export default defineNuxtModule<ModuleOptions>({
     apiBaseServerHost: undefined,
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
-    canonicalQueryWhitelist: ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag'],
+    canonicalQueryWhitelist: undefined,
     plural: defaultPlural,
     customRegexMatcher: undefined,
     excludePatterns: undefined,
@@ -392,7 +394,7 @@ export default defineNuxtModule<ModuleOptions>({
       apiBaseServerHost,
       isSSG,
       disablePageLocales: options.disablePageLocales ?? false,
-      canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? [],
+      canonicalQueryWhitelist: options.canonicalQueryWhitelist ?? DEFAULT_CANONICAL_QUERY_WHITELIST,
       excludePatterns: options.excludePatterns ?? [],
       routeLocales,
       routeDisableMeta: routeDisableMeta,

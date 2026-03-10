@@ -7,6 +7,7 @@ test.use({
     nuxtConfig: {
       i18n: {
         autoDetectPath: '*',
+        autoDetectLanguage: false,
       },
     },
   },
@@ -20,7 +21,7 @@ test.describe('cookie', () => {
     // Check that the URL is redirected to /
     await expect(page).toHaveURL('/')
 
-    // Check that the cookie 'user-locale' is set to 'en'
+    // Check that the cookie 'user-locale' is set to default locale after redirect
     const cookies = await page.context().cookies()
     const userLocaleCookie = cookies.find((cookie) => cookie.name === 'user-locale')
 

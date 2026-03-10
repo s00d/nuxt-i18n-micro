@@ -76,7 +76,15 @@ export function useI18nLocale() {
     let locale = localeState.value
     if (!locale && options.serverLocale) locale = options.serverLocale
     if (!locale) locale = options.getLocaleFromRoute(options.route)
-    if (locale && !localeState.value) setLocale(locale)
+    if (locale && !localeState.value) {
+      // On server, avoid persisting cookie during initial resolution.
+      // Redirect plugin owns cookie writes for redirect flows.
+      if (import.meta.server) {
+        localeState.value = locale
+      } else {
+        setLocale(locale)
+      }
+    }
     return locale ?? ''
   }
 

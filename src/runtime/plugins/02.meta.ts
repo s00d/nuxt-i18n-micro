@@ -33,6 +33,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     identifierAttribute: 'id',
     addSeoAttributes: true,
     baseUrl,
+    autoUpdate: false,
   })
 
   useHead(metaObject)

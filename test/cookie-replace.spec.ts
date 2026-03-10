@@ -8,6 +8,7 @@ test.use({
       i18n: {
         localeCookie: 'user-change-cookie',
         autoDetectPath: '*',
+        autoDetectLanguage: false,
       },
     },
   },
@@ -20,11 +21,11 @@ test.describe('cookie-replace', () => {
     // Check that the URL is redirected to /
     await expect(page).toHaveURL('/')
 
-    // Check that the cookie 'user-change-cookie' is set to 'de'
+    // Check that the custom cookie is set to default locale after redirect
     const cookies = await page.context().cookies()
     const userLocaleCookie = cookies.find((cookie) => cookie.name === 'user-change-cookie')
 
-    expect(userLocaleCookie).toBeDefined() // Ensure the cookie exists
-    expect(userLocaleCookie?.value).toBe('en') // Ensure the cookie value is 'de'
+    expect(userLocaleCookie).toBeDefined()
+    expect(userLocaleCookie?.value).toBe('en')
   })
 })

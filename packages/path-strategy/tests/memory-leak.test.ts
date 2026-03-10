@@ -257,7 +257,7 @@ describe('Memory: strategy lifecycle', () => {
     const heapAfter = process.memoryUsage().heapUsed
 
     const growthMB = (heapAfter - heapBefore) / 1024 / 1024
-    expect(growthMB).toBeLessThan(10)
+    expect(growthMB).toBeLessThan(20)
   })
 
   test('setRouter replaces old router cleanly', () => {

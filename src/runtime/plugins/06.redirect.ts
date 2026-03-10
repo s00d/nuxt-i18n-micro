@@ -121,8 +121,11 @@ export default defineNuxtPlugin({
 
       const hasLocalePrefix = Boolean(firstSegment && validLocales.includes(firstSegment))
 
-      // Sync cookie with current locale from URL (always, even when redirects are disabled)
-      if (hasLocalePrefix && cookieName) {
+      // Sync cookie with current locale from URL.
+      // For autoDetectPath='*' with redirects enabled, defer cookie sync until
+      // preferred locale is computed to avoid locking preference to URL locale.
+      const shouldDeferCookieSync = i18nConfig.redirects !== false && autoDetectPath === '*'
+      if (hasLocalePrefix && cookieName && !shouldDeferCookieSync) {
         const currentLocale = firstSegment!
         const { watch: _w, ...cookieOpts } = getLocaleCookieOptions()
         setCookie(event, cookieName, currentLocale, cookieOpts)
@@ -174,6 +177,12 @@ export default defineNuxtPlugin({
             }
           }
 
+          // For wildcard auto-detect, keep no-prefix routes on default locale.
+          // This avoids redirect loops like /de -> / -> /de with prefix_except_default.
+          if (autoDetectPath === '*' && !hasLocalePrefix) {
+            preferredLocale = defaultLocale
+          }
+
           // autoDetectPath: '*' means redirect on all paths, including those with locale prefix
           if (autoDetectPath === '*' && hasLocalePrefix && firstSegment !== preferredLocale) {
             const rest = pathSegments.slice(1).join('/')
@@ -206,7 +215,7 @@ export default defineNuxtPlugin({
     if (import.meta.client && i18nConfig.redirects !== false) {
       const runRedirect = () => {
         const { getPreferredLocale } = useI18nLocale()
-        const preferredLocale = getPreferredLocale()
+        let preferredLocale = getPreferredLocale()
         if (!preferredLocale) return
 
         const route = useRoute()
@@ -214,6 +223,11 @@ export default defineNuxtPlugin({
         const pathSegments = path.replace(/^\//, '').split('/').filter(Boolean)
         const firstSegment = pathSegments[0]
         const hasLocalePrefix = Boolean(firstSegment && validLocales.includes(firstSegment))
+
+        // Keep no-prefix routes on default locale for wildcard auto-detect.
+        if (autoDetectPath === '*' && !hasLocalePrefix) {
+          preferredLocale = defaultLocale
+        }
 
         // autoDetectPath: '*' means redirect on all paths, including those with locale prefix
         if (autoDetectPath === '*' && hasLocalePrefix && firstSegment !== preferredLocale) {

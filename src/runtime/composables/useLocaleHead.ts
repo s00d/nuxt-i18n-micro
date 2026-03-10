@@ -27,7 +27,21 @@ interface MetaObject {
   meta: MetaTag[]
 }
 
-export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = {}) => {
+interface UseLocaleHeadOptions {
+  addDirAttribute?: boolean
+  identifierAttribute?: string
+  addSeoAttributes?: boolean
+  baseUrl?: string
+  autoUpdate?: boolean
+}
+
+export const useLocaleHead = ({
+  addDirAttribute = true,
+  identifierAttribute = 'id',
+  addSeoAttributes = true,
+  baseUrl = '/',
+  autoUpdate = true,
+}: UseLocaleHeadOptions = {}) => {
   const nuxtApp = useNuxtApp()
   const route = useRoute()
   const metaObject = ref<MetaObject>({
@@ -210,13 +224,15 @@ export const useLocaleHead = ({ addDirAttribute = true, identifierAttribute = 'i
     metaObject.value.link = [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])]
   }
 
-  // Keep head payload in sync automatically for manual usage
-  // (e.g. when 02.meta plugin is disabled with `meta: false`).
-  watch(
-    () => [route.fullPath, route.name, route.matched.length],
-    () => updateMeta(),
-    { immediate: true },
-  )
+  if (autoUpdate) {
+    // Keep head payload in sync automatically for manual usage
+    // (e.g. when 02.meta plugin is disabled with `meta: false`).
+    watch(
+      () => [route.fullPath, route.name, route.matched.length],
+      () => updateMeta(),
+      { immediate: true },
+    )
+  }
 
   return { metaObject, updateMeta }
 }

@@ -18,9 +18,15 @@ test.describe('canonicalQueryWhitelist override', () => {
 
     const canonicalHref = await page.locator('link[rel="canonical"]').getAttribute('href')
     const ogUrlContent = await page.locator('meta[property="og:url"]').getAttribute('content')
+    const alternateEnHref = await page.locator('link#i18n-alternate-en').getAttribute('href')
+    const alternateDeHref = await page.locator('link#i18n-alternate-de').getAttribute('href')
+    const xDefaultHref = await page.locator('link#i18n-xd').getAttribute('href')
 
     const canonicalURL = new URL(canonicalHref!)
     const ogURL = new URL(ogUrlContent!)
+    const alternateEnURL = new URL(alternateEnHref!)
+    const alternateDeURL = new URL(alternateDeHref!)
+    const xDefaultURL = new URL(xDefaultHref!)
 
     expect(canonicalURL.pathname).toBe('/en/contact')
     expect(canonicalURL.searchParams.get('page')).toBe('2')
@@ -31,5 +37,31 @@ test.describe('canonicalQueryWhitelist override', () => {
     expect(canonicalURL.searchParams.get('query')).toBeNull()
     expect(canonicalURL.searchParams.get('tag')).toBeNull()
     expect(canonicalURL.toString()).toBe(ogURL.toString())
+
+    expect(alternateEnURL.pathname).toBe('/en/contact')
+    expect(alternateDeURL.pathname).toBe('/de/contact')
+    expect(xDefaultURL.pathname).toBe('/en/contact')
+
+    expect(alternateEnURL.searchParams.get('page')).toBe('2')
+    expect(alternateDeURL.searchParams.get('page')).toBe('2')
+    expect(xDefaultURL.searchParams.get('page')).toBe('2')
+
+    expect(alternateEnURL.searchParams.get('sort')).toBeNull()
+    expect(alternateEnURL.searchParams.get('search')).toBeNull()
+    expect(alternateEnURL.searchParams.get('q')).toBeNull()
+    expect(alternateEnURL.searchParams.get('query')).toBeNull()
+    expect(alternateEnURL.searchParams.get('tag')).toBeNull()
+
+    expect(alternateDeURL.searchParams.get('sort')).toBeNull()
+    expect(alternateDeURL.searchParams.get('search')).toBeNull()
+    expect(alternateDeURL.searchParams.get('q')).toBeNull()
+    expect(alternateDeURL.searchParams.get('query')).toBeNull()
+    expect(alternateDeURL.searchParams.get('tag')).toBeNull()
+
+    expect(xDefaultURL.searchParams.get('sort')).toBeNull()
+    expect(xDefaultURL.searchParams.get('search')).toBeNull()
+    expect(xDefaultURL.searchParams.get('q')).toBeNull()
+    expect(xDefaultURL.searchParams.get('query')).toBeNull()
+    expect(xDefaultURL.searchParams.get('tag')).toBeNull()
   })
 })

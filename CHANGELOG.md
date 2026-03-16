@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.13.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.2...v3.13.3)
+
+### 🩹 Fixes
+
+- **seo:** Apply canonical whitelist to hreflang links ([3d76c09b](https://github.com/s00d/nuxt-i18n-micro/commit/3d76c09b))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.13.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.1...v3.13.2)

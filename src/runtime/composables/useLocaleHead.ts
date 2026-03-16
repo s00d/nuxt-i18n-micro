@@ -62,6 +62,20 @@ export const useLocaleHead = ({
     return withQuery(pathname, filtered)
   }
 
+  function filterLocalizedHref(pathOrUrl: string, whitelist: string[]): string {
+    if (!pathOrUrl) return ''
+
+    const parsed = parseURL(pathOrUrl)
+    const filteredPath = filterQuery(pathOrUrl, whitelist)
+
+    // Keep absolute locale URLs absolute (multi-domain mode).
+    if (parsed.protocol && parsed.host) {
+      return `${parsed.protocol}//${parsed.host}${filteredPath}`
+    }
+
+    return filteredPath
+  }
+
   function updateMeta() {
     // On 404 pages, route.matched will be empty.
     // We should not generate SEO tags for pages that don't exist.
@@ -158,6 +172,7 @@ export const useLocaleHead = ({
     }
 
     const defaultLocale = i18nConfig.defaultLocale || 'en'
+    const whitelist = canonicalQueryWhitelist ?? []
 
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
@@ -170,11 +185,12 @@ export const useLocaleHead = ({
           // $switchLocalePath returns a full URL (with baseUrl) if locale has baseUrl, otherwise just a path
           let href: string
           if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
-            // It's already a full URL, use it as-is
-            href = switchedPath
+            // It's already a full URL, preserve origin but filter query params.
+            href = filterLocalizedHref(switchedPath, whitelist)
           } else {
             // It's just a path, prepend baseUrl
-            href = joinURL(unref(baseUrl), switchedPath.startsWith('/') ? switchedPath : `/${switchedPath}`)
+            const filteredPath = filterLocalizedHref(switchedPath, whitelist)
+            href = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
           }
 
           const links: MetaLink[] = [
@@ -207,9 +223,10 @@ export const useLocaleHead = ({
       if (defaultSwitchedPath) {
         let xDefaultHref: string
         if (defaultSwitchedPath.startsWith('http://') || defaultSwitchedPath.startsWith('https://')) {
-          xDefaultHref = defaultSwitchedPath
+          xDefaultHref = filterLocalizedHref(defaultSwitchedPath, whitelist)
         } else {
-          xDefaultHref = joinURL(unref(baseUrl), defaultSwitchedPath.startsWith('/') ? defaultSwitchedPath : `/${defaultSwitchedPath}`)
+          const filteredPath = filterLocalizedHref(defaultSwitchedPath, whitelist)
+          xDefaultHref = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
         }
         xDefaultLink = {
           [identifierAttribute]: 'i18n-xd',

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.13.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.3...v3.13.4)
+
+### 🩹 Fixes
+
+- **ssg:** Prerender nested page locale payload routes ([5188b4ef](https://github.com/s00d/nuxt-i18n-micro/commit/5188b4ef))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin <Virus191288@gmail.com>
+
 ## v3.13.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.2...v3.13.3)

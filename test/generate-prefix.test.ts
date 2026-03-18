@@ -98,4 +98,53 @@ describe('nuxi generate with prefix strategy', () => {
     expect(html).toContain('de')
     expect(html.length).toBeGreaterThan(200)
   })
+
+  it('generates existing and nested child page routes for all locales', async () => {
+    const routeMatrix = [
+      ['en', 'about'],
+      ['de', 'a-propos'],
+      ['ru', 'about'],
+      ['en', 'contact'],
+      ['de', 'kontakt'],
+      ['ru', 'contact'],
+      ['en', 'settings', 'profile'],
+      ['de', 'settings', 'profile'],
+      ['ru', 'settings', 'profile'],
+      ['en', 'settings', 'team'],
+      ['de', 'settings', 'team'],
+      ['ru', 'settings', 'team'],
+    ] as const
+
+    for (const parts of routeMatrix) {
+      const routeIndexPath = join(OUTPUT_PUBLIC, ...parts, 'index.html')
+      expect(existsSync(routeIndexPath), `missing route: ${routeIndexPath}`).toBe(true)
+    }
+  })
+
+  it('prerenders old and nested page locale payload routes', async () => {
+    const payloadMatrix = [
+      ['index', 'en', 'key0'],
+      ['index', 'de', 'key0'],
+      ['index', 'ru', 'key0'],
+      ['about', 'en', 'key0'],
+      ['about', 'de', 'key0'],
+      ['about', 'ru', 'key0'],
+      ['contact', 'en', 'key0'],
+      ['contact', 'de', 'key0'],
+      ['contact', 'ru', 'key0'],
+      ['settings-profile', 'en', 'profileTitle'],
+      ['settings-profile', 'de', 'profileTitle'],
+      ['settings-profile', 'ru', 'profileTitle'],
+      ['settings-team', 'en', 'teamTitle'],
+      ['settings-team', 'de', 'teamTitle'],
+      ['settings-team', 'ru', 'teamTitle'],
+    ] as const
+
+    for (const [pageName, locale, key] of payloadMatrix) {
+      const payloadPath = join(OUTPUT_PUBLIC, '_locales', pageName, locale, 'data.json')
+      expect(existsSync(payloadPath), `missing payload: ${payloadPath}`).toBe(true)
+      const payload = JSON.parse(readFileSync(payloadPath, 'utf-8')) as Record<string, string>
+      expect(payload[key], `missing key "${key}" in ${payloadPath}`).toBeDefined()
+    }
+  })
 })

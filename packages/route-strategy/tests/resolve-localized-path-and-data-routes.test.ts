@@ -213,6 +213,41 @@ describe('RouteGenerator.generateDataRoutes', () => {
     expect(routes).toHaveLength(3 + 3 * 1) // 3 index + 3 locales * 1 named page
   })
 
+  test('includes nested child page names when generating data routes', () => {
+    const pages: NuxtPage[] = [
+      {
+        path: '/settings',
+        name: 'settings',
+        file: '/pages/settings.vue',
+        children: [
+          { path: 'profile', name: 'settings-profile', file: '/pages/settings/profile.vue' },
+          { path: 'team', name: 'settings-team', file: '/pages/settings/team.vue' },
+        ],
+      },
+    ]
+    const generator = new RouteGenerator({
+      locales,
+      defaultLocaleCode,
+      strategy: 'prefix_except_default',
+      globalLocaleRoutes: {},
+      routeLocales: {},
+      noPrefixRedirect: false,
+    })
+
+    const routes = generator.generateDataRoutes(pages, apiBaseUrl, false)
+
+    expect(routes).toContain(`/${apiBaseUrl}/settings/en/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings/de/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings/ru/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings-profile/en/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings-profile/de/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings-profile/ru/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings-team/en/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings-team/de/data.json`)
+    expect(routes).toContain(`/${apiBaseUrl}/settings-team/ru/data.json`)
+    expect(routes).toHaveLength(3 + 3 * 3) // 3 index + 3 locales * 3 named pages
+  })
+
   test('disablePageLocales: true generates routes matching client request path (index)', () => {
     const pages: NuxtPage[] = [
       { path: '/', name: 'index', file: '/pages/index.vue' },

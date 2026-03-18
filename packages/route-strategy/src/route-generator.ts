@@ -213,16 +213,35 @@ export class RouteGenerator {
    */
   public generateDataRoutes(pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean): string[] {
     const routes: string[] = []
+    const pagesNames = this.collectPageNames(pages)
 
     for (const locale of this.locales) {
       routes.push(`/${apiBaseUrl}/index/${locale.code}/data.json`)
       if (!disablePageLocales) {
-        const pagesNames = pages.map((page) => page.name).filter((name): name is string => typeof name === 'string' && name.length > 0)
         for (const name of pagesNames) {
           routes.push(`/${apiBaseUrl}/${name}/${locale.code}/data.json`)
         }
       }
     }
     return routes
+  }
+
+  private collectPageNames(pages: NuxtPage[]): string[] {
+    const names = new Set<string>()
+
+    const visit = (nodes: NuxtPage[]): void => {
+      for (const node of nodes) {
+        if (typeof node.name === 'string' && node.name.length > 0) {
+          names.add(node.name)
+        }
+
+        if (node.children && node.children.length > 0) {
+          visit(node.children)
+        }
+      }
+    }
+
+    visit(pages)
+    return [...names]
   }
 }

@@ -376,6 +376,11 @@ export default defineNuxtModule<ModuleOptions>({
     }
     const apiBaseUrl = rawUrl.replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
 
+    // Cache-busting value used as `?v=...` when fetching translations.
+    // Defaults to `Date.now()` to preserve existing behavior, but can be overridden
+    // for deterministic builds / rolling deployments.
+    const dateBuild = options.dateBuild ?? Date.now()
+
     const fullConfig = {
       locales: routeGenerator.locales ?? [],
       metaBaseUrl: options.metaBaseUrl || undefined,
@@ -387,7 +392,7 @@ export default defineNuxtModule<ModuleOptions>({
       autoDetectLanguage: options.autoDetectLanguage ?? true,
       autoDetectPath: options.autoDetectPath ?? '/',
       strategy: options.strategy ?? 'prefix_except_default',
-      dateBuild: Date.now(),
+      dateBuild,
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
       apiBaseUrl,
       apiBaseClientHost,

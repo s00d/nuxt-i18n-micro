@@ -11,6 +11,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-08-16',
   i18n: {
     debug: true,
+    // Deterministic cache-busting value for tests.
+    dateBuild: '12345',
     locales: [
       { code: 'en', iso: 'en_EN', displayName: 'English', flag: '🇬🇧', currency: 'GBP' },
       { code: 'de', iso: 'de_DE', displayName: 'German', flag: '🇩🇪', currency: 'EUR' },

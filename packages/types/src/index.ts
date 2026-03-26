@@ -426,6 +426,18 @@ export interface ModuleOptions {
   cacheTtl?: number
 
   /**
+   * Value used for cache-busting translation requests (`?v=...`).
+   *
+   * When not provided, the module falls back to `Date.now()` (non-deterministic).
+   * For reproducible/rolling deployments, set this to a stable value
+   * (e.g. a git SHA or build number).
+   *
+   * @example
+   * i18n: { dateBuild: 'e3b0c442' }
+   */
+  dateBuild?: string | number
+
+  /**
    * Bucket for experimental/unstable options.
    * Contents may change or be removed without notice between minor versions.
    */
@@ -437,8 +449,8 @@ export interface ModuleOptions {
  * Includes resolved values and build-time metadata.
  */
 export interface ModuleOptionsExtend extends ModuleOptions {
-  /** Unix timestamp (ms) of the last build. Used for cache-busting translation requests. */
-  dateBuild: number
+  /** Value used for cache-busting translation requests (`?v=...`). */
+  dateBuild: string | number
   /** Whether the Nuxt app uses hash-based routing (`router.options.hashMode`). */
   hashMode: boolean
   /** Whether the current build is a static site generation (SSG / `nuxi generate`). */

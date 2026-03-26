@@ -919,6 +919,26 @@ Prefix prepended to localized route names (e.g. `localized-index`). Used interna
 localizedRouteNamePrefix: 'i18n-' // Custom prefix for localized route names
 ```
 
+#### `dateBuild`
+
+Value used for cache-busting translation fetch requests (`?v=...`).
+
+By default, the module generates `dateBuild` during build time using `Date.now()` (non-deterministic).
+If you need reproducible builds / better CDN cache hit rates (e.g. rolling deployments), set a stable value:
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    // Any stable string/number: git SHA, CI build number, release tag, etc.
+    dateBuild: process.env.GIT_SHA ?? 'local-dev',
+  },
+})
+```
+
+**Type**: `string | number`  
+**Default**: `Date.now()` (build time)
+
+
 #### `hmr`
 
 Enables server-side HMR for translations during development. When enabled, the module watches your translation files and invalidates the in-memory server cache for changed locales/pages so that requests immediately get fresh data without restarting the server.

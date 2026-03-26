@@ -64,6 +64,20 @@ const result = await translationStorage.load('en', 'index', {
 // result.json — JSON string (server only, for client injection)
 ```
 
+### ⚙️ Deterministic Cache Busting (`i18n.dateBuild`)
+By default, this module generates `dateBuild` during build time using `Date.now()`. It is then embedded into the generated `#build/i18n.strategy.mjs` and used as a query parameter (`?v=...`) to invalidate translation fetch caches after rebuilds.
+
+If you need reproducible builds (for example, to improve chunk cache hit rates in rolling deployments), set a stable value in `nuxt.config`:
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    // Any stable string/number (git SHA, CI build number, release tag, etc.)
+    dateBuild: process.env.GIT_SHA ?? 'local-dev'
+  }
+})
+```
+
 ### 2. `loadTranslationsFromServer()` (Server Only)
 
 **File**: `src/runtime/server/utils/server-loader.ts`

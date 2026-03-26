@@ -58,6 +58,24 @@ test.describe('basic', () => {
     await expect(page.locator('#locale')).toHaveText('de')
   })
 
+  test('cache busting uses configured i18n.dateBuild', async ({ page, goto }) => {
+    const dateBuild = '12345'
+
+    // Initial SSR render may not trigger client fetches.
+    // We then navigate via client-side click to force the next route's
+    // translations to load through the fetcher that appends `?v=...`.
+    const responsePromise = page.waitForResponse(
+      (r) => r.url().includes('/_locales/') && r.url().includes('/data.json') && r.url().includes(`v=${dateBuild}`),
+      { timeout: 5000 },
+    )
+
+    await goto('/', { waitUntil: 'hydration' })
+    await page.click('#page-link')
+
+    const resp = await responsePromise
+    expect(resp.status()).toBe(200)
+  })
+
   test('test routes', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 

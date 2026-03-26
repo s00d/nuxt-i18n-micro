@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.14.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.4...v3.14.0)
+
+### 🚀 Enhancements
+
+- **module:** Add configurable cache-busting `dateBuild` option ([ec2d28ab](https://github.com/s00d/nuxt-i18n-micro/commit/ec2d28ab))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.13.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.13.3...v3.13.4)

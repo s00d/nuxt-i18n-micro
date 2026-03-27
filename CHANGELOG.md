@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.15.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.14.1...v3.15.0)
+
+### 🚀 Enhancements
+
+- **inventory:** Add inventory page with locale switching functionality ([51af0328](https://github.com/s00d/nuxt-i18n-micro/commit/51af0328))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.14.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.14.0...v3.14.1)

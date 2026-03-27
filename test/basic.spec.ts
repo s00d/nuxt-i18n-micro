@@ -403,6 +403,42 @@ test.describe('basic', () => {
     await expect(page.locator('#html-content')).toHaveText('Жирный текст с HTML-содержимым.')
   })
 
+  test('repro #210: component-local $defineI18nRoute flickers to key', async ({ page }) => {
+    const consoleMessages: string[] = []
+    page.on('console', (msg) => {
+      if (msg.type() === 'warning' || msg.type() === 'log' || msg.type() === 'info') {
+        consoleMessages.push(msg.text())
+      }
+    })
+
+    await page.goto('/fr/inventory', { waitUntil: 'networkidle' })
+    await expect(page.locator('#vehicle-type')).toHaveText('Type de véhicule')
+
+    await page.click('#link-en')
+    await expect(page).toHaveURL('/inventory')
+
+    // First: the correct translation should appear.
+    await expect(page.locator('#vehicle-type')).toHaveText('Vehicle type')
+
+    // Then: the buggy behavior is a transient flicker back to the raw key.
+    const keyPromise = page
+      .waitForFunction(
+        () => {
+          const el = document.querySelector('#vehicle-type')
+          return (el?.textContent || '').trim() === 'vehicleType'
+        },
+        { timeout: 1200 },
+      )
+      .then(() => true)
+      .catch(() => false)
+
+    const sawKeyFlicker = await keyPromise
+    expect(sawKeyFlicker).toBe(false)
+
+    const missingKeyWarn = consoleMessages.some((t) => t.includes('[i18n] Missing key') && t.includes('vehicleType'))
+    expect(missingKeyWarn).toBe(false)
+  })
+
   test('test locale switching via links', async ({ page, goto }) => {
     await goto('/page', { waitUntil: 'hydration' })
 

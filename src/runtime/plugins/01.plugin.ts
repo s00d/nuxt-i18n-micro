@@ -175,7 +175,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const promise = (async () => {
       try {
         const result = await translationStorage.load(locale, routeName, loadOptions)
-        loadedChunks.set(cacheKey, result.data)
+        // Preserve any existing chunk data (e.g. injected via `$defineI18nRoute`)
+        // to avoid transient "missing key" flickers during locale switches.
+        const existing = loadedChunks.get(cacheKey)
+        const mergedChunk = existing ? { ...result.data, ...existing } : result.data
+        loadedChunks.set(cacheKey, mergedChunk)
 
         // SERVER: Injection for client hydration
         if (import.meta.server && result.json) {
@@ -184,7 +188,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
           ctx._i18n[cacheKey] = result.json
         }
 
-        return result.data
+        return mergedChunk
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)
         return {}
@@ -216,7 +220,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       pendingCleanState = data
     } else {
       // Language switch: hard replace (no cross-language mixing).
-      cachedTranslations = data
+      // BUT: for component-local `$defineI18nRoute()` keys we want to avoid a transient
+      // "raw key" render before the component watcher merges the new locale values.
+      // So we keep previous keys until the new locale chunk injection completes.
+      cachedTranslations = deepMergeTranslations(cachedTranslations, data)
       pendingCleanState = null
     }
 

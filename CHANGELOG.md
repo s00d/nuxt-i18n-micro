@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.15.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.15.1...v3.15.2)
+
+### 🩹 Fixes
+
+- **module:** Ensure page locale stubs exist in build ([f0853bfa](https://github.com/s00d/nuxt-i18n-micro/commit/f0853bfa))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.15.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.15.0...v3.15.1)

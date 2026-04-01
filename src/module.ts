@@ -640,7 +640,7 @@ declare module '#i18n-internal/plural' {
         .map((page) => page.name)
         .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
 
-      if (nuxt.options.dev && !options.disableWatcher) {
+      if (!options.disableWatcher) {
         routeGenerator.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir, options.disablePageLocales)
       }
 

@@ -35,6 +35,23 @@ flowchart LR
 | x-default | `<link rel="alternate" hreflang="x-default" href="...">` |
 | Open Graph | `<meta property="og:locale" content="en_US">` |
 
+#### `og` per locale (`og:locale` vs BCP 47)
+
+`<html lang>` and `hreflang` should use **BCP 47** via `locale.iso` (e.g. `ar-AE`).  
+Open Graph often uses the classic **`language_TERRITORY`** form with an **underscore** (`ar_AE`).
+
+Set an optional **`og`** string on each locale when the Open Graph value must differ from `iso`. If omitted, **`iso`** is used (then `code`).
+
+```typescript
+i18n: {
+  meta: true,
+  locales: [
+    { code: 'ar', iso: 'ar-AE', og: 'ar_AE', dir: 'rtl' },
+    { code: 'en', iso: 'en-US' }, // og:locale uses en-US from iso
+  ],
+}
+```
+
 ### 🔑 Key SEO Features
 
 When the `meta` option is enabled in `Nuxt I18n Micro`, the module automatically manages the following SEO aspects:

@@ -63,6 +63,11 @@ export interface Locale {
   disabled?: boolean
   /** ISO 639-1 / BCP-47 tag for `<html lang>` and `hreflang` SEO attributes (e.g. `'en-US'`). */
   iso?: string
+  /**
+   * Open Graph locale for `og:locale` / `og:locale:alternate` meta `content` (e.g. `ar_AE`).
+   * If omitted, `iso` is used (then `code`).
+   */
+  og?: string
   /** Text direction. Reflected in `<html dir>` when the locale is active. */
   dir?: 'ltr' | 'rtl' | 'auto'
   /** Human-readable name shown in language switchers (e.g. `'English'`, `'Deutsch'`). */

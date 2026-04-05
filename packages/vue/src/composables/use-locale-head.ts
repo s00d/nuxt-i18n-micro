@@ -73,6 +73,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     }
 
     const currentIso = currentLocaleObj.iso || locale
+    const currentOg = currentLocaleObj.og ?? currentIso
     const currentDir = currentLocaleObj.dir || 'auto'
 
     let fullPath = routerStrategy.getCurrentPath()
@@ -117,7 +118,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     const ogLocaleMeta: MetaTag = {
       [identifierAttribute]: 'i18n-og',
       property: 'og:locale',
-      content: currentIso,
+      content: currentOg,
     }
 
     const ogUrlMeta: MetaTag = {
@@ -128,11 +129,14 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
 
     const alternateOgLocalesMeta = alternateLocales
       .filter((loc: Locale) => loc.code !== locale)
-      .map((loc: Locale) => ({
-        [identifierAttribute]: `i18n-og-alt-${loc.iso || loc.code}`,
-        property: 'og:locale:alternate',
-        content: loc.iso || loc.code,
-      }))
+      .map((loc: Locale) => {
+        const ogAlt = loc.og ?? loc.iso ?? loc.code
+        return {
+          [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
+          property: 'og:locale:alternate',
+          content: ogAlt,
+        }
+      })
 
     const canonicalLink: MetaLink = {
       [identifierAttribute]: 'i18n-can',

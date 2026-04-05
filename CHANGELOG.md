@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v3.16.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.15.3...v3.16.0)
+
+### 🚀 Enhancements
+
+- **seo:** Optional locale `og` for Open Graph og:locale tags ([a585bac9](https://github.com/s00d/nuxt-i18n-micro/commit/a585bac9))
+
+### 🩹 Fixes
+
+- **seo:** Treat empty locale.og as unset for Open Graph meta ([7c20f011](https://github.com/s00d/nuxt-i18n-micro/commit/7c20f011))
+
+### 🏡 Chore
+
+- **test:** Add page locale JSON stubs for fixtures ([605bde93](https://github.com/s00d/nuxt-i18n-micro/commit/605bde93))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.15.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.15.2...v3.15.3)

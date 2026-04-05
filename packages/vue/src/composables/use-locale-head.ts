@@ -73,7 +73,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     }
 
     const currentIso = currentLocaleObj.iso || locale
-    const currentOg = currentLocaleObj.og ?? currentIso
+    const currentOg = currentLocaleObj.og || currentIso
     const currentDir = currentLocaleObj.dir || 'auto'
 
     let fullPath = routerStrategy.getCurrentPath()
@@ -130,7 +130,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     const alternateOgLocalesMeta = alternateLocales
       .filter((loc: Locale) => loc.code !== locale)
       .map((loc: Locale) => {
-        const ogAlt = loc.og ?? loc.iso ?? loc.code
+        const ogAlt = loc.og || loc.iso || loc.code
         return {
           [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
           property: 'og:locale:alternate',

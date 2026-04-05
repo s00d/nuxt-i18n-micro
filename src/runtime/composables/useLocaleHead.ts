@@ -107,7 +107,7 @@ export const useLocaleHead = ({
     const locales = currentRouteLocales ? enabledLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code)) : enabledLocales
 
     const currentIso = currentLocale.iso || locale
-    const currentOg = currentLocale.og ?? currentIso
+    const currentOg = currentLocale.og || currentIso
     const currentDir = currentLocale.dir || 'auto'
 
     let fullPath = unref(route.fullPath)
@@ -161,7 +161,7 @@ export const useLocaleHead = ({
     const alternateOgLocalesMeta = alternateLocales
       .filter((loc: Locale) => loc.code !== locale)
       .map((loc: Locale) => {
-        const ogAlt = loc.og ?? loc.iso ?? loc.code
+        const ogAlt = loc.og || loc.iso || loc.code
         return {
           [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
           property: 'og:locale:alternate',

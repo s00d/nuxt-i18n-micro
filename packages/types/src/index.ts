@@ -65,7 +65,7 @@ export interface Locale {
   iso?: string
   /**
    * Open Graph locale for `og:locale` / `og:locale:alternate` meta `content` (e.g. `ar_AE`).
-   * If omitted, `iso` is used (then `code`).
+   * If omitted or empty, `iso` is used (then `code`).
    */
   og?: string
   /** Text direction. Reflected in `<html dir>` when the locale is active. */

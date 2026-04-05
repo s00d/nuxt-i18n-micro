@@ -107,6 +107,7 @@ export const useLocaleHead = ({
     const locales = currentRouteLocales ? enabledLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code)) : enabledLocales
 
     const currentIso = currentLocale.iso || locale
+    const currentOg = currentLocale.og || currentIso
     const currentDir = currentLocale.dir || 'auto'
 
     let fullPath = unref(route.fullPath)
@@ -148,7 +149,7 @@ export const useLocaleHead = ({
     const ogLocaleMeta = {
       [identifierAttribute]: 'i18n-og',
       property: 'og:locale',
-      content: currentIso,
+      content: unref(currentOg),
     }
 
     const ogUrlMeta = {
@@ -159,11 +160,14 @@ export const useLocaleHead = ({
 
     const alternateOgLocalesMeta = alternateLocales
       .filter((loc: Locale) => loc.code !== locale)
-      .map((loc: Locale) => ({
-        [identifierAttribute]: `i18n-og-alt-${loc.iso || loc.code}`,
-        property: 'og:locale:alternate',
-        content: unref(loc.iso || loc.code),
-      }))
+      .map((loc: Locale) => {
+        const ogAlt = loc.og || loc.iso || loc.code
+        return {
+          [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
+          property: 'og:locale:alternate',
+          content: unref(ogAlt),
+        }
+      })
 
     const canonicalLink = {
       [identifierAttribute]: 'i18n-can',

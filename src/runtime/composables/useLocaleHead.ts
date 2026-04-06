@@ -143,8 +143,8 @@ export const useLocaleHead = ({
 
     if (!addSeoAttributes) return
 
-    // Use filtered locales instead of all
-    const alternateLocales = locales
+    // Locales included in hreflang / og:locale:alternate (omit `seo: false`)
+    const localesForSeo = locales.filter((loc: Locale) => loc.seo !== false)
 
     const ogLocaleMeta = {
       [identifierAttribute]: 'i18n-og',
@@ -158,7 +158,7 @@ export const useLocaleHead = ({
       content: ogUrl,
     }
 
-    const alternateOgLocalesMeta = alternateLocales
+    const alternateOgLocalesMeta = localesForSeo
       .filter((loc: Locale) => loc.code !== locale)
       .map((loc: Locale) => {
         const ogAlt = loc.og || loc.iso || loc.code
@@ -176,11 +176,12 @@ export const useLocaleHead = ({
     }
 
     const defaultLocale = i18nConfig.defaultLocale || 'en'
+    const defaultLocaleObj = allLocales.find((loc: Locale) => loc.code === defaultLocale)
     const whitelist = canonicalQueryWhitelist ?? []
 
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
-      : alternateLocales.flatMap((loc: Locale) => {
+      : localesForSeo.flatMap((loc: Locale) => {
           const switchedPath = switchLocalePath(loc.code)
           if (!switchedPath) {
             return []
@@ -222,7 +223,7 @@ export const useLocaleHead = ({
     // x-default tells search engines which URL to show when none of the
     // specified languages match the user's browser settings.
     let xDefaultLink: MetaLink | null = null
-    if (!isNoPrefixStrategy(strategy!)) {
+    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false) {
       const defaultSwitchedPath = switchLocalePath(defaultLocale)
       if (defaultSwitchedPath) {
         let xDefaultHref: string

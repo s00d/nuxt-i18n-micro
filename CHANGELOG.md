@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v3.17.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.16.0...v3.17.0)
+
+### 🚀 Enhancements
+
+- **seo:** Add locale seo flag to exclude from hreflang/og alternates ([005b5ac0](https://github.com/s00d/nuxt-i18n-micro/commit/005b5ac0))
+
+### 🩹 Fixes
+
+- **package:** Downgrade version from 3.16.1 to 3.16.0 ([3e330676](https://github.com/s00d/nuxt-i18n-micro/commit/3e330676))
+
+### 🎨 Styles
+
+- **test:** Fix lint on page locale JSON stubs ([e0c2141e](https://github.com/s00d/nuxt-i18n-micro/commit/e0c2141e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.16.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.15.3...v3.16.0)

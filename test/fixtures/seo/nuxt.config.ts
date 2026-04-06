@@ -13,7 +13,7 @@ export default defineNuxtConfig({
     locales: [
       { code: 'en', iso: 'en_EN', displayName: 'English' },
       { code: 'de', iso: 'de_DE', displayName: 'German' },
-      { code: 'ru', iso: 'ru_RU', displayName: 'Russian' },
+      { code: 'ru', iso: 'ru_RU', displayName: 'Russian', seo: false },
     ],
     meta: true,
     defaultLocale: 'en',

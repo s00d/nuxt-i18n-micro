@@ -217,6 +217,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   const defaultLocale = getDefaultLocale(astro)
   const allLocales = getLocales(astro)
   const locales = allLocales.filter((l) => !l.disabled)
+  const localesForSeo = locales.filter((l) => l.seo !== false)
   const currentLocaleObj = locales.find((l) => l.code === locale)
 
   if (!currentLocaleObj) {
@@ -251,7 +252,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   const allLocaleCodes = locales.map((l) => l.code)
 
   // Alternate languages (includes current locale for self-referencing hreflang, per Google guidelines)
-  for (const loc of locales) {
+  for (const loc of localesForSeo) {
     let alternatePath = astro.url.pathname
     if (routingStrategy?.switchLocalePath) {
       alternatePath = routingStrategy.switchLocalePath(astro.url.pathname, loc.code, allLocaleCodes, defaultLocale)
@@ -287,7 +288,8 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   // x-default hreflang — points to the default locale's URL.
   // Tells search engines which URL to show when none of the
   // specified languages match the user's browser settings.
-  {
+  const defaultLocaleObj = locales.find((l) => l.code === defaultLocale)
+  if (defaultLocaleObj?.seo !== false) {
     let xDefaultPath = astro.url.pathname
     if (routingStrategy?.switchLocalePath) {
       xDefaultPath = routingStrategy.switchLocalePath(astro.url.pathname, defaultLocale, allLocaleCodes, defaultLocale)
@@ -318,11 +320,11 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   })
 
   // Alternate OG locales
-  for (const loc of locales) {
+  for (const loc of localesForSeo) {
     if (loc.code === locale) continue
     result.meta.push({
       property: 'og:locale:alternate',
-      content: loc.iso || loc.code,
+      content: loc.og || loc.iso || loc.code,
     })
   }
 

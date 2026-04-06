@@ -113,7 +113,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       return
     }
 
-    const alternateLocales = allLocales.filter((loc: Locale) => !loc.disabled)
+    const alternateLocales = allLocales.filter((loc: Locale) => !loc.disabled && loc.seo !== false)
 
     const ogLocaleMeta: MetaTag = {
       [identifierAttribute]: 'i18n-og',
@@ -191,7 +191,8 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     // specified languages match the user's browser settings.
     const injectedDefaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined)
     let xDefaultLink: MetaLink | null = null
-    if (i18nLocaleRoute && routerStrategy && injectedDefaultLocale) {
+    const defaultLocObj = injectedDefaultLocale ? allLocales.find((l: Locale) => l.code === injectedDefaultLocale) : undefined
+    if (i18nLocaleRoute && routerStrategy && injectedDefaultLocale && defaultLocObj?.seo !== false) {
       const currentPath = routerStrategy.getCurrentPath()
       const defaultPathResult = i18nLocaleRoute(currentPath, injectedDefaultLocale)
       const defaultPath = typeof defaultPathResult === 'string' ? defaultPathResult : defaultPathResult?.path || '/'

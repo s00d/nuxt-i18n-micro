@@ -177,6 +177,19 @@ i18n: {
 }
 ```
 
+### 🙈 Opt-out locales (`seo: false`)
+
+For locales that should remain routable and translated but should not appear in cross-locale discovery tags, set `seo: false`. Those locales are omitted from `hreflang` alternates and `og:locale:alternate`. If your configured **default** locale has `seo: false`, the `x-default` link is not emitted either.
+
+```typescript
+i18n: {
+  locales: [
+    { code: 'en', iso: 'en-US' },
+    { code: 'ru', iso: 'ru-RU', seo: false }, // internal / non-indexed locale
+  ]
+}
+```
+
 ### 📌 Strategy-Specific Behavior
 
 | Strategy | hreflang links | x-default | canonical | og:url |

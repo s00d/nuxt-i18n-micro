@@ -53,6 +53,7 @@ test.describe('SEO with strategy: prefix', () => {
     const ogAlternate = await page.locator('meta[property="og:locale:alternate"]').all()
     const contents = await Promise.all(ogAlternate.map((el) => el.getAttribute('content')))
     expect(contents).toContain('de_DE')
+    expect(contents).not.toContain('ru_RU')
   })
 
   test('should generate alternate hreflang links for other locales', async ({ page, goto }) => {
@@ -65,6 +66,8 @@ test.describe('SEO with strategy: prefix', () => {
     const hreflangs = await Promise.all(Array.from({ length: count }).map((_, i) => links.nth(i).getAttribute('hreflang')))
     expect(hreflangs).toContain('en')
     expect(hreflangs).toContain('de')
+    expect(hreflangs).not.toContain('ru')
+    expect(hreflangs).not.toContain('ru_RU')
   })
 
   test('should support locale path override with $defineI18nRoute', async ({ page, goto }) => {

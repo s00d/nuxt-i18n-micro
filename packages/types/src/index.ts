@@ -68,6 +68,13 @@ export interface Locale {
    * If omitted or empty, `iso` is used (then `code`).
    */
   og?: string
+  /**
+   * When `false`, this locale is omitted from cross-locale SEO tags (`hreflang`,
+   * `og:locale:alternate`). If the configured default locale has `seo: false`, the
+   * `x-default` hreflang link is not emitted. Routing and translations are unchanged.
+   * @default true when omitted.
+   */
+  seo?: boolean
   /** Text direction. Reflected in `<html dir>` when the locale is active. */
   dir?: 'ltr' | 'rtl' | 'auto'
   /** Human-readable name shown in language switchers (e.g. `'English'`, `'Deutsch'`). */

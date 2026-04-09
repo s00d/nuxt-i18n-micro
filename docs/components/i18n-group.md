@@ -75,8 +75,8 @@ Translation file:
         <h2>{{ t("title") }}</h2>
         <p>{{ t("bio") }}</p>
         <div class="stats">
-          <span>{{ t("stats.followers") }}</span>
-          <span>{{ t("stats.following") }}</span>
+          <span>{{ t("stats.followers", { count: 1200 }) }}</span>
+          <span>{{ t("stats.following", { count: 350 }) }}</span>
         </div>
       </div>
     </template>

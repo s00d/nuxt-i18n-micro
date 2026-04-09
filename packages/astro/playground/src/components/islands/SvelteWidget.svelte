@@ -2,7 +2,12 @@
 import type { I18nClientProps } from '@i18n-micro/astro'
 import { createI18nStore, useAstroI18n } from '@i18n-micro/astro/client/svelte'
 
-export let i18n: I18nClientProps = {} as I18nClientProps
+export let i18n: I18nClientProps = {
+  locale: 'en',
+  fallbackLocale: 'en',
+  translations: {},
+  currentRoute: 'index',
+}
 
 // Создаем store и инициализируем хук
 const i18nStore = createI18nStore(i18n)

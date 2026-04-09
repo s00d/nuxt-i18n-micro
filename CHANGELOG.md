@@ -4483,7 +4483,7 @@
 
 ### 🩹 Fixes
 
-- Fallback-locale array merge and drop **proto**,constructor ([7f72208](https://github.com/s00d/nuxt-i18n-micro/commit/7f72208))
+- Fallback-locale array merge and drop `__proto__`,constructor ([7f72208](https://github.com/s00d/nuxt-i18n-micro/commit/7f72208))
 
 ### 📖 Documentation
 

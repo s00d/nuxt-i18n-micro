@@ -33,7 +33,16 @@ export function joinPath(...segments: string[]): string {
 
 function normalizeRegex(toNorm?: string): string | undefined {
   if (typeof toNorm === 'undefined') return undefined
-  return toNorm.startsWith('/') && toNorm.endsWith('/') ? toNorm?.slice(1, -1) : toNorm
+  if (!toNorm.startsWith('/')) return toNorm
+
+  // Support regexp-like strings with flags (e.g. "/^[a-z]{2}$/i").
+  // We keep only the pattern source between first and last slash.
+  const lastSlashIndex = toNorm.lastIndexOf('/')
+  if (lastSlashIndex > 0) {
+    return toNorm.slice(1, lastSlashIndex)
+  }
+
+  return toNorm
 }
 
 /**

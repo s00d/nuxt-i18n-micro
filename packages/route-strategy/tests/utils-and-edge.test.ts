@@ -116,6 +116,10 @@ describe('RouteGenerator - Exported utils', () => {
     test('with custom regex', () => {
       expect(buildFullPath(['en', 'de'], '/about', /^[a-z]{2}$/)).toMatchSnapshot()
     })
+
+    test('regression: stringified regex with flags strips wrappers and flags', () => {
+      expect(buildFullPath(['en', 'de'], '/about', '/^[a-z]{2}$/i')).toBe('/:locale(^[a-z]{2}$)/about')
+    })
   })
 
   describe('buildFullPathNoPrefix', () => {

@@ -94,7 +94,10 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
     const globalLocaleRoutes = {
       '/products': { en: '/products', de: '/produkte' },
       '/products/category': { en: '/products/category', de: '/produkte/kategorie' },
-      '/products/category/item': { en: '/products/category/item', de: '/produkte/kategorie/artikel' },
+      '/products/category/item': {
+        en: '/products/category/item',
+        de: '/produkte/kategorie/artikel',
+      },
     }
 
     const generator = new RouteGenerator({
@@ -301,7 +304,7 @@ describe('RouteGenerator - Paths, alias, edge cases', () => {
 
     ;(pages[0] as unknown as { path?: string }).path = undefined
 
-    expect(() => generator.extendPages(pages)).toThrow()
+    expect(() => generator.extendPages(pages)).toThrow('page.path is required')
   })
 
   test('should handle redirect-only pages correctly', () => {

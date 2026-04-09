@@ -5,6 +5,7 @@
 import type { Locale } from "@i18n-micro/types";
 import {
   buildUrl,
+  getCleanPath,
   hasKeys,
   hasProtocol,
   joinUrl,
@@ -215,13 +216,7 @@ export abstract class BasePathStrategy implements PathStrategy {
     }
     if (value.path && value.fullPath) return value;
     let fullPath = value.fullPath ?? value.path ?? "";
-    let path =
-      value.path ??
-      (fullPath.indexOf("?") !== -1
-        ? fullPath.slice(0, fullPath.indexOf("?"))
-        : fullPath.indexOf("#") !== -1
-          ? fullPath.slice(0, fullPath.indexOf("#"))
-          : fullPath);
+    let path = value.path ?? getCleanPath(fullPath);
     if (!path && !fullPath) {
       const name = value.name?.toString() ?? source?.name?.toString() ?? "";
       if (

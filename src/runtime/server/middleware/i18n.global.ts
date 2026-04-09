@@ -4,7 +4,7 @@
  */
 
 import type { ModuleOptionsExtend } from "@i18n-micro/types";
-import { parseAcceptLanguage } from "@i18n-micro/utils";
+import { getPathSegments, parseAcceptLanguage } from "@i18n-micro/utils";
 import { defineEventHandler, getCookie, getHeader, getQuery, getRequestURL } from "h3";
 import { getI18nConfig } from "#i18n-internal/strategy";
 import { getLocaleCookieName } from "../../utils/cookie";
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
   const validLocales = config.locales?.map((l) => l.code) || [];
   const defaultLocale = config.defaultLocale || "en";
 
-  const pathSegments = path.split("/").filter(Boolean);
+  const pathSegments = getPathSegments(path);
   const firstSegment = pathSegments[0];
   const hasLocaleInUrl = Boolean(firstSegment && validLocales.includes(firstSegment));
 

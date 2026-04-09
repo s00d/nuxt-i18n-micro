@@ -13,7 +13,7 @@ import type {
   PluralFunc,
   Strategies,
 } from "@i18n-micro/types";
-import { deepMergeTranslations, normalizeApiBasePath } from "@i18n-micro/utils";
+import { deepMergeTranslations, getPathSegments, normalizeApiBasePath } from "@i18n-micro/utils";
 import {
   addComponentsDir,
   addImportsDir,
@@ -869,7 +869,7 @@ declare module '#i18n-internal/plural' {
         const deleted: string[] = [];
         for (const route of routesSet) {
           if (route === "/" || route === "") continue; // Keep / for redirect to default locale
-          const firstSegment = route.replace(/^\//, "").split("/")[0];
+          const firstSegment = getPathSegments(route)[0];
           if (firstSegment && !localeCodes.has(firstSegment)) {
             routesSet.delete(route);
             deleted.push(route);

@@ -1,7 +1,7 @@
 import type { Locale } from "@i18n-micro/types";
 import { resolveLocales } from "@i18n-micro/utils";
 
-describe("resolveLocales (utils/locales)", () => {
+describe("resolveLocales (@i18n-micro/utils)", () => {
   test("returns merged locales and defaultLocale for defaultLocaleCode present in list", () => {
     const locales: Locale[] = [
       { code: "en", iso: "en-US" },

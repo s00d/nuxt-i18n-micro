@@ -1,4 +1,5 @@
 import { type H3Event, getCookie, getQuery, getRequestURL } from "h3";
+import { getLocaleFromPath } from "@i18n-micro/utils";
 
 /**
  * Detects the current locale based on various sources (server-only).
@@ -31,14 +32,10 @@ export const detectCurrentLocale = (
   // 3. Manual URL path check (for prefix strategy)
   if (locales && locales.length > 0) {
     const url = getRequestURL(event);
-    const querySplit = url.pathname.split("?");
-    const cleanPath = querySplit[0]?.split("#")[0];
-    if (cleanPath) {
-      const pathSegments = cleanPath.split("/").filter(Boolean);
-      const firstSegment = pathSegments[0] || "";
-      if (firstSegment && locales.some((l) => l.code === firstSegment)) {
-        return firstSegment;
-      }
+    const localeCodes = locales.map((l) => l.code);
+    const localeFromPath = getLocaleFromPath(url.pathname, localeCodes);
+    if (localeFromPath) {
+      return localeFromPath;
     }
   }
 

@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import type { Locale } from "@i18n-micro/types";
+import { getPathSegments } from "@i18n-micro/utils";
 import { A, type Location, type useNavigate } from "@solidjs/router";
 import { type Accessor, type Component, createEffect, createSignal, type JSX } from "solid-js";
 import type { I18nRoutingStrategy } from "./types";
@@ -62,7 +63,7 @@ export function createSolidRouterAdapter(
     locale: string,
   ): string | { path?: string } => {
     const path = typeof to === "string" ? to : to.path || "/";
-    const pathSegments = path.split("/").filter(Boolean);
+    const pathSegments = getPathSegments(path);
 
     if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
       pathSegments.shift();

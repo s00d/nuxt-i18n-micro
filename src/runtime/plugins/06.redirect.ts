@@ -4,7 +4,7 @@
  */
 
 import type { ModuleOptionsExtend } from "@i18n-micro/types";
-import { isInternalPath, parseAcceptLanguage } from "@i18n-micro/utils";
+import { getPathSegments, isInternalPath, parseAcceptLanguage } from "@i18n-micro/utils";
 import { getCookie, getHeader, getRequestURL, setCookie } from "h3";
 import { createI18nStrategy, getI18nConfig } from "#build/i18n.strategy.mjs";
 import {
@@ -67,7 +67,7 @@ export default defineNuxtPlugin({
         });
       }
 
-      const pathSegments = path.replace(/^\//, "").split("/").filter(Boolean);
+      const pathSegments = getPathSegments(path);
       const firstSegment = pathSegments[0];
       const customRegex = i18nConfig.customRegexMatcher;
 
@@ -200,7 +200,7 @@ export default defineNuxtPlugin({
 
         const route = useRoute();
         const path = route.path || "/";
-        const pathSegments = path.replace(/^\//, "").split("/").filter(Boolean);
+        const pathSegments = getPathSegments(path);
         const firstSegment = pathSegments[0];
         const hasLocalePrefix = Boolean(firstSegment && validLocales.includes(firstSegment));
 

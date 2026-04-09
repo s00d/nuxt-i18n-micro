@@ -1,5 +1,6 @@
 import type { Locale } from "@i18n-micro/types";
 import type { I18nRoutingStrategy } from "@i18n-micro/vue";
+import { getPathSegments } from "@i18n-micro/utils";
 import { type Router, RouterLink } from "vue-router";
 
 /**
@@ -18,7 +19,7 @@ export function createVueRouterAdapter(
    */
   const resolvePath = (to: string | { path?: string }, locale: string): string => {
     const path = typeof to === "string" ? to : to.path || "/";
-    const pathSegments = path.split("/").filter(Boolean);
+    const pathSegments = getPathSegments(path);
 
     // If path already starts with a locale, remove it
     const first = pathSegments[0];

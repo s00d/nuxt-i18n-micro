@@ -1,4 +1,5 @@
 import type { Locale } from "@i18n-micro/types";
+import { getPathSegments, parseAcceptLanguage } from "@i18n-micro/utils";
 import type { MiddlewareHandler } from "astro";
 import type { AstroI18n } from "./composer";
 import { getGlobalRoutingStrategy } from "./integration";
@@ -50,7 +51,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
       const routeName =
         pathname === "/" || pathname === ""
           ? "index"
-          : pathname.split("/").filter(Boolean).join("-");
+          : getPathSegments(pathname).join("-");
       requestI18n.setRoute(routeName);
 
       // @ts-ignore private property mismatch between src and dist types
@@ -74,7 +75,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     };
 
     // 1. Check if locale is in path
-    const pathSegments = pathname.split("/").filter(Boolean);
+    const pathSegments = getPathSegments(pathname);
     const firstSegment = pathSegments[0];
     const hasLocalePrefix = firstSegment !== undefined && locales.includes(firstSegment);
 
@@ -115,32 +116,6 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
 }
 
 /**
- * Parse Accept-Language header
- */
-function parseAcceptLanguage(acceptLanguage: string): string[] {
-  const languages: string[] = [];
-  const parts = acceptLanguage.split(",");
-
-  for (const part of parts) {
-    const [lang, q = "1.0"] = part.trim().split(";q=");
-    const quality = Number.parseFloat(q);
-    if (quality > 0 && lang) {
-      // Extract base language (e.g., 'en-US' -> 'en')
-      const baseLang = lang.split("-")[0]?.toLowerCase();
-      if (baseLang) {
-        languages.push(baseLang);
-        // Also add full locale if different
-        if (lang !== baseLang) {
-          languages.push(lang.toLowerCase());
-        }
-      }
-    }
-  }
-
-  return languages;
-}
-
-/**
  * Detect locale from request
  */
 export function detectLocale(
@@ -160,7 +135,7 @@ export function detectLocale(
     locale = strategy.getLocaleFromPath(pathname, defaultLocale, locales);
   } else {
     // Fallback: check if first segment is a locale
-    const segments = pathname.split("/").filter(Boolean);
+    const segments = getPathSegments(pathname);
     const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
       locale = firstSegment;

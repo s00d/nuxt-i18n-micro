@@ -9,6 +9,7 @@ import type {
   Params,
   Translations,
 } from "@i18n-micro/types";
+import { deepMergeTranslations } from "@i18n-micro/utils";
 import { shallowRef, triggerRef, unref } from "vue";
 import type {
   RouteLocationNamedRaw,
@@ -29,7 +30,6 @@ import {
   useRuntimeConfig,
 } from "#imports";
 import { useI18nLocale } from "../composables/useI18nLocale";
-import { deepMergeTranslations } from "../utils/deep-merge";
 import { translationStorage } from "../utils/storage";
 
 const isDev = process.env.NODE_ENV !== "production";

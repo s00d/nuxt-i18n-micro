@@ -2,6 +2,7 @@
 /* @refresh reload */
 
 import { createI18n, I18nProvider } from "@i18n-micro/solid";
+import { getPathSegments } from "@i18n-micro/utils";
 import { Route, Router, useLocation, useNavigate } from "@solidjs/router";
 import type { Component, JSX } from "solid-js";
 import { render } from "solid-js/web";
@@ -77,7 +78,7 @@ const LocaleHandler: Component<{ params: { locale?: string }; children?: JSX.Ele
 async function initApp() {
   // Determine initial locale from URL
   const pathname = window.location.pathname;
-  const pathParts = pathname.split("/").filter(Boolean);
+  const pathParts = getPathSegments(pathname);
   const localeParam = pathParts[0];
   const localeCodes = locales.map((l) => l.code);
   const initialLocale =

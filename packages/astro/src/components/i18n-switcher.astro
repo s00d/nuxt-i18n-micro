@@ -1,5 +1,6 @@
 ---
 import type { Locale } from '@i18n-micro/types'
+import { getPathSegments, getPathWithoutLocale, withLeadingSlash } from '@i18n-micro/utils'
 import type { I18nRoutingStrategy } from '../router/types'
 import { useI18n } from '../utils'
 
@@ -39,15 +40,12 @@ const localeLinks = availableLocales.map((loc: Locale) => {
     switchPath = routingStrategy.switchLocalePath(basePath, loc.code, localeCodes, defaultLocale)
   } else {
     // Fallback: basic locale switching
-    const segments = basePath.split('/').filter(Boolean)
-    const firstSegment = segments[0]
-    if (firstSegment && localeCodes.includes(firstSegment)) {
-      segments.shift()
-    }
+    const { pathWithoutLocale } = getPathWithoutLocale(basePath, localeCodes)
+    const segments = getPathSegments(pathWithoutLocale)
     if (loc.code !== defaultLocale) {
       segments.unshift(loc.code)
     }
-    switchPath = `/${segments.join('/')}`
+    switchPath = withLeadingSlash(segments.join('/'))
   }
 
   const label = customLabels[loc.code] || loc.displayName || loc.code

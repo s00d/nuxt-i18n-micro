@@ -5,7 +5,12 @@ import type {
   TranslationKey,
   Translations,
 } from "@i18n-micro/types";
-import { getLocaleFromPath, getPathWithoutLocale, withLeadingSlash } from "@i18n-micro/utils";
+import {
+  getLocaleFromPath,
+  getPathSegments,
+  getPathWithoutLocale,
+  withLeadingSlash,
+} from "@i18n-micro/utils";
 import type { AstroGlobal } from "astro";
 import type { AstroI18n } from "./composer";
 import type { I18nRoutingStrategy } from "./router/types";
@@ -112,13 +117,8 @@ export function useI18n(astro: AstroGlobal) {
         return routingStrategy.getRouteName(targetPath, localeCodes);
       }
       // Fallback: basic route name extraction
-      const cleanPath = targetPath.replace(/^\//, "").replace(/\/$/, "");
-      if (!cleanPath) return "index";
-      const segments = cleanPath.split("/").filter(Boolean);
-      const firstSegment = segments[0];
-      if (firstSegment && localeCodes.includes(firstSegment)) {
-        segments.shift();
-      }
+      const { pathWithoutLocale } = getPathWithoutLocale(targetPath, localeCodes);
+      const segments = getPathSegments(pathWithoutLocale);
       return segments.length === 0 ? "index" : segments.join("-");
     },
     getLocaleFromPath: (path?: string): string => {
@@ -142,7 +142,7 @@ export function useI18n(astro: AstroGlobal) {
       }
       // Fallback: basic locale switching
       const { pathWithoutLocale } = getPathWithoutLocale(astro.url.pathname, localeCodes);
-      const baseSegments = pathWithoutLocale.split("/").filter(Boolean);
+      const baseSegments = getPathSegments(pathWithoutLocale);
       if (newLocale !== defaultLocale) baseSegments.unshift(newLocale);
       return withLeadingSlash(baseSegments.join("/"));
     },
@@ -157,7 +157,7 @@ export function useI18n(astro: AstroGlobal) {
       }
       // Fallback: basic localization
       const { pathWithoutLocale } = getPathWithoutLocale(path, localeCodes);
-      const segments = pathWithoutLocale.split("/").filter(Boolean);
+      const segments = getPathSegments(pathWithoutLocale);
       if (targetLocale && targetLocale !== defaultLocale) {
         segments.unshift(targetLocale);
       }
@@ -287,7 +287,7 @@ export function useLocaleHead(
     } else {
       // Fallback: basic locale switching
       const { pathWithoutLocale } = getPathWithoutLocale(astro.url.pathname, allLocaleCodes);
-      const segments = pathWithoutLocale.split("/").filter(Boolean);
+      const segments = getPathSegments(pathWithoutLocale);
       if (loc.code !== defaultLocale) {
         segments.unshift(loc.code);
       }
@@ -325,7 +325,7 @@ export function useLocaleHead(
       );
     } else {
       const { pathWithoutLocale } = getPathWithoutLocale(astro.url.pathname, allLocaleCodes);
-      const segments = pathWithoutLocale.split("/").filter(Boolean);
+      const segments = getPathSegments(pathWithoutLocale);
       xDefaultPath = withLeadingSlash(segments.join("/"));
     }
     result.link.push({

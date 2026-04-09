@@ -27,6 +27,10 @@ const props = defineProps<{
 
 const emit = defineEmits(["fileSelected"]);
 
+function splitPathSegments(path: string): string[] {
+  return path.split("/").filter((segment) => segment.length > 0);
+}
+
 const tree = computed<TreeNode[]>(() => {
   const filePaths = Object.keys(props.locales);
   const commonPrefix = findCommonPrefix(filePaths);
@@ -41,8 +45,8 @@ const tree = computed<TreeNode[]>(() => {
   filePaths.forEach((filePath) => {
     // Process each file path
     const relativePath = filePath.startsWith(commonPrefix)
-      ? filePath.slice(commonPrefix.length).split("/").filter(Boolean)
-      : filePath.split("/").filter(Boolean);
+      ? splitPathSegments(filePath.slice(commonPrefix.length))
+      : splitPathSegments(filePath);
 
     let current = root;
 

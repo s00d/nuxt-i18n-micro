@@ -1,5 +1,6 @@
 import type { I18nRoutingStrategy } from "@i18n-micro/preact";
 import type { Locale } from "@i18n-micro/types";
+import { getPathSegments } from "@i18n-micro/utils";
 import type React from "react";
 import { Link } from "wouter-preact";
 
@@ -16,7 +17,7 @@ export function createWouterAdapter(
     locale: string,
   ): string | { path?: string } => {
     const path = typeof to === "string" ? to : to.path || "/";
-    const pathSegments = path.split("/").filter(Boolean);
+    const pathSegments = getPathSegments(path);
     const first = pathSegments[0];
     if (first !== undefined && localeCodes.includes(first)) {
       pathSegments.shift();

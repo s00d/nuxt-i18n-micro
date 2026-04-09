@@ -117,7 +117,7 @@ function buildPathFromBaseNameAndParams(
     );
   } else {
     const pathForm = transformNameKeyToPath(baseName);
-    const pathSegments = pathForm ? pathForm.split("/").filter(Boolean) : [baseName];
+    const pathSegments = getPathSegments(pathForm || baseName);
     const replaceCount = Math.min(paramKeys.length, pathSegments.length);
     const templateSegments = pathSegments
       .slice(0, pathSegments.length - replaceCount)

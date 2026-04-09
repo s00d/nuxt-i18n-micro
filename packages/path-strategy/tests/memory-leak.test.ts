@@ -232,8 +232,8 @@ describe('Mutation safety: preserveQueryAndHash', () => {
     preserveQueryAndHash(target1, { query: { k: '1' } })
     preserveQueryAndHash(target2, { query: { k: '2' } })
 
-    expect((target1.query as any)?.k).toBe('1')
-    expect((target2.query as any)?.k).toBe('2')
+    expect((target1.query as { k?: string } | undefined)?.k).toBe('1')
+    expect((target2.query as { k?: string } | undefined)?.k).toBe('2')
   })
 })
 
@@ -381,13 +381,13 @@ describe('Isolation: returned objects are independent', () => {
       result1.path = '/MUTATED'
       result1.fullPath = '/MUTATED'
       if (!result1.query) result1.query = {}
-      ;(result1.query as any).injected = 'hack'
+      ;(result1.query as Record<string, unknown>).injected = 'hack'
 
       // Next call should return fresh result
       const result2 = strategy.localeRoute('de', '/about', current)
       expect(result2.path).toBe(path1)
       expect(result2).not.toBe(result1) // different object reference
-      expect((result2.query as any)?.injected).toBeUndefined()
+      expect((result2.query as Record<string, unknown> | undefined)?.injected).toBeUndefined()
     })
   }
 })

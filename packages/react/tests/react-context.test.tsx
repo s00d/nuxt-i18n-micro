@@ -64,7 +64,7 @@ describe('I18nProvider and useI18n', () => {
     expect(() => {
       // @ts-expect-error - Testing error case
       render(<ErrorComponent />)
-    }).toThrow()
+    }).toThrow('[i18n-micro] I18nContext not found. Make sure I18nProvider is used.')
 
     consoleSpy.mockRestore()
   })

@@ -2,8 +2,16 @@
  * Tests for base-strategy.ts coverage - getters, setters, and edge cases
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
-import { createPathStrategy, NoPrefixPathStrategy, PrefixAndDefaultPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
+import {
+  createPathStrategy,
+  NoPrefixPathStrategy,
+  type PathStrategyContext,
+  PrefixAndDefaultPathStrategy,
+  PrefixExceptDefaultPathStrategy,
+  PrefixPathStrategy,
+  type ResolvedRouteLike,
+  type RouteLike,
+} from '../src'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -23,6 +31,21 @@ const baseConfig: ModuleOptionsExtend = {
 
 function makeCtx(strategy: NonNullable<ModuleOptionsExtend['strategy']>, extra?: Partial<PathStrategyContext>): PathStrategyContext {
   return makePathStrategyContext(baseConfig, strategy, extra)
+}
+
+function getStrategyInternals(strategy: unknown): {
+  formatPathForResolve: (path: string, from: string, to: string) => string
+  applyBaseUrl: (locale: string, route: RouteLike) => RouteLike | string
+} {
+  const typed = strategy as {
+    formatPathForResolve: (path: string, from: string, to: string) => string
+    applyBaseUrl: (locale: string, route: RouteLike) => RouteLike | string
+  }
+  return {
+    // preserve `this` context for class methods
+    formatPathForResolve: (path, from, to) => typed.formatPathForResolve.call(typed, path, from, to),
+    applyBaseUrl: (locale, route) => typed.applyBaseUrl.call(typed, locale, route),
+  }
 }
 
 describe('BasePathStrategy - getters and setters', () => {
@@ -328,14 +351,16 @@ describe('applyBaseUrl - external URL handling', () => {
 describe('NoPrefixPathStrategy - formatPathForResolve', () => {
   test('returns path unchanged', () => {
     const strategy = new NoPrefixPathStrategy(makeCtx('no_prefix'))
-    expect((strategy as any).formatPathForResolve('/about', 'en', 'de')).toBe('/about')
+    const { formatPathForResolve } = getStrategyInternals(strategy)
+    expect(formatPathForResolve('/about', 'en', 'de')).toBe('/about')
   })
 })
 
 describe('PrefixPathStrategy - formatPathForResolve', () => {
   test('returns path with locale prefix', () => {
     const strategy = new PrefixPathStrategy(makeCtx('prefix'))
-    expect((strategy as any).formatPathForResolve('/about', 'en', 'de')).toBe('/en/about')
+    const { formatPathForResolve } = getStrategyInternals(strategy)
+    expect(formatPathForResolve('/about', 'en', 'de')).toBe('/en/about')
   })
 })
 
@@ -374,7 +399,8 @@ describe('BasePathStrategy - applyBaseUrl edge cases', () => {
     }
 
     // When route already has protocol, return as-is
-    const result = (strategy as any).applyBaseUrl('fr', route)
+    const { applyBaseUrl } = getStrategyInternals(strategy)
+    const result = applyBaseUrl('fr', route)
     expect(result).toEqual(route)
   })
 
@@ -397,9 +423,10 @@ describe('BasePathStrategy - applyBaseUrl edge cases', () => {
     }
 
     // When baseUrl doesn't have protocol, return route object
-    const result = (strategy as any).applyBaseUrl('de', route)
+    const { applyBaseUrl } = getStrategyInternals(strategy)
+    const result = applyBaseUrl('de', route)
     expect(typeof result).toBe('object')
-    expect(result.path).toBe('/de-prefix/page')
+    expect((result as RouteLike).path).toBe('/de-prefix/page')
   })
 })
 
@@ -520,10 +547,24 @@ describe('BasePathStrategy - resolveLocaleRoute edge cases', () => {
     router.resolve = (to: RouteLike | string) => {
       const name = typeof to === 'string' ? to : (to as RouteLike).name?.toString()
       if (name === 'localized-parent-child-de') {
-        return { name, path: '/de/eltern/kind', fullPath: '/de/eltern/kind', params: {}, query: {}, hash: '' }
+        return {
+          name,
+          path: '/de/eltern/kind',
+          fullPath: '/de/eltern/kind',
+          params: {},
+          query: {},
+          hash: '',
+        }
       }
       if (name === 'localized-parent-child-en') {
-        return { name, path: '/en/parent-en/child-en', fullPath: '/en/parent-en/child-en', params: {}, query: {}, hash: '' }
+        return {
+          name,
+          path: '/en/parent-en/child-en',
+          fullPath: '/en/parent-en/child-en',
+          params: {},
+          query: {},
+          hash: '',
+        }
       }
       return { name: null, path: '/', fullPath: '/', params: {}, query: {}, hash: '' }
     }

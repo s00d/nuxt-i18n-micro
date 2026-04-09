@@ -3,8 +3,7 @@
  * Ensures activity-skiing -> /locale/activity/skiing and test-id with params -> /locale/test-my-id.
  */
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import type { PathStrategyContext, ResolvedRouteLike, RouteLike, RouterAdapter } from '../src'
-import { createPathStrategy } from '../src'
+import { createPathStrategy, type PathStrategyContext, type ResolvedRouteLike, type RouteLike, type RouterAdapter } from '../src'
 import { makePathStrategyContext } from './test-utils'
 
 const baseConfig: ModuleOptionsExtend = {
@@ -84,7 +83,14 @@ function runFallbackParamsTests(strategy: StrategyName, _enPrefix: string, _dePr
       const params = r.params ?? {}
       const id = params.id as string | undefined
       const path = id ? `/test/${id}` : '/test/id'
-      return { name: r.name ?? null, path, fullPath: path, params: r.params ?? {}, query: r.query ?? {}, hash: r.hash ?? '' }
+      return {
+        name: r.name ?? null,
+        path,
+        fullPath: path,
+        params: r.params ?? {},
+        query: r.query ?? {},
+        hash: r.hash ?? '',
+      }
     },
   }
 
@@ -102,8 +108,9 @@ function runFallbackParamsTests(strategy: StrategyName, _enPrefix: string, _dePr
     expect(result).toMatchSnapshot()
   })
 
-  if (!opts?.skipNoRouteFallback) {
-    test('router does not have baseName: with params strategy builds path from baseName+params (hyphen form for test-id+id)', () => {
+  ;(opts?.skipNoRouteFallback ? test.skip : test)(
+    'router does not have baseName: with params strategy builds path from baseName+params (hyphen form for test-id+id)',
+    () => {
       const routerNoRoute: RouterAdapter = {
         hasRoute: () => false,
         resolve: () => {
@@ -113,8 +120,8 @@ function runFallbackParamsTests(strategy: StrategyName, _enPrefix: string, _dePr
       const s = createPathStrategy(makeCtx(strategy, { router: routerNoRoute }))
       const result = s.localeRoute('en', { name: 'test-id', params: { id: 'my-id' } }, currentRoute)
       expect(result).toMatchSnapshot()
-    })
-  }
+    },
+  )
 }
 
 describe('localeRoute fallback: name key -> path form (activity-skiing -> activity/skiing)', () => {

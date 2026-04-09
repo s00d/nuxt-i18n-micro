@@ -15,21 +15,11 @@
 
     <slot name="before-dropdown" />
 
-    <ul
-      v-show="dropdownOpen"
-      :style="[dropdownStyle, customDropdownStyle]"
-    >
+    <ul v-show="dropdownOpen" :style="[dropdownStyle, customDropdownStyle]">
       <slot name="before-dropdown-items" />
 
-      <li
-        v-for="locale in locales"
-        :key="locale.code"
-        :style="[itemStyle, customItemStyle]"
-      >
-        <slot
-          name="before-item"
-          :locale="locale"
-        />
+      <li v-for="locale in locales" :key="locale.code" :style="[itemStyle, customItemStyle]">
+        <slot name="before-item" :locale="locale" />
 
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
@@ -43,21 +33,12 @@
           :hreflang="locale.iso || locale.code"
           @click="switchLocale(locale.code)"
         >
-          <slot
-            name="before-link-content"
-            :locale="locale"
-          />
+          <slot name="before-link-content" :locale="locale" />
           {{ localeLabel(locale) }}
-          <slot
-            name="after-link-content"
-            :locale="locale"
-          />
+          <slot name="after-link-content" :locale="locale" />
         </NuxtLink>
 
-        <slot
-          name="after-item"
-          :locale="locale"
-        />
+        <slot name="after-item" :locale="locale" />
       </li>
 
       <slot name="after-dropdown-items" />
@@ -68,8 +49,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { CSSProperties } from 'vue'
-import { computed, ref } from 'vue'
+import { type CSSProperties, computed, ref } from 'vue'
 import { useNuxtApp } from '#imports'
 
 type LocaleCode = string

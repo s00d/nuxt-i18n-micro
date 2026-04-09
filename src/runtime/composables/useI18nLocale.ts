@@ -1,7 +1,6 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import { useState } from '#app'
+import { useCookie, useState } from '#app'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
-import { useCookie } from '#imports'
 import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
 
 type CookieRef = { value: string | null }
@@ -64,7 +63,7 @@ export function useI18nLocale() {
    * hashMode: localeState takes priority; otherwise — from route.
    */
   const getEffectiveLocale = (route: unknown, getLocaleFromRoute: GetLocaleFromRoute): string => {
-    if (i18nConfig.hashMode && localeState.value != null) return localeState.value
+    if (i18nConfig.hashMode && localeState.value !== null) return localeState.value
     return getLocaleFromRoute(route)
   }
 

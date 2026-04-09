@@ -1,4 +1,4 @@
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from '#app'
 import type { PluginsInjections } from '../plugins/01.plugin'
 
 type RemoveDollarSign<T> = {

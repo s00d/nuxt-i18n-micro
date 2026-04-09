@@ -157,8 +157,17 @@ export function detectLocale(
       if (acceptLanguage) {
         const preferredLocales = parseAcceptLanguage(acceptLanguage);
         for (const preferred of preferredLocales) {
-          if (locales.includes(preferred)) {
-            locale = preferred;
+          const normalizedPreferred = preferred.toLowerCase();
+          const baseLanguage = normalizedPreferred.split("-")[0];
+          const matchedLocale = locales.find((candidate) => {
+            const normalizedCandidate = candidate.toLowerCase();
+            return (
+              normalizedCandidate === normalizedPreferred ||
+              (baseLanguage !== undefined && normalizedCandidate === baseLanguage)
+            );
+          });
+          if (matchedLocale) {
+            locale = matchedLocale;
             break;
           }
         }

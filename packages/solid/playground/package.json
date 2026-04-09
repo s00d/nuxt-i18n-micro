@@ -14,6 +14,7 @@
     "@i18n-micro/devtools-ui": "workspace:*",
     "@i18n-micro/solid": "workspace:*",
     "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*",
     "@solidjs/router": "catalog:",
     "solid-js": "catalog:"
   },

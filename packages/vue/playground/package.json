@@ -18,6 +18,7 @@
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/devtools-ui": "workspace:*",
     "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*",
     "@i18n-micro/vue": "workspace:*",
     "compression": "catalog:",
     "express": "catalog:",

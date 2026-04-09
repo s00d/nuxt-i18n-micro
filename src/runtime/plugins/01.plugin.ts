@@ -9,7 +9,7 @@ import type {
   Params,
   Translations,
 } from "@i18n-micro/types";
-import { deepMergeTranslations } from "@i18n-micro/utils";
+import { deepMergeTranslations, getCleanPath } from "@i18n-micro/utils";
 import { shallowRef, triggerRef, unref } from "vue";
 import type {
   RouteLocationNamedRaw,
@@ -574,7 +574,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const currentRoute = toResolvedRouteLike(router.currentRoute.value);
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, currentRoute);
       const fullPath = result.fullPath ?? result.path ?? "";
-      const path = result.path ?? fullPath.split("?")[0]?.split("#")[0] ?? fullPath;
+      const path = result.path ?? getCleanPath(fullPath) ?? fullPath;
       const out: {
         path: string;
         fullPath: string;

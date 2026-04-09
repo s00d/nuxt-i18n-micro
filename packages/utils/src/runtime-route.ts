@@ -10,10 +10,11 @@ export interface RouteLike {
 }
 
 export function extractBaseRoutePattern(matchedPath: string): string {
-  return matchedPath
+  const basePattern = matchedPath
     .replace(/\/:locale\([^)]+\)/g, "")
     .replace(/\/:([^()]+)\(\)/g, "/[$1]")
     .replace(/\/:([^()]+)/g, "/[$1]");
+  return basePattern || "/";
 }
 
 export function findAllowedLocalesForRoute(
@@ -38,7 +39,7 @@ export function findAllowedLocalesForRoute(
   if (!allowedLocales && routeLocales && localeCodes?.length) {
     const segments = getPathSegments(routePath);
     const first = segments[0];
-    if (first && localeCodes.includes(first) && segments.length > 1) {
+    if (first && localeCodes.includes(first)) {
       const pathWithoutLocale = `/${segments.slice(1).join("/")}`;
       const pathKey = pathWithoutLocale === "/" ? "/" : removeLeadingSlash(pathWithoutLocale);
       allowedLocales = routeLocales[pathWithoutLocale] ?? routeLocales[pathKey] ?? undefined;

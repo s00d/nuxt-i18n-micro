@@ -922,6 +922,9 @@ importers:
       '@i18n-micro/types':
         specifier: workspace:*
         version: link:../types
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
     devDependencies:
       vite:
         specifier: 'catalog:'

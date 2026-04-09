@@ -1,3 +1,4 @@
+import JSON5 from "json5";
 import type { DefineI18nRouteConfig } from "@i18n-micro/types";
 
 function extractScriptContent(content: string): string | null {
@@ -9,6 +10,83 @@ function removeTypeScriptTypes(scriptContent: string): string {
   return scriptContent.replace(/\((\w+):[^)]*\)/g, "($1)");
 }
 
+function findMatchingClosingParen(input: string, openParen: number): number {
+  let braceCount = 0;
+  let parenCount = 1;
+  let inSingle = false;
+  let inDouble = false;
+  let inTemplate = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+  let escaped = false;
+
+  for (let i = openParen + 1; i < input.length; i++) {
+    const ch = input[i];
+    const prev = input[i - 1];
+    const next = input[i + 1];
+
+    if (inLineComment) {
+      if (ch === "\n") inLineComment = false;
+      continue;
+    }
+    if (inBlockComment) {
+      if (prev === "*" && ch === "/") inBlockComment = false;
+      continue;
+    }
+    if (inSingle) {
+      if (!escaped && ch === "'") inSingle = false;
+      escaped = !escaped && ch === "\\";
+      continue;
+    }
+    if (inDouble) {
+      if (!escaped && ch === '"') inDouble = false;
+      escaped = !escaped && ch === "\\";
+      continue;
+    }
+    if (inTemplate) {
+      if (!escaped && ch === "`") inTemplate = false;
+      escaped = !escaped && ch === "\\";
+      continue;
+    }
+
+    if (ch === "/" && next === "/") {
+      inLineComment = true;
+      i++;
+      continue;
+    }
+    if (ch === "/" && next === "*") {
+      inBlockComment = true;
+      i++;
+      continue;
+    }
+    if (ch === "'") {
+      inSingle = true;
+      escaped = false;
+      continue;
+    }
+    if (ch === '"') {
+      inDouble = true;
+      escaped = false;
+      continue;
+    }
+    if (ch === "`") {
+      inTemplate = true;
+      escaped = false;
+      continue;
+    }
+
+    if (ch === "{") braceCount++;
+    if (ch === "}") braceCount--;
+    if (ch === "(") parenCount++;
+    if (ch === ")") {
+      parenCount--;
+      if (parenCount === 0 && braceCount === 0) return i;
+    }
+  }
+
+  return -1;
+}
+
 function findDefineI18nRouteConfig(scriptContent: string): DefineI18nRouteConfig | null {
   try {
     const defineStart = scriptContent.indexOf("$defineI18nRoute(");
@@ -17,55 +95,13 @@ function findDefineI18nRouteConfig(scriptContent: string): DefineI18nRouteConfig
     const openParen = scriptContent.indexOf("(", defineStart);
     if (openParen === -1) return null;
 
-    let braceCount = 0;
-    let parenCount = 1;
-    let i = openParen + 1;
-
-    for (; i < scriptContent.length; i++) {
-      if (scriptContent[i] === "{") braceCount++;
-      if (scriptContent[i] === "}") braceCount--;
-      if (scriptContent[i] === "(") parenCount++;
-      if (scriptContent[i] === ")") {
-        parenCount--;
-        if (parenCount === 0 && braceCount === 0) break;
-      }
-    }
-
-    if (i >= scriptContent.length) return null;
-    const configStr = scriptContent.substring(openParen + 1, i);
+    const closeParen = findMatchingClosingParen(scriptContent, openParen);
+    if (closeParen === -1) return null;
+    const configStr = scriptContent.substring(openParen + 1, closeParen);
     const cleanConfigStr = removeTypeScriptTypes(configStr);
-
-    try {
-      const configObject = Function(`"use strict";return (${cleanConfigStr})`)();
-      try {
-        const serialized = JSON.stringify(configObject);
-        return JSON.parse(serialized);
-      } catch {
-        return configObject;
-      }
-    } catch {
-      const scriptWithoutImports = scriptContent
-        .split("\n")
-        .filter((line) => !line.trim().startsWith("import "))
-        .join("\n");
-
-      const cleanScript = removeTypeScriptTypes(scriptWithoutImports);
-      const safeScript = `
-        const $defineI18nRoute = () => {}
-        const defineI18nRoute = () => {}
-        const process = { env: { NODE_ENV: 'development' } }
-        ${cleanScript}
-        return (${cleanConfigStr})
-      `;
-
-      const configObject = Function(`"use strict";${safeScript}`)();
-      try {
-        const serialized = JSON.stringify(configObject);
-        return JSON.parse(serialized);
-      } catch {
-        return configObject;
-      }
-    }
+    const parsed = JSON5.parse(cleanConfigStr) as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+    return parsed as DefineI18nRouteConfig;
   } catch {
     return null;
   }

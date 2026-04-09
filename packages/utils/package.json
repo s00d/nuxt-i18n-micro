@@ -46,7 +46,8 @@
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
+    "@i18n-micro/types": "workspace:*",
+    "json5": "^2.2.3"
   },
   "devDependencies": {
     "vite": "catalog:",

@@ -4,6 +4,7 @@ import { extractBaseRoutePattern, findAllowedLocalesForRoute, isMetaDisabledForR
 describe("@i18n-micro/utils runtime route helpers", () => {
   it("extracts base route pattern from localized matcher path", () => {
     expect(extractBaseRoutePattern("/:locale(en|de)/about/:id()")).toBe("/about/[id]");
+    expect(extractBaseRoutePattern("/:locale(en|de)")).toBe("/");
   });
 
   it("finds allowed locales by route name and locale-prefixed path", () => {
@@ -27,6 +28,14 @@ describe("@i18n-micro/utils runtime route helpers", () => {
       ["en", "de"],
     );
     expect(byPrefixedPath).toEqual(["en"]);
+
+    const rootFromLocaleOnlyPath = findAllowedLocalesForRoute(
+      { path: "/en" },
+      { "/": ["en", "de"] },
+      "localized-",
+      ["en", "de"],
+    );
+    expect(rootFromLocaleOnlyPath).toEqual(["en", "de"]);
   });
 
   it("checks routeDisableMeta rules for locale arrays", () => {

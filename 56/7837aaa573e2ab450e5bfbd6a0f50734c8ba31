@@ -1,0 +1,49 @@
+test/performance.test.ts
+  084250eabc5cfbca 12,26,38,43,61,66,88,106,110,112,117,129,133,142,145,150,153,156,160,162,164,169-170,176,179,182,185,189,191,193,200,202,209,218,231,240,245,250,254,272,275,284,298,306,308,312,316,324,326,334,344,357,360,362,365,373,376,384,386,403,422,438,454,457,472,475,479,493,495,499,511,519,527,529,545,549,552,554,565,568,584,587,600,603,653,657,662,669,675,678,690,697,700,710,712,728,732
+packages/route-strategy/src/route-generator.ts
+  084250eabc5cfbca 151
+packages/path-strategy/tests/locale-route-fallback-path.test.ts
+  084250eabc5cfbca 75
+packages/solid/src/components/I18nLink.tsx
+  084250eabc5cfbca 101,109,115,117-120,122-124,126-127,130-134
+src/runtime/composables/useI18n.ts
+  084250eabc5cfbca 45
+packages/solid/src/context.tsx
+  084250eabc5cfbca 21,24,27,40
+packages/path-strategy/tests/switch-locale-route.test.ts
+  084250eabc5cfbca 3,6
+packages/preact/src/components/I18nT.tsx
+  084250eabc5cfbca 44
+src/module.ts
+  084250eabc5cfbca 114,196,582,617,645,664
+test/redirect.spec.ts
+  084250eabc5cfbca 32
+package.json
+  084250eabc5cfbca 35,142
+packages/solid/src/components/I18nGroup.tsx
+  084250eabc5cfbca 32
+packages/path-strategy/tests/router-adapter-fallback.test.ts
+  084250eabc5cfbca 3-4
+src/runtime/plugins/01.plugin.ts
+  084250eabc5cfbca 190,421,423,429
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "567837aaa573e2ab450e5bfbd6a0f50734c8ba31",
+  "prompts": {
+    "084250eabc5cfbca": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "124cc61f-e58b-4160-a501-e26e92218e0e",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 2921,
+      "overriden_lines": 0
+    }
+  }
+}

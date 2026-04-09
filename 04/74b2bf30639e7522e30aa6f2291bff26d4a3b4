@@ -1,0 +1,57 @@
+test/performance.test.ts
+  084250eabc5cfbca 12,30,42,47,65,87,218,250,254,265,277,387,390,395,398,401,405,407,409,414-415,421,424,427,430,434,436,438,446,448,455,467,479,488,493,497,501,514,521,530,541,547,549,553,557,562,564,572,579,592,595,597,600,606,609,619,621,639,693,1322,1333,1337,1350,1352,1355,1359,1367,1372,1374,1387,1390,1401,1403,1416,1419,1435,1438,1449,1474,1520,1569,1578,1585,1612,1650,1652,1691,1696
+packages/path-strategy/tests/current-locale-and-plugin.test.ts
+  084250eabc5cfbca 40,48,57,64,73,80,89,98,105,112,119,129,138,145,153,164,171,178,185,194,201,210,219,228,235
+packages/path-strategy/tests/strategy-edge-cases.test.ts
+  084250eabc5cfbca 6,9,43,222
+packages/route-strategy/src/route-generator.ts
+  084250eabc5cfbca 151
+packages/path-strategy/tests/locale-route-fallback-path.test.ts
+  084250eabc5cfbca 75
+src/runtime/plugins/06.redirect.ts
+  084250eabc5cfbca 11,13,25,53,64,76,81,84,88,94,98,108,115,122,124,129,137,145,160,162,181,188,196,203,209,223,230,235,240
+packages/solid/src/components/I18nLink.tsx
+  084250eabc5cfbca 101,109,115,117-120,122-124,126-127,130-134
+src/runtime/composables/useI18n.ts
+  084250eabc5cfbca 45
+packages/solid/src/context.tsx
+  084250eabc5cfbca 21,24,27,40
+packages/path-strategy/tests/switch-locale-route.test.ts
+  084250eabc5cfbca 3,6
+packages/preact/src/components/I18nT.tsx
+  084250eabc5cfbca 44
+src/module.ts
+  084250eabc5cfbca 115,198,586,621,649,668
+test/redirect.spec.ts
+  084250eabc5cfbca 25
+packages/path-strategy/tests/base-strategy-coverage.test.ts
+  084250eabc5cfbca 9
+package.json
+  084250eabc5cfbca 35,147
+packages/solid/src/components/I18nGroup.tsx
+  084250eabc5cfbca 32
+packages/path-strategy/tests/router-adapter-fallback.test.ts
+  084250eabc5cfbca 3-4
+src/runtime/plugins/01.plugin.ts
+  084250eabc5cfbca 274,506,508,514
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "0474b2bf30639e7522e30aa6f2291bff26d4a3b4",
+  "prompts": {
+    "084250eabc5cfbca": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "124cc61f-e58b-4160-a501-e26e92218e0e",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 2215,
+      "overriden_lines": 0
+    }
+  }
+}

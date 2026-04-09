@@ -1,0 +1,27 @@
+package.json
+  084250eabc5cfbca 35
+src/module.ts
+  084250eabc5cfbca 170,175,181,186,242,244,250,252,258
+src/runtime/plugins/01.plugin.ts
+  084250eabc5cfbca 248
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "d2c7e533590eb56e5b9bff37d54ab6d0c3d8a62e",
+  "prompts": {
+    "084250eabc5cfbca": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "124cc61f-e58b-4160-a501-e26e92218e0e",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 5942,
+      "overriden_lines": 0
+    }
+  }
+}

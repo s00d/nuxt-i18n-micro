@@ -1,0 +1,31 @@
+test/redirect.spec.ts
+  084250eabc5cfbca 32
+src/runtime/composables/useI18n.ts
+  084250eabc5cfbca 38
+package.json
+  084250eabc5cfbca 35,115,120
+src/module.ts
+  084250eabc5cfbca 28,122,125,370,372,378,380,387,394,410,414,433
+src/runtime/plugins/01.plugin.ts
+  084250eabc5cfbca 80,122,229,231,237
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "57eaf2c813196fb156404c9e3e42fc6907255972",
+  "prompts": {
+    "084250eabc5cfbca": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "124cc61f-e58b-4160-a501-e26e92218e0e",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 5012,
+      "overriden_lines": 0
+    }
+  }
+}

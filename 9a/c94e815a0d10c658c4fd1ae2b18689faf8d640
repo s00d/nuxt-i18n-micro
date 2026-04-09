@@ -1,0 +1,35 @@
+src/runtime/composables/useI18n.ts
+  084250eabc5cfbca 39
+test/performance.test.ts
+  084250eabc5cfbca 12,26,38,43,61,66,88,106,110,112,117,129,133,142,145,150,153,156,160,162,164,168-169,175,178,181,184,188,190,192,199-200,202,204,211,220,233,242,247,252,254,272,275,284,298,306,308,312,316,324,326,334,344,357,360,362,365,373,376,384,386,403,422,438,454,457,472,475,479,493,495,499,511,519,527,529,545,549,552,554,565,568,584,587,600,603,653,657,662,666,671,675,681,684,690,697,700,707,709,713,715
+src/module.ts
+  084250eabc5cfbca 133,188,657,713,719,738
+test/redirect.spec.ts
+  084250eabc5cfbca 32
+package.json
+  084250eabc5cfbca 35,123
+src/runtime/plugins/06.redirect.ts
+  084250eabc5cfbca 38,43,89,94,141
+src/runtime/plugins/01.plugin.ts
+  084250eabc5cfbca 146,296,298,304
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "9ac94e815a0d10c658c4fd1ae2b18689faf8d640",
+  "prompts": {
+    "084250eabc5cfbca": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "124cc61f-e58b-4160-a501-e26e92218e0e",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 5027,
+      "overriden_lines": 0
+    }
+  }
+}

@@ -1,0 +1,55 @@
+test/performance.test.ts
+  084250eabc5cfbca 12,30,42,47,65,87,212,239,243,254,266,313,316,321,324,327,331,333,335,340-341,347,350,353,356,360,362,364,372,374,381,393,405,414,419,423,427,440,447,456,467,473,475,479,483,488,490,498,505,518,521,523,526,532,535,544,546,564,618,825,827,835,846,850,863,865,868,872,880,885,887,900,903,914,916,929,932,948,951,962,987,1033,1082,1091,1098,1120,1155,1157,1191,1196
+packages/path-strategy/tests/strategy-edge-cases.test.ts
+  084250eabc5cfbca 6,9
+packages/route-strategy/src/route-generator.ts
+  084250eabc5cfbca 151
+packages/path-strategy/tests/locale-route-fallback-path.test.ts
+  084250eabc5cfbca 75
+src/runtime/plugins/06.redirect.ts
+  084250eabc5cfbca 11,13,25,53,64,76,81,84,88,94,98,108,115,122,124,129,137,145,160,162,181,188,196,203,209,223,230,235,240
+packages/solid/src/components/I18nLink.tsx
+  084250eabc5cfbca 101,109,115,117-120,122-124,126-127,130-134
+src/runtime/composables/useI18n.ts
+  084250eabc5cfbca 45
+packages/solid/src/context.tsx
+  084250eabc5cfbca 21,24,27,40
+packages/path-strategy/tests/switch-locale-route.test.ts
+  084250eabc5cfbca 3,6
+packages/preact/src/components/I18nT.tsx
+  084250eabc5cfbca 44
+src/module.ts
+  084250eabc5cfbca 115,198,586,621,649,668
+test/redirect.spec.ts
+  084250eabc5cfbca 25
+packages/path-strategy/tests/base-strategy-coverage.test.ts
+  084250eabc5cfbca 9
+package.json
+  084250eabc5cfbca 35,145
+packages/solid/src/components/I18nGroup.tsx
+  084250eabc5cfbca 32
+packages/path-strategy/tests/router-adapter-fallback.test.ts
+  084250eabc5cfbca 3-4
+src/runtime/plugins/01.plugin.ts
+  084250eabc5cfbca 274,506,508,514
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "8cabe4b802237ea6ac9d7a74b195fe37f1e0492a",
+  "prompts": {
+    "084250eabc5cfbca": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "124cc61f-e58b-4160-a501-e26e92218e0e",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 2144,
+      "overriden_lines": 0
+    }
+  }
+}

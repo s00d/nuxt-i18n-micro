@@ -1,0 +1,45 @@
+test/performance.test.ts
+  084250eabc5cfbca 9,27,39,44,62,84,215,247,251,262,274,382,385,392,395,398,402,404,406,411-412,418,421,424,427,431,433,435,443,445,452,464,475,484,489,493,497,509,516,525,536,542,544,548,552,557,559,567,573,585,588,590,593,601,604,614,616,633,682,1303,1310,1314,1327,1329,1332,1336,1344,1349,1351,1363,1366,1377,1379,1392,1395,1411,1414,1425,1450,1492,1541,1626,1667,1672
+packages/path-strategy/tests/current-locale-and-plugin.test.ts
+  084250eabc5cfbca 33,40,49,56,65,72,81,90,97,104,111,120,129,136,143,153,160,167,174,183,190,199,208,215,222
+packages/path-strategy/tests/strategy-edge-cases.test.ts
+  084250eabc5cfbca 37,216
+src/runtime/plugins/06.redirect.ts
+  084250eabc5cfbca 12,14,26,52,63,75,80,83,99,105,109,119,126,128,135,209,216,222,235,242,247,252
+packages/solid/src/components/I18nLink.tsx
+  084250eabc5cfbca 117-120,135
+packages/solid/src/components/I18nSwitcher.tsx
+  084250eabc5cfbca 2
+packages/vue/src/plugin.ts
+  084250eabc5cfbca 79
+src/module.ts
+  084250eabc5cfbca 258,356,756,791,819,834
+test/redirect.spec.ts
+  084250eabc5cfbca 25
+packages/preact/tests/react-context.test.tsx
+  084250eabc5cfbca 2
+package.json
+  084250eabc5cfbca 35,149
+src/runtime/plugins/01.plugin.ts
+  084250eabc5cfbca 286,510,515
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "74dfa56ac156e96a6760eb38adb4cdb0daa958fb",
+  "prompts": {
+    "084250eabc5cfbca": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "124cc61f-e58b-4160-a501-e26e92218e0e",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 1221,
+      "overriden_lines": 0
+    }
+  }
+}

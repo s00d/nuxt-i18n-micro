@@ -1,65 +1,64 @@
 <template>
-  <div
-    id="app"
-    ref="appContainer"
-  />
+  <div id="app" ref="appContainer" />
 </template>
 
 <script setup lang="ts">
-import type { I18nDevToolsBridge } from '@i18n-micro/devtools-ui'
-import { register } from '@i18n-micro/devtools-ui'
-import { onDevtoolsClientConnected } from '@nuxt/devtools-kit/iframe-client'
-import { nextTick, onMounted, ref } from 'vue'
-import { createNuxtBridge } from './bridge/nuxt-bridge'
+import { type I18nDevToolsBridge, register } from "@i18n-micro/devtools-ui";
+import { onDevtoolsClientConnected } from "@nuxt/devtools-kit/iframe-client";
+import { nextTick, onMounted, ref } from "vue";
+import { createNuxtBridge } from "./bridge/nuxt-bridge";
 
 interface I18nDevToolsElement extends HTMLElement {
-  bridge: I18nDevToolsBridge
+  bridge: I18nDevToolsBridge;
 }
 
 // Register the custom element
-register()
+register();
 
-const appContainer = ref<HTMLElement | null>(null)
-let devToolsClient: any = null
+const appContainer = ref<HTMLElement | null>(null);
+let devToolsClient: Parameters<typeof createNuxtBridge>[0] | null = null;
 
 const mountDevTools = async () => {
-  if (!devToolsClient) return
+  if (!devToolsClient) return;
 
   // Wait for DOM to be ready
-  await nextTick()
+  await nextTick();
 
   // Get the app container
-  const container = appContainer.value || document.getElementById('app')
+  const container = appContainer.value || document.getElementById("app");
   if (!container) {
-    console.error('App container not found')
-    return
+    console.error("App container not found");
+    return;
   }
 
   // Create Nuxt bridge
-  const bridge = createNuxtBridge(devToolsClient)
-  console.log('[i18n-devtools] Bridge created:', bridge)
+  const bridge = createNuxtBridge(devToolsClient);
+  console.log("[i18n-devtools] Bridge created:", bridge);
 
   // Create and mount the custom element
-  const element = document.createElement('i18n-devtools-ui') as I18nDevToolsElement
+  const element = document.createElement("i18n-devtools-ui") as I18nDevToolsElement;
   // Set bridge as property (not attribute, as it's an object)
-  element.bridge = bridge
-  console.log('[i18n-devtools] Custom element created and bridge set:', { element, bridge: element.bridge })
+  element.bridge = bridge;
+  console.log("[i18n-devtools] Custom element created and bridge set:", {
+    element,
+    bridge: element.bridge,
+  });
 
   // Clear container and append element
-  container.innerHTML = ''
-  container.appendChild(element)
-  console.log('[i18n-devtools] Custom element mounted')
-}
+  container.innerHTML = "";
+  container.appendChild(element);
+  console.log("[i18n-devtools] Custom element mounted");
+};
 
 onDevtoolsClientConnected(async (client) => {
-  devToolsClient = client
-  await mountDevTools()
-})
+  devToolsClient = client;
+  await mountDevTools();
+});
 
 // Mount on component mount as well (in case client is already connected)
 onMounted(async () => {
   if (devToolsClient) {
-    await mountDevTools()
+    await mountDevTools();
   }
-})
+});
 </script>

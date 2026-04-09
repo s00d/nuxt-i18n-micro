@@ -1,0 +1,55 @@
+{
+  "name": "@i18n-micro/utils",
+  "version": "1.0.0",
+  "description": "Shared framework-agnostic utilities for Nuxt I18n Micro.",
+  "repository": "s00d/nuxt-i18n-micro",
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "nuxt",
+    "i18n",
+    "utils",
+    "path",
+    "url"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "@i18n-micro/types": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
+  }
+}

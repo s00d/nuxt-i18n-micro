@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "import", "promise", "node", "jest", "vitest", "eslint", "oxc", "vue"],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.nuxt/**",
+    "**/.output/**",
+    "**/coverage/**",
+    "**/test-results/**",
+    "**/.cache/**",
+    "**/.pnpm-store/**",
+    "**/.turbo/**",
+    "**/.git/**"
+  ],
+  "rules": {
+    "no-debugger": "error",
+    "no-alert": "error",
+    "no-duplicate-imports": "error",
+    "eqeqeq": "error",
+    "import/no-cycle": "warn",
+    "import/no-self-import": "error",
+    "import/no-duplicates": "error",
+    "promise/no-return-wrap": "error",
+    "promise/no-nesting": "warn",
+    "@typescript-eslint/no-explicit-any": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.spec.ts", "**/test/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}

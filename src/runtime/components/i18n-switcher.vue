@@ -15,21 +15,11 @@
 
     <slot name="before-dropdown" />
 
-    <ul
-      v-show="dropdownOpen"
-      :style="[dropdownStyle, customDropdownStyle]"
-    >
+    <ul v-show="dropdownOpen" :style="[dropdownStyle, customDropdownStyle]">
       <slot name="before-dropdown-items" />
 
-      <li
-        v-for="locale in locales"
-        :key="locale.code"
-        :style="[itemStyle, customItemStyle]"
-      >
-        <slot
-          name="before-item"
-          :locale="locale"
-        />
+      <li v-for="locale in locales" :key="locale.code" :style="[itemStyle, customItemStyle]">
+        <slot name="before-item" :locale="locale" />
 
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
@@ -43,21 +33,12 @@
           :hreflang="locale.iso || locale.code"
           @click="switchLocale(locale.code)"
         >
-          <slot
-            name="before-link-content"
-            :locale="locale"
-          />
+          <slot name="before-link-content" :locale="locale" />
           {{ localeLabel(locale) }}
-          <slot
-            name="after-link-content"
-            :locale="locale"
-          />
+          <slot name="after-link-content" :locale="locale" />
         </NuxtLink>
 
-        <slot
-          name="after-item"
-          :locale="locale"
-        />
+        <slot name="after-item" :locale="locale" />
       </li>
 
       <slot name="after-dropdown-items" />
@@ -68,32 +49,31 @@
 </template>
 
 <script lang="ts" setup>
-import type { CSSProperties } from 'vue'
-import { computed, ref } from 'vue'
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
+import { type CSSProperties, computed, ref } from "vue";
 
-type LocaleCode = string
+type LocaleCode = string;
 interface Locale {
-  code: LocaleCode
-  disabled?: boolean
-  iso?: string
-  dir?: 'ltr' | 'rtl' | 'auto'
-  displayName?: string
-  baseUrl?: string
-  baseDefault?: boolean
-  [key: string]: unknown
+  code: LocaleCode;
+  disabled?: boolean;
+  iso?: string;
+  dir?: "ltr" | "rtl" | "auto";
+  displayName?: string;
+  baseUrl?: string;
+  baseDefault?: boolean;
+  [key: string]: unknown;
 }
 
 interface Props {
-  customLabels?: Record<string, string>
-  customWrapperStyle?: CSSProperties
-  customButtonStyle?: CSSProperties
-  customDropdownStyle?: CSSProperties
-  customItemStyle?: CSSProperties
-  customLinkStyle?: CSSProperties
-  customActiveLinkStyle?: CSSProperties
-  customDisabledLinkStyle?: CSSProperties
-  customIconStyle?: CSSProperties
+  customLabels?: Record<string, string>;
+  customWrapperStyle?: CSSProperties;
+  customButtonStyle?: CSSProperties;
+  customDropdownStyle?: CSSProperties;
+  customItemStyle?: CSSProperties;
+  customLinkStyle?: CSSProperties;
+  customActiveLinkStyle?: CSSProperties;
+  customDisabledLinkStyle?: CSSProperties;
+  customIconStyle?: CSSProperties;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -106,101 +86,103 @@ const props = withDefaults(defineProps<Props>(), {
   customActiveLinkStyle: () => ({}),
   customDisabledLinkStyle: () => ({}),
   customIconStyle: () => ({}),
-})
+});
 
-const { $switchLocaleRoute, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
-const locales = ref($getLocales())
-const currentLocale = computed(() => $getLocale())
-const currentLocaleName = computed(() => $getLocaleName())
-const dropdownOpen = ref(false)
+const { $switchLocaleRoute, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp();
+const locales = ref($getLocales());
+const currentLocale = computed(() => $getLocale());
+const currentLocaleName = computed(() => $getLocaleName());
+const dropdownOpen = ref(false);
 
 const toggleDropdown = () => {
-  dropdownOpen.value = !dropdownOpen.value
-}
+  dropdownOpen.value = !dropdownOpen.value;
+};
 
 const switchLocaleRoute = (code: string) => {
-  return $switchLocaleRoute(code)
-}
+  return $switchLocaleRoute(code);
+};
 
 const localeLabel = (locale: Locale) => {
-  const current = props.customLabels[locale.code] || locale.displayName
+  const current = props.customLabels[locale.code] || locale.displayName;
   if (!current) {
-    console.warn('[i18n-switcher] Either define a custom label for the locale or provide a displayName in the nuxt.config.i18n')
+    console.warn(
+      "[i18n-switcher] Either define a custom label for the locale or provide a displayName in the nuxt.config.i18n",
+    );
   }
-  return current
-}
+  return current;
+};
 
 const currentLocaleLabel = computed(() =>
   localeLabel({
     code: currentLocale.value,
     displayName: currentLocaleName.value ?? undefined,
   }),
-)
+);
 
 const switchLocale = (code: string) => {
-  toggleDropdown()
-  $switchLocale(code)
-}
+  toggleDropdown();
+  $switchLocale(code);
+};
 
 // Default Styles
 const wrapperStyle: CSSProperties = {
-  position: 'relative',
-  display: 'inline-block',
-}
+  position: "relative",
+  display: "inline-block",
+};
 
 const buttonStyle: CSSProperties = {
-  padding: '4px 12px',
-  fontSize: '16px',
-  cursor: 'pointer',
-  backgroundColor: '#fff',
-  border: '1px solid #333',
-  transition: 'background-color 0.3s ease',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-}
+  padding: "4px 12px",
+  fontSize: "16px",
+  cursor: "pointer",
+  backgroundColor: "#fff",
+  border: "1px solid #333",
+  transition: "background-color 0.3s ease",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+};
 
 const dropdownStyle: CSSProperties = {
-  position: 'absolute',
-  top: '100%',
-  left: '0',
-  zIndex: '10',
-  backgroundColor: '#fff',
-  border: '1px solid #333',
-  listStyle: 'none',
-  padding: '0',
-  margin: '4px 0 0 0',
-}
+  position: "absolute",
+  top: "100%",
+  left: "0",
+  zIndex: "10",
+  backgroundColor: "#fff",
+  border: "1px solid #333",
+  listStyle: "none",
+  padding: "0",
+  margin: "4px 0 0 0",
+};
 
 const itemStyle: CSSProperties = {
-  margin: '0',
-  padding: '0',
-}
+  margin: "0",
+  padding: "0",
+};
 
 const linkStyle: CSSProperties = {
-  display: 'block',
-  padding: '8px 12px',
-  color: '#333',
-  textDecoration: 'none',
-  transition: 'background-color 0.3s ease',
-}
+  display: "block",
+  padding: "8px 12px",
+  color: "#333",
+  textDecoration: "none",
+  transition: "background-color 0.3s ease",
+};
 
 const activeLinkStyle: CSSProperties = {
-  fontWeight: 'bold',
-  color: '#007bff',
-}
+  fontWeight: "bold",
+  color: "#007bff",
+};
 
 const disabledLinkStyle: CSSProperties = {
-  cursor: 'not-allowed',
-  color: '#aaa',
-}
+  cursor: "not-allowed",
+  color: "#aaa",
+};
 
 const iconStyle: CSSProperties = {
-  marginLeft: '8px',
-  transition: 'transform 0.3s ease',
-}
+  marginLeft: "8px",
+  transition: "transform 0.3s ease",
+};
 
 const openIconStyle: CSSProperties = {
-  transform: 'rotate(180deg)',
-}
+  transform: "rotate(180deg)",
+};
 </script>

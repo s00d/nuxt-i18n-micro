@@ -30,7 +30,7 @@ exports[`Critical: Alias handling alias routes are separate entries with localiz
 ]
 `;
 
-exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 1`] = `
+exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default: no-prefix-alias 1`] = `
 [
   {
     "alias": [
@@ -50,7 +50,7 @@ exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, 
 ]
 `;
 
-exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 2`] = `
+exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default: prefix-alias 1`] = `
 [
   {
     "alias": [],
@@ -72,7 +72,7 @@ exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, 
 ]
 `;
 
-exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 3`] = `
+exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default: prefix-and-default-alias 1`] = `
 [
   {
     "alias": [

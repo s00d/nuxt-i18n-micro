@@ -10,6 +10,11 @@ function removeTypeScriptTypes(scriptContent: string): string {
   return scriptContent.replace(/\((\w+):[^)]*\)/g, "($1)");
 }
 
+function normalizeObjectLikeForJson5(input: string): string {
+  return input
+    .replace(/\[\s*(['"`])([^'"`]+)\1\s*\]\s*:/g, (_m, _q: string, key: string) => `"${key}":`);
+}
+
 function findMatchingClosingParen(input: string, openParen: number): number {
   let braceCount = 0;
   let parenCount = 1;
@@ -98,7 +103,7 @@ function findDefineI18nRouteConfig(scriptContent: string): DefineI18nRouteConfig
     const closeParen = findMatchingClosingParen(scriptContent, openParen);
     if (closeParen === -1) return null;
     const configStr = scriptContent.substring(openParen + 1, closeParen);
-    const cleanConfigStr = removeTypeScriptTypes(configStr);
+    const cleanConfigStr = normalizeObjectLikeForJson5(removeTypeScriptTypes(configStr));
     const parsed = JSON5.parse(cleanConfigStr) as unknown;
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
     return parsed as DefineI18nRouteConfig;

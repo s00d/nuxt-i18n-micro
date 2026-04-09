@@ -1,5 +1,5 @@
 import { type Locale } from "@i18n-micro/types";
-import { getPathSegments } from "@i18n-micro/utils";
+import { resolveLocalePrefixedPath } from "@i18n-micro/utils";
 import { type Router, RouterLink } from "vue-router";
 import { type I18nRoutingStrategy } from "./types";
 
@@ -14,30 +14,6 @@ export function createVueRouterAdapter(
   defaultLocale: string,
 ): I18nRoutingStrategy {
   const localeCodes = locales.map((loc) => loc.code);
-
-  /**
-   * Path resolution logic (add prefix or not)
-   */
-  const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === "string" ? to : to.path || "/";
-    const pathSegments = getPathSegments(path);
-
-    // If path already starts with a locale, remove it
-    const first = pathSegments[0];
-    if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift();
-    }
-
-    const cleanPath = `/${pathSegments.join("/")}`;
-
-    // If default locale - return clean path
-    if (locale === defaultLocale) {
-      return cleanPath;
-    }
-
-    // Otherwise add prefix
-    return `/${locale}${cleanPath === "/" ? "" : cleanPath}`;
-  };
 
   return {
     linkComponent: RouterLink,
@@ -55,7 +31,8 @@ export function createVueRouterAdapter(
       router.replace(target.path).catch(() => {});
     },
 
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
+    resolvePath: (to: string | { path?: string }, locale: string) =>
+      resolveLocalePrefixedPath(to, locale, localeCodes, defaultLocale),
 
     getRoute: () => ({
       fullPath: router.currentRoute.value.fullPath,

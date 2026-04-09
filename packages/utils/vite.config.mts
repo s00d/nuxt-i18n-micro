@@ -12,6 +12,11 @@ export default defineConfig({
       fileName: (format) => `index.${format === "cjs" ? "cjs" : "mjs"}`,
     },
     rollupOptions: {
+      external: [
+        /^#i18n-internal\//,
+        "h3",
+        "nitropack/runtime",
+      ],
       output: {
         exports: "named",
       },

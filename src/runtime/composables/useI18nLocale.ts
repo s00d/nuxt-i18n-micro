@@ -1,7 +1,11 @@
 import type { ModuleOptionsExtend } from "@i18n-micro/types";
+import {
+  getHashCookieName,
+  getLocaleCookieName,
+  getLocaleCookieOptions,
+} from "@i18n-micro/utils";
 import { useCookie, useState } from "#app";
 import { getI18nConfig } from "#build/i18n.strategy.mjs";
-import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from "../utils/cookie";
 
 type CookieRef = { value: string | null };
 

@@ -48,7 +48,7 @@ A singleton class that provides unified translation storage for both client and 
 **Cache key format**: `{locale}:{routeName}` (e.g., `en:index`, `fr:about`)
 
 ```typescript
-import { translationStorage } from "../utils/storage";
+import { translationStorage } from "@i18n-micro/utils";
 
 // Synchronous cache check
 const cached = translationStorage.getFromCache("en", "index");

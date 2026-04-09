@@ -31,7 +31,6 @@ export const useTranslationServerMiddleware = async (
       defaultLocale,
     );
 
-  // Load translations once per request
   if (!event.context[I18N_CONTEXT_KEY]) {
     let translations: Translations;
     if (
@@ -49,10 +48,7 @@ export const useTranslationServerMiddleware = async (
   const translations: Translations = event.context[I18N_CONTEXT_KEY];
 
   function t(key: string, params?: Params, defaultValue?: string): string {
-    // Direct key lookup
     let value: unknown = translations[key];
-
-    // Dot-path lookup
     if (value === undefined && key.includes(".")) {
       const parts = key.split(".");
       let current: unknown = translations;

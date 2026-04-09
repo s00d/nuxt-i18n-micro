@@ -4,10 +4,11 @@ export default defineNuxtConfig({
   modules: [MyModule],
   devtools: { enabled: false },
   routeRules: {
+    // nuxt type defs in this workspace no longer include `ssr` in routeRules.
     "/client": { ssr: false },
     "/old-product": { redirect: "/page" },
     "/ru/old-product": { redirect: "/ru/page" },
-  },
+  } as Record<string, any>,
   compatibilityDate: "2024-08-16",
   i18n: {
     debug: true,

@@ -1,16 +1,7 @@
-/**
- * Server-side translation loader.
- * All merging (layers, fallback locales, global + page) is done at build time.
- * This loader simply reads a single pre-built file from Nitro storage and returns it.
- */
 import type { ModuleOptionsExtend, Translations } from "@i18n-micro/types";
+import { CacheControl } from "@i18n-micro/utils";
 import { useStorage } from "nitropack/runtime";
 import { getI18nConfig } from "#i18n-internal/strategy";
-import { CacheControl } from "../../utils/cache-control";
-
-// ============================================================================
-// SERVER CACHE
-// ============================================================================
 
 type CacheEntry = { data: Translations; json: string };
 
@@ -29,10 +20,6 @@ function getServerCacheControl(): CacheControl<CacheEntry> {
   return g[CC_KEY] as CacheControl<CacheEntry>;
 }
 
-// ============================================================================
-// HELPERS
-// ============================================================================
-
 const ASSETS_PREFIX = "assets:i18n";
 
 function toTranslations(data: unknown): Translations {
@@ -43,14 +30,6 @@ function toTranslations(data: unknown): Translations {
   return {};
 }
 
-// ============================================================================
-// PUBLIC API
-// ============================================================================
-
-/**
- * Load translations for a given locale and page.
- * Returns a single pre-built file (global + page + fallback already baked in at build time).
- */
 export async function loadTranslationsFromServer(
   locale: string,
   routeName: string,
@@ -78,7 +57,6 @@ export async function loadTranslationsFromServer(
 
   const loaded = await storage.getItem(key);
   const data: Translations = toTranslations(loaded);
-
   const json = JSON.stringify(data).replace(/</g, "\\u003c");
   const entry = { data, json };
 

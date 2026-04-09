@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { extractDefineI18nRouteData } from "../src/utils";
+import { extractDefineI18nRouteData } from "@i18n-micro/utils";
 
 /* ──────────────── settings ──────────────── */
 

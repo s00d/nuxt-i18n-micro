@@ -5,20 +5,12 @@ import type {
   TranslationKey,
   Translations,
 } from "@i18n-micro/types";
-import {
-  getLocaleFromPath,
-  getPathSegments,
-  getPathWithoutLocale,
-  withLeadingSlash,
-} from "@i18n-micro/utils";
+import { getLocaleFromPath, getPathSegments, getPathWithoutLocale, withLeadingSlash } from "@i18n-micro/utils";
 import type { AstroGlobal } from "astro";
 import type { AstroI18n } from "./composer";
 import type { I18nRoutingStrategy } from "./router/types";
 import "./env.d";
 
-/**
- * Get i18n instance from Astro context
- */
 export function getI18n(astro: AstroGlobal): AstroI18n {
   const i18n = astro.locals.i18n;
   if (!i18n) {
@@ -28,38 +20,22 @@ export function getI18n(astro: AstroGlobal): AstroI18n {
   return i18n;
 }
 
-/**
- * Get current locale from Astro context
- */
 export function getLocale(astro: AstroGlobal): string {
   return astro.locals.locale || "en";
 }
 
-/**
- * Get default locale from Astro context
- */
 export function getDefaultLocale(astro: AstroGlobal): string {
   return astro.locals.defaultLocale || "en";
 }
 
-/**
- * Get all locales from Astro context
- */
 export function getLocales(astro: AstroGlobal): Locale[] {
   return astro.locals.locales || [];
 }
 
-/**
- * Get routing strategy from Astro locals
- */
 function getRoutingStrategy(astro: AstroGlobal): I18nRoutingStrategy | null {
   return (astro.locals.routingStrategy as I18nRoutingStrategy | undefined) || null;
 }
 
-/**
- * Use i18n in Astro pages/components
- * Returns helper functions for translations
- */
 export function useI18n(astro: AstroGlobal) {
   const i18n = getI18n(astro);
   const locale = getLocale(astro);
@@ -69,54 +45,25 @@ export function useI18n(astro: AstroGlobal) {
   const routingStrategy = getRoutingStrategy(astro);
 
   return {
-    // Current locale
     locale,
     defaultLocale,
     locales,
-
-    // Translation methods
-    t: (
-      key: TranslationKey,
-      params?: Params,
-      defaultValue?: string | null,
-      routeName?: string,
-    ): CleanTranslation => {
-      return i18n.t(key, params, defaultValue, routeName);
-    },
-    ts: (
-      key: TranslationKey,
-      params?: Params,
-      defaultValue?: string,
-      routeName?: string,
-    ): string => {
-      return i18n.ts(key, params, defaultValue, routeName);
-    },
-    tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string => {
-      return i18n.tc(key, count, defaultValue);
-    },
-    tn: (value: number, options?: Intl.NumberFormatOptions): string => {
-      return i18n.tn(value, options);
-    },
-    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => {
-      return i18n.td(value, options);
-    },
-    tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string => {
-      return i18n.tdr(value, options);
-    },
-    has: (key: TranslationKey, routeName?: string): boolean => {
-      return i18n.has(key, routeName);
-    },
-
-    // Route management
-    getRoute: (): string => {
-      return i18n.getRoute();
-    },
+    t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation =>
+      i18n.t(key, params, defaultValue, routeName),
+    ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string =>
+      i18n.ts(key, params, defaultValue, routeName),
+    tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string =>
+      i18n.tc(key, count, defaultValue),
+    tn: (value: number, options?: Intl.NumberFormatOptions): string => i18n.tn(value, options),
+    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string =>
+      i18n.td(value, options),
+    tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string =>
+      i18n.tdr(value, options),
+    has: (key: TranslationKey, routeName?: string): boolean => i18n.has(key, routeName),
+    getRoute: (): string => i18n.getRoute(),
     getRouteName: (path?: string): string => {
       const targetPath = path || astro.url.pathname;
-      if (routingStrategy?.getRouteName) {
-        return routingStrategy.getRouteName(targetPath, localeCodes);
-      }
-      // Fallback: basic route name extraction
+      if (routingStrategy?.getRouteName) return routingStrategy.getRouteName(targetPath, localeCodes);
       const { pathWithoutLocale } = getPathWithoutLocale(targetPath, localeCodes);
       const segments = getPathSegments(pathWithoutLocale);
       return segments.length === 0 ? "index" : segments.join("-");
@@ -126,11 +73,8 @@ export function useI18n(astro: AstroGlobal) {
       if (routingStrategy?.getLocaleFromPath) {
         return routingStrategy.getLocaleFromPath(targetPath, defaultLocale, localeCodes);
       }
-      // Fallback: check first segment
       return getLocaleFromPath(targetPath, localeCodes) || defaultLocale;
     },
-
-    // Path utilities
     switchLocalePath: (newLocale: string): string => {
       if (routingStrategy?.switchLocalePath) {
         return routingStrategy.switchLocalePath(
@@ -140,7 +84,6 @@ export function useI18n(astro: AstroGlobal) {
           defaultLocale,
         );
       }
-      // Fallback: basic locale switching
       const { pathWithoutLocale } = getPathWithoutLocale(astro.url.pathname, localeCodes);
       const baseSegments = getPathSegments(pathWithoutLocale);
       if (newLocale !== defaultLocale) baseSegments.unshift(newLocale);
@@ -148,66 +91,33 @@ export function useI18n(astro: AstroGlobal) {
     },
     localizePath: (path: string, targetLocale?: string): string => {
       if (routingStrategy?.localizePath) {
-        return routingStrategy.localizePath(
-          path,
-          targetLocale || locale,
-          localeCodes,
-          defaultLocale,
-        );
+        return routingStrategy.localizePath(path, targetLocale || locale, localeCodes, defaultLocale);
       }
-      // Fallback: basic localization
       const { pathWithoutLocale } = getPathWithoutLocale(path, localeCodes);
       const segments = getPathSegments(pathWithoutLocale);
-      if (targetLocale && targetLocale !== defaultLocale) {
-        segments.unshift(targetLocale);
-      }
+      if (targetLocale && targetLocale !== defaultLocale) segments.unshift(targetLocale);
       return withLeadingSlash(segments.join("/"));
     },
-
-    // Get i18n instance
-    getI18n: (): AstroI18n => {
-      return i18n;
-    },
-
-    // Get base path without locale (for rewrite)
+    getI18n: (): AstroI18n => i18n,
     getBasePath: (url?: URL): string => {
       const targetUrl = url || astro.url;
       const { pathWithoutLocale } = getPathWithoutLocale(targetUrl.pathname, localeCodes);
       return pathWithoutLocale;
     },
-
-    // Translation management
-    addTranslations: (
-      locale: string,
-      translations: Record<string, unknown>,
-      merge: boolean = true,
-    ): void => {
-      i18n.addTranslations(locale, translations, merge);
-    },
+    addTranslations: (locale: string, translations: Record<string, unknown>, merge = true): void =>
+      i18n.addTranslations(locale, translations, merge),
     addRouteTranslations: (
       locale: string,
       routeName: string,
       translations: Record<string, unknown>,
-      merge: boolean = true,
-    ): void => {
-      i18n.addRouteTranslations(locale, routeName, translations, merge);
-    },
-    mergeTranslations: (
-      locale: string,
-      routeName: string,
-      translations: Record<string, unknown>,
-    ): void => {
-      i18n.mergeTranslations(locale, routeName, translations);
-    },
-    clearCache: (): void => {
-      i18n.clearCache();
-    },
+      merge = true,
+    ): void => i18n.addRouteTranslations(locale, routeName, translations, merge),
+    mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>): void =>
+      i18n.mergeTranslations(locale, routeName, translations),
+    clearCache: (): void => i18n.clearCache(),
   };
 }
 
-/**
- * Generate locale head meta tags for SEO
- */
 export interface LocaleHeadOptions {
   baseUrl?: string;
   addDirAttribute?: boolean;
@@ -219,15 +129,8 @@ export interface LocaleHeadResult {
     lang?: string;
     dir?: "ltr" | "rtl" | "auto";
   };
-  link: Array<{
-    rel: string;
-    href: string;
-    hreflang?: string;
-  }>;
-  meta: Array<{
-    property: string;
-    content: string;
-  }>;
+  link: Array<{ rel: string; href: string; hreflang?: string }>;
+  meta: Array<{ property: string; content: string }>;
 }
 
 export function useLocaleHead(
@@ -235,46 +138,29 @@ export function useLocaleHead(
   options: LocaleHeadOptions = {},
 ): LocaleHeadResult {
   const { baseUrl = "/", addDirAttribute = true, addSeoAttributes = true } = options;
-
   const locale = getLocale(astro);
   const defaultLocale = getDefaultLocale(astro);
   const allLocales = getLocales(astro);
   const locales = allLocales.filter((l) => !l.disabled);
   const localesForSeo = locales.filter((l) => l.seo !== false);
   const currentLocaleObj = locales.find((l) => l.code === locale);
-
-  if (!currentLocaleObj) {
-    return { htmlAttrs: {}, link: [], meta: [] };
-  }
+  if (!currentLocaleObj) return { htmlAttrs: {}, link: [], meta: [] };
 
   const currentIso = currentLocaleObj.iso || locale;
   const currentDir = currentLocaleObj.dir || "auto";
 
   const result: LocaleHeadResult = {
-    htmlAttrs: {
-      lang: currentIso,
-      ...(addDirAttribute ? { dir: currentDir } : {}),
-    },
+    htmlAttrs: { lang: currentIso, ...(addDirAttribute ? { dir: currentDir } : {}) },
     link: [],
     meta: [],
   };
+  if (!addSeoAttributes) return result;
 
-  if (!addSeoAttributes) {
-    return result;
-  }
-
-  // Canonical URL (uses pathname only — query params are excluded)
   const canonicalUrl = `${baseUrl}${astro.url.pathname}`;
-  result.link.push({
-    rel: "canonical",
-    href: canonicalUrl,
-  });
-
-  // Get routing strategy
+  result.link.push({ rel: "canonical", href: canonicalUrl });
   const routingStrategy = getRoutingStrategy(astro);
   const allLocaleCodes = locales.map((l) => l.code);
 
-  // Alternate languages (includes current locale for self-referencing hreflang, per Google guidelines)
   for (const loc of localesForSeo) {
     let alternatePath = astro.url.pathname;
     if (routingStrategy?.switchLocalePath) {
@@ -285,34 +171,19 @@ export function useLocaleHead(
         defaultLocale,
       );
     } else {
-      // Fallback: basic locale switching
       const { pathWithoutLocale } = getPathWithoutLocale(astro.url.pathname, allLocaleCodes);
       const segments = getPathSegments(pathWithoutLocale);
-      if (loc.code !== defaultLocale) {
-        segments.unshift(loc.code);
-      }
+      if (loc.code !== defaultLocale) segments.unshift(loc.code);
       alternatePath = withLeadingSlash(segments.join("/"));
     }
+
     const alternateUrl = `${baseUrl}${alternatePath}`;
-
-    result.link.push({
-      rel: "alternate",
-      href: alternateUrl,
-      hreflang: loc.code,
-    });
-
+    result.link.push({ rel: "alternate", href: alternateUrl, hreflang: loc.code });
     if (loc.iso && loc.iso !== loc.code) {
-      result.link.push({
-        rel: "alternate",
-        href: alternateUrl,
-        hreflang: loc.iso,
-      });
+      result.link.push({ rel: "alternate", href: alternateUrl, hreflang: loc.iso });
     }
   }
 
-  // x-default hreflang — points to the default locale's URL.
-  // Tells search engines which URL to show when none of the
-  // specified languages match the user's browser settings.
   const defaultLocaleObj = locales.find((l) => l.code === defaultLocale);
   if (defaultLocaleObj?.seo !== false) {
     let xDefaultPath = astro.url.pathname;
@@ -325,9 +196,9 @@ export function useLocaleHead(
       );
     } else {
       const { pathWithoutLocale } = getPathWithoutLocale(astro.url.pathname, allLocaleCodes);
-      const segments = getPathSegments(pathWithoutLocale);
-      xDefaultPath = withLeadingSlash(segments.join("/"));
+      xDefaultPath = withLeadingSlash(getPathSegments(pathWithoutLocale).join("/"));
     }
+
     result.link.push({
       rel: "alternate",
       href: `${baseUrl}${xDefaultPath}`,
@@ -335,18 +206,9 @@ export function useLocaleHead(
     });
   }
 
-  // Open Graph locale
-  result.meta.push({
-    property: "og:locale",
-    content: currentIso,
-  });
+  result.meta.push({ property: "og:locale", content: currentIso });
+  result.meta.push({ property: "og:url", content: canonicalUrl });
 
-  result.meta.push({
-    property: "og:url",
-    content: canonicalUrl,
-  });
-
-  // Alternate OG locales
   for (const loc of localesForSeo) {
     if (loc.code === locale) continue;
     result.meta.push({
@@ -358,76 +220,46 @@ export function useLocaleHead(
   return result;
 }
 
-/**
- * Props to pass to client islands (Vue, React, Svelte, Preact)
- */
 export interface I18nClientProps {
   locale: string;
   fallbackLocale: string;
-  translations: Record<string, Translations>; // routeName -> translations
+  translations: Record<string, Translations>;
   currentRoute: string;
 }
 
-/**
- * Creates a nested structure from a key (e.g. 'islands.vue.title' -> { islands: { vue: { title: value } } })
- */
 function setNestedValue(obj: Translations, key: string, value: unknown): void {
   const parts = key.split(".");
   let current: Translations = obj;
   for (let i = 0; i < parts.length - 1; i++) {
     const part = parts[i]!;
-    if (!current[part]) {
-      current[part] = {};
-    }
+    if (!current[part]) current[part] = {};
     current = current[part] as Translations;
   }
   const last = parts[parts.length - 1];
-  if (last !== undefined) {
-    current[last] = value;
-  }
+  if (last !== undefined) current[last] = value;
 }
 
-/**
- * Prepares props to pass to a client island.
- * Accepts a list of keys to pass to the island.
- * Uses i18n methods for proper routesLocaleLinks support.
- * currentRoute is already normalized via middleware (getRouteName), so we use it directly.
- */
 export function getI18nProps(astro: AstroGlobal, keys?: string[]): I18nClientProps {
   const i18n = getI18n(astro);
   const locale = getLocale(astro);
   const fallbackLocale = getDefaultLocale(astro);
-  // currentRoute is already normalized via middleware.setRoute(getRouteName(...))
-  // getRouteName takes routesLocaleLinks into account if configured
   const currentRoute = i18n.getRoute();
-
   const translations: Record<string, Translations> = {};
 
-  // If keys are specified, extract only those from cache
   if (keys && keys.length > 0) {
     const extracted: Translations = {};
-
-    // Use i18n methods to get translations
-    // This guarantees proper routesLocaleLinks support
     for (const key of keys) {
-      // Use i18n.t() which internally uses helper.getTranslation
-      // and properly resolves the cache key considering routesLocaleLinks
       const value = i18n.t(key, undefined, undefined, currentRoute);
       if (value !== null && value !== undefined && value !== key) {
         setNestedValue(extracted, key, value);
       }
     }
-
     if (Object.keys(extracted).length > 0) {
       translations[currentRoute] = extracted;
     }
   } else {
-    // If no keys specified, get route-specific translations
-    // Use the public getRouteTranslations method for safe access
     const routeTrans = i18n.getRouteTranslations(locale, currentRoute);
-    if (routeTrans) {
-      translations[currentRoute] = routeTrans;
-    }
+    if (routeTrans) translations[currentRoute] = routeTrans;
   }
 
   return {

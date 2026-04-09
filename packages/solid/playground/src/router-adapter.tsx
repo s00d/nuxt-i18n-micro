@@ -2,7 +2,7 @@
 
 import type { I18nRoutingStrategy } from "@i18n-micro/solid";
 import type { Locale } from "@i18n-micro/types";
-import { getPathSegments } from "@i18n-micro/utils";
+import { resolveLocalePrefixedPath } from "@i18n-micro/utils";
 import { A, type Location, type useNavigate } from "@solidjs/router";
 import { type Accessor, type Component, createEffect, createSignal, type JSX } from "solid-js";
 
@@ -24,21 +24,6 @@ export function createSolidRouterAdapter(
     setPathname(location.pathname);
   });
 
-  const resolvePath = (
-    to: string | { path?: string },
-    locale: string,
-  ): string | { path?: string } => {
-    const path = typeof to === "string" ? to : to.path || "/";
-    const pathSegments = getPathSegments(path);
-
-    if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
-      pathSegments.shift();
-    }
-
-    const cleanPath = `/${pathSegments.join("/")}`;
-    return locale === defaultLocale ? cleanPath : `/${locale}${cleanPath === "/" ? "" : cleanPath}`;
-  };
-
   return {
     getCurrentPath: () => pathname(), // Returns current value for compatibility
     getCurrentPathAccessor: pathname, // Returns accessor for reactivity
@@ -53,7 +38,8 @@ export function createSolidRouterAdapter(
       navigate(target.path, { replace: true });
     },
 
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
+    resolvePath: (to: string | { path?: string }, locale: string) =>
+      resolveLocalePrefixedPath(to, locale, localeCodes, defaultLocale),
 
     getRoute: () => ({
       fullPath: pathname(),

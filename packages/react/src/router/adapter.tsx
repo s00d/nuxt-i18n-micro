@@ -1,5 +1,5 @@
 import { type Locale } from "@i18n-micro/types";
-import { getPathSegments } from "@i18n-micro/utils";
+import { resolveLocalePrefixedPath } from "@i18n-micro/utils";
 import React from "react";
 import { type useLocation, type useNavigate, Link } from "react-router-dom";
 import { type I18nRoutingStrategy } from "./types";
@@ -16,33 +16,6 @@ export function createReactRouterAdapter(
   navigate: ReturnType<typeof useNavigate>,
 ): I18nRoutingStrategy {
   const localeCodes = locales.map((loc) => loc.code);
-
-  /**
-   * Path resolution logic (add prefix or not)
-   */
-  const resolvePath = (
-    to: string | { path?: string },
-    locale: string,
-  ): string | { path?: string } => {
-    const path = typeof to === "string" ? to : to.path || "/";
-    const pathSegments = getPathSegments(path);
-
-    // If path already starts with a locale, remove it
-    const first = pathSegments[0];
-    if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift();
-    }
-
-    const cleanPath = `/${pathSegments.join("/")}`;
-
-    // If default locale - return clean path
-    if (locale === defaultLocale) {
-      return cleanPath;
-    }
-
-    // Otherwise add prefix
-    return `/${locale}${cleanPath === "/" ? "" : cleanPath}`;
-  };
 
   return {
     linkComponent: ((props: {
@@ -81,7 +54,8 @@ export function createReactRouterAdapter(
       navigate(target.path, { replace: true });
     },
 
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
+    resolvePath: (to: string | { path?: string }, locale: string) =>
+      resolveLocalePrefixedPath(to, locale, localeCodes, defaultLocale),
 
     getRoute: () => ({
       fullPath: location.pathname,

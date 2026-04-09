@@ -3,10 +3,10 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { type FSWatcher, watch } from "chokidar";
+import { CacheControl } from "@i18n-micro/utils";
 import type { NitroApp } from "nitropack";
 import { defineNitroPlugin } from "nitropack/runtime";
 import { getI18nPrivateConfig } from "#i18n-internal/config";
-import { CacheControl } from "../../utils/cache-control";
 
 // Must match keys used in server-loader.ts and storage.ts
 const SERVER_CC_KEY = Symbol.for("__NUXT_I18N_SERVER_CACHE_CC__");

@@ -1,10 +1,13 @@
 import { isNoPrefixStrategy } from "@i18n-micro/core";
 import type { Locale, ModuleOptionsExtend } from "@i18n-micro/types";
-import { filterQueryByWhitelist, getPathSegments } from "@i18n-micro/utils";
+import {
+  filterQueryByWhitelist,
+  findAllowedLocalesForRoute,
+  getPathSegments,
+} from "@i18n-micro/utils";
 import { joinURL, parseURL } from "ufo";
 import { ref, unref, watch } from "vue";
 import { useNuxtApp, useRoute } from "#app";
-import { findAllowedLocalesForRoute } from "../utils/route-utils";
 
 interface MetaLink {
   [key: string]: string | undefined;

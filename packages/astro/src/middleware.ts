@@ -158,16 +158,21 @@ export function detectLocale(
         const preferredLocales = parseAcceptLanguage(acceptLanguage);
         for (const preferred of preferredLocales) {
           const normalizedPreferred = preferred.toLowerCase();
+          const exactMatch = locales.find(
+            (candidate) => candidate.toLowerCase() === normalizedPreferred,
+          );
+          if (exactMatch) {
+            locale = exactMatch;
+            break;
+          }
+
           const baseLanguage = normalizedPreferred.split("-")[0];
-          const matchedLocale = locales.find((candidate) => {
-            const normalizedCandidate = candidate.toLowerCase();
-            return (
-              normalizedCandidate === normalizedPreferred ||
-              (baseLanguage !== undefined && normalizedCandidate === baseLanguage)
-            );
-          });
-          if (matchedLocale) {
-            locale = matchedLocale;
+          const baseMatch = locales.find(
+            (candidate) =>
+              baseLanguage !== undefined && candidate.toLowerCase() === baseLanguage,
+          );
+          if (baseMatch) {
+            locale = baseMatch;
             break;
           }
         }

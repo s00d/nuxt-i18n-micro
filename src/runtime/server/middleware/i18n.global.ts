@@ -4,10 +4,9 @@
  */
 
 import type { ModuleOptionsExtend } from "@i18n-micro/types";
-import { getPathSegments, parseAcceptLanguage } from "@i18n-micro/utils";
+import { getLocaleCookieName, getPathSegments, parseAcceptLanguage } from "@i18n-micro/utils";
 import { defineEventHandler, getCookie, getHeader, getQuery, getRequestURL } from "h3";
 import { getI18nConfig } from "#i18n-internal/strategy";
-import { getLocaleCookieName } from "../../utils/cookie";
 
 export default defineEventHandler(async (event) => {
   const path = event.path || getRequestURL(event).pathname;

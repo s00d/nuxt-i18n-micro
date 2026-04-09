@@ -4,7 +4,13 @@
  */
 
 import type { ModuleOptionsExtend } from "@i18n-micro/types";
-import { getPathSegments, isInternalPath, parseAcceptLanguage } from "@i18n-micro/utils";
+import {
+  getLocaleCookieName,
+  getLocaleCookieOptions,
+  getPathSegments,
+  isInternalPath,
+  parseAcceptLanguage,
+} from "@i18n-micro/utils";
 import { getCookie, getHeader, getRequestURL, setCookie } from "h3";
 import { createI18nStrategy, getI18nConfig } from "#build/i18n.strategy.mjs";
 import {
@@ -17,7 +23,6 @@ import {
   useState,
 } from "#imports";
 import { useI18nLocale } from "../composables/useI18nLocale";
-import { getLocaleCookieName, getLocaleCookieOptions } from "../utils/cookie";
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === "1";
 

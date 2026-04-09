@@ -13,7 +13,12 @@ import type {
   PluralFunc,
   Strategies,
 } from "@i18n-micro/types";
-import { deepMergeTranslations, getPathSegments, normalizeApiBasePath } from "@i18n-micro/utils";
+import {
+  deepMergeTranslations,
+  extractDefineI18nRouteData,
+  getPathSegments,
+  normalizeApiBasePath,
+} from "@i18n-micro/utils";
 import {
   addComponentsDir,
   addImportsDir,
@@ -31,7 +36,6 @@ import { globby } from "globby";
 import { setupDevToolsUI } from "./devtools";
 import { generateHmrPlugin } from "./hmr-plugin";
 import type { PluginsInjections } from "./runtime/plugins/01.plugin";
-import { extractDefineI18nRouteData } from "./utils";
 
 interface PreMergeLocaleInfo {
   code: string;

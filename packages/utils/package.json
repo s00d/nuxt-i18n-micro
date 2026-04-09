@@ -45,6 +45,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
+    "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {

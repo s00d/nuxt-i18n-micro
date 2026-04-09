@@ -1,4 +1,5 @@
 import type { Locale } from "@i18n-micro/types";
+import { getPathSegments, withLeadingSlash } from "./path";
 export const cloneArray = <T extends object>(array: T[]): T[] => array.map((item) => ({ ...item }));
 
 export const isPageRedirectOnly = (page: { redirect?: unknown; file?: unknown }): boolean =>
@@ -137,4 +138,26 @@ export function buildFullPath(
 export function buildFullPathNoPrefix(basePath: string): string {
   const encodedBase = encodeLiteralPathSegments(basePath);
   return normalizeRoutePath(encodedBase);
+}
+
+export function resolveLocalePrefixedPath(
+  to: string | { path?: string },
+  locale: string,
+  localeCodes: readonly string[],
+  defaultLocale: string,
+): string {
+  const path = typeof to === "string" ? to : to.path || "/";
+  const pathSegments = getPathSegments(path);
+  const firstSegment = pathSegments[0];
+
+  if (firstSegment !== undefined && localeCodes.includes(firstSegment)) {
+    pathSegments.shift();
+  }
+
+  const cleanPath = withLeadingSlash(pathSegments.join("/"));
+  if (locale === defaultLocale) {
+    return cleanPath;
+  }
+
+  return withLeadingSlash(`${locale}${cleanPath === "/" ? "" : cleanPath}`);
 }

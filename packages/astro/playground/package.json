@@ -1,8 +1,8 @@
 {
   "name": "@i18n-micro/astro-playground",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
-  "version": "0.0.0",
   "scripts": {
     "dev": "astro dev",
     "start": "node dist/server/entry.mjs",
@@ -12,18 +12,18 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@astrojs/node": "catalog:",
+    "@astrojs/react": "catalog:",
+    "@astrojs/svelte": "catalog:",
+    "@astrojs/vue": "catalog:",
     "@i18n-micro/astro": "workspace:*",
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",
     "astro": "catalog:",
-    "@astrojs/node": "catalog:",
-    "@astrojs/vue": "catalog:",
-    "@astrojs/react": "catalog:",
-    "@astrojs/svelte": "catalog:",
-    "vue": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "svelte": "catalog:"
+    "svelte": "catalog:",
+    "vue": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

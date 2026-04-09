@@ -6,6 +6,6 @@ export {
   type IsIndexRouteNameOptions,
   isIndexRouteName,
   type RouteAnalysis,
-} from './resolver'
-export * from './strategies'
-export * from './types'
+} from "./resolver";
+export * from "./strategies";
+export * from "./types";

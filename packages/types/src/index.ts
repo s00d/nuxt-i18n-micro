@@ -1,5 +1,5 @@
 /** BCP-47 locale code string (e.g. `'en'`, `'de-DE'`, `'zh-Hans'`). */
-export type LocaleCode = string
+export type LocaleCode = string;
 
 /**
  * Key registry for typed translation keys.
@@ -8,7 +8,7 @@ export type LocaleCode = string
  */
 export interface DefineLocaleMessage {
   // Module augmentation point - will be extended by @i18n-micro/types-generator
-  readonly __augmentation?: never
+  readonly __augmentation?: never;
 }
 
 /**
@@ -17,7 +17,9 @@ export interface DefineLocaleMessage {
  * - When `DefineLocaleMessage` has keys — resolves to a union of those keys **and** `string`,
  *   providing autocompletion while still allowing dynamic keys.
  */
-export type TranslationKey = keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
+export type TranslationKey = keyof DefineLocaleMessage extends never
+  ? string
+  : keyof DefineLocaleMessage | string;
 
 /**
  * Helper for creating typed prefixes.
@@ -31,7 +33,7 @@ export type TranslationKey = keyof DefineLocaleMessage extends never ? string : 
  * }
  * ```
  */
-export type ScopedKey<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>
+export type ScopedKey<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>;
 
 /**
  * Locale configuration object.
@@ -58,45 +60,45 @@ export type ScopedKey<Scope extends string> = Extract<TranslationKey, `${Scope}.
  */
 export interface Locale {
   /** BCP-47 locale code (e.g. `'en'`, `'de-DE'`, `'zh-Hans'`). Used in URLs and as file/key identifier. */
-  code: LocaleCode
+  code: LocaleCode;
   /** When `true`, this locale is excluded from route generation and language switching. */
-  disabled?: boolean
+  disabled?: boolean;
   /** ISO 639-1 / BCP-47 tag for `<html lang>` and `hreflang` SEO attributes (e.g. `'en-US'`). */
-  iso?: string
+  iso?: string;
   /**
    * Open Graph locale for `og:locale` / `og:locale:alternate` meta `content` (e.g. `ar_AE`).
    * If omitted or empty, `iso` is used (then `code`).
    */
-  og?: string
+  og?: string;
   /**
    * When `false`, this locale is omitted from cross-locale SEO tags (`hreflang`,
    * `og:locale:alternate`). If the configured default locale has `seo: false`, the
    * `x-default` hreflang link is not emitted. Routing and translations are unchanged.
    * @default true when omitted.
    */
-  seo?: boolean
+  seo?: boolean;
   /** Text direction. Reflected in `<html dir>` when the locale is active. */
-  dir?: 'ltr' | 'rtl' | 'auto'
+  dir?: "ltr" | "rtl" | "auto";
   /** Human-readable name shown in language switchers (e.g. `'English'`, `'Deutsch'`). */
-  displayName?: string
+  displayName?: string;
   /**
    * Per-locale base URL for SEO meta tags.
    * Useful for multi-domain setups where each locale lives on its own domain
    * (e.g. `'https://en.example.com'`).
    */
-  baseUrl?: string
+  baseUrl?: string;
   /**
    * When `true`, this locale is treated as the "base default" for the domain
    * specified in `baseUrl`. Affects canonical URL generation in multi-domain setups.
    */
-  baseDefault?: boolean
+  baseDefault?: boolean;
   /**
    * Locale code to fall back to when a translation key is missing in this locale.
    * Overrides the global `fallbackLocale` for this specific locale.
    */
-  fallbackLocale?: string
+  fallbackLocale?: string;
   /** Allows arbitrary extra properties for user-defined locale metadata. */
-  [key: string]: unknown
+  [key: string]: unknown;
 }
 
 /**
@@ -108,32 +110,42 @@ export interface DefineI18nRouteConfig {
    * - `string[]` — list of allowed locale codes.
    * - `Record<LocaleCode, Translations>` — allowed locales with inline translation overrides.
    */
-  locales?: string[] | Record<LocaleCode, Translations>
+  locales?: string[] | Record<LocaleCode, Translations>;
   /** Per-locale custom route paths (e.g. `{ en: '/about', de: '/ueber-uns' }`). */
-  localeRoutes?: Record<LocaleCode, string>
+  localeRoutes?: Record<LocaleCode, string>;
   /**
    * Disable SEO meta tag generation for this page.
    * - `true` — disable all meta tags.
    * - `string[]` — disable only for the listed locale codes.
    */
-  disableMeta?: boolean | string[]
+  disableMeta?: boolean | string[];
 }
 
 /** Locale-specific route params for `$switchLocalePath` and `<i18n-link>`. */
-export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null
+export type I18nRouteParams = Record<LocaleCode, Record<string, string>> | null;
 
 /** Interpolation parameters passed to the `t()` function. */
-export type Params = Record<string, string | number | boolean>
+export type Params = Record<string, string | number | boolean>;
 
 /** Getter function signature used by pluralization to resolve nested keys. */
-export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+export type Getter = (
+  key: TranslationKey,
+  params?: Record<string, string | number | boolean>,
+  defaultValue?: string,
+) => unknown;
 
 /**
  * Custom pluralization function.
  * Called when `tc()` / `$tc()` is used. Receives the key, count, params, locale,
  * and a getter to fetch the singular/plural forms from translations.
  */
-export type PluralFunc = (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+export type PluralFunc = (
+  key: TranslationKey,
+  count: number,
+  params: Params,
+  locale: string,
+  getter: Getter,
+) => string | null;
 
 /**
  * Global per-route locale configuration.
@@ -141,16 +153,25 @@ export type PluralFunc = (key: TranslationKey, count: number, params: Params, lo
  * - `false` — exclude the route from localization entirely.
  * - `true` — include with default behavior.
  */
-export type GlobalLocaleRoutes = Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
+export type GlobalLocaleRoutes =
+  | Record<string, Record<LocaleCode, string> | false | boolean>
+  | null
+  | undefined;
 
 /** URL routing strategy for locale handling. */
-export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
+export type Strategies = "no_prefix" | "prefix_except_default" | "prefix" | "prefix_and_default";
 
 /**
  * Callback invoked when a translation key is missing.
  * Useful for logging, reporting, or providing dynamic fallbacks.
  */
-export type MissingHandler = (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
+export type MissingHandler = (
+  locale: string,
+  key: TranslationKey,
+  routeName: string,
+  instance?: unknown,
+  type?: string,
+) => void;
 
 export interface ModuleOptions {
   /**
@@ -158,13 +179,13 @@ export interface ModuleOptions {
    * Each entry defines a locale code plus optional metadata (ISO, direction, display name, etc.).
    * @default []
    */
-  locales?: Locale[]
+  locales?: Locale[];
 
   /**
    * Generate SEO meta tags (`hreflang`, `canonical`, `og:url`, `og:locale`) automatically.
    * @default true
    */
-  meta?: boolean
+  meta?: boolean;
 
   /**
    * URL routing strategy for locale prefixes.
@@ -174,7 +195,7 @@ export interface ModuleOptions {
    * - `'prefix_and_default'` — like `prefix`, but the default locale is also accessible without prefix.
    * @default 'prefix_except_default'
    */
-  strategy?: Strategies
+  strategy?: Strategies;
 
   /**
    * Base URL for SEO meta tags (canonical, og:url, hreflang).
@@ -184,7 +205,7 @@ export interface ModuleOptions {
    * - A concrete URL string (e.g. `'https://example.com'`) — used as-is.
    * @default undefined
    */
-  metaBaseUrl?: string
+  metaBaseUrl?: string;
 
   /**
    * Trust the `X-Forwarded-Host` header when resolving the base URL for meta tags.
@@ -192,7 +213,7 @@ export interface ModuleOptions {
    * that sets this header to the real client-facing hostname.
    * @default true
    */
-  metaTrustForwardedHost?: boolean
+  metaTrustForwardedHost?: boolean;
 
   /**
    * Trust the `X-Forwarded-Proto` header when resolving the protocol for meta tags.
@@ -200,13 +221,13 @@ export interface ModuleOptions {
    * canonical URLs use `https://` even though the app itself listens on HTTP.
    * @default true
    */
-  metaTrustForwardedProto?: boolean
+  metaTrustForwardedProto?: boolean;
 
   /**
    * Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls.
    * @default true
    */
-  define?: boolean
+  define?: boolean;
 
   /**
    * Enable automatic locale-based redirects.
@@ -214,21 +235,21 @@ export interface ModuleOptions {
    * `Accept-Language` header, or the default) on the first visit.
    * @default true
    */
-  redirects?: boolean
+  redirects?: boolean;
 
   /**
    * Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`,
    * `$switchLocale()`, and other runtime helpers.
    * @default true
    */
-  plugin?: boolean
+  plugin?: boolean;
 
   /**
    * Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch`
    * / `i18n:afterLocaleSwitch` app-level hooks.
    * @default true
    */
-  hooks?: boolean
+  hooks?: boolean;
 
   /**
    * Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`).
@@ -236,21 +257,21 @@ export interface ModuleOptions {
    * and want to reduce the module footprint).
    * @default true
    */
-  components?: boolean
+  components?: boolean;
 
   /**
    * The locale to use when no locale can be determined from URL or user preferences.
    * Also used as the fallback locale for missing translations when `fallbackLocale` is not set.
    * @default 'en'
    */
-  defaultLocale?: string
+  defaultLocale?: string;
 
   /**
    * Base URL path segment for the translations API route (used in SSR/SSG data fetching).
    * Can also be set via `NUXT_I18N_APP_BASE_URL` environment variable.
    * @default '_locales'
    */
-  apiBaseUrl?: string
+  apiBaseUrl?: string;
 
   /**
    * Override the host used for client-side translation fetch requests.
@@ -258,7 +279,7 @@ export interface ModuleOptions {
    * Can also be set via `NUXT_I18N_APP_BASE_CLIENT_HOST` environment variable.
    * @default undefined
    */
-  apiBaseClientHost?: string
+  apiBaseClientHost?: string;
 
   /**
    * Override the host used for server-side translation fetch requests.
@@ -266,20 +287,20 @@ export interface ModuleOptions {
    * Can also be set via `NUXT_I18N_APP_BASE_SERVER_HOST` environment variable.
    * @default undefined
    */
-  apiBaseServerHost?: string
+  apiBaseServerHost?: string;
 
   /**
    * Path to the directory containing translation JSON files, relative to the project root.
    * @default 'locales'
    */
-  translationDir?: string
+  translationDir?: string;
 
   /**
    * Automatically detect the user's preferred language from the `Accept-Language` HTTP header.
    * Used in combination with `autoDetectPath` to decide when detection occurs.
    * @default true
    */
-  autoDetectLanguage?: boolean
+  autoDetectLanguage?: boolean;
 
   /**
    * URL path on which automatic language detection and redirect occur.
@@ -287,20 +308,20 @@ export interface ModuleOptions {
    * - `'*'` — detect and redirect on every path (including locale-prefixed ones).
    * @default '/'
    */
-  autoDetectPath?: string
+  autoDetectPath?: string;
 
   /**
    * Disable the file watcher that auto-creates missing translation files in development mode.
    * @default false
    */
-  disableWatcher?: boolean
+  disableWatcher?: boolean;
 
   /**
    * Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers
    * based on the translation keys in your default locale files.
    * @default true
    */
-  types?: boolean
+  types?: boolean;
 
   /**
    * Map route names to other route names to share the same translation files.
@@ -308,7 +329,7 @@ export interface ModuleOptions {
    * translations from the `about` page instead of its own.
    * @default {}
    */
-  routesLocaleLinks?: { [key: string]: string }
+  routesLocaleLinks?: { [key: string]: string };
 
   /**
    * Custom pluralization function or a path to a file exporting one.
@@ -317,7 +338,7 @@ export interface ModuleOptions {
    * the correct plural form as a string, or `null` to fall back to the built-in logic.
    * @default built-in pluralization (singular/plural by count)
    */
-  plural?: string | PluralFunc
+  plural?: string | PluralFunc;
 
   /**
    * Disable per-page translation files.
@@ -325,7 +346,7 @@ export interface ModuleOptions {
    * page-specific files (`pages/{page}/{locale}.json`) are not generated or loaded.
    * @default false
    */
-  disablePageLocales?: boolean
+  disablePageLocales?: boolean;
 
   /**
    * Global fallback locale code.
@@ -333,7 +354,7 @@ export interface ModuleOptions {
    * in this locale before returning the key itself.
    * @default undefined (no fallback; returns the raw key)
    */
-  fallbackLocale?: string
+  fallbackLocale?: string;
 
   /**
    * Cookie name for persisting the user's locale preference across sessions.
@@ -341,13 +362,13 @@ export interface ModuleOptions {
    * Automatically set to `'user-locale'` for the `no_prefix` strategy if not provided.
    * @default null
    */
-  localeCookie?: string | null
+  localeCookie?: string | null;
 
   /**
    * Enable verbose debug logging for locale detection, route generation, and translation loading.
    * @default false
    */
-  debug?: boolean
+  debug?: boolean;
 
   /**
    * Global route-level locale configuration.
@@ -357,28 +378,28 @@ export interface ModuleOptions {
    * - `Record<LocaleCode, string>` — custom per-locale paths.
    * @default {}
    */
-  globalLocaleRoutes?: GlobalLocaleRoutes
+  globalLocaleRoutes?: GlobalLocaleRoutes;
 
   /**
    * Custom regular expression (or its string source) for matching locale codes in URL segments.
    * All locale codes defined in `locales` must match this pattern, or a warning is emitted.
    * @default undefined (uses built-in pattern based on locale codes)
    */
-  customRegexMatcher?: string | RegExp
+  customRegexMatcher?: string | RegExp;
 
   /**
    * For `no_prefix` strategy: enable redirect from a locale-prefixed URL
    * (e.g. `/en/about`) to the unprefixed version (`/about`).
    * @default false
    */
-  noPrefixRedirect?: boolean
+  noPrefixRedirect?: boolean;
 
   /**
    * List of query parameter names preserved in canonical and `og:url` meta tags.
    * Parameters not in this list are stripped from the canonical URL.
    * @default ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
    */
-  canonicalQueryWhitelist?: string[]
+  canonicalQueryWhitelist?: string[];
 
   /**
    * URL patterns (strings or RegExp) to exclude from i18n processing entirely.
@@ -386,34 +407,34 @@ export interface ModuleOptions {
    * Internal Nuxt paths (`/__nuxt_error`, etc.) are always excluded automatically.
    * @default undefined
    */
-  excludePatterns?: (string | RegExp)[]
+  excludePatterns?: (string | RegExp)[];
 
   /**
    * Prefix prepended to localized route names (e.g. `'localized-index'`).
    * Used internally to distinguish original routes from generated locale variants.
    * @default 'localized-'
    */
-  localizedRouteNamePrefix?: string
+  localizedRouteNamePrefix?: string;
 
   /**
    * Per-route locale restrictions, extracted from `defineI18nRoute()` calls.
    * Maps a route path (e.g. `'/about'`) to an array of allowed locale codes.
    * Routes not listed have no restrictions (all locales allowed).
    */
-  routeLocales?: Record<string, string[]>
+  routeLocales?: Record<string, string[]>;
 
   /**
    * Per-route meta tag disabling, extracted from `defineI18nRoute()` calls.
    * Maps a route path to `true` (disable all meta) or an array of locale codes
    * for which meta should be disabled.
    */
-  routeDisableMeta?: Record<string, boolean | string[]>
+  routeDisableMeta?: Record<string, boolean | string[]>;
 
   /**
    * Show console warnings when a translation key is missing.
    * @default true
    */
-  missingWarn?: boolean
+  missingWarn?: boolean;
 
   /**
    * Enable Hot Module Replacement for translation files in development.
@@ -421,21 +442,21 @@ export interface ModuleOptions {
    * without a full page refresh.
    * @default true
    */
-  hmr?: boolean
+  hmr?: boolean;
 
   /**
    * Maximum number of entries in the in-memory translation cache.
    * `0` means no limit.
    * @default 0
    */
-  cacheMaxSize?: number
+  cacheMaxSize?: number;
 
   /**
    * Time-to-live (in seconds) for cached translation entries.
    * `0` means entries never expire.
    * @default 0
    */
-  cacheTtl?: number
+  cacheTtl?: number;
 
   /**
    * Value used for cache-busting translation requests (`?v=...`).
@@ -447,13 +468,13 @@ export interface ModuleOptions {
    * @example
    * i18n: { dateBuild: 'e3b0c442' }
    */
-  dateBuild?: string | number
+  dateBuild?: string | number;
 
   /**
    * Bucket for experimental/unstable options.
    * Contents may change or be removed without notice between minor versions.
    */
-  experimental?: Record<string, unknown>
+  experimental?: Record<string, unknown>;
 }
 
 /**
@@ -462,17 +483,17 @@ export interface ModuleOptions {
  */
 export interface ModuleOptionsExtend extends ModuleOptions {
   /** Value used for cache-busting translation requests (`?v=...`). */
-  dateBuild: string | number
+  dateBuild: string | number;
   /** Whether the Nuxt app uses hash-based routing (`router.options.hashMode`). */
-  hashMode: boolean
+  hashMode: boolean;
   /** Whether the current build is a static site generation (SSG / `nuxi generate`). */
-  isSSG: boolean
+  isSSG: boolean;
   /** Resolved translations API base URL (after env variable / config merging). */
-  apiBaseUrl: string
+  apiBaseUrl: string;
   /** Resolved flag: whether per-page translations are disabled. */
-  disablePageLocales: boolean
+  disablePageLocales: boolean;
   /** Resolved flag: whether locale-based redirects are enabled. */
-  redirects?: boolean
+  redirects?: boolean;
 }
 
 /**
@@ -481,44 +502,44 @@ export interface ModuleOptionsExtend extends ModuleOptions {
  */
 export interface ModulePrivateOptionsExtend extends ModuleOptions {
   /** Absolute path to the Nuxt project root directory. */
-  rootDir: string
+  rootDir: string;
   /** Resolved debug flag. */
-  debug: boolean
+  debug: boolean;
   /** Resolved path to the translations directory. */
-  translationDir: string
+  translationDir: string;
   /** Resolved fallback locale code. */
-  fallbackLocale: string
+  fallbackLocale: string;
   /** Resolved translations API base URL. */
-  apiBaseUrl: string
+  apiBaseUrl: string;
   /** Resolved client-side host override. */
-  apiBaseClientHost?: string
+  apiBaseClientHost?: string;
   /** Resolved server-side host override. */
-  apiBaseServerHost?: string
+  apiBaseServerHost?: string;
   /** Resolved custom regex matcher (RegExp is serialized to its `.source` string). */
-  customRegexMatcher?: string | RegExp
+  customRegexMatcher?: string | RegExp;
   /** Resolved route-to-route translation sharing map. */
-  routesLocaleLinks?: { [key: string]: string }
+  routesLocaleLinks?: { [key: string]: string };
 }
 
 /** Object shape for a translation value that contains singular/plural forms. */
 export interface PluralTranslations {
   /** Singular form of the translation (count === 1). */
-  singular: string
+  singular: string;
   /** Plural form of the translation (count !== 1). */
-  plural: string
+  plural: string;
 }
 
 /** A translation value without the `unknown` escape hatch. */
-export type CleanTranslation = string | number | boolean | Translations | PluralTranslations | null
+export type CleanTranslation = string | number | boolean | Translations | PluralTranslations | null;
 
 /** A single translation value — can be a primitive, nested object, plural pair, or `unknown`. */
-export type Translation = CleanTranslation | unknown
+export type Translation = CleanTranslation | unknown;
 
 /** A flat or nested dictionary of translation key-value pairs. */
 export interface Translations {
-  [key: string]: Translation
+  [key: string]: Translation;
 }
 
-const init = () => {}
+const init = () => {};
 
-export { init }
+export { init };

@@ -13,6 +13,7 @@ Firebase AppHosting is a powerful platform for deploying Nuxt applications with 
 ### Translation Files Not Applied
 
 **Symptoms:**
+
 - ✅ Translations work perfectly in development (`nuxt dev`)
 - ❌ After deployment to Firebase AppHosting, JSON files load but translations don't apply
 - ❌ No errors appear in the console
@@ -30,35 +31,36 @@ The most straightforward solution is to add explicit headers for translation rou
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
-  
+  modules: ["nuxt-i18n-micro"],
+
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'de', iso: 'de-DE', dir: 'ltr' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
+      { code: "de", iso: "de-DE", dir: "ltr" },
       // ... other locales
     ],
-    strategy: 'prefix_except_default',
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    strategy: "prefix_except_default",
+    defaultLocale: "en",
+    translationDir: "locales",
     meta: true,
-    metaBaseUrl: 'https://your-domain.com',
+    metaBaseUrl: "https://your-domain.com",
   },
-  
+
   // Add route rules for translation files
   routeRules: {
-    '/_locales/**': {
+    "/_locales/**": {
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600'
-      }
-    }
-  }
-})
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      },
+    },
+  },
+});
 ```
 
 **Benefits:**
+
 - ✨ Simple configuration
 - 🚀 Improves performance with proper caching
 - 🔒 Works across all deployment platforms
@@ -69,26 +71,26 @@ If you're using a custom `apiBaseUrl` (path prefix only), adjust the route rules
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
-  
+  modules: ["nuxt-i18n-micro"],
+
   i18n: {
-    apiBaseUrl: '/api/translations',  // Path prefix only, not a full URL
+    apiBaseUrl: "/api/translations", // Path prefix only, not a full URL
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
     ],
-    defaultLocale: 'en',
+    defaultLocale: "en",
   },
-  
+
   routeRules: {
-    '/api/translations/**': {
+    "/api/translations/**": {
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=3600'
-      }
-    }
-  }
-})
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=3600",
+      },
+    },
+  },
+});
 ```
 
 ### Solution 3: Firebase-Specific Configuration
@@ -165,11 +167,12 @@ export default defineNuxtConfig({
   i18n: {
     debug: true,
     // Your other config...
-  }
-})
+  },
+});
 ```
 
 This will output detailed logs about:
+
 - 📝 Translation file loading
 - 🔄 Cache operations
 - ⚠️ Loading errors
@@ -205,16 +208,16 @@ For Firebase AppHosting, ensure you're using the correct preset:
 ```typescript
 export default defineNuxtConfig({
   nitro: {
-    preset: 'firebase-app-hosting',
+    preset: "firebase-app-hosting",
     firebase: {
       gen: 2,
       httpsOptions: {
-        region: 'us-central1',
-        maxInstances: 3
-      }
-    }
-  }
-})
+        region: "us-central1",
+        maxInstances: 3,
+      },
+    },
+  },
+});
 ```
 
 ### Prerender Configuration
@@ -226,11 +229,11 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: true,
-      routes: ['/'],
-      ignore: ['/api/**', '/admin/**']
-    }
-  }
-})
+      routes: ["/"],
+      ignore: ["/api/**", "/admin/**"],
+    },
+  },
+});
 ```
 
 ## 📋 Complete Example Configuration
@@ -240,45 +243,45 @@ Here's a complete working configuration for Firebase AppHosting:
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
-  
+  modules: ["nuxt-i18n-micro"],
+
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'de', iso: 'de-DE', dir: 'ltr' },
-      { code: 'es', iso: 'es-ES', dir: 'ltr' },
-      { code: 'it', iso: 'it-IT', dir: 'ltr' },
-      { code: 'pt', iso: 'pt-PT', dir: 'ltr' },
-      { code: 'ru', iso: 'ru-RU', dir: 'ltr' },
-      { code: 'zh', iso: 'zh-CN', dir: 'ltr' },
-      { code: 'ko', iso: 'ko-KR', dir: 'ltr' }
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
+      { code: "de", iso: "de-DE", dir: "ltr" },
+      { code: "es", iso: "es-ES", dir: "ltr" },
+      { code: "it", iso: "it-IT", dir: "ltr" },
+      { code: "pt", iso: "pt-PT", dir: "ltr" },
+      { code: "ru", iso: "ru-RU", dir: "ltr" },
+      { code: "zh", iso: "zh-CN", dir: "ltr" },
+      { code: "ko", iso: "ko-KR", dir: "ltr" },
     ],
-    strategy: 'prefix_except_default',
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    strategy: "prefix_except_default",
+    defaultLocale: "en",
+    translationDir: "locales",
     meta: true,
-    metaBaseUrl: 'https://your-domain.com',
+    metaBaseUrl: "https://your-domain.com",
     debug: false, // Enable in development if needed
   },
-  
+
   routeRules: {
-    '/_locales/**': {
+    "/_locales/**": {
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600'
-      }
-    }
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      },
+    },
   },
-  
+
   nitro: {
-    preset: 'firebase-app-hosting',
+    preset: "firebase-app-hosting",
     prerender: {
       crawlLinks: true,
-      routes: ['/']
-    }
-  }
-})
+      routes: ["/"],
+    },
+  },
+});
 ```
 
 ```json
@@ -390,12 +393,12 @@ export default defineNuxtConfig({
   nitro: {
     publicAssets: [
       {
-        dir: 'locales',
-        maxAge: 60 * 60 * 24 * 365 // 1 year
-      }
-    ]
-  }
-})
+        dir: "locales",
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+      },
+    ],
+  },
+});
 ```
 
 ### Issue: Translations Work on Some Pages But Not Others
@@ -458,15 +461,15 @@ Firebase automatically handles Gzip/Brotli compression, but ensure your build is
 export default defineNuxtConfig({
   vite: {
     build: {
-      minify: 'terser',
+      minify: "terser",
       terserOptions: {
         compress: {
-          drop_console: true
-        }
-      }
-    }
-  }
-})
+          drop_console: true,
+        },
+      },
+    },
+  },
+});
 ```
 
 ### Lazy Load Translations
@@ -474,6 +477,7 @@ export default defineNuxtConfig({
 `Nuxt I18n Micro` automatically lazy-loads translations on a per-page basis. Translations are only loaded when needed, reducing initial bundle size. This is built-in functionality - no additional configuration required.
 
 To further optimize:
+
 - Use `disablePageLocales: false` (default) to enable page-specific translations
 - Keep root-level translations minimal
 - Use route-specific translation files for page content
@@ -484,6 +488,7 @@ The module automatically sets proper `Content-Type` headers starting from versio
 ```bash
 pnpm update nuxt-i18n-micro@latest
 ```
+
 :::
 
 ## 🎯 Next Steps
@@ -492,4 +497,3 @@ pnpm update nuxt-i18n-micro@latest
 - [Performance Optimization](/guide/performance)
 - [SEO Configuration](/guide/seo)
 - [Testing Guide](/guide/testing)
-

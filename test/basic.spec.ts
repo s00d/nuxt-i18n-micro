@@ -1,775 +1,905 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { fileURLToPath } from "node:url";
+import { expect, test } from "@nuxt/test-utils/playwright";
 
 test.use({
   nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
+    rootDir: fileURLToPath(new URL("./fixtures/basic", import.meta.url)),
   },
   // launchOptions: {
   //   headless: false, // Show browser
   //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
   // },
-})
+});
 
-test.describe('basic', () => {
-  test('renders only on client', async ({ page, baseURL }) => {
+test.describe("basic", () => {
+  test("renders only on client", async ({ page, baseURL }) => {
     // 1) Fetch the raw server response for the client page
-    const res = await fetch(`${baseURL}client`)
-    const html = await res.text()
+    const res = await fetch(`${baseURL}client`);
+    const html = await res.text();
 
     // 2) Check that the SSR response does NOT contain your client-only text
-    expect(html).not.toContain('Client only page - SSR disabled')
+    expect(html).not.toContain("Client only page - SSR disabled");
 
     // 3) Now, navigate via Playwright and check that it appears in the client
-    await page.goto('/client', { waitUntil: 'networkidle' })
-    await expect(page.locator('#client-text')).toHaveText('Client only page - SSR disabled')
+    await page.goto("/client", { waitUntil: "networkidle" });
+    await expect(page.locator("#client-text")).toHaveText("Client only page - SSR disabled");
 
     // 1) Fetch the raw server response for the client page
-    const res_de = await fetch(`${baseURL}de/client`)
-    const html_de = await res_de.text()
+    const res_de = await fetch(`${baseURL}de/client`);
+    const html_de = await res_de.text();
 
     // 2) Check that the SSR response does NOT contain your client-only text
-    expect(html_de).not.toContain('Client only page - SSR disabled')
+    expect(html_de).not.toContain("Client only page - SSR disabled");
 
     // 3) Now, navigate via Playwright and check that it appears in the client
-    await page.goto('/de/client', { waitUntil: 'networkidle' })
-    await expect(page.locator('#client-text')).toHaveText('Client only page - SSR disabled')
-  })
+    await page.goto("/de/client", { waitUntil: "networkidle" });
+    await expect(page.locator("#client-text")).toHaveText("Client only page - SSR disabled");
+  });
 
-  test('redirect from /old-product to /products', async ({ page, goto }) => {
-    await goto('/old-product', { waitUntil: 'hydration' })
+  test("redirect from /old-product to /products", async ({ page, goto }) => {
+    await goto("/old-product", { waitUntil: "hydration" });
 
-    await expect(page).toHaveURL('/page')
+    await expect(page).toHaveURL("/page");
 
-    await goto('/de/old-product', { waitUntil: 'hydration' })
+    await goto("/de/old-product", { waitUntil: "hydration" });
 
-    await expect(page).toHaveURL('/de/old-product')
+    await expect(page).toHaveURL("/de/old-product");
 
-    await goto('/ru/old-product', { waitUntil: 'hydration' })
+    await goto("/ru/old-product", { waitUntil: "hydration" });
 
-    await expect(page).toHaveURL('/ru/page')
-  })
+    await expect(page).toHaveURL("/ru/page");
+  });
 
-  test('test index', async ({ page, goto }) => {
-    await goto('/', { waitUntil: 'hydration' })
-    await expect(page.locator('#locale')).toHaveText('en')
+  test("test index", async ({ page, goto }) => {
+    await goto("/", { waitUntil: "hydration" });
+    await expect(page.locator("#locale")).toHaveText("en");
 
-    await goto('/de', { waitUntil: 'hydration' })
-    await expect(page.locator('#locale')).toHaveText('de')
-  })
+    await goto("/de", { waitUntil: "hydration" });
+    await expect(page.locator("#locale")).toHaveText("de");
+  });
 
-  test('cache busting uses configured i18n.dateBuild', async ({ page, goto }) => {
-    const dateBuild = '12345'
+  test("cache busting uses configured i18n.dateBuild", async ({ page, goto }) => {
+    const dateBuild = "12345";
 
     // Initial SSR render may not trigger client fetches.
     // We then navigate via client-side click to force the next route's
     // translations to load through the fetcher that appends `?v=...`.
     const responsePromise = page.waitForResponse(
-      (r) => r.url().includes('/_locales/') && r.url().includes('/data.json') && r.url().includes(`v=${dateBuild}`),
+      (r) =>
+        r.url().includes("/_locales/") &&
+        r.url().includes("/data.json") &&
+        r.url().includes(`v=${dateBuild}`),
       { timeout: 5000 },
-    )
+    );
 
-    await goto('/', { waitUntil: 'hydration' })
-    await page.click('#page-link')
+    await goto("/", { waitUntil: "hydration" });
+    await page.click("#page-link");
 
-    const resp = await responsePromise
-    expect(resp.status()).toBe(200)
-  })
+    const resp = await responsePromise;
+    expect(resp.status()).toBe(200);
+  });
 
-  test('test routes', async ({ page, goto }) => {
-    await goto('/', { waitUntil: 'hydration' })
+  test("test routes", async ({ page, goto }) => {
+    await goto("/", { waitUntil: "hydration" });
 
-    await page.click('#page-link')
+    await page.click("#page-link");
 
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(200);
 
-    await expect(page).toHaveURL('/page')
+    await expect(page).toHaveURL("/page");
 
-    await page.click('#page-link')
+    await page.click("#page-link");
 
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(200);
 
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL("/");
 
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto("/de", { waitUntil: "hydration" });
 
-    await page.click('#page-link')
+    await page.click("#page-link");
 
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(200);
 
-    await expect(page).toHaveURL('/de/page')
+    await expect(page).toHaveURL("/de/page");
 
-    await page.click('#page-link')
+    await page.click("#page-link");
 
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(200);
 
-    await expect(page).toHaveURL('/de')
-  })
+    await expect(page).toHaveURL("/de");
+  });
 
-  test('test external link', async ({ page, goto }) => {
-    await goto('/page', { waitUntil: 'hydration' })
+  test("test external link", async ({ page, goto }) => {
+    await goto("/page", { waitUntil: "hydration" });
 
-    await expect(page.locator('#external-link')).toHaveAttribute('href', `https://www.external-link.fr`)
+    await expect(page.locator("#external-link")).toHaveAttribute(
+      "href",
+      `https://www.external-link.fr`,
+    );
 
-    await goto('/de/page', { waitUntil: 'hydration' })
+    await goto("/de/page", { waitUntil: "hydration" });
 
-    await expect(page.locator('#external-link')).toHaveAttribute('href', `https://www.external-link.fr`)
-  })
+    await expect(page.locator("#external-link")).toHaveAttribute(
+      "href",
+      `https://www.external-link.fr`,
+    );
+  });
 
-  test('test text escaping', async ({ page, goto }) => {
-    await goto('/', { waitUntil: 'hydration' })
-    await expect(page.locator('.text_escaping')).toHaveText('test {text_escaping} } { { ')
-  })
+  test("test text escaping", async ({ page, goto }) => {
+    await goto("/", { waitUntil: "hydration" });
+    await expect(page.locator(".text_escaping")).toHaveText("test {text_escaping} } { { ");
+  });
 
-  test('test head', async ({ page, goto, baseURL }) => {
+  test("test head", async ({ page, goto, baseURL }) => {
     // Test for the default locale (English)
-    await goto('/', { waitUntil: 'hydration' })
+    await goto("/", { waitUntil: "hydration" });
 
-    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+    const normalizedBaseURL = (baseURL || "http://localhost:3000").replace(/\/$/, "");
 
     // Test meta tags for the default locale (English)
-    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'en_EN')
-    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}`)
-    await expect(page.locator('meta#i18n-og-alt-de_DE')).toHaveAttribute('content', 'de_DE')
-    await expect(page.locator('meta#i18n-og-alt-ru_RU')).toHaveAttribute('content', 'ru_RU')
+    await expect(page.locator("meta#i18n-og")).toHaveAttribute("content", "en_EN");
+    await expect(page.locator("meta#i18n-og-url")).toHaveAttribute(
+      "content",
+      `${normalizedBaseURL}`,
+    );
+    await expect(page.locator("meta#i18n-og-alt-de_DE")).toHaveAttribute("content", "de_DE");
+    await expect(page.locator("meta#i18n-og-alt-ru_RU")).toHaveAttribute("content", "ru_RU");
 
-    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
-    await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
+    await expect(page.locator("link#i18n-can")).toHaveAttribute("href", `${normalizedBaseURL}`);
+    await expect(page.locator("link#i18n-alternate-en")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}`,
+    );
+    await expect(page.locator("link#i18n-alternate-en_EN")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}`,
+    );
+    await expect(page.locator("link#i18n-alternate-de")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de`,
+    );
+    await expect(page.locator("link#i18n-alternate-de_DE")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de`,
+    );
+    await expect(page.locator("link#i18n-alternate-ru")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/ru`,
+    );
+    await expect(page.locator("link#i18n-alternate-ru_RU")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/ru`,
+    );
+    await expect(page.locator("link#i18n-xd")).toHaveAttribute("hreflang", "x-default");
+    await expect(page.locator("link#i18n-xd")).toHaveAttribute("href", `${normalizedBaseURL}`);
 
     // Test for German locale
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto("/de", { waitUntil: "hydration" });
 
     // Test meta tags for the German locale
-    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'de_DE')
-    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/de`)
-    await expect(page.locator('meta#i18n-og-alt-en_EN')).toHaveAttribute('content', 'en_EN')
-    await expect(page.locator('meta#i18n-og-alt-ru_RU')).toHaveAttribute('content', 'ru_RU')
+    await expect(page.locator("meta#i18n-og")).toHaveAttribute("content", "de_DE");
+    await expect(page.locator("meta#i18n-og-url")).toHaveAttribute(
+      "content",
+      `${normalizedBaseURL}/de`,
+    );
+    await expect(page.locator("meta#i18n-og-alt-en_EN")).toHaveAttribute("content", "en_EN");
+    await expect(page.locator("meta#i18n-og-alt-ru_RU")).toHaveAttribute("content", "ru_RU");
 
-    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
-    await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
+    await expect(page.locator("link#i18n-can")).toHaveAttribute("href", `${normalizedBaseURL}/de`);
+    await expect(page.locator("link#i18n-alternate-en")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}`,
+    );
+    await expect(page.locator("link#i18n-alternate-en_EN")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}`,
+    );
+    await expect(page.locator("link#i18n-alternate-de")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de`,
+    );
+    await expect(page.locator("link#i18n-alternate-de_DE")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de`,
+    );
+    await expect(page.locator("link#i18n-alternate-ru")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/ru`,
+    );
+    await expect(page.locator("link#i18n-alternate-ru_RU")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/ru`,
+    );
+    await expect(page.locator("link#i18n-xd")).toHaveAttribute("hreflang", "x-default");
+    await expect(page.locator("link#i18n-xd")).toHaveAttribute("href", `${normalizedBaseURL}`);
 
     // Test for Russian locale
-    await goto('/ru', { waitUntil: 'hydration' })
+    await goto("/ru", { waitUntil: "hydration" });
 
     // Test meta tags for the Russian locale
-    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'ru_RU')
-    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('meta#i18n-og-alt-en_EN')).toHaveAttribute('content', 'en_EN')
-    await expect(page.locator('meta#i18n-og-alt-de_DE')).toHaveAttribute('content', 'de_DE')
+    await expect(page.locator("meta#i18n-og")).toHaveAttribute("content", "ru_RU");
+    await expect(page.locator("meta#i18n-og-url")).toHaveAttribute(
+      "content",
+      `${normalizedBaseURL}/ru`,
+    );
+    await expect(page.locator("meta#i18n-og-alt-en_EN")).toHaveAttribute("content", "en_EN");
+    await expect(page.locator("meta#i18n-og-alt-de_DE")).toHaveAttribute("content", "de_DE");
 
-    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
-    await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
-  })
+    await expect(page.locator("link#i18n-can")).toHaveAttribute("href", `${normalizedBaseURL}/ru`);
+    await expect(page.locator("link#i18n-alternate-en")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}`,
+    );
+    await expect(page.locator("link#i18n-alternate-en_EN")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}`,
+    );
+    await expect(page.locator("link#i18n-alternate-de")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de`,
+    );
+    await expect(page.locator("link#i18n-alternate-de_DE")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de`,
+    );
+    await expect(page.locator("link#i18n-alternate-ru")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/ru`,
+    );
+    await expect(page.locator("link#i18n-alternate-ru_RU")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/ru`,
+    );
+    await expect(page.locator("link#i18n-xd")).toHaveAttribute("hreflang", "x-default");
+    await expect(page.locator("link#i18n-xd")).toHaveAttribute("href", `${normalizedBaseURL}`);
+  });
 
-  test('test links', async ({ page, goto }) => {
-    await goto('/dir1/test', { waitUntil: 'hydration' })
-    await expect(page.locator('#test_link')).toHaveText('link in en')
+  test("test links", async ({ page, goto }) => {
+    await goto("/dir1/test", { waitUntil: "hydration" });
+    await expect(page.locator("#test_link")).toHaveText("link in en");
 
-    await goto('/de/dir1/test', { waitUntil: 'hydration' })
-    await expect(page.locator('#test_link')).toHaveText('link in de')
-  })
+    await goto("/de/dir1/test", { waitUntil: "hydration" });
+    await expect(page.locator("#test_link")).toHaveText("link in de");
+  });
 
-  test('test plugin methods output on page', async ({ page, goto }) => {
-    await goto('/page', { waitUntil: 'hydration' })
+  test("test plugin methods output on page", async ({ page, goto }) => {
+    await goto("/page", { waitUntil: "hydration" });
 
-    await expect(page.locator('#locale')).toHaveText('Current Locale: en')
-    await expect(page.locator('#locale-name')).toHaveText('English')
+    await expect(page.locator("#locale")).toHaveText("Current Locale: en");
+    await expect(page.locator("#locale-name")).toHaveText("English");
 
     // Verify the list of locales
-    await expect(page.locator('#locales')).toHaveText('en, de, ru, fr, ch')
+    await expect(page.locator("#locales")).toHaveText("en, de, ru, fr, ch");
 
     // Verify the translation for a key
-    await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
+    await expect(page.locator("#translation")).toHaveText("Page example in en"); // Replace with actual expected content
 
-    await expect(page.locator('#translation-global')).toHaveText('example en')
+    await expect(page.locator("#translation-global")).toHaveText("example en");
 
     // Verify the pluralization for items
-    await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result
+    await expect(page.locator("#plural")).toHaveText("2 apples"); // Replace with actual pluralization result
 
-    await expect(page.locator('#plural-component')).toHaveText('5 apples') // Replace with actual pluralization result
-    await expect(page.locator('#plural-component-custom')).toHaveText('5 apples') // Replace with actual pluralization result
-    await expect(page.locator('#plural-component-custom-zero')).toHaveText('no apples') // Replace with actual pluralization result
+    await expect(page.locator("#plural-component")).toHaveText("5 apples"); // Replace with actual pluralization result
+    await expect(page.locator("#plural-component-custom")).toHaveText("5 apples"); // Replace with actual pluralization result
+    await expect(page.locator("#plural-component-custom-zero")).toHaveText("no apples"); // Replace with actual pluralization result
 
     // Verify the localized route generation
-    await expect(page.locator('#localized-route')).toHaveText('/de/page')
+    await expect(page.locator("#localized-route")).toHaveText("/de/page");
 
-    await expect(page.locator('#localized-route-2')).toHaveText('/news/aaa?info=1111')
-    await expect(page.locator('#localized-path')).toHaveText('/news/aaa?info=1111')
-  })
+    await expect(page.locator("#localized-route-2")).toHaveText("/news/aaa?info=1111");
+    await expect(page.locator("#localized-path")).toHaveText("/news/aaa?info=1111");
+  });
 
-  test('test locale switching on page', async ({ page, goto }) => {
+  test("test locale switching on page", async ({ page, goto }) => {
     // Navigate to the /page route in English
-    await goto('/page', { waitUntil: 'hydration' })
+    await goto("/page", { waitUntil: "hydration" });
 
-    await expect(page).toHaveURL('/page')
+    await expect(page).toHaveURL("/page");
 
-    await expect(page.locator('#locale')).toHaveText('Current Locale: en')
+    await expect(page.locator("#locale")).toHaveText("Current Locale: en");
 
     // Verify the translation for a key after switching locale
-    await expect(page.locator('#translation')).toHaveText('Page example in en') // Replace with actual expected content
+    await expect(page.locator("#translation")).toHaveText("Page example in en"); // Replace with actual expected content
 
-    await expect(page.locator('#translation-global')).toHaveText('example en')
-    await expect(page.locator('#comp1')).toHaveText('en text')
+    await expect(page.locator("#translation-global")).toHaveText("example en");
+    await expect(page.locator("#comp1")).toHaveText("en text");
 
     // Verify the pluralization for items after switching locale
-    await expect(page.locator('#plural')).toHaveText('2 apples') // Replace with actual pluralization result in en
+    await expect(page.locator("#plural")).toHaveText("2 apples"); // Replace with actual pluralization result in en
 
-    await page.click('#locale-switcher button')
+    await page.click("#locale-switcher button");
 
     // Add a small delay to allow rendering
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(200);
 
-    await expect(page.locator('.language-switcher')).toHaveText('English ▾')
+    await expect(page.locator(".language-switcher")).toHaveText("English ▾");
 
     // Verify the languages in the dropdown
-    await expect(page.locator('.switcher-locale-en')).toHaveText('English')
-    await expect(page.locator('.switcher-locale-de')).toHaveText('German')
-    await expect(page.locator('.switcher-locale-ru')).toHaveText('Russian')
-    await expect(page.locator('.switcher-locale-fr')).toHaveText('French')
-    await expect(page.locator('.switcher-locale-ch')).toHaveText('Chinese')
+    await expect(page.locator(".switcher-locale-en")).toHaveText("English");
+    await expect(page.locator(".switcher-locale-de")).toHaveText("German");
+    await expect(page.locator(".switcher-locale-ru")).toHaveText("Russian");
+    await expect(page.locator(".switcher-locale-fr")).toHaveText("French");
+    await expect(page.locator(".switcher-locale-ch")).toHaveText("Chinese");
 
-    await expect(page.locator('.switcher-locale-en')).toHaveAttribute('href', '/page')
-    await expect(page.locator('.switcher-locale-de')).toHaveAttribute('href', '/de/page')
-    await expect(page.locator('.switcher-locale-ru')).toHaveAttribute('href', '/ru/page')
-    await expect(page.locator('.switcher-locale-fr')).toHaveAttribute('href', 'https://fr.example.com/page')
-    await expect(page.locator('.switcher-locale-ch')).toHaveAttribute('href', 'https://test.example.com/ch/page')
+    await expect(page.locator(".switcher-locale-en")).toHaveAttribute("href", "/page");
+    await expect(page.locator(".switcher-locale-de")).toHaveAttribute("href", "/de/page");
+    await expect(page.locator(".switcher-locale-ru")).toHaveAttribute("href", "/ru/page");
+    await expect(page.locator(".switcher-locale-fr")).toHaveAttribute(
+      "href",
+      "https://fr.example.com/page",
+    );
+    await expect(page.locator(".switcher-locale-ch")).toHaveAttribute(
+      "href",
+      "https://test.example.com/ch/page",
+    );
 
-    await expect(page.locator('.switcher-locale-en')).toHaveAttribute('hreflang', 'en_EN')
-    await expect(page.locator('.switcher-locale-de')).toHaveAttribute('hreflang', 'de_DE')
-    await expect(page.locator('.switcher-locale-ru')).toHaveAttribute('hreflang', 'ru_RU')
-    await expect(page.locator('.switcher-locale-fr')).toHaveAttribute('hreflang', 'fr_FR')
-    await expect(page.locator('.switcher-locale-ch')).toHaveAttribute('hreflang', 'ch_CH')
+    await expect(page.locator(".switcher-locale-en")).toHaveAttribute("hreflang", "en_EN");
+    await expect(page.locator(".switcher-locale-de")).toHaveAttribute("hreflang", "de_DE");
+    await expect(page.locator(".switcher-locale-ru")).toHaveAttribute("hreflang", "ru_RU");
+    await expect(page.locator(".switcher-locale-fr")).toHaveAttribute("hreflang", "fr_FR");
+    await expect(page.locator(".switcher-locale-ch")).toHaveAttribute("hreflang", "ch_CH");
 
     // Verify that Russian is disabled
-    await expect(page.locator('.switcher-locale-en')).toHaveCSS('cursor', 'not-allowed')
+    await expect(page.locator(".switcher-locale-en")).toHaveCSS("cursor", "not-allowed");
 
     // Verify the localized route generation after switching locale
-    await expect(page.locator('#localized-route')).toHaveText('/de/page')
+    await expect(page.locator("#localized-route")).toHaveText("/de/page");
 
     // Click the link to switch to the German locale
-    await page.click('#link-de')
+    await page.click("#link-de");
 
     // Verify that the URL has changed
-    await expect(page).toHaveURL('/de/page')
+    await expect(page).toHaveURL("/de/page");
 
     // Verify the locale after switching
-    await expect(page.locator('#locale')).toHaveText('Current Locale: de')
-    await expect(page.locator('#locale-name')).toHaveText('German')
+    await expect(page.locator("#locale")).toHaveText("Current Locale: de");
+    await expect(page.locator("#locale-name")).toHaveText("German");
 
     // Verify the translation for a key after switching locale
-    await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
-    await expect(page.locator('#translation-global')).toHaveText('example de')
-    await expect(page.locator('#comp1')).toHaveText('de text')
+    await expect(page.locator("#translation")).toHaveText("Page example in de"); // Replace with actual expected content
+    await expect(page.locator("#translation-global")).toHaveText("example de");
+    await expect(page.locator("#comp1")).toHaveText("de text");
 
     // Verify the pluralization for items after switching locale
-    await expect(page.locator('#plural')).toHaveText('2 Äpfel') // Replace with actual pluralization result in German
+    await expect(page.locator("#plural")).toHaveText("2 Äpfel"); // Replace with actual pluralization result in German
 
     // Verify the localized route generation after switching locale
-    await expect(page.locator('#localized-route')).toHaveText('/de/page')
+    await expect(page.locator("#localized-route")).toHaveText("/de/page");
 
-    await expect(page.locator('#localized-route-2')).toHaveText('/de/news/aaa?info=1111')
-    await expect(page.locator('#localized-path')).toHaveText('/de/news/aaa?info=1111')
+    await expect(page.locator("#localized-route-2")).toHaveText("/de/news/aaa?info=1111");
+    await expect(page.locator("#localized-path")).toHaveText("/de/news/aaa?info=1111");
 
-    await page.click('#locale-switcher button')
+    await page.click("#locale-switcher button");
 
     // Add a small delay to allow rendering
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(200);
 
-    await expect(page.locator('.language-switcher')).toHaveText('German ▾')
+    await expect(page.locator(".language-switcher")).toHaveText("German ▾");
 
     // Verify the languages in the dropdown
-    await expect(page.locator('.switcher-locale-en')).toHaveText('English')
-    await expect(page.locator('.switcher-locale-de')).toHaveText('German')
-    await expect(page.locator('.switcher-locale-ru')).toHaveText('Russian')
+    await expect(page.locator(".switcher-locale-en")).toHaveText("English");
+    await expect(page.locator(".switcher-locale-de")).toHaveText("German");
+    await expect(page.locator(".switcher-locale-ru")).toHaveText("Russian");
 
     // Verify that Russian is disabled
-    await expect(page.locator('.switcher-locale-de')).toHaveCSS('cursor', 'not-allowed')
+    await expect(page.locator(".switcher-locale-de")).toHaveCSS("cursor", "not-allowed");
 
-    await goto('/de/page', { waitUntil: 'hydration' })
+    await goto("/de/page", { waitUntil: "hydration" });
 
-    await expect(page.locator('#translation')).toHaveText('Page example in de') // Replace with actual expected content
-    await expect(page.locator('#translation-global')).toHaveText('example de')
-    await expect(page.locator('#comp1')).toHaveText('de text')
-  })
+    await expect(page.locator("#translation")).toHaveText("Page example in de"); // Replace with actual expected content
+    await expect(page.locator("#translation-global")).toHaveText("example de");
+    await expect(page.locator("#comp1")).toHaveText("de text");
+  });
 
-  test('test locale switching on locale-test page', async ({ page }) => {
+  test("test locale switching on locale-test page", async ({ page }) => {
     // Calculate expected date using the same pipeline as in the component:
     // 1) build Date, 2) convert to ISO yyyy-mm-dd, 3) parse back from that string.
-    const base = new Date()
-    base.setFullYear(base.getFullYear() - 1)
-    base.setMonth(base.getMonth() - 2) // Subtract 2 more months to ensure >= 1 year
-    base.setDate(1)
-    const oneYearAgoISO = base.toISOString().split('T')[0]
-    if (oneYearAgoISO === undefined) throw new Error('toISOString().split failed')
-    const oneYearAgo = new Date(oneYearAgoISO)
+    const base = new Date();
+    base.setFullYear(base.getFullYear() - 1);
+    base.setMonth(base.getMonth() - 2); // Subtract 2 more months to ensure >= 1 year
+    base.setDate(1);
+    const oneYearAgoISO = base.toISOString().split("T")[0];
+    if (oneYearAgoISO === undefined) throw new Error("toISOString().split failed");
+    const oneYearAgo = new Date(oneYearAgoISO);
 
     // Format expected dates for different locales (matches $td behavior)
-    const expectedDateEn = new Intl.DateTimeFormat('en-US').format(oneYearAgo)
-    const expectedDateDe = new Intl.DateTimeFormat('de-DE').format(oneYearAgo)
-    const expectedDateRu = new Intl.DateTimeFormat('ru-RU').format(oneYearAgo)
+    const expectedDateEn = new Intl.DateTimeFormat("en-US").format(oneYearAgo);
+    const expectedDateDe = new Intl.DateTimeFormat("de-DE").format(oneYearAgo);
+    const expectedDateRu = new Intl.DateTimeFormat("ru-RU").format(oneYearAgo);
 
     // Calculate expected relative time using the same logic as FormatService
-    const diffSeconds = Math.floor((Date.now() - oneYearAgo.getTime()) / 1000)
-    const diffYears = Math.floor(diffSeconds / 31536000) // 31536000 seconds in a year
-    const expectedRelativeEn = new Intl.RelativeTimeFormat('en-US').format(-diffYears, 'year')
-    const expectedRelativeDe = new Intl.RelativeTimeFormat('de-DE').format(-diffYears, 'year')
-    const expectedRelativeRu = new Intl.RelativeTimeFormat('ru-RU').format(-diffYears, 'year')
+    const diffSeconds = Math.floor((Date.now() - oneYearAgo.getTime()) / 1000);
+    const diffYears = Math.floor(diffSeconds / 31536000); // 31536000 seconds in a year
+    const expectedRelativeEn = new Intl.RelativeTimeFormat("en-US").format(-diffYears, "year");
+    const expectedRelativeDe = new Intl.RelativeTimeFormat("de-DE").format(-diffYears, "year");
+    const expectedRelativeRu = new Intl.RelativeTimeFormat("ru-RU").format(-diffYears, "year");
 
     // Navigate to the /locale-test route in English
-    await page.goto('/locale-test', { waitUntil: 'networkidle' })
+    await page.goto("/locale-test", { waitUntil: "networkidle" });
 
     // Verify the URL and content in English
-    await expect(page).toHaveURL('/locale-test')
-    await expect(page.locator('h1')).toHaveText('Locale Test Page')
-    await expect(page.locator('#content')).toHaveText('This is a content area.')
-    await expect(page.locator('#username')).toHaveText('Hello, John!')
-    await expect(page.locator('#plural-0')).toHaveText('Nothing')
-    await expect(page.locator('#plural-1')).toHaveText('You have 1 item')
-    await expect(page.locator('#plural-2')).toHaveText('You have 2 items')
-    await expect(page.locator('#plural-3')).toHaveText('You have 3 items')
-    await expect(page.locator('#number-tn')).toHaveText('1,234,567.89')
-    await expect(page.locator('#date-td')).toHaveText(expectedDateEn)
-    await expect(page.locator('#date-tdr')).toHaveText(expectedRelativeEn)
-    await expect(page.locator('#number-tn-component')).toHaveText('The number is: 1,234,567.89')
-    await expect(page.locator('#date-td-component')).toHaveText(`The date is: ${expectedDateEn}`)
-    await expect(page.locator('#date-tdr-component')).toHaveText(`The relative date is: ${expectedRelativeEn}`)
-    await expect(page.locator('#html-content')).toHaveText('Bold Text with HTML content.')
+    await expect(page).toHaveURL("/locale-test");
+    await expect(page.locator("h1")).toHaveText("Locale Test Page");
+    await expect(page.locator("#content")).toHaveText("This is a content area.");
+    await expect(page.locator("#username")).toHaveText("Hello, John!");
+    await expect(page.locator("#plural-0")).toHaveText("Nothing");
+    await expect(page.locator("#plural-1")).toHaveText("You have 1 item");
+    await expect(page.locator("#plural-2")).toHaveText("You have 2 items");
+    await expect(page.locator("#plural-3")).toHaveText("You have 3 items");
+    await expect(page.locator("#number-tn")).toHaveText("1,234,567.89");
+    await expect(page.locator("#date-td")).toHaveText(expectedDateEn);
+    await expect(page.locator("#date-tdr")).toHaveText(expectedRelativeEn);
+    await expect(page.locator("#number-tn-component")).toHaveText("The number is: 1,234,567.89");
+    await expect(page.locator("#date-td-component")).toHaveText(`The date is: ${expectedDateEn}`);
+    await expect(page.locator("#date-tdr-component")).toHaveText(
+      `The relative date is: ${expectedRelativeEn}`,
+    );
+    await expect(page.locator("#html-content")).toHaveText("Bold Text with HTML content.");
 
-    const linkDe = page.locator('#link-de')
-    await expect(linkDe).toHaveAttribute('href', '/de/locale-page-modify')
+    const linkDe = page.locator("#link-de");
+    await expect(linkDe).toHaveAttribute("href", "/de/locale-page-modify");
 
     // Switch to German locale
-    await linkDe.click()
+    await linkDe.click();
 
     // Verify the URL and content in German
-    await expect(page).toHaveURL('/de/locale-page-modify')
-    await expect(page.locator('h1')).toHaveText('Sprachtestseite')
-    await expect(page.locator('#content')).toHaveText('Dies ist ein Inhaltsbereich.')
-    await expect(page.locator('#username')).toHaveText('Hallo, John!')
-    await expect(page.locator('#plural-0')).toHaveText('Nichts')
-    await expect(page.locator('#plural-1')).toHaveText('Sie haben 1 Artikel')
-    await expect(page.locator('#plural-2')).toHaveText('Sie haben 2 Artikel')
-    await expect(page.locator('#plural-3')).toHaveText('Sie haben 3 Artikel')
-    await expect(page.locator('#number-tn')).toHaveText('1.234.567,89')
-    await expect(page.locator('#date-td')).toHaveText(expectedDateDe)
-    await expect(page.locator('#date-tdr')).toHaveText(expectedRelativeDe)
-    await expect(page.locator('#number-tn-component')).toHaveText('Die Zahl ist: 1.234.567,89')
-    await expect(page.locator('#date-td-component')).toHaveText(`Das Datum ist: ${expectedDateDe}`)
-    await expect(page.locator('#date-tdr-component')).toHaveText(`Das relative Datum ist: ${expectedRelativeDe}`)
-    await expect(page.locator('#html-content')).toHaveText('Fetter Text mit HTML-Inhalt.')
+    await expect(page).toHaveURL("/de/locale-page-modify");
+    await expect(page.locator("h1")).toHaveText("Sprachtestseite");
+    await expect(page.locator("#content")).toHaveText("Dies ist ein Inhaltsbereich.");
+    await expect(page.locator("#username")).toHaveText("Hallo, John!");
+    await expect(page.locator("#plural-0")).toHaveText("Nichts");
+    await expect(page.locator("#plural-1")).toHaveText("Sie haben 1 Artikel");
+    await expect(page.locator("#plural-2")).toHaveText("Sie haben 2 Artikel");
+    await expect(page.locator("#plural-3")).toHaveText("Sie haben 3 Artikel");
+    await expect(page.locator("#number-tn")).toHaveText("1.234.567,89");
+    await expect(page.locator("#date-td")).toHaveText(expectedDateDe);
+    await expect(page.locator("#date-tdr")).toHaveText(expectedRelativeDe);
+    await expect(page.locator("#number-tn-component")).toHaveText("Die Zahl ist: 1.234.567,89");
+    await expect(page.locator("#date-td-component")).toHaveText(`Das Datum ist: ${expectedDateDe}`);
+    await expect(page.locator("#date-tdr-component")).toHaveText(
+      `Das relative Datum ist: ${expectedRelativeDe}`,
+    );
+    await expect(page.locator("#html-content")).toHaveText("Fetter Text mit HTML-Inhalt.");
 
-    const linkRu = page.locator('#link-ru')
-    await expect(linkRu).toHaveAttribute('href', '/ru/locale-page-modify-ru')
+    const linkRu = page.locator("#link-ru");
+    await expect(linkRu).toHaveAttribute("href", "/ru/locale-page-modify-ru");
 
     // Switch to German locale
-    await linkRu.click()
+    await linkRu.click();
 
     // Verify the URL and content in Russian
-    await expect(page).toHaveURL('/ru/locale-page-modify-ru')
-    await expect(page.locator('h1')).toHaveText('Страница теста языка')
-    await expect(page.locator('#content')).toHaveText('Это раздел содержимого.')
-    await expect(page.locator('#username')).toHaveText('Привет, John!')
-    await expect(page.locator('#plural-0')).toHaveText('Ничего нет')
-    await expect(page.locator('#plural-1')).toHaveText('У вас 1 предмет')
-    await expect(page.locator('#plural-2')).toHaveText('У вас 2 предмета')
-    await expect(page.locator('#plural-3')).toHaveText('У вас 3 предмета')
-    await expect(page.locator('#number-tn')).toHaveText('1 234 567,89')
-    await expect(page.locator('#date-td')).toHaveText(expectedDateRu)
-    await expect(page.locator('#date-tdr')).toHaveText(expectedRelativeRu)
-    await expect(page.locator('#number-tn-component')).toHaveText('Число: 1 234 567,89')
-    await expect(page.locator('#date-td-component')).toHaveText(`Дата: ${expectedDateRu}`)
-    await expect(page.locator('#date-tdr-component')).toHaveText(`Относительная дата: ${expectedRelativeRu}`)
-    await expect(page.locator('#html-content')).toHaveText('Жирный текст с HTML-содержимым.')
-  })
+    await expect(page).toHaveURL("/ru/locale-page-modify-ru");
+    await expect(page.locator("h1")).toHaveText("Страница теста языка");
+    await expect(page.locator("#content")).toHaveText("Это раздел содержимого.");
+    await expect(page.locator("#username")).toHaveText("Привет, John!");
+    await expect(page.locator("#plural-0")).toHaveText("Ничего нет");
+    await expect(page.locator("#plural-1")).toHaveText("У вас 1 предмет");
+    await expect(page.locator("#plural-2")).toHaveText("У вас 2 предмета");
+    await expect(page.locator("#plural-3")).toHaveText("У вас 3 предмета");
+    await expect(page.locator("#number-tn")).toHaveText("1 234 567,89");
+    await expect(page.locator("#date-td")).toHaveText(expectedDateRu);
+    await expect(page.locator("#date-tdr")).toHaveText(expectedRelativeRu);
+    await expect(page.locator("#number-tn-component")).toHaveText("Число: 1 234 567,89");
+    await expect(page.locator("#date-td-component")).toHaveText(`Дата: ${expectedDateRu}`);
+    await expect(page.locator("#date-tdr-component")).toHaveText(
+      `Относительная дата: ${expectedRelativeRu}`,
+    );
+    await expect(page.locator("#html-content")).toHaveText("Жирный текст с HTML-содержимым.");
+  });
 
-  test('repro #210: component-local $defineI18nRoute flickers to key', async ({ page }) => {
-    const consoleMessages: string[] = []
-    page.on('console', (msg) => {
-      if (msg.type() === 'warning' || msg.type() === 'log' || msg.type() === 'info') {
-        consoleMessages.push(msg.text())
+  test("repro #210: component-local $defineI18nRoute flickers to key", async ({ page }) => {
+    const consoleMessages: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "warning" || msg.type() === "log" || msg.type() === "info") {
+        consoleMessages.push(msg.text());
       }
-    })
+    });
 
-    await page.goto('/fr/inventory', { waitUntil: 'networkidle' })
-    await expect(page.locator('#vehicle-type')).toHaveText('Type de véhicule')
+    await page.goto("/fr/inventory", { waitUntil: "networkidle" });
+    await expect(page.locator("#vehicle-type")).toHaveText("Type de véhicule");
 
-    await page.click('#link-en')
-    await expect(page).toHaveURL('/inventory')
+    await page.click("#link-en");
+    await expect(page).toHaveURL("/inventory");
 
     // First: the correct translation should appear.
-    await expect(page.locator('#vehicle-type')).toHaveText('Vehicle type')
+    await expect(page.locator("#vehicle-type")).toHaveText("Vehicle type");
 
     // Then: the buggy behavior is a transient flicker back to the raw key.
     const keyPromise = page
       .waitForFunction(
         () => {
-          const el = document.querySelector('#vehicle-type')
-          return (el?.textContent || '').trim() === 'vehicleType'
+          const el = document.querySelector("#vehicle-type");
+          return (el?.textContent || "").trim() === "vehicleType";
         },
         { timeout: 1200 },
       )
       .then(() => true)
-      .catch(() => false)
+      .catch(() => false);
 
-    const sawKeyFlicker = await keyPromise
-    expect(sawKeyFlicker).toBe(false)
+    const sawKeyFlicker = await keyPromise;
+    expect(sawKeyFlicker).toBe(false);
 
-    const missingKeyWarn = consoleMessages.some((t) => t.includes('[i18n] Missing key') && t.includes('vehicleType'))
-    expect(missingKeyWarn).toBe(false)
-  })
+    const missingKeyWarn = consoleMessages.some(
+      (t) => t.includes("[i18n] Missing key") && t.includes("vehicleType"),
+    );
+    expect(missingKeyWarn).toBe(false);
+  });
 
-  test('test locale switching via links', async ({ page, goto }) => {
-    await goto('/page', { waitUntil: 'hydration' })
+  test("test locale switching via links", async ({ page, goto }) => {
+    await goto("/page", { waitUntil: "hydration" });
 
-    await expect(page.locator('#locale')).toHaveText('Current Locale: en')
+    await expect(page.locator("#locale")).toHaveText("Current Locale: en");
 
-    await page.click('#link-de')
-    await expect(page).toHaveURL('/de/page')
-    await expect(page.locator('#locale')).toHaveText('Current Locale: de')
+    await page.click("#link-de");
+    await expect(page).toHaveURL("/de/page");
+    await expect(page.locator("#locale")).toHaveText("Current Locale: de");
 
-    await page.click('#link-en')
-    await expect(page).toHaveURL('/page')
-    await expect(page.locator('#locale')).toHaveText('Current Locale: en')
-  })
+    await page.click("#link-en");
+    await expect(page).toHaveURL("/page");
+    await expect(page.locator("#locale")).toHaveText("Current Locale: en");
+  });
 
-  test('test localized content changes on navigation', async ({ page, goto }) => {
-    await goto('/locale-test', { waitUntil: 'hydration' })
+  test("test localized content changes on navigation", async ({ page, goto }) => {
+    await goto("/locale-test", { waitUntil: "hydration" });
 
-    await expect(page.locator('h1')).toHaveText('Locale Test Page')
-    await expect(page.locator('#content')).toHaveText('This is a content area.')
+    await expect(page.locator("h1")).toHaveText("Locale Test Page");
+    await expect(page.locator("#content")).toHaveText("This is a content area.");
 
-    await page.click('#link-de')
-    await expect(page).toHaveURL('/de/locale-page-modify')
-    await expect(page.locator('h1')).toHaveText('Sprachtestseite')
-    await expect(page.locator('#content')).toHaveText('Dies ist ein Inhaltsbereich.')
-  })
+    await page.click("#link-de");
+    await expect(page).toHaveURL("/de/locale-page-modify");
+    await expect(page.locator("h1")).toHaveText("Sprachtestseite");
+    await expect(page.locator("#content")).toHaveText("Dies ist ein Inhaltsbereich.");
+  });
 
-  test('test translation features: pluralization and parameters', async ({ page, goto }) => {
-    await goto('/', { waitUntil: 'hydration' })
-    await goto('/page', { waitUntil: 'hydration' })
+  test("test translation features: pluralization and parameters", async ({ page, goto }) => {
+    await goto("/", { waitUntil: "hydration" });
+    await goto("/page", { waitUntil: "hydration" });
 
-    await expect(page.locator('#plural')).toHaveText('2 apples')
+    await expect(page.locator("#plural")).toHaveText("2 apples");
 
-    await page.click('#link-de')
-    await expect(page.locator('#plural')).toHaveText('2 Äpfel')
+    await page.click("#link-de");
+    await expect(page.locator("#plural")).toHaveText("2 Äpfel");
 
-    await goto('/locale-test', { waitUntil: 'hydration' })
-    await expect(page.locator('#username')).toHaveText('Hello, John!')
-    await page.click('#link-de')
-    await expect(page.locator('#username')).toHaveText('Hallo, John!')
-  })
+    await goto("/locale-test", { waitUntil: "hydration" });
+    await expect(page.locator("#username")).toHaveText("Hello, John!");
+    await page.click("#link-de");
+    await expect(page.locator("#username")).toHaveText("Hallo, John!");
+  });
 
-  test('test handling of missing locale data', async ({ page, goto }) => {
-    await goto('/', { waitUntil: 'hydration' })
-    await goto('/ru/page', { waitUntil: 'hydration' })
+  test("test handling of missing locale data", async ({ page, goto }) => {
+    await goto("/", { waitUntil: "hydration" });
+    await goto("/ru/page", { waitUntil: "hydration" });
 
-    await expect(page.locator('#translation')).toHaveText('page.example')
-  })
+    await expect(page.locator("#translation")).toHaveText("page.example");
+  });
 
-  test('Test globalLocaleRoutes for page2 and unlocalized', async ({ page, goto }) => {
+  test("Test globalLocaleRoutes for page2 and unlocalized", async ({ page, goto }) => {
     // Test custom locale route for 'page2' in English
-    await goto('/custom-page2-en', { waitUntil: 'hydration' })
+    await goto("/custom-page2-en", { waitUntil: "hydration" });
 
     // Check that the custom route for English was applied and the content is correct
-    await expect(page).toHaveURL('/custom-page2-en')
+    await expect(page).toHaveURL("/custom-page2-en");
 
     // Test custom locale route for 'page2' in German
-    await goto('/de/custom-page2-de', { waitUntil: 'hydration' })
+    await goto("/de/custom-page2-de", { waitUntil: "hydration" });
 
     // Check that the custom route for German was applied and the content is correct
-    await expect(page).toHaveURL('/de/custom-page2-de')
+    await expect(page).toHaveURL("/de/custom-page2-de");
 
     // Test custom locale route for 'page2' in Russian
-    await goto('/ru/custom-page2-ru', { waitUntil: 'hydration' })
+    await goto("/ru/custom-page2-ru", { waitUntil: "hydration" });
 
     // Check that the custom route for Russian was applied and the content is correct
-    await expect(page).toHaveURL('/ru/custom-page2-ru')
+    await expect(page).toHaveURL("/ru/custom-page2-ru");
 
     // Test that the 'unlocalized' page is not affected by localization
-    await goto('/unlocalized', { waitUntil: 'hydration' })
+    await goto("/unlocalized", { waitUntil: "hydration" });
 
     // Check that the unlocalized page remains the same and isn't localized
-    await expect(page).toHaveURL('/unlocalized')
+    await expect(page).toHaveURL("/unlocalized");
 
-    const response = await page.goto('/de/unlocalized', { waitUntil: 'networkidle' })
-    expect(response?.status()).toBe(404)
-  })
+    const response = await page.goto("/de/unlocalized", { waitUntil: "networkidle" });
+    expect(response?.status()).toBe(404);
+  });
 
-  test('test navigation and locale switching on news page', async ({ page, goto }) => {
+  test("test navigation and locale switching on news page", async ({ page, goto }) => {
     // Navigate to /news/1 page
-    await goto('/news/1', { waitUntil: 'hydration' })
+    await goto("/news/1", { waitUntil: "hydration" });
 
     // Check presence of id and news data
-    await expect(page.locator('.news-id')).toHaveText('id: 1')
-    await expect(page.locator('.news-data')).toBeVisible()
+    await expect(page.locator(".news-id")).toHaveText("id: 1");
+    await expect(page.locator(".news-data")).toBeVisible();
 
     // Check link navigation
-    await page.click('.link-article-1')
-    await expect(page).toHaveURL('/articles/1')
+    await page.click(".link-article-1");
+    await expect(page).toHaveURL("/articles/1");
 
-    await goto('/news/1', { waitUntil: 'hydration' }) // Возвращаемся на страницу /news/1
-    await page.click('.link-news-4')
-    await expect(page).toHaveURL('/news/4')
+    await goto("/news/1", { waitUntil: "hydration" }); // Возвращаемся на страницу /news/1
+    await page.click(".link-news-4");
+    await expect(page).toHaveURL("/news/4");
 
     // Check locale switching
-    await page.click('.locale-en')
-    await expect(page).toHaveURL('/news/4')
+    await page.click(".locale-en");
+    await expect(page).toHaveURL("/news/4");
 
-    await page.click('.locale-ru')
-    await expect(page).toHaveURL('/ru/news/4')
+    await page.click(".locale-ru");
+    await expect(page).toHaveURL("/ru/news/4");
 
-    await page.click('.locale-de')
-    await expect(page).toHaveURL('/de/news/4')
-  })
+    await page.click(".locale-de");
+    await expect(page).toHaveURL("/de/news/4");
+  });
 
-  test('test query parameters and hash on news page', async ({ page, goto }) => {
-    await goto('/news/2?a=b#tada', { waitUntil: 'hydration' })
+  test("test query parameters and hash on news page", async ({ page, goto }) => {
+    await goto("/news/2?a=b#tada", { waitUntil: "hydration" });
 
     // Check that id and query parameters display correctly
-    await expect(page.locator('.news-id')).toHaveText('id: 2')
-    await expect(page).toHaveURL('/news/2?a=b#tada')
+    await expect(page.locator(".news-id")).toHaveText("id: 2");
+    await expect(page).toHaveURL("/news/2?a=b#tada");
 
     // Check that localeRoute works correctly with query and hash
-    await page.click('.link-news-2')
-    await expect(page).toHaveURL('/news/2?a=b')
-  })
+    await page.click(".link-news-2");
+    await expect(page).toHaveURL("/news/2?a=b");
+  });
 
-  test('test navigation and locale switching on articles page', async ({ page, goto }) => {
+  test("test navigation and locale switching on articles page", async ({ page, goto }) => {
     // Navigate to the /articles/1 page
-    await goto('/articles/1', { waitUntil: 'hydration' })
+    await goto("/articles/1", { waitUntil: "hydration" });
 
     // Check the presence of the id and article data
-    await expect(page.locator('.article-id')).toHaveText('id: 1')
-    await expect(page.locator('.article-data')).toBeVisible()
+    await expect(page.locator(".article-id")).toHaveText("id: 1");
+    await expect(page.locator(".article-data")).toBeVisible();
 
     // Check the link transition to the news
-    await page.click('.link-news-1')
-    await expect(page).toHaveURL('/news/1')
+    await page.click(".link-news-1");
+    await expect(page).toHaveURL("/news/1");
 
     // Check locale switching
-    await goto('/articles/1', { waitUntil: 'hydration' }) // Return to /articles/1
-    await page.click('.locale-en')
-    await expect(page).toHaveURL('/articles/1')
+    await goto("/articles/1", { waitUntil: "hydration" }); // Return to /articles/1
+    await page.click(".locale-en");
+    await expect(page).toHaveURL("/articles/1");
 
-    await page.click('.locale-ru')
-    await expect(page).toHaveURL('/ru/articles/1')
+    await page.click(".locale-ru");
+    await expect(page).toHaveURL("/ru/articles/1");
 
-    await page.click('.locale-de')
-    await expect(page).toHaveURL('/de/articles/1')
-  })
+    await page.click(".locale-de");
+    await expect(page).toHaveURL("/de/articles/1");
+  });
 
-  test('test locale switching and content on locale-conf page', async ({ page, goto }) => {
-    await goto('/', { waitUntil: 'hydration' })
-    await goto('/locale-conf', { waitUntil: 'hydration' })
+  test("test locale switching and content on locale-conf page", async ({ page, goto }) => {
+    await goto("/", { waitUntil: "hydration" });
+    await goto("/locale-conf", { waitUntil: "hydration" });
 
-    await page.waitForTimeout(500)
+    await page.waitForTimeout(500);
 
     // Check the page title in English
-    const titleEn = await page.locator('h1').textContent()
-    expect(titleEn).toBe('Locale Test Page')
+    const titleEn = await page.locator("h1").textContent();
+    expect(titleEn).toBe("Locale Test Page");
 
     // Check the page content in English
-    const contentEn = await page.locator('#content').textContent()
-    expect(contentEn).toBe('This is a content area.')
+    const contentEn = await page.locator("#content").textContent();
+    expect(contentEn).toBe("This is a content area.");
 
-    const greetingEn = await page.locator('#username').textContent()
-    expect(greetingEn).toBe('Hello, John!')
+    const greetingEn = await page.locator("#username").textContent();
+    expect(greetingEn).toBe("Hello, John!");
 
-    const pluralEn = await page.locator('#plural').textContent()
-    expect(pluralEn).toBe('You have 2 items.')
+    const pluralEn = await page.locator("#plural").textContent();
+    expect(pluralEn).toBe("You have 2 items.");
 
-    const htmlContentEn = await page.locator('#html-content').innerHTML()
-    expect(htmlContentEn).toContain('<strong>Bold Text</strong> with HTML content.')
+    const htmlContentEn = await page.locator("#html-content").innerHTML();
+    expect(htmlContentEn).toContain("<strong>Bold Text</strong> with HTML content.");
 
-    const localeRouteEn = await page.locator('.locale-route-data:nth-of-type(1)').textContent()
-    expect(localeRouteEn).toContain('"path": "/locale-conf"')
-    expect(localeRouteEn).toContain('"fullPath": "/locale-conf"')
-    expect(localeRouteEn).toContain('"href": "/locale-conf"')
+    const localeRouteEn = await page.locator(".locale-route-data:nth-of-type(1)").textContent();
+    expect(localeRouteEn).toContain('"path": "/locale-conf"');
+    expect(localeRouteEn).toContain('"fullPath": "/locale-conf"');
+    expect(localeRouteEn).toContain('"href": "/locale-conf"');
 
     // Check the first $switchLocaleRoute link in English
-    const switchLocaleRouteEn = await page.locator('#locale-en').getAttribute('href')
-    expect(switchLocaleRouteEn).toContain('/locale-conf')
+    const switchLocaleRouteEn = await page.locator("#locale-en").getAttribute("href");
+    expect(switchLocaleRouteEn).toContain("/locale-conf");
 
     // Check the second $switchLocaleRoute link in German
-    const switchLocaleRouteDe = await page.locator('#locale-de').getAttribute('href')
-    expect(switchLocaleRouteDe).toContain('/de/locale-conf-modif')
+    const switchLocaleRouteDe = await page.locator("#locale-de").getAttribute("href");
+    expect(switchLocaleRouteDe).toContain("/de/locale-conf-modif");
 
     // Click on the element
-    await page.click('#locale-de')
+    await page.click("#locale-de");
 
-    await expect(page).toHaveURL('/de/locale-conf-modify')
+    await expect(page).toHaveURL("/de/locale-conf-modify");
 
     // Check the page title in German
-    const titleDe = await page.locator('h1').textContent()
-    expect(titleDe).toBe('Sprachtestseite')
+    const titleDe = await page.locator("h1").textContent();
+    expect(titleDe).toBe("Sprachtestseite");
 
     // Check the page content in German
-    const contentDe = await page.locator('#content').textContent()
-    expect(contentDe).toBe('Dies ist ein Inhaltsbereich.')
+    const contentDe = await page.locator("#content").textContent();
+    expect(contentDe).toBe("Dies ist ein Inhaltsbereich.");
 
-    const greetingDe = await page.locator('#username').textContent()
-    expect(greetingDe).toBe('Hallo, John!')
+    const greetingDe = await page.locator("#username").textContent();
+    expect(greetingDe).toBe("Hallo, John!");
 
-    const pluralDe = await page.locator('#plural').textContent()
-    expect(pluralDe).toBe('Sie haben 2 Artikel.')
+    const pluralDe = await page.locator("#plural").textContent();
+    expect(pluralDe).toBe("Sie haben 2 Artikel.");
 
-    const htmlContentDe = await page.locator('#html-content').innerHTML()
-    expect(htmlContentDe).toContain('<strong>Fetter Text</strong> mit HTML-Inhalt.')
+    const htmlContentDe = await page.locator("#html-content").innerHTML();
+    expect(htmlContentDe).toContain("<strong>Fetter Text</strong> mit HTML-Inhalt.");
 
-    const switchLocaleRouteEnN = await page.locator('#locale-en').getAttribute('href')
-    expect(switchLocaleRouteEnN).toContain('/locale-conf')
+    const switchLocaleRouteEnN = await page.locator("#locale-en").getAttribute("href");
+    expect(switchLocaleRouteEnN).toContain("/locale-conf");
 
     // Check the second $switchLocaleRoute link in German
-    const switchLocaleRouteDeN = await page.locator('#locale-de').getAttribute('href')
-    expect(switchLocaleRouteDeN).toContain('/de/locale-conf-modif')
-  })
+    const switchLocaleRouteDeN = await page.locator("#locale-de").getAttribute("href");
+    expect(switchLocaleRouteDeN).toContain("/de/locale-conf-modif");
+  });
 
-  test('custom locale properties are accessible via $getLocales', async ({ page, goto }) => {
-    await goto('/custom-props', { waitUntil: 'hydration' })
+  test("custom locale properties are accessible via $getLocales", async ({ page, goto }) => {
+    await goto("/custom-props", { waitUntil: "hydration" });
 
     // Current locale custom props
-    await expect(page.locator('#current-locale')).toHaveText('en')
-    await expect(page.locator('#current-flag')).toHaveText('🇬🇧')
-    await expect(page.locator('#current-currency')).toHaveText('GBP')
+    await expect(page.locator("#current-locale")).toHaveText("en");
+    await expect(page.locator("#current-flag")).toHaveText("🇬🇧");
+    await expect(page.locator("#current-currency")).toHaveText("GBP");
 
     // All locales have custom props in data attributes
-    await expect(page.locator('#locale-list li[data-code="en"]')).toHaveAttribute('data-flag', '🇬🇧')
-    await expect(page.locator('#locale-list li[data-code="en"]')).toHaveAttribute('data-currency', 'GBP')
-    await expect(page.locator('#locale-list li[data-code="de"]')).toHaveAttribute('data-flag', '🇩🇪')
-    await expect(page.locator('#locale-list li[data-code="de"]')).toHaveAttribute('data-currency', 'EUR')
-    await expect(page.locator('#locale-list li[data-code="ru"]')).toHaveAttribute('data-flag', '🇷🇺')
-    await expect(page.locator('#locale-list li[data-code="ru"]')).toHaveAttribute('data-currency', 'RUB')
+    await expect(page.locator('#locale-list li[data-code="en"]')).toHaveAttribute(
+      "data-flag",
+      "🇬🇧",
+    );
+    await expect(page.locator('#locale-list li[data-code="en"]')).toHaveAttribute(
+      "data-currency",
+      "GBP",
+    );
+    await expect(page.locator('#locale-list li[data-code="de"]')).toHaveAttribute(
+      "data-flag",
+      "🇩🇪",
+    );
+    await expect(page.locator('#locale-list li[data-code="de"]')).toHaveAttribute(
+      "data-currency",
+      "EUR",
+    );
+    await expect(page.locator('#locale-list li[data-code="ru"]')).toHaveAttribute(
+      "data-flag",
+      "🇷🇺",
+    );
+    await expect(page.locator('#locale-list li[data-code="ru"]')).toHaveAttribute(
+      "data-currency",
+      "RUB",
+    );
 
     // Switch to German and verify current locale props update
-    await goto('/de/custom-props', { waitUntil: 'hydration' })
-    await expect(page.locator('#current-locale')).toHaveText('de')
-    await expect(page.locator('#current-flag')).toHaveText('🇩🇪')
-    await expect(page.locator('#current-currency')).toHaveText('EUR')
-  })
+    await goto("/de/custom-props", { waitUntil: "hydration" });
+    await expect(page.locator("#current-locale")).toHaveText("de");
+    await expect(page.locator("#current-flag")).toHaveText("🇩🇪");
+    await expect(page.locator("#current-currency")).toHaveText("EUR");
+  });
 
-  test('disable meta tags completely', async ({ page, goto }) => {
+  test("disable meta tags completely", async ({ page, goto }) => {
     // Test English locale - meta tags should be disabled
-    await goto('/disable-meta-all', { waitUntil: 'hydration' })
+    await goto("/disable-meta-all", { waitUntil: "hydration" });
 
     // Check that i18n meta tags are not present
-    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
-    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
-    await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
-    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
+    await expect(page.locator("meta#i18n-og")).not.toBeAttached();
+    await expect(page.locator("meta#i18n-og-url")).not.toBeAttached();
+    await expect(page.locator("link#i18n-can")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-en")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-de")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-ru")).not.toBeAttached();
+    await expect(page.locator("link#i18n-xd")).not.toBeAttached();
 
     // Test German locale - meta tags should also be disabled
-    await goto('/de/disable-meta-all', { waitUntil: 'hydration' })
+    await goto("/de/disable-meta-all", { waitUntil: "hydration" });
 
     // Check that i18n meta tags are not present
-    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
-    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
-    await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
-    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
+    await expect(page.locator("meta#i18n-og")).not.toBeAttached();
+    await expect(page.locator("meta#i18n-og-url")).not.toBeAttached();
+    await expect(page.locator("link#i18n-can")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-en")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-de")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-ru")).not.toBeAttached();
+    await expect(page.locator("link#i18n-xd")).not.toBeAttached();
 
     // Test French locale - meta tags should also be disabled
-    await goto('/fr/disable-meta-all', { waitUntil: 'hydration' })
+    await goto("/fr/disable-meta-all", { waitUntil: "hydration" });
 
     // Check that i18n meta tags are not present
-    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
-    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
-    await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
-    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
-  })
+    await expect(page.locator("meta#i18n-og")).not.toBeAttached();
+    await expect(page.locator("meta#i18n-og-url")).not.toBeAttached();
+    await expect(page.locator("link#i18n-can")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-en")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-de")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-ru")).not.toBeAttached();
+    await expect(page.locator("link#i18n-xd")).not.toBeAttached();
+  });
 
-  test('disable meta tags for specific locale', async ({ page, goto, baseURL }) => {
-    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+  test("disable meta tags for specific locale", async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || "http://localhost:3000").replace(/\/$/, "");
 
     // Test English locale - meta tags should be disabled
-    await goto('/disable-meta-locale', { waitUntil: 'hydration' })
+    await goto("/disable-meta-locale", { waitUntil: "hydration" });
 
     // Check that i18n meta tags are not present for English
-    await expect(page.locator('meta#i18n-og')).not.toBeAttached()
-    await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
-    await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
-    await expect(page.locator('link#i18n-xd')).not.toBeAttached()
+    await expect(page.locator("meta#i18n-og")).not.toBeAttached();
+    await expect(page.locator("meta#i18n-og-url")).not.toBeAttached();
+    await expect(page.locator("link#i18n-can")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-en")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-de")).not.toBeAttached();
+    await expect(page.locator("link#i18n-alternate-ru")).not.toBeAttached();
+    await expect(page.locator("link#i18n-xd")).not.toBeAttached();
 
     // Test German locale - meta tags should be present
-    await goto('/de/disable-meta-locale', { waitUntil: 'hydration' })
+    await goto("/de/disable-meta-locale", { waitUntil: "hydration" });
 
     // Check that i18n meta tags are present for German
-    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'de_DE')
-    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/de/disable-meta-locale`)
-    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
+    await expect(page.locator("meta#i18n-og")).toHaveAttribute("content", "de_DE");
+    await expect(page.locator("meta#i18n-og-url")).toHaveAttribute(
+      "content",
+      `${normalizedBaseURL}/de/disable-meta-locale`,
+    );
+    await expect(page.locator("link#i18n-can")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de/disable-meta-locale`,
+    );
+    await expect(page.locator("link#i18n-alternate-de")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de/disable-meta-locale`,
+    );
     // French locale has baseUrl, so alternate link uses full URL
-    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
+    await expect(page.locator("link#i18n-alternate-fr")).toHaveAttribute(
+      "href",
+      "https://fr.example.com/disable-meta-locale",
+    );
 
     // Test French locale - meta tags should be present
-    await goto('/fr/disable-meta-locale', { waitUntil: 'hydration' })
+    await goto("/fr/disable-meta-locale", { waitUntil: "hydration" });
 
     // Check that i18n meta tags are present for French
-    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'fr_FR')
-    await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/fr/disable-meta-locale`)
-    await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
-  })
+    await expect(page.locator("meta#i18n-og")).toHaveAttribute("content", "fr_FR");
+    await expect(page.locator("meta#i18n-og-url")).toHaveAttribute(
+      "content",
+      `${normalizedBaseURL}/fr/disable-meta-locale`,
+    );
+    await expect(page.locator("link#i18n-can")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/fr/disable-meta-locale`,
+    );
+    await expect(page.locator("link#i18n-alternate-de")).toHaveAttribute(
+      "href",
+      `${normalizedBaseURL}/de/disable-meta-locale`,
+    );
+    await expect(page.locator("link#i18n-alternate-fr")).toHaveAttribute(
+      "href",
+      "https://fr.example.com/disable-meta-locale",
+    );
+  });
 
-  test('test missing handler functionality', async ({ page, goto }) => {
-    await goto('/missing-handler-test', { waitUntil: 'hydration' })
+  test("test missing handler functionality", async ({ page, goto }) => {
+    await goto("/missing-handler-test", { waitUntil: "hydration" });
 
     // Check that missing key returns the key itself
-    await expect(page.locator('#missing-key')).toHaveText('non-existent-key')
+    await expect(page.locator("#missing-key")).toHaveText("non-existent-key");
 
     // Initially no handler should be set
-    await expect(page.locator('#handler-status')).toHaveText('No handler')
+    await expect(page.locator("#handler-status")).toHaveText("No handler");
 
     // Set handler and trigger missing translation
-    await page.click('#set-handler')
-    await page.waitForTimeout(100)
-    await expect(page.locator('#handler-status')).toContainText('Handler called: en, non-existent-key')
+    await page.click("#set-handler");
+    await page.waitForTimeout(100);
+    await expect(page.locator("#handler-status")).toContainText(
+      "Handler called: en, non-existent-key",
+    );
 
     // Remove handler
-    await page.click('#remove-handler')
-    await page.waitForTimeout(100)
-    await expect(page.locator('#handler-status')).toHaveText('Handler removed')
-  })
+    await page.click("#remove-handler");
+    await page.waitForTimeout(100);
+    await expect(page.locator("#handler-status")).toHaveText("Handler removed");
+  });
 
-  test('test missingWarn configuration', async ({ page, goto }) => {
+  test("test missingWarn configuration", async ({ page, goto }) => {
     // Test with default missingWarn: true (should show warnings in dev mode)
-    await goto('/missing-handler-test', { waitUntil: 'hydration' })
+    await goto("/missing-handler-test", { waitUntil: "hydration" });
 
     // Check that console warnings count is tracked
-    const warningsCount = await page.locator('#console-warnings').textContent()
+    const warningsCount = await page.locator("#console-warnings").textContent();
     // In dev mode, warnings should be present (at least 1 for the missing key)
-    expect(Number.parseInt(warningsCount || '0', 10)).toBeGreaterThanOrEqual(0)
-  })
-})
+    expect(Number.parseInt(warningsCount || "0", 10)).toBeGreaterThanOrEqual(0);
+  });
+});

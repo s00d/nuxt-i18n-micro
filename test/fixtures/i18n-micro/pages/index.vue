@@ -1,9 +1,7 @@
 <template>
   <div>
-    <h2 id="ok">
-      ok
-    </h2>
-    <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
+    <h2 id="ok">ok</h2>
+    <p>{{ $t("key1.key1.key1.key1.key1") }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
 
     <!-- Links for switching locales -->
@@ -19,48 +17,43 @@
     </div>
 
     <div>
-      <i18n-link :to="{ name: 'page' }">
-        Go to Page
-      </i18n-link>
+      <i18n-link :to="{ name: 'page' }"> Go to Page </i18n-link>
     </div>
 
-    <div
-      v-for="key in generatedKeys"
-      :key="key"
-    >
+    <div v-for="key in generatedKeys" :key="key">
       <p>{{ key }}: {{ $t(key) }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useI18n } from '#imports'
+import { ref } from "vue";
+import { useI18n } from "#imports";
 
-const { $getLocale, $switchLocale, $getLocales, $t } = useI18n()
+const { $getLocale, $switchLocale, $getLocales, $t } = useI18n();
 
 // Function to generate keys with a fixed pattern
 function generateKeys(depth, maxKeys = 4) {
-  const keys = []
+  const keys = [];
 
-  const generate = (prefix = '', currentDepth = depth) => {
+  const generate = (prefix = "", currentDepth = depth) => {
     if (currentDepth === 0) {
       for (let i = 0; i <= maxKeys; i++) {
         // Генерируем ключ с инкрементом по последнему элементу
-        keys.push(`${prefix}key${i}`)
+        keys.push(`${prefix}key${i}`);
       }
-      return
+      return;
     }
 
     for (let i = 0; i <= maxKeys; i++) {
       // Добавляем к префиксу текущий элемент
-      generate(`${prefix}key${i}.`, currentDepth - 1)
+      generate(`${prefix}key${i}.`, currentDepth - 1);
     }
-  }
+  };
 
-  generate()
-  return keys
+  generate();
+  return keys;
 }
 
-const generatedKeys = ref(generateKeys(4))
+const generatedKeys = ref(generateKeys(4));
 </script>

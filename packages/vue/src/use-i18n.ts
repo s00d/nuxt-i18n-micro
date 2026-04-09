@@ -1,12 +1,12 @@
-import type { Locale } from '@i18n-micro/types'
-import { computed, inject } from 'vue'
-import type { VueI18n } from './composer'
-import { I18nDefaultLocaleKey, I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from './injection'
-import type { I18nRoutingStrategy } from './router/types'
+import type { Locale } from "@i18n-micro/types";
+import { computed, inject } from "vue";
+import type { VueI18n } from "./composer";
+import { I18nDefaultLocaleKey, I18nInjectionKey, I18nLocalesKey, I18nRouterKey } from "./injection";
+import type { I18nRoutingStrategy } from "./router/types";
 
 export interface UseI18nOptions {
-  locales?: Locale[]
-  defaultLocale?: string
+  locales?: Locale[];
+  defaultLocale?: string;
 }
 
 /**
@@ -14,32 +14,41 @@ export interface UseI18nOptions {
  * Returns the same instance that was created with createI18n()
  */
 export function useI18n(options?: UseI18nOptions) {
-  const i18n = inject<VueI18n>(I18nInjectionKey)
-  const router = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
-  const injectedLocales = inject<Locale[] | undefined>(I18nLocalesKey, undefined)
-  const injectedDefaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined)
+  const i18n = inject<VueI18n>(I18nInjectionKey);
+  const router = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined);
+  const injectedLocales = inject<Locale[] | undefined>(I18nLocalesKey, undefined);
+  const injectedDefaultLocale = inject<string | undefined>(I18nDefaultLocaleKey, undefined);
 
   if (!i18n) {
-    throw new Error('[i18n-micro] useI18n() must be called after app.use(i18n). Make sure i18n plugin is installed.')
+    throw new Error(
+      "[i18n-micro] useI18n() must be called after app.use(i18n). Make sure i18n plugin is installed.",
+    );
   }
 
   if (!injectedLocales) {
-    throw new Error('[i18n-micro] I18nLocalesKey not provided. Make sure app.provide(I18nLocalesKey, locales) is called.')
+    throw new Error(
+      "[i18n-micro] I18nLocalesKey not provided. Make sure app.provide(I18nLocalesKey, locales) is called.",
+    );
   }
 
   if (!injectedDefaultLocale) {
-    throw new Error('[i18n-micro] I18nDefaultLocaleKey not provided. Make sure app.provide(I18nDefaultLocaleKey, defaultLocale) is called.')
+    throw new Error(
+      "[i18n-micro] I18nDefaultLocaleKey not provided. Make sure app.provide(I18nDefaultLocaleKey, defaultLocale) is called.",
+    );
   }
 
-  const locales = options?.locales || injectedLocales
-  const defaultLocale = options?.defaultLocale || injectedDefaultLocale
+  const locales = options?.locales || injectedLocales;
+  const defaultLocale = options?.defaultLocale || injectedDefaultLocale;
 
-  const resolveLocalePath = (to: string | { path?: string }, localeCode?: string): string | { path?: string } => {
+  const resolveLocalePath = (
+    to: string | { path?: string },
+    localeCode?: string,
+  ): string | { path?: string } => {
     if (!router?.resolvePath) {
-      return to
+      return to;
     }
-    return router.resolvePath(to, localeCode || i18n.locale.value)
-  }
+    return router.resolvePath(to, localeCode || i18n.locale.value);
+  };
 
   return {
     // Direct access to instance
@@ -49,7 +58,7 @@ export function useI18n(options?: UseI18nOptions) {
     locale: computed({
       get: () => i18n.locale.value,
       set: (val: string) => {
-        i18n.locale.value = val
+        i18n.locale.value = val;
       },
     }),
 
@@ -57,22 +66,24 @@ export function useI18n(options?: UseI18nOptions) {
     getLocales: () => locales,
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
-      const current = locales.find((l) => l.code === i18n.locale.value)
-      return current?.displayName || null
+      const current = locales.find((l) => l.code === i18n.locale.value);
+      return current?.displayName || null;
     },
 
     // Routing helpers
     localeRoute: resolveLocalePath,
     localePath: (to: string | { path?: string }, locale?: string): string => {
-      const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : res.path || '/'
+      const res = resolveLocalePath(to, locale);
+      return typeof res === "string" ? res : res.path || "/";
     },
     switchLocale: (newLocale: string) => {
-      i18n.locale.value = newLocale
+      i18n.locale.value = newLocale;
       if (router) {
-        const currentPath = router.getCurrentPath()
-        const newPath = resolveLocalePath(currentPath, newLocale)
-        router.push(typeof newPath === 'string' ? { path: newPath } : { path: newPath.path || '/' })
+        const currentPath = router.getCurrentPath();
+        const newPath = resolveLocalePath(currentPath, newLocale);
+        router.push(
+          typeof newPath === "string" ? { path: newPath } : { path: newPath.path || "/" },
+        );
       }
     },
 
@@ -95,5 +106,5 @@ export function useI18n(options?: UseI18nOptions) {
     addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
     mergeTranslations: i18n.mergeTranslations.bind(i18n),
     clearCache: i18n.clearCache.bind(i18n),
-  }
+  };
 }

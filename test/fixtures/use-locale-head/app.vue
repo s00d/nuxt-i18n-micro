@@ -6,9 +6,9 @@
 <script setup>
 const { metaObject } = useLocaleHead({
   addDirAttribute: true,
-  identifierAttribute: 'id',
+  identifierAttribute: "id",
   addSeoAttributes: true,
-})
+});
 
-useHead(metaObject)
+useHead(metaObject);
 </script>

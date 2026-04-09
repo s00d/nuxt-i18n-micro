@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -9,20 +9,20 @@
 // Test with static methods
 class LocaleManager {
   static getSupportedLocales() {
-    return ['en', 'de', 'fr']
+    return ["en", "de", "fr"];
   }
 
   static getLocalePaths() {
     return {
-      en: '/welcome',
-      de: '/willkommen',
-      fr: '/bienvenue',
-    }
+      en: "/welcome",
+      de: "/willkommen",
+      fr: "/bienvenue",
+    };
   }
 }
 
 $defineI18nRoute({
   locales: LocaleManager.getSupportedLocales(),
   localeRoutes: LocaleManager.getLocalePaths(),
-})
+});
 </script>

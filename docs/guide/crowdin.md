@@ -43,17 +43,11 @@ The Crowdin configuration file (`crowdin.yml`) defines how your source files are
 "base_url": "https://api.crowdin.com"
 "preserve_hierarchy": true
 
-files: [
-  {
-    "source": "/en.json",
-    "translation": "/%two_letters_code%.json",
-  },
-  {
-    "source": "/pages/**/en.json",
-    "translation": "/pages/**/%two_letters_code%.json",
-  }
-]
-
+files:
+  [
+    { "source": "/en.json", "translation": "/%two_letters_code%.json" },
+    { "source": "/pages/**/en.json", "translation": "/pages/**/%two_letters_code%.json" },
+  ]
 ```
 
 ### 📂 Key Configuration Parameters

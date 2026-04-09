@@ -25,42 +25,42 @@ This package provides TypeScript types and interfaces for working with `nuxt-i18
 Here’s an example of how you might use the types provided by this package:
 
 ```typescript
-import { Locale, Strategies, ModuleOptions, I18nRouteParams } from '@i18n-micro/types'
+import { Locale, Strategies, ModuleOptions, I18nRouteParams } from "@i18n-micro/types";
 
 // Define locales
 const locales: Locale[] = [
   {
-    code: 'en',
-    iso: 'en-US',
-    dir: 'ltr',
-    displayName: 'English',
-    baseUrl: 'https://example.com/en',
+    code: "en",
+    iso: "en-US",
+    dir: "ltr",
+    displayName: "English",
+    baseUrl: "https://example.com/en",
   },
   {
-    code: 'de',
-    iso: 'de-DE',
-    dir: 'ltr',
-    displayName: 'German',
-    baseUrl: 'https://example.com/de',
+    code: "de",
+    iso: "de-DE",
+    dir: "ltr",
+    displayName: "German",
+    baseUrl: "https://example.com/de",
   },
-]
+];
 
 // Define routing strategy
-const strategy: Strategies = 'prefix_except_default'
+const strategy: Strategies = "prefix_except_default";
 
 // Define module options
 const options: ModuleOptions = {
   locales,
   strategy,
-  defaultLocale: 'en',
-  strategy: 'prefix',
-}
+  defaultLocale: "en",
+  strategy: "prefix",
+};
 
 // Define route parameters
 const routeParams: I18nRouteParams = {
-  en: { page: 'home' },
-  de: { page: 'startseite' },
-}
+  en: { page: "home" },
+  de: { page: "startseite" },
+};
 ```
 
 ## API Reference
@@ -68,43 +68,55 @@ const routeParams: I18nRouteParams = {
 ### Types and Interfaces
 
 #### `Locale`
+
 Represents a locale configuration.
 
 #### `LocaleCode`
+
 Represents a locale code (e.g., `'en'`, `'de'`).
 
 #### `Strategies`
+
 Represents the available routing strategies.
 
 ```typescript
-export type Strategies = 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
+export type Strategies = "no_prefix" | "prefix_except_default" | "prefix" | "prefix_and_default";
 ```
 
 #### `ModuleOptions`
+
 Represents the configuration options for the `nuxt-i18n-micro` module.
 
 #### `ModuleOptionsExtend`
+
 Extends `ModuleOptions` with additional properties.
 
 #### `I18nRouteParams`
+
 Represents route parameters for different locales.
 
 #### `Params`
+
 Represents a key-value pair of parameters for interpolation.
 
 #### `PluralFunc`
+
 Represents a function for handling pluralization in translations.
 
 #### `GlobalLocaleRoutes`
+
 Represents global route configurations for different locales.
 
 #### `Translations`
+
 Represents a key-value pair of translations.
 
 #### `Translation`
+
 Represents a translation value, which can be a string, number, boolean, nested translations, or `null`.
 
 #### `PluralTranslations`
+
 Represents translations for singular and plural forms.
 
 ## Contributing

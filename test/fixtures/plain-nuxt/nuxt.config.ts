@@ -1,4 +1,4 @@
-import { defineNuxtConfig } from 'nuxt/config'
+import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   devtools: {
@@ -8,5 +8,5 @@ export default defineNuxtConfig({
     externalVue: false,
     appManifest: false,
   },
-  compatibilityDate: '2024-08-14',
-})
+  compatibilityDate: "2024-08-14",
+});

@@ -1,2 +1,2 @@
 // Mock for Vue components in tests
-export default {}
+export default {};

@@ -18,13 +18,13 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useNuxtApp } from '#imports'
+import { computed } from "vue";
+import { useNuxtApp } from "#imports";
 
-const { $getLocale, $getLocales } = useNuxtApp()
+const { $getLocale, $getLocales } = useNuxtApp();
 
 const currentLocale = computed(() => {
-  const code = $getLocale()
-  return $getLocales().find((l) => l.code === code)
-})
+  const code = $getLocale();
+  return $getLocales().find((l) => l.code === code);
+});
 </script>

@@ -1,31 +1,34 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { fileURLToPath } from "node:url";
+import { expect, test } from "@nuxt/test-utils/playwright";
 
 test.use({
   nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/cookie', import.meta.url)),
+    rootDir: fileURLToPath(new URL("./fixtures/cookie", import.meta.url)),
     nuxtConfig: {
       i18n: {
-        localeCookie: 'user-change-cookie',
-        autoDetectPath: '*',
+        localeCookie: "user-change-cookie",
+        autoDetectPath: "*",
         autoDetectLanguage: false,
       },
     },
   },
-})
-test.describe('cookie-replace', () => {
-  test('redirect to / and set custom locale cookie when navigating to /de', async ({ page, goto }) => {
+});
+test.describe("cookie-replace", () => {
+  test("redirect to / and set custom locale cookie when navigating to /de", async ({
+    page,
+    goto,
+  }) => {
     // Go to the /de page directly
-    await goto('/de', { waitUntil: 'hydration' })
+    await goto("/de", { waitUntil: "hydration" });
 
     // Check that the URL is redirected to /
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL("/");
 
     // Check that the custom cookie is set to default locale after redirect
-    const cookies = await page.context().cookies()
-    const userLocaleCookie = cookies.find((cookie) => cookie.name === 'user-change-cookie')
+    const cookies = await page.context().cookies();
+    const userLocaleCookie = cookies.find((cookie) => cookie.name === "user-change-cookie");
 
-    expect(userLocaleCookie).toBeDefined()
-    expect(userLocaleCookie?.value).toBe('en')
-  })
-})
+    expect(userLocaleCookie).toBeDefined();
+    expect(userLocaleCookie?.value).toBe("en");
+  });
+});

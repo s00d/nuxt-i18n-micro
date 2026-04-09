@@ -47,25 +47,26 @@ bun add -D @i18n-micro/types-generator
 Add the module to your `nuxt.config.ts`:
 
 ```typescript
-import { defineNuxtConfig } from 'nuxt/config'
+import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   modules: [
-    'nuxt-i18n-micro',
-    '@i18n-micro/types-generator/nuxt', // Add types generator
+    "nuxt-i18n-micro",
+    "@i18n-micro/types-generator/nuxt", // Add types generator
   ],
   i18n: {
-    defaultLocale: 'en',
+    defaultLocale: "en",
     locales: [
-      { code: 'en', iso: 'en-US' },
-      { code: 'fr', iso: 'fr-FR' },
+      { code: "en", iso: "en-US" },
+      { code: "fr", iso: "fr-FR" },
     ],
-    translationDir: 'locales', // Path to your translation files
+    translationDir: "locales", // Path to your translation files
   },
-})
+});
 ```
 
 The generator will automatically:
+
 - Scan all JSON files in your `locales` directory
 - Generate types in `.nuxt/i18n-micro.d.ts`
 - Watch for changes and regenerate types automatically
@@ -75,30 +76,27 @@ The generator will automatically:
 Add the plugin to your `vite.config.ts`:
 
 ```typescript
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { I18nTypesPlugin } from '@i18n-micro/types-generator'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { I18nTypesPlugin } from "@i18n-micro/types-generator";
 
 export default defineConfig({
   plugins: [
     vue(),
     I18nTypesPlugin({
-      srcDir: 'src',
-      translationDir: 'locales',
-      outputFile: 'src/i18n-types.d.ts', // Optional: custom output path
+      srcDir: "src",
+      translationDir: "locales",
+      outputFile: "src/i18n-types.d.ts", // Optional: custom output path
     }),
   ],
-})
+});
 ```
 
 Make sure to include the generated file in your `tsconfig.json`:
 
 ```json
 {
-  "include": [
-    "src/**/*",
-    "src/i18n-types.d.ts"
-  ]
+  "include": ["src/**/*", "src/i18n-types.d.ts"]
 }
 ```
 
@@ -140,14 +138,14 @@ The generator will create types for all keys, including nested ones:
 
 ```typescript
 // Generated types
-declare module '@i18n-micro/types' {
+declare module "@i18n-micro/types" {
   export interface DefineLocaleMessage {
-    'greeting': string;
-    'header.title': string;
-    'header.subtitle': string;
-    'errors.404': string;
-    'errors.500': string;
-    'apples': string;
+    greeting: string;
+    "header.title": string;
+    "header.subtitle": string;
+    "errors.404": string;
+    "errors.500": string;
+    apples: string;
   }
 }
 ```
@@ -157,17 +155,17 @@ declare module '@i18n-micro/types' {
 Once types are generated, you get full type safety:
 
 ```typescript
-import { useI18n } from '@i18n-micro/vue'
+import { useI18n } from "@i18n-micro/vue";
 
-const { t } = useI18n()
+const { t } = useI18n();
 
 // ✅ Type-safe: autocomplete works
-t('greeting', { name: 'World' })
-t('header.title')
-t('errors.404')
+t("greeting", { name: "World" });
+t("header.title");
+t("errors.404");
 
 // ❌ Type error: key doesn't exist
-t('invalid.key') // Error: Argument of type '"invalid.key"' is not assignable
+t("invalid.key"); // Error: Argument of type '"invalid.key"' is not assignable
 ```
 
 ### Nuxt-Specific Note
@@ -204,24 +202,24 @@ Sometimes you need to use dynamic keys (e.g., based on user input or API respons
 For dynamic keys, use TypeScript's type assertion:
 
 ```typescript
-import type { TranslationKey, ScopedKey } from '@i18n-micro/types'
+import type { TranslationKey, ScopedKey } from "@i18n-micro/types";
 
 // ❌ Type error: dynamic key
-const status = 'pending'
-t(`status.${status}`) // Error: string is not assignable to TranslationKey
+const status = "pending";
+t(`status.${status}`); // Error: string is not assignable to TranslationKey
 
 // ✅ Solution 1: Type assertion (if you're sure the key exists)
-t(`status.${status}` as TranslationKey)
+t(`status.${status}` as TranslationKey);
 
 // ✅ Solution 2: ScopedKey helper (safer, checks prefix exists)
 function getStatusText(status: string) {
-  return t(`status.${status}` as ScopedKey<'status'>)
+  return t(`status.${status}` as ScopedKey<"status">);
   // TypeScript verifies that keys starting with 'status.' exist
 }
 
 // ✅ Solution 3: Runtime check with has()
 if (has(`status.${status}`)) {
-  t(`status.${status}` as TranslationKey)
+  t(`status.${status}` as TranslationKey);
 }
 ```
 
@@ -230,19 +228,19 @@ if (has(`status.${status}`)) {
 The `ScopedKey<Scope>` type allows you to narrow dynamic keys by prefix:
 
 ```typescript
-import type { ScopedKey } from '@i18n-micro/types'
+import type { ScopedKey } from "@i18n-micro/types";
 
 // Assuming you have keys: 'errors.404', 'errors.500', 'btn.save'
 
 function getErrorText(code: string) {
   // ✅ Safer than plain TranslationKey
   // TypeScript verifies that 'errors.*' keys exist
-  return t(`errors.${code}` as ScopedKey<'errors'>)
+  return t(`errors.${code}` as ScopedKey<"errors">);
 }
 
 // ❌ Type error: 'btn' prefix doesn't match 'errors'
 function getErrorTextWrong(code: string) {
-  return t(`errors.${code}` as ScopedKey<'btn'>) // Error
+  return t(`errors.${code}` as ScopedKey<"btn">); // Error
 }
 ```
 
@@ -252,22 +250,22 @@ function getErrorTextWrong(code: string) {
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['@i18n-micro/types-generator/nuxt'],
+  modules: ["@i18n-micro/types-generator/nuxt"],
   i18nTypes: {
-    translationDir: 'locales', // Custom translation directory
-    outputFile: '.nuxt/custom-types.d.ts', // Custom output path
+    translationDir: "locales", // Custom translation directory
+    outputFile: ".nuxt/custom-types.d.ts", // Custom output path
   },
-})
+});
 ```
 
 ### Vite Plugin Options
 
 ```typescript
 I18nTypesPlugin({
-  srcDir: 'src', // Source directory
-  translationDir: 'locales', // Translation files directory
-  outputFile: 'src/i18n-types.d.ts', // Output file path
-})
+  srcDir: "src", // Source directory
+  translationDir: "locales", // Translation files directory
+  outputFile: "src/i18n-types.d.ts", // Output file path
+});
 ```
 
 ## 🎨 Advanced Usage
@@ -319,13 +317,13 @@ If you use `disablePageLocales: true` in your i18n config, the generator will tr
 Manually generate types (useful for scripts or CI):
 
 ```typescript
-import { generateTypes } from '@i18n-micro/types-generator'
+import { generateTypes } from "@i18n-micro/types-generator";
 
 await generateTypes({
-  srcDir: './src',
-  translationDir: 'locales',
-  outputFile: './src/i18n-types.d.ts',
-})
+  srcDir: "./src",
+  translationDir: "locales",
+  outputFile: "./src/i18n-types.d.ts",
+});
 ```
 
 ### `flattenKeys(obj: Record<string, unknown>, prefix?: string)`
@@ -333,12 +331,12 @@ await generateTypes({
 Utility function to flatten nested translation objects:
 
 ```typescript
-import { flattenKeys } from '@i18n-micro/types-generator'
+import { flattenKeys } from "@i18n-micro/types-generator";
 
 const keys = flattenKeys({
-  header: { title: 'Title' },
-  footer: { copyright: 'Copyright' },
-})
+  header: { title: "Title" },
+  footer: { copyright: "Copyright" },
+});
 // Returns: ['header.title', 'footer.copyright']
 ```
 
@@ -365,4 +363,3 @@ The generated file uses TypeScript's module augmentation to extend `DefineLocale
 - [Vue Package](./vue-package.md) - Vue integration
 - [Astro Package](./astro-package.md) - Astro integration
 - [Getting Started](../guide/getting-started.md) - Nuxt setup
-

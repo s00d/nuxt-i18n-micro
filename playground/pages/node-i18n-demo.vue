@@ -1,79 +1,41 @@
 <template>
   <div class="container">
     <h1>Node.js I18n Package Demo</h1>
-    <p>This page demonstrates the usage of <code>@i18n-micro/node</code> package in a Node.js environment.</p>
+    <p>
+      This page demonstrates the usage of <code>@i18n-micro/node</code> package in a Node.js
+      environment.
+    </p>
 
     <div class="controls">
       <div class="control-group">
         <label for="locale">Locale:</label>
-        <select
-          id="locale"
-          v-model="selectedLocale"
-          @change="loadData"
-        >
-          <option value="en">
-            English
-          </option>
-          <option value="de">
-            German
-          </option>
-          <option value="fr">
-            French
-          </option>
-          <option value="ru">
-            Russian
-          </option>
+        <select id="locale" v-model="selectedLocale" @change="loadData">
+          <option value="en">English</option>
+          <option value="de">German</option>
+          <option value="fr">French</option>
+          <option value="ru">Russian</option>
         </select>
       </div>
 
       <div class="control-group">
         <label for="route">Route:</label>
-        <select
-          id="route"
-          v-model="selectedRoute"
-          @change="loadData"
-        >
-          <option value="index">
-            Index
-          </option>
-          <option value="node-i18n-demo">
-            Node I18n Demo
-          </option>
-          <option value="index">
-            Index
-          </option>
-          <option value="page">
-            Page
-          </option>
-          <option value="contact">
-            Contact
-          </option>
+        <select id="route" v-model="selectedRoute" @change="loadData">
+          <option value="index">Index</option>
+          <option value="node-i18n-demo">Node I18n Demo</option>
+          <option value="index">Index</option>
+          <option value="page">Page</option>
+          <option value="contact">Contact</option>
         </select>
       </div>
 
-      <button @click="loadData">
-        Reload
-      </button>
+      <button @click="loadData">Reload</button>
     </div>
 
-    <div
-      v-if="loading"
-      class="loading"
-    >
-      Loading...
-    </div>
+    <div v-if="loading" class="loading">Loading...</div>
 
-    <div
-      v-else-if="error"
-      class="error"
-    >
-      Error: {{ error }}
-    </div>
+    <div v-else-if="error" class="error">Error: {{ error }}</div>
 
-    <div
-      v-else-if="data"
-      class="results"
-    >
+    <div v-else-if="data" class="results">
       <div class="info">
         <p><strong>Current Locale:</strong> {{ data.locale }}</p>
         <p><strong>Current Route:</strong> {{ data.route }}</p>
@@ -87,9 +49,7 @@
         <div class="translation-item">
           <strong>Greeting:</strong> {{ data.translations.greeting }}
         </div>
-        <div class="translation-item">
-          <strong>Nested:</strong> {{ data.translations.nested }}
-        </div>
+        <div class="translation-item"><strong>Nested:</strong> {{ data.translations.nested }}</div>
         <div class="translation-item">
           <strong>Apples (pluralization):</strong>
           <ul>
@@ -129,32 +89,32 @@
 </template>
 
 <script setup>
-const { $getRouteName, $getLocale } = useI18n()
-const selectedLocale = ref($getLocale())
+const { $getRouteName, $getLocale } = useI18n();
+const selectedLocale = ref($getLocale());
 // Get current route name without locale prefix
-const currentRouteName = computed(() => $getRouteName() || 'node-i18n-demo')
-const selectedRoute = ref(currentRouteName.value)
-const data = ref(null)
-const loading = ref(false)
-const error = ref(null)
+const currentRouteName = computed(() => $getRouteName() || "node-i18n-demo");
+const selectedRoute = ref(currentRouteName.value);
+const data = ref(null);
+const loading = ref(false);
+const error = ref(null);
 
 async function loadData() {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
-    const response = await $fetch('/api/node-i18n-example', {
+    const response = await $fetch("/api/node-i18n-example", {
       query: {
         locale: selectedLocale.value,
         route: selectedRoute.value,
       },
-    })
-    data.value = response
+    });
+    data.value = response;
   } catch (err) {
-    error.value = err.message || 'Failed to load data'
-    console.error('Error loading i18n data:', err)
+    error.value = err.message || "Failed to load data";
+    console.error("Error loading i18n data:", err);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
@@ -162,24 +122,24 @@ async function loadData() {
 watch(
   () => $getLocale(),
   (newLocale) => {
-    selectedLocale.value = newLocale
-    loadData()
+    selectedLocale.value = newLocale;
+    loadData();
   },
-)
+);
 
 // Watch for route changes
 watch(
   () => $getRouteName(),
   (newRoute) => {
-    selectedRoute.value = newRoute || 'node-i18n-demo'
-    loadData()
+    selectedRoute.value = newRoute || "node-i18n-demo";
+    loadData();
   },
-)
+);
 
 // Load data on mount
 onMounted(() => {
-  loadData()
-})
+  loadData();
+});
 </script>
 
 <style scoped>

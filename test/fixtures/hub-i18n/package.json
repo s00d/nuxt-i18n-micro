@@ -10,11 +10,11 @@
     "deploy": "npx nuxthub deploy",
     "lint": "eslint ."
   },
+  "dependencies": {
+    "nuxt": "catalog:nuxt3"
+  },
   "devDependencies": {
     "@nuxthub/core": "catalog:",
     "wrangler": "catalog:"
-  },
-  "dependencies": {
-    "nuxt": "catalog:nuxt3"
   }
 }

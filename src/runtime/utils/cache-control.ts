@@ -12,28 +12,28 @@
  */
 
 export interface CacheControlOptions {
-  maxSize?: number
+  maxSize?: number;
   /** TTL in seconds (0 = no expiration) */
-  ttl?: number
+  ttl?: number;
 }
 
 export class CacheControl<T> {
-  private readonly cache = new Map<string, T>()
-  private readonly expiry = new Map<string, number>()
-  private maxSize = 0
-  private ttlMs = 0
+  private readonly cache = new Map<string, T>();
+  private readonly expiry = new Map<string, number>();
+  private maxSize = 0;
+  private ttlMs = 0;
 
   constructor(options?: CacheControlOptions) {
-    if (options) this.configure(options)
+    if (options) this.configure(options);
   }
 
   /** Update limits at runtime. Last call wins. */
   configure(options: CacheControlOptions): void {
-    this.maxSize = options.maxSize ?? 0
-    this.ttlMs = (options.ttl ?? 0) * 1000
+    this.maxSize = options.maxSize ?? 0;
+    this.ttlMs = (options.ttl ?? 0) * 1000;
     // TTL disabled — drop stale expiry metadata to prevent memory leak
     if (this.ttlMs === 0) {
-      this.expiry.clear()
+      this.expiry.clear();
     }
   }
 
@@ -43,40 +43,40 @@ export class CacheControl<T> {
    * Promotes key to most-recently-used position.
    */
   get(key: string): T | undefined {
-    const entry = this.cache.get(key)
-    if (entry === undefined) return undefined
+    const entry = this.cache.get(key);
+    if (entry === undefined) return undefined;
 
     // Lazy TTL check
     if (this.ttlMs > 0) {
-      const exp = this.expiry.get(key)
+      const exp = this.expiry.get(key);
       if (exp && Date.now() > exp) {
-        this.delete(key)
-        return undefined
+        this.delete(key);
+        return undefined;
       }
-      this.expiry.set(key, Date.now() + this.ttlMs)
+      this.expiry.set(key, Date.now() + this.ttlMs);
     }
 
     // LRU: move to end (most-recently-used)
-    this.cache.delete(key)
-    this.cache.set(key, entry)
+    this.cache.delete(key);
+    this.cache.set(key, entry);
 
-    return entry
+    return entry;
   }
 
   /**
    * Check existence. Lazily evicts expired entries (side-effect by design).
    */
   has(key: string): boolean {
-    if (!this.cache.has(key)) return false
+    if (!this.cache.has(key)) return false;
 
     if (this.ttlMs > 0) {
-      const exp = this.expiry.get(key)
+      const exp = this.expiry.get(key);
       if (exp && Date.now() > exp) {
-        this.delete(key)
-        return false
+        this.delete(key);
+        return false;
       }
     }
-    return true
+    return true;
   }
 
   /**
@@ -86,40 +86,40 @@ export class CacheControl<T> {
    */
   set(key: string, value: T): void {
     if (this.cache.has(key)) {
-      this.cache.delete(key)
+      this.cache.delete(key);
     } else if (this.maxSize > 0 && this.cache.size >= this.maxSize) {
-      const oldestKey = this.cache.keys().next().value
+      const oldestKey = this.cache.keys().next().value;
       if (oldestKey !== undefined) {
-        this.delete(oldestKey)
+        this.delete(oldestKey);
       }
     }
 
-    this.cache.set(key, value)
+    this.cache.set(key, value);
 
     if (this.ttlMs > 0) {
-      this.expiry.set(key, Date.now() + this.ttlMs)
+      this.expiry.set(key, Date.now() + this.ttlMs);
     }
   }
 
   /** Delete entry and its expiry metadata. */
   delete(key: string): boolean {
-    this.expiry.delete(key)
-    return this.cache.delete(key)
+    this.expiry.delete(key);
+    return this.cache.delete(key);
   }
 
   /** Clear all entries and metadata. */
   clear(): void {
-    this.cache.clear()
-    this.expiry.clear()
+    this.cache.clear();
+    this.expiry.clear();
   }
 
   /** Iterate over all cache keys. */
   keys(): IterableIterator<string> {
-    return this.cache.keys()
+    return this.cache.keys();
   }
 
   /** Current number of entries. */
   get size(): number {
-    return this.cache.size
+    return this.cache.size;
   }
 }

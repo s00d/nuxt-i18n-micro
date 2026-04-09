@@ -1,7 +1,26 @@
 {
   "name": "@i18n-micro/types-generator",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Type generator for i18n-micro translation keys",
+  "keywords": [
+    "i18n",
+    "translation",
+    "type-generator",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/s00d/nuxt-i18n-micro"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -18,9 +37,6 @@
       "require": "./dist/nuxt.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
   "publishConfig": {
     "access": "public"
   },
@@ -29,40 +45,24 @@
     "test": "jest",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": [
-    "i18n",
-    "typescript",
-    "type-generator",
-    "translation"
-  ],
-  "author": {
-    "name": "s00d",
-    "email": "Virus191288@gmail.com",
-    "url": "https://s00d.github.io/"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/s00d/nuxt-i18n-micro"
-  },
   "dependencies": {
-    "globby": "catalog:",
     "chokidar": "catalog:",
+    "globby": "catalog:",
     "unplugin": "catalog:"
+  },
+  "devDependencies": {
+    "@types/jest": "catalog:",
+    "@types/node": "catalog:",
+    "jest": "catalog:",
+    "ts-jest": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   },
   "peerDependencies": {
     "@nuxt/kit": "catalog:"
   },
   "engines": {
     "node": ">=18.17.0"
-  },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
-    "typescript": "catalog:",
-    "jest": "catalog:",
-    "ts-jest": "catalog:",
-    "@types/jest": "catalog:"
   }
 }

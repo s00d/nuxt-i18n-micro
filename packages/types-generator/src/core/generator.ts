@@ -1,12 +1,12 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { globby } from 'globby'
-import { flattenKeys } from './parser'
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { globby } from "globby";
+import { flattenKeys } from "./parser";
 
 export interface GeneratorOptions {
-  srcDir: string
-  translationDir: string
-  outputFile?: string // Where to put the d.ts file
+  srcDir: string;
+  translationDir: string;
+  outputFile?: string; // Where to put the d.ts file
 }
 
 /**
@@ -17,26 +17,26 @@ export interface GeneratorOptions {
  * @returns String with .d.ts file content
  */
 export async function getTypesString(options: GeneratorOptions): Promise<string> {
-  const localesDir = resolve(options.srcDir, options.translationDir)
+  const localesDir = resolve(options.srcDir, options.translationDir);
 
   // Find all JSON files in the translations directory (including pages subdirectories)
-  const files = await globby('**/*.json', {
+  const files = await globby("**/*.json", {
     cwd: localesDir,
     absolute: true,
-    ignore: ['node_modules/**', 'dist/**', '.nuxt/**'],
-  })
+    ignore: ["node_modules/**", "dist/**", ".nuxt/**"],
+  });
 
-  const allKeys = new Set<string>()
+  const allKeys = new Set<string>();
 
   for (const file of files) {
     try {
-      const content = JSON.parse(readFileSync(file, 'utf-8'))
-      const keys = flattenKeys(content)
+      const content = JSON.parse(readFileSync(file, "utf-8"));
+      const keys = flattenKeys(content);
       for (const k of keys) {
-        allKeys.add(k)
+        allKeys.add(k);
       }
     } catch (e) {
-      console.warn(`[i18n-types] Failed to parse ${file}:`, e)
+      console.warn(`[i18n-types] Failed to parse ${file}:`, e);
     }
   }
 
@@ -45,7 +45,7 @@ export async function getTypesString(options: GeneratorOptions): Promise<string>
   const keysContent = Array.from(allKeys)
     .sort()
     .map((key) => `    '${key}': string;`)
-    .join('\n')
+    .join("\n");
 
   return `/* prettier-ignore */
 // @ts-nocheck
@@ -59,7 +59,7 @@ declare module '@i18n-micro/types' {
 ${keysContent}
   }
 }
-`
+`;
 }
 
 /**
@@ -70,20 +70,20 @@ ${keysContent}
  * @returns Path to the generated file
  */
 export async function generateTypes(options: GeneratorOptions): Promise<string> {
-  const fileContent = await getTypesString(options)
+  const fileContent = await getTypesString(options);
 
   // Determine the output path (defaults to root or .nuxt)
-  const outputPath = options.outputFile || resolve(options.srcDir, 'i18n-micro.d.ts')
+  const outputPath = options.outputFile || resolve(options.srcDir, "i18n-micro.d.ts");
 
   // Create directory if it doesn't exist
-  const outputDir = dirname(outputPath)
+  const outputDir = dirname(outputPath);
   try {
-    mkdirSync(outputDir, { recursive: true })
+    mkdirSync(outputDir, { recursive: true });
   } catch {
     // Directory already exists
   }
 
-  writeFileSync(outputPath, fileContent, 'utf-8')
+  writeFileSync(outputPath, fileContent, "utf-8");
 
-  return outputPath
+  return outputPath;
 }

@@ -1,9 +1,6 @@
 <template>
   <div>
-    <i18n-link
-      class="page-link"
-      :to="`/${name}`"
-    >
+    <i18n-link class="page-link" :to="`/${name}`">
       {{ title }}
     </i18n-link>
   </div>
@@ -11,9 +8,9 @@
 
 <script lang="ts" setup>
 interface Props {
-  name: string
-  title: string
+  name: string;
+  title: string;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 </script>

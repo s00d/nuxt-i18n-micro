@@ -46,28 +46,28 @@ bun add -D @i18n-micro/devtools-ui
 The easiest way to use DevTools is through the Vite plugin, which automatically injects a floating button and provides all necessary API endpoints:
 
 ```typescript
-import { defineConfig } from 'vite'
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
+import { defineConfig } from "vite";
+import { i18nDevToolsPlugin } from "@i18n-micro/devtools-ui/vite";
 
 export default defineConfig({
   plugins: [
     // ... other plugins
     i18nDevToolsPlugin({
-      base: '/__i18n_api', // Optional: API endpoint base path (default: '/__i18n_api')
-      translationDir: 'src/locales', // Optional: translation files directory
+      base: "/__i18n_api", // Optional: API endpoint base path (default: '/__i18n_api')
+      translationDir: "src/locales", // Optional: translation files directory
       injectButton: true, // Optional: automatically inject floating button (default: true)
     }),
   ],
-})
+});
 ```
 
 ### Plugin Options
 
 ```typescript
 interface DevToolsPluginOptions {
-  base?: string // API endpoint base path (default: '/__i18n_api')
-  translationDir?: string // Translation files directory (default: 'src/locales')
-  injectButton?: boolean // Automatically inject floating button (default: true)
+  base?: string; // API endpoint base path (default: '/__i18n_api')
+  translationDir?: string; // Translation files directory (default: 'src/locales')
+  injectButton?: boolean; // Automatically inject floating button (default: true)
 }
 ```
 
@@ -91,6 +91,7 @@ The plugin provides the following API endpoints:
 Get list of all translation files and directory structure.
 
 **Response:**
+
 ```json
 {
   "files": ["en.json", "fr.json", "pages/home/en.json"],
@@ -111,9 +112,11 @@ Get list of all translation files and directory structure.
 Load a specific translation file.
 
 **Query Parameters:**
+
 - `path` - Relative path to the translation file (e.g., `en.json` or `pages/home/en.json`)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -130,6 +133,7 @@ Load a specific translation file.
 Save translation content to a file.
 
 **Request Body:**
+
 ```json
 {
   "file": "en.json",
@@ -141,6 +145,7 @@ Save translation content to a file.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -152,13 +157,12 @@ Save translation content to a file.
 Get i18n configuration.
 
 **Response:**
+
 ```json
 {
   "defaultLocale": "en",
   "fallbackLocale": "en",
-  "locales": [
-    { "code": "en", "displayName": "English", "iso": "en-US" }
-  ],
+  "locales": [{ "code": "en", "displayName": "English", "iso": "en-US" }],
   "translationDir": "src/locales"
 }
 ```
@@ -168,32 +172,32 @@ Get i18n configuration.
 The package provides a universal bridge creation function that works with any i18n implementation:
 
 ```typescript
-import { createBridge } from '@i18n-micro/devtools-ui'
-import type { BridgeAdapter } from '@i18n-micro/devtools-ui'
+import { createBridge } from "@i18n-micro/devtools-ui";
+import type { BridgeAdapter } from "@i18n-micro/devtools-ui";
 
 // Create an adapter for your i18n instance
 const adapter: BridgeAdapter = {
   getRouteCache: () => i18nInstance.cache.route,
   addTranslations: (locale, content, merge) => {
-    i18nInstance.addTranslations(locale, content, merge)
+    i18nInstance.addTranslations(locale, content, merge);
   },
   addRouteTranslations: (locale, routeName, content, merge) => {
-    i18nInstance.addRouteTranslations(locale, routeName, content, merge)
+    i18nInstance.addRouteTranslations(locale, routeName, content, merge);
   },
   subscribe: (callback) => {
-    return i18nInstance.subscribe(callback)
+    return i18nInstance.subscribe(callback);
   },
   getCurrentLocale: () => i18nInstance.locale,
   getFallbackLocale: () => i18nInstance.fallbackLocale,
-}
+};
 
 // Create bridge
 const bridge = createBridge({
   adapter,
   locales: localesConfig,
-  defaultLocale: 'en',
-  translationDir: 'src/locales',
-})
+  defaultLocale: "en",
+  translationDir: "src/locales",
+});
 ```
 
 ### Bridge Adapter Interface
@@ -202,22 +206,27 @@ const bridge = createBridge({
 interface BridgeAdapter {
   // Get translations cache
   // Keys are in format "locale:routeName" (e.g., "en:index", "en:home")
-  getRouteCache: () => Record<string, TranslationContent>
+  getRouteCache: () => Record<string, TranslationContent>;
 
   // Add or update translations for a locale
-  addTranslations: (locale: string, content: TranslationContent, merge: boolean) => void
+  addTranslations: (locale: string, content: TranslationContent, merge: boolean) => void;
 
   // Add or update route-specific translations
-  addRouteTranslations: (locale: string, routeName: string, content: TranslationContent, merge: boolean) => void
+  addRouteTranslations: (
+    locale: string,
+    routeName: string,
+    content: TranslationContent,
+    merge: boolean,
+  ) => void;
 
   // Subscribe to changes in translations
-  subscribe: (callback: () => void) => () => void
+  subscribe: (callback: () => void) => () => void;
 
   // Get current locale (optional)
-  getCurrentLocale?: () => string
+  getCurrentLocale?: () => string;
 
   // Get fallback locale (optional)
-  getFallbackLocale?: () => string
+  getFallbackLocale?: () => string;
 }
 ```
 
@@ -226,15 +235,15 @@ interface BridgeAdapter {
 The package exports a custom element that can be used directly:
 
 ```typescript
-import { register } from '@i18n-micro/devtools-ui'
+import { register } from "@i18n-micro/devtools-ui";
 
 // Register the custom element
-register()
+register();
 
 // Create and use the element
-const element = document.createElement('i18n-devtools-ui')
-element.bridge = bridge
-document.body.appendChild(element)
+const element = document.createElement("i18n-devtools-ui");
+element.bridge = bridge;
+document.body.appendChild(element);
 ```
 
 ## Framework Integration
@@ -242,62 +251,62 @@ document.body.appendChild(element)
 ### Vue
 
 ```typescript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
+import { i18nDevToolsPlugin } from "@i18n-micro/devtools-ui/vite";
 
 export default defineConfig({
   plugins: [
     vue(),
     i18nDevToolsPlugin({
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
     }),
   ],
-})
+});
 ```
 
 ### React
 
 ```typescript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
+import { i18nDevToolsPlugin } from "@i18n-micro/devtools-ui/vite";
 
 export default defineConfig({
   plugins: [
     react(),
     i18nDevToolsPlugin({
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
     }),
   ],
-})
+});
 ```
 
 ### Solid
 
 ```typescript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
+import { i18nDevToolsPlugin } from "@i18n-micro/devtools-ui/vite";
 
 export default defineConfig({
   plugins: [
     solidPlugin(),
     i18nDevToolsPlugin({
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
     }),
   ],
-})
+});
 ```
 
 ### Astro
 
 ```javascript
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
+import { i18nDevToolsPlugin } from "@i18n-micro/devtools-ui/vite";
 
 export default defineConfig({
   vite: {
     plugins: [
       i18nDevToolsPlugin({
-        translationDir: 'src/locales',
+        translationDir: "src/locales",
       }),
     ],
   },
-})
+});
 ```
 
 ## Security
@@ -319,13 +328,13 @@ The plugin includes security measures:
 The package provides full TypeScript support:
 
 ```typescript
-import type { 
+import type {
   I18nDevToolsBridge,
   BridgeAdapter,
   CreateBridgeOptions,
   TranslationContent,
-  LocaleData
-} from '@i18n-micro/devtools-ui'
+  LocaleData,
+} from "@i18n-micro/devtools-ui";
 ```
 
 ## Examples
@@ -333,41 +342,41 @@ import type {
 ### Custom Bridge Implementation
 
 ```typescript
-import { createBridge } from '@i18n-micro/devtools-ui'
-import type { BridgeAdapter } from '@i18n-micro/devtools-ui'
+import { createBridge } from "@i18n-micro/devtools-ui";
+import type { BridgeAdapter } from "@i18n-micro/devtools-ui";
 
 class CustomI18n {
   private cache = {
     root: {},
     route: {},
-  }
+  };
 
   addTranslations(locale: string, content: Record<string, unknown>) {
-    this.cache.root[locale] = content
+    this.cache.root[locale] = content;
   }
 
   subscribe(callback: () => void) {
     // Your subscription logic
-    return () => {} // unsubscribe
+    return () => {}; // unsubscribe
   }
 }
 
-const customI18n = new CustomI18n()
+const customI18n = new CustomI18n();
 
 const adapter: BridgeAdapter = {
   getRouteCache: () => customI18n.cache.route,
   addTranslations: (locale, content) => {
-    customI18n.addTranslations(locale, content)
+    customI18n.addTranslations(locale, content);
   },
   addRouteTranslations: () => {}, // Not implemented
   subscribe: (callback) => customI18n.subscribe(callback),
-}
+};
 
 const bridge = createBridge({
   adapter,
-  locales: [{ code: 'en', displayName: 'English' }],
-  defaultLocale: 'en',
-})
+  locales: [{ code: "en", displayName: "English" }],
+  defaultLocale: "en",
+});
 ```
 
 ## Resources

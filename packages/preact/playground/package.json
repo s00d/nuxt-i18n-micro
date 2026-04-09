@@ -10,16 +10,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@i18n-micro/preact": "workspace:*",
     "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*",
     "@i18n-micro/devtools-ui": "workspace:*",
+    "@i18n-micro/preact": "workspace:*",
+    "@i18n-micro/types": "workspace:*",
     "preact": "catalog:",
     "wouter-preact": "catalog:"
   },
   "devDependencies": {
     "@preact/preset-vite": "catalog:",
-    "vite": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

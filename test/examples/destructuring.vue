@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -8,18 +8,18 @@
 // @ts-nocheck
 // Test with destructuring
 const config = {
-  locales: ['en', 'de', 'fr'],
+  locales: ["en", "de", "fr"],
   paths: {
-    en: '/welcome',
-    de: '/willkommen',
-    fr: '/bienvenue',
+    en: "/welcome",
+    de: "/willkommen",
+    fr: "/bienvenue",
   },
-}
+};
 
-const { locales, paths: localeRoutes } = config
+const { locales, paths: localeRoutes } = config;
 
 $defineI18nRoute({
   locales: locales,
   localeRoutes: localeRoutes,
-})
+});
 </script>

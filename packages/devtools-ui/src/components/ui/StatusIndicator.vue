@@ -1,73 +1,67 @@
 <template>
   <div class="status-indicator">
-    <div
-      class="status-indicator__dot"
-      :class="dotClass"
-    />
-    <span
-      class="status-indicator__text"
-      :class="textClass"
-    >
+    <div class="status-indicator__dot" :class="dotClass" />
+    <span class="status-indicator__text" :class="textClass">
       {{ label }}
     </span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
 interface Props {
-  status: 'active' | 'inactive' | 'enabled' | 'disabled' | 'success' | 'warning' | 'error' | 'info'
-  label: string
-  size?: 'sm' | 'md' | 'lg'
+  status: "active" | "inactive" | "enabled" | "disabled" | "success" | "warning" | "error" | "info";
+  label: string;
+  size?: "sm" | "md" | "lg";
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  size: 'md',
-})
+  size: "md",
+});
 
 const dotClass = computed(() => {
-  const baseClass = 'status-indicator__dot'
-  const sizeClass = `status-indicator__dot--${props.size}`
+  const baseClass = "status-indicator__dot";
+  const sizeClass = `status-indicator__dot--${props.size}`;
 
   switch (props.status) {
-    case 'active':
-    case 'enabled':
-    case 'success':
-      return `${baseClass} ${sizeClass} status-indicator__dot--success`
-    case 'inactive':
-    case 'disabled':
-      return `${baseClass} ${sizeClass} status-indicator__dot--disabled`
-    case 'warning':
-      return `${baseClass} ${sizeClass} status-indicator__dot--warning`
-    case 'error':
-      return `${baseClass} ${sizeClass} status-indicator__dot--error`
-    case 'info':
-      return `${baseClass} ${sizeClass} status-indicator__dot--info`
+    case "active":
+    case "enabled":
+    case "success":
+      return `${baseClass} ${sizeClass} status-indicator__dot--success`;
+    case "inactive":
+    case "disabled":
+      return `${baseClass} ${sizeClass} status-indicator__dot--disabled`;
+    case "warning":
+      return `${baseClass} ${sizeClass} status-indicator__dot--warning`;
+    case "error":
+      return `${baseClass} ${sizeClass} status-indicator__dot--error`;
+    case "info":
+      return `${baseClass} ${sizeClass} status-indicator__dot--info`;
     default:
-      return `${baseClass} ${sizeClass} status-indicator__dot--default`
+      return `${baseClass} ${sizeClass} status-indicator__dot--default`;
   }
-})
+});
 
 const textClass = computed(() => {
   switch (props.status) {
-    case 'active':
-    case 'enabled':
-    case 'success':
-      return 'text-green-700'
-    case 'inactive':
-    case 'disabled':
-      return 'text-red-700'
-    case 'warning':
-      return 'text-yellow-700'
-    case 'error':
-      return 'text-red-700'
-    case 'info':
-      return 'text-blue-700'
+    case "active":
+    case "enabled":
+    case "success":
+      return "text-green-700";
+    case "inactive":
+    case "disabled":
+      return "text-red-700";
+    case "warning":
+      return "text-yellow-700";
+    case "error":
+      return "text-red-700";
+    case "info":
+      return "text-blue-700";
     default:
-      return 'text-slate-700'
+      return "text-slate-700";
   }
-})
+});
 </script>
 
 <style scoped>

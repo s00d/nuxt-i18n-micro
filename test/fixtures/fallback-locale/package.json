@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "fallback-locale",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

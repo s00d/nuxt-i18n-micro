@@ -1,29 +1,29 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
-import node from '@astrojs/node'
-import react from '@astrojs/react'
-import svelte from '@astrojs/svelte'
-import vue from '@astrojs/vue'
-import { createAstroRouterAdapter, i18nIntegration } from '@i18n-micro/astro'
-import { i18nDevToolsPlugin } from '@i18n-micro/devtools-ui/vite'
-import { defineConfig } from 'astro/config'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
+import node from "@astrojs/node";
+import react from "@astrojs/react";
+import svelte from "@astrojs/svelte";
+import vue from "@astrojs/vue";
+import { createAstroRouterAdapter, i18nIntegration } from "@i18n-micro/astro";
+import { i18nDevToolsPlugin } from "@i18n-micro/devtools-ui/vite";
+import { defineConfig } from "astro/config";
 
 export default defineConfig({
-  output: 'server',
+  output: "server",
   adapter: node({
-    mode: 'standalone',
+    mode: "standalone",
   }),
   vite: {
     ssr: {
-      noExternal: ['@i18n-micro/astro'],
+      noExternal: ["@i18n-micro/astro"],
     },
     optimizeDeps: {
-      include: ['react', 'react-dom'],
+      include: ["react", "react-dom"],
     },
     plugins: [
       i18nDevToolsPlugin({
-        base: '/__i18n_api',
-        translationDir: 'src/locales',
+        base: "/__i18n_api",
+        translationDir: "src/locales",
         injectButton: true,
       }),
     ],
@@ -33,45 +33,45 @@ export default defineConfig({
     react(),
     svelte(),
     i18nIntegration({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       locales: [
-        { code: 'en', iso: 'en-US', displayName: 'English' },
-        { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
-        { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
+        { code: "en", iso: "en-US", displayName: "English" },
+        { code: "fr", iso: "fr-FR", displayName: "Français" },
+        { code: "de", iso: "de-DE", displayName: "Deutsch" },
       ],
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
       routingStrategy: createAstroRouterAdapter(
         [
-          { code: 'en', iso: 'en-US', displayName: 'English' },
-          { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
-          { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
+          { code: "en", iso: "en-US", displayName: "English" },
+          { code: "fr", iso: "fr-FR", displayName: "Français" },
+          { code: "de", iso: "de-DE", displayName: "Deutsch" },
         ],
-        'en',
+        "en",
       ),
     }),
     {
-      name: 'copy-locales',
+      name: "copy-locales",
       hooks: {
-        'astro:build:done': ({ dir }) => {
+        "astro:build:done": ({ dir }) => {
           // Copy locales to dist/server/locales
-          const srcLocales = resolve('./src/locales')
-          const distLocales = join(dir.pathname, 'server', 'locales')
+          const srcLocales = resolve("./src/locales");
+          const distLocales = join(dir.pathname, "server", "locales");
 
           if (existsSync(srcLocales)) {
-            mkdirSync(distLocales, { recursive: true })
-            const files = readdirSync(srcLocales)
+            mkdirSync(distLocales, { recursive: true });
+            const files = readdirSync(srcLocales);
             for (const file of files) {
-              const srcFile = join(srcLocales, file)
-              const distFile = join(distLocales, file)
+              const srcFile = join(srcLocales, file);
+              const distFile = join(distLocales, file);
               if (statSync(srcFile).isFile()) {
-                copyFileSync(srcFile, distFile)
+                copyFileSync(srcFile, distFile);
               }
             }
-            console.log(`✓ Copied locales to ${distLocales}`)
+            console.log(`✓ Copied locales to ${distLocales}`);
           }
         },
       },
     },
   ],
-})
+});

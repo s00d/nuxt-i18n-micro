@@ -1,6 +1,9 @@
 {
   "name": "@i18n-micro/vue",
-  "version": "1.3.2",
+  "version": "1.3.3",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -12,15 +15,31 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "build": "vite build",
+    "dev": "cd playground && vite",
+    "dev:ssr": "cd playground && node server.js",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
+    "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "jest": "catalog:",
+    "jest-environment-jsdom": "catalog:",
+    "ts-jest": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   },
   "peerDependencies": {
     "vue": "catalog:",
@@ -30,23 +49,5 @@
     "vue-router": {
       "optional": true
     }
-  },
-  "devDependencies": {
-    "vue": "catalog:",
-    "vue-router": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
-    "jest": "catalog:",
-    "ts-jest": "catalog:",
-    "@types/jest": "catalog:",
-    "@vue/test-utils": "catalog:",
-    "jest-environment-jsdom": "catalog:"
-  },
-  "scripts": {
-    "build": "vite build",
-    "dev": "cd playground && vite",
-    "dev:ssr": "cd playground && node server.js",
-    "test": "jest",
-    "typecheck": "tsc --noEmit"
   }
 }

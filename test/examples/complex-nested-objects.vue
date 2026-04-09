@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -8,25 +8,25 @@
 // Test with complex nested objects
 const config = {
   locales: {
-    'en-us': {
-      path: '/welcome',
+    "en-us": {
+      path: "/welcome",
       meta: {
-        title: 'Welcome',
-        description: 'Welcome to our site',
-        keywords: ['welcome', 'home', 'main'],
+        title: "Welcome",
+        description: "Welcome to our site",
+        keywords: ["welcome", "home", "main"],
       },
     },
-    'de-de': {
-      path: '/willkommen',
+    "de-de": {
+      path: "/willkommen",
       meta: {
-        title: 'Willkommen',
-        description: 'Willkommen auf unserer Website',
-        keywords: ['willkommen', 'startseite', 'hauptseite'],
+        title: "Willkommen",
+        description: "Willkommen auf unserer Website",
+        keywords: ["willkommen", "startseite", "hauptseite"],
       },
     },
   },
-}
+};
 
 // @ts-expect-error
-$defineI18nRoute(config)
+$defineI18nRoute(config);
 </script>

@@ -1,6 +1,6 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
-import type { Translations } from '@i18n-micro/types'
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
+import type { Translations } from "@i18n-micro/types";
 
 /**
  * WARNING: Node.js-only functions
@@ -20,14 +20,14 @@ import type { Translations } from '@i18n-micro/types'
  * Supports both flat structure (en.json, fr.json) and nested structure (pages/home/en.json)
  */
 export interface LoadTranslationsOptions {
-  translationDir: string
-  rootDir?: string
-  disablePageLocales?: boolean
+  translationDir: string;
+  rootDir?: string;
+  disablePageLocales?: boolean;
 }
 
 export interface LoadedTranslations {
-  root: Record<string, Translations>
-  routes: Record<string, Record<string, Translations>>
+  root: Record<string, Translations>;
+  routes: Record<string, Record<string, Translations>>;
 }
 
 /**
@@ -38,64 +38,64 @@ export interface LoadedTranslations {
  * Use import.meta.glob for Edge-compatible loading.
  */
 export function loadTranslationsFromDir(options: LoadTranslationsOptions): LoadedTranslations {
-  const { translationDir, rootDir = process.cwd(), disablePageLocales = false } = options
-  const fullTranslationDir = resolve(rootDir, translationDir)
+  const { translationDir, rootDir = process.cwd(), disablePageLocales = false } = options;
+  const fullTranslationDir = resolve(rootDir, translationDir);
 
   if (!existsSync(fullTranslationDir)) {
-    console.warn(`[i18n] Translation directory not found: ${fullTranslationDir}`)
-    return { root: {}, routes: {} }
+    console.warn(`[i18n] Translation directory not found: ${fullTranslationDir}`);
+    return { root: {}, routes: {} };
   }
 
-  const root: Record<string, Translations> = {}
-  const routes: Record<string, Record<string, Translations>> = {}
+  const root: Record<string, Translations> = {};
+  const routes: Record<string, Record<string, Translations>> = {};
 
   /**
    * Recursively load translation files
    */
-  const loadFiles = (dir: string, routePrefix = ''): void => {
-    if (!existsSync(dir)) return
+  const loadFiles = (dir: string, routePrefix = ""): void => {
+    if (!existsSync(dir)) return;
 
-    const entries = readdirSync(dir)
+    const entries = readdirSync(dir);
     for (const entry of entries) {
-      const fullPath = join(dir, entry)
-      const stat = statSync(fullPath)
+      const fullPath = join(dir, entry);
+      const stat = statSync(fullPath);
 
       if (stat.isDirectory()) {
         // If it's a 'pages' directory and page locales are enabled, treat as route-specific
-        if (entry === 'pages' && !disablePageLocales) {
-          loadFiles(fullPath, '')
+        if (entry === "pages" && !disablePageLocales) {
+          loadFiles(fullPath, "");
         } else if (routePrefix || disablePageLocales) {
-          loadFiles(fullPath, routePrefix)
+          loadFiles(fullPath, routePrefix);
         } else {
           // This is a route directory (e.g., pages/home/)
-          loadFiles(fullPath, entry)
+          loadFiles(fullPath, entry);
         }
-      } else if (entry.endsWith('.json')) {
-        const locale = entry.replace('.json', '')
+      } else if (entry.endsWith(".json")) {
+        const locale = entry.replace(".json", "");
         try {
-          const content = readFileSync(fullPath, 'utf-8')
-          const translations = JSON.parse(content) as Translations
+          const content = readFileSync(fullPath, "utf-8");
+          const translations = JSON.parse(content) as Translations;
 
           if (routePrefix && !disablePageLocales) {
             // Route-specific translation
             if (!routes[routePrefix]) {
-              routes[routePrefix] = {}
+              routes[routePrefix] = {};
             }
-            routes[routePrefix][locale] = translations
+            routes[routePrefix][locale] = translations;
           } else {
             // Root-level translation
-            root[locale] = translations
+            root[locale] = translations;
           }
         } catch (error) {
-          console.error(`[i18n] Failed to load translation file: ${fullPath}`, error)
+          console.error(`[i18n] Failed to load translation file: ${fullPath}`, error);
         }
       }
     }
-  }
+  };
 
-  loadFiles(fullTranslationDir)
+  loadFiles(fullTranslationDir);
 
-  return { root, routes }
+  return { root, routes };
 }
 
 /**
@@ -106,23 +106,28 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
  */
 export function loadTranslationsIntoI18n(
   i18n: {
-    addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
-    addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
+    addTranslations: (locale: string, translations: Translations, merge?: boolean) => void;
+    addRouteTranslations: (
+      locale: string,
+      routeName: string,
+      translations: Translations,
+      merge?: boolean,
+    ) => void;
   },
   options: LoadTranslationsOptions,
 ): void {
-  const { root, routes } = loadTranslationsFromDir(options)
+  const { root, routes } = loadTranslationsFromDir(options);
 
   // Load root-level translations as index
   for (const [locale, translations] of Object.entries(root)) {
-    i18n.addTranslations(locale, translations, false)
+    i18n.addTranslations(locale, translations, false);
   }
 
   // Load route-specific translations (with root baked in)
   for (const [routeName, routeTranslations] of Object.entries(routes)) {
     for (const [locale, translations] of Object.entries(routeTranslations)) {
-      const base = root[locale] || {}
-      i18n.addRouteTranslations(locale, routeName, { ...base, ...translations }, false)
+      const base = root[locale] || {};
+      i18n.addRouteTranslations(locale, routeName, { ...base, ...translations }, false);
     }
   }
 }

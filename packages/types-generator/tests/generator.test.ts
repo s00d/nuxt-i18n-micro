@@ -1,179 +1,179 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { afterEach, beforeEach, describe, expect, test } from '@jest/globals'
-import { generateTypes } from '../src/core/generator'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, beforeEach, describe, expect, test } from "@jest/globals";
+import { generateTypes } from "../src/core/generator";
 
-describe('generateTypes', () => {
-  let testDir: string
-  let localesDir: string
+describe("generateTypes", () => {
+  let testDir: string;
+  let localesDir: string;
 
   beforeEach(() => {
-    testDir = join(tmpdir(), `i18n-types-test-${Date.now()}`)
-    localesDir = join(testDir, 'locales')
-    mkdirSync(localesDir, { recursive: true })
-  })
+    testDir = join(tmpdir(), `i18n-types-test-${Date.now()}`);
+    localesDir = join(testDir, "locales");
+    mkdirSync(localesDir, { recursive: true });
+  });
 
   afterEach(() => {
     if (existsSync(testDir)) {
-      rmSync(testDir, { recursive: true, force: true })
+      rmSync(testDir, { recursive: true, force: true });
     }
-  })
+  });
 
-  test('should generate types from simple JSON file', async () => {
-    const enFile = join(localesDir, 'en.json')
+  test("should generate types from simple JSON file", async () => {
+    const enFile = join(localesDir, "en.json");
     writeFileSync(
       enFile,
       JSON.stringify({
-        greeting: 'Hello',
-        welcome: 'Welcome',
+        greeting: "Hello",
+        welcome: "Welcome",
       }),
-    )
+    );
 
-    const outputFile = join(testDir, 'i18n-types.d.ts')
+    const outputFile = join(testDir, "i18n-types.d.ts");
     await generateTypes({
       srcDir: testDir,
-      translationDir: 'locales',
+      translationDir: "locales",
       outputFile,
-    })
+    });
 
-    expect(existsSync(outputFile)).toBe(true)
-    const content = readFileSync(outputFile, 'utf-8')
-    expect(content).toContain("'greeting': string;")
-    expect(content).toContain("'welcome': string;")
-    expect(content).toContain("declare module '@i18n-micro/types'")
-    expect(content).toContain('export interface DefineLocaleMessage')
-  })
+    expect(existsSync(outputFile)).toBe(true);
+    const content = readFileSync(outputFile, "utf-8");
+    expect(content).toContain("'greeting': string;");
+    expect(content).toContain("'welcome': string;");
+    expect(content).toContain("declare module '@i18n-micro/types'");
+    expect(content).toContain("export interface DefineLocaleMessage");
+  });
 
-  test('should generate types from nested JSON file', async () => {
-    const enFile = join(localesDir, 'en.json')
+  test("should generate types from nested JSON file", async () => {
+    const enFile = join(localesDir, "en.json");
     writeFileSync(
       enFile,
       JSON.stringify({
         header: {
-          title: 'Title',
-          subtitle: 'Subtitle',
+          title: "Title",
+          subtitle: "Subtitle",
         },
         footer: {
-          copyright: 'Copyright',
+          copyright: "Copyright",
         },
       }),
-    )
+    );
 
-    const outputFile = join(testDir, 'i18n-types.d.ts')
+    const outputFile = join(testDir, "i18n-types.d.ts");
     await generateTypes({
       srcDir: testDir,
-      translationDir: 'locales',
+      translationDir: "locales",
       outputFile,
-    })
+    });
 
-    const content = readFileSync(outputFile, 'utf-8')
-    expect(content).toContain("'header.title': string;")
-    expect(content).toContain("'header.subtitle': string;")
-    expect(content).toContain("'footer.copyright': string;")
-  })
+    const content = readFileSync(outputFile, "utf-8");
+    expect(content).toContain("'header.title': string;");
+    expect(content).toContain("'header.subtitle': string;");
+    expect(content).toContain("'footer.copyright': string;");
+  });
 
-  test('should merge keys from multiple locale files', async () => {
+  test("should merge keys from multiple locale files", async () => {
     writeFileSync(
-      join(localesDir, 'en.json'),
+      join(localesDir, "en.json"),
       JSON.stringify({
-        greeting: 'Hello',
-        welcome: 'Welcome',
+        greeting: "Hello",
+        welcome: "Welcome",
       }),
-    )
+    );
     writeFileSync(
-      join(localesDir, 'fr.json'),
+      join(localesDir, "fr.json"),
       JSON.stringify({
-        greeting: 'Bonjour',
-        goodbye: 'Au revoir',
+        greeting: "Bonjour",
+        goodbye: "Au revoir",
       }),
-    )
+    );
 
-    const outputFile = join(testDir, 'i18n-types.d.ts')
+    const outputFile = join(testDir, "i18n-types.d.ts");
     await generateTypes({
       srcDir: testDir,
-      translationDir: 'locales',
+      translationDir: "locales",
       outputFile,
-    })
+    });
 
-    const content = readFileSync(outputFile, 'utf-8')
-    expect(content).toContain("'greeting': string;")
-    expect(content).toContain("'welcome': string;")
-    expect(content).toContain("'goodbye': string;")
-  })
+    const content = readFileSync(outputFile, "utf-8");
+    expect(content).toContain("'greeting': string;");
+    expect(content).toContain("'welcome': string;");
+    expect(content).toContain("'goodbye': string;");
+  });
 
-  test('should handle pages directory', async () => {
-    const pagesDir = join(localesDir, 'pages')
-    const homeDir = join(pagesDir, 'home')
-    mkdirSync(homeDir, { recursive: true })
+  test("should handle pages directory", async () => {
+    const pagesDir = join(localesDir, "pages");
+    const homeDir = join(pagesDir, "home");
+    mkdirSync(homeDir, { recursive: true });
 
     writeFileSync(
-      join(localesDir, 'en.json'),
+      join(localesDir, "en.json"),
       JSON.stringify({
-        global: 'Global',
+        global: "Global",
       }),
-    )
+    );
     writeFileSync(
-      join(homeDir, 'en.json'),
+      join(homeDir, "en.json"),
       JSON.stringify({
-        title: 'Home',
-        description: 'Home page',
+        title: "Home",
+        description: "Home page",
       }),
-    )
+    );
 
-    const outputFile = join(testDir, 'i18n-types.d.ts')
+    const outputFile = join(testDir, "i18n-types.d.ts");
     await generateTypes({
       srcDir: testDir,
-      translationDir: 'locales',
+      translationDir: "locales",
       outputFile,
-    })
+    });
 
-    const content = readFileSync(outputFile, 'utf-8')
-    expect(content).toContain("'global': string;")
-    expect(content).toContain("'title': string;")
-    expect(content).toContain("'description': string;")
-  })
+    const content = readFileSync(outputFile, "utf-8");
+    expect(content).toContain("'global': string;");
+    expect(content).toContain("'title': string;");
+    expect(content).toContain("'description': string;");
+  });
 
-  test('should handle invalid JSON gracefully', async () => {
-    const enFile = join(localesDir, 'en.json')
-    writeFileSync(enFile, 'invalid json')
+  test("should handle invalid JSON gracefully", async () => {
+    const enFile = join(localesDir, "en.json");
+    writeFileSync(enFile, "invalid json");
 
-    const outputFile = join(testDir, 'i18n-types.d.ts')
+    const outputFile = join(testDir, "i18n-types.d.ts");
 
     // Suppress expected warning for invalid JSON
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
 
     // Should not throw
     await generateTypes({
       srcDir: testDir,
-      translationDir: 'locales',
+      translationDir: "locales",
       outputFile,
-    })
+    });
 
     // File should still be created (with empty interface)
-    expect(existsSync(outputFile)).toBe(true)
+    expect(existsSync(outputFile)).toBe(true);
 
     // Restore console.warn
-    warnSpy.mockRestore()
-  })
+    warnSpy.mockRestore();
+  });
 
-  test('should create output directory if it does not exist', async () => {
-    const outputDir = join(testDir, 'generated', 'types')
-    const outputFile = join(outputDir, 'i18n-types.d.ts')
+  test("should create output directory if it does not exist", async () => {
+    const outputDir = join(testDir, "generated", "types");
+    const outputFile = join(outputDir, "i18n-types.d.ts");
 
     writeFileSync(
-      join(localesDir, 'en.json'),
+      join(localesDir, "en.json"),
       JSON.stringify({
-        greeting: 'Hello',
+        greeting: "Hello",
       }),
-    )
+    );
 
     await generateTypes({
       srcDir: testDir,
-      translationDir: 'locales',
+      translationDir: "locales",
       outputFile,
-    })
+    });
 
-    expect(existsSync(outputFile)).toBe(true)
-  })
-})
+    expect(existsSync(outputFile)).toBe(true);
+  });
+});

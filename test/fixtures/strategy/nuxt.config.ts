@@ -1,5 +1,4 @@
-import type { Strategies } from '../../../src/module'
-import MyModule from '../../../src/module'
+import MyModule, { type Strategies } from "../../../src/module";
 
 export default defineNuxtConfig({
   modules: [MyModule],
@@ -8,7 +7,7 @@ export default defineNuxtConfig({
     // typedPages: true,
     appManifest: false,
   },
-  compatibilityDate: '2024-08-16',
+  compatibilityDate: "2024-08-16",
 
   // Краулер при prefix находит ссылки типа /ru/kontakt (с /de), которых нет — 404.
   // Не падать generate на ошибках prerender (тест проверяет только успешную сборку и маршруты).
@@ -20,14 +19,14 @@ export default defineNuxtConfig({
 
   i18n: {
     locales: [
-      { code: 'en', iso: 'en_EN', displayName: 'English' },
-      { code: 'de', iso: 'de_DE', displayName: 'German' },
-      { code: 'ru', iso: 'ru_RU', displayName: 'Russian' },
+      { code: "en", iso: "en_EN", displayName: "English" },
+      { code: "de", iso: "de_DE", displayName: "German" },
+      { code: "ru", iso: "ru_RU", displayName: "Russian" },
     ],
     meta: true,
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     autoDetectLanguage: false,
-    strategy: (process.env.STRATEGY ?? 'no_prefix') as Strategies,
+    strategy: (process.env.STRATEGY ?? "no_prefix") as Strategies,
   },
-})
+});

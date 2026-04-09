@@ -1,6 +1,9 @@
 {
   "name": "@i18n-micro/solid",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -12,23 +15,14 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
   "publishConfig": {
     "access": "public"
   },
-  "peerDependencies": {
-    "solid-js": "catalog:",
-    "@solidjs/router": "catalog:"
-  },
-  "peerDependenciesMeta": {
-    "solid-js": {
-      "optional": false
-    },
-    "@solidjs/router": {
-      "optional": true
-    }
+  "scripts": {
+    "build": "vite build",
+    "dev": "cd playground && vite",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
@@ -44,10 +38,16 @@
     "vite-plugin-dts": "catalog:",
     "vite-plugin-solid": "catalog:"
   },
-  "scripts": {
-    "build": "vite build",
-    "dev": "cd playground && vite",
-    "test": "jest",
-    "typecheck": "tsc --noEmit"
+  "peerDependencies": {
+    "@solidjs/router": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "solid-js": {
+      "optional": false
+    },
+    "@solidjs/router": {
+      "optional": true
+    }
   }
 }

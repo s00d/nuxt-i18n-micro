@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'  # ограничиваем только изменениями в папке docs
+      - "docs/**" # ограничиваем только изменениями в папке docs
   # trigger deployment when a new release is published
   release:
     types: [published]
@@ -35,7 +35,7 @@ jobs:
           # choose node.js version to use
           node-version: 20
           # cache deps for pnpm
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install Vite globally
         run: npm install -g vite

@@ -153,7 +153,7 @@ You can access the playground app at `http://localhost:3000`.
 
 - **`pnpm run dev`**: Start the development server using the playground.
 - **`pnpm run prepack`**: Build the module and prepare it for publishing.
-- **`pnpm --filter "./packages/**" run build`**: Build the packages.
+- **`pnpm --filter "./packages/**" run build`\*\*: Build the packages.
 - **`pnpm run lint`**: Run the linter to check for code quality issues.
 - **`pnpm run lint:fix`**: Automatically fix linter issues.
 - **`pnpm run test`**: Run the test suite.

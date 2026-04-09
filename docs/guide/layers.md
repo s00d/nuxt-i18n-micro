@@ -17,22 +17,22 @@ flowchart TB
         P2["defaultLocale: en"]
         P3["meta: true"]
     end
-    
+
     subgraph Admin["👔 Admin Layer"]
         A1["extends: ../nuxt.config"]
         A2["+ locale: es"]
         A3["meta: false"]
     end
-    
+
     subgraph Support["🎧 Support Layer"]
         S1["extends: ../nuxt.config"]
         S2["+ locale: de"]
         S3["defaultLocale: de"]
     end
-    
+
     Primary --> Admin
     Primary --> Support
-    
+
     Admin --> AR["Result: en, fr, es<br/>default: en<br/>meta: false"]
     Support --> SR["Result: en, fr, de<br/>default: de<br/>meta: true"]
 ```
@@ -49,16 +49,16 @@ Here’s an example of how you might define the primary configuration layer in y
 export default defineNuxtConfig({
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-EN', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'ar', iso: 'ar-SA', dir: 'rtl' },
+      { code: "en", iso: "en-EN", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
+      { code: "ar", iso: "ar-SA", dir: "rtl" },
     ],
-    defaultLocale: 'en', // The default locale for the entire app
-    translationDir: 'locales', // Directory where translations are stored
+    defaultLocale: "en", // The default locale for the entire app
+    translationDir: "locales", // Directory where translations are stored
     meta: true, // Automatically generate SEO-related meta tags like `alternate`
     autoDetectLanguage: true, // Automatically detect and use the user's preferred language
   },
-})
+});
 ```
 
 ## 🌱 Child Layers
@@ -74,30 +74,30 @@ Suppose you have a section of your site that needs to support additional locales
 export default defineNuxtConfig({
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-EN', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: "en", iso: "en-EN", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
     ],
-    defaultLocale: 'en',
+    defaultLocale: "en",
     meta: true,
-    translationDir: 'locales',
+    translationDir: "locales",
   },
-})
+});
 ```
 
 ```typescript
 // extended/nuxt.config.ts (Child Layer)
 export default defineNuxtConfig({
-  extends: '../basic', // Inherit the base configuration from the 'basic' layer
+  extends: "../basic", // Inherit the base configuration from the 'basic' layer
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-EN', dir: 'ltr' }, // Inherited from the base layer
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' }, // Inherited from the base layer
-      { code: 'de', iso: 'de-DE', dir: 'ltr' }, // Added in the child layer
+      { code: "en", iso: "en-EN", dir: "ltr" }, // Inherited from the base layer
+      { code: "fr", iso: "fr-FR", dir: "ltr" }, // Inherited from the base layer
+      { code: "de", iso: "de-DE", dir: "ltr" }, // Added in the child layer
     ],
-    defaultLocale: 'fr', // Override the default locale to French for this section
+    defaultLocale: "fr", // Override the default locale to French for this section
     autoDetectLanguage: false, // Disable automatic language detection in this section
   },
-})
+});
 ```
 
 ### 🌐 Using Layers in a Modular Application
@@ -115,15 +115,15 @@ Imagine you have an e-commerce site with distinct sections like the main website
 export default defineNuxtConfig({
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-EN', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: "en", iso: "en-EN", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
     ],
-    defaultLocale: 'en',
+    defaultLocale: "en",
     meta: true,
-    translationDir: 'locales',
+    translationDir: "locales",
     autoDetectLanguage: true,
   },
-})
+});
 ```
 
 #### **Child Layer for Admin Panel:**
@@ -131,17 +131,17 @@ export default defineNuxtConfig({
 ```typescript
 // admin/nuxt.config.ts
 export default defineNuxtConfig({
-  extends: '../nuxt.config', // Inherit the global settings
+  extends: "../nuxt.config", // Inherit the global settings
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-EN', dir: 'ltr' }, // Inherited
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' }, // Inherited
-      { code: 'es', iso: 'es-ES', dir: 'ltr' }, // Specific to the admin panel
+      { code: "en", iso: "en-EN", dir: "ltr" }, // Inherited
+      { code: "fr", iso: "fr-FR", dir: "ltr" }, // Inherited
+      { code: "es", iso: "es-ES", dir: "ltr" }, // Specific to the admin panel
     ],
-    defaultLocale: 'en',
+    defaultLocale: "en",
     meta: false, // Disable automatic meta generation in the admin panel
   },
-})
+});
 ```
 
 #### **Child Layer for Customer Support Portal:**
@@ -149,20 +149,21 @@ export default defineNuxtConfig({
 ```typescript
 // support/nuxt.config.ts
 export default defineNuxtConfig({
-  extends: '../nuxt.config', // Inherit the global settings
+  extends: "../nuxt.config", // Inherit the global settings
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-EN', dir: 'ltr' }, // Inherited
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' }, // Inherited
-      { code: 'de', iso: 'de-DE', dir: 'ltr' }, // Specific to the support portal
+      { code: "en", iso: "en-EN", dir: "ltr" }, // Inherited
+      { code: "fr", iso: "fr-FR", dir: "ltr" }, // Inherited
+      { code: "de", iso: "de-DE", dir: "ltr" }, // Specific to the support portal
     ],
-    defaultLocale: 'de', // Default to German in the support portal
+    defaultLocale: "de", // Default to German in the support portal
     autoDetectLanguage: false, // Disable automatic language detection
   },
-})
+});
 ```
 
 In this modular example:
+
 - Each section (admin, support) has its own i18n settings, but they all inherit the base configuration.
 - The admin panel adds Spanish (`es`) as a locale and disables meta tag generation.
 - The support portal adds German (`de`) as a locale and defaults to German for the user interface.

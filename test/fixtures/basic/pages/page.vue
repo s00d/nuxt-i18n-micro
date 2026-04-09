@@ -2,78 +2,69 @@
   <div>
     <test />
     <p id="content">
-      {{ $t('page.content') }}
+      {{ $t("page.content") }}
     </p>
-    <p id="locale">
-      Current Locale: {{ $getLocale() }}
-    </p>
+    <p id="locale">Current Locale: {{ $getLocale() }}</p>
     <p id="locale-name">
       {{ $getLocaleName() }}
     </p>
 
     <!-- Display additional info for testing -->
     <p id="locales">
-      {{ $getLocales().map(locale => locale.code).join(', ') }}
+      {{
+        $getLocales()
+          .map((locale) => locale.code)
+          .join(", ")
+      }}
     </p>
     <p id="translation">
-      {{ $t('page.example') }}
+      {{ $t("page.example") }}
     </p>
     <p id="translation-global">
-      {{ $t('generic.example') }}
+      {{ $t("generic.example") }}
     </p>
     <p id="plural">
-      {{ $tc('page.apples', 2) }}
+      {{ $tc("page.apples", 2) }}
     </p>
     <p id="plural-component">
-      <i18n-t
-        keypath="page.apples"
-        :plural="5"
-      />
+      <i18n-t keypath="page.apples" :plural="5" />
     </p>
     <p id="plural-component-custom">
-      <i18n-t
-        keypath="page.apples"
-        :plural="5"
-        :custom-plural-rule="customPluralRule"
-      />
+      <i18n-t keypath="page.apples" :plural="5" :custom-plural-rule="customPluralRule" />
     </p>
     <p id="plural-component-custom-zero">
-      <i18n-t
-        keypath="page.apples"
-        :plural="0"
-        :custom-plural-rule="customPluralRule"
-      />
+      <i18n-t keypath="page.apples" :plural="0" :custom-plural-rule="customPluralRule" />
     </p>
     <p id="localized-route">
-      {{ $localeRoute({ name: 'page' }, 'de').path }}
+      {{ $localeRoute({ name: "page" }, "de").path }}
     </p>
 
     <p id="localized-route-2">
-      {{ $localeRoute('/news/aaa?info=1111').fullPath }}
+      {{ $localeRoute("/news/aaa?info=1111").fullPath }}
     </p>
 
     <p id="localized-path">
-      {{ $localePath('/news/aaa?info=1111') }}
+      {{ $localePath("/news/aaa?info=1111") }}
     </p>
 
     <!-- Test $has method -->
     <p id="has-existing-key">
-      {{ $has('page.example') ? 'true' : 'false' }}
+      {{ $has("page.example") ? "true" : "false" }}
     </p>
     <p id="has-missing-key">
-      {{ $has('page.nonexistent') ? 'true' : 'false' }}
+      {{ $has("page.nonexistent") ? "true" : "false" }}
     </p>
     <p id="has-global-key">
-      {{ $has('generic.example') ? 'true' : 'false' }}
+      {{ $has("generic.example") ? "true" : "false" }}
     </p>
     <p id="has-with-routename">
-      {{ $has('page.example', 'page') ? 'true' : 'false' }}
+      {{ $has("page.example", "page") ? "true" : "false" }}
     </p>
     <p id="has-with-route-object">
-      {{ $has('page.example', $route) ? 'true' : 'false' }}
+      {{ $has("page.example", $route) ? "true" : "false" }}
     </p>
     <p id="has-different-route">
-      {{ $has('page2.content', 'page2') ? 'true' : 'false' }}
+      {{ $has("page2.content", "page2") ? "true" : "false" }}
     </p>
 
     <!-- Test computed reactivity with $ts (issue: computed should update on locale change) -->
@@ -90,69 +81,57 @@
 
     <!-- Links for switching locales -->
     <div id="locale-links">
-      <NuxtLink
-        id="link-en"
-        :to="$localeRoute({ name: 'page' }, 'en')"
-      >
+      <NuxtLink id="link-en" :to="$localeRoute({ name: 'page' }, 'en')">
         Switch to English
       </NuxtLink>
-      <NuxtLink
-        id="link-de"
-        :to="$localeRoute({ name: 'page' }, 'de')"
-      >
+      <NuxtLink id="link-de" :to="$localeRoute({ name: 'page' }, 'de')">
         Switch to German
       </NuxtLink>
     </div>
 
     <div>
-      <i18n-link
-        id="external-link"
-        to="https://www.external-link.fr"
-      >
-        External Link
-      </i18n-link>
+      <i18n-link id="external-link" to="https://www.external-link.fr"> External Link </i18n-link>
     </div>
 
     <div>
-      <i18n-link
-        id="page-link"
-        :to="{ name: 'index' }"
-      >
-        Go to Page
-      </i18n-link>
+      <i18n-link id="page-link" :to="{ name: 'index' }"> Go to Page </i18n-link>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useNuxtApp, useRoute } from '#imports'
+import { computed } from "vue";
+import { useNuxtApp, useRoute } from "#imports";
 
-const { $t, $ts, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath, $has } = useNuxtApp()
+const { $t, $ts, $getLocale, $getLocaleName, $getLocales, $tc, $localeRoute, $localePath, $has } =
+  useNuxtApp();
 
 // Test: computed with $ts should be reactive on locale change
 const computedLabel = computed(() => {
-  return $ts('page.example')
-})
+  return $ts("page.example");
+});
 
 // Test: computed with $t should also be reactive
 const computedTranslation = computed(() => {
-  return String($t('generic.example'))
-})
-const $route = useRoute()
+  return String($t("generic.example"));
+});
+const $route = useRoute();
 
 const customPluralRule = (key, count, _params, _locale, t) => {
-  const translation = t(key)
+  const translation = t(key);
   if (!translation) {
-    return null
+    return null;
   }
-  const forms = translation.toString().split('|')
+  const forms = translation.toString().split("|");
   if (count === 0 && forms.length > 2) {
-    return forms[0].trim() // Case for "no apples"
+    return forms[0].trim(); // Case for "no apples"
   }
   if (count === 1 && forms.length > 1) {
-    return forms[1].trim() // Case for "one apple"
+    return forms[1].trim(); // Case for "one apple"
   }
-  return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace('{count}', count.toString())
-}
+  return (forms.length > 2 ? forms[2].trim() : forms[forms.length - 1].trim()).replace(
+    "{count}",
+    count.toString(),
+  );
+};
 </script>

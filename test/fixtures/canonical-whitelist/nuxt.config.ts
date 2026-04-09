@@ -1,4 +1,4 @@
-import MyModule from '../../../src/module'
+import MyModule from "../../../src/module";
 
 export default defineNuxtConfig({
   modules: [MyModule],
@@ -6,16 +6,16 @@ export default defineNuxtConfig({
   experimental: {
     appManifest: false,
   },
-  compatibilityDate: '2024-08-16',
+  compatibilityDate: "2024-08-16",
   i18n: {
     locales: [
-      { code: 'en', iso: 'en_EN' },
-      { code: 'de', iso: 'de_DE' },
+      { code: "en", iso: "en_EN" },
+      { code: "de", iso: "de_DE" },
     ],
     meta: true,
-    defaultLocale: 'en',
-    strategy: 'prefix',
+    defaultLocale: "en",
+    strategy: "prefix",
     autoDetectLanguage: false,
-    translationDir: 'locales',
+    translationDir: "locales",
   },
-})
+});

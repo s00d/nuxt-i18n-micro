@@ -1,5 +1,3 @@
-import { extractLocalizedPaths, type LocalizedPathsMap } from './core/localized-paths'
-import { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 import {
   buildFullPath,
   buildFullPathNoPrefix,
@@ -8,11 +6,13 @@ import {
   isInternalPath,
   isLocaleDefault,
   isPageRedirectOnly,
-  normalizePath,
+  normalizeRoutePath as normalizePath,
   normalizeRouteKey,
   removeLeadingSlash,
   shouldAddLocalePrefix,
-} from './utils'
+} from "@i18n-micro/utils";
+import { extractLocalizedPaths, type LocalizedPathsMap } from "./core/localized-paths";
+import { RouteGenerator, type RouteGeneratorOptions } from "./route-generator";
 
 export {
   RouteGenerator,
@@ -30,4 +30,4 @@ export {
   isLocaleDefault,
   buildFullPath,
   buildFullPathNoPrefix,
-}
+};

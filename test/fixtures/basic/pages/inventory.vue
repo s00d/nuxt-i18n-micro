@@ -1,18 +1,12 @@
 <template>
   <div>
-    <p id="vehicle-type">{{ $ts('vehicleType') }}</p>
+    <p id="vehicle-type">{{ $ts("vehicleType") }}</p>
 
     <div id="locale-links">
-      <NuxtLink
-        id="link-en"
-        :to="$localeRoute({ name: 'inventory' }, 'en')"
-      >
+      <NuxtLink id="link-en" :to="$localeRoute({ name: 'inventory' }, 'en')">
         Switch to English
       </NuxtLink>
-      <NuxtLink
-        id="link-fr"
-        :to="$localeRoute({ name: 'inventory' }, 'fr')"
-      >
+      <NuxtLink id="link-fr" :to="$localeRoute({ name: 'inventory' }, 'fr')">
         Switch to French
       </NuxtLink>
     </div>
@@ -20,9 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $defineI18nRoute, $ts, $localeRoute } = useNuxtApp()
+const { $defineI18nRoute, $ts, $localeRoute } = useNuxtApp();
 
 // Component-local keys.
 // There are intentionally no base translation keys for `vehicleType`
@@ -30,12 +24,11 @@ const { $defineI18nRoute, $ts, $localeRoute } = useNuxtApp()
 // UI falls back to rendering the key itself.
 $defineI18nRoute({
   locales: {
-    en: { vehicleType: 'Vehicle type' },
-    fr: { vehicleType: 'Type de véhicule' },
+    en: { vehicleType: "Vehicle type" },
+    fr: { vehicleType: "Type de véhicule" },
     de: {},
     ru: {},
     ch: {},
   },
-})
+});
 </script>
-

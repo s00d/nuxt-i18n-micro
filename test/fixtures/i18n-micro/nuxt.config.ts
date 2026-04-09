@@ -1,7 +1,7 @@
-import { defineNuxtConfig } from 'nuxt/config'
+import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
+  modules: ["nuxt-i18n-micro"],
   devtools: {
     enabled: false,
   },
@@ -9,17 +9,17 @@ export default defineNuxtConfig({
     externalVue: false,
     appManifest: false,
   },
-  compatibilityDate: '2024-08-14',
+  compatibilityDate: "2024-08-14",
   i18n: {
     locales: [
-      { code: 'en', iso: 'en_EN' },
-      { code: 'de', iso: 'de_DE' },
-      { code: 'ru', iso: 'ru_RU' },
+      { code: "en", iso: "en_EN" },
+      { code: "de", iso: "de_DE" },
+      { code: "ru", iso: "ru_RU" },
     ],
     meta: true,
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     autoDetectLanguage: false,
     define: false,
   },
-})
+});

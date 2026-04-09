@@ -1,247 +1,247 @@
-import { describe, expect, test } from '@jest/globals'
-import { createI18n, SolidI18n } from '../src/i18n'
+import { describe, expect, test } from "@jest/globals";
+import { createI18n, SolidI18n } from "../src/i18n";
 
-describe('SolidI18n', () => {
-  test('should create i18n instance', () => {
+describe("SolidI18n", () => {
+  test("should create i18n instance", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       messages: {
         en: {
-          greeting: 'Hello',
+          greeting: "Hello",
         },
       },
-    })
+    });
 
-    expect(i18n.getLocale()).toBe('en')
-    expect(i18n.t('greeting')).toBe('Hello')
-  })
+    expect(i18n.getLocale()).toBe("en");
+    expect(i18n.t("greeting")).toBe("Hello");
+  });
 
-  test('should translate with interpolation', () => {
+  test("should translate with interpolation", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          greeting: 'Hello, {name}!',
+          greeting: "Hello, {name}!",
         },
       },
-    })
+    });
 
-    expect(i18n.t('greeting', { name: 'John' })).toBe('Hello, John!')
-  })
+    expect(i18n.t("greeting", { name: "John" })).toBe("Hello, John!");
+  });
 
-  test('should handle pluralization', () => {
+  test("should handle pluralization", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          apples: 'no apples | one apple | {count} apples',
+          apples: "no apples | one apple | {count} apples",
         },
       },
-    })
+    });
 
-    expect(i18n.tc('apples', 0)).toBe('no apples')
-    expect(i18n.tc('apples', 1)).toBe('one apple')
-    expect(i18n.tc('apples', 5)).toBe('5 apples')
-  })
+    expect(i18n.tc("apples", 0)).toBe("no apples");
+    expect(i18n.tc("apples", 1)).toBe("one apple");
+    expect(i18n.tc("apples", 5)).toBe("5 apples");
+  });
 
-  test('should format numbers', () => {
+  test("should format numbers", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
-    })
+      locale: "en",
+    });
 
-    expect(i18n.tn(1234.56)).toMatch(/1[,.]234[.,]56/)
-  })
+    expect(i18n.tn(1234.56)).toMatch(/1[,.]234[.,]56/);
+  });
 
-  test('should format dates', () => {
+  test("should format dates", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
-    })
+      locale: "en",
+    });
 
-    const date = new Date('2023-01-15')
-    const formatted = i18n.td(date)
-    expect(formatted).toBeTruthy()
-  })
+    const date = new Date("2023-01-15");
+    const formatted = i18n.td(date);
+    expect(formatted).toBeTruthy();
+  });
 
-  test('should format relative time', () => {
+  test("should format relative time", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
-    })
+      locale: "en",
+    });
 
-    const oneHourAgo = new Date(Date.now() - 3600000)
-    const formatted = i18n.tdr(oneHourAgo)
-    expect(formatted).toMatch(/hour/)
-  })
+    const oneHourAgo = new Date(Date.now() - 3600000);
+    const formatted = i18n.tdr(oneHourAgo);
+    expect(formatted).toMatch(/hour/);
+  });
 
-  test('should handle route-specific translations', () => {
+  test("should handle route-specific translations", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          title: 'Global Title',
+          title: "Global Title",
         },
       },
-    })
+    });
 
     i18n.addRouteTranslations(
-      'en',
-      'home',
+      "en",
+      "home",
       {
-        title: 'Home Title',
+        title: "Home Title",
       },
       false,
-    )
+    );
 
-    i18n.setRoute('home')
-    expect(i18n.t('title')).toBe('Home Title')
+    i18n.setRoute("home");
+    expect(i18n.t("title")).toBe("Home Title");
 
-    i18n.setRoute('index')
-    expect(i18n.t('title')).toBe('Global Title')
-  })
+    i18n.setRoute("index");
+    expect(i18n.t("title")).toBe("Global Title");
+  });
 
-  test('should fallback to fallbackLocale', () => {
+  test("should fallback to fallbackLocale", () => {
     const i18n = new SolidI18n({
-      locale: 'fr',
-      fallbackLocale: 'en',
+      locale: "fr",
+      fallbackLocale: "en",
       messages: {
         en: {
-          greeting: 'Hello',
+          greeting: "Hello",
         },
       },
-    })
+    });
 
-    expect(i18n.t('greeting')).toBe('Hello')
-  })
+    expect(i18n.t("greeting")).toBe("Hello");
+  });
 
-  test('should notify subscribers on locale change', () => {
+  test("should notify subscribers on locale change", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
-    })
+      locale: "en",
+    });
 
-    let notified = false
+    let notified = false;
     const unsubscribe = i18n.subscribe(() => {
-      notified = true
-    })
+      notified = true;
+    });
 
-    i18n.locale = 'fr'
-    expect(notified).toBe(true)
+    i18n.locale = "fr";
+    expect(notified).toBe(true);
 
-    unsubscribe()
-  })
+    unsubscribe();
+  });
 
-  test('should notify subscribers on route change', () => {
+  test("should notify subscribers on route change", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
-    })
+      locale: "en",
+    });
 
-    let notified = false
+    let notified = false;
     const unsubscribe = i18n.subscribe(() => {
-      notified = true
-    })
+      notified = true;
+    });
 
-    i18n.setRoute('home')
-    expect(notified).toBe(true)
+    i18n.setRoute("home");
+    expect(notified).toBe(true);
 
-    unsubscribe()
-  })
+    unsubscribe();
+  });
 
-  test('should notify subscribers on translation addition', () => {
+  test("should notify subscribers on translation addition", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
-    })
+      locale: "en",
+    });
 
-    let notified = false
+    let notified = false;
     const unsubscribe = i18n.subscribe(() => {
-      notified = true
-    })
+      notified = true;
+    });
 
-    i18n.addTranslations('en', { newKey: 'New Value' }, false)
-    expect(notified).toBe(true)
+    i18n.addTranslations("en", { newKey: "New Value" }, false);
+    expect(notified).toBe(true);
 
-    unsubscribe()
-  })
+    unsubscribe();
+  });
 
-  test('should check translation existence', () => {
+  test("should check translation existence", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          greeting: 'Hello',
+          greeting: "Hello",
         },
       },
-    })
+    });
 
-    expect(i18n.has('greeting')).toBe(true)
-    expect(i18n.has('missing')).toBe(false)
-  })
+    expect(i18n.has("greeting")).toBe(true);
+    expect(i18n.has("missing")).toBe(false);
+  });
 
-  test('should clear cache', () => {
+  test("should clear cache", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          greeting: 'Hello',
+          greeting: "Hello",
         },
       },
-    })
+    });
 
-    let notified = false
+    let notified = false;
     const unsubscribe = i18n.subscribe(() => {
-      notified = true
-    })
+      notified = true;
+    });
 
-    i18n.clearCache()
-    expect(notified).toBe(true)
+    i18n.clearCache();
+    expect(notified).toBe(true);
 
-    unsubscribe()
-  })
+    unsubscribe();
+  });
 
-  test('should merge translations', () => {
+  test("should merge translations", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          greeting: 'Hello',
+          greeting: "Hello",
         },
       },
-    })
+    });
 
-    i18n.addTranslations('en', { farewell: 'Goodbye' }, true)
+    i18n.addTranslations("en", { farewell: "Goodbye" }, true);
 
-    expect(i18n.t('greeting')).toBe('Hello')
-    expect(i18n.t('farewell')).toBe('Goodbye')
-  })
+    expect(i18n.t("greeting")).toBe("Hello");
+    expect(i18n.t("farewell")).toBe("Goodbye");
+  });
 
-  test('should replace translations when merge is false', () => {
+  test("should replace translations when merge is false", () => {
     const i18n = new SolidI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          greeting: 'Hello',
-          farewell: 'Goodbye',
+          greeting: "Hello",
+          farewell: "Goodbye",
         },
       },
-    })
+    });
 
-    i18n.addTranslations('en', { greeting: 'Hi' }, false)
+    i18n.addTranslations("en", { greeting: "Hi" }, false);
 
-    expect(i18n.t('greeting')).toBe('Hi')
-    expect(i18n.has('farewell')).toBe(false)
-  })
-})
+    expect(i18n.t("greeting")).toBe("Hi");
+    expect(i18n.has("farewell")).toBe(false);
+  });
+});
 
-describe('createI18n function', () => {
-  test('should create i18n instance', () => {
+describe("createI18n function", () => {
+  test("should create i18n instance", () => {
     const i18n = createI18n({
-      locale: 'en',
+      locale: "en",
       messages: {
         en: {
-          greeting: 'Hello',
+          greeting: "Hello",
         },
       },
-    })
+    });
 
-    expect(i18n).toBeInstanceOf(SolidI18n)
-    expect(i18n.t('greeting')).toBe('Hello')
-  })
-})
+    expect(i18n).toBeInstanceOf(SolidI18n);
+    expect(i18n.t("greeting")).toBe("Hello");
+  });
+});

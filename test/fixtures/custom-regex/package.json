@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "custom-regex",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

@@ -60,6 +60,7 @@ docs(scope): update documentation
 ```
 
 **Examples:**
+
 - `feat(runtime): add new translation method`
 - `fix(server): resolve locale detection issue`
 - `docs(firebase): update deployment guide`
@@ -98,15 +99,15 @@ Use our [Feature Request Template](.github/ISSUE_TEMPLATE/feature_request.md) wi
 
 ## 🔧 Common Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server |
-| `pnpm run lint` | Run linter |
-| `pnpm run lint:fix` | Fix linting errors |
-| `pnpm run test` | Run tests |
-| `pnpm run typecheck` | Check TypeScript types |
-| `pnpm run docs:dev` | Start documentation site |
-| `pnpm run prepack` | Build module |
+| Command              | Description              |
+| -------------------- | ------------------------ |
+| `pnpm dev`           | Start development server |
+| `pnpm run lint`      | Run linter               |
+| `pnpm run lint:fix`  | Fix linting errors       |
+| `pnpm run test`      | Run tests                |
+| `pnpm run typecheck` | Check TypeScript types   |
+| `pnpm run docs:dev`  | Start documentation site |
+| `pnpm run prepack`   | Build module             |
 
 ## 💡 Need Help?
 

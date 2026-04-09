@@ -1,31 +1,31 @@
 {
   "name": "@i18n-micro/types",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "",
-  "repository": "s00d/nuxt-i18n-micro",
+  "keywords": [],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
   "license": "MIT",
-  "type": "module",
   "author": {
     "name": "s00d",
     "email": "Virus191288@gmail.com",
     "url": "https://s00d.github.io/"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
-  },
+  "repository": "s00d/nuxt-i18n-micro",
+  "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build",
     "test": "echo \"Error: no test specified\"",
     "prepublishOnly": "pnpm run build"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [],
   "devDependencies": {
     "vite-plugin-dts": "catalog:"
   }

@@ -1,11 +1,14 @@
-import type { NuxtPage } from '@nuxt/schema'
-import type { LocaleRoutesConfig } from '../strategies/types'
-import { joinPath, normalizePath, normalizeRouteKey, removeLeadingSlash } from '../utils'
+import {
+  buildRouteNameFromRoute,
+  joinPath,
+  normalizeRoutePath as normalizePath,
+  normalizeRouteKey,
+  removeLeadingSlash,
+} from "@i18n-micro/utils";
+import type { NuxtPage } from "@nuxt/schema";
+import type { LocaleRoutesConfig } from "../strategies/types";
 
-const buildRouteNameFromRoute = (name: string | null | undefined, routePath: string | null | undefined): string =>
-  name ?? (routePath ?? '').replace(/[^a-z0-9]/gi, '-').replace(/^-+|-+$/g, '')
-
-export type LocalizedPathsMap = Record<string, Record<string, string>>
+export type LocalizedPathsMap = Record<string, Record<string, string>>;
 
 /**
  * Single key format for localizedPaths: without a leading slash so that it
@@ -14,7 +17,7 @@ export type LocalizedPathsMap = Record<string, Record<string, string>>
  * - and lookups from strategies (resolveChildPath results).
  */
 export function pathKeyForLocalizedPaths(fullPath: string): string {
-  return removeLeadingSlash(fullPath) || '/'
+  return removeLeadingSlash(fullPath) || "/";
 }
 
 /**
@@ -30,32 +33,42 @@ export function extractLocalizedPaths(
   pages: NuxtPage[],
   globalLocaleRoutes: LocaleRoutesConfig,
   filesLocaleRoutes: LocaleRoutesConfig,
-  parentPath = '',
+  parentPath = "",
 ): LocalizedPathsMap {
-  const localizedPaths: LocalizedPathsMap = {}
+  const localizedPaths: LocalizedPathsMap = {};
 
   pages.forEach((page) => {
-    const pageName = buildRouteNameFromRoute(page.name, page.path)
-    const normalizedFullPath = normalizePath(joinPath(parentPath, page.path ?? ''))
-    const pathKey = pathKeyForLocalizedPaths(normalizedFullPath)
-    const normalizedKey = normalizeRouteKey(normalizedFullPath)
+    const pageName = buildRouteNameFromRoute(page.name, page.path);
+    const normalizedFullPath = normalizePath(joinPath(parentPath, page.path ?? ""));
+    const pathKey = pathKeyForLocalizedPaths(normalizedFullPath);
+    const normalizedKey = normalizeRouteKey(normalizedFullPath);
 
-    const globalLocalePath = globalLocaleRoutes[pathKey] || globalLocaleRoutes[normalizedKey] || globalLocaleRoutes[pageName]
+    const globalLocalePath =
+      globalLocaleRoutes[pathKey] ||
+      globalLocaleRoutes[normalizedKey] ||
+      globalLocaleRoutes[pageName];
 
     if (!globalLocalePath) {
-      const filesLocalePath = filesLocaleRoutes[pageName]
-      if (filesLocalePath && typeof filesLocalePath === 'object' && !Array.isArray(filesLocalePath)) {
-        localizedPaths[pathKey] = filesLocalePath as Record<string, string>
+      const filesLocalePath = filesLocaleRoutes[pageName];
+      if (
+        filesLocalePath &&
+        typeof filesLocalePath === "object" &&
+        !Array.isArray(filesLocalePath)
+      ) {
+        localizedPaths[pathKey] = filesLocalePath as Record<string, string>;
       }
-    } else if (typeof globalLocalePath === 'object') {
-      localizedPaths[pathKey] = globalLocalePath
+    } else if (typeof globalLocalePath === "object") {
+      localizedPaths[pathKey] = globalLocalePath;
     }
 
     if (page.children?.length) {
-      const parentFullPath = normalizePath(joinPath(parentPath, page.path ?? ''))
-      Object.assign(localizedPaths, extractLocalizedPaths(page.children, globalLocaleRoutes, filesLocaleRoutes, parentFullPath))
+      const parentFullPath = normalizePath(joinPath(parentPath, page.path ?? ""));
+      Object.assign(
+        localizedPaths,
+        extractLocalizedPaths(page.children, globalLocaleRoutes, filesLocaleRoutes, parentFullPath),
+      );
     }
-  })
+  });
 
-  return localizedPaths
+  return localizedPaths;
 }

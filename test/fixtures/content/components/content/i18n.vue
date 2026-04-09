@@ -1,15 +1,12 @@
 <template>
-  <i18n-t
-    :keypath="keypath"
-    :class="className"
-  />
+  <i18n-t :keypath="keypath" :class="className" />
 </template>
 
 <script lang="ts" setup>
 interface Props {
-  keypath: string
-  className: string
+  keypath: string;
+  className: string;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 </script>

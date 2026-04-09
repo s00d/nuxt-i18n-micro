@@ -16,6 +16,7 @@ These integration packages are **miniature versions** of the full Nuxt I18n Micr
 - **TypeScript Support** - Full type definitions for type-safe development
 
 Unlike the full Nuxt module, these packages:
+
 - Do not include framework-specific routing logic
 - Require you to implement a router adapter for routing features
 - Focus on translation functionality rather than framework integration
@@ -44,6 +45,7 @@ All framework packages include the following essential components:
 ### `<I18nT>`
 
 A translation component that renders translated text with support for:
+
 - **Parameter interpolation** - Replace placeholders with dynamic values
 - **Pluralization** - Automatic plural form selection based on count
 - **Number formatting** - Format numbers according to locale
@@ -52,6 +54,7 @@ A translation component that renders translated text with support for:
 - **Default values** - Fallback text when translation is missing
 
 **Example:**
+
 ```vue
 <!-- Vue -->
 <I18nT keypath="greeting" :params="{ name: 'World' }" />
@@ -59,12 +62,12 @@ A translation component that renders translated text with support for:
 
 ```tsx
 // React
-<I18nT keypath="greeting" params={{ name: 'World' }} />
+<I18nT keypath="greeting" params={{ name: "World" }} />
 ```
 
 ```tsx
 // Solid
-<I18nT keypath="greeting" params={{ name: 'World' }} />
+<I18nT keypath="greeting" params={{ name: "World" }} />
 ```
 
 ```astro
@@ -75,6 +78,7 @@ A translation component that renders translated text with support for:
 ### `<I18nLink>`
 
 A localized link component that automatically handles locale prefixes in URLs. Features:
+
 - **Automatic path localization** - Adds/removes locale prefixes based on routing strategy
 - **Active state detection** - Highlights the current route
 - **External link support** - Automatically detects and handles external URLs
@@ -82,6 +86,7 @@ A localized link component that automatically handles locale prefixes in URLs. F
 - **Custom styling** - Supports active and hover states
 
 **Example:**
+
 ```vue
 <!-- Vue -->
 <I18nLink to="/about" active-class="active">
@@ -91,14 +96,14 @@ A localized link component that automatically handles locale prefixes in URLs. F
 
 ```tsx
 // React
-<I18nLink to="/about" activeStyle={{ fontWeight: 'bold' }}>
+<I18nLink to="/about" activeStyle={{ fontWeight: "bold" }}>
   About Us
 </I18nLink>
 ```
 
 ```tsx
 // Solid
-<I18nLink to="/about" activeStyle={{ fontWeight: 'bold' }}>
+<I18nLink to="/about" activeStyle={{ fontWeight: "bold" }}>
   About Us
 </I18nLink>
 ```
@@ -113,6 +118,7 @@ A localized link component that automatically handles locale prefixes in URLs. F
 ### `<I18nSwitcher>`
 
 A language switcher component that provides a dropdown or list interface for changing locales. Features:
+
 - **Automatic locale list** - Generates options from configured locales
 - **Current locale highlighting** - Visually indicates the active language
 - **Custom labels** - Support for custom display names per locale
@@ -120,6 +126,7 @@ A language switcher component that provides a dropdown or list interface for cha
 - **Accessibility** - Proper ARIA attributes and keyboard navigation
 
 **Example:**
+
 ```vue
 <!-- Vue -->
 <I18nSwitcher />
@@ -127,20 +134,12 @@ A language switcher component that provides a dropdown or list interface for cha
 
 ```tsx
 // React
-<I18nSwitcher
-  locales={locales}
-  currentLocale={locale}
-  switchLocale={switchLocale}
-/>
+<I18nSwitcher locales={locales} currentLocale={locale} switchLocale={switchLocale} />
 ```
 
 ```tsx
 // Solid
-<I18nSwitcher
-  locales={locales}
-  currentLocale={locale}
-  switchLocale={switchLocale}
-/>
+<I18nSwitcher locales={locales} currentLocale={locale} switchLocale={switchLocale} />
 ```
 
 ```astro
@@ -151,11 +150,13 @@ A language switcher component that provides a dropdown or list interface for cha
 ### `<I18nGroup>`
 
 A component for grouping translations with a common prefix, useful for organizing translations by page or feature. Features:
+
 - **Prefix scoping** - Automatically prepends prefix to all translation keys within the group
 - **Nested groups** - Support for nested translation groups
 - **Clean organization** - Helps maintain organized translation structures
 
 **Example:**
+
 ```vue
 <!-- Vue -->
 <I18nGroup prefix="home">
@@ -206,16 +207,17 @@ To use routing features, you need to implement the `I18nRoutingStrategy` interfa
 
 ```typescript
 interface I18nRoutingStrategy {
-  getCurrentPath: () => string
-  linkComponent?: Component
-  push: (target: { path: string }) => void
-  replace: (target: { path: string }) => void
-  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
-  getRoute?: () => { fullPath: string; query: Record<string, unknown> }
+  getCurrentPath: () => string;
+  linkComponent?: Component;
+  push: (target: { path: string }) => void;
+  replace: (target: { path: string }) => void;
+  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string };
+  getRoute?: () => { fullPath: string; query: Record<string, unknown> };
 }
 ```
 
 Each package documentation includes complete examples of implementing adapters for popular routers:
+
 - **Vue**: Vue Router adapter example
 - **React**: React Router adapter example
 - **Solid**: Solid Router adapter example
@@ -245,6 +247,7 @@ All packages share these core features:
 ### TypeScript Support
 
 All packages provide:
+
 - Full TypeScript definitions
 - Type-safe translation keys (with types generator)
 - IntelliSense support in IDEs
@@ -259,6 +262,7 @@ All packages provide:
 5. **Start translating** - Use components and methods to add translations
 
 For detailed setup instructions, see the documentation for your specific package:
+
 - [Vue Package Documentation](./vue-package.md)
 - [React Package Documentation](./react-package.md)
 - [Solid Package Documentation](./solid-package.md)
@@ -266,20 +270,18 @@ For detailed setup instructions, see the documentation for your specific package
 
 ## Comparison with Nuxt Module
 
-| Feature | Nuxt Module | Integration Packages |
-|---------|-------------|---------------------|
-| Translation methods | ✅ | ✅ |
-| Components | ✅ | ✅ (subset) |
-| Router integration | ✅ (automatic) | ✅ (via adapter) |
-| SSR support | ✅ | ✅ (Astro only) |
-| DevTools | ✅ | ✅ |
-| Auto locale detection | ✅ | ✅ (Astro only) |
-| SEO meta tags | ✅ | ✅ (Astro only) |
-| File-based routing | ✅ | ❌ |
-| Nuxt-specific features | ✅ | ❌ |
+| Feature                | Nuxt Module    | Integration Packages |
+| ---------------------- | -------------- | -------------------- |
+| Translation methods    | ✅             | ✅                   |
+| Components             | ✅             | ✅ (subset)          |
+| Router integration     | ✅ (automatic) | ✅ (via adapter)     |
+| SSR support            | ✅             | ✅ (Astro only)      |
+| DevTools               | ✅             | ✅                   |
+| Auto locale detection  | ✅             | ✅ (Astro only)      |
+| SEO meta tags          | ✅             | ✅ (Astro only)      |
+| File-based routing     | ✅             | ❌                   |
+| Nuxt-specific features | ✅             | ❌                   |
 
 ## License
 
 MIT
-
-

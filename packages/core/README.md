@@ -30,41 +30,41 @@ This package provides several utilities for managing translations, formatting, a
 Here’s an example of how you might use these utilities in your Nuxt.js project:
 
 ```typescript
-import { useTranslationHelper, interpolate, FormatService, RouteService } from '@i18n-micro/core'
+import { useTranslationHelper, interpolate, FormatService, RouteService } from "@i18n-micro/core";
 
 // Initialize the translation helper
-const translationHelper = useTranslationHelper()
+const translationHelper = useTranslationHelper();
 
 // Load translations for a specific locale
-translationHelper.loadTranslations('en', {
-  greeting: 'Hello, {name}!',
+translationHelper.loadTranslations("en", {
+  greeting: "Hello, {name}!",
   nested: {
-    message: 'This is a nested message.',
+    message: "This is a nested message.",
   },
-})
+});
 
 // Load page-specific translations for a specific locale
-translationHelper.loadPageTranslations('en', 'home', {
-  welcome: 'Welcome to the home page!',
-})
+translationHelper.loadPageTranslations("en", "home", {
+  welcome: "Welcome to the home page!",
+});
 
 // Retrieve a translation for a specific locale
-const greeting = translationHelper.getTranslation<string>('en', 'index', 'greeting')
-console.log(greeting) // 'Hello, {name}!'
+const greeting = translationHelper.getTranslation<string>("en", "index", "greeting");
+console.log(greeting); // 'Hello, {name}!'
 
 // Interpolate placeholders
-const interpolatedGreeting = interpolate(greeting!, { name: 'John' })
-console.log(interpolatedGreeting) // 'Hello, John!'
+const interpolatedGreeting = interpolate(greeting!, { name: "John" });
+console.log(interpolatedGreeting); // 'Hello, John!'
 
 // Format numbers, dates, and relative times
-const formatService = new FormatService()
-const formattedNumber = formatService.formatNumber(123456.789, 'en-US')
-const formattedDate = formatService.formatDate(new Date(), 'en-US')
-const formattedRelativeTime = formatService.formatRelativeTime(new Date(), 'en-US')
+const formatService = new FormatService();
+const formattedNumber = formatService.formatNumber(123456.789, "en-US");
+const formattedDate = formatService.formatDate(new Date(), "en-US");
+const formattedRelativeTime = formatService.formatRelativeTime(new Date(), "en-US");
 
-console.log(formattedNumber) // '123,456.789'
-console.log(formattedDate) // '10/5/2023'
-console.log(formattedRelativeTime) // 'just now'
+console.log(formattedNumber); // '123,456.789'
+console.log(formattedDate); // '10/5/2023'
+console.log(formattedRelativeTime); // 'just now'
 
 // Handle locale-specific routing
 const routeService = new RouteService(
@@ -73,11 +73,11 @@ const routeService = new RouteService(
   hashLocaleDefault,
   noPrefixDefault,
   navigateTo,
-  setCookie
-)
+  setCookie,
+);
 
-const localizedRoute = routeService.getLocalizedRoute('/about', currentRoute, 'en')
-console.log(localizedRoute) // Localized route object
+const localizedRoute = routeService.getLocalizedRoute("/about", currentRoute, "en");
+console.log(localizedRoute); // Localized route object
 ```
 
 ## API Reference
@@ -85,6 +85,7 @@ console.log(localizedRoute) // Localized route object
 ### `useTranslationHelper`
 
 #### Methods
+
 - **`hasCache(locale: string, page: string): boolean`**:
   Checks if translations for a specific route and locale are cached.
 - **`getCache(locale: string, routeName: string): Map<string, Translations | unknown> | undefined`**:
@@ -107,21 +108,25 @@ console.log(localizedRoute) // Localized route object
 ### `interpolate`
 
 #### Function
+
 ```typescript
 interpolate(template: string, params: Params): string
 ```
+
 - **`template`**: The translation string with placeholders (e.g., `'Hello, {name}!'`).
 - **`params`**: An object containing key-value pairs for interpolation (e.g., `{ name: 'John' }`).
 
 #### Example
+
 ```typescript
-const result = interpolate('Hello, {name}!', { name: 'John' })
-console.log(result) // 'Hello, John!'
+const result = interpolate("Hello, {name}!", { name: "John" });
+console.log(result); // 'Hello, John!'
 ```
 
 ### `FormatService`
 
 #### Methods
+
 - **`formatNumber(value: number, locale: string, options?: Intl.NumberFormatOptions): string`**:
   Formats a number according to the specified locale and options.
 - **`formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string`**:
@@ -132,6 +137,7 @@ console.log(result) // 'Hello, John!'
 ### `RouteService`
 
 #### Methods
+
 - **`getCurrentLocale(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string`**:
   Returns the current locale based on the route or configuration.
 - **`getCurrentName(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string | null`**:

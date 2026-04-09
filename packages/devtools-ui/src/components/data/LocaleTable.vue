@@ -4,17 +4,10 @@
       <table class="locale-table">
         <thead class="locale-table__header">
           <tr>
-            <th
-              v-for="header in headers"
-              :key="header.key"
-              class="locale-table__header-cell"
-            >
+            <th v-for="header in headers" :key="header.key" class="locale-table__header-cell">
               <div class="header-content">
                 <span class="header-icon">
-                  <component
-                    :is="header.iconComponent"
-                    v-if="header.iconComponent"
-                  />
+                  <component :is="header.iconComponent" v-if="header.iconComponent" />
                   <span v-else>{{ header.icon }}</span>
                 </span>
                 <span class="header-text">{{ header.label }}</span>
@@ -23,34 +16,27 @@
           </tr>
         </thead>
         <tbody class="locale-table__body">
-          <tr
-            v-for="locale in locales"
-            :key="locale.code"
-            class="locale-table__row"
-          >
+          <tr v-for="locale in locales" :key="locale.code" class="locale-table__row">
             <td class="locale-table__cell">
               <div class="locale-code">
                 <span class="locale-code__text">{{ locale.code }}</span>
               </div>
             </td>
             <td class="locale-table__cell">
-              <span class="locale-name">{{ locale.displayName || '—' }}</span>
+              <span class="locale-name">{{ locale.displayName || "—" }}</span>
             </td>
             <td class="locale-table__cell">
-              <span class="locale-iso">{{ locale.iso || '—' }}</span>
+              <span class="locale-iso">{{ locale.iso || "—" }}</span>
             </td>
             <td class="locale-table__cell">
               <div class="direction-indicator">
-                <span
-                  class="direction-badge"
-                  :class="`direction-badge--${locale.dir || 'ltr'}`"
-                >
-                  {{ (locale.dir || 'ltr').toUpperCase() }}
+                <span class="direction-badge" :class="`direction-badge--${locale.dir || 'ltr'}`">
+                  {{ (locale.dir || "ltr").toUpperCase() }}
                 </span>
               </div>
             </td>
             <td class="locale-table__cell">
-              <span class="base-url">{{ locale.baseUrl || '—' }}</span>
+              <span class="base-url">{{ locale.baseUrl || "—" }}</span>
             </td>
             <td class="locale-table__cell">
               <StatusIndicator
@@ -67,38 +53,38 @@
 </template>
 
 <script setup lang="ts">
-import type { Component } from 'vue'
-import GlobeIcon from '../ui/icons/GlobeIcon.vue'
-import StatusIndicator from '../ui/StatusIndicator.vue'
+import type { Component } from "vue";
+import GlobeIcon from "../ui/icons/GlobeIcon.vue";
+import StatusIndicator from "../ui/StatusIndicator.vue";
 
 interface Locale {
-  code: string
-  displayName?: string
-  iso?: string
-  dir?: string
-  baseUrl?: string
-  disabled?: boolean
+  code: string;
+  displayName?: string;
+  iso?: string;
+  dir?: string;
+  baseUrl?: string;
+  disabled?: boolean;
 }
 
 interface Header {
-  key: string
-  label: string
-  icon?: string
-  iconComponent?: Component
+  key: string;
+  label: string;
+  icon?: string;
+  iconComponent?: Component;
 }
 
 defineProps<{
-  locales: Locale[]
-}>()
+  locales: Locale[];
+}>();
 
 const headers: Header[] = [
-  { key: 'code', label: 'Code', icon: '🏷️' },
-  { key: 'name', label: 'Display Name', icon: '📝' },
-  { key: 'iso', label: 'ISO Code', iconComponent: GlobeIcon },
-  { key: 'dir', label: 'Direction', icon: '↔️' },
-  { key: 'baseUrl', label: 'Base URL', icon: '🔗' },
-  { key: 'status', label: 'Status', icon: '⚡' },
-]
+  { key: "code", label: "Code", icon: "🏷️" },
+  { key: "name", label: "Display Name", icon: "📝" },
+  { key: "iso", label: "ISO Code", iconComponent: GlobeIcon },
+  { key: "dir", label: "Direction", icon: "↔️" },
+  { key: "baseUrl", label: "Base URL", icon: "🔗" },
+  { key: "status", label: "Status", icon: "⚡" },
+];
 </script>
 
 <style scoped>
@@ -197,9 +183,19 @@ const headers: Header[] = [
 }
 
 /* Animation delay for each row */
-.locale-table__row:nth-child(1) { animation-delay: 0.1s; }
-.locale-table__row:nth-child(2) { animation-delay: 0.2s; }
-.locale-table__row:nth-child(3) { animation-delay: 0.3s; }
-.locale-table__row:nth-child(4) { animation-delay: 0.4s; }
-.locale-table__row:nth-child(5) { animation-delay: 0.5s; }
+.locale-table__row:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.locale-table__row:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.locale-table__row:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.locale-table__row:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.locale-table__row:nth-child(5) {
+  animation-delay: 0.5s;
+}
 </style>

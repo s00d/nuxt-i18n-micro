@@ -1,12 +1,12 @@
-import type { NuxtPage } from '@nuxt/schema'
-import { buildFullPath } from '../utils'
-import { createRoute } from './builder'
+import { buildFullPath } from "@i18n-micro/utils";
+import type { NuxtPage } from "@nuxt/schema";
+import { createRoute } from "./builder";
 
 function getAliasList(page: NuxtPage): string[] {
-  const explicitAlias = (page as NuxtPage & { alias?: string[] }).alias
-  const metaAlias = page.meta?.alias as string[] | undefined
-  const value = explicitAlias ?? metaAlias
-  return Array.isArray(value) ? value : []
+  const explicitAlias = (page as NuxtPage & { alias?: string[] }).alias;
+  const metaAlias = page.meta?.alias as string[] | undefined;
+  const value = explicitAlias ?? metaAlias;
+  return Array.isArray(value) ? value : [];
 }
 
 /**
@@ -17,19 +17,19 @@ export function generateAliasRoutes(
   page: NuxtPage,
   localeCodes: string[],
   customRegex?: string | RegExp,
-  localizedRouteNamePrefix = 'localized-',
+  localizedRouteNamePrefix = "localized-",
 ): NuxtPage[] {
-  const aliases = getAliasList(page)
-  if (!aliases.length) return []
+  const aliases = getAliasList(page);
+  if (!aliases.length) return [];
 
-  const routes: NuxtPage[] = []
+  const routes: NuxtPage[] = [];
 
   for (const aliasPath of aliases) {
-    const localizedAliasPath = buildFullPath(localeCodes, aliasPath, customRegex)
+    const localizedAliasPath = buildFullPath(localeCodes, aliasPath, customRegex);
     routes.push(
       createRoute(page, {
         path: localizedAliasPath,
-        name: `${localizedRouteNamePrefix}${page.name ?? ''}`,
+        name: `${localizedRouteNamePrefix}${page.name ?? ""}`,
         alias: undefined,
         meta: { alias: undefined },
         // Important: if the source page has children, the alias route
@@ -37,8 +37,8 @@ export function generateAliasRoutes(
         // createRoute takes care of cloning/adjusting children correctly.
         children: page.children,
       }),
-    )
+    );
   }
 
-  return routes
+  return routes;
 }

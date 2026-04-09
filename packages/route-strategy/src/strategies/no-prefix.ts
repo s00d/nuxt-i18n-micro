@@ -1,37 +1,52 @@
-import type { NuxtPage } from '@nuxt/schema'
-import { generateAliasRoutes } from '../core/alias'
-import { createRoute, resolveChildPath } from '../core/builder'
-import type { GeneratorContext } from '../core/context'
-import { buildFullPathNoPrefix, buildRouteName, buildRouteNameFromRoute, cloneArray, normalizePath, removeLeadingSlash } from '../utils'
-import { BaseStrategy } from './abstract'
+import {
+  buildFullPathNoPrefix,
+  buildRouteName,
+  buildRouteNameFromRoute,
+  cloneArray,
+  normalizeRoutePath as normalizePath,
+  removeLeadingSlash,
+} from "@i18n-micro/utils";
+import type { NuxtPage } from "@nuxt/schema";
+import { generateAliasRoutes } from "../core/alias";
+import { createRoute, resolveChildPath } from "../core/builder";
+import type { GeneratorContext } from "../core/context";
+import { BaseStrategy } from "./abstract";
 
 export class NoPrefixStrategy extends BaseStrategy {
   protected generateVariants(page: NuxtPage, context: GeneratorContext): NuxtPage[] {
-    const originalPath = page.path ?? ''
-    const pageName = buildRouteNameFromRoute(page.name, page.path)
-    const allowedLocales = context.getAllowedLocales(originalPath, pageName)
-    const customPaths = context.getCustomPathsForPage(originalPath, pageName)
-    const originalChildren = cloneArray(page.children ?? [])
-    const result: NuxtPage[] = []
+    const originalPath = page.path ?? "";
+    const pageName = buildRouteNameFromRoute(page.name, page.path);
+    const allowedLocales = context.getAllowedLocales(originalPath, pageName);
+    const customPaths = context.getCustomPathsForPage(originalPath, pageName);
+    const originalChildren = cloneArray(page.children ?? []);
+    const result: NuxtPage[] = [];
 
-    result.push(page)
+    result.push(page);
 
     if (customPaths) {
       for (const locale of allowedLocales) {
-        const customPath = customPaths[locale]
-        if (!customPath) continue
+        const customPath = customPaths[locale];
+        if (!customPath) continue;
 
-        const normalizedCustomPath = normalizePath(customPath)
-        const normalizedOriginalPath = normalizePath(originalPath)
+        const normalizedCustomPath = normalizePath(customPath);
+        const normalizedOriginalPath = normalizePath(originalPath);
 
         // If the custom path equals the original one, do not create an additional route
         if (normalizedCustomPath === normalizedOriginalPath) {
-          continue
+          continue;
         }
 
-        const routePath = buildFullPathNoPrefix(customPath)
-        const routeName = buildRouteName(pageName, locale, true)
-        const children = this.localizeChildrenForNoPrefix(originalChildren, normalizedCustomPath, originalPath, originalPath, locale, context, 1)
+        const routePath = buildFullPathNoPrefix(customPath);
+        const routeName = buildRouteName(pageName, locale, true);
+        const children = this.localizeChildrenForNoPrefix(
+          originalChildren,
+          normalizedCustomPath,
+          originalPath,
+          originalPath,
+          locale,
+          context,
+          1,
+        );
         result.push(
           createRoute(page, {
             path: routePath,
@@ -40,16 +55,27 @@ export class NoPrefixStrategy extends BaseStrategy {
             alias: [],
             meta: { alias: [] },
           }),
-        )
+        );
 
-        if (context.noPrefixRedirect && locale === context.defaultLocale.code && normalizedCustomPath !== normalizedOriginalPath) {
-          page.redirect = normalizedCustomPath
+        if (
+          context.noPrefixRedirect &&
+          locale === context.defaultLocale.code &&
+          normalizedCustomPath !== normalizedOriginalPath
+        ) {
+          page.redirect = normalizedCustomPath;
         }
       }
     }
 
-    result.push(...generateAliasRoutes(page, allowedLocales, context.customRegex, context.localizedRouteNamePrefix))
-    return result
+    result.push(
+      ...generateAliasRoutes(
+        page,
+        allowedLocales,
+        context.customRegex,
+        context.localizedRouteNamePrefix,
+      ),
+    );
+    return result;
   }
 
   /**
@@ -68,26 +94,26 @@ export class NoPrefixStrategy extends BaseStrategy {
     level: number,
   ): NuxtPage[] {
     return children.map((child) => {
-      const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+      const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? "");
 
-      let finalPathForRoute: string
-      let nextParentLocalizedPath: string
+      let finalPathForRoute: string;
+      let nextParentLocalizedPath: string;
 
       if (level === 1) {
-        const customPath = context.getCustomPath(childOriginalPath, locale)
+        const customPath = context.getCustomPath(childOriginalPath, locale);
         if (customPath) {
-          const normalized = normalizePath(customPath)
-          finalPathForRoute = removeLeadingSlash(normalized)
-          nextParentLocalizedPath = normalized
+          const normalized = normalizePath(customPath);
+          finalPathForRoute = removeLeadingSlash(normalized);
+          nextParentLocalizedPath = normalized;
         } else {
-          const normalizedSegment = normalizePath(child.path ?? '')
-          finalPathForRoute = removeLeadingSlash(normalizedSegment)
-          nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? '')
+          const normalizedSegment = normalizePath(child.path ?? "");
+          finalPathForRoute = removeLeadingSlash(normalizedSegment);
+          nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? "");
         }
       } else {
-        const normalizedSegment = normalizePath(child.path ?? '')
-        finalPathForRoute = removeLeadingSlash(normalizedSegment)
-        nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? '')
+        const normalizedSegment = normalizePath(child.path ?? "");
+        finalPathForRoute = removeLeadingSlash(normalizedSegment);
+        nextParentLocalizedPath = resolveChildPath(parentLocalizedPath, child.path ?? "");
       }
 
       const localizedChildren = this.localizeChildrenForNoPrefix(
@@ -98,16 +124,16 @@ export class NoPrefixStrategy extends BaseStrategy {
         locale,
         context,
         level + 1,
-      )
+      );
 
-      const baseName = buildRouteNameFromRoute(child.name, child.path)
-      const routeName = buildRouteName(baseName, locale, true)
+      const baseName = buildRouteNameFromRoute(child.name, child.path);
+      const routeName = buildRouteName(baseName, locale, true);
 
       return createRoute(child, {
         path: finalPathForRoute,
         name: routeName,
         children: localizedChildren,
-      })
-    })
+      });
+    });
   }
 }

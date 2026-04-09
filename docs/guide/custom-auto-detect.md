@@ -38,9 +38,9 @@ If you want full control over locale detection, disable the built-in mechanism:
 ```ts
 export default defineNuxtConfig({
   i18n: {
-    autoDetectLanguage: false
-  }
-})
+    autoDetectLanguage: false,
+  },
+});
 ```
 
 ## ✨ Example: Server-Side Detection with `useI18nLocale`
@@ -51,56 +51,56 @@ This is the **recommended approach** for all strategies.
 
 ```ts
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
+  modules: ["nuxt-i18n-micro"],
   i18n: {
-    strategy: 'no_prefix', // Works with ANY strategy
-    defaultLocale: 'en',
-    localeCookie: 'user-locale',
+    strategy: "no_prefix", // Works with ANY strategy
+    defaultLocale: "en",
+    localeCookie: "user-locale",
     autoDetectLanguage: false,
     locales: [
-      { code: 'en', iso: 'en-US' },
-      { code: 'de', iso: 'de-DE' },
-      { code: 'ja', iso: 'ja-JP' }
-    ]
-  }
-})
+      { code: "en", iso: "en-US" },
+      { code: "de", iso: "de-DE" },
+      { code: "ja", iso: "ja-JP" },
+    ],
+  },
+});
 ```
 
 ### Step 2: Create `plugins/i18n-loader.server.ts`
 
 ```ts
-import { defineNuxtPlugin, useRequestHeaders } from '#imports'
+import { defineNuxtPlugin, useRequestHeaders } from "#imports";
 
 export default defineNuxtPlugin({
-  name: 'i18n-custom-loader',
-  enforce: 'pre',
+  name: "i18n-custom-loader",
+  enforce: "pre",
   order: -10, // Execute BEFORE the i18n plugin (which has order -5)
 
   setup() {
-    const { setLocale } = useI18nLocale()
-    const headers = useRequestHeaders(['host', 'x-country', 'accept-language'])
-    let detectedLocale = 'en'
+    const { setLocale } = useI18nLocale();
+    const headers = useRequestHeaders(["host", "x-country", "accept-language"]);
+    let detectedLocale = "en";
 
     // --- YOUR DETECTION LOGIC ---
 
     // Example 1: By domain
-    const host = headers['host']
-    if (host?.includes('example.de')) {
-      detectedLocale = 'de'
+    const host = headers["host"];
+    if (host?.includes("example.de")) {
+      detectedLocale = "de";
     }
     // Example 2: By custom header
-    else if (headers['x-country'] === 'JP') {
-      detectedLocale = 'ja'
+    else if (headers["x-country"] === "JP") {
+      detectedLocale = "ja";
     }
     // Example 3: By Accept-Language header
-    else if (headers['accept-language']?.includes('de')) {
-      detectedLocale = 'de'
+    else if (headers["accept-language"]?.includes("de")) {
+      detectedLocale = "de";
     }
 
     // --- APPLY THE LOCALE ---
-    setLocale(detectedLocale)
-  }
-})
+    setLocale(detectedLocale);
+  },
+});
 ```
 
 ### How It Works
@@ -152,6 +152,7 @@ flowchart TB
 :::
 
 **Important notes:**
+
 - Cookie-based locale detection is disabled by default (`localeCookie: null`)
 - Set `localeCookie: 'user-locale'` to enable cookie persistence
 - If the cookie/state value is not in the `locales` list, it falls back to `defaultLocale`
@@ -161,31 +162,31 @@ flowchart TB
 For multi-domain setups where each domain serves a different locale:
 
 ```ts
-import { defineNuxtPlugin, useRequestHeaders } from '#imports'
+import { defineNuxtPlugin, useRequestHeaders } from "#imports";
 
 export default defineNuxtPlugin({
-  name: 'i18n-domain-loader',
-  enforce: 'pre',
+  name: "i18n-domain-loader",
+  enforce: "pre",
   order: -10,
 
   setup() {
-    const { setLocale } = useI18nLocale()
-    const headers = useRequestHeaders(['host'])
-    const host = headers['host'] || ''
+    const { setLocale } = useI18nLocale();
+    const headers = useRequestHeaders(["host"]);
+    const host = headers["host"] || "";
 
-    let detectedLocale = 'en'
+    let detectedLocale = "en";
 
-    if (host.endsWith('.de') || host.includes('german.')) {
-      detectedLocale = 'de'
-    } else if (host.endsWith('.fr') || host.includes('french.')) {
-      detectedLocale = 'fr'
-    } else if (host.endsWith('.jp') || host.includes('japanese.')) {
-      detectedLocale = 'ja'
+    if (host.endsWith(".de") || host.includes("german.")) {
+      detectedLocale = "de";
+    } else if (host.endsWith(".fr") || host.includes("french.")) {
+      detectedLocale = "fr";
+    } else if (host.endsWith(".jp") || host.includes("japanese.")) {
+      detectedLocale = "ja";
     }
 
-    setLocale(detectedLocale)
-  }
-})
+    setLocale(detectedLocale);
+  },
+});
 ```
 
 ## 🔄 Advanced: Respecting User Preference
@@ -193,35 +194,35 @@ export default defineNuxtPlugin({
 If users can manually switch language, respect their choice over auto-detection:
 
 ```ts
-import { defineNuxtPlugin, useRequestHeaders } from '#imports'
+import { defineNuxtPlugin, useRequestHeaders } from "#imports";
 
 export default defineNuxtPlugin({
-  name: 'i18n-smart-loader',
-  enforce: 'pre',
+  name: "i18n-smart-loader",
+  enforce: "pre",
   order: -10,
 
   setup() {
-    const { getLocale, setLocale } = useI18nLocale()
+    const { getLocale, setLocale } = useI18nLocale();
 
     // If user already has a preference (from cookie), respect it
     if (getLocale()) {
-      return
+      return;
     }
 
     // Otherwise, detect locale from headers
-    const headers = useRequestHeaders(['accept-language'])
-    let detectedLocale = 'en'
+    const headers = useRequestHeaders(["accept-language"]);
+    let detectedLocale = "en";
 
-    const acceptLanguage = headers['accept-language'] || ''
-    if (acceptLanguage.includes('de')) {
-      detectedLocale = 'de'
-    } else if (acceptLanguage.includes('ja')) {
-      detectedLocale = 'ja'
+    const acceptLanguage = headers["accept-language"] || "";
+    if (acceptLanguage.includes("de")) {
+      detectedLocale = "de";
+    } else if (acceptLanguage.includes("ja")) {
+      detectedLocale = "ja";
     }
 
-    setLocale(detectedLocale)
-  }
-})
+    setLocale(detectedLocale);
+  },
+});
 ```
 
 ## ⚙️ Server-Only or Client-Only Plugins
@@ -237,15 +238,16 @@ For locale detection that relies on server headers (`x-country`, `accept-languag
 
 ## ✅ Summary
 
-| Feature | Description |
-|---------|-------------|
-| `useI18nLocale().setLocale()` | Updates `useState` + cookie atomically; works with all strategies |
-| `useI18nLocale().getLocale()` | Returns current locale from state or cookie |
-| `useI18nLocale().getPreferredLocale()` | Returns preferred locale (validated against `locales` list) |
-| Plugin `order: -10` | Ensures your plugin runs before i18n initialization |
-| `enforce: 'pre'` | Runs in the "pre" plugin group |
+| Feature                                | Description                                                       |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| `useI18nLocale().setLocale()`          | Updates `useState` + cookie atomically; works with all strategies |
+| `useI18nLocale().getLocale()`          | Returns current locale from state or cookie                       |
+| `useI18nLocale().getPreferredLocale()` | Returns preferred locale (validated against `locales` list)       |
+| Plugin `order: -10`                    | Ensures your plugin runs before i18n initialization               |
+| `enforce: 'pre'`                       | Runs in the "pre" plugin group                                    |
 
 **Do NOT:**
+
 - Use `useCookie('user-locale')` directly — `useI18nLocale()` manages cookies internally
 - Use `useState('i18n-locale')` directly — use `useI18nLocale().setLocale()` instead
 - Set `order` >= -5 — your plugin must run before the i18n plugin

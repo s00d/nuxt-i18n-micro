@@ -1,69 +1,75 @@
-import path from 'node:path'
-import type { GlobalLocaleRoutes, Locale, Strategies } from '@i18n-micro/types'
-import type { NuxtPage } from '@nuxt/schema'
-import { RouteGenerator } from '../src/index'
+import path from "node:path";
+import type { GlobalLocaleRoutes, Locale, Strategies } from "@i18n-micro/types";
+import type { NuxtPage } from "@nuxt/schema";
+import { RouteGenerator } from "../src/index";
 
 export const locales: Locale[] = [
-  { code: 'en', iso: 'en-US' },
-  { code: 'de', iso: 'de-DE' },
-  { code: 'ru', iso: 'ru-RU' },
-]
+  { code: "en", iso: "en-US" },
+  { code: "de", iso: "de-DE" },
+  { code: "ru", iso: "ru-RU" },
+];
 
-export const defaultLocaleCode = 'en'
+export const defaultLocaleCode = "en";
 
-export const fixturesDir = path.join(process.cwd(), 'tests', 'fixtures', 'strategy', 'pages')
+export const fixturesDir = path.join(process.cwd(), "tests", "fixtures", "strategy", "pages");
 
 /** Basic set of pages for tests. */
 export function createBasicPages(): NuxtPage[] {
   return [
-    { path: '/', name: 'index', file: '/pages/index.vue' },
-    { path: '/about', name: 'about', file: '/pages/about.vue' },
-    { path: '/users/:id', name: 'users-id', file: '/pages/users/[id].vue' },
-    { path: '/:slug(.*)*', name: 'catch-all', file: '/pages/[...slug].vue' },
-  ]
+    { path: "/", name: "index", file: "/pages/index.vue" },
+    { path: "/about", name: "about", file: "/pages/about.vue" },
+    { path: "/users/:id", name: "users-id", file: "/pages/users/[id].vue" },
+    { path: "/:slug(.*)*", name: "catch-all", file: "/pages/[...slug].vue" },
+  ];
 }
 
 /** Nested pages set. */
 export function createNestedPages(): NuxtPage[] {
   return [
     {
-      path: '/parent',
-      name: 'parent',
-      file: '/pages/parent.vue',
+      path: "/parent",
+      name: "parent",
+      file: "/pages/parent.vue",
       children: [
         {
-          path: 'child',
-          name: 'parent-child',
-          file: '/pages/parent/child.vue',
-          children: [{ path: 'grandchild', name: 'parent-child-grandchild', file: '/pages/parent/child/grandchild.vue' }],
+          path: "child",
+          name: "parent-child",
+          file: "/pages/parent/child.vue",
+          children: [
+            {
+              path: "grandchild",
+              name: "parent-child-grandchild",
+              file: "/pages/parent/child/grandchild.vue",
+            },
+          ],
         },
       ],
     },
-  ]
+  ];
 }
 
 /** Deep nesting: 4 levels (section / category / item / detail). */
 export function createDeepNestedPages(): NuxtPage[] {
   return [
     {
-      path: '/section',
-      name: 'section',
-      file: '/pages/section.vue',
+      path: "/section",
+      name: "section",
+      file: "/pages/section.vue",
       children: [
         {
-          path: 'category',
-          name: 'section-category',
-          file: '/pages/section/category.vue',
+          path: "category",
+          name: "section-category",
+          file: "/pages/section/category.vue",
           children: [
             {
-              path: 'item',
-              name: 'section-category-item',
-              file: '/pages/section/category/item.vue',
+              path: "item",
+              name: "section-category-item",
+              file: "/pages/section/category/item.vue",
               children: [
                 {
-                  path: 'detail',
-                  name: 'section-category-item-detail',
-                  file: '/pages/section/category/item/detail.vue',
+                  path: "detail",
+                  name: "section-category-item-detail",
+                  file: "/pages/section/category/item/detail.vue",
                 },
               ],
             },
@@ -71,41 +77,41 @@ export function createDeepNestedPages(): NuxtPage[] {
         },
       ],
     },
-  ]
+  ];
 }
 
 /** Very deep nesting: 6 levels. */
 export function createVeryDeepNestedPages(): NuxtPage[] {
   return [
     {
-      path: '/a',
-      name: 'a',
-      file: '/pages/a.vue',
+      path: "/a",
+      name: "a",
+      file: "/pages/a.vue",
       children: [
         {
-          path: 'b',
-          name: 'a-b',
-          file: '/pages/a/b.vue',
+          path: "b",
+          name: "a-b",
+          file: "/pages/a/b.vue",
           children: [
             {
-              path: 'c',
-              name: 'a-b-c',
-              file: '/pages/a/b/c.vue',
+              path: "c",
+              name: "a-b-c",
+              file: "/pages/a/b/c.vue",
               children: [
                 {
-                  path: 'd',
-                  name: 'a-b-c-d',
-                  file: '/pages/a/b/c/d.vue',
+                  path: "d",
+                  name: "a-b-c-d",
+                  file: "/pages/a/b/c/d.vue",
                   children: [
                     {
-                      path: 'e',
-                      name: 'a-b-c-d-e',
-                      file: '/pages/a/b/c/d/e.vue',
+                      path: "e",
+                      name: "a-b-c-d-e",
+                      file: "/pages/a/b/c/d/e.vue",
                       children: [
                         {
-                          path: 'f',
-                          name: 'a-b-c-d-e-f',
-                          file: '/pages/a/b/c/d/e/f.vue',
+                          path: "f",
+                          name: "a-b-c-d-e-f",
+                          file: "/pages/a/b/c/d/e/f.vue",
                         },
                       ],
                     },
@@ -117,7 +123,7 @@ export function createVeryDeepNestedPages(): NuxtPage[] {
         },
       ],
     },
-  ]
+  ];
 }
 
 /** Factory helper for creating a configured RouteGenerator. */
@@ -140,5 +146,5 @@ export function createManager(
     noPrefixRedirect,
     excludePatterns,
     customRegexMatcher,
-  })
+  });
 }

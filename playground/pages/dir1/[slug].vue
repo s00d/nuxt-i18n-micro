@@ -1,11 +1,11 @@
 <template>
   <div>
-    <p>{{ $t('key2') }}</p>
+    <p>{{ $t("key2") }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $t } = useNuxtApp()
+const { $t } = useNuxtApp();
 </script>

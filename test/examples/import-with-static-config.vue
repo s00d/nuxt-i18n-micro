@@ -6,26 +6,26 @@
 
 <script setup lang="ts">
 // @ts-nocheck
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { someUtility } from './utils/helpers'
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import { someUtility } from "./utils/helpers";
 
 // Static configuration - should be parsed correctly
 $defineI18nRoute({
-  locales: ['en', 'de', 'fr'],
+  locales: ["en", "de", "fr"],
   localeRoutes: {
-    en: '/welcome',
-    de: '/willkommen',
-    fr: '/bienvenue',
+    en: "/welcome",
+    de: "/willkommen",
+    fr: "/bienvenue",
   },
-})
+});
 
-const router = useRouter()
-const count = ref(0)
-const doubleCount = computed(() => count.value * 2)
+const router = useRouter();
+const count = ref(0);
+const doubleCount = computed(() => count.value * 2);
 
 function increment() {
-  count.value++
-  someUtility()
+  count.value++;
+  someUtility();
 }
 </script>

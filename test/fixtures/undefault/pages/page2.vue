@@ -1,24 +1,17 @@
 <script setup>
-import { useRoute } from '#app'
+import { useRoute } from "#app";
 
-const { $localeRoute } = useI18n()
+const { $localeRoute } = useI18n();
 </script>
 
 <template>
   <div>
     <h1>Subpage with route param</h1>
     <p>{{ useRoute().params.id }}</p>
-    <NuxtLink to="/">
-      Home
-    </NuxtLink>
+    <NuxtLink to="/"> Home </NuxtLink>
 
-    <hr>
+    <hr />
 
-    <NuxtLink
-      id="unlocalized"
-      :to="$localeRoute({ name: 'unlocalized' })"
-    >
-      unlocalized
-    </NuxtLink>
+    <NuxtLink id="unlocalized" :to="$localeRoute({ name: 'unlocalized' })"> unlocalized </NuxtLink>
   </div>
 </template>

@@ -15,10 +15,7 @@
           }"
         >
           <!-- Header -->
-          <div
-            class="modal-header"
-            :class="headerClass"
-          >
+          <div class="modal-header" :class="headerClass">
             <div class="header-content">
               <slot name="header">
                 <h3 class="modal-title">
@@ -32,11 +29,10 @@
               aria-label="Close modal"
               @click="closeModal"
             >
-              <svg
-                class="close-icon"
-                viewBox="0 0 24 24"
-              >
-                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+              <svg class="close-icon" viewBox="0 0 24 24">
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
               </svg>
             </button>
           </div>
@@ -47,10 +43,7 @@
           </div>
 
           <!-- Footer -->
-          <div
-            v-if="$slots.footer"
-            class="modal-footer"
-          >
+          <div v-if="$slots.footer" class="modal-footer">
             <slot name="footer" />
           </div>
         </div>
@@ -60,108 +53,108 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    show: boolean
-    title?: string
-    size?: 'sm' | 'md' | 'lg' | 'xl' | 'custom'
-    width?: string
-    height?: string
-    disableOutsideClick?: boolean
-    disableEsc?: boolean
-    showCloseButton?: boolean
-    headerClass?: string
+    show: boolean;
+    title?: string;
+    size?: "sm" | "md" | "lg" | "xl" | "custom";
+    width?: string;
+    height?: string;
+    disableOutsideClick?: boolean;
+    disableEsc?: boolean;
+    showCloseButton?: boolean;
+    headerClass?: string;
   }>(),
   {
-    size: 'md',
+    size: "md",
     showCloseButton: true,
     disableOutsideClick: false,
     disableEsc: false,
   },
-)
+);
 
 const emit = defineEmits<{
-  (e: 'update:show', value: boolean): void
-  (e: 'close'): void
-}>()
+  (e: "update:show", value: boolean): void;
+  (e: "close"): void;
+}>();
 
 const sizeMap = {
-  sm: { width: '400px', height: 'auto' },
-  md: { width: '600px', height: '70vh' },
-  lg: { width: '800px', height: '80vh' },
-  xl: { width: '90vw', height: '90vh' },
-  custom: { width: props.width || 'auto', height: props.height || 'auto' },
-}
+  sm: { width: "400px", height: "auto" },
+  md: { width: "600px", height: "70vh" },
+  lg: { width: "800px", height: "80vh" },
+  xl: { width: "90vw", height: "90vh" },
+  custom: { width: props.width || "auto", height: props.height || "auto" },
+};
 
-const customWidth = computed(() => (props.size === 'custom' ? props.width : null))
+const customWidth = computed(() => (props.size === "custom" ? props.width : null));
 
-const customHeight = computed(() => (props.size === 'custom' ? props.height : null))
+const customHeight = computed(() => (props.size === "custom" ? props.height : null));
 
 const closeModal = () => {
-  emit('update:show', false)
-  emit('close')
-}
+  emit("update:show", false);
+  emit("close");
+};
 
 const handleOutsideClick = () => {
   if (!props.disableOutsideClick) {
-    closeModal()
+    closeModal();
   }
-}
+};
 
 const handleEsc = () => {
   if (!props.disableEsc) {
-    closeModal()
+    closeModal();
   }
-}
+};
 
 // Keyboard events handling
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') handleEsc()
-}
+  if (e.key === "Escape") handleEsc();
+};
 
 // Block scroll when modal is open
-const originalOverflow = ref<string>('')
+const originalOverflow = ref<string>("");
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeydown)
+  document.addEventListener("keydown", handleKeydown);
 
   // Block scroll when modal is open
   if (props.show) {
-    const appContainer = document.querySelector('i18n-devtools-ui')
+    const appContainer = document.querySelector("i18n-devtools-ui");
     if (appContainer) {
-      originalOverflow.value = (appContainer as HTMLElement).style.overflow || ''
-      ;(appContainer as HTMLElement).style.overflow = 'hidden'
+      originalOverflow.value = (appContainer as HTMLElement).style.overflow || "";
+      (appContainer as HTMLElement).style.overflow = "hidden";
     }
   }
-})
+});
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener("keydown", handleKeydown);
 
   // Restore scroll on close
-  const appContainer = document.querySelector('i18n-devtools-ui')
+  const appContainer = document.querySelector("i18n-devtools-ui");
   if (appContainer) {
-    ;(appContainer as HTMLElement).style.overflow = originalOverflow.value
+    (appContainer as HTMLElement).style.overflow = originalOverflow.value;
   }
-})
+});
 
 // Watch show changes for blocking/unblocking scroll
 watch(
   () => props.show,
   (isOpen) => {
-    const appContainer = document.querySelector('i18n-devtools-ui')
+    const appContainer = document.querySelector("i18n-devtools-ui");
     if (appContainer) {
       if (isOpen) {
-        originalOverflow.value = (appContainer as HTMLElement).style.overflow || ''
-        ;(appContainer as HTMLElement).style.overflow = 'hidden'
+        originalOverflow.value = (appContainer as HTMLElement).style.overflow || "";
+        (appContainer as HTMLElement).style.overflow = "hidden";
       } else {
-        ;(appContainer as HTMLElement).style.overflow = originalOverflow.value
+        (appContainer as HTMLElement).style.overflow = originalOverflow.value;
       }
     }
   },
-)
+);
 </script>
 
 <style scoped>
@@ -200,7 +193,7 @@ watch(
 .modal-body {
   @apply flex-1 p-6 overflow-y-auto;
   scrollbar-width: thin;
-  scrollbar-color: theme('colors.gray.300') theme('colors.white');
+  scrollbar-color: theme("colors.gray.300") theme("colors.white");
 }
 
 .modal-body::-webkit-scrollbar {

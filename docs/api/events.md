@@ -29,12 +29,18 @@ The `i18n:register` event in `Nuxt I18n Micro` enables dynamic addition of trans
 The following example demonstrates how to use the `i18n:register` event to dynamically add translations:
 
 ```typescript
-nuxt.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
-  register({
-    "greeting": "Hello",
-    "farewell": "Goodbye"
-  }, locale);
-});
+nuxt.hook(
+  "i18n:register",
+  async (register: (translations: unknown, locale?: string) => void, locale: string) => {
+    register(
+      {
+        greeting: "Hello",
+        farewell: "Goodbye",
+      },
+      locale,
+    );
+  },
+);
 ```
 
 ### 🛠️ Explanation
@@ -46,13 +52,13 @@ sequenceDiagram
     participant Plugin as Custom Plugin
     participant Loader as Translation Loader
     participant I18nContext as I18n Context
-    
+
     App->>NuxtHooks: Initialize app
     NuxtHooks->>Plugin: Execute plugin
     Plugin->>NuxtHooks: nuxtApp.hook('i18n:register', callback)
-    
+
     Note over NuxtHooks: Later, during i18n init...
-    
+
     NuxtHooks->>Plugin: Trigger i18n:register(register, locale)
     Plugin->>Loader: import(`../locales/${locale}.json`)
     Loader-->>Plugin: translations object
@@ -90,8 +96,8 @@ If you're using a module, register the plugin where translation modifications wi
 
 ```javascript
 addPlugin({
-  src: resolve('./plugins/extend_locales'),
-})
+  src: resolve("./plugins/extend_locales"),
+});
 ```
 
 This registers the plugin located at `./plugins/extend_locales`, which will handle dynamic loading and registration of translations.
@@ -101,42 +107,47 @@ This registers the plugin located at `./plugins/extend_locales`, which will hand
 In the plugin, you can manage locale modifications. Here's an example implementation in a Nuxt plugin:
 
 ```typescript
-import { defineNuxtPlugin } from '#app'
+import { defineNuxtPlugin } from "#app";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
   // Function to load translations from JSON files and register them
   const loadTranslations = async (lang: string) => {
     try {
-      const translations = await import(`../locales/${lang}.json`)
-      return translations.default
+      const translations = await import(`../locales/${lang}.json`);
+      return translations.default;
     } catch (error) {
-      console.error(`Error loading translations for language: ${lang}`, error)
-      return null
+      console.error(`Error loading translations for language: ${lang}`, error);
+      return null;
     }
-  }
+  };
 
   // Hook into the 'i18n:register' event to dynamically add translations
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
-  nuxtApp.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
-    const translations = await loadTranslations(locale)
-    if (translations) {
-      register(translations, locale)
-    }
-  })
-})
+  nuxtApp.hook(
+    "i18n:register",
+    async (register: (translations: unknown, locale?: string) => void, locale: string) => {
+      const translations = await loadTranslations(locale);
+      if (translations) {
+        register(translations, locale);
+      }
+    },
+  );
+});
 ```
 
 ### 📝 Detailed Explanation
 
 1. **Loading Translations**:
-  - The `loadTranslations` function dynamically imports translation files based on the locale. The files are expected to be in the `locales` directory and named according to locale codes (e.g., `en.json`, `de.json`).
-  - On successful loading, translations are returned; otherwise, an error is logged.
+
+- The `loadTranslations` function dynamically imports translation files based on the locale. The files are expected to be in the `locales` directory and named according to locale codes (e.g., `en.json`, `de.json`).
+- On successful loading, translations are returned; otherwise, an error is logged.
 
 2. **Registering Translations**:
-  - The plugin hooks into the `i18n:register` event using `nuxtApp.hook`.
-  - When the event is triggered, the `register` function is called with the loaded translations and the corresponding locale.
-  - This merges the new translations into the i18n context for the specified locale, updating the available translations throughout the application.
+
+- The plugin hooks into the `i18n:register` event using `nuxtApp.hook`.
+- When the event is triggered, the `register` function is called with the loaded translations and the corresponding locale.
+- This merges the new translations into the i18n context for the specified locale, updating the available translations throughout the application.
 
 ### 🔗 Benefits of Using Plugins for Translation Modifications
 

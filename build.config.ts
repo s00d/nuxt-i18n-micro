@@ -1,4 +1,4 @@
-import { defineBuildConfig } from 'unbuild'
+import { defineBuildConfig } from "unbuild";
 
 export default defineBuildConfig({
   // @ts-expect-error
@@ -6,4 +6,4 @@ export default defineBuildConfig({
     // for example, if you wish to continue to generate `.cjs` output
     emitCJS: true,
   },
-})
+});

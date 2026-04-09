@@ -1,27 +1,27 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import tailwindcss from '@tailwindcss/vite'
-import MyModule from '../../../src/module'
-import availableLanguages from './app/locales/availableLanguages'
-import pages from './app/locales/pages'
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
+import MyModule from "../../../src/module";
+import availableLanguages from "./app/locales/availableLanguages";
+import pages from "./app/locales/pages";
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [MyModule],
   devtools: { enabled: false },
 
-  css: [resolve(__dirname, 'app/assets/css/tailwind.css')],
+  css: [resolve(__dirname, "app/assets/css/tailwind.css")],
 
   future: {
     compatibilityVersion: 4,
   },
-  compatibilityDate: '2024-04-03',
+  compatibilityDate: "2024-04-03",
   nitro: {
     externals: {
       // inline to prevent imports from output/server/node_modules
-      inline: ['vue', 'vue/server-renderer', '@vue/server-renderer'],
+      inline: ["vue", "vue/server-renderer", "@vue/server-renderer"],
       external: [],
     },
   },
@@ -33,11 +33,11 @@ export default defineNuxtConfig({
     disableWatcher: true,
     locales: availableLanguages,
     autoDetectLanguage: false,
-    autoDetectPath: '/',
-    strategy: 'prefix',
+    autoDetectPath: "/",
+    strategy: "prefix",
     globalLocaleRoutes: pages,
-    defaultLocale: 'de',
-    translationDir: './app/locales',
+    defaultLocale: "de",
+    translationDir: "./app/locales",
     meta: true,
   },
-})
+});

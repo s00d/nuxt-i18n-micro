@@ -19,10 +19,7 @@
       >
         {{ page }}
       </button>
-      <span
-        v-if="currentPage > 4"
-        class="pagination-ellipsis"
-      >...</span>
+      <span v-if="currentPage > 4" class="pagination-ellipsis">...</span>
     </template>
 
     <!-- Current page range -->
@@ -37,10 +34,7 @@
 
     <!-- Last pages -->
     <template v-if="currentPage < totalPages - 2">
-      <span
-        v-if="currentPage < totalPages - 3"
-        class="pagination-ellipsis"
-      >...</span>
+      <span v-if="currentPage < totalPages - 3" class="pagination-ellipsis">...</span>
       <button
         v-for="page in lastPages"
         :key="page"
@@ -63,43 +57,43 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps<{
-  currentPage: number
-  totalPages: number
-}>()
+  currentPage: number;
+  totalPages: number;
+}>();
 
-const emit = defineEmits<(event: 'update:page', page: number) => void>()
+const emit = defineEmits<(event: "update:page", page: number) => void>();
 
 // First two pages
 const firstPages = computed(() => {
-  return [1, 2].filter((page) => page <= props.totalPages)
-})
+  return [1, 2].filter((page) => page <= props.totalPages);
+});
 
 // Last two pages
 const lastPages = computed(() => {
-  return [props.totalPages - 1, props.totalPages].filter((page) => page >= 1)
-})
+  return [props.totalPages - 1, props.totalPages].filter((page) => page >= 1);
+});
 
 // Visible pages around the current one
 const visiblePages = computed(() => {
-  const pages = []
-  const startPage = Math.max(1, props.currentPage - 2)
-  const endPage = Math.min(props.totalPages, props.currentPage + 2)
+  const pages = [];
+  const startPage = Math.max(1, props.currentPage - 2);
+  const endPage = Math.min(props.totalPages, props.currentPage + 2);
 
   for (let i = startPage; i <= endPage; i++) {
-    pages.push(i)
+    pages.push(i);
   }
-  return pages
-})
+  return pages;
+});
 
 // Navigate to page
 const goToPage = (page: number) => {
   if (page >= 1 && page <= props.totalPages) {
-    emit('update:page', page)
+    emit("update:page", page);
   }
-}
+};
 </script>
 
 <style scoped>
@@ -122,7 +116,9 @@ const goToPage = (page: number) => {
   font-size: 13px;
   color: #333;
   text-align: center;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 
 .pagination-button:hover:not(:disabled) {

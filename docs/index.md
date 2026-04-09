@@ -52,42 +52,48 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 > **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
 
 ::: details **plain-nuxt** (baseline)
+
 - **Build Time**: 4.48 seconds
 - **Max CPU Usage**: 242.60%
 - **Max Memory Usage**: 609.55 MB
-:::
+  :::
 
 ::: details **Nuxt I18n v10**
+
 - **Build Time**: 77.81 seconds
 - **Max CPU Usage**: 449.00%
 - **Max Memory Usage**: 9494.69 MB
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Build Time**: 7.88 seconds — **90% faster than i18n v10**
 - **Max CPU Usage**: 336.00% — **25% lower than i18n v10**
 - **Max Memory Usage**: 1164.02 MB — **88% less memory than i18n v10**
-:::
+  :::
 
 #### 🌐 Server Performance (Stress Test)
 
 ::: details **plain-nuxt** (baseline)
+
 - **Requests per Second**: 318 RPS
 - **Average Response Time**: 106.50 ms
 - **Max Memory Usage**: 229.02 MB
-:::
+  :::
 
 ::: details **Nuxt I18n v10**
+
 - **Requests per Second**: 51 RPS
 - **Average Response Time**: 1130.20 ms
 - **Max Memory Usage**: 1050.38 MB
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Requests per Second**: 225 RPS — **4.4x more than i18n v10**
 - **Average Response Time**: 516.70 ms — **54% faster than i18n v10**
 - **Max Memory Usage**: 366.69 MB — **65% less memory than i18n v10**
-:::
+  :::
 
 These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area while staying close to the plain Nuxt baseline.
 
@@ -111,20 +117,18 @@ Then, add it to your `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: [
-    'nuxt-i18n-micro',
-  ],
+  modules: ["nuxt-i18n-micro"],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'ar', iso: 'ar-SA', dir: 'rtl' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
+      { code: "ar", iso: "ar-SA", dir: "rtl" },
     ],
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     meta: true,
   },
-})
+});
 ```
 
 That's it! You're now ready to use **Nuxt I18n Micro** in your Nuxt app.
@@ -133,18 +137,18 @@ That's it! You're now ready to use **Nuxt I18n Micro** in your Nuxt app.
 
 Starting from v2.14+/v3.0.0, the i18n-micro ecosystem includes standalone packages for other frameworks and tools:
 
-| Package | Description |
-|---------|-------------|
-| [`@i18n-micro/vue`](https://www.npmjs.com/package/@i18n-micro/vue) | Vue 3 integration (standalone, without Nuxt) |
-| [`@i18n-micro/react`](https://www.npmjs.com/package/@i18n-micro/react) | React integration |
-| [`@i18n-micro/solid`](https://www.npmjs.com/package/@i18n-micro/solid) | SolidJS integration |
-| [`@i18n-micro/preact`](https://www.npmjs.com/package/@i18n-micro/preact) | Preact integration |
-| [`@i18n-micro/astro`](https://www.npmjs.com/package/@i18n-micro/astro) | Astro integration |
-| [`@i18n-micro/node`](https://www.npmjs.com/package/@i18n-micro/node) | Node.js server-side loader |
-| [`@i18n-micro/core`](https://www.npmjs.com/package/@i18n-micro/core) | Core utilities (shared by all packages) |
-| [`@i18n-micro/types`](https://www.npmjs.com/package/@i18n-micro/types) | TypeScript type definitions |
+| Package                                                                                    | Description                                           |
+| ------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| [`@i18n-micro/vue`](https://www.npmjs.com/package/@i18n-micro/vue)                         | Vue 3 integration (standalone, without Nuxt)          |
+| [`@i18n-micro/react`](https://www.npmjs.com/package/@i18n-micro/react)                     | React integration                                     |
+| [`@i18n-micro/solid`](https://www.npmjs.com/package/@i18n-micro/solid)                     | SolidJS integration                                   |
+| [`@i18n-micro/preact`](https://www.npmjs.com/package/@i18n-micro/preact)                   | Preact integration                                    |
+| [`@i18n-micro/astro`](https://www.npmjs.com/package/@i18n-micro/astro)                     | Astro integration                                     |
+| [`@i18n-micro/node`](https://www.npmjs.com/package/@i18n-micro/node)                       | Node.js server-side loader                            |
+| [`@i18n-micro/core`](https://www.npmjs.com/package/@i18n-micro/core)                       | Core utilities (shared by all packages)               |
+| [`@i18n-micro/types`](https://www.npmjs.com/package/@i18n-micro/types)                     | TypeScript type definitions                           |
 | [`@i18n-micro/types-generator`](https://www.npmjs.com/package/@i18n-micro/types-generator) | Auto-generate TypeScript types from translation files |
-| [`@i18n-micro/test-utils`](https://www.npmjs.com/package/@i18n-micro/test-utils) | Testing utilities |
+| [`@i18n-micro/test-utils`](https://www.npmjs.com/package/@i18n-micro/test-utils)           | Testing utilities                                     |
 
 ## 🗂 Folder Structure
 

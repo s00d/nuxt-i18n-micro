@@ -1,2 +1,2 @@
 // @ts-expect-error
-export default eventHandler(() => 'pong')
+export default eventHandler(() => "pong");

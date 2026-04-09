@@ -8,8 +8,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@i18n-micro/node": "workspace:*",
     "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/node": "workspace:*",
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {

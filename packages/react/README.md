@@ -45,18 +45,18 @@ function App() {
 ### Usage in Components
 
 ```tsx
-import { useI18n } from '@i18n-micro/react'
+import { useI18n } from "@i18n-micro/react";
 
 function MyComponent() {
-  const { t, tc, locale, setLocale } = useI18n()
+  const { t, tc, locale, setLocale } = useI18n();
 
   return (
     <div>
-      <p>{t('greeting', { name: 'World' })}</p>
-      <p>{tc('apples', 5)}</p>
-      <button onClick={() => setLocale('fr')}>Switch to French</button>
+      <p>{t("greeting", { name: "World" })}</p>
+      <p>{tc("apples", 5)}</p>
+      <button onClick={() => setLocale("fr")}>Switch to French</button>
     </div>
-  )
+  );
 }
 ```
 
@@ -68,4 +68,3 @@ function MyComponent() {
 ## License
 
 MIT
-

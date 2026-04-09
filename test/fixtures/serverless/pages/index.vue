@@ -1,7 +1,7 @@
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $t, $getLocale } = useNuxtApp()
+const { $t, $getLocale } = useNuxtApp();
 </script>
 
 <template>
@@ -10,16 +10,16 @@ const { $t, $getLocale } = useNuxtApp()
       {{ $getLocale() }}
     </p>
     <p id="hello">
-      {{ $t('hello') }}
+      {{ $t("hello") }}
     </p>
     <p id="welcome">
-      {{ $t('welcome') }}
+      {{ $t("welcome") }}
     </p>
     <p id="pageTitle">
-      {{ $t('pageTitle') }}
+      {{ $t("pageTitle") }}
     </p>
     <p id="pageContent">
-      {{ $t('pageContent') }}
+      {{ $t("pageContent") }}
     </p>
   </div>
 </template>

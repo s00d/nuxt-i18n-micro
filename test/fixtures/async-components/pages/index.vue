@@ -1,33 +1,31 @@
 <template>
   <div>
-    <h1>{{ $t('index::title') }}</h1>
-    <p>{{ $t('index::description') }}</p>
+    <h1>{{ $t("index::title") }}</h1>
+    <p>{{ $t("index::description") }}</p>
 
     <!-- Навигация к тестовым страницам -->
     <div class="navigation">
-      <i18n-link
-        to="/async-components-test"
-        class="nav-link"
-      >
-        {{ $t('index::navigation.test1') }}
+      <i18n-link to="/async-components-test" class="nav-link">
+        {{ $t("index::navigation.test1") }}
       </i18n-link>
-      <i18n-link
-        to="/async-components-test-2"
-        class="nav-link"
-      >
-        {{ $t('index::navigation.test2') }}
+      <i18n-link to="/async-components-test-2" class="nav-link">
+        {{ $t("index::navigation.test2") }}
       </i18n-link>
     </div>
 
     <!-- Информация о текущей локали -->
     <div class="locale-info">
-      <p><strong>{{ $t('index::localeInfo.currentLocale') }}:</strong> {{ $getLocale() }}</p>
-      <p><strong>{{ $t('index::localeInfo.routeName') }}:</strong> {{ $getRouteName() }}</p>
+      <p>
+        <strong>{{ $t("index::localeInfo.currentLocale") }}:</strong> {{ $getLocale() }}
+      </p>
+      <p>
+        <strong>{{ $t("index::localeInfo.routeName") }}:</strong> {{ $getRouteName() }}
+      </p>
     </div>
 
     <!-- Переключатель языков -->
     <div class="language-switcher">
-      <h3>{{ $t('index::switchLanguage') }}</h3>
+      <h3>{{ $t("index::switchLanguage") }}</h3>
       <div class="switcher-buttons">
         <button
           v-for="locale in availableLocales"
@@ -44,58 +42,58 @@
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $defineI18nRoute, $getLocale, $getRouteName, $switchLocale, $t } = useNuxtApp()
+const { $defineI18nRoute, $getLocale, $getRouteName, $switchLocale, $t } = useNuxtApp();
 
 // Определяем переводы для главной страницы
 $defineI18nRoute({
   locales: {
     en: {
-      'index::title': 'Async Components Test Suite',
-      'index::description': 'Testing async components with i18n translations',
-      'index::navigation.test1': '🧪 Async Components Test 1',
-      'index::navigation.test2': '🧪 Async Components Test 2',
-      'index::localeInfo.currentLocale': 'Current Locale',
-      'index::localeInfo.routeName': 'Route Name',
-      'index::switchLanguage': 'Switch Language',
+      "index::title": "Async Components Test Suite",
+      "index::description": "Testing async components with i18n translations",
+      "index::navigation.test1": "🧪 Async Components Test 1",
+      "index::navigation.test2": "🧪 Async Components Test 2",
+      "index::localeInfo.currentLocale": "Current Locale",
+      "index::localeInfo.routeName": "Route Name",
+      "index::switchLanguage": "Switch Language",
     },
     ru: {
-      'index::title': 'Набор Тестов Асинхронных Компонентов',
-      'index::description': 'Тестирование асинхронных компонентов с переводами i18n',
-      'index::navigation.test1': '🧪 Тест Асинхронных Компонентов 1',
-      'index::navigation.test2': '🧪 Тест Асинхронных Компонентов 2',
-      'index::localeInfo.currentLocale': 'Текущая Локаль',
-      'index::localeInfo.routeName': 'Имя Маршрута',
-      'index::switchLanguage': 'Переключить Язык',
+      "index::title": "Набор Тестов Асинхронных Компонентов",
+      "index::description": "Тестирование асинхронных компонентов с переводами i18n",
+      "index::navigation.test1": "🧪 Тест Асинхронных Компонентов 1",
+      "index::navigation.test2": "🧪 Тест Асинхронных Компонентов 2",
+      "index::localeInfo.currentLocale": "Текущая Локаль",
+      "index::localeInfo.routeName": "Имя Маршрута",
+      "index::switchLanguage": "Переключить Язык",
     },
     de: {
-      'index::title': 'Async-Komponenten Test-Suite',
-      'index::description': 'Testen von Async-Komponenten mit i18n-Übersetzungen',
-      'index::navigation.test1': '🧪 Async-Komponenten Test 1',
-      'index::navigation.test2': '🧪 Async-Komponenten Test 2',
-      'index::localeInfo.currentLocale': 'Aktuelle Lokale',
-      'index::localeInfo.routeName': 'Routenname',
-      'index::switchLanguage': 'Sprache Wechseln',
+      "index::title": "Async-Komponenten Test-Suite",
+      "index::description": "Testen von Async-Komponenten mit i18n-Übersetzungen",
+      "index::navigation.test1": "🧪 Async-Komponenten Test 1",
+      "index::navigation.test2": "🧪 Async-Komponenten Test 2",
+      "index::localeInfo.currentLocale": "Aktuelle Lokale",
+      "index::localeInfo.routeName": "Routenname",
+      "index::switchLanguage": "Sprache Wechseln",
     },
   },
-})
+});
 
 // Доступные локали
 const availableLocales = [
-  { code: 'en', name: 'English' },
-  { code: 'ru', name: 'Русский' },
-  { code: 'de', name: 'Deutsch' },
-]
+  { code: "en", name: "English" },
+  { code: "ru", name: "Русский" },
+  { code: "de", name: "Deutsch" },
+];
 
 // Функция переключения языка
 const switchToLocale = async (locale: string) => {
   try {
-    await $switchLocale(locale)
+    await $switchLocale(locale);
   } catch (error) {
-    console.error('Error switching locale:', error)
+    console.error("Error switching locale:", error);
   }
-}
+};
 </script>
 
 <style scoped>

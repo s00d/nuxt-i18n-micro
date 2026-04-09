@@ -6,18 +6,12 @@
       :class="['tab', { active: activeTab === tab.value }]"
       @click="activeTab = tab.value"
     >
-      <span
-        v-if="tab.icon"
-        class="tab-icon"
-      >
+      <span v-if="tab.icon" class="tab-icon">
         <component
           :is="typeof tab.icon === 'string' ? 'span' : tab.icon"
           v-if="typeof tab.icon !== 'string'"
         />
-        <span
-          v-else
-          v-html="tab.icon"
-        />
+        <span v-else v-html="tab.icon" />
       </span>
       <span class="tab-label">{{ tab.label }}</span>
     </button>
@@ -25,27 +19,27 @@
 </template>
 
 <script setup lang="ts">
-import { type Component, ref, watch } from 'vue'
+import { type Component, ref, watch } from "vue";
 
 interface Tab {
-  label: string
-  value: string
-  icon?: string | Component
+  label: string;
+  value: string;
+  icon?: string | Component;
 }
 
 const props = defineProps<{
-  modelValue: string // Active tab
-  tabs: Tab[] // List of tabs
-}>()
+  modelValue: string; // Active tab
+  tabs: Tab[]; // List of tabs
+}>();
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
-const activeTab = ref(props.modelValue)
+const activeTab = ref(props.modelValue);
 
 // Watch for active tab changes
 watch(activeTab, (newValue) => {
-  emit('update:modelValue', newValue)
-})
+  emit("update:modelValue", newValue);
+});
 </script>
 
 <style scoped>

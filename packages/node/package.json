@@ -1,6 +1,9 @@
 {
   "name": "@i18n-micro/node",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -12,31 +15,28 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=20.0.0"
-  },
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
-  },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
-    "jest": "catalog:",
-    "ts-jest": "catalog:",
-    "@types/jest": "catalog:"
   },
   "scripts": {
     "build": "vite build",
     "dev": "cd playground && npm run dev",
     "test": "jest",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "catalog:",
+    "@types/node": "catalog:",
+    "jest": "catalog:",
+    "ts-jest": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

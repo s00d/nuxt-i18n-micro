@@ -16,98 +16,98 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { LocaleData, TreeNode } from '../../types'
-import TreeItem from './TreeItem.vue'
+import { computed } from "vue";
+import type { LocaleData, TreeNode } from "../../types";
+import TreeItem from "./TreeItem.vue";
 
 const props = defineProps<{
-  locales: LocaleData
-  selectedFile: string
-}>()
+  locales: LocaleData;
+  selectedFile: string;
+}>();
 
-const emit = defineEmits(['fileSelected'])
+const emit = defineEmits(["fileSelected"]);
 
 const tree = computed<TreeNode[]>(() => {
-  const filePaths = Object.keys(props.locales)
-  const commonPrefix = findCommonPrefix(filePaths)
+  const filePaths = Object.keys(props.locales);
+  const commonPrefix = findCommonPrefix(filePaths);
 
   const root: TreeNode = {
-    name: extractName(commonPrefix) || '/',
-    fullPath: commonPrefix || '/',
+    name: extractName(commonPrefix) || "/",
+    fullPath: commonPrefix || "/",
     isFile: false,
     children: [],
-  }
+  };
 
   filePaths.forEach((filePath) => {
     // Process each file path
     const relativePath = filePath.startsWith(commonPrefix)
-      ? filePath.slice(commonPrefix.length).split('/').filter(Boolean)
-      : filePath.split('/').filter(Boolean)
+      ? filePath.slice(commonPrefix.length).split("/").filter(Boolean)
+      : filePath.split("/").filter(Boolean);
 
-    let current = root
+    let current = root;
 
     for (let index = 0; index < relativePath.length; index++) {
-      const part = relativePath[index]
-      if (!part) continue
-      const isFile = index === relativePath.length - 1
+      const part = relativePath[index];
+      if (!part) continue;
+      const isFile = index === relativePath.length - 1;
 
-      let child = current.children.find((node) => node.name === part)
+      let child = current.children.find((node) => node.name === part);
       if (!child) {
         child = {
           name: part,
-          fullPath: `${current.fullPath}/${part}`.replace(/\/+/g, '/'),
+          fullPath: `${current.fullPath}/${part}`.replace(/\/+/g, "/"),
           isFile,
           children: [],
-        }
-        current.children.push(child)
+        };
+        current.children.push(child);
       }
       if (child) {
-        current = child
+        current = child;
       }
     }
-  })
+  });
 
   const sortTree = (nodes: TreeNode[]) => {
     nodes.sort((a, b) => {
-      if (a.isFile === b.isFile) return a.name.localeCompare(b.name)
-      return a.isFile ? 1 : -1
-    })
+      if (a.isFile === b.isFile) return a.name.localeCompare(b.name);
+      return a.isFile ? 1 : -1;
+    });
     for (const node of nodes) {
-      sortTree(node.children)
+      sortTree(node.children);
     }
-  }
+  };
 
-  sortTree(root.children)
+  sortTree(root.children);
 
-  return root.children
-})
+  return root.children;
+});
 
 function findCommonPrefix(files: string[]): string {
-  if (files.length === 0) return ''
+  if (files.length === 0) return "";
 
-  const paths = files.map((p) => p.split('/'))
-  const commonSegments: string[] = []
-  const maxDepth = Math.min(...paths.map((p) => p.length))
+  const paths = files.map((p) => p.split("/"));
+  const commonSegments: string[] = [];
+  const maxDepth = Math.min(...paths.map((p) => p.length));
 
   for (let i = 0; i < maxDepth; i++) {
-    const segment = paths[0]?.[i]
+    const segment = paths[0]?.[i];
     if (segment && paths.every((p) => p[i] === segment)) {
-      commonSegments.push(segment)
+      commonSegments.push(segment);
     } else {
-      break
+      break;
     }
   }
 
-  return commonSegments.join('/')
+  return commonSegments.join("/");
 }
 
 function extractName(path: string): string {
-  const parts = path.split('/').filter((p) => p)
-  return parts[parts.length - 1] || ''
+  const parts = path.split("/").filter((p) => p);
+  return parts[parts.length - 1] || "";
 }
 
 function handleFileSelected(fullPath: string) {
-  emit('fileSelected', fullPath)
+  emit("fileSelected", fullPath);
 }
 </script>
 

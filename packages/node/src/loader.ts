@@ -1,10 +1,10 @@
-import { readdir, readFile } from 'node:fs/promises'
-import { basename, join, relative, sep } from 'node:path'
-import type { Translations } from '@i18n-micro/types'
+import { readdir, readFile } from "node:fs/promises";
+import { basename, join, relative, sep } from "node:path";
+import type { Translations } from "@i18n-micro/types";
 
 export interface LoadedTranslations {
-  root: Record<string, Translations>
-  routes: Record<string, Record<string, Translations>>
+  root: Record<string, Translations>;
+  routes: Record<string, Record<string, Translations>>;
 }
 
 /**
@@ -14,65 +14,68 @@ export interface LoadedTranslations {
  * @param disablePageLocales - If true, ignores pages/ folder and treats all files as global translations
  * @returns Object with global and route-specific translations
  */
-export async function loadTranslations(dir: string, disablePageLocales: boolean = false): Promise<LoadedTranslations> {
+export async function loadTranslations(
+  dir: string,
+  disablePageLocales: boolean = false,
+): Promise<LoadedTranslations> {
   const result: LoadedTranslations = {
     root: {},
     routes: {},
-  }
+  };
 
   try {
     // Use recursive directory reading (Node.js 20+)
-    const files = await readdir(dir, { recursive: true, withFileTypes: true })
+    const files = await readdir(dir, { recursive: true, withFileTypes: true });
 
     for (const file of files) {
-      if (!file.isFile() || !file.name.endsWith('.json')) {
-        continue
+      if (!file.isFile() || !file.name.endsWith(".json")) {
+        continue;
       }
 
-      const fullPath = join(file.path, file.name)
+      const fullPath = join(file.path, file.name);
       // Calculate path relative to the locales root
-      const relativePath = relative(dir, fullPath)
-      const parts = relativePath.split(sep)
-      const locale = basename(file.name, '.json')
+      const relativePath = relative(dir, fullPath);
+      const parts = relativePath.split(sep);
+      const locale = basename(file.name, ".json");
 
       try {
-        const content = await readFile(fullPath, 'utf-8')
-        const translations = JSON.parse(content) as Translations
+        const content = await readFile(fullPath, "utf-8");
+        const translations = JSON.parse(content) as Translations;
 
         // Logic for determining file type (root or page-specific)
-        if (!disablePageLocales && parts[0] === 'pages' && parts.length >= 2) {
+        if (!disablePageLocales && parts[0] === "pages" && parts.length >= 2) {
           // This is a page.
           // Example: pages/user/profile/en.json
           // parts: ['pages', 'user', 'profile', 'en.json']
           // routeParts: ['user', 'profile'] -> 'user-profile'
 
-          const routeParts = parts.slice(1, -1)
+          const routeParts = parts.slice(1, -1);
           if (routeParts.length > 0) {
-            const routeName = routeParts.join('-')
+            const routeName = routeParts.join("-");
 
             if (!result.routes[routeName]) {
-              result.routes[routeName] = {}
+              result.routes[routeName] = {};
             }
-            result.routes[routeName][locale] = translations
+            result.routes[routeName][locale] = translations;
           }
         } else {
           // This is a root-level file (at root or if disablePageLocales=true)
           // Example: en.json or pages/en.json (if disablePageLocales=true)
-          result.root[locale] = translations
+          result.root[locale] = translations;
         }
       } catch (error) {
-        console.error(`Failed to load translation file ${fullPath}:`, error)
+        console.error(`Failed to load translation file ${fullPath}:`, error);
       }
     }
   } catch (error) {
     // If directory doesn't exist, just return empty result to avoid crashing the app
     // (or you can throw the error up if it's critical)
-    if (error && typeof error === 'object' && 'code' in error && error.code !== 'ENOENT') {
-      console.error(`Failed to read directory ${dir}:`, error)
+    if (error && typeof error === "object" && "code" in error && error.code !== "ENOENT") {
+      console.error(`Failed to read directory ${dir}:`, error);
     }
   }
 
-  return result
+  return result;
 }
 
 /**
@@ -80,7 +83,10 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
  * @param dir - Directory path containing translation files
  * @param disablePageLocales - If true, ignores pages/ folder and treats all files as root translations
  */
-export async function loadRootTranslations(dir: string, disablePageLocales: boolean = false): Promise<Record<string, Translations>> {
-  const { root } = await loadTranslations(dir, disablePageLocales)
-  return root
+export async function loadRootTranslations(
+  dir: string,
+  disablePageLocales: boolean = false,
+): Promise<Record<string, Translations>> {
+  const { root } = await loadTranslations(dir, disablePageLocales);
+  return root;
 }

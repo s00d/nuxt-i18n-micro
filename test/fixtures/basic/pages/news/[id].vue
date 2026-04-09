@@ -1,11 +1,7 @@
 <template>
   <div>
-    <div class="news-id">
-      id: {{ params.id }}
-    </div>
-    <div class="news-data">
-      news: {{ news }}
-    </div>
+    <div class="news-id">id: {{ params.id }}</div>
+    <div class="news-data">news: {{ news }}</div>
 
     <NuxtLink
       class="link-article-1"
@@ -13,16 +9,10 @@
     >
       article-1
     </NuxtLink>
-    <NuxtLink
-      class="link-news-4"
-      :to="$localeRoute({ name: 'news-id', params: { id: '4' } })"
-    >
+    <NuxtLink class="link-news-4" :to="$localeRoute({ name: 'news-id', params: { id: '4' } })">
       news-4
     </NuxtLink>
-    <NuxtLink
-      class="link-news-1"
-      :to="$localeRoute({ name: 'news-id', params: { id: '1' } })"
-    >
+    <NuxtLink class="link-news-1" :to="$localeRoute({ name: 'news-id', params: { id: '1' } })">
       news-1
     </NuxtLink>
     <NuxtLink
@@ -34,7 +24,8 @@
           query: { a: 'b' },
         })
       "
-    >news-2</NuxtLink>
+      >news-2</NuxtLink
+    >
 
     <div class="news-link-path">
       <pre>{{ newsLink.fullPath }}</pre>
@@ -47,55 +38,40 @@
     </client-only>
 
     <div class="locale-switcher">
-      <NuxtLink
-        class="locale-en"
-        :to="$switchLocaleRoute('en')"
-      >
-        en
-      </NuxtLink>
-      <NuxtLink
-        class="locale-ru"
-        :to="$switchLocaleRoute('ru')"
-      >
-        ru
-      </NuxtLink>
-      <NuxtLink
-        class="locale-de"
-        :to="$switchLocaleRoute('de')"
-      >
-        de
-      </NuxtLink>
+      <NuxtLink class="locale-en" :to="$switchLocaleRoute('en')"> en </NuxtLink>
+      <NuxtLink class="locale-ru" :to="$switchLocaleRoute('ru')"> ru </NuxtLink>
+      <NuxtLink class="locale-de" :to="$switchLocaleRoute('de')"> de </NuxtLink>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { useAsyncData, useRoute, useRouter } from '#app'
-import { useI18n } from '#imports'
+import { computed } from "vue";
+import { useAsyncData, useRoute, useRouter } from "#app";
+import { useI18n } from "#imports";
 
-const { params } = useRoute()
-const router = useRouter()
-const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n()
+const { params } = useRoute();
+const router = useRouter();
+const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n();
 
 const newsLink = computed(() =>
   $localeRoute({
-    name: 'news-id',
-    params: { id: '2' },
-    hash: '#tada',
-    query: { a: 'b' },
+    name: "news-id",
+    params: { id: "2" },
+    hash: "#tada",
+    query: { a: "b" },
   }),
-)
+);
 
 const { data: news } = await useAsyncData(`articles-${params.id}`, async () => {
-  const response = (await $fetch('/api/getNews', {
+  const response = (await $fetch("/api/getNews", {
     query: {
       id: params.id,
     },
-  })) as { metadata: { [key: string]: { id: string } } }
+  })) as { metadata: { [key: string]: { id: string } } };
   if (response?.metadata) {
-    $setI18nRouteParams(response?.metadata)
+    $setI18nRouteParams(response?.metadata);
   }
-  return response
-})
+  return response;
+});
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -9,14 +9,14 @@
 // @ts-expect-error
 $defineI18nRoute({
   locales: [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'de', name: 'German', flag: '🇩🇪' },
-    { code: 'fr', name: 'French', flag: '🇫🇷' },
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "de", name: "German", flag: "🇩🇪" },
+    { code: "fr", name: "French", flag: "🇫🇷" },
   ],
   localeRoutes: {
-    en: '/welcome',
-    de: '/willkommen',
-    fr: '/bienvenue',
+    en: "/welcome",
+    de: "/willkommen",
+    fr: "/bienvenue",
   },
-})
+});
 </script>

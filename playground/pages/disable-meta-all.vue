@@ -7,10 +7,10 @@
 </template>
 
 <script setup lang="ts">
-const { $defineI18nRoute } = useNuxtApp()
+const { $defineI18nRoute } = useNuxtApp();
 
 $defineI18nRoute({
-  locales: ['en', 'fr', 'de', 'es'],
+  locales: ["en", "fr", "de", "es"],
   disableMeta: true,
-})
+});
 </script>

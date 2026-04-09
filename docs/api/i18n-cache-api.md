@@ -39,32 +39,33 @@ A singleton class that provides unified translation storage for both client and 
 
 **Key methods:**
 
-| Method | Description |
-|--------|-------------|
-| `getFromCache(locale, routeName?)` | Synchronous check: returns cached data or checks `window.__I18N__` (client) |
-| `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
-| `clear()` | Clears the entire cache |
+| Method                              | Description                                                                 |
+| ----------------------------------- | --------------------------------------------------------------------------- |
+| `getFromCache(locale, routeName?)`  | Synchronous check: returns cached data or checks `window.__I18N__` (client) |
+| `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch`      |
+| `clear()`                           | Clears the entire cache                                                     |
 
 **Cache key format**: `{locale}:{routeName}` (e.g., `en:index`, `fr:about`)
 
 ```typescript
-import { translationStorage } from '../utils/storage'
+import { translationStorage } from "../utils/storage";
 
 // Synchronous cache check
-const cached = translationStorage.getFromCache('en', 'index')
+const cached = translationStorage.getFromCache("en", "index");
 
 // Async load (with automatic caching)
-const result = await translationStorage.load('en', 'index', {
-  apiBaseUrl: '_locales',
-  baseURL: '/',
-  dateBuild: '2024-01-01'
-})
+const result = await translationStorage.load("en", "index", {
+  apiBaseUrl: "_locales",
+  baseURL: "/",
+  dateBuild: "2024-01-01",
+});
 // result.data — merged translations
 // result.cacheKey — cache key used
 // result.json — JSON string (server only, for client injection)
 ```
 
 ### ⚙️ Deterministic Cache Busting (`i18n.dateBuild`)
+
 By default, this module generates `dateBuild` during build time using `Date.now()`. It is then embedded into the generated `#build/i18n.strategy.mjs` and used as a query parameter (`?v=...`) to invalidate translation fetch caches after rebuilds.
 
 If you need reproducible builds (for example, to improve chunk cache hit rates in rolling deployments), set a stable value in `nuxt.config`:
@@ -73,9 +74,9 @@ If you need reproducible builds (for example, to improve chunk cache hit rates i
 export default defineNuxtConfig({
   i18n: {
     // Any stable string/number (git SHA, CI build number, release tag, etc.)
-    dateBuild: process.env.GIT_SHA ?? 'local-dev'
-  }
-})
+    dateBuild: process.env.GIT_SHA ?? "local-dev",
+  },
+});
 ```
 
 ### 2. `loadTranslationsFromServer()` (Server Only)
@@ -85,10 +86,10 @@ export default defineNuxtConfig({
 Reads a single pre-built translation file from Nitro storage (`assets:i18n`). All merging (root + page-specific + fallback locale chains + layers) is done at build time by `preMergeLocales` in `module.ts`. The server-loader simply fetches and caches the result in a process-global `Map` via `Symbol.for('__NUXT_I18N_SERVER_CACHE_CC__')`.
 
 ```typescript
-import { loadTranslationsFromServer } from '../server/utils/server-loader'
+import { loadTranslationsFromServer } from "../server/utils/server-loader";
 
 // Returns { data: Translations, json: string }
-const { data, json } = await loadTranslationsFromServer('en', 'index')
+const { data, json } = await loadTranslationsFromServer("en", "index");
 ```
 
 ### 3. SSR Injection (`window.__I18N__`)
@@ -97,9 +98,9 @@ During server-side rendering, the main plugin (`01.plugin.ts`) collects all load
 
 ```html
 <script>
-window.__I18N__={};
-window.__I18N__["en:index"]={...};
-window.__I18N__["en:index"]={...};
+  window.__I18N__={};
+  window.__I18N__["en:index"]={...};
+  window.__I18N__["en:index"]={...};
 </script>
 ```
 
@@ -119,60 +120,60 @@ This Nitro route serves pre-merged translations. It calls `loadTranslationsFromS
 
 ```ts
 // server/api/i18n/load-cache.[post].ts
-import { defineEventHandler, readBody } from 'h3'
-import { loadTranslationsFromServer } from '#imports'
+import { defineEventHandler, readBody } from "h3";
+import { loadTranslationsFromServer } from "#imports";
 
 export default defineEventHandler(async (event) => {
-  const { page, locale } = await readBody<{ page: string; locale: string }>(event)
-  const { data } = await loadTranslationsFromServer(locale, page)
-  return { locale, page, data }
-})
+  const { page, locale } = await readBody<{ page: string; locale: string }>(event);
+  const { data } = await loadTranslationsFromServer(locale, page);
+  return { locale, page, data };
+});
 ```
 
 ### Update translations (file + invalidate cache)
 
 ```ts
 // server/api/i18n/update.[post].ts
-import { defineEventHandler, readBody, createError } from 'h3'
-import { join } from 'node:path'
-import { readFile, writeFile } from 'node:fs/promises'
+import { defineEventHandler, readBody, createError } from "h3";
+import { join } from "node:path";
+import { readFile, writeFile } from "node:fs/promises";
 
 function deepMerge(target: any, source: any): any {
   for (const key in source) {
-    if (key === '__proto__' || key === 'constructor') continue
+    if (key === "__proto__" || key === "constructor") continue;
     if (Array.isArray(source[key])) {
-      target[key] = source[key]
-    } else if (typeof source[key] === 'object' && source[key]) {
-      target[key] = deepMerge(target[key] || {}, source[key])
+      target[key] = source[key];
+    } else if (typeof source[key] === "object" && source[key]) {
+      target[key] = deepMerge(target[key] || {}, source[key]);
     } else {
-      target[key] = source[key]
+      target[key] = source[key];
     }
   }
-  return target
+  return target;
 }
 
 export default defineEventHandler(async (event) => {
-  const { path, updates } = await readBody<{ path: string; updates: Record<string, any> }>(event)
+  const { path, updates } = await readBody<{ path: string; updates: Record<string, any> }>(event);
 
   if (!path || !updates) {
-    throw createError({ statusCode: 400, statusMessage: 'Missing path or updates' })
+    throw createError({ statusCode: 400, statusMessage: "Missing path or updates" });
   }
 
-  const fullPath = join('locales', path)
-  let existing = {}
+  const fullPath = join("locales", path);
+  let existing = {};
 
   try {
-    const content = await readFile(fullPath, 'utf-8')
-    existing = JSON.parse(content)
+    const content = await readFile(fullPath, "utf-8");
+    existing = JSON.parse(content);
   } catch {
     // File does not exist — create new
   }
 
-  const merged = deepMerge(existing, updates)
-  await writeFile(fullPath, JSON.stringify(merged, null, 2), 'utf-8')
+  const merged = deepMerge(existing, updates);
+  await writeFile(fullPath, JSON.stringify(merged, null, 2), "utf-8");
 
-  return { success: true, path, updated: merged }
-})
+  return { success: true, path, updated: merged };
+});
 ```
 
 ::: tip
@@ -187,16 +188,17 @@ Use the built-in `$clearCache` method:
 
 ```vue
 <script setup>
-const { $clearCache } = useNuxtApp()
+const { $clearCache } = useNuxtApp();
 
 // Clears both TranslationStorage and plugin-level cache
-$clearCache()
+$clearCache();
 </script>
 ```
 
 ### Server cache behavior
 
 The server-side cache (`loadTranslationsFromServer`) is process-global and persists until:
+
 - The server process restarts
 - A new deployment is detected (different `dateBuild` value)
 
@@ -213,24 +215,24 @@ export default defineNuxtConfig({
   nitro: {
     storage: {
       // Only needed if default file-system storage is unavailable
-      'assets:server': {
-        driver: 'cloudflare-kv-binding',
-        binding: 'MY_KV_NAMESPACE'
-      }
-    }
-  }
-})
+      "assets:server": {
+        driver: "cloudflare-kv-binding",
+        binding: "MY_KV_NAMESPACE",
+      },
+    },
+  },
+});
 ```
 
 ## 💡 Key Differences from v2
 
-| Aspect | v2 | v3 |
-|--------|----|----|
-| Client cache | `useStorage('cache')` | `TranslationStorage` singleton (Symbol.for on globalThis) |
-| SSR transfer | Runtime config | `window.__I18N__` script injection |
-| Server cache | Nitro cache storage | Process-global `Map` via `Symbol.for` |
-| Merge logic | Client-side | Build-time pre-merge (`preMergeLocales` in `module.ts`) |
-| Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}` |
+| Aspect           | v2                            | v3                                                        |
+| ---------------- | ----------------------------- | --------------------------------------------------------- |
+| Client cache     | `useStorage('cache')`         | `TranslationStorage` singleton (Symbol.for on globalThis) |
+| SSR transfer     | Runtime config                | `window.__I18N__` script injection                        |
+| Server cache     | Nitro cache storage           | Process-global `Map` via `Symbol.for`                     |
+| Merge logic      | Client-side                   | Build-time pre-merge (`preMergeLocales` in `module.ts`)   |
+| Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}`                                    |
 
 ## 📚 Related
 

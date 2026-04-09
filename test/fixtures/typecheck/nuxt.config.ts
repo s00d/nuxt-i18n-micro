@@ -1,4 +1,4 @@
-import MyModule from '../../../src/module'
+import MyModule from "../../../src/module";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -7,14 +7,14 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: "2024-11-01",
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'cs', iso: 'cs-CZ', dir: 'ltr' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "cs", iso: "cs-CZ", dir: "ltr" },
     ],
-    defaultLocale: 'cs',
-    translationDir: 'locales',
+    defaultLocale: "cs",
+    translationDir: "locales",
     meta: true,
   },
-})
+});

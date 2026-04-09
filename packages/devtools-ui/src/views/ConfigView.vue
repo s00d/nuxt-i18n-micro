@@ -2,10 +2,7 @@
   <div class="config-view">
     <Loader v-if="isLoading" />
 
-    <div
-      v-else
-      class="space-y-6"
-    >
+    <div v-else class="space-y-6">
       <!-- General Settings Card -->
       <ConfigCard title="General Configuration">
         <template #icon>
@@ -14,15 +11,15 @@
         <div class="settings-grid">
           <div class="config-row">
             <span class="config-label">Default Locale</span>
-            <span class="config-value">{{ configs.defaultLocale || '—' }}</span>
+            <span class="config-value">{{ configs.defaultLocale || "—" }}</span>
           </div>
           <div class="config-row">
             <span class="config-label">Routing Strategy</span>
-            <span class="config-value capitalize">{{ configs.strategy || '—' }}</span>
+            <span class="config-value capitalize">{{ configs.strategy || "—" }}</span>
           </div>
           <div class="config-row">
             <span class="config-label">Fallback Locale</span>
-            <span class="config-value">{{ configs.fallbackLocale || '—' }}</span>
+            <span class="config-value">{{ configs.fallbackLocale || "—" }}</span>
           </div>
           <div class="config-row">
             <span class="config-label">Debug Mode</span>
@@ -58,19 +55,19 @@
           <div class="config-row">
             <span class="config-label">Translation Directory</span>
             <span class="config-value font-mono text-sm">
-              {{ configs.translationDir || '—' }}
+              {{ configs.translationDir || "—" }}
             </span>
           </div>
           <div class="config-row">
             <span class="config-label">API Base URL</span>
             <span class="config-value font-mono text-sm text-blue-600">
-              {{ configs.apiBaseUrl || '—' }}
+              {{ configs.apiBaseUrl || "—" }}
             </span>
           </div>
           <div class="config-row">
             <span class="config-label">Locale Cookie</span>
             <span class="config-value font-mono text-sm">
-              {{ configs.localeCookie || '—' }}
+              {{ configs.localeCookie || "—" }}
             </span>
           </div>
         </div>
@@ -80,16 +77,16 @@
 </template>
 
 <script setup lang="ts">
-import ConfigCard from '../components/config/ConfigCard.vue'
-import LocaleTable from '../components/data/LocaleTable.vue'
-import GlobeIcon from '../components/ui/icons/GlobeIcon.vue'
-import ServerIcon from '../components/ui/icons/ServerIcon.vue'
-import SettingsIcon from '../components/ui/icons/SettingsIcon.vue'
-import Loader from '../components/ui/Loader.vue'
-import StatusIndicator from '../components/ui/StatusIndicator.vue'
-import { useI18nState } from '../composables/useI18nState'
+import ConfigCard from "../components/config/ConfigCard.vue";
+import LocaleTable from "../components/data/LocaleTable.vue";
+import GlobeIcon from "../components/ui/icons/GlobeIcon.vue";
+import ServerIcon from "../components/ui/icons/ServerIcon.vue";
+import SettingsIcon from "../components/ui/icons/SettingsIcon.vue";
+import Loader from "../components/ui/Loader.vue";
+import StatusIndicator from "../components/ui/StatusIndicator.vue";
+import { useI18nState } from "../composables/useI18nState";
 
-const { isLoading, configs } = useI18nState()
+const { isLoading, configs } = useI18nState();
 </script>
 
 <style scoped>

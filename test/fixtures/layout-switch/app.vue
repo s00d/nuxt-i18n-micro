@@ -2,11 +2,11 @@
   <div>
     <header class="header">
       <h1 class="layout-title">
-        {{ $t('layout.title') }}
+        {{ $t("layout.title") }}
       </h1>
       <nav class="nav">
-        <span class="nav-home">{{ $t('layout.nav.home') }}</span>
-        <span class="nav-about">{{ $t('layout.nav.about') }}</span>
+        <span class="nav-home">{{ $t("layout.nav.home") }}</span>
+        <span class="nav-about">{{ $t("layout.nav.about") }}</span>
       </nav>
       <div class="locale-switcher">
         <button
@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-const { $t, $getLocale, $switchLocale } = useI18n()
+const { $t, $getLocale, $switchLocale } = useI18n();
 </script>
 
 <style>

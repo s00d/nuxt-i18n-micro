@@ -1,4 +1,5 @@
-import type { RouteLocationNormalizedLoaded } from 'vue-router'
+import { getPathSegments, removeLeadingSlash } from "@i18n-micro/utils";
+import type { RouteLocationNormalizedLoaded } from "vue-router";
 
 /**
  * Extracts the base route pattern from a matched route path
@@ -14,9 +15,9 @@ import type { RouteLocationNormalizedLoaded } from 'vue-router'
  */
 export function extractBaseRoutePattern(matchedPath: string): string {
   return matchedPath
-    .replace(/\/:locale\([^)]+\)/g, '') // Remove locale parameter
-    .replace(/\/:([^()]+)\(\)/g, '/[$1]') // Convert :param() to [param]
-    .replace(/\/:([^()]+)/g, '/[$1]') // Convert :param to [param]
+    .replace(/\/:locale\([^)]+\)/g, "") // Remove locale parameter
+    .replace(/\/:([^()]+)\(\)/g, "/[$1]") // Convert :param() to [param]
+    .replace(/\/:([^()]+)/g, "/[$1]"); // Convert :param to [param]
 }
 
 /**
@@ -31,49 +32,49 @@ export function extractBaseRoutePattern(matchedPath: string): string {
 export function findAllowedLocalesForRoute(
   route: RouteLocationNormalizedLoaded,
   routeLocales: Record<string, string[]> | undefined,
-  localizedRouteNamePrefix = 'localized-',
+  localizedRouteNamePrefix = "localized-",
   localeCodes?: string[],
 ): string[] | null {
-  const routePath = route.path
-  const routeName = route.name?.toString()
-  const normalizedRouteName = routeName?.replace(localizedRouteNamePrefix, '')
-  const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
+  const routePath = route.path;
+  const routeName = route.name?.toString();
+  const normalizedRouteName = routeName?.replace(localizedRouteNamePrefix, "");
+  const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined;
 
   // Try to find allowed locales for this route (module uses path without leading slash, e.g. 'test' for pages/test/)
   let allowedLocales =
     (routeName && routeLocales?.[routeName]) ||
     (normalizedRouteName && routeLocales?.[normalizedRouteName]) ||
     (normalizedRoutePath && routeLocales?.[normalizedRoutePath]) ||
-    (normalizedRoutePath && routeLocales?.[normalizedRoutePath.replace(/^\//, '')]) ||
+    (normalizedRoutePath && routeLocales?.[removeLeadingSlash(normalizedRoutePath)]) ||
     routeLocales?.[routePath] ||
-    (routePath && routeLocales?.[routePath.replace(/^\//, '')])
+    (routePath && routeLocales?.[removeLeadingSlash(routePath)]);
 
   // Path-based lookup when path has locale prefix (e.g. /es/test) and route might not be matched yet (SSR/direct request)
   if (!allowedLocales && routeLocales && localeCodes?.length) {
-    const segments = routePath.split('/').filter(Boolean)
-    const first = segments[0]
+    const segments = getPathSegments(routePath);
+    const first = segments[0];
     if (first && localeCodes.includes(first) && segments.length > 1) {
-      const pathWithoutLocale = `/${segments.slice(1).join('/')}`
-      const pathKey = pathWithoutLocale === '/' ? '/' : pathWithoutLocale.replace(/^\//, '')
-      allowedLocales = routeLocales[pathWithoutLocale] ?? routeLocales[pathKey] ?? undefined
+      const pathWithoutLocale = `/${segments.slice(1).join("/")}`;
+      const pathKey = pathWithoutLocale === "/" ? "/" : removeLeadingSlash(pathWithoutLocale);
+      allowedLocales = routeLocales[pathWithoutLocale] ?? routeLocales[pathKey] ?? undefined;
     }
   }
 
   // For dynamic routes, try to match against route patterns using route.matched
   if (!allowedLocales && route.matched && route.matched.length > 0) {
-    const matchedRoute = route.matched[0]
-    if (!matchedRoute) return null
-    const matchedPath = matchedRoute.path
+    const matchedRoute = route.matched[0];
+    if (!matchedRoute) return null;
+    const matchedPath = matchedRoute.path;
 
-    const baseRoutePattern = extractBaseRoutePattern(matchedPath)
+    const baseRoutePattern = extractBaseRoutePattern(matchedPath);
 
     // Try to find matching route pattern in routeLocales
     if (routeLocales?.[baseRoutePattern]) {
-      allowedLocales = routeLocales[baseRoutePattern]
+      allowedLocales = routeLocales[baseRoutePattern];
     }
   }
 
-  return allowedLocales || null
+  return allowedLocales || null;
 }
 
 /**
@@ -82,39 +83,40 @@ export function findAllowedLocalesForRoute(
  * @param route - The route object
  * @param routeDisableMeta - The routeDisableMeta configuration object
  * @param currentLocale - The current locale code
+ * @param localizedRouteNamePrefix
  * @returns True if meta tags should be disabled, false otherwise
  */
 export function isMetaDisabledForRoute(
   route: RouteLocationNormalizedLoaded,
   routeDisableMeta: Record<string, boolean | string[]> | undefined,
   currentLocale?: string,
-  localizedRouteNamePrefix = 'localized-',
+  localizedRouteNamePrefix = "localized-",
 ): boolean {
   if (!routeDisableMeta) {
-    return false
+    return false;
   }
 
-  const routePath = route.path
-  const routeName = route.name?.toString()
-  const normalizedRouteName = routeName?.replace(localizedRouteNamePrefix, '')
-  const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined
+  const routePath = route.path;
+  const routeName = route.name?.toString();
+  const normalizedRouteName = routeName?.replace(localizedRouteNamePrefix, "");
+  const normalizedRoutePath = normalizedRouteName ? `/${normalizedRouteName}` : undefined;
 
   // Helper function to check if meta is disabled for a specific route pattern
   const checkDisableMeta = (disableMetaValue: boolean | string[] | undefined): boolean => {
     if (disableMetaValue === undefined) {
-      return false
+      return false;
     }
 
-    if (typeof disableMetaValue === 'boolean') {
-      return disableMetaValue
+    if (typeof disableMetaValue === "boolean") {
+      return disableMetaValue;
     }
 
     if (Array.isArray(disableMetaValue)) {
-      return currentLocale ? disableMetaValue.includes(currentLocale) : false
+      return currentLocale ? disableMetaValue.includes(currentLocale) : false;
     }
 
-    return false
-  }
+    return false;
+  };
 
   // Check if meta is disabled for this route
   if (
@@ -123,22 +125,22 @@ export function isMetaDisabledForRoute(
     (normalizedRouteName && checkDisableMeta(routeDisableMeta[normalizedRouteName])) ||
     (normalizedRoutePath && checkDisableMeta(routeDisableMeta[normalizedRoutePath]))
   ) {
-    return true
+    return true;
   }
 
   // For dynamic routes, try to match against route patterns using route.matched
   if (route.matched && route.matched.length > 0) {
-    const matchedRoute = route.matched[0]
-    if (!matchedRoute) return false
-    const matchedPath = matchedRoute.path
+    const matchedRoute = route.matched[0];
+    if (!matchedRoute) return false;
+    const matchedPath = matchedRoute.path;
 
-    const baseRoutePattern = extractBaseRoutePattern(matchedPath)
+    const baseRoutePattern = extractBaseRoutePattern(matchedPath);
 
     // Check if meta is disabled for this route pattern
     if (checkDisableMeta(routeDisableMeta[baseRoutePattern])) {
-      return true
+      return true;
     }
   }
 
-  return false
+  return false;
 }

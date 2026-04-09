@@ -2,243 +2,248 @@
  * Tests for resolver.ts - coverage for uncovered lines
  * Adapted to pure functions (no RouteResolver class).
  */
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import type { PathStrategyContext, ResolvedRouteLike } from '../src'
-import { getAllowedLocalesForRoute, getParentPathForNested, getPathForUnlocalizedRoute, getPathForUnlocalizedRouteByName } from '../src/resolver'
-import { makePathStrategyContext } from './test-utils'
+import type { ModuleOptionsExtend } from "@i18n-micro/types";
+import { type PathStrategyContext, type ResolvedRouteLike } from "../src";
+import {
+  getAllowedLocalesForRoute,
+  getParentPathForNested,
+  getPathForUnlocalizedRoute,
+  getPathForUnlocalizedRouteByName,
+} from "../src/resolver";
+import { makePathStrategyContext } from "./test-utils";
 
 const baseConfig: ModuleOptionsExtend = {
-  defaultLocale: 'en',
-  strategy: 'prefix_except_default',
+  defaultLocale: "en",
+  strategy: "prefix_except_default",
   locales: [
-    { code: 'en', iso: 'en-US' },
-    { code: 'de', iso: 'de-DE' },
-    { code: 'ru', iso: 'ru-RU' },
+    { code: "en", iso: "en-US" },
+    { code: "de", iso: "de-DE" },
+    { code: "ru", iso: "ru-RU" },
   ],
   dateBuild: 0,
   hashMode: false,
   isSSG: false,
-  apiBaseUrl: '',
+  apiBaseUrl: "",
   disablePageLocales: false,
-}
+};
 
 function makeCtx(extra?: Partial<PathStrategyContext>): PathStrategyContext {
-  return makePathStrategyContext(baseConfig, 'prefix_except_default', extra)
+  return makePathStrategyContext(baseConfig, "prefix_except_default", extra);
 }
 
-describe('PathResolver - getPathForUnlocalizedRoute', () => {
-  test('returns path when globalLocaleRoutes has entry set to false', () => {
+describe("PathResolver - getPathForUnlocalizedRoute", () => {
+  test("returns path when globalLocaleRoutes has entry set to false", () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { about: false },
-    })
+    });
     const route: ResolvedRouteLike = {
-      name: 'localized-about-en',
-      path: '/about',
-      fullPath: '/about',
+      name: "localized-about-en",
+      path: "/about",
+      fullPath: "/about",
       params: {},
-    }
+    };
 
-    const result = getPathForUnlocalizedRoute(ctx, route)
-    expect(result).toBe('/about')
-  })
+    const result = getPathForUnlocalizedRoute(ctx, route);
+    expect(result).toBe("/about");
+  });
 
-  test('returns pathWithoutLocale when key matches exactly', () => {
+  test("returns pathWithoutLocale when key matches exactly", () => {
     const ctx = makeCtx({
-      globalLocaleRoutes: { 'special-page': false },
-    })
+      globalLocaleRoutes: { "special-page": false },
+    });
     const route: ResolvedRouteLike = {
-      name: 'localized-special-page-en',
-      path: '/special/page',
-      fullPath: '/special/page',
+      name: "localized-special-page-en",
+      path: "/special/page",
+      fullPath: "/special/page",
       params: {},
-    }
+    };
 
-    const result = getPathForUnlocalizedRoute(ctx, route)
-    expect(result).toBe('/special/page')
-  })
+    const result = getPathForUnlocalizedRoute(ctx, route);
+    expect(result).toBe("/special/page");
+  });
 
-  test('returns transformed path from baseRouteName', () => {
+  test("returns transformed path from baseRouteName", () => {
     const ctx = makeCtx({
-      globalLocaleRoutes: { 'my-page': false },
-    })
+      globalLocaleRoutes: { "my-page": false },
+    });
     const route: ResolvedRouteLike = {
-      name: 'localized-my-page-en',
-      path: '/my/page',
-      fullPath: '/my/page',
+      name: "localized-my-page-en",
+      path: "/my/page",
+      fullPath: "/my/page",
       params: {},
-    }
+    };
 
-    const result = getPathForUnlocalizedRoute(ctx, route)
-    expect(result).toBe('/my/page')
-  })
+    const result = getPathForUnlocalizedRoute(ctx, route);
+    expect(result).toBe("/my/page");
+  });
 
-  test('returns null when no matching globalLocaleRoutes', () => {
+  test("returns null when no matching globalLocaleRoutes", () => {
     const ctx = makeCtx({
-      globalLocaleRoutes: { other: { en: '/other-en', de: '/other-de' } },
-    })
+      globalLocaleRoutes: { other: { en: "/other-en", de: "/other-de" } },
+    });
     const route: ResolvedRouteLike = {
-      name: 'localized-about-en',
-      path: '/about',
-      fullPath: '/about',
+      name: "localized-about-en",
+      path: "/about",
+      fullPath: "/about",
       params: {},
-    }
+    };
 
-    const result = getPathForUnlocalizedRoute(ctx, route)
-    expect(result).toBeNull()
-  })
-})
+    const result = getPathForUnlocalizedRoute(ctx, route);
+    expect(result).toBeNull();
+  });
+});
 
-describe('PathResolver - getPathForUnlocalizedRouteByName', () => {
-  test('returns path when route name is set to false', () => {
+describe("PathResolver - getPathForUnlocalizedRouteByName", () => {
+  test("returns path when route name is set to false", () => {
     const ctx = makeCtx({
       globalLocaleRoutes: { about: false },
-    })
+    });
 
-    const result = getPathForUnlocalizedRouteByName(ctx, 'about')
-    expect(result).toBe('/about')
-  })
+    const result = getPathForUnlocalizedRouteByName(ctx, "about");
+    expect(result).toBe("/about");
+  });
 
-  test('returns path with leading slash variant', () => {
+  test("returns path with leading slash variant", () => {
     const ctx = makeCtx({
-      globalLocaleRoutes: { '/contact': false },
-    })
+      globalLocaleRoutes: { "/contact": false },
+    });
 
-    const result = getPathForUnlocalizedRouteByName(ctx, '/contact')
-    expect(result).toBe('/contact')
-  })
+    const result = getPathForUnlocalizedRouteByName(ctx, "/contact");
+    expect(result).toBe("/contact");
+  });
 
-  test('returns null when route is not unlocalized', () => {
+  test("returns null when route is not unlocalized", () => {
     const ctx = makeCtx({
-      globalLocaleRoutes: { page: { en: '/page-en', de: '/seite' } },
-    })
+      globalLocaleRoutes: { page: { en: "/page-en", de: "/seite" } },
+    });
 
-    const result = getPathForUnlocalizedRouteByName(ctx, 'page')
-    expect(result).toBeNull()
-  })
+    const result = getPathForUnlocalizedRouteByName(ctx, "page");
+    expect(result).toBeNull();
+  });
 
-  test('returns null when globalLocaleRoutes is empty', () => {
-    const ctx = makeCtx({})
+  test("returns null when globalLocaleRoutes is empty", () => {
+    const ctx = makeCtx({});
 
-    const result = getPathForUnlocalizedRouteByName(ctx, 'page')
-    expect(result).toBeNull()
-  })
-})
+    const result = getPathForUnlocalizedRouteByName(ctx, "page");
+    expect(result).toBeNull();
+  });
+});
 
-describe('PathResolver - getAllowedLocalesForRoute', () => {
-  test('returns all locales when routeLocales is empty', () => {
-    const ctx = makeCtx({})
+describe("PathResolver - getAllowedLocalesForRoute", () => {
+  test("returns all locales when routeLocales is empty", () => {
+    const ctx = makeCtx({});
     const route: ResolvedRouteLike = {
-      name: 'about',
-      path: '/about',
-      fullPath: '/about',
+      name: "about",
+      path: "/about",
+      fullPath: "/about",
       params: {},
-    }
+    };
 
-    const result = getAllowedLocalesForRoute(ctx, route)
-    expect(result).toEqual(['en', 'de', 'ru'])
-  })
+    const result = getAllowedLocalesForRoute(ctx, route);
+    expect(result).toEqual(["en", "de", "ru"]);
+  });
 
-  test('returns filtered locales when routeLocales has entry', () => {
+  test("returns filtered locales when routeLocales has entry", () => {
     const ctx = makeCtx({
-      routeLocales: { about: ['en', 'de'] },
-    })
+      routeLocales: { about: ["en", "de"] },
+    });
     const route: ResolvedRouteLike = {
-      name: 'localized-about-en',
-      path: '/about',
-      fullPath: '/about',
+      name: "localized-about-en",
+      path: "/about",
+      fullPath: "/about",
       params: {},
-    }
+    };
 
-    const result = getAllowedLocalesForRoute(ctx, route)
-    expect(result).toEqual(['en', 'de'])
-  })
+    const result = getAllowedLocalesForRoute(ctx, route);
+    expect(result).toEqual(["en", "de"]);
+  });
 
-  test('filters out invalid locale codes', () => {
+  test("filters out invalid locale codes", () => {
     const ctx = makeCtx({
-      routeLocales: { page: ['en', 'fr', 'invalid'] },
-    })
+      routeLocales: { page: ["en", "fr", "invalid"] },
+    });
     const route: ResolvedRouteLike = {
-      name: 'localized-page-en',
-      path: '/page',
-      fullPath: '/page',
+      name: "localized-page-en",
+      path: "/page",
+      fullPath: "/page",
       params: {},
-    }
+    };
 
-    const result = getAllowedLocalesForRoute(ctx, route)
-    expect(result).toEqual(['en'])
-  })
+    const result = getAllowedLocalesForRoute(ctx, route);
+    expect(result).toEqual(["en"]);
+  });
 
-  test('uses routesLocaleLinks to find allowed locales', () => {
+  test("uses routesLocaleLinks to find allowed locales", () => {
     const ctx = makeCtx({
-      routeLocales: { 'main-page': ['en', 'ru'] },
-      routesLocaleLinks: { about: 'main-page' },
-    })
+      routeLocales: { "main-page": ["en", "ru"] },
+      routesLocaleLinks: { about: "main-page" },
+    });
     const route: ResolvedRouteLike = {
-      name: 'localized-about-en',
-      path: '/about',
-      fullPath: '/about',
+      name: "localized-about-en",
+      path: "/about",
+      fullPath: "/about",
       params: {},
-    }
+    };
 
-    const result = getAllowedLocalesForRoute(ctx, route)
-    expect(result).toEqual(['en', 'ru'])
-  })
-})
+    const result = getAllowedLocalesForRoute(ctx, route);
+    expect(result).toEqual(["en", "ru"]);
+  });
+});
 
-describe('PathResolver - getParentPathForNested', () => {
+describe("PathResolver - getParentPathForNested", () => {
   test('returns "/" for single segment', () => {
-    const ctx = makeCtx({})
+    const ctx = makeCtx({});
 
-    const result = getParentPathForNested(ctx, ['index'], 'en')
-    expect(result).toBe('/')
-  })
+    const result = getParentPathForNested(ctx, ["index"], "en");
+    expect(result).toBe("/");
+  });
 
-  test('returns parent path from globalLocaleRoutes', () => {
+  test("returns parent path from globalLocaleRoutes", () => {
     const ctx = makeCtx({
       globalLocaleRoutes: {
-        docs: { en: '/documentation', de: '/dokumentation' },
+        docs: { en: "/documentation", de: "/dokumentation" },
       },
-    })
+    });
 
-    const result = getParentPathForNested(ctx, ['docs', 'intro'], 'en')
-    expect(result).toBe('/documentation')
-  })
+    const result = getParentPathForNested(ctx, ["docs", "intro"], "en");
+    expect(result).toBe("/documentation");
+  });
 
-  test('returns parent path for different locale', () => {
+  test("returns parent path for different locale", () => {
     const ctx = makeCtx({
       globalLocaleRoutes: {
-        docs: { en: '/documentation', de: '/dokumentation' },
+        docs: { en: "/documentation", de: "/dokumentation" },
       },
-    })
+    });
 
-    const result = getParentPathForNested(ctx, ['docs', 'intro'], 'de')
-    expect(result).toBe('/dokumentation')
-  })
+    const result = getParentPathForNested(ctx, ["docs", "intro"], "de");
+    expect(result).toBe("/dokumentation");
+  });
 
-  test('returns joined path when no globalLocaleRoutes match', () => {
+  test("returns joined path when no globalLocaleRoutes match", () => {
     const ctx = makeCtx({
-      globalLocaleRoutes: { other: { en: '/other' } },
-    })
+      globalLocaleRoutes: { other: { en: "/other" } },
+    });
 
-    const result = getParentPathForNested(ctx, ['docs', 'guide', 'intro'], 'en')
-    expect(result).toBe('/docs/guide')
-  })
+    const result = getParentPathForNested(ctx, ["docs", "guide", "intro"], "en");
+    expect(result).toBe("/docs/guide");
+  });
 
-  test('returns joined path when globalLocaleRoutes is empty', () => {
-    const ctx = makeCtx({})
+  test("returns joined path when globalLocaleRoutes is empty", () => {
+    const ctx = makeCtx({});
 
-    const result = getParentPathForNested(ctx, ['parent', 'child'], 'de')
-    expect(result).toBe('/parent')
-  })
+    const result = getParentPathForNested(ctx, ["parent", "child"], "de");
+    expect(result).toBe("/parent");
+  });
 
-  test('handles deep nesting', () => {
+  test("handles deep nesting", () => {
     const ctx = makeCtx({
       globalLocaleRoutes: {
-        'a-b-c': { en: '/nested/path', de: '/verschachtelt/pfad' },
+        "a-b-c": { en: "/nested/path", de: "/verschachtelt/pfad" },
       },
-    })
+    });
 
-    const result = getParentPathForNested(ctx, ['a', 'b', 'c', 'd'], 'de')
-    expect(result).toBe('/verschachtelt/pfad')
-  })
-})
+    const result = getParentPathForNested(ctx, ["a", "b", "c", "d"], "de");
+    expect(result).toBe("/verschachtelt/pfad");
+  });
+});

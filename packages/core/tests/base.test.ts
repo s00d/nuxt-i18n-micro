@@ -1,464 +1,466 @@
-import type { PluralFunc, Translations } from '@i18n-micro/types'
-import { BaseI18n, type BaseI18nOptions } from '../src/base'
+import type { PluralFunc, Translations } from "@i18n-micro/types";
+import { BaseI18n, type BaseI18nOptions } from "../src/base";
 
 // Test implementation of BaseI18n
 class TestI18n extends BaseI18n {
-  private _locale: string
-  private _fallbackLocale: string
-  private _route: string
+  private _locale: string;
+  private _fallbackLocale: string;
+  private _route: string;
 
   constructor(locale: string, fallbackLocale: string, route: string, options?: BaseI18nOptions) {
-    super(options)
-    this._locale = locale
-    this._fallbackLocale = fallbackLocale
-    this._route = route
+    super(options);
+    this._locale = locale;
+    this._fallbackLocale = fallbackLocale;
+    this._route = route;
   }
 
   public getLocale(): string {
-    return this._locale
+    return this._locale;
   }
 
   public getFallbackLocale(): string {
-    return this._fallbackLocale
+    return this._fallbackLocale;
   }
 
   public getRoute(): string {
-    return this._route
+    return this._route;
   }
 
   public setLocale(locale: string): void {
-    this._locale = locale
+    this._locale = locale;
   }
 
   public setRoute(route: string): void {
-    this._route = route
+    this._route = route;
   }
 }
 
-describe('BaseI18n', () => {
-  describe('Constructor', () => {
-    test('should initialize with default options', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.getLocale()).toBe('en')
-      expect(i18n.getFallbackLocale()).toBe('en')
-      expect(i18n.getRoute()).toBe('index')
-    })
+describe("BaseI18n", () => {
+  describe("Constructor", () => {
+    test("should initialize with default options", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.getLocale()).toBe("en");
+      expect(i18n.getFallbackLocale()).toBe("en");
+      expect(i18n.getRoute()).toBe("index");
+    });
 
-    test('should initialize with custom storage', () => {
-      const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'en', 'index', { storage })
-      expect(i18n).toBeDefined()
-    })
+    test("should initialize with custom storage", () => {
+      const storage = { translations: new Map<string, Translations>() };
+      const i18n = new TestI18n("en", "en", "index", { storage });
+      expect(i18n).toBeDefined();
+    });
 
-    test('should initialize with custom plural function', () => {
-      const customPlural: PluralFunc = () => 'custom'
-      const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural })
-      expect(i18n).toBeDefined()
-    })
+    test("should initialize with custom plural function", () => {
+      const customPlural: PluralFunc = () => "custom";
+      const i18n = new TestI18n("en", "en", "index", { plural: customPlural });
+      expect(i18n).toBeDefined();
+    });
 
-    test('should initialize with missingWarn option', () => {
-      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
-      expect(i18n).toBeDefined()
-    })
+    test("should initialize with missingWarn option", () => {
+      const i18n = new TestI18n("en", "en", "index", { missingWarn: false });
+      expect(i18n).toBeDefined();
+    });
 
-    test('should initialize with missingHandler', () => {
-      const handler = jest.fn()
-      const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
-      expect(i18n).toBeDefined()
-    })
-  })
+    test("should initialize with missingHandler", () => {
+      const handler = jest.fn();
+      const i18n = new TestI18n("en", "en", "index", { missingHandler: handler });
+      expect(i18n).toBeDefined();
+    });
+  });
 
-  describe('t() method', () => {
-    test('should return empty string for empty key', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.t('')).toBe('')
-    })
+  describe("t() method", () => {
+    test("should return empty string for empty key", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.t("")).toBe("");
+    });
 
-    test('should return translation for existing key', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { greeting: 'Hello' }
-      i18n['helper'].loadTranslations('en', translations)
+    test("should return translation for existing key", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { greeting: "Hello" };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.t('greeting')).toBe('Hello')
-    })
+      expect(i18n.t("greeting")).toBe("Hello");
+    });
 
-    test('should interpolate params in translation', async () => {
-      const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'en', 'index', { storage })
-      const translations: Translations = { greeting: 'Hello, {name}!' }
-      await i18n['helper'].loadTranslations('en', translations)
+    test("should interpolate params in translation", async () => {
+      const storage = { translations: new Map<string, Translations>() };
+      const i18n = new TestI18n("en", "en", "index", { storage });
+      const translations: Translations = { greeting: "Hello, {name}!" };
+      await i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.t('greeting', { name: 'John' })).toBe('Hello, John!')
-    })
+      expect(i18n.t("greeting", { name: "John" })).toBe("Hello, John!");
+    });
 
-    test('should use defaultValue when translation is missing', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.t('missing.key', undefined, 'Default value')).toBe('Default value')
-    })
+    test("should use defaultValue when translation is missing", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.t("missing.key", undefined, "Default value")).toBe("Default value");
+    });
 
-    test('should return key when translation is missing and no defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.t('missing.key')).toBe('missing.key')
-    })
+    test("should return key when translation is missing and no defaultValue", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.t("missing.key")).toBe("missing.key");
+    });
 
-    test('should fallback to fallbackLocale when translation is missing', async () => {
-      const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'fr', 'index', { storage })
-      const translations: Translations = { greeting: 'Bonjour' }
-      await i18n['helper'].loadTranslations('fr', translations)
+    test("should fallback to fallbackLocale when translation is missing", async () => {
+      const storage = { translations: new Map<string, Translations>() };
+      const i18n = new TestI18n("en", "fr", "index", { storage });
+      const translations: Translations = { greeting: "Bonjour" };
+      await i18n["helper"].loadTranslations("fr", translations);
 
-      expect(i18n.t('greeting')).toBe('Bonjour')
-    })
+      expect(i18n.t("greeting")).toBe("Bonjour");
+    });
 
-    test('should use route-specific translation when routeName is provided', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const routeTranslations: Translations = { title: 'Route Title' }
-      await i18n['helper'].loadPageTranslations('en', 'about', routeTranslations)
+    test("should use route-specific translation when routeName is provided", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const routeTranslations: Translations = { title: "Route Title" };
+      await i18n["helper"].loadPageTranslations("en", "about", routeTranslations);
 
-      expect(i18n.t('title', undefined, undefined, 'about')).toBe('Route Title')
-    })
+      expect(i18n.t("title", undefined, undefined, "about")).toBe("Route Title");
+    });
 
-    test('should call missingHandler when translation is missing', () => {
-      const handler = jest.fn()
-      const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
+    test("should call missingHandler when translation is missing", () => {
+      const handler = jest.fn();
+      const i18n = new TestI18n("en", "en", "index", { missingHandler: handler });
 
-      i18n.t('missing.key')
+      i18n.t("missing.key");
 
-      expect(handler).toHaveBeenCalledWith('en', 'missing.key', 'index')
-    })
+      expect(handler).toHaveBeenCalledWith("en", "missing.key", "index");
+    });
 
-    test('should call customMissingHandler when set (Nuxt runtime)', () => {
-      const customHandler = jest.fn()
-      const i18n = new TestI18n('en', 'en', 'index', {
+    test("should call customMissingHandler when set (Nuxt runtime)", () => {
+      const customHandler = jest.fn();
+      const i18n = new TestI18n("en", "en", "index", {
         getCustomMissingHandler: () => customHandler,
-      })
+      });
 
-      i18n.t('missing.key')
+      i18n.t("missing.key");
 
-      expect(customHandler).toHaveBeenCalledWith('en', 'missing.key', 'index')
-    })
+      expect(customHandler).toHaveBeenCalledWith("en", "missing.key", "index");
+    });
 
-    test('should not warn when missingWarn is false', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
-      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+    test("should not warn when missingWarn is false", () => {
+      const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
+      const i18n = new TestI18n("en", "en", "index", { missingWarn: false });
 
-      i18n.t('missing.key')
+      i18n.t("missing.key");
 
-      expect(consoleSpy).not.toHaveBeenCalled()
-      consoleSpy.mockRestore()
-    })
-  })
+      expect(consoleSpy).not.toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+  });
 
-  describe('ts() method', () => {
-    test('should return translation as string', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { greeting: 'Hello' }
-      i18n['helper'].loadTranslations('en', translations)
+  describe("ts() method", () => {
+    test("should return translation as string", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { greeting: "Hello" };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.ts('greeting')).toBe('Hello')
-    })
+      expect(i18n.ts("greeting")).toBe("Hello");
+    });
 
-    test('should return defaultValue when translation is missing', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.ts('missing.key', undefined, 'Default')).toBe('Default')
-    })
+    test("should return defaultValue when translation is missing", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.ts("missing.key", undefined, "Default")).toBe("Default");
+    });
 
-    test('should return key when translation is missing and no defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.ts('missing.key')).toBe('missing.key')
-    })
+    test("should return key when translation is missing and no defaultValue", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.ts("missing.key")).toBe("missing.key");
+    });
 
-    test('should convert non-string values to string', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { count: 42 }
-      i18n['helper'].loadTranslations('en', translations)
+    test("should convert non-string values to string", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { count: 42 };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.ts('count')).toBe('42')
-    })
-  })
+      expect(i18n.ts("count")).toBe("42");
+    });
+  });
 
-  describe('tc() method', () => {
-    test('should return defaultValue when count is undefined', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.tc('apples', { other: 'params' }, 'No count')).toBe('No count')
-    })
+  describe("tc() method", () => {
+    test("should return defaultValue when count is undefined", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.tc("apples", { other: "params" }, "No count")).toBe("No count");
+    });
 
-    test('should use plural function with count', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { apples: 'apple|apples' }
-      await i18n['helper'].loadTranslations('en', translations)
+    test("should use plural function with count", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { apples: "apple|apples" };
+      await i18n["helper"].loadTranslations("en", translations);
 
       // defaultPlural selects form by index: forms[count] or last form if count >= forms.length
       // For 'apple|apples': forms[0]='apple', forms[1]='apples'
-      expect(i18n.tc('apples', 0)).toBe('apple')
-      expect(i18n.tc('apples', 1)).toBe('apples') // forms[1]
-      expect(i18n.tc('apples', 5)).toBe('apples') // last form
-    })
+      expect(i18n.tc("apples", 0)).toBe("apple");
+      expect(i18n.tc("apples", 1)).toBe("apples"); // forms[1]
+      expect(i18n.tc("apples", 5)).toBe("apples"); // last form
+    });
 
-    test('should handle count as number', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { apples: 'apple|apples' }
-      i18n['helper'].loadTranslations('en', translations)
+    test("should handle count as number", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { apples: "apple|apples" };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.tc('apples', 2)).toBe('apples')
-    })
+      expect(i18n.tc("apples", 2)).toBe("apples");
+    });
 
-    test('should handle count as Params object', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { apples: 'apple|apples' }
-      i18n['helper'].loadTranslations('en', translations)
+    test("should handle count as Params object", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { apples: "apple|apples" };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.tc('apples', { count: 2, name: 'John' })).toBe('apples')
-    })
+      expect(i18n.tc("apples", { count: 2, name: "John" })).toBe("apples");
+    });
 
-    test('should return defaultValue when plural function returns null', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
+    test("should return defaultValue when plural function returns null", () => {
+      const i18n = new TestI18n("en", "en", "index");
       // When translation is missing, t() returns key, which is passed to pluralFunc
       // pluralFunc tries to process 'missing.key' as translation, but since it doesn't contain '|',
       // it returns the key itself. So tc returns the key, not defaultValue.
       // To test defaultValue, we need a case where pluralFunc actually returns null.
       // This happens when translation exists but is empty or invalid.
-      expect(i18n.tc('missing.key', 1, 'Default')).toBe('missing.key')
-    })
-  })
+      expect(i18n.tc("missing.key", 1, "Default")).toBe("missing.key");
+    });
+  });
 
-  describe('tn() method', () => {
-    test('should format number with default locale', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const result = i18n.tn(1234.56)
-      expect(result).toMatch(/1[,.]234[.,]56/)
-    })
+  describe("tn() method", () => {
+    test("should format number with default locale", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const result = i18n.tn(1234.56);
+      expect(result).toMatch(/1[,.]234[.,]56/);
+    });
 
-    test('should format number with custom options', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const result = i18n.tn(1234.56, { style: 'currency', currency: 'USD' })
-      expect(result).toContain('1,234.56')
-    })
+    test("should format number with custom options", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const result = i18n.tn(1234.56, { style: "currency", currency: "USD" });
+      expect(result).toContain("1,234.56");
+    });
 
-    test('should use current locale for formatting', () => {
-      const i18n = new TestI18n('ru', 'en', 'index')
-      const result = i18n.tn(1234.56)
+    test("should use current locale for formatting", () => {
+      const i18n = new TestI18n("ru", "en", "index");
+      const result = i18n.tn(1234.56);
       // Russian locale uses different number formatting
-      expect(result).toBeDefined()
-    })
-  })
+      expect(result).toBeDefined();
+    });
+  });
 
-  describe('td() method', () => {
-    test('should format date with default locale', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const date = new Date('2024-01-15')
-      const result = i18n.td(date)
-      expect(result).toBeDefined()
-      expect(result).not.toBe('Invalid Date')
-    })
+  describe("td() method", () => {
+    test("should format date with default locale", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const date = new Date("2024-01-15");
+      const result = i18n.td(date);
+      expect(result).toBeDefined();
+      expect(result).not.toBe("Invalid Date");
+    });
 
-    test('should format date with custom options', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const date = new Date('2024-01-15')
-      const result = i18n.td(date, { year: 'numeric', month: 'long', day: 'numeric' })
-      expect(result).toContain('2024')
-      expect(result).toContain('January')
-    })
+    test("should format date with custom options", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const date = new Date("2024-01-15");
+      const result = i18n.td(date, { year: "numeric", month: "long", day: "numeric" });
+      expect(result).toContain("2024");
+      expect(result).toContain("January");
+    });
 
-    test('should handle date as number (timestamp)', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const timestamp = new Date('2024-01-15').getTime()
-      const result = i18n.td(timestamp)
-      expect(result).toBeDefined()
-      expect(result).not.toBe('Invalid Date')
-    })
+    test("should handle date as number (timestamp)", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const timestamp = new Date("2024-01-15").getTime();
+      const result = i18n.td(timestamp);
+      expect(result).toBeDefined();
+      expect(result).not.toBe("Invalid Date");
+    });
 
-    test('should handle date as string', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const result = i18n.td('2024-01-15')
-      expect(result).toBeDefined()
-      expect(result).not.toBe('Invalid Date')
-    })
-  })
+    test("should handle date as string", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const result = i18n.td("2024-01-15");
+      expect(result).toBeDefined();
+      expect(result).not.toBe("Invalid Date");
+    });
+  });
 
-  describe('tdr() method', () => {
-    test('should format relative time', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const yesterday = new Date(Date.now() - 86400000)
-      const result = i18n.tdr(yesterday)
-      expect(result).toBeDefined()
-      expect(result).toMatch(/day|ago/i)
-    })
+  describe("tdr() method", () => {
+    test("should format relative time", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const yesterday = new Date(Date.now() - 86400000);
+      const result = i18n.tdr(yesterday);
+      expect(result).toBeDefined();
+      expect(result).toMatch(/day|ago/i);
+    });
 
-    test('should format relative time with custom options', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const yesterday = new Date(Date.now() - 86400000)
-      const result = i18n.tdr(yesterday, { numeric: 'always' })
-      expect(result).toBeDefined()
-    })
+    test("should format relative time with custom options", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const yesterday = new Date(Date.now() - 86400000);
+      const result = i18n.tdr(yesterday, { numeric: "always" });
+      expect(result).toBeDefined();
+    });
 
-    test('should handle invalid date gracefully', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const invalidDate = new Date('invalid')
-      const result = i18n.tdr(invalidDate)
-      expect(result).toBeDefined()
-    })
-  })
+    test("should handle invalid date gracefully", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const invalidDate = new Date("invalid");
+      const result = i18n.tdr(invalidDate);
+      expect(result).toBeDefined();
+    });
+  });
 
-  describe('has() method', () => {
-    test('should return true when translation exists', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { greeting: 'Hello' }
-      i18n['helper'].loadTranslations('en', translations)
+  describe("has() method", () => {
+    test("should return true when translation exists", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { greeting: "Hello" };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.has('greeting')).toBe(true)
-    })
+      expect(i18n.has("greeting")).toBe(true);
+    });
 
-    test('should return false when translation does not exist', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.has('missing.key')).toBe(false)
-    })
+    test("should return false when translation does not exist", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.has("missing.key")).toBe(false);
+    });
 
-    test('should check route-specific translation when routeName is provided', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const routeTranslations: Translations = { title: 'Route Title' }
-      await i18n['helper'].loadPageTranslations('en', 'about', routeTranslations)
+    test("should check route-specific translation when routeName is provided", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const routeTranslations: Translations = { title: "Route Title" };
+      await i18n["helper"].loadPageTranslations("en", "about", routeTranslations);
 
-      expect(i18n.has('title', 'about')).toBe(true)
-      expect(i18n.has('title', 'index')).toBe(false)
-    })
+      expect(i18n.has("title", "about")).toBe(true);
+      expect(i18n.has("title", "index")).toBe(false);
+    });
 
-    test('should use current route when routeName is not provided', async () => {
-      const i18n = new TestI18n('en', 'en', 'about')
-      const routeTranslations: Translations = { title: 'Route Title' }
-      await i18n['helper'].loadPageTranslations('en', 'about', routeTranslations)
+    test("should use current route when routeName is not provided", async () => {
+      const i18n = new TestI18n("en", "en", "about");
+      const routeTranslations: Translations = { title: "Route Title" };
+      await i18n["helper"].loadPageTranslations("en", "about", routeTranslations);
 
-      expect(i18n.has('title')).toBe(true)
-    })
-  })
+      expect(i18n.has("title")).toBe(true);
+    });
+  });
 
-  describe('clearCache() method', () => {
-    test('should clear all translations from cache', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { greeting: 'Hello' }
-      i18n['helper'].loadTranslations('en', translations)
+  describe("clearCache() method", () => {
+    test("should clear all translations from cache", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { greeting: "Hello" };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.has('greeting')).toBe(true)
+      expect(i18n.has("greeting")).toBe(true);
 
-      i18n.clearCache()
+      i18n.clearCache();
 
-      expect(i18n.has('greeting')).toBe(false)
-    })
-  })
+      expect(i18n.has("greeting")).toBe(false);
+    });
+  });
 
-  describe('loadTranslationsCore() method', () => {
-    test('should load translations when merge is false', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { greeting: 'Hello' }
+  describe("loadTranslationsCore() method", () => {
+    test("should load translations when merge is false", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { greeting: "Hello" };
 
-      i18n['loadTranslationsCore']('en', translations, false)
+      i18n["loadTranslationsCore"]("en", translations, false);
       // Wait for async operation to complete
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(i18n.has('greeting')).toBe(true)
-    })
+      expect(i18n.has("greeting")).toBe(true);
+    });
 
-    test('should merge translations when merge is true', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const initial: Translations = { greeting: 'Hello' }
-      const additional: Translations = { farewell: 'Goodbye' }
+    test("should merge translations when merge is true", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const initial: Translations = { greeting: "Hello" };
+      const additional: Translations = { farewell: "Goodbye" };
 
-      await i18n['helper'].loadTranslations('en', initial)
-      i18n['loadTranslationsCore']('en', additional, true)
+      await i18n["helper"].loadTranslations("en", initial);
+      i18n["loadTranslationsCore"]("en", additional, true);
       // Wait for async operation to complete
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(i18n.has('greeting')).toBe(true)
-      expect(i18n.has('farewell')).toBe(true)
-    })
-  })
+      expect(i18n.has("greeting")).toBe(true);
+      expect(i18n.has("farewell")).toBe(true);
+    });
+  });
 
-  describe('loadRouteTranslationsCore() method', () => {
-    test('should load route translations when merge is false', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const translations: Translations = { title: 'Page Title' }
+  describe("loadRouteTranslationsCore() method", () => {
+    test("should load route translations when merge is false", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const translations: Translations = { title: "Page Title" };
 
-      i18n['loadRouteTranslationsCore']('en', 'about', translations, false)
+      i18n["loadRouteTranslationsCore"]("en", "about", translations, false);
       // Wait for async operation to complete
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(i18n.has('title', 'about')).toBe(true)
-    })
+      expect(i18n.has("title", "about")).toBe(true);
+    });
 
-    test('should merge route translations when merge is true', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      const initial: Translations = { title: 'Page Title' }
-      const additional: Translations = { description: 'Page Description' }
+    test("should merge route translations when merge is true", async () => {
+      const i18n = new TestI18n("en", "en", "index");
+      const initial: Translations = { title: "Page Title" };
+      const additional: Translations = { description: "Page Description" };
 
-      await i18n['helper'].loadPageTranslations('en', 'about', initial)
-      i18n['loadRouteTranslationsCore']('en', 'about', additional, true)
+      await i18n["helper"].loadPageTranslations("en", "about", initial);
+      i18n["loadRouteTranslationsCore"]("en", "about", additional, true);
       // Wait for async operation to complete
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(i18n.has('title', 'about')).toBe(true)
-      expect(i18n.has('description', 'about')).toBe(true)
-    })
-  })
+      expect(i18n.has("title", "about")).toBe(true);
+      expect(i18n.has("description", "about")).toBe(true);
+    });
+  });
 
-  describe('Edge cases', () => {
-    test('should handle nested translation keys', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
+  describe("Edge cases", () => {
+    test("should handle nested translation keys", async () => {
+      const i18n = new TestI18n("en", "en", "index");
       const translations: Translations = {
         nested: {
           deep: {
-            key: 'Nested value',
+            key: "Nested value",
           },
         },
-      }
-      i18n['helper'].loadTranslations('en', translations)
+      };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.t('nested.deep.key')).toBe('Nested value')
-    })
+      expect(i18n.t("nested.deep.key")).toBe("Nested value");
+    });
 
-    test('should handle multiple params in interpolation', async () => {
-      const i18n = new TestI18n('en', 'en', 'index')
+    test("should handle multiple params in interpolation", async () => {
+      const i18n = new TestI18n("en", "en", "index");
       const translations: Translations = {
-        message: 'Hello, {name}! You are {age} years old.',
-      }
-      i18n['helper'].loadTranslations('en', translations)
+        message: "Hello, {name}! You are {age} years old.",
+      };
+      i18n["helper"].loadTranslations("en", translations);
 
-      expect(i18n.t('message', { name: 'John', age: 30 })).toBe('Hello, John! You are 30 years old.')
-    })
+      expect(i18n.t("message", { name: "John", age: 30 })).toBe(
+        "Hello, John! You are 30 years old.",
+      );
+    });
 
-    test('should handle null defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      expect(i18n.t('missing.key', undefined, null)).toBe('missing.key')
-    })
+    test("should handle null defaultValue", () => {
+      const i18n = new TestI18n("en", "en", "index");
+      expect(i18n.t("missing.key", undefined, null)).toBe("missing.key");
+    });
 
-    test('should handle empty string defaultValue', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
+    test("should handle empty string defaultValue", () => {
+      const i18n = new TestI18n("en", "en", "index");
       // Empty string is falsy, so it will fall back to key (as per defaultValue || key logic)
-      expect(i18n.t('missing.key', undefined, '')).toBe('missing.key')
-    })
+      expect(i18n.t("missing.key", undefined, "")).toBe("missing.key");
+    });
 
-    test('should handle route change', async () => {
-      const storage = { translations: new Map<string, Translations>() }
-      const i18n = new TestI18n('en', 'en', 'index', { storage })
-      const rootTranslations: Translations = { greeting: 'Hello' }
+    test("should handle route change", async () => {
+      const storage = { translations: new Map<string, Translations>() };
+      const i18n = new TestI18n("en", "en", "index", { storage });
+      const rootTranslations: Translations = { greeting: "Hello" };
       // Packages (vue, node, etc.) merge root into pages automatically.
       // Core does not — so we simulate pre-merged data here.
-      const routeTranslations: Translations = { greeting: 'Hello', title: 'About Page' }
+      const routeTranslations: Translations = { greeting: "Hello", title: "About Page" };
 
-      await i18n['helper'].loadTranslations('en', rootTranslations)
-      await i18n['helper'].loadPageTranslations('en', 'about', routeTranslations)
+      await i18n["helper"].loadTranslations("en", rootTranslations);
+      await i18n["helper"].loadPageTranslations("en", "about", routeTranslations);
 
       // Verify translations are loaded
-      expect(i18n.has('greeting')).toBe(true)
-      expect(i18n.has('title', 'about')).toBe(true)
+      expect(i18n.has("greeting")).toBe(true);
+      expect(i18n.has("title", "about")).toBe(true);
 
       // Check route-specific translation with explicit routeName
-      const titleValue = i18n.t('title', undefined, undefined, 'about')
-      expect(titleValue).toBe('About Page')
+      const titleValue = i18n.t("title", undefined, undefined, "about");
+      expect(titleValue).toBe("About Page");
 
       // Change route and check
-      i18n.setRoute('about')
-      expect(i18n.t('title')).toBe('About Page')
-      expect(i18n.t('greeting')).toBe('Hello')
-    })
-  })
-})
+      i18n.setRoute("about");
+      expect(i18n.t("title")).toBe("About Page");
+      expect(i18n.t("greeting")).toBe("Hello");
+    });
+  });
+});

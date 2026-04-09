@@ -1,75 +1,76 @@
 <template>
-  <div
-    id="simple-async-component"
-    class="simple-async-component"
-  >
-    <h3>{{ $t('simple-async-component::title') }}</h3>
-    <p>{{ $t('simple-async-component::description') }}</p>
+  <div id="simple-async-component" class="simple-async-component">
+    <h3>{{ $t("simple-async-component::title") }}</h3>
+    <p>{{ $t("simple-async-component::description") }}</p>
 
     <div class="component-info">
-      <p><strong>{{ $t('simple-async-component::componentId') }}:</strong> Simple Async Component</p>
-      <p><strong>{{ $t('simple-async-component::loadTime') }}:</strong> {{ loadTime }}</p>
+      <p>
+        <strong>{{ $t("simple-async-component::componentId") }}:</strong> Simple Async Component
+      </p>
+      <p>
+        <strong>{{ $t("simple-async-component::loadTime") }}:</strong> {{ loadTime }}
+      </p>
     </div>
 
     <div class="test-content">
-      <p>{{ $t('simple-async-component::testContent') }}</p>
-      <button
-        id="simple-counter-btn"
-        class="counter-button"
-        @click="incrementCounter"
-      >
-        {{ $t('simple-async-component::counterButton') }} ({{ counter }})
+      <p>{{ $t("simple-async-component::testContent") }}</p>
+      <button id="simple-counter-btn" class="counter-button" @click="incrementCounter">
+        {{ $t("simple-async-component::counterButton") }} ({{ counter }})
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useNuxtApp } from '#imports'
+import { onMounted, ref } from "vue";
+import { useNuxtApp } from "#imports";
 
-const { $defineI18nRoute, $t } = useNuxtApp()
+const { $defineI18nRoute, $t } = useNuxtApp();
 
 // Определяем переводы для этого компонента
 $defineI18nRoute({
   locales: {
     en: {
-      'simple-async-component::title': 'Simple Async Component',
-      'simple-async-component::description': 'This is a basic async component for testing',
-      'simple-async-component::componentId': 'Component ID',
-      'simple-async-component::loadTime': 'Load Time',
-      'simple-async-component::testContent': 'This component was loaded asynchronously and should have access to translations',
-      'simple-async-component::counterButton': 'Increment Counter',
+      "simple-async-component::title": "Simple Async Component",
+      "simple-async-component::description": "This is a basic async component for testing",
+      "simple-async-component::componentId": "Component ID",
+      "simple-async-component::loadTime": "Load Time",
+      "simple-async-component::testContent":
+        "This component was loaded asynchronously and should have access to translations",
+      "simple-async-component::counterButton": "Increment Counter",
     },
     ru: {
-      'simple-async-component::title': 'Простой Асинхронный Компонент',
-      'simple-async-component::description': 'Это базовый асинхронный компонент для тестирования',
-      'simple-async-component::componentId': 'ID Компонента',
-      'simple-async-component::loadTime': 'Время Загрузки',
-      'simple-async-component::testContent': 'Этот компонент был загружен асинхронно и должен иметь доступ к переводам',
-      'simple-async-component::counterButton': 'Увеличить Счетчик',
+      "simple-async-component::title": "Простой Асинхронный Компонент",
+      "simple-async-component::description": "Это базовый асинхронный компонент для тестирования",
+      "simple-async-component::componentId": "ID Компонента",
+      "simple-async-component::loadTime": "Время Загрузки",
+      "simple-async-component::testContent":
+        "Этот компонент был загружен асинхронно и должен иметь доступ к переводам",
+      "simple-async-component::counterButton": "Увеличить Счетчик",
     },
     de: {
-      'simple-async-component::title': 'Einfache Async-Komponente',
-      'simple-async-component::description': 'Dies ist eine grundlegende Async-Komponente zum Testen',
-      'simple-async-component::componentId': 'Komponenten-ID',
-      'simple-async-component::loadTime': 'Ladezeit',
-      'simple-async-component::testContent': 'Diese Komponente wurde asynchron geladen und sollte Zugang zu Übersetzungen haben',
-      'simple-async-component::counterButton': 'Zähler Erhöhen',
+      "simple-async-component::title": "Einfache Async-Komponente",
+      "simple-async-component::description":
+        "Dies ist eine grundlegende Async-Komponente zum Testen",
+      "simple-async-component::componentId": "Komponenten-ID",
+      "simple-async-component::loadTime": "Ladezeit",
+      "simple-async-component::testContent":
+        "Diese Komponente wurde asynchron geladen und sollte Zugang zu Übersetzungen haben",
+      "simple-async-component::counterButton": "Zähler Erhöhen",
     },
   },
-})
+});
 
-const counter = ref(0)
-const loadTime = ref('')
+const counter = ref(0);
+const loadTime = ref("");
 
 onMounted(() => {
-  loadTime.value = new Date().toLocaleTimeString()
-})
+  loadTime.value = new Date().toLocaleTimeString();
+});
 
 const incrementCounter = () => {
-  counter.value++
-}
+  counter.value++;
+};
 </script>
 
 <style scoped>

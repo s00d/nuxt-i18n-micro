@@ -51,21 +51,21 @@
 </template>
 
 <script setup lang="ts">
-import Button from '../ui/Button.vue'
+import Button from "../ui/Button.vue";
 
 interface Props {
-  showTranslateButton?: boolean
+  showTranslateButton?: boolean;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 
 const emit = defineEmits<{
-  export: []
-  import: []
-  'show-stats': []
-  'translate-missing': []
-  save: []
-}>()
+  export: [];
+  import: [];
+  "show-stats": [];
+  "translate-missing": [];
+  save: [];
+}>();
 </script>
 
 <style scoped>

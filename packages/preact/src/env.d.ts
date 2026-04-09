@@ -4,11 +4,11 @@
 declare global {
   interface Window {
     __INITIAL_STATE__?: {
-      locale: string
-      route: string
+      locale: string;
+      route: string;
       // Add other SSR state fields as needed
-    }
+    };
   }
 }
 
-export {}
+export {};

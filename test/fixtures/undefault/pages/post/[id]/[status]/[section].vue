@@ -9,5 +9,5 @@
 </template>
 
 <script setup>
-const { $ts } = useI18n()
+const { $ts } = useI18n();
 </script>

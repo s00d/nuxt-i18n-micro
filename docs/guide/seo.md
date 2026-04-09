@@ -27,13 +27,13 @@ flowchart LR
 
 **Generated tags:**
 
-| Tag | Example |
-|-----|---------|
-| HTML attributes | `<html lang="en" dir="ltr">` |
-| Canonical | `<link rel="canonical" href="...">` |
-| hreflang | `<link rel="alternate" hreflang="en" href="...">` |
-| x-default | `<link rel="alternate" hreflang="x-default" href="...">` |
-| Open Graph | `<meta property="og:locale" content="en_US">` |
+| Tag             | Example                                                  |
+| --------------- | -------------------------------------------------------- |
+| HTML attributes | `<html lang="en" dir="ltr">`                             |
+| Canonical       | `<link rel="canonical" href="...">`                      |
+| hreflang        | `<link rel="alternate" hreflang="en" href="...">`        |
+| x-default       | `<link rel="alternate" hreflang="x-default" href="...">` |
+| Open Graph      | `<meta property="og:locale" content="en_US">`            |
 
 #### `og` per locale (`og:locale` vs BCP 47)
 
@@ -77,18 +77,18 @@ To enable these SEO features, ensure the `meta` option is set to `true` in your 
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
+  modules: ["nuxt-i18n-micro"],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'ar', iso: 'ar-SA', dir: 'rtl' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
+      { code: "ar", iso: "ar-SA", dir: "rtl" },
     ],
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     meta: true, // Enables automatic SEO management
   },
-})
+});
 ```
 
 ### 🌍 Dynamic `metaBaseUrl` for Multi-Domain Deployments
@@ -105,25 +105,27 @@ export default defineNuxtConfig({
     meta: true,
     // metaBaseUrl is undefined by default — resolved dynamically from the request
   },
-})
+});
 ```
 
 For example, a request to `https://site-a.com/en/about` will produce:
+
 ```html
-<link rel="canonical" href="https://site-a.com/en/about">
-<meta property="og:url" content="https://site-a.com/en/about">
+<link rel="canonical" href="https://site-a.com/en/about" />
+<meta property="og:url" content="https://site-a.com/en/about" />
 ```
 
 While the same app serving `https://site-b.com/en/about` will produce:
+
 ```html
-<link rel="canonical" href="https://site-b.com/en/about">
-<meta property="og:url" content="https://site-b.com/en/about">
+<link rel="canonical" href="https://site-b.com/en/about" />
+<meta property="og:url" content="https://site-b.com/en/about" />
 ```
 
 If you need a fixed base URL instead, pass a static string:
 
 ```typescript
-metaBaseUrl: 'https://example.com'
+metaBaseUrl: "https://example.com";
 ```
 
 ### 🔍 Canonical Query Whitelist
@@ -132,7 +134,7 @@ By default, query parameters are stripped from canonical and `og:url` to avoid d
 
 ```typescript
 i18n: {
-  canonicalQueryWhitelist: ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
+  canonicalQueryWhitelist: ["page", "sort", "filter", "search", "q", "query", "tag"];
 }
 ```
 
@@ -146,8 +148,8 @@ You can disable SEO meta tag generation for specific pages using `defineI18nRout
 <script setup>
 // Disable all SEO meta tags for this page
 defineI18nRoute({
-  disableMeta: true
-})
+  disableMeta: true,
+});
 </script>
 ```
 
@@ -157,8 +159,8 @@ You can also disable meta only for specific locales:
 <script setup>
 // Disable meta tags only for English locale on this page
 defineI18nRoute({
-  disableMeta: ['en']
-})
+  disableMeta: ["en"],
+});
 </script>
 ```
 
@@ -171,9 +173,9 @@ Locales with `disabled: true` are automatically excluded from all SEO tag genera
 ```typescript
 i18n: {
   locales: [
-    { code: 'en', iso: 'en-US' },
-    { code: 'fr', iso: 'fr-FR', disabled: true }, // excluded from SEO tags
-  ]
+    { code: "en", iso: "en-US" },
+    { code: "fr", iso: "fr-FR", disabled: true }, // excluded from SEO tags
+  ];
 }
 ```
 
@@ -184,20 +186,20 @@ For locales that should remain routable and translated but should not appear in 
 ```typescript
 i18n: {
   locales: [
-    { code: 'en', iso: 'en-US' },
-    { code: 'ru', iso: 'ru-RU', seo: false }, // internal / non-indexed locale
-  ]
+    { code: "en", iso: "en-US" },
+    { code: "ru", iso: "ru-RU", seo: false }, // internal / non-indexed locale
+  ];
 }
 ```
 
 ### 📌 Strategy-Specific Behavior
 
-| Strategy | hreflang links | x-default | canonical | og:url |
-|----------|---------------|-----------|-----------|--------|
-| `prefix` | ✅ All locales | ✅ Default locale URL | ✅ Current URL | ✅ |
-| `prefix_except_default` | ✅ All locales | ✅ Unprefixed URL | ✅ Current URL | ✅ |
-| `prefix_and_default` | ✅ All locales | ✅ Default locale URL | ✅ Current URL | ✅ |
-| `no_prefix` | ❌ Not generated | ❌ Not generated | ✅ Current URL | ✅ |
+| Strategy                | hreflang links   | x-default             | canonical      | og:url |
+| ----------------------- | ---------------- | --------------------- | -------------- | ------ |
+| `prefix`                | ✅ All locales   | ✅ Default locale URL | ✅ Current URL | ✅     |
+| `prefix_except_default` | ✅ All locales   | ✅ Unprefixed URL     | ✅ Current URL | ✅     |
+| `prefix_and_default`    | ✅ All locales   | ✅ Default locale URL | ✅ Current URL | ✅     |
+| `no_prefix`             | ❌ Not generated | ❌ Not generated      | ✅ Current URL | ✅     |
 
 For the `no_prefix` strategy, only `canonical`, `og:url`, `og:locale`, and `html` attributes (`lang`, `dir`) are generated. Alternate language links (`hreflang`) and `x-default` are not generated because there are no distinct URLs per locale.
 

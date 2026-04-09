@@ -1,49 +1,49 @@
-import * as fs from 'node:fs'
-import { readdir } from 'node:fs/promises'
-import type { IncomingMessage, ServerResponse } from 'node:http'
-import * as path from 'node:path'
-import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite'
+import * as fs from "node:fs";
+import { readdir } from "node:fs/promises";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import * as path from "node:path";
+import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from "vite";
 
 export interface DevToolsPluginOptions {
-  base?: string
-  translationDir?: string
-  injectButton?: boolean
+  base?: string;
+  translationDir?: string;
+  injectButton?: boolean;
 }
 
 // Helper function for safe path resolution
 function safeResolvePath(projectRoot: string, filePath: string): string {
-  const normalizedFile = filePath.replace(/^\/+/, '').replace(/\/+/g, '/')
-  const resolvedPath = path.resolve(projectRoot, normalizedFile)
-  const normalizedRoot = path.resolve(projectRoot)
-  const normalizedFilePath = path.resolve(resolvedPath)
+  const normalizedFile = filePath.replace(/^\/+/, "").replace(/\/+/g, "/");
+  const resolvedPath = path.resolve(projectRoot, normalizedFile);
+  const normalizedRoot = path.resolve(projectRoot);
+  const normalizedFilePath = path.resolve(resolvedPath);
 
   if (!normalizedFilePath.startsWith(normalizedRoot)) {
-    throw new Error(`Access denied: Path ${resolvedPath} is outside project root`)
+    throw new Error(`Access denied: Path ${resolvedPath} is outside project root`);
   }
 
-  return resolvedPath
+  return resolvedPath;
 }
 
 // Recursive directory scanning to find JSON files
 async function scanTranslationFiles(dir: string, baseDir: string): Promise<string[]> {
-  const files: string[] = []
+  const files: string[] = [];
   try {
-    const entries = await readdir(dir, { withFileTypes: true })
+    const entries = await readdir(dir, { withFileTypes: true });
     for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name)
+      const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        const subFiles = await scanTranslationFiles(fullPath, baseDir)
-        files.push(...subFiles)
-      } else if (entry.isFile() && entry.name.endsWith('.json')) {
-        const relativePath = path.relative(baseDir, fullPath)
-        files.push(relativePath.replace(/\\/g, '/')) // Normalize for cross-platform compatibility
+        const subFiles = await scanTranslationFiles(fullPath, baseDir);
+        files.push(...subFiles);
+      } else if (entry.isFile() && entry.name.endsWith(".json")) {
+        const relativePath = path.relative(baseDir, fullPath);
+        files.push(relativePath.replace(/\\/g, "/")); // Normalize for cross-platform compatibility
       }
     }
   } catch (error) {
     // Ignore directory access errors
-    console.warn(`[i18n-devtools] Cannot scan directory ${dir}:`, error)
+    console.warn(`[i18n-devtools] Cannot scan directory ${dir}:`, error);
   }
-  return files
+  return files;
 }
 
 // Script for button injection
@@ -198,49 +198,49 @@ const BUTTON_INJECTION_SCRIPT = `
 
   container.appendChild(button);
 })();
-`
+`;
 
 export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginOption {
-  const apiBase = options.base || '/__i18n_api'
-  const translationDir = options.translationDir || 'src/locales'
-  const injectButton = options.injectButton !== false // Default is true
+  const apiBase = options.base || "/__i18n_api";
+  const translationDir = options.translationDir || "src/locales";
+  const injectButton = options.injectButton !== false; // Default is true
 
   return {
-    name: 'i18n-micro-devtools-plugin',
-    apply: 'serve', // Works only in dev server
+    name: "i18n-micro-devtools-plugin",
+    apply: "serve", // Works only in dev server
 
     resolveId(id: string) {
-      if (id === '/@vite-plugin-i18n-devtools/devtools-ui.js') {
-        return id
+      if (id === "/@vite-plugin-i18n-devtools/devtools-ui.js") {
+        return id;
       }
-      return null
+      return null;
     },
 
     load(id: string) {
-      if (id === '/@vite-plugin-i18n-devtools/devtools-ui.js') {
+      if (id === "/@vite-plugin-i18n-devtools/devtools-ui.js") {
         // Return re-export from devtools-ui package
-        return `export * from '@i18n-micro/devtools-ui'`
+        return `export * from '@i18n-micro/devtools-ui'`;
       }
-      return null
+      return null;
     },
 
     transformIndexHtml(html: string): IndexHtmlTransformResult {
       if (!injectButton) {
-        return html
+        return html;
       }
 
       // Inject script before the closing </body> tag
-      const scriptTag = `<script>${BUTTON_INJECTION_SCRIPT}</script>`
-      if (html.includes('</body>')) {
-        return html.replace('</body>', `${scriptTag}</body>`)
+      const scriptTag = `<script>${BUTTON_INJECTION_SCRIPT}</script>`;
+      if (html.includes("</body>")) {
+        return html.replace("</body>", `${scriptTag}</body>`);
       }
       // If no </body>, append to the end
-      return html + scriptTag
+      return html + scriptTag;
     },
 
     configureServer(server: ViteDevServer) {
       // Use server.config.root as the source of truth for the project root
-      const projectRoot = server.config.root
+      const projectRoot = server.config.root;
 
       // HTML page for iframe with devtools UI
       // Use virtual module for proper imports
@@ -377,207 +377,224 @@ export function i18nDevToolsPlugin(options: DevToolsPluginOptions = {}): PluginO
     app.appendChild(element);
   </script>
 </body>
-</html>`
+</html>`;
 
       // Middleware for serving the devtools HTML page
-      server.middlewares.use('/__i18n_devtools.html', (_req: IncomingMessage, res: ServerResponse) => {
-        res.statusCode = 200
-        res.setHeader('Content-Type', 'text/html; charset=utf-8')
-        res.end(devtoolsHtml)
-      })
+      server.middlewares.use(
+        "/__i18n_devtools.html",
+        (_req: IncomingMessage, res: ServerResponse) => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.end(devtoolsHtml);
+        },
+      );
 
       // Endpoint for getting configuration
-      server.middlewares.use(`${apiBase}/config`, async (_req: IncomingMessage, res: ServerResponse, next) => {
-        if (_req.method !== 'GET') {
-          return next()
-        }
+      server.middlewares.use(
+        `${apiBase}/config`,
+        async (_req: IncomingMessage, res: ServerResponse, next) => {
+          if (_req.method !== "GET") {
+            return next();
+          }
 
-        try {
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              defaultLocale: 'en',
-              fallbackLocale: 'en',
-              locales: [],
-              translationDir,
-            }),
-          )
-        } catch (e) {
-          console.error('[i18n-devtools] Config error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
+          try {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({
+                defaultLocale: "en",
+                fallbackLocale: "en",
+                locales: [],
+                translationDir,
+              }),
+            );
+          } catch (e) {
+            console.error("[i18n-devtools] Config error:", e);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }),
+            );
+          }
+        },
+      );
 
       // Endpoint for getting file list
-      server.middlewares.use(`${apiBase}/files`, async (req: IncomingMessage, res: ServerResponse, next) => {
-        if (req.method !== 'GET') {
-          return next()
-        }
-
-        try {
-          const localesPath = path.resolve(projectRoot, translationDir)
-
-          // Verify the path is safe
-          safeResolvePath(projectRoot, translationDir)
-
-          if (!fs.existsSync(localesPath)) {
-            res.statusCode = 200
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ files: [], structure: {} }))
-            return
+      server.middlewares.use(
+        `${apiBase}/files`,
+        async (req: IncomingMessage, res: ServerResponse, next) => {
+          if (req.method !== "GET") {
+            return next();
           }
 
-          const files = await scanTranslationFiles(localesPath, localesPath)
+          try {
+            const localesPath = path.resolve(projectRoot, translationDir);
 
-          // Build directory structure
-          const structure: Record<string, unknown> = {}
-          for (const file of files) {
-            const parts = file.split('/')
-            let current = structure
-            for (let i = 0; i < parts.length - 1; i++) {
-              const part = parts[i]!
-              if (!current[part]) {
-                current[part] = {}
+            // Verify the path is safe
+            safeResolvePath(projectRoot, translationDir);
+
+            if (!fs.existsSync(localesPath)) {
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ files: [], structure: {} }));
+              return;
+            }
+
+            const files = await scanTranslationFiles(localesPath, localesPath);
+
+            // Build directory structure
+            const structure: Record<string, unknown> = {};
+            for (const file of files) {
+              const parts = file.split("/");
+              let current = structure;
+              for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i]!;
+                if (!current[part]) {
+                  current[part] = {};
+                }
+                current = current[part] as Record<string, unknown>;
               }
-              current = current[part] as Record<string, unknown>
+              const last = parts[parts.length - 1];
+              if (last !== undefined) {
+                current[last] = file;
+              }
             }
-            const last = parts[parts.length - 1]
-            if (last !== undefined) {
-              current[last] = file
-            }
-          }
 
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ files, structure }))
-        } catch (e) {
-          console.error('[i18n-devtools] Files list error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ files, structure }));
+          } catch (e) {
+            console.error("[i18n-devtools] Files list error:", e);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }),
+            );
+          }
+        },
+      );
 
       // Endpoint for loading a specific file
-      server.middlewares.use(`${apiBase}/file`, async (req: IncomingMessage, res: ServerResponse, next) => {
-        if (req.method !== 'GET') {
-          return next()
-        }
-
-        try {
-          const url = new URL(req.url || '', `http://${req.headers.host}`)
-          const filePath = url.searchParams.get('path')
-
-          if (!filePath) {
-            throw new Error('Path parameter is required')
+      server.middlewares.use(
+        `${apiBase}/file`,
+        async (req: IncomingMessage, res: ServerResponse, next) => {
+          if (req.method !== "GET") {
+            return next();
           }
 
-          // Resolve path relative to translationDir
-          const fullPath = path.join(translationDir, filePath)
-          const resolvedPath = safeResolvePath(projectRoot, fullPath)
+          try {
+            const url = new URL(req.url || "", `http://${req.headers.host}`);
+            const filePath = url.searchParams.get("path");
 
-          if (!fs.existsSync(resolvedPath)) {
-            res.statusCode = 404
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ success: false, error: 'File not found' }))
-            return
+            if (!filePath) {
+              throw new Error("Path parameter is required");
+            }
+
+            // Resolve path relative to translationDir
+            const fullPath = path.join(translationDir, filePath);
+            const resolvedPath = safeResolvePath(projectRoot, fullPath);
+
+            if (!fs.existsSync(resolvedPath)) {
+              res.statusCode = 404;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ success: false, error: "File not found" }));
+              return;
+            }
+
+            if (!resolvedPath.endsWith(".json")) {
+              throw new Error("Invalid file: only .json files are allowed");
+            }
+
+            const content = fs.readFileSync(resolvedPath, "utf-8");
+            const parsed = JSON.parse(content);
+
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true, content: parsed, path: filePath }));
+          } catch (e) {
+            console.error("[i18n-devtools] File read error:", e);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }),
+            );
           }
-
-          if (!resolvedPath.endsWith('.json')) {
-            throw new Error('Invalid file: only .json files are allowed')
-          }
-
-          const content = fs.readFileSync(resolvedPath, 'utf-8')
-          const parsed = JSON.parse(content)
-
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ success: true, content: parsed, path: filePath }))
-        } catch (e) {
-          console.error('[i18n-devtools] File read error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
+        },
+      );
 
       // Endpoint for saving a file
-      server.middlewares.use(`${apiBase}/save`, async (req: IncomingMessage, res: ServerResponse, next) => {
-        if (req.method !== 'POST') {
-          return next()
-        }
-
-        try {
-          // Read request body
-          const buffers: Buffer[] = []
-          for await (const chunk of req) {
-            buffers.push(chunk)
-          }
-          const bodyData = Buffer.concat(buffers).toString()
-
-          if (!bodyData) {
-            throw new Error('Empty request body')
+      server.middlewares.use(
+        `${apiBase}/save`,
+        async (req: IncomingMessage, res: ServerResponse, next) => {
+          if (req.method !== "POST") {
+            return next();
           }
 
-          const body = JSON.parse(bodyData)
-          const { file, content } = body
+          try {
+            // Read request body
+            const buffers: Buffer[] = [];
+            for await (const chunk of req) {
+              buffers.push(chunk);
+            }
+            const bodyData = Buffer.concat(buffers).toString();
 
-          if (!file || !content) {
-            throw new Error('Invalid data: file and content are required')
+            if (!bodyData) {
+              throw new Error("Empty request body");
+            }
+
+            const body = JSON.parse(bodyData);
+            const { file, content } = body;
+
+            if (!file || !content) {
+              throw new Error("Invalid data: file and content are required");
+            }
+
+            // Resolve path relative to translationDir if path is not absolute
+            const fullPath = file.startsWith(translationDir)
+              ? file
+              : path.join(translationDir, file);
+            const filePath = safeResolvePath(projectRoot, fullPath);
+
+            // Check extension
+            if (!filePath.endsWith(".json")) {
+              throw new Error("Invalid file: only .json files are allowed");
+            }
+
+            // Create directory if it doesn't exist
+            const dir = path.dirname(filePath);
+            if (!fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true });
+            }
+
+            // Write file
+            fs.writeFileSync(filePath, JSON.stringify(content, null, 2), "utf-8");
+
+            // Successful response
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ success: true }));
+          } catch (e) {
+            console.error("[i18n-devtools] Save error:", e);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({
+                success: false,
+                error: e instanceof Error ? e.message : String(e),
+              }),
+            );
           }
-
-          // Resolve path relative to translationDir if path is not absolute
-          const fullPath = file.startsWith(translationDir) ? file : path.join(translationDir, file)
-          const filePath = safeResolvePath(projectRoot, fullPath)
-
-          // Check extension
-          if (!filePath.endsWith('.json')) {
-            throw new Error('Invalid file: only .json files are allowed')
-          }
-
-          // Create directory if it doesn't exist
-          const dir = path.dirname(filePath)
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true })
-          }
-
-          // Write file
-          fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8')
-
-          // Successful response
-          res.statusCode = 200
-          res.setHeader('Content-Type', 'application/json')
-          res.end(JSON.stringify({ success: true }))
-        } catch (e) {
-          console.error('[i18n-devtools] Save error:', e)
-          res.statusCode = 500
-          res.setHeader('Content-Type', 'application/json')
-          res.end(
-            JSON.stringify({
-              success: false,
-              error: e instanceof Error ? e.message : String(e),
-            }),
-          )
-        }
-      })
+        },
+      );
     },
-  } as PluginOption
+  } as PluginOption;
 }

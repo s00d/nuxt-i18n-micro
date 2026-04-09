@@ -1,8 +1,14 @@
-import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
-import React from 'react'
+import type {
+  CleanTranslation,
+  Locale,
+  Params,
+  TranslationKey,
+  Translations,
+} from "@i18n-micro/types";
+import React from "react";
 // Use shim for React 17 compatibility
-import { useSyncExternalStore } from 'use-sync-external-store/shim'
-import type { ReactI18n } from './i18n'
+import { useSyncExternalStore } from "use-sync-external-store/shim";
+import type { ReactI18n } from "./i18n";
 import {
   I18nContext,
   I18nDefaultLocaleContext,
@@ -12,18 +18,24 @@ import {
   useI18nDefaultLocale,
   useI18nLocales,
   useI18nRouter,
-} from './injection'
-import type { I18nRoutingStrategy } from './router/types'
+} from "./injection";
+import type { I18nRoutingStrategy } from "./router/types";
 
 export interface I18nProviderProps {
-  i18n: ReactI18n
-  locales?: Locale[]
-  defaultLocale?: string
-  routingStrategy?: I18nRoutingStrategy
-  children: React.ReactNode
+  i18n: ReactI18n;
+  locales?: Locale[];
+  defaultLocale?: string;
+  routingStrategy?: I18nRoutingStrategy;
+  children: React.ReactNode;
 }
 
-export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps): React.ReactElement {
+export function I18nProvider({
+  i18n,
+  locales,
+  defaultLocale,
+  routingStrategy,
+  children,
+}: I18nProviderProps): React.ReactElement {
   return React.createElement(
     I18nContext.Provider,
     { value: i18n },
@@ -35,80 +47,99 @@ export function I18nProvider({ i18n, locales, defaultLocale, routingStrategy, ch
             ? React.createElement(
                 I18nDefaultLocaleContext.Provider,
                 { value: defaultLocale },
-                routingStrategy ? React.createElement(I18nRouterContext.Provider, { value: routingStrategy }, children) : children,
+                routingStrategy
+                  ? React.createElement(
+                      I18nRouterContext.Provider,
+                      { value: routingStrategy },
+                      children,
+                    )
+                  : children,
               )
             : children,
         )
       : children,
-  )
+  );
 }
 
 export interface UseI18nOptions {
-  locales?: Locale[]
-  defaultLocale?: string
+  locales?: Locale[];
+  defaultLocale?: string;
 }
 
 export interface UseI18nReturn {
   // Translation methods
-  t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation
-  ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string
-  tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
-  tn: (value: number, options?: Intl.NumberFormatOptions) => string
-  td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
-  tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
-  has: (key: TranslationKey, routeName?: string) => boolean
+  t: (
+    key: TranslationKey,
+    params?: Params,
+    defaultValue?: string | null,
+    routeName?: string,
+  ) => CleanTranslation;
+  ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string;
+  tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string;
+  tn: (value: number, options?: Intl.NumberFormatOptions) => string;
+  td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string;
+  tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string;
+  has: (key: TranslationKey, routeName?: string) => boolean;
 
   // Locale management
-  locale: string
-  fallbackLocale: string
-  currentRoute: string
-  setLocale: (locale: string) => void
+  locale: string;
+  fallbackLocale: string;
+  currentRoute: string;
+  setLocale: (locale: string) => void;
 
   // Route management
-  setRoute: (routeName: string) => void
-  getRoute: () => string
-  getLocales: () => Locale[]
-  defaultLocale: () => string
-  getLocaleName: () => string | null
+  setRoute: (routeName: string) => void;
+  getRoute: () => string;
+  getLocales: () => Locale[];
+  defaultLocale: () => string;
+  getLocaleName: () => string | null;
 
   // Router methods (if router is available)
-  switchLocale?: (locale: string) => void
-  localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string }
-  localePath?: (to: string | { path?: string }, locale?: string) => string
+  switchLocale?: (locale: string) => void;
+  localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string };
+  localePath?: (to: string | { path?: string }, locale?: string) => string;
 
   // Translation management
-  addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
-  addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
-  clearCache: () => void
+  addTranslations: (locale: string, translations: Translations, merge?: boolean) => void;
+  addRouteTranslations: (
+    locale: string,
+    routeName: string,
+    translations: Translations,
+    merge?: boolean,
+  ) => void;
+  clearCache: () => void;
 }
 
 export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
-  const i18n = useI18nContext()
-  const router = useI18nRouter()
-  const injectedLocales = useI18nLocales()
-  const injectedDefaultLocale = useI18nDefaultLocale()
+  const i18n = useI18nContext();
+  const router = useI18nRouter();
+  const injectedLocales = useI18nLocales();
+  const injectedDefaultLocale = useI18nDefaultLocale();
 
   // Реактивность! Компонент перерендерится, если i18n уведомит об изменениях
-  useSyncExternalStore(i18n.subscribe, i18n.getSnapshot)
+  useSyncExternalStore(i18n.subscribe, i18n.getSnapshot);
 
-  const locales = options?.locales || injectedLocales || []
-  const defaultLocale = options?.defaultLocale || injectedDefaultLocale || i18n.locale
+  const locales = options?.locales || injectedLocales || [];
+  const defaultLocale = options?.defaultLocale || injectedDefaultLocale || i18n.locale;
 
-  const resolveLocalePath = (to: string | { path?: string }, localeCode?: string): string | { path?: string } => {
+  const resolveLocalePath = (
+    to: string | { path?: string },
+    localeCode?: string,
+  ): string | { path?: string } => {
     if (!router?.resolvePath) {
-      return to
+      return to;
     }
-    return router.resolvePath(to, localeCode || i18n.locale)
-  }
+    return router.resolvePath(to, localeCode || i18n.locale);
+  };
 
   const switchLocaleHelper = (newLocale: string): void => {
-    i18n.locale = newLocale
+    i18n.locale = newLocale;
     if (router) {
-      const currentPath = router.getCurrentPath()
-      const newPath = resolveLocalePath(currentPath, newLocale)
-      router.push(typeof newPath === 'string' ? { path: newPath } : { path: newPath.path || '/' })
+      const currentPath = router.getCurrentPath();
+      const newPath = resolveLocalePath(currentPath, newLocale);
+      router.push(typeof newPath === "string" ? { path: newPath } : { path: newPath.path || "/" });
     }
-  }
+  };
 
   return {
     // Translation methods
@@ -122,16 +153,16 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
 
     // Locale management
     get locale() {
-      return i18n.locale
+      return i18n.locale;
     },
     get fallbackLocale() {
-      return i18n.fallbackLocale
+      return i18n.fallbackLocale;
     },
     get currentRoute() {
-      return i18n.currentRoute
+      return i18n.currentRoute;
     },
     setLocale: (locale: string) => {
-      i18n.locale = locale
+      i18n.locale = locale;
     },
 
     // Route management
@@ -140,24 +171,24 @@ export const useI18n = (options?: UseI18nOptions): UseI18nReturn => {
     getLocales: () => locales,
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
-      const current = locales.find((l) => l.code === i18n.locale)
-      return current?.displayName || null
+      const current = locales.find((l) => l.code === i18n.locale);
+      return current?.displayName || null;
     },
 
     // Router methods (always available, but navigation handled by components)
     switchLocale: switchLocaleHelper,
     localeRoute: resolveLocalePath,
     localePath: (to: string | { path?: string }, locale?: string) => {
-      const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : res.path || '/'
+      const res = resolveLocalePath(to, locale);
+      return typeof res === "string" ? res : res.path || "/";
     },
 
     // Translation management
     addTranslations: i18n.addTranslations.bind(i18n),
     addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
     clearCache: i18n.clearCache.bind(i18n),
-  }
-}
+  };
+};
 
 // Export context for advanced usage
-export { I18nContext } from './injection'
+export { I18nContext } from "./injection";

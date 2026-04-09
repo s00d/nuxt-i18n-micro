@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@i18n-micro/react": "workspace:*",
     "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*",
     "@i18n-micro/devtools-ui": "workspace:*",
+    "@i18n-micro/react": "workspace:*",
+    "@i18n-micro/types": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-router-dom": "catalog:",
@@ -23,7 +23,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "vite": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

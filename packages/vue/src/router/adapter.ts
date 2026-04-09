@@ -1,54 +1,57 @@
-import type { Locale } from '@i18n-micro/types'
-import type { Router } from 'vue-router'
-import { RouterLink } from 'vue-router'
-import type { I18nRoutingStrategy } from './types'
+import { type Locale } from "@i18n-micro/types";
+import { type Router, RouterLink } from "vue-router";
+import { type I18nRoutingStrategy } from "./types";
 
 /**
  * Factory for Vue Router adapter
  * Implements routing utilities for Vue Router
  * Uses vue-router APIs for navigation and path resolution
  */
-export function createVueRouterAdapter(router: Router, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
-  const localeCodes = locales.map((loc) => loc.code)
+export function createVueRouterAdapter(
+  router: Router,
+  locales: Locale[],
+  defaultLocale: string,
+): I18nRoutingStrategy {
+  const localeCodes = locales.map((loc) => loc.code);
 
   /**
    * Path resolution logic (add prefix or not)
    */
   const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : to.path || '/'
-    const pathSegments = path.split('/').filter(Boolean)
+    const path = typeof to === "string" ? to : to.path || "/";
+    const pathSegments = path.split("/").filter(Boolean);
 
     // If path already starts with a locale, remove it
-    const first = pathSegments[0]
+    const first = pathSegments[0];
     if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift()
+      pathSegments.shift();
     }
 
-    const cleanPath = `/${pathSegments.join('/')}`
+    const cleanPath = `/${pathSegments.join("/")}`;
 
     // If default locale - return clean path
     if (locale === defaultLocale) {
-      return cleanPath
+      return cleanPath;
     }
 
     // Otherwise add prefix
-    return `/${locale}${cleanPath === '/' ? '' : cleanPath}`
-  }
+    return `/${locale}${cleanPath === "/" ? "" : cleanPath}`;
+  };
 
   return {
     linkComponent: RouterLink,
 
     getCurrentPath: () => {
       // currentRoute in Vue Router is reactive
-      return router.currentRoute.value.path
+      return router.currentRoute.value.path;
     },
 
     push: (target: { path: string }) => {
-      router.push(target.path).catch(() => {})
+      router.push(target.path).catch(() => {});
     },
 
     replace: (target: { path: string }) => {
-      router.replace(target.path).catch(() => {})
+      router.replace(target.path).catch(() => {});
     },
 
     resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
@@ -57,5 +60,5 @@ export function createVueRouterAdapter(router: Router, locales: Locale[], defaul
       fullPath: router.currentRoute.value.fullPath,
       query: router.currentRoute.value.query,
     }),
-  }
+  };
 }

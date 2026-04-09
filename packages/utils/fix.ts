@@ -1,1 +1,1 @@
-import '@types/jest'
+import "@types/jest";

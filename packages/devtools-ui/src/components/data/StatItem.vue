@@ -9,13 +9,7 @@
       </span>
       <span :class="['font-semibold min-w-[60px] text-right', $attrs.class]">
         {{ formattedValue }}
-        <span
-          v-if="trend"
-          class="ml-2 text-xs"
-          :class="trendClass"
-        >
-          {{ trend }}%
-        </span>
+        <span v-if="trend" class="ml-2 text-xs" :class="trendClass"> {{ trend }}% </span>
       </span>
     </template>
 
@@ -26,13 +20,7 @@
         </span>
         <span :class="['font-semibold mt-1', $attrs.class]">
           {{ formattedValue }}
-          <span
-            v-if="trend"
-            class="ml-2 text-xs"
-            :class="trendClass"
-          >
-            {{ trend }}%
-          </span>
+          <span v-if="trend" class="ml-2 text-xs" :class="trendClass"> {{ trend }}% </span>
         </span>
       </div>
     </template>
@@ -40,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
   label: String,
@@ -50,17 +38,17 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-})
+});
 
 const formattedValue = computed(() => {
-  if (typeof props.value === 'number') {
-    return props.value.toLocaleString()
+  if (typeof props.value === "number") {
+    return props.value.toLocaleString();
   }
-  return props.value
-})
+  return props.value;
+});
 
 const trendClass = computed(() => {
-  if (!props.trend) return ''
-  return props.trend > 0 ? 'text-green-500' : 'text-red-500'
-})
+  if (!props.trend) return "";
+  return props.trend > 0 ? "text-green-500" : "text-red-500";
+});
 </script>

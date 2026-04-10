@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) all three: globalLocaleRoutes + filesLocaleRoutes + routeLocales on different pages 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) all three: globalLocaleRoutes + filesLocaleRoutes + routeLocales on different pages: extended-pages 1`] = `
 [
   {
     "children": [],
@@ -38,15 +38,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths 1`] = `
-{
-  "a": {
-    "en": "/a-en",
-  },
-}
-`;
-
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths 2`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths: extended-pages 1`] = `
 [
   {
     "children": [],
@@ -88,7 +80,15 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) filesLocaleRoutes used when globalLocaleRoutes has no entry for path 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) extractLocalizedPaths: global + files merge, then extendPages uses merged localizedPaths: extracted-localized-paths 1`] = `
+{
+  "a": {
+    "en": "/a-en",
+  },
+}
+`;
+
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) filesLocaleRoutes used when globalLocaleRoutes has no entry for path: extended-pages 1`] = `
 [
   {
     "children": [],
@@ -130,7 +130,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) globalLocaleRoutes false + filesLocaleRoutes + routeLocales: disabled page not localized 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) globalLocaleRoutes false + filesLocaleRoutes + routeLocales: disabled page not localized: extended-pages 1`] = `
 [
   {
     "name": "disabled",
@@ -139,7 +139,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) globalLocaleRoutes overrides filesLocaleRoutes for same path 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) globalLocaleRoutes overrides filesLocaleRoutes for same path: extended-pages 1`] = `
 [
   {
     "children": [],
@@ -167,7 +167,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) mixed: one page global false, one page global+files, one page only routeLocales 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) mixed: one page global false, one page global+files, one page only routeLocales: extended-pages 1`] = `
 [
   {
     "name": "no-i18n",
@@ -213,7 +213,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) nested: parent from globalLocaleRoutes, child from filesLocaleRoutes, routeLocales on both 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) nested: parent from globalLocaleRoutes, child from filesLocaleRoutes, routeLocales on both: extended-pages 1`] = `
 [
   {
     "children": [
@@ -244,7 +244,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) no_prefix with globalLocaleRoutes + filesLocaleRoutes + noPrefixRedirect 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) no_prefix with globalLocaleRoutes + filesLocaleRoutes + noPrefixRedirect: extended-pages 1`] = `
 [
   {
     "name": "home",
@@ -262,7 +262,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) prefix_and_default with globalLocaleRoutes + routeLocales combination 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) prefix_and_default with globalLocaleRoutes + routeLocales combination: extended-pages 1`] = `
 [
   {
     "name": "pricing",
@@ -298,7 +298,7 @@ exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocale
 ]
 `;
 
-exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) routeLocales restricts which locales get routes even with globalLocaleRoutes and filesLocaleRoutes 1`] = `
+exports[`RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales) routeLocales restricts which locales get routes even with globalLocaleRoutes and filesLocaleRoutes: extended-pages 1`] = `
 [
   {
     "children": [

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -8,25 +8,25 @@
 // @ts-nocheck
 // Test with Proxy objects
 const localeConfig = {
-  locales: ['en', 'de', 'fr'],
+  locales: ["en", "de", "fr"],
   paths: {
-    en: '/welcome',
-    de: '/willkommen',
-    fr: '/bienvenue',
+    en: "/welcome",
+    de: "/willkommen",
+    fr: "/bienvenue",
   },
-}
+};
 
 const proxy = new Proxy(localeConfig, {
   get(target, prop) {
-    if (prop === 'localeRoutes') {
-      return target.paths
+    if (prop === "localeRoutes") {
+      return target.paths;
     }
-    return target[prop as keyof typeof target]
+    return target[prop as keyof typeof target];
   },
-})
+});
 
 $defineI18nRoute({
   locales: proxy.locales,
   localeRoutes: proxy.localeRoutes,
-})
+});
 </script>

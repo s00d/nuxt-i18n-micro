@@ -13,19 +13,19 @@ To enable localization and Storybook in your Nuxt project, configure your `nuxt.
 ```typescript
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
   modules: [
-    'nuxt-i18n-micro', // Localization module
-    '@nuxtjs/storybook', // Storybook module
+    "nuxt-i18n-micro", // Localization module
+    "@nuxtjs/storybook", // Storybook module
   ],
 
   i18n: {
     locales: [
-      { code: 'en', iso: 'en_EN', displayName: 'English' },
-      { code: 'de', iso: 'de_DE', displayName: 'German' },
+      { code: "en", iso: "en_EN", displayName: "English" },
+      { code: "de", iso: "de_DE", displayName: "German" },
     ],
-    strategy: 'prefix',
+    strategy: "prefix",
   },
 });
 ```
@@ -37,100 +37,98 @@ To integrate Storybook with Nuxt and nuxt-i18n-micro, configure the `.storybook/
 ### 📄 `.storybook/main.ts`
 
 ```typescript
-import type { StorybookConfig } from '@storybook-vue/nuxt'
-import fs from 'node:fs'
-import path from 'node:path'
+import type { StorybookConfig } from "@storybook-vue/nuxt";
+import fs from "node:fs";
+import path from "node:path";
 
-type TranslationValue = string | number | boolean | TranslationStructure | unknown | null
+type TranslationValue = string | number | boolean | TranslationStructure | unknown | null;
 interface TranslationStructure {
-  [key: string]: TranslationValue
+  [key: string]: TranslationValue;
 }
 
-const localesRoot = 'locales'
+const localesRoot = "locales";
 
-function mergeAllTranslations(target: TranslationStructure, ...sources: TranslationStructure[]): TranslationStructure {
+function mergeAllTranslations(
+  target: TranslationStructure,
+  ...sources: TranslationStructure[]
+): TranslationStructure {
   return sources.reduce((acc, source) => {
     for (const [key, value] of Object.entries(source)) {
-      acc[key] = value
+      acc[key] = value;
     }
-    return acc
-  }, target)
+    return acc;
+  }, target);
 }
 
 const getLocales = (): string[] => {
-  const localesDir = path.join(__dirname, '../', localesRoot)
+  const localesDir = path.join(__dirname, "../", localesRoot);
   try {
-    return fs.readdirSync(localesDir)
-      .filter(file => file.endsWith('.json'))
-      .map(file => path.basename(file, '.json'))
+    return fs
+      .readdirSync(localesDir)
+      .filter((file) => file.endsWith(".json"))
+      .map((file) => path.basename(file, ".json"));
+  } catch (error) {
+    console.error("Error reading locales directory:", error);
+    return [];
   }
-  catch (error) {
-    console.error('Error reading locales directory:', error)
-    return []
-  }
-}
+};
 
 const mergeTranslations = () => {
-  const localesDir = path.join(__dirname, '../', localesRoot)
-  const outputDir = path.join(__dirname, '../storybook_locales/_locales/index')
-  const locales = getLocales()
+  const localesDir = path.join(__dirname, "../", localesRoot);
+  const outputDir = path.join(__dirname, "../storybook_locales/_locales/index");
+  const locales = getLocales();
 
   const collectAllTranslations = (dir: string, lang: string): TranslationStructure => {
-    let translations: TranslationStructure = {}
-    const entries = fs.readdirSync(dir, { withFileTypes: true })
+    let translations: TranslationStructure = {};
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
 
     for (const entry of entries) {
-      const entryPath = path.join(dir, entry.name)
+      const entryPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        translations = mergeAllTranslations(translations, collectAllTranslations(entryPath, lang))
-      }
-      else if (entry.isFile() && entry.name === `${lang}.json`) {
-        const content = JSON.parse(fs.readFileSync(entryPath, 'utf-8'))
-        translations = mergeAllTranslations(translations, content)
+        translations = mergeAllTranslations(translations, collectAllTranslations(entryPath, lang));
+      } else if (entry.isFile() && entry.name === `${lang}.json`) {
+        const content = JSON.parse(fs.readFileSync(entryPath, "utf-8"));
+        translations = mergeAllTranslations(translations, content);
       }
     }
-    return translations
-  }
+    return translations;
+  };
 
   locales.forEach((lang) => {
     // 1. Collect all page translations
-    let merged = collectAllTranslations(path.join(localesDir, 'pages'), lang)
+    let merged = collectAllTranslations(path.join(localesDir, "pages"), lang);
 
     // 2. Add root-level translations with priority
-    const generalFilePath = path.join(localesDir, `${lang}.json`)
+    const generalFilePath = path.join(localesDir, `${lang}.json`);
     if (fs.existsSync(generalFilePath)) {
-      const generalContent = JSON.parse(fs.readFileSync(generalFilePath, 'utf-8'))
-      merged = mergeAllTranslations(merged, generalContent)
+      const generalContent = JSON.parse(fs.readFileSync(generalFilePath, "utf-8"));
+      merged = mergeAllTranslations(merged, generalContent);
     }
 
     // 3. Save result
-    const outputPath = path.join(outputDir, `${lang}/data.json`)
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-    fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2))
-  })
-}
+    const outputPath = path.join(outputDir, `${lang}/data.json`);
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+    fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2));
+  });
+};
 
-mergeTranslations()
+mergeTranslations();
 
 const config: StorybookConfig = {
-  stories: [
-    '../components/**/*.mdx',
-    '../components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
-  ],
-  staticDirs: ['../storybook_locales'],
+  stories: ["../components/**/*.mdx", "../components/**/*.stories.@(js|jsx|ts|tsx|mdx)"],
+  staticDirs: ["../storybook_locales"],
   addons: [
-    '@storybook/addon-essentials',
-    '@chromatic-com/storybook',
-    '@storybook/addon-interactions',
+    "@storybook/addon-essentials",
+    "@chromatic-com/storybook",
+    "@storybook/addon-interactions",
   ],
   framework: {
-    name: '@storybook-vue/nuxt',
+    name: "@storybook-vue/nuxt",
     options: {},
-  }
-}
-export default config
+  },
+};
+export default config;
 ```
-
 
 ## 🚀 Example Projects
 

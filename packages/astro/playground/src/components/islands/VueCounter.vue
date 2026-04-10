@@ -1,69 +1,76 @@
 <script setup lang="ts">
-import type { I18nClientProps } from '@i18n-micro/astro'
-import { translate } from '@i18n-micro/astro/client'
-import { provideI18n } from '@i18n-micro/astro/client/vue'
-import { defaultPlural, FormatService } from '@i18n-micro/core'
-import type { Params, TranslationKey } from '@i18n-micro/types'
-import { computed, ref } from 'vue'
+import type { I18nClientProps } from "@i18n-micro/astro";
+import { translate } from "@i18n-micro/astro/client";
+import { provideI18n } from "@i18n-micro/astro/client/vue";
+import { defaultPlural, FormatService } from "@i18n-micro/core";
+import type { Params, TranslationKey } from "@i18n-micro/types";
+import { computed, ref } from "vue";
 
 const props = defineProps<{
-  i18n: I18nClientProps
-}>()
+  i18n: I18nClientProps;
+}>();
 
 // Initialize provider and get state directly
-const state = provideI18n(props.i18n)
-const formatter = new FormatService()
+const state = provideI18n(props.i18n);
+const formatter = new FormatService();
 
 // Use state directly instead of inject
-const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => {
-  return translate(state.value, key as string, params, defaultValue, routeName)
-}
+const t = (
+  key: TranslationKey,
+  params?: Params,
+  defaultValue?: string | null,
+  routeName?: string,
+) => {
+  return translate(state.value, key as string, params, defaultValue, routeName);
+};
 
 const tc = (key: TranslationKey, count: number | Params, defaultValue?: string) => {
-  const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
+  const { count: countValue, ...params } = typeof count === "number" ? { count } : count;
 
   if (countValue === undefined) {
-    return defaultValue ?? (key as string)
+    return defaultValue ?? (key as string);
   }
 
   const getter = (k: TranslationKey, p?: Params, dv?: string) => {
-    return t(k, p, dv)
-  }
+    return t(k, p, dv);
+  };
 
-  const result = defaultPlural(key, Number.parseInt(countValue.toString(), 10), params, state.value.locale, getter)
+  const result = defaultPlural(
+    key,
+    Number.parseInt(countValue.toString(), 10),
+    params,
+    state.value.locale,
+    getter,
+  );
 
-  return result ?? defaultValue ?? (key as string)
-}
+  return result ?? defaultValue ?? (key as string);
+};
 
 const tn = (value: number, options?: Intl.NumberFormatOptions): string => {
-  return formatter.formatNumber(value, state.value.locale, options)
-}
+  return formatter.formatNumber(value, state.value.locale, options);
+};
 
-const locale = computed(() => state.value.locale)
+const locale = computed(() => state.value.locale);
 
-const count = ref(0)
-const increment = () => count.value++
+const count = ref(0);
+const increment = () => count.value++;
 </script>
 
 <template>
   <div class="island-card vue-card">
-    <h3>{{ t('islands.vue.title') }}</h3>
-    <p>{{ t('islands.vue.description') }}</p>
+    <h3>{{ t("islands.vue.title") }}</h3>
+    <p>{{ t("islands.vue.description") }}</p>
     <div class="counter">
-      <button @click="increment">
-        +
-      </button>
+      <button @click="increment">+</button>
       <span>{{ count }}</span>
       <p>
-        {{ tc('islands.apples', count) }}
+        {{ tc("islands.apples", count) }}
       </p>
       <p>
-        {{ t('islands.number', { number: tn(count) }) }}
+        {{ t("islands.number", { number: tn(count) }) }}
       </p>
     </div>
-    <p class="locale-info">
-      Locale: {{ locale }}
-    </p>
+    <p class="locale-info">Locale: {{ locale }}</p>
   </div>
 </template>
 

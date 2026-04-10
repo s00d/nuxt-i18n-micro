@@ -1,6 +1,4 @@
-/// <reference path="../.astro/types.d.ts" />
-/// <reference types="astro/client" />
+import "../.astro/types.d.ts";
+import "astro/client";
 
-// Import types to extend App.Locals
-
-import '@i18n-micro/astro/astro-shim'
+import "@i18n-micro/astro/astro-shim";

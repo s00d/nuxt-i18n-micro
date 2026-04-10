@@ -1,16 +1,16 @@
 config:
-  target: "http://127.0.0.1:10000"  # Укажите целевой URL для тестирования
+  target: "http://127.0.0.1:10000" # Укажите целевой URL для тестирования
   phases:
     - duration: 6
-      arrivalRate: 6  # Максимальное количество пользователей в фазе разогрева
+      arrivalRate: 6 # Максимальное количество пользователей в фазе разогрева
     - duration: 60
-      arrivalRate: 60  # Основная фаза теста с количеством пользователей 60
+      arrivalRate: 60 # Основная фаза теста с количеством пользователей 60
 
 scenarios:
   - name: test_scenario
     flow:
       - get:
-          url: "/"  # Использует target из секции config
+          url: "/" # Использует target из секции config
       - get:
           url: "/ru"
       - get:
@@ -21,13 +21,13 @@ scenarios:
           url: "/ru/page"
       - get:
           url: "/de/page"
-    parallel-requests: 6  # Выполнять все запросы одновременно
+    parallel-requests: 6 # Выполнять все запросы одновременно
 
 modules:
-  console:  # Включает вывод в консоль во время теста
+  console: # Включает вывод в консоль во время теста
     disable: false
 
 reporting:
   - module: final-stats
   - module: json
-    filename: results.json  # Вывод результатов теста в формате JSON
+    filename: results.json # Вывод результатов теста в формате JSON

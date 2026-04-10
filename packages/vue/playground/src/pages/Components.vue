@@ -1,62 +1,34 @@
 <template>
   <div>
-    <h1>{{ t('components.title') }}</h1>
-    <p>{{ t('components.description') }}</p>
+    <h1>{{ t("components.title") }}</h1>
+    <p>{{ t("components.description") }}</p>
 
     <section>
       <h2>I18nT Component</h2>
       <I18nT keypath="welcome" />
-      <br>
-      <I18nT
-        keypath="greeting"
-        :params="{ name: 'Vue' }"
-      />
-      <br>
-      <I18nT
-        keypath="apples"
-        :plural="0"
-      />
-      <br>
-      <I18nT
-        keypath="apples"
-        :plural="1"
-      />
-      <br>
-      <I18nT
-        keypath="apples"
-        :plural="5"
-      />
-      <br>
-      <I18nT
-        keypath="number"
-        :number="1234.56"
-      />
-      <br>
-      <I18nT
-        keypath="date"
-        :date="new Date()"
-      />
-      <br>
-      <I18nT
-        keypath="relativeDate"
-        :relative-date="oneHourAgo"
-      />
+      <br />
+      <I18nT keypath="greeting" :params="{ name: 'Vue' }" />
+      <br />
+      <I18nT keypath="apples" :plural="0" />
+      <br />
+      <I18nT keypath="apples" :plural="1" />
+      <br />
+      <I18nT keypath="apples" :plural="5" />
+      <br />
+      <I18nT keypath="number" :number="1234.56" />
+      <br />
+      <I18nT keypath="date" :date="new Date()" />
+      <br />
+      <I18nT keypath="relativeDate" :relative-date="oneHourAgo" />
     </section>
 
     <section>
       <h2>I18nLink Component</h2>
-      <I18nLink to="/">
-        Home Link
-      </I18nLink>
-      <br>
-      <I18nLink to="/about">
-        About Link
-      </I18nLink>
-      <br>
-      <I18nLink
-        to="/components"
-        :active-style="{ color: 'red' }"
-      >
+      <I18nLink to="/"> Home Link </I18nLink>
+      <br />
+      <I18nLink to="/about"> About Link </I18nLink>
+      <br />
+      <I18nLink to="/components" :active-style="{ color: 'red' }">
         Components Link (Active Style)
       </I18nLink>
     </section>
@@ -65,8 +37,8 @@
       <h2>I18nGroup Component</h2>
       <I18nGroup prefix="home">
         <template #default="{ t: groupT }">
-          <p>{{ groupT('title') }}</p>
-          <p>{{ groupT('description') }}</p>
+          <p>{{ groupT("title") }}</p>
+          <p>{{ groupT("description") }}</p>
         </template>
       </I18nGroup>
     </section>
@@ -86,12 +58,12 @@
 </template>
 
 <script setup lang="ts">
-import { I18nGroup, I18nLink, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/vue'
-import { computed } from 'vue'
+import { I18nGroup, I18nLink, I18nSwitcher, I18nT, useI18n } from "@i18n-micro/vue";
+import { computed } from "vue";
 
-const { t, tn, td, tdr } = useI18n()
+const { t, tn, td, tdr } = useI18n();
 
-const oneHourAgo = computed(() => new Date(Date.now() - 3600000))
+const oneHourAgo = computed(() => new Date(Date.now() - 3600000));
 </script>
 
 <style scoped>

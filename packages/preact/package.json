@@ -1,6 +1,9 @@
 {
   "name": "@i18n-micro/preact",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -12,18 +15,19 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
   "publishConfig": {
     "access": "public"
   },
+  "scripts": {
+    "build": "vite build",
+    "dev": "cd playground && vite",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
-  },
-  "peerDependencies": {
-    "preact": "catalog:"
+    "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
@@ -39,10 +43,7 @@
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
   },
-  "scripts": {
-    "build": "vite build",
-    "dev": "cd playground && vite",
-    "test": "jest",
-    "typecheck": "tsc --noEmit"
+  "peerDependencies": {
+    "preact": "catalog:"
   }
 }

@@ -19,36 +19,40 @@ We conducted a series of tests to demonstrate the performance improvements that 
 ### ⏱️ Build Time and Resource Consumption
 
 ::: details **Nuxt I18n v10**
+
 - **Code Bundle**: 19.24 MB
 - **Translations**: 38.05 MB (compiled into JS)
 - **Max CPU Usage**: 439%
 - **Max Memory Usage**: 9,528 MB
 - **Elapsed Time**: 84.91s
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Code Bundle**: 1.5 MB — **92% smaller**
 - **Translations**: 60.97 MB (lazy-loaded JSON)
 - **Max CPU Usage**: 208% — **53% lower**
 - **Max Memory Usage**: 1,658 MB — **83% less memory**
 - **Elapsed Time**: 23.47s — **72% faster**
-:::
+  :::
 
 ### 🌐 Server Performance Under Load
 
 We also tested server performance using Artillery and Autocannon stress tests.
 
 ::: details **Nuxt I18n v10**
+
 - **Requests per Second (Artillery)**: 51 [#/sec]
 - **Average Response Time**: 1,363 ms
 - **Max Memory Usage**: 1,243 MB
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Requests per Second (Artillery)**: 292 [#/sec] — **472% more requests per second**
 - **Average Response Time**: 411 ms — **70% faster**
 - **Max Memory Usage**: 347 MB — **72% less memory usage**
-:::
+  :::
 
 ### 📈 Visual Comparison
 
@@ -102,14 +106,14 @@ options:
       type: logarithmic
 ```
 
-| Metric | nuxt-i18n v10 | i18n-micro | Improvement |
-|--------|---------------|------------|-------------|
-| Build Time | 84.91s | 23.47s | **72% faster** |
-| Memory (build) | 9,528 MB | 1,658 MB | **83% less** |
-| Code Bundle | 19.24 MB | 1.5 MB | **92% smaller** |
-| CPU Usage | 439% | 208% | **53% lower** |
-| Response Time | 1,363 ms | 411 ms | **70% faster** |
-| RPS (Artillery) | 51 | 292 | **472% more** |
+| Metric          | nuxt-i18n v10 | i18n-micro | Improvement     |
+| --------------- | ------------- | ---------- | --------------- |
+| Build Time      | 84.91s        | 23.47s     | **72% faster**  |
+| Memory (build)  | 9,528 MB      | 1,658 MB   | **83% less**    |
+| Code Bundle     | 19.24 MB      | 1.5 MB     | **92% smaller** |
+| CPU Usage       | 439%          | 208%       | **53% lower**   |
+| Response Time   | 1,363 ms      | 411 ms     | **70% faster**  |
+| RPS (Artillery) | 51            | 292        | **472% more**   |
 
 ### 🔍 Interpretation of Results
 
@@ -152,20 +156,20 @@ Starting from v3.0.0, the module uses a `globalThis` singleton pattern with `Sym
 flowchart LR
     subgraph Process["Node.js Process"]
         G["globalThis[Symbol.for('CACHE')]"]
-        
+
         subgraph R1["SSR Request 1"]
             P1[Plugin Instance] --> G
         end
-        
+
         subgraph R2["SSR Request 2"]
             P2[Plugin Instance] --> G
         end
-        
+
         subgraph R3["SSR Request 3"]
             P3[Plugin Instance] --> G
         end
     end
-    
+
     G --> Cache["Single Map Instance"]
     Cache --> D1["en:index → translations"]
     Cache --> D2["en:about → translations"
@@ -173,9 +177,9 @@ flowchart LR
 
 ```typescript
 // Internal implementation pattern
-const CACHE_KEY = Symbol.for('__NUXT_I18N_STORAGE_CACHE__')
+const CACHE_KEY = Symbol.for("__NUXT_I18N_STORAGE_CACHE__");
 if (!globalThis[CACHE_KEY]) {
-  globalThis[CACHE_KEY] = new Map()
+  globalThis[CACHE_KEY] = new Map();
 }
 ```
 
@@ -200,16 +204,16 @@ flowchart TB
     F -->|Yes| R
     F -->|No| J[Return Key / Default]
     D -->|No| J
-    
+
     style R fill:#2ed573
     style J fill:#ff9f43
 ```
 
 ```typescript
 // Simplified lookup logic — single active dictionary
-let val = cachedTranslations[key]
-if (val === undefined && key.includes('.')) {
-  val = getByPath(cachedTranslations, key)
+let val = cachedTranslations[key];
+if (val === undefined && key.includes(".")) {
+  val = getByPath(cachedTranslations, key);
 }
 ```
 
@@ -218,7 +222,9 @@ if (val === undefined && key.includes('.')) {
 During SSR, translations are injected directly into the HTML as a script tag:
 
 ```html
-<script>window.__I18N__={"en:index":{...},"en:about":{...}};</script>
+<script>
+  window.__I18N__={"en:index":{...},"en:about":{...}};
+</script>
 ```
 
 On the client, the plugin reads from `window.__I18N__` on initial hydration, completely avoiding duplicate fetch requests. This approach:

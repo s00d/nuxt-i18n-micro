@@ -4,4 +4,4 @@ export default defineNuxtPlugin((_nuxtApp) => {
   // const locale = $getLocale() // error here
   //
   // console.log(translatedMessage, locale)
-})
+});

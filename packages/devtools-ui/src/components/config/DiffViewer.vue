@@ -2,17 +2,8 @@
   <div class="diff-viewer">
     <!-- Filters -->
     <div class="filters">
-      <label
-        v-for="filter in filters"
-        :key="filter.type"
-        class="filter-item"
-      >
-        <input
-          v-model="activeFilters"
-          type="checkbox"
-          :value="filter.type"
-          class="sr-only"
-        >
+      <label v-for="filter in filters" :key="filter.type" class="filter-item">
+        <input v-model="activeFilters" type="checkbox" :value="filter.type" class="sr-only" />
         <span :class="['filter-badge', filter.class]">
           {{ filter.label }} ({{ counts[filter.type] }})
         </span>
@@ -21,17 +12,10 @@
 
     <!-- Changes list -->
     <div class="diff-list">
-      <div
-        v-for="(item, index) in filteredChanges"
-        :key="index"
-        class="diff-item"
-      >
+      <div v-for="(item, index) in filteredChanges" :key="index" class="diff-item">
         <div class="key-row">
           <span class="key-label">{{ item.key }}</span>
-          <span
-            v-if="item.type"
-            :class="['change-type', typeClasses[item.type]]"
-          >
+          <span v-if="item.type" :class="['change-type', typeClasses[item.type]]">
             {{ item.type.toUpperCase() }}
           </span>
         </div>
@@ -48,11 +32,7 @@
             </div>
           </template>
 
-          <div
-            v-else
-            class="value"
-            :class="item.type"
-          >
+          <div v-else class="value" :class="item.type">
             <span class="value-content">{{ item.currentValue || item.baseValue }}</span>
           </div>
         </div>
@@ -62,74 +42,76 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { TranslationContent } from '../../types'
-import { flattenTranslations } from '../../util/i18nUtils'
+import { computed, ref } from "vue";
+import type { TranslationContent } from "../../types";
+import { flattenTranslations } from "../../util/i18nUtils";
 
-type ChangeType = 'added' | 'modified' | 'removed'
+type ChangeType = "added" | "modified" | "removed";
 
 interface DiffItem {
-  key: string
-  type: ChangeType
-  baseValue?: string
-  currentValue?: string
+  key: string;
+  type: ChangeType;
+  baseValue?: string;
+  currentValue?: string;
 }
 
 const props = defineProps<{
-  current: TranslationContent
-  base: TranslationContent
-}>()
+  current: TranslationContent;
+  base: TranslationContent;
+}>();
 
-const activeFilters = ref<ChangeType[]>(['added', 'modified', 'removed'])
+const activeFilters = ref<ChangeType[]>(["added", "modified", "removed"]);
 
 const filters = [
-  { type: 'added' as ChangeType, label: 'Added', class: 'bg-green-100 text-green-800' },
-  { type: 'modified' as ChangeType, label: 'Modified', class: 'bg-yellow-100 text-yellow-800' },
-  { type: 'removed' as ChangeType, label: 'Removed', class: 'bg-red-100 text-red-800' },
-]
+  { type: "added" as ChangeType, label: "Added", class: "bg-green-100 text-green-800" },
+  { type: "modified" as ChangeType, label: "Modified", class: "bg-yellow-100 text-yellow-800" },
+  { type: "removed" as ChangeType, label: "Removed", class: "bg-red-100 text-red-800" },
+];
 
 const typeClasses: Record<ChangeType, string> = {
-  added: 'text-green-600',
-  modified: 'text-yellow-600',
-  removed: 'text-red-600',
-}
+  added: "text-green-600",
+  modified: "text-yellow-600",
+  removed: "text-red-600",
+};
 
 const changes = computed(() => {
-  const currentFlat = flattenTranslations(props.current)
-  const baseFlat = flattenTranslations(props.base)
-  const allKeys = new Set([...Object.keys(currentFlat), ...Object.keys(baseFlat)])
+  const currentFlat = flattenTranslations(props.current);
+  const baseFlat = flattenTranslations(props.base);
+  const allKeys = new Set([...Object.keys(currentFlat), ...Object.keys(baseFlat)]);
 
   return Array.from(allKeys)
     .map((key): DiffItem | null => {
-      const currentVal = currentFlat[key]
-      const baseVal = baseFlat[key]
+      const currentVal = currentFlat[key];
+      const baseVal = baseFlat[key];
 
       if (!currentVal && baseVal) {
-        return { key, type: 'removed', baseValue: baseVal }
+        return { key, type: "removed", baseValue: baseVal };
       }
       if (currentVal && !baseVal) {
-        return { key, type: 'added', currentValue: currentVal }
+        return { key, type: "added", currentValue: currentVal };
       }
       if (currentVal !== baseVal) {
         return {
           key,
-          type: 'modified',
+          type: "modified",
           baseValue: baseVal,
           currentValue: currentVal,
-        }
+        };
       }
-      return null
+      return null;
     })
-    .filter(Boolean) as DiffItem[]
-})
+    .filter(Boolean) as DiffItem[];
+});
 
 const counts = computed(() => ({
-  added: changes.value.filter((c) => c.type === 'added').length,
-  modified: changes.value.filter((c) => c.type === 'modified').length,
-  removed: changes.value.filter((c) => c.type === 'removed').length,
-}))
+  added: changes.value.filter((c) => c.type === "added").length,
+  modified: changes.value.filter((c) => c.type === "modified").length,
+  removed: changes.value.filter((c) => c.type === "removed").length,
+}));
 
-const filteredChanges = computed(() => changes.value.filter((c) => activeFilters.value.includes(c.type)))
+const filteredChanges = computed(() =>
+  changes.value.filter((c) => activeFilters.value.includes(c.type)),
+);
 </script>
 
 <style scoped>

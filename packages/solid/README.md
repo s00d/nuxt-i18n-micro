@@ -48,18 +48,18 @@ render(() => <App />, root)
 ### Usage in Components
 
 ```tsx
-import { useI18n } from '@i18n-micro/solid'
+import { useI18n } from "@i18n-micro/solid";
 
 function MyComponent() {
-  const { t, tc, locale, setLocale } = useI18n()
+  const { t, tc, locale, setLocale } = useI18n();
 
   return (
     <div>
-      <p>{t('greeting', { name: 'World' })}</p>
-      <p>{tc('apples', 5)}</p>
-      <button onClick={() => setLocale('fr')}>FR</button>
+      <p>{t("greeting", { name: "World" })}</p>
+      <p>{tc("apples", 5)}</p>
+      <button onClick={() => setLocale("fr")}>FR</button>
     </div>
-  )
+  );
 }
 ```
 

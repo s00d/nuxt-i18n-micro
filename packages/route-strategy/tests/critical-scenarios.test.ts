@@ -7,377 +7,395 @@
  * - 6.4 Mutation vs Immutability (original page object must not be mutated)
  */
 
-import type { NuxtPage } from '@nuxt/schema'
-import { RouteGenerator } from '../src/index'
-import { createManager, defaultLocaleCode, locales } from './helpers'
+import type { NuxtPage } from "@nuxt/schema";
+import { RouteGenerator } from "../src/index";
+import { createManager, defaultLocaleCode, locales } from "./helpers";
 
-describe('Critical: Original path lookup (parentOriginalPath)', () => {
-  test('nested: parent has custom path, child has no custom path — child path joins to parent localized path', () => {
+describe("Critical: Original path lookup (parentOriginalPath)", () => {
+  test("nested: parent has custom path, child has no custom path — child path joins to parent localized path", () => {
     const globalLocaleRoutes = {
-      '/parent': { en: '/parent', de: '/eltern' },
+      "/parent": { en: "/parent", de: "/eltern" },
       // child /parent/child — no custom path, should be joined with the parent path
-    }
+    };
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix_except_default',
+      strategy: "prefix_except_default",
       globalLocaleRoutes,
       filesLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
+    });
     const pages: NuxtPage[] = [
       {
-        path: '/parent',
-        name: 'parent',
-        children: [{ path: 'child', name: 'parent-child', children: [{ path: 'grandchild', name: 'parent-child-grandchild' }] }],
+        path: "/parent",
+        name: "parent",
+        children: [
+          {
+            path: "child",
+            name: "parent-child",
+            children: [{ path: "grandchild", name: "parent-child-grandchild" }],
+          },
+        ],
       },
-    ]
-    generator.extendPages(pages)
+    ];
+    generator.extendPages(pages);
 
     // Default locale (en): parent path = /parent, child = /parent/child
-    const defaultRoute = pages.find((p) => p.path === '/parent' && p.name === 'parent')
-    expect(defaultRoute).toBeDefined()
-    const defaultChildren = defaultRoute!.children
-    expect(defaultChildren).toHaveLength(1)
-    expect(defaultChildren![0]!.path).toBe('child')
-    const childRoute = defaultChildren![0]
-    expect(childRoute).toBeDefined()
-    expect(childRoute!.children).toHaveLength(1)
-    expect(childRoute!.children![0]!.path).toBe('grandchild')
+    const defaultRoute = pages.find((p) => p.path === "/parent" && p.name === "parent");
+    expect(defaultRoute).toBeDefined();
+    const defaultChildren = defaultRoute!.children;
+    expect(defaultChildren).toHaveLength(1);
+    expect(defaultChildren![0]!.path).toBe("child");
+    const childRoute = defaultChildren![0];
+    expect(childRoute).toBeDefined();
+    expect(childRoute!.children).toHaveLength(1);
+    expect(childRoute!.children![0]!.path).toBe("grandchild");
 
     // Locale de: parent path = /eltern (custom), child should be /eltern/child (joined to the custom parent)
-    const dePrefixed = pages.find((p) => p.name === 'localized-parent-de')
-    expect(dePrefixed).toBeDefined()
-    expect(dePrefixed!.path).toMatch(/eltern/)
-    const dePrefixedChildren = dePrefixed!.children
-    expect(dePrefixedChildren).toHaveLength(1)
-    expect(dePrefixedChildren![0]!.path).toBe('child')
+    const dePrefixed = pages.find((p) => p.name === "localized-parent-de");
+    expect(dePrefixed).toBeDefined();
+    expect(dePrefixed!.path).toMatch(/eltern/);
+    const dePrefixedChildren = dePrefixed!.children;
+    expect(dePrefixedChildren).toHaveLength(1);
+    expect(dePrefixedChildren![0]!.path).toBe("child");
     // The child's full path in the tree is a relative segment; final full path = /de/eltern/child
-    const deChild = dePrefixedChildren![0]
-    expect(deChild).toBeDefined()
-    expect(deChild!.children).toHaveLength(1)
-    expect(deChild!.children![0]!.path).toBe('grandchild')
+    const deChild = dePrefixedChildren![0];
+    expect(deChild).toBeDefined();
+    expect(deChild!.children).toHaveLength(1);
+    expect(deChild!.children![0]!.path).toBe("grandchild");
 
-    expect(pages).toMatchSnapshot()
-  })
+    expect(pages).toMatchSnapshot();
+  });
 
-  test('nested: parent and child both have custom paths — lookup by original full path /parent/child', () => {
+  test("nested: parent and child both have custom paths — lookup by original full path /parent/child", () => {
     const globalLocaleRoutes = {
-      '/parent': { en: '/parent', de: '/eltern' },
-      '/parent/child': { en: '/parent/child', de: '/eltern/kind' },
-    }
+      "/parent": { en: "/parent", de: "/eltern" },
+      "/parent/child": { en: "/parent/child", de: "/eltern/kind" },
+    };
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix_except_default',
+      strategy: "prefix_except_default",
       globalLocaleRoutes,
       filesLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
+    });
     const pages: NuxtPage[] = [
       {
-        path: '/parent',
-        name: 'parent',
-        children: [{ path: 'child', name: 'parent-child' }],
+        path: "/parent",
+        name: "parent",
+        children: [{ path: "child", name: "parent-child" }],
       },
-    ]
-    generator.extendPages(pages)
+    ];
+    generator.extendPages(pages);
 
     // For de: parent path = /eltern, child path is custom for /parent/child (lookup by original path): kind or eltern/kind
-    const dePrefixed = pages.find((p) => p.name === 'localized-parent-de')
-    expect(dePrefixed).toBeDefined()
-    expect(dePrefixed!.path).toMatch(/eltern$/)
-    const deChildren = dePrefixed!.children
-    expect(deChildren).toHaveLength(1)
-    expect(deChildren![0]!.path).toMatch(/kind/)
-    expect(pages).toMatchSnapshot()
-  })
+    const dePrefixed = pages.find((p) => p.name === "localized-parent-de");
+    expect(dePrefixed).toBeDefined();
+    expect(dePrefixed!.path).toMatch(/eltern$/);
+    const deChildren = dePrefixed!.children;
+    expect(deChildren).toHaveLength(1);
+    expect(deChildren![0]!.path).toMatch(/kind/);
+    expect(pages).toMatchSnapshot();
+  });
 
-  test('child with absolute custom path — path is standalone, not joined with parent', () => {
+  test("child with absolute custom path — path is standalone, not joined with parent", () => {
     const globalLocaleRoutes = {
-      '/parent': { en: '/parent', de: '/eltern' },
-      '/parent/child': { en: '/parent/child', de: '/standalone' }, // absolute custom path for de
-    }
+      "/parent": { en: "/parent", de: "/eltern" },
+      "/parent/child": { en: "/parent/child", de: "/standalone" }, // absolute custom path for de
+    };
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix_except_default',
+      strategy: "prefix_except_default",
       globalLocaleRoutes,
       filesLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
+    });
     const pages: NuxtPage[] = [
       {
-        path: '/parent',
-        name: 'parent',
-        children: [{ path: 'child', name: 'parent-child' }],
+        path: "/parent",
+        name: "parent",
+        children: [{ path: "child", name: "parent-child" }],
       },
-    ]
-    generator.extendPages(pages)
+    ];
+    generator.extendPages(pages);
 
-    const dePrefixed = pages.find((p) => p.name === 'localized-parent-de')
-    expect(dePrefixed).toBeDefined()
-    const deStandaloneChildren = dePrefixed!.children
-    expect(deStandaloneChildren).toHaveLength(1)
+    const dePrefixed = pages.find((p) => p.name === "localized-parent-de");
+    expect(dePrefixed).toBeDefined();
+    const deStandaloneChildren = dePrefixed!.children;
+    expect(deStandaloneChildren).toHaveLength(1);
     // Child with an absolute custom path /standalone → in the prefixed version /de/standalone
-    expect(deStandaloneChildren![0]!.path).toBe('standalone')
-    expect(pages).toMatchSnapshot()
-  })
-})
+    expect(deStandaloneChildren![0]!.path).toBe("standalone");
+    expect(pages).toMatchSnapshot();
+  });
+});
 
-describe('Critical: Alias handling', () => {
-  test('alias routes are separate entries with localized path (prefix strategy)', () => {
+describe("Critical: Alias handling", () => {
+  test("alias routes are separate entries with localized path (prefix strategy)", () => {
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix',
+      strategy: "prefix",
       globalLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
+    });
     const pages: NuxtPage[] = [
       {
-        path: '/about',
-        name: 'about',
-        alias: ['/about-us', '/company'],
+        path: "/about",
+        name: "about",
+        alias: ["/about-us", "/company"],
       },
-    ]
-    generator.extendPages(pages)
+    ];
+    generator.extendPages(pages);
 
-    const aboutMain = pages.filter((p) => p.name === 'localized-about' || p.name?.toString().startsWith('localized-about-'))
-    expect(aboutMain.length).toBeGreaterThan(0)
-    const aliasRoutes = pages.filter((p) => p.path?.includes('about-us') || p.path?.includes('company'))
-    expect(aliasRoutes.length).toBeGreaterThan(0)
+    const aboutMain = pages.filter(
+      (p) => p.name === "localized-about" || p.name?.toString().startsWith("localized-about-"),
+    );
+    expect(aboutMain.length).toBeGreaterThan(0);
+    const aliasRoutes = pages.filter(
+      (p) => p.path?.includes("about-us") || p.path?.includes("company"),
+    );
+    expect(aliasRoutes.length).toBeGreaterThan(0);
     aliasRoutes.forEach((r) => {
-      expect(r.path).toMatch(/^\/:locale\(|^\/[deru]+\//)
-    })
-    expect(pages).toMatchSnapshot()
-  })
+      expect(r.path).toMatch(/^\/:locale\(|^\/[deru]+\//);
+    });
+    expect(pages).toMatchSnapshot();
+  });
 
-  test('main localized route has alias undefined when alias routes are generated as separate', () => {
+  test("main localized route has alias undefined when alias routes are generated as separate", () => {
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix_except_default',
+      strategy: "prefix_except_default",
       globalLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
+    });
     const pages: NuxtPage[] = [
       {
-        path: '/about',
-        name: 'about',
-        alias: ['/about-us'],
+        path: "/about",
+        name: "about",
+        alias: ["/about-us"],
       },
-    ]
-    generator.extendPages(pages)
+    ];
+    generator.extendPages(pages);
 
-    const prefixedMain = pages.find((p) => p.name === 'localized-about' && p.path?.includes(':locale'))
-    if (prefixedMain) {
-      expect(prefixedMain.alias === undefined || (Array.isArray(prefixedMain.alias) && prefixedMain.alias.length === 0)).toBe(true)
-    }
-    const aliasEntry = pages.find((p) => p.path?.includes('about-us'))
-    expect(aliasEntry).toBeDefined()
-    expect(pages).toMatchSnapshot()
-  })
+    const prefixedMain = pages.find(
+      (p) => p.name === "localized-about" && p.path?.includes(":locale"),
+    );
+    expect(
+      prefixedMain === undefined ||
+        prefixedMain.alias === undefined ||
+        (Array.isArray(prefixedMain.alias) && prefixedMain.alias.length === 0),
+    ).toBe(true);
+    const aliasEntry = pages.find((p) => p.path?.includes("about-us"));
+    expect(aliasEntry).toBeDefined();
+    expect(pages).toMatchSnapshot();
+  });
 
-  test('nested page with alias — alias routes exist and are prefixed', () => {
+  test("nested page with alias — alias routes exist and are prefixed", () => {
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix_except_default',
+      strategy: "prefix_except_default",
       globalLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
+    });
     const pages: NuxtPage[] = [
       {
-        path: '/parent',
-        name: 'parent',
-        alias: ['/parent-alias'],
-        children: [{ path: 'child', name: 'parent-child' }],
+        path: "/parent",
+        name: "parent",
+        alias: ["/parent-alias"],
+        children: [{ path: "child", name: "parent-child" }],
       },
-    ]
-    generator.extendPages(pages)
+    ];
+    generator.extendPages(pages);
 
-    const hasParentAlias = pages.some((p) => p.path?.includes('parent-alias'))
-    expect(hasParentAlias).toBe(true)
-    expect(pages).toMatchSnapshot()
-  })
+    const hasParentAlias = pages.some((p) => p.path?.includes("parent-alias"));
+    expect(hasParentAlias).toBe(true);
+    expect(pages).toMatchSnapshot();
+  });
 
-  test('all strategies with alias: no_prefix, prefix, prefix_and_default', () => {
-    const pageWithAlias: NuxtPage[] = [{ path: '/x', name: 'x', alias: ['/y'] }]
+  test("all strategies with alias: no_prefix, prefix, prefix_and_default", () => {
+    const pageWithAlias: NuxtPage[] = [{ path: "/x", name: "x", alias: ["/y"] }];
 
     const noPrefix = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'no_prefix',
+      strategy: "no_prefix",
       globalLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
-    const pagesNoPrefix: NuxtPage[] = [...pageWithAlias.map((p) => ({ ...p }))]
-    noPrefix.extendPages(pagesNoPrefix)
-    expect(pagesNoPrefix.some((r) => r.path === '/x' || r.path === '/y')).toBe(true)
-    expect(pagesNoPrefix).toMatchSnapshot()
+    });
+    const pagesNoPrefix: NuxtPage[] = [...pageWithAlias.map((p) => ({ ...p }))];
+    noPrefix.extendPages(pagesNoPrefix);
+    expect(pagesNoPrefix.some((r) => r.path === "/x" || r.path === "/y")).toBe(true);
+    expect(pagesNoPrefix).toMatchSnapshot("no-prefix-alias");
 
     const prefix = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix',
+      strategy: "prefix",
       globalLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
-    const pagesPrefix: NuxtPage[] = [{ path: '/x', name: 'x', alias: ['/y'] }]
-    prefix.extendPages(pagesPrefix)
-    expect(pagesPrefix).toMatchSnapshot()
+    });
+    const pagesPrefix: NuxtPage[] = [{ path: "/x", name: "x", alias: ["/y"] }];
+    prefix.extendPages(pagesPrefix);
+    expect(pagesPrefix).toMatchSnapshot("prefix-alias");
 
     const prefixAndDefault = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix_and_default',
+      strategy: "prefix_and_default",
       globalLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
-    const pagesPrefixAndDefault: NuxtPage[] = [{ path: '/x', name: 'x', alias: ['/y'] }]
-    prefixAndDefault.extendPages(pagesPrefixAndDefault)
-    expect(pagesPrefixAndDefault).toMatchSnapshot()
-  })
-})
+    });
+    const pagesPrefixAndDefault: NuxtPage[] = [{ path: "/x", name: "x", alias: ["/y"] }];
+    prefixAndDefault.extendPages(pagesPrefixAndDefault);
+    expect(pagesPrefixAndDefault).toMatchSnapshot("prefix-and-default-alias");
+  });
+});
 
-describe('Critical: Path joining (resolveChildPath)', () => {
-  test('parent custom path + child relative segment — child path is join(parentLocalizedPath, child.path)', () => {
+describe("Critical: Path joining (resolveChildPath)", () => {
+  test("parent custom path + child relative segment — child path is join(parentLocalizedPath, child.path)", () => {
     const globalLocaleRoutes = {
-      '/products': { en: '/products', de: '/produkte' },
+      "/products": { en: "/products", de: "/produkte" },
       // no custom route for /products/category — category should be attached to /produkte
-    }
-    const generator = createManager('prefix_except_default', globalLocaleRoutes)
+    };
+    const generator = createManager("prefix_except_default", globalLocaleRoutes);
     const pages: NuxtPage[] = [
       {
-        path: '/products',
-        name: 'products',
-        children: [{ path: 'category', name: 'products-category' }],
+        path: "/products",
+        name: "products",
+        children: [{ path: "category", name: "products-category" }],
       },
-    ]
-    generator.extendPages(pages)
+    ];
+    generator.extendPages(pages);
 
-    const deProducts = pages.find((p) => p.name === 'localized-products-de')
-    expect(deProducts).toBeDefined()
-    expect(deProducts!.path).toMatch(/produkte/)
-    const deProductsChildren = deProducts!.children
-    expect(deProductsChildren).toHaveLength(1)
-    expect(deProductsChildren![0]!.path).toBe('category')
-    expect(pages).toMatchSnapshot()
-  })
+    const deProducts = pages.find((p) => p.name === "localized-products-de");
+    expect(deProducts).toBeDefined();
+    expect(deProducts!.path).toMatch(/produkte/);
+    const deProductsChildren = deProducts!.children;
+    expect(deProductsChildren).toHaveLength(1);
+    expect(deProductsChildren![0]!.path).toBe("category");
+    expect(pages).toMatchSnapshot();
+  });
 
-  test('empty parent path segment + child — normalized correctly', () => {
-    const generator = createManager('prefix_except_default')
+  test("empty parent path segment + child — normalized correctly", () => {
+    const generator = createManager("prefix_except_default");
     const pages: NuxtPage[] = [
       {
-        path: '/',
-        name: 'index',
-        children: [{ path: 'dashboard', name: 'index-dashboard' }],
+        path: "/",
+        name: "index",
+        children: [{ path: "dashboard", name: "index-dashboard" }],
       },
-    ]
-    generator.extendPages(pages)
-    expect(pages).toMatchSnapshot()
-  })
-})
+    ];
+    generator.extendPages(pages);
+    expect(pages).toMatchSnapshot();
+  });
+});
 
-describe('Critical: Immutability (original page not mutated)', () => {
-  test('after extendPages, original page object reference is not mutated (path and children unchanged)', () => {
+describe("Critical: Immutability (original page not mutated)", () => {
+  test("after extendPages, original page object reference is not mutated (path and children unchanged)", () => {
     const pages: NuxtPage[] = [
       {
-        path: '/about',
-        name: 'about',
-        children: [{ path: 'team', name: 'about-team' }],
+        path: "/about",
+        name: "about",
+        children: [{ path: "team", name: "about-team" }],
       },
-    ]
-    const ref = pages[0]
-    expect(ref).toBeDefined()
-    const originalPath = ref!.path
-    const originalChildren = ref!.children
-    const originalChildrenLength = originalChildren?.length ?? 0
+    ];
+    const ref = pages[0];
+    expect(ref).toBeDefined();
+    const originalPath = ref!.path;
+    const originalChildren = ref!.children;
+    const originalChildrenLength = originalChildren?.length ?? 0;
 
-    const generator = createManager('prefix_except_default')
-    generator.extendPages(pages)
+    const generator = createManager("prefix_except_default");
+    generator.extendPages(pages);
 
-    expect(ref!.path).toBe(originalPath)
-    expect(ref!.children).toBe(originalChildren)
-    expect(ref!.children?.length ?? 0).toBe(originalChildrenLength)
-  })
+    expect(ref!.path).toBe(originalPath);
+    expect(ref!.children).toBe(originalChildren);
+    expect(ref!.children?.length ?? 0).toBe(originalChildrenLength);
+  });
 
-  test('passed pages array is replaced in place (length then push), but original refs unchanged', () => {
+  test("passed pages array is replaced in place (length then push), but original refs unchanged", () => {
     const pages: NuxtPage[] = [
-      { path: '/a', name: 'a' },
-      { path: '/b', name: 'b' },
-    ]
-    const refA = pages[0]
-    const refB = pages[1]
-    expect(refA).toBeDefined()
-    expect(refB).toBeDefined()
+      { path: "/a", name: "a" },
+      { path: "/b", name: "b" },
+    ];
+    const refA = pages[0];
+    const refB = pages[1];
+    expect(refA).toBeDefined();
+    expect(refB).toBeDefined();
 
-    const generator = createManager('prefix_except_default')
-    generator.extendPages(pages)
+    const generator = createManager("prefix_except_default");
+    generator.extendPages(pages);
 
-    expect(refA!.path).toBe('/a')
-    expect(refB!.path).toBe('/b')
-    expect(pages.length).toBeGreaterThan(2)
-  })
-})
+    expect(refA!.path).toBe("/a");
+    expect(refB!.path).toBe("/b");
+    expect(pages.length).toBeGreaterThan(2);
+  });
+});
 
-describe('Critical: Meta, file preserved in generated routes', () => {
-  test('generated route preserves meta and file from original page', () => {
+describe("Critical: Meta, file preserved in generated routes", () => {
+  test("generated route preserves meta and file from original page", () => {
     const pages: NuxtPage[] = [
       {
-        path: '/about',
-        name: 'about',
-        file: '/pages/about.vue',
-        meta: { layout: 'default', auth: true },
+        path: "/about",
+        name: "about",
+        file: "/pages/about.vue",
+        meta: { layout: "default", auth: true },
       },
-    ]
-    const generator = createManager('prefix_except_default')
-    generator.extendPages(pages)
+    ];
+    const generator = createManager("prefix_except_default");
+    generator.extendPages(pages);
 
-    const localized = pages.find((p) => p.name === 'localized-about' && p.path?.includes(':locale'))
-    expect(localized).toBeDefined()
-    expect(localized!.file).toBe('/pages/about.vue')
-    expect(localized!.meta).toEqual(expect.objectContaining({ layout: 'default', auth: true }))
-    expect(pages).toMatchSnapshot()
-  })
-})
+    const localized = pages.find(
+      (p) => p.name === "localized-about" && p.path?.includes(":locale"),
+    );
+    expect(localized).toBeDefined();
+    expect(localized!.file).toBe("/pages/about.vue");
+    expect(localized!.meta).toEqual(expect.objectContaining({ layout: "default", auth: true }));
+    expect(pages).toMatchSnapshot();
+  });
+});
 
-describe('Critical: extractLocalizedPaths keys are full original paths', () => {
-  test('nested structure: keys in extractLocalizedPaths use full path (e.g. /parent/child)', () => {
+describe("Critical: extractLocalizedPaths keys are full original paths", () => {
+  test("nested structure: keys in extractLocalizedPaths use full path (e.g. /parent/child)", () => {
     const globalLocaleRoutes = {
-      '/parent': { en: '/parent', de: '/eltern' },
-      '/parent/child': { en: '/parent/child', de: '/eltern/kind' },
-    }
+      "/parent": { en: "/parent", de: "/eltern" },
+      "/parent/child": { en: "/parent/child", de: "/eltern/kind" },
+    };
     const generator = new RouteGenerator({
       locales,
       defaultLocaleCode,
-      strategy: 'prefix_except_default',
+      strategy: "prefix_except_default",
       globalLocaleRoutes,
       filesLocaleRoutes: {},
       routeLocales: {},
       noPrefixRedirect: false,
-    })
+    });
     const pages: NuxtPage[] = [
       {
-        path: '/parent',
-        name: 'parent',
-        children: [{ path: 'child', name: 'parent-child' }],
+        path: "/parent",
+        name: "parent",
+        children: [{ path: "child", name: "parent-child" }],
       },
-    ]
-    const result = generator.extractLocalizedPaths(pages)
+    ];
+    const result = generator.extractLocalizedPaths(pages);
 
-    expect(Object.keys(result).some((k) => k.includes('parent') && !k.includes('child'))).toBe(true)
-    expect(Object.keys(result).some((k) => k.includes('parent') && k.includes('child'))).toBe(true)
-    expect(result).toMatchSnapshot()
-  })
-})
+    expect(Object.keys(result).some((k) => k.includes("parent") && !k.includes("child"))).toBe(
+      true,
+    );
+    expect(Object.keys(result).some((k) => k.includes("parent") && k.includes("child"))).toBe(true);
+    expect(result).toMatchSnapshot();
+  });
+});

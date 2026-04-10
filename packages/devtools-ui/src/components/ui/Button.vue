@@ -12,26 +12,26 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
-    size?: 'sm' | 'md' | 'lg'
-    disabled?: boolean
-    type?: 'button' | 'submit' | 'reset'
+    variant?: "primary" | "secondary" | "danger" | "ghost";
+    size?: "sm" | "md" | "lg";
+    disabled?: boolean;
+    type?: "button" | "submit" | "reset";
   }>(),
   {
-    variant: 'primary',
-    size: 'md',
+    variant: "primary",
+    size: "md",
     disabled: false,
-    type: 'button',
+    type: "button",
   },
-)
+);
 
-const emit = defineEmits<(e: 'click', event: MouseEvent) => void>()
+const emit = defineEmits<(e: "click", event: MouseEvent) => void>();
 
 const handleClick = (event: MouseEvent) => {
   if (!props.disabled) {
-    emit('click', event)
+    emit("click", event);
   }
-}
+};
 </script>
 
 <style scoped>

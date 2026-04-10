@@ -1,31 +1,50 @@
-import type { NuxtPage } from '@nuxt/schema'
-import { createRoute } from '../core/builder'
-import type { GeneratorContext } from '../core/context'
-import { buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
-import { BaseStrategy } from './abstract'
+import {
+  buildFullPath,
+  buildRouteName,
+  buildRouteNameFromRoute,
+  cloneArray,
+  isInternalPath,
+  normalizeRoutePath as normalizePath,
+} from "@i18n-micro/utils";
+import type { NuxtPage } from "@nuxt/schema";
+import { createRoute } from "../core/builder";
+import type { GeneratorContext } from "../core/context";
+import { BaseStrategy } from "./abstract";
 
 function getAliasRoutes(page: NuxtPage): string[] {
-  const alias = (page as NuxtPage & { alias?: string[] }).alias ?? page.meta?.alias
-  return Array.isArray(alias) ? alias : []
+  const alias = (page as NuxtPage & { alias?: string[] }).alias ?? page.meta?.alias;
+  return Array.isArray(alias) ? alias : [];
 }
 
 export class PrefixStrategy extends BaseStrategy {
   protected generateVariants(page: NuxtPage, context: GeneratorContext): NuxtPage[] {
-    const originalPath = page.path ?? ''
-    const pageName = buildRouteNameFromRoute(page.name, page.path)
-    const allowedLocales = context.getAllowedLocales(originalPath, pageName)
-    const customPaths = context.getCustomPathsForPage(originalPath, pageName)
-    const originalChildren = cloneArray(page.children ?? [])
-    const result: NuxtPage[] = []
+    const originalPath = page.path ?? "";
+    const pageName = buildRouteNameFromRoute(page.name, page.path);
+    const allowedLocales = context.getAllowedLocales(originalPath, pageName);
+    const customPaths = context.getCustomPathsForPage(originalPath, pageName);
+    const originalChildren = cloneArray(page.children ?? []);
+    const result: NuxtPage[] = [];
 
     if (customPaths) {
       for (const locale of allowedLocales) {
-        const customPath = customPaths[locale]
-        const basePath = customPath ? normalizePath(customPath) : originalPath
-        const routePath = buildFullPath(locale, basePath, context.customRegex)
-        const routeName = buildRouteName(pageName, locale, !!customPath, context.localizedRouteNamePrefix)
-        const parentLocalizedPath = customPath ?? originalPath
-        const children = this.localizeChildren(originalChildren, parentLocalizedPath, originalPath, locale, context, true)
+        const customPath = customPaths[locale];
+        const basePath = customPath ? normalizePath(customPath) : originalPath;
+        const routePath = buildFullPath(locale, basePath, context.customRegex);
+        const routeName = buildRouteName(
+          pageName,
+          locale,
+          !!customPath,
+          context.localizedRouteNamePrefix,
+        );
+        const parentLocalizedPath = customPath ?? originalPath;
+        const children = this.localizeChildren(
+          originalChildren,
+          parentLocalizedPath,
+          originalPath,
+          locale,
+          context,
+          true,
+        );
         result.push(
           createRoute(page, {
             path: routePath,
@@ -34,12 +53,23 @@ export class PrefixStrategy extends BaseStrategy {
             alias: [],
             meta: { alias: [] },
           }),
-        )
+        );
       }
     } else {
-      const routePath = buildFullPath(allowedLocales, originalPath, context.customRegex)
-      const routeName = buildRouteName(pageName, allowedLocales[0]!, false, context.localizedRouteNamePrefix)
-      const children = this.localizeChildrenAllLocales(originalChildren, originalPath, originalPath, allowedLocales, context)
+      const routePath = buildFullPath(allowedLocales, originalPath, context.customRegex);
+      const routeName = buildRouteName(
+        pageName,
+        allowedLocales[0]!,
+        false,
+        context.localizedRouteNamePrefix,
+      );
+      const children = this.localizeChildrenAllLocales(
+        originalChildren,
+        originalPath,
+        originalPath,
+        allowedLocales,
+        context,
+      );
       result.push(
         createRoute(page, {
           path: routePath,
@@ -48,71 +78,71 @@ export class PrefixStrategy extends BaseStrategy {
           alias: [],
           meta: { alias: [] },
         }),
-      )
+      );
     }
 
-    const aliasRoutes = getAliasRoutes(page)
+    const aliasRoutes = getAliasRoutes(page);
     if (aliasRoutes.length) {
       for (const aliasPath of aliasRoutes) {
-        const localizedAliasPath = buildFullPath(allowedLocales, aliasPath, context.customRegex)
+        const localizedAliasPath = buildFullPath(allowedLocales, aliasPath, context.customRegex);
         result.push(
           createRoute(page, {
             path: localizedAliasPath,
-            name: `${context.localizedRouteNamePrefix}${page.name ?? ''}`,
+            name: `${context.localizedRouteNamePrefix}${page.name ?? ""}`,
             alias: undefined,
             meta: { alias: undefined },
           }),
-        )
+        );
       }
     }
 
-    return result
+    return result;
   }
 
   override postProcess(pages: NuxtPage[], context: GeneratorContext): NuxtPage[] {
     const filtered = pages.filter((p) => {
       // Remove root index so it does not catch '/' (fallback route will handle it)
-      if (p.name === 'index' && p.path === '/') return false
-      const pagePath = p.path ?? ''
-      if (pagePath && isInternalPath(pagePath, context.excludePatterns)) return true
-      if (context.globalLocaleRoutes[p.name ?? ''] === false) return true
-      if (/^\/:locale/.test(pagePath) || pagePath === '/') return true
-      return false
-    })
+      if (p.name === "index" && p.path === "/") return false;
+      const pagePath = p.path ?? "";
+      if (pagePath && isInternalPath(pagePath, context.excludePatterns)) return true;
+      if (context.globalLocaleRoutes[p.name ?? ""] === false) return true;
+      if (/^\/:locale/.test(pagePath) || pagePath === "/") return true;
+      return false;
+    });
 
     // Add redirect routes for custom paths (e.g., /page2 → /en/custom-page2-en)
-    const defaultLocale = context.defaultLocale.code
+    const defaultLocale = context.defaultLocale.code;
     for (const [routeKey, localePaths] of Object.entries(context.globalLocaleRoutes)) {
-      if (localePaths === false || typeof localePaths !== 'object') continue
+      if (localePaths === false || typeof localePaths !== "object") continue;
 
-      const customPath = (localePaths as Record<string, string>)[defaultLocale]
-      if (!customPath) continue
+      const customPath = (localePaths as Record<string, string>)[defaultLocale];
+      if (!customPath) continue;
 
       // Original path (e.g., /page2)
-      const originalPath = routeKey.startsWith('/') ? routeKey : `/${routeKey}`
+      const originalPath = routeKey.startsWith("/") ? routeKey : `/${routeKey}`;
       // Target path with locale prefix (e.g., /en/custom-page2-en)
-      const targetPath = `/${defaultLocale}${customPath.startsWith('/') ? customPath : `/${customPath}`}`
+      const targetPath = `/${defaultLocale}${customPath.startsWith("/") ? customPath : `/${customPath}`}`;
 
       // Only add redirect if paths differ
       if (originalPath !== targetPath) {
         filtered.push({
           path: originalPath,
-          name: `redirect-${routeKey.replace(/\//g, '-')}`,
+          name: `redirect-${routeKey.replace(/\//g, "-")}`,
           redirect: targetPath,
-        } as NuxtPage)
+        } as NuxtPage);
       }
     }
 
     if (context.fallbackRedirectComponentPath) {
       filtered.push({
-        path: '/:pathMatch(.*)*',
-        name: 'custom-fallback-route',
+        path: "/:pathMatch(.*)*",
+        name: "custom-fallback-route",
         file: context.fallbackRedirectComponentPath,
         meta: {
           globalLocaleRoutes: context.rawGlobalLocaleRoutes ?? context.globalLocaleRoutes,
         },
-      })
+      });
     }
-    return filtered
+    return filtered;
   }
 }

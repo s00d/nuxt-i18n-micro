@@ -1,14 +1,12 @@
 <template>
   <div>
-    <h2 id="ok">
-      ok
-    </h2>
-    <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
+    <h2 id="ok">ok</h2>
+    <p>{{ $t("key1.key1.key1.key1.key1") }}</p>
 
     <p>Current Locale: {{ $getLocale() }}</p>
 
     <div>
-      {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
+      {{ $t("welcome", { username: "Alice", unreadCount: 5 }) }}
     </div>
 
     <!-- Ссылки для переключения локалей -->
@@ -24,15 +22,13 @@
     </div>
 
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })">
-        Go to Index
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'index' })"> Go to Index </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useI18n } from '#imports'
+import { useI18n } from "#imports";
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n();
 </script>

@@ -1,31 +1,31 @@
 <template>
   <div class="async-dynamic-component">
-    <h3>{{ $t('async-dynamic-component::title') }}</h3>
-    <p>{{ $t('async-dynamic-component::description') }}</p>
+    <h3>{{ $t("async-dynamic-component::title") }}</h3>
+    <p>{{ $t("async-dynamic-component::description") }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $defineI18nRoute, $t } = useNuxtApp()
+const { $defineI18nRoute, $t } = useNuxtApp();
 
 $defineI18nRoute({
   locales: {
     en: {
-      'async-dynamic-component::title': 'Dynamic Async Component Loaded',
-      'async-dynamic-component::description': 'This component was loaded dynamically',
+      "async-dynamic-component::title": "Dynamic Async Component Loaded",
+      "async-dynamic-component::description": "This component was loaded dynamically",
     },
     ru: {
-      'async-dynamic-component::title': 'Динамический Асинхронный Компонент Загружен',
-      'async-dynamic-component::description': 'Этот компонент был загружен динамически',
+      "async-dynamic-component::title": "Динамический Асинхронный Компонент Загружен",
+      "async-dynamic-component::description": "Этот компонент был загружен динамически",
     },
     de: {
-      'async-dynamic-component::title': 'Dynamische Async-Komponente Geladen',
-      'async-dynamic-component::description': 'Diese Komponente wurde dynamisch geladen',
+      "async-dynamic-component::title": "Dynamische Async-Komponente Geladen",
+      "async-dynamic-component::description": "Diese Komponente wurde dynamisch geladen",
     },
   },
-})
+});
 </script>
 
 <style scoped>

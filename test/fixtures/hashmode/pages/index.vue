@@ -14,31 +14,19 @@
       Switch to {{ locale.code }}
     </button>
 
-    <hr>
+    <hr />
 
-    <i18n-link :to="{ name: 'page' }">
-      Go to Page
-    </i18n-link>
+    <i18n-link :to="{ name: 'page' }"> Go to Page </i18n-link>
 
     <div id="locale-links">
-      <NuxtLink
-        id="link-en"
-        @click="() => $switchLocale('en')"
-      >
-        Switch to English
-      </NuxtLink>
-      <NuxtLink
-        id="link-de"
-        @click="() => $switchLocale('de')"
-      >
-        Switch to German
-      </NuxtLink>
+      <NuxtLink id="link-en" @click="() => $switchLocale('en')"> Switch to English </NuxtLink>
+      <NuxtLink id="link-de" @click="() => $switchLocale('de')"> Switch to German </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $getLocale, $getLocales, $switchLocale } = useNuxtApp()
+const { $getLocale, $getLocales, $switchLocale } = useNuxtApp();
 </script>

@@ -33,7 +33,7 @@ classDiagram
         +$loadPageTranslations(locale, routeName, translations) void
         +$setMissingHandler(handler) void
     }
-    
+
     class Locale {
         +string code
         +string? iso
@@ -42,23 +42,22 @@ classDiagram
         +boolean? disabled
         +string? fallbackLocale
     }
-    
+
     class Translation {
         <<type>>
         string | number | boolean
         Translations | PluralTranslations
     }
-    
+
     class Params {
         <<type>>
         Record~string, string | number | boolean~
     }
-    
+
     useI18n ..> Locale : returns
     useI18n ..> Translation : returns
     useI18n ..> Params : accepts
 ```
-
 
 ## 🌍 Locale Management
 
@@ -70,7 +69,7 @@ Methods for getting and managing locale information.
 - **Description**: Returns the current locale code.
 
 ```typescript
-const locale = $getLocale()
+const locale = $getLocale();
 // Output: 'en' (assuming the current locale is English)
 ```
 
@@ -82,7 +81,7 @@ const locale = $getLocale()
 - **Description**: Returns the current locale name from displayName config.
 
 ```typescript
-const locale = $getLocaleName()
+const locale = $getLocaleName();
 // Output: 'English'
 ```
 
@@ -92,7 +91,7 @@ const locale = $getLocaleName()
 - **Description**: Returns an array of all available locales configured in the module.
 
 ```typescript
-const locales = $getLocales()
+const locales = $getLocales();
 // Output: [{ code: 'en', iso: 'en-US', dir: 'ltr' }, { code: 'fr', iso: 'fr-FR', dir: 'ltr' }]
 ```
 
@@ -102,7 +101,7 @@ const locales = $getLocales()
 - **Description**: Returns the default locale code from configuration.
 
 ```typescript
-const defaultLocale = $defaultLocale()
+const defaultLocale = $defaultLocale();
 // Output: 'en'
 ```
 
@@ -116,13 +115,14 @@ Core methods for retrieving and managing translations.
 - **Description**: Fetches a translation for the given key. Optionally interpolates parameters.
 
 **Parameters**:
+
 - **key**: `string` — The translation key
 - **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation
 - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found
 - **route**: `RouteLocationNormalizedLoaded | undefined` — Optional. The route from which to determine the locale and resolve the translation context
 
 ```typescript
-const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
+const welcomeMessage = $t("welcome", { username: "Alice", unreadCount: 5 });
 // Output: "Welcome, Alice! You have 5 unread messages."
 ```
 
@@ -130,10 +130,11 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 `$t` returns `CleanTranslation` which is `string | number | boolean | Translations | PluralTranslations | null`. If the key points to a **nested object** in your JSON (e.g. `$t('header')` when the JSON contains `{ "header": { "title": "Hi" } }`), the return value will be that **object**, not a string. Using it directly in a Vue template (<code v-pre>{{ $t('header') }}</code>) will render as `[object Object]`.
 
 **How to avoid this:**
+
 - Use a more specific key: `$t('header.title')` → `"Hi"`
 - Use `$ts()` which always returns a string (calls `.toString()` on non-strings)
 - Use `$t` with a nested key to intentionally access sub-objects for programmatic use
-:::
+  :::
 
 ### `$ts`
 
@@ -141,13 +142,14 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 - **Description**: A **string-safe** variant of `$t` that always returns a `string`. If the resolved value is not a string (e.g. an object or number), it is converted via `.toString()`. **Use `$ts` in templates** when you are not 100% sure the key resolves to a string.
 
 **Parameters**:
+
 - **key**: `string` — The translation key
 - **params**: `Record<string, any> | undefined` — Optional. A record of key-value pairs to interpolate into the translation
 - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found
 - **route**: `RouteLocationNormalizedLoaded | undefined` — Optional. The route from which to determine the locale and resolve the translation context
 
 ```typescript
-const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
+const welcomeMessage = $ts("welcome", { username: "Alice", unreadCount: 5 });
 // Output: "Welcome, Alice! You have 5 unread messages."
 ```
 
@@ -157,6 +159,7 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 - **Description**: Fetches a pluralized translation for the given key based on the count. Internally calls the `plural` function configured in `nuxt.config.ts` (see [Pluralization Guide](/guide/getting-started#plural)).
 
 **Parameters**:
+
 - **key**: `string` — The translation key whose value contains `|`-separated plural forms
 - **count**: `number` — The count used to select the correct plural form
 - **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found
@@ -168,9 +171,9 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 ```
 
 ```typescript
-$tc('apples', 0)  // "no apples"
-$tc('apples', 1)  // "one apple"
-$tc('apples', 10) // "10 apples"
+$tc("apples", 0); // "no apples"
+$tc("apples", 1); // "one apple"
+$tc("apples", 10); // "10 apples"
 ```
 
 ::: tip
@@ -183,12 +186,13 @@ The form selection logic depends on the `plural` function in your config. The de
 - **Description**: Merges new translations into the existing translation cache for the current route and locale.
 
 **Parameters**:
+
 - **newTranslations**: `Record<string, string>` — The new translations to merge
 
 ```typescript
 $mergeTranslations({
-  welcome: 'Bienvenue, {username}!'
-})
+  welcome: "Bienvenue, {username}!",
+});
 // Output: Updates the translation cache with the new French translation
 ```
 
@@ -198,32 +202,35 @@ $mergeTranslations({
 - **Description**: Sets a custom handler function that will be called when a translation key is not found. This is useful for logging missing translations to error tracking services like Sentry.
 
 **Parameters**:
+
 - **handler**: `MissingHandler | null` — A function that receives `(locale: string, key: string, routeName: string)` or `null` to remove the handler
 
 **Type Definition**:
+
 ```typescript
 type MissingHandler = (
   locale: string,
   key: string,
   routeName: string,
   instance?: unknown,
-  type?: string
-) => void
+  type?: string,
+) => void;
 ```
 
 ```typescript
 // Set a custom handler
 $setMissingHandler((locale, key, routeName) => {
-  console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`)
+  console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`);
   // Send to Sentry or other error tracking service
   // Sentry.captureMessage(`Missing translation: ${key}`)
-})
+});
 
 // Remove the handler
-$setMissingHandler(null)
+$setMissingHandler(null);
 ```
 
 **Use Cases**:
+
 - Logging missing translations to error tracking services (Sentry, LogRocket, etc.)
 - Collecting analytics on missing translations
 - Custom error handling for missing translation keys
@@ -238,15 +245,17 @@ Methods for formatting numbers and dates according to locale conventions.
 - **Description**: Formats a number according to the current locale using `Intl.NumberFormat`.
 
 **Parameters**:
+
 - **value**: `number | string` — The number to format
 - **options**: `Intl.NumberFormatOptions | undefined` — Optional. `Intl.NumberFormatOptions` to customize the formatting
 
 ```typescript
-const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
+const formattedNumber = $tn(1234567.89, { style: "currency", currency: "USD" });
 // Output: "$1,234,567.89" in the 'en-US' locale
 ```
 
 **Use Cases**:
+
 - Formatting numbers as currency, percentages, or decimals in the appropriate locale format
 - Customizing the number format using `Intl.NumberFormatOptions` such as currency, minimum fraction digits, etc.
 
@@ -256,15 +265,22 @@ const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
 - **Description**: Formats a date according to the current locale using `Intl.DateTimeFormat`.
 
 **Parameters**:
+
 - **value**: `Date | number | string` — The date to format
 - **options**: `Intl.DateTimeFormatOptions | undefined` — Optional. `Intl.DateTimeFormatOptions` to customize the formatting
 
 ```typescript
-const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+const formattedDate = $td(new Date(), {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 // Output: "Friday, September 1, 2023" in the 'en-US' locale
 ```
 
 **Use Cases**:
+
 - Displaying dates in a format that aligns with the user's locale
 - Customizing date output using options like weekday names, time formats, and timezone settings
 
@@ -274,11 +290,12 @@ const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month:
 - **Description**: Formats a date as a relative time (e.g., "5 minutes ago") according to the current locale using `Intl.RelativeTimeFormat`.
 
 **Parameters**:
+
 - **value**: `Date | number | string` — The date to compare against the current time
 - **options**: `Intl.RelativeTimeFormatOptions | undefined` — Optional. `Intl.RelativeTimeFormatOptions` to customize the relative time formatting
 
 ```typescript
-const relativeDate = $tdr(new Date(Date.now() - 1000 * 60 * 5))
+const relativeDate = $tdr(new Date(Date.now() - 1000 * 60 * 5));
 // Output: "5 minutes ago" in the 'en-US' locale
 ```
 
@@ -292,10 +309,11 @@ Methods for switching between locales and routes.
 - **Description**: Switches to the given locale and redirects the user to the appropriate localized route.
 
 **Parameters**:
+
 - **locale**: `string` — The locale to switch to
 
 ```typescript
-$switchLocale('fr')
+$switchLocale("fr");
 // Output: Redirects the user to the French version of the route
 ```
 
@@ -305,11 +323,12 @@ $switchLocale('fr')
 - **Description**: Return current route with the given locale
 
 **Parameters**:
+
 - **locale**: `string` — Target locale
 
 ```typescript
 // on /en/news
-const routeFr = $switchLocaleRoute('fr')
+const routeFr = $switchLocaleRoute("fr");
 // Output: A route object with the new locale applied, e.g., { name: 'localized-news', params: { locale: 'fr' } }
 ```
 
@@ -319,12 +338,13 @@ const routeFr = $switchLocaleRoute('fr')
 - **Description**: Return url of current route with the given locale
 
 **Parameters**:
+
 - **locale**: `string` — Target locale
 
 ```typescript
 // on /en/news
-const routeFr = $switchLocalePath('fr')
-window.location.href = routeFr
+const routeFr = $switchLocalePath("fr");
+window.location.href = routeFr;
 // Output: url with new locale applied, e.g., '/fr/nouvelles'
 ```
 
@@ -336,6 +356,7 @@ window.location.href = routeFr
 - **Description**: Switches the route to a new specified destination and changes the locale if needed, redirecting the user to the appropriate localized route.
 
 **Parameters**:
+
 - **route**: `RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string` — The route to which you want to switch
 - **toLocale** (optional): `string` — The locale to switch to for the target route
 
@@ -345,22 +366,22 @@ window.location.href = routeFr
 
 ```typescript [String Path]
 // Switches to the given path with the current locale
-$switchRoute('/about')
+$switchRoute("/about");
 ```
 
 ```typescript [String Path with Locale]
 // Switches to the given path with French locale
-$switchRoute('/about', 'fr')
+$switchRoute("/about", "fr");
 ```
 
 ```typescript [Named Route]
 // Switches to a named route with the current locale
-$switchRoute({ name: 'page' })
+$switchRoute({ name: "page" });
 ```
 
 ```typescript [Named Route with Locale]
 // Switches to a named route and changes the locale to Spanish
-$switchRoute({ name: 'page' }, 'es')
+$switchRoute({ name: "page" }, "es");
 ```
 
 :::
@@ -375,11 +396,12 @@ Methods for generating localized routes and paths.
 - **Description**: Generates a localized route object based on the target route.
 
 **Parameters**:
+
 - **to**: `RouteLocationRaw` — The target route object
 - **locale**: `string | undefined` — Optional. The locale for the generated route
 
 ```typescript
-const localizedRoute = $localeRoute({ name: 'index' })
+const localizedRoute = $localeRoute({ name: "index" });
 // Output: A route object with the current locale applied, e.g., { name: 'index', params: { locale: 'fr' } }
 ```
 
@@ -389,11 +411,12 @@ const localizedRoute = $localeRoute({ name: 'index' })
 - **Description**: Return url based on the target route
 
 **Parameters**:
+
 - **to**: `RouteLocationRaw` — The target route object
 - **locale**: `string | undefined` — Optional. The locale for the generated route
 
 ```typescript
-const localizedPath = $localePath({ name: 'news' })
+const localizedPath = $localePath({ name: "news" });
 // Output: path with current (or specified) locale applied, e.g., '/en/nouvelles'
 ```
 
@@ -409,11 +432,12 @@ Methods for getting route information and names.
 - **Description**: Retrieves the base route name without any locale-specific prefixes or suffixes.
 
 **Parameters**:
+
 - **route**: `RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | undefined` — Optional. The route object from which to extract the name
 - **locale**: `string | undefined` — Optional. The locale code to consider when extracting the route name
 
 ```typescript
-const routeName = $getRouteName(routeObject, 'fr')
+const routeName = $getRouteName(routeObject, "fr");
 // Output: 'index' (assuming the base route name is 'index')
 ```
 
@@ -427,21 +451,23 @@ Methods for configuring route behavior and access control.
 - **Description**: Defines route behavior based on the current locale. Controls access to routes, provides translations, and sets custom routes for different locales.
 
 **Parameters**:
+
 - **locales**: `string[] | Record<string, Record<string, string>>` — Available locales for the route
 - **localeRoutes**: `Record<string, string>` — Optional. Custom routes for specific locales
 - **disableMeta**: `boolean | string[]` — Optional. Disables i18n meta tags for all or specific locales
 
 **Basic Example**:
+
 ```typescript
 $defineI18nRoute({
-  locales: ['en', 'fr', 'de'],
+  locales: ["en", "fr", "de"],
   localeRoutes: {
-    en: '/welcome',
-    fr: '/bienvenue',
-    de: '/willkommen'
+    en: "/welcome",
+    fr: "/bienvenue",
+    de: "/willkommen",
   },
-  disableMeta: false
-})
+  disableMeta: false,
+});
 ```
 
 > 📖 **For detailed usage examples, configuration formats, and best practices, see the [Per-Component Translations Guide](/guide/per-component-translations.md).**
@@ -449,9 +475,10 @@ $defineI18nRoute({
 ### `$setI18nRouteParams`
 
 - **Type**: `(value: Record<LocaleCode, Record<string, string>> | null) => Record<LocaleCode, Record<string, string>> | null`
-- **Description**: Set localized versions of params for all switchLocale* methods and returns passed value. MUST be called inside useAsyncData
+- **Description**: Set localized versions of params for all switchLocale\* methods and returns passed value. MUST be called inside useAsyncData
 
 **Parameters**:
+
 - **value**: `Record<LocaleCode, Record<string, string>> | null` — params of current route for other locale
 
 ```typescript
@@ -500,18 +527,18 @@ $switchLocalePath('de') // === 'de/Nachricht/1-erster-Artikel'
 ```vue
 <template>
   <div>
-    <p>{{ $t('key2.key2.key2.key2.key2') }}</p>
+    <p>{{ $t("key2.key2.key2.key2.key2") }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
 
     <div>
-      {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
+      {{ $t("welcome", { username: "Alice", unreadCount: 5 }) }}
     </div>
     <div>
-      {{ $tc('apples', 10) }}
+      {{ $tc("apples", 10) }}
     </div>
 
     <div>
-        <button
+      <button
         v-for="locale in $getLocales()"
         :key="locale.code"
         :disabled="locale.code === $getLocale()"
@@ -522,36 +549,34 @@ $switchLocalePath('de') // === 'de/Nachricht/1-erster-Artikel'
     </div>
 
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })">
-        Go to Index
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'index' })"> Go to Index </NuxtLink>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useI18n } from '#imports'
+import { useI18n } from "#imports";
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useI18n()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t, $tc } = useI18n();
 </script>
 ```
 
 ### Using with useNuxtApp
 
 ```typescript
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useNuxtApp();
 ```
 
 ### Using with useI18n Composable
 
 ```typescript
-import { useI18n } from '#imports'
+import { useI18n } from "#imports";
 
-const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n()
+const { $getLocale, $switchLocale, $getLocales, $localeRoute, $t } = useI18n();
 // or
-const i18n = useI18n()
+const i18n = useI18n();
 ```
 
 ## 🔧 Cache & Utility Methods
@@ -562,10 +587,10 @@ const i18n = useI18n()
 - **Description**: Checks if a translation key exists in the current translations (including previous page fallback if enabled).
 
 ```typescript
-if ($has('welcome')) {
-  console.log($t('welcome'))
+if ($has("welcome")) {
+  console.log($t("welcome"));
 } else {
-  console.log('Key not found')
+  console.log("Key not found");
 }
 ```
 
@@ -575,7 +600,7 @@ if ($has('welcome')) {
 - **Description**: Clears both the `TranslationStorage` cache and the plugin-level loaded chunks. Useful after dynamically updating translations.
 
 ```typescript
-$clearCache()
+$clearCache();
 // All cached translations are removed; next render will re-fetch them
 ```
 
@@ -585,10 +610,10 @@ $clearCache()
 - **Description**: Manually loads translations for a specific locale and route into the cache. Triggers a re-render if the loaded translations match the current context.
 
 ```typescript
-await $loadPageTranslations('en', 'about', {
-  title: 'About Us',
-  description: 'Learn more about our company'
-})
+await $loadPageTranslations("en", "about", {
+  title: "About Us",
+  description: "Learn more about our company",
+});
 ```
 
 ## 🧭 `useI18nLocale` Composable
@@ -599,26 +624,26 @@ The centralized composable for locale state management. Use this instead of dire
 
 ```typescript
 const {
-  setLocale,              // (locale: string) => void — updates state + cookie
-  getLocale,              // () => string | null — from state or cookie
-  getPreferredLocale,     // () => string | null — validated against locales list
-  getEffectiveLocale,     // (route, getLocaleFromRoute) => string
-  resolveInitialLocale,   // (options) => string
-  isValidLocale,          // (locale) => boolean
-  locale,                 // Ref<string | null> — reactive state
-  localeCookie,           // CookieRef — reactive cookie
-  syncLocale,             // (locale) => void — sync to cookie only
-  validLocales,           // string[] — list of valid locale codes
-} = useI18nLocale()
+  setLocale, // (locale: string) => void — updates state + cookie
+  getLocale, // () => string | null — from state or cookie
+  getPreferredLocale, // () => string | null — validated against locales list
+  getEffectiveLocale, // (route, getLocaleFromRoute) => string
+  resolveInitialLocale, // (options) => string
+  isValidLocale, // (locale) => boolean
+  locale, // Ref<string | null> — reactive state
+  localeCookie, // CookieRef — reactive cookie
+  syncLocale, // (locale) => void — sync to cookie only
+  validLocales, // string[] — list of valid locale codes
+} = useI18nLocale();
 ```
 
 ### Key Methods
 
-| Method | Description |
-|--------|-------------|
-| `setLocale(locale)` | Sets locale in both `useState` and cookie atomically |
-| `getLocale()` | Returns current locale from state or cookie |
-| `getPreferredLocale()` | Returns locale validated against `locales` list, or `null` |
+| Method                  | Description                                                 |
+| ----------------------- | ----------------------------------------------------------- |
+| `setLocale(locale)`     | Sets locale in both `useState` and cookie atomically        |
+| `getLocale()`           | Returns current locale from state or cookie                 |
+| `getPreferredLocale()`  | Returns locale validated against `locales` list, or `null`  |
 | `isValidLocale(locale)` | Checks if a locale code is in the configured `locales` list |
 
 ### Usage in Custom Plugins
@@ -626,15 +651,15 @@ const {
 ```typescript
 // plugins/i18n-loader.server.ts
 export default defineNuxtPlugin({
-  name: 'i18n-custom-loader',
-  enforce: 'pre',
+  name: "i18n-custom-loader",
+  enforce: "pre",
   order: -10,
   setup() {
-    const { setLocale } = useI18nLocale()
+    const { setLocale } = useI18nLocale();
     // Detect locale from headers, domain, etc.
-    setLocale('de')
-  }
-})
+    setLocale("de");
+  },
+});
 ```
 
 See [Custom Language Detection](/guide/custom-auto-detect) for detailed examples.

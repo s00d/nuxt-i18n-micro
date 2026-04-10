@@ -1,25 +1,25 @@
 <template>
   <span id="comp1">
-    {{ $t('text') }}
+    {{ $t("text") }}
   </span>
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $defineI18nRoute } = useNuxtApp()
+const { $defineI18nRoute } = useNuxtApp();
 
 $defineI18nRoute({
   locales: {
     en: {
-      text: 'en text',
+      text: "en text",
     },
     de: {
-      text: 'de text',
+      text: "de text",
     },
     ru: {},
     fr: {},
     ch: {},
   },
-})
+});
 </script>

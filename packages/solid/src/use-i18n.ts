@@ -1,27 +1,30 @@
-import type { Locale } from '@i18n-micro/types'
-import { createMemo } from 'solid-js'
-import { useI18nContext, useI18nDefaultLocale, useI18nLocales, useI18nRouter } from './injection'
+import type { Locale } from "@i18n-micro/types";
+import { createMemo } from "solid-js";
+import { useI18nContext, useI18nDefaultLocale, useI18nLocales, useI18nRouter } from "./injection";
 
 export interface UseI18nOptions {
-  locales?: Locale[]
-  defaultLocale?: string
+  locales?: Locale[];
+  defaultLocale?: string;
 }
 
 export function useI18n(options?: UseI18nOptions) {
-  const i18n = useI18nContext()
-  const router = useI18nRouter()
-  const injectedLocales = useI18nLocales()
-  const injectedDefaultLocale = useI18nDefaultLocale()
+  const i18n = useI18nContext();
+  const router = useI18nRouter();
+  const injectedLocales = useI18nLocales();
+  const injectedDefaultLocale = useI18nDefaultLocale();
 
-  const locales = options?.locales || injectedLocales
-  const defaultLocale = options?.defaultLocale || injectedDefaultLocale
+  const locales = options?.locales || injectedLocales;
+  const defaultLocale = options?.defaultLocale || injectedDefaultLocale;
 
-  const resolveLocalePath = (to: string | { path?: string }, localeCode?: string): string | { path?: string } => {
+  const resolveLocalePath = (
+    to: string | { path?: string },
+    localeCode?: string,
+  ): string | { path?: string } => {
     if (!router?.resolvePath) {
-      return to
+      return to;
     }
-    return router.resolvePath(to, localeCode || i18n.getLocale())
-  }
+    return router.resolvePath(to, localeCode || i18n.getLocale());
+  };
 
   return {
     // Direct access to instance
@@ -35,22 +38,24 @@ export function useI18n(options?: UseI18nOptions) {
     defaultLocale: () => defaultLocale,
     getLocaleName: () => {
       // Use accessor for reactivity
-      const current = locales.find((l) => l.code === i18n.localeAccessor())
-      return current?.displayName || null
+      const current = locales.find((l) => l.code === i18n.localeAccessor());
+      return current?.displayName || null;
     },
 
     // Routing helpers
     localeRoute: resolveLocalePath,
     localePath: (to: string | { path?: string }, locale?: string): string => {
-      const res = resolveLocalePath(to, locale)
-      return typeof res === 'string' ? res : res.path || '/'
+      const res = resolveLocalePath(to, locale);
+      return typeof res === "string" ? res : res.path || "/";
     },
     switchLocale: (newLocale: string) => {
-      i18n.locale = newLocale
+      i18n.locale = newLocale;
       if (router) {
-        const currentPath = router.getCurrentPath()
-        const newPath = resolveLocalePath(currentPath, newLocale)
-        router.push(typeof newPath === 'string' ? { path: newPath } : { path: newPath.path || '/' })
+        const currentPath = router.getCurrentPath();
+        const newPath = resolveLocalePath(currentPath, newLocale);
+        router.push(
+          typeof newPath === "string" ? { path: newPath } : { path: newPath.path || "/" },
+        );
       }
     },
 
@@ -72,5 +77,5 @@ export function useI18n(options?: UseI18nOptions) {
     addTranslations: i18n.addTranslations.bind(i18n),
     addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
     clearCache: i18n.clearCache.bind(i18n),
-  }
+  };
 }

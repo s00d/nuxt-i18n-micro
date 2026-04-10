@@ -1,8 +1,8 @@
-import type { PathStrategy, PathStrategyContext } from '../types'
-import { NoPrefixPathStrategy } from './no-prefix'
-import { PrefixPathStrategy } from './prefix'
-import { PrefixAndDefaultPathStrategy } from './prefix-and-default'
-import { PrefixExceptDefaultPathStrategy } from './prefix-except-default'
+import type { PathStrategy, PathStrategyContext } from "../types";
+import { NoPrefixPathStrategy } from "./no-prefix";
+import { PrefixPathStrategy } from "./prefix";
+import { PrefixAndDefaultPathStrategy } from "./prefix-and-default";
+import { PrefixExceptDefaultPathStrategy } from "./prefix-except-default";
 
 /**
  * Creates the appropriate path strategy instance for the given context.
@@ -11,15 +11,15 @@ import { PrefixExceptDefaultPathStrategy } from './prefix-except-default'
  */
 export function createPathStrategy(ctx: PathStrategyContext): PathStrategy {
   switch (ctx.strategy) {
-    case 'no_prefix':
-      return new NoPrefixPathStrategy(ctx)
-    case 'prefix':
-      return new PrefixPathStrategy(ctx)
-    case 'prefix_except_default':
-      return new PrefixExceptDefaultPathStrategy(ctx)
-    case 'prefix_and_default':
-      return new PrefixAndDefaultPathStrategy(ctx)
+    case "no_prefix":
+      return new NoPrefixPathStrategy(ctx);
+    case "prefix":
+      return new PrefixPathStrategy(ctx);
+    case "prefix_except_default":
+      return new PrefixExceptDefaultPathStrategy(ctx);
+    case "prefix_and_default":
+      return new PrefixAndDefaultPathStrategy(ctx);
     default:
-      return new PrefixExceptDefaultPathStrategy(ctx)
+      return new PrefixExceptDefaultPathStrategy(ctx);
   }
 }

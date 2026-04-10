@@ -44,15 +44,15 @@ If you had custom redirect logic in the fallback component, implement it in a se
 ```ts
 // plugins/i18n-loader.server.ts
 export default defineNuxtPlugin({
-  name: 'i18n-custom-redirect',
-  enforce: 'pre',
+  name: "i18n-custom-redirect",
+  enforce: "pre",
   order: -10,
   setup() {
-    const { setLocale } = useI18nLocale()
+    const { setLocale } = useI18nLocale();
     // Your custom detection logic
-    setLocale(detectedLocale)
-  }
-})
+    setLocale(detectedLocale);
+  },
+});
 ```
 
 ## Removed: `includeDefaultLocaleRoute`
@@ -117,6 +117,7 @@ Redirects are now handled automatically by two components:
 2. **Client-side** (`06.redirect.ts`): Runs after hydration (`app:mounted`) and on SPA navigation (`router.afterEach`)
 
 Locale priority for redirects:
+
 1. `useState('i18n-locale')` — set via `useI18nLocale().setLocale()`
 2. Cookie — if `localeCookie` is configured
 3. `Accept-Language` header — if `autoDetectLanguage: true`

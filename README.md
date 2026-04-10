@@ -28,11 +28,11 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 > **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
 
-| Project | Build Time | Code Bundle | Max Memory | Max CPU |
-|---------|------------|-------------|------------|---------|
-| **plain-nuxt** (baseline) | 5.71s | 1.35 MB | 674 MB | 240% |
-| **i18n-micro** | 23.47s | 1.5 MB | 1,658 MB | 208% |
-| **i18n v10** | 84.91s | 19.24 MB | 9,528 MB | 439% |
+| Project                   | Build Time | Code Bundle | Max Memory | Max CPU |
+| ------------------------- | ---------- | ----------- | ---------- | ------- |
+| **plain-nuxt** (baseline) | 5.71s      | 1.35 MB     | 674 MB     | 240%    |
+| **i18n-micro**            | 23.47s     | 1.5 MB      | 1,658 MB   | 208%    |
+| **i18n v10**              | 84.91s     | 19.24 MB    | 9,528 MB   | 439%    |
 
 > **Code Bundle** = JavaScript/CSS code only (excludes translation JSON files).
 > i18n-micro stores translations as lazy-loaded JSON files, keeping the code bundle minimal.
@@ -42,11 +42,11 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 #### Stress Test Results (Requests per Second)
 
-| Project | Avg Response | RPS (Artillery) | Max Memory |
-|---------|--------------|-----------------|------------|
-| **plain-nuxt** | 544 ms | 228 | 340 MB |
-| **i18n-micro** | 411 ms | 292 | 347 MB |
-| **i18n v10** | 1,363 ms | 51 | 1,243 MB |
+| Project        | Avg Response | RPS (Artillery) | Max Memory |
+| -------------- | ------------ | --------------- | ---------- |
+| **plain-nuxt** | 544 ms       | 228             | 340 MB     |
+| **i18n-micro** | 411 ms       | 292             | 347 MB     |
+| **i18n v10**   | 1,363 ms     | 51              | 1,243 MB   |
 
 #### Comparison: i18n v10 vs i18n-micro
 
@@ -78,20 +78,18 @@ Then, add it to your `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: [
-    'nuxt-i18n-micro',
-  ],
+  modules: ["nuxt-i18n-micro"],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
-      { code: 'ar', iso: 'ar-SA', dir: 'rtl' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
+      { code: "ar", iso: "ar-SA", dir: "rtl" },
     ],
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     meta: true,
   },
-})
+});
 ```
 
 That's it! You're now ready to use Nuxt I18n Micro in your Nuxt app.
@@ -99,7 +97,6 @@ That's it! You're now ready to use Nuxt I18n Micro in your Nuxt app.
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=s00d/nuxt-i18n-micro&type=date&legend=top-left)](https://www.star-history.com/#s00d/nuxt-i18n-micro&type=date&legend=top-left)
-
 
 [Docs](https://s00d.github.io/nuxt-i18n-micro/)
 
@@ -118,4 +115,3 @@ That's it! You're now ready to use Nuxt I18n Micro in your Nuxt app.
 [Migration](https://s00d.github.io/nuxt-i18n-micro/guide/migration)
 
 [Contribution](https://s00d.github.io/nuxt-i18n-micro/guide/contribution)
-

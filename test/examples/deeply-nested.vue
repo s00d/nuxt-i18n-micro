@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -9,42 +9,42 @@
 // @ts-expect-error
 $defineI18nRoute({
   locales: {
-    'en-us': {
-      path: '/welcome',
+    "en-us": {
+      path: "/welcome",
       meta: {
-        title: 'Welcome',
-        description: 'Welcome to our site',
-        keywords: ['welcome', 'home', 'main'],
+        title: "Welcome",
+        description: "Welcome to our site",
+        keywords: ["welcome", "home", "main"],
         social: {
-          twitter: '@welcome',
-          facebook: 'welcome.page',
+          twitter: "@welcome",
+          facebook: "welcome.page",
         },
       },
     },
-    'de-de': {
-      path: '/willkommen',
+    "de-de": {
+      path: "/willkommen",
       meta: {
-        title: 'Willkommen',
-        description: 'Willkommen auf unserer Website',
-        keywords: ['willkommen', 'startseite', 'hauptseite'],
+        title: "Willkommen",
+        description: "Willkommen auf unserer Website",
+        keywords: ["willkommen", "startseite", "hauptseite"],
         social: {
-          twitter: '@willkommen',
-          facebook: 'willkommen.page',
+          twitter: "@willkommen",
+          facebook: "willkommen.page",
         },
       },
     },
-    'fr-fr': {
-      path: '/bienvenue',
+    "fr-fr": {
+      path: "/bienvenue",
       meta: {
-        title: 'Bienvenue',
-        description: 'Bienvenue sur notre site',
-        keywords: ['bienvenue', 'accueil', 'principal'],
+        title: "Bienvenue",
+        description: "Bienvenue sur notre site",
+        keywords: ["bienvenue", "accueil", "principal"],
         social: {
-          twitter: '@bienvenue',
-          facebook: 'bienvenue.page',
+          twitter: "@bienvenue",
+          facebook: "bienvenue.page",
         },
       },
     },
   },
-})
+});
 </script>

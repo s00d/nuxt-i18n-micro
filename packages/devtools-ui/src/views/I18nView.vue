@@ -2,11 +2,7 @@
   <div class="i18n-view">
     <Loader v-if="isLoading" />
 
-    <SplitPane
-      v-else
-      storage-key="tab-i18n-locales"
-      default-left-width="280px"
-    >
+    <SplitPane v-else storage-key="tab-i18n-locales" default-left-width="280px">
       <template #left>
         <div class="pane-inner">
           <LocalesList
@@ -19,10 +15,7 @@
 
       <template #right>
         <div class="pane-inner bg-white">
-          <div
-            v-if="selectedFile"
-            class="editor-layout"
-          >
+          <div v-if="selectedFile" class="editor-layout">
             <!-- Header section -->
             <div class="editor-header">
               <div class="breadcrumbs">
@@ -45,27 +38,15 @@
             <!-- Editor area -->
             <div class="editor-content-area">
               <div class="editor-scroll-container">
-                <TranslationEditor
-                  v-model="localContent"
-                  class="h-full"
-                />
+                <TranslationEditor v-model="localContent" class="h-full" />
               </div>
             </div>
           </div>
 
-          <div
-            v-else
-            class="empty-state"
-          >
-            <div class="empty-state__icon">
-              📁
-            </div>
-            <div class="empty-state__title">
-              No File Selected
-            </div>
-            <div class="empty-state__description">
-              Select a file from the tree to edit
-            </div>
+          <div v-else class="empty-state">
+            <div class="empty-state__icon">📁</div>
+            <div class="empty-state__title">No File Selected</div>
+            <div class="empty-state__description">Select a file from the tree to edit</div>
           </div>
         </div>
       </template>
@@ -78,10 +59,7 @@
       title="Statistics"
       size="lg"
     >
-      <Statistics
-        v-if="localContent"
-        :content="localContent"
-      />
+      <Statistics v-if="localContent" :content="localContent" />
     </Modal>
 
     <Modal
@@ -92,50 +70,34 @@
     >
       <p>Are you sure?</p>
       <div class="flex justify-end gap-2 mt-4">
-        <Button
-          variant="danger"
-          @click="isConfirmModalVisible = false"
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          @click="handleConfirm"
-        >
-          Confirm
-        </Button>
+        <Button variant="danger" @click="isConfirmModalVisible = false"> Cancel </Button>
+        <Button variant="primary" @click="handleConfirm"> Confirm </Button>
       </div>
     </Modal>
 
     <!-- Hidden input -->
-    <input
-      v-show="false"
-      ref="file"
-      type="file"
-      accept=".json"
-      @change="importTranslations"
-    >
+    <input v-show="false" ref="file" type="file" accept=".json" @change="importTranslations" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import LocalesList from '../components/data/LocalesList.vue'
-import Statistics from '../components/data/Statistics.vue'
-import TranslationEditor from '../components/editor/TranslationEditor.vue'
-import ActionBar from '../components/layout/ActionBar.vue'
-import SplitPane from '../components/layout/SplitPane.vue'
-import Button from '../components/ui/Button.vue'
-import Loader from '../components/ui/Loader.vue'
-import Modal from '../components/ui/Modal.vue'
-import { useI18nState } from '../composables/useI18nState'
-import type { TranslationContent } from '../types'
-import { flattenTranslations, unflattenTranslations } from '../util/i18nUtils'
-import { type DriverType, Translator } from '../util/Translator'
+import { computed, onMounted, ref, watch } from "vue";
+import LocalesList from "../components/data/LocalesList.vue";
+import Statistics from "../components/data/Statistics.vue";
+import TranslationEditor from "../components/editor/TranslationEditor.vue";
+import ActionBar from "../components/layout/ActionBar.vue";
+import SplitPane from "../components/layout/SplitPane.vue";
+import Button from "../components/ui/Button.vue";
+import Loader from "../components/ui/Loader.vue";
+import Modal from "../components/ui/Modal.vue";
+import { useI18nState } from "../composables/useI18nState";
+import type { TranslationContent } from "../types";
+import { flattenTranslations, unflattenTranslations } from "../util/i18nUtils";
+import { type DriverType, Translator } from "../util/Translator";
 
-const selectedDriver = ref('disabled')
-const apiToken = ref('')
-const driverOptions = ref<{ [key: string]: string | number | boolean }>({})
+const selectedDriver = ref("disabled");
+const apiToken = ref("");
+const driverOptions = ref<{ [key: string]: string | number | boolean }>({});
 
 const {
   configs,
@@ -148,116 +110,124 @@ const {
   importTranslations,
   getDefaultLocaleTranslation,
   saveCurrent,
-} = useI18nState()
+} = useI18nState();
 
-const file = ref<HTMLInputElement | null>(null)
+const file = ref<HTMLInputElement | null>(null);
 
 // Local state for storing changes
-const localContent = ref<TranslationContent>({})
+const localContent = ref<TranslationContent>({});
 
 onMounted(() => {
-  loadSettings()
-})
+  loadSettings();
+});
 
 // Initialize local state when selectedFileContent changes
 watch(
   selectedFileContent,
   (newContent) => {
-    if (!newContent) return
-    localContent.value = { ...newContent }
+    if (!newContent) return;
+    localContent.value = { ...newContent };
   },
   { deep: true, immediate: true },
-)
+);
 
 const filteredLocales = computed(() => {
-  return locales.value
-})
+  return locales.value;
+});
 
 const importTranslationsClick = () => {
-  file.value?.click()
-}
+  file.value?.click();
+};
 
 const handleSave = async () => {
   // Save through composable
-  selectedFileContent.value = { ...localContent.value }
-  await saveCurrent()
-}
+  selectedFileContent.value = { ...localContent.value };
+  await saveCurrent();
+};
 
 watch(selectedFile, (val) => {
   // Normalize path for lookup
-  const normalizedPath = val.replace(/^\/+/, '').replace(/\\/g, '/')
-  localContent.value = locales.value[normalizedPath] ?? locales.value[val] ?? (val.startsWith('/') ? locales.value[val.slice(1)] : {}) ?? {}
-})
+  const normalizedPath = val.replace(/^\/+/, "").replace(/\\/g, "/");
+  localContent.value =
+    locales.value[normalizedPath] ??
+    locales.value[val] ??
+    (val.startsWith("/") ? locales.value[val.slice(1)] : {}) ??
+    {};
+});
 
 // Modal window for statistics
-const isStatisticsModalVisible = ref(false)
+const isStatisticsModalVisible = ref(false);
 
 // Show statistics modal
 const showStatisticsModal = () => {
-  isStatisticsModalVisible.value = true
-}
+  isStatisticsModalVisible.value = true;
+};
 
-const isConfirmModalVisible = ref(false)
+const isConfirmModalVisible = ref(false);
 
 const confirmTranslateMissingKeys = () => {
-  isConfirmModalVisible.value = true
-}
+  isConfirmModalVisible.value = true;
+};
 
 const handleConfirm = async () => {
-  isConfirmModalVisible.value = false
-  await translateMissingKeys()
-}
+  isConfirmModalVisible.value = false;
+  await translateMissingKeys();
+};
 
 const translateMissingKeys = async () => {
-  if (!localContent.value) return
+  if (!localContent.value) return;
 
-  const defaultContent = getDefaultLocaleTranslation()
-  const defaultFlatContent = flattenTranslations(defaultContent)
-  const currentFlatContent = flattenTranslations(localContent.value)
-  const missingKeys = Object.keys(defaultFlatContent).filter((key) => !currentFlatContent[key])
+  const defaultContent = getDefaultLocaleTranslation();
+  const defaultFlatContent = flattenTranslations(defaultContent);
+  const currentFlatContent = flattenTranslations(localContent.value);
+  const missingKeys = Object.keys(defaultFlatContent).filter((key) => !currentFlatContent[key]);
 
   if (missingKeys.length === 0) {
-    alert('No missing keys.')
-    return
+    console.info("No missing keys.");
+    return;
   }
 
   try {
-    const fromLang = configs.value.defaultLocale as string
+    const fromLang = configs.value.defaultLocale as string;
     const translator = new Translator({
       apiKey: apiToken.value,
       driver: selectedDriver.value as DriverType,
       options: driverOptions.value,
-    })
+    });
 
     for (const key of missingKeys) {
-      const text = defaultFlatContent[key]
+      const text = defaultFlatContent[key];
       if (text) {
-        const fileName: string = selectedFile.value.split('/').pop() ?? ''
-        currentFlatContent[key] = await translator.translate(text, fromLang, fileName.replace('.json', ''))
+        const fileName: string = selectedFile.value.split("/").pop() ?? "";
+        currentFlatContent[key] = await translator.translate(
+          text,
+          fromLang,
+          fileName.replace(".json", ""),
+        );
       }
     }
 
-    localContent.value = unflattenTranslations(currentFlatContent)
-    alert('Translated.')
+    localContent.value = unflattenTranslations(currentFlatContent);
+    console.info("Translated.");
   } catch (error) {
-    console.error(error)
-    alert('Error.')
+    console.error(error);
+    console.error("Error.");
   }
-}
+};
 
 const loadSettings = () => {
-  const saved = localStorage.getItem('translationSettings')
+  const saved = localStorage.getItem("translationSettings");
   if (saved) {
     try {
-      const settings = JSON.parse(saved)
-      selectedDriver.value = settings.driver || 'disabled'
-      apiToken.value = settings.token || ''
-      driverOptions.value = settings.options || {}
+      const settings = JSON.parse(saved);
+      selectedDriver.value = settings.driver || "disabled";
+      apiToken.value = settings.token || "";
+      driverOptions.value = settings.options || {};
     } catch {
-      localStorage.removeItem('translationSettings')
+      localStorage.removeItem("translationSettings");
     }
   }
-}
+};
 </script>
 
 <style scoped>

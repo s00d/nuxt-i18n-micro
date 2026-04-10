@@ -1,22 +1,22 @@
 <template>
   <div class="multiple-async-component-3">
-    <h3>{{ $t('multiple-async-component-3::title') }}</h3>
-    <p>{{ $t('multiple-async-component-3::description') }}</p>
+    <h3>{{ $t("multiple-async-component-3::title") }}</h3>
+    <p>{{ $t("multiple-async-component-3::description") }}</p>
     <div class="component-info">
-      <p><strong>{{ $t('multiple-async-component-3::componentId') }}:</strong> Multiple Async Component 3</p>
-      <p><strong>{{ $t('multiple-async-component-3::status') }}:</strong> {{ $t('multiple-async-component-3::loaded') }}</p>
+      <p>
+        <strong>{{ $t("multiple-async-component-3::componentId") }}:</strong> Multiple Async
+        Component 3
+      </p>
+      <p>
+        <strong>{{ $t("multiple-async-component-3::status") }}:</strong>
+        {{ $t("multiple-async-component-3::loaded") }}
+      </p>
     </div>
     <div class="actions">
-      <button
-        class="action-button"
-        @click="performAction"
-      >
-        {{ $t('multiple-async-component-3::actionButton') }}
+      <button class="action-button" @click="performAction">
+        {{ $t("multiple-async-component-3::actionButton") }}
       </button>
-      <div
-        v-if="actionResult"
-        class="action-result"
-      >
+      <div v-if="actionResult" class="action-result">
         {{ actionResult }}
       </div>
     </div>
@@ -24,48 +24,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useNuxtApp } from '#imports'
+import { ref } from "vue";
+import { useNuxtApp } from "#imports";
 
-const { $defineI18nRoute, $t } = useNuxtApp()
+const { $defineI18nRoute, $t } = useNuxtApp();
 
-const actionResult = ref('')
+const actionResult = ref("");
 
 $defineI18nRoute({
   locales: {
     en: {
-      'multiple-async-component-3::title': 'Multiple Async Component 3 Loaded',
-      'multiple-async-component-3::description': 'Third of multiple async components',
-      'multiple-async-component-3::componentId': 'Component ID',
-      'multiple-async-component-3::status': 'Status',
-      'multiple-async-component-3::loaded': 'Loaded',
-      'multiple-async-component-3::actionButton': 'Perform Action',
-      'multiple-async-component-3::actionResult': 'Action completed successfully in Component 3',
+      "multiple-async-component-3::title": "Multiple Async Component 3 Loaded",
+      "multiple-async-component-3::description": "Third of multiple async components",
+      "multiple-async-component-3::componentId": "Component ID",
+      "multiple-async-component-3::status": "Status",
+      "multiple-async-component-3::loaded": "Loaded",
+      "multiple-async-component-3::actionButton": "Perform Action",
+      "multiple-async-component-3::actionResult": "Action completed successfully in Component 3",
     },
     ru: {
-      'multiple-async-component-3::title': 'Множественный Асинхронный Компонент 3 Загружен',
-      'multiple-async-component-3::description': 'Третий из множественных асинхронных компонентов',
-      'multiple-async-component-3::componentId': 'ID Компонента',
-      'multiple-async-component-3::status': 'Статус',
-      'multiple-async-component-3::loaded': 'Загружен',
-      'multiple-async-component-3::actionButton': 'Выполнить Действие',
-      'multiple-async-component-3::actionResult': 'Действие успешно выполнено в Компоненте 3',
+      "multiple-async-component-3::title": "Множественный Асинхронный Компонент 3 Загружен",
+      "multiple-async-component-3::description": "Третий из множественных асинхронных компонентов",
+      "multiple-async-component-3::componentId": "ID Компонента",
+      "multiple-async-component-3::status": "Статус",
+      "multiple-async-component-3::loaded": "Загружен",
+      "multiple-async-component-3::actionButton": "Выполнить Действие",
+      "multiple-async-component-3::actionResult": "Действие успешно выполнено в Компоненте 3",
     },
     de: {
-      'multiple-async-component-3::title': 'Mehrere Async-Komponente 3 Geladen',
-      'multiple-async-component-3::description': 'Dritte von mehreren Async-Komponenten',
-      'multiple-async-component-3::componentId': 'Komponenten-ID',
-      'multiple-async-component-3::status': 'Status',
-      'multiple-async-component-3::loaded': 'Geladen',
-      'multiple-async-component-3::actionButton': 'Aktion Ausführen',
-      'multiple-async-component-3::actionResult': 'Aktion erfolgreich in Komponente 3 ausgeführt',
+      "multiple-async-component-3::title": "Mehrere Async-Komponente 3 Geladen",
+      "multiple-async-component-3::description": "Dritte von mehreren Async-Komponenten",
+      "multiple-async-component-3::componentId": "Komponenten-ID",
+      "multiple-async-component-3::status": "Status",
+      "multiple-async-component-3::loaded": "Geladen",
+      "multiple-async-component-3::actionButton": "Aktion Ausführen",
+      "multiple-async-component-3::actionResult": "Aktion erfolgreich in Komponente 3 ausgeführt",
     },
   },
-})
+});
 
 const performAction = () => {
-  actionResult.value = String($t('multiple-async-component-3::actionResult') || 'Action completed successfully')
-}
+  actionResult.value = String(
+    $t("multiple-async-component-3::actionResult") || "Action completed successfully",
+  );
+};
 </script>
 
 <style scoped>

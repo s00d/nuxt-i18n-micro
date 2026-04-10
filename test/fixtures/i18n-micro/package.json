@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "i18n-micro",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

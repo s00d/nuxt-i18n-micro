@@ -4,16 +4,16 @@
 export function generateHmrPlugin(files: string[]): string {
   const accepts = files
     .map((file) => {
-      const isPage = /\/pages\//.test(file)
-      let pageName = ''
-      let locale = ''
+      const isPage = /\/pages\//.test(file);
+      let pageName = "";
+      let locale = "";
       if (isPage) {
-        const m = /\/pages\/(.+)\/([^/]+)\.json$/.exec(file)
-        pageName = m?.[1] || ''
-        locale = m?.[2] || ''
+        const m = /\/pages\/(.+)\/([^/]+)\.json$/.exec(file);
+        pageName = m?.[1] || "";
+        locale = m?.[2] || "";
       } else {
-        const m = /\/([^/]+)\.json$/.exec(file)
-        locale = m?.[1] || ''
+        const m = /\/([^/]+)\.json$/.exec(file);
+        locale = m?.[1] || "";
       }
 
       return `
@@ -25,16 +25,16 @@ if (import.meta.hot) {
       : mod
     try {
       ${isPage ? `await nuxtApp.$loadPageTranslations('${locale}', '${pageName}', data)` : `await nuxtApp.$loadTranslations('${locale}', data)`}
-      console.log('[i18n HMR] Translations reloaded:', '${isPage ? 'page' : 'global'}', '${locale}'${isPage ? `, '${pageName}'` : ''})
+      console.log('[i18n HMR] Translations reloaded:', '${isPage ? "page" : "global"}', '${locale}'${isPage ? `, '${pageName}'` : ""})
     }
     catch (e) {
       console.warn('[i18n HMR] Failed to reload translations for', '${file}', e)
     }
   })
 }
-`.trim()
+`.trim();
     })
-    .join('\n')
+    .join("\n");
 
   return `
 import { defineNuxtPlugin, useNuxtApp } from '#imports'
@@ -42,5 +42,5 @@ import { defineNuxtPlugin, useNuxtApp } from '#imports'
 export default defineNuxtPlugin(() => {
 ${accepts}
 })
-`.trim()
+`.trim();
 }

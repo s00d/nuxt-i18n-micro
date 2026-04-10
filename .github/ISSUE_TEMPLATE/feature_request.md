@@ -1,25 +1,24 @@
 ---
 name: ✨ Feature Request
 about: Suggest a new feature or enhancement
-title: '[Feature]: '
-labels: 'enhancement, needs-triage'
-assignees: ''
+title: "[Feature]: "
+labels: "enhancement, needs-triage"
+assignees: ""
 ---
 
 ## 🚀 Feature Description
 
 <!-- Clear description of what you want to add -->
 
-
 ## 💡 Motivation
 
 ### Problem
+
 <!-- What problem does this solve? -->
 
-
 ### Use Case
-<!-- Who will use this? How will they use it? -->
 
+<!-- Who will use this? How will they use it? -->
 
 ## 📋 Proposed Solution
 
@@ -33,8 +32,8 @@ assignees: ''
 export default defineNuxtConfig({
   i18n: {
     // Your proposed API
-  }
-})
+  },
+});
 ```
 
 </details>
@@ -43,20 +42,18 @@ export default defineNuxtConfig({
 
 <!-- Have you considered other solutions? -->
 
-
 ## 📊 Impact
 
 <!-- Who will benefit from this feature? -->
 
 - [ ] All users
 - [ ] Large projects
-- [ ] Specific platforms (which: ______)
-- [ ] Edge cases (describe: ______)
+- [ ] Specific platforms (which: **\_\_**)
+- [ ] Edge cases (describe: **\_\_**)
 
 ## 🔗 Related
 
 <!-- Link to related issues or similar features in other libraries -->
-
 
 ## ✅ Checklist
 

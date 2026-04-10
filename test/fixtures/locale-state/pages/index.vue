@@ -1,11 +1,11 @@
 <script setup>
-const { getLocale } = useI18n()
+const { getLocale } = useI18n();
 </script>
 
 <template>
   <div>
     <div id="greeting">
-      {{ $t('greeting') }}
+      {{ $t("greeting") }}
     </div>
     <div id="locale">
       {{ getLocale() }}

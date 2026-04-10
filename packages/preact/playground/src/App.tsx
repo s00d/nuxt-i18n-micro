@@ -1,94 +1,121 @@
 // @ts-nocheck
 
-import { createI18n, I18nLink, I18nProvider, I18nSwitcher, useI18n } from '@i18n-micro/preact'
-import type { Locale } from '@i18n-micro/types'
-import { Fragment, h } from 'preact'
-import { useEffect } from 'preact/hooks'
-import { Route, Router, Switch, useLocation, useRoute } from 'wouter-preact'
-import { About } from './pages/About'
-import { Components } from './pages/Components'
-import { Home } from './pages/Home'
-import { createWouterAdapter } from './router-adapter'
+import { createI18n, I18nLink, I18nProvider, I18nSwitcher, useI18n } from "@i18n-micro/preact";
+import type { Locale } from "@i18n-micro/types";
+import { Fragment, h } from "preact";
+import { useEffect } from "preact/hooks";
+import { Route, Router, Switch, useLocation, useRoute } from "wouter-preact";
+import { About } from "./pages/About";
+import { Components } from "./pages/Components";
+import { Home } from "./pages/Home";
+import { createWouterAdapter } from "./router-adapter";
 
 const localesConfig: Locale[] = [
-  { code: 'en', displayName: 'English', iso: 'en-US' },
-  { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-  { code: 'de', displayName: 'Deutsch', iso: 'de-DE' },
-]
+  { code: "en", displayName: "English", iso: "en-US" },
+  { code: "fr", displayName: "Français", iso: "fr-FR" },
+  { code: "de", displayName: "Deutsch", iso: "de-DE" },
+];
 
 // Async load translations
 async function loadTranslations(locale: string) {
   try {
-    const messages = await import(`./locales/${locale}.json`)
-    return messages.default
+    const messages = await import(`./locales/${locale}.json`);
+    return messages.default;
   } catch (error) {
-    console.error(`Failed to load translations for locale: ${locale}`, error)
-    return {}
+    console.error(`Failed to load translations for locale: ${locale}`, error);
+    return {};
   }
 }
 
 // Create i18n instance
 const i18n = createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
+  locale: "en",
+  fallbackLocale: "en",
   messages: {
     en: {},
   },
-})
+});
 
 // Initialize app
 async function initApp() {
-  const path = window.location.pathname
-  const firstSegment = path.split('/')[1]
-  const initialLocale = localesConfig.some((l) => l.code === firstSegment) ? firstSegment : 'en'
+  const path = window.location.pathname;
+  const firstSegment = path.split("/")[1];
+  const initialLocale = localesConfig.some((l) => l.code === firstSegment) ? firstSegment : "en";
 
-  const translations = await loadTranslations(initialLocale)
-  i18n.addTranslations(initialLocale, translations, false)
-  if (initialLocale !== 'en') {
-    i18n.locale = initialLocale
+  const translations = await loadTranslations(initialLocale);
+  i18n.addTranslations(initialLocale, translations, false);
+  if (initialLocale !== "en") {
+    i18n.locale = initialLocale;
   }
 
-  const otherLocales = localesConfig.map((l) => l.code).filter((c) => c !== initialLocale)
+  const otherLocales = localesConfig.map((l) => l.code).filter((c) => c !== initialLocale);
   Promise.all(otherLocales.map((code) => loadTranslations(code).then((msgs) => ({ code, msgs }))))
     .then((results) => {
       results.forEach(({ code, msgs }) => {
-        i18n.addTranslations(code, msgs, false)
-      })
+        i18n.addTranslations(code, msgs, false);
+      });
     })
-    .catch(() => {})
+    .catch(() => {});
 }
 
-initApp()
+initApp();
 
 // Component to handle locale synchronization from URL
 const LocaleHandler = ({ children }) => {
-  const [_match, params] = useRoute('/:locale')
-  const { setLocale, locale: currentLocale } = useI18n({ locales: localesConfig, defaultLocale: 'en' })
-  const localeParam = params?.locale
+  const [_match, params] = useRoute("/:locale");
+  const { setLocale, locale: currentLocale } = useI18n({
+    locales: localesConfig,
+    defaultLocale: "en",
+  });
+  const localeParam = params?.locale;
 
   useEffect(() => {
-    const targetLocale = localeParam && localesConfig.some((l) => l.code === localeParam) ? localeParam : 'en'
+    const targetLocale =
+      localeParam && localesConfig.some((l) => l.code === localeParam) ? localeParam : "en";
     if (currentLocale !== targetLocale) {
-      setLocale(targetLocale)
+      setLocale(targetLocale);
     }
-  }, [localeParam, currentLocale, setLocale])
+  }, [localeParam, currentLocale, setLocale]);
 
-  return h(Fragment, null, children)
-}
+  return h(Fragment, null, children);
+};
 
 // Navigation component
 const Navigation = () => {
-  const { t, getLocales, locale, getLocaleName, switchLocale, localeRoute } = useI18n({ locales: localesConfig, defaultLocale: 'en' })
+  const { t, getLocales, locale, getLocaleName, switchLocale, localeRoute } = useI18n({
+    locales: localesConfig,
+    defaultLocale: "en",
+  });
 
   return h(
-    'nav',
-    { style: { marginBottom: '20px', display: 'flex', gap: '15px', alignItems: 'center' } },
-    h(I18nLink, { to: '/', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.home')),
-    h(I18nLink, { to: '/about', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.about')),
-    h(I18nLink, { to: '/components', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.components')),
+    "nav",
+    { style: { marginBottom: "20px", display: "flex", gap: "15px", alignItems: "center" } },
     h(
-      'div',
-      { style: { marginLeft: 'auto' } },
+      I18nLink,
+      { to: "/", localeRoute, activeStyle: { fontWeight: "bold", backgroundColor: "#e8f5e9" } },
+      t("nav.home"),
+    ),
+    h(
+      I18nLink,
+      {
+        to: "/about",
+        localeRoute,
+        activeStyle: { fontWeight: "bold", backgroundColor: "#e8f5e9" },
+      },
+      t("nav.about"),
+    ),
+    h(
+      I18nLink,
+      {
+        to: "/components",
+        localeRoute,
+        activeStyle: { fontWeight: "bold", backgroundColor: "#e8f5e9" },
+      },
+      t("nav.components"),
+    ),
+    h(
+      "div",
+      { style: { marginLeft: "auto" } },
       h(I18nSwitcher, {
         locales: getLocales(),
         currentLocale: locale,
@@ -97,34 +124,38 @@ const Navigation = () => {
         localeRoute,
       }),
     ),
-  )
-}
+  );
+};
 
 const Layout = ({ children }) => {
   return h(
-    'div',
-    { style: { padding: '20px', fontFamily: 'Arial, sans-serif' } },
+    "div",
+    { style: { padding: "20px", fontFamily: "Arial, sans-serif" } },
     h(Navigation),
-    h('div', { style: { padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' } }, children),
-  )
-}
+    h(
+      "div",
+      { style: { padding: "20px", backgroundColor: "#f9f9f9", borderRadius: "8px" } },
+      children,
+    ),
+  );
+};
 
 // Router root component with router adapter setup
 const RouterRoot = ({ children }) => {
-  const [location, navigate] = useLocation()
-  const routingStrategy = createWouterAdapter(localesConfig, 'en', location, navigate)
+  const [location, navigate] = useLocation();
+  const routingStrategy = createWouterAdapter(localesConfig, "en", location, navigate);
 
   return h(
     I18nProvider,
     {
       i18n,
       locales: localesConfig,
-      defaultLocale: 'en',
+      defaultLocale: "en",
       routingStrategy,
     },
     children,
-  )
-}
+  );
+};
 
 export default function App() {
   return h(
@@ -140,24 +171,24 @@ export default function App() {
           Switch,
           null,
           // Default locale routes
-          h(Route, { path: '/', component: Home }),
-          h(Route, { path: '/about', component: About }),
-          h(Route, { path: '/components', component: Components }),
+          h(Route, { path: "/", component: Home }),
+          h(Route, { path: "/about", component: About }),
+          h(Route, { path: "/components", component: Components }),
           // Localized routes - wrap with LocaleHandler
           h(Route, {
-            path: '/:locale',
+            path: "/:locale",
             component: () => h(LocaleHandler, null, h(Home)),
           }),
           h(Route, {
-            path: '/:locale/about',
+            path: "/:locale/about",
             component: () => h(LocaleHandler, null, h(About)),
           }),
           h(Route, {
-            path: '/:locale/components',
+            path: "/:locale/components",
             component: () => h(LocaleHandler, null, h(Components)),
           }),
         ),
       ),
     ),
-  )
+  );
 }

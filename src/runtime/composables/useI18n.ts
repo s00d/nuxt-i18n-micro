@@ -1,14 +1,14 @@
-import { useNuxtApp } from '#imports'
-import type { PluginsInjections } from '../plugins/01.plugin'
+import { useNuxtApp } from "#app";
+import type { PluginsInjections } from "../plugins/01.plugin";
 
 type RemoveDollarSign<T> = {
-  [K in keyof T as K extends `$${infer Rest}` ? Rest : K]: T[K]
-}
+  [K in keyof T as K extends `$${infer Rest}` ? Rest : K]: T[K];
+};
 
-export type PluginsInjectionsWithAliases = PluginsInjections & RemoveDollarSign<PluginsInjections>
+export type PluginsInjectionsWithAliases = PluginsInjections & RemoveDollarSign<PluginsInjections>;
 
 export function useI18n(): PluginsInjectionsWithAliases {
-  const nuxtApp = useNuxtApp()
+  const nuxtApp = useNuxtApp();
 
   const injections = {
     $i18nStrategy: nuxtApp.$i18nStrategy,
@@ -38,12 +38,14 @@ export function useI18n(): PluginsInjectionsWithAliases {
     $loadPageTranslations: nuxtApp.$loadPageTranslations,
     $setMissingHandler: nuxtApp.$setMissingHandler,
     helper: nuxtApp.helper,
-  } as const
+  } as const;
 
-  const noDollarInjections = Object.fromEntries(Object.entries(injections).map(([key, value]) => [key.slice(1), value]))
+  const noDollarInjections = Object.fromEntries(
+    Object.entries(injections).map(([key, value]) => [key.slice(1), value]),
+  );
 
   return {
     ...injections,
     ...noDollarInjections,
-  } as unknown as PluginsInjectionsWithAliases
+  } as unknown as PluginsInjectionsWithAliases;
 }

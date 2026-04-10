@@ -63,22 +63,22 @@ The package requires Astro 5:
 For applications that don't need routing features:
 
 ```javascript
-import { defineConfig } from 'astro/config'
-import { i18nIntegration } from '@i18n-micro/astro'
+import { defineConfig } from "astro/config";
+import { i18nIntegration } from "@i18n-micro/astro";
 
 export default defineConfig({
   integrations: [
     i18nIntegration({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       locales: [
-        { code: 'en', displayName: 'English', iso: 'en-US' },
-        { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
+        { code: "en", displayName: "English", iso: "en-US" },
+        { code: "fr", displayName: "Français", iso: "fr-FR" },
       ],
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
     }),
   ],
-})
+});
 ```
 
 ### Setup With Router Adapter
@@ -86,16 +86,16 @@ export default defineConfig({
 For applications with routing:
 
 ```javascript
-import { defineConfig } from 'astro/config'
-import { i18nIntegration, createAstroRouterAdapter } from '@i18n-micro/astro'
+import { defineConfig } from "astro/config";
+import { i18nIntegration, createAstroRouterAdapter } from "@i18n-micro/astro";
 
 const localesConfig = [
-  { code: 'en', displayName: 'English', iso: 'en-US' },
-  { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-  { code: 'de', displayName: 'Deutsch', iso: 'de-DE' },
-]
+  { code: "en", displayName: "English", iso: "en-US" },
+  { code: "fr", displayName: "Français", iso: "fr-FR" },
+  { code: "de", displayName: "Deutsch", iso: "de-DE" },
+];
 
-const defaultLocale = 'en'
+const defaultLocale = "en";
 
 export default defineConfig({
   integrations: [
@@ -103,11 +103,11 @@ export default defineConfig({
       locale: defaultLocale,
       fallbackLocale: defaultLocale,
       locales: localesConfig,
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
       routingStrategy: createAstroRouterAdapter(localesConfig, defaultLocale),
     }),
   ],
-})
+});
 ```
 
 **Note:** The `createAstroRouterAdapter` is now exported from the package, so you don't need to create your own router adapter file. However, you can still create a custom adapter if needed.
@@ -119,14 +119,14 @@ Create `src/middleware.ts`:
 #### Option 1: Manual Configuration (Works Everywhere)
 
 ```typescript
-import { createI18nMiddleware, createI18n, createAstroRouterAdapter } from '@i18n-micro/astro'
+import { createI18nMiddleware, createI18n, createAstroRouterAdapter } from "@i18n-micro/astro";
 
 const localesConfig = [
-  { code: 'en', displayName: 'English', iso: 'en-US' },
-  { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-]
+  { code: "en", displayName: "English", iso: "en-US" },
+  { code: "fr", displayName: "Français", iso: "fr-FR" },
+];
 
-const defaultLocale = 'en'
+const defaultLocale = "en";
 
 // Create global i18n instance with inline messages
 const globalI18n = createI18n({
@@ -134,26 +134,26 @@ const globalI18n = createI18n({
   fallbackLocale: defaultLocale,
   messages: {
     en: {
-      welcome: 'Welcome',
-      greeting: 'Hello, {name}!',
+      welcome: "Welcome",
+      greeting: "Hello, {name}!",
     },
     fr: {
-      welcome: 'Bienvenue',
-      greeting: 'Bonjour, {name}!',
+      welcome: "Bienvenue",
+      greeting: "Bonjour, {name}!",
     },
   },
-})
+});
 
 // Create router adapter
-const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale)
+const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale);
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
   defaultLocale,
-  locales: ['en', 'fr'],
+  locales: ["en", "fr"],
   localeObjects: localesConfig,
   routingStrategy,
-})
+});
 ```
 
 #### Option 2: Using Integration Config (Node.js Runtime Only)
@@ -161,15 +161,20 @@ export const onRequest = createI18nMiddleware({
 If you're using the integration with `translationDir`, you can import the config from the virtual module:
 
 ```typescript
-import { createI18nMiddleware, createI18n, createAstroRouterAdapter, loadTranslationsIntoI18n } from '@i18n-micro/astro'
-import { config } from 'virtual:i18n-micro/config'
+import {
+  createI18nMiddleware,
+  createI18n,
+  createAstroRouterAdapter,
+  loadTranslationsIntoI18n,
+} from "@i18n-micro/astro";
+import { config } from "virtual:i18n-micro/config";
 
 // Use config from integration to avoid duplication
 const globalI18n = createI18n({
   locale: config.defaultLocale,
   fallbackLocale: config.fallbackLocale,
   messages: {}, // Translations will be loaded explicitly below
-})
+});
 
 // ⚠️ IMPORTANT: loadTranslationsIntoI18n uses node:fs and only works in Node.js runtime
 // For Edge runtime (Cloudflare Workers, Vercel Edge), use import.meta.glob instead (see below)
@@ -177,10 +182,10 @@ if (config.translationDir) {
   loadTranslationsIntoI18n(globalI18n, {
     translationDir: config.translationDir,
     rootDir: process.cwd(), // Or use: resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-  })
+  });
 }
 
-const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale)
+const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale);
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
@@ -188,7 +193,7 @@ export const onRequest = createI18nMiddleware({
   locales: config.localeCodes,
   localeObjects: config.locales,
   routingStrategy,
-})
+});
 ```
 
 #### Option 3: Edge Runtime Compatible (Cloudflare Workers, Vercel Edge, etc.)
@@ -196,41 +201,40 @@ export const onRequest = createI18nMiddleware({
 For Edge runtime environments, use `import.meta.glob` to load translations at build time:
 
 ```typescript
-import { createI18nMiddleware, createI18n, createAstroRouterAdapter } from '@i18n-micro/astro'
-import { config } from 'virtual:i18n-micro/config'
+import { createI18nMiddleware, createI18n, createAstroRouterAdapter } from "@i18n-micro/astro";
+import { config } from "virtual:i18n-micro/config";
 
 // Load translations using import.meta.glob (Edge-compatible)
-const translationModules = import.meta.glob('/src/locales/**/*.json', { eager: true })
+const translationModules = import.meta.glob("/src/locales/**/*.json", { eager: true });
 
 const globalI18n = createI18n({
   locale: config.defaultLocale,
   fallbackLocale: config.fallbackLocale,
   messages: {},
-})
+});
 
 // Process loaded translations
 for (const [path, module] of Object.entries(translationModules)) {
-  const translations = (module as { default: Record<string, unknown> }).default
-  
+  const translations = (module as { default: Record<string, unknown> }).default;
+
   // Extract locale and route from path
   // Example: /src/locales/pages/home/en.json -> locale: 'en', route: 'home'
-  const match = path.match(/\/([^/]+)\.json$/)
+  const match = path.match(/\/([^/]+)\.json$/);
   if (match) {
-    const locale = match[1]
-    const isPageTranslation = path.includes('/pages/')
-    
+    const locale = match[1];
+    const isPageTranslation = path.includes("/pages/");
+
     if (isPageTranslation) {
-      const routeMatch = path.match(/\/pages\/([^/]+)\//)
-      const routeName = routeMatch ? routeMatch[1] : 'index'
-      globalI18n.addRouteTranslations(locale, routeName, translations, false)
-    }
-    else {
-      globalI18n.addTranslations(locale, translations, false)
+      const routeMatch = path.match(/\/pages\/([^/]+)\//);
+      const routeName = routeMatch ? routeMatch[1] : "index";
+      globalI18n.addRouteTranslations(locale, routeName, translations, false);
+    } else {
+      globalI18n.addTranslations(locale, translations, false);
     }
   }
 }
 
-const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale)
+const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale);
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
@@ -238,7 +242,7 @@ export const onRequest = createI18nMiddleware({
   locales: config.localeCodes,
   localeObjects: config.locales,
   routingStrategy,
-})
+});
 ```
 
 **⚠️ Runtime Compatibility Notes:**
@@ -292,16 +296,26 @@ The `I18nRoutingStrategy` interface defines the contract between i18n and your r
 
 ```typescript
 interface I18nRoutingStrategy {
-  getCurrentPath: () => string
-  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
-  getRouteName?: (path: string, locales: string[]) => string
-  getLocaleFromPath?: (path: string, defaultLocale: string, locales: string[]) => string
-  switchLocalePath?: (path: string, newLocale: string, locales: string[], defaultLocale?: string) => string
-  localizePath?: (path: string, locale: string, locales: string[], defaultLocale?: string) => string
-  removeLocaleFromPath?: (path: string, locales: string[]) => string
-  push?: (target: { path: string }) => void
-  replace?: (target: { path: string }) => void
-  getRoute?: () => { fullPath: string; query: Record<string, unknown> }
+  getCurrentPath: () => string;
+  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string };
+  getRouteName?: (path: string, locales: string[]) => string;
+  getLocaleFromPath?: (path: string, defaultLocale: string, locales: string[]) => string;
+  switchLocalePath?: (
+    path: string,
+    newLocale: string,
+    locales: string[],
+    defaultLocale?: string,
+  ) => string;
+  localizePath?: (
+    path: string,
+    locale: string,
+    locales: string[],
+    defaultLocale?: string,
+  ) => string;
+  removeLocaleFromPath?: (path: string, locales: string[]) => string;
+  push?: (target: { path: string }) => void;
+  replace?: (target: { path: string }) => void;
+  getRoute?: () => { fullPath: string; query: Record<string, unknown> };
 }
 ```
 
@@ -327,22 +341,22 @@ graph TB
 For applications that don't need routing features:
 
 ```typescript
-import { defineConfig } from 'astro/config'
-import { i18nIntegration } from '@i18n-micro/astro'
+import { defineConfig } from "astro/config";
+import { i18nIntegration } from "@i18n-micro/astro";
 
 export default defineConfig({
   integrations: [
     i18nIntegration({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       locales: [
-        { code: 'en', displayName: 'English', iso: 'en-US' },
-        { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
+        { code: "en", displayName: "English", iso: "en-US" },
+        { code: "fr", displayName: "Français", iso: "fr-FR" },
       ],
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
     }),
   ],
-})
+});
 ```
 
 ### Setup With Router Adapter
@@ -350,9 +364,9 @@ export default defineConfig({
 For applications with routing:
 
 ```typescript
-import { defineConfig } from 'astro/config'
-import { i18nIntegration, createAstroRouterAdapter } from '@i18n-micro/astro'
-import { localesConfig, defaultLocale } from './app-config'
+import { defineConfig } from "astro/config";
+import { i18nIntegration, createAstroRouterAdapter } from "@i18n-micro/astro";
+import { localesConfig, defaultLocale } from "./app-config";
 
 export default defineConfig({
   integrations: [
@@ -360,11 +374,11 @@ export default defineConfig({
       locale: defaultLocale,
       fallbackLocale: defaultLocale,
       locales: localesConfig,
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
       routingStrategy: createAstroRouterAdapter(localesConfig, defaultLocale),
     }),
   ],
-})
+});
 ```
 
 **Note:** The `createAstroRouterAdapter` is now exported from `@i18n-micro/astro`, so you don't need to create your own adapter file for basic use cases.
@@ -374,23 +388,23 @@ export default defineConfig({
 You can set the routing strategy in middleware:
 
 ```typescript
-import { createI18nMiddleware, createI18n, createAstroRouterAdapter } from '@i18n-micro/astro'
+import { createI18nMiddleware, createI18n, createAstroRouterAdapter } from "@i18n-micro/astro";
 
 const globalI18n = createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
+  locale: "en",
+  fallbackLocale: "en",
   messages: { en: {} },
-})
+});
 
-const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale)
+const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale);
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
-  defaultLocale: 'en',
-  locales: ['en', 'fr'],
+  defaultLocale: "en",
+  locales: ["en", "fr"],
   localeObjects: localesConfig,
   routingStrategy, // Set here
-})
+});
 ```
 
 ## Router Integration
@@ -405,60 +419,70 @@ interface I18nRoutingStrategy {
    * Returns current path (without locale prefix if needed, or full path)
    * Used for determining active classes in links
    */
-  getCurrentPath: () => string
+  getCurrentPath: () => string;
 
   /**
    * Generate path for specific locale
    */
-  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
+  resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string };
 
   /**
    * Get route name from path (e.g., /en/about -> about)
    * Used in middleware to set route name
    */
-  getRouteName?: (path: string, locales: string[]) => string
+  getRouteName?: (path: string, locales: string[]) => string;
 
   /**
    * Get locale from path
    * Checks if first segment is a locale code
    */
-  getLocaleFromPath?: (path: string, defaultLocale: string, locales: string[]) => string
+  getLocaleFromPath?: (path: string, defaultLocale: string, locales: string[]) => string;
 
   /**
    * Switch locale in path
    * Replaces or adds locale prefix to path
    */
-  switchLocalePath?: (path: string, newLocale: string, locales: string[], defaultLocale?: string) => string
+  switchLocalePath?: (
+    path: string,
+    newLocale: string,
+    locales: string[],
+    defaultLocale?: string,
+  ) => string;
 
   /**
    * Localize path with locale prefix
    */
-  localizePath?: (path: string, locale: string, locales: string[], defaultLocale?: string) => string
+  localizePath?: (
+    path: string,
+    locale: string,
+    locales: string[],
+    defaultLocale?: string,
+  ) => string;
 
   /**
    * Remove locale from path
    */
-  removeLocaleFromPath?: (path: string, locales: string[]) => string
+  removeLocaleFromPath?: (path: string, locales: string[]) => string;
 
   /**
    * (Optional) Function to navigate to another route/locale
    * Not used in SSR, but can be used in client-side islands
    */
-  push?: (target: { path: string }) => void
+  push?: (target: { path: string }) => void;
 
   /**
    * (Optional) Function to replace current route
    * Not used in SSR, but can be used in client-side islands
    */
-  replace?: (target: { path: string }) => void
+  replace?: (target: { path: string }) => void;
 
   /**
    * (Optional) Get current route object for SEO/Meta tags
    */
   getRoute?: () => {
-    fullPath: string
-    query: Record<string, unknown>
-  }
+    fullPath: string;
+    query: Record<string, unknown>;
+  };
 }
 ```
 
@@ -467,9 +491,9 @@ interface I18nRoutingStrategy {
 The package exports `createAstroRouterAdapter` for standard Astro file-based routing:
 
 ```typescript
-import { createAstroRouterAdapter } from '@i18n-micro/astro'
+import { createAstroRouterAdapter } from "@i18n-micro/astro";
 
-const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale)
+const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale);
 ```
 
 ### Creating a Custom Router Adapter
@@ -477,41 +501,41 @@ const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale)
 If you need custom routing logic, here's a complete example:
 
 ```typescript
-import type { I18nRoutingStrategy } from '@i18n-micro/astro'
-import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from "@i18n-micro/astro";
+import type { Locale } from "@i18n-micro/types";
 
 export function createAstroRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
   getCurrentUrl?: () => URL,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code);
 
   /**
    * Get route name from Astro path
    * Extracts route name from path (e.g., /en/about -> about)
    */
   const getRouteName = (path: string, locales: string[] = []): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
+    const cleanPath = path.replace(/^\//, "").replace(/\/$/, "");
 
     if (!cleanPath) {
-      return 'index'
+      return "index";
     }
 
-    const segments = cleanPath.split('/').filter(Boolean)
+    const segments = cleanPath.split("/").filter(Boolean);
 
     // Remove locale from path if present
-    const firstSegment = segments[0]
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
 
     if (segments.length === 0) {
-      return 'index'
+      return "index";
     }
 
-    return segments.join('-')
-  }
+    return segments.join("-");
+  };
 
   /**
    * Get locale from path
@@ -519,17 +543,17 @@ export function createAstroRouterAdapter(
    */
   const getLocaleFromPath = (
     path: string,
-    defaultLocale: string = 'en',
+    defaultLocale: string = "en",
     locales: string[] = [],
   ): string => {
-    const segments = path.split('/').filter(Boolean)
-    const firstSegment = segments[0]
+    const segments = path.split("/").filter(Boolean);
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      return firstSegment
+      return firstSegment;
     }
 
-    return defaultLocale
-  }
+    return defaultLocale;
+  };
 
   /**
    * Switch locale in path
@@ -541,21 +565,21 @@ export function createAstroRouterAdapter(
     locales: string[] = [],
     defaultLocale?: string,
   ): string => {
-    const segments = path.split('/').filter(Boolean)
+    const segments = path.split("/").filter(Boolean);
 
     // Remove existing locale if present
-    const firstSegment = segments[0]
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
 
     // Add new locale if not default or if default should be included
     if (newLocale !== defaultLocale || defaultLocale === undefined) {
-      segments.unshift(newLocale)
+      segments.unshift(newLocale);
     }
 
-    return `/${segments.join('/')}`
-  }
+    return `/${segments.join("/")}`;
+  };
 
   /**
    * Localize path with locale prefix
@@ -566,54 +590,57 @@ export function createAstroRouterAdapter(
     locales: string[] = [],
     defaultLocale?: string,
   ): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '') || ''
-    const segments = cleanPath.split('/').filter(Boolean)
+    const cleanPath = path.replace(/^\//, "").replace(/\/$/, "") || "";
+    const segments = cleanPath.split("/").filter(Boolean);
 
     // Remove existing locale if present
-    const firstSegment = segments[0]
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
 
     // Add locale if not default or if default should be included
     if (locale !== defaultLocale || defaultLocale === undefined) {
-      segments.unshift(locale)
+      segments.unshift(locale);
     }
 
-    return `/${segments.join('/')}`
-  }
+    return `/${segments.join("/")}`;
+  };
 
   /**
    * Remove locale from path
    */
   const removeLocaleFromPath = (path: string, locales: string[] = []): string => {
-    const segments = path.split('/').filter(Boolean)
-    const firstSegment = segments[0]
+    const segments = path.split("/").filter(Boolean);
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
-    return `/${segments.join('/')}`
-  }
+    return `/${segments.join("/")}`;
+  };
 
   /**
    * Resolve path for specific locale
    */
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
-    return localizePath(path, locale, localeCodes, defaultLocale)
-  }
+  const resolvePath = (
+    to: string | { path?: string },
+    locale: string,
+  ): string | { path?: string } => {
+    const path = typeof to === "string" ? to : to.path || "/";
+    return localizePath(path, locale, localeCodes, defaultLocale);
+  };
 
   return {
     getCurrentPath: () => {
       // Use provided URL getter (from Astro.url or context.url)
       if (getCurrentUrl) {
-        return getCurrentUrl().pathname
+        return getCurrentUrl().pathname;
       }
       // Fallback for client-side islands
-      if (typeof window !== 'undefined') {
-        return window.location.pathname
+      if (typeof window !== "undefined") {
+        return window.location.pathname;
       }
-      return '/'
+      return "/";
     },
     getRouteName,
     getLocaleFromPath,
@@ -624,37 +651,37 @@ export function createAstroRouterAdapter(
     getRoute: () => {
       // Use provided URL getter (from Astro.url or context.url)
       if (getCurrentUrl) {
-        const url = getCurrentUrl()
+        const url = getCurrentUrl();
         return {
           fullPath: url.pathname + url.search,
           query: Object.fromEntries(url.searchParams),
-        }
+        };
       }
       // Fallback for client-side islands
-      if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href)
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
         return {
           fullPath: url.pathname + url.search,
           query: Object.fromEntries(url.searchParams),
-        }
+        };
       }
       return {
-        fullPath: '/',
+        fullPath: "/",
         query: {},
-      }
+      };
     },
     // Optional: client-side navigation for islands
     push: (target: { path: string }) => {
-      if (typeof window !== 'undefined') {
-        window.location.assign(target.path)
+      if (typeof window !== "undefined") {
+        window.location.assign(target.path);
       }
     },
     replace: (target: { path: string }) => {
-      if (typeof window !== 'undefined') {
-        window.location.replace(target.path)
+      if (typeof window !== "undefined") {
+        window.location.replace(target.path);
       }
     },
-  }
+  };
 }
 ```
 
@@ -673,18 +700,18 @@ A router adapter is an implementation of the `I18nRoutingStrategy` interface tha
 
 The `I18nRoutingStrategy` interface defines the following methods:
 
-| Method | Required | Description |
-|--------|----------|-------------|
-| `getCurrentPath()` | ✅ | Returns the current path (used for active link detection) |
-| `getRouteName(path, locales)` | ❌ | Extracts route name from path (e.g., `/en/about` → `about`) |
-| `getLocaleFromPath(path, defaultLocale, locales)` | ❌ | Detects locale from path |
-| `switchLocalePath(path, newLocale, locales, defaultLocale)` | ❌ | Switches locale in path |
-| `localizePath(path, locale, locales, defaultLocale)` | ❌ | Adds locale prefix to path |
-| `removeLocaleFromPath(path, locales)` | ❌ | Removes locale from path |
-| `resolvePath(to, locale)` | ❌ | Resolves path for specific locale |
-| `getRoute()` | ❌ | Returns current route object with query params |
-| `push(target)` | ❌ | Client-side navigation (for islands) |
-| `replace(target)` | ❌ | Client-side navigation replacement (for islands) |
+| Method                                                      | Required | Description                                                 |
+| ----------------------------------------------------------- | -------- | ----------------------------------------------------------- |
+| `getCurrentPath()`                                          | ✅       | Returns the current path (used for active link detection)   |
+| `getRouteName(path, locales)`                               | ❌       | Extracts route name from path (e.g., `/en/about` → `about`) |
+| `getLocaleFromPath(path, defaultLocale, locales)`           | ❌       | Detects locale from path                                    |
+| `switchLocalePath(path, newLocale, locales, defaultLocale)` | ❌       | Switches locale in path                                     |
+| `localizePath(path, locale, locales, defaultLocale)`        | ❌       | Adds locale prefix to path                                  |
+| `removeLocaleFromPath(path, locales)`                       | ❌       | Removes locale from path                                    |
+| `resolvePath(to, locale)`                                   | ❌       | Resolves path for specific locale                           |
+| `getRoute()`                                                | ❌       | Returns current route object with query params              |
+| `push(target)`                                              | ❌       | Client-side navigation (for islands)                        |
+| `replace(target)`                                           | ❌       | Client-side navigation replacement (for islands)            |
 
 ### Step-by-Step Guide
 
@@ -703,6 +730,7 @@ At minimum, you must implement `getCurrentPath()`. All other methods are optiona
 #### Step 3: Handle Edge Cases
 
 Consider:
+
 - Empty paths (`/`)
 - Root locale (default locale - should it be in URL?)
 - Invalid locales
@@ -714,63 +742,58 @@ This example shows how to implement locale routing using subdomains (e.g., `en.e
 
 ```typescript
 // src/router-adapter-subdomain.ts
-import type { I18nRoutingStrategy } from '@i18n-micro/astro'
-import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from "@i18n-micro/astro";
+import type { Locale } from "@i18n-micro/types";
 
 export function createSubdomainRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
   getCurrentUrl?: () => URL,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
-  const domain = 'example.com' // Your domain
+  const localeCodes = locales.map((loc) => loc.code);
+  const domain = "example.com"; // Your domain
 
   /**
    * Get current path without locale subdomain
    */
   const getCurrentPath = (): string => {
     if (getCurrentUrl) {
-      return getCurrentUrl().pathname
+      return getCurrentUrl().pathname;
     }
-    if (typeof window !== 'undefined') {
-      return window.location.pathname
+    if (typeof window !== "undefined") {
+      return window.location.pathname;
     }
-    return '/'
-  }
+    return "/";
+  };
 
   /**
    * Get locale from subdomain
    */
-  const getLocaleFromPath = (
-    path: string,
-    defaultLocale: string,
-    locales: string[],
-  ): string => {
-    let hostname = ''
+  const getLocaleFromPath = (path: string, defaultLocale: string, locales: string[]): string => {
+    let hostname = "";
     if (getCurrentUrl) {
-      hostname = getCurrentUrl().hostname
-    }
-    else if (typeof window !== 'undefined') {
-      hostname = window.location.hostname
+      hostname = getCurrentUrl().hostname;
+    } else if (typeof window !== "undefined") {
+      hostname = window.location.hostname;
     }
 
     // Extract subdomain (e.g., 'en' from 'en.example.com')
-    const subdomain = hostname.split('.')[0]
+    const subdomain = hostname.split(".")[0];
     if (subdomain && locales.includes(subdomain)) {
-      return subdomain
+      return subdomain;
     }
 
-    return defaultLocale
-  }
+    return defaultLocale;
+  };
 
   /**
    * Get route name from path (no locale in path for subdomain routing)
    */
   const getRouteName = (path: string, locales: string[] = []): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
-    if (!cleanPath) return 'index'
-    return cleanPath.split('/').filter(Boolean).join('-')
-  }
+    const cleanPath = path.replace(/^\//, "").replace(/\/$/, "");
+    if (!cleanPath) return "index";
+    return cleanPath.split("/").filter(Boolean).join("-");
+  };
 
   /**
    * Switch locale by changing subdomain
@@ -784,8 +807,8 @@ export function createSubdomainRouterAdapter(
     // For subdomain routing, we need to change the hostname
     // This is typically handled by your hosting/CDN configuration
     // Here we return the path as-is, subdomain switching happens at infrastructure level
-    return path
-  }
+    return path;
+  };
 
   /**
    * Localize path with subdomain (returns full URL)
@@ -796,25 +819,28 @@ export function createSubdomainRouterAdapter(
     locales: string[] = [],
     defaultLocale?: string,
   ): string => {
-    const protocol = typeof window !== 'undefined' ? window.location.protocol : 'https:'
-    const subdomain = locale !== defaultLocale ? `${locale}.` : ''
-    return `${protocol}//${subdomain}${domain}${path}`
-  }
+    const protocol = typeof window !== "undefined" ? window.location.protocol : "https:";
+    const subdomain = locale !== defaultLocale ? `${locale}.` : "";
+    return `${protocol}//${subdomain}${domain}${path}`;
+  };
 
   /**
    * Remove locale from path (no-op for subdomain routing)
    */
   const removeLocaleFromPath = (path: string, locales: string[] = []): string => {
-    return path
-  }
+    return path;
+  };
 
   /**
    * Resolve path for specific locale
    */
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
-    return localizePath(path, locale, localeCodes, defaultLocale)
-  }
+  const resolvePath = (
+    to: string | { path?: string },
+    locale: string,
+  ): string | { path?: string } => {
+    const path = typeof to === "string" ? to : to.path || "/";
+    return localizePath(path, locale, localeCodes, defaultLocale);
+  };
 
   return {
     getCurrentPath,
@@ -825,13 +851,17 @@ export function createSubdomainRouterAdapter(
     removeLocaleFromPath,
     resolvePath,
     getRoute: () => {
-      const url = getCurrentUrl ? getCurrentUrl() : (typeof window !== 'undefined' ? new URL(window.location.href) : new URL('http://localhost/'))
+      const url = getCurrentUrl
+        ? getCurrentUrl()
+        : typeof window !== "undefined"
+          ? new URL(window.location.href)
+          : new URL("http://localhost/");
       return {
         fullPath: url.pathname + url.search,
         query: Object.fromEntries(url.searchParams),
-      }
+      };
     },
-  }
+  };
 }
 ```
 
@@ -839,25 +869,25 @@ export function createSubdomainRouterAdapter(
 
 ```typescript
 // astro.config.mjs
-import { i18nIntegration } from '@i18n-micro/astro'
-import { createSubdomainRouterAdapter } from './src/router-adapter-subdomain'
+import { i18nIntegration } from "@i18n-micro/astro";
+import { createSubdomainRouterAdapter } from "./src/router-adapter-subdomain";
 
 export default defineConfig({
   integrations: [
     i18nIntegration({
-      locale: 'en',
+      locale: "en",
       locales: [
-        { code: 'en', displayName: 'English', iso: 'en-US' },
-        { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
+        { code: "en", displayName: "English", iso: "en-US" },
+        { code: "fr", displayName: "Français", iso: "fr-FR" },
       ],
       routingStrategy: createSubdomainRouterAdapter(
         localesConfig,
-        'en',
+        "en",
         () => new URL(Astro.url.href), // In components
       ),
     }),
   ],
-})
+});
 ```
 
 ### Example 2: Query Parameter-Based Locale Routing
@@ -866,62 +896,56 @@ This example uses query parameters for locale (e.g., `/?locale=fr`):
 
 ```typescript
 // src/router-adapter-query.ts
-import type { I18nRoutingStrategy } from '@i18n-micro/astro'
-import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from "@i18n-micro/astro";
+import type { Locale } from "@i18n-micro/types";
 
 export function createQueryParamRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
   getCurrentUrl?: () => URL,
-  paramName: string = 'locale',
+  paramName: string = "locale",
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code);
 
   const getCurrentPath = (): string => {
     if (getCurrentUrl) {
-      return getCurrentUrl().pathname
+      return getCurrentUrl().pathname;
     }
-    if (typeof window !== 'undefined') {
-      return window.location.pathname
+    if (typeof window !== "undefined") {
+      return window.location.pathname;
     }
-    return '/'
-  }
+    return "/";
+  };
 
   /**
    * Get locale from query parameter
    */
-  const getLocaleFromPath = (
-    path: string,
-    defaultLocale: string,
-    locales: string[],
-  ): string => {
-    let searchParams: URLSearchParams
+  const getLocaleFromPath = (path: string, defaultLocale: string, locales: string[]): string => {
+    let searchParams: URLSearchParams;
     if (getCurrentUrl) {
-      searchParams = getCurrentUrl().searchParams
-    }
-    else if (typeof window !== 'undefined') {
-      searchParams = new URL(window.location.href).searchParams
-    }
-    else {
-      return defaultLocale
+      searchParams = getCurrentUrl().searchParams;
+    } else if (typeof window !== "undefined") {
+      searchParams = new URL(window.location.href).searchParams;
+    } else {
+      return defaultLocale;
     }
 
-    const locale = searchParams.get(paramName)
+    const locale = searchParams.get(paramName);
     if (locale && locales.includes(locale)) {
-      return locale
+      return locale;
     }
 
-    return defaultLocale
-  }
+    return defaultLocale;
+  };
 
   /**
    * Get route name from path
    */
   const getRouteName = (path: string, locales: string[] = []): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
-    if (!cleanPath) return 'index'
-    return cleanPath.split('/').filter(Boolean).join('-')
-  }
+    const cleanPath = path.replace(/^\//, "").replace(/\/$/, "");
+    if (!cleanPath) return "index";
+    return cleanPath.split("/").filter(Boolean).join("-");
+  };
 
   /**
    * Switch locale by adding/updating query parameter
@@ -932,15 +956,14 @@ export function createQueryParamRouterAdapter(
     locales: string[] = [],
     defaultLocale?: string,
   ): string => {
-    const url = new URL(path, 'http://localhost')
+    const url = new URL(path, "http://localhost");
     if (newLocale === defaultLocale) {
-      url.searchParams.delete(paramName)
+      url.searchParams.delete(paramName);
+    } else {
+      url.searchParams.set(paramName, newLocale);
     }
-    else {
-      url.searchParams.set(paramName, newLocale)
-    }
-    return url.pathname + url.search
-  }
+    return url.pathname + url.search;
+  };
 
   /**
    * Localize path with query parameter
@@ -951,29 +974,31 @@ export function createQueryParamRouterAdapter(
     locales: string[] = [],
     defaultLocale?: string,
   ): string => {
-    const url = new URL(path, 'http://localhost')
+    const url = new URL(path, "http://localhost");
     if (locale !== defaultLocale) {
-      url.searchParams.set(paramName, locale)
+      url.searchParams.set(paramName, locale);
+    } else {
+      url.searchParams.delete(paramName);
     }
-    else {
-      url.searchParams.delete(paramName)
-    }
-    return url.pathname + url.search
-  }
+    return url.pathname + url.search;
+  };
 
   /**
    * Remove locale from path (remove query parameter)
    */
   const removeLocaleFromPath = (path: string, locales: string[] = []): string => {
-    const url = new URL(path, 'http://localhost')
-    url.searchParams.delete(paramName)
-    return url.pathname + url.search
-  }
+    const url = new URL(path, "http://localhost");
+    url.searchParams.delete(paramName);
+    return url.pathname + url.search;
+  };
 
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
-    return localizePath(path, locale, localeCodes, defaultLocale)
-  }
+  const resolvePath = (
+    to: string | { path?: string },
+    locale: string,
+  ): string | { path?: string } => {
+    const path = typeof to === "string" ? to : to.path || "/";
+    return localizePath(path, locale, localeCodes, defaultLocale);
+  };
 
   return {
     getCurrentPath,
@@ -984,13 +1009,17 @@ export function createQueryParamRouterAdapter(
     removeLocaleFromPath,
     resolvePath,
     getRoute: () => {
-      const url = getCurrentUrl ? getCurrentUrl() : (typeof window !== 'undefined' ? new URL(window.location.href) : new URL('http://localhost/'))
+      const url = getCurrentUrl
+        ? getCurrentUrl()
+        : typeof window !== "undefined"
+          ? new URL(window.location.href)
+          : new URL("http://localhost/");
       return {
         fullPath: url.pathname + url.search,
         query: Object.fromEntries(url.searchParams),
-      }
+      };
     },
-  }
+  };
 }
 ```
 
@@ -1000,56 +1029,52 @@ This example uses locale suffixes (e.g., `/about.en`, `/about.fr`):
 
 ```typescript
 // src/router-adapter-suffix.ts
-import type { I18nRoutingStrategy } from '@i18n-micro/astro'
-import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from "@i18n-micro/astro";
+import type { Locale } from "@i18n-micro/types";
 
 export function createSuffixRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
   getCurrentUrl?: () => URL,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code);
 
   const getCurrentPath = (): string => {
     if (getCurrentUrl) {
-      return getCurrentUrl().pathname
+      return getCurrentUrl().pathname;
     }
-    if (typeof window !== 'undefined') {
-      return window.location.pathname
+    if (typeof window !== "undefined") {
+      return window.location.pathname;
     }
-    return '/'
-  }
+    return "/";
+  };
 
   /**
    * Extract locale from path suffix (e.g., /about.en -> en)
    */
-  const getLocaleFromPath = (
-    path: string,
-    defaultLocale: string,
-    locales: string[],
-  ): string => {
+  const getLocaleFromPath = (path: string, defaultLocale: string, locales: string[]): string => {
     // Match pattern: /path/to/page.locale
-    const match = path.match(/\.([^.]+)$/)
+    const match = path.match(/\.([^.]+)$/);
     if (match && locales.includes(match[1])) {
-      return match[1]
+      return match[1];
     }
-    return defaultLocale
-  }
+    return defaultLocale;
+  };
 
   /**
    * Get route name by removing locale suffix
    */
   const getRouteName = (path: string, locales: string[] = []): string => {
-    let cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
-    
+    let cleanPath = path.replace(/^\//, "").replace(/\/$/, "");
+
     // Remove locale suffix
     for (const locale of locales) {
-      cleanPath = cleanPath.replace(new RegExp(`\\.${locale}$`), '')
+      cleanPath = cleanPath.replace(new RegExp(`\\.${locale}$`), "");
     }
 
-    if (!cleanPath) return 'index'
-    return cleanPath.split('/').filter(Boolean).join('-')
-  }
+    if (!cleanPath) return "index";
+    return cleanPath.split("/").filter(Boolean).join("-");
+  };
 
   /**
    * Switch locale by replacing suffix
@@ -1061,18 +1086,18 @@ export function createSuffixRouterAdapter(
     defaultLocale?: string,
   ): string => {
     // Remove existing locale suffix
-    let cleanPath = path
+    let cleanPath = path;
     for (const locale of locales) {
-      cleanPath = cleanPath.replace(new RegExp(`\\.${locale}$`), '')
+      cleanPath = cleanPath.replace(new RegExp(`\\.${locale}$`), "");
     }
 
     // Add new locale suffix if not default
     if (newLocale !== defaultLocale) {
-      return `${cleanPath}.${newLocale}`
+      return `${cleanPath}.${newLocale}`;
     }
 
-    return cleanPath
-  }
+    return cleanPath;
+  };
 
   /**
    * Localize path with suffix
@@ -1084,34 +1109,37 @@ export function createSuffixRouterAdapter(
     defaultLocale?: string,
   ): string => {
     // Remove existing locale suffix
-    let cleanPath = path
+    let cleanPath = path;
     for (const localeCode of locales) {
-      cleanPath = cleanPath.replace(new RegExp(`\\.${localeCode}$`), '')
+      cleanPath = cleanPath.replace(new RegExp(`\\.${localeCode}$`), "");
     }
 
     // Add new locale suffix if not default
     if (locale !== defaultLocale) {
-      return `${cleanPath}.${locale}`
+      return `${cleanPath}.${locale}`;
     }
 
-    return cleanPath
-  }
+    return cleanPath;
+  };
 
   /**
    * Remove locale suffix from path
    */
   const removeLocaleFromPath = (path: string, locales: string[] = []): string => {
-    let cleanPath = path
+    let cleanPath = path;
     for (const locale of locales) {
-      cleanPath = cleanPath.replace(new RegExp(`\\.${locale}$`), '')
+      cleanPath = cleanPath.replace(new RegExp(`\\.${locale}$`), "");
     }
-    return cleanPath
-  }
+    return cleanPath;
+  };
 
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
-    return localizePath(path, locale, localeCodes, defaultLocale)
-  }
+  const resolvePath = (
+    to: string | { path?: string },
+    locale: string,
+  ): string | { path?: string } => {
+    const path = typeof to === "string" ? to : to.path || "/";
+    return localizePath(path, locale, localeCodes, defaultLocale);
+  };
 
   return {
     getCurrentPath,
@@ -1122,13 +1150,17 @@ export function createSuffixRouterAdapter(
     removeLocaleFromPath,
     resolvePath,
     getRoute: () => {
-      const url = getCurrentUrl ? getCurrentUrl() : (typeof window !== 'undefined' ? new URL(window.location.href) : new URL('http://localhost/'))
+      const url = getCurrentUrl
+        ? getCurrentUrl()
+        : typeof window !== "undefined"
+          ? new URL(window.location.href)
+          : new URL("http://localhost/");
       return {
         fullPath: url.pathname + url.search,
         query: Object.fromEntries(url.searchParams),
-      }
+      };
     },
-  }
+  };
 }
 ```
 
@@ -1138,16 +1170,16 @@ This example shows how to integrate with a custom routing library:
 
 ```typescript
 // src/router-adapter-custom.ts
-import type { I18nRoutingStrategy } from '@i18n-micro/astro'
-import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from "@i18n-micro/astro";
+import type { Locale } from "@i18n-micro/types";
 
 // Example: Custom router interface
 interface CustomRouter {
-  getCurrentRoute(): { path: string; name: string }
-  navigate(path: string): void
-  replace(path: string): void
-  getLocale(): string
-  setLocale(locale: string): void
+  getCurrentRoute(): { path: string; name: string };
+  navigate(path: string): void;
+  replace(path: string): void;
+  getLocale(): string;
+  setLocale(locale: string): void;
 }
 
 export function createCustomRouterAdapter(
@@ -1155,49 +1187,54 @@ export function createCustomRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code);
 
   return {
     getCurrentPath: () => {
-      return customRouter.getCurrentRoute().path
+      return customRouter.getCurrentRoute().path;
     },
     getRouteName: (path: string, locales: string[] = []) => {
       // Use custom router's route name
-      return customRouter.getCurrentRoute().name
+      return customRouter.getCurrentRoute().name;
     },
     getLocaleFromPath: (path: string, defaultLocale: string, locales: string[]) => {
       // Use custom router's locale detection
-      return customRouter.getLocale() || defaultLocale
+      return customRouter.getLocale() || defaultLocale;
     },
-    switchLocalePath: (path: string, newLocale: string, locales: string[], defaultLocale?: string) => {
+    switchLocalePath: (
+      path: string,
+      newLocale: string,
+      locales: string[],
+      defaultLocale?: string,
+    ) => {
       // Delegate to custom router
-      customRouter.setLocale(newLocale)
-      return customRouter.getCurrentRoute().path
+      customRouter.setLocale(newLocale);
+      return customRouter.getCurrentRoute().path;
     },
     localizePath: (path: string, locale: string, locales: string[], defaultLocale?: string) => {
       // Use custom router's localization
-      customRouter.setLocale(locale)
-      return customRouter.getCurrentRoute().path
+      customRouter.setLocale(locale);
+      return customRouter.getCurrentRoute().path;
     },
     resolvePath: (to: string | { path?: string }, locale: string) => {
-      const path = typeof to === 'string' ? to : (to.path || '/')
-      customRouter.setLocale(locale)
-      return path
+      const path = typeof to === "string" ? to : to.path || "/";
+      customRouter.setLocale(locale);
+      return path;
     },
     push: (target: { path: string }) => {
-      customRouter.navigate(target.path)
+      customRouter.navigate(target.path);
     },
     replace: (target: { path: string }) => {
-      customRouter.replace(target.path)
+      customRouter.replace(target.path);
     },
     getRoute: () => {
-      const route = customRouter.getCurrentRoute()
+      const route = customRouter.getCurrentRoute();
       return {
         fullPath: route.path,
         query: {}, // Extract from custom router if available
-      }
+      };
     },
-  }
+  };
 }
 ```
 
@@ -1208,21 +1245,26 @@ export function createCustomRouterAdapter(
 2. **Preserve query parameters and hash**: When switching locales, maintain query params and hash fragments:
 
 ```typescript
-const switchLocalePath = (path: string, newLocale: string, locales: string[], defaultLocale?: string): string => {
-  const url = new URL(path, 'http://localhost')
+const switchLocalePath = (
+  path: string,
+  newLocale: string,
+  locales: string[],
+  defaultLocale?: string,
+): string => {
+  const url = new URL(path, "http://localhost");
   // ... locale switching logic ...
-  return url.pathname + url.search + url.hash
-}
+  return url.pathname + url.search + url.hash;
+};
 ```
 
 3. **Handle edge cases**: Consider empty paths, root paths, and invalid locales:
 
 ```typescript
 const getRouteName = (path: string, locales: string[] = []): string => {
-  const cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
-  if (!cleanPath) return 'index' // Handle root path
+  const cleanPath = path.replace(/^\//, "").replace(/\/$/, "");
+  if (!cleanPath) return "index"; // Handle root path
   // ... rest of logic
-}
+};
 ```
 
 4. **Test with all locales**: Ensure your adapter works correctly with all configured locales, including edge cases like:
@@ -1235,13 +1277,13 @@ const getRouteName = (path: string, locales: string[] = []): string => {
 ```typescript
 const getCurrentPath = (): string => {
   if (getCurrentUrl) {
-    return getCurrentUrl().pathname // SSR
+    return getCurrentUrl().pathname; // SSR
   }
-  if (typeof window !== 'undefined') {
-    return window.location.pathname // Client-side
+  if (typeof window !== "undefined") {
+    return window.location.pathname; // Client-side
   }
-  return '/'
-}
+  return "/";
+};
 ```
 
 ### Testing Your Adapter
@@ -1250,33 +1292,33 @@ Create a test file to verify your adapter works correctly:
 
 ```typescript
 // src/router-adapter.test.ts
-import { describe, it, expect } from 'vitest'
-import { createCustomRouterAdapter } from './router-adapter-custom'
+import { describe, it, expect } from "vitest";
+import { createCustomRouterAdapter } from "./router-adapter-custom";
 
-describe('Custom Router Adapter', () => {
+describe("Custom Router Adapter", () => {
   const locales = [
-    { code: 'en', displayName: 'English', iso: 'en-US' },
-    { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-  ]
-  const defaultLocale = 'en'
+    { code: "en", displayName: "English", iso: "en-US" },
+    { code: "fr", displayName: "Français", iso: "fr-FR" },
+  ];
+  const defaultLocale = "en";
 
-  it('should extract route name correctly', () => {
-    const adapter = createCustomRouterAdapter(locales, defaultLocale)
-    expect(adapter.getRouteName?.('/en/about', ['en', 'fr'])).toBe('about')
-    expect(adapter.getRouteName?.('/', ['en', 'fr'])).toBe('index')
-  })
+  it("should extract route name correctly", () => {
+    const adapter = createCustomRouterAdapter(locales, defaultLocale);
+    expect(adapter.getRouteName?.("/en/about", ["en", "fr"])).toBe("about");
+    expect(adapter.getRouteName?.("/", ["en", "fr"])).toBe("index");
+  });
 
-  it('should detect locale from path', () => {
-    const adapter = createCustomRouterAdapter(locales, defaultLocale)
-    expect(adapter.getLocaleFromPath?.('/fr/about', 'en', ['en', 'fr'])).toBe('fr')
-    expect(adapter.getLocaleFromPath?.('/about', 'en', ['en', 'fr'])).toBe('en')
-  })
+  it("should detect locale from path", () => {
+    const adapter = createCustomRouterAdapter(locales, defaultLocale);
+    expect(adapter.getLocaleFromPath?.("/fr/about", "en", ["en", "fr"])).toBe("fr");
+    expect(adapter.getLocaleFromPath?.("/about", "en", ["en", "fr"])).toBe("en");
+  });
 
-  it('should switch locale correctly', () => {
-    const adapter = createCustomRouterAdapter(locales, defaultLocale)
-    expect(adapter.switchLocalePath?.('/en/about', 'fr', ['en', 'fr'], 'en')).toBe('/fr/about')
-  })
-})
+  it("should switch locale correctly", () => {
+    const adapter = createCustomRouterAdapter(locales, defaultLocale);
+    expect(adapter.switchLocalePath?.("/en/about", "fr", ["en", "fr"], "en")).toBe("/fr/about");
+  });
+});
 ```
 
 ### Common Patterns
@@ -1289,9 +1331,9 @@ If you only need basic functionality:
 export function createMinimalAdapter(): I18nRoutingStrategy {
   return {
     getCurrentPath: () => {
-      return typeof window !== 'undefined' ? window.location.pathname : '/'
+      return typeof window !== "undefined" ? window.location.pathname : "/";
     },
-  }
+  };
 }
 ```
 
@@ -1300,35 +1342,39 @@ export function createMinimalAdapter(): I18nRoutingStrategy {
 You can extend the built-in adapter and override specific methods:
 
 ```typescript
-import { createAstroRouterAdapter } from '@i18n-micro/astro'
+import { createAstroRouterAdapter } from "@i18n-micro/astro";
 
 export function createExtendedAdapter(locales: Locale[], defaultLocale: string) {
-  const baseAdapter = createAstroRouterAdapter(locales, defaultLocale)
-  
+  const baseAdapter = createAstroRouterAdapter(locales, defaultLocale);
+
   return {
     ...baseAdapter,
     // Override specific method
     getRouteName: (path: string, locales: string[] = []): string => {
       // Custom logic
-      const baseName = baseAdapter.getRouteName?.(path, locales) || 'index'
-      return `custom-${baseName}`
+      const baseName = baseAdapter.getRouteName?.(path, locales) || "index";
+      return `custom-${baseName}`;
     },
-  }
+  };
 }
 ```
 
 ### Troubleshooting
 
 **Problem**: Locale not detected correctly
+
 - **Solution**: Check that `getLocaleFromPath` correctly identifies locale segments in your URL structure
 
 **Problem**: Route name is incorrect
+
 - **Solution**: Verify `getRouteName` properly removes locale prefix/suffix and normalizes the path
 
 **Problem**: Links don't switch locale
+
 - **Solution**: Ensure `switchLocalePath` and `localizePath` correctly modify URLs for your routing strategy
 
 **Problem**: Client-side navigation doesn't work
+
 - **Solution**: Implement `push` and `replace` methods for client-side islands if needed
 
 ## Integration API
@@ -1339,52 +1385,52 @@ Creates and configures the Astro integration for i18n-micro.
 
 **Parameters:**
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `locale` | `string` | ✅ | - | Default locale code (e.g., `'en'`) |
-| `fallbackLocale` | `string` | ❌ | Same as `locale` | Fallback locale when translation is missing |
-| `locales` | `Locale[]` | ❌ | `[]` | Array of locale objects |
-| `messages` | `Record<string, Translations>` | ❌ | `{}` | Initial translation messages |
-| `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
-| `missingWarn` | `boolean` | ❌ | `false` | Show console warnings for missing translations |
-| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom handler for missing translations |
-| `localeCookie` | `string \| null` | ❌ | `'i18n-locale'` | Cookie name for storing locale. Set to `null` to disable cookie |
-| `autoDetect` | `boolean` | ❌ | `true` | Enable automatic locale detection |
-| `redirectToDefault` | `boolean` | ❌ | `false` | Redirect to default locale if not found |
-| `translationDir` | `string` | ❌ | `'src/locales'` | Directory path for translation files |
-| `disablePageLocales` | `boolean` | ❌ | `false` | If `true`, ignores `pages/` folder and treats all files as root-level translations |
-| `routingStrategy` | `I18nRoutingStrategy` | ❌ | - | Router adapter for routing features |
+| Property             | Type                                                       | Required | Default          | Description                                                                        |
+| -------------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------------------------------------------- |
+| `locale`             | `string`                                                   | ✅       | -                | Default locale code (e.g., `'en'`)                                                 |
+| `fallbackLocale`     | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing                                        |
+| `locales`            | `Locale[]`                                                 | ❌       | `[]`             | Array of locale objects                                                            |
+| `messages`           | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                                                       |
+| `plural`             | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                                                      |
+| `missingWarn`        | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations                                     |
+| `missingHandler`     | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations                                            |
+| `localeCookie`       | `string \| null`                                           | ❌       | `'i18n-locale'`  | Cookie name for storing locale. Set to `null` to disable cookie                    |
+| `autoDetect`         | `boolean`                                                  | ❌       | `true`           | Enable automatic locale detection                                                  |
+| `redirectToDefault`  | `boolean`                                                  | ❌       | `false`          | Redirect to default locale if not found                                            |
+| `translationDir`     | `string`                                                   | ❌       | `'src/locales'`  | Directory path for translation files                                               |
+| `disablePageLocales` | `boolean`                                                  | ❌       | `false`          | If `true`, ignores `pages/` folder and treats all files as root-level translations |
+| `routingStrategy`    | `I18nRoutingStrategy`                                      | ❌       | -                | Router adapter for routing features                                                |
 
 **Returns:** `AstroIntegration`
 
 **Example:**
 
 ```typescript
-import { defineConfig } from 'astro/config'
-import { i18nIntegration } from '@i18n-micro/astro'
-import { createAstroRouterAdapter } from '@i18n-micro/astro'
+import { defineConfig } from "astro/config";
+import { i18nIntegration } from "@i18n-micro/astro";
+import { createAstroRouterAdapter } from "@i18n-micro/astro";
 
 const localesConfig = [
-  { code: 'en', displayName: 'English', iso: 'en-US' },
-  { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-  { code: 'de', displayName: 'Deutsch', iso: 'de-DE' },
-]
+  { code: "en", displayName: "English", iso: "en-US" },
+  { code: "fr", displayName: "Français", iso: "fr-FR" },
+  { code: "de", displayName: "Deutsch", iso: "de-DE" },
+];
 
 export default defineConfig({
   integrations: [
     i18nIntegration({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       locales: localesConfig,
-      translationDir: 'src/locales',
-      routingStrategy: createAstroRouterAdapter(localesConfig, 'en'),
+      translationDir: "src/locales",
+      routingStrategy: createAstroRouterAdapter(localesConfig, "en"),
       missingWarn: true,
       missingHandler: (locale, key, routeName) => {
-        console.warn(`Missing translation: ${key} in ${locale} for route ${routeName}`)
+        console.warn(`Missing translation: ${key} in ${locale} for route ${routeName}`);
       },
     }),
   ],
-})
+});
 ```
 
 ### Loading Translations from Directory
@@ -1423,6 +1469,7 @@ src/locales/
 **⚠️ Important: Runtime Compatibility**
 
 The `loadTranslationsIntoI18n` function uses Node.js filesystem APIs (`node:fs`) and **will NOT work** in Edge runtime environments such as:
+
 - Cloudflare Workers
 - Vercel Edge Functions
 - Deno Deploy
@@ -1434,14 +1481,19 @@ For these environments, use `import.meta.glob` instead (see Edge Runtime example
 
 ```typescript
 // In middleware.ts (Node.js runtime only)
-import { createI18nMiddleware, createI18n, createAstroRouterAdapter, loadTranslationsIntoI18n } from '@i18n-micro/astro'
-import { config } from 'virtual:i18n-micro/config'
+import {
+  createI18nMiddleware,
+  createI18n,
+  createAstroRouterAdapter,
+  loadTranslationsIntoI18n,
+} from "@i18n-micro/astro";
+import { config } from "virtual:i18n-micro/config";
 
 const globalI18n = createI18n({
   locale: config.defaultLocale,
   fallbackLocale: config.fallbackLocale,
   messages: {}, // Translations will be loaded explicitly below
-})
+});
 
 // ⚠️ This only works in Node.js runtime!
 // loadTranslationsIntoI18n uses node:fs which is not available in Edge runtime
@@ -1449,10 +1501,10 @@ if (config.translationDir) {
   loadTranslationsIntoI18n(globalI18n, {
     translationDir: config.translationDir,
     rootDir: process.cwd(), // Or use explicit path: resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-  })
+  });
 }
 
-const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale)
+const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale);
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
@@ -1460,7 +1512,7 @@ export const onRequest = createI18nMiddleware({
   locales: config.localeCodes,
   localeObjects: config.locales,
   routingStrategy,
-})
+});
 ```
 
 **Note:** By default, files in the `pages/` folder are treated as route-specific translations. The utility automatically maps them to route names based on the directory structure.
@@ -1479,14 +1531,14 @@ new AstroI18n(options: AstroI18nOptions)
 
 **Options:**
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `locale` | `string` | ✅ | - | Current locale code |
-| `fallbackLocale` | `string` | ❌ | Same as `locale` | Fallback locale |
-| `messages` | `Record<string, Translations>` | ❌ | `{}` | Initial translation messages |
-| `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
-| `missingWarn` | `boolean` | ❌ | `false` | Show console warnings |
-| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom missing handler |
+| Property         | Type                                                       | Required | Default          | Description                   |
+| ---------------- | ---------------------------------------------------------- | -------- | ---------------- | ----------------------------- |
+| `locale`         | `string`                                                   | ✅       | -                | Current locale code           |
+| `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale               |
+| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages  |
+| `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function |
+| `missingWarn`    | `boolean`                                                  | ❌       | `false`          | Show console warnings         |
+| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom missing handler        |
 
 #### Properties
 
@@ -1502,19 +1554,21 @@ new AstroI18n(options: AstroI18nOptions)
 Translates a key with optional parameters and fallback value.
 
 ```typescript
-const i18n = new AstroI18n({ /* ... */ })
+const i18n = new AstroI18n({
+  /* ... */
+});
 
 // Basic translation
-i18n.t('welcome') // "Welcome"
+i18n.t("welcome"); // "Welcome"
 
 // With parameters
-i18n.t('greeting', { name: 'John' }) // "Hello, John!"
+i18n.t("greeting", { name: "John" }); // "Hello, John!"
 
 // With default value
-i18n.t('missing', {}, 'Default text') // "Default text"
+i18n.t("missing", {}, "Default text"); // "Default text"
 
 // Route-specific translation
-i18n.t('title', {}, null, 'home') // Uses 'home' route translations
+i18n.t("title", {}, null, "home"); // Uses 'home' route translations
 ```
 
 ##### `ts(key: string, params?: Params, defaultValue?: string, routeName?: string): string`
@@ -1527,12 +1581,12 @@ Pluralization-aware translation.
 
 ```typescript
 // With count number
-i18n.tc('apples', 0) // "no apples"
-i18n.tc('apples', 1) // "one apple"
-i18n.tc('apples', 5) // "5 apples"
+i18n.tc("apples", 0); // "no apples"
+i18n.tc("apples", 1); // "one apple"
+i18n.tc("apples", 5); // "5 apples"
 
 // With params object
-i18n.tc('items', { count: 3, type: 'books' })
+i18n.tc("items", { count: 3, type: "books" });
 ```
 
 ##### `tn(value: number, options?: Intl.NumberFormatOptions): string`
@@ -1540,8 +1594,8 @@ i18n.tc('items', { count: 3, type: 'books' })
 Formats a number according to the current locale.
 
 ```typescript
-i18n.tn(1234.56) // "1,234.56" (en) or "1 234,56" (fr)
-i18n.tn(1234.56, { style: 'currency', currency: 'USD' }) // "$1,234.56"
+i18n.tn(1234.56); // "1,234.56" (en) or "1 234,56" (fr)
+i18n.tn(1234.56, { style: "currency", currency: "USD" }); // "$1,234.56"
 ```
 
 ##### `td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string`
@@ -1549,8 +1603,8 @@ i18n.tn(1234.56, { style: 'currency', currency: 'USD' }) // "$1,234.56"
 Formats a date according to the current locale.
 
 ```typescript
-i18n.td(new Date()) // "12/31/2023" (en) or "31/12/2023" (fr)
-i18n.td(new Date(), { dateStyle: 'full' }) // "Sunday, December 31, 2023"
+i18n.td(new Date()); // "12/31/2023" (en) or "31/12/2023" (fr)
+i18n.td(new Date(), { dateStyle: "full" }); // "Sunday, December 31, 2023"
 ```
 
 ##### `tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string`
@@ -1558,10 +1612,10 @@ i18n.td(new Date(), { dateStyle: 'full' }) // "Sunday, December 31, 2023"
 Formats a relative time (e.g., "2 hours ago").
 
 ```typescript
-const yesterday = new Date()
-yesterday.setDate(yesterday.getDate() - 1)
-i18n.tdr(yesterday) // "yesterday"
-i18n.tdr(Date.now() - 3600000) // "1 hour ago"
+const yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+i18n.tdr(yesterday); // "yesterday"
+i18n.tdr(Date.now() - 3600000); // "1 hour ago"
 ```
 
 ##### `has(key: string, routeName?: string): boolean`
@@ -1569,8 +1623,8 @@ i18n.tdr(Date.now() - 3600000) // "1 hour ago"
 Checks if a translation key exists.
 
 ```typescript
-i18n.has('welcome') // true
-i18n.has('missing') // false
+i18n.has("welcome"); // true
+i18n.has("missing"); // false
 ```
 
 ##### `addTranslations(locale: string, translations: Translations, merge?: boolean): void`
@@ -1579,14 +1633,18 @@ Adds or merges translations for a locale.
 
 ```typescript
 // Add new translations
-i18n.addTranslations('en', {
-  newKey: 'New translation',
-})
+i18n.addTranslations("en", {
+  newKey: "New translation",
+});
 
 // Replace existing (merge = false)
-i18n.addTranslations('en', {
-  welcome: 'New Welcome',
-}, false)
+i18n.addTranslations(
+  "en",
+  {
+    welcome: "New Welcome",
+  },
+  false,
+);
 ```
 
 ##### `addRouteTranslations(locale: string, routeName: string, translations: Translations, merge?: boolean): void`
@@ -1594,10 +1652,10 @@ i18n.addTranslations('en', {
 Adds route-specific translations.
 
 ```typescript
-i18n.addRouteTranslations('en', 'home', {
-  title: 'Home Page',
-  description: 'Welcome to our home page',
-})
+i18n.addRouteTranslations("en", "home", {
+  title: "Home Page",
+  description: "Welcome to our home page",
+});
 ```
 
 ##### `mergeTranslations(locale: string, routeName: string, translations: Translations): void`
@@ -1621,7 +1679,7 @@ Gets the current route name.
 Creates a lightweight copy of the instance with a new locale, sharing the same cache. Useful for per-request instances in middleware.
 
 ```typescript
-const requestI18n = globalI18n.clone('fr')
+const requestI18n = globalI18n.clone("fr");
 ```
 
 ## Middleware
@@ -1632,49 +1690,49 @@ Creates Astro middleware for automatic locale detection and i18n instance setup.
 
 **Options:**
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `i18n` | `AstroI18n` | ✅ | Global i18n instance (shared cache) |
-| `defaultLocale` | `string` | ✅ | Default locale code |
-| `locales` | `string[]` | ✅ | Array of available locale codes |
-| `localeObjects` | `Locale[]` | ❌ | Array of locale objects with metadata |
-| `autoDetect` | `boolean` | ❌ | Enable automatic locale detection (default: `true`) |
-| `redirectToDefault` | `boolean` | ❌ | Redirect to default locale if not found (default: `false`) |
-| `routingStrategy` | `I18nRoutingStrategy` | ❌ | Router adapter for routing features |
+| Property            | Type                  | Required | Description                                                |
+| ------------------- | --------------------- | -------- | ---------------------------------------------------------- |
+| `i18n`              | `AstroI18n`           | ✅       | Global i18n instance (shared cache)                        |
+| `defaultLocale`     | `string`              | ✅       | Default locale code                                        |
+| `locales`           | `string[]`            | ✅       | Array of available locale codes                            |
+| `localeObjects`     | `Locale[]`            | ❌       | Array of locale objects with metadata                      |
+| `autoDetect`        | `boolean`             | ❌       | Enable automatic locale detection (default: `true`)        |
+| `redirectToDefault` | `boolean`             | ❌       | Redirect to default locale if not found (default: `false`) |
+| `routingStrategy`   | `I18nRoutingStrategy` | ❌       | Router adapter for routing features                        |
 
 **Returns:** `MiddlewareHandler`
 
 **Example:**
 
 ```typescript
-import { createI18nMiddleware, createI18n } from '@i18n-micro/astro'
-import { createAstroRouterAdapter } from './router-adapter'
+import { createI18nMiddleware, createI18n } from "@i18n-micro/astro";
+import { createAstroRouterAdapter } from "./router-adapter";
 
 const globalI18n = createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
+  locale: "en",
+  fallbackLocale: "en",
   messages: {
-    en: { welcome: 'Welcome' },
-    fr: { welcome: 'Bienvenue' },
+    en: { welcome: "Welcome" },
+    fr: { welcome: "Bienvenue" },
   },
-})
+});
 
 const localesConfig = [
-  { code: 'en', displayName: 'English', iso: 'en-US' },
-  { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-]
+  { code: "en", displayName: "English", iso: "en-US" },
+  { code: "fr", displayName: "Français", iso: "fr-FR" },
+];
 
-const routingStrategy = createAstroRouterAdapter(localesConfig, 'en')
+const routingStrategy = createAstroRouterAdapter(localesConfig, "en");
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
-  defaultLocale: 'en',
-  locales: ['en', 'fr'],
+  defaultLocale: "en",
+  locales: ["en", "fr"],
   localeObjects: localesConfig,
   routingStrategy,
   autoDetect: true,
   redirectToDefault: false,
-})
+});
 ```
 
 ### Locale Detection
@@ -1693,17 +1751,17 @@ If a `routingStrategy` is provided, it uses `getLocaleFromPath` for path-based d
 Utility function for custom locale detection logic. Set `localeCookie` to `null` to disable cookie-based detection.
 
 ```typescript
-import { detectLocale } from '@i18n-micro/astro'
+import { detectLocale } from "@i18n-micro/astro";
 
 const locale = detectLocale(
-  '/fr/about',
+  "/fr/about",
   cookies,
   headers,
-  'en',
-  ['en', 'fr', 'de'],
-  'i18n-locale', // or null to disable cookie
-  routingStrategy // Optional
-)
+  "en",
+  ["en", "fr", "de"],
+  "i18n-locale", // or null to disable cookie
+  routingStrategy, // Optional
+);
 ```
 
 ## Utils: `useI18n`
@@ -1720,7 +1778,7 @@ Provides helper functions for translations and routing in Astro components and p
   locale: string
   defaultLocale: string
   locales: Locale[]
-  
+
   // Translation methods
   t(key: string, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation
   ts(key: string, params?: Params, defaultValue?: string, routeName?: string): string
@@ -1729,24 +1787,24 @@ Provides helper functions for translations and routing in Astro components and p
   td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string
   tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string
   has(key: string, routeName?: string): boolean
-  
+
   // Route management
   getRoute(): string
   getRouteName(path?: string): string
   getLocaleFromPath(path?: string): string
-  
+
   // Path utilities (use routingStrategy if available, fallback otherwise)
   switchLocalePath(newLocale: string): string
   localizePath(path: string, targetLocale?: string): string
   removeLocaleFromPath(path: string): string
   getBasePath(url?: URL): string
-  
+
   // Translation management
   addTranslations(locale: string, translations: Record<string, unknown>, merge?: boolean): void
   addRouteTranslations(locale: string, routeName: string, translations: Record<string, unknown>, merge?: boolean): void
   mergeTranslations(locale: string, routeName: string, translations: Record<string, unknown>): void
   clearCache(): void
-  
+
   // Get i18n instance
   getI18n(): AstroI18n
 }
@@ -1778,9 +1836,9 @@ const { t, locale, switchLocalePath, getRouteName } = useI18n(Astro)
 Gets the i18n instance from Astro context.
 
 ```typescript
-import { getI18n } from '@i18n-micro/astro'
+import { getI18n } from "@i18n-micro/astro";
 
-const i18n = getI18n(Astro)
+const i18n = getI18n(Astro);
 ```
 
 #### `getLocale(astro: AstroGlobal): string`
@@ -1788,9 +1846,9 @@ const i18n = getI18n(Astro)
 Gets the current locale from Astro context.
 
 ```typescript
-import { getLocale } from '@i18n-micro/astro'
+import { getLocale } from "@i18n-micro/astro";
 
-const locale = getLocale(Astro)
+const locale = getLocale(Astro);
 ```
 
 #### `getDefaultLocale(astro: AstroGlobal): string`
@@ -1809,17 +1867,17 @@ Translation component with support for pluralization, formatting, and HTML rende
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `keypath` | `string` | ✅ | - | Translation key path |
-| `plural` | `number \| string` | ❌ | - | Count for pluralization |
-| `params` | `Params` | ❌ | `{}` | Parameters for interpolation |
-| `defaultValue` | `string` | ❌ | `''` | Default value if key not found |
-| `tag` | `string` | ❌ | `'span'` | HTML tag to wrap content |
-| `html` | `boolean` | ❌ | `false` | Render as HTML |
-| `number` | `number \| string` | ❌ | - | Number to format and interpolate |
-| `date` | `Date \| string \| number` | ❌ | - | Date to format and interpolate |
-| `relativeDate` | `Date \| string \| number` | ❌ | - | Relative date to format |
+| Prop           | Type                       | Required | Default  | Description                      |
+| -------------- | -------------------------- | -------- | -------- | -------------------------------- |
+| `keypath`      | `string`                   | ✅       | -        | Translation key path             |
+| `plural`       | `number \| string`         | ❌       | -        | Count for pluralization          |
+| `params`       | `Params`                   | ❌       | `{}`     | Parameters for interpolation     |
+| `defaultValue` | `string`                   | ❌       | `''`     | Default value if key not found   |
+| `tag`          | `string`                   | ❌       | `'span'` | HTML tag to wrap content         |
+| `html`         | `boolean`                  | ❌       | `false`  | Render as HTML                   |
+| `number`       | `number \| string`         | ❌       | -        | Number to format and interpolate |
+| `date`         | `Date \| string \| number` | ❌       | -        | Date to format and interpolate   |
+| `relativeDate` | `Date \| string \| number` | ❌       | -        | Relative date to format          |
 
 #### Examples
 
@@ -1893,11 +1951,11 @@ Localized link component that automatically handles locale prefixes using the ro
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `href` | `string` | ✅ | - | Link destination |
-| `locale` | `string` | ❌ | Current locale | Target locale for the link |
-| `class` | `string` | ❌ | - | CSS class |
+| Prop     | Type     | Required | Default        | Description                |
+| -------- | -------- | -------- | -------------- | -------------------------- |
+| `href`   | `string` | ✅       | -              | Link destination           |
+| `locale` | `string` | ❌       | Current locale | Target locale for the link |
+| `class`  | `string` | ❌       | -              | CSS class                  |
 
 #### Examples
 
@@ -1929,10 +1987,10 @@ Language switcher component that generates links for all available locales. Uses
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `class` | `string` | ❌ | - | CSS class for wrapper |
-| `activeClass` | `string` | ❌ | `'active'` | CSS class for active locale link |
+| Prop          | Type     | Required | Default    | Description                      |
+| ------------- | -------- | -------- | ---------- | -------------------------------- |
+| `class`       | `string` | ❌       | -          | CSS class for wrapper            |
+| `activeClass` | `string` | ❌       | `'active'` | CSS class for active locale link |
 
 #### Examples
 
@@ -1953,6 +2011,7 @@ import I18nSwitcher from '@i18n-micro/astro/i18n-switcher'
 ```
 
 The component automatically:
+
 - Filters out disabled locales
 - Highlights the current locale
 - Generates localized paths for each locale using the routing strategy
@@ -1964,10 +2023,10 @@ Component for grouping translations with a common prefix.
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `prefix` | `string` | ✅ | - | Translation key prefix |
-| `groupClass` | `string` | ❌ | `''` | CSS class for the wrapper div |
+| Prop         | Type     | Required | Default | Description                   |
+| ------------ | -------- | -------- | ------- | ----------------------------- |
+| `prefix`     | `string` | ✅       | -       | Translation key prefix        |
+| `groupClass` | `string` | ❌       | `''`    | CSS class for the wrapper div |
 
 #### Examples
 
@@ -1988,6 +2047,7 @@ Astro Islands allow you to use interactive components (Vue, React, Svelte) withi
 ### Overview
 
 Each island receives translations via props, ensuring:
+
 - **Locality**: Each island only receives the translations it needs
 - **Lightweight**: No global state, minimal bundle size
 - **Framework-specific**: Native APIs for each framework (Vue provide/inject, React Context, Svelte stores)
@@ -2010,11 +2070,11 @@ npm install @astrojs/svelte svelte
 Add integrations to `astro.config.mjs`:
 
 ```javascript
-import { defineConfig } from 'astro/config'
-import vue from '@astrojs/vue'
-import react from '@astrojs/react'
-import svelte from '@astrojs/svelte'
-import { i18nIntegration } from '@i18n-micro/astro'
+import { defineConfig } from "astro/config";
+import vue from "@astrojs/vue";
+import react from "@astrojs/react";
+import svelte from "@astrojs/svelte";
+import { i18nIntegration } from "@i18n-micro/astro";
 
 export default defineConfig({
   integrations: [
@@ -2022,16 +2082,16 @@ export default defineConfig({
     react(),
     svelte(),
     i18nIntegration({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       locales: [
-        { code: 'en', displayName: 'English', iso: 'en-US' },
-        { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
+        { code: "en", displayName: "English", iso: "en-US" },
+        { code: "fr", displayName: "Français", iso: "fr-FR" },
       ],
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
     }),
   ],
-})
+});
 ```
 
 ### Preparing Translations for Islands
@@ -2092,36 +2152,41 @@ For Vue components, use `provideI18n` and `useAstroI18n`:
 ```vue
 <!-- src/components/islands/VueCounter.vue -->
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { provideI18n } from '@i18n-micro/astro/client/vue'
-import { translate } from '@i18n-micro/astro/client'
-import { defaultPlural, FormatService } from '@i18n-micro/core'
-import type { I18nClientProps } from '@i18n-micro/astro'
-import type { Params, TranslationKey } from '@i18n-micro/types'
+import { ref, computed } from "vue";
+import { provideI18n } from "@i18n-micro/astro/client/vue";
+import { translate } from "@i18n-micro/astro/client";
+import { defaultPlural, FormatService } from "@i18n-micro/core";
+import type { I18nClientProps } from "@i18n-micro/astro";
+import type { Params, TranslationKey } from "@i18n-micro/types";
 
 const props = defineProps<{
-  i18n: I18nClientProps
-}>()
+  i18n: I18nClientProps;
+}>();
 
 // Initialize provider and get state directly
-const state = provideI18n(props.i18n)
-const formatter = new FormatService()
+const state = provideI18n(props.i18n);
+const formatter = new FormatService();
 
 // Use state directly instead of inject
-const t = (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => {
-  return translate(state.value, key as string, params, defaultValue, routeName)
-}
+const t = (
+  key: TranslationKey,
+  params?: Params,
+  defaultValue?: string | null,
+  routeName?: string,
+) => {
+  return translate(state.value, key as string, params, defaultValue, routeName);
+};
 
 const tc = (key: TranslationKey, count: number | Params, defaultValue?: string) => {
-  const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
+  const { count: countValue, ...params } = typeof count === "number" ? { count } : count;
 
   if (countValue === undefined) {
-    return defaultValue ?? (key as string)
+    return defaultValue ?? (key as string);
   }
 
   const getter = (k: TranslationKey, p?: Params, dv?: string) => {
-    return t(k, p, dv)
-  }
+    return t(k, p, dv);
+  };
 
   const result = defaultPlural(
     key,
@@ -2129,30 +2194,30 @@ const tc = (key: TranslationKey, count: number | Params, defaultValue?: string) 
     params,
     state.value.locale,
     getter,
-  )
+  );
 
-  return result ?? defaultValue ?? (key as string)
-}
+  return result ?? defaultValue ?? (key as string);
+};
 
 const tn = (value: number, options?: Intl.NumberFormatOptions): string => {
-  return formatter.formatNumber(value, state.value.locale, options)
-}
+  return formatter.formatNumber(value, state.value.locale, options);
+};
 
-const locale = computed(() => state.value.locale)
+const locale = computed(() => state.value.locale);
 
-const count = ref(0)
-const increment = () => count.value++
+const count = ref(0);
+const increment = () => count.value++;
 </script>
 
 <template>
   <div class="island-card vue-card">
-    <h3>{{ t('islands.vue.title') }}</h3>
-    <p>{{ t('islands.vue.description') }}</p>
+    <h3>{{ t("islands.vue.title") }}</h3>
+    <p>{{ t("islands.vue.description") }}</p>
     <div class="counter">
       <button @click="increment">+</button>
       <span>{{ count }}</span>
-      <p>{{ tc('islands.apples', count) }}</p>
-      <p>{{ t('islands.number', { number: tn(count) }) }}</p>
+      <p>{{ tc("islands.apples", count) }}</p>
+      <p>{{ t("islands.number", { number: tn(count) }) }}</p>
     </div>
     <p class="locale-info">Locale: {{ locale }}</p>
   </div>
@@ -2165,32 +2230,32 @@ For React components, use `I18nProvider` and `useAstroI18n`:
 
 ```tsx
 // src/components/islands/ReactCard.tsx
-import React, { useState } from 'react'
-import { I18nProvider, useAstroI18n } from '@i18n-micro/astro/client/react'
-import type { I18nClientProps } from '@i18n-micro/astro'
-import './ReactCard.css'
+import React, { useState } from "react";
+import { I18nProvider, useAstroI18n } from "@i18n-micro/astro/client/react";
+import type { I18nClientProps } from "@i18n-micro/astro";
+import "./ReactCard.css";
 
 interface ReactCardProps {
-  i18n: I18nClientProps
+  i18n: I18nClientProps;
 }
 
 function CardContent() {
-  const { t, locale, tn, tc } = useAstroI18n()
-  const [count, setCount] = useState(0)
+  const { t, locale, tn, tc } = useAstroI18n();
+  const [count, setCount] = useState(0);
 
   return (
     <div className="island-card react-card">
-      <h3>{t('islands.react.title')}</h3>
-      <p>{t('islands.react.description')}</p>
+      <h3>{t("islands.react.title")}</h3>
+      <p>{t("islands.react.description")}</p>
       <div className="counter">
         <button onClick={() => setCount(count + 1)}>+</button>
         <span>{count}</span>
-        <p>{tc('islands.apples', count)}</p>
-        <p>{t('islands.number', { number: tn(count) })}</p>
+        <p>{tc("islands.apples", count)}</p>
+        <p>{t("islands.number", { number: tn(count) })}</p>
       </div>
       <p className="locale-info">Locale: {locale}</p>
     </div>
-  )
+  );
 }
 
 export default function ReactCard({ i18n }: ReactCardProps) {
@@ -2198,7 +2263,7 @@ export default function ReactCard({ i18n }: ReactCardProps) {
     <I18nProvider value={i18n}>
       <CardContent />
     </I18nProvider>
-  )
+  );
 }
 ```
 
@@ -2242,10 +2307,12 @@ For Svelte components, use `createI18nStore` and `useAstroI18n`:
 Prepares translation props for islands. **Important:** Always pass specific keys to minimize bundle size.
 
 **Parameters:**
+
 - `astro`: Astro global object
 - `keys`: **Recommended** - Array of translation keys to include (e.g., `['islands.vue.title', 'islands.apples']`). If omitted, all route-specific translations are included, which may increase bundle size.
 
 **Returns:** `I18nClientProps` object with:
+
 - `locale`: Current locale
 - `fallbackLocale`: Fallback locale
 - `currentRoute`: Current route name
@@ -2255,14 +2322,11 @@ Prepares translation props for islands. **Important:** Always pass specific keys
 
 ```typescript
 // ✅ Recommended: Include only specific keys your islands need
-const i18nProps = getI18nProps(Astro, [
-  'islands.vue.title',
-  'islands.apples',
-])
+const i18nProps = getI18nProps(Astro, ["islands.vue.title", "islands.apples"]);
 
 // ⚠️ Use with caution: Includes all route-specific translations
 // This may increase bundle size if you have many translations
-const i18nProps = getI18nProps(Astro)
+const i18nProps = getI18nProps(Astro);
 ```
 
 **Best Practice:** Always specify the keys your islands actually use to keep bundle size minimal.
@@ -2378,11 +2442,11 @@ Generates SEO meta tags for locale-specific pages. Uses the routing strategy fro
 
 **Options:**
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `baseUrl` | `string` | ❌ | `'/'` | Base URL for canonical/hreflang links |
-| `addDirAttribute` | `boolean` | ❌ | `true` | Add `dir` attribute to HTML |
-| `addSeoAttributes` | `boolean` | ❌ | `true` | Generate SEO meta tags |
+| Property           | Type      | Required | Default | Description                           |
+| ------------------ | --------- | -------- | ------- | ------------------------------------- |
+| `baseUrl`          | `string`  | ❌       | `'/'`   | Base URL for canonical/hreflang links |
+| `addDirAttribute`  | `boolean` | ❌       | `true`  | Add `dir` attribute to HTML           |
+| `addSeoAttributes` | `boolean` | ❌       | `true`  | Generate SEO meta tags                |
 
 **Returns:**
 
@@ -2453,46 +2517,46 @@ This package supports DevTools integration via the `@i18n-micro/devtools-ui` Vit
 You can create custom router adapters for specific routing needs:
 
 ```typescript
-import type { I18nRoutingStrategy } from '@i18n-micro/astro'
-import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from "@i18n-micro/astro";
+import type { Locale } from "@i18n-micro/types";
 
 export function createCustomRouterAdapter(
   customConfig: CustomConfig,
   locales: Locale[],
   defaultLocale: string,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code);
 
   return {
     getCurrentPath: () => {
       // Custom path extraction logic
-      return customConfig.getCurrentPath()
+      return customConfig.getCurrentPath();
     },
     getRouteName: (path, locales) => {
       // Custom route name extraction
-      return customConfig.extractRouteName(path)
+      return customConfig.extractRouteName(path);
     },
     getLocaleFromPath: (path, defaultLocale, locales) => {
       // Custom locale detection
-      return customConfig.detectLocale(path) || defaultLocale
+      return customConfig.detectLocale(path) || defaultLocale;
     },
     switchLocalePath: (path, newLocale, locales, defaultLocale) => {
       // Custom locale switching logic
-      return customConfig.switchLocale(path, newLocale)
+      return customConfig.switchLocale(path, newLocale);
     },
     localizePath: (path, locale, locales, defaultLocale) => {
       // Custom path localization
-      return customConfig.localize(path, locale)
+      return customConfig.localize(path, locale);
     },
     removeLocaleFromPath: (path, locales) => {
       // Custom locale removal
-      return customConfig.removeLocale(path)
+      return customConfig.removeLocale(path);
     },
     resolvePath: (to, locale) => {
-      const path = typeof to === 'string' ? to : (to.path || '/')
-      return customConfig.localize(path, locale)
+      const path = typeof to === "string" ? to : to.path || "/";
+      return customConfig.localize(path, locale);
     },
-  }
+  };
 }
 ```
 
@@ -2502,22 +2566,22 @@ You can define translations specific to routes:
 
 ```typescript
 // Add route-specific translations
-i18n.addRouteTranslations('en', 'home', {
-  title: 'Home Page',
-  description: 'Welcome to our home page',
-})
+i18n.addRouteTranslations("en", "home", {
+  title: "Home Page",
+  description: "Welcome to our home page",
+});
 
-i18n.addRouteTranslations('en', 'about', {
-  title: 'About Us',
-  description: 'Learn more about us',
-})
+i18n.addRouteTranslations("en", "about", {
+  title: "About Us",
+  description: "Learn more about us",
+});
 
 // Set current route
-i18n.setRoute('home')
+i18n.setRoute("home");
 
 // Use route-specific translation
-i18n.t('title') // "Home Page"
-i18n.t('title', {}, null, 'about') // "About Us"
+i18n.t("title"); // "Home Page"
+i18n.t("title", {}, null, "about"); // "About Us"
 ```
 
 ### Dynamic Translation Loading
@@ -2526,20 +2590,17 @@ Load translations dynamically:
 
 ```typescript
 async function loadLocaleTranslations(locale: string) {
-  const messages = await import(`./locales/${locale}.json`)
-  i18n.addTranslations(locale, messages.default, false)
+  const messages = await import(`./locales/${locale}.json`);
+  i18n.addTranslations(locale, messages.default, false);
 }
 
 // Load on demand
-await loadLocaleTranslations('fr')
+await loadLocaleTranslations("fr");
 
 // Preload in background
-Promise.all([
-  loadLocaleTranslations('de'),
-  loadLocaleTranslations('es'),
-]).catch(() => {
+Promise.all([loadLocaleTranslations("de"), loadLocaleTranslations("es")]).catch(() => {
   // Handle errors
-})
+});
 ```
 
 ### Custom Pluralization
@@ -2547,25 +2608,25 @@ Promise.all([
 Define custom pluralization rules:
 
 ```typescript
-import { createI18n, defaultPlural } from '@i18n-micro/astro'
+import { createI18n, defaultPlural } from "@i18n-micro/astro";
 
 const i18n = createI18n({
-  locale: 'en',
+  locale: "en",
   plural: (key, count, params, locale, getTranslation) => {
     // Custom logic for specific keys
-    if (key === 'special') {
-      return count === 0 ? 'none' : count === 1 ? 'one' : 'many'
+    if (key === "special") {
+      return count === 0 ? "none" : count === 1 ? "one" : "many";
     }
-    
+
     // Use default for others
-    return defaultPlural(key, count, params, locale, getTranslation)
+    return defaultPlural(key, count, params, locale, getTranslation);
   },
   messages: {
     en: {
-      special: 'none | one | many',
+      special: "none | one | many",
     },
   },
-})
+});
 ```
 
 ### Missing Translation Handler
@@ -2574,17 +2635,17 @@ Handle missing translations with custom logic:
 
 ```typescript
 const i18n = createI18n({
-  locale: 'en',
+  locale: "en",
   missingHandler: (locale, key, routeName) => {
     // Send to error tracking service
-    console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`)
-    
+    console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`);
+
     // Or send to Sentry
     // Sentry.captureMessage(`Missing translation: ${key}`, {
     //   extra: { locale, routeName }
     // })
   },
-})
+});
 ```
 
 ### Translation Caching
@@ -2592,10 +2653,10 @@ const i18n = createI18n({
 The package uses an intelligent caching system:
 
 ```typescript
-const { clearCache } = useI18n(Astro)
+const { clearCache } = useI18n(Astro);
 
 // Clear cache when needed
-clearCache()
+clearCache();
 ```
 
 The `clone()` method allows creating per-request instances that share the same cache, improving performance in SSR scenarios.
@@ -2612,22 +2673,25 @@ The integration automatically injects types for `App.Locals` via Astro's `inject
 
 ```typescript
 // src/middleware.ts
-import type { MiddlewareHandler } from 'astro'
+import type { MiddlewareHandler } from "astro";
 
 export const onRequest: MiddlewareHandler = (context, next) => {
   // Types are automatically available
-  const { i18n, locale, defaultLocale, locales, routingStrategy } = context.locals
-  
+  const { i18n, locale, defaultLocale, locales, routingStrategy } = context.locals;
+
   // Use i18n instance
-  const translation = i18n.t('welcome')
-  
+  const translation = i18n.t("welcome");
+
   // Use routing strategy if available
   if (routingStrategy) {
-    const routeName = routingStrategy.getRouteName?.(context.url.pathname, locales.map(l => l.code))
+    const routeName = routingStrategy.getRouteName?.(
+      context.url.pathname,
+      locales.map((l) => l.code),
+    );
   }
-  
-  return next()
-}
+
+  return next();
+};
 ```
 
 ```astro
@@ -2668,7 +2732,7 @@ import type {
   CleanTranslation,
   Locale,
   LocaleCode,
-} from '@i18n-micro/astro'
+} from "@i18n-micro/astro";
 ```
 
 ### Type-Safe Translations
@@ -2676,14 +2740,11 @@ import type {
 You can create type-safe translation keys:
 
 ```typescript
-type TranslationKeys = 
-  | 'welcome'
-  | 'greeting'
-  | 'apples'
+type TranslationKeys = "welcome" | "greeting" | "apples";
 
 function t(key: TranslationKeys, params?: Params): string {
-  const { t } = useI18n(Astro)
-  return t(key, params) as string
+  const { t } = useI18n(Astro);
+  return t(key, params) as string;
 }
 ```
 
@@ -2693,22 +2754,22 @@ Extend types for your use case:
 
 ```typescript
 interface MyTranslations extends Translations {
-  welcome: string
+  welcome: string;
   greeting: {
-    morning: string
-    evening: string
-  }
+    morning: string;
+    evening: string;
+  };
 }
 
 const messages: Record<string, MyTranslations> = {
   en: {
-    welcome: 'Welcome',
+    welcome: "Welcome",
     greeting: {
-      morning: 'Good morning',
-      evening: 'Good evening',
+      morning: "Good morning",
+      evening: "Good evening",
     },
   },
-}
+};
 ```
 
 ## Complete Examples
@@ -2718,17 +2779,17 @@ const messages: Record<string, MyTranslations> = {
 **`astro.config.mjs`:**
 
 ```javascript
-import { defineConfig } from 'astro/config'
-import { i18nIntegration } from '@i18n-micro/astro'
-import { createAstroRouterAdapter } from '@i18n-micro/astro'
+import { defineConfig } from "astro/config";
+import { i18nIntegration } from "@i18n-micro/astro";
+import { createAstroRouterAdapter } from "@i18n-micro/astro";
 
 const localesConfig = [
-  { code: 'en', displayName: 'English', iso: 'en-US' },
-  { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-  { code: 'de', displayName: 'Deutsch', iso: 'de-DE' },
-]
+  { code: "en", displayName: "English", iso: "en-US" },
+  { code: "fr", displayName: "Français", iso: "fr-FR" },
+  { code: "de", displayName: "Deutsch", iso: "de-DE" },
+];
 
-const defaultLocale = 'en'
+const defaultLocale = "en";
 
 export default defineConfig({
   integrations: [
@@ -2736,12 +2797,12 @@ export default defineConfig({
       locale: defaultLocale,
       fallbackLocale: defaultLocale,
       locales: localesConfig,
-      translationDir: 'src/locales',
+      translationDir: "src/locales",
       routingStrategy: createAstroRouterAdapter(localesConfig, defaultLocale),
       missingWarn: true,
     }),
   ],
-})
+});
 ```
 
 **`src/middleware.ts` (with translation loading):**
@@ -2749,15 +2810,20 @@ export default defineConfig({
 If you're using `translationDir` in the integration, you need to explicitly load translations:
 
 ```typescript
-import { createI18nMiddleware, createI18n, createAstroRouterAdapter, loadTranslationsIntoI18n } from '@i18n-micro/astro'
-import { config } from 'virtual:i18n-micro/config'
+import {
+  createI18nMiddleware,
+  createI18n,
+  createAstroRouterAdapter,
+  loadTranslationsIntoI18n,
+} from "@i18n-micro/astro";
+import { config } from "virtual:i18n-micro/config";
 
 // Use config from virtual module to avoid duplication
 const globalI18n = createI18n({
   locale: config.defaultLocale,
   fallbackLocale: config.fallbackLocale,
   messages: {}, // Translations will be loaded explicitly below
-})
+});
 
 // ⚠️ IMPORTANT: loadTranslationsIntoI18n only works in Node.js runtime
 // For Edge runtime, use import.meta.glob (see Setup Middleware section)
@@ -2765,10 +2831,10 @@ if (config.translationDir) {
   loadTranslationsIntoI18n(globalI18n, {
     translationDir: config.translationDir,
     rootDir: process.cwd(), // Or use explicit path: resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-  })
+  });
 }
 
-const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale)
+const routingStrategy = createAstroRouterAdapter(config.locales, config.defaultLocale);
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
@@ -2776,83 +2842,100 @@ export const onRequest = createI18nMiddleware({
   locales: config.localeCodes,
   localeObjects: config.locales,
   routingStrategy,
-})
+});
 ```
 
 **Alternative: Manual Router Adapter (if you need custom logic):**
 
 ```typescript
-import type { I18nRoutingStrategy } from '@i18n-micro/astro'
-import type { Locale } from '@i18n-micro/types'
+import type { I18nRoutingStrategy } from "@i18n-micro/astro";
+import type { Locale } from "@i18n-micro/types";
 
 export function createAstroRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code);
 
   const getRouteName = (path: string, locales: string[] = []): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '')
-    if (!cleanPath) return 'index'
-    const segments = cleanPath.split('/').filter(Boolean)
-    const firstSegment = segments[0]
+    const cleanPath = path.replace(/^\//, "").replace(/\/$/, "");
+    if (!cleanPath) return "index";
+    const segments = cleanPath.split("/").filter(Boolean);
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
-    return segments.length === 0 ? 'index' : segments.join('-')
-  }
+    return segments.length === 0 ? "index" : segments.join("-");
+  };
 
-  const getLocaleFromPath = (path: string, defaultLocale: string = 'en', locales: string[] = []): string => {
-    const segments = path.split('/').filter(Boolean)
-    const firstSegment = segments[0]
-    return (firstSegment && locales.includes(firstSegment)) ? firstSegment : defaultLocale
-  }
+  const getLocaleFromPath = (
+    path: string,
+    defaultLocale: string = "en",
+    locales: string[] = [],
+  ): string => {
+    const segments = path.split("/").filter(Boolean);
+    const firstSegment = segments[0];
+    return firstSegment && locales.includes(firstSegment) ? firstSegment : defaultLocale;
+  };
 
-  const switchLocalePath = (path: string, newLocale: string, locales: string[] = [], defaultLocale?: string): string => {
-    const segments = path.split('/').filter(Boolean)
-    const firstSegment = segments[0]
+  const switchLocalePath = (
+    path: string,
+    newLocale: string,
+    locales: string[] = [],
+    defaultLocale?: string,
+  ): string => {
+    const segments = path.split("/").filter(Boolean);
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
     if (newLocale !== defaultLocale || defaultLocale === undefined) {
-      segments.unshift(newLocale)
+      segments.unshift(newLocale);
     }
-    return `/${segments.join('/')}`
-  }
+    return `/${segments.join("/")}`;
+  };
 
-  const localizePath = (path: string, locale: string, locales: string[] = [], defaultLocale?: string): string => {
-    const cleanPath = path.replace(/^\//, '').replace(/\/$/, '') || ''
-    const segments = cleanPath.split('/').filter(Boolean)
-    const firstSegment = segments[0]
+  const localizePath = (
+    path: string,
+    locale: string,
+    locales: string[] = [],
+    defaultLocale?: string,
+  ): string => {
+    const cleanPath = path.replace(/^\//, "").replace(/\/$/, "") || "";
+    const segments = cleanPath.split("/").filter(Boolean);
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
     if (locale !== defaultLocale || defaultLocale === undefined) {
-      segments.unshift(locale)
+      segments.unshift(locale);
     }
-    return `/${segments.join('/')}`
-  }
+    return `/${segments.join("/")}`;
+  };
 
   const removeLocaleFromPath = (path: string, locales: string[] = []): string => {
-    const segments = path.split('/').filter(Boolean)
-    const firstSegment = segments[0]
+    const segments = path.split("/").filter(Boolean);
+    const firstSegment = segments[0];
     if (firstSegment && locales.includes(firstSegment)) {
-      segments.shift()
+      segments.shift();
     }
-    return `/${segments.join('/')}`
-  }
+    return `/${segments.join("/")}`;
+  };
 
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
-    return localizePath(path, locale, localeCodes, defaultLocale)
-  }
+  const resolvePath = (
+    to: string | { path?: string },
+    locale: string,
+  ): string | { path?: string } => {
+    const path = typeof to === "string" ? to : to.path || "/";
+    return localizePath(path, locale, localeCodes, defaultLocale);
+  };
 
   return {
     getCurrentPath: () => {
-      if (typeof window !== 'undefined') {
-        return window.location.pathname
+      if (typeof window !== "undefined") {
+        return window.location.pathname;
       }
-      return '/'
+      return "/";
     },
     getRouteName,
     getLocaleFromPath,
@@ -2861,45 +2944,45 @@ export function createAstroRouterAdapter(
     removeLocaleFromPath,
     resolvePath,
     getRoute: () => {
-      if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href)
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
         return {
           fullPath: url.pathname + url.search,
           query: Object.fromEntries(url.searchParams),
-        }
+        };
       }
       return {
-        fullPath: '/',
+        fullPath: "/",
         query: {},
-      }
+      };
     },
     push: (target: { path: string }) => {
-      if (typeof window !== 'undefined') {
-        window.location.assign(target.path)
+      if (typeof window !== "undefined") {
+        window.location.assign(target.path);
       }
     },
     replace: (target: { path: string }) => {
-      if (typeof window !== 'undefined') {
-        window.location.replace(target.path)
+      if (typeof window !== "undefined") {
+        window.location.replace(target.path);
       }
     },
-  }
+  };
 }
 ```
 
 **`src/middleware.ts` (without virtual module, manual setup):**
 
 ```typescript
-import { createI18nMiddleware, createI18n } from '@i18n-micro/astro'
-import { createAstroRouterAdapter } from './router-adapter'
+import { createI18nMiddleware, createI18n } from "@i18n-micro/astro";
+import { createAstroRouterAdapter } from "./router-adapter";
 
 const localesConfig = [
-  { code: 'en', displayName: 'English', iso: 'en-US' },
-  { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
-  { code: 'de', displayName: 'Deutsch', iso: 'de-DE' },
-]
+  { code: "en", displayName: "English", iso: "en-US" },
+  { code: "fr", displayName: "Français", iso: "fr-FR" },
+  { code: "de", displayName: "Deutsch", iso: "de-DE" },
+];
 
-const defaultLocale = 'en'
+const defaultLocale = "en";
 
 // Create global i18n instance
 const globalI18n = createI18n({
@@ -2907,33 +2990,33 @@ const globalI18n = createI18n({
   fallbackLocale: defaultLocale,
   messages: {
     en: {
-      welcome: 'Welcome',
-      greeting: 'Hello, {name}!',
-      apples: 'no apples | one apple | {count} apples',
+      welcome: "Welcome",
+      greeting: "Hello, {name}!",
+      apples: "no apples | one apple | {count} apples",
     },
     fr: {
-      welcome: 'Bienvenue',
-      greeting: 'Bonjour, {name}!',
-      apples: 'pas de pommes | une pomme | {count} pommes',
+      welcome: "Bienvenue",
+      greeting: "Bonjour, {name}!",
+      apples: "pas de pommes | une pomme | {count} pommes",
     },
     de: {
-      welcome: 'Willkommen',
-      greeting: 'Hallo, {name}!',
-      apples: 'keine Äpfel | ein Apfel | {count} Äpfel',
+      welcome: "Willkommen",
+      greeting: "Hallo, {name}!",
+      apples: "keine Äpfel | ein Apfel | {count} Äpfel",
     },
   },
-})
+});
 
 // Create router adapter
-const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale)
+const routingStrategy = createAstroRouterAdapter(localesConfig, defaultLocale);
 
 export const onRequest = createI18nMiddleware({
   i18n: globalI18n,
   defaultLocale,
-  locales: ['en', 'fr', 'de'],
+  locales: ["en", "fr", "de"],
   localeObjects: localesConfig,
   routingStrategy,
-})
+});
 ```
 
 **`src/layouts/Layout.astro`:**
@@ -2954,7 +3037,7 @@ const { htmlAttrs, link, meta } = useLocaleHead(Astro, {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Astro Site</title>
-    
+
     {link.map((l) => (
       <link rel={l.rel} href={l.href} hreflang={l.hreflang} />
     ))}
@@ -2986,15 +3069,15 @@ const { t, locale } = useI18n(Astro)
 <Layout>
   <main>
     <h1><I18nT keypath="welcome" tag="h1" /></h1>
-    
+
     <p>
       <I18nT keypath="greeting" params={{ name: 'World' }} />
     </p>
-    
+
     <p>
       <I18nT keypath="apples" plural={5} />
     </p>
-    
+
     <p>
       <I18nLink href="/about">
         <I18nT keypath="nav.about" />

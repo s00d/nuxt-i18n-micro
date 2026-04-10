@@ -1,10 +1,24 @@
-import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
-import path, { dirname, join, resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
-import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
-import { isInternalPath, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
-import type { Getter, GlobalLocaleRoutes, Locale, LocaleCode, ModuleOptions, PluralFunc, Strategies } from '@i18n-micro/types'
+import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import path, { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from "@i18n-micro/core";
+import { isInternalPath, normalizePath, RouteGenerator } from "@i18n-micro/route-strategy";
+import type {
+  Getter,
+  GlobalLocaleRoutes,
+  Locale,
+  LocaleCode,
+  ModuleOptions,
+  PluralFunc,
+  Strategies,
+} from "@i18n-micro/types";
+import {
+  deepMergeTranslations,
+  extractDefineI18nRouteData,
+  getPathSegments,
+  normalizeApiBasePath,
+} from "@i18n-micro/utils";
 import {
   addComponentsDir,
   addImportsDir,
@@ -16,37 +30,19 @@ import {
   createResolver,
   defineNuxtModule,
   useLogger,
-} from '@nuxt/kit'
-import type { HookResult, NuxtPage } from '@nuxt/schema'
-import { globby } from 'globby'
-import { setupDevToolsUI } from './devtools'
-import { generateHmrPlugin } from './hmr-plugin'
-import type { PluginsInjections } from './runtime/plugins/01.plugin'
-import { extractDefineI18nRouteData } from './utils'
-
-// Deep merge helper for translation objects (build-time)
-function deepMergeTranslations(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
-  if (!target || Object.keys(target).length === 0) return { ...source }
-  const output = { ...target }
-  for (const key in source) {
-    if (key === '__proto__' || key === 'constructor') continue
-    const src = source[key]
-    const dst = output[key]
-    if (src && typeof src === 'object' && !Array.isArray(src) && dst && typeof dst === 'object' && !Array.isArray(dst)) {
-      output[key] = deepMergeTranslations(dst as Record<string, unknown>, src as Record<string, unknown>)
-    } else {
-      output[key] = src
-    }
-  }
-  return output
-}
+} from "@nuxt/kit";
+import type { HookResult, NuxtPage } from "@nuxt/schema";
+import { globby } from "globby";
+import { setupDevToolsUI } from "./devtools";
+import { generateHmrPlugin } from "./hmr-plugin";
+import type { PluginsInjections } from "./runtime/plugins/01.plugin";
 
 interface PreMergeLocaleInfo {
-  code: string
-  fallbackLocale?: string
+  code: string;
+  fallbackLocale?: string;
 }
 
-const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
+const DEFAULT_CANONICAL_QUERY_WHITELIST = ["page", "sort", "filter", "search", "q", "query", "tag"];
 
 /**
  * Pre-merge all translation files at build time.
@@ -69,96 +65,99 @@ async function preMergeLocales(
   globalFallbackLocale?: string,
   disablePageLocales?: boolean,
 ): Promise<void> {
-  if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
-  mkdirSync(outputDir, { recursive: true })
+  if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true });
+  mkdirSync(outputDir, { recursive: true });
 
-  const layerPaths = rootDirs.map((dir) => join(dir, translationDirName))
+  const layerPaths = rootDirs.map((dir) => join(dir, translationDirName));
 
   // ── 1. Collect all JSON files from all layers ──
-  const allFiles = new Set<string>()
+  const allFiles = new Set<string>();
   for (const lp of layerPaths) {
-    if (!existsSync(lp)) continue
-    const files = await globby('**/*.json', { cwd: lp })
-    files.forEach((f) => allFiles.add(f))
+    if (!existsSync(lp)) continue;
+    const files = await globby("**/*.json", { cwd: lp });
+    files.forEach((f) => allFiles.add(f));
   }
 
   // ── 2. Merge layers: for each file, deep-merge base → top ──
   // Result: Map<relativePath, mergedContent>
-  const merged = new Map<string, Record<string, unknown>>()
+  const merged = new Map<string, Record<string, unknown>>();
   for (const file of allFiles) {
-    let content: Record<string, unknown> = {}
+    let content: Record<string, unknown> = {};
     for (const lp of layerPaths) {
-      const fp = join(lp, file)
+      const fp = join(lp, file);
       if (existsSync(fp)) {
         try {
-          content = deepMergeTranslations(content, JSON.parse(readFileSync(fp, 'utf-8')))
+          content = deepMergeTranslations(content, JSON.parse(readFileSync(fp, "utf-8")));
         } catch {
           /* skip */
         }
       }
     }
-    merged.set(file, content)
+    merged.set(file, content);
   }
 
   // ── 3. Split into root translations and page translations ──
   // root:  "en.json"             → rootMap["en"] = {...}
   // page:  "pages/about/en.json" → pageMap["pages/about"]["en"] = {...}
-  const rootMap = new Map<string, Record<string, unknown>>() // locale → data
-  const pageMap = new Map<string, Map<string, Record<string, unknown>>>() // context → locale → data
+  const rootMap = new Map<string, Record<string, unknown>>(); // locale → data
+  const pageMap = new Map<string, Map<string, Record<string, unknown>>>(); // context → locale → data
 
   for (const [file, content] of merged) {
-    const dir = dirname(file)
-    const locale = file.slice(file.lastIndexOf('/') + 1).replace('.json', '')
+    const dir = dirname(file);
+    const locale = file.slice(file.lastIndexOf("/") + 1).replace(".json", "");
 
-    if (dir === '.') {
+    if (dir === ".") {
       // Root-level file (en.json)
-      rootMap.set(locale, content)
+      rootMap.set(locale, content);
     } else {
       // Page file (pages/about/en.json)
-      if (!pageMap.has(dir)) pageMap.set(dir, new Map())
-      pageMap.get(dir)!.set(locale, content)
+      if (!pageMap.has(dir)) pageMap.set(dir, new Map());
+      pageMap.get(dir)!.set(locale, content);
     }
   }
 
   // ── 4. Apply fallback locale chains ──
-  const knownCodes = new Set(locales.map((l) => l.code))
+  const knownCodes = new Set(locales.map((l) => l.code));
 
   const applyFallback = (map: Map<string, Record<string, unknown>>) => {
     for (const locale of locales) {
       const chain = [globalFallbackLocale, locale.fallbackLocale, locale.code]
         .filter((l): l is string => !!l && knownCodes.has(l))
-        .filter((v, i, arr) => arr.indexOf(v) === i)
-      if (chain.length <= 1) continue
+        .filter((v, i, arr) => arr.indexOf(v) === i);
+      if (chain.length <= 1) continue;
 
-      let result: Record<string, unknown> = {}
+      let result: Record<string, unknown> = {};
       for (const code of chain) {
-        const data = map.get(code)
-        if (data) result = deepMergeTranslations(result, data)
+        const data = map.get(code);
+        if (data) result = deepMergeTranslations(result, data);
       }
-      map.set(locale.code, result)
+      map.set(locale.code, result);
     }
-  }
+  };
 
-  applyFallback(rootMap)
+  applyFallback(rootMap);
   for (const localeMap of pageMap.values()) {
-    applyFallback(localeMap)
+    applyFallback(localeMap);
   }
 
   // ── 5. Bake root into pages ──
   if (disablePageLocales || pageMap.size === 0) {
     // No page files (disablePageLocales or project has only root files).
     // Put root translations as pages/index so server-loader finds them.
-    const indexMap = new Map<string, Record<string, unknown>>()
+    const indexMap = new Map<string, Record<string, unknown>>();
     for (const [locale, data] of rootMap) {
-      indexMap.set(locale, { ...data })
+      indexMap.set(locale, { ...data });
     }
-    pageMap.set('pages/index', indexMap)
+    pageMap.set("pages/index", indexMap);
   } else {
     // Merge root into every page (root = base, page = override)
     for (const [, localeMap] of pageMap) {
       for (const [locale, rootData] of rootMap) {
-        const pageData = localeMap.get(locale)
-        localeMap.set(locale, pageData ? deepMergeTranslations(rootData, pageData) : { ...rootData })
+        const pageData = localeMap.get(locale);
+        localeMap.set(
+          locale,
+          pageData ? deepMergeTranslations(rootData, pageData) : { ...rootData },
+        );
       }
     }
   }
@@ -166,19 +165,28 @@ async function preMergeLocales(
   // ── 6. Write output ──
   for (const [context, localeMap] of pageMap) {
     for (const [locale, data] of localeMap) {
-      const targetPath = join(outputDir, context, `${locale}.json`)
-      mkdirSync(dirname(targetPath), { recursive: true })
-      writeFileSync(targetPath, JSON.stringify(data))
+      const targetPath = join(outputDir, context, `${locale}.json`);
+      mkdirSync(dirname(targetPath), { recursive: true });
+      writeFileSync(targetPath, JSON.stringify(data));
     }
   }
 }
 
 function generateI18nTypes() {
   return `
-import type {PluginsInjections} from "nuxt-i18n-micro";
+import type { PluginsInjections } from "nuxt-i18n-micro";
+import type { DefineI18nRouteConfig } from "@i18n-micro/types";
 
 declare module 'vue/types/vue' {
   interface Vue extends PluginsInjections { }
+}
+
+declare module 'vue' {
+  interface ComponentCustomProperties extends PluginsInjections {}
+}
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties extends PluginsInjections {}
 }
 
 declare module '@nuxt/types' {
@@ -188,15 +196,24 @@ declare module '@nuxt/types' {
 
 declare module '#app' {
   interface NuxtApp extends PluginsInjections { }
+  interface PageMeta {
+    i18n?: DefineI18nRouteConfig | false
+  }
 }
 
-export {}`
+declare module 'vue-router' {
+  interface RouteMeta {
+    i18n?: DefineI18nRouteConfig | false
+  }
+}
+
+export {}`;
 }
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: 'nuxt-i18n-micro',
-    configKey: 'i18n',
+    name: "nuxt-i18n-micro",
+    configKey: "i18n",
   },
   // Default configuration options of the Nuxt module
   defaults: {
@@ -209,17 +226,17 @@ export default defineNuxtModule<ModuleOptions>({
     hooks: true,
     components: true,
     types: true,
-    defaultLocale: 'en',
-    strategy: 'prefix_except_default',
-    translationDir: 'locales',
-    autoDetectPath: '/',
+    defaultLocale: "en",
+    strategy: "prefix_except_default",
+    translationDir: "locales",
+    autoDetectPath: "/",
     autoDetectLanguage: true,
     disablePageLocales: false,
     disableWatcher: false,
     noPrefixRedirect: false,
     fallbackLocale: undefined,
     localeCookie: null,
-    apiBaseUrl: '_locales',
+    apiBaseUrl: "_locales",
     apiBaseClientHost: undefined,
     apiBaseServerHost: undefined,
     routesLocaleLinks: {},
@@ -228,92 +245,108 @@ export default defineNuxtModule<ModuleOptions>({
     plural: defaultPlural,
     customRegexMatcher: undefined,
     excludePatterns: undefined,
-    localizedRouteNamePrefix: 'localized-',
+    localizedRouteNamePrefix: "localized-",
     missingWarn: true,
     metaTrustForwardedHost: true,
     metaTrustForwardedProto: true,
   },
   async setup(options, nuxt) {
-    const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? 'en'
+    const defaultLocale = process.env.DEFAULT_LOCALE ?? options.defaultLocale ?? "en";
 
-    const isSSG = nuxt.options.nitro.static ?? (nuxt.options as any)._generate ?? false /* TODO: remove in future */
+    const isSSG =
+      nuxt.options.nitro.static ??
+      (nuxt.options as { _generate?: boolean })._generate ??
+      false; /* TODO: remove in future */
 
-    const logger = useLogger('nuxt-i18n-micro')
+    const logger = useLogger("nuxt-i18n-micro");
 
     // For no_prefix strategy, localeCookie is required - set default if not provided
-    if (options.strategy === 'no_prefix' && !options.localeCookie) {
-      options.localeCookie = 'user-locale'
-      logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")
+    if (options.strategy === "no_prefix" && !options.localeCookie) {
+      options.localeCookie = "user-locale";
+      logger.info(
+        "Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.",
+      );
     }
 
     // Warn when redirects are enabled but localeCookie is not set for prefix strategies
-    if (options.strategy !== 'no_prefix' && options.redirects !== false && !options.localeCookie) {
+    if (options.strategy !== "no_prefix" && options.redirects !== false && !options.localeCookie) {
       logger.warn(
-        'Redirects are enabled but localeCookie is not set. ' +
+        "Redirects are enabled but localeCookie is not set. " +
           "Locale-based redirects will not remember user's locale preference across page reloads. " +
           "Set `localeCookie: 'user-locale'` to enable cookie-based locale persistence for redirects.",
-      )
+      );
     }
 
-    const resolver = createResolver(import.meta.url)
-    const rootDirs = nuxt.options._layers.map((layer) => layer.config.rootDir).reverse()
+    const resolver = createResolver(import.meta.url);
+    const rootDirs = nuxt.options._layers.map((layer) => layer.config.rootDir).reverse();
 
     // Pre-merge translations from all layers into a single directory (build-time).
     // This eliminates per-request layer iteration on the server.
     // Executed in build:before hook to ensure buildDir exists.
-    const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
-    const translationDirName = options.translationDir || 'locales'
+    const mergedLocalesDir = resolve(nuxt.options.buildDir, "i18n-merged");
+    const translationDirName = options.translationDir || "locales";
     const localeInfos: PreMergeLocaleInfo[] = (options.locales ?? []).map((l) =>
-      typeof l === 'string' ? { code: l } : { code: l.code, fallbackLocale: l.fallbackLocale },
-    )
+      typeof l === "string" ? { code: l } : { code: l.code, fallbackLocale: l.fallbackLocale },
+    );
 
-    nuxt.hook('build:before', async () => {
-      await preMergeLocales(rootDirs, translationDirName, mergedLocalesDir, localeInfos, options.fallbackLocale, options.disablePageLocales)
-      logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
-    })
+    nuxt.hook("build:before", async () => {
+      await preMergeLocales(
+        rootDirs,
+        translationDirName,
+        mergedLocalesDir,
+        localeInfos,
+        options.fallbackLocale,
+        options.disablePageLocales,
+      );
+      logger.info(
+        `Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`,
+      );
+    });
 
     // Extract routeLocales and localeRoutes from pages before creating template
-    const routeLocales: Record<string, string[]> = {}
-    const globalLocaleRoutes: GlobalLocaleRoutes = {}
-    const routeDisableMeta: Record<string, boolean | string[]> = {}
+    const routeLocales: Record<string, string[]> = {};
+    const globalLocaleRoutes: GlobalLocaleRoutes = {};
+    const routeDisableMeta: Record<string, boolean | string[]> = {};
 
     // Find all page files (both pages/ and app/pages/)
-    const pageFiles = await globby(['pages/**/*.vue', 'app/pages/**/*.vue'], { cwd: nuxt.options.rootDir })
+    const pageFiles = await globby(["pages/**/*.vue", "app/pages/**/*.vue"], {
+      cwd: nuxt.options.rootDir,
+    });
 
     for (const pageFile of pageFiles) {
-      const fullPath = join(nuxt.options.rootDir, pageFile)
+      const fullPath = join(nuxt.options.rootDir, pageFile);
       try {
-        const fileContent = readFileSync(fullPath, 'utf-8')
-        const config = extractDefineI18nRouteData(fileContent, fullPath)
+        const fileContent = readFileSync(fullPath, "utf-8");
+        const config = extractDefineI18nRouteData(fileContent, fullPath);
 
-        if (!config) continue
+        if (!config) continue;
 
-        const { locales: extractedLocales, localeRoutes, disableMeta } = config
+        const { locales: extractedLocales, localeRoutes, disableMeta } = config;
 
         // Convert file path to route path (handle both pages/ and app/pages/).
         // No leading slash so keys match route-generator (extractLocalizedPaths, createLocalizedVariants).
         const raw = pageFile
-          .replace(/^(app\/)?pages\//, '')
-          .replace(/\/index\.vue$/, '')
-          .replace(/\.vue$/, '')
-          .replace(/\/$/, '')
-        const routePath = raw === '' || raw === 'index' ? '/' : raw
+          .replace(/^(app\/)?pages\//, "")
+          .replace(/\/index\.vue$/, "")
+          .replace(/\.vue$/, "")
+          .replace(/\/$/, "");
+        const routePath = raw === "" || raw === "index" ? "/" : raw;
 
         if (extractedLocales) {
           if (Array.isArray(extractedLocales)) {
-            routeLocales[routePath] = extractedLocales
-          } else if (typeof extractedLocales === 'object') {
-            routeLocales[routePath] = Object.keys(extractedLocales)
+            routeLocales[routePath] = extractedLocales;
+          } else if (typeof extractedLocales === "object") {
+            routeLocales[routePath] = Object.keys(extractedLocales);
           }
         }
 
         if (localeRoutes) {
           // Use routePath as key for globalLocaleRoutes to match with RouteGenerator logic
-          globalLocaleRoutes[routePath] = localeRoutes
+          globalLocaleRoutes[routePath] = localeRoutes;
         }
 
         if (disableMeta !== undefined) {
-          routeDisableMeta[routePath] = disableMeta
+          routeDisableMeta[routePath] = disableMeta;
         }
       } catch {
         // Ignore files that can't be read
@@ -321,27 +354,36 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     // Merge extracted localeRoutes with options.globalLocaleRoutes so user options (e.g. unlocalized: false) take precedence
-    const mergedGlobalLocaleRoutes = { ...globalLocaleRoutes, ...options.globalLocaleRoutes }
+    const mergedGlobalLocaleRoutes = { ...globalLocaleRoutes, ...options.globalLocaleRoutes };
     if (options.debug) {
-      logger.debug('[i18n module] mergedGlobalLocaleRoutes keys:', Object.keys(mergedGlobalLocaleRoutes))
-      logger.debug('[i18n module] mergedGlobalLocaleRoutes["unlocalized"]:', mergedGlobalLocaleRoutes['unlocalized'])
-      logger.debug('[i18n module] strategy:', options.strategy)
+      logger.debug(
+        "[i18n module] mergedGlobalLocaleRoutes keys:",
+        Object.keys(mergedGlobalLocaleRoutes),
+      );
+      logger.debug(
+        '[i18n module] mergedGlobalLocaleRoutes["unlocalized"]:',
+        mergedGlobalLocaleRoutes["unlocalized"],
+      );
+      logger.debug("[i18n module] strategy:", options.strategy);
     }
 
     // Path-strategy: resolve actual file path for pnpm compatibility
-    const require = createRequire(import.meta.url)
+    const require = createRequire(import.meta.url);
     const strategyFiles: Record<Strategies, string> = {
-      no_prefix: 'no-prefix-strategy.mjs',
-      prefix: 'prefix-strategy.mjs',
-      prefix_except_default: 'prefix-except-default-strategy.mjs',
-      prefix_and_default: 'prefix-and-default-strategy.mjs',
-    }
-    const strategyFile = strategyFiles[options.strategy!] ?? strategyFiles.prefix_except_default
-    const pkgPath = require.resolve('@i18n-micro/path-strategy/package.json')
-    const absoluteStrategyPath = join(dirname(pkgPath), 'dist', strategyFile)
+      no_prefix: "no-prefix-strategy.mjs",
+      prefix: "prefix-strategy.mjs",
+      prefix_except_default: "prefix-except-default-strategy.mjs",
+      prefix_and_default: "prefix-and-default-strategy.mjs",
+    };
+    const strategyFile = strategyFiles[options.strategy!] ?? strategyFiles.prefix_except_default;
+    const pkgPath = require.resolve("@i18n-micro/path-strategy/package.json");
+    const absoluteStrategyPath = join(dirname(pkgPath), "dist", strategyFile);
     // On Windows, absolute paths like C:\... are rejected by Node.js ESM loader
     // (ERR_UNSUPPORTED_ESM_URL_SCHEME), so convert to file:// URL
-    const resolvedStrategyPath = process.platform === 'win32' ? pathToFileURL(absoluteStrategyPath).href : absoluteStrategyPath.replace(/\\/g, '/')
+    const resolvedStrategyPath =
+      process.platform === "win32"
+        ? pathToFileURL(absoluteStrategyPath).href
+        : absoluteStrategyPath.replace(/\\/g, "/");
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],
@@ -354,32 +396,36 @@ export default defineNuxtModule<ModuleOptions>({
       excludePatterns: options.excludePatterns,
       localizedRouteNamePrefix: options.localizedRouteNamePrefix,
       customRegexMatcher: options.customRegexMatcher,
-    })
+    });
 
     const pluralTemplate = addTemplate({
-      filename: 'i18n.plural.mjs',
+      filename: "i18n.plural.mjs",
       write: true,
       getContents: () => `export const plural = ${options.plural!.toString()};`,
-    })
+    });
 
-    let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
-    if (apiBaseClientHost?.endsWith('/')) {
-      apiBaseClientHost = apiBaseClientHost.slice(0, -1)
+    let apiBaseClientHost =
+      process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined;
+    if (apiBaseClientHost?.endsWith("/")) {
+      apiBaseClientHost = apiBaseClientHost.slice(0, -1);
     }
-    let apiBaseServerHost = process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost ?? undefined
-    if (apiBaseServerHost?.endsWith('/')) {
-      apiBaseServerHost = apiBaseServerHost.slice(0, -1)
+    let apiBaseServerHost =
+      process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost ?? undefined;
+    if (apiBaseServerHost?.endsWith("/")) {
+      apiBaseServerHost = apiBaseServerHost.slice(0, -1);
     }
-    const rawUrl = process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? '_locales'
-    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
-      throw new Error('Nuxt-i18n-micro: Please use NUXT_I18N_APP_BASE_CLIENT_HOST or NUXT_I18N_APP_BASE_SERVER_HOST instead.')
+    const rawUrl = process.env.NUXT_I18N_APP_BASE_URL ?? options.apiBaseUrl ?? "_locales";
+    if (rawUrl.startsWith("http://") || rawUrl.startsWith("https://")) {
+      throw new Error(
+        "Nuxt-i18n-micro: Please use NUXT_I18N_APP_BASE_CLIENT_HOST or NUXT_I18N_APP_BASE_SERVER_HOST instead.",
+      );
     }
-    const apiBaseUrl = rawUrl.replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
+    const apiBaseUrl = normalizeApiBasePath(rawUrl);
 
     // Cache-busting value used as `?v=...` when fetching translations.
     // Defaults to `Date.now()` to preserve existing behavior, but can be overridden
     // for deterministic builds / rolling deployments.
-    const dateBuild = options.dateBuild ?? Date.now()
+    const dateBuild = options.dateBuild ?? Date.now();
 
     const fullConfig = {
       locales: routeGenerator.locales ?? [],
@@ -390,8 +436,8 @@ export default defineNuxtModule<ModuleOptions>({
       fallbackLocale: options.fallbackLocale ?? undefined,
       localeCookie: options.localeCookie ?? null,
       autoDetectLanguage: options.autoDetectLanguage ?? true,
-      autoDetectPath: options.autoDetectPath ?? '/',
-      strategy: options.strategy ?? 'prefix_except_default',
+      autoDetectPath: options.autoDetectPath ?? "/",
+      strategy: options.strategy ?? "prefix_except_default",
       dateBuild,
       hashMode: nuxt.options?.router?.options?.hashMode ?? false,
       apiBaseUrl,
@@ -407,21 +453,24 @@ export default defineNuxtModule<ModuleOptions>({
       missingWarn: options.missingWarn ?? true,
       redirects: options.redirects !== false,
       hmr: options.hmr ?? true,
-      localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? 'localized-',
+      localizedRouteNamePrefix: options.localizedRouteNamePrefix ?? "localized-",
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       noPrefixRedirect: options.noPrefixRedirect ?? false,
       debug: options.debug ?? false,
-      customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
+      customRegexMatcher:
+        options.customRegexMatcher instanceof RegExp
+          ? options.customRegexMatcher.source
+          : options.customRegexMatcher,
       cacheMaxSize: options.cacheMaxSize ?? 0,
       cacheTtl: options.cacheTtl ?? 0,
-    }
+    };
 
-    nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {}
-    ;(nuxt.options.runtimeConfig.public as Record<string, unknown>).i18nConfig = fullConfig
+    nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {};
+    (nuxt.options.runtimeConfig.public as Record<string, unknown>).i18nConfig = fullConfig;
 
-    const fullConfigJson = JSON.stringify(fullConfig)
+    const fullConfigJson = JSON.stringify(fullConfig);
     const strategyTemplate = addTemplate({
-      filename: 'i18n.strategy.mjs',
+      filename: "i18n.strategy.mjs",
       write: true,
       getContents: () => `import { Strategy } from '${resolvedStrategyPath}'
 
@@ -461,20 +510,22 @@ export function createI18nStrategy(router) {
   })
 }
 `,
-    })
+    });
 
     // i18n config is only in #build/i18n.strategy.mjs (getI18nConfig, createI18nStrategy). runtimeConfig.public.i18nConfig is not used.
 
     // Validate that all locale codes match the customRegexMatcher (if set)
-    if (typeof options.customRegexMatcher !== 'undefined') {
-      const localeCodes = routeGenerator.locales.map((l) => l.code)
-      const failedCodes = localeCodes.filter((code) => !code.match(options.customRegexMatcher as string | RegExp))
+    if (typeof options.customRegexMatcher !== "undefined") {
+      const localeCodes = routeGenerator.locales.map((l) => l.code);
+      const failedCodes = localeCodes.filter(
+        (code) => !code.match(options.customRegexMatcher as string | RegExp),
+      );
       if (failedCodes.length > 0) {
         throw new Error(
-          'Nuxt-i18n-micro: customRegexMatcher does not match the following locale codes: ' +
-            failedCodes.join(', ') +
-            '. The regex must match ALL locale codes in your configuration.',
-        )
+          "Nuxt-i18n-micro: customRegexMatcher does not match the following locale codes: " +
+            failedCodes.join(", ") +
+            ". The regex must match ALL locale codes in your configuration.",
+        );
       }
     }
 
@@ -483,104 +534,107 @@ export function createI18nStrategy(router) {
       debug: options.debug ?? false,
       locales: routeGenerator.locales ?? [],
       fallbackLocale: options.fallbackLocale ?? undefined,
-      translationDir: options.translationDir ?? 'locales',
-      customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
+      translationDir: options.translationDir ?? "locales",
+      customRegexMatcher:
+        options.customRegexMatcher instanceof RegExp
+          ? options.customRegexMatcher.source
+          : options.customRegexMatcher,
       routesLocaleLinks: options.routesLocaleLinks ?? {},
       apiBaseUrl,
       apiBaseClientHost,
       apiBaseServerHost,
-    }
-    const privateConfigJson = JSON.stringify(privateConfig)
+    };
+    const privateConfigJson = JSON.stringify(privateConfig);
     const configTemplate = addTemplate({
-      filename: 'i18n.config.mjs',
+      filename: "i18n.config.mjs",
       write: true,
       getContents: () => `const __privateConfig = ${privateConfigJson}
 export function getI18nPrivateConfig() { return __privateConfig }
 `,
-    })
+    });
 
-    addImportsDir(resolver.resolve('./runtime/composables'))
+    addImportsDir(resolver.resolve("./runtime/composables"));
 
     if (options.plugin) {
       addPlugin({
-        src: resolver.resolve('./runtime/plugins/01.plugin'),
-        name: 'i18n-plugin-loader',
+        src: resolver.resolve("./runtime/plugins/01.plugin"),
+        name: "i18n-plugin-loader",
         order: -5,
-      })
+      });
     }
 
     if (options.hooks) {
       addPlugin({
-        src: resolver.resolve('./runtime/plugins/05.hooks'),
-        name: 'i18n-plugin-hooks',
+        src: resolver.resolve("./runtime/plugins/05.hooks"),
+        name: "i18n-plugin-hooks",
         order: 1,
-      })
+      });
     }
 
     if (options.meta) {
       addPlugin({
-        src: resolver.resolve('./runtime/plugins/02.meta'),
-        name: 'i18n-plugin-meta',
+        src: resolver.resolve("./runtime/plugins/02.meta"),
+        name: "i18n-plugin-meta",
         order: 2,
-      })
+      });
     }
 
     if (options.define) {
       addPlugin({
-        src: resolver.resolve('./runtime/plugins/03.define'),
-        name: 'i18n-plugin-define',
-        mode: 'all',
+        src: resolver.resolve("./runtime/plugins/03.define"),
+        name: "i18n-plugin-define",
+        mode: "all",
         order: 3,
-      })
+      });
     }
 
     // Universal redirect plugin (server + client).
     // Always registered: handles 404 checks and cookie sync even when redirects are disabled.
     // The redirect logic itself is gated by `i18nConfig.redirects !== false` inside the plugin.
     addPlugin({
-      src: resolver.resolve('./runtime/plugins/06.redirect'),
-      mode: 'all',
-      name: 'i18n-plugin-redirect',
+      src: resolver.resolve("./runtime/plugins/06.redirect"),
+      mode: "all",
+      name: "i18n-plugin-redirect",
       order: 10,
-    })
+    });
 
     addServerHandler({
       route: `/${apiBaseUrl}/:page/:locale/data.json`,
-      handler: resolver.resolve('./runtime/server/routes/i18n'),
-    })
+      handler: resolver.resolve("./runtime/server/routes/i18n"),
+    });
 
     if (options.components !== false) {
       addComponentsDir({
-        path: resolver.resolve('./runtime/components'),
+        path: resolver.resolve("./runtime/components"),
         pathPrefix: false,
-        extensions: ['vue'],
-      })
+        extensions: ["vue"],
+      });
     }
 
     // HMR for translations
     if (nuxt.options.dev && (options.hmr ?? true)) {
-      const translationsDir = join(nuxt.options.rootDir, options.translationDir || 'locales')
-      const files = await globby(['**/*.json'], { cwd: translationsDir, absolute: true })
+      const translationsDir = join(nuxt.options.rootDir, options.translationDir || "locales");
+      const files = await globby(["**/*.json"], { cwd: translationsDir, absolute: true });
       const tpl = addTemplate({
-        filename: 'i18n.hmr.mjs',
+        filename: "i18n.hmr.mjs",
         write: true,
-        getContents: () => generateHmrPlugin(files.map((f) => f.replace(/\\/g, '/'))),
-      })
+        getContents: () => generateHmrPlugin(files.map((f) => f.replace(/\\/g, "/"))),
+      });
       addPlugin({
         src: tpl.dst,
-        mode: 'client',
-        name: 'i18n-hmr',
+        mode: "client",
+        name: "i18n-hmr",
         order: 10,
-      })
+      });
     }
 
     if (options.types) {
       addTypeTemplate({
-        filename: 'types/i18n-plugin.d.ts',
+        filename: "types/i18n-plugin.d.ts",
         getContents: () => generateI18nTypes(),
-      })
+      });
       addTypeTemplate({
-        filename: 'types/h3.d.ts',
+        filename: "types/h3.d.ts",
         getContents: () => `import type { Translations } from '@i18n-micro/types'
 
 declare module 'h3' {
@@ -594,12 +648,12 @@ declare module 'h3' {
 
 export {}
 `,
-      })
+      });
     }
 
     // Types for #build/* and #i18n-internal/* (included in .nuxt/types/, nuxt.d.ts)
     addTypeTemplate({
-      filename: 'types/i18n-internal.d.ts',
+      filename: "types/i18n-internal.d.ts",
       getContents: () => {
         return `import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Getter, PluralFunc } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
@@ -625,219 +679,257 @@ declare module '#i18n-internal/strategy' {
 declare module '#i18n-internal/plural' {
   export const plural: PluralFunc
 }
-`
+`;
       },
-    })
+    });
 
     const addDataRoutes = (pages: NuxtPage[] = []) => {
-      const pagesForDataRoutes = pages.filter((p) => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]))
-      const dataRoutes = routeGenerator.generateDataRoutes(pagesForDataRoutes, apiBaseUrl, !!options.disablePageLocales)
-      addPrerenderRoutes(dataRoutes)
-    }
+      const pagesForDataRoutes = pages.filter(
+        (p) =>
+          p.name !== undefined &&
+          (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]),
+      );
+      const dataRoutes = routeGenerator.generateDataRoutes(
+        pagesForDataRoutes,
+        apiBaseUrl,
+        !!options.disablePageLocales,
+      );
+      addPrerenderRoutes(dataRoutes);
+    };
 
-    nuxt.hook('pages:resolved', (pages) => {
+    nuxt.hook("pages:resolved", (pages) => {
       const pagesNames = pages
         .map((page) => page.name)
-        .filter((name): name is string => name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]))
+        .filter(
+          (name): name is string =>
+            name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[name]),
+        );
 
       if (!options.disableWatcher) {
-        routeGenerator.ensureTranslationFilesExist(pagesNames, options.translationDir!, nuxt.options.rootDir, options.disablePageLocales)
+        routeGenerator.ensureTranslationFilesExist(
+          pagesNames,
+          options.translationDir!,
+          nuxt.options.rootDir,
+          options.disablePageLocales,
+        );
       }
 
-      addDataRoutes(pages)
-      routeGenerator.extendPages(pages)
-    })
+      addDataRoutes(pages);
+      routeGenerator.extendPages(pages);
+    });
 
     // When pages: false, pages:resolved may not run — ensure data routes are added
     if (options.disablePageLocales) {
-      nuxt.hook('build:before', () => addDataRoutes([] as NuxtPage[]))
+      nuxt.hook("build:before", () => addDataRoutes([] as NuxtPage[]));
     }
 
     // Aliases #i18n-internal/* for Vite (plugins/runtime resolve at build time)
-    nuxt.hook('vite:extendConfig', (viteConfig) => {
-      const resolve = viteConfig.resolve ?? {}
-      ;(viteConfig as { resolve: typeof resolve }).resolve = resolve
-      const alias = resolve.alias || {}
+    nuxt.hook("vite:extendConfig", (viteConfig) => {
+      const resolve = viteConfig.resolve ?? {};
+      (viteConfig as { resolve: typeof resolve }).resolve = resolve;
+      const alias = resolve.alias || {};
       resolve.alias = Array.isArray(alias)
         ? [
             ...alias,
-            { find: '#i18n-internal/plural', replacement: pluralTemplate.dst },
-            { find: '#i18n-internal/strategy', replacement: strategyTemplate.dst },
-            { find: '#i18n-internal/config', replacement: configTemplate.dst },
+            { find: "#i18n-internal/plural", replacement: pluralTemplate.dst },
+            { find: "#i18n-internal/strategy", replacement: strategyTemplate.dst },
+            { find: "#i18n-internal/config", replacement: configTemplate.dst },
           ]
         : {
             ...alias,
-            '#i18n-internal/plural': pluralTemplate.dst,
-            '#i18n-internal/strategy': strategyTemplate.dst,
-            '#i18n-internal/config': configTemplate.dst,
-          }
-    })
+            "#i18n-internal/plural": pluralTemplate.dst,
+            "#i18n-internal/strategy": strategyTemplate.dst,
+            "#i18n-internal/config": configTemplate.dst,
+          };
+    });
 
-    nuxt.hook('nitro:config', (nitroConfig) => {
+    nuxt.hook("nitro:config", (nitroConfig) => {
       // Aliases for Nitro: prefix #i18n-internal (not #build) so Nitro/Rollup don't block them
-      nitroConfig.alias = nitroConfig.alias || {}
-      nitroConfig.alias['#i18n-internal/plural'] = pluralTemplate.dst
-      nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
-      nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
+      nitroConfig.alias = nitroConfig.alias || {};
+      nitroConfig.alias["#i18n-internal/plural"] = pluralTemplate.dst;
+      nitroConfig.alias["#i18n-internal/strategy"] = strategyTemplate.dst;
+      nitroConfig.alias["#i18n-internal/config"] = configTemplate.dst;
 
       // Mount pre-merged translation directory as a single server asset.
       // Translations from all layers were merged at build time in preMergeLocales().
       // This is critical for serverless support (Cloudflare Workers) where there is no direct FS access.
-      nitroConfig.serverAssets = nitroConfig.serverAssets || []
+      nitroConfig.serverAssets = nitroConfig.serverAssets || [];
       nitroConfig.serverAssets.push({
-        baseName: 'i18n',
+        baseName: "i18n",
         dir: mergedLocalesDir,
-      })
+      });
 
       if (nitroConfig.imports) {
-        nitroConfig.imports.presets = nitroConfig.imports.presets || []
+        nitroConfig.imports.presets = nitroConfig.imports.presets || [];
         nitroConfig.imports.presets.push({
-          from: resolver.resolve('./runtime/server/utils/translation-server-middleware'),
-          imports: ['useTranslationServerMiddleware'],
-        })
+          from: resolver.resolve("./runtime/server/utils/translation-server-middleware"),
+          imports: ["useTranslationServerMiddleware"],
+        });
         nitroConfig.imports.presets.push({
-          from: resolver.resolve('./runtime/server/utils/locale-server-middleware'),
-          imports: ['useLocaleServerMiddleware'],
-        })
+          from: resolver.resolve("./runtime/server/utils/locale-server-middleware"),
+          imports: ["useLocaleServerMiddleware"],
+        });
       }
 
-      const routeRules = nuxt.options.routeRules || {}
-      const strategy = options.strategy! as Strategies
+      const routeRules = nuxt.options.routeRules || {};
+      const strategy = options.strategy! as Strategies;
 
       if (routeRules && Object.keys(routeRules).length && !isNoPrefixStrategy(strategy)) {
-        nitroConfig.routeRules = nitroConfig.routeRules || {}
+        nitroConfig.routeRules = nitroConfig.routeRules || {};
 
         for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-          if (originalPath.startsWith('/api')) continue
+          if (originalPath.startsWith("/api")) continue;
 
           routeGenerator.locales.forEach((localeObj) => {
-            const localeCode = localeObj.code
-            const localizedPath = routeGenerator.resolveLocalizedPath(originalPath, localeCode)
+            const localeCode = localeObj.code;
+            const localizedPath = routeGenerator.resolveLocalizedPath(originalPath, localeCode);
 
             if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) {
-              return
+              return;
             }
 
-            const { redirect, ...restRuleValue } = ruleValue
-            if (!Object.keys(restRuleValue).length) return
+            const { redirect: _redirect, ...restRuleValue } = ruleValue;
+            if (!Object.keys(restRuleValue).length) return;
 
             nitroConfig.routeRules![localizedPath] = {
               ...nitroConfig.routeRules![localizedPath],
               ...restRuleValue,
-            }
-            logger.debug(`Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`)
-          })
+            };
+            logger.debug(
+              `Replicated routeRule for ${localizedPath}: ${JSON.stringify(restRuleValue)}`,
+            );
+          });
         }
       }
-    })
+    });
 
-    nuxt.hook('nitro:build:public-assets', (nitro) => {
-      const isProd = nuxt.options.dev === false
+    nuxt.hook("nitro:build:public-assets", (nitro) => {
+      const isProd = nuxt.options.dev === false;
       if (isProd) {
-        const publicDir = path.join(nitro.options.output.publicDir ?? './dist', options.translationDir ?? 'locales')
+        const publicDir = path.join(
+          nitro.options.output.publicDir ?? "./dist",
+          options.translationDir ?? "locales",
+        );
 
         try {
           // Copy pre-merged translations (already contains all layers)
           if (existsSync(mergedLocalesDir)) {
-            fs.cpSync(mergedLocalesDir, publicDir, { recursive: true })
-            logger.log(`Pre-merged translations copied to public directory`)
+            fs.cpSync(mergedLocalesDir, publicDir, { recursive: true });
+            logger.log(`Pre-merged translations copied to public directory`);
           } else {
-            logger.warn(`Pre-merged translations directory not found: ${mergedLocalesDir}`)
+            logger.warn(`Pre-merged translations directory not found: ${mergedLocalesDir}`);
           }
         } catch (err) {
-          logger.error('Error copying translations:', err)
+          logger.error("Error copying translations:", err);
         }
       }
-    })
+    });
 
-    nuxt.hook('nitro:config', (nitroConfig) => {
-      nitroConfig.plugins = nitroConfig.plugins || []
+    nuxt.hook("nitro:config", (nitroConfig) => {
+      nitroConfig.plugins = nitroConfig.plugins || [];
       if (nuxt.options.dev && (options.hmr ?? true)) {
-        nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
+        nitroConfig.plugins.push(resolver.resolve("./runtime/server/plugins/watcher.dev"));
       }
-      nitroConfig.handlers = nitroConfig.handlers || []
+      nitroConfig.handlers = nitroConfig.handlers || [];
       nitroConfig.handlers.unshift({
         middleware: true,
-        handler: resolver.resolve('./runtime/server/middleware/i18n.global'),
-      })
-    })
+        handler: resolver.resolve("./runtime/server/middleware/i18n.global"),
+      });
+    });
 
-    nuxt.hook('prerender:routes', async (prerenderRoutes) => {
+    nuxt.hook("prerender:routes", async (prerenderRoutes) => {
       if (isNoPrefixStrategy(options.strategy!)) {
-        return
+        return;
       }
 
-      const routesSet = prerenderRoutes.routes
-      const routeRules = nuxt.options.routeRules || {}
-      const additionalRoutes = new Set<string>()
+      const routesSet = prerenderRoutes.routes;
+      const routeRules = nuxt.options.routeRules || {};
+      const additionalRoutes = new Set<string>();
 
       for (const route of routesSet) {
         if (isInternalPath(route, options.excludePatterns)) {
-          routesSet.delete(route)
+          routesSet.delete(route);
         }
       }
 
       for (const route of routesSet) {
         if (/\.[a-z0-9]+$/i.test(route)) {
-          continue
+          continue;
         }
         if (routeRules[route]?.prerender === false) {
-          continue
+          continue;
         }
 
         for (const locale of routeGenerator.locales) {
-          const localizedRoute = routeGenerator.resolveLocalizedPath(route, locale.code)
+          const localizedRoute = routeGenerator.resolveLocalizedPath(route, locale.code);
           if (localizedRoute === route) {
-            continue
+            continue;
           }
           if (routeRules[localizedRoute]?.prerender === false) {
-            continue
+            continue;
           }
-          additionalRoutes.add(localizedRoute)
+          additionalRoutes.add(localizedRoute);
         }
       }
 
       if (additionalRoutes.size > 0) {
-        logger.debug('[i18n prerender:routes] added localized routes:', [...additionalRoutes].sort().join(', '))
+        logger.debug(
+          "[i18n prerender:routes] added localized routes:",
+          [...additionalRoutes].sort().join(", "),
+        );
       }
 
       for (const route of additionalRoutes) {
-        routesSet.add(route)
+        routesSet.add(route);
       }
 
       // prefix / prefix_and_default: only locale-prefixed paths are valid. Nuxt still
       // registers file-based routes like /contact, /about; prerendering them causes 500.
       // Remove them from the list so the crawler doesn't request them.
       if (withPrefixStrategy(options.strategy!)) {
-        const localeCodes = new Set(routeGenerator.locales.map((l) => l.code))
-        const deleted: string[] = []
+        const localeCodes = new Set(routeGenerator.locales.map((l) => l.code));
+        const deleted: string[] = [];
         for (const route of routesSet) {
-          if (route === '/' || route === '') continue // Keep / for redirect to default locale
-          const firstSegment = route.replace(/^\//, '').split('/')[0]
+          if (route === "/" || route === "") continue; // Keep / for redirect to default locale
+          const firstSegment = getPathSegments(route)[0];
           if (firstSegment && !localeCodes.has(firstSegment)) {
-            routesSet.delete(route)
-            deleted.push(route)
+            routesSet.delete(route);
+            deleted.push(route);
           }
         }
         if (deleted.length > 0) {
-          logger.info(`[i18n prerender:routes] removed from prerender list (no locale prefix): ${deleted.join(', ')}`)
+          logger.info(
+            `[i18n prerender:routes] removed from prerender list (no locale prefix): ${deleted.join(", ")}`,
+          );
         }
       }
-    })
+    });
 
     // Setup DevTools integration
     if (nuxt.options.dev) {
-      setupDevToolsUI(options, resolver.resolve, rootDirs)
+      setupDevToolsUI(options, resolver.resolve, rootDirs);
     }
   },
-})
+});
 
 export interface ModuleHooks {
-  'i18n:register': (registerModule: (translations: unknown, locale?: string) => void, locale: string) => HookResult
+  "i18n:register": (
+    registerModule: (translations: unknown, locale?: string) => void,
+    locale: string,
+  ) => HookResult;
 }
 
-declare module '@nuxt/schema' {
+declare module "@nuxt/schema" {
   interface NuxtHooks extends ModuleHooks {}
 }
 
-export type { Locale, PluralFunc, ModuleOptions, GlobalLocaleRoutes, Getter, LocaleCode, PluginsInjections, Strategies }
+export type {
+  Locale,
+  PluralFunc,
+  ModuleOptions,
+  GlobalLocaleRoutes,
+  Getter,
+  LocaleCode,
+  PluginsInjections,
+  Strategies,
+};

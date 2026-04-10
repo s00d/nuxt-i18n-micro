@@ -1,6 +1,5 @@
 # Changelog
 
-
 ## v3.17.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.16.0...v3.17.0)
@@ -876,7 +875,7 @@
 - **localized-paths:** Replace `path.posix.join` with `joinPath` ([0972c85](https://github.com/s00d/nuxt-i18n-micro/commit/0972c85))
 - **route-generator:** Simplify route path building logic ([eb376de](https://github.com/s00d/nuxt-i18n-micro/commit/eb376de))
 - **route-generator:** Simplify route path building logic ([4ab7b78](https://github.com/s00d/nuxt-i18n-micro/commit/4ab7b78))
-- ⚠️  Complete rewrite of route generator mechanism ([9be2aa5](https://github.com/s00d/nuxt-i18n-micro/commit/9be2aa5))
+- ⚠️ Complete rewrite of route generator mechanism ([9be2aa5](https://github.com/s00d/nuxt-i18n-micro/commit/9be2aa5))
 - **locales:** Migrate translation generation scripts to ES modules ([469a9c4](https://github.com/s00d/nuxt-i18n-micro/commit/469a9c4))
 - **devtools:** Improve type safety in Vite config handling ([353e4ac](https://github.com/s00d/nuxt-i18n-micro/commit/353e4ac))
 - **locale-redirect:** Remove unused locale-redirect component ([3da74e5](https://github.com/s00d/nuxt-i18n-micro/commit/3da74e5))
@@ -986,7 +985,7 @@
 
 #### ⚠️ Breaking Changes
 
-- ⚠️  Complete rewrite of route generator mechanism ([9be2aa5](https://github.com/s00d/nuxt-i18n-micro/commit/9be2aa5))
+- ⚠️ Complete rewrite of route generator mechanism ([9be2aa5](https://github.com/s00d/nuxt-i18n-micro/commit/9be2aa5))
 
 ### ❤️ Contributors
 
@@ -3619,7 +3618,7 @@
 
 ### 💅 Refactors
 
-- **i18n:** Update customPluralRule to include _params parameter ([ae6dc4a](https://github.com/s00d/nuxt-i18n-micro/commit/ae6dc4a))
+- **i18n:** Update customPluralRule to include \_params parameter ([ae6dc4a](https://github.com/s00d/nuxt-i18n-micro/commit/ae6dc4a))
 
 ### 📖 Documentation
 
@@ -4484,7 +4483,7 @@
 
 ### 🩹 Fixes
 
-- Fallback-locale array merge and drop __proto__,constructor ([7f72208](https://github.com/s00d/nuxt-i18n-micro/commit/7f72208))
+- Fallback-locale array merge and drop `__proto__`,constructor ([7f72208](https://github.com/s00d/nuxt-i18n-micro/commit/7f72208))
 
 ### 📖 Documentation
 
@@ -4884,7 +4883,7 @@
 - add routesLocaleLinks to link locale files across different routes ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
 - add baseURL handling to support CDN usage ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
 - add dateBuild to locale fetching for translation updates after rebuilds ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
--  add tests for routesLocaleLinks functionality ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
+- add tests for routesLocaleLinks functionality ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
 - update README with routesLocaleLinks documentation ([0f8e415](https://github.com/s00d/nuxt-i18n-micro/commit/0f8e415))
 
 ### ❤️ Contributors
@@ -5106,4 +5105,3 @@
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.0.1...v1.0.2)
 
 ## v1.0.1
-

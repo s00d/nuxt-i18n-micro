@@ -11,14 +11,14 @@
 
 <script setup lang="ts">
 interface LoaderProps {
-  message?: string
-  size?: 'sm' | 'md' | 'lg'
+  message?: string;
+  size?: "sm" | "md" | "lg";
 }
 
 withDefaults(defineProps<LoaderProps>(), {
-  message: 'Loading...',
-  size: 'md',
-})
+  message: "Loading...",
+  size: "md",
+});
 </script>
 
 <style scoped>
@@ -52,7 +52,11 @@ withDefaults(defineProps<LoaderProps>(), {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

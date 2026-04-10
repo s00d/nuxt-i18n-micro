@@ -25,7 +25,9 @@ The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dr
 - **Description**: Allows you to override the default styles applied to the wrapper `<div>` that contains the locale switcher.
 - **Example**:
   ```vue
-  <i18n-switcher :customWrapperStyle="{ backgroundColor: '#f8f9fa', padding: '10px' }"></i18n-switcher>
+  <i18n-switcher
+    :customWrapperStyle="{ backgroundColor: '#f8f9fa', padding: '10px' }"
+  ></i18n-switcher>
   ```
 
 ### `customButtonStyle`
@@ -35,7 +37,9 @@ The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dr
 - **Description**: Allows you to customize the styles applied to the button element that toggles the dropdown menu.
 - **Example**:
   ```vue
-  <i18n-switcher :customButtonStyle="{ backgroundColor: '#007bff', color: '#fff', borderRadius: '4px' }"></i18n-switcher>
+  <i18n-switcher
+    :customButtonStyle="{ backgroundColor: '#007bff', color: '#fff', borderRadius: '4px' }"
+  ></i18n-switcher>
   ```
 
 ### `customDropdownStyle`
@@ -45,7 +49,12 @@ The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dr
 - **Description**: Sets the custom styles for the `<ul>` element that contains the list of locales.
 - **Example**:
   ```vue
-  <i18n-switcher :customDropdownStyle="{ border: '1px solid #007bff', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }"></i18n-switcher>
+  <i18n-switcher
+    :customDropdownStyle="{
+      border: '1px solid #007bff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    }"
+  ></i18n-switcher>
   ```
 
 ### `customItemStyle`
@@ -65,7 +74,9 @@ The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dr
 - **Description**: Allows you to customize the styles applied to the `<NuxtLink>` elements used to switch between locales.
 - **Example**:
   ```vue
-  <i18n-switcher :customLinkStyle="{ padding: '8px 16px', color: '#333', textDecoration: 'none' }"></i18n-switcher>
+  <i18n-switcher
+    :customLinkStyle="{ padding: '8px 16px', color: '#333', textDecoration: 'none' }"
+  ></i18n-switcher>
   ```
 
 ### `customActiveLinkStyle`
@@ -75,7 +86,9 @@ The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dr
 - **Description**: Sets the custom styles for the currently active locale, usually to highlight or indicate the selected option.
 - **Example**:
   ```vue
-  <i18n-switcher :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"></i18n-switcher>
+  <i18n-switcher
+    :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"
+  ></i18n-switcher>
   ```
 
 ### `customDisabledLinkStyle`
@@ -85,7 +98,9 @@ The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dr
 - **Description**: Applies custom styles to disable the link for the current locale, preventing users from selecting it.
 - **Example**:
   ```vue
-  <i18n-switcher :customDisabledLinkStyle="{ color: 'gray', cursor: 'not-allowed' }"></i18n-switcher>
+  <i18n-switcher
+    :customDisabledLinkStyle="{ color: 'gray', cursor: 'not-allowed' }"
+  ></i18n-switcher>
   ```
 
 ### `customIconStyle`
@@ -118,7 +133,10 @@ This renders a locale switcher with default styling and behavior.
     :customLabels="{ en: 'English', fr: 'Français' }"
     :customWrapperStyle="{ backgroundColor: '#f8f9fa', padding: '10px' }"
     :customButtonStyle="{ backgroundColor: '#007bff', color: '#fff', borderRadius: '4px' }"
-    :customDropdownStyle="{ border: '1px solid #007bff', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }"
+    :customDropdownStyle="{
+      border: '1px solid #007bff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    }"
     :customItemStyle="{ margin: '5px 0', padding: '5px' }"
     :customLinkStyle="{ padding: '8px 16px', color: '#333', textDecoration: 'none' }"
     :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"
@@ -273,7 +291,7 @@ The `<i18n-switcher>` component provides several slots that allow you to insert 
 ### Summary of Slots
 
 | Slot Name                | Description                                                 | Props    |
-|--------------------------|-------------------------------------------------------------|----------|
+| ------------------------ | ----------------------------------------------------------- | -------- |
 | `before-button`          | Content before the language switcher button                 | None     |
 | `before-selected-locale` | Content before the selected locale label within the button  | None     |
 | `after-selected-locale`  | Content after the selected locale label within the button   | None     |
@@ -285,7 +303,6 @@ The `<i18n-switcher>` component provides several slots that allow you to insert 
 | `after-item`             | Content after each locale item                              | `locale` |
 | `before-link-content`    | Content before the locale label inside each link            | `locale` |
 | `after-link-content`     | Content after the locale label inside each link             | `locale` |
-
 
 ## 🎨 Styles Overview
 

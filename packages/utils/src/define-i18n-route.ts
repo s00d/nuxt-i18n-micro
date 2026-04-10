@@ -12,7 +12,7 @@ function removeTypeScriptTypes(scriptContent: string): string {
 
 function normalizeObjectLikeForJson5(input: string): string {
   return input
-    .replace(/\[\s*(['"`])([^'"`]+)\1\s*\]\s*:/g, (_m, _q: string, key: string) => `"${key}":`);
+    .replace(/\[\s*(['"])([^'"]+)\1\s*\]\s*:/g, (_m, _q: string, key: string) => `"${key}":`);
 }
 
 function findMatchingClosingParen(input: string, openParen: number): number {

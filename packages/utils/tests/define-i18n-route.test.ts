@@ -32,4 +32,45 @@ $defineI18nRoute({
       localeRoutes: { en: "/about", de: "/uber" },
     });
   });
+
+  it("parses config with comments and bracket string locale keys", () => {
+    const content = `
+<script setup lang="ts">
+$defineI18nRoute({
+  // should not break parser with braces { } and parens ()
+  locales: ["en-us", "de-de"],
+  localeRoutes: {
+    ["de-de"]: "/locale-page-modify",
+    "en-us": "/locale-test"
+  },
+  note: "value with ) and } inside string"
+})
+</script>
+`;
+    const parsed = extractDefineI18nRouteData(content, "locale-test.vue");
+    expect(parsed).toEqual({
+      locales: ["en-us", "de-de"],
+      localeRoutes: {
+        "de-de": "/locale-page-modify",
+        "en-us": "/locale-test",
+      },
+      note: "value with ) and } inside string",
+    });
+  });
+
+  it("returns null for dynamic template-literal computed keys", () => {
+    const content = `
+<script setup lang="ts">
+const locale = "de-de";
+$defineI18nRoute({
+  locales: ["en-us", "de-de"],
+  localeRoutes: {
+    [\`\${locale}\`]: "/locale-page-modify"
+  }
+})
+</script>
+`;
+    const parsed = extractDefineI18nRouteData(content, "locale-test.vue");
+    expect(parsed).toBeNull();
+  });
 });

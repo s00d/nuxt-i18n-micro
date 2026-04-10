@@ -10,6 +10,7 @@ import {
   getPathSegments,
   isInternalPath,
   parseAcceptLanguage,
+  resolveLocalePrefixedPath,
 } from "@i18n-micro/utils";
 import { getCookie, getHeader, getRequestURL, setCookie } from "h3";
 import { createI18nStrategy, getI18nConfig } from "#build/i18n.strategy.mjs";
@@ -161,16 +162,12 @@ export default defineNuxtPlugin({
 
           // autoDetectPath: '*' means redirect on all paths, including those with locale prefix
           if (autoDetectPath === "*" && hasLocalePrefix && firstSegment !== preferredLocale) {
-            const rest = pathSegments.slice(1).join("/");
-            let targetPath: string;
-            if (
-              preferredLocale === defaultLocale &&
-              i18nConfig.strategy === "prefix_except_default"
-            ) {
-              targetPath = rest ? `/${rest}` : "/";
-            } else {
-              targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`;
-            }
+            const targetPath = resolveLocalePrefixedPath(
+              path,
+              preferredLocale,
+              validLocales,
+              i18nConfig.strategy === "prefix_except_default" ? defaultLocale : "",
+            );
             // Sync cookie to preferred locale BEFORE redirect
             if (cookieName) {
               const { watch: _w2, ...cookieOpts2 } = getLocaleCookieOptions();
@@ -216,16 +213,12 @@ export default defineNuxtPlugin({
 
         // autoDetectPath: '*' means redirect on all paths, including those with locale prefix
         if (autoDetectPath === "*" && hasLocalePrefix && firstSegment !== preferredLocale) {
-          const rest = pathSegments.slice(1).join("/");
-          let targetPath: string;
-          if (
-            preferredLocale === defaultLocale &&
-            i18nConfig.strategy === "prefix_except_default"
-          ) {
-            targetPath = rest ? `/${rest}` : "/";
-          } else {
-            targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`;
-          }
+          const targetPath = resolveLocalePrefixedPath(
+            path,
+            preferredLocale,
+            validLocales,
+            i18nConfig.strategy === "prefix_except_default" ? defaultLocale : "",
+          );
           navigateTo(targetPath, { replace: true, redirectCode: 302 });
           return;
         }

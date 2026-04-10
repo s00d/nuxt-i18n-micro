@@ -1,7 +1,5 @@
 import { getPathSegments } from "./path";
-
-const removeLeadingSlash = (routePath: string): string =>
-  routePath.startsWith("/") ? routePath.slice(1) : routePath;
+import { removeLeadingSlash } from "./route";
 
 export interface RouteLike {
   path: string;

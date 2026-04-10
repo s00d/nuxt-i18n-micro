@@ -46,7 +46,8 @@ function getStrategyInternals(strategy: unknown): {
   };
   return {
     // preserve `this` context for class methods
-    formatPathForResolve: (path, from, to) => typed.formatPathForResolve.call(typed, path, from, to),
+    formatPathForResolve: (path, from, to) =>
+      typed.formatPathForResolve.call(typed, path, from, to),
     applyBaseUrl: (locale, route) => typed.applyBaseUrl.call(typed, locale, route),
   };
 }

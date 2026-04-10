@@ -49,9 +49,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
       // Basic fallback: just set route name from path
       const requestI18n = globalI18n.clone(defaultLocale);
       const routeName =
-        pathname === "/" || pathname === ""
-          ? "index"
-          : getPathSegments(pathname).join("-");
+        pathname === "/" || pathname === "" ? "index" : getPathSegments(pathname).join("-");
       requestI18n.setRoute(routeName);
 
       // @ts-ignore private property mismatch between src and dist types
@@ -168,8 +166,7 @@ export function detectLocale(
 
           const baseLanguage = normalizedPreferred.split("-")[0];
           const baseMatch = locales.find(
-            (candidate) =>
-              baseLanguage !== undefined && candidate.toLowerCase() === baseLanguage,
+            (candidate) => baseLanguage !== undefined && candidate.toLowerCase() === baseLanguage,
           );
           if (baseMatch) {
             locale = baseMatch;

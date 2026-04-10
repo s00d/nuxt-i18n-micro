@@ -5,7 +5,12 @@ import type {
   TranslationKey,
   Translations,
 } from "@i18n-micro/types";
-import { getLocaleFromPath, getPathSegments, getPathWithoutLocale, withLeadingSlash } from "@i18n-micro/utils";
+import {
+  getLocaleFromPath,
+  getPathSegments,
+  getPathWithoutLocale,
+  withLeadingSlash,
+} from "@i18n-micro/utils";
 import type { AstroGlobal } from "astro";
 import type { AstroI18n } from "./composer";
 import type { I18nRoutingStrategy } from "./router/types";
@@ -48,8 +53,12 @@ export function useI18n(astro: AstroGlobal) {
     locale,
     defaultLocale,
     locales,
-    t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation =>
-      i18n.t(key, params, defaultValue, routeName),
+    t: (
+      key: TranslationKey,
+      params?: Params,
+      defaultValue?: string | null,
+      routeName?: string,
+    ): CleanTranslation => i18n.t(key, params, defaultValue, routeName),
     ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string =>
       i18n.ts(key, params, defaultValue, routeName),
     tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string =>
@@ -63,7 +72,8 @@ export function useI18n(astro: AstroGlobal) {
     getRoute: (): string => i18n.getRoute(),
     getRouteName: (path?: string): string => {
       const targetPath = path || astro.url.pathname;
-      if (routingStrategy?.getRouteName) return routingStrategy.getRouteName(targetPath, localeCodes);
+      if (routingStrategy?.getRouteName)
+        return routingStrategy.getRouteName(targetPath, localeCodes);
       const { pathWithoutLocale } = getPathWithoutLocale(targetPath, localeCodes);
       const segments = getPathSegments(pathWithoutLocale);
       return segments.length === 0 ? "index" : segments.join("-");
@@ -91,7 +101,12 @@ export function useI18n(astro: AstroGlobal) {
     },
     localizePath: (path: string, targetLocale?: string): string => {
       if (routingStrategy?.localizePath) {
-        return routingStrategy.localizePath(path, targetLocale || locale, localeCodes, defaultLocale);
+        return routingStrategy.localizePath(
+          path,
+          targetLocale || locale,
+          localeCodes,
+          defaultLocale,
+        );
       }
       const { pathWithoutLocale } = getPathWithoutLocale(path, localeCodes);
       const segments = getPathSegments(pathWithoutLocale);
@@ -112,8 +127,11 @@ export function useI18n(astro: AstroGlobal) {
       translations: Record<string, unknown>,
       merge = true,
     ): void => i18n.addRouteTranslations(locale, routeName, translations, merge),
-    mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>): void =>
-      i18n.mergeTranslations(locale, routeName, translations),
+    mergeTranslations: (
+      locale: string,
+      routeName: string,
+      translations: Record<string, unknown>,
+    ): void => i18n.mergeTranslations(locale, routeName, translations),
     clearCache: (): void => i18n.clearCache(),
   };
 }

@@ -18,7 +18,7 @@ Runtime path and route strategies for **Nuxt I18n Micro**: locale resolution fro
 | Path                       | Contents                                                                                                                                             |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/types.ts`             | All type definitions (`PathStrategyContext`, `RouteLike`, `ResolvedRouteLike`, `RouterAdapter`, `PathStrategy`, etc.)                                |
-| `@i18n-micro/utils`        | Shared path utilities (`normalizePath`, `joinUrl`, `buildUrl`, `getPathWithoutLocale`, `getLocaleFromPath`, `hasKeys`, etc.)                           |
+| `@i18n-micro/utils`        | Shared path utilities (`normalizePath`, `joinUrl`, `buildUrl`, `getPathWithoutLocale`, `getLocaleFromPath`, `hasKeys`, etc.)                         |
 | `src/resolver.ts`          | Route analysis and resolution (`analyzeRoute`, `getRouteBaseName`, `buildLocalizedName`, `isIndexRouteName`, `resolveCustomPath`, etc.)              |
 | `src/helpers.ts`           | Strategy-agnostic helpers (`shouldReturn404`, `preserveQueryAndHash`, `tryResolveByLocalizedName`, etc.)                                             |
 | `src/strategies/`          | `BasePathStrategy`, `createPathStrategy` factory, and strategy implementations: `no-prefix`, `prefix`, `prefix-except-default`, `prefix-and-default` |

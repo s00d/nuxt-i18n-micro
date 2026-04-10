@@ -70,7 +70,8 @@ export function isMetaDisabledForRoute(
   const checkDisableMeta = (disableMetaValue: boolean | string[] | undefined): boolean => {
     if (disableMetaValue === undefined) return false;
     if (typeof disableMetaValue === "boolean") return disableMetaValue;
-    if (Array.isArray(disableMetaValue)) return currentLocale ? disableMetaValue.includes(currentLocale) : false;
+    if (Array.isArray(disableMetaValue))
+      return currentLocale ? disableMetaValue.includes(currentLocale) : false;
     return false;
   };
 

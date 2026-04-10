@@ -72,7 +72,11 @@ class TranslationStorage {
     return null;
   }
 
-  async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
+  async load(
+    locale: string,
+    routeName: string | undefined,
+    options: LoadOptions,
+  ): Promise<LoadResult> {
     const cached = this.getFromCache(locale, routeName);
     if (cached) return cached;
 

@@ -11,8 +11,10 @@ function removeTypeScriptTypes(scriptContent: string): string {
 }
 
 function normalizeObjectLikeForJson5(input: string): string {
-  return input
-    .replace(/\[\s*(['"])([^'"]+)\1\s*\]\s*:/g, (_m, _q: string, key: string) => `"${key}":`);
+  return input.replace(
+    /\[\s*(['"])([^'"]+)\1\s*\]\s*:/g,
+    (_m, _q: string, key: string) => `"${key}":`,
+  );
 }
 
 function findMatchingClosingParen(input: string, openParen: number): number {
@@ -128,13 +130,21 @@ export function extractDefineI18nRouteData(
       typeof configObject.locales === "object" &&
       !Array.isArray(configObject.locales)
     ) {
-      const localesObj = configObject.locales as Record<string, Record<string, unknown> & { path?: string }>;
+      const localesObj = configObject.locales as Record<
+        string,
+        Record<string, unknown> & { path?: string }
+      >;
       const normalizedLocales: string[] = [];
       const normalizedLocaleRoutes: Record<string, string> = {};
 
       for (const [locale, value] of Object.entries(localesObj)) {
         normalizedLocales.push(locale);
-        if (value && typeof value === "object" && "path" in value && typeof value.path === "string") {
+        if (
+          value &&
+          typeof value === "object" &&
+          "path" in value &&
+          typeof value.path === "string"
+        ) {
           normalizedLocaleRoutes[locale] = value.path;
         }
       }
@@ -155,7 +165,8 @@ export function extractDefineI18nRouteData(
       typeof configObject.locales[0] === "object"
     ) {
       const normalizedLocales: string[] = configObject.locales.map((item: unknown) => {
-        if (item && typeof item === "object" && "code" in item) return (item as { code: string }).code;
+        if (item && typeof item === "object" && "code" in item)
+          return (item as { code: string }).code;
         return String(item);
       });
       return { ...configObject, locales: normalizedLocales };

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { extractBaseRoutePattern, findAllowedLocalesForRoute, isMetaDisabledForRoute } from "../src";
+import {
+  extractBaseRoutePattern,
+  findAllowedLocalesForRoute,
+  isMetaDisabledForRoute,
+} from "../src";
 
 describe("@i18n-micro/utils runtime route helpers", () => {
   it("extracts base route pattern from localized matcher path", () => {

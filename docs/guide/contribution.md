@@ -151,18 +151,18 @@ You can access the playground app at `http://localhost:3000`.
 
 ## 🔧 Summary of Common Scripts
 
-- **`pnpm run dev`**: Start the development server using the playground.
-- **`pnpm run prepack`**: Build the module and prepare it for publishing.
-- **`pnpm --filter "./packages/**" run build`**: Build the packages.
-- **`pnpm run lint`**: Run the linter to check for code quality issues.
-- **`pnpm run lint:fix`**: Automatically fix linter issues.
-- **`pnpm run test`**: Run the test suite.
-- **`pnpm run test:workspaces`**: Run the test suite for packages.
-- **`pnpm run typecheck`**: Check TypeScript types.
-- **`pnpm run docs:dev`**: Start the documentation site in development mode.
-- **`pnpm run docs:build`**: Build the documentation site.
-- **`pnpm run docs:serve`**: Serve the built documentation site locally.
-- **`pnpm run dev:build`**: Build the playground environment.
+- `pnpm run dev`: Start the development server using the playground.
+- `pnpm run prepack`: Build the module and prepare it for publishing.
+- `pnpm --filter "./packages/**" run build`: Build the packages.
+- `pnpm run lint`: Run the linter to check for code quality issues.
+- `pnpm run lint:fix`: Automatically fix linter issues.
+- `pnpm run test`: Run the test suite.
+- `pnpm run test:workspaces`: Run the test suite for packages.
+- `pnpm run typecheck`: Check TypeScript types.
+- `pnpm run docs:dev`: Start the documentation site in development mode.
+- `pnpm run docs:build`: Build the documentation site.
+- `pnpm run docs:serve`: Serve the built documentation site locally.
+- `pnpm run dev:build`: Build the playground environment.
 
 # 🚧 Making Changes
 

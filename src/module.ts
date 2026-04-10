@@ -174,10 +174,19 @@ async function preMergeLocales(
 
 function generateI18nTypes() {
   return `
-import type {PluginsInjections} from "nuxt-i18n-micro";
+import type { PluginsInjections } from "nuxt-i18n-micro";
+import type { DefineI18nRouteConfig } from "@i18n-micro/types";
 
 declare module 'vue/types/vue' {
   interface Vue extends PluginsInjections { }
+}
+
+declare module 'vue' {
+  interface ComponentCustomProperties extends PluginsInjections {}
+}
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties extends PluginsInjections {}
 }
 
 declare module '@nuxt/types' {
@@ -187,6 +196,15 @@ declare module '@nuxt/types' {
 
 declare module '#app' {
   interface NuxtApp extends PluginsInjections { }
+  interface PageMeta {
+    i18n?: DefineI18nRouteConfig | false
+  }
+}
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    i18n?: DefineI18nRouteConfig | false
+  }
 }
 
 export {}`;

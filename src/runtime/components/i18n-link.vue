@@ -9,60 +9,56 @@
     <slot />
   </a>
 
-  <NuxtLink
-    v-else
-    :to="$localePath(to)"
-    :style="computedStyle"
-  >
+  <NuxtLink v-else :to="$localePath(to)" :style="computedStyle">
     <slot />
   </NuxtLink>
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
-import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
-import { useNuxtApp, useRoute, useRouter } from '#imports'
+import { computed } from "vue";
+import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from "vue-router";
+import { useNuxtApp, useRoute, useRouter } from "#imports";
 
-const { $localePath } = useNuxtApp()
+const { $localePath } = useNuxtApp();
 
 interface Props {
-  to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string
-  activeStyle?: Partial<CSSStyleValue>
+  to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string;
+  activeStyle?: Partial<CSSStyleValue>;
 }
 
-const props = defineProps<Props>()
-const route = useRoute()
-const router = useRouter()
+const props = defineProps<Props>();
+const route = useRoute();
+const router = useRouter();
 
 const isExternalLink = computed(() => {
-  if (typeof props.to === 'string') {
-    return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(props.to)
+  if (typeof props.to === "string") {
+    return /^(?:https?:\/\/|\/\/|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})|tel:|mailto:/.test(props.to);
   }
-  return false
-})
+  return false;
+});
 
 const externalHref = computed(() => {
-  if (isExternalLink.value && typeof props.to === 'string') {
-    if (props.to.startsWith('//')) {
-      return props.to
+  if (isExternalLink.value && typeof props.to === "string") {
+    if (props.to.startsWith("//")) {
+      return props.to;
     }
     if (!/^https?:\/\//.test(props.to)) {
-      return `https://${props.to}`
+      return `https://${props.to}`;
     }
-    return props.to
+    return props.to;
   }
-  return undefined
-})
+  return undefined;
+});
 
 const isActive = computed(() => {
   if (isExternalLink.value) {
-    return false
+    return false;
   }
-  const pathStr = $localePath(props.to)
-  return route.path === router.resolve(pathStr).path
-})
+  const pathStr = $localePath(props.to);
+  return route.path === router.resolve(pathStr).path;
+});
 
 const computedStyle = computed((): Partial<CSSStyleValue> => {
-  return isActive.value ? { ...props.activeStyle } : {}
-})
+  return isActive.value ? { ...props.activeStyle } : {};
+});
 </script>

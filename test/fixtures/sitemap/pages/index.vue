@@ -1,13 +1,13 @@
 <template>
   <div>
     <div id="locale">
-      {{ $t('key0') }}
+      {{ $t("key0") }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $t } = useNuxtApp()
+const { $t } = useNuxtApp();
 </script>

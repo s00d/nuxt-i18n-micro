@@ -2,68 +2,20 @@
 outline: deep
 ---
 
-# 🤝 Contribution Guide
+# Contribution guide
 
-## 📖 Introduction
+Thanks for helping improve **Nuxt I18n Micro**. Bugfixes, features, docs, and tests are all welcome.
 
-Thank you for your interest in contributing to `Nuxt I18n Micro`! We welcome contributions from the community, whether it's bug fixes, new features, or improvements to the documentation. This guide outlines the steps to help you get started and ensures that your contributions can be easily integrated into the project.
+## Prerequisites
 
-## 🚀 Getting Started
+- **Node.js** 18+ (aligns with Nuxt 3)
+- **pnpm** 9+ (see root `packageManager` in `package.json`)
 
-### 1. 📚 Familiarize Yourself with the Project
+## Workflow
 
-Before making changes, it's a good idea to familiarize yourself with the project's architecture and codebase. Read through the existing documentation and take a look at open issues and pull requests to understand ongoing work and challenges.
-
-### 2. 🍴 Fork the Repository
-
-- Navigate to the [Nuxt I18n Micro repository](https://github.com/s00d/nuxt-i18n-micro).
-- Click the "Fork" button in the upper right corner to create a copy of the repository in your GitHub account.
-
-### 3. 📥 Clone Your Fork
-
-Clone the forked repository to your local machine:
-
-```bash
-git clone https://github.com/<your-username>/nuxt-i18n-micro.git
-cd nuxt-i18n-micro
-```
-
-Replace `<your-username>` with your GitHub username.
-
-### 4. 🌱 Create a Branch
-
-Create a new branch for your work:
-
-```bash
-git checkout -b feature/your-feature-name
-```
-
-Use descriptive branch names, such as `bugfix/fix-translation-error` or `feature/add-new-locale-support`.
-
-# 🛠️ Local Development Setup
-
-## 🛠 Prerequisites
-
-Before you begin, ensure that you have the following installed on your machine:
-
-- **Node.js**: v16 or later
-- **npm**: v7 or later
-- **pnpm**: v9 or later
-
-## 🚀 Getting Started
-
-### 1. 📥 Clone the Repository
-
-First, you need to clone the `nuxt-i18n-micro` repository to your local machine.
-
-```bash
-git clone https://github.com/s00d/nuxt-i18n-micro.git
-cd nuxt-i18n-micro
-```
-
-### 2. 📦 Install Dependencies
-
-Next, install the project dependencies using pnpm.
+1. **Fork** [nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro) and **clone** your fork (or clone upstream if you have access).
+2. Create a branch: `git checkout -b feat/your-change`.
+3. Install and build workspace packages, then prepare the module and playground:
 
 ```bash
 pnpm install
@@ -71,181 +23,70 @@ pnpm --filter "./packages/**" run build
 pnpm run prepack && cd playground && pnpm run prepare && cd ..
 ```
 
-### 3. 🖥️ Run the Development Server
-
-To start the development server and work on the module, run the following command:
+4. **Develop** with the playground:
 
 ```bash
 pnpm run dev
 ```
 
-This command will start the Nuxt development server using the `playground` directory as the testing environment. You can view the app in your browser by navigating to `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-### 4. 🏗️ Building the Module
+## Quality checks (before a PR)
 
-To build the module, use the following command:
+Run from the repository root:
+
+| Step                 | Command                                                         |
+| -------------------- | --------------------------------------------------------------- |
+| Lint                 | `pnpm run lint` — auto-fix: `pnpm run lint:fix` (Oxlint)        |
+| Format               | `pnpm run format` — check only: `pnpm run format:check` (Oxfmt) |
+| Types                | `pnpm run typecheck` and `pnpm run test:types`                  |
+| Unit / package tests | `pnpm run test:workspaces`                                      |
+| E2E (Playwright)     | `pnpm run test`                                                 |
+| Vitest (root)        | `pnpm run test:vitest`                                          |
+
+Release script also runs `prepack`; to only build the published module:
 
 ```bash
 pnpm run prepack
 ```
 
-This command prepares the module by building the necessary files, stubbing certain components, and ensuring everything is ready for packaging.
-
-### 5. 🧹 Linting the Code
-
-To ensure your code adheres to the project's coding standards, run the linter:
+## Documentation
 
 ```bash
-pnpm run lint
-```
-
-If there are any issues, you can attempt to automatically fix them using:
-
-```bash
-pnpm run lint:fix
-```
-
-### 6. ✅ Running Tests
-
-To run the test suite, use the following command:
-
-```bash
-pnpm run test:workspaces
-pnpm run test
-```
-
-This will run all the Playwright tests to ensure everything is functioning as expected.
-
-### 7. 🔍 Type Checking
-
-For TypeScript type checking, run:
-
-```bash
-pnpm run typecheck
-pnpm run test:types
-pnpm run test
-```
-
-This checks the type definitions to ensure there are no type errors.
-
-### 8. 📚 Building and Previewing the Documentation
-
-To build and preview the documentation locally, use the following commands:
-
-```bash
+pnpm run docs:dev    # local dev
 pnpm run docs:build
-pnpm run docs:serve
+pnpm run docs:serve  # preview production build
 ```
 
-This will build the documentation and serve it locally, allowing you to view it in your browser.
-
-### 9. 🎮 Running the Playground
-
-If you want to test your changes in a sample Nuxt application, the `playground` directory serves as a sandbox environment. Run the following command to start the playground:
+## Playground production build
 
 ```bash
 pnpm run dev:build
 ```
 
-You can access the playground app at `http://localhost:3000`.
+## Common scripts (quick reference)
 
-## 🔧 Summary of Common Scripts
+- `pnpm run dev` — playground dev server
+- `pnpm run prepack` — build module for publish
+- `pnpm --filter "./packages/**" run build` — build all workspace packages
+- `pnpm run lint` / `pnpm run lint:fix` — Oxlint
+- `pnpm run test` — Playwright
+- `pnpm run test:workspaces` — tests in all packages
+- `pnpm run typecheck` — root TypeScript
+- `pnpm run test:types` — `vue-tsc` (root + playground)
 
-- **`pnpm run dev`**: Start the development server using the playground.
-- **`pnpm run prepack`**: Build the module and prepare it for publishing.
-- **`pnpm --filter "./packages/**" run build`**: Build the packages.
-- **`pnpm run lint`**: Run the linter to check for code quality issues.
-- **`pnpm run lint:fix`**: Automatically fix linter issues.
-- **`pnpm run test`**: Run the test suite.
-- **`pnpm run test:workspaces`**: Run the test suite for packages.
-- **`pnpm run typecheck`**: Check TypeScript types.
-- **`pnpm run docs:dev`**: Start the documentation site in development mode.
-- **`pnpm run docs:build`**: Build the documentation site.
-- **`pnpm run docs:serve`**: Serve the built documentation site locally.
-- **`pnpm run dev:build`**: Build the playground environment.
+## Commits and pull requests
 
-# 🚧 Making Changes
+Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), for example:
 
-### 1. 💻 Code
+- `fix(router): resolve locale switching edge case`
+- `feat(seo): improve hreflang output`
+- `docs(contribution): simplify dev setup`
 
-- Make your changes in the codebase according to the project’s architecture.
-- Follow the existing code style and conventions.
-- If you’re adding a new feature, consider writing tests for it.
+Open a PR against `main` on the upstream repo, describe the change, and link issues if any.
 
-### 2. 🧹 Run Linting
+## Tips
 
-Before committing your changes, ensure that your code adheres to the project's coding standards by running the linter:
-
-```bash
-pnpm run lint
-```
-
-Fix any linting errors before proceeding.
-
-### 3. 🧪 Test Your Changes
-
-Make sure your changes work and do not break any existing functionality:
-
-- Run all tests to ensure there are no errors:
-
-```bash
-pnpm run test:workspaces
-pnpm run test
-```
-
-- If you’re fixing a bug, add tests to cover the fix.
-
-### 4. 📝 Commit Your Changes
-
-To ensure consistency across the project, we use a standardized commit message format. Please follow this format when making commits:
-
-#### ✅ Commit Message Format
-
-Each commit message should be structured as follows:
-
-```
-<type>(<scope>): <short description>
-```
-
-#### 📋 Examples:
-
-- `fix(router): resolve issue with locale switching`
-- `feat(seo): add automatic og:locale meta tag generation`
-- `docs(contribution): update contribution guide with commit message format`
-
-#### 🛠️ Commit Types:
-
-- **feat**: A new feature.
-- **fix**: A bug fix.
-- **docs**: Documentation changes or updates.
-- **style**: Code style or formatting changes (no functional impact).
-- **refactor**: Code changes that neither fix a bug nor add a feature.
-- **test**: Adding or updating tests.
-- **chore**: Miscellaneous tasks, such as updating build scripts or dependencies.
-
-For more details, refer to the [Conventional Commits Specification](https://www.conventionalcommits.org/en/v1.0.0/).
-
-### 5. 🚀 Push to GitHub
-
-Push your changes to your fork on GitHub:
-
-```bash
-git push origin feature/your-feature-name
-```
-
-### 6. 🔄 Create a Pull Request
-
-- Go to your forked repository on GitHub.
-- Click the "Compare & pull request" button.
-- Ensure your PR targets the `main` branch of the original repository (`s00d/nuxt-i18n-micro`).
-- Describe your changes in the PR, and link to any relevant issues.
-
-### 7. 🕵️‍♂️ Await Feedback
-
-Once your pull request is submitted, a maintainer will review your changes. Be prepared to make adjustments based on feedback. Once approved, your PR will be merged into the main branch.
-
-## 💡 Contribution Tips
-
-- **📝 Documentation**: If you add or change a feature, ensure that you update the relevant documentation.
-- **🧼 Code Cleanliness**: Keep your code clean and follow the project's coding standards.
-- **💬 Respectful Communication**: Be respectful and friendly in your communications. We are all working towards the common goal of making `Nuxt I18n Micro` better.
+- Update docs when behavior or public API changes.
+- Add or extend tests for bugfixes and new features.
+- Keep changes focused; large refactors are easier to review when split.

@@ -1,117 +1,141 @@
-import { interpolate, useTranslationHelper } from '@i18n-micro/core'
-import type { Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
+import { interpolate, useTranslationHelper } from "@i18n-micro/core";
+import type { Params, Translation, TranslationKey, Translations } from "@i18n-micro/types";
 
-type LocaleCode = string
+type LocaleCode = string;
 
 interface Locale {
-  code: LocaleCode
-  disabled?: boolean
-  iso?: string
-  dir?: 'ltr' | 'rtl' | 'auto'
-  displayName?: string
-  baseUrl?: string
-  baseDefault?: boolean
+  code: LocaleCode;
+  disabled?: boolean;
+  iso?: string;
+  dir?: "ltr" | "rtl" | "auto";
+  displayName?: string;
+  baseUrl?: string;
+  baseDefault?: boolean;
 }
 
-export type Getter = (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+export type Getter = (
+  key: TranslationKey,
+  params?: Record<string, string | number | boolean>,
+  defaultValue?: string,
+) => unknown;
 
-const plural = (key: TranslationKey, count: number, params: Params, _locale: string, getter: Getter) => {
-  const translation = getter(key, params)
+const plural = (
+  key: TranslationKey,
+  count: number,
+  params: Params,
+  _locale: string,
+  getter: Getter,
+) => {
+  const translation = getter(key, params);
   if (!translation) {
-    return null
+    return null;
   }
-  const forms = translation.toString().split('|')
-  const formIndex = count < forms.length ? count : forms.length > 0 ? forms.length - 1 : 0
-  const form = forms[formIndex]
+  const forms = translation.toString().split("|");
+  const formIndex = count < forms.length ? count : forms.length > 0 ? forms.length - 1 : 0;
+  const form = forms[formIndex];
   if (!form) {
-    return null
+    return null;
   }
-  return form.trim().replace('{count}', count.toString())
-}
+  return form.trim().replace("{count}", count.toString());
+};
 
-const i18nHelper = useTranslationHelper()
+const i18nHelper = useTranslationHelper();
 let locales: Locale[] = [
   {
-    code: 'en',
+    code: "en",
   },
-]
-let locale = 'en'
-let defLocale: string | undefined = 'en'
-let localeName: string | null = 'English'
-let routeName: string = 'test'
+];
+let locale = "en";
+let defLocale: string | undefined = "en";
+let localeName: string | null = "English";
+let routeName: string = "test";
 
 function formatNumber(value: number, locale: string, options?: Intl.NumberFormatOptions): string {
-  return new Intl.NumberFormat(locale, options).format(value)
+  return new Intl.NumberFormat(locale, options).format(value);
 }
 
-function formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat(locale, options).format(new Date(value))
+function formatDate(
+  value: Date | number | string,
+  locale: string,
+  options?: Intl.DateTimeFormatOptions,
+): string {
+  return new Intl.DateTimeFormat(locale, options).format(new Date(value));
 }
 
 // Example utilities for testing
 export function t(key: TranslationKey, params?: Params, defaultValue?: string): Translation {
-  const value = i18nHelper.getTranslation(locale, routeName, key)
+  const value = i18nHelper.getTranslation(locale, routeName, key);
 
   if (!value) {
-    console.warn(`Missing translation key: ${key}`)
-    return defaultValue || key
+    console.warn(`Missing translation key: ${key}`);
+    return defaultValue || key;
   }
 
-  return typeof value === 'string' && params ? interpolate(value, params) : value
+  return typeof value === "string" && params ? interpolate(value, params) : value;
 }
 
 export function tc(key: TranslationKey, params: number | Params, defaultValue?: string): string {
-  const { count, ...otherParams } = typeof params === 'number' ? { count: params } : params
-  const countValue = count ?? 0
+  const { count, ...otherParams } = typeof params === "number" ? { count: params } : params;
+  const countValue = count ?? 0;
 
-  return plural(key, Number.parseInt(countValue.toString(), 10), otherParams, locale, t) ?? defaultValue ?? key
+  return (
+    plural(key, Number.parseInt(countValue.toString(), 10), otherParams, locale, t) ??
+    defaultValue ??
+    key
+  );
 }
 
-export async function setTranslationsFromJson(locale: string, translations: Record<string, unknown>) {
-  await i18nHelper.loadTranslations(locale, translations, routeName)
+export async function setTranslationsFromJson(
+  locale: string,
+  translations: Record<string, unknown>,
+) {
+  await i18nHelper.loadTranslations(locale, translations, routeName);
 }
 
-export const getLocale = () => locale
-export const setLocale = (val: string) => (locale = val)
+export const getLocale = () => locale;
+export const setLocale = (val: string) => (locale = val);
 
-export const getLocaleName = () => localeName
-export const setLocaleName = (val: string | null) => (localeName = val)
+export const getLocaleName = () => localeName;
+export const setLocaleName = (val: string | null) => (localeName = val);
 
-export const getLocales = () => locales
-export const setLocales = (val: Locale[]) => (locales = val)
+export const getLocales = () => locales;
+export const setLocales = (val: Locale[]) => (locales = val);
 
-export const defaultLocale = () => defLocale
-export const setDefaultLocale = (val: string | undefined) => (defLocale = val)
+export const defaultLocale = () => defLocale;
+export const setDefaultLocale = (val: string | undefined) => (defLocale = val);
 
-export const getRouteName = (_route?: unknown, _locale?: string) => routeName
-export const settRouteName = (val: string) => (routeName = val)
+export const getRouteName = (_route?: unknown, _locale?: string) => routeName;
+export const settRouteName = (val: string) => (routeName = val);
 
 export const ts = (key: TranslationKey, params?: Params, defaultValue?: string) => {
-  const value = t(key, params, defaultValue)
-  return value?.toString() ?? defaultValue ?? key
-}
+  const value = t(key, params, defaultValue);
+  return value?.toString() ?? defaultValue ?? key;
+};
 
-export const tn = (value: number, options?: Intl.NumberFormatOptions) => formatNumber(value, locale, options)
+export const tn = (value: number, options?: Intl.NumberFormatOptions) =>
+  formatNumber(value, locale, options);
 
-export const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => formatDate(value, locale, options)
+export const td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) =>
+  formatDate(value, locale, options);
 
-export const has = (key: TranslationKey): boolean => i18nHelper.hasTranslation(locale, key)
+export const has = (key: TranslationKey): boolean => i18nHelper.hasTranslation(locale, key);
 
-export const mergeTranslations = (newTranslations: Translations): void => i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)
+export const mergeTranslations = (newTranslations: Translations): void =>
+  i18nHelper.mergeTranslation(locale, routeName, newTranslations, true);
 
-export const switchLocaleRoute = (val: string) => (locale = val)
+export const switchLocaleRoute = (val: string) => (locale = val);
 
-export const switchLocalePath = (val: string) => (locale = val)
+export const switchLocalePath = (val: string) => (locale = val);
 
-export const switchLocale = (val: string) => (locale = val)
+export const switchLocale = (val: string) => (locale = val);
 
-export const switchRoute = (_route: unknown, _toLocale?: string): void => {}
+export const switchRoute = (_route: unknown, _toLocale?: string): void => {};
 
-export const localeRoute = (_to: unknown, _locale?: string) => {}
+export const localeRoute = (_to: unknown, _locale?: string) => {};
 
-export const localePath = (_to: unknown, _locale?: string): string => ''
+export const localePath = (_to: unknown, _locale?: string): string => "";
 
-export const setI18nRouteParams = (_value: unknown) => {}
+export const setI18nRouteParams = (_value: unknown) => {};
 
 // Export utilities for use in tests
 export const i18nUtils = {
@@ -141,4 +165,4 @@ export const i18nUtils = {
   localeRoute,
   localePath,
   setI18nRouteParams,
-}
+};

@@ -16,13 +16,13 @@ See [Upgrading from v2.x to v3.0.0](/guide/v3-upgrade).
 
 ## Key Differences
 
-| Feature | `nuxt-i18n` | `Nuxt I18n Micro` |
-|---------|------------|-------------------|
-| Translation files | JS/TS/JSON, loaded via `vueI18n` | JSON only, auto-generated in dev |
-| Route generation | Runtime | Build-time (`@i18n-micro/route-strategy`) |
-| Translation loading | Bundled into JS | Lazy-loaded JSON per page |
-| Locale state | `useI18n()` from `vue-i18n` | `useI18nLocale()` composable |
-| `detectBrowserLanguage` | Supported | Use `autoDetectLanguage` instead |
+| Feature                 | `nuxt-i18n`                      | `Nuxt I18n Micro`                         |
+| ----------------------- | -------------------------------- | ----------------------------------------- |
+| Translation files       | JS/TS/JSON, loaded via `vueI18n` | JSON only, auto-generated in dev          |
+| Route generation        | Runtime                          | Build-time (`@i18n-micro/route-strategy`) |
+| Translation loading     | Bundled into JS                  | Lazy-loaded JSON per page                 |
+| Locale state            | `useI18n()` from `vue-i18n`      | `useI18nLocale()` composable              |
+| `detectBrowserLanguage` | Supported                        | Use `autoDetectLanguage` instead          |
 
 ## Step-by-Step
 
@@ -38,36 +38,36 @@ npm install nuxt-i18n-micro
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n'],
+  modules: ["nuxt-i18n"],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US' },
-      { code: 'fr', iso: 'fr-FR' },
+      { code: "en", iso: "en-US" },
+      { code: "fr", iso: "fr-FR" },
     ],
-    defaultLocale: 'en',
-    vueI18n: './i18n.config.js',
+    defaultLocale: "en",
+    vueI18n: "./i18n.config.js",
     detectBrowserLanguage: { useCookie: true },
   },
-})
+});
 ```
 
 **After (Nuxt I18n Micro v3):**
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['nuxt-i18n-micro'],
+  modules: ["nuxt-i18n-micro"],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "fr", iso: "fr-FR", dir: "ltr" },
     ],
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     meta: true,
-    localeCookie: 'user-locale',
+    localeCookie: "user-locale",
     autoDetectLanguage: true,
   },
-})
+});
 ```
 
 ### 3. Reorganize Translation Files

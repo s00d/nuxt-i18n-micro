@@ -1,11 +1,11 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  preset: "ts-jest",
+  testEnvironment: "node",
+  roots: ["<rootDir>/src", "<rootDir>/tests"],
+  testMatch: ["**/__tests__/**/*.ts", "**/?(*.)+(spec|test).ts"],
   transform: {
-    '^.+\\.ts$': [
-      'ts-jest',
+    "^.+\\.ts$": [
+      "ts-jest",
       {
         tsconfig: {
           esModuleInterop: true,
@@ -15,8 +15,8 @@ module.exports = {
     ],
   },
   moduleNameMapper: {
-    '^@i18n-micro/types$': '<rootDir>/../types/src/index.ts',
-    '^globby$': '<rootDir>/tests/__mocks__/globby.ts',
+    "^@i18n-micro/types$": "<rootDir>/../types/src/index.ts",
+    "^globby$": "<rootDir>/tests/__mocks__/globby.ts",
   },
-  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
-}
+  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts"],
+};

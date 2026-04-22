@@ -1,4 +1,4 @@
-import MyModule from '../../../src/module'
+import MyModule from "../../../src/module";
 
 export default defineNuxtConfig({
   modules: [MyModule],
@@ -6,31 +6,31 @@ export default defineNuxtConfig({
 
   // Route rules with ISR-like caching (similar to Cloudflare setup)
   routeRules: {
-    '/_locales/**': { cache: { maxAge: 3600 } },
+    "/_locales/**": { cache: { maxAge: 3600 } },
   },
-  compatibilityDate: '2024-08-16',
+  compatibilityDate: "2024-08-16",
 
   // Emulate serverless environment
   nitro: {
     // Use node-server preset but with memory storage to emulate serverless behavior
-    preset: 'node-server',
+    preset: "node-server",
     // Storage will be overridden in test via nuxtConfig
     storage: {
       // Emulate KV-like storage behavior
       cache: {
-        driver: 'memory',
+        driver: "memory",
       },
     },
   },
 
   i18n: {
     locales: [
-      { code: 'en', iso: 'en_EN' },
-      { code: 'de', iso: 'de_DE' },
-      { code: 'fr', iso: 'fr_FR' },
+      { code: "en", iso: "en_EN" },
+      { code: "de", iso: "de_DE" },
+      { code: "fr", iso: "fr_FR" },
     ],
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     autoDetectLanguage: false,
   },
-})
+});

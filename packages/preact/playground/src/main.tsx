@@ -1,7 +1,7 @@
-import { h, render } from 'preact'
-import App from './App'
+import { h, render } from "preact";
+import App from "./App";
 
-const appElement = document.getElementById('app')
+const appElement = document.getElementById("app");
 if (appElement) {
-  render(h(App, null), appElement)
+  render(h(App, null), appElement);
 }

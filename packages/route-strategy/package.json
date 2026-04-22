@@ -1,49 +1,15 @@
 {
   "name": "@i18n-micro/route-strategy",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Locale-aware route generator for Nuxt i18n micro",
-  "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      ".": [
-        "./dist/index.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "vite build",
-    "test": "jest",
-    "prepublishOnly": "pnpm run build"
-  },
   "keywords": [
     "i18n",
-    "nuxt",
-    "routes",
+    "internationalization",
     "locale",
+    "nuxt",
     "route-generator",
-    "internationalization"
+    "routes"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/s00d/nuxt-i18n-micro.git",
-    "directory": "packages/route-generator"
-  },
   "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/route-generator#readme",
   "bugs": {
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
@@ -54,13 +20,48 @@
     "email": "Virus191288@gmail.com",
     "url": "https://s00d.github.io/"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/route-generator"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
-  "sideEffects": false,
+  "scripts": {
+    "build": "vite build",
+    "test": "jest",
+    "prepublishOnly": "pnpm run build"
+  },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*",
     "@nuxt/schema": "catalog:"
   },
   "devDependencies": {

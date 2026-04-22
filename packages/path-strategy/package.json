@@ -1,19 +1,30 @@
 {
   "name": "@i18n-micro/path-strategy",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Shared strategy-based path and route name builder for Nuxt I18n Micro frontend routing.",
-  "repository": "s00d/nuxt-i18n-micro",
+  "keywords": [
+    "i18n",
+    "nuxt",
+    "paths",
+    "routing",
+    "strategy"
+  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
   "license": "MIT",
-  "type": "module",
   "author": {
     "name": "s00d",
     "email": "Virus191288@gmail.com",
     "url": "https://s00d.github.io/"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
-  },
+  "repository": "s00d/nuxt-i18n-micro",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -57,6 +68,9 @@
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build",
     "test": "jest",
@@ -65,22 +79,9 @@
     "bench:browser:ci": "tsx bench/run-headless.ts",
     "prepublishOnly": "pnpm run build"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "nuxt",
-    "i18n",
-    "routing",
-    "paths",
-    "strategy"
-  ],
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "dependencies": {
-    "@i18n-micro/types": "workspace:*"
+    "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*"
   },
   "devDependencies": {
     "vite": "catalog:",

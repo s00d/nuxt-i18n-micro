@@ -1,22 +1,22 @@
-import { addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
+import { addPlugin, createResolver, defineNuxtModule, extendPages } from "@nuxt/kit";
 
 export default defineNuxtModule({
   meta: {
-    name: 'hello',
+    name: "hello",
   },
   setup(_options, nuxt) {
-    const { resolve } = createResolver(import.meta.url)
+    const { resolve } = createResolver(import.meta.url);
 
     addPlugin({
-      src: resolve('./plugins/extend_locales'),
-    })
+      src: resolve("./plugins/extend_locales"),
+    });
 
     extendPages((pages) => {
       pages.push({
-        name: 'Test',
-        path: '/test',
-        file: resolve(nuxt.options.rootDir, './modules/pages/pages/test.vue'),
-      })
-    })
+        name: "Test",
+        path: "/test",
+        file: resolve(nuxt.options.rootDir, "./modules/pages/pages/test.vue"),
+      });
+    });
   },
-})
+});

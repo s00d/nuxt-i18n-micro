@@ -21,31 +21,31 @@ flowchart TB
         B2["defaultLocale: en"]
         B3["translationDir: locales"]
     end
-    
+
     subgraph Domains["🌐 Domain Layers"]
         subgraph FR["fr.example.com"]
             F1["extends: base"]
             F2["defaultLocale: fr"]
             F3["disabled: en, de, es"]
         end
-        
+
         subgraph DE["de.example.com"]
             D1["extends: base"]
             D2["defaultLocale: de"]
             D3["disabled: en, fr, es"]
         end
-        
+
         subgraph EN["example.com"]
             E1["extends: base"]
             E2["defaultLocale: en"]
             E3["disabled: fr, de, es"]
         end
     end
-    
+
     Base --> FR
     Base --> DE
     Base --> EN
-    
+
     FR --> FD["Deploy fr.example.com"]
     DE --> DD["Deploy de.example.com"]
     EN --> ED["Deploy example.com"]
@@ -67,16 +67,16 @@ Create the base configuration file `base/nuxt.config.ts`:
 export default defineNuxtConfig({
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr' },
-      { code: 'de', iso: 'de-DE', dir: 'ltr' },
-      { code: 'es', iso: 'es-ES', dir: 'ltr' },
+      { code: "en", iso: "en-US", dir: "ltr" },
+      { code: "de", iso: "de-DE", dir: "ltr" },
+      { code: "es", iso: "es-ES", dir: "ltr" },
     ],
-    defaultLocale: 'en',
-    translationDir: 'locales',
+    defaultLocale: "en",
+    translationDir: "locales",
     meta: true,
     autoDetectLanguage: true,
   },
-})
+});
 ```
 
 ### 2. **Create Domain-Specific Child Layers**
@@ -91,19 +91,19 @@ Create a child layer configuration for the French domain in `fr/nuxt.config.ts`:
 // fr/nuxt.config.ts
 
 export default defineNuxtConfig({
-  extends: '../base', // Inherit from the base configuration
+  extends: "../base", // Inherit from the base configuration
 
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr', disabled: true }, // Disable English
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr' }, // Add and enable the French locale
-      { code: 'de', iso: 'de-DE', dir: 'ltr', disabled: true }, // Disable German
-      { code: 'es', iso: 'es-ES', dir: 'ltr', disabled: true }, // Disable Spanish
+      { code: "en", iso: "en-US", dir: "ltr", disabled: true }, // Disable English
+      { code: "fr", iso: "fr-FR", dir: "ltr" }, // Add and enable the French locale
+      { code: "de", iso: "de-DE", dir: "ltr", disabled: true }, // Disable German
+      { code: "es", iso: "es-ES", dir: "ltr", disabled: true }, // Disable Spanish
     ],
-    defaultLocale: 'fr', // Set French as the default locale
+    defaultLocale: "fr", // Set French as the default locale
     autoDetectLanguage: false, // Disable automatic language detection
   },
-})
+});
 ```
 
 #### **Example: Configuration for the German Domain**
@@ -114,24 +114,25 @@ Similarly, create a child layer configuration for the German domain in `de/nuxt.
 // de/nuxt.config.ts
 
 export default defineNuxtConfig({
-  extends: '../base', // Inherit from the base configuration
+  extends: "../base", // Inherit from the base configuration
 
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US', dir: 'ltr', disabled: true }, // Disable English
-      { code: 'fr', iso: 'fr-FR', dir: 'ltr', disabled: true }, // Disable French
-      { code: 'de', iso: 'de-DE', dir: 'ltr' }, // Use the German locale
-      { code: 'es', iso: 'es-ES', dir: 'ltr', disabled: true }, // Disable Spanish
+      { code: "en", iso: "en-US", dir: "ltr", disabled: true }, // Disable English
+      { code: "fr", iso: "fr-FR", dir: "ltr", disabled: true }, // Disable French
+      { code: "de", iso: "de-DE", dir: "ltr" }, // Use the German locale
+      { code: "es", iso: "es-ES", dir: "ltr", disabled: true }, // Disable Spanish
     ],
-    defaultLocale: 'de', // Set German as the default locale
+    defaultLocale: "de", // Set German as the default locale
     autoDetectLanguage: false, // Disable automatic language detection
   },
-})
+});
 ```
 
 ### 3. **Deploy the Application for Each Domain**
 
 Deploy the application with the appropriate configuration for each domain. For example:
+
 - Deploy the `fr` layer configuration to `fr.example.com`.
 - Deploy the `de` layer configuration to `de.example.com`.
 

@@ -2,6 +2,11 @@
 
 High‑performance route generation and localization strategies for **Nuxt I18n Micro**.
 
+## Documentation
+
+- **[Routing strategy (Nuxt)](https://s00d.github.io/nuxt-i18n-micro/guide/strategy)** — end-to-end behavior with the module
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
+
 This package is responsible for turning Nuxt page definitions (`NuxtPage[]`) into a fully localized route tree for all supported strategies:
 
 - `no_prefix`
@@ -44,7 +49,7 @@ The generator supports the same strategies as the runtime:
 - **`no_prefix`**
   - URLs have **no locale prefix** (`/about`, `/kontakt`).
   - Locale is handled via cookies / runtime logic, not via path.
-  - `globalLocaleRoutes` are used to generate per‑locale variants where appropriate, but the *visible* URLs stay prefix‑less.
+  - `globalLocaleRoutes` are used to generate per‑locale variants where appropriate, but the _visible_ URLs stay prefix‑less.
 
 - **`prefix`**
   - All localized routes are prefixed: `/en/about`, `/de/ueber-uns`, etc.
@@ -65,41 +70,41 @@ The generator supports the same strategies as the runtime:
 The main entry point is the `RouteGenerator` class:
 
 ```ts
-import type { NuxtPage } from '@nuxt/schema'
-import { RouteGenerator } from '@i18n-micro/route-strategy'
+import type { NuxtPage } from "@nuxt/schema";
+import { RouteGenerator } from "@i18n-micro/route-strategy";
 
 const generator = new RouteGenerator({
-  locales,               // Array<{ code, iso, name, baseUrl?, baseDefault? }>
-  defaultLocaleCode,     // e.g. 'en'
-  strategy,              // 'no_prefix' | 'prefix' | 'prefix_except_default' | 'prefix_and_default'
-  globalLocaleRoutes,    // Optional: per‑path custom routes per locale
-  filesLocaleRoutes,     // Optional: per‑file routes extracted at build time
-  routeLocales,          // Optional: per‑route locale restrictions
-  noPrefixRedirect,      // Optional: behavior for redirect helpers in no_prefix
-})
+  locales, // Array<{ code, iso, name, baseUrl?, baseDefault? }>
+  defaultLocaleCode, // e.g. 'en'
+  strategy, // 'no_prefix' | 'prefix' | 'prefix_except_default' | 'prefix_and_default'
+  globalLocaleRoutes, // Optional: per‑path custom routes per locale
+  filesLocaleRoutes, // Optional: per‑file routes extracted at build time
+  routeLocales, // Optional: per‑route locale restrictions
+  noPrefixRedirect, // Optional: behavior for redirect helpers in no_prefix
+});
 
 const pages: NuxtPage[] = [
-  { path: '/about', name: 'about' },
+  { path: "/about", name: "about" },
   // ...
-]
+];
 
-generator.extendPages(pages)
+generator.extendPages(pages);
 // `pages` is now mutated in‑place and contains localized routes
 ```
 
 Key config fields:
 
 - **`globalLocaleRoutes`**:
-  - Map from *canonical path* or *route name* to per‑locale paths:
+  - Map from _canonical path_ or _route name_ to per‑locale paths:
   - Example:
     ```ts
     const globalLocaleRoutes = {
-      '/about': {
-        en: '/about',
-        de: '/ueber-uns',
-        ru: '/o-nas',
+      "/about": {
+        en: "/about",
+        de: "/ueber-uns",
+        ru: "/o-nas",
       },
-    }
+    };
     ```
 
 - **`filesLocaleRoutes`**:
@@ -110,8 +115,8 @@ Key config fields:
   - Restricts which locales are allowed for a given page path:
     ```ts
     const routeLocales = {
-      '/about': ['en', 'de'], // 'ru' will not get localized variants
-    }
+      "/about": ["en", "de"], // 'ru' will not get localized variants
+    };
     ```
 
 ---

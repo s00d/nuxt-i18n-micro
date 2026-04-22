@@ -20,11 +20,8 @@ Add to `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: [
-    'nuxt-i18n-micro',
-    '@i18n-micro/types-generator/nuxt',
-  ],
-})
+  modules: ["nuxt-i18n-micro", "@i18n-micro/types-generator/nuxt"],
+});
 ```
 
 ### Vite/Vue
@@ -32,16 +29,16 @@ export default defineNuxtConfig({
 Add to `vite.config.ts`:
 
 ```typescript
-import { I18nTypesPlugin } from '@i18n-micro/types-generator'
+import { I18nTypesPlugin } from "@i18n-micro/types-generator";
 
 export default defineConfig({
   plugins: [
     I18nTypesPlugin({
-      srcDir: 'src',
-      translationDir: 'locales',
+      srcDir: "src",
+      translationDir: "locales",
     }),
   ],
-})
+});
 ```
 
 ## Features
@@ -54,9 +51,9 @@ export default defineConfig({
 
 ## Documentation
 
-See [full documentation](../../docs/integrations/types-generator.md) for detailed usage and examples.
+- **[Types generator integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/types-generator)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 
 MIT
-

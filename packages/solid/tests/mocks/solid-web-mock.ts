@@ -1,18 +1,18 @@
-import type { Component, JSX } from 'solid-js'
+import type { Component, JSX } from "solid-js";
 
 interface PortalProps {
-  mount?: HTMLElement
-  children?: JSX.Element
+  mount?: HTMLElement;
+  children?: JSX.Element;
 }
 
 interface DynamicProps {
-  component?: string | Component<Record<string, unknown>>
-  children?: JSX.Element
-  [key: string]: unknown
+  component?: string | Component<Record<string, unknown>>;
+  children?: JSX.Element;
+  [key: string]: unknown;
 }
 
-export const Portal = (props: PortalProps) => props.children
+export const Portal = (props: PortalProps) => props.children;
 export const Dynamic = (props: DynamicProps) => {
-  const Tag = props.component || 'div'
-  return { ...props, component: Tag }
-}
+  const Tag = props.component || "div";
+  return { ...props, component: Tag };
+};

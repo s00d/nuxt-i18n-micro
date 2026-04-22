@@ -25,9 +25,9 @@ Next, create a file to set up the mock i18n configuration. This file will be use
 ```typescript
 // tests/unit-setup.ts
 
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { vi } from 'vitest'
-import { i18nUtils } from '@i18n-micro/test-utils'
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { vi } from "vitest";
+import { i18nUtils } from "@i18n-micro/test-utils";
 
 export function createFakeI18n() {
   return {
@@ -55,14 +55,14 @@ export function createFakeI18n() {
     $localeRoute: vi.fn(i18nUtils.localeRoute),
     $localePath: vi.fn(i18nUtils.localePath),
     $setI18nRouteParams: vi.fn(i18nUtils.setI18nRouteParams),
-  }
+  };
 }
 
-mockNuxtImport<() => ReturnType<typeof createFakeI18n>>('useI18n', () =>
+mockNuxtImport<() => ReturnType<typeof createFakeI18n>>("useI18n", () =>
   vi.fn(() => createFakeI18n()),
-)
+);
 
-export const setTranslationsFromJson = i18nUtils.setTranslationsFromJson
+export const setTranslationsFromJson = i18nUtils.setTranslationsFromJson;
 ```
 
 ### 3. Configure Vitest
@@ -72,15 +72,15 @@ Now, configure Vitest to use the mock configuration file and set up the testing 
 ```typescript
 // vitest.config.ts
 
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineVitestConfig } from "@nuxt/test-utils/config";
 
 export default defineVitestConfig({
   test: {
     watch: false,
-    setupFiles: ['./tests/unit-setup.ts'],
-    include: ['./**/*.spec.ts'],
+    setupFiles: ["./tests/unit-setup.ts"],
+    include: ["./**/*.spec.ts"],
   },
-})
+});
 ```
 
 ## 🧪 Writing Tests
@@ -91,25 +91,23 @@ Here’s an example of a simple component that uses the `useI18n` composable to 
 
 ```vue
 <script setup lang="ts">
-const { $t } = useI18n()
+const { $t } = useI18n();
 
 const props = defineProps({
   message: {
     type: String,
     default: null,
   },
-})
+});
 
 // Test to see that $t works in script setup as well as the template
-const message = props.message || $t('defaultMessage')
+const message = props.message || $t("defaultMessage");
 </script>
 
 <template>
   <div>
-    <p>Test from component: {{ $t('welcome') }}</p>
-    <p data-testid="message">
-      Test message from props: {{ message }}
-    </p>
+    <p>Test from component: {{ $t("welcome") }}</p>
+    <p data-testid="message">Test message from props: {{ message }}</p>
   </div>
 </template>
 ```
@@ -121,38 +119,44 @@ Now, let’s write a test for this component.
 ```typescript
 // tests/unit/example.spec.ts
 
-import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
-import ExampleComponent from '@/components/ExampleComponent.vue'
-import fs from 'fs'
-import path from 'path'
-import { setTranslationsFromJson } from './unit-setup'
+import { describe, it, expect, beforeEach } from "vitest";
+import { mount } from "@vue/test-utils";
+import ExampleComponent from "@/components/ExampleComponent.vue";
+import fs from "fs";
+import path from "path";
+import { setTranslationsFromJson } from "./unit-setup";
 
-describe('ExampleComponent', () => {
+describe("ExampleComponent", () => {
   beforeEach(async () => {
-    const fileContent = fs.readFileSync(path.join(__dirname, '../../locales/en-GB.json')).toString()
-    await setTranslationsFromJson('en', JSON.parse(fileContent))
-  })
+    const fileContent = fs
+      .readFileSync(path.join(__dirname, "../../locales/en-GB.json"))
+      .toString();
+    await setTranslationsFromJson("en", JSON.parse(fileContent));
+  });
 
-  it('renders the welcome message correctly', () => {
-    const wrapper = mount(ExampleComponent)
-    expect(wrapper.text()).toContain('Test from component: Welcome')
-  })
+  it("renders the welcome message correctly", () => {
+    const wrapper = mount(ExampleComponent);
+    expect(wrapper.text()).toContain("Test from component: Welcome");
+  });
 
-  it('renders the default message correctly', () => {
-    const wrapper = mount(ExampleComponent)
-    expect(wrapper.find('[data-testid="message"]').text()).toContain('Test message from props: Default Message')
-  })
+  it("renders the default message correctly", () => {
+    const wrapper = mount(ExampleComponent);
+    expect(wrapper.find('[data-testid="message"]').text()).toContain(
+      "Test message from props: Default Message",
+    );
+  });
 
-  it('renders the custom message correctly', () => {
+  it("renders the custom message correctly", () => {
     const wrapper = mount(ExampleComponent, {
       props: {
-        message: 'Custom Message',
+        message: "Custom Message",
       },
-    })
-    expect(wrapper.find('[data-testid="message"]').text()).toContain('Test message from props: Custom Message')
-  })
-})
+    });
+    expect(wrapper.find('[data-testid="message"]').text()).toContain(
+      "Test message from props: Custom Message",
+    );
+  });
+});
 ```
 
 ## 📝 Best Practices for Testing
@@ -166,7 +170,7 @@ describe('ExampleComponent', () => {
 Below is a table describing all the utility methods provided by `@i18n-micro/test-utils`.
 
 | Method                                          | Description                                                    |
-|-------------------------------------------------|----------------------------------------------------------------|
+| ----------------------------------------------- | -------------------------------------------------------------- |
 | `t(key, params, defaultValue)`                  | Translates a key with optional parameters and a default value. |
 | `tc(key, params, defaultValue)`                 | Translates a key with pluralization support.                   |
 | `setTranslationsFromJson(locale, translations)` | Loads translations from a JSON object for a specific locale.   |

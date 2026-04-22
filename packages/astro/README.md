@@ -17,25 +17,25 @@ yarn add @i18n-micro/astro
 ### 1. Add Integration to `astro.config.mjs`
 
 ```javascript
-import { defineConfig } from 'astro/config'
-import { i18nIntegration } from '@i18n-micro/astro'
+import { defineConfig } from "astro/config";
+import { i18nIntegration } from "@i18n-micro/astro";
 
 export default defineConfig({
   integrations: [
     i18nIntegration({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       locales: [
-        { code: 'en', iso: 'en-US', displayName: 'English' },
-        { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
+        { code: "en", iso: "en-US", displayName: "English" },
+        { code: "fr", iso: "fr-FR", displayName: "Français" },
       ],
       messages: {
-        en: { greeting: 'Hello, {name}!' },
-        fr: { greeting: 'Bonjour, {name}!' },
+        en: { greeting: "Hello, {name}!" },
+        fr: { greeting: "Bonjour, {name}!" },
       },
     }),
   ],
-})
+});
 ```
 
 ### 2. Use in Pages
@@ -58,10 +58,10 @@ const { t, locale } = useI18n(Astro)
 </html>
 ```
 
-## Resources
+## Documentation
 
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
+- **[Astro integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/astro-package)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 

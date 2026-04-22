@@ -1,71 +1,74 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { fileURLToPath } from "node:url";
+import { expect, test } from "@nuxt/test-utils/playwright";
 
 // Test: prefix_and_default strategy
 test.use({
   nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/locale-state', import.meta.url)),
+    rootDir: fileURLToPath(new URL("./fixtures/locale-state", import.meta.url)),
     nuxtConfig: {
       i18n: {
-        strategy: 'prefix_and_default',
+        strategy: "prefix_and_default",
       },
     },
   },
-})
+});
 
-test.describe('useState locale override - prefix_and_default', () => {
-  test('useState sets locale without redirect (prefix_and_default allows / for default)', async ({ page, goto }) => {
+test.describe("useState locale override - prefix_and_default", () => {
+  test("useState sets locale without redirect (prefix_and_default allows / for default)", async ({
+    page,
+    goto,
+  }) => {
     // With prefix_and_default, / is valid for default locale - no redirect needed
     // But useState can still affect the locale used for translations
-    await goto('/', { waitUntil: 'hydration' })
+    await goto("/", { waitUntil: "hydration" });
 
     // URL stays at / (prefix_and_default allows non-prefixed paths for default locale)
-    await expect(page).toHaveURL('/')
+    await expect(page).toHaveURL("/");
 
     // Check that the locale is set to 'ja' via useState
-    await expect(page.locator('#locale')).toHaveText('ja')
+    await expect(page.locator("#locale")).toHaveText("ja");
 
     // Check that the translation is in Japanese
-    await expect(page.locator('#greeting')).toHaveText('こんにちは')
+    await expect(page.locator("#greeting")).toHaveText("こんにちは");
 
     // Verify cookie is set correctly
-    const cookies = await page.context().cookies()
-    const userLocaleCookie = cookies.find((cookie) => cookie.name === 'user-locale')
+    const cookies = await page.context().cookies();
+    const userLocaleCookie = cookies.find((cookie) => cookie.name === "user-locale");
 
-    expect(userLocaleCookie).toBeDefined()
-    expect(userLocaleCookie?.value).toBe('ja')
-  })
+    expect(userLocaleCookie).toBeDefined();
+    expect(userLocaleCookie?.value).toBe("ja");
+  });
 
-  test('no hydration mismatch when locale set via useState', async ({ page, goto }) => {
-    const consoleErrors: string[] = []
-    page.on('console', (msg) => {
-      if (msg.type() === 'error' || msg.type() === 'warning') {
-        const text = msg.text()
-        if (text.includes('hydration') || text.includes('mismatch')) {
-          consoleErrors.push(text)
+  test("no hydration mismatch when locale set via useState", async ({ page, goto }) => {
+    const consoleErrors: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error" || msg.type() === "warning") {
+        const text = msg.text();
+        if (text.includes("hydration") || text.includes("mismatch")) {
+          consoleErrors.push(text);
         }
       }
-    })
+    });
 
-    await goto('/', { waitUntil: 'hydration' })
-    await page.waitForTimeout(500)
+    await goto("/", { waitUntil: "hydration" });
+    await page.waitForTimeout(500);
 
-    expect(consoleErrors.filter((e) => e.toLowerCase().includes('hydration'))).toHaveLength(0)
-    await expect(page.locator('#greeting')).toHaveText('こんにちは')
-  })
+    expect(consoleErrors.filter((e) => e.toLowerCase().includes("hydration"))).toHaveLength(0);
+    await expect(page.locator("#greeting")).toHaveText("こんにちは");
+  });
 
-  test('cookie is not overwritten when useState sets locale', async ({ page, goto }) => {
-    const cookieWarnings: string[] = []
-    page.on('console', (msg) => {
-      const text = msg.text()
-      if (text.includes('cookie') && text.includes('overridden')) {
-        cookieWarnings.push(text)
+  test("cookie is not overwritten when useState sets locale", async ({ page, goto }) => {
+    const cookieWarnings: string[] = [];
+    page.on("console", (msg) => {
+      const text = msg.text();
+      if (text.includes("cookie") && text.includes("overridden")) {
+        cookieWarnings.push(text);
       }
-    })
+    });
 
-    await goto('/', { waitUntil: 'hydration' })
-    await page.waitForTimeout(500)
+    await goto("/", { waitUntil: "hydration" });
+    await page.waitForTimeout(500);
 
-    expect(cookieWarnings).toHaveLength(0)
-  })
-})
+    expect(cookieWarnings).toHaveLength(0);
+  });
+});

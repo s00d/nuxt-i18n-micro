@@ -8,7 +8,7 @@
 <script setup lang="ts">
 // @ts-expect-error
 $defineI18nRoute({
-  locales: ['en', 'fr', 'de', 'ru'],
-  disableMeta: ['en', 'fr'], // Disable meta only for English and French
-})
+  locales: ["en", "fr", "de", "ru"],
+  disableMeta: ["en", "fr"], // Disable meta only for English and French
+});
 </script>

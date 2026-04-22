@@ -56,7 +56,7 @@ When using `no_prefix`, `localeCookie` is automatically set to `'user-locale'` i
 
 ```typescript
 i18n: {
-  strategy: 'no_prefix'
+  strategy: "no_prefix";
   // localeCookie is automatically set to 'user-locale'
 }
 ```
@@ -71,7 +71,7 @@ All routes have a locale prefix **except** the default locale.
 
 ```typescript
 i18n: {
-  strategy: 'prefix_except_default' // This is the default
+  strategy: "prefix_except_default"; // This is the default
 }
 ```
 
@@ -84,7 +84,7 @@ Every route has a locale prefix, including the default locale.
 
 ```typescript
 i18n: {
-  strategy: 'prefix'
+  strategy: "prefix";
 }
 ```
 
@@ -98,7 +98,7 @@ Default locale is available both with and without prefix. Non-default locales al
 
 ```typescript
 i18n: {
-  strategy: 'prefix_and_default'
+  strategy: "prefix_and_default";
 }
 ```
 
@@ -149,22 +149,23 @@ The redirect plugin determines the preferred locale in this order:
 
 ### Redirect Behavior Per Strategy
 
-| Strategy | `GET /` behavior | Cookie required? |
-|----------|-----------------|-----------------|
-| `no_prefix` | No redirect (locale from cookie/state) | Auto-set |
-| `prefix` | 302 → `/{locale}/` | Recommended |
-| `prefix_except_default` | 302 → `/{locale}/` if locale ≠ default | Recommended |
-| `prefix_and_default` | No redirect (both `/` and `/{locale}/` valid) | Optional |
+| Strategy                | `GET /` behavior                              | Cookie required? |
+| ----------------------- | --------------------------------------------- | ---------------- |
+| `no_prefix`             | No redirect (locale from cookie/state)        | Auto-set         |
+| `prefix`                | 302 → `/{locale}/`                            | Recommended      |
+| `prefix_except_default` | 302 → `/{locale}/` if locale ≠ default        | Recommended      |
+| `prefix_and_default`    | No redirect (both `/` and `/{locale}/` valid) | Optional         |
 
 ### Disabling Redirects
 
 ```typescript
 i18n: {
-  redirects: false // Disables automatic locale redirects
+  redirects: false; // Disables automatic locale redirects
 }
 ```
 
 When `redirects: false`, the redirect plugin (`06.redirect`) is still registered but only the redirect logic is disabled. The plugin continues to perform:
+
 - **404 checks** for invalid locale prefixes (e.g. `/xx/about` where `xx` is not a valid locale)
 - **Cookie synchronization** from URL prefix (e.g. visiting `/fr/about` syncs the cookie to `fr`)
 
@@ -179,6 +180,7 @@ i18n: {
   localeCookie: 'user-locale' // Required for redirects to work properly
 }
 ```
+
 :::
 
 **How `localeCookie` works in v3:**
@@ -188,12 +190,12 @@ i18n: {
 - On next visit to `/`, the cookie value is used to redirect to `/{locale}/`
 - If the cookie contains an invalid locale (not in `locales` list), it falls back to `defaultLocale`
 
-| Strategy | `localeCookie` default | Notes |
-|----------|----------------------|-------|
-| `no_prefix` | Auto: `'user-locale'` | Required; set automatically |
-| `prefix` | `null` (disabled) | Set to `'user-locale'` for redirects |
-| `prefix_except_default` | `null` (disabled) | Set to `'user-locale'` for redirects |
-| `prefix_and_default` | `null` (disabled) | Optional |
+| Strategy                | `localeCookie` default | Notes                                |
+| ----------------------- | ---------------------- | ------------------------------------ |
+| `no_prefix`             | Auto: `'user-locale'`  | Required; set automatically          |
+| `prefix`                | `null` (disabled)      | Set to `'user-locale'` for redirects |
+| `prefix_except_default` | `null` (disabled)      | Set to `'user-locale'` for redirects |
+| `prefix_and_default`    | `null` (disabled)      | Optional                             |
 
 ## 🔍 `autoDetectLanguage` and `autoDetectPath`
 
@@ -203,7 +205,7 @@ When `true`, the server middleware checks the `Accept-Language` header to detect
 
 ```typescript
 i18n: {
-  autoDetectLanguage: true // Default: true
+  autoDetectLanguage: true; // Default: true
 }
 ```
 
@@ -216,7 +218,7 @@ Controls which paths trigger locale detection and redirect:
 
 ```typescript
 i18n: {
-  autoDetectPath: '/' // Default: only root
+  autoDetectPath: "/"; // Default: only root
   // autoDetectPath: '*' // All paths — redirects even /fr/about to /de/about
 }
 ```
@@ -236,14 +238,14 @@ When using `no_prefix`, the locale is determined dynamically. If server and clie
 ```ts
 // plugins/i18n-loader.server.ts
 export default defineNuxtPlugin({
-  name: 'i18n-custom-loader',
-  enforce: 'pre',
+  name: "i18n-custom-loader",
+  enforce: "pre",
   order: -10,
   setup() {
-    const { setLocale } = useI18nLocale()
-    setLocale('ja') // Your detection logic here
-  }
-})
+    const { setLocale } = useI18nLocale();
+    setLocale("ja"); // Your detection logic here
+  },
+});
 ```
 
 See [Custom Language Detection](/guide/custom-auto-detect) for detailed examples.
@@ -254,10 +256,10 @@ Path-based routing can cause issues with route resolution:
 
 ```typescript
 // May cause issues
-$localeRoute('/page')
+$localeRoute("/page");
 
 // Preferred approach
-$localeRoute({ name: 'page' })
+$localeRoute({ name: "page" });
 ```
 
 ### 3. Using `pages: false` with i18n
@@ -268,14 +270,15 @@ When using Nuxt with `pages: false`:
 export default defineNuxtConfig({
   pages: false,
   i18n: {
-    strategy: 'no_prefix', // Recommended
+    strategy: "no_prefix", // Recommended
     disablePageLocales: true, // Required
-    localeCookie: 'user-locale', // Required for persistence
+    localeCookie: "user-locale", // Required for persistence
   },
-})
+});
 ```
 
 **Limitations with `pages: false`:**
+
 - No automatic redirects
 - No URL-based locale detection
 - Client-side locale switching requires page reload or manual translation loading
@@ -286,10 +289,10 @@ If a cookie contains an invalid locale (not in the `locales` list), the module g
 
 ## 📝 Best Practices Summary
 
-| Recommendation | Details |
-|---------------|---------|
-| **Set `localeCookie`** | Always set for prefix strategies with `redirects: true` |
+| Recommendation            | Details                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| **Set `localeCookie`**    | Always set for prefix strategies with `redirects: true`                             |
 | **Use `useI18nLocale()`** | The centralized way to manage locale state (replaces manual `useState`/`useCookie`) |
-| **Use named routes** | `$localeRoute({ name: 'page' })` over `$localeRoute('/page')` |
-| **Programmatic locale** | Use `useI18nLocale().setLocale()` in a server plugin with `order: -10` |
-| **Avoid manual cookies** | Don't use `useCookie('user-locale')` directly — `useI18nLocale()` manages this |
+| **Use named routes**      | `$localeRoute({ name: 'page' })` over `$localeRoute('/page')`                       |
+| **Programmatic locale**   | Use `useI18nLocale().setLocale()` in a server plugin with `order: -10`              |
+| **Avoid manual cookies**  | Don't use `useCookie('user-locale')` directly — `useI18nLocale()` manages this      |

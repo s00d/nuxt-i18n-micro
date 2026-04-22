@@ -1,17 +1,15 @@
 <template>
   <div>
-    <h1 id="title">
-      Skiing Subpage
-    </h1>
+    <h1 id="title">Skiing Subpage</h1>
     <p id="text">
-      {{ $t('generic.welcome') }}
+      {{ $t("generic.welcome") }}
     </p>
     ⛷️⛷️⛷️
   </div>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from '#imports'
+import { useI18n } from "#imports";
 
-const { $t } = useI18n()
+const { $t } = useI18n();
 </script>

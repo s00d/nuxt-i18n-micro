@@ -19,11 +19,11 @@
 
 <script setup lang="ts">
 interface Props {
-  title: string
-  icon?: string
+  title: string;
+  icon?: string;
 }
 
-defineProps<Props>()
+defineProps<Props>();
 </script>
 
 <style scoped>

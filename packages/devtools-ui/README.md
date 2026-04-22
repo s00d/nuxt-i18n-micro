@@ -16,18 +16,11 @@ yarn add @i18n-micro/devtools-ui
 
 This package is primarily used internally by other `@i18n-micro` packages for DevTools integration. For usage examples, see the documentation.
 
-## Resources
+## Documentation
 
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
+- **[DevTools UI package](https://s00d.github.io/nuxt-i18n-micro/integrations/devtools-ui-package)** — wiring and Vite plugin usage
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 
 MIT
-
-
-
-
-
-
-

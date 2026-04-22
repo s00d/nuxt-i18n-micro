@@ -1,7 +1,7 @@
 <template>
   <div>
     <p id="content">
-      {{ $t('contact') }}
+      {{ $t("contact") }}
     </p>
 
     <div id="locale-switcher">
@@ -11,15 +11,15 @@
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $t, $defineI18nRoute } = useNuxtApp()
+const { $t, $defineI18nRoute } = useNuxtApp();
 
 $defineI18nRoute({
   localeRoutes: {
-    en: '/contact',
-    de: '/kontakt',
-    ru: '/contact',
+    en: "/contact",
+    de: "/kontakt",
+    ru: "/contact",
   },
-})
+});
 </script>

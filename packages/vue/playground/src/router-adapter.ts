@@ -1,6 +1,7 @@
-import type { Locale } from '@i18n-micro/types'
-import type { I18nRoutingStrategy } from '@i18n-micro/vue'
-import { type Router, RouterLink } from 'vue-router'
+import type { Locale } from "@i18n-micro/types";
+import type { I18nRoutingStrategy } from "@i18n-micro/vue";
+import { resolveLocalePrefixedPath } from "@i18n-micro/utils";
+import { type Router, RouterLink } from "vue-router";
 
 /**
  * Factory for router adapter
@@ -11,52 +12,29 @@ export function createVueRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map((loc) => loc.code)
-
-  /**
-   * Path resolution logic (add prefix or not)
-   */
-  const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : to.path || '/'
-    const pathSegments = path.split('/').filter(Boolean)
-
-    // If path already starts with a locale, remove it
-    const first = pathSegments[0]
-    if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift()
-    }
-
-    const cleanPath = `/${pathSegments.join('/')}`
-
-    // If default locale - return clean path
-    if (locale === defaultLocale) {
-      return cleanPath
-    }
-
-    // Otherwise add prefix
-    return `/${locale}${cleanPath === '/' ? '' : cleanPath}`
-  }
+  const localeCodes = locales.map((loc) => loc.code);
 
   return {
     linkComponent: RouterLink,
 
     getCurrentPath: () => {
       // currentRoute in Vue Router is reactive
-      return router.currentRoute.value.path
+      return router.currentRoute.value.path;
     },
 
     push: (target: { path: string }) => {
-      router.push(target.path).catch(() => {})
+      router.push(target.path).catch(() => {});
     },
     replace: (target: { path: string }) => {
-      router.replace(target.path).catch(() => {})
+      router.replace(target.path).catch(() => {});
     },
 
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
+    resolvePath: (to: string | { path?: string }, locale: string) =>
+      resolveLocalePrefixedPath(to, locale, localeCodes, defaultLocale),
 
     getRoute: () => ({
       fullPath: router.currentRoute.value.fullPath,
       query: router.currentRoute.value.query,
     }),
-  }
+  };
 }

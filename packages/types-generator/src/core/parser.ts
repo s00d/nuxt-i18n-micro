@@ -17,25 +17,25 @@
  * flattenKeys(obj) // ['greeting', 'header.title', 'header.subtitle']
  * ```
  */
-export function flattenKeys(obj: Record<string, unknown>, prefix = ''): string[] {
-  const keys: string[] = []
+export function flattenKeys(obj: Record<string, unknown>, prefix = ""): string[] {
+  const keys: string[] = [];
 
   for (const key in obj) {
     // Object.hasOwn is available in Node.js 18.17.0+ (required by engines)
-    if (!Object.hasOwn(obj, key)) continue
+    if (!Object.hasOwn(obj, key)) continue;
 
-    const value = obj[key]
-    const newKey = prefix ? `${prefix}.${key}` : key
+    const value = obj[key];
+    const newKey = prefix ? `${prefix}.${key}` : key;
 
     // If value is an object and not an array, go deeper
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      keys.push(...flattenKeys(value as Record<string, unknown>, newKey))
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      keys.push(...flattenKeys(value as Record<string, unknown>, newKey));
     } else {
       // Otherwise it's a leaf key (string, number, or array for pluralization)
       // Pluralization is treated as a single key ("no | one | many" format is not split)
-      keys.push(newKey)
+      keys.push(newKey);
     }
   }
 
-  return keys
+  return keys;
 }

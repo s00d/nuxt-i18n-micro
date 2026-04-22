@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "async-components-test",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",
@@ -11,8 +11,8 @@
     "test:types": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "nuxt": "catalog:nuxt3",
     "@nuxt/test-utils": "catalog:",
+    "nuxt": "catalog:nuxt3",
     "serve": "catalog:"
   }
 }

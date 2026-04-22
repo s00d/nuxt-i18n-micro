@@ -1,9 +1,9 @@
 <template>
-  <div id="settings-team">{{ $t('teamTitle') }}</div>
+  <div id="settings-team">{{ $t("teamTitle") }}</div>
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $t } = useNuxtApp()
+const { $t } = useNuxtApp();
 </script>

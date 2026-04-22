@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -8,9 +8,9 @@
 // @ts-nocheck
 // Test with single locale
 $defineI18nRoute({
-  locales: ['en'],
+  locales: ["en"],
   localeRoutes: {
-    en: '/welcome',
+    en: "/welcome",
   },
-})
+});
 </script>

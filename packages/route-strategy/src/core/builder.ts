@@ -1,6 +1,6 @@
-import path from 'node:path'
-import type { NuxtPage } from '@nuxt/schema'
-import { normalizePath } from '../utils'
+import path from "node:path";
+import { normalizeRoutePath as normalizePath } from "@i18n-micro/utils";
+import type { NuxtPage } from "@nuxt/schema";
 
 /**
  * Joins parent path and child segment.
@@ -8,20 +8,20 @@ import { normalizePath } from '../utils'
  * Otherwise, performs join(parentPath, childSegment) with normalization.
  */
 export function resolveChildPath(parentPath: string, childSegment: string): string {
-  const segment = (childSegment ?? '').trim()
-  if (segment.startsWith('/')) {
-    return normalizePath(segment)
+  const segment = (childSegment ?? "").trim();
+  if (segment.startsWith("/")) {
+    return normalizePath(segment);
   }
-  return normalizePath(path.posix.join(parentPath || '', segment))
+  return normalizePath(path.posix.join(parentPath || "", segment));
 }
 
 export interface CreateRouteOptions {
-  path: string
-  name?: string
-  children?: NuxtPage[]
-  meta?: Record<string, unknown>
+  path: string;
+  name?: string;
+  children?: NuxtPage[];
+  meta?: Record<string, unknown>;
   /** When undefined, alias is cleared (for the main localized route when alias routes are created separately). */
-  alias?: string[] | undefined
+  alias?: string[] | undefined;
 }
 
 /**
@@ -29,26 +29,26 @@ export interface CreateRouteOptions {
  * Copies meta, component, file, etc.; provided options override the respective fields.
  */
 export function createRoute(page: NuxtPage, options: CreateRouteOptions): NuxtPage {
-  const { path: routePath, name, children, meta: metaOverride, alias: aliasOverride } = options
+  const { path: routePath, name, children, meta: metaOverride, alias: aliasOverride } = options;
   const route: NuxtPage = {
     ...page,
     path: routePath,
-  }
+  };
   if (name !== undefined) {
-    route.name = name
+    route.name = name;
   }
   if (children !== undefined) {
-    route.children = children
+    route.children = children;
   }
   if (metaOverride !== undefined) {
-    route.meta = { ...page.meta, ...metaOverride }
+    route.meta = { ...page.meta, ...metaOverride };
   }
   if (aliasOverride !== undefined) {
-    route.alias = aliasOverride
-    route.meta = { ...route.meta, alias: aliasOverride }
-  } else if ('alias' in options) {
-    route.alias = undefined
-    route.meta = { ...route.meta, alias: undefined }
+    route.alias = aliasOverride;
+    route.meta = { ...route.meta, alias: aliasOverride };
+  } else if ("alias" in options) {
+    route.alias = undefined;
+    route.meta = { ...route.meta, alias: undefined };
   }
-  return route
+  return route;
 }

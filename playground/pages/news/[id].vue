@@ -5,12 +5,8 @@
     <NuxtLink :to="$localeRoute({ name: 'articles-id', params: { id: '1' } })">
       article-1
     </NuxtLink>
-    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '4' } })">
-      news-4
-    </NuxtLink>
-    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '1' } })">
-      news-1
-    </NuxtLink>
+    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '4' } })"> news-4 </NuxtLink>
+    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '1' } })"> news-1 </NuxtLink>
     <NuxtLink
       :to="
         $localeRoute({
@@ -19,7 +15,8 @@
           query: { a: 'b' },
         })
       "
-    >news-2</NuxtLink>
+      >news-2</NuxtLink
+    >
     <div>
       <pre>{{ newsLink.fullPath }}</pre>
     </div>
@@ -27,52 +24,46 @@
     <div>{{ router.resolve("/en/news/2") }}</div>
 
     <div>
-      <NuxtLink :to="$switchLocaleRoute('en')">
-        en
-      </NuxtLink>
+      <NuxtLink :to="$switchLocaleRoute('en')"> en </NuxtLink>
     </div>
     <div>
-      <NuxtLink :to="$switchLocaleRoute('ru')">
-        ru
-      </NuxtLink>
+      <NuxtLink :to="$switchLocaleRoute('ru')"> ru </NuxtLink>
     </div>
     <div>
-      <NuxtLink :to="$switchLocaleRoute('de')">
-        de
-      </NuxtLink>
+      <NuxtLink :to="$switchLocaleRoute('de')"> de </NuxtLink>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-const { params } = useRoute()
-const router = useRouter()
-const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n()
+const { params } = useRoute();
+const router = useRouter();
+const { $switchLocaleRoute, $setI18nRouteParams, $localeRoute } = useI18n();
 
 const newsLink = computed(() =>
   $localeRoute({
-    name: 'news-id',
-    params: { id: '2' },
-    hash: '#tada',
-    query: { a: 'b' },
+    name: "news-id",
+    params: { id: "2" },
+    hash: "#tada",
+    query: { a: "b" },
   }),
-)
+);
 
 // definePageMeta({
 //   middleware: ['my-middleware'],
 // })
 
 const { data: news } = await useAsyncData(`articles-${params.id}`, async () => {
-  const response = await $fetch<{ metadata: { [key: string]: { id: string } } }>('/api/getNews', {
+  const response = await $fetch<{ metadata: { [key: string]: { id: string } } }>("/api/getNews", {
     query: {
       id: params.id,
     },
-  })
+  });
   if (response?.metadata) {
-    $setI18nRouteParams(response?.metadata)
+    $setI18nRouteParams(response?.metadata);
   }
-  return response
-})
+  return response;
+});
 
 // if (news?.metadata) {
 //   $setI18nRouteParams(news?.metadata);

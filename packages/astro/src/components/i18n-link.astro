@@ -1,5 +1,6 @@
 ---
 import type { I18nRoutingStrategy } from '../router/types'
+import { getPathSegments, getPathWithoutLocale, withLeadingSlash } from '@i18n-micro/utils'
 import { useI18n } from '../utils'
 
 interface Props {
@@ -26,13 +27,7 @@ const removeLocale = (path: string, codes: string[]): string => {
   if (routingStrategy?.removeLocaleFromPath) {
     return routingStrategy.removeLocaleFromPath(path, codes)
   }
-  // Fallback
-  const segments = path.split('/').filter(Boolean)
-  const firstSegment = segments[0]
-  if (firstSegment && codes.includes(firstSegment)) {
-    segments.shift()
-  }
-  return `/${segments.join('/')}`
+  return getPathWithoutLocale(path, codes).pathWithoutLocale
 }
 
 // Remove locale from current path to get base path
@@ -54,16 +49,12 @@ if (routingStrategy?.localizePath) {
   localizedHref = routingStrategy.localizePath(resolvedHref, targetLocale, localeCodes, defaultLocale)
 } else {
   // Fallback: basic localization
-  const cleanPath = resolvedHref.replace(/^\//, '').replace(/\/$/, '') || ''
-  const segments = cleanPath.split('/').filter(Boolean)
-  const firstSegment = segments[0]
-  if (firstSegment && localeCodes.includes(firstSegment)) {
-    segments.shift()
-  }
+  const { pathWithoutLocale } = getPathWithoutLocale(resolvedHref, localeCodes)
+  const segments = getPathSegments(pathWithoutLocale)
   if (targetLocale !== defaultLocale) {
     segments.unshift(targetLocale)
   }
-  localizedHref = `/${segments.join('/')}`
+  localizedHref = withLeadingSlash(segments.join('/'))
 }
 ---
 

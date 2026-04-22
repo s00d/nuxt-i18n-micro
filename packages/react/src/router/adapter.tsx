@@ -1,8 +1,8 @@
-import type { Locale } from '@i18n-micro/types'
-import React from 'react'
-import type { useLocation, useNavigate } from 'react-router-dom'
-import { Link } from 'react-router-dom'
-import type { I18nRoutingStrategy } from './types'
+import { type Locale } from "@i18n-micro/types";
+import { resolveLocalePrefixedPath } from "@i18n-micro/utils";
+import React from "react";
+import { type useLocation, type useNavigate, Link } from "react-router-dom";
+import { type I18nRoutingStrategy } from "./types";
 
 /**
  * Factory for React Router adapter
@@ -15,41 +15,17 @@ export function createReactRouterAdapter(
   location: ReturnType<typeof useLocation>,
   navigate: ReturnType<typeof useNavigate>,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map((loc) => loc.code)
-
-  /**
-   * Path resolution logic (add prefix or not)
-   */
-  const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : to.path || '/'
-    const pathSegments = path.split('/').filter(Boolean)
-
-    // If path already starts with a locale, remove it
-    const first = pathSegments[0]
-    if (first !== undefined && localeCodes.includes(first)) {
-      pathSegments.shift()
-    }
-
-    const cleanPath = `/${pathSegments.join('/')}`
-
-    // If default locale - return clean path
-    if (locale === defaultLocale) {
-      return cleanPath
-    }
-
-    // Otherwise add prefix
-    return `/${locale}${cleanPath === '/' ? '' : cleanPath}`
-  }
+  const localeCodes = locales.map((loc) => loc.code);
 
   return {
     linkComponent: ((props: {
-      href: string
-      children?: React.ReactNode
-      className?: string
-      style?: React.CSSProperties
-      [key: string]: unknown
+      href: string;
+      children?: React.ReactNode;
+      className?: string;
+      style?: React.CSSProperties;
+      [key: string]: unknown;
     }) => {
-      const { href, children, className, style, ...restProps } = props
+      const { href, children, className, style, ...restProps } = props;
       return React.createElement(
         Link,
         {
@@ -59,30 +35,31 @@ export function createReactRouterAdapter(
           ...restProps,
         },
         children,
-      )
+      );
     }) as React.ComponentType<{
-      href: string
-      children?: React.ReactNode
-      style?: React.CSSProperties
-      className?: string
-      [key: string]: unknown
+      href: string;
+      children?: React.ReactNode;
+      style?: React.CSSProperties;
+      className?: string;
+      [key: string]: unknown;
     }>,
 
     getCurrentPath: () => location.pathname,
 
     push: (target: { path: string }) => {
-      navigate(target.path)
+      navigate(target.path);
     },
 
     replace: (target: { path: string }) => {
-      navigate(target.path, { replace: true })
+      navigate(target.path, { replace: true });
     },
 
-    resolvePath: (to: string | { path?: string }, locale: string) => resolvePath(to, locale),
+    resolvePath: (to: string | { path?: string }, locale: string) =>
+      resolveLocalePrefixedPath(to, locale, localeCodes, defaultLocale),
 
     getRoute: () => ({
       fullPath: location.pathname,
       query: Object.fromEntries(new URLSearchParams(location.search)),
     }),
-  }
+  };
 }

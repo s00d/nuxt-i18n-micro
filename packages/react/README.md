@@ -45,27 +45,26 @@ function App() {
 ### Usage in Components
 
 ```tsx
-import { useI18n } from '@i18n-micro/react'
+import { useI18n } from "@i18n-micro/react";
 
 function MyComponent() {
-  const { t, tc, locale, setLocale } = useI18n()
+  const { t, tc, locale, setLocale } = useI18n();
 
   return (
     <div>
-      <p>{t('greeting', { name: 'World' })}</p>
-      <p>{tc('apples', 5)}</p>
-      <button onClick={() => setLocale('fr')}>Switch to French</button>
+      <p>{t("greeting", { name: "World" })}</p>
+      <p>{tc("apples", 5)}</p>
+      <button onClick={() => setLocale("fr")}>Switch to French</button>
     </div>
-  )
+  );
 }
 ```
 
-## Resources
+## Documentation
 
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
+- **[React integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/react-package)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 
 MIT
-

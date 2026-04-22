@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "custom-regex-fail",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

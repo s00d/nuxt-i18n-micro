@@ -9,6 +9,7 @@ outline: deep
 `nuxt-i18n-micro-cli` is a command-line tool designed to streamline the localization and internationalization process in Nuxt.js projects using the `nuxt-i18n-micro` module (Nuxt I18n Micro). It provides utilities to extract translation keys from your codebase, manage translation files, synchronize translations across locales, and automate the translation process using external translation services.
 
 This guide will walk you through installing, configuring, and using `nuxt-i18n-micro-cli` to effectively manage your project's translations. Package on [npmjs.com](https://www.npmjs.com/package/nuxt-i18n-micro-cli).
+
 ## 🔧 Installation and Setup
 
 ### 📦 Installing nuxt-i18n-micro-cli
@@ -27,7 +28,6 @@ After installing, you can run `i18n-micro` commands in your Nuxt.js project dire
 
 Ensure that your project is set up with `nuxt-i18n-micro` and has the necessary configuration in `nuxt.config.ts` (or `nuxt.config.js`).
 
-
 ### 📄 Common Arguments
 
 - `--cwd`: Specify the current working directory (defaults to `.`).
@@ -41,19 +41,19 @@ flowchart TB
     subgraph Dev["1️⃣ Development"]
         E[extract] --> TI[text-to-i18n]
     end
-    
+
     subgraph Sync["2️⃣ Synchronization"]
         S[sync] --> V[validate]
     end
-    
+
     subgraph Trans["3️⃣ Translation"]
         T[translate] --> ST[stats]
     end
-    
+
     subgraph Maint["4️⃣ Maintenance"]
         C[clean] --> CD[check-duplicates]
     end
-    
+
     Dev --> Sync
     Sync --> Trans
     Trans --> Maint
@@ -63,15 +63,14 @@ flowchart TB
 
 ### Workflow Steps
 
-| Phase | Commands | Purpose |
-|-------|----------|---------|
-| **Development** | `extract`, `text-to-i18n` | Find and extract translation keys |
-| **Sync** | `sync`, `validate` | Ensure all locales have same keys |
-| **Translate** | `translate`, `stats` | Auto-translate missing keys |
-| **Maintenance** | `clean`, `check-duplicates` | Keep translations tidy |
+| Phase           | Commands                    | Purpose                           |
+| --------------- | --------------------------- | --------------------------------- |
+| **Development** | `extract`, `text-to-i18n`   | Find and extract translation keys |
+| **Sync**        | `sync`, `validate`          | Ensure all locales have same keys |
+| **Translate**   | `translate`, `stats`        | Auto-translate missing keys       |
+| **Maintenance** | `clean`, `check-duplicates` | Keep translations tidy            |
 
 ## 📋 Commands
-
 
 ### 🔄 `text-to-i18n` Command
 
@@ -104,10 +103,12 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 **How it works**:
 
 1. **File Collection**:
+
 - Scans directories: `pages`, `components`, and `plugins`
 - Processes files with extensions: `.vue`, `.js`, and `.ts`
 
 2. **Text Processing**:
+
 - Extracts text from Vue templates and script files
 - Identifies translatable strings
 - Generates unique translation keys based on:
@@ -116,6 +117,7 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
   - Context prefix (if provided)
 
 3. **Translation Management**:
+
 - Creates new translation entries
 - Maintains nested structure in translation files
 - Preserves existing translations
@@ -124,6 +126,7 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 **Example Transformations**:
 
 Before:
+
 ```vue
 <template>
   <div>
@@ -134,11 +137,12 @@ Before:
 ```
 
 After:
+
 ```vue
 <template>
   <div>
-    <h1>{{ $t('pages.home.welcome_to_our_site') }}</h1>
-    <p>{{ $t('pages.home.please_sign_in') }}</p>
+    <h1>{{ $t("pages.home.welcome_to_our_site") }}</h1>
+    <p>{{ $t("pages.home.please_sign_in") }}</p>
   </div>
 </template>
 ```
@@ -146,23 +150,29 @@ After:
 **Best Practices**:
 
 1. **Run in Dry Mode First**:
+
    ```bash
    i18n-micro text-to-i18n --dryRun
    ```
+
    This shows what changes would be made without modifying files.
 
 2. **Use Context for Organization**:
+
    ```bash
    i18n-micro text-to-i18n --context auth
    ```
+
    Prefixes translation keys with `auth.` for better organization.
 
 3. **Review Changes**:
+
 - Enable verbose mode to see detailed changes
 - Check generated translation keys
 - Verify extracted text accuracy
 
 4. **Backup Files**:
+
 - Always backup your files before running the command
 - Use version control to track changes
 
@@ -193,7 +203,6 @@ i18n-micro stats [options]
 ```bash
 i18n-micro stats --full
 ```
-
 
 ### 🌍 `translate` Command
 
@@ -434,12 +443,12 @@ i18n-micro check-duplicates
 ```
 
 **How it works**:
+
 - The command checks both root-level and page-specific translation files for each locale.
 - If a translation value appears in multiple locations (either within root-level translations or across different pages), it reports the duplicate values along with the file and key where they are found.
 - If no duplicates are found, the command confirms that the locale is free of duplicated translation values.
 
 This command helps ensure that translation keys maintain unique values, preventing accidental repetition within the same locale.
-
 
 ### 🔄 `replace-values` Command
 
@@ -484,6 +493,7 @@ i18n-micro replace-values --search "Hello (\\w+)" --replace "Hi $1" --useRegex
 In this case, `$1` refers to the first capturing group, which matches the `[name]` part after "Hello". The replacement will keep the name from the original string.
 
 **How it works**:
+
 - The command scans through all translation files (both global and page-specific).
 - When a match is found based on the search string or regex pattern, it replaces the matched text with the provided replacement.
 - When using regex, capturing groups can be used in the replacement string by referencing them with `$1`, `$2`, etc.
@@ -491,6 +501,7 @@ In this case, `$1` refers to the first capturing group, which matches the `[name
 
 **Logging**:
 For each replacement, the command logs details including:
+
 - Locale and file path
 - The translation key being modified
 - The old value and the new value after replacement
@@ -544,26 +555,25 @@ This allows you to track exactly where and what changes were made during the rep
 
 ```js
 export default {
-  modules: ['@nuxtjs/i18n'],
+  modules: ["@nuxtjs/i18n"],
   i18n: {
     locales: [
-      { code: 'en', iso: 'en-US' },
-      { code: 'fr', iso: 'fr-FR' },
-      { code: 'es', iso: 'es-ES' },
+      { code: "en", iso: "en-US" },
+      { code: "fr", iso: "fr-FR" },
+      { code: "es", iso: "es-ES" },
       // Add other locales as needed
     ],
-    defaultLocale: 'en',
+    defaultLocale: "en",
     vueI18n: {
-      fallbackLocale: 'en',
+      fallbackLocale: "en",
     },
     // Specify the directory where your translation files are stored
-    translationDir: 'locales',
+    translationDir: "locales",
   },
 };
 ```
 
 Ensure that the `translationDir` matches the directory used by `nuxt-i18n-micro-cli` (default is `locales`).
-
 
 ## 📝 Best Practices
 

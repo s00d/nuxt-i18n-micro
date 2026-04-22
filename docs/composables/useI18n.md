@@ -15,13 +15,13 @@ classDiagram
     class useI18n {
         <<composable>>
     }
-    
+
     class LocaleMethods {
         $getLocale()
         $getLocaleName()
         $getLocales()
     }
-    
+
     class TranslationMethods {
         $t(key, params?, default?)
         $ts(key, params?, default?)
@@ -29,13 +29,13 @@ classDiagram
         $has(key)
         $mergeTranslations(obj)
     }
-    
+
     class FormattingMethods {
         $tn(value, options?)
         $td(date, options?)
         $tdr(date, options?)
     }
-    
+
     class RoutingMethods {
         $switchLocale(locale)
         $switchLocalePath(locale)
@@ -43,7 +43,7 @@ classDiagram
         $localePath(to, locale?)
         $loadPageTranslations(...)
     }
-    
+
     useI18n <|-- LocaleMethods
     useI18n <|-- TranslationMethods
     useI18n <|-- FormattingMethods
@@ -60,9 +60,9 @@ The `useI18n` composable returns an object containing several key methods and pr
 - **Description**: Returns the current locale of the application.
 - **Example**:
   ```js
-  const { $getLocale } = useI18n()
-  const locale = $getLocale()
-  console.log(locale) // e.g., 'en'
+  const { $getLocale } = useI18n();
+  const locale = $getLocale();
+  console.log(locale); // e.g., 'en'
   ```
 
 ## 🌍 `$getLocaleName`
@@ -74,7 +74,7 @@ The `useI18n` composable returns an object containing several key methods and pr
 - **Example**:
 
 ```typescript
-const locale = $getLocaleName()
+const locale = $getLocaleName();
 // Output: 'English'
 ```
 
@@ -84,9 +84,9 @@ const locale = $getLocaleName()
 - **Description**: Returns an array of all available locales in the application.
 - **Example**:
   ```js
-  const { $getLocales } = useI18n()
-  const locales = $getLocales()
-  console.log(locales) // e.g., [{ code: 'en', iso: 'en-US' }, { code: 'fr', iso: 'fr-FR' }]
+  const { $getLocales } = useI18n();
+  const locales = $getLocales();
+  console.log(locales); // e.g., [{ code: 'en', iso: 'en-US' }, { code: 'fr', iso: 'fr-FR' }]
   ```
 
 ### `$t`
@@ -95,9 +95,9 @@ const locale = $getLocaleName()
 - **Description**: Translates a given key to the corresponding localized string, optionally replacing placeholders with provided parameters and falling back to a default value if the key is not found.
 - **Example**:
   ```js
-  const { $t } = useI18n()
-  const greeting = $t('hello', { name: 'John' }, 'Hello!')
-  console.log(greeting) // e.g., 'Hello, John'
+  const { $t } = useI18n();
+  const greeting = $t("hello", { name: "John" }, "Hello!");
+  console.log(greeting); // e.g., 'Hello, John'
   ```
 
 ### `$tc`
@@ -106,9 +106,9 @@ const locale = $getLocaleName()
 - **Description**: Translates a given key with pluralization based on the provided count, optionally falling back to a default value if the key is not found.
 - **Example**:
   ```js
-  const { $tc } = useI18n()
-  const message = $tc('apples', 3, '3 apples')
-  console.log(message) // e.g., '3 apples'
+  const { $tc } = useI18n();
+  const message = $tc("apples", 3, "3 apples");
+  console.log(message); // e.g., '3 apples'
   ```
 
 ### `$has`
@@ -117,9 +117,9 @@ const locale = $getLocaleName()
 - **Description**: Checks if a translation key exists for the current locale.
 - **Example**:
   ```js
-  const { $has } = useI18n()
-  const exists = $has('hello')
-  console.log(exists) // e.g., true
+  const { $has } = useI18n();
+  const exists = $has("hello");
+  console.log(exists); // e.g., true
   ```
 
 ### `$mergeTranslations`
@@ -128,10 +128,10 @@ const locale = $getLocaleName()
 - **Description**: Merges additional translations into the existing ones for the current locale.
 - **Example**:
   ```js
-  const { $mergeTranslations } = useI18n()
+  const { $mergeTranslations } = useI18n();
   $mergeTranslations({
-    hello: 'Hello World',
-  })
+    hello: "Hello World",
+  });
   ```
 
 ### `$switchLocale`
@@ -140,8 +140,8 @@ const locale = $getLocaleName()
 - **Description**: Switches the application's locale to the specified locale.
 - **Example**:
   ```js
-  const { $switchLocale } = useI18n()
-  $switchLocale('fr')
+  const { $switchLocale } = useI18n();
+  $switchLocale("fr");
   ```
 
 ### `$localeRoute`
@@ -150,8 +150,8 @@ const locale = $getLocaleName()
 - **Description**: Generates a localized route based on the specified route and optionally the specified locale.
 - **Example**:
   ```js
-  const { $localeRoute } = useI18n()
-  const route = $localeRoute('/about', 'fr')
+  const { $localeRoute } = useI18n();
+  const route = $localeRoute("/about", "fr");
   ```
 
 ### `$loadPageTranslations`
@@ -160,8 +160,8 @@ const locale = $getLocaleName()
 - **Description**: Loads translations for the specified page and locale, enabling lazy-loading of translations.
 - **Example**:
   ```js
-  const { $loadPageTranslations } = useI18n()
-  await $loadPageTranslations('fr', 'home')
+  const { $loadPageTranslations } = useI18n();
+  await $loadPageTranslations("fr", "home");
   ```
 
 ### `$setMissingHandler`
@@ -171,18 +171,19 @@ const locale = $getLocaleName()
 - **Parameters**:
   - `handler`: A function that receives `(locale: string, key: string, routeName: string)` or `null` to remove the handler
 - **Example**:
+
   ```js
-  const { $setMissingHandler } = useI18n()
-  
+  const { $setMissingHandler } = useI18n();
+
   // Set a custom handler
   $setMissingHandler((locale, key, routeName) => {
-    console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`)
+    console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`);
     // Send to Sentry or other error tracking service
     // Sentry.captureMessage(`Missing translation: ${key}`)
-  })
-  
+  });
+
   // Remove the handler
-  $setMissingHandler(null)
+  $setMissingHandler(null);
   ```
 
 ## 🛠️ Example Usages
@@ -192,8 +193,8 @@ const locale = $getLocaleName()
 Retrieve the current locale of the application.
 
 ```js
-const { $getLocale } = useI18n()
-const locale = $getLocale()
+const { $getLocale } = useI18n();
+const locale = $getLocale();
 ```
 
 ### Translation with Parameters
@@ -201,8 +202,8 @@ const locale = $getLocale()
 Translate a string with dynamic parameters, with a fallback default value.
 
 ```js
-const { $t } = useI18n()
-const welcomeMessage = $t('welcome', { name: 'Jane' }, 'Welcome!')
+const { $t } = useI18n();
+const welcomeMessage = $t("welcome", { name: "Jane" }, "Welcome!");
 ```
 
 ### Switching Locales
@@ -210,8 +211,8 @@ const welcomeMessage = $t('welcome', { name: 'Jane' }, 'Welcome!')
 Switch the application to a different locale.
 
 ```js
-const { $switchLocale } = useI18n()
-$switchLocale('de')
+const { $switchLocale } = useI18n();
+$switchLocale("de");
 ```
 
 ### Generating a Localized Route
@@ -219,6 +220,6 @@ $switchLocale('de')
 Generate a route localized to the current or specified locale.
 
 ```js
-const { $localeRoute } = useI18n()
-const route = $localeRoute('/about', 'fr')
+const { $localeRoute } = useI18n();
+const route = $localeRoute("/about", "fr");
 ```

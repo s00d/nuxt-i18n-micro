@@ -15,28 +15,28 @@ yarn add @i18n-micro/vue
 ## Quick Start
 
 ```typescript
-import { createApp } from 'vue'
-import { createI18n } from '@i18n-micro/vue'
+import { createApp } from "vue";
+import { createI18n } from "@i18n-micro/vue";
 
-const app = createApp(App)
+const app = createApp(App);
 
 const i18n = createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
+  locale: "en",
+  fallbackLocale: "en",
   messages: {
     en: {
-      greeting: 'Hello, {name}!',
-      apples: 'no apples | one apple | {count} apples',
+      greeting: "Hello, {name}!",
+      apples: "no apples | one apple | {count} apples",
     },
     fr: {
-      greeting: 'Bonjour, {name}!',
-      apples: 'pas de pommes | une pomme | {count} pommes',
+      greeting: "Bonjour, {name}!",
+      apples: "pas de pommes | une pomme | {count} pommes",
     },
   },
-})
+});
 
-app.use(i18n)
-app.mount('#app')
+app.use(i18n);
+app.mount("#app");
 ```
 
 ### Usage in Components
@@ -44,25 +44,25 @@ app.mount('#app')
 ```vue
 <template>
   <div>
-    <p>{{ t('greeting', { name: 'World' }) }}</p>
-    <p>{{ tc('apples', 5) }}</p>
+    <p>{{ t("greeting", { name: "World" }) }}</p>
+    <p>{{ tc("apples", 5) }}</p>
   </div>
 </template>
 
 <script setup>
-import { useI18n } from '@i18n-micro/vue'
+import { useI18n } from "@i18n-micro/vue";
 
-const { t, tc, locale } = useI18n()
+const { t, tc, locale } = useI18n();
 
 // Change locale reactively
-locale.value = 'fr'
+locale.value = "fr";
 </script>
 ```
 
-## Resources
+## Documentation
 
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
+- **[Vue integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/vue-package)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 

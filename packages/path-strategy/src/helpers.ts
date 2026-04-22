@@ -3,10 +3,24 @@
  * Merged: route-resolve + strategy-helpers.
  * No class dependencies — pure functions of context + route.
  */
-import type { Locale } from '@i18n-micro/types'
-import { buildUrl, cleanDoubleSlashes, getCleanPath, hasKeys, isSamePath, normalizePathForCompare, withoutLeadingSlash } from './path'
-import { getRouteBaseName } from './resolver'
-import type { GlobalLocaleRoutes, PathStrategyContext, ResolvedRouteLike, RouteLike, RouterAdapter } from './types'
+import type { Locale } from "@i18n-micro/types";
+import {
+  buildUrl,
+  cleanDoubleSlashes,
+  getCleanPath,
+  hasKeys,
+  isSamePath,
+  normalizePathForCompare,
+  withoutLeadingSlash,
+} from "@i18n-micro/utils";
+import { getRouteBaseName } from "./resolver";
+import type {
+  GlobalLocaleRoutes,
+  PathStrategyContext,
+  ResolvedRouteLike,
+  RouteLike,
+  RouterAdapter,
+} from "./types";
 
 // ---------------------------------------------------------------------------
 // Route resolution helpers (was route-resolve.ts)
@@ -22,11 +36,11 @@ export function findLocalizedRouteName(
   routeName: string,
   targetLocale: string,
 ): { name: string; needsLocaleParam: boolean } | null {
-  const withSuffix = `${prefix}${routeName}-${targetLocale}`
-  if (router.hasRoute(withSuffix)) return { name: withSuffix, needsLocaleParam: false }
-  const withoutSuffix = `${prefix}${routeName}`
-  if (router.hasRoute(withoutSuffix)) return { name: withoutSuffix, needsLocaleParam: true }
-  return null
+  const withSuffix = `${prefix}${routeName}-${targetLocale}`;
+  if (router.hasRoute(withSuffix)) return { name: withSuffix, needsLocaleParam: false };
+  const withoutSuffix = `${prefix}${routeName}`;
+  if (router.hasRoute(withoutSuffix)) return { name: withoutSuffix, needsLocaleParam: true };
+  return null;
 }
 
 /**
@@ -41,22 +55,22 @@ function resolveLocalizedRoute(
   sourceRoute: RouteLike | undefined,
   rejectRoot: boolean,
 ): RouteLike | null {
-  const resolveParams = { ...params }
-  if (needsLocaleParam) resolveParams.locale = targetLocale
+  const resolveParams = { ...params };
+  if (needsLocaleParam) resolveParams.locale = targetLocale;
 
-  let resolved: ReturnType<RouterAdapter['resolve']>
+  let resolved: ReturnType<RouterAdapter["resolve"]>;
   try {
     resolved = router.resolve({
       name: localizedName,
       params: resolveParams,
       query: sourceRoute?.query,
       hash: sourceRoute?.hash,
-    })
+    });
   } catch {
-    return null
+    return null;
   }
-  if (!resolved?.path) return null
-  if (rejectRoot && resolved.path === '/') return null
+  if (!resolved?.path) return null;
+  if (rejectRoot && resolved.path === "/") return null;
   return {
     name: localizedName,
     path: resolved.path,
@@ -64,7 +78,7 @@ function resolveLocalizedRoute(
     params: resolved.params,
     query: resolved.query ?? sourceRoute?.query,
     hash: resolved.hash ?? sourceRoute?.hash,
-  }
+  };
 }
 
 /**
@@ -77,9 +91,17 @@ export function tryResolveByLocalizedName(
   targetLocale: string,
   sourceRoute?: RouteLike,
 ): RouteLike | null {
-  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale)
-  if (!found) return null
-  return resolveLocalizedRoute(router, found.name, found.needsLocaleParam, targetLocale, { ...sourceRoute?.params }, sourceRoute, false)
+  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale);
+  if (!found) return null;
+  return resolveLocalizedRoute(
+    router,
+    found.name,
+    found.needsLocaleParam,
+    targetLocale,
+    { ...sourceRoute?.params },
+    sourceRoute,
+    false,
+  );
 }
 
 /**
@@ -94,37 +116,48 @@ export function tryResolveByLocalizedNameWithParams(
   params: Record<string, unknown>,
   sourceRoute?: RouteLike,
 ): RouteLike | null {
-  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale)
-  if (!found) return null
-  return resolveLocalizedRoute(router, found.name, found.needsLocaleParam, targetLocale, params, sourceRoute, true)
+  const found = findLocalizedRouteName(router, prefix, routeName, targetLocale);
+  if (!found) return null;
+  return resolveLocalizedRoute(
+    router,
+    found.name,
+    found.needsLocaleParam,
+    targetLocale,
+    params,
+    sourceRoute,
+    true,
+  );
 }
 
 /**
  * Merges target route with query and hash from source route.
  */
-export function preserveQueryAndHash(target: RouteLike | string, source?: RouteLike | null): RouteLike | string {
+export function preserveQueryAndHash(
+  target: RouteLike | string,
+  source?: RouteLike | null,
+): RouteLike | string {
   if (!source || (!source.query && !source.hash)) {
-    return target
+    return target;
   }
 
-  let result: RouteLike
-  if (typeof target === 'string') {
-    result = { path: target }
+  let result: RouteLike;
+  if (typeof target === "string") {
+    result = { path: target };
   } else {
-    result = target
+    result = target;
   }
 
   if (source.query) {
-    result.query = result.query ? Object.assign({}, source.query, result.query) : source.query
+    result.query = result.query ? Object.assign({}, source.query, result.query) : source.query;
   }
   if (!result.hash && source.hash) {
-    result.hash = source.hash
+    result.hash = source.hash;
   }
 
-  const basePath = result.path ?? ''
-  result.fullPath = buildUrl(basePath, result.query, result.hash)
+  const basePath = result.path ?? "";
+  result.fullPath = buildUrl(basePath, result.query, result.hash);
 
-  return result
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -135,171 +168,202 @@ export function preserveQueryAndHash(target: RouteLike | string, source?: RouteL
  * Extracts locale from the first path segment.
  */
 export function extractLocaleFromPath(path: string, locales: Locale[]): string | null {
-  if (!path) return null
-  const clean = getCleanPath(path)
-  if (!clean || clean === '/') return null
-  const start = clean.charCodeAt(0) === 47 ? 1 : 0
-  const nextSlash = clean.indexOf('/', start)
-  const first = nextSlash === -1 ? clean.slice(start) : clean.slice(start, nextSlash)
-  if (!first) return null
+  if (!path) return null;
+  const clean = getCleanPath(path);
+  if (!clean || clean === "/") return null;
+  const start = clean.charCodeAt(0) === 47 ? 1 : 0;
+  const nextSlash = clean.indexOf("/", start);
+  const first = nextSlash === -1 ? clean.slice(start) : clean.slice(start, nextSlash);
+  if (!first) return null;
   for (let i = 0; i < locales.length; i++) {
-    if (locales[i]!.code === first) return first
+    if (locales[i]!.code === first) return first;
   }
-  return null
+  return null;
 }
 
 /**
  * Determines current locale from route.
  * @param defaultLocaleOverride — optional locale value (e.g. from cookie/state); replaces the old callback.
  */
-export function getCurrentLocale(ctx: PathStrategyContext, route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string {
-  if (ctx.hashMode || ctx.strategy === 'no_prefix') {
-    return defaultLocaleOverride || ctx.defaultLocale
+export function getCurrentLocale(
+  ctx: PathStrategyContext,
+  route: ResolvedRouteLike,
+  defaultLocaleOverride?: string | null,
+): string {
+  if (ctx.hashMode || ctx.strategy === "no_prefix") {
+    return defaultLocaleOverride || ctx.defaultLocale;
   }
 
-  const path = route.path || route.fullPath || ''
+  const path = route.path || route.fullPath || "";
 
-  if (ctx.strategy === 'prefix_and_default' && (path === '/' || path === '')) {
-    if (defaultLocaleOverride) return defaultLocaleOverride
+  if (ctx.strategy === "prefix_and_default" && (path === "/" || path === "")) {
+    if (defaultLocaleOverride) return defaultLocaleOverride;
   }
 
-  if (route.params?.locale) return String(route.params.locale)
+  if (route.params?.locale) return String(route.params.locale);
 
-  const localeFromPath = extractLocaleFromPath(path, ctx.locales)
-  if (localeFromPath) return localeFromPath
+  const localeFromPath = extractLocaleFromPath(path, ctx.locales);
+  if (localeFromPath) return localeFromPath;
 
-  if (ctx.strategy === 'prefix_except_default') return ctx.defaultLocale
+  if (ctx.strategy === "prefix_except_default") return ctx.defaultLocale;
 
-  return defaultLocaleOverride || ctx.defaultLocale
+  return defaultLocaleOverride || ctx.defaultLocale;
 }
 
 /**
  * Returns the route name for plugin translation loading.
  */
-export function getPluginRouteName(ctx: PathStrategyContext, route: ResolvedRouteLike, locale: string, localizedRouteNamePrefix?: string): string {
-  if (ctx.disablePageLocales) return 'index'
-  const prefix = localizedRouteNamePrefix || ctx.localizedRouteNamePrefix || 'localized-'
-  const baseName = getRouteBaseName(route, { locales: ctx.locales, localizedRouteNamePrefix: prefix })
-  if (baseName) return baseName
-  const name = (route.name ?? '').toString()
-  let stripped = name.startsWith(prefix) ? name.slice(prefix.length) : name
-  const suffix = `-${locale}`
+export function getPluginRouteName(
+  ctx: PathStrategyContext,
+  route: ResolvedRouteLike,
+  locale: string,
+  localizedRouteNamePrefix?: string,
+): string {
+  if (ctx.disablePageLocales) return "index";
+  const prefix = localizedRouteNamePrefix || ctx.localizedRouteNamePrefix || "localized-";
+  const baseName = getRouteBaseName(route, {
+    locales: ctx.locales,
+    localizedRouteNamePrefix: prefix,
+  });
+  if (baseName) return baseName;
+  const name = (route.name ?? "").toString();
+  let stripped = name.startsWith(prefix) ? name.slice(prefix.length) : name;
+  const suffix = `-${locale}`;
   if (stripped.endsWith(suffix)) {
-    stripped = stripped.slice(0, -suffix.length)
+    stripped = stripped.slice(0, -suffix.length);
   }
-  return stripped
+  return stripped;
 }
 
 /**
  * Returns displayName of the current locale, or null.
  */
-export function getCurrentLocaleName(ctx: PathStrategyContext, route: ResolvedRouteLike, defaultLocaleOverride?: string | null): string | null {
-  const code = getCurrentLocale(ctx, route, defaultLocaleOverride)
+export function getCurrentLocaleName(
+  ctx: PathStrategyContext,
+  route: ResolvedRouteLike,
+  defaultLocaleOverride?: string | null,
+): string | null {
+  const code = getCurrentLocale(ctx, route, defaultLocaleOverride);
   for (let i = 0; i < ctx.locales.length; i++) {
-    if (ctx.locales[i]!.code === code) return ctx.locales[i]!.displayName ?? null
+    if (ctx.locales[i]!.code === code) return ctx.locales[i]!.displayName ?? null;
   }
-  return null
+  return null;
 }
 
 /**
  * Detects locale code from a localized route name suffix (e.g. "localized-about-de" → "de").
  */
 export function detectLocaleFromName(name: string | null, locales: Locale[]): string | null {
-  if (!name) return null
+  if (!name) return null;
   for (let i = 0; i < locales.length; i++) {
-    if (name.endsWith(`-${locales[i]!.code}`)) return locales[i]!.code
+    if (name.endsWith(`-${locales[i]!.code}`)) return locales[i]!.code;
   }
-  return null
+  return null;
 }
 
 /**
  * Checks whether a path corresponds to an unlocalized route (globalLocaleRoutes[key] === false).
  */
-export function isUnlocalizedRoute(pathWithoutLocale: string, gr: GlobalLocaleRoutes | undefined): boolean {
-  if (!gr) return false
-  if (gr[pathWithoutLocale] === false) return true
-  const pathKey = pathWithoutLocale === '/' ? '/' : withoutLeadingSlash(pathWithoutLocale)
-  return gr[pathKey] === false
+export function isUnlocalizedRoute(
+  pathWithoutLocale: string,
+  gr: GlobalLocaleRoutes | undefined,
+): boolean {
+  if (!gr) return false;
+  if (gr[pathWithoutLocale] === false) return true;
+  const pathKey = pathWithoutLocale === "/" ? "/" : withoutLeadingSlash(pathWithoutLocale);
+  return gr[pathKey] === false;
 }
 
 /**
  * Minimal interface for strategies that use prefix redirect / buildPrefixedPath helpers.
  */
 export interface PrefixRedirectHost {
-  readonly ctx: { globalLocaleRoutes?: GlobalLocaleRoutes }
-  getPathWithoutLocale(path: string): { pathWithoutLocale: string; localeFromPath: string | null }
-  resolvePathForLocale(path: string, locale: string): string
+  readonly ctx: { globalLocaleRoutes?: GlobalLocaleRoutes };
+  getPathWithoutLocale(path: string): { pathWithoutLocale: string; localeFromPath: string | null };
+  resolvePathForLocale(path: string, locale: string): string;
 }
 
 /**
  * Builds a path with locale prefix: `/{locale}{resolved}`.
  */
-export function buildPrefixedPath(host: PrefixRedirectHost, pathWithoutLocale: string, locale: string): string {
-  const resolved = host.resolvePathForLocale(pathWithoutLocale, locale)
-  if (resolved === '/' || resolved === '') return `/${locale}`
-  const withSlash = resolved.charCodeAt(0) === 47 ? resolved : `/${resolved}`
-  return cleanDoubleSlashes(`/${locale}${withSlash}`)
+export function buildPrefixedPath(
+  host: PrefixRedirectHost,
+  pathWithoutLocale: string,
+  locale: string,
+): string {
+  const resolved = host.resolvePathForLocale(pathWithoutLocale, locale);
+  if (resolved === "/" || resolved === "") return `/${locale}`;
+  const withSlash = resolved.charCodeAt(0) === 47 ? resolved : `/${resolved}`;
+  return cleanDoubleSlashes(`/${locale}${withSlash}`);
 }
 
 /**
  * Joins a path with a locale prefix: `/{locale}{path}`.
  */
 export function joinWithLocalePrefix(pathWithoutLocale: string, locale: string): string {
-  if (pathWithoutLocale === '/' || pathWithoutLocale === '') return `/${locale}`
-  const withSlash = pathWithoutLocale.charCodeAt(0) === 47 ? pathWithoutLocale : `/${pathWithoutLocale}`
-  return cleanDoubleSlashes(`/${locale}${withSlash}`)
+  if (pathWithoutLocale === "/" || pathWithoutLocale === "") return `/${locale}`;
+  const withSlash =
+    pathWithoutLocale.charCodeAt(0) === 47 ? pathWithoutLocale : `/${pathWithoutLocale}`;
+  return cleanDoubleSlashes(`/${locale}${withSlash}`);
 }
 
 /**
  * Builds canonical path from a custom segment with optional locale prefix.
  */
 export function buildCanonicalFromSegment(segment: string, locale: string | null): string | null {
-  if (!segment) return null
-  const normalized = segment.charCodeAt(0) === 47 ? segment : `/${segment}`
-  if (!locale) return normalized
-  return cleanDoubleSlashes(`/${locale}${normalized}`)
+  if (!segment) return null;
+  const normalized = segment.charCodeAt(0) === 47 ? segment : `/${segment}`;
+  if (!locale) return normalized;
+  return cleanDoubleSlashes(`/${locale}${normalized}`);
 }
 
 /**
  * Common prefix redirect logic shared by prefix and prefix_and_default strategies.
  */
-export function prefixRedirect(host: PrefixRedirectHost, currentPath: string, detectedLocale: string): string | null {
-  const gr = host.ctx.globalLocaleRoutes
-  const { pathWithoutLocale, localeFromPath } = host.getPathWithoutLocale(currentPath)
+export function prefixRedirect(
+  host: PrefixRedirectHost,
+  currentPath: string,
+  detectedLocale: string,
+): string | null {
+  const gr = host.ctx.globalLocaleRoutes;
+  const { pathWithoutLocale, localeFromPath } = host.getPathWithoutLocale(currentPath);
   if (localeFromPath !== null && isUnlocalizedRoute(pathWithoutLocale, gr)) {
-    return normalizePathForCompare(pathWithoutLocale)
+    return normalizePathForCompare(pathWithoutLocale);
   }
-  if (localeFromPath === null && isUnlocalizedRoute(pathWithoutLocale, gr)) return null
-  const expectedPath = buildPrefixedPath(host, pathWithoutLocale, detectedLocale)
-  const currentPathOnly = getCleanPath(currentPath)
-  if (localeFromPath === detectedLocale && isSamePath(currentPathOnly, expectedPath)) return null
-  return expectedPath
+  if (localeFromPath === null && isUnlocalizedRoute(pathWithoutLocale, gr)) return null;
+  const expectedPath = buildPrefixedPath(host, pathWithoutLocale, detectedLocale);
+  const currentPathOnly = getCleanPath(currentPath);
+  if (localeFromPath === detectedLocale && isSamePath(currentPathOnly, expectedPath)) return null;
+  return expectedPath;
 }
 
 /**
  * Checks if the current path should return 404.
  * @param parsed — pre-computed result of getPathWithoutLocale(currentPath); no callback needed.
  */
-export function shouldReturn404(ctx: PathStrategyContext, parsed: { pathWithoutLocale: string; localeFromPath: string | null }): string | null {
-  const { pathWithoutLocale, localeFromPath } = parsed
-  if (localeFromPath === null) return null
+export function shouldReturn404(
+  ctx: PathStrategyContext,
+  parsed: { pathWithoutLocale: string; localeFromPath: string | null },
+): string | null {
+  const { pathWithoutLocale, localeFromPath } = parsed;
+  if (localeFromPath === null) return null;
 
   if (isUnlocalizedRoute(pathWithoutLocale, ctx.globalLocaleRoutes)) {
-    return 'Unlocalized route cannot have locale prefix'
+    return "Unlocalized route cannot have locale prefix";
   }
 
-  const rl = ctx.routeLocales
+  const rl = ctx.routeLocales;
   if (rl && (ctx._hasRL ?? hasKeys(rl as Record<string, unknown>))) {
-    const localeCodes = ctx.localeCodes ?? ctx.locales.map((l) => l.code)
-    const rlKey = pathWithoutLocale === '/' ? '/' : withoutLeadingSlash(pathWithoutLocale)
-    const allowed = rl[pathWithoutLocale] ?? rl[rlKey]
+    const localeCodes = ctx.localeCodes ?? ctx.locales.map((l) => l.code);
+    const rlKey = pathWithoutLocale === "/" ? "/" : withoutLeadingSlash(pathWithoutLocale);
+    const allowed = rl[pathWithoutLocale] ?? rl[rlKey];
     if (Array.isArray(allowed) && allowed.length > 0) {
-      const allowedCodes = allowed.filter((code) => localeCodes.includes(code))
+      const allowedCodes = allowed.filter((code) => localeCodes.includes(code));
       if (allowedCodes.length > 0 && !allowedCodes.includes(localeFromPath)) {
-        return 'Locale not allowed for this route'
+        return "Locale not allowed for this route";
       }
     }
   }
 
-  return null
+  return null;
 }

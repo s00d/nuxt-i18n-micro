@@ -3,15 +3,15 @@
 </template>
 
 <script setup>
-import { useNuxtApp } from '#imports'
+import { useNuxtApp } from "#imports";
 
-const { $defineI18nRoute } = useNuxtApp()
+const { $defineI18nRoute } = useNuxtApp();
 
 $defineI18nRoute({
   localeRoutes: {
-    en: '/about',
-    de: '/a-propos',
-    ru: '/about',
+    en: "/about",
+    de: "/a-propos",
+    ru: "/about",
   },
-})
+});
 </script>

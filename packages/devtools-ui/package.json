@@ -1,6 +1,10 @@
 {
   "name": "@i18n-micro/devtools-ui",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "files": [
+    "dist",
+    "vite"
+  ],
   "type": "module",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
@@ -24,12 +28,14 @@
       "import": "./dist/vite/plugin.mjs"
     }
   },
-  "files": [
-    "dist",
-    "vite"
-  ],
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "build": "vite build && vite build --config vite.config.plugin.mjs && npm run build:plugin-types",
+    "build:plugin": "vite build --config vite.config.plugin.mjs",
+    "build:plugin-types": "tsc vite/plugin.ts --declaration --emitDeclarationOnly --outDir dist/vite --module esnext --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
@@ -43,11 +49,5 @@
     "tailwindcss": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
-  },
-  "scripts": {
-    "build": "vite build && vite build --config vite.config.plugin.mjs && npm run build:plugin-types",
-    "build:plugin": "vite build --config vite.config.plugin.mjs",
-    "build:plugin-types": "tsc vite/plugin.ts --declaration --emitDeclarationOnly --outDir dist/vite --module esnext --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck",
-    "typecheck": "tsc --noEmit"
   }
 }

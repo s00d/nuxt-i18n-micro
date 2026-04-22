@@ -1,6 +1,11 @@
-# Nuxt I18n Micro Test Utils
+# @i18n-micro/test-utils
 
-This is a utility library designed to facilitate testing for Nuxt.js applications that use the `@i18n-micro/core` package. It provides helper functions to handle translations, formatting, and locale switching, simplifying the process of testing internationalization (i18n) functionality.
+Helpers for testing apps that use **@i18n-micro/core** / **nuxt-i18n-micro**: translations, pluralization, locale switching, formatting, and cache merges.
+
+## Documentation
+
+- **[Testing guide](https://s00d.github.io/nuxt-i18n-micro/guide/testing)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## Features
 
@@ -11,18 +16,14 @@ This is a utility library designed to facilitate testing for Nuxt.js application
 - **Translation Merging**: Merge new translations into the existing cache with the `mergeTranslations` function.
 - **Locale Switching**: Switch between locales dynamically and update route and path accordingly.
 
-## Installation
+## Install
 
-You can install the package via npm or yarn:
+```bash
+pnpm add -D @i18n-micro/test-utils
+```
 
 ```bash
 npm install @i18n-micro/test-utils
-```
-
-or
-
-```bash
-yarn add @i18n-micro/test-utils
 ```
 
 ## Usage
@@ -32,7 +33,7 @@ yarn add @i18n-micro/test-utils
 To use the utility functions, import them as follows:
 
 ```typescript
-import { i18nUtils } from '@i18n-micro/test-utils'
+import { i18nUtils } from "@i18n-micro/test-utils";
 ```
 
 ### Example Usage
@@ -42,8 +43,8 @@ import { i18nUtils } from '@i18n-micro/test-utils'
 To retrieve a translation, you can use the `t` function:
 
 ```typescript
-const translatedValue = i18nUtils.t('welcome_message', { name: 'John' })
-console.log(translatedValue)  // Output: translated string with the injected name
+const translatedValue = i18nUtils.t("welcome_message", { name: "John" });
+console.log(translatedValue); // Output: translated string with the injected name
 ```
 
 #### Formatting numbers
@@ -51,8 +52,8 @@ console.log(translatedValue)  // Output: translated string with the injected nam
 Use the `tn` function to format numbers based on the current locale:
 
 ```typescript
-const formattedNumber = i18nUtils.tn(12345.6789)
-console.log(formattedNumber)  // Output: formatted number
+const formattedNumber = i18nUtils.tn(12345.6789);
+console.log(formattedNumber); // Output: formatted number
 ```
 
 #### Formatting dates
@@ -60,8 +61,8 @@ console.log(formattedNumber)  // Output: formatted number
 Use the `td` function to format dates:
 
 ```typescript
-const formattedDate = i18nUtils.td(new Date())
-console.log(formattedDate)  // Output: formatted date
+const formattedDate = i18nUtils.td(new Date());
+console.log(formattedDate); // Output: formatted date
 ```
 
 #### Pluralization
@@ -69,8 +70,8 @@ console.log(formattedDate)  // Output: formatted date
 Handle plural translations with `tc`:
 
 ```typescript
-const pluralValue = i18nUtils.tc('item_count', 3)
-console.log(pluralValue)  // Output: appropriate plural form
+const pluralValue = i18nUtils.tc("item_count", 3);
+console.log(pluralValue); // Output: appropriate plural form
 ```
 
 #### Merging Translations
@@ -78,7 +79,7 @@ console.log(pluralValue)  // Output: appropriate plural form
 To add new translations, use the `mergeTranslations` function:
 
 ```typescript
-i18nUtils.mergeTranslations({ welcome_message: 'Hello, {name}!' })
+i18nUtils.mergeTranslations({ welcome_message: "Hello, {name}!" });
 ```
 
 ### Locale Management
@@ -86,8 +87,8 @@ i18nUtils.mergeTranslations({ welcome_message: 'Hello, {name}!' })
 You can manage the current locale with the following functions:
 
 ```typescript
-i18nUtils.setLocale('en')  // Set current locale to English
-const currentLocale = i18nUtils.getLocale()  // Get the current locale
+i18nUtils.setLocale("en"); // Set current locale to English
+const currentLocale = i18nUtils.getLocale(); // Get the current locale
 ```
 
 ### Setting Translations from JSON
@@ -95,8 +96,8 @@ const currentLocale = i18nUtils.getLocale()  // Get the current locale
 Load translations dynamically using the `setTranslationsFromJson` function:
 
 ```typescript
-const newTranslations = { welcome_message: 'Welcome!' }
-i18nUtils.setTranslationsFromJson('en', newTranslations)
+const newTranslations = { welcome_message: "Welcome!" };
+i18nUtils.setTranslationsFromJson("en", newTranslations);
 ```
 
 ## License

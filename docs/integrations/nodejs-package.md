@@ -19,21 +19,21 @@ yarn add @i18n-micro/node
 ## 🚀 Quick Start
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
+import { createI18n } from "@i18n-micro/node";
 
 // 1. Create I18n instance
 const i18n = createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
-  translationDir: './locales', // Path to your locales directory
-})
+  locale: "en",
+  fallbackLocale: "en",
+  translationDir: "./locales", // Path to your locales directory
+});
 
 // 2. Load translations from directory
-await i18n.loadTranslations()
+await i18n.loadTranslations();
 
 // 3. Use translations
-console.log(i18n.t('greeting', { name: 'John' })) // "Hello, John!"
-console.log(i18n.tc('apples', 5)) // "5 apples"
+console.log(i18n.t("greeting", { name: "John" })); // "Hello, John!"
+console.log(i18n.tc("apples", 5)); // "5 apples"
 ```
 
 ## 📂 Translation File Structure
@@ -60,6 +60,7 @@ locales/
 Creates a new I18n instance.
 
 **Options:**
+
 - `locale: string` - Current locale
 - `fallbackLocale?: string` - Fallback locale (default: same as locale)
 - `translationDir?: string` - Path to locales directory
@@ -72,8 +73,8 @@ Creates a new I18n instance.
 Load translations from directory (recursive, supports pages structure).
 
 ```typescript
-await i18n.loadTranslations() // Uses translationDir from constructor
-await i18n.loadTranslations('./custom-locales') // Or specify custom path
+await i18n.loadTranslations(); // Uses translationDir from constructor
+await i18n.loadTranslations("./custom-locales"); // Or specify custom path
 ```
 
 ### `i18n.t(key: string, params?: Params, defaultValue?: string | null, routeName?: string): string`
@@ -81,14 +82,14 @@ await i18n.loadTranslations('./custom-locales') // Or specify custom path
 Get translation for a key. Uses `currentRoute` by default if `routeName` is not provided.
 
 ```typescript
-i18n.t('greeting', { name: 'John' }) // "Hello, John!"
-i18n.t('welcome') // "Welcome"
-i18n.t('nested.key') // Supports nested keys
-i18n.t('title', undefined, undefined, 'home') // Route-specific translation
+i18n.t("greeting", { name: "John" }); // "Hello, John!"
+i18n.t("welcome"); // "Welcome"
+i18n.t("nested.key"); // Supports nested keys
+i18n.t("title", undefined, undefined, "home"); // Route-specific translation
 
 // With currentRoute
-i18n.setRoute('home')
-i18n.t('title') // Uses 'home' route automatically
+i18n.setRoute("home");
+i18n.t("title"); // Uses 'home' route automatically
 ```
 
 ### `i18n.setRoute(routeName: string): void`
@@ -96,8 +97,8 @@ i18n.t('title') // Uses 'home' route automatically
 Set the current route name context. Useful when processing a specific page request.
 
 ```typescript
-i18n.setRoute('home') // Set current route to 'home'
-i18n.t('title') // Will look for translation in 'home' route
+i18n.setRoute("home"); // Set current route to 'home'
+i18n.t("title"); // Will look for translation in 'home' route
 ```
 
 ### `i18n.tc(key: string, count: number | Params, defaultValue?: string): string`
@@ -106,9 +107,9 @@ Plural translation.
 
 ```typescript
 // Translation: "no apples|one apple|{count} apples"
-i18n.tc('apples', 0) // "no apples"
-i18n.tc('apples', 1) // "one apple"
-i18n.tc('apples', 5) // "5 apples"
+i18n.tc("apples", 0); // "no apples"
+i18n.tc("apples", 1); // "one apple"
+i18n.tc("apples", 5); // "5 apples"
 ```
 
 ### `i18n.tn(value: number, options?: Intl.NumberFormatOptions): string`
@@ -116,8 +117,8 @@ i18n.tc('apples', 5) // "5 apples"
 Format number.
 
 ```typescript
-i18n.tn(1234.56) // "1,234.56"
-i18n.tn(1234.56, { style: 'currency', currency: 'USD' }) // "$1,234.56"
+i18n.tn(1234.56); // "1,234.56"
+i18n.tn(1234.56, { style: "currency", currency: "USD" }); // "$1,234.56"
 ```
 
 ### `i18n.td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string`
@@ -125,8 +126,8 @@ i18n.tn(1234.56, { style: 'currency', currency: 'USD' }) // "$1,234.56"
 Format date.
 
 ```typescript
-i18n.td(new Date()) // "1/15/2023"
-i18n.td(new Date(), { year: 'numeric', month: 'long', day: 'numeric' }) // "January 15, 2023"
+i18n.td(new Date()); // "1/15/2023"
+i18n.td(new Date(), { year: "numeric", month: "long", day: "numeric" }); // "January 15, 2023"
 ```
 
 ### `i18n.tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string`
@@ -134,7 +135,7 @@ i18n.td(new Date(), { year: 'numeric', month: 'long', day: 'numeric' }) // "Janu
 Format relative time.
 
 ```typescript
-i18n.tdr(new Date(Date.now() - 3600000)) // "1 hour ago"
+i18n.tdr(new Date(Date.now() - 3600000)); // "1 hour ago"
 ```
 
 ### `i18n.reload(): Promise<void>`
@@ -142,7 +143,7 @@ i18n.tdr(new Date(Date.now() - 3600000)) // "1 hour ago"
 Clear cache and reload translations from disk. Use this when translation files change.
 
 ```typescript
-await i18n.reload() // Clears cache and reloads all files
+await i18n.reload(); // Clears cache and reloads all files
 ```
 
 ## 💡 Usage Examples
@@ -150,90 +151,90 @@ await i18n.reload() // Clears cache and reloads all files
 ### Express.js Middleware
 
 ```typescript
-import express from 'express'
-import { createI18n } from '@i18n-micro/node'
+import express from "express";
+import { createI18n } from "@i18n-micro/node";
 
-const app = express()
+const app = express();
 
 // Create I18n instance and load translations once at startup
 const i18n = createI18n({
-  locale: 'en',
-  translationDir: './locales',
-})
-await i18n.loadTranslations()
+  locale: "en",
+  translationDir: "./locales",
+});
+await i18n.loadTranslations();
 
 // Middleware to set locale and route per request
 app.use(async (req, res, next) => {
-  const locale = req.headers['accept-language']?.split(',')[0] || 'en'
-  const route = req.path.split('/').filter(Boolean)[0] || 'index'
-  
-  i18n.locale = locale
-  i18n.setRoute(route)
-  req.i18n = i18n
-  await i18n.loadTranslations()
-  next()
-})
+  const locale = req.headers["accept-language"]?.split(",")[0] || "en";
+  const route = req.path.split("/").filter(Boolean)[0] || "index";
 
-app.get('/greet', (req, res) => {
-  res.json({ message: req.i18n.t('greeting', { name: 'World' }) })
-})
+  i18n.locale = locale;
+  i18n.setRoute(route);
+  req.i18n = i18n;
+  await i18n.loadTranslations();
+  next();
+});
+
+app.get("/greet", (req, res) => {
+  res.json({ message: req.i18n.t("greeting", { name: "World" }) });
+});
 ```
 
 ### Fastify Plugin
 
 ```typescript
-import Fastify from 'fastify'
-import { createI18n } from '@i18n-micro/node'
+import Fastify from "fastify";
+import { createI18n } from "@i18n-micro/node";
 
-const fastify = Fastify()
+const fastify = Fastify();
 
 // Create I18n instance
 const i18n = createI18n({
-  locale: 'en',
-  translationDir: './locales',
-})
-await i18n.loadTranslations()
+  locale: "en",
+  translationDir: "./locales",
+});
+await i18n.loadTranslations();
 
 // Plugin to add i18n to request
-fastify.addHook('onRequest', async (request, reply) => {
-  const locale = request.headers['accept-language']?.split(',')[0] || 'en'
-  i18n.locale = locale
-  request.i18n = i18n
-  await i18n.loadTranslations()
-})
+fastify.addHook("onRequest", async (request, reply) => {
+  const locale = request.headers["accept-language"]?.split(",")[0] || "en";
+  i18n.locale = locale;
+  request.i18n = i18n;
+  await i18n.loadTranslations();
+});
 
-fastify.get('/greet', async (request, reply) => {
-  return { message: request.i18n.t('greeting', { name: 'World' }) }
-})
+fastify.get("/greet", async (request, reply) => {
+  return { message: request.i18n.t("greeting", { name: "World" }) };
+});
 ```
 
 ### Hot Module Replacement (HMR) with File Watcher
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
-import { watch } from 'node:fs'
+import { createI18n } from "@i18n-micro/node";
+import { watch } from "node:fs";
 
 // Create I18n instance
 const i18n = createI18n({
-  locale: 'en',
-  translationDir: './locales',
-})
+  locale: "en",
+  translationDir: "./locales",
+});
 
 // Initial load
-await i18n.loadTranslations()
+await i18n.loadTranslations();
 
 // Simple file watcher (Node.js built-in, no dependencies needed)
-let reloadTimeout: NodeJS.Timeout
-watch('./locales', { recursive: true }, (eventType, filename) => {
-  if (filename && filename.endsWith('.json')) {
+let reloadTimeout: NodeJS.Timeout;
+watch("./locales", { recursive: true }, (eventType, filename) => {
+  if (filename && filename.endsWith(".json")) {
     // Debounce to avoid multiple reloads when saving one file
-    clearTimeout(reloadTimeout)
+    clearTimeout(reloadTimeout);
     reloadTimeout = setTimeout(async () => {
-      console.log(`File changed: ${filename}, reloading...`)
-      await i18n.reload() // Clears cache and reloads all files
-    }, 100)
+      console.log(`File changed: ${filename}, reloading...`);
+      await i18n.reload(); // Clears cache and reloads all files
+    }, 100);
   }
-})
+});
 
 // Now i18n.t() will always return fresh data after file changes
 ```
@@ -241,21 +242,21 @@ watch('./locales', { recursive: true }, (eventType, filename) => {
 ### CLI Tool
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
+import { createI18n } from "@i18n-micro/node";
 
 async function main() {
   const i18n = createI18n({
-    locale: process.env.LOCALE || 'en',
-    translationDir: './locales',
-  })
+    locale: process.env.LOCALE || "en",
+    translationDir: "./locales",
+  });
 
-  await i18n.loadTranslations()
+  await i18n.loadTranslations();
 
-  console.log(i18n.t('welcome'))
-  console.log(i18n.tc('items', 5))
+  console.log(i18n.t("welcome"));
+  console.log(i18n.tc("items", 5));
 }
 
-main()
+main();
 ```
 
 ## 🔄 Using currentRoute
@@ -263,24 +264,24 @@ main()
 The `currentRoute` feature allows you to set a route context that will be used by default in all `t()` calls:
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
+import { createI18n } from "@i18n-micro/node";
 
 const i18n = createI18n({
-  locale: 'en',
-  translationDir: './locales',
-})
+  locale: "en",
+  translationDir: "./locales",
+});
 
 // Set route context
-i18n.setRoute('home')
+i18n.setRoute("home");
 
-await i18n.loadTranslations()
+await i18n.loadTranslations();
 
 // Now t() will automatically use 'home' route
-console.log(i18n.t('title')) // Looks in 'home' route translations
-console.log(i18n.t('welcome')) // Base translation (from index, merged into route)
+console.log(i18n.t("title")); // Looks in 'home' route translations
+console.log(i18n.t("welcome")); // Base translation (from index, merged into route)
 
 // Can still override with explicit routeName
-console.log(i18n.t('title', undefined, undefined, 'about')) // Uses 'about' route
+console.log(i18n.t("title", undefined, undefined, "about")); // Uses 'about' route
 ```
 
 ## 🎯 Key Features
@@ -299,41 +300,41 @@ console.log(i18n.t('title', undefined, undefined, 'about')) // Uses 'about' rout
 You can use `@i18n-micro/node` in Nuxt server API routes to provide server-side translations:
 
 ```javascript
-import { defineEventHandler, getQuery } from 'h3'
-import { createI18n } from '@i18n-micro/node'
-import { join } from 'node:path'
+import { defineEventHandler, getQuery } from "h3";
+import { createI18n } from "@i18n-micro/node";
+import { join } from "node:path";
 
 // Create a singleton I18n instance (in production, you'd want to cache this)
-let i18nInstance = null
+let i18nInstance = null;
 
 async function getI18n() {
   if (!i18nInstance) {
     // Get locales directory path (relative to playground root)
-    const localesPath = join(process.cwd(), 'playground', 'locales')
+    const localesPath = join(process.cwd(), "playground", "locales");
 
     i18nInstance = createI18n({
-      locale: 'en',
-      fallbackLocale: 'en',
+      locale: "en",
+      fallbackLocale: "en",
       translationDir: localesPath,
-    })
+    });
   }
 
-  return i18nInstance
+  return i18nInstance;
 }
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const locale = query.locale || 'en'
-  const route = query.route || 'index'
+  const query = getQuery(event);
+  const locale = query.locale || "en";
+  const route = query.route || "index";
 
-  const i18n = await getI18n()
+  const i18n = await getI18n();
 
   // Set locale and route for this request
-  i18n.locale = locale
-  i18n.setRoute(route)
+  i18n.locale = locale;
+  i18n.setRoute(route);
 
   // Load translations (required after setting route)
-  await i18n.loadTranslations()
+  await i18n.loadTranslations();
 
   // Demonstrate various translation methods
   return {
@@ -341,16 +342,16 @@ export default defineEventHandler(async (event) => {
     route: i18n.getRoute(),
     translations: {
       // Simple translation
-      welcome: i18n.t('welcome'),
+      welcome: i18n.t("welcome"),
       // Translation with interpolation
-      greeting: i18n.t('greeting', { name: 'Node.js User' }),
+      greeting: i18n.t("greeting", { name: "Node.js User" }),
       // Nested key
-      nested: i18n.t('nested.message'),
+      nested: i18n.t("nested.message"),
       // Pluralization
       apples: {
-        zero: i18n.tc('apples', 0),
-        one: i18n.tc('apples', 1),
-        many: i18n.tc('apples', 5),
+        zero: i18n.tc("apples", 0),
+        one: i18n.tc("apples", 1),
+        many: i18n.tc("apples", 5),
       },
       // Number formatting
       number: i18n.tn(1234.56),
@@ -359,16 +360,16 @@ export default defineEventHandler(async (event) => {
       // Relative time
       relativeTime: i18n.tdr(new Date(Date.now() - 3600000)),
       // Route-specific translation (if available)
-      routeSpecific: i18n.t('title', undefined, undefined, route),
+      routeSpecific: i18n.t("title", undefined, undefined, route),
     },
     // Show available methods
     methods: {
-      hasTranslation: i18n.hasTranslation('welcome'),
+      hasTranslation: i18n.hasTranslation("welcome"),
       currentRoute: i18n.getRoute(),
       currentLocale: i18n.locale,
     },
-  }
-})
+  };
+});
 ```
 
 ## 📋 Locale Detection
@@ -376,32 +377,32 @@ export default defineEventHandler(async (event) => {
 You can implement custom locale detection logic based on your needs:
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
-import { IncomingMessage } from 'http'
+import { createI18n } from "@i18n-micro/node";
+import { IncomingMessage } from "http";
 
 function detectLocale(req: IncomingMessage): string {
   // 1. Check URL parameters: ?locale=ru
-  const url = new URL(req.url || '', `http://${req.headers.host}`)
-  const localeFromQuery = url.searchParams.get('locale')
-  if (localeFromQuery) return localeFromQuery
+  const url = new URL(req.url || "", `http://${req.headers.host}`);
+  const localeFromQuery = url.searchParams.get("locale");
+  if (localeFromQuery) return localeFromQuery;
 
   // 2. Check cookies: user-locale cookie
-  const cookies = req.headers.cookie || ''
+  const cookies = req.headers.cookie || "";
   const localeFromCookie = cookies
-    .split(';')
-    .find(c => c.trim().startsWith('user-locale='))
-    ?.split('=')[1]
-  if (localeFromCookie) return localeFromCookie
+    .split(";")
+    .find((c) => c.trim().startsWith("user-locale="))
+    ?.split("=")[1];
+  if (localeFromCookie) return localeFromCookie;
 
   // 3. Check HTTP Headers: Accept-Language
-  const acceptLanguage = req.headers['accept-language']
+  const acceptLanguage = req.headers["accept-language"];
   if (acceptLanguage) {
-    const preferredLocale = acceptLanguage.split(',')[0].split('-')[0]
-    return preferredLocale
+    const preferredLocale = acceptLanguage.split(",")[0].split("-")[0];
+    return preferredLocale;
   }
 
   // 4. Fallback to default
-  return 'en'
+  return "en";
 }
 ```
 
@@ -410,112 +411,112 @@ function detectLocale(req: IncomingMessage): string {
 ### Conditional Response Based on Locale
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
+import { createI18n } from "@i18n-micro/node";
 
 const i18n = createI18n({
-  locale: 'en',
-  translationDir: './locales',
-})
+  locale: "en",
+  translationDir: "./locales",
+});
 
-await i18n.loadTranslations()
+await i18n.loadTranslations();
 
 function handleRequest(locale: string) {
-  i18n.locale = locale
+  i18n.locale = locale;
 
   // Return different content based on locale
-  if (locale === 'ru') {
+  if (locale === "ru") {
     return {
-      message: i18n.t('greeting', { name: 'Мир' }),
+      message: i18n.t("greeting", { name: "Мир" }),
       locale: locale,
-    }
+    };
   }
 
-  if (locale === 'de') {
+  if (locale === "de") {
     return {
-      message: i18n.t('greeting', { name: 'Welt' }),
+      message: i18n.t("greeting", { name: "Welt" }),
       locale: locale,
-    }
+    };
   }
 
   // Default English response
   return {
-    message: i18n.t('greeting', { name: 'World' }),
+    message: i18n.t("greeting", { name: "World" }),
     locale: locale,
-  }
+  };
 }
 ```
 
 ### Locale-Aware API with Validation
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
-import { defineEventHandler, getQuery, createError } from 'h3'
+import { createI18n } from "@i18n-micro/node";
+import { defineEventHandler, getQuery, createError } from "h3";
 
 const i18n = createI18n({
-  locale: 'en',
-  fallbackLocale: 'en',
-  translationDir: './locales',
-})
+  locale: "en",
+  fallbackLocale: "en",
+  translationDir: "./locales",
+});
 
-await i18n.loadTranslations()
+await i18n.loadTranslations();
 
-const availableLocales = ['en', 'ru', 'de']
+const availableLocales = ["en", "ru", "de"];
 
 export default defineEventHandler((event) => {
-  const query = getQuery(event)
-  const locale = (query.locale as string) || 'en'
+  const query = getQuery(event);
+  const locale = (query.locale as string) || "en";
 
   // Validate if the detected locale is supported
   if (!availableLocales.includes(locale)) {
     throw createError({
       statusCode: 400,
-      statusMessage: `Unsupported locale: ${locale}. Available locales: ${availableLocales.join(', ')}`,
-    })
+      statusMessage: `Unsupported locale: ${locale}. Available locales: ${availableLocales.join(", ")}`,
+    });
   }
 
-  i18n.locale = locale
+  i18n.locale = locale;
 
   // Return locale-specific configuration
   return {
     locale: locale,
-    message: i18n.t('welcome'),
+    message: i18n.t("welcome"),
     availableLocales: availableLocales,
-  }
-})
+  };
+});
 ```
 
 ### Integration with Route-Specific Translations
 
 ```typescript
-import { createI18n } from '@i18n-micro/node'
-import { defineEventHandler, getQuery } from 'h3'
+import { createI18n } from "@i18n-micro/node";
+import { defineEventHandler, getQuery } from "h3";
 
 const i18n = createI18n({
-  locale: 'en',
-  translationDir: './locales',
-})
+  locale: "en",
+  translationDir: "./locales",
+});
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-  const locale = (query.locale as string) || 'en'
-  const route = (query.route as string) || 'index'
+  const query = getQuery(event);
+  const locale = (query.locale as string) || "en";
+  const route = (query.route as string) || "index";
 
   // Set locale and route for this request
-  i18n.locale = locale
-  i18n.setRoute(route)
+  i18n.locale = locale;
+  i18n.setRoute(route);
 
   // Load translations (required after setting route)
-  await i18n.loadTranslations()
+  await i18n.loadTranslations();
 
   return {
     locale: i18n.locale,
     route: i18n.getRoute(),
     // Route-specific translation
-    title: i18n.t('title'),
+    title: i18n.t("title"),
     // Base translation (from index, merged into route)
-    welcome: i18n.t('welcome'),
-  }
-})
+    welcome: i18n.t("welcome"),
+  };
+});
 ```
 
 ## 📝 Best Practices
@@ -540,4 +541,3 @@ export default defineEventHandler(async (event) => {
 - **[Folder Structure](../guide/folder-structure.md)** - Learn about translation file organization
 - **[Server Side Translations](../guide/server-side-translations.md)** - Nuxt server-side usage
 - **[API Reference](../api/methods.md)** - Complete method documentation
-

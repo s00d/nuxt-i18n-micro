@@ -17,7 +17,7 @@ The `useLocaleHead` composable accepts an options object to customize its behavi
 - **Description**: If `true`, adds the `dir` attribute to the HTML document based on the current locale's direction (`ltr` or `rtl`).
 - **Example**:
   ```js
-  const head = useLocaleHead({ addDirAttribute: false })
+  const head = useLocaleHead({ addDirAttribute: false });
   ```
 
 ### `identifierAttribute`
@@ -27,7 +27,7 @@ The `useLocaleHead` composable accepts an options object to customize its behavi
 - **Description**: Specifies the attribute used to identify the generated meta and link tags. This is useful for differentiating tags when inspecting the document head.
 - **Example**:
   ```js
-  const head = useLocaleHead({ identifierAttribute: 'data-i18n' })
+  const head = useLocaleHead({ identifierAttribute: "data-i18n" });
   ```
 
 ### `addSeoAttributes`
@@ -37,7 +37,7 @@ The `useLocaleHead` composable accepts an options object to customize its behavi
 - **Description**: If `true`, includes SEO-related meta and link tags, such as `og:locale`, `og:url`, and `hreflang` attributes for alternate languages.
 - **Example**:
   ```js
-  const head = useLocaleHead({ addSeoAttributes: false })
+  const head = useLocaleHead({ addSeoAttributes: false });
   ```
 
 ### `baseUrl`
@@ -47,7 +47,7 @@ The `useLocaleHead` composable accepts an options object to customize its behavi
 - **Description**: The base URL of your application, used to generate canonical and alternate URLs for SEO purposes.
 - **Example**:
   ```js
-  const head = useLocaleHead({ baseUrl: 'https://example.com' })
+  const head = useLocaleHead({ baseUrl: "https://example.com" });
   ```
 
 ## 🛠️ Return Values
@@ -60,8 +60,8 @@ The `useLocaleHead` composable returns a reactive object and an updater function
 - **Description**: Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)`.
 - **Example**:
   ```js
-  const { metaObject } = useLocaleHead()
-  useHead(metaObject)
+  const { metaObject } = useLocaleHead();
+  useHead(metaObject);
   ```
 
 ### `updateMeta`
@@ -70,9 +70,13 @@ The `useLocaleHead` composable returns a reactive object and an updater function
 - **Description**: Recomputes `metaObject` based on current route/locale/config. Call it when inputs change (e.g. on route change).
 - **Example**:
   ```js
-  const { metaObject, updateMeta } = useLocaleHead()
-  useHead(metaObject)
-  watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+  const { metaObject, updateMeta } = useLocaleHead();
+  useHead(metaObject);
+  watch(
+    () => route.fullPath,
+    () => updateMeta(),
+    { immediate: true },
+  );
   ```
 
 ### Accessing `link` and `meta`
@@ -81,11 +85,11 @@ The `link` and `meta` arrays are accessible via `metaObject.value`:
 
 - **Example**:
   ```js
-  const { metaObject, updateMeta } = useLocaleHead()
-  updateMeta()
-  console.log(metaObject.value.link)
+  const { metaObject, updateMeta } = useLocaleHead();
+  updateMeta();
+  console.log(metaObject.value.link);
   // Output: [{ id: 'i18n-can', rel: 'canonical', href: 'https://example.com/about' }, ...]
-  console.log(metaObject.value.meta)
+  console.log(metaObject.value.meta);
   // Output: [{ id: 'i18n-og', property: 'og:locale', content: 'en_US' }, ...]
   ```
 
@@ -96,7 +100,7 @@ The `link` and `meta` arrays are accessible via `metaObject.value`:
 Generate locale-specific head attributes with default options.
 
 ```js
-const head = useLocaleHead()
+const head = useLocaleHead();
 ```
 
 ### Customize Identifier Attribute
@@ -104,7 +108,7 @@ const head = useLocaleHead()
 Use a custom identifier attribute for the generated tags.
 
 ```js
-const head = useLocaleHead({ identifierAttribute: 'data-i18n' })
+const head = useLocaleHead({ identifierAttribute: "data-i18n" });
 ```
 
 ### Disable SEO Attributes
@@ -112,7 +116,7 @@ const head = useLocaleHead({ identifierAttribute: 'data-i18n' })
 Generate head attributes without adding SEO-related meta and link tags.
 
 ```js
-const head = useLocaleHead({ addSeoAttributes: false })
+const head = useLocaleHead({ addSeoAttributes: false });
 ```
 
 ### Specify a Base URL
@@ -120,7 +124,7 @@ const head = useLocaleHead({ addSeoAttributes: false })
 Set a custom base URL for canonical and alternate URLs.
 
 ```js
-const head = useLocaleHead({ baseUrl: 'https://mywebsite.com' })
+const head = useLocaleHead({ baseUrl: "https://mywebsite.com" });
 ```
 
 ## 🚀 Additional Features
@@ -128,6 +132,7 @@ const head = useLocaleHead({ baseUrl: 'https://mywebsite.com' })
 ### SEO Meta and Link Tags
 
 When `addSeoAttributes` is enabled, the composable automatically generates the following tags:
+
 - `og:locale` for the current locale.
 - `og:url` for the canonical URL of the page.
 - `og:locale:alternate` for alternate language versions.
@@ -144,22 +149,25 @@ If your routes are prefixed with locale codes (e.g., `/en/about`), the composabl
 
 This composable simplifies the process of optimizing your Nuxt application for international audiences, ensuring that your site is well-prepared for global search engines and users.
 
-
 ## 🛠️ Example Usage
 
 The following example demonstrates how to use the `useLocaleHead` composable within a Vue component with default settings:
 
 ```vue
 <script setup>
-import { useRoute, watch } from '#imports'
-const route = useRoute()
+import { useRoute, watch } from "#imports";
+const route = useRoute();
 const { metaObject, updateMeta } = useLocaleHead({
   addDirAttribute: true,
-  identifierAttribute: 'id',
+  identifierAttribute: "id",
   addSeoAttributes: true,
-})
-useHead(metaObject)
-watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+});
+useHead(metaObject);
+watch(
+  () => route.fullPath,
+  () => updateMeta(),
+  { immediate: true },
+);
 </script>
 ```
 
@@ -193,10 +201,15 @@ This example demonstrates how easy it is to integrate `useLocaleHead` into your 
 ```ts
 // plugins/02.meta.ts
 export default defineNuxtPlugin(() => {
-  const route = useRoute()
-  const { metaObject, updateMeta } = useLocaleHead({ baseUrl: 'https://example.com' })
-  useHead(metaObject)
-  if (import.meta.server) updateMeta()
-  else watch(() => route.fullPath, () => updateMeta(), { immediate: true })
-})
+  const route = useRoute();
+  const { metaObject, updateMeta } = useLocaleHead({ baseUrl: "https://example.com" });
+  useHead(metaObject);
+  if (import.meta.server) updateMeta();
+  else
+    watch(
+      () => route.fullPath,
+      () => updateMeta(),
+      { immediate: true },
+    );
+});
 ```

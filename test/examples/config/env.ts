@@ -1,2 +1,2 @@
 // Test environment configuration
-export const isProduction = false
+export const isProduction = false;

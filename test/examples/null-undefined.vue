@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{ $t('welcome') }}</h1>
+    <h1>{{ $t("welcome") }}</h1>
   </div>
 </template>
 
@@ -10,5 +10,5 @@
 $defineI18nRoute({
   locales: null,
   localeRoutes: undefined,
-})
+});
 </script>

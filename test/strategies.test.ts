@@ -10,99 +10,100 @@
  * Запуск только этого файла: pnpm exec vitest run test/strategies.test.ts
  */
 
-import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
-import net from 'node:net'
-import { join } from 'node:path'
-import { setTimeout as delay } from 'node:timers/promises'
-import { fileURLToPath } from 'node:url'
-import { promisify } from 'node:util'
-import { rimraf } from 'rimraf'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { type ChildProcess, exec as execCb, spawn } from "node:child_process";
+import net from "node:net";
+import { join } from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
+import { rimraf } from "rimraf";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 /* ──────────────── settings ──────────────── */
 
-const FIXTURES = join(fileURLToPath(import.meta.url), '..', 'fixtures/strategy')
-const HOST = 'localhost'
+const FIXTURES = join(fileURLToPath(import.meta.url), "..", "fixtures/strategy");
+const HOST = "localhost";
 
 const ROUTES = {
   no_prefix: [
-    ['/', 'en'],
-    ['/contact', 'contact'],
-    ['/kontakt', 'contact'],
+    ["/", "en"],
+    ["/contact", "contact"],
+    ["/kontakt", "contact"],
   ],
   prefix_except_default: [
-    ['/', 'en'],
-    ['/ru', 'ru'],
-    ['/de', 'de'],
-    ['/ru/contact', 'contact'],
-    ['/de/kontakt', 'contact'],
+    ["/", "en"],
+    ["/ru", "ru"],
+    ["/de", "de"],
+    ["/ru/contact", "contact"],
+    ["/de/kontakt", "contact"],
   ],
   prefix: [
-    ['/en', 'en'],
-    ['/ru', 'ru'],
-    ['/de', 'de'],
-    ['/en/contact', 'contact'],
-    ['/ru/contact', 'contact'],
-    ['/de/kontakt', 'contact'],
+    ["/en", "en"],
+    ["/ru", "ru"],
+    ["/de", "de"],
+    ["/en/contact", "contact"],
+    ["/ru/contact", "contact"],
+    ["/de/kontakt", "contact"],
   ],
   prefix_and_default: [
-    ['/', 'en'],
-    ['/en', 'en'],
-    ['/ru', 'ru'],
-    ['/de', 'de'],
-    ['/en/contact', 'contact'],
-    ['/ru/contact', 'contact'],
-    ['/de/kontakt', 'contact'],
+    ["/", "en"],
+    ["/en", "en"],
+    ["/ru", "ru"],
+    ["/de", "de"],
+    ["/en/contact", "contact"],
+    ["/ru/contact", "contact"],
+    ["/de/kontakt", "contact"],
   ],
-} as const
+} as const;
 
 /* ──────────────── helpers ──────────────── */
 
-const exec = promisify(execCb)
+const exec = promisify(execCb);
 
 /** Find free port through temporary net.Server */
-export async function getFreePort(base = 10011, max = 20): Promise<number> {
+async function getFreePort(base = 10011, max = 20): Promise<number> {
   for (let i = 0; i < max; i++) {
-    const port = base + i
+    const port = base + i;
     try {
       await new Promise<void>((resolve, reject) => {
-        const srv = net.createServer()
+        const srv = net.createServer();
 
-        srv.once('error', reject)
+        srv.once("error", reject);
 
-        srv.once('listening', () => {
+        srv.once("listening", () => {
           // close server and resolve promise, maintaining signature (err?: Error)
-          srv.close((err) => (err ? reject(err) : resolve()))
-        })
+          srv.close((err) => (err ? reject(err) : resolve()));
+        });
 
-        srv.listen(port, '127.0.0.1')
-      })
-      return port // ← free port found
+        srv.listen(port, "127.0.0.1");
+      });
+      return port; // ← free port found
     } catch {
       /* port busy, try next */
     }
   }
-  throw new Error(`No free port in range ${base}-${base + max}`)
+  throw new Error(`No free port in range ${base}-${base + max}`);
 }
 
 /** Terminate process holding the port (Unix and Windows) */
 async function freePort(port: number) {
-  if (process.platform === 'win32') {
+  if (process.platform === "win32") {
     try {
-      const { stdout } = await exec(`netstat -ano | findstr :${port}`)
+      const { stdout } = await exec(`netstat -ano | findstr :${port}`);
       const pids = stdout
         .trim()
-        .split('\n')
+        .split("\n")
         .map((l) => l.trim().split(/\s+/).pop())
-        .filter(Boolean)
-      for (const pid of pids) await exec(`taskkill /PID ${pid} /F`)
+        .filter(Boolean);
+      for (const pid of pids) await exec(`taskkill /PID ${pid} /F`);
     } catch {
       /* empty */
     }
   } else {
     try {
-      const { stdout } = await exec(`lsof -ti tcp:${port}`)
-      for (const pid of stdout.trim().split('\n').filter(Boolean)) process.kill(Number(pid), 'SIGKILL')
+      const { stdout } = await exec(`lsof -ti tcp:${port}`);
+      for (const pid of stdout.trim().split("\n").filter(Boolean))
+        process.kill(Number(pid), "SIGKILL");
     } catch {
       /* empty */
     }
@@ -113,39 +114,41 @@ async function freePort(port: number) {
 async function waitForText(url: string, text: string, tries = 40, ms = 500) {
   for (let i = 0; i < tries; i++) {
     try {
-      if ((await (await fetch(url)).text()).includes(text)) return
+      if ((await (await fetch(url)).text()).includes(text)) return;
     } catch {
       /* server not started */
     }
-    await delay(ms)
+    await delay(ms);
   }
-  throw new Error(`"${text}" not found at ${url}`)
+  throw new Error(`"${text}" not found at ${url}`);
 }
 
 /** npm run generate / npm run build via spawn */
-function runNuxt(script: 'generate' | 'build', strategy: string): Promise<void> {
+function runNuxt(script: "generate" | "build", strategy: string): Promise<void> {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
-    NODE_ENV: 'production',
+    NODE_ENV: "production",
     STRATEGY: strategy,
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
+  };
+  delete env.VITEST;
+  delete env.VITE_TEST_BUILD;
+  delete env.TEST;
+  delete env.JEST;
 
-  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
 
   return new Promise((resolve, reject) => {
-    const child = spawn(npmCmd, ['run', script], {
+    const child = spawn(npmCmd, ["run", script], {
       cwd: FIXTURES,
-      stdio: 'inherit',
+      stdio: "inherit",
       detached: true,
       env,
-    })
-    child.unref()
-    child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`npm run ${script} exited with code ${code}`))))
-  })
+    });
+    child.unref();
+    child.on("exit", (code) =>
+      code === 0 ? resolve() : reject(new Error(`npm run ${script} exited with code ${code}`)),
+    );
+  });
 }
 
 /** Start static or SSR server */
@@ -153,95 +156,97 @@ function serve(cmd: string[], port: number): ChildProcess {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     PORT: String(port),
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
+    NODE_ENV: "production",
+  };
+  delete env.VITEST;
+  delete env.VITE_TEST_BUILD;
+  delete env.TEST;
+  delete env.JEST;
 
-  const command = cmd[0]
+  const command = cmd[0];
   if (!command) {
-    throw new Error('Command is required')
+    throw new Error("Command is required");
   }
   const child = spawn(command, cmd.slice(1), {
     cwd: FIXTURES,
-    stdio: 'inherit',
+    stdio: "inherit",
     detached: true,
     env,
-  }) as import('child_process').ChildProcess
-  if (child && typeof child.unref === 'function') {
-    child.unref()
+  }) as import("child_process").ChildProcess;
+  if (child && typeof child.unref === "function") {
+    child.unref();
   }
-  return child
+  return child;
 }
 
 async function htmlIncludes(port: number, path: string, text: string) {
-  const res = await fetch(`http://${HOST}:${port}${path}`)
-  expect(await res.text()).toContain(text)
+  const res = await fetch(`http://${HOST}:${port}${path}`);
+  expect(await res.text()).toContain(text);
 }
 
 /* ──────────────── tests ──────────────── */
 
-describe.each(Object.entries(ROUTES))('[%s] strategy', (strategy, routes) => {
-  let port: number
-  let server: ChildProcess | null = null
+describe.each(Object.entries(ROUTES))("[%s] strategy", (strategy, routes) => {
+  let port: number;
+  let server: ChildProcess | null = null;
 
   const stop = async () => {
-    if (server && !server.killed) server.kill()
-    server = null
-    if (port) await freePort(port)
-  }
+    if (server && !server.killed) server.kill();
+    server = null;
+    if (port) await freePort(port);
+  };
 
   /* ---------- STATIC ---------- */
-  describe('static generate', () => {
+  describe("static generate", () => {
     beforeAll(async () => {
-      port = await getFreePort()
-      await stop()
-      await delay(800) // дать ОС освободить порт после предыдущего сервера
-      await rimraf(join(FIXTURES, '.nuxt'))
-      await rimraf(join(FIXTURES, '.output'))
-      await runNuxt('generate', strategy)
+      port = await getFreePort();
+      await stop();
+      await delay(800); // дать ОС освободить порт после предыдущего сервера
+      await rimraf(join(FIXTURES, ".nuxt"));
+      await rimraf(join(FIXTURES, ".output"));
+      await runNuxt("generate", strategy);
 
-      server = serve(['npx', 'serve', '.output/public', '-p', String(port)], port)
-      await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
-    }, 300_000)
+      server = serve(["npx", "serve", ".output/public", "-p", String(port)], port);
+      await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1]);
+    }, 300_000);
 
     afterAll(async () => {
-      await stop()
-      await delay(500) // освобождение порта перед следующим сценарием
-    })
+      await stop();
+      await delay(500); // освобождение порта перед следующим сценарием
+    });
 
     routes.forEach(([path, text]) => {
       it(`GET ${path} → contains "${text}"`, async () => {
-        await htmlIncludes(port, path, text)
-      })
-    })
-  })
+        expect.hasAssertions();
+        await htmlIncludes(port, path, text);
+      });
+    });
+  });
 
   /* ---------- SSR ---------- */
-  describe('ssr build', () => {
+  describe("ssr build", () => {
     beforeAll(async () => {
-      port = await getFreePort()
-      await stop()
-      await delay(800) // дать ОС освободить порт после предыдущего сервера
-      await rimraf(join(FIXTURES, '.nuxt'))
-      await rimraf(join(FIXTURES, '.output'))
-      await runNuxt('build', strategy)
+      port = await getFreePort();
+      await stop();
+      await delay(800); // дать ОС освободить порт после предыдущего сервера
+      await rimraf(join(FIXTURES, ".nuxt"));
+      await rimraf(join(FIXTURES, ".output"));
+      await runNuxt("build", strategy);
 
-      server = serve(['node', '.output/server/index.mjs'], port)
-      await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
-    }, 300_000)
+      server = serve(["node", ".output/server/index.mjs"], port);
+      await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1]);
+    }, 300_000);
 
     afterAll(async () => {
-      await stop()
-      await delay(500) // освобождение порта перед следующим сценарием
-    })
+      await stop();
+      await delay(500); // освобождение порта перед следующим сценарием
+    });
 
     routes.forEach(([path, text]) => {
       it(`GET ${path} → contains "${text}"`, async () => {
-        await htmlIncludes(port, path, text)
-      })
-    })
-  })
-})
+        expect.hasAssertions();
+        await htmlIncludes(port, path, text);
+      });
+    });
+  });
+});

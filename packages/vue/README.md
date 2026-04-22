@@ -59,10 +59,10 @@ locale.value = "fr";
 </script>
 ```
 
-## Resources
+## Documentation
 
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
+- **[Vue integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/vue-package)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 

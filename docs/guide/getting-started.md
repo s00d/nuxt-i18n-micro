@@ -101,7 +101,7 @@ export default defineNuxtConfig({
 
 ### Folder Structure
 
-Your translation files will be automatically generated when you run the application. Here is the full project structure:
+Root-level JSON files apply app-wide; page-specific files live under `locales/pages/<route>/`. Missing files are created in dev. See the full layout and dynamic-route naming rules in **[Folder structure](./folder-structure.md)**.
 
 ```tree
 - name: my-nuxt-app
@@ -186,15 +186,6 @@ Your translation files will be automatically generated when you run the applicat
         - name: tsconfig.json
           preview: "{\n  \"extends\": \"../.nuxt/tsconfig.server.json\"\n}"
 ```
-
-::: tip Folder Structure Explanation
-
-- **Root-Level Files** (`locales/en.json`, etc.) — translations shared across the entire app (menus, footer, common UI), merged into every page at build time
-- **Page-Specific Files** (`locales/pages/<route>/<locale>.json`) — translations unique to specific pages, loaded only when the page is visited
-- **Dynamic Routes** — `pages/articles/[id].vue` maps to `locales/pages/articles-id/` (brackets replaced with dashes)
-- **Auto-Generation** — all translation files are automatically created when missing during `nuxt dev`
-
-:::
 
 ### Basic Usage
 
@@ -993,66 +984,11 @@ For most projects the default (unlimited, no expiration) is fine — translation
 **Formula for estimating max entries**: `number_of_locales × (number_of_pages + 1)`. For example, 10 locales × 500 pages = ~5010 entries.
 :::
 
-## 🔄 Caching Mechanism
+## 🔄 Caching and locale state
 
-Nuxt I18n Micro v3 uses a multi-layer caching architecture built around `TranslationStorage` — a singleton class that uses `Symbol.for` on `globalThis` to ensure a single cache instance across bundles.
+Translation caching (client `TranslationStorage`, SSR injection, server-side loading) and options such as `cacheMaxSize` / `cacheTtl` are covered in **[Translations and cache](/api/i18n-cache-api)**.
 
-### Translation Loading Flow
-
-```mermaid
-flowchart TB
-    subgraph Client["🖥️ Client Side"]
-        A[Page Request] --> B{window.__I18N__?}
-        B -->|Found| C[Use SSR Data]
-        B -->|Not Found| D{TranslationStorage cache?}
-        D -->|Hit| E[Return Cached]
-        D -->|Miss| F["$fetch /_locales/..."]
-        F --> G[Store in TranslationStorage]
-        G --> E
-    end
-
-    subgraph Server["🖧 Server Side"]
-        H[SSR Request] --> I{Server process cache?}
-        I -->|Hit| J[Return Cached]
-        I -->|Miss| K[loadTranslationsFromServer]
-        K --> L["Read pre-built file (root + page + fallback already merged)"]
-        L --> M[Cache in process-global Map]
-        M --> J
-        J --> N["Inject window.__I18N__"]
-    end
-
-    A -.->|First Load| H
-    N -.->|Hydration| B
-    E --> O[Render Page]
-    C --> O
-```
-
-### Key Characteristics
-
-- 🚀 **Zero extra requests on first load**: SSR-injected data in `window.__I18N__` is consumed synchronously on hydration
-- 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
-- ⚡ **Single request per page**: The API returns a pre-built file (root + page-specific + fallback merged at build time) — no runtime merging needed
-- 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically
-
-See the [Cache & Storage Architecture](../api/i18n-cache-api.md) for in-depth details.
-
-## 🌍 Locale State Management
-
-In v3, all locale management goes through the centralized `useI18nLocale()` composable:
-
-```ts
-const { setLocale, getLocale, getPreferredLocale } = useI18nLocale();
-
-// Set locale (updates useState + cookie atomically)
-setLocale("fr");
-
-// Get current locale
-const locale = getLocale();
-```
-
-**Do not** use `useState('i18n-locale')` or `useCookie('user-locale')` directly. The `useI18nLocale()` composable manages both internally, ensuring consistency between server and client.
-
-See the [Custom Language Detection](./custom-auto-detect.md) guide for advanced usage.
+Use **`useI18nLocale()`** for programmatic locale changes — see **[useI18nLocale](/composables/useI18nLocale)** and **[Custom language detection](./custom-auto-detect.md)**.
 
 ## 📚 Next Steps
 

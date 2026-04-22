@@ -51,7 +51,8 @@ export default defineConfig({
 
 ## Documentation
 
-See [full documentation](../../docs/integrations/types-generator.md) for detailed usage and examples.
+- **[Types generator integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/types-generator)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 

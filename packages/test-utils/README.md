@@ -1,6 +1,11 @@
-# Nuxt I18n Micro Test Utils
+# @i18n-micro/test-utils
 
-This is a utility library designed to facilitate testing for Nuxt.js applications that use the `@i18n-micro/core` package. It provides helper functions to handle translations, formatting, and locale switching, simplifying the process of testing internationalization (i18n) functionality.
+Helpers for testing apps that use **@i18n-micro/core** / **nuxt-i18n-micro**: translations, pluralization, locale switching, formatting, and cache merges.
+
+## Documentation
+
+- **[Testing guide](https://s00d.github.io/nuxt-i18n-micro/guide/testing)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## Features
 
@@ -11,18 +16,14 @@ This is a utility library designed to facilitate testing for Nuxt.js application
 - **Translation Merging**: Merge new translations into the existing cache with the `mergeTranslations` function.
 - **Locale Switching**: Switch between locales dynamically and update route and path accordingly.
 
-## Installation
+## Install
 
-You can install the package via npm or yarn:
+```bash
+pnpm add -D @i18n-micro/test-utils
+```
 
 ```bash
 npm install @i18n-micro/test-utils
-```
-
-or
-
-```bash
-yarn add @i18n-micro/test-utils
 ```
 
 ## Usage

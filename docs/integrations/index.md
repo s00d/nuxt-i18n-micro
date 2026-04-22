@@ -38,160 +38,21 @@ Unlike the full Nuxt module, these packages:
 - **[Types Generator](./types-generator.md)** (`@i18n-micro/types-generator`) - For generating TypeScript types from translation files
 - **[DevTools UI Package](./devtools-ui-package.md)** (`@i18n-micro/devtools-ui`) - Development tools for managing translations
 
-## Core Components
+## Core components
 
-All framework packages include the following essential components:
+Each integration ships a small set of building blocks — typically **`<I18nT>`** (translate / pluralize / format), **`<I18nLink>`** (localized navigation), **`<I18nSwitcher>`**, and **`<I18nGroup>`** (key prefix scope). Exact props and import paths differ by framework; use the package page for copy-paste examples:
 
-### `<I18nT>`
+- [Vue](./vue-package.md) · [React](./react-package.md) · [Preact](./preact-package.md) · [Solid](./solid-package.md) · [Astro](./astro-package.md)
 
-A translation component that renders translated text with support for:
-
-- **Parameter interpolation** - Replace placeholders with dynamic values
-- **Pluralization** - Automatic plural form selection based on count
-- **Number formatting** - Format numbers according to locale
-- **Date formatting** - Format dates and relative times
-- **HTML rendering** - Optional HTML content rendering
-- **Default values** - Fallback text when translation is missing
-
-**Example:**
+Minimal Vue illustration:
 
 ```vue
-<!-- Vue -->
 <I18nT keypath="greeting" :params="{ name: 'World' }" />
 ```
 
-```tsx
-// React
-<I18nT keypath="greeting" params={{ name: "World" }} />
-```
+### DevTools
 
-```tsx
-// Solid
-<I18nT keypath="greeting" params={{ name: "World" }} />
-```
-
-```astro
-<!-- Astro -->
-<I18nT keypath="greeting" params={{ name: 'World' }} />
-```
-
-### `<I18nLink>`
-
-A localized link component that automatically handles locale prefixes in URLs. Features:
-
-- **Automatic path localization** - Adds/removes locale prefixes based on routing strategy
-- **Active state detection** - Highlights the current route
-- **External link support** - Automatically detects and handles external URLs
-- **Router integration** - Uses router adapter's link component when available
-- **Custom styling** - Supports active and hover states
-
-**Example:**
-
-```vue
-<!-- Vue -->
-<I18nLink to="/about" active-class="active">
-  About Us
-</I18nLink>
-```
-
-```tsx
-// React
-<I18nLink to="/about" activeStyle={{ fontWeight: "bold" }}>
-  About Us
-</I18nLink>
-```
-
-```tsx
-// Solid
-<I18nLink to="/about" activeStyle={{ fontWeight: "bold" }}>
-  About Us
-</I18nLink>
-```
-
-```astro
-<!-- Astro -->
-<I18nLink href="/about" class="nav-link">
-  About Us
-</I18nLink>
-```
-
-### `<I18nSwitcher>`
-
-A language switcher component that provides a dropdown or list interface for changing locales. Features:
-
-- **Automatic locale list** - Generates options from configured locales
-- **Current locale highlighting** - Visually indicates the active language
-- **Custom labels** - Support for custom display names per locale
-- **Router integration** - Automatically navigates to localized paths
-- **Accessibility** - Proper ARIA attributes and keyboard navigation
-
-**Example:**
-
-```vue
-<!-- Vue -->
-<I18nSwitcher />
-```
-
-```tsx
-// React
-<I18nSwitcher locales={locales} currentLocale={locale} switchLocale={switchLocale} />
-```
-
-```tsx
-// Solid
-<I18nSwitcher locales={locales} currentLocale={locale} switchLocale={switchLocale} />
-```
-
-```astro
-<!-- Astro -->
-<I18nSwitcher />
-```
-
-### `<I18nGroup>`
-
-A component for grouping translations with a common prefix, useful for organizing translations by page or feature. Features:
-
-- **Prefix scoping** - Automatically prepends prefix to all translation keys within the group
-- **Nested groups** - Support for nested translation groups
-- **Clean organization** - Helps maintain organized translation structures
-
-**Example:**
-
-```vue
-<!-- Vue -->
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> <!-- Uses "home.title" -->
-  <I18nT keypath="description" /> <!-- Uses "home.description" -->
-</I18nGroup>
-```
-
-```tsx
-// React
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> {/* Uses "home.title" */}
-  <I18nT keypath="description" /> {/* Uses "home.description" */}
-</I18nGroup>
-```
-
-```tsx
-// Solid
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> {/* Uses "home.title" */}
-  <I18nT keypath="description" /> {/* Uses "home.description" */}
-</I18nGroup>
-```
-
-```astro
-<!-- Astro -->
-<I18nGroup prefix="home">
-  <I18nT keypath="title" /> <!-- Uses "home.title" -->
-  <I18nT keypath="description" /> <!-- Uses "home.description" -->
-</I18nGroup>
-```
-
-### DevTools Integration
-
-All framework packages support DevTools integration through the `@i18n-micro/devtools-ui` Vite plugin. See the [DevTools UI Package documentation](./devtools-ui-package.md) for details.
+Optional in dev: `@i18n-micro/devtools-ui` Vite plugin. See [DevTools UI Package](./devtools-ui-package.md).
 
 ## Router Adapter Abstraction
 

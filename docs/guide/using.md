@@ -1,25 +1,14 @@
 # Using Translations in Components
 
-Once the module is installed and configured, you can display translations by calling `$t('your_key')` within your Vue templates and scripts.
+After the module is configured, use **`$t('key')` in templates** for translations. In **`<script setup>`**, get helpers from **`useI18n()`** via Nuxt’s **`#imports`** (do not rely on a global `$t` identifier in script).
 
-## 1. Root-Level & Page-Specific Translation Files
+## 1. Where translation files live
 
-1. **Root-level** translations reside directly under the `/locales` folder (e.g. `/locales/en.json`, `/locales/fr.json`). At build time, they are automatically merged into every page-specific file, making them available on all pages.
-2. **Page-specific** translations live under `/locales/pages/...`, matching your Nuxt pages folder structure:
+Root-level JSON under `locales/` is merged into each page bundle; page-specific files live under `locales/pages/...`. Layout, dynamic routes, and naming rules are covered in **[Folder structure](./folder-structure.md)**.
 
-```tree
-locales/
-├── en.json
-├── fr.json
-└── pages/
-    └── dir1/
-        ├── en.json
-        └── fr.json
-```
+## 2. Template usage with `$t`
 
-## 2. Template Usage with `$t`
-
-In your `.vue` files, you can directly use `$t` in the template:
+In the **template** you can use `$t` directly:
 
 ```vue
 <template>
@@ -43,11 +32,11 @@ In your `.vue` files, you can directly use `$t` in the template:
 </template>
 
 <script setup lang="ts">
-// No need to import anything from 'nuxt-i18n-micro'.
-// The plugin automatically provides `useI18n` and `$t`.
+import { useI18n } from "#imports";
+
 const { $t } = useI18n();
 
-// You can now use $t in your script, for example:
+// $t here comes from the composable, not a script global:
 console.log($t("test_key")); // "Hello World!"
 </script>
 ```
@@ -56,21 +45,26 @@ console.log($t("test_key")); // "Hello World!"
 `$t` can return **objects** if the key points to a nested JSON node (e.g. `$t('header')` → `{ title: "Hi" }`). In templates this renders as `[object Object]`. Use `$ts` when you need a guaranteed string, or provide a more specific key like `$t('header.title')`. See [API Reference — $t vs $ts](/api/methods#t) for details.
 :::
 
-## 3. Switching the Current Locale
+## 3. Switching the current locale
 
-To change languages in your app, you can retrieve `$locale` from `useI18n()` and assign it a new code:
+You can call **`$switchLocale`** from the template (plugin-injected) or use the same helper from **`useI18n()`** in script:
 
 ```vue
 <template>
   <div>
-    <button @click="$switchLocale('en')">English</button>
-    <button @click="$switchLocale('fr')">Français</button>
+    <button type="button" @click="switchLocale('en')">English</button>
+    <button type="button" @click="switchLocale('fr')">Français</button>
   </div>
 </template>
 
 <script setup lang="ts">
-// The plugin auto-injects these references
-const { $t, $switchLocale } = useI18n();
+import { useI18n } from "#imports";
+
+const { $switchLocale } = useI18n();
+
+function switchLocale(code: string) {
+  $switchLocale(code);
+}
 </script>
 ```
 
@@ -86,13 +80,13 @@ const { $t, $switchLocale } = useI18n();
   <!-- Displays: Hello, Alice! -->
   ```
 
-## 5. Tips & Best Practices
+## 5. Tips and best practices
 
-- **Conflicting Keys**: If a page-specific file contains the same key as a root-level file, the page-specific version takes priority (root translations are merged as a base at build time).
-- **Disabling Page Files**: If you'd rather not use page-specific translations, you can set `disablePageLocales: true` in your Nuxt config. This way, only the `/locales/*.json` files are used.
-- **No Direct Imports**: You don't need to do `import { useI18n } from 'nuxt-i18n-micro'`; the module's auto-injection feature handles it for you.
+- **Conflicting keys**: If a page-specific file defines the same key as a root file, the page-specific value wins (root is merged as a base at build time).
+- **Disabling page locales**: Set `disablePageLocales: true` to use only `locales/*.json`.
+- **Imports**: Use `import { useI18n } from "#imports"` in `<script setup>` (Nuxt auto-import), not a deep import from the package name unless you have a specific reason.
 
-That's it! With these steps, you can quickly **start retrieving translations** from root-level or page-specific JSON files and **display them** in your Nuxt application using `$t`.
+With this you can read translations from JSON and show them in templates with `$t`, or in script via `useI18n()`.
 
 ## Additional Resources
 

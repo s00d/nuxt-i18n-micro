@@ -2,6 +2,11 @@
 
 Runtime path and route strategies for **Nuxt I18n Micro**: locale resolution from URL, link generation, redirects, and SEO helpers. Use this package when you need a single routing strategy at build time so only the chosen implementation is bundled.
 
+## Documentation
+
+- **[Routing strategy (Nuxt)](https://s00d.github.io/nuxt-i18n-micro/guide/strategy)** — how strategies behave in the module
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
+
 ---
 
 ## Overview

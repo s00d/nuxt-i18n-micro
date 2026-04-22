@@ -198,7 +198,7 @@ export default withFolderTree(
               base: "/components",
               items: [
                 { text: "i18n-t Component", link: "/i18n-t" },
-                { text: "ii18n-switcher Component", link: "/i18n-switcher" },
+                { text: "i18n-switcher Component", link: "/i18n-switcher" },
                 { text: "i18n-link Component", link: "/i18n-link" },
                 { text: "i18n-group Component", link: "/i18n-group" },
               ],

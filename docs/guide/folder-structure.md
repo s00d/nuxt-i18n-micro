@@ -4,6 +4,8 @@ outline: deep
 
 # 📂 Folder Structure Guide
 
+This page is the **canonical reference** for how translation files are laid out (root vs page-specific, dynamic routes). Other guides link here instead of duplicating full trees.
+
 ## 📖 Introduction
 
 Organizing your translation files effectively is essential for maintaining a scalable and efficient internationalization (i18n) system. `Nuxt I18n Micro` simplifies this process by offering a clear approach to managing root-level and page-specific translations. This guide will walk you through the recommended folder structure and explain how `Nuxt I18n Micro` handles these translations.

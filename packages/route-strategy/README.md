@@ -2,6 +2,11 @@
 
 High‑performance route generation and localization strategies for **Nuxt I18n Micro**.
 
+## Documentation
+
+- **[Routing strategy (Nuxt)](https://s00d.github.io/nuxt-i18n-micro/guide/strategy)** — end-to-end behavior with the module
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
+
 This package is responsible for turning Nuxt page definitions (`NuxtPage[]`) into a fully localized route tree for all supported strategies:
 
 - `no_prefix`

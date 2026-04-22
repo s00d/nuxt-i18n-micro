@@ -33,10 +33,10 @@ console.log(i18n.t("greeting", { name: "John" })); // "Hello, John!"
 console.log(i18n.tc("apples", 5)); // "5 apples"
 ```
 
-## Resources
+## Documentation
 
-- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
-- **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
+- **[Node.js integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/nodejs-package)**
+- **Repository**: [github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 

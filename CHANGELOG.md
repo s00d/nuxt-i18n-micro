@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v3.17.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.1...v3.17.2)
+
 ## v3.17.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v1.1.12...v3.17.1)

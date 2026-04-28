@@ -1,0 +1,33 @@
+docs/guide/custom-locale-routes.md
+  84c6ad31d0492466 20-23,32-33
+test/generate-issue-218.test.ts
+  84c6ad31d0492466 1-53
+src/module.ts
+  84c6ad31d0492466 826,841-845
+docs/api/methods.md
+  84c6ad31d0492466 453-456,466-469
+test/fixtures/nuxt-7cnbrdte/pages/about/index.vue
+  84c6ad31d0492466 7-9
+docs/guide/per-component-translations.md
+  84c6ad31d0492466 40-50,87-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "951487bbcb0191d07381a07a3b4083833dca90a5",
+  "prompts": {
+    "84c6ad31d0492466": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "544b0e93-9efc-4aaa-b3f3-bc2bccdf48ca",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin",
+      "messages": [],
+      "total_additions": 133,
+      "total_deletions": 30,
+      "accepted_lines": 90,
+      "overriden_lines": 17
+    }
+  }
+}

@@ -786,9 +786,9 @@ declare module '#i18n-internal/plural' {
           continue
         }
         // Route is already localized (e.g. /fr/about), do not localize it again.
-        const firstSegment = route.replace(/^\//, "").split("/")[0];
+        const firstSegment = route.replace(/^\//, '').split('/')[0]
         if (firstSegment && localeCodes.has(firstSegment)) {
-          continue;
+          continue
         }
 
         for (const locale of routeGenerator.locales) {
@@ -815,12 +815,7 @@ declare module '#i18n-internal/plural' {
       // registers file-based routes like /contact, /about; prerendering them causes 500.
       // Remove them from the list so the crawler doesn't request them.
       if (withPrefixStrategy(options.strategy!)) {
-<<<<<<< HEAD
-        const localeCodes = new Set(routeGenerator.locales.map((l) => l.code))
         const deleted: string[] = []
-=======
-        const deleted: string[] = [];
->>>>>>> 951487bb (fix(prerender): skip already-localized routes to avoid double locale prefix (#218))
         for (const route of routesSet) {
           if (route === '/' || route === '') continue // Keep / for redirect to default locale
           const firstSegment = route.replace(/^\//, '').split('/')[0]

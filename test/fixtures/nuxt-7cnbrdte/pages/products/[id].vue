@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useRoute } from "#imports";
+import { useRoute } from '#imports'
 
-const $route = useRoute();
+const $route = useRoute()
 </script>

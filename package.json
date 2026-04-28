@@ -1,6 +1,6 @@
 {
   "name": "nuxt-i18n-micro",
-  "version": "4.0.0",
+  "version": "3.17.0",
   "description": "Nuxt I18n Micro is a lightweight, high-performance internationalization module for Nuxt, designed to handle multi-language support with minimal overhead, fast build times, and efficient runtime performance.",
   "repository": "s00d/nuxt-i18n-micro",
   "license": "MIT",
@@ -69,7 +69,9 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
     "release": "pnpm run format && pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run test:vitest && pnpm run test:workspaces && pnpm run prepack && changelogen --release && pnpm publish -r && git push --follow-tags",
-    "release:lite": "pnpm run prepack && changelogen --release && pnpm publish -r && git push --follow-tags",
+    "release:lite": "pnpm run prepack && changelogen --release --patch && pnpm publish -r && git push --follow-tags",
+    "release:patch": "pnpm run prepack && changelogen --release --patch && pnpm publish -r && git push --follow-tags",
+    "release:minor": "pnpm run prepack && changelogen --release --minor && pnpm publish -r && git push --follow-tags",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",

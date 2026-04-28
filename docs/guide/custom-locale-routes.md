@@ -17,6 +17,10 @@ The primary use case for `localeRoutes` is to provide distinct routes for differ
 Here’s an example of how you might define custom routes for specific locales using `localeRoutes` in your `$defineI18nRoute` function:
 
 ```typescript
+import { useNuxtApp } from "#imports";
+
+const { $defineI18nRoute } = useNuxtApp();
+
 $defineI18nRoute({
   localeRoutes: {
     ru: '/localesubpage', // Custom route path for the Russian locale
@@ -24,6 +28,9 @@ $defineI18nRoute({
   },
 })
 ```
+
+> [!IMPORTANT]
+> `$defineI18nRoute` is not a global function. In `script setup`, get it from `useNuxtApp()` first, then call it.
 
 ### 🔄 How `localeRoutes` Work
 

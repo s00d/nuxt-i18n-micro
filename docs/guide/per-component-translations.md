@@ -37,6 +37,17 @@ $defineI18nRoute({
 </script>
 ```
 
+### Required Setup (`script setup`)
+
+`$defineI18nRoute` is a Nuxt app injection, not a global macro.  
+Always get it from `useNuxtApp()` before calling it.
+
+```ts
+import { useNuxtApp } from "#imports";
+
+const { $defineI18nRoute } = useNuxtApp();
+```
+
 ## 🔧 `$defineI18nRoute` Function
 
 The `$defineI18nRoute` function configures route behavior based on the current locale, offering a versatile solution to:
@@ -73,7 +84,8 @@ flowchart TB
 ### Method Signature
 
 ```typescript
-$defineI18nRoute(routeDefinition: DefineI18nRouteConfig)
+const { $defineI18nRoute } = useNuxtApp();
+$defineI18nRoute(routeDefinition: DefineI18nRouteConfig);
 ```
 
 ### Parameters

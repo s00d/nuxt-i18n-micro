@@ -426,6 +426,10 @@ Methods for configuring route behavior and access control.
 - **Type**: `(routeDefinition: DefineI18nRouteConfig) => void`
 - **Description**: Defines route behavior based on the current locale. Controls access to routes, provides translations, and sets custom routes for different locales.
 
+> [!IMPORTANT]
+> `$defineI18nRoute` must be read from `useNuxtApp()` (or `useI18n()`) inside `script setup`.
+> Calling `$defineI18nRoute(...)` as a global function will throw `"$defineI18nRoute is not defined"` during SSR/prerender.
+
 **Parameters**:
 - **locales**: `string[] | Record<string, Record<string, string>>` — Available locales for the route
 - **localeRoutes**: `Record<string, string>` — Optional. Custom routes for specific locales
@@ -433,6 +437,10 @@ Methods for configuring route behavior and access control.
 
 **Basic Example**:
 ```typescript
+import { useNuxtApp } from "#imports";
+
+const { $defineI18nRoute } = useNuxtApp();
+
 $defineI18nRoute({
   locales: ['en', 'fr', 'de'],
   localeRoutes: {

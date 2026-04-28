@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v3.17.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.2...v3.17.3)
+
+### 🩹 Fixes
+
+- **release:** Anchor changelogen --from to latest v3+ tag on branch ([d98d5cec](https://github.com/s00d/nuxt-i18n-micro/commit/d98d5cec))
+
+### 📖 Documentation
+
+- **changelog:** Replace bogus v3.17.1 wall with real release notes ([c70d93f7](https://github.com/s00d/nuxt-i18n-micro/commit/c70d93f7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.17.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.1...v3.17.2)

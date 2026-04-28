@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.17.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.3...v3.17.4)
+
+### 🏡 Chore
+
+- **.cursor:** Add .gitignore to exclude plans directory ([f7301052](https://github.com/s00d/nuxt-i18n-micro/commit/f7301052))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.17.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.2...v3.17.3)

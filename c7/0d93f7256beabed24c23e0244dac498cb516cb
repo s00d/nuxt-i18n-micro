@@ -1,0 +1,23 @@
+CHANGELOG.md
+  43f7072b0cae7317 8,10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "c70d93f7256beabed24c23e0244dac498cb516cb",
+  "prompts": {
+    "43f7072b0cae7317": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "composer-2-fast"
+      },
+      "human_author": "Pavel Kuzmin",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 0,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}

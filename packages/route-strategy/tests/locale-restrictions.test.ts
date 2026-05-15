@@ -1,6 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
-import { RouteGenerator } from '../src/index'
+import { isLocaleAllowedForUnlocalizedRoute, RouteGenerator } from '../src/index'
 import { defaultLocaleCode, locales } from './helpers'
 
 describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
@@ -382,5 +382,19 @@ describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
     generator.extendPages(pages)
 
     expect(pages).toMatchSnapshot()
+  })
+
+  describe('isLocaleAllowedForUnlocalizedRoute (prerender / nitro routeRules)', () => {
+    test('denies non-listed locale when restriction uses file-style key (about)', () => {
+      const routeLocales = { about: ['en'] }
+      expect(isLocaleAllowedForUnlocalizedRoute(routeLocales, locales, '/about', 'en')).toBe(true)
+      expect(isLocaleAllowedForUnlocalizedRoute(routeLocales, locales, '/about', 'de')).toBe(false)
+      expect(isLocaleAllowedForUnlocalizedRoute(routeLocales, locales, 'about', 'de')).toBe(false)
+    })
+
+    test('allows every locale when path has no routeLocales entry', () => {
+      const routeLocales = { other: ['en'] }
+      expect(isLocaleAllowedForUnlocalizedRoute(routeLocales, locales, '/about', 'de')).toBe(true)
+    })
   })
 })

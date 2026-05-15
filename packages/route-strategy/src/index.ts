@@ -1,4 +1,5 @@
 import { extractLocalizedPaths, type LocalizedPathsMap } from './core/localized-paths'
+import { isLocaleAllowedForUnlocalizedRoute } from './locale-route-access'
 import { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 import {
   buildFullPath,
@@ -17,6 +18,7 @@ import {
 export {
   RouteGenerator,
   type RouteGeneratorOptions,
+  isLocaleAllowedForUnlocalizedRoute,
   extractLocalizedPaths,
   type LocalizedPathsMap,
   isInternalPath,

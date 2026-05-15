@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import path, { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
-import { isInternalPath, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
+import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
 import type { Getter, GlobalLocaleRoutes, Locale, LocaleCode, ModuleOptions, PluralFunc, Strategies } from '@i18n-micro/types'
 import {
   addComponentsDir,
@@ -273,7 +273,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     // Extract routeLocales and localeRoutes from pages before creating template
-    const routeLocales: Record<string, string[]> = {}
+    const routeLocales: Record<string, string[]> = { ...(options.routeLocales ?? {}) }
     const globalLocaleRoutes: GlobalLocaleRoutes = {}
     const routeDisableMeta: Record<string, boolean | string[]> = {}
 
@@ -710,6 +710,9 @@ declare module '#i18n-internal/plural' {
 
           routeGenerator.locales.forEach((localeObj) => {
             const localeCode = localeObj.code
+            if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, originalPath, localeCode)) {
+              return
+            }
             const localizedPath = routeGenerator.resolveLocalizedPath(originalPath, localeCode)
 
             if (localizedPath === originalPath || localizedPath === normalizePath(originalPath)) {
@@ -790,6 +793,9 @@ declare module '#i18n-internal/plural' {
         }
 
         for (const locale of routeGenerator.locales) {
+          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, route, locale.code)) {
+            continue
+          }
           const localizedRoute = routeGenerator.resolveLocalizedPath(route, locale.code)
           if (localizedRoute === route) {
             continue

@@ -46,7 +46,8 @@ describe('issue #218 - routeRules prerender should not double-localize routes', 
 
   it('does not create double-prefixed output routes', () => {
     expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'index.html'))).toBe(true)
-    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'about', 'index.html'))).toBe(true)
+    // /about is scoped to `en` only via $defineI18nRoute — French variant is omitted from prerender.
+    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'about', 'index.html'))).toBe(false)
     expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'fr', 'index.html'))).toBe(false)
     expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'fr', 'about', 'index.html'))).toBe(false)
   })

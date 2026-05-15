@@ -1,8 +1,10 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import { useState } from '#app'
+import { useNuxtApp, useState } from '#app'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import { useCookie } from '#imports'
+import { getEnabledLocaleCodes } from '../utils/active-locales'
 import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
+import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 type CookieRef = { value: string | null }
 
@@ -20,8 +22,9 @@ export interface ResolveInitialLocaleOptions {
  * Combines useState('i18n-locale'), locale cookie, and sync utilities.
  */
 export function useI18nLocale() {
-  const i18nConfig = getI18nConfig() as ModuleOptionsExtend
-  const validLocales = i18nConfig.locales?.map((l) => l.code) || []
+  const nuxtApp = useNuxtApp()
+  const i18nConfig = resolveI18nConfigWithRuntimeOverrides((nuxtApp.$getI18nConfig?.() ?? getI18nConfig()) as ModuleOptionsExtend)
+  const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
 
   const localeState = useState<string | null>('i18n-locale', () => null)
 

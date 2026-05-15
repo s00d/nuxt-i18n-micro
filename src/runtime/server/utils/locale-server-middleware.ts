@@ -1,6 +1,9 @@
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import type { H3Event } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
+import { useRuntimeConfig } from '#imports'
+import { getEnabledLocaleCodes, getEnabledLocales } from '../../utils/active-locales'
+import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 import { detectCurrentLocale } from './locale-detector'
 
 export interface LocaleInfo {
@@ -14,7 +17,12 @@ export interface LocaleInfo {
 }
 
 export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string, currentLocale?: string): LocaleInfo => {
-  const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = getI18nConfig() as ModuleOptionsExtend
+  const {
+    locales,
+    defaultLocale: configDefaultLocale,
+    fallbackLocale,
+  } = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
+  const enabledLocales = getEnabledLocales(locales)
 
   const detectedLocale =
     currentLocale ||
@@ -23,13 +31,13 @@ export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string
       {
         fallbackLocale,
         defaultLocale: defaultLocale || configDefaultLocale,
-        locales,
+        locales: enabledLocales,
       },
       defaultLocale,
     )
 
-  const localeConfig = locales?.find((l) => l.code === detectedLocale) ?? null
-  const availableLocales = locales?.map((l) => l.code) ?? []
+  const localeConfig = enabledLocales.find((l) => l.code === detectedLocale) ?? null
+  const availableLocales = getEnabledLocaleCodes(locales)
   const isDefault = detectedLocale === (defaultLocale || configDefaultLocale || 'en')
   const isFallback = detectedLocale === (fallbackLocale || defaultLocale || configDefaultLocale || 'en')
 

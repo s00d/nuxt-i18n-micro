@@ -6,7 +6,10 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { defineEventHandler, getCookie, getHeader, getQuery, getRequestURL } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
+import { useRuntimeConfig } from '#imports'
+import { getEnabledLocaleCodes } from '../../utils/active-locales'
 import { getLocaleCookieName } from '../../utils/cookie'
+import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 
 function parseAcceptLanguage(header: string | undefined): string[] {
   if (!header) return []
@@ -26,8 +29,11 @@ export default defineEventHandler(async (event) => {
   if (path.startsWith('/api') || path.startsWith('/_nuxt') || path.startsWith('/_locales') || path.startsWith('/__')) return
   if (path.includes('.') && !path.endsWith('.html')) return
 
-  const config = getI18nConfig() as ModuleOptionsExtend
-  const validLocales = config.locales?.map((l) => l.code) || []
+  const config = resolveI18nConfigWithRuntimeOverrides(
+    getI18nConfig() as ModuleOptionsExtend,
+    useRuntimeConfig(event).public as Record<string, unknown>,
+  )
+  const validLocales = getEnabledLocaleCodes(config.locales)
   const defaultLocale = config.defaultLocale || 'en'
 
   const pathSegments = path.split('/').filter(Boolean)

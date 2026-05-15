@@ -4,10 +4,14 @@ import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute } from '#imports'
 import { useLocaleHead } from '../composables/useLocaleHead'
 import { isMetaDisabledForRoute } from '../utils/route-utils'
+import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
-  const i18nConfig = getI18nConfig() as ModuleOptionsExtend
+  const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
+  const i18nConfig = resolveI18nConfigWithRuntimeOverrides(
+    (typeof getRuntimeConfig === 'function' ? getRuntimeConfig() : getI18nConfig()) as ModuleOptionsExtend,
+  )
 
   // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
   // @ts-expect-error

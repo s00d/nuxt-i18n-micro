@@ -416,9 +416,6 @@ export default defineNuxtModule<ModuleOptions>({
       cacheTtl: options.cacheTtl ?? 0,
     }
 
-    nuxt.options.runtimeConfig.public = nuxt.options.runtimeConfig.public || {}
-    ;(nuxt.options.runtimeConfig.public as Record<string, unknown>).i18nConfig = fullConfig
-
     const fullConfigJson = JSON.stringify(fullConfig)
     const strategyTemplate = addTemplate({
       filename: 'i18n.strategy.mjs',
@@ -463,7 +460,8 @@ export function createI18nStrategy(router) {
 `,
     })
 
-    // i18n config is only in #build/i18n.strategy.mjs (getI18nConfig, createI18nStrategy). runtimeConfig.public.i18nConfig is not used.
+    // i18n config source of truth is #build/i18n.strategy.mjs.
+    // runtimeConfig (public.i18nRuntime) is used only for runtime overrides.
 
     // Validate that all locale codes match the customRegexMatcher (if set)
     if (typeof options.customRegexMatcher !== 'undefined') {

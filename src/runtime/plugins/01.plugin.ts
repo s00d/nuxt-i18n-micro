@@ -15,6 +15,7 @@ import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { deepMergeTranslations } from '../utils/deep-merge'
+import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 import { translationStorage } from '../utils/storage'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -35,8 +36,11 @@ function getByPath(obj: Record<string, unknown>, path: string): unknown {
 export default defineNuxtPlugin(async (nuxtApp) => {
   const router = useRouter()
   const i18nStrategy = createI18nStrategy(router)
-  const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
   const runtimeConfig = useRuntimeConfig()
+  const i18nConfig: ModuleOptionsExtend = resolveI18nConfigWithRuntimeOverrides(
+    getI18nConfig() as ModuleOptionsExtend,
+    runtimeConfig.public as Record<string, unknown>,
+  )
 
   // === 0. CONFIGURE STORAGE CACHE ===
   translationStorage.configure({
@@ -527,7 +531,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   return {
     provide: {
       ...provideData,
-      getI18nConfig: () => getI18nConfig(),
+      getI18nConfig: () => i18nConfig,
     },
   }
 })

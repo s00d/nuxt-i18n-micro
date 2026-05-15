@@ -2,13 +2,20 @@ import { interpolate } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
 import type { H3Event } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
+import { useRuntimeConfig } from '#imports'
+import { getEnabledLocales } from '../../utils/active-locales'
+import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 import { detectCurrentLocale } from './locale-detector'
 import { loadTranslationsFromServer } from './server-loader'
 
 const I18N_CONTEXT_KEY = '__i18n_translations__'
 
 export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {
-  const { locales, fallbackLocale, defaultLocale: configDefaultLocale } = getI18nConfig() as ModuleOptionsExtend
+  const {
+    locales,
+    fallbackLocale,
+    defaultLocale: configDefaultLocale,
+  } = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
 
   const locale =
     currentLocale ||
@@ -18,7 +25,7 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
       {
         fallbackLocale,
         defaultLocale: defaultLocale || configDefaultLocale,
-        locales,
+        locales: getEnabledLocales(locales),
       },
       defaultLocale,
     )

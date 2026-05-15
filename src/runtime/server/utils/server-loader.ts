@@ -6,7 +6,9 @@
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { useStorage } from 'nitropack/runtime'
 import { getI18nConfig } from '#i18n-internal/strategy'
+import { isEnabledLocale } from '../../utils/active-locales'
 import { CacheControl } from '../../utils/cache-control'
+import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 
 // ============================================================================
 // SERVER CACHE
@@ -20,7 +22,7 @@ type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 function getServerCacheControl(): CacheControl<CacheEntry> {
   const g = globalThis as GlobalWithCC
   if (!g[CC_KEY]) {
-    const cfg = getI18nConfig() as ModuleOptionsExtend
+    const cfg = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
     g[CC_KEY] = new CacheControl<CacheEntry>({ maxSize: cfg.cacheMaxSize ?? 0, ttl: cfg.cacheTtl ?? 0 })
   }
   return g[CC_KEY] as CacheControl<CacheEntry>
@@ -57,8 +59,8 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
     return cached
   }
 
-  const config = getI18nConfig() as ModuleOptionsExtend
-  if (!config.locales?.find((l) => l.code === locale)) {
+  const config = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
+  if (!isEnabledLocale(config.locales, locale)) {
     const empty = { data: {}, json: '{}' }
     cc.set(cacheKey, empty)
     return empty

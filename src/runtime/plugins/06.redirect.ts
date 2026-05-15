@@ -8,7 +8,9 @@ import { getCookie, getHeader, getRequestURL, setCookie } from 'h3'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRoute, useRouter, useState } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
+import { getEnabledLocaleCodes } from '../utils/active-locales'
 import { getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
+import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
 
@@ -67,8 +69,11 @@ export default defineNuxtPlugin({
   setup(nuxtApp) {
     const router = useRouter()
     const i18nStrategy = createI18nStrategy(router)
-    const i18nConfig = getI18nConfig() as ModuleOptionsExtend
-    const validLocales = i18nConfig.locales?.map((l) => l.code) || []
+    const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
+    const i18nConfig = resolveI18nConfigWithRuntimeOverrides(
+      (typeof getRuntimeConfig === 'function' ? getRuntimeConfig() : getI18nConfig()) as ModuleOptionsExtend,
+    )
+    const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
     const defaultLocale = i18nConfig.defaultLocale || 'en'
     const autoDetectPath = i18nConfig.autoDetectPath || '/'
     const cookieName = getLocaleCookieName(i18nConfig)

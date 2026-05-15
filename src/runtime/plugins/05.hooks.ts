@@ -6,11 +6,15 @@ import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import { defineNuxtPlugin, useNuxtApp, useRouter } from '#imports'
+import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 const isDev = process.env.NODE_ENV !== 'production'
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-  const i18nConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
+  const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
+  const i18nConfig: ModuleOptionsExtend = resolveI18nConfigWithRuntimeOverrides(
+    (typeof getRuntimeConfig === 'function' ? getRuntimeConfig() : getI18nConfig()) as ModuleOptionsExtend,
+  )
   const router = useRouter()
   const { $getLocale, $getRouteName } = useNuxtApp()
 

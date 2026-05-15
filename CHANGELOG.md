@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v3.18.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.5...v3.18.0)
+
+### 🚀 Enhancements
+
+- **runtime:** Add per-instance locale overrides via runtimeConfig ([cd4ead89](https://github.com/s00d/nuxt-i18n-micro/commit/cd4ead89))
+
+### 🩹 Fixes
+
+- **prerender:** Honor $defineI18nRoute locale limits in routeRules and prerender ([558ba813](https://github.com/s00d/nuxt-i18n-micro/commit/558ba813))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.17.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.4...v3.17.5)

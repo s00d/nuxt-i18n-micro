@@ -1,0 +1,39 @@
+packages/route-strategy/tests/locale-restrictions.test.ts
+  s_43f7072b0cae73::t_ee16c8b8140d08 3
+  s_43f7072b0cae73::t_1ba8eef7f13d9d 386-388,393-395,398-399
+  s_43f7072b0cae73::t_dc81614ad1c95d 389-392,396-397
+packages/route-strategy/package.json
+  ai_agent 3
+packages/route-strategy/src/locale-route-access.ts
+  s_43f7072b0cae73::t_f004c274a1e5b2 1-39
+test/generate-issue-218.test.ts
+  s_43f7072b0cae73::t_9a41177e8904e7 49-50
+src/module.ts
+  s_43f7072b0cae73::t_f53ef8901cfb41 713
+  s_43f7072b0cae73::t_73da72eb2ec1ea 6
+  s_43f7072b0cae73::t_f378dc44651b7b 276
+  s_43f7072b0cae73::t_7b61ca261e1e9d 797-798
+  s_43f7072b0cae73::t_046314aaf5c005 714-715
+  s_43f7072b0cae73::t_a9f9a747cb001e 796
+test/fixtures/nuxt-7cnbrdte/pages/about/index.vue
+  s_43f7072b0cae73::t_184a8115ccd8a6 5-8
+packages/route-strategy/src/index.ts
+  s_43f7072b0cae73::t_2a60c003be1604 2
+  s_43f7072b0cae73::t_de42ec047dc89a 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "558ba8135a734cde587e73d07dcc454c243e1786",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "composer-2-fast"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+src/runtime/plugins/06.redirect.ts
+  s_43f7072b0cae73::t_f39a4423130ddf 13
+  s_43f7072b0cae73::t_9ab24ea3984d05 11
+  s_43f7072b0cae73::t_9c7b487da9483a 73-75
+  s_43f7072b0cae73::t_03fef55c6a8b82 76
+  s_43f7072b0cae73::t_5ea65bdcfdcde9 72
+src/runtime/server/utils/locale-server-middleware.ts
+  s_43f7072b0cae73::t_00a6efa9f7005d 25,34
+  s_43f7072b0cae73::t_126ef37de2b3e9 20-24
+  s_43f7072b0cae73::t_0952e8f05be68f 5,39-40
+  s_43f7072b0cae73::t_f3d2cbd1c0b4c2 4,6
+docs/.vitepress/config.mts
+  s_43f7072b0cae73::t_23450ee82bd92c 82,178
+src/runtime/utils/active-locales.ts
+  s_43f7072b0cae73::t_49bbb72c37d913 1-13
+src/runtime/server/routes/i18n.ts
+  s_43f7072b0cae73::t_206591fb11fe71 4,6,22-25
+  s_43f7072b0cae73::t_43de0fb7628b8d 5,26
+src/runtime/plugins/05.hooks.ts
+  s_43f7072b0cae73::t_85b35c46679f9c 9,15,17
+  s_43f7072b0cae73::t_58d01d9ceb35be 14,16
+src/runtime/composables/useI18nLocale.ts
+  s_43f7072b0cae73::t_79b453d120b05e 7,25
+  s_43f7072b0cae73::t_01af13e1322162 5,27
+  s_43f7072b0cae73::t_126ef37de2b3e9 2,26
+src/runtime/server/utils/translation-server-middleware.ts
+  s_43f7072b0cae73::t_55e7edc8b43377 5
+  s_43f7072b0cae73::t_bbacc4c05f389d 6,28
+  s_43f7072b0cae73::t_126ef37de2b3e9 7,14-18
+src/runtime/utils/runtime-i18n-config.ts
+  s_43f7072b0cae73::t_0feb69fe804b64 107,110,112,114
+  s_43f7072b0cae73::t_6c96e6e327ad1e 1-17,19-76,79-106,108-109,111,113,115-123
+  s_43f7072b0cae73::t_126ef37de2b3e9 18,77-78
+src/runtime/plugins/02.meta.ts
+  s_43f7072b0cae73::t_126ef37de2b3e9 7
+  s_43f7072b0cae73::t_a659d7d95fd72b 11
+  s_43f7072b0cae73::t_c077522352373d 12-14
+test/runtime-i18n-overrides.e2e.test.ts
+  s_43f7072b0cae73::t_cb98be39e39958 10-14
+  s_43f7072b0cae73::t_cc3067075b8850 2
+  s_43f7072b0cae73::t_92db4a2e077f8b 28,36
+  s_43f7072b0cae73::t_94497a98035424 1,3-9,15-27,29-35,37-49
+src/runtime/server/utils/server-loader.ts
+  s_43f7072b0cae73::t_8004d3032de118 11,25,62
+  s_43f7072b0cae73::t_b970ed436972be 9,63
+src/runtime/server/middleware/i18n.global.ts
+  s_43f7072b0cae73::t_dac4a1376cecdc 9,12,32-35
+  s_43f7072b0cae73::t_2aff08e933084e 10,36
+test/runtime-i18n-config-overrides.test.ts
+  s_43f7072b0cae73::t_86dd9513c9a254 1-6,8-37,39-46,48-55,57-61
+  s_43f7072b0cae73::t_126ef37de2b3e9 7,38,47,56
+src/runtime/plugins/01.plugin.ts
+  s_43f7072b0cae73::t_c160f19815bc4a 18,40-43,534
+docs/guide/runtime-overrides.md
+  s_43f7072b0cae73::t_30919798d74e2c 1-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "cd4ead8935c8567bb96188e08b471730341d8adc",
+  "prompts": {
+    "43f7072b0cae7317": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "composer-2-fast"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>",
+      "total_additions": 39,
+      "total_deletions": 0,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  },
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "composer-2-fast"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

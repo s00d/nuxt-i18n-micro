@@ -102,13 +102,13 @@ const locale = $getLocaleName()
 
 ### `$tc`
 
-- **Type**: `(key: string, count: number, defaultValue?: string) => string`
-- **Description**: Translates a given key with pluralization based on the provided count, optionally falling back to a default value if the key is not found.
+- **Type**: `(key: string, countOrParams: number | Params, defaultValue?: string) => string`
+- **Description**: Pluralized translation. Pass a number, or a `Params` object with **`count`** and other placeholders (same as `$t`).
 - **Example**:
   ```js
   const { $tc } = useI18n()
-  const message = $tc('apples', 3, '3 apples')
-  console.log(message) // e.g., '3 apples'
+  $tc('apples', 3)
+  $tc('cart', { count: 3, name: 'Alice' }) // not $tc('cart', 3, { name: 'Alice' })
   ```
 
 ### `$has`

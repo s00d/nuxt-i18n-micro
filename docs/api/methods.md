@@ -17,7 +17,7 @@ classDiagram
         +$defaultLocale() string
         +$t(key, params?, defaultValue?) Translation
         +$ts(key, params?, defaultValue?) string
-        +$tc(key, count, defaultValue?) string
+        +$tc(key, countOrParams, defaultValue?) string
         +$tn(value, options?) string
         +$td(value, options?) string
         +$tdr(value, options?) string
@@ -153,25 +153,37 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 
 ### `$tc`
 
-- **Type**: `(key: string, count: number, defaultValue?: string) => string`
-- **Description**: Fetches a pluralized translation for the given key based on the count. Internally calls the `plural` function configured in `nuxt.config.ts` (see [Pluralization Guide](/guide/getting-started#plural)).
+- **Type**: `(key: string, countOrParams: number | Params, defaultValue?: string) => string`
+- **Description**: Fetches a pluralized translation for the given key based on `count`. Extra placeholders use the same `Params` object as `$t`. Internally calls the `plural` function configured in `nuxt.config.ts` (see [Pluralization Guide](/guide/getting-started#plural)).
 
 **Parameters**:
 - **key**: `string` — The translation key whose value contains `|`-separated plural forms
-- **count**: `number` — The count used to select the correct plural form
-- **defaultValue**: `string | undefined` — Optional. The default value to return if the translation is not found
+- **countOrParams**: `number` **or** `Params` — Either the count alone, or an object with **`count`** plus any other interpolation values (e.g. `{ count: 10, name: 'Alice' }`)
+- **defaultValue**: `string | undefined` — Optional fallback if the translation is not found (third argument only — not for extra params)
 
-**Translation format**: forms separated by `|`, with `{count}` placeholder:
+**Translation format**: forms separated by `|`. Put placeholders in **each** form:
 
 ```json
-{ "apples": "no apples | one apple | {count} apples" }
+{
+  "apples": "no apples | one apple | {count} apples",
+  "cart": "no items for {name} | one item for {name} | {count} items for {name}"
+}
 ```
 
 ```typescript
 $tc('apples', 0)  // "no apples"
 $tc('apples', 1)  // "one apple"
 $tc('apples', 10) // "10 apples"
+
+// count + other params (second argument must be an object)
+$tc('cart', { count: 10, name: 'Alice' }) // "10 items for Alice"
 ```
+
+::: warning
+Do not pass extra params as a third argument — `$tc('cart', 10, { name: 'Alice' })` treats `{ name: 'Alice' }` as `defaultValue`, not interpolation params.
+:::
+
+**Component alternative** — `<i18n-t keypath="cart" :plural="count" :params="{ name }" />` (merges `count` with `params` internally).
 
 ::: tip
 The form selection logic depends on the `plural` function in your config. The default selects by index (0 → first form, 1 → second, etc.). For languages like Russian, Arabic, or Polish, configure a custom `plural` function. See [Getting Started → plural](/guide/getting-started#plural).

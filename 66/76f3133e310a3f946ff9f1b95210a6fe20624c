@@ -1,0 +1,20 @@
+docs/guide/getting-started.md
+  s_43f7072b0cae73::t_b9cf1c70ead08f 406-407,410
+  s_43f7072b0cae73::t_062b099f5b8571 202-225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "6676f3133e310a3f946ff9f1b95210a6fe20624c",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

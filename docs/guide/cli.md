@@ -13,13 +13,18 @@ This guide will walk you through installing, configuring, and using `nuxt-i18n-m
 
 ### 📦 Installing nuxt-i18n-micro-cli
 
-Install `nuxt-i18n-micro-cli` globally using npm:
+Install globally or as a dev dependency in your Nuxt project (recommended for CI):
 
 ```bash
+# global
 npm install -g nuxt-i18n-micro-cli
+
+# or per project
+pnpm add -D nuxt-i18n-micro-cli
+pnpm exec i18n-micro text-to-i18n --dryRun
 ```
 
-This will make the `i18n-micro` command available globally on your system.
+Use **`nuxt-i18n-micro-cli` ≥ 2.1.1** if your project uses the Nuxt 4 `app/` directory (`app/pages`, `app/components`, …). Older CLI versions only scanned `pages/` at the project root.
 
 ### 🛠 Initializing in Your Project
 
@@ -75,11 +80,11 @@ flowchart TB
 
 ### 🔄 `text-to-i18n` Command
 
-**Version introduced**: `v1.1.0`
+**Version introduced**: `v1.1.0` (CLI package [`nuxt-i18n-micro-cli`](https://www.npmjs.com/package/nuxt-i18n-micro-cli))
 
 ![DevTools](/text-to-i18n.gif)
 
-**Description**: The `text-to-i18n` command automatically scans your codebase for hardcoded text strings and replaces them with i18n translation references. It extracts text from Vue templates, JavaScript, and TypeScript files, generating translation keys and updating your translation files.
+**Description**: Scans Vue/TS/JS files for hardcoded user-facing strings, replaces them with `$t('...')`, and merges new keys into your JSON translation file. Run from the **Nuxt project root** (where `nuxt.config` lives).
 
 **Usage**:
 
@@ -89,37 +94,49 @@ i18n-micro text-to-i18n [options]
 
 **Options**:
 
-- `--translationFile`: Path to the JSON file containing translations (default: `locales/en.json`).
-- `--context`: Context prefix for translation keys. Helps organize translations by feature or section.
-- `--dryRun`: Show changes without modifying files (default: `false`).
-- `--verbose`: Show detailed processing information (default: `false`).
-- `--path`: Path to a specific file to process (e.g., `./pages/test-page.vue`). When provided, only the specified file is processed.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--translationFile` | `locales/en.json` | JSON file for new keys (relative to project root). |
+| `--path` | — | Process one file or directory only (e.g. `app/pages/about.vue`). |
+| `--context` | — | Key prefix (e.g. `auth` → `auth.*`). |
+| `--dryRun` | `false` | Preview without writing files. |
+| `--verbose` | `false` | Extra logging. |
+| `--interactive` | `false` | Confirm or edit each key before applying. |
+| `--extractOnlyDirs` | `plugins` | Dirs where keys are extracted but source files are **not** rewritten. |
+| `--extractOnlyPatterns` | — | Glob-like extract-only patterns (e.g. `**/*.plugin.ts`). |
 
 **Example**:
 
 ```bash
-i18n-micro text-to-i18n --translationFile locales/en.json --context auth
+i18n-micro text-to-i18n --translationFile locales/en.json --context auth --dryRun
 ```
 
-**How it works**:
+#### Which folders are scanned?
 
-1. **File Collection**:
-- Scans directories: `pages`, `components`, and `plugins`
-- Processes files with extensions: `.vue`, `.js`, and `.ts`
+::: info Nuxt 4
+Since CLI **v2.1.1**, `text-to-i18n` scans both classic root folders and `app/*` equivalents. Run the command from the **project root** — do not `cd app`.
+:::
 
-2. **Text Processing**:
-- Extracts text from Vue templates and script files
-- Identifies translatable strings
-- Generates unique translation keys based on:
-  - File path
-  - Text content
-  - Context prefix (if provided)
+Collects `*.vue`, `*.js`, and `*.ts` under:
 
-3. **Translation Management**:
-- Creates new translation entries
-- Maintains nested structure in translation files
-- Preserves existing translations
-- Updates translation files with new entries
+| Nuxt 3 (project root) | Nuxt 4 (`app/` directory) |
+|----------------------|---------------------------|
+| `pages/` | `app/pages/` |
+| `components/` | `app/components/` |
+| `plugins/` | `app/plugins/` |
+| `layouts/` | `app/layouts/` |
+
+Other folders (`server/`, `composables/`, `middleware/`, …) are skipped unless you use `--path`. For Nuxt 4, run from the project root (no need to `cd app`). Match `i18n.translationDir` in `--translationFile` if it is not `locales/`.
+
+```bash
+i18n-micro text-to-i18n --path app/pages
+```
+
+#### How it works
+
+1. Collect files from the directories above (or from `--path`).
+2. Replace literals / template text with `$t('generated.key')` (`plugins/` is extract-only by default).
+3. Merge new keys into `--translationFile` without removing existing entries.
 
 **Example Transformations**:
 
@@ -143,36 +160,9 @@ After:
 </template>
 ```
 
-**Best Practices**:
+**Best practices**: dry run first; commit before a full run; align `--translationFile` with `i18n.translationDir` in `nuxt.config`; keep `--extractOnlyDirs plugins` for bootstrap code.
 
-1. **Run in Dry Mode First**:
-   ```bash
-   i18n-micro text-to-i18n --dryRun
-   ```
-   This shows what changes would be made without modifying files.
-
-2. **Use Context for Organization**:
-   ```bash
-   i18n-micro text-to-i18n --context auth
-   ```
-   Prefixes translation keys with `auth.` for better organization.
-
-3. **Review Changes**:
-- Enable verbose mode to see detailed changes
-- Check generated translation keys
-- Verify extracted text accuracy
-
-4. **Backup Files**:
-- Always backup your files before running the command
-- Use version control to track changes
-
-**Notes**:
-
-- The command preserves existing translations and keys
-- Generated keys are based on file paths and text content
-- Supports Vue template syntax and JavaScript/TypeScript files
-- Handles both simple text and attribute translations
-- Maintains nested translation structure
+**Limitations**: separate npm package (not bundled with the module); does not read `nuxt.config` automatically; outputs `$t(...)`; complex dynamic strings may need `extract` / `search` instead.
 
 ### 📊 `stats` Command
 
@@ -542,24 +532,19 @@ This allows you to track exactly where and what changes were made during the rep
 
 ### 🔑 nuxt.config.js Example
 
-```js
-export default {
-  modules: ['@nuxtjs/i18n'],
+```ts
+export default defineNuxtConfig({
+  modules: ['nuxt-i18n-micro'],
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US' },
       { code: 'fr', iso: 'fr-FR' },
-      { code: 'es', iso: 'es-ES' },
-      // Add other locales as needed
     ],
     defaultLocale: 'en',
-    vueI18n: {
-      fallbackLocale: 'en',
-    },
-    // Specify the directory where your translation files are stored
-    translationDir: 'locales',
+    fallbackLocale: 'en',
+    translationDir: 'locales', // or 'app/locales' for Nuxt 4 colocation
   },
-};
+})
 ```
 
 Ensure that the `translationDir` matches the directory used by `nuxt-i18n-micro-cli` (default is `locales`).

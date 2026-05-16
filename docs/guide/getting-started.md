@@ -199,6 +199,30 @@ Your translation files will be automatically generated when you run the applicat
 
 :::
 
+::: info Nuxt 4 (`app/` directory)
+
+The module supports both layouts:
+
+- **Pages**: `pages/**/*.vue` (Nuxt 3) or `app/pages/**/*.vue` (Nuxt 4)
+- **Translations**: keep `locales/` at the **project root** by default (same as `@nuxtjs/i18n`), not inside `app/`
+
+```tree
+my-project/
+├── app/
+│   └── pages/
+│       └── index.vue
+├── locales/
+│   ├── en.json
+│   └── pages/
+└── nuxt.config.ts
+```
+
+Optional colocation: `i18n: { translationDir: 'app/locales' }` (see [fixture `n3`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/n3)).
+
+For the optional CLI helper `text-to-i18n`, use [`nuxt-i18n-micro-cli` ≥ 2.1.1](/guide/cli#-text-to-i18n-command) so `app/pages` and `app/components` are scanned from the project root.
+
+:::
+
 ### Basic Usage
 
 Use translations in your components:
@@ -379,7 +403,11 @@ Specifies the directory for translation files.
 
 ```typescript
 translationDir: 'i18n' // Custom directory
+// Nuxt 4 colocation example:
+// translationDir: 'app/locales'
 ```
+
+Paths are resolved from the Nuxt **project root** (`rootDir`), not from `app/`. With Nuxt 4, the usual setup is `app/pages/` for routes and `locales/` (or `app/locales` if you set `translationDir`) for JSON files.
 
 #### `disablePageLocales`
 

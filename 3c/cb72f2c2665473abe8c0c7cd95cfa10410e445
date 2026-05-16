@@ -1,0 +1,19 @@
+docs/guide/getting-started.md
+  s_43f7072b0cae73::t_02499432b0c83e 691-693
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "3ccb72f2c2665473abe8c0c7cd95cfa10410e445",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

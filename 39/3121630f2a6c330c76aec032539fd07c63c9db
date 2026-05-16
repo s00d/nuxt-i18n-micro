@@ -1,0 +1,24 @@
+docs/guide/cli.md
+  s_43f7072b0cae73::t_304f9bc5402a5f 163,165
+  s_43f7072b0cae73::t_e0466f08b3c33f 97-106,111,114-115,120,122-127,129-133,135-139
+  s_43f7072b0cae73::t_e8a65461e33194 535-537,544-545,547
+  s_43f7072b0cae73::t_d2f962e923614a 16,19,21-24,27
+  s_43f7072b0cae73::t_b5166b0a186f51 83,87
+  s_43f7072b0cae73::t_20c566d8f65916 116-119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "393121630f2a6c330c76aec032539fd07c63c9db",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

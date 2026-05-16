@@ -1,0 +1,21 @@
+docs/composables/useI18n.md
+  s_43f7072b0cae73::t_06fffb5bfd45e1 105-106,110-111
+docs/api/methods.md
+  s_43f7072b0cae73::t_38efd07c14ecb5 156-157,161-162,164,167-170,177-179,182-186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "98f91bcd81ec5e9e471ff70cf2d8ae7e9341e038",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

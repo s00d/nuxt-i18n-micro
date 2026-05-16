@@ -688,7 +688,9 @@ Translations use `|` to separate plural forms:
 }
 ```
 
-The `$tc('apples', count)` call invokes the `plural` function, which:
+Use `$tc('apples', count)` or `$tc('cart', { count, name })` when a form needs more than `{count}` — pass **`count` and other params in the second argument object**, not as a third argument (third is `defaultValue` only).
+
+The `$tc` call invokes the `plural` function, which:
 1. Calls `t(key)` to get the raw translation string (e.g. `"no apples | one apple | {count} apples"`)
 2. Splits by `|` to get the forms array
 3. Selects a form based on `count`

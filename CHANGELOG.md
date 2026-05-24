@@ -1,6 +1,29 @@
 # Changelog
 
 
+## v3.18.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.0...v3.18.1)
+
+### 🚀 Enhancements
+
+- **i18n:** Add support for dynamic locale switching ([3ccb72f2](https://github.com/s00d/nuxt-i18n-micro/commit/3ccb72f2))
+
+### 🩹 Fixes
+
+- Skip internal routeRules paths during localization ([6ae336ae](https://github.com/s00d/nuxt-i18n-micro/commit/6ae336ae))
+- Satisfy strict indexed access in route-rules helper ([2f6b3485](https://github.com/s00d/nuxt-i18n-micro/commit/2f6b3485))
+
+### 📖 Documentation
+
+- **cli:** Update installation instructions and command descriptions ([39312163](https://github.com/s00d/nuxt-i18n-micro/commit/39312163))
+- **getting-started:** Update Nuxt 4 support details in the guide ([6676f313](https://github.com/s00d/nuxt-i18n-micro/commit/6676f313))
+- **useI18n:** Update `$tc` method to support `Params` objectern. ([98f91bcd](https://github.com/s00d/nuxt-i18n-micro/commit/98f91bcd))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.18.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.17.5...v3.18.0)

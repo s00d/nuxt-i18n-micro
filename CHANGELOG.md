@@ -5,24 +5,20 @@
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.0...v3.18.1)
 
-### 🚀 Enhancements
-
-- **i18n:** Add support for dynamic locale switching ([3ccb72f2](https://github.com/s00d/nuxt-i18n-micro/commit/3ccb72f2))
-
 ### 🩹 Fixes
 
-- Skip internal routeRules paths during localization ([6ae336ae](https://github.com/s00d/nuxt-i18n-micro/commit/6ae336ae))
-- Satisfy strict indexed access in route-rules helper ([2f6b3485](https://github.com/s00d/nuxt-i18n-micro/commit/2f6b3485))
+- **routeRules:** Do not replicate `routeRules` for internal Nitro paths (`/_nuxt/**`, `/_locales/**`, `/__nuxt_content/**`, `/api`, and paths whose first segment starts with `_`). Stops an oversized route matcher when many locales are configured ([#220](https://github.com/s00d/nuxt-i18n-micro/issues/220), [#221](https://github.com/s00d/nuxt-i18n-micro/pull/221) by [@CalmProton](https://github.com/CalmProton)). Match `/api` and `/api/...` only so public routes like `/apiary` stay localized.
 
 ### 📖 Documentation
 
 - **cli:** Update installation instructions and command descriptions ([39312163](https://github.com/s00d/nuxt-i18n-micro/commit/39312163))
-- **getting-started:** Update Nuxt 4 support details in the guide ([6676f313](https://github.com/s00d/nuxt-i18n-micro/commit/6676f313))
-- **useI18n:** Update `$tc` method to support `Params` objectern. ([98f91bcd](https://github.com/s00d/nuxt-i18n-micro/commit/98f91bcd))
+- **getting-started:** Nuxt 4 support details and dynamic locale switching notes ([6676f313](https://github.com/s00d/nuxt-i18n-micro/commit/6676f313), [3ccb72f2](https://github.com/s00d/nuxt-i18n-micro/commit/3ccb72f2))
+- **useI18n:** Document `$tc` with a `Params` object as the second argument ([98f91bcd](https://github.com/s00d/nuxt-i18n-micro/commit/98f91bcd))
 
 ### ❤️ Contributors
 
 - Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Denis ([@CalmProton](https://github.com/CalmProton))
 
 ## v3.18.0
 

@@ -25,4 +25,8 @@ describe('routeRules localization', () => {
   ])('skips internal route rule %s', (routeRulePath) => {
     expect(shouldLocalizeRouteRulePath(routeRulePath)).toBe(false)
   })
+
+  test('localizes root path', () => {
+    expect(shouldLocalizeRouteRulePath('/')).toBe(true)
+  })
 })

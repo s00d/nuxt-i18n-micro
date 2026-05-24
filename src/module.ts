@@ -21,6 +21,7 @@ import type { HookResult, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
 import { generateHmrPlugin } from './hmr-plugin'
+import { shouldLocalizeRouteRulePath } from './route-rules'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { extractDefineI18nRouteData } from './utils'
 
@@ -706,7 +707,7 @@ declare module '#i18n-internal/plural' {
         nitroConfig.routeRules = nitroConfig.routeRules || {}
 
         for (const [originalPath, ruleValue] of Object.entries(routeRules)) {
-          if (originalPath.startsWith('/api')) continue
+          if (!shouldLocalizeRouteRulePath(originalPath)) continue
 
           routeGenerator.locales.forEach((localeObj) => {
             const localeCode = localeObj.code

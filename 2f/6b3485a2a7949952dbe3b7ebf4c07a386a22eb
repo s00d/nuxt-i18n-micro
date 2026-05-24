@@ -1,0 +1,23 @@
+test/route-rules.test.ts
+  s_43f7072b0cae73::t_a571480cabef27 28-31
+src/route-rules.ts
+  s_43f7072b0cae73::t_e5c6360604d78c 8
+test/fixtures/nuxt-7cnbrdte/pages/about/index.vue
+  s_43f7072b0cae73::t_4a3a3d460adc20 5-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "2f6b3485a2a7949952dbe3b7ebf4c07a386a22eb",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+packages/path-strategy/scripts/verify-dist.mjs
+  s_43f7072b0cae73::t_53968fd9a54eef 206-208,226
+  s_43f7072b0cae73::t_8973a6f0cad755 234
+  s_43f7072b0cae73::t_9a1ed229169356 2,73-74,82,84,102,178,213,232,236,238
+  s_43f7072b0cae73::t_6f4e06a5cad7c7 4
+  s_43f7072b0cae73::t_9ac1ed26cf0295 1,9,36,49,59-72,75-81,83,85-101,103-165,167-177,179-201,203,209-212,214-225,227-231,233,235
+  s_43f7072b0cae73::t_6dce2ea65fcf6d 166
+packages/path-strategy/package.json
+  s_43f7072b0cae73::t_f4d45a860f3353 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "138ee0348bcd6d6edaa19fd0870ea9ca2cba2573",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

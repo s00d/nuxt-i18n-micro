@@ -59,6 +59,7 @@
   },
   "scripts": {
     "build": "vite build",
+    "postbuild": "node scripts/verify-dist.mjs",
     "test": "jest",
     "test:perf": "jest --config jest.perf.config.cjs",
     "bench:browser": "vite --config bench/vite.config.ts",

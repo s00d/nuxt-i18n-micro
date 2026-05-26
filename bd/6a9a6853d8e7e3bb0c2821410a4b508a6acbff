@@ -1,0 +1,36 @@
+packages/path-strategy/vite.config.mts
+  s_43f7072b0cae73::t_2a98e1b6327198 18-22,25
+  s_43f7072b0cae73::t_2d3ec2514a289e 71,78
+  s_43f7072b0cae73::t_a53f1ad6ce5cab 3,7-17,33-44,55-58,60,65-70,72-77,79-80
+  s_43f7072b0cae73::t_7efd9a5e5390ed 1-2,23-24,26-32,46-53
+packages/path-strategy/tsconfig.build.json
+  s_43f7072b0cae73::t_2af61c1d2b39d3 1-7,9-13
+  s_43f7072b0cae73::t_f8cca9f5a1b228 8
+packages/path-strategy/jest.config.cjs
+  s_43f7072b0cae73::t_94e21084ff62d8 4
+packages/path-strategy/package.json
+  s_43f7072b0cae73::t_3ca53eebb142b9 8,18-20,25-32,36,38-40,42-43,47,49-51,53-54,58,60-62,64-65,69,71-73,75-76,80-87
+  s_43f7072b0cae73::t_83352f7e6dd6ed 3
+  s_43f7072b0cae73::t_33ae7f6d837771 122,125-126
+  s_43f7072b0cae73::t_2b67c8a8caaa9b 123
+  s_43f7072b0cae73::t_fe83ce9875a032 96-98,102
+  s_43f7072b0cae73::t_e3cb2bbe490cd3 37,41,48,52,59,63,70,74
+packages/path-strategy/CHANGELOG.md
+  s_43f7072b0cae73::t_8efcdd5f72b1e4 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "bd6a9a6853d8e7e3bb0c2821410a4b508a6acbff",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

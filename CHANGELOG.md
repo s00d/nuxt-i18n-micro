@@ -1,6 +1,53 @@
 # Changelog
 
 
+## v3.18.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.1...v3.18.2)
+
+### 🚀 Enhancements
+
+- **scripts:** Add workspace package verify and npm dist compare ([5188bb56](https://github.com/s00d/nuxt-i18n-micro/commit/5188bb56))
+
+### 🩹 Fixes
+
+- Skip internal route rules during localization ([40c7ce87](https://github.com/s00d/nuxt-i18n-micro/commit/40c7ce87))
+- **devtools-ui:** Emit Vite plugin types only under dist/vite ([a81f6284](https://github.com/s00d/nuxt-i18n-micro/commit/a81f6284))
+
+### 💅 Refactors
+
+- **path-strategy:** Stable shared chunks and publint exports ([bd6a9a68](https://github.com/s00d/nuxt-i18n-micro/commit/bd6a9a68))
+- **devtools-ui:** Single Vite config with dual-package types ([d3077343](https://github.com/s00d/nuxt-i18n-micro/commit/d3077343))
+
+### 📖 Documentation
+
+- **changelog:** Correct v3.18.1 release notes ([8d960e1f](https://github.com/s00d/nuxt-i18n-micro/commit/8d960e1f))
+
+### 🏡 Chore
+
+- **packages:** Align publish fields and inline dual-package types ([221bab4c](https://github.com/s00d/nuxt-i18n-micro/commit/221bab4c))
+- **route-strategy:** Add exports map and dual-package types ([ff85024c](https://github.com/s00d/nuxt-i18n-micro/commit/ff85024c))
+- Update lockfile for vitest in publish smoke packages ([a50d4593](https://github.com/s00d/nuxt-i18n-micro/commit/a50d4593))
+- **package:** Restructure release scripts for improved clarity ([b9dc96f9](https://github.com/s00d/nuxt-i18n-micro/commit/b9dc96f9))
+- **package:** Restructure release scripts for improved clarity ([9b3315ba](https://github.com/s00d/nuxt-i18n-micro/commit/9b3315ba))
+
+### ✅ Tests
+
+- **path-strategy:** Verify dist strategy artifacts ([93ac3d65](https://github.com/s00d/nuxt-i18n-micro/commit/93ac3d65))
+- **path-strategy:** Extend dist smoke to all strategies and tarball ([138ee034](https://github.com/s00d/nuxt-i18n-micro/commit/138ee034))
+- **path-strategy:** Add dist publish and export subpath smoke tests ([c0c4f4e4](https://github.com/s00d/nuxt-i18n-micro/commit/c0c4f4e4))
+- **packages:** Add dist publish smoke tests for workspace libraries ([cdf9893c](https://github.com/s00d/nuxt-i18n-micro/commit/cdf9893c))
+- Exclude dist publish smoke tests from Jest runs ([5fe00a08](https://github.com/s00d/nuxt-i18n-micro/commit/5fe00a08))
+
+### 🤖 CI
+
+- Verify packages, compare npm dist, and run dist smoke tests ([949c1314](https://github.com/s00d/nuxt-i18n-micro/commit/949c1314))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Denis <denisamania@gmail.com>
+
 ## v3.18.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.0...v3.18.1)

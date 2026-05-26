@@ -1,23 +1,52 @@
 {
   "name": "@i18n-micro/preact",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "description": "Preact bindings for i18n-micro — hooks, context, and UI components.",
   "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/preact"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "preact",
+    "i18n",
+    "internationalization",
+    "translations"
+  ],
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*"
@@ -35,14 +64,17 @@
     "jest": "catalog:",
     "jest-environment-jsdom": "catalog:",
     "preact": "catalog:",
+    "publint": "^0.3.17",
     "ts-jest": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
   },
   "scripts": {
     "build": "vite build",
+    "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   }
 }

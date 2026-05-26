@@ -1,23 +1,53 @@
 {
   "name": "@i18n-micro/vue",
-  "version": "1.3.2",
+  "version": "1.3.3",
+  "description": "Vue 3 bindings for i18n-micro — composables, components, and routing helpers.",
   "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/vue"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "vue",
+    "vue3",
+    "i18n",
+    "internationalization",
+    "translations"
+  ],
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*"
@@ -40,13 +70,18 @@
     "ts-jest": "catalog:",
     "@types/jest": "catalog:",
     "@vue/test-utils": "catalog:",
-    "jest-environment-jsdom": "catalog:"
+    "jest-environment-jsdom": "catalog:",
+    "publint": "^0.3.17",
+    "vitest": "catalog:"
   },
   "scripts": {
     "build": "vite build",
+    "check:package": "publint",
     "dev": "cd playground && vite",
     "dev:ssr": "cd playground && node server.js",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   }
 }

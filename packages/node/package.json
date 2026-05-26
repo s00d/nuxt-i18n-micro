@@ -1,42 +1,71 @@
 {
   "name": "@i18n-micro/node",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "description": "Node.js utilities for loading translations and locale data in Nuxt I18n Micro.",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/node"
   },
-  "files": [
-    "dist"
-  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
   "engines": {
     "node": ">=20.0.0"
   },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "nuxt",
+    "i18n",
+    "node",
+    "translations"
+  ],
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
+    "@types/jest": "catalog:",
     "@types/node": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
     "jest": "catalog:",
+    "publint": "^0.3.17",
     "ts-jest": "catalog:",
-    "@types/jest": "catalog:"
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   },
   "scripts": {
     "build": "vite build",
+    "check:package": "publint",
     "dev": "cd playground && npm run dev",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   }
 }

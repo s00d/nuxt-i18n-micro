@@ -1,6 +1,17 @@
-import { resolve } from 'node:path'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+
+function dualPackageBeforeWriteFile(filePath: string, content: string) {
+  if (!filePath.endsWith('index.d.ts')) {
+    return { filePath, content }
+  }
+  const ctsPath = filePath.replace(/\.d\.ts$/, '.d.cts')
+  mkdirSync(dirname(ctsPath), { recursive: true })
+  writeFileSync(ctsPath, content)
+  return { filePath, content }
+}
 
 export default defineConfig({
   esbuild: {
@@ -21,6 +32,7 @@ export default defineConfig({
         jsxImportSource: 'preact' as const,
         types: ['preact'] as const,
       },
+      beforeWriteFile: dualPackageBeforeWriteFile,
     }) as unknown as import('vite').Plugin,
   ],
   build: {

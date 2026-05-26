@@ -1,20 +1,52 @@
 {
   "name": "@i18n-micro/react",
-  "version": "1.3.0",
+  "version": "1.3.1",
+  "description": "React bindings for i18n-micro — hooks, context, and UI components.",
   "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/react#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/react/index.cjs",
+  "types": "./dist/react/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/react/index.d.ts",
-      "import": "./dist/react/index.mjs",
-      "require": "./dist/react/index.cjs"
-    }
+      "import": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/index.mjs"
+      },
+      "require": {
+        "types": "./dist/react/index.d.cts",
+        "default": "./dist/react/index.cjs"
+      },
+      "default": "./dist/react/index.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "react",
+    "i18n",
+    "internationalization",
+    "translations"
+  ],
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*",
@@ -37,6 +69,7 @@
     "@vitejs/plugin-react": "catalog:",
     "jest": "catalog:",
     "jest-environment-jsdom": "catalog:",
+    "publint": "^0.3.17",
     "react": "catalog:",
     "ts-jest": "catalog:",
     "vite": "catalog:",
@@ -44,8 +77,10 @@
   },
   "scripts": {
     "build": "vite build --config vite.config.mts",
+    "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   }
 }

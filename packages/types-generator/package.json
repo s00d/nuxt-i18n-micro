@@ -1,68 +1,92 @@
 {
   "name": "@i18n-micro/types-generator",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Type generator for i18n-micro translation keys",
   "type": "module",
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/types-generator"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/types-generator#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.mjs"
     },
     "./nuxt": {
-      "types": "./dist/nuxt.d.ts",
-      "import": "./dist/nuxt.mjs",
-      "require": "./dist/nuxt.cjs"
-    }
+      "import": {
+        "types": "./dist/nuxt.d.ts",
+        "default": "./dist/nuxt.mjs"
+      },
+      "require": {
+        "types": "./dist/nuxt.d.cts",
+        "default": "./dist/nuxt.cjs"
+      },
+      "default": "./dist/nuxt.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "vite build",
+    "check:package": "publint",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "keywords": [
     "i18n",
     "typescript",
     "type-generator",
-    "translation"
+    "translation",
+    "nuxt"
   ],
   "author": {
     "name": "s00d",
     "email": "Virus191288@gmail.com",
     "url": "https://s00d.github.io/"
   },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/s00d/nuxt-i18n-micro"
-  },
   "dependencies": {
-    "globby": "catalog:",
     "chokidar": "catalog:",
+    "globby": "catalog:",
     "unplugin": "catalog:"
   },
   "peerDependencies": {
     "@nuxt/kit": "catalog:"
   },
-  "engines": {
-    "node": ">=18.17.0"
-  },
   "devDependencies": {
+    "@types/jest": "catalog:",
     "@types/node": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
-    "typescript": "catalog:",
     "jest": "catalog:",
+    "publint": "^0.3.17",
     "ts-jest": "catalog:",
-    "@types/jest": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   }
 }

@@ -1,23 +1,53 @@
 {
   "name": "@i18n-micro/solid",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "description": "SolidJS bindings for i18n-micro — primitives, context, and UI components.",
   "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/solid"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "solid",
+    "solidjs",
+    "i18n",
+    "internationalization",
+    "translations"
+  ],
   "peerDependencies": {
     "solid-js": "catalog:",
     "@solidjs/router": "catalog:"
@@ -38,6 +68,7 @@
     "@types/jest": "catalog:",
     "jest": "catalog:",
     "jest-environment-jsdom": "catalog:",
+    "publint": "^0.3.17",
     "solid-js": "catalog:",
     "ts-jest": "catalog:",
     "vite": "catalog:",
@@ -46,8 +77,10 @@
   },
   "scripts": {
     "build": "vite build",
+    "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   }
 }

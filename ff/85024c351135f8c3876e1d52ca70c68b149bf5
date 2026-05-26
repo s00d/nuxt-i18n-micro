@@ -1,0 +1,29 @@
+packages/route-strategy/vite.config.mts
+  s_43f7072b0cae73::t_ff8eac78d962c1 2-3,7,9-15
+  s_43f7072b0cae73::t_3124275fcb80b0 8
+  s_43f7072b0cae73::t_4a6e29dfeed057 32
+packages/route-strategy/package.json
+  s_43f7072b0cae73::t_017eb4dae9d45c 76
+  s_43f7072b0cae73::t_700c5c9fcdd068 78-79
+  s_43f7072b0cae73::t_f1441005bad3d3 50-51,53
+  s_43f7072b0cae73::t_b181530c7afc65 10-17
+  s_43f7072b0cae73::t_22b33de00953fb 3
+  s_43f7072b0cae73::t_8f364a3c34f6be 35,38
+  s_43f7072b0cae73::t_a2f9767da7f4c4 37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "ff85024c351135f8c3876e1d52ca70c68b149bf5",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

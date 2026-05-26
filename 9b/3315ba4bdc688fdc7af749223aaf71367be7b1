@@ -1,0 +1,14 @@
+package.json
+  h_ee6cac30a1b83a 72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "9b3315ba4bdc688fdc7af749223aaf71367be7b1",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

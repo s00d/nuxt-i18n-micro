@@ -1,0 +1,21 @@
+packages/devtools-ui/vite.config.ts
+  s_43f7072b0cae73::t_e63a078c3ac831 1
+  s_43f7072b0cae73::t_00cf70fc10d5a8 94-118
+  s_43f7072b0cae73::t_05ffbd30421a07 129,131-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "a81f6284f53168d28f78d386f8f2826977a4bea4",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

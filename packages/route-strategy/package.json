@@ -1,16 +1,20 @@
 {
   "name": "@i18n-micro/route-strategy",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Locale-aware route generator for Nuxt i18n micro",
   "type": "module",
   "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.mjs"
     }
   },
@@ -28,8 +32,10 @@
   ],
   "scripts": {
     "build": "vite build",
+    "check:package": "publint",
     "test": "jest",
-    "prepublishOnly": "pnpm run build"
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "keywords": [
     "i18n",
@@ -41,10 +47,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/s00d/nuxt-i18n-micro.git",
-    "directory": "packages/route-generator"
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/route-strategy"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/route-generator#readme",
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/route-strategy#readme",
   "bugs": {
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
@@ -67,8 +73,10 @@
     "@types/jest": "catalog:",
     "jest": "catalog:",
     "ts-jest": "catalog:",
+    "publint": "^0.3.17",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=18"

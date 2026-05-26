@@ -1,0 +1,53 @@
+packages/devtools-ui/vitest.dist.config.ts
+  s_43f7072b0cae73::t_67dc9c6c970908 1-8
+packages/vue/tests/publish/dist.publish.test.ts
+  s_43f7072b0cae73::t_5a9448d394ca5b 12-14
+  s_43f7072b0cae73::t_54092cb4776909 1-3,5-11,15-16
+  s_43f7072b0cae73::t_ab85d103f0fb70 4
+packages/route-strategy/tests/publish/dist.publish.test.ts
+  s_43f7072b0cae73::t_209cb35843ac7a 4
+  s_43f7072b0cae73::t_e9bfc6e863794f 1-3,5-11,15-16
+  s_43f7072b0cae73::t_f4b74fcd4f93d1 12-14
+packages/test-utils/src/publish-smoke.ts
+  s_43f7072b0cae73::t_a66c7f10f8b626 4
+  s_43f7072b0cae73::t_4622cdc7acf996 1-3,5-27,29-39,41-65,67-96,98
+  s_43f7072b0cae73::t_9a0522af17363f 28,40,66
+  s_43f7072b0cae73::t_f87a0896d2c37d 97
+  s_43f7072b0cae73::t_d02af9ab677511 99-104
+packages/astro/vitest.dist.config.ts
+  s_43f7072b0cae73::t_110844b46c374b 1-8
+packages/astro/tests/publish/dist.publish.test.ts
+  s_43f7072b0cae73::t_9a42b2f78997f3 1-3,5-15,20-21
+  s_43f7072b0cae73::t_65ca808c850029 16-19
+  s_43f7072b0cae73::t_a4e4c022b84593 4
+packages/core/tests/publish/dist.publish.test.ts
+  s_43f7072b0cae73::t_5f15e729ef2ec2 1-3,5-11,15-16
+  s_43f7072b0cae73::t_5c153ae3d88dd7 12-14
+  s_43f7072b0cae73::t_f577d7ca0993f7 4
+packages/core/vitest.dist.config.ts
+  s_43f7072b0cae73::t_85ac34847ee369 1-8
+packages/vue/vitest.dist.config.ts
+  s_43f7072b0cae73::t_5b966153764edf 1-8
+packages/devtools-ui/tests/publish/dist.publish.test.ts
+  s_43f7072b0cae73::t_ba95a2d35a4a21 4
+  s_43f7072b0cae73::t_77f4b8cf0bbf72 18-22
+  s_43f7072b0cae73::t_5e80cdb230d305 1-3,5-17,23-24
+packages/route-strategy/vitest.dist.config.ts
+  s_43f7072b0cae73::t_5c15184af22b19 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "cdf9893c08baf9e1ace536c48238cdeb5a965ca7",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

@@ -39,3 +39,6 @@ export interface I18nDevToolsBridge {
    */
   onLocalesUpdate(callback: (data: LocaleData) => void): () => void
 }
+
+/** Runtime marker so the bridge types entry can be published as a JS module. */
+export const BRIDGE_INTERFACE_MODULE = true

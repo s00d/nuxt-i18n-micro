@@ -1,32 +1,57 @@
 {
   "name": "@i18n-micro/devtools-ui",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "description": "DevTools UI and Vite plugin for Nuxt I18n Micro.",
+  "license": "MIT",
   "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/devtools-ui"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/devtools-ui#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "main": "./dist/index.umd.js",
-  "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.es.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.umd.js"
+      },
+      "default": "./dist/index.es.js"
     },
     "./bridge": {
       "types": "./dist/bridge/interface.d.ts",
-      "import": "./dist/bridge/interface.js"
+      "import": "./dist/bridge/interface.js",
+      "default": "./dist/bridge/interface.js"
     },
     "./bridge/create": {
       "types": "./dist/bridge/create-bridge.d.ts",
-      "import": "./dist/bridge/create-bridge.js"
+      "import": "./dist/bridge/create-bridge.js",
+      "default": "./dist/bridge/create-bridge.js"
     },
     "./vite": {
       "types": "./dist/vite/plugin.d.ts",
-      "import": "./dist/vite/plugin.mjs"
-    }
+      "import": "./dist/vite/plugin.mjs",
+      "default": "./dist/vite/plugin.mjs"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "vite"
+    "LICENSE",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"
@@ -40,14 +65,17 @@
     "@vitejs/plugin-vue": "catalog:",
     "autoprefixer": "catalog:",
     "postcss": "catalog:",
+    "publint": "^0.3.17",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "scripts": {
-    "build": "vite build && vite build --config vite.config.plugin.mjs && npm run build:plugin-types",
-    "build:plugin": "vite build --config vite.config.plugin.mjs",
-    "build:plugin-types": "tsc vite/plugin.ts --declaration --emitDeclarationOnly --outDir dist/vite --module esnext --target es2020 --moduleResolution node --esModuleInterop --skipLibCheck",
-    "typecheck": "tsc --noEmit"
+    "build": "vite build && vite build --mode umd && vite build --mode plugin",
+    "check:package": "publint",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   }
 }

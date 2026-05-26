@@ -66,6 +66,16 @@ jobs:
           pnpm --filter "./packages/**" run build
           pnpm run dev:prepare
 
+      - name: Verify packages
+        run: |
+          pnpm verify:packages
+          pnpm verify:packages:publint
+          pnpm compare:published
+
+      - name: Dist publish smoke tests
+        run: |
+          pnpm --filter "@i18n-micro/core" --filter "@i18n-micro/vue" --filter "@i18n-micro/path-strategy" --filter "@i18n-micro/route-strategy" --filter "@i18n-micro/devtools-ui" --filter "@i18n-micro/astro" run test:dist
+
       - name: Test
         run: |
           pnpm run test:workspaces

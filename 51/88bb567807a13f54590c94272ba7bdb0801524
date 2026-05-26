@@ -1,0 +1,30 @@
+.gitignore
+  s_43f7072b0cae73::t_2d3decd8e2c7bb 11
+scripts/compare-published-dist.mjs
+  s_43f7072b0cae73::t_1ed56b837ef529 1-11,13-27,31,33-47,49-52,54-61,68,72-73,75-76,78-91,106-107,110,112-119,121,123,125-139,143-145,151-152,156-159,177,188,193-194,203,207,211,217,224-225,232-236,255-256
+  s_43f7072b0cae73::t_5a06fdb1b58ca3 12,28-30,32,48,53,62-67,69-70,74,77,92-105,108-109,111,120,122,124,140-142,146-150,153-155,160-176,178-187,189-192,195-202,204-206,208-210,212-216,218-223,226-231,237-254,257
+  s_43f7072b0cae73::t_22d1bcc0f42e9f 71
+scripts/verify-packages.mjs
+  s_43f7072b0cae73::t_8040d9c0bf3a14 1-149,152-216
+  s_43f7072b0cae73::t_16b6c5c756895d 150-151
+package.json
+  s_43f7072b0cae73::t_900c34a8a0a4c5 94
+  s_43f7072b0cae73::t_f052e025fde8b9 93
+  s_43f7072b0cae73::t_045aa97942b3fd 91-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "5188bb567807a13f54590c94272ba7bdb0801524",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

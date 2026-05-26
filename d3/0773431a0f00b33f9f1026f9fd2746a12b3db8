@@ -1,0 +1,40 @@
+packages/devtools-ui/package.json
+  s_43f7072b0cae73::t_f6a1338b28fbf1 77
+  s_43f7072b0cae73::t_2266ba5759d312 71-72
+  s_43f7072b0cae73::t_a1773d34a9d4f8 75
+  s_43f7072b0cae73::t_d6e7a820376228 3-5,7-19,24-32,36-37,41-42,46-49,53-54,68,76,78-79
+packages/devtools-ui/vite.config.ts
+  s_43f7072b0cae73::t_e971943f4f0268 94-98,100-104
+  s_43f7072b0cae73::t_b96806d7bd429a 111,116
+  s_43f7072b0cae73::t_099da166782452 110
+  s_43f7072b0cae73::t_6a791a1ea14b6a 71
+  s_43f7072b0cae73::t_2f1e490344a953 2
+  s_43f7072b0cae73::t_417cc521b124f8 25
+  s_43f7072b0cae73::t_9af80f54129329 17-22,30-31
+  s_43f7072b0cae73::t_88e4b71c37de98 3,12-16,23-24,26-29,32,38,41-43,46-47,49-52,54-70,74-78,80-81,87,89,92-93,99,105-109,112-115,117-137,139-140
+  s_43f7072b0cae73::t_31e92821e318dd 141-144
+  s_43f7072b0cae73::t_89c14643a9f169 34-35
+  s_43f7072b0cae73::t_2194b0f8b9b6d8 1
+  s_43f7072b0cae73::t_cfa2ae20c8dd47 6-7,10
+  s_43f7072b0cae73::t_5436b0546292a5 44
+  s_43f7072b0cae73::t_d4f65146399c79 72
+packages/devtools-ui/src/bridge/interface.ts
+  s_43f7072b0cae73::t_a3dbd6b6efe525 44
+  s_43f7072b0cae73::t_b8b92116a35bb1 42-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "d30773431a0f00b33f9f1026f9fd2746a12b3db8",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

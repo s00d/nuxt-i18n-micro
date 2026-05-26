@@ -69,7 +69,7 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
     "release": "pnpm run release:check && pnpm run release:patch",
-    "release:check": "pnpm run format && pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run test:vitest && pnpm run test:workspaces && pnpm run prepack",
+    "release:check": "pnpm run format && pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run test:vitest && pnpm run test:workspaces",
     "release:patch": "pnpm run prepack && node scripts/run-changelogen-release.mjs patch && pnpm publish -r && git push --follow-tags",
     "release:minor": "pnpm run prepack && node scripts/run-changelogen-release.mjs minor && pnpm publish -r && git push --follow-tags",
     "release:major": "pnpm run prepack && node scripts/run-changelogen-release.mjs major && pnpm publish -r && git push --follow-tags",

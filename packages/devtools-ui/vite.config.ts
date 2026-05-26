@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
@@ -91,17 +91,32 @@ const libUmd: UserConfig = {
   },
 }
 
-function publishPluginTypes() {
-  const emitted = resolve(rootDir, 'vite/plugin.d.ts')
-  const target = resolve(rootDir, 'dist/vite/plugin.d.ts')
-  if (!existsSync(emitted)) {
-    throw new Error('Missing vite/plugin.d.ts after plugin build')
+const pluginTypesDir = resolve(rootDir, 'dist/vite')
+const pluginTypesStem = resolve(pluginTypesDir, 'plugin.d.ts')
+
+/** Keep Vite plugin declarations under dist/vite only (never beside vite/plugin.ts). */
+function writePluginDeclarationTypes(filePath: string, content: string) {
+  const normalized = filePath.replace(/\\/g, '/')
+  if (!normalized.endsWith('plugin.d.ts')) {
+    return { filePath, content }
   }
-  const content = readFileSync(emitted, 'utf8')
-  mkdirSync(dirname(target), { recursive: true })
-  writeFileSync(target, content)
-  writeFileSync(target.replace(/\.d\.ts$/, '.d.cts'), content)
-  unlinkSync(emitted)
+
+  mkdirSync(pluginTypesDir, { recursive: true })
+  writeFileSync(pluginTypesStem, content)
+  writeFileSync(pluginTypesStem.replace(/\.d\.ts$/, '.d.cts'), content)
+
+  if (normalized.includes('/vite/plugin.d.ts') && !normalized.includes('/dist/vite/')) {
+    return false
+  }
+
+  return { filePath: pluginTypesStem, content }
+}
+
+function removeStrayPluginTypeArtifacts() {
+  for (const rel of ['vite/plugin.d.ts', 'vite/plugin.d.cts']) {
+    const path = resolve(rootDir, rel)
+    if (existsSync(path)) unlinkSync(path)
+  }
 }
 
 const vitePlugin: UserConfig = {
@@ -111,9 +126,10 @@ const vitePlugin: UserConfig = {
       strictOutput: false,
       include: ['vite/plugin.ts'],
       entryRoot: resolve(rootDir, 'vite'),
-      outDir: resolve(rootDir, 'dist/vite'),
+      outDir: pluginTypesDir,
       tsconfigPath: resolve(rootDir, 'tsconfig.json'),
-      afterBuild: publishPluginTypes,
+      beforeWriteFile: writePluginDeclarationTypes,
+      afterBuild: removeStrayPluginTypeArtifacts,
     }),
   ],
   build: {

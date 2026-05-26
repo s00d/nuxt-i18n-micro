@@ -1,10 +1,11 @@
 {
   "name": "@i18n-micro/path-strategy",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Shared strategy-based path and route name builder for Nuxt I18n Micro frontend routing.",
   "repository": "s00d/nuxt-i18n-micro",
   "license": "MIT",
   "type": "module",
+  "sideEffects": false,
   "author": {
     "name": "s00d",
     "email": "Virus191288@gmail.com",
@@ -14,44 +15,76 @@
   "bugs": {
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
       "default": "./dist/index.mjs"
     },
     "./prefix": {
-      "types": "./dist/prefix-strategy.d.ts",
-      "import": "./dist/prefix-strategy.mjs",
-      "require": "./dist/prefix-strategy.cjs",
+      "import": {
+        "types": "./dist/strategies/prefix.d.ts",
+        "default": "./dist/prefix-strategy.mjs"
+      },
+      "require": {
+        "types": "./dist/strategies/prefix.d.cts",
+        "default": "./dist/prefix-strategy.cjs"
+      },
       "default": "./dist/prefix-strategy.mjs"
     },
     "./no-prefix": {
-      "types": "./dist/no-prefix-strategy.d.ts",
-      "import": "./dist/no-prefix-strategy.mjs",
-      "require": "./dist/no-prefix-strategy.cjs",
+      "import": {
+        "types": "./dist/strategies/no-prefix.d.ts",
+        "default": "./dist/no-prefix-strategy.mjs"
+      },
+      "require": {
+        "types": "./dist/strategies/no-prefix.d.cts",
+        "default": "./dist/no-prefix-strategy.cjs"
+      },
       "default": "./dist/no-prefix-strategy.mjs"
     },
     "./prefix-except-default": {
-      "types": "./dist/prefix-except-default-strategy.d.ts",
-      "import": "./dist/prefix-except-default-strategy.mjs",
-      "require": "./dist/prefix-except-default-strategy.cjs",
+      "import": {
+        "types": "./dist/strategies/prefix-except-default.d.ts",
+        "default": "./dist/prefix-except-default-strategy.mjs"
+      },
+      "require": {
+        "types": "./dist/strategies/prefix-except-default.d.cts",
+        "default": "./dist/prefix-except-default-strategy.cjs"
+      },
       "default": "./dist/prefix-except-default-strategy.mjs"
     },
     "./prefix-and-default": {
-      "types": "./dist/prefix-and-default-strategy.d.ts",
-      "import": "./dist/prefix-and-default-strategy.mjs",
-      "require": "./dist/prefix-and-default-strategy.cjs",
+      "import": {
+        "types": "./dist/strategies/prefix-and-default.d.ts",
+        "default": "./dist/prefix-and-default-strategy.mjs"
+      },
+      "require": {
+        "types": "./dist/strategies/prefix-and-default.d.cts",
+        "default": "./dist/prefix-and-default-strategy.cjs"
+      },
       "default": "./dist/prefix-and-default-strategy.mjs"
     },
     "./types": {
-      "types": "./dist/types.d.ts",
-      "import": "./dist/types.mjs",
-      "require": "./dist/types.cjs",
+      "import": {
+        "types": "./dist/types.d.ts",
+        "default": "./dist/types.mjs"
+      },
+      "require": {
+        "types": "./dist/types.d.cts",
+        "default": "./dist/types.cjs"
+      },
       "default": "./dist/types.mjs"
     },
     "./package.json": "./package.json",
@@ -59,12 +92,14 @@
   },
   "scripts": {
     "build": "vite build",
-    "postbuild": "node scripts/verify-dist.mjs",
     "test": "jest",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "check:package": "publint",
+    "test:publish": "pnpm run test:dist && pnpm run check:package",
     "test:perf": "jest --config jest.perf.config.cjs",
     "bench:browser": "vite --config bench/vite.config.ts",
     "bench:browser:ci": "tsx bench/run-headless.ts",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build && pnpm run test:publish"
   },
   "publishConfig": {
     "access": "public"
@@ -84,7 +119,10 @@
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
+    "publint": "^0.3.17",
+    "tsx": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   }
 }

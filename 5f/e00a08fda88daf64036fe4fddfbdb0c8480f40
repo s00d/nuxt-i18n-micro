@@ -1,0 +1,25 @@
+packages/route-strategy/jest.config.cjs
+  s_43f7072b0cae73::t_d32ece96aeaba7 4
+packages/core/jest.config.cjs
+  s_43f7072b0cae73::t_891eff17ec789f 4
+packages/astro/jest.config.cjs
+  s_43f7072b0cae73::t_c306a49b8d3faa 6
+packages/vue/jest.config.cjs
+  s_43f7072b0cae73::t_82d91498549d56 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "5fe00a08fda88daf64036fe4fddfbdb0c8480f40",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

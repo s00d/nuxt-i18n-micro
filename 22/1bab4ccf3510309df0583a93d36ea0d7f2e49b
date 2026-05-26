@@ -1,0 +1,89 @@
+packages/preact/vite.config.mts
+  s_43f7072b0cae73::t_98f6b7fc87f135 7
+  s_43f7072b0cae73::t_7e88e12db9c513 1-2,8-14
+  s_43f7072b0cae73::t_8e0cc737934f76 35
+  s_43f7072b0cae73::t_ab43b47611256d 6
+packages/solid/package.json
+  s_43f7072b0cae73::t_faa75678d198f1 3-4,6-19,24-34,37-39,44-50,71,80,83-84
+packages/types-generator/vite.config.mts
+  s_43f7072b0cae73::t_65390acae51a24 45
+  s_43f7072b0cae73::t_d95a5ffae01741 2-3,7,9-15
+  s_43f7072b0cae73::t_784a07e76e2d5e 8
+packages/core/package.json
+  s_43f7072b0cae73::t_c832a69ef95577 69-70
+  s_43f7072b0cae73::t_afa7f4ae122776 3-9,12,18,22-24,27-45,48,51,56-62,67
+  s_43f7072b0cae73::t_a7c267c6b0b158 50
+packages/test-utils/vite.config.mts
+  s_43f7072b0cae73::t_71dd5c5c1c826b 2-3,7,9-15
+  s_43f7072b0cae73::t_442f71df1384d4 32
+  s_43f7072b0cae73::t_cae6fffeb5c0fb 8
+  s_43f7072b0cae73::t_3aacfcbe9a72d2 26
+packages/astro/package.json
+  s_43f7072b0cae73::t_4bf55b6c1d9a1d 3-4,6-19,24-32,64-65,69-71,76-81,118,124,128-129
+  s_43f7072b0cae73::t_ab355cb65d1170 119-120
+  s_43f7072b0cae73::t_07b9ce19e8d35b 127
+packages/preact/package.json
+  s_43f7072b0cae73::t_71aca1dc23c2f6 3-4,6-19,24-34,37-39,44-49,67,74,77-78
+packages/core/vite.config.mts
+  s_43f7072b0cae73::t_dc9cd8c0f71357 32
+  s_43f7072b0cae73::t_8a56b66a958941 2-3,7,9-15
+  s_43f7072b0cae73::t_e69cc463e90d03 8
+packages/vue/package.json
+  s_43f7072b0cae73::t_04fc0f5aee4e0a 83
+  s_43f7072b0cae73::t_191696121b3f92 74-75
+  s_43f7072b0cae73::t_6620b365e18867 3-4,6-19,24-34,37-39,44-50,73,79,84-85
+packages/solid/vite.config.mts
+  s_43f7072b0cae73::t_f58158c4686bac 7
+  s_43f7072b0cae73::t_d5dd28d0dec2fc 8
+  s_43f7072b0cae73::t_ae50ad88370b75 1-2,9-15
+  s_43f7072b0cae73::t_ea0939e6b0ce3f 25
+packages/react/package.json
+  s_43f7072b0cae73::t_4086836b406ba6 3-4,6-21,24-34,37-39,44-49,72,80,83-84
+packages/react/vite.config.mts
+  s_43f7072b0cae73::t_216eb6422adbe5 25
+  s_43f7072b0cae73::t_1db443bf55e74d 7
+  s_43f7072b0cae73::t_2b80d41af94bc1 8
+  s_43f7072b0cae73::t_53bde7dbfc401b 1-2,9-15
+packages/types/package.json
+  s_43f7072b0cae73::t_4614a0f1fb0847 3-9,12,18,22-24,27-45,48-49,54-59,61-62
+packages/astro/vite.config.mts
+  s_43f7072b0cae73::t_dc1d71dfde409c 1-2,8-14
+  s_43f7072b0cae73::t_c556c3f683cd44 7
+  s_43f7072b0cae73::t_7e6c345929a469 6
+  s_43f7072b0cae73::t_5751c71d19d636 79
+packages/vue/vite.config.mts
+  s_43f7072b0cae73::t_433ac804c92fb8 1-2,6-15,19,26-28,31,35-36,38-39
+packages/types-generator/package.json
+  s_43f7072b0cae73::t_2207d5e79fd0b6 3,6-19,24-32,35-45,48-50,57,59-60,66-67,76,83,86,88-90
+packages/node/vite.config.mts
+  s_43f7072b0cae73::t_e002efccd722c7 8
+  s_43f7072b0cae73::t_9be26f7ed9f177 35-36
+  s_43f7072b0cae73::t_d1984a4533f3b2 37
+  s_43f7072b0cae73::t_0898558770131d 2-3,7,9-15
+  s_43f7072b0cae73::t_e689b16fe212ba 16
+packages/test-utils/package.json
+  s_43f7072b0cae73::t_2c562228a3fc04 3-9,12,18,22-24,27-45,48,50,55-61,66-67
+packages/types/vite.config.mts
+  s_43f7072b0cae73::t_12cd67ef9e4163 8
+  s_43f7072b0cae73::t_ae854604c29890 2-3,7,9-15
+  s_43f7072b0cae73::t_91ca1cc194db7c 32
+  s_43f7072b0cae73::t_0455f99d95e2c9 21,26
+packages/node/package.json
+  s_43f7072b0cae73::t_6586f22aaa4578 3-4,6-19,24-34,37-39,44-49,55,58,60-61,65,68-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "221bab4ccf3510309df0583a93d36ea0d7f2e49b",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

@@ -8,6 +8,7 @@ node_modules
 .temp
 .tmp
 .cache
+.compare-published
 
 # Yarn
 **/.yarn/cache

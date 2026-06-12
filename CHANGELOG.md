@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.18.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.2...v3.18.3)
+
+### 🩹 Fixes
+
+- **i18n:** Respect explicit locale cookie when it equals defaultLocale ([3ada59e1](https://github.com/s00d/nuxt-i18n-micro/commit/3ada59e1))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.18.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.1...v3.18.2)

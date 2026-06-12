@@ -1,0 +1,32 @@
+src/runtime/server/middleware/i18n.global.ts
+  s_43f7072b0cae73::t_2271d5f55a5257 39
+  s_43f7072b0cae73::t_041576fa4d93b4 33-38,40-46
+  s_43f7072b0cae73::t_60fc8632e3d102 12
+test/auto-detect-no-prefix.spec.ts
+  s_43f7072b0cae73::t_eb341cbf151636 87-113
+src/runtime/utils/accept-language.ts
+  s_43f7072b0cae73::t_5952f16931677a 1-32
+src/runtime/utils/resolve-server-locale.ts
+  s_43f7072b0cae73::t_c03251b4036fc9 1-14,16-30,32-44,46-57,59
+src/runtime/plugins/06.redirect.ts
+  s_43f7072b0cae73::t_794c6000349017 142,144,146-151
+  s_43f7072b0cae73::t_6faa01b379295e 143
+  s_43f7072b0cae73::t_558b4aa40e067d 13
+  s_43f7072b0cae73::t_bf45b31875b748 145
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "3ada59e1c5759e586acc6f7cfc0a5ae84894e0cb",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

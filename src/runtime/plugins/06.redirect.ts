@@ -10,6 +10,7 @@ import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRoute, u
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { getEnabledLocaleCodes } from '../utils/active-locales'
 import { getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
+import { resolvePreferredLocale } from '../utils/resolve-server-locale'
 import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
@@ -50,17 +51,6 @@ function isInternalPath(path: string, excludePatterns?: (string | RegExp | objec
     }
   }
   return false
-}
-
-function parseAcceptLanguage(header: string | undefined): string[] {
-  if (!header) return []
-  return header
-    .split(',')
-    .map((entry) => {
-      const [lang] = entry.split(';')
-      return (lang ?? '').trim()
-    })
-    .filter((s): s is string => s.length > 0)
 }
 
 export default defineNuxtPlugin({
@@ -149,38 +139,16 @@ export default defineNuxtPlugin({
           // Detect preferred locale
           // Priority: useState (from server plugin) > cookie > Accept-Language > defaultLocale
           // Exception: for autoDetectPath: '*', ignore useState (which is set from URL)
-          let preferredLocale = defaultLocale
-
-          // 1. Check useState (set by server plugins, has highest priority unless autoDetectPath: '*')
-          if (autoDetectPath !== '*') {
-            const localeState = useState<string | null>('i18n-locale', () => null)
-            if (localeState.value && validLocales.includes(localeState.value)) {
-              preferredLocale = localeState.value
-            }
-          }
-
-          // 2. Check cookie (if useState didn't set locale)
-          if (preferredLocale === defaultLocale && cookieName) {
-            const cookieVal = getCookie(event, cookieName)
-            if (cookieVal && validLocales.includes(cookieVal)) {
-              preferredLocale = cookieVal
-            }
-          }
-
-          // 3. Apply Accept-Language detection if nothing else set locale
-          if (i18nConfig.autoDetectLanguage && preferredLocale === defaultLocale) {
-            const acceptHeader = getHeader(event, 'accept-language')
-            const langs = parseAcceptLanguage(acceptHeader)
-            for (const lang of langs) {
-              const lowerCaseLanguage = lang.toLowerCase()
-              const primaryLanguage = lowerCaseLanguage.split('-')[0]
-              const found = validLocales.find((l) => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
-              if (found) {
-                preferredLocale = found
-                break
-              }
-            }
-          }
+          const localeState = autoDetectPath !== '*' ? useState<string | null>('i18n-locale', () => null) : null
+          let preferredLocale = resolvePreferredLocale({
+            defaultLocale,
+            validLocales,
+            autoDetectLanguage: i18nConfig.autoDetectLanguage,
+            stateLocale: localeState?.value ?? null,
+            cookieLocale: cookieName ? getCookie(event, cookieName) : null,
+            acceptLanguageHeader: getHeader(event, 'accept-language'),
+            ignoreStateLocale: autoDetectPath === '*',
+          })
 
           // For wildcard auto-detect, keep no-prefix routes on default locale.
           // This avoids redirect loops like /de -> / -> /de with prefix_except_default.

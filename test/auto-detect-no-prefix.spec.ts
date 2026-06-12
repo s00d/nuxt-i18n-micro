@@ -84,6 +84,33 @@ test.describe('autoDetectLanguage with no_prefix strategy', () => {
     await expect(page.locator('link#i18n-xd')).not.toBeAttached()
   })
 
+  test('respects cookie when it equals defaultLocale (#224)', async ({ page, goto, baseURL, request }) => {
+    await page.context().addCookies([
+      {
+        name: 'user-locale',
+        value: 'en',
+        url: baseURL!,
+      },
+    ])
+
+    const res = await request.get('/', {
+      headers: { Cookie: 'user-locale=en', 'Accept-Language': 'de-DE,de;q=0.9' },
+    })
+    expect(res.status()).toBe(200)
+    const html = await res.text()
+    expect(html).toContain('id="locale">en</p>')
+    expect(html).toContain('id="greeting">Hello</p>')
+
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'de-DE,de;q=0.9',
+    })
+
+    await goto('/', { waitUntil: 'hydration' })
+
+    await expect(page.locator('#locale')).toHaveText('en')
+    await expect(page.locator('#greeting')).toHaveText('Hello')
+  })
+
   test('respects existing cookie over Accept-Language', async ({ page, goto, baseURL }) => {
     // First, set cookie to German
     await page.context().addCookies([

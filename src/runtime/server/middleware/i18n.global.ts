@@ -9,18 +9,8 @@ import { getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
 import { getEnabledLocaleCodes } from '../../utils/active-locales'
 import { getLocaleCookieName } from '../../utils/cookie'
+import { resolveServerLocale } from '../../utils/resolve-server-locale'
 import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
-
-function parseAcceptLanguage(header: string | undefined): string[] {
-  if (!header) return []
-  return header
-    .split(',')
-    .map((entry) => {
-      const [lang] = entry.split(';')
-      return (lang ?? '').trim()
-    })
-    .filter((s): s is string => s.length > 0)
-}
 
 export default defineEventHandler(async (event) => {
   const path = event.path || getRequestURL(event).pathname
@@ -40,35 +30,20 @@ export default defineEventHandler(async (event) => {
   const firstSegment = pathSegments[0]
   const hasLocaleInUrl = Boolean(firstSegment && validLocales.includes(firstSegment))
 
-  // Determine current locale
-  let locale = defaultLocale
+  const cookieName = getLocaleCookieName(config)
+  const queryLocale = getQuery(event).locale ? String(getQuery(event).locale) : null
+  const cookieLocale = cookieName ? getCookie(event, cookieName) : null
 
-  if (hasLocaleInUrl) {
-    locale = firstSegment!
-  } else if (getQuery(event).locale && validLocales.includes(String(getQuery(event).locale))) {
-    locale = String(getQuery(event).locale)
-  } else {
-    const cookieName = getLocaleCookieName(config)
-    if (cookieName) {
-      const cookieVal = getCookie(event, cookieName)
-      if (cookieVal && validLocales.includes(cookieVal)) locale = cookieVal
-    }
-  }
-
-  // Apply Accept-Language detection if no explicit locale found
-  if (config.autoDetectLanguage && locale === defaultLocale) {
-    const acceptHeader = getHeader(event, 'accept-language')
-    const langs = parseAcceptLanguage(acceptHeader)
-    for (const lang of langs) {
-      const lowerCaseLanguage = lang.toLowerCase()
-      const primaryLanguage = lowerCaseLanguage.split('-')[0]
-      const found = validLocales.find((l) => l.toLowerCase() === lowerCaseLanguage || l.toLowerCase() === primaryLanguage)
-      if (found) {
-        locale = found
-        break
-      }
-    }
-  }
+  const locale = resolveServerLocale({
+    defaultLocale,
+    validLocales,
+    autoDetectLanguage: config.autoDetectLanguage,
+    hasLocaleInUrl,
+    urlLocale: firstSegment ?? null,
+    queryLocale,
+    cookieLocale,
+    acceptLanguageHeader: getHeader(event, 'accept-language'),
+  })
 
   // Set i18n context for plugins
   event.context.i18n = {

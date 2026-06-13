@@ -234,6 +234,29 @@ To optimize performance, `Nuxt I18n Micro` implements caching and supports pre-r
 - 🗄️ **Caching**: Translations are cached after the initial load, reducing the need for subsequent requests and improving response times.
 - 🏁 **Pre-rendering**: During the build process, translation files for all configured locales and routes can be pre-rendered. This eliminates the need for runtime requests, ensuring that translations are served quickly and efficiently.
 
+### ☁️ Serverless Payload Output
+
+By default, pre-merged translation payloads are emitted in multiple places so SSR, static generation, and local data routes work without extra setup. Large applications with many locales and page-level payloads may want tighter control, especially on serverless platforms where every Nitro server asset increases the Worker bundle.
+
+Use `translationPayloads` to disable outputs you do not need:
+
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    apiBaseClientHost: 'https://cdn.example.com',
+    apiBaseServerHost: 'https://cdn.example.com',
+    translationPayloads: {
+      serverAssets: false,
+      serverHandler: false,
+      publicAssets: false,
+      prerenderRoutes: false,
+    },
+  },
+})
+```
+
+Keep `serverAssets` and `serverHandler` enabled when you rely on the built-in local `/{apiBaseUrl}/:page/:locale/data.json` route. Disable them when payloads are hosted externally and `apiBaseServerHost` points at that external origin. Disable `prerenderRoutes` when you do not want Nitro to materialize `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json` into public output.
+
 ## 📝 Tips for Maximizing Performance
 
 Here are a few tips to ensure you get the best performance out of `Nuxt I18n Micro`:

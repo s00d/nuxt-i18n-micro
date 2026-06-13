@@ -890,6 +890,63 @@ When `apiBaseServerHost` is set, server-side translations will be fetched from `
 Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/external domain hosting, and `apiBaseServerHost` for server-side CDN/external domain hosting. This allows you to use different CDNs for client and server requests.
 :::
 
+#### `translationPayloads`
+
+Controls where pre-merged translation payload files are emitted during build.
+
+**Type**:
+
+```typescript
+{
+  serverAssets?: boolean
+  serverHandler?: boolean
+  publicAssets?: boolean
+  prerenderRoutes?: boolean
+  publicDir?: string
+}
+```
+
+**Default**:
+
+```typescript
+{
+  serverAssets: true,
+  serverHandler: true,
+  publicAssets: true,
+  prerenderRoutes: true
+}
+```
+
+The defaults preserve the all-in-one behavior: translations are registered as Nitro server assets, the local `/{apiBaseUrl}/:page/:locale/data.json` handler is registered, data routes are added to prerender output, and the merged files are copied to Nitro public assets during production builds.
+
+For serverless deployments with large locale sets, you can disable the duplicated local outputs and serve translation payloads from a CDN or object storage:
+
+```typescript
+i18n: {
+  apiBaseClientHost: 'https://cdn.example.com',
+  apiBaseServerHost: 'https://cdn.example.com',
+  translationPayloads: {
+    serverAssets: false,
+    serverHandler: false,
+    publicAssets: false,
+    prerenderRoutes: false
+  }
+}
+```
+
+If you only want to avoid writing payloads into public output while keeping the built-in server route for SSR/runtime requests, disable both public outputs:
+
+```typescript
+i18n: {
+  translationPayloads: {
+    publicAssets: false,
+    prerenderRoutes: false
+  }
+}
+```
+
+Use `publicDir` to change the public output folder when `publicAssets` is enabled. It defaults to `translationDir`. `publicAssets` controls the direct merged-directory copy, while `prerenderRoutes` controls generated `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json`.
+
 ### 🔒 Proxy & Security
 
 #### `metaTrustForwardedHost`

@@ -136,6 +136,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const loadOptions = {
     apiBaseUrl: i18nConfig.apiBaseUrl ?? '_locales',
     baseURL: runtimeConfig.app.baseURL,
+    apiBaseClientHost: i18nConfig.apiBaseClientHost,
+    apiBaseServerHost: i18nConfig.apiBaseServerHost,
     dateBuild: i18nConfig.dateBuild,
   }
 

@@ -14,6 +14,8 @@ declare global {
 export interface LoadOptions {
   apiBaseUrl: string
   baseURL: string
+  apiBaseClientHost?: string
+  apiBaseServerHost?: string
   dateBuild?: string | number
 }
 
@@ -65,12 +67,13 @@ class TranslationStorage {
   // ==========================================================================
 
   private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
-    const { apiBaseUrl, baseURL, dateBuild } = options
+    const { apiBaseUrl, baseURL, apiBaseClientHost, apiBaseServerHost, dateBuild } = options
     const page = routeName || 'index'
     const path = `/${apiBaseUrl}/${page}/${locale}/data.json`
+    const payloadBaseURL = import.meta.server ? apiBaseServerHost : apiBaseClientHost
 
     return (await $fetch(path.replace(/\/{2,}/g, '/'), {
-      baseURL,
+      baseURL: payloadBaseURL ?? baseURL,
       params: dateBuild ? { v: dateBuild } : undefined,
     })) as Record<string, unknown>
   }

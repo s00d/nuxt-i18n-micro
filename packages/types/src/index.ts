@@ -275,6 +275,15 @@ export interface ModuleOptions {
   translationDir?: string
 
   /**
+   * Controls how pre-merged translation payload files are emitted during build.
+   *
+   * Keep the defaults for the existing all-in-one behavior. For serverless or CDN-backed
+   * deployments, disable individual outputs to avoid duplicating large locale payloads in
+   * both Nitro server assets and public assets.
+   */
+  translationPayloads?: TranslationPayloadOptions
+
+  /**
    * Automatically detect the user's preferred language from the `Accept-Language` HTTP header.
    * Used in combination with `autoDetectPath` to decide when detection occurs.
    * @default true
@@ -454,6 +463,35 @@ export interface ModuleOptions {
    * Contents may change or be removed without notice between minor versions.
    */
   experimental?: Record<string, unknown>
+}
+
+export interface TranslationPayloadOptions {
+  /**
+   * Register the pre-merged translations directory as Nitro server assets.
+   * Required for the built-in local `_locales` server route and server middleware unless
+   * translations are fetched from `apiBaseServerHost`.
+   * @default true
+   */
+  serverAssets?: boolean
+
+  /**
+   * Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json`.
+   * Disable this when translation payloads are served from an external host/CDN.
+   * @default true
+   */
+  serverHandler?: boolean
+
+  /**
+   * Copy the pre-merged translations directory into Nitro public assets during production builds.
+   * @default true
+   */
+  publicAssets?: boolean
+
+  /**
+   * Public output directory for copied translation payloads, relative to Nitro's public directory.
+   * Defaults to `translationDir`.
+   */
+  publicDir?: string
 }
 
 /**

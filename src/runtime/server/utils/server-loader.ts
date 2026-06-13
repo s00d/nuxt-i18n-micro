@@ -42,6 +42,20 @@ function toTranslations(data: unknown): Translations {
   return {}
 }
 
+async function fetchExternalTranslations(config: ModuleOptionsExtend, locale: string, routeName: string): Promise<Translations> {
+  const apiBaseServerHost = config.apiBaseServerHost
+  if (!apiBaseServerHost) return {}
+
+  const apiBaseUrl = config.apiBaseUrl ?? '_locales'
+  const path = `/${apiBaseUrl}/${routeName}/${locale}/data.json`
+  const data = await $fetch(path.replace(/\/{2,}/g, '/'), {
+    baseURL: apiBaseServerHost,
+    params: config.dateBuild ? { v: config.dateBuild } : undefined,
+  })
+
+  return toTranslations(data)
+}
+
 // ============================================================================
 // PUBLIC API
 // ============================================================================
@@ -70,6 +84,16 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   const routesLocaleLinks = config.routesLocaleLinks || {}
   const resolvedPage = routesLocaleLinks[routeName] || routeName
   const normalizedPage = resolvedPage.replace(/\//g, ':')
+
+  if (config.apiBaseServerHost) {
+    const data = await fetchExternalTranslations(config, locale, resolvedPage)
+    const json = JSON.stringify(data).replace(/</g, '\\u003c')
+    const entry = { data, json }
+
+    cc.set(cacheKey, entry)
+    return entry
+  }
+
   const key = `${ASSETS_PREFIX}:pages:${normalizedPage}:${locale}.json`
 
   const loaded = await storage.getItem(key)

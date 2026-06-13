@@ -49,6 +49,20 @@ interface PreMergeLocaleInfo {
 
 const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
 
+export function resolveTranslationPayloadOptions(options: ModuleOptions) {
+  return {
+    serverAssets: options.translationPayloads?.serverAssets !== false,
+    serverHandler: options.translationPayloads?.serverHandler !== false,
+    publicAssets: options.translationPayloads?.publicAssets !== false,
+    publicDir: options.translationPayloads?.publicDir,
+  }
+}
+
+export function resolveTranslationPayloadPublicDir(outputPublicDir: string | undefined, options: ModuleOptions): string {
+  const translationPayloads = resolveTranslationPayloadOptions(options)
+  return path.join(outputPublicDir ?? './dist', translationPayloads.publicDir ?? options.translationDir ?? 'locales')
+}
+
 /**
  * Pre-merge all translation files at build time.
  *
@@ -223,6 +237,11 @@ export default defineNuxtModule<ModuleOptions>({
     apiBaseUrl: '_locales',
     apiBaseClientHost: undefined,
     apiBaseServerHost: undefined,
+    translationPayloads: {
+      serverAssets: true,
+      serverHandler: true,
+      publicAssets: true,
+    },
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
     canonicalQueryWhitelist: undefined,
@@ -264,6 +283,7 @@ export default defineNuxtModule<ModuleOptions>({
     // Executed in build:before hook to ensure buildDir exists.
     const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
     const translationDirName = options.translationDir || 'locales'
+    const translationPayloads = resolveTranslationPayloadOptions(options)
     const localeInfos: PreMergeLocaleInfo[] = (options.locales ?? []).map((l) =>
       typeof l === 'string' ? { code: l } : { code: l.code, fallbackLocale: l.fallbackLocale },
     )
@@ -543,10 +563,12 @@ export function getI18nPrivateConfig() { return __privateConfig }
       order: 10,
     })
 
-    addServerHandler({
-      route: `/${apiBaseUrl}/:page/:locale/data.json`,
-      handler: resolver.resolve('./runtime/server/routes/i18n'),
-    })
+    if (translationPayloads.serverHandler) {
+      addServerHandler({
+        route: `/${apiBaseUrl}/:page/:locale/data.json`,
+        handler: resolver.resolve('./runtime/server/routes/i18n'),
+      })
+    }
 
     if (options.components !== false) {
       addComponentsDir({
@@ -679,14 +701,16 @@ declare module '#i18n-internal/plural' {
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
 
-      // Mount pre-merged translation directory as a single server asset.
-      // Translations from all layers were merged at build time in preMergeLocales().
-      // This is critical for serverless support (Cloudflare Workers) where there is no direct FS access.
-      nitroConfig.serverAssets = nitroConfig.serverAssets || []
-      nitroConfig.serverAssets.push({
-        baseName: 'i18n',
-        dir: mergedLocalesDir,
-      })
+      if (translationPayloads.serverAssets) {
+        // Mount pre-merged translation directory as a single server asset.
+        // Translations from all layers were merged at build time in preMergeLocales().
+        // This is critical for serverless support (Cloudflare Workers) where there is no direct FS access.
+        nitroConfig.serverAssets = nitroConfig.serverAssets || []
+        nitroConfig.serverAssets.push({
+          baseName: 'i18n',
+          dir: mergedLocalesDir,
+        })
+      }
 
       if (nitroConfig.imports) {
         nitroConfig.imports.presets = nitroConfig.imports.presets || []
@@ -735,8 +759,8 @@ declare module '#i18n-internal/plural' {
 
     nuxt.hook('nitro:build:public-assets', (nitro) => {
       const isProd = nuxt.options.dev === false
-      if (isProd) {
-        const publicDir = path.join(nitro.options.output.publicDir ?? './dist', options.translationDir ?? 'locales')
+      if (isProd && translationPayloads.publicAssets) {
+        const publicDir = resolveTranslationPayloadPublicDir(nitro.options.output.publicDir, options)
 
         try {
           // Copy pre-merged translations (already contains all layers)

@@ -890,6 +890,59 @@ When `apiBaseServerHost` is set, server-side translations will be fetched from `
 Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/external domain hosting, and `apiBaseServerHost` for server-side CDN/external domain hosting. This allows you to use different CDNs for client and server requests.
 :::
 
+#### `translationPayloads`
+
+Controls where pre-merged translation payload files are emitted during build.
+
+**Type**:
+
+```typescript
+{
+  serverAssets?: boolean
+  serverHandler?: boolean
+  publicAssets?: boolean
+  publicDir?: string
+}
+```
+
+**Default**:
+
+```typescript
+{
+  serverAssets: true,
+  serverHandler: true,
+  publicAssets: true
+}
+```
+
+The defaults preserve the all-in-one behavior: translations are registered as Nitro server assets, the local `/{apiBaseUrl}/:page/:locale/data.json` handler is registered, and the merged files are copied to Nitro public assets during production builds.
+
+For serverless deployments with large locale sets, you can disable the duplicated local outputs and serve translation payloads from a CDN or object storage:
+
+```typescript
+i18n: {
+  apiBaseClientHost: 'https://cdn.example.com',
+  apiBaseServerHost: 'https://cdn.example.com',
+  translationPayloads: {
+    serverAssets: false,
+    serverHandler: false,
+    publicAssets: false
+  }
+}
+```
+
+If you only want to avoid copying payloads into public assets while keeping the built-in server route, disable `publicAssets` only:
+
+```typescript
+i18n: {
+  translationPayloads: {
+    publicAssets: false
+  }
+}
+```
+
+Use `publicDir` to change the public output folder when `publicAssets` is enabled. It defaults to `translationDir`.
+
 ### 🔒 Proxy & Security
 
 #### `metaTrustForwardedHost`

@@ -54,6 +54,7 @@ export function resolveTranslationPayloadOptions(options: ModuleOptions) {
     serverAssets: options.translationPayloads?.serverAssets !== false,
     serverHandler: options.translationPayloads?.serverHandler !== false,
     publicAssets: options.translationPayloads?.publicAssets !== false,
+    prerenderRoutes: options.translationPayloads?.prerenderRoutes !== false,
     publicDir: options.translationPayloads?.publicDir,
   }
 }
@@ -241,6 +242,7 @@ export default defineNuxtModule<ModuleOptions>({
       serverAssets: true,
       serverHandler: true,
       publicAssets: true,
+      prerenderRoutes: true,
     },
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
@@ -651,6 +653,8 @@ declare module '#i18n-internal/plural' {
     })
 
     const addDataRoutes = (pages: NuxtPage[] = []) => {
+      if (!translationPayloads.prerenderRoutes) return
+
       const pagesForDataRoutes = pages.filter((p) => p.name !== undefined && (!options.routesLocaleLinks || !options.routesLocaleLinks[p.name!]))
       const dataRoutes = routeGenerator.generateDataRoutes(pagesForDataRoutes, apiBaseUrl, !!options.disablePageLocales)
       addPrerenderRoutes(dataRoutes)

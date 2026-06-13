@@ -901,6 +901,7 @@ Controls where pre-merged translation payload files are emitted during build.
   serverAssets?: boolean
   serverHandler?: boolean
   publicAssets?: boolean
+  prerenderRoutes?: boolean
   publicDir?: string
 }
 ```
@@ -911,11 +912,12 @@ Controls where pre-merged translation payload files are emitted during build.
 {
   serverAssets: true,
   serverHandler: true,
-  publicAssets: true
+  publicAssets: true,
+  prerenderRoutes: true
 }
 ```
 
-The defaults preserve the all-in-one behavior: translations are registered as Nitro server assets, the local `/{apiBaseUrl}/:page/:locale/data.json` handler is registered, and the merged files are copied to Nitro public assets during production builds.
+The defaults preserve the all-in-one behavior: translations are registered as Nitro server assets, the local `/{apiBaseUrl}/:page/:locale/data.json` handler is registered, data routes are added to prerender output, and the merged files are copied to Nitro public assets during production builds.
 
 For serverless deployments with large locale sets, you can disable the duplicated local outputs and serve translation payloads from a CDN or object storage:
 
@@ -926,22 +928,24 @@ i18n: {
   translationPayloads: {
     serverAssets: false,
     serverHandler: false,
-    publicAssets: false
+    publicAssets: false,
+    prerenderRoutes: false
   }
 }
 ```
 
-If you only want to avoid copying payloads into public assets while keeping the built-in server route, disable `publicAssets` only:
+If you only want to avoid writing payloads into public output while keeping the built-in server route for SSR/runtime requests, disable both public outputs:
 
 ```typescript
 i18n: {
   translationPayloads: {
-    publicAssets: false
+    publicAssets: false,
+    prerenderRoutes: false
   }
 }
 ```
 
-Use `publicDir` to change the public output folder when `publicAssets` is enabled. It defaults to `translationDir`.
+Use `publicDir` to change the public output folder when `publicAssets` is enabled. It defaults to `translationDir`. `publicAssets` controls the direct merged-directory copy, while `prerenderRoutes` controls generated `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json`.
 
 ### 🔒 Proxy & Security
 

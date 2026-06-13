@@ -488,6 +488,14 @@ export interface TranslationPayloadOptions {
   publicAssets?: boolean
 
   /**
+   * Add translation data routes to Nuxt/Nitro prerender output.
+   * Disable this when `_locales` payloads are served from an external host/CDN or should not be
+   * materialized into public output.
+   * @default true
+   */
+  prerenderRoutes?: boolean
+
+  /**
    * Public output directory for copied translation payloads, relative to Nitro's public directory.
    * Defaults to `translationDir`.
    */

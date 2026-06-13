@@ -249,12 +249,13 @@ export default defineNuxtConfig({
       serverAssets: false,
       serverHandler: false,
       publicAssets: false,
+      prerenderRoutes: false,
     },
   },
 })
 ```
 
-Keep `serverAssets` and `serverHandler` enabled when you rely on the built-in local `/{apiBaseUrl}/:page/:locale/data.json` route. Disable them when payloads are hosted externally and `apiBaseServerHost` points at that external origin.
+Keep `serverAssets` and `serverHandler` enabled when you rely on the built-in local `/{apiBaseUrl}/:page/:locale/data.json` route. Disable them when payloads are hosted externally and `apiBaseServerHost` points at that external origin. Disable `prerenderRoutes` when you do not want Nitro to materialize `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json` into public output.
 
 ## 📝 Tips for Maximizing Performance
 

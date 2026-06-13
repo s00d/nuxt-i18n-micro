@@ -8,6 +8,7 @@ describe('translationPayloads build options', () => {
       serverAssets: true,
       serverHandler: true,
       publicAssets: true,
+      prerenderRoutes: true,
       publicDir: undefined,
     })
   })
@@ -19,6 +20,7 @@ describe('translationPayloads build options', () => {
           serverAssets: false,
           serverHandler: false,
           publicAssets: false,
+          prerenderRoutes: false,
           publicDir: '_payloads',
         },
       }),
@@ -26,6 +28,7 @@ describe('translationPayloads build options', () => {
       serverAssets: false,
       serverHandler: false,
       publicAssets: false,
+      prerenderRoutes: false,
       publicDir: '_payloads',
     })
   })

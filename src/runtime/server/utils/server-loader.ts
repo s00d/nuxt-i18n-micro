@@ -48,12 +48,16 @@ async function fetchExternalTranslations(config: ModuleOptionsExtend, locale: st
 
   const apiBaseUrl = config.apiBaseUrl ?? '_locales'
   const path = `/${apiBaseUrl}/${routeName}/${locale}/data.json`
-  const data = await $fetch(path.replace(/\/{2,}/g, '/'), {
-    baseURL: apiBaseServerHost,
-    params: config.dateBuild ? { v: config.dateBuild } : undefined,
-  })
+  try {
+    const data = await $fetch(path.replace(/\/{2,}/g, '/'), {
+      baseURL: apiBaseServerHost,
+      params: config.dateBuild ? { v: config.dateBuild } : undefined,
+    })
 
-  return toTranslations(data)
+    return toTranslations(data)
+  } catch {
+    return {}
+  }
 }
 
 // ============================================================================

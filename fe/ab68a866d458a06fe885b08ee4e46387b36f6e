@@ -1,0 +1,661 @@
+packages/solid/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-15,22-28,48-54,71-84
+packages/test-utils/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-14,22-25,27-33,50-52,66-68
+packages/types-generator/README.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 23
+test/fixtures/basic/pages/activity/skiing.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/custom-regex/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/test-utils/example/app/components/TestComponent.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 19
+playground/pages/dir1/subdir/[slug]-[id]-[key].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2,5
+test/fixtures/n3/app/pages/country/[countrySlug]/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/undefault/pages/activity-locale/skiing.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 14
+docs/.vitepress/seo.ts
+  s_43f7072b0cae73::t_96a9e5ce8c44d2 1-163
+docs/public/robots.txt
+  s_43f7072b0cae73::t_6190e5dfc08d2c 1-4
+packages/devtools-ui/src/views/I18nView.vue
+  s_43f7072b0cae73::t_a16b0938b0d1c4 64-67
+  s_43f7072b0cae73::t_c3be895aaace74 156-164
+  s_43f7072b0cae73::t_1dff8eb1b25208 5,8,14,37,42-45,52-53,56,59-60,72
+  s_43f7072b0cae73::t_b9692059226af1 184
+  s_43f7072b0cae73::t_0546a9673c044b 205,208
+test/fixtures/custom-regex/pages/locale-test.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,11,14,18-19
+docs/guide/migration.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/path-strategy/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-15,22-28,101-103,124-126
+test/fixtures/undefault/pages/activity-locale/hiking.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/astro/playground/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,15-18,25-26
+playground/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 24,33-34,39-40,48,54-55,70,73,78-81
+packages/devtools-ui/src/components/ui/Loader.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 55-60
+test/fixtures/sitemap/pages/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10-14,23,26,29,37-38
+test/fixtures/i18n/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,11-12
+docs/scripts/generate-og-image.mjs
+  s_43f7072b0cae73::t_da907e566fa8e4 1-43
+src/runtime/components/i18n-group.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/n3/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 12-13
+packages/route-strategy/src/utils/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 11
+test/fixtures/undefault/pages/unlocalized.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10-14,19-20
+docs/guide/crowdin.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/node/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-14,21-27,47-54,69-70
+packages/test-utils/README.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 46,55,64,73,89-90
+test/fixtures/basic/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/basic/pages/locale-test.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,11,14,17,20,27,34,41,45,49-51
+test/fixtures/custom-regex/pages/unlocalized.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10-14,23,26,29,37-38
+packages/path-strategy/tests/publish/subpaths.publish.test.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 25
+packages/node/src/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 11
+packages/path-strategy/README.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 18-25,99-101,116-123,144-162,168-178
+test/fixtures/async-components/components/test/SimpleAsyncComponent.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2,7-12,17
+docs/composables/index.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+docs/guide/runtime-overrides.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+src/runtime/plugins/01.plugin.ts
+  s_43f7072b0cae73::t_30f0124d7fe799 30
+.oxlintrc.json
+  s_43f7072b0cae73::t_e735888025cc8a 60-70
+  s_43f7072b0cae73::t_ee31ab45eed3c8 3
+  s_43f7072b0cae73::t_783724ecd3ebc9 2,4,6-7,9-11,13-23,26-27
+  s_43f7072b0cae73::t_f8c0e68aa0d4e4 5,8,28-37,39-40,42-59,73
+  s_43f7072b0cae73::t_9409a6d48178f1 24-25
+  s_43f7072b0cae73::t_686d8e6eb5d42a 41
+packages/devtools-ui/src/components/data/StatItem.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 12,23
+test/fixtures/n3/app/pages/country/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+docs/guide/devtools.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/multi-domain-locales.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+playground/pages/news/[id].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-7,16-17,22,25,28,31
+playground/pages/node-i18n-demo.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 9-13,19-24,28,31,33,35,43-45,54-57,62-64
+test/fixtures/content/pages/[key]/[...slug].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5,7-8
+test/fixtures/layer/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/devtools-ui/src/components/data/TreeItem.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,5,9,18,22,26,28-30,34,46
+test/fixtures/n3/app/pages/topic/[...all].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+docs/guide/layers.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/testing.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/firebase.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+client/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 8-10
+playground/components/navigation.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,29
+docs/integrations/vue-package.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/server-side-translations.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/integrations/nodejs-package.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/devtools-ui/src/components/layout/SplitPane.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2,4,9,14,19
+test/fixtures/custom-regex/pages/news/[id].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3-4,6-8,18-19,27,32-34
+test/fixtures/custom-regex-fail/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,7-8
+test/fixtures/async-components/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,15
+docs/components/index.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+playground/pages/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,26,63,68,72-73,75,79,85,87,89
+test/fixtures/basic/pages/custom-props.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7
+packages/core/README.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 70,81,104,108,113,122,133
+packages/path-strategy/src/resolver.ts
+  s_43f7072b0cae73::t_5b6746e35bae30 92
+test/fixtures/n3/app/pages/page-is-gone.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/plain-nuxt/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,8,11
+packages/path-strategy/src/strategies/prefix-and-default.ts
+  s_43f7072b0cae73::t_ede4005f18c610 113
+test/fixtures/define-i18n-route/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1
+test/fixtures/hub-i18n/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 13-15
+docs/integrations/index.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/plain-nuxt/pages/de/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,12
+  s_43f7072b0cae73::t_441ff97e67f7dd 27
+packages/core/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-14,22-25,27-33,50-52,68-70
+packages/route-strategy/README.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 47,72-78,93
+test/fixtures/basic/pages/activity/skiing-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 13
+test/fixtures/custom-regex/pages/articles/[id].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3-4,6,9-11
+playground/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/n3/app/pages/search/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/cookie/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,7-8
+test/fixtures/custom-regex/pages/activity/skiing-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 13
+test/fixtures/fallback-locale/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/hook/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4
+src/runtime/components/i18n-switcher.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5,14,17-18,32,34,37
+test/fixtures/fallback-locale/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4
+docs/integrations/react-package.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/devtools-ui/src/components/ui/Button.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2
+packages/devtools-ui/src/views/SettingsView.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-6
+packages/hmr/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-13,21-24,26-31,69-71,89-91
+test/fixtures/cookie/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4
+packages/vue/src/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 21
+packages/react/playground/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 15-16,26-27
+playground/pages/no_prefix.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4-6,10-11,40
+test/fixtures/content/components/content/ln.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/plain-nuxt/pages/page.vue
+  s_43f7072b0cae73::t_32fab56661548e 27
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,12
+packages/preact/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-14,21-27,47-54,74-78
+packages/preact/playground/index.html
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4-6
+docs/guide/getting-started.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/seo.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/react/playground/index.html
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4-6
+test/fixtures/plain-nuxt/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/named/pages/test-[id].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7
+test/fixtures/plain-nuxt/pages/de/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,8,11
+test/fixtures/n3/app/pages/searchMap/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+packages/devtools-ui/src/components/ui/Modal.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,13,21-22,34
+playground/pages/dir1/subdir/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2
+test/fixtures/n3/app/pages/campsite/[identifier]/media/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/seo-auto/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7
+test/fixtures/custom-regex/pages/activity/hiking-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 13
+docs/integrations/solid-package.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/undefault/pages/activity/skiing-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 14
+packages/devtools-ui/src/App.ce.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8
+packages/devtools-ui/src/components/ui/icons/ServerIcon.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 12-14
+test/fixtures/hook/modules/pages/pages/test.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5,7
+test/fixtures/basic/pages/missing-handler-test.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 9-10
+packages/devtools-ui/src/components/ui/icons/GlobeIcon.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 12-13
+test/fixtures/basic/pages/activity/hiking-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 13
+test/fixtures/basic/pages/locale-conf.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,11,14,17-18
+packages/devtools-ui/src/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 35
+test/fixtures/pages-false/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 15-16
+test/fixtures/typecheck/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+docs/guide/performance.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/hook/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 11
+test/fixtures/typecheck/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1
+packages/path-strategy/bench/index.html
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,3-198,200,202-212,214-233,235-236
+packages/vue/playground/index.html
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4-6
+test/fixtures/basic/pages/news/[id].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3-4,6-8,18-19,27,32-34
+test/fixtures/named/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 28-35
+test/fixtures/pages-false-no-prefix/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 30-31
+packages/path-strategy/src/strategies/prefix-except-default.ts
+  s_43f7072b0cae73::t_6bb15be13a834f 248
+  s_43f7072b0cae73::t_fe6a2b37952379 99
+  s_43f7072b0cae73::t_aec3628231aea3 147
+docs/api/index.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+test/fixtures/basic/pages/activity-locale/hiking.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/path-strategy/src/strategies/common.ts
+  s_43f7072b0cae73::t_1fd0c54b49ee8d 129
+docs/guide/excluding-static-files.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+docs/guide/performance-results.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/async-components/components/test/ConditionalAsyncComponent.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6-11
+test/fixtures/n3/app/assets/css/tailwind.css
+  s_43f7072b0cae73::t_1dff8eb1b25208 1
+packages/preact/src/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 6
+test/fixtures/undefault/pages/page2.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 11,13,15
+test/fixtures/undefault/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/solid/playground/index.html
+  s_43f7072b0cae73::t_1dff8eb1b25208 1
+docs/guide/strategy.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+test/fixtures/basic/pages/unlocalized.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10-14,23,26,29,37-38
+test/fixtures/undefault/pages/activity.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4-6,8-9,11,17
+docs/components/i18n-link.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/using.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+packages/devtools-ui/src/components/ui/Tabs.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3-6
+test/fixtures/custom-regex/pages/activity-locale/skiing.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 13
+test/fixtures/i18n-micro/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/devtools-ui/src/types/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 5
+docs/integrations/astro-package.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+pnpm-workspace.yaml
+  s_43f7072b0cae73::t_4ff606fb8f6236 81-82
+test/fixtures/named/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/devtools-ui/src/components/ui/icons/SettingsIcon.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 12-14
+test/fixtures/seo/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/node/playground/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 12
+test/fixtures/custom-regex/pages/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10-14,23,26,29,37-38
+playground/pages/loadPageTranslations-test.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 17
+packages/path-strategy/tests/publish/strategies.publish.test.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 23
+test/fixtures/define-i18n-route/pages/product/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 46-47,50,52-53
+test/fixtures/content/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/devtools-ui/src/styles/main.css
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,5
+docs/composables/useI18n.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/vue/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-15,22-28,48-57,62-74,84-85
+docs/public/favicon.svg
+  s_43f7072b0cae73::t_defe9650154bc1 1-37
+packages/devtools-ui/src/components/ui/Pagination.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,8,11,15,21-22,28,92-94
+test/fixtures/basic/pages/alias-test.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 22-27,30,33,38,41-42
+test/fixtures/fallback-locale/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,7-10
+docs/guide/custom-auto-detect.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/basic/pages/activity.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4-6,8-9,11,17
+test/fixtures/n3/app/pages/home/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/route-rules.test.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-10,12-17
+test/fixtures/n3/app/pages/popularRegion/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+packages/devtools-ui/src/components/editor/TranslationControls.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 11-13,17,23,28,34,36,41,45,51-54,56,61,67-68,72,77,83-85,87
+test/fixtures/basic/pages/activity/hiking.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+.oxfmtrc.json
+  s_43f7072b0cae73::t_c5a649106bfa93 17
+  s_43f7072b0cae73::t_0bb24641fa26d3 1-16,26-27
+  s_43f7072b0cae73::t_c746e3dc1ff30c 18-25
+test/fixtures/define-i18n-route/pages/product/[...slug].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6-7
+test/fixtures/seo-auto/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/undefault/pages/activity-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 15-17
+test/fixtures/basic/pages/articles/[id].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3-4,6,9-11
+test/fixtures/undefault/pages/activity/hiking-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 14
+src/module.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 39
+test/fixtures/named/pages/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 16
+test/fixtures/i18n-micro/pages/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,14,20
+packages/astro/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-14,21-28,79-87,91,94-95,97-100,102-110,112-113,129-130
+test/fixtures/content/content/contact.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 2-3
+playground/pages/dir1/subdir/[hash]/[subhash].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2,5
+docs/guide/per-component-translations.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/v3-upgrade.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/integrations/devtools-ui-package.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/custom-regex/pages/dir1/[slug].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 9
+packages/devtools-ui/src/components/data/Statistics.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5,9-11,16,19,23,162-164
+test/fixtures/n3/app/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4,6
+docs/integrations/types-generator.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/preact/playground/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 15-16,22-23
+packages/vue/playground/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 20-21
+test/fixtures/i18n/pages/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,12,16
+docs/api/methods.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/solid/playground/src/index.css
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,10
+docs/api/i18n-cache-api.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+test/fixtures/i18n-micro/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,9,15,18
+packages/route-strategy/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-32,34,37-43,57-58,76
+test/fixtures/cookie/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+.github/workflows/ci.yml
+  s_43f7072b0cae73::t_880de44145c3cd 35
+playground/pages/articles/[id].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3-4,6,9-11
+packages/vue/playground/src/App.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,7,10
+test/fixtures/custom-regex-fail/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4
+src/runtime/composables/useI18nLocale.ts
+  s_43f7072b0cae73::t_11f559f182bb8a 70
+src/runtime/components/i18n-link.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2,6
+test/fixtures/sitemap/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+docs/guide/faq.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+pnpm-lock.yaml
+  s_43f7072b0cae73::t_96a9e5ce8c44d2 156-161,307,338-343,4734-4961,10194-10211,11557-11560,13939,15353,15370,15697,15715,15996,16016,16027,16755-16868,18733,18739,23825,23831,23834,24280-24325,25964-25965,26715,26730
+packages/devtools-ui/src/components/data/LocaleTable.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7,10,19,33,42,182-196
+packages/devtools-ui/src/components/layout/ActionBar.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,8,12,27
+packages/types/README.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 71,75,79,87,91,95,99,103,107,111,115,119
+docs/components/i18n-group.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+docs/guide/cli.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/undefault/pages/activity/hiking.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/serverless/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/custom-regex/pages/page2.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10-14,23,26,29,37-38
+test/fixtures/n3/app/pages/city/[citySlug]/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/n3/app/pages/country/[countrySlug]/[federalStateSlug]/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+docs/components/i18n-t.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/redirect/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+docs/.vitepress/config.mts
+  s_43f7072b0cae73::t_f8f6ea7a601176 5
+  s_43f7072b0cae73::t_36858b9b39f053 35-36,42
+  s_43f7072b0cae73::t_4b770b4e149806 46-48
+  s_43f7072b0cae73::t_6b63ef75f0c4ac 27
+  s_43f7072b0cae73::t_62b3af235845d5 26,32-34,43-44,49-50
+  s_43f7072b0cae73::t_a1c59d7d371bc6 37-41
+docs/index.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-5
+packages/utils/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-13,21-24,26-31,223-225,243-245
+test/fixtures/transition-merge/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/custom-regex-fail/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/seo/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7,9
+test/fixtures/basic/pages/activity-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 15-17
+test/fixtures/async-components/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,11,18-23
+test/fixtures/n3/app/pages/campsite/[identifier]/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/n3/app/pages/info/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/translation-watcher/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+package.json
+  s_43f7072b0cae73::t_defe9650154bc1 103
+  s_43f7072b0cae73::t_735c043322b5b3 104
+  s_43f7072b0cae73::t_989f112d1038cf 77-80
+  s_43f7072b0cae73::t_6200fbe4ffadc6 127-128
+test/fixtures/n3/app/pages/campsite/[identifier]/rate/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/async-components/components/test/DelayedAsyncComponent.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5,8
+test/fixtures/pages-false/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+packages/devtools-ui/src/components/config/DiffViewer.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-7,13,16,33
+test/fixtures/hub-i18n/app/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 36,49-60
+test/fixtures/undefault/pages/activity/skiing.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+docs/components/i18n-switcher.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/strategy/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/async-components/components/test/MultipleAsyncComponent1.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6-11,14,17
+playground/pages/subpage.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,8,23-34,117-118,126-134,142,148,150
+test/fixtures/plain-nuxt/pages/ru/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,8,11
+test/fixtures/n3/app/pages/campsite/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/basic/pages/old-product.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5
+test/fixtures/n3/app/pages/info/[...all].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/n3/app/pages/topic/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+packages/solid/src/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 6
+.prettierignore
+  s_43f7072b0cae73::t_94200c6611edc8 1
+packages/devtools-ui/src/views/ConfigView.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5,26
+test/fixtures/async-components/pages/async-components-test-2.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,11,17,24,28,32,38,49,61-63,68
+test/fixtures/basic/pages/client.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/custom-regex/pages/activity.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4-6,8-9,11,17
+packages/astro/src/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 7,15,23,26
+docs/examples.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/devtools-ui/src/components/editor/TranslationEditor.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10,12-17,37
+test/fixtures/hashmode/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/async-components/components/test/MultipleAsyncComponent3.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6-11,14,17
+docs/guide/folder-structure.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+test/fixtures/content/content/about.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 2-3
+packages/solid/playground/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 15-18,21,23
+test/fixtures/custom-regex/pages/activity-locale.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 15-17
+packages/astro/playground/src/components/islands/VueCounter.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 53,62
+packages/types/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-13,21-24,26-32,49-51,61-63
+test/fixtures/async-components/components/test/MultipleAsyncComponent2.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6-11,14,17
+test/fixtures/basic/pages/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7,14-18,30,33,36,84-85,89,93
+playground/pages/contact.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-8
+client/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2
+test/fixtures/pages-false-no-prefix/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/undefault/pages/post/[id]/[status]/[section].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 4,7
+test/fixtures/strategy/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7,9,11,13
+test/fixtures/n3/app/app.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 7
+packages/vue/playground/src/pages/Components.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 9-22,27-31
+test/fixtures/n3/app/pages/sea/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/basic/pages/page2.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6,10-14,23,26,29,37-38
+docs/composables/useI18nLocale.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+test/fixtures/custom-regex/pages/locale-conf.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,11,14,17-18
+docs/news/index.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+  s_43f7072b0cae73::t_e05dd21261f357 80
+test/fixtures/n3/app/pages/popularRegion/[regionSlug]/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/i18n/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,9,13,16
+test/fixtures/custom-regex/pages/activity-locale/hiking.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,11
+test/fixtures/basic/pages/activity-locale/skiing.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 13
+test/fixtures/custom-regex/pages/activity/skiing.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,11
+test/fixtures/hook/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/custom-regex/pages/activity/hiking.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3
+test/fixtures/basic/pages/inventory.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 6-7
+test/fixtures/content/components/content/i18n.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 2
+docs/api/events.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/react/src/index.ts
+  s_43f7072b0cae73::t_1dff8eb1b25208 6
+test/fixtures/async-components/pages/async-components-test.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,11,17,24,31,38,42,46,52,59,71-73,78
+test/fixtures/content/content/services.md
+  s_43f7072b0cae73::t_1dff8eb1b25208 2-3
+test/fixtures/n3/app/pages/sea/[...all].vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 1,4
+test/fixtures/plain-nuxt/pages/ru/page.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3,12
+  s_43f7072b0cae73::t_41bb52dc623cfa 27
+packages/devtools-ui/src/components/ui/StatusIndicator.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 3-4
+packages/types-generator/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-15,17-21,27-33,85-90
+docs/guide/custom-locale-routes.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/storybook.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 1-5
+docs/integrations/preact-package.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+packages/devtools-ui/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-8,15-21,56-62,79-80
+docs/composables/useLocaleHead.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+docs/guide/contribution.md
+  s_43f7072b0cae73::t_1a30e77473c6d9 2-4
+  s_43f7072b0cae73::t_7ea3be30979242 112
+packages/react/package.json
+  s_43f7072b0cae73::t_1dff8eb1b25208 5-14,21-27,47-54,74-84
+test/fixtures/basic/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 12
+test/fixtures/hashmode/pages/index.vue
+  s_43f7072b0cae73::t_1dff8eb1b25208 8,12,14,17-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "feab68a866d458a06fe885b08ee4e46387b36f6e",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

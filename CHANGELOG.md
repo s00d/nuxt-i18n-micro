@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v3.19.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.3...v3.19.0)
+
+### 🚀 Enhancements
+
+- Extract @i18n-micro/utils and @i18n-micro/hmr packages ([6a89c98c](https://github.com/s00d/nuxt-i18n-micro/commit/6a89c98c))
+
+### 🩹 Fixes
+
+- Add translation payload output controls ([246a5b9a](https://github.com/s00d/nuxt-i18n-micro/commit/246a5b9a))
+- Control prerendered translation payloads ([a8987a7e](https://github.com/s00d/nuxt-i18n-micro/commit/a8987a7e))
+- **release:** Fail fast when npm registry auth is missing ([c62d1cbf](https://github.com/s00d/nuxt-i18n-micro/commit/c62d1cbf))
+
+### 📖 Documentation
+
+- Refresh v3.19.0 guides, assets, and text-to-i18n demo ([e36e89ec](https://github.com/s00d/nuxt-i18n-micro/commit/e36e89ec))
+
+### ✅ Tests
+
+- Add translation watcher and source mode e2e coverage ([234c6171](https://github.com/s00d/nuxt-i18n-micro/commit/234c6171))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Denis <denisamania@gmail.com>
+
 ## v3.18.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.2...v3.18.3)

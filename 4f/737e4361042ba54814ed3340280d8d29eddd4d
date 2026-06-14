@@ -1,0 +1,162 @@
+docs/integrations/types-generator.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/components/i18n-group.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/seo.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/layers.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/api/index.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/getting-started.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/integrations/astro-package.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/examples.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/excluding-static-files.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/api/methods.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/contribution.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/strategy.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/performance-results.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/custom-locale-routes.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/cli.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/faq.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/integrations/nodejs-package.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/migration.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/integrations/vue-package.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/integrations/devtools-ui-package.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/firebase.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/runtime-overrides.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/api/i18n-cache-api.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/integrations/index.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/composables/useI18nLocale.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/components/i18n-link.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/multi-domain-locales.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/integrations/preact-package.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/integrations/solid-package.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/composables/useLocaleHead.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/storybook.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/custom-auto-detect.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/.vitepress/config.mts
+  s_43f7072b0cae73::t_a705d8bb944f81 48-50
+  s_43f7072b0cae73::t_6798ca0d0f444d 32
+  s_43f7072b0cae73::t_e1444f0e01e328 7-8
+docs/index.md
+  s_43f7072b0cae73::t_930231492c7923 2,5-7
+  s_43f7072b0cae73::t_7b5703a97c6464 4
+docs/components/i18n-t.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/composables/useI18n.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/crowdin.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/news/index.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/folder-structure.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/testing.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/api/events.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/devtools.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/integrations/react-package.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+package.json
+  s_43f7072b0cae73::t_db642692cf7b16 103
+docs/guide/using.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/components/i18n-switcher.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/performance.md
+  s_43f7072b0cae73::t_930231492c7923 4
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/composables/index.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/server-side-translations.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/guide/v3-upgrade.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+docs/components/index.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+docs/guide/per-component-translations.md
+  s_43f7072b0cae73::t_7b5703a97c6464 3
+  s_43f7072b0cae73::t_930231492c7923 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "4f737e4361042ba54814ed3340280d8d29eddd4d",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

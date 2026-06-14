@@ -45,6 +45,13 @@
       },
       "default": "./dist/index.mjs"
     },
+    "./publish-smoke": {
+      "import": {
+        "types": "./src/publish-smoke.ts",
+        "default": "./src/publish-smoke.ts"
+      },
+      "default": "./src/publish-smoke.ts"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

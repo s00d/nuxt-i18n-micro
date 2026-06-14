@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { getLoadedModule, packageRootFromImportMeta, smokeLoadExports } from '../../../test-utils/src/publish-smoke'
+import { getLoadedModule, packageRootFromImportMeta, smokeLoadExports } from '@i18n-micro/test-utils/publish-smoke'
 
 const packageRoot = packageRootFromImportMeta(import.meta.url)
 const pkg = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))

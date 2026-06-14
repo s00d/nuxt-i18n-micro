@@ -6,18 +6,8 @@
     <div id="handler-status">
       {{ handlerStatus }}
     </div>
-    <button
-      id="set-handler"
-      @click="setHandler"
-    >
-      Set Handler
-    </button>
-    <button
-      id="remove-handler"
-      @click="removeHandler"
-    >
-      Remove Handler
-    </button>
+    <button id="set-handler" @click="setHandler">Set Handler</button>
+    <button id="remove-handler" @click="removeHandler">Remove Handler</button>
     <div id="console-warnings">
       {{ consoleWarnings.length }}
     </div>

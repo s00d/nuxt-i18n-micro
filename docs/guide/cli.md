@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "nuxt-i18n-micro-cli Guide"
+description: "CLI for extraction, text-to-i18n, and translation workflows."
+outline: "deep"
 ---
 
 # 🌐 nuxt-i18n-micro-cli Guide

@@ -16,8 +16,6 @@ const message = props.message || $t('defaultMessage')
 <template>
   <div>
     <p>Test from component: {{ $t('welcome') }}</p>
-    <p data-testid="message">
-      Test message from props: {{ message }}
-    </p>
+    <p data-testid="message">Test message from props: {{ message }}</p>
   </div>
 </template>

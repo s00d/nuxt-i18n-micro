@@ -1,3 +1,8 @@
+---
+title: "Translation Cache & Storage Architecture"
+description: "Translation cache layers and payload modes in v3."
+---
+
 # 🗄️ Translation Cache & Storage Architecture
 
 ## 📖 Overview

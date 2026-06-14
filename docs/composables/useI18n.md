@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "`useI18n` Composable"
+description: "Access i18n features in components and scripts."
+outline: "deep"
 ---
 
 # 🛠️ `useI18n` Composable

@@ -8,13 +8,7 @@ const { $t } = useNuxtApp()
   <div>
     <h1>Index</h1>
 
-    <NuxtLink
-      id="test-page"
-      class="underline"
-      to="/test"
-    >
-      Test
-    </NuxtLink>
+    <NuxtLink id="test-page" class="underline" to="/test"> Test </NuxtLink>
 
     <p id="hook">
       {{ $t('hook') }}

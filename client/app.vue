@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="app"
-    ref="appContainer"
-  />
+  <div id="app" ref="appContainer" />
 </template>
 
 <script setup lang="ts">

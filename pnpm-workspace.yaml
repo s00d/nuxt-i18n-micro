@@ -78,7 +78,8 @@ catalog:
   '@babel/preset-env': ^7.26.0
   # Docs & lint
   vitepress: ^1.6.4
-  '@biomejs/biome': ^2.3.14
+  oxfmt: ^0.43.0
+  oxlint: ^1.58.0
   changelogen: ^0.5.7
   # Utils
   chokidar: ^3.6.0

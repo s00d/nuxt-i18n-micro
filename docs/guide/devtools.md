@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "DevTools in `nuxt-i18n-micro`"
+description: "Built-in DevTools for managing translations."
+outline: "deep"
 ---
 
 # 🛠️ DevTools in `nuxt-i18n-micro`

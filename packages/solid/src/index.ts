@@ -3,17 +3,7 @@
 // Re-export utilities from core
 export { defaultPlural, FormatService, interpolate } from '@i18n-micro/core'
 // Re-export types from @i18n-micro/types
-export type {
-  CleanTranslation,
-  Getter,
-  Locale,
-  LocaleCode,
-  ModuleOptions,
-  Params,
-  PluralFunc,
-  TranslationKey,
-  Translations,
-} from '@i18n-micro/types'
+export type { CleanTranslation, Getter, Locale, LocaleCode, ModuleOptions, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 export { I18nGroup } from './components/I18nGroup'
 export { I18nLink } from './components/I18nLink'
 export { I18nSwitcher } from './components/I18nSwitcher'

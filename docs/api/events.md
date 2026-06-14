@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Events"
+description: "Register translations at runtime with the i18n:register event."
+outline: "deep"
 ---
 
 # 📢 Events

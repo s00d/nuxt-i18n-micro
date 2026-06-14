@@ -1,9 +1,6 @@
 <template>
   <div :class="['i18n-group', groupClass]">
-    <slot
-      :prefix="prefix"
-      :t="translate"
-    />
+    <slot :prefix="prefix" :t="translate" />
   </div>
 </template>
 

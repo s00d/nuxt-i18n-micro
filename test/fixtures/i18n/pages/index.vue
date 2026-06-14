@@ -1,33 +1,19 @@
 <template>
   <div>
-    <h2 id="ok">
-      ok
-    </h2>
+    <h2 id="ok">ok</h2>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
     <p>Current Locale: {{ locale }}</p>
 
     <!-- Links for switching locales -->
     <div>
-      <button
-        v-for="value in locales"
-        :key="value"
-        :disabled="value === currentLocale"
-        @click="switchLocale(value)"
-      >
-        Switch to {{ value }}
-      </button>
+      <button v-for="value in locales" :key="value" :disabled="value === currentLocale" @click="switchLocale(value)">Switch to {{ value }}</button>
     </div>
 
     <div>
-      <NuxtLink :to="localeRoute({ name: 'page' })">
-        Go to Page
-      </NuxtLink>
+      <NuxtLink :to="localeRoute({ name: 'page' })"> Go to Page </NuxtLink>
     </div>
 
-    <div
-      v-for="key in generatedKeys"
-      :key="key"
-    >
+    <div v-for="key in generatedKeys" :key="key">
       <p>{{ key }}: {{ $t(key) }}</p>
     </div>
   </div>

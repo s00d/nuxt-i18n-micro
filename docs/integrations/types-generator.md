@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Types Generator (`@i18n-micro/types-generator`)"
+description: "Generate TypeScript types from locale JSON."
+outline: "deep"
 ---
 
 # 🔧 Types Generator (`@i18n-micro/types-generator`)

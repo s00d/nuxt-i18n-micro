@@ -1,10 +1,10 @@
 <template>
   <div>section</div>
   <div id="name">
-    {{ $ts("name") }}
+    {{ $ts('name') }}
   </div>
   <div id="name-page">
-    {{ $ts("name-page") }}
+    {{ $ts('name-page') }}
   </div>
 </template>
 

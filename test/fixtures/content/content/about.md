@@ -1,6 +1,6 @@
 ---
-title: "About Us"
-description: "Learn more about our mission and values."
+title: 'About Us'
+description: 'Learn more about our mission and values.'
 ---
 
 ---

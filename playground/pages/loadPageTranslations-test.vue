@@ -14,9 +14,7 @@
     </div>
 
     <div>
-      <button @click="loadTestTranslations">
-        Load Test Translations
-      </button>
+      <button @click="loadTestTranslations">Load Test Translations</button>
     </div>
 
     <div v-if="translationsLoaded">

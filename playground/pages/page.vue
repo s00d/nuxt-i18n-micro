@@ -1,10 +1,7 @@
 <template>
   <div>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
-    <i18n-t
-      keypath="key1.key1.key1.key1.key1"
-      tag="h1"
-    >
+    <i18n-t keypath="key1.key1.key1.key1.key1" tag="h1">
       <template #default="{ translation }">
         <strong>{{ translation.replace('page', 'page replace') }}</strong> <i>!!!</i>
       </template>
@@ -26,10 +23,7 @@
         </div>
         <p>{{ t('description') }}</p>
         <ul>
-          <li
-            v-for="(feature, index) in ['durability', 'design', 'performance']"
-            :key="index"
-          >
+          <li v-for="(feature, index) in ['durability', 'design', 'performance']" :key="index">
             {{ t(`features.${feature}`) }}
           </li>
         </ul>
@@ -66,59 +60,33 @@
 
     <div>
       i18n-t plural
-      <i18n-t
-        keypath="apples"
-        :plural="appleCount"
-        :custom-plural-rule="customPluralRule"
-      />
+      <i18n-t keypath="apples" :plural="appleCount" :custom-plural-rule="customPluralRule" />
     </div>
 
     <div>
       i18n-t plural with params
-      <i18n-t
-        keypath="user_apples"
-        :plural="appleCount"
-        :params="{ username: 'Alice' }"
-        :custom-plural-rule="customPluralRule"
-      />
+      <i18n-t keypath="user_apples" :plural="appleCount" :params="{ username: 'Alice' }" :custom-plural-rule="customPluralRule" />
     </div>
 
     <!-- Formatted number and date examples -->
-    <div>
-      Formatted Number: {{ $tn(1234567.89) }}
-    </div>
-    <div>
-      Formatted Date: {{ $td('2023-12-31') }}
-    </div>
+    <div>Formatted Number: {{ $tn(1234567.89) }}</div>
+    <div>Formatted Date: {{ $td('2023-12-31') }}</div>
 
-    <div>
-      Formatted Date: {{ $tdr('2023-12-31') }}
-    </div>
+    <div>Formatted Date: {{ $tdr('2023-12-31') }}</div>
 
     <!-- Links for locale switching -->
     <div>
-      <button
-        v-for="val in $getLocales()"
-        :key="val.code"
-        :disabled="val.code === locale"
-        @click="() => $switchLocale(val.code)"
-      >
+      <button v-for="val in $getLocales()" :key="val.code" :disabled="val.code === locale" @click="() => $switchLocale(val.code)">
         Switch to {{ val.code }}
       </button>
     </div>
 
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })">
-        Go to Index
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'index' })"> Go to Index </NuxtLink>
       |
-      <NuxtLink :to="$localeRoute({ name: 'subpage' })">
-        Go to subpage
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'subpage' })"> Go to subpage </NuxtLink>
       |
-      <NuxtLink :to="$localeRoute({ name: 'subpage' }, 'en')">
-        Go to subpage en
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'subpage' }, 'en')"> Go to subpage en </NuxtLink>
     </div>
   </div>
 </template>

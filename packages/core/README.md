@@ -67,14 +67,7 @@ console.log(formattedDate) // '10/5/2023'
 console.log(formattedRelativeTime) // 'just now'
 
 // Handle locale-specific routing
-const routeService = new RouteService(
-  i18nConfig,
-  router,
-  hashLocaleDefault,
-  noPrefixDefault,
-  navigateTo,
-  setCookie
-)
+const routeService = new RouteService(i18nConfig, router, hashLocaleDefault, noPrefixDefault, navigateTo, setCookie)
 
 const localizedRoute = routeService.getLocalizedRoute('/about', currentRoute, 'en')
 console.log(localizedRoute) // Localized route object
@@ -85,6 +78,7 @@ console.log(localizedRoute) // Localized route object
 ### `useTranslationHelper`
 
 #### Methods
+
 - **`hasCache(locale: string, page: string): boolean`**:
   Checks if translations for a specific route and locale are cached.
 - **`getCache(locale: string, routeName: string): Map<string, Translations | unknown> | undefined`**:
@@ -107,13 +101,16 @@ console.log(localizedRoute) // Localized route object
 ### `interpolate`
 
 #### Function
+
 ```typescript
 interpolate(template: string, params: Params): string
 ```
+
 - **`template`**: The translation string with placeholders (e.g., `'Hello, {name}!'`).
 - **`params`**: An object containing key-value pairs for interpolation (e.g., `{ name: 'John' }`).
 
 #### Example
+
 ```typescript
 const result = interpolate('Hello, {name}!', { name: 'John' })
 console.log(result) // 'Hello, John!'
@@ -122,6 +119,7 @@ console.log(result) // 'Hello, John!'
 ### `FormatService`
 
 #### Methods
+
 - **`formatNumber(value: number, locale: string, options?: Intl.NumberFormatOptions): string`**:
   Formats a number according to the specified locale and options.
 - **`formatDate(value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions): string`**:
@@ -132,6 +130,7 @@ console.log(result) // 'Hello, John!'
 ### `RouteService`
 
 #### Methods
+
 - **`getCurrentLocale(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string`**:
   Returns the current locale based on the route or configuration.
 - **`getCurrentName(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric): string | null`**:

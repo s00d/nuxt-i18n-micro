@@ -1,3 +1,8 @@
+---
+title: "Runtime i18n Overrides"
+description: "Per-environment locale defaults at runtime."
+---
+
 # Runtime i18n Overrides
 
 Use this guide when you need one build artifact to run with different locale defaults per environment (for example: different tenant instances).

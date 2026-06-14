@@ -3,20 +3,18 @@
     <h3>{{ $t('multiple-async-component-2::title') }}</h3>
     <p>{{ $t('multiple-async-component-2::description') }}</p>
     <div class="component-info">
-      <p><strong>{{ $t('multiple-async-component-2::componentId') }}:</strong> Multiple Async Component 2</p>
-      <p><strong>{{ $t('multiple-async-component-2::status') }}:</strong> {{ $t('multiple-async-component-2::loaded') }}</p>
+      <p>
+        <strong>{{ $t('multiple-async-component-2::componentId') }}:</strong> Multiple Async Component 2
+      </p>
+      <p>
+        <strong>{{ $t('multiple-async-component-2::status') }}:</strong> {{ $t('multiple-async-component-2::loaded') }}
+      </p>
     </div>
     <div class="actions">
-      <button
-        class="action-button"
-        @click="performAction"
-      >
+      <button class="action-button" @click="performAction">
         {{ $t('multiple-async-component-2::actionButton') }}
       </button>
-      <div
-        v-if="actionResult"
-        class="action-result"
-      >
+      <div v-if="actionResult" class="action-result">
         {{ actionResult }}
       </div>
     </div>

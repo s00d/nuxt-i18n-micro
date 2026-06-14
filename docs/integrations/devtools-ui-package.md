@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "DevTools UI Package (`@i18n-micro/devtools-ui`)"
+description: "Standalone DevTools UI and Vite plugin."
+outline: "deep"
 ---
 
 # DevTools UI Package (`@i18n-micro/devtools-ui`)

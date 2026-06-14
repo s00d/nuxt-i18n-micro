@@ -1,3 +1,8 @@
+---
+title: "useI18nLocale"
+description: "Centralized locale state, cookies, and sync."
+---
+
 # useI18nLocale
 
 Centralized composable for i18n locale management. Combines `useState('i18n-locale')`, locale cookies, and sync utilities.

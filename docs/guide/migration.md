@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Migration from nuxt-i18n"
+description: "Migrate from @nuxtjs/i18n to Nuxt I18n Micro."
+outline: "deep"
 ---
 
 # 🔄 Migrating from `nuxt-i18n` to `Nuxt I18n Micro`

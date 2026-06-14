@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "plain-nuxt",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

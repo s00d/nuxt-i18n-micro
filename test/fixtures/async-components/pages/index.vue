@@ -5,24 +5,22 @@
 
     <!-- Навигация к тестовым страницам -->
     <div class="navigation">
-      <i18n-link
-        to="/async-components-test"
-        class="nav-link"
-      >
+      <i18n-link to="/async-components-test" class="nav-link">
         {{ $t('index::navigation.test1') }}
       </i18n-link>
-      <i18n-link
-        to="/async-components-test-2"
-        class="nav-link"
-      >
+      <i18n-link to="/async-components-test-2" class="nav-link">
         {{ $t('index::navigation.test2') }}
       </i18n-link>
     </div>
 
     <!-- Информация о текущей локали -->
     <div class="locale-info">
-      <p><strong>{{ $t('index::localeInfo.currentLocale') }}:</strong> {{ $getLocale() }}</p>
-      <p><strong>{{ $t('index::localeInfo.routeName') }}:</strong> {{ $getRouteName() }}</p>
+      <p>
+        <strong>{{ $t('index::localeInfo.currentLocale') }}:</strong> {{ $getLocale() }}
+      </p>
+      <p>
+        <strong>{{ $t('index::localeInfo.routeName') }}:</strong> {{ $getRouteName() }}
+      </p>
     </div>
 
     <!-- Переключатель языков -->

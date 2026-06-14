@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h2 id="ok">
-      ok
-    </h2>
+    <h2 id="ok">ok</h2>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
 
     <p>Current Locale: {{ $getLocale() }}</p>
@@ -13,20 +11,13 @@
 
     <!-- Ссылки для переключения локалей -->
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale"
-        :disabled="locale === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
+      <button v-for="locale in $getLocales()" :key="locale" :disabled="locale === $getLocale()" @click="() => $switchLocale(locale.code)">
         Switch to {{ locale.code }}
       </button>
     </div>
 
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })">
-        Go to Index
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'index' })"> Go to Index </NuxtLink>
     </div>
   </div>
 </template>

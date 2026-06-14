@@ -1,3 +1,8 @@
+---
+title: "Storybook Integration Guide"
+description: "Use nuxt-i18n-micro with Storybook."
+---
+
 # 🌐 Storybook Integration Guide
 
 ## 📖 Introduction

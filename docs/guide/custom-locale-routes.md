@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Custom Localized Routes with `localeRoutes` in `Nuxt I18n Micro`"
+description: "Custom per-locale routes with localeRoutes."
+outline: "deep"
 ---
 
 # 🔗 Custom Localized Routes with `localeRoutes` in `Nuxt I18n Micro`

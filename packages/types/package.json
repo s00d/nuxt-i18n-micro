@@ -2,26 +2,34 @@
   "name": "@i18n-micro/types",
   "version": "1.2.3",
   "description": "TypeScript definitions for the Nuxt I18n Micro ecosystem.",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
-    "directory": "packages/types"
+  "keywords": [
+    "i18n",
+    "nuxt",
+    "types",
+    "typescript"
+  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/types#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
   "license": "MIT",
-  "type": "module",
-  "sideEffects": false,
   "author": {
     "name": "s00d",
     "email": "Virus191288@gmail.com",
     "url": "https://s00d.github.io/"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/types#readme",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/types"
   },
-  "engines": {
-    "node": ">=18"
-  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "exports": {
@@ -38,28 +46,20 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build",
     "check:package": "publint",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "nuxt",
-    "i18n",
-    "typescript",
-    "types"
-  ],
   "devDependencies": {
     "publint": "^0.3.17",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

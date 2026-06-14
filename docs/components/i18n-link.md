@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "`<i18n-link>` Component"
+description: "Locale-aware NuxtLink wrapper for localized routes."
+outline: "deep"
 ---
 
 # 🌍 `<i18n-link>` Component

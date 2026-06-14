@@ -1,39 +1,22 @@
 <template>
-  <div
-    class="split-pane"
-    @mouseup="stopResize"
-    @mouseleave="stopResize"
-  >
+  <div class="split-pane" @mouseup="stopResize" @mouseleave="stopResize">
     <!-- Left pane -->
-    <div
-      class="split-pane__left"
-      :style="{ width: leftWidth }"
-    >
+    <div class="split-pane__left" :style="{ width: leftWidth }">
       <slot name="left" />
     </div>
 
     <!-- Divider -->
-    <div
-      class="split-pane__divider"
-      :style="{ left: leftWidth }"
-      @mousedown.prevent="startResize"
-    >
+    <div class="split-pane__divider" :style="{ left: leftWidth }" @mousedown.prevent="startResize">
       <div class="divider-handle" />
     </div>
 
     <!-- Right pane -->
-    <div
-      class="split-pane__right"
-      :style="{ left: leftWidth, paddingLeft: '4px' }"
-    >
+    <div class="split-pane__right" :style="{ left: leftWidth, paddingLeft: '4px' }">
       <slot name="right" />
     </div>
 
     <!-- Overlay during resize (to prevent iframe/input from intercepting events) -->
-    <div
-      v-if="isResizing"
-      class="resize-overlay"
-    />
+    <div v-if="isResizing" class="resize-overlay" />
   </div>
 </template>
 

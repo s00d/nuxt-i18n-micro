@@ -1,64 +1,31 @@
 <template>
   <div class="pagination">
     <!-- "Previous" button -->
-    <button
-      :disabled="currentPage === 1"
-      class="pagination-button"
-      @click="goToPage(currentPage - 1)"
-    >
-      Previous
-    </button>
+    <button :disabled="currentPage === 1" class="pagination-button" @click="goToPage(currentPage - 1)">Previous</button>
 
     <!-- First pages -->
     <template v-if="currentPage > 3">
-      <button
-        v-for="page in firstPages"
-        :key="page"
-        class="pagination-button"
-        @click="goToPage(page)"
-      >
+      <button v-for="page in firstPages" :key="page" class="pagination-button" @click="goToPage(page)">
         {{ page }}
       </button>
-      <span
-        v-if="currentPage > 4"
-        class="pagination-ellipsis"
-      >...</span>
+      <span v-if="currentPage > 4" class="pagination-ellipsis">...</span>
     </template>
 
     <!-- Current page range -->
-    <button
-      v-for="page in visiblePages"
-      :key="page"
-      :class="['pagination-button', { active: currentPage === page }]"
-      @click="goToPage(page)"
-    >
+    <button v-for="page in visiblePages" :key="page" :class="['pagination-button', { active: currentPage === page }]" @click="goToPage(page)">
       {{ page }}
     </button>
 
     <!-- Last pages -->
     <template v-if="currentPage < totalPages - 2">
-      <span
-        v-if="currentPage < totalPages - 3"
-        class="pagination-ellipsis"
-      >...</span>
-      <button
-        v-for="page in lastPages"
-        :key="page"
-        class="pagination-button"
-        @click="goToPage(page)"
-      >
+      <span v-if="currentPage < totalPages - 3" class="pagination-ellipsis">...</span>
+      <button v-for="page in lastPages" :key="page" class="pagination-button" @click="goToPage(page)">
         {{ page }}
       </button>
     </template>
 
     <!-- "Next" button -->
-    <button
-      :disabled="currentPage === totalPages || totalPages === 0"
-      class="pagination-button"
-      @click="goToPage(currentPage + 1)"
-    >
-      Next
-    </button>
+    <button :disabled="currentPage === totalPages || totalPages === 0" class="pagination-button" @click="goToPage(currentPage + 1)">Next</button>
   </div>
 </template>
 
@@ -122,7 +89,9 @@ const goToPage = (page: number) => {
   font-size: 13px;
   color: #333;
   text-align: center;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 
 .pagination-button:hover:not(:disabled) {

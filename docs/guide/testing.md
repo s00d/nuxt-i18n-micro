@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Testing `Nuxt I18n Micro` Module"
+description: "Test i18n behavior in your Nuxt app."
+outline: "deep"
 ---
 
 # 🧪 Testing `Nuxt I18n Micro` Module

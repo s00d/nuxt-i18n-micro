@@ -10,16 +10,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@i18n-micro/solid": "workspace:*",
     "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*",
     "@i18n-micro/devtools-ui": "workspace:*",
-    "solid-js": "catalog:",
-    "@solidjs/router": "catalog:"
+    "@i18n-micro/solid": "workspace:*",
+    "@i18n-micro/types": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
+    "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-solid": "catalog:",
-    "typescript": "catalog:"
+    "vite-plugin-solid": "catalog:"
   }
 }

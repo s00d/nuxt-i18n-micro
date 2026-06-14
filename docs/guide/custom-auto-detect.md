@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Custom Language Detection in Nuxt I18n Micro"
+description: "Custom locale detection with useI18nLocale()."
+outline: "deep"
 ---
 
 # 🔧 Custom Language Detection in Nuxt I18n Micro

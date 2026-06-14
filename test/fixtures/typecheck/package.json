@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "typecheck",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

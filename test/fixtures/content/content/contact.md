@@ -1,6 +1,6 @@
 ---
-title: "Contact Us"
-description: "Get in touch with our team."
+title: 'Contact Us'
+description: 'Get in touch with our team.'
 ---
 
 :i18n{keypath="contact.description" class-name="contact-description"}

@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Nuxt I18n Micro Examples and Usage"
+description: "Examples of locale switching and i18n components."
+outline: "deep"
 ---
 
 # 📚 Nuxt I18n Micro Examples and Usage

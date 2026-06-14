@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "SEO Guide for Nuxt I18n Micro"
+description: "SEO setup for multilingual Nuxt sites."
+outline: "deep"
 ---
 
 # 🌐 SEO Guide for Nuxt I18n Micro

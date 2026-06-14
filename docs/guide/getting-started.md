@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Getting Started with Nuxt I18n Micro"
+description: "Install and configure Nuxt I18n Micro."
+outline: "deep"
 ---
 
 # 🌐 Getting Started with Nuxt I18n Micro

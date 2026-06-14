@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "`<i18n-t>` Component"
+description: "Translation component with slot-based interpolation."
+outline: "deep"
 ---
 
 # 🌍 `<i18n-t>` Component

@@ -5,36 +5,17 @@
       <i18n-t keypath="page.content" />
     </p>
     <p id="username">
-      <i18n-t
-        keypath="page.greeting"
-        :params="{ name: 'John' }"
-      />
+      <i18n-t keypath="page.greeting" :params="{ name: 'John' }" />
     </p>
     <p id="plural">
-      <i18n-t
-        keypath="page.items"
-        :plural="itemCount"
-      />
+      <i18n-t keypath="page.items" :plural="itemCount" />
     </p>
     <p id="html-content">
-      <i18n-t
-        keypath="page.htmlContent"
-        :html="true"
-      />
+      <i18n-t keypath="page.htmlContent" :html="true" />
     </p>
 
-    <NuxtLink
-      id="locale-en"
-      :to="$switchLocaleRoute('en-us')"
-    >
-      Switch to en
-    </NuxtLink>
-    <NuxtLink
-      id="locale-de"
-      :to="$switchLocaleRoute('de-de')"
-    >
-      Switch to de
-    </NuxtLink>
+    <NuxtLink id="locale-en" :to="$switchLocaleRoute('en-us')"> Switch to en </NuxtLink>
+    <NuxtLink id="locale-de" :to="$switchLocaleRoute('de-de')"> Switch to de </NuxtLink>
 
     <client-only>
       <div class="locale-route-data">

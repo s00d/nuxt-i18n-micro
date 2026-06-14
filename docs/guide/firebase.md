@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Firebase AppHosting Deployment"
+description: "Deploy nuxt-i18n-micro on Firebase AppHosting."
+outline: "deep"
 ---
 
 # 🔥 Firebase AppHosting Deployment

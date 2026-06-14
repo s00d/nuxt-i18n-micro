@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Server-Side Translations and Locale Information in Nuxt I18n Micro"
+description: "Server-side translations and locale data."
+outline: "deep"
 ---
 
 # 🌍 Server-Side Translations and Locale Information in Nuxt I18n Micro

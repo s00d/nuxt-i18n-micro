@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Astro Package (`@i18n-micro/astro`)"
+description: "i18n for Astro with @i18n-micro/astro."
+outline: "deep"
 ---
 
 # Astro Package (`@i18n-micro/astro`)

@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "News & Releases"
+description: "Release notes and project updates."
+outline: "deep"
 ---
 
 # News
@@ -74,7 +76,7 @@ See [Performance — Serverless Payload Output](/guide/performance#serverless-pa
 
 - [Cache & Storage Architecture](/api/i18n-cache-api) — documents both payload modes and package boundaries
 - [Server-Side Translations](/guide/server-side-translations), [Getting Started](/guide/getting-started), [Folder Structure](/guide/folder-structure) — `premerged` vs `source` caveats
-- [Contribution Guide](/guide/contribution) — Node 18+, pnpm 9+, Biome, monorepo layout with `packages/utils` and `packages/hmr`
+- [Contribution Guide](/guide/contribution) — Node 18+, pnpm 9+, Oxlint/Oxfmt, monorepo layout with `packages/utils` and `packages/hmr`
 
 ### Breaking Changes (Advanced / Internal)
 

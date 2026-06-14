@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Performance Guide"
+description: "Performance tips and optimizations."
+outline: "deep"
 ---
 
 # 🚀 Performance Guide

@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Preact Package (`@i18n-micro/preact`)"
+description: "i18n for Preact with @i18n-micro/preact."
+outline: "deep"
 ---
 
 # Preact Package (`@i18n-micro/preact`)

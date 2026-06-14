@@ -1,13 +1,13 @@
 {
   "name": "@nuxtjs/i18n-client",
   "private": true,
-  "dependencies": {
-    "@i18n-micro/types": "workspace:*",
-    "@i18n-micro/devtools-ui": "workspace:*"
-  },
   "scripts": {
     "dev": "nuxi dev",
     "build": "nuxi build"
+  },
+  "dependencies": {
+    "@i18n-micro/devtools-ui": "workspace:*",
+    "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
     "json-editor-vue": "catalog:"

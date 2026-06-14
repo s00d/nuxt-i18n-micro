@@ -2,11 +2,7 @@
   <div :style="[wrapperStyle, customWrapperStyle]">
     <slot name="before-button" />
 
-    <button
-      class="language-switcher"
-      :style="[buttonStyle, customButtonStyle]"
-      @click="toggleDropdown"
-    >
+    <button class="language-switcher" :style="[buttonStyle, customButtonStyle]" @click="toggleDropdown">
       <slot name="before-selected-locale" />
       {{ currentLocaleLabel }}
       <slot name="after-selected-locale" />
@@ -15,21 +11,11 @@
 
     <slot name="before-dropdown" />
 
-    <ul
-      v-show="dropdownOpen"
-      :style="[dropdownStyle, customDropdownStyle]"
-    >
+    <ul v-show="dropdownOpen" :style="[dropdownStyle, customDropdownStyle]">
       <slot name="before-dropdown-items" />
 
-      <li
-        v-for="locale in locales"
-        :key="locale.code"
-        :style="[itemStyle, customItemStyle]"
-      >
-        <slot
-          name="before-item"
-          :locale="locale"
-        />
+      <li v-for="locale in locales" :key="locale.code" :style="[itemStyle, customItemStyle]">
+        <slot name="before-item" :locale="locale" />
 
         <NuxtLink
           :class="`switcher-locale-${locale.code}`"
@@ -43,21 +29,12 @@
           :hreflang="locale.iso || locale.code"
           @click="switchLocale(locale.code)"
         >
-          <slot
-            name="before-link-content"
-            :locale="locale"
-          />
+          <slot name="before-link-content" :locale="locale" />
           {{ localeLabel(locale) }}
-          <slot
-            name="after-link-content"
-            :locale="locale"
-          />
+          <slot name="after-link-content" :locale="locale" />
         </NuxtLink>
 
-        <slot
-          name="after-item"
-          :locale="locale"
-        />
+        <slot name="after-item" :locale="locale" />
       </li>
 
       <slot name="after-dropdown-items" />

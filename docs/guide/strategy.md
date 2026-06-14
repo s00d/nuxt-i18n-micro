@@ -1,3 +1,8 @@
+---
+title: "Routing Strategies in Nuxt I18n Micro"
+description: "URL prefix strategies for locale routing."
+---
+
 # 🗂️ Routing Strategies in Nuxt I18n Micro
 
 ## 📖 Overview

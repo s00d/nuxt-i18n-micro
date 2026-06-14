@@ -89,7 +89,7 @@ export interface IsIndexRouteNameOptions {
  * Returns true if the given route name refers to the index (root) route.
  */
 export function isIndexRouteName(name: string | null | undefined, options?: IsIndexRouteNameOptions): boolean {
-  if (name == null) return false
+  if (name === null || name === undefined) return false
   const s = String(name).trim()
   if (s === '' || s === 'index') return true
   const prefix = options?.localizedRouteNamePrefix ?? 'localized-'

@@ -1,22 +1,13 @@
 <template>
   <div id="app">
     <nav>
-      <I18nLink
-        to="/"
-        :locale-route="localeRoute"
-      >
+      <I18nLink to="/" :locale-route="localeRoute">
         {{ t('nav.home') }}
       </I18nLink>
-      <I18nLink
-        to="/about"
-        :locale-route="localeRoute"
-      >
+      <I18nLink to="/about" :locale-route="localeRoute">
         {{ t('nav.about') }}
       </I18nLink>
-      <I18nLink
-        to="/components"
-        :locale-route="localeRoute"
-      >
+      <I18nLink to="/components" :locale-route="localeRoute">
         {{ t('nav.components') }}
       </I18nLink>
     </nav>

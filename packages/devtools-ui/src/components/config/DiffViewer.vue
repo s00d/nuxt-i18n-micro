@@ -2,36 +2,18 @@
   <div class="diff-viewer">
     <!-- Filters -->
     <div class="filters">
-      <label
-        v-for="filter in filters"
-        :key="filter.type"
-        class="filter-item"
-      >
-        <input
-          v-model="activeFilters"
-          type="checkbox"
-          :value="filter.type"
-          class="sr-only"
-        >
-        <span :class="['filter-badge', filter.class]">
-          {{ filter.label }} ({{ counts[filter.type] }})
-        </span>
+      <label v-for="filter in filters" :key="filter.type" class="filter-item">
+        <input v-model="activeFilters" type="checkbox" :value="filter.type" class="sr-only" />
+        <span :class="['filter-badge', filter.class]"> {{ filter.label }} ({{ counts[filter.type] }}) </span>
       </label>
     </div>
 
     <!-- Changes list -->
     <div class="diff-list">
-      <div
-        v-for="(item, index) in filteredChanges"
-        :key="index"
-        class="diff-item"
-      >
+      <div v-for="(item, index) in filteredChanges" :key="index" class="diff-item">
         <div class="key-row">
           <span class="key-label">{{ item.key }}</span>
-          <span
-            v-if="item.type"
-            :class="['change-type', typeClasses[item.type]]"
-          >
+          <span v-if="item.type" :class="['change-type', typeClasses[item.type]]">
             {{ item.type.toUpperCase() }}
           </span>
         </div>
@@ -48,11 +30,7 @@
             </div>
           </template>
 
-          <div
-            v-else
-            class="value"
-            :class="item.type"
-          >
+          <div v-else class="value" :class="item.type">
             <span class="value-content">{{ item.currentValue || item.baseValue }}</span>
           </div>
         </div>

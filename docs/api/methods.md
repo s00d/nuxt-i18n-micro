@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Methods"
+description: "All nuxt-i18n-micro runtime methods."
+outline: "deep"
 ---
 
 # 🛠️ Methods

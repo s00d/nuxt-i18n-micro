@@ -9,12 +9,7 @@
   </div>
 
   <div>
-    <i18n-link
-      id="page-link"
-      :to="{ name: 'page' }"
-    >
-      Go to Page
-    </i18n-link>
+    <i18n-link id="page-link" :to="{ name: 'page' }"> Go to Page </i18n-link>
   </div>
 </template>
 

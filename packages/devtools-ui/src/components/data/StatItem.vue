@@ -9,13 +9,7 @@
       </span>
       <span :class="['font-semibold min-w-[60px] text-right', $attrs.class]">
         {{ formattedValue }}
-        <span
-          v-if="trend"
-          class="ml-2 text-xs"
-          :class="trendClass"
-        >
-          {{ trend }}%
-        </span>
+        <span v-if="trend" class="ml-2 text-xs" :class="trendClass"> {{ trend }}% </span>
       </span>
     </template>
 
@@ -26,13 +20,7 @@
         </span>
         <span :class="['font-semibold mt-1', $attrs.class]">
           {{ formattedValue }}
-          <span
-            v-if="trend"
-            class="ml-2 text-xs"
-            :class="trendClass"
-          >
-            {{ trend }}%
-          </span>
+          <span v-if="trend" class="ml-2 text-xs" :class="trendClass"> {{ trend }}% </span>
         </span>
       </div>
     </template>

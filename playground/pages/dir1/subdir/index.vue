@@ -1,5 +1,3 @@
 <template>
-  <div>
-    index subdir
-  </div>
+  <div>index subdir</div>
 </template>

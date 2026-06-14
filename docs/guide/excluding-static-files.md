@@ -1,3 +1,8 @@
+---
+title: "Excluding Static Files from i18n Routing"
+description: "Exclude static files from i18n routing."
+---
+
 # Excluding Static Files from i18n Routing
 
 ## Overview

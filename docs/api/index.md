@@ -1,3 +1,8 @@
+---
+title: "API Reference"
+description: "Runtime methods, events, and translation cache API."
+---
+
 # API Reference
 
 ## API Documentation

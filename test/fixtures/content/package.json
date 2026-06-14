@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "content",
+  "private": true,
   "type": "module",
   "scripts": {
     "build": "nuxt build",

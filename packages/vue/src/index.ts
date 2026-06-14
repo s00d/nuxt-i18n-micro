@@ -18,15 +18,7 @@ export { type UseI18nOptions, useI18n } from './use-i18n'
 // Re-export utilities from core
 export { defaultPlural, FormatService, interpolate } from '@i18n-micro/core'
 // Re-export types from @i18n-micro/types
-export type {
-  CleanTranslation,
-  Getter,
-  Locale,
-  LocaleCode,
-  Params,
-  PluralFunc,
-  Translations,
-} from '@i18n-micro/types'
+export type { CleanTranslation, Getter, Locale, LocaleCode, Params, PluralFunc, Translations } from '@i18n-micro/types'
 export { createVueRouterAdapter } from './router/adapter'
 // Router abstraction
 export type { I18nRoutingStrategy } from './router/types'

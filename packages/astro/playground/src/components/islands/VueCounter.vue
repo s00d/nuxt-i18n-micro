@@ -50,9 +50,7 @@ const increment = () => count.value++
     <h3>{{ t('islands.vue.title') }}</h3>
     <p>{{ t('islands.vue.description') }}</p>
     <div class="counter">
-      <button @click="increment">
-        +
-      </button>
+      <button @click="increment">+</button>
       <span>{{ count }}</span>
       <p>
         {{ tc('islands.apples', count) }}
@@ -61,9 +59,7 @@ const increment = () => count.value++
         {{ t('islands.number', { number: tn(count) }) }}
       </p>
     </div>
-    <p class="locale-info">
-      Locale: {{ locale }}
-    </p>
+    <p class="locale-info">Locale: {{ locale }}</p>
   </div>
 </template>
 

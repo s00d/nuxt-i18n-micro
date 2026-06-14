@@ -2,15 +2,9 @@
   <div>
     <div>id: {{ params.id }}</div>
     <div>news: {{ news }}</div>
-    <NuxtLink :to="$localeRoute({ name: 'articles-id', params: { id: '1' } })">
-      article-1
-    </NuxtLink>
-    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '4' } })">
-      news-4
-    </NuxtLink>
-    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '1' } })">
-      news-1
-    </NuxtLink>
+    <NuxtLink :to="$localeRoute({ name: 'articles-id', params: { id: '1' } })"> article-1 </NuxtLink>
+    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '4' } })"> news-4 </NuxtLink>
+    <NuxtLink :to="$localeRoute({ name: 'news-id', params: { id: '1' } })"> news-1 </NuxtLink>
     <NuxtLink
       :to="
         $localeRoute({
@@ -19,27 +13,22 @@
           query: { a: 'b' },
         })
       "
-    >news-2</NuxtLink>
+      >news-2</NuxtLink
+    >
     <div>
       <pre>{{ newsLink.fullPath }}</pre>
     </div>
 
-    <div>{{ router.resolve("/en/news/2") }}</div>
+    <div>{{ router.resolve('/en/news/2') }}</div>
 
     <div>
-      <NuxtLink :to="$switchLocaleRoute('en')">
-        en
-      </NuxtLink>
+      <NuxtLink :to="$switchLocaleRoute('en')"> en </NuxtLink>
     </div>
     <div>
-      <NuxtLink :to="$switchLocaleRoute('ru')">
-        ru
-      </NuxtLink>
+      <NuxtLink :to="$switchLocaleRoute('ru')"> ru </NuxtLink>
     </div>
     <div>
-      <NuxtLink :to="$switchLocaleRoute('de')">
-        de
-      </NuxtLink>
+      <NuxtLink :to="$switchLocaleRoute('de')"> de </NuxtLink>
     </div>
   </div>
 </template>

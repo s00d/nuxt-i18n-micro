@@ -43,7 +43,7 @@ To retrieve a translation, you can use the `t` function:
 
 ```typescript
 const translatedValue = i18nUtils.t('welcome_message', { name: 'John' })
-console.log(translatedValue)  // Output: translated string with the injected name
+console.log(translatedValue) // Output: translated string with the injected name
 ```
 
 #### Formatting numbers
@@ -52,7 +52,7 @@ Use the `tn` function to format numbers based on the current locale:
 
 ```typescript
 const formattedNumber = i18nUtils.tn(12345.6789)
-console.log(formattedNumber)  // Output: formatted number
+console.log(formattedNumber) // Output: formatted number
 ```
 
 #### Formatting dates
@@ -61,7 +61,7 @@ Use the `td` function to format dates:
 
 ```typescript
 const formattedDate = i18nUtils.td(new Date())
-console.log(formattedDate)  // Output: formatted date
+console.log(formattedDate) // Output: formatted date
 ```
 
 #### Pluralization
@@ -70,7 +70,7 @@ Handle plural translations with `tc`:
 
 ```typescript
 const pluralValue = i18nUtils.tc('item_count', 3)
-console.log(pluralValue)  // Output: appropriate plural form
+console.log(pluralValue) // Output: appropriate plural form
 ```
 
 #### Merging Translations
@@ -86,8 +86,8 @@ i18nUtils.mergeTranslations({ welcome_message: 'Hello, {name}!' })
 You can manage the current locale with the following functions:
 
 ```typescript
-i18nUtils.setLocale('en')  // Set current locale to English
-const currentLocale = i18nUtils.getLocale()  // Get the current locale
+i18nUtils.setLocale('en') // Set current locale to English
+const currentLocale = i18nUtils.getLocale() // Get the current locale
 ```
 
 ### Setting Translations from JSON

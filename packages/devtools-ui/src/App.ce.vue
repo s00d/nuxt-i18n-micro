@@ -5,10 +5,7 @@
 
     <template v-else>
       <div class="header">
-        <Tabs
-          v-model="activeTab"
-          :tabs="tabs"
-        />
+        <Tabs v-model="activeTab" :tabs="tabs" />
       </div>
       <div class="content-area">
         <div class="view-container">

@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "React Package (`@i18n-micro/react`)"
+description: "i18n for React with @i18n-micro/react."
+outline: "deep"
 ---
 
 # React Package (`@i18n-micro/react`)

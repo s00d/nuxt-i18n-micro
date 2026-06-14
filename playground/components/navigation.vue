@@ -1,10 +1,7 @@
 <template>
   <h1>{{ $t('navigation_component.title') }}</h1>
   <ul class="space-y-0 rounded-xl p-4">
-    <li
-      v-for="(link, index) in navLinks"
-      :key="index"
-    >
+    <li v-for="(link, index) in navLinks" :key="index">
       <NuxtLink :to="$localeRoute({ name: link.to })">
         <span>
           {{ link.label }}
@@ -29,5 +26,4 @@ const navLinks = computed(() => [
 ])
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

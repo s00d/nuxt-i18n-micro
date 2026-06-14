@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "`<i18n-switcher>` Component"
+description: "Dropdown component for switching app locales."
+outline: "deep"
 ---
 
 # 🌍 `<i18n-switcher>` Component

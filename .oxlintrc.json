@@ -1,0 +1,74 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "import", "promise", "node", "jest", "vitest", "eslint", "oxc", "vue"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "off",
+    "pedantic": "off",
+    "perf": "warn",
+    "style": "off",
+    "restriction": "off",
+    "nursery": "off"
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.nuxt/**",
+    "**/.output/**",
+    "**/coverage/**",
+    "**/test-results/**",
+    "**/.cache/**",
+    "**/.pnpm-store/**",
+    "**/.turbo/**",
+    "**/.git/**",
+    "**/.astro/**",
+    "**/_locales_hashes/**"
+  ],
+  "rules": {
+    "prefer-const": "error",
+    "no-debugger": "error",
+    "no-alert": "error",
+    "eqeqeq": "error",
+    "import/no-duplicates": "error",
+    "import/no-self-import": "error",
+    "import/no-cycle": "warn",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "eslint/no-unused-expressions": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/test/**/*.ts", "**/tests/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "jest/prefer-snapshot-hint": "off",
+        "vitest/prefer-snapshot-hint": "off",
+        "jest/no-conditional-expect": "off",
+        "vitest/no-conditional-expect": "off",
+        "vitest/no-conditional-tests": "off",
+        "jest/valid-expect": "off",
+        "jest/expect-expect": "off",
+        "vitest/expect-expect": "off",
+        "jest/require-to-throw-message": "off",
+        "vitest/require-to-throw-message": "off",
+        "jest/valid-title": "off",
+        "vitest/valid-title": "off",
+        "jest/valid-describe-callback": "off",
+        "jest/no-export": "off",
+        "vitest/require-mock-type-parameters": "off"
+      }
+    },
+    {
+      "files": ["**/*.svelte"],
+      "rules": {
+        "eslint/no-unassigned-vars": "off"
+      }
+    },
+    {
+      "files": ["**/env.d.ts"],
+      "rules": {
+        "typescript/triple-slash-reference": "off"
+      }
+    }
+  ]
+}

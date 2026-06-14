@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Vue Package (`@i18n-micro/vue`)"
+description: "i18n for Vue 3 with @i18n-micro/vue."
+outline: "deep"
 ---
 
 # Vue Package (`@i18n-micro/vue`)

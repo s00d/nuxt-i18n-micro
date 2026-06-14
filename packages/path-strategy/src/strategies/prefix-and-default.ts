@@ -110,7 +110,7 @@ export class PrefixAndDefaultPathStrategy extends BasePathStrategy {
 
     if (inputName && !hasParams) {
       let routeByLocalizedName = tryResolveByLocalizedName(this.ctx.router, prefix, inputName, targetLocale, sourceRoute)
-      if (routeByLocalizedName === null && baseName != null && baseName !== inputName && inputName.startsWith(prefix)) {
+      if (routeByLocalizedName === null && baseName !== null && baseName !== undefined && baseName !== inputName && inputName.startsWith(prefix)) {
         routeByLocalizedName = tryResolveByLocalizedName(this.ctx.router, prefix, baseName, targetLocale, sourceRoute)
       }
       if (routeByLocalizedName !== null) {

@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "FAQ: Common Issues & Solutions"
+description: "Common questions and troubleshooting."
+outline: "deep"
 ---
 
 # ❓ FAQ: Common Issues & Solutions

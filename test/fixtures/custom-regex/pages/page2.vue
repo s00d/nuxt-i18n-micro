@@ -3,13 +3,15 @@
     <p id="content">
       {{ $t('page.content') }}
     </p>
-    <p id="locale">
-      Current Locale: {{ $getLocale() }}
-    </p>
+    <p id="locale">Current Locale: {{ $getLocale() }}</p>
 
     <!-- Display additional info for testing -->
     <p id="locales">
-      {{ $getLocales().map(locale => locale.code).join(', ') }}
+      {{
+        $getLocales()
+          .map((locale) => locale.code)
+          .join(', ')
+      }}
     </p>
     <p id="translation">
       {{ $t('page.example') }}
@@ -18,24 +20,13 @@
       {{ $tc('page.apples', 2) }}
     </p>
     <p id="plural-component">
-      <i18n-t
-        keypath="page.apples"
-        :plural="5"
-      />
+      <i18n-t keypath="page.apples" :plural="5" />
     </p>
     <p id="plural-component-custom">
-      <i18n-t
-        keypath="page.apples"
-        :plural="5"
-        :custom-plural-rule="customPluralRule"
-      />
+      <i18n-t keypath="page.apples" :plural="5" :custom-plural-rule="customPluralRule" />
     </p>
     <p id="plural-component-custom-zero">
-      <i18n-t
-        keypath="page.apples"
-        :plural="0"
-        :custom-plural-rule="customPluralRule"
-      />
+      <i18n-t keypath="page.apples" :plural="0" :custom-plural-rule="customPluralRule" />
     </p>
     <p id="localized-route">
       {{ $localeRoute({ name: 'page' }, 'de-de').path }}
@@ -43,18 +34,8 @@
 
     <!-- Links for switching locales -->
     <div id="locale-links">
-      <NuxtLink
-        id="link-en"
-        :to="$localeRoute({ name: 'page' }, 'en-us')"
-      >
-        Switch to English
-      </NuxtLink>
-      <NuxtLink
-        id="link-de"
-        :to="$localeRoute({ name: 'page' }, 'de-de')"
-      >
-        Switch to German
-      </NuxtLink>
+      <NuxtLink id="link-en" :to="$localeRoute({ name: 'page' }, 'en-us')"> Switch to English </NuxtLink>
+      <NuxtLink id="link-de" :to="$localeRoute({ name: 'page' }, 'de-de')"> Switch to German </NuxtLink>
     </div>
   </div>
 </template>

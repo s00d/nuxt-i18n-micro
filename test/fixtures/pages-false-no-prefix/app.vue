@@ -27,17 +27,7 @@ async function switchToEn() {
     <p id="greeting">
       {{ $t('hello') }}
     </p>
-    <button
-      id="switch-zh"
-      @click="switchToZh"
-    >
-      Switch to Chinese
-    </button>
-    <button
-      id="switch-en"
-      @click="switchToEn"
-    >
-      Switch to English
-    </button>
+    <button id="switch-zh" @click="switchToZh">Switch to Chinese</button>
+    <button id="switch-en" @click="switchToEn">Switch to English</button>
   </div>
 </template>

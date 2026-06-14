@@ -126,7 +126,7 @@ export function defaultResolveLocaleRoute(
 
   if (inputName && !hasParams) {
     let routeByLocalizedName = tryResolveByLocalizedName(router, prefix, inputName, targetLocale, src)
-    if (routeByLocalizedName === null && baseName != null && baseName !== inputName && inputName.startsWith(prefix)) {
+    if (routeByLocalizedName === null && baseName !== null && baseName !== undefined && baseName !== inputName && inputName.startsWith(prefix)) {
       routeByLocalizedName = tryResolveByLocalizedName(router, prefix, baseName, targetLocale, src)
     }
     if (routeByLocalizedName !== null) return preserveQueryAndHash(s.applyBaseUrl(targetLocale, routeByLocalizedName), src)

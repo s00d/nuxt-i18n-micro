@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "nuxt-i18n-next-playground",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

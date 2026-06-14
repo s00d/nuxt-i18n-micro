@@ -8,155 +8,83 @@
           Translation Service
         </label>
         <div class="control-select">
-          <select
-            v-model="selectedDriver"
-            class="select-input"
-          >
-            <option
-              value=""
-              disabled
-              hidden
-            >
-              Select a translation driver
-            </option>
-            <option
-              v-for="current_driver in translationDrivers"
-              :key="current_driver.value"
-              :value="current_driver.value"
-            >
+          <select v-model="selectedDriver" class="select-input">
+            <option value="" disabled hidden>Select a translation driver</option>
+            <option v-for="current_driver in translationDrivers" :key="current_driver.value" :value="current_driver.value">
               {{ current_driver.label }}
             </option>
           </select>
-          <div class="select-arrow">
-            ▼
-          </div>
+          <div class="select-arrow">▼</div>
         </div>
       </div>
 
       <!-- API Token -->
       <transition name="fade-slide">
-        <div
-          v-if="selectedDriver !== 'disabled'"
-          class="control-group"
-        >
+        <div v-if="selectedDriver !== 'disabled'" class="control-group">
           <label class="control-label">
             <span class="control-icon">🔑</span>
             API Authorization
           </label>
-          <input
-            v-model="localApiToken"
-            type="password"
-            placeholder="Enter your secure API token"
-            class="styled-input"
-          >
+          <input v-model="localApiToken" type="password" placeholder="Enter your secure API token" class="styled-input" />
         </div>
       </transition>
 
       <!-- Driver Specific Options -->
       <transition name="fade-slide">
-        <div
-          v-if="selectedDriver !== 'disabled'"
-          class="driver-options"
-        >
+        <div v-if="selectedDriver !== 'disabled'" class="driver-options">
           <!-- Yandex Cloud Options -->
-          <div
-            v-if="selectedDriver === 'yandex-cloud'"
-            class="control-group"
-          >
+          <div v-if="selectedDriver === 'yandex-cloud'" class="control-group">
             <label class="control-label">
               <span class="control-icon">📁</span>
               Cloud Folder ID
             </label>
-            <input
-              v-model="localDriverOptions.folderId"
-              type="text"
-              placeholder="Yandex Cloud folder identifier"
-              class="styled-input"
-            >
+            <input v-model="localDriverOptions.folderId" type="text" placeholder="Yandex Cloud folder identifier" class="styled-input" />
           </div>
 
           <!-- DeepL Options -->
-          <div
-            v-if="selectedDriver === 'deepl'"
-            class="control-group"
-          >
+          <div v-if="selectedDriver === 'deepl'" class="control-group">
             <label class="control-label">
               <span class="control-icon">🎚️</span>
               Tone Formality
             </label>
             <div class="control-select">
-              <select
-                v-model="localDriverOptions.formality"
-                class="select-input"
-              >
-                <option value="default">
-                  Neutral (Default)
-                </option>
-                <option value="more">
-                  Formal Tone
-                </option>
-                <option value="less">
-                  Casual Tone
-                </option>
+              <select v-model="localDriverOptions.formality" class="select-input">
+                <option value="default">Neutral (Default)</option>
+                <option value="more">Formal Tone</option>
+                <option value="less">Casual Tone</option>
               </select>
-              <div class="select-arrow">
-                ▼
-              </div>
+              <div class="select-arrow">▼</div>
             </div>
           </div>
 
           <!-- OpenAI Models -->
-          <div
-            v-if="selectedDriver === 'openai'"
-            class="control-group"
-          >
+          <div v-if="selectedDriver === 'openai'" class="control-group">
             <label class="control-label">
               <span class="control-icon">🤖</span>
               AI Model Selection
             </label>
             <div class="control-select">
-              <select
-                v-model="localDriverOptions.model"
-                class="select-input"
-              >
-                <option
-                  v-for="model in openAIModels"
-                  :key="model"
-                  :value="model"
-                >
+              <select v-model="localDriverOptions.model" class="select-input">
+                <option v-for="model in openAIModels" :key="model" :value="model">
                   {{ model }}
                 </option>
               </select>
-              <div class="select-arrow">
-                ▼
-              </div>
+              <div class="select-arrow">▼</div>
             </div>
           </div>
 
           <!-- DeepSeek Models -->
-          <div
-            v-if="selectedDriver === 'deepseek'"
-            class="control-group"
-          >
+          <div v-if="selectedDriver === 'deepseek'" class="control-group">
             <label class="control-label">
               <span class="control-icon">🧠</span>
               Reasoning Model
             </label>
             <div class="control-select">
-              <select
-                v-model="localDriverOptions.model"
-                class="select-input"
-              >
-                <option value="deepseek-chat">
-                  Chat Optimized
-                </option>
-                <option value="deepseek-reasoner">
-                  Advanced Reasoning
-                </option>
+              <select v-model="localDriverOptions.model" class="select-input">
+                <option value="deepseek-chat">Chat Optimized</option>
+                <option value="deepseek-reasoner">Advanced Reasoning</option>
               </select>
-              <div class="select-arrow">
-                ▼
-              </div>
+              <div class="select-arrow">▼</div>
             </div>
           </div>
         </div>

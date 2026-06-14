@@ -6,74 +6,33 @@
     <div class="controls">
       <div class="control-group">
         <label for="locale">Locale:</label>
-        <select
-          id="locale"
-          v-model="selectedLocale"
-          @change="loadData"
-        >
-          <option value="en">
-            English
-          </option>
-          <option value="de">
-            German
-          </option>
-          <option value="fr">
-            French
-          </option>
-          <option value="ru">
-            Russian
-          </option>
+        <select id="locale" v-model="selectedLocale" @change="loadData">
+          <option value="en">English</option>
+          <option value="de">German</option>
+          <option value="fr">French</option>
+          <option value="ru">Russian</option>
         </select>
       </div>
 
       <div class="control-group">
         <label for="route">Route:</label>
-        <select
-          id="route"
-          v-model="selectedRoute"
-          @change="loadData"
-        >
-          <option value="index">
-            Index
-          </option>
-          <option value="node-i18n-demo">
-            Node I18n Demo
-          </option>
-          <option value="index">
-            Index
-          </option>
-          <option value="page">
-            Page
-          </option>
-          <option value="contact">
-            Contact
-          </option>
+        <select id="route" v-model="selectedRoute" @change="loadData">
+          <option value="index">Index</option>
+          <option value="node-i18n-demo">Node I18n Demo</option>
+          <option value="index">Index</option>
+          <option value="page">Page</option>
+          <option value="contact">Contact</option>
         </select>
       </div>
 
-      <button @click="loadData">
-        Reload
-      </button>
+      <button @click="loadData">Reload</button>
     </div>
 
-    <div
-      v-if="loading"
-      class="loading"
-    >
-      Loading...
-    </div>
+    <div v-if="loading" class="loading">Loading...</div>
 
-    <div
-      v-else-if="error"
-      class="error"
-    >
-      Error: {{ error }}
-    </div>
+    <div v-else-if="error" class="error">Error: {{ error }}</div>
 
-    <div
-      v-else-if="data"
-      class="results"
-    >
+    <div v-else-if="data" class="results">
       <div class="info">
         <p><strong>Current Locale:</strong> {{ data.locale }}</p>
         <p><strong>Current Route:</strong> {{ data.route }}</p>
@@ -81,15 +40,9 @@
 
       <div class="translations">
         <h2>Translations</h2>
-        <div class="translation-item">
-          <strong>Welcome:</strong> {{ data.translations.welcome }}
-        </div>
-        <div class="translation-item">
-          <strong>Greeting:</strong> {{ data.translations.greeting }}
-        </div>
-        <div class="translation-item">
-          <strong>Nested:</strong> {{ data.translations.nested }}
-        </div>
+        <div class="translation-item"><strong>Welcome:</strong> {{ data.translations.welcome }}</div>
+        <div class="translation-item"><strong>Greeting:</strong> {{ data.translations.greeting }}</div>
+        <div class="translation-item"><strong>Nested:</strong> {{ data.translations.nested }}</div>
         <div class="translation-item">
           <strong>Apples (pluralization):</strong>
           <ul>
@@ -98,31 +51,17 @@
             <li>5: {{ data.translations.apples.many }}</li>
           </ul>
         </div>
-        <div class="translation-item">
-          <strong>Number formatting:</strong> {{ data.translations.number }}
-        </div>
-        <div class="translation-item">
-          <strong>Date formatting:</strong> {{ data.translations.date }}
-        </div>
-        <div class="translation-item">
-          <strong>Relative time:</strong> {{ data.translations.relativeTime }}
-        </div>
-        <div class="translation-item">
-          <strong>Route-specific:</strong> {{ data.translations.routeSpecific }}
-        </div>
+        <div class="translation-item"><strong>Number formatting:</strong> {{ data.translations.number }}</div>
+        <div class="translation-item"><strong>Date formatting:</strong> {{ data.translations.date }}</div>
+        <div class="translation-item"><strong>Relative time:</strong> {{ data.translations.relativeTime }}</div>
+        <div class="translation-item"><strong>Route-specific:</strong> {{ data.translations.routeSpecific }}</div>
       </div>
 
       <div class="methods">
         <h2>Methods Info</h2>
-        <div class="method-item">
-          <strong>Has 'welcome' translation:</strong> {{ data.methods.hasTranslation }}
-        </div>
-        <div class="method-item">
-          <strong>Current Route:</strong> {{ data.methods.currentRoute }}
-        </div>
-        <div class="method-item">
-          <strong>Current Locale:</strong> {{ data.methods.currentLocale }}
-        </div>
+        <div class="method-item"><strong>Has 'welcome' translation:</strong> {{ data.methods.hasTranslation }}</div>
+        <div class="method-item"><strong>Current Route:</strong> {{ data.methods.currentRoute }}</div>
+        <div class="method-item"><strong>Current Locale:</strong> {{ data.methods.currentLocale }}</div>
       </div>
     </div>
   </div>

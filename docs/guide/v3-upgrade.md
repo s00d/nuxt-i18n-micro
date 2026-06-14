@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Upgrading from v2.x to v3.x"
+description: "Upgrade from v2.x to v3.x."
+outline: "deep"
 ---
 
 # 📦 Upgrading from v2.x to v3.x

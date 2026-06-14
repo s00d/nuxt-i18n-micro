@@ -1,3 +1,8 @@
+---
+title: "`<i18n-group>` Component"
+description: "Group translations under a shared key prefix."
+---
+
 # 🌍 `<i18n-group>` Component
 
 The `<i18n-group>` component in Nuxt I18n Micro provides a convenient way to group translations under a common prefix, reducing repetition and improving code organization.

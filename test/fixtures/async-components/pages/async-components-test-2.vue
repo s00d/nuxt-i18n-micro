@@ -5,59 +5,37 @@
 
     <!-- Навигация -->
     <div class="navigation">
-      <i18n-link
-        to="/async-components-test"
-        class="nav-link"
-      >
+      <i18n-link to="/async-components-test" class="nav-link">
         {{ $t('async-components-test-2::navigation.backToTest1') }}
       </i18n-link>
-      <i18n-link
-        to="/"
-        class="nav-link"
-      >
+      <i18n-link to="/" class="nav-link">
         {{ $t('async-components-test-2::navigation.backToHome') }}
       </i18n-link>
     </div>
 
     <!-- Тест 6: Отложенный асинхронный компонент -->
-    <div
-      id="test6"
-      class="test-section"
-    >
+    <div id="test6" class="test-section">
       <h2>{{ $t('async-components-test-2::test6.title') }}</h2>
       <p>{{ $t('async-components-test-2::test6.description') }}</p>
       <DelayedAsyncComponent />
     </div>
 
     <!-- Тест 7: Условный асинхронный компонент -->
-    <div
-      id="test7"
-      class="test-section"
-    >
+    <div id="test7" class="test-section">
       <h2>{{ $t('async-components-test-2::test7.title') }}</h2>
       <p>{{ $t('async-components-test-2::test7.description') }}</p>
       <div class="controls">
-        <button
-          id="toggle-conditional-btn"
-          class="toggle-button"
-          @click="toggleConditionalComponent"
-        >
+        <button id="toggle-conditional-btn" class="toggle-button" @click="toggleConditionalComponent">
           {{ showConditional ? $t('async-components-test-2::test7.hideComponent') : $t('async-components-test-2::test7.showComponent') }}
         </button>
       </div>
-      <div
-        v-if="showConditional"
-        id="conditional-component-container"
-      >
+      <div v-if="showConditional" id="conditional-component-container">
         <ConditionalAsyncComponent />
       </div>
     </div>
 
     <!-- Тест 8: Множественные асинхронные компоненты -->
-    <div
-      id="test8"
-      class="test-section"
-    >
+    <div id="test8" class="test-section">
       <h2>{{ $t('async-components-test-2::test8.title') }}</h2>
       <p>{{ $t('async-components-test-2::test8.description') }}</p>
       <div class="multiple-components">
@@ -68,10 +46,7 @@
     </div>
 
     <!-- Результаты тестов -->
-    <div
-      id="test-results"
-      class="test-results"
-    >
+    <div id="test-results" class="test-results">
       <h2>{{ $t('async-components-test-2::results.title') }}</h2>
       <div class="result-item">
         <span>{{ $t('async-components-test-2::results.currentLocale') }}:</span>
@@ -83,15 +58,14 @@
       </div>
       <div class="result-item">
         <span>{{ $t('async-components-test-2::results.translationsLoaded') }}:</span>
-        <strong id="translations-loaded">{{ translationsLoaded ? $t('async-components-test-2::results.yes') : $t('async-components-test-2::results.no') }}</strong>
+        <strong id="translations-loaded">{{
+          translationsLoaded ? $t('async-components-test-2::results.yes') : $t('async-components-test-2::results.no')
+        }}</strong>
       </div>
     </div>
 
     <!-- Переключатель языка -->
-    <div
-      id="language-switcher"
-      class="language-switcher"
-    >
+    <div id="language-switcher" class="language-switcher">
       <h3>{{ $t('async-components-test-2::switchLanguage') }}</h3>
       <div class="switcher-buttons">
         <button

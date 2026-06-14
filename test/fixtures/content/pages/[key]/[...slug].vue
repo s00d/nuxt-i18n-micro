@@ -2,20 +2,10 @@
   <div id="locale-switcher">
     <i18n-switcher />
   </div>
-  <NuxtLink
-    id="home"
-    :to="$localeRoute({ name: 'index' })"
-  >
-    Home
-  </NuxtLink>
+  <NuxtLink id="home" :to="$localeRoute({ name: 'index' })"> Home </NuxtLink>
   <article class="data-item">
-    <ContentRenderer
-      v-if="doc"
-      :value="doc"
-    />
-    <div v-else>
-      Loading...
-    </div>
+    <ContentRenderer v-if="doc" :value="doc" />
+    <div v-else>Loading...</div>
   </article>
 </template>
 

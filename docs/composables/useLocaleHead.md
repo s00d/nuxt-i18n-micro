@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "`useLocaleHead` Composable"
+description: "SEO meta tags and head attrs for localized routes."
+outline: "deep"
 ---
 
 # 🌍 `useLocaleHead` Composable

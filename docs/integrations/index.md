@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Integrations"
+description: "Vue, React, Preact, Solid, Astro, and Node packages."
+outline: "deep"
 ---
 
 # Integrations

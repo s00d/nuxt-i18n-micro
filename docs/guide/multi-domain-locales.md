@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Setting Up Multi-Domain Locales with `Nuxt I18n Micro` Using Layers"
+description: "Multi-domain locale setup with layers."
+outline: "deep"
 ---
 
 # 🌍 Setting Up Multi-Domain Locales with `Nuxt I18n Micro` Using Layers

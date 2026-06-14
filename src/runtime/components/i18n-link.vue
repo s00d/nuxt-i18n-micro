@@ -1,19 +1,9 @@
 <template>
-  <a
-    v-if="isExternalLink"
-    :href="externalHref"
-    :style="computedStyle"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
+  <a v-if="isExternalLink" :href="externalHref" :style="computedStyle" target="_blank" rel="noopener noreferrer">
     <slot />
   </a>
 
-  <NuxtLink
-    v-else
-    :to="$localePath(to)"
-    :style="computedStyle"
-  >
+  <NuxtLink v-else :to="$localePath(to)" :style="computedStyle">
     <slot />
   </NuxtLink>
 </template>

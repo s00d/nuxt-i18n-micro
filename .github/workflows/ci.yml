@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint (Biome)
+      - name: Lint (Oxlint)
         run: pnpm run lint
 
   test:

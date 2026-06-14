@@ -43,27 +43,14 @@ $defineI18nRoute({
     <h1>{{ $t('title') }}</h1>
     <p>{{ $t('description') }}</p>
     <ul>
-      <li
-        v-for="product in products?.[$getLocale()] || []"
-        :key="product.id"
-      >
-        <I18nLink :to="{ name: 'product-slug', params: { slug: product.url } }">
-          {{ product.title }} – {{ product.price }}
-        </I18nLink>
+      <li v-for="product in products?.[$getLocale()] || []" :key="product.id">
+        <I18nLink :to="{ name: 'product-slug', params: { slug: product.url } }"> {{ product.title }} – {{ product.price }} </I18nLink>
       </li>
     </ul>
-    <I18nLink to="/">
-      Home
-    </I18nLink>
+    <I18nLink to="/"> Home </I18nLink>
     <div class="locale-switcher">
-      <a
-        :href="$switchLocalePath('en')"
-        class="en"
-      >English</a>
-      <a
-        :href="$switchLocalePath('es')"
-        class="es"
-      >Español</a>
+      <a :href="$switchLocalePath('en')" class="en">English</a>
+      <a :href="$switchLocalePath('es')" class="es">Español</a>
     </div>
   </div>
 </template>

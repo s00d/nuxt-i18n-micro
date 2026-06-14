@@ -27,7 +27,7 @@ function getByPath(obj: Record<string, unknown>, path: string): unknown {
   const parts = path.split('.')
   let v: unknown = obj
   for (const p of parts) {
-    if (v == null || typeof v !== 'object') return undefined
+    if (v === null || v === undefined || typeof v !== 'object') return undefined
     v = (v as Record<string, unknown>)[p]
   }
   return v

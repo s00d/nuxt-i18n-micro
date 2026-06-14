@@ -1,33 +1,21 @@
 <template>
   <div>
-    <h2 id="ok">
-      ok
-    </h2>
+    <h2 id="ok">ok</h2>
     <p>{{ $t('key1.key1.key1.key1.key1') }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
 
     <!-- Links for switching locales -->
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        :disabled="locale.code === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
+      <button v-for="locale in $getLocales()" :key="locale.code" :disabled="locale.code === $getLocale()" @click="() => $switchLocale(locale.code)">
         Switch to {{ locale.code }}
       </button>
     </div>
 
     <div>
-      <i18n-link :to="{ name: 'page' }">
-        Go to Page
-      </i18n-link>
+      <i18n-link :to="{ name: 'page' }"> Go to Page </i18n-link>
     </div>
 
-    <div
-      v-for="key in generatedKeys"
-      :key="key"
-    >
+    <div v-for="key in generatedKeys" :key="key">
       <p>{{ key }}: {{ $t(key) }}</p>
     </div>
   </div>

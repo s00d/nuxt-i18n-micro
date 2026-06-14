@@ -1,23 +1,9 @@
 <template>
   <div class="tabs">
-    <button
-      v-for="tab in tabs"
-      :key="tab.value"
-      :class="['tab', { active: activeTab === tab.value }]"
-      @click="activeTab = tab.value"
-    >
-      <span
-        v-if="tab.icon"
-        class="tab-icon"
-      >
-        <component
-          :is="typeof tab.icon === 'string' ? 'span' : tab.icon"
-          v-if="typeof tab.icon !== 'string'"
-        />
-        <span
-          v-else
-          v-html="tab.icon"
-        />
+    <button v-for="tab in tabs" :key="tab.value" :class="['tab', { active: activeTab === tab.value }]" @click="activeTab = tab.value">
+      <span v-if="tab.icon" class="tab-icon">
+        <component :is="typeof tab.icon === 'string' ? 'span' : tab.icon" v-if="typeof tab.icon !== 'string'" />
+        <span v-else v-html="tab.icon" />
       </span>
       <span class="tab-label">{{ tab.label }}</span>
     </button>

@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Folder Structure Guide"
+description: "Recommended locales folder layout."
+outline: "deep"
 ---
 
 # 📂 Folder Structure Guide

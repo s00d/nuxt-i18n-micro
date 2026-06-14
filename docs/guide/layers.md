@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Layers in `Nuxt I18n Micro`"
+description: "Locale settings across Nuxt layers."
+outline: "deep"
 ---
 
 # 🗂️ Layers in `Nuxt I18n Micro`

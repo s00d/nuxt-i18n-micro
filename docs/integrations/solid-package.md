@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Solid Package (`@i18n-micro/solid`)"
+description: "i18n for SolidJS with @i18n-micro/solid."
+outline: "deep"
 ---
 
 # Solid Package (`@i18n-micro/solid`)

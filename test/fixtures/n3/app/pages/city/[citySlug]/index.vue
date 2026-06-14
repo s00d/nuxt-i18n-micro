@@ -1,8 +1,5 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <div id="data">
-    Index
-  </div>
+  <div id="data">Index</div>
 </template>

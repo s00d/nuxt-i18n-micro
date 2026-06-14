@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Node.js Runtime"
+description: "i18n for Node.js with @i18n-micro/node."
+outline: "deep"
 ---
 
 # 🌐 Node.js Runtime

@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Per-Component Translations"
+description: "Per-component translations with $defineI18nRoute."
+outline: "deep"
 ---
 
 # 📖 Per-Component Translations

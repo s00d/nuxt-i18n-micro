@@ -1,5 +1,7 @@
 ---
-outline: deep
+title: "Crowdin Integration Guide"
+description: "Connect Crowdin to your Nuxt I18n Micro project."
+outline: "deep"
 ---
 
 # 🌐 Crowdin Integration Guide

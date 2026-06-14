@@ -1,3 +1,8 @@
+---
+title: "Composables"
+description: "useI18n, useLocaleHead, and useI18nLocale composables."
+---
+
 # Composables
 
 ## Available Composables

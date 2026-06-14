@@ -32,9 +32,4 @@ export { setupRpcHost } from './rpc/host'
 export type { JsonRpcEvent, JsonRpcRequest, JsonRpcResponse } from './rpc/types'
 
 // Export types from types module
-export type {
-  JSONValue,
-  LocaleData,
-  TranslationContent,
-  TreeNode,
-} from './types'
+export type { JSONValue, LocaleData, TranslationContent, TreeNode } from './types'

@@ -20,9 +20,7 @@ async function loadEntry(name: string, format: 'esm' | 'cjs') {
 }
 
 function strategyClass(module: Record<string, unknown>, exportName: string) {
-  const Strategy = (module[exportName] ?? module.Strategy) as new (
-    ctx: ReturnType<typeof baseContext>,
-  ) => {
+  const Strategy = (module[exportName] ?? module.Strategy) as new (ctx: ReturnType<typeof baseContext>) => {
     shouldReturn404(path: string): string | null
     buildLocalizedPath?(path: string, locale: string, isCustom: boolean): string
     getClientRedirect?(path: string, locale: string): string | null

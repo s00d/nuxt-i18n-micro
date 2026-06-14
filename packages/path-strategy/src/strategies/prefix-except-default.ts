@@ -96,7 +96,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     const { inputName, sourceRoute, resolved } = normalized
     const needsPrefix = this.shouldHavePrefix(targetLocale)
     const hasGR = this.ctx._hasGR === true
-    const hasParams = sourceRoute.params != null && hasKeys(sourceRoute.params as Record<string, unknown>)
+    const hasParams = sourceRoute.params !== null && sourceRoute.params !== undefined && hasKeys(sourceRoute.params as Record<string, unknown>)
 
     if (!hasGR) {
       return this.resolveLocaleRouteSimple(targetLocale, inputName, sourceRoute, resolved, needsPrefix, hasParams, currentRoute)
@@ -144,7 +144,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       if (routeWithParams !== null) return preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeWithParams), sourceRoute)
     }
 
-    if (resolved.name != null && resolved.path && resolved.path !== '/') {
+    if (resolved.name !== null && resolved.name !== undefined && resolved.path && resolved.path !== '/') {
       const analysis = analyzeRoute(this.ctx, resolved)
       const { pathWithoutLocale, baseRouteName } = analysis
       if (pathWithoutLocale && pathWithoutLocale !== '/') {
@@ -245,7 +245,7 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       if (routeWithParams !== null) return preserveQueryAndHash(this.applyBaseUrl(targetLocale, routeWithParams), sourceRoute)
     }
 
-    if (resolved.name != null) {
+    if (resolved.name !== null && resolved.name !== undefined) {
       const analysis = analyzeRoute(this.ctx, resolved)
 
       const unlocalizedPath = getPathForUnlocalizedRoute(this.ctx, resolved, analysis)

@@ -2,58 +2,25 @@
   <div class="space-y-4 p-4 bg-white rounded-lg shadow-sm">
     <!-- Main statistics -->
     <div class="grid grid-cols-2 gap-4">
-      <StatItem
-        v-for="(stat, index) in mainStats"
-        :key="index"
-        :label="stat.label"
-        :value="stat.value"
-        :class="stat.class"
-      />
+      <StatItem v-for="(stat, index) in mainStats" :key="index" :label="stat.label" :value="stat.value" :class="stat.class" />
     </div>
 
     <!-- Keys with extreme lengths -->
-    <div
-      v-if="longestKey || shortestKey"
-      class="grid grid-cols-2 gap-4"
-    >
-      <StatItem
-        v-if="longestKey"
-        label="Longest Key"
-        :value="longestKey"
-        stacked
-        class="text-purple-600 break-all"
-      />
-      <StatItem
-        v-if="shortestKey"
-        label="Shortest Key"
-        :value="shortestKey"
-        stacked
-        class="text-purple-600 break-all"
-      />
+    <div v-if="longestKey || shortestKey" class="grid grid-cols-2 gap-4">
+      <StatItem v-if="longestKey" label="Longest Key" :value="longestKey" stacked class="text-purple-600 break-all" />
+      <StatItem v-if="shortestKey" label="Shortest Key" :value="shortestKey" stacked class="text-purple-600 break-all" />
     </div>
 
     <!-- Comparison with default locale -->
     <div class="pt-4 mt-4 border-t border-gray-200">
-      <h3 class="text-lg font-semibold text-gray-800 mb-3">
-        Comparison with Default Locale
-      </h3>
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Comparison with Default Locale</h3>
 
       <div class="grid grid-cols-2 gap-4">
-        <StatItem
-          v-for="(stat, index) in comparisonStats"
-          :key="'compare-' + index"
-          :label="stat.label"
-          :value="stat.value"
-          :class="stat.class"
-        />
+        <StatItem v-for="(stat, index) in comparisonStats" :key="'compare-' + index" :label="stat.label" :value="stat.value" :class="stat.class" />
       </div>
     </div>
 
-    <DiffViewer
-      ref="diffModal"
-      :current="content"
-      :base="defaultFlattened"
-    />
+    <DiffViewer ref="diffModal" :current="content" :base="defaultFlattened" />
   </div>
 </template>
 
@@ -192,7 +159,9 @@ const shortestKey = extremeKey((a, b) => a < b)
 }
 
 .shadow {
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 
 .grid {

@@ -2,11 +2,11 @@
   <div>
     <Navigation />
     <div>
-      <i18n-switcher
-        :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }"
-      />
+      <i18n-switcher :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }" />
     </div>
-    <div><h1>{{ $t('contact.title') }}</h1></div>
+    <div>
+      <h1>{{ $t('contact.title') }}</h1>
+    </div>
 
     <p>{{ $t('fallbackPage.value') }}</p>
     <p>{{ $t('fallback.value') }}</p>

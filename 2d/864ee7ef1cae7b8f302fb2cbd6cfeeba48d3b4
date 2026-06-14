@@ -1,0 +1,23 @@
+packages/test-utils/package.json
+  s_43f7072b0cae73::t_d9bedac9ac89cb 48-54
+packages/hmr/tsconfig.json
+  s_43f7072b0cae73::t_a654f489cbf9ba 17-18
+packages/hmr/tests/publish/subpaths.publish.test.ts
+  s_43f7072b0cae73::t_47da73ac231313 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "2d864ee7ef1cae7b8f302fb2cbd6cfeeba48d3b4",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

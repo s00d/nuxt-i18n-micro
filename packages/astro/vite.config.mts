@@ -32,6 +32,8 @@ export default defineConfig({
       external: [
         '@i18n-micro/core',
         '@i18n-micro/types',
+        '@i18n-micro/utils/accept-language',
+        '@i18n-micro/utils/parse-path',
         'node:fs',
         'node:path',
         'node:url',

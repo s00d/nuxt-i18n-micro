@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { join, relative, resolve, sep } from 'node:path'
 import type { Translations } from '@i18n-micro/types'
+import { mergeRouteTranslationsWithRoot, storeLoadedTranslationFile, type TranslationFileBuckets } from '@i18n-micro/utils/parse-path'
 
 /**
  * WARNING: Node.js-only functions
@@ -25,9 +26,24 @@ export interface LoadTranslationsOptions {
   disablePageLocales?: boolean
 }
 
-export interface LoadedTranslations {
-  root: Record<string, Translations>
-  routes: Record<string, Record<string, Translations>>
+export interface LoadedTranslations extends TranslationFileBuckets<Translations> {}
+
+function walkTranslationFiles(dir: string, onFile: (fullPath: string) => void): void {
+  if (!existsSync(dir)) return
+
+  for (const entry of readdirSync(dir)) {
+    const fullPath = join(dir, entry)
+    const stat = statSync(fullPath)
+
+    if (stat.isDirectory()) {
+      walkTranslationFiles(fullPath, onFile)
+      continue
+    }
+
+    if (entry.endsWith('.json')) {
+      onFile(fullPath)
+    }
+  }
 }
 
 /**
@@ -46,56 +62,21 @@ export function loadTranslationsFromDir(options: LoadTranslationsOptions): Loade
     return { root: {}, routes: {} }
   }
 
-  const root: Record<string, Translations> = {}
-  const routes: Record<string, Record<string, Translations>> = {}
+  const buckets: LoadedTranslations = { root: {}, routes: {} }
 
-  /**
-   * Recursively load translation files
-   */
-  const loadFiles = (dir: string, routePrefix = ''): void => {
-    if (!existsSync(dir)) return
+  walkTranslationFiles(fullTranslationDir, (fullPath) => {
+    const relativePath = relative(fullTranslationDir, fullPath).split(sep).join('/')
 
-    const entries = readdirSync(dir)
-    for (const entry of entries) {
-      const fullPath = join(dir, entry)
-      const stat = statSync(fullPath)
-
-      if (stat.isDirectory()) {
-        // If it's a 'pages' directory and page locales are enabled, treat as route-specific
-        if (entry === 'pages' && !disablePageLocales) {
-          loadFiles(fullPath, '')
-        } else if (routePrefix || disablePageLocales) {
-          loadFiles(fullPath, routePrefix)
-        } else {
-          // This is a route directory (e.g., pages/home/)
-          loadFiles(fullPath, entry)
-        }
-      } else if (entry.endsWith('.json')) {
-        const locale = entry.replace('.json', '')
-        try {
-          const content = readFileSync(fullPath, 'utf-8')
-          const translations = JSON.parse(content) as Translations
-
-          if (routePrefix && !disablePageLocales) {
-            // Route-specific translation
-            if (!routes[routePrefix]) {
-              routes[routePrefix] = {}
-            }
-            routes[routePrefix][locale] = translations
-          } else {
-            // Root-level translation
-            root[locale] = translations
-          }
-        } catch (error) {
-          console.error(`[i18n] Failed to load translation file: ${fullPath}`, error)
-        }
-      }
+    try {
+      const content = readFileSync(fullPath, 'utf-8')
+      const translations = JSON.parse(content) as Translations
+      storeLoadedTranslationFile(buckets, relativePath, translations, disablePageLocales)
+    } catch (error) {
+      console.error(`[i18n] Failed to load translation file: ${fullPath}`, error)
     }
-  }
+  })
 
-  loadFiles(fullTranslationDir)
-
-  return { root, routes }
+  return buckets
 }
 
 /**
@@ -113,16 +94,13 @@ export function loadTranslationsIntoI18n(
 ): void {
   const { root, routes } = loadTranslationsFromDir(options)
 
-  // Load root-level translations as index
   for (const [locale, translations] of Object.entries(root)) {
     i18n.addTranslations(locale, translations, false)
   }
 
-  // Load route-specific translations (with root baked in)
   for (const [routeName, routeTranslations] of Object.entries(routes)) {
     for (const [locale, translations] of Object.entries(routeTranslations)) {
-      const base = root[locale] || {}
-      i18n.addRouteTranslations(locale, routeName, { ...base, ...translations }, false)
+      i18n.addRouteTranslations(locale, routeName, mergeRouteTranslationsWithRoot(root[locale], translations), false)
     }
   }
 }

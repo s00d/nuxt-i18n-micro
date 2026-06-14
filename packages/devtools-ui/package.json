@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/devtools-ui",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "DevTools UI and Vite plugin for Nuxt I18n Micro.",
   "license": "MIT",
   "type": "module",
@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*",
     "vue": "catalog:"
   },
   "devDependencies": {

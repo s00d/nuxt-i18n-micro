@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
 import type { MiddlewareHandler } from 'astro'
 import type { AstroI18n } from './composer'
 import { getGlobalRoutingStrategy } from './integration'
@@ -110,32 +111,6 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
 }
 
 /**
- * Parse Accept-Language header
- */
-function parseAcceptLanguage(acceptLanguage: string): string[] {
-  const languages: string[] = []
-  const parts = acceptLanguage.split(',')
-
-  for (const part of parts) {
-    const [lang, q = '1.0'] = part.trim().split(';q=')
-    const quality = Number.parseFloat(q)
-    if (quality > 0 && lang) {
-      // Extract base language (e.g., 'en-US' -> 'en')
-      const baseLang = lang.split('-')[0]?.toLowerCase()
-      if (baseLang) {
-        languages.push(baseLang)
-        // Also add full locale if different
-        if (lang !== baseLang) {
-          languages.push(lang.toLowerCase())
-        }
-      }
-    }
-  }
-
-  return languages
-}
-
-/**
  * Detect locale from request
  */
 export function detectLocale(
@@ -173,15 +148,9 @@ export function detectLocale(
   // 3. Try Accept-Language
   if (locale === defaultLocale) {
     try {
-      const acceptLanguage = headers.get('accept-language')
-      if (acceptLanguage) {
-        const preferredLocales = parseAcceptLanguage(acceptLanguage)
-        for (const preferred of preferredLocales) {
-          if (locales.includes(preferred)) {
-            locale = preferred
-            break
-          }
-        }
+      const detectedFromHeader = detectLocaleFromAcceptLanguage(headers.get('accept-language') ?? undefined, locales)
+      if (detectedFromHeader) {
+        locale = detectedFromHeader
       }
     } catch {
       // Headers may be unavailable in static mode

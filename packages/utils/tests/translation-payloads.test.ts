@@ -1,15 +1,17 @@
 import { join } from 'node:path'
-import { describe, expect, it } from 'vitest'
-import { resolveTranslationPayloadOptions, resolveTranslationPayloadPublicDir } from '../src/module'
+import { resolveTranslationPayloadOptions, resolveTranslationPayloadPublicDir } from '../src/payload-config'
 
 describe('translationPayloads build options', () => {
   it('keeps all local payload outputs enabled by default', () => {
     expect(resolveTranslationPayloadOptions({})).toEqual({
+      mode: 'premerged',
       serverAssets: true,
       serverHandler: true,
       publicAssets: true,
       prerenderRoutes: true,
       publicDir: undefined,
+      warnFileCount: undefined,
+      warnSizeBytes: undefined,
     })
   })
 
@@ -25,11 +27,14 @@ describe('translationPayloads build options', () => {
         },
       }),
     ).toEqual({
+      mode: 'premerged',
       serverAssets: false,
       serverHandler: false,
       publicAssets: false,
       prerenderRoutes: false,
       publicDir: '_payloads',
+      warnFileCount: undefined,
+      warnSizeBytes: undefined,
     })
   })
 

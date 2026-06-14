@@ -1,0 +1,247 @@
+{
+  "name": "@i18n-micro/utils",
+  "version": "1.0.0",
+  "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/utils"
+  },
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/utils#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    "./deep-merge": {
+      "import": {
+        "types": "./dist/deep-merge.d.ts",
+        "default": "./dist/deep-merge.mjs"
+      },
+      "require": {
+        "types": "./dist/deep-merge.d.cts",
+        "default": "./dist/deep-merge.cjs"
+      },
+      "default": "./dist/deep-merge.mjs"
+    },
+    "./merge-source": {
+      "import": {
+        "types": "./dist/merge-source.d.ts",
+        "default": "./dist/merge-source.mjs"
+      },
+      "require": {
+        "types": "./dist/merge-source.d.cts",
+        "default": "./dist/merge-source.cjs"
+      },
+      "default": "./dist/merge-source.mjs"
+    },
+    "./source-loader": {
+      "import": {
+        "types": "./dist/source-loader.d.ts",
+        "default": "./dist/source-loader.mjs"
+      },
+      "require": {
+        "types": "./dist/source-loader.d.cts",
+        "default": "./dist/source-loader.cjs"
+      },
+      "default": "./dist/source-loader.mjs"
+    },
+    "./payload-config": {
+      "import": {
+        "types": "./dist/payload-config.d.ts",
+        "default": "./dist/payload-config.mjs"
+      },
+      "require": {
+        "types": "./dist/payload-config.d.cts",
+        "default": "./dist/payload-config.cjs"
+      },
+      "default": "./dist/payload-config.mjs"
+    },
+    "./payload-url": {
+      "import": {
+        "types": "./dist/payload-url.d.ts",
+        "default": "./dist/payload-url.mjs"
+      },
+      "require": {
+        "types": "./dist/payload-url.d.cts",
+        "default": "./dist/payload-url.cjs"
+      },
+      "default": "./dist/payload-url.mjs"
+    },
+    "./payload-fetch": {
+      "import": {
+        "types": "./dist/payload-fetch.d.ts",
+        "default": "./dist/payload-fetch.mjs"
+      },
+      "require": {
+        "types": "./dist/payload-fetch.d.cts",
+        "default": "./dist/payload-fetch.cjs"
+      },
+      "default": "./dist/payload-fetch.mjs"
+    },
+    "./payload-stats": {
+      "import": {
+        "types": "./dist/payload-stats.d.ts",
+        "default": "./dist/payload-stats.mjs"
+      },
+      "require": {
+        "types": "./dist/payload-stats.d.cts",
+        "default": "./dist/payload-stats.cjs"
+      },
+      "default": "./dist/payload-stats.mjs"
+    },
+    "./accept-language": {
+      "import": {
+        "types": "./dist/accept-language.d.ts",
+        "default": "./dist/accept-language.mjs"
+      },
+      "require": {
+        "types": "./dist/accept-language.d.cts",
+        "default": "./dist/accept-language.cjs"
+      },
+      "default": "./dist/accept-language.mjs"
+    },
+    "./resolve-locale": {
+      "import": {
+        "types": "./dist/resolve-locale.d.ts",
+        "default": "./dist/resolve-locale.mjs"
+      },
+      "require": {
+        "types": "./dist/resolve-locale.d.cts",
+        "default": "./dist/resolve-locale.cjs"
+      },
+      "default": "./dist/resolve-locale.mjs"
+    },
+    "./active-locales": {
+      "import": {
+        "types": "./dist/active-locales.d.ts",
+        "default": "./dist/active-locales.mjs"
+      },
+      "require": {
+        "types": "./dist/active-locales.d.cts",
+        "default": "./dist/active-locales.cjs"
+      },
+      "default": "./dist/active-locales.mjs"
+    },
+    "./cookie": {
+      "import": {
+        "types": "./dist/cookie.d.ts",
+        "default": "./dist/cookie.mjs"
+      },
+      "require": {
+        "types": "./dist/cookie.d.cts",
+        "default": "./dist/cookie.cjs"
+      },
+      "default": "./dist/cookie.mjs"
+    },
+    "./cache-control": {
+      "import": {
+        "types": "./dist/cache-control.d.ts",
+        "default": "./dist/cache-control.mjs"
+      },
+      "require": {
+        "types": "./dist/cache-control.d.cts",
+        "default": "./dist/cache-control.cjs"
+      },
+      "default": "./dist/cache-control.mjs"
+    },
+    "./parse-path": {
+      "import": {
+        "types": "./dist/parse-path.d.ts",
+        "default": "./dist/parse-path.mjs"
+      },
+      "require": {
+        "types": "./dist/parse-path.d.cts",
+        "default": "./dist/parse-path.cjs"
+      },
+      "default": "./dist/parse-path.mjs"
+    },
+    "./route-pattern": {
+      "import": {
+        "types": "./dist/route-pattern.d.ts",
+        "default": "./dist/route-pattern.mjs"
+      },
+      "require": {
+        "types": "./dist/route-pattern.d.cts",
+        "default": "./dist/route-pattern.cjs"
+      },
+      "default": "./dist/route-pattern.mjs"
+    },
+    "./route": {
+      "import": {
+        "types": "./dist/route.d.ts",
+        "default": "./dist/route.mjs"
+      },
+      "require": {
+        "types": "./dist/route.d.cts",
+        "default": "./dist/route.cjs"
+      },
+      "default": "./dist/route.mjs"
+    },
+    "./runtime-config": {
+      "import": {
+        "types": "./dist/runtime-config.d.ts",
+        "default": "./dist/runtime-config.mjs"
+      },
+      "require": {
+        "types": "./dist/runtime-config.d.cts",
+        "default": "./dist/runtime-config.cjs"
+      },
+      "default": "./dist/runtime-config.mjs"
+    },
+    "./build": {
+      "import": {
+        "types": "./dist/build.d.ts",
+        "default": "./dist/build.mjs"
+      },
+      "require": {
+        "types": "./dist/build.d.cts",
+        "default": "./dist/build.cjs"
+      },
+      "default": "./dist/build.mjs"
+    },
+    "./package.json": "./package.json",
+    "./dist/*": "./dist/*"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check:package": "publint",
+    "test": "jest",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "i18n",
+    "translations",
+    "utils",
+    "locale"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "@i18n-micro/types": "workspace:*",
+    "globby": "catalog:"
+  },
+  "devDependencies": {
+    "@i18n-micro/test-utils": "workspace:*",
+    "publint": "^0.3.17",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
+  }
+}

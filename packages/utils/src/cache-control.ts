@@ -31,22 +31,15 @@ export class CacheControl<T> {
   configure(options: CacheControlOptions): void {
     this.maxSize = options.maxSize ?? 0
     this.ttlMs = (options.ttl ?? 0) * 1000
-    // TTL disabled — drop stale expiry metadata to prevent memory leak
     if (this.ttlMs === 0) {
       this.expiry.clear()
     }
   }
 
-  /**
-   * Get entry. Returns undefined if missing or expired.
-   * Refreshes TTL on hit (sliding expiration).
-   * Promotes key to most-recently-used position.
-   */
   get(key: string): T | undefined {
     const entry = this.cache.get(key)
     if (entry === undefined) return undefined
 
-    // Lazy TTL check
     if (this.ttlMs > 0) {
       const exp = this.expiry.get(key)
       if (exp && Date.now() > exp) {
@@ -56,16 +49,12 @@ export class CacheControl<T> {
       this.expiry.set(key, Date.now() + this.ttlMs)
     }
 
-    // LRU: move to end (most-recently-used)
     this.cache.delete(key)
     this.cache.set(key, entry)
 
     return entry
   }
 
-  /**
-   * Check existence. Lazily evicts expired entries (side-effect by design).
-   */
   has(key: string): boolean {
     if (!this.cache.has(key)) return false
 
@@ -79,11 +68,6 @@ export class CacheControl<T> {
     return true
   }
 
-  /**
-   * Store entry with O(1) LRU eviction.
-   * Existing key — refreshes LRU position.
-   * New key at capacity — evicts least-recently-used (first Map key).
-   */
   set(key: string, value: T): void {
     if (this.cache.has(key)) {
       this.cache.delete(key)
@@ -101,24 +85,20 @@ export class CacheControl<T> {
     }
   }
 
-  /** Delete entry and its expiry metadata. */
   delete(key: string): boolean {
     this.expiry.delete(key)
     return this.cache.delete(key)
   }
 
-  /** Clear all entries and metadata. */
   clear(): void {
     this.cache.clear()
     this.expiry.clear()
   }
 
-  /** Iterate over all cache keys. */
   keys(): IterableIterator<string> {
     return this.cache.keys()
   }
 
-  /** Current number of entries. */
   get size(): number {
     return this.cache.size
   }

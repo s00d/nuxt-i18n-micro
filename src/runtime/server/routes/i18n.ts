@@ -1,9 +1,9 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { createError, defineEventHandler, getRouterParam, send, setResponseHeader } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
-import { isEnabledLocale } from '../../utils/active-locales'
-import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 import { loadTranslationsFromServer } from '../utils/server-loader'
 
 /**

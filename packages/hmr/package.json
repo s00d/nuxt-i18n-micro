@@ -1,0 +1,93 @@
+{
+  "name": "@i18n-micro/hmr",
+  "version": "1.0.0",
+  "description": "Translation HMR utilities for Nuxt I18n Micro (granular subpath imports).",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/hmr"
+  },
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
+  },
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/hmr#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    "./watcher": {
+      "import": {
+        "types": "./dist/watcher.d.ts",
+        "default": "./dist/watcher.mjs"
+      },
+      "require": {
+        "types": "./dist/watcher.d.cts",
+        "default": "./dist/watcher.cjs"
+      },
+      "default": "./dist/watcher.mjs"
+    },
+    "./generate-plugin": {
+      "import": {
+        "types": "./dist/generate-plugin.d.ts",
+        "default": "./dist/generate-plugin.mjs"
+      },
+      "require": {
+        "types": "./dist/generate-plugin.d.cts",
+        "default": "./dist/generate-plugin.cjs"
+      },
+      "default": "./dist/generate-plugin.mjs"
+    },
+    "./cache-keys": {
+      "import": {
+        "types": "./dist/cache-keys.d.ts",
+        "default": "./dist/cache-keys.mjs"
+      },
+      "require": {
+        "types": "./dist/cache-keys.d.cts",
+        "default": "./dist/cache-keys.cjs"
+      },
+      "default": "./dist/cache-keys.mjs"
+    },
+    "./package.json": "./package.json",
+    "./dist/*": "./dist/*"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check:package": "publint",
+    "test": "jest",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "nuxt",
+    "i18n",
+    "hmr",
+    "translations"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@i18n-micro/test-utils": "workspace:*",
+    "publint": "^0.3.17",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
+  }
+}

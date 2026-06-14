@@ -1,14 +1,20 @@
 /**
  * Server-side translation loader.
- * All merging (layers, fallback locales, global + page) is done at build time.
- * This loader simply reads a single pre-built file from Nitro storage and returns it.
+ * In `premerged` mode, layers/fallback/root+page are merged at build time and this loader
+ * reads a single Nitro asset. In `source` mode, compact source files are merged at runtime.
  */
+
+import { SERVER_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
+import { CacheControl } from '@i18n-micro/utils/cache-control'
+import { normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
+import { fetchTranslationPayloadFromHost } from '@i18n-micro/utils/payload-fetch'
+import { resolveTranslationPayloadPage } from '@i18n-micro/utils/payload-url'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
+import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'
 import { useStorage } from 'nitropack/runtime'
 import { getI18nConfig } from '#i18n-internal/strategy'
-import { isEnabledLocale } from '../../utils/active-locales'
-import { CacheControl } from '../../utils/cache-control'
-import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 
 // ============================================================================
 // SERVER CACHE
@@ -16,16 +22,15 @@ import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-
 
 type CacheEntry = { data: Translations; json: string }
 
-const CC_KEY = Symbol.for('__NUXT_I18N_SERVER_CACHE_CC__')
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
 function getServerCacheControl(): CacheControl<CacheEntry> {
   const g = globalThis as GlobalWithCC
-  if (!g[CC_KEY]) {
+  if (!g[SERVER_CC_KEY]) {
     const cfg = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
-    g[CC_KEY] = new CacheControl<CacheEntry>({ maxSize: cfg.cacheMaxSize ?? 0, ttl: cfg.cacheTtl ?? 0 })
+    g[SERVER_CC_KEY] = new CacheControl<CacheEntry>({ maxSize: cfg.cacheMaxSize ?? 0, ttl: cfg.cacheTtl ?? 0 })
   }
-  return g[CC_KEY] as CacheControl<CacheEntry>
+  return g[SERVER_CC_KEY] as CacheControl<CacheEntry>
 }
 
 // ============================================================================
@@ -42,31 +47,13 @@ function toTranslations(data: unknown): Translations {
   return {}
 }
 
-async function fetchExternalTranslations(config: ModuleOptionsExtend, locale: string, routeName: string): Promise<Translations> {
-  const apiBaseServerHost = config.apiBaseServerHost
-  if (!apiBaseServerHost) return {}
-
-  const apiBaseUrl = config.apiBaseUrl ?? '_locales'
-  const path = `/${apiBaseUrl}/${routeName}/${locale}/data.json`
-  try {
-    const data = await $fetch(path.replace(/\/{2,}/g, '/'), {
-      baseURL: apiBaseServerHost,
-      params: config.dateBuild ? { v: config.dateBuild } : undefined,
-    })
-
-    return toTranslations(data)
-  } catch {
-    return {}
-  }
-}
-
 // ============================================================================
 // PUBLIC API
 // ============================================================================
 
 /**
  * Load translations for a given locale and page.
- * Returns a single pre-built file (global + page + fallback already baked in at build time).
+ * Returns merged translations and a pre-serialized JSON string for the API route.
  */
 export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<{ data: Translations; json: string }> {
   const cc = getServerCacheControl()
@@ -86,11 +73,26 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
 
   const storage = useStorage()
   const routesLocaleLinks = config.routesLocaleLinks || {}
-  const resolvedPage = routesLocaleLinks[routeName] || routeName
+  const resolvedPage = resolveTranslationPayloadPage(routeName, routesLocaleLinks)
   const normalizedPage = resolvedPage.replace(/\//g, ':')
 
   if (config.apiBaseServerHost) {
-    const data = await fetchExternalTranslations(config, locale, resolvedPage)
+    const data = await fetchTranslationPayloadFromHost(config, locale, resolvedPage, $fetch)
+    const json = JSON.stringify(data).replace(/</g, '\\u003c')
+    const entry = { data, json }
+
+    cc.set(cacheKey, entry)
+    return entry
+  }
+
+  if (config.translationPayloadMode === 'source') {
+    const data = await loadSourceTranslationsFromStorage(storage, {
+      locale,
+      pageName: resolvedPage,
+      locales: normalizeConfiguredLocales(config.locales),
+      globalFallbackLocale: config.fallbackLocale,
+      disablePageLocales: config.disablePageLocales,
+    })
     const json = JSON.stringify(data).replace(/</g, '\\u003c')
     const entry = { data, json }
 

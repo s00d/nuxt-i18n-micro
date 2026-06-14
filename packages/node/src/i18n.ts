@@ -1,5 +1,6 @@
 import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
 import type { PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
+import { mergeRouteTranslationsWithRoot } from '@i18n-micro/utils/parse-path'
 import { loadTranslations } from './loader'
 
 export interface I18nOptions {
@@ -72,8 +73,7 @@ export class I18n extends BaseI18n {
     for (const [routeName, routeLocales] of Object.entries(routes)) {
       for (const [locale, translations] of Object.entries(routeLocales)) {
         const base = this.helper.getCache(locale, 'index')
-        const merged = base ? { ...base, ...translations } : translations
-        this.helper.loadPageTranslations(locale, routeName, merged)
+        this.helper.loadPageTranslations(locale, routeName, mergeRouteTranslationsWithRoot(base, translations))
       }
     }
   }

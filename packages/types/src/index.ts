@@ -467,9 +467,19 @@ export interface ModuleOptions {
 
 export interface TranslationPayloadOptions {
   /**
-   * Register the pre-merged translations directory as Nitro server assets.
-   * Required for the built-in local `_locales` server route and server middleware unless
-   * translations are fetched from `apiBaseServerHost`.
+   * Translation payload strategy.
+   * - `premerged`: build-time page/locale matrix (default)
+   * - `source`: compact source files merged at runtime (recommended for large serverless apps)
+   * @default 'premerged'
+   */
+  mode?: 'premerged' | 'source'
+
+  /**
+   * Register translation payload files as Nitro server assets.
+   * In `premerged` mode this is the fully merged page/locale matrix.
+   * In `source` mode this is the compact layer-merged source directory.
+   * Required for the built-in local `_locales` server route unless translations are fetched
+   * from `apiBaseServerHost`.
    * @default true
    */
   serverAssets?: boolean
@@ -482,8 +492,9 @@ export interface TranslationPayloadOptions {
   serverHandler?: boolean
 
   /**
-   * Copy the pre-merged translations directory into Nitro public assets during production builds.
-   * @default true
+   * Copy translation payload files into Nitro public assets during production builds.
+   * In `source` mode this copies the compact source directory, not a pre-merged matrix.
+   * @default true in `premerged` mode, `false` in `source` mode
    */
   publicAssets?: boolean
 
@@ -491,7 +502,7 @@ export interface TranslationPayloadOptions {
    * Add translation data routes to Nuxt/Nitro prerender output.
    * Disable this when `_locales` payloads are served from an external host/CDN or should not be
    * materialized into public output.
-   * @default true
+   * @default true in `premerged` mode, `false` in `source` mode
    */
   prerenderRoutes?: boolean
 
@@ -500,6 +511,18 @@ export interface TranslationPayloadOptions {
    * Defaults to `translationDir`.
    */
   publicDir?: string
+
+  /**
+   * Warn during build when generated payload file count exceeds this threshold.
+   * @default 500
+   */
+  warnFileCount?: number
+
+  /**
+   * Warn during build when generated payload total size exceeds this threshold in bytes.
+   * @default 10485760 (10 MB)
+   */
+  warnSizeBytes?: number
 }
 
 /**
@@ -519,6 +542,8 @@ export interface ModuleOptionsExtend extends ModuleOptions {
   disablePageLocales: boolean
   /** Resolved flag: whether locale-based redirects are enabled. */
   redirects?: boolean
+  /** Resolved translation payload loading strategy. */
+  translationPayloadMode?: 'premerged' | 'source'
 }
 
 /**

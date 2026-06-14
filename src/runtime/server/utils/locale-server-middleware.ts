@@ -1,9 +1,9 @@
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { getEnabledLocaleCodes, getEnabledLocales } from '@i18n-micro/utils/active-locales'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import type { H3Event } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
-import { getEnabledLocaleCodes, getEnabledLocales } from '../../utils/active-locales'
-import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 import { detectCurrentLocale } from './locale-detector'
 
 export interface LocaleInfo {

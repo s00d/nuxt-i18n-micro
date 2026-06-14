@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/types",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "TypeScript definitions for the Nuxt I18n Micro ecosystem.",
   "repository": {
     "type": "git",

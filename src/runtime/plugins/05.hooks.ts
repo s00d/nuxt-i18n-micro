@@ -2,11 +2,11 @@
 
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 // Note: useTranslationHelper from @i18n-micro/core is no longer needed
 import type { RouteLocationResolvedGeneric } from 'vue-router'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import { defineNuxtPlugin, useNuxtApp, useRouter } from '#imports'
-import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 const isDev = process.env.NODE_ENV !== 'production'
 

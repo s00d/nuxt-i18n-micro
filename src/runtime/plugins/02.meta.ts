@@ -1,10 +1,10 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { isMetaDisabledForRoute } from '@i18n-micro/utils/route'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { watch } from 'vue'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute } from '#imports'
 import { useLocaleHead } from '../composables/useLocaleHead'
-import { isMetaDisabledForRoute } from '../utils/route-utils'
-import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()

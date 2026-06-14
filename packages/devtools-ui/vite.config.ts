@@ -60,7 +60,7 @@ const libEs: UserConfig = {
       fileName: (_format, entryName) => (entryName === 'index' ? 'index.es.js' : `${entryName}.js`),
     },
     rollupOptions: {
-      external: ['@i18n-micro/types'],
+      external: ['@i18n-micro/types', '@i18n-micro/utils/merge-source', '@i18n-micro/utils/parse-path'],
       output: { exports: 'named' },
       onwarn: suppressTailwindSourcemapWarn,
     },
@@ -81,7 +81,7 @@ const libUmd: UserConfig = {
       fileName: () => 'index.umd.js',
     },
     rollupOptions: {
-      external: ['@i18n-micro/types'],
+      external: ['@i18n-micro/types', '@i18n-micro/utils/merge-source', '@i18n-micro/utils/parse-path'],
       output: {
         exports: 'named',
         globals: { '@i18n-micro/types': 'I18nMicroTypes' },

@@ -1,4 +1,6 @@
 import type { Locale, ModuleOptions } from '@i18n-micro/types'
+import { buildSourcePagePath, buildSourceRootPath } from '@i18n-micro/utils/merge-source'
+import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import type { I18nDevToolsBridge, LocaleData, TranslationContent } from './interface'
 
 /**
@@ -72,13 +74,7 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
       const locale = key.substring(0, separatorIndex)
       const routeName = key.substring(separatorIndex + 1)
 
-      if (routeName === 'index') {
-        // Index (root-level) translations -> {locale}.json
-        data[`${locale}.json`] = content
-      } else {
-        // Page-specific translations -> pages/{routeName}/{locale}.json
-        data[`pages/${routeName}/${locale}.json`] = content
-      }
+      data[routeName === 'index' ? buildSourceRootPath(locale) : buildSourcePagePath(routeName, locale)] = content
     }
 
     return data
@@ -104,27 +100,14 @@ export function createBridge(options: CreateBridgeOptions): I18nDevToolsBridge {
         // Normalize path: remove leading / and extra slashes
         const normalizedPath = filePath.replace(/^\/+/, '').replace(/\/+/g, '/')
 
-        // Parse virtual file path back to locale and route
-        const pageMatch = normalizedPath.match(/^pages\/([^/]+)\/([^/]+)\.json$/)
+        const parsedPath = parseTranslationRelativePath(normalizedPath)
 
-        if (pageMatch) {
-          const [, routeName, locale] = pageMatch
-          // Update route cache (overwrite, merge = false)
-          if (locale && routeName) {
-            adapter.addRouteTranslations(locale, routeName, content, false)
-          }
+        if (parsedPath.type === 'page') {
+          adapter.addRouteTranslations(parsedPath.locale, parsedPath.pageName, content, false)
+        } else if (parsedPath.type === 'root') {
+          adapter.addTranslations(parsedPath.locale, content, false)
         } else {
-          // 2. Check for global: {locale}.json
-          const globalMatch = normalizedPath.match(/^([^/]+)\.json$/)
-          if (globalMatch) {
-            const [, locale] = globalMatch
-            // Update global cache (overwrite, merge = false)
-            if (locale) {
-              adapter.addTranslations(locale, content, false)
-            }
-          } else {
-            throw new Error(`Unknown file path format: ${filePath}`)
-          }
+          throw new Error(`Unknown file path format: ${filePath}`)
         }
 
         // 2. Send request to server to save file to disk

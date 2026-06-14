@@ -1,9 +1,9 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { findAllowedLocalesForRoute } from '@i18n-micro/utils/route'
 import { joinURL, parseURL, withQuery } from 'ufo'
 import { ref, unref, watch } from 'vue'
 import { useNuxtApp, useRoute } from '#imports'
-import { findAllowedLocalesForRoute } from '../utils/route-utils'
 
 interface MetaLink {
   [key: string]: string | undefined

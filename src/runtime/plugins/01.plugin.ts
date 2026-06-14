@@ -1,6 +1,8 @@
 import { FormatService, isNoPrefixStrategy } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
 import type { CleanTranslation, I18nRouteParams, Locale, MissingHandler, ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
+import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { shallowRef, triggerRef, unref } from 'vue'
 import type {
   RouteLocationNamedRaw,
@@ -14,8 +16,6 @@ import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useHead, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
-import { deepMergeTranslations } from '../utils/deep-merge'
-import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 import { translationStorage } from '../utils/storage'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -139,6 +139,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     apiBaseClientHost: i18nConfig.apiBaseClientHost,
     apiBaseServerHost: i18nConfig.apiBaseServerHost,
     dateBuild: i18nConfig.dateBuild,
+    routesLocaleLinks: i18nConfig.routesLocaleLinks,
   }
 
   // === 2. TRANSLATION LOADER ===

@@ -1,10 +1,10 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { useNuxtApp, useState } from '#app'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import { useCookie } from '#imports'
-import { getEnabledLocaleCodes } from '../utils/active-locales'
-import { getHashCookieName, getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
-import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 type CookieRef = { value: string | null }
 

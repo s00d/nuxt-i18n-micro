@@ -24,7 +24,7 @@ export default defineConfig({
     },
     rollupOptions: {
       // Важно: не бандлим зависимости, они должны ставиться через npm
-      external: ['@i18n-micro/core', '@i18n-micro/types', 'node:fs/promises', 'node:path', 'node:fs'],
+      external: ['@i18n-micro/core', '@i18n-micro/types', '@i18n-micro/utils/parse-path', 'node:fs/promises', 'node:path', 'node:fs'],
     },
     // Для Node.js таргета
     target: 'node18',

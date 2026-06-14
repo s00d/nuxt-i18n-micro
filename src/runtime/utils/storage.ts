@@ -3,7 +3,9 @@
  * Unified translation storage for client and server.
  * Cache control (TTL, maxSize) delegated to CacheControl.
  */
-import { CacheControl, type CacheControlOptions } from './cache-control'
+import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
+import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
+import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
 
 declare global {
   interface Window {
@@ -17,6 +19,7 @@ export interface LoadOptions {
   apiBaseClientHost?: string
   apiBaseServerHost?: string
   dateBuild?: string | number
+  routesLocaleLinks?: Record<string, string>
 }
 
 export interface LoadResult {
@@ -29,15 +32,14 @@ export interface LoadResult {
 // STORAGE CLASS
 // ============================================================================
 
-const CC_KEY = Symbol.for('__NUXT_I18N_STORAGE_CC__')
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
 function getStorageCacheControl(): CacheControl<Record<string, unknown>> {
   const g = globalThis as GlobalWithCC
-  if (!g[CC_KEY]) {
-    g[CC_KEY] = new CacheControl<Record<string, unknown>>()
+  if (!g[STORAGE_CC_KEY]) {
+    g[STORAGE_CC_KEY] = new CacheControl<Record<string, unknown>>()
   }
-  return g[CC_KEY] as CacheControl<Record<string, unknown>>
+  return g[STORAGE_CC_KEY] as CacheControl<Record<string, unknown>>
 }
 
 class TranslationStorage {
@@ -67,14 +69,21 @@ class TranslationStorage {
   // ==========================================================================
 
   private async fetchTranslations(locale: string, routeName: string | undefined, options: LoadOptions): Promise<Record<string, unknown>> {
-    const { apiBaseUrl, baseURL, apiBaseClientHost, apiBaseServerHost, dateBuild } = options
-    const page = routeName || 'index'
-    const path = `/${apiBaseUrl}/${page}/${locale}/data.json`
-    const payloadBaseURL = import.meta.server ? apiBaseServerHost : apiBaseClientHost
+    const request = buildTranslationPayloadFetchRequest({
+      apiBaseUrl: options.apiBaseUrl,
+      routeName,
+      locale,
+      isServer: import.meta.server,
+      baseURL: options.baseURL,
+      apiBaseClientHost: options.apiBaseClientHost,
+      apiBaseServerHost: options.apiBaseServerHost,
+      dateBuild: options.dateBuild,
+      routesLocaleLinks: options.routesLocaleLinks,
+    })
 
-    return (await $fetch(path.replace(/\/{2,}/g, '/'), {
-      baseURL: payloadBaseURL ?? baseURL,
-      params: dateBuild ? { v: dateBuild } : undefined,
+    return (await $fetch(request.path, {
+      baseURL: request.baseURL,
+      params: request.params,
     })) as Record<string, unknown>
   }
 

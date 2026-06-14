@@ -14,6 +14,7 @@ export function generateHmrPlugin(files: string[]): string {
       } else {
         const m = /\/([^/]+)\.json$/.exec(file)
         locale = m?.[1] || ''
+        pageName = 'index'
       }
 
       return `
@@ -24,7 +25,7 @@ if (import.meta.hot) {
       ? mod.default
       : mod
     try {
-      ${isPage ? `await nuxtApp.$loadPageTranslations('${locale}', '${pageName}', data)` : `await nuxtApp.$loadTranslations('${locale}', data)`}
+      await nuxtApp.$loadPageTranslations('${locale}', '${pageName}', data)
       console.log('[i18n HMR] Translations reloaded:', '${isPage ? 'page' : 'global'}', '${locale}'${isPage ? `, '${pageName}'` : ''})
     }
     catch (e) {

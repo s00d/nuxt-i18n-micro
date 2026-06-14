@@ -4,13 +4,13 @@
  */
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { getLocaleCookieName } from '@i18n-micro/utils/cookie'
+import { resolveServerLocale } from '@i18n-micro/utils/resolve-locale'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { defineEventHandler, getCookie, getHeader, getQuery, getRequestURL } from 'h3'
 import { getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
-import { getEnabledLocaleCodes } from '../../utils/active-locales'
-import { getLocaleCookieName } from '../../utils/cookie'
-import { resolveServerLocale } from '../../utils/resolve-server-locale'
-import { resolveI18nConfigWithRuntimeOverrides } from '../../utils/runtime-i18n-config'
 
 export default defineEventHandler(async (event) => {
   const path = event.path || getRequestURL(event).pathname

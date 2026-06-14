@@ -4,14 +4,14 @@
  */
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
+import { resolvePreferredLocale } from '@i18n-micro/utils/resolve-locale'
+import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { getCookie, getHeader, getRequestURL, setCookie } from 'h3'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRoute, useRouter, useState } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
-import { getEnabledLocaleCodes } from '../utils/active-locales'
-import { getLocaleCookieName, getLocaleCookieOptions } from '../utils/cookie'
-import { resolvePreferredLocale } from '../utils/resolve-server-locale'
-import { resolveI18nConfigWithRuntimeOverrides } from '../utils/runtime-i18n-config'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
 

@@ -1,3 +1,4 @@
+import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
 import type { H3Event } from 'h3'
 import { getCookie, getQuery, getRequestURL } from 'h3'
 
@@ -44,12 +45,16 @@ export const detectCurrentLocale = (
   }
 
   // 4. Other fallbacks (Cookie, Header, Default)
-  return (
-    getCookie(event, 'user-locale') ||
-    event.headers.get('accept-language')?.split(',')[0] ||
-    fallbackLocale ||
-    defaultLocale ||
-    configDefaultLocale ||
-    'en'
-  ).toString()
+  const cookieLocale = getCookie(event, 'user-locale')
+  if (cookieLocale) {
+    return cookieLocale.toString()
+  }
+
+  const localeCodes = locales?.map((locale) => locale.code) ?? []
+  const detectedFromHeader = detectLocaleFromAcceptLanguage(event.headers.get('accept-language') ?? undefined, localeCodes)
+  if (detectedFromHeader) {
+    return detectedFromHeader
+  }
+
+  return (fallbackLocale || defaultLocale || configDefaultLocale || 'en').toString()
 }

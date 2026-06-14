@@ -1,8 +1,7 @@
 ---
 title: "DevTools UI Package (`@i18n-micro/devtools-ui`)"
-description: "The @i18n-micro/devtools-ui package provides a standalone development tools interface for managing translations. It includes a Vite plugin for automatic inte..."
-
-outline: deep
+description: "Standalone DevTools UI and Vite plugin."
+outline: "deep"
 ---
 
 # DevTools UI Package (`@i18n-micro/devtools-ui`)

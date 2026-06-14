@@ -1,8 +1,7 @@
 ---
 title: "Vue Package (`@i18n-micro/vue`)"
-description: "The @i18n-micro/vue package provides a lightweight, high-performance internationalization solution for Vue 3 applications. It shares the same core logic as N..."
-
-outline: deep
+description: "i18n for Vue 3 with @i18n-micro/vue."
+outline: "deep"
 ---
 
 # Vue Package (`@i18n-micro/vue`)

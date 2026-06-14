@@ -1,8 +1,7 @@
 ---
 title: "Nuxt I18n Micro Examples and Usage"
-description: "This section provides various examples demonstrating how to use Nuxt I18n Micro in your Nuxt.js application. You'll see how to switch locales, use the <i18n-..."
-
-outline: deep
+description: "Examples of locale switching and i18n components."
+outline: "deep"
 ---
 
 # 📚 Nuxt I18n Micro Examples and Usage

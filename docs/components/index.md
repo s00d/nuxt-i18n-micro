@@ -1,6 +1,6 @@
 ---
 title: "Components"
-description: "Vue components for Nuxt I18n Micro: i18n-t, i18n-link, i18n-switcher, and i18n-group."
+description: "i18n-t, i18n-link, i18n-switcher, and i18n-group components."
 ---
 
 # Components

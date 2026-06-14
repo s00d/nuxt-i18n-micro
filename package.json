@@ -100,8 +100,7 @@
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
     "docs:clean-dev": "vitepress dev docs --clean-cache",
-    "docs:preview": "vitepress preview docs",
-    "docs:og-image": "node docs/scripts/generate-og-image.mjs"
+    "docs:preview": "vitepress preview docs"
   },
   "stackblitz": {
     "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev",

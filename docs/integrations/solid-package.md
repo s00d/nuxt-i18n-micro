@@ -1,8 +1,7 @@
 ---
 title: "Solid Package (`@i18n-micro/solid`)"
-description: "The @i18n-micro/solid package provides a lightweight, high-performance internationalization solution for SolidJS applications. It shares the same core logic..."
-
-outline: deep
+description: "i18n for SolidJS with @i18n-micro/solid."
+outline: "deep"
 ---
 
 # Solid Package (`@i18n-micro/solid`)

@@ -1,8 +1,7 @@
 ---
 title: "Types Generator (`@i18n-micro/types-generator`)"
-description: "The @i18n-micro/types-generator package provides automatic TypeScript type generation for translation keys. It analyzes your JSON translation files and gener..."
-
-outline: deep
+description: "Generate TypeScript types from locale JSON."
+outline: "deep"
 ---
 
 # 🔧 Types Generator (`@i18n-micro/types-generator`)

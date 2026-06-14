@@ -1,8 +1,7 @@
 ---
 title: "`useLocaleHead` Composable"
-description: "The useLocaleHead composable is a utility in Nuxt I18n Micro that helps you manage SEO attributes and HTML meta tags for localized routes. It dynamically gen..."
-
-outline: deep
+description: "SEO meta tags and head attrs for localized routes."
+outline: "deep"
 ---
 
 # 🌍 `useLocaleHead` Composable

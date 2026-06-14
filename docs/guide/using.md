@@ -1,6 +1,6 @@
 ---
 title: "Using Translations in Components"
-description: "Once the module is installed and configured, you can display translations by calling $t('your_key') within your Vue templates and scripts."
+description: "Use $t() and translations in Vue components."
 ---
 
 # Using Translations in Components

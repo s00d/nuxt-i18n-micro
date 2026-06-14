@@ -1,8 +1,7 @@
 ---
 title: "FAQ: Common Issues & Solutions"
-description: "Find answers to frequently asked questions and solutions to common problems with Nuxt I18n Micro."
-
-outline: deep
+description: "Common questions and troubleshooting."
+outline: "deep"
 ---
 
 # ❓ FAQ: Common Issues & Solutions

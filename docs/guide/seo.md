@@ -1,8 +1,7 @@
 ---
 title: "SEO Guide for Nuxt I18n Micro"
-description: "Effective SEO (Search Engine Optimization) is essential for ensuring that your multilingual site is accessible and visible to users worldwide through search..."
-
-outline: deep
+description: "SEO setup for multilingual Nuxt sites."
+outline: "deep"
 ---
 
 # 🌐 SEO Guide for Nuxt I18n Micro

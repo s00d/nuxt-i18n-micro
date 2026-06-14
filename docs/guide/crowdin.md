@@ -1,8 +1,7 @@
 ---
 title: "Crowdin Integration Guide"
-description: "Integrating Crowdin into your project streamlines the localization and translation process, making it easier to manage translations across multiple languages..."
-
-outline: deep
+description: "Connect Crowdin to your Nuxt I18n Micro project."
+outline: "deep"
 ---
 
 # 🌐 Crowdin Integration Guide

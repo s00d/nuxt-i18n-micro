@@ -1,8 +1,7 @@
 ---
 title: "Events"
-description: "The i18n:register event in Nuxt I18n Micro enables dynamic addition of translations to your application's i18n context, making the internationalization proce..."
-
-outline: deep
+description: "Register translations at runtime with the i18n:register event."
+outline: "deep"
 ---
 
 # 📢 Events

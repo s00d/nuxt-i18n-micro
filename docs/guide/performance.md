@@ -1,8 +1,7 @@
 ---
 title: "Performance Guide"
-description: "Nuxt I18n Micro is designed with performance in mind, offering a significant improvement over traditional internationalization (i18n) modules like nuxt-i18n...."
-
-outline: deep
+description: "Performance tips and optimizations."
+outline: "deep"
 ---
 
 # 🚀 Performance Guide

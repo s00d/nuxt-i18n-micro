@@ -1,6 +1,6 @@
 ---
 title: "Excluding Static Files from i18n Routing"
-description: "By default, nuxt-i18n-micro automatically excludes common static files from i18n routing processing. However, you can also configure custom exclusion pattern..."
+description: "Exclude static files from i18n routing."
 ---
 
 # Excluding Static Files from i18n Routing

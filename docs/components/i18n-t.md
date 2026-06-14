@@ -1,8 +1,7 @@
 ---
 title: "`<i18n-t>` Component"
-description: "The <i18n-t> component in Nuxt I18n Micro is a flexible translation component that supports dynamic content insertion via slots. It allows you to interpolate..."
-
-outline: deep
+description: "Translation component with slot-based interpolation."
+outline: "deep"
 ---
 
 # 🌍 `<i18n-t>` Component

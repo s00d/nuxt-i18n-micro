@@ -1,6 +1,6 @@
 ---
 title: "Routing Strategies in Nuxt I18n Micro"
-description: "Nuxt I18n Micro controls how locale prefixes appear in URLs through the strategy option. Under the hood, two packages implement this:"
+description: "URL prefix strategies for locale routing."
 ---
 
 # 🗂️ Routing Strategies in Nuxt I18n Micro

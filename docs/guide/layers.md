@@ -1,8 +1,7 @@
 ---
 title: "Layers in `Nuxt I18n Micro`"
-description: "Layers in Nuxt I18n Micro allow you to manage and customize localization settings flexibly across different parts of your application. By defining different..."
-
-outline: deep
+description: "Locale settings across Nuxt layers."
+outline: "deep"
 ---
 
 # 🗂️ Layers in `Nuxt I18n Micro`

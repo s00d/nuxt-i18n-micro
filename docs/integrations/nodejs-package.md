@@ -1,8 +1,7 @@
 ---
 title: "Node.js Runtime"
-description: "Use @i18n-micro/node to add i18n translations to any Node.js application, CLI tool, or backend service. This package provides the same translation logic as t..."
-
-outline: deep
+description: "i18n for Node.js with @i18n-micro/node."
+outline: "deep"
 ---
 
 # 🌐 Node.js Runtime

@@ -4,6 +4,8 @@ import { withFolderTree } from 'vitepress-plugin-folder-tree'
 import pkg from '../../package.json'
 import { SITE, transformHead } from './seo'
 
+const docsBase = process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/'
+
 // https://vitepress.dev/reference/site-config
 export default withFolderTree(withChartjs(withMermaid({
   vite: {
@@ -27,7 +29,7 @@ export default withFolderTree(withChartjs(withMermaid({
   titleTemplate: ':title | Nuxt I18n Micro',
   lastUpdated: true,
   cleanUrls: true,
-  base: process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/',
+  base: docsBase,
 
   transformHead,
 
@@ -43,9 +45,9 @@ export default withFolderTree(withChartjs(withMermaid({
   },
 
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico', sizes: 'any' }],
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
-    ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
+    ['link', { rel: 'icon', href: `${docsBase}favicon.ico`, sizes: 'any' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${docsBase}favicon.svg` }],
+    ['link', { rel: 'apple-touch-icon', href: `${docsBase}apple-touch-icon.png` }],
     ['meta', { name: 'application-name', content: SITE.name }],
     ['meta', { name: 'keywords', content: 'nuxt,i18n,internationalization,nuxt-module,localization,vue,ssr,seo' }],
     ['link', { rel: 'dns-prefetch', href: 'https://github.com' }],

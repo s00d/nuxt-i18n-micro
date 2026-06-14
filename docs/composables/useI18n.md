@@ -1,8 +1,7 @@
 ---
 title: "`useI18n` Composable"
-description: "The useI18n composable in Nuxt I18n Micro is designed to provide an easy and efficient way to access internationalization functionalities within your Nuxt ap..."
-
-outline: deep
+description: "Access i18n features in components and scripts."
+outline: "deep"
 ---
 
 # 🛠️ `useI18n` Composable

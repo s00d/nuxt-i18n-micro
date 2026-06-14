@@ -1,8 +1,7 @@
 ---
 title: "Per-Component Translations"
-description: "Learn how to define translations directly within Vue components using $defineI18nRoute for modular and maintainable localization."
-
-outline: deep
+description: "Per-component translations with $defineI18nRoute."
+outline: "deep"
 ---
 
 # 📖 Per-Component Translations

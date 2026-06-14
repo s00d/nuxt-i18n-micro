@@ -1,8 +1,7 @@
 ---
 title: "`<i18n-switcher>` Component"
-description: "The <i18n-switcher> component in Nuxt I18n Micro provides a user-friendly dropdown interface for switching between different locales in your application. Thi..."
-
-outline: deep
+description: "Dropdown component for switching app locales."
+outline: "deep"
 ---
 
 # 🌍 `<i18n-switcher>` Component

@@ -1,8 +1,7 @@
 ---
 title: "Custom Language Detection in Nuxt I18n Micro"
-description: "Nuxt I18n Micro v3 provides a centralized composable — useI18nLocale() — for all locale management. This replaces the manual useState/useCookie patterns from..."
-
-outline: deep
+description: "Custom locale detection with useI18nLocale()."
+outline: "deep"
 ---
 
 # 🔧 Custom Language Detection in Nuxt I18n Micro

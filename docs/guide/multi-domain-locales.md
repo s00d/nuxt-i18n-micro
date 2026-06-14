@@ -1,8 +1,7 @@
 ---
 title: "Setting Up Multi-Domain Locales with `Nuxt I18n Micro` Using Layers"
-description: "By leveraging layers in Nuxt I18n Micro, you can create a flexible and maintainable multi-domain localization setup. This approach not only simplifies domain..."
-
-outline: deep
+description: "Multi-domain locale setup with layers."
+outline: "deep"
 ---
 
 # 🌍 Setting Up Multi-Domain Locales with `Nuxt I18n Micro` Using Layers

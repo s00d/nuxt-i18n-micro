@@ -1,8 +1,7 @@
 ---
 title: "Folder Structure Guide"
-description: "Organizing your translation files effectively is essential for maintaining a scalable and efficient internationalization (i18n) system. Nuxt I18n Micro simpl..."
-
-outline: deep
+description: "Recommended locales folder layout."
+outline: "deep"
 ---
 
 # 📂 Folder Structure Guide

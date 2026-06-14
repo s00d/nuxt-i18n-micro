@@ -1,8 +1,7 @@
 ---
 title: "Migration from nuxt-i18n"
-description: "Step-by-step guide to migrate from @nuxtjs/i18n to Nuxt I18n Micro."
-
-outline: deep
+description: "Migrate from @nuxtjs/i18n to Nuxt I18n Micro."
+outline: "deep"
 ---
 
 # 🔄 Migrating from `nuxt-i18n` to `Nuxt I18n Micro`

@@ -1,8 +1,7 @@
 ---
 title: "DevTools in `nuxt-i18n-micro`"
-description: "DevTools is a powerful development assistant seamlessly integrated into the nuxt-i18n-micro module. It provides an intuitive interface for managing localizat..."
-
-outline: deep
+description: "Built-in DevTools for managing translations."
+outline: "deep"
 ---
 
 # 🛠️ DevTools in `nuxt-i18n-micro`

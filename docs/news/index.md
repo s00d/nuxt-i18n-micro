@@ -1,8 +1,7 @@
 ---
 title: "News & Releases"
-description: "Release notes, changelogs, and project updates for Nuxt I18n Micro."
-
-outline: deep
+description: "Release notes and project updates."
+outline: "deep"
 ---
 
 # News

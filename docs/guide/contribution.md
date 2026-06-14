@@ -1,8 +1,7 @@
 ---
 title: "Contribution Guide"
-description: "Thank you for your interest in contributing to Nuxt I18n Micro! We welcome contributions from the community, whether it's bug fixes, new features, or improve..."
-
-outline: deep
+description: "How to contribute to Nuxt I18n Micro."
+outline: "deep"
 ---
 
 # 🤝 Contribution Guide

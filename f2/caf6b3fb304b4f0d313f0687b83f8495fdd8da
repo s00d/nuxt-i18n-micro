@@ -1,0 +1,19 @@
+docs/.vitepress/config.mts
+  s_43f7072b0cae73::t_db231b4ca490d7 95-106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "f2caf6b3fb304b4f0d313f0687b83f8495fdd8da",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

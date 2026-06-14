@@ -1,0 +1,54 @@
+test/fixtures/translation-watcher/locales/de.json
+  s_43f7072b0cae73::t_02fa60d4b09adb 1-4
+test/fixtures/translation-watcher/pages/index.vue
+  s_43f7072b0cae73::t_573e55cd552b83 1-8
+test/fixtures/translation-watcher/locales/pages/index/en.json
+  s_43f7072b0cae73::t_29359537712f84 1-3
+test/fixtures/translation-watcher/locales/en.json
+  s_43f7072b0cae73::t_85a3ebae0ab6f1 1-4
+test/translation-watcher.spec.ts
+  s_43f7072b0cae73::t_d2342da7ae4e20 1-96
+test/fixtures/translation-watcher/locales/pages/about/en.json
+  s_43f7072b0cae73::t_b41c44e654c093 1-3
+test/fixtures/translation-watcher/package.json
+  s_43f7072b0cae73::t_fb188620b540d3 1-5
+test/fixtures/translation-watcher/pages/about.vue
+  s_43f7072b0cae73::t_4b062a9925bccd 1-8
+test/fixtures/translation-watcher/app.vue
+  s_43f7072b0cae73::t_2df12e2449624f 1-3
+test/fixtures/translation-watcher/locales/pages/index/de.json
+  s_43f7072b0cae73::t_e4984405742b20 1-3
+test/helpers/translation-watcher-hmr.ts
+  s_43f7072b0cae73::t_7ca7501e1fa03f 1,7,10-11,14-15,18-19,25-27,34-35
+  s_43f7072b0cae73::t_08b765204195d4 73,79
+  s_43f7072b0cae73::t_23b01c849d6a00 2-6,8-9,12-13,16-17,20-24,28-33,36-71,74-78,80-87
+  s_43f7072b0cae73::t_e51e10c651531b 72
+test/fixtures/translation-watcher/locales/pages/about/de.json
+  s_43f7072b0cae73::t_f2b7fab4a93e8e 1-3
+test/translation-watcher-source.spec.ts
+  s_43f7072b0cae73::t_d66c368bbfe849 1-52
+test/locale-server-middleware.spec.ts
+  s_43f7072b0cae73::t_6aa66df5258197 51
+test/fixtures/translation-watcher/nuxt.config.ts
+  s_43f7072b0cae73::t_a4898ca447902d 1-9,11-21
+  s_43f7072b0cae73::t_ce0fa71b9f7a0f 10
+test/translation-source.e2e.test.ts
+  s_43f7072b0cae73::t_07a69192435065 9-13
+  s_43f7072b0cae73::t_909fa79c6e22c7 1-8,14-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "234c6171c049b0bc7617c8d773ca73d53050ef1c",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

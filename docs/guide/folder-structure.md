@@ -10,7 +10,9 @@ Organizing your translation files effectively is essential for maintaining a sca
 
 ## 🗂️ Recommended Folder Structure
 
-`Nuxt I18n Micro` organizes translations into root-level files and page-specific files within the `pages` directory. At build time, root-level translations are automatically merged into every page file, so each page has a complete set of translations without runtime merging overhead.
+`Nuxt I18n Micro` organizes translations into root-level files and page-specific files within the `pages` directory. With `translationPayloads.mode: 'premerged'` (default), root-level translations are automatically merged into every page file at build time, so each page has a complete set of translations without runtime merging overhead.
+
+With `mode: 'source'`, source files stay separate in Nitro assets and are merged at runtime via the `/_locales` route. See [Serverless Payload Output](/guide/performance#serverless-payload-output).
 
 ### 🔧 Basic Structure
 
@@ -37,7 +39,7 @@ locales/
 #### 1. 🌍 Root-Level Translation Files
 
 - **Path:** `/locales/{locale}.json` (e.g., `/locales/en.json`)
-- **Purpose:** These files contain translations shared across the entire application (navigation menus, headers, footers, etc.). At build time, they are automatically merged into every page-specific file, so the server returns a single pre-built file per page — no runtime merging needed.
+- **Purpose:** These files contain translations shared across the entire application (navigation menus, headers, footers, etc.). With `mode: 'premerged'` (default), they are automatically merged into every page-specific file at build time, so the server returns a single pre-built file per page.
 
   **Example Content (`/locales/en.json`):**
   ```json
@@ -56,7 +58,7 @@ locales/
 #### 2. 📄 Page-Specific Translation Files
 
 - **Path:** `/locales/pages/{routeName}/{locale}.json` (e.g., `/locales/pages/index/en.json`)
-- **Purpose:** These files contain translations specific to individual pages. At build time, root-level translations are merged in as a base, so each page file becomes self-contained. The server returns a single file per page request.
+- **Purpose:** These files contain translations specific to individual pages. With `mode: 'premerged'` (default), root-level translations are merged in as a base at build time, so each page file becomes self-contained.
 
   **Example Content (`/locales/pages/index/en.json`):**
   ```json
@@ -145,10 +147,10 @@ flowchart TB
     A["📥 Request: /fr/about"] --> B["🔍 Detect locale: fr"]
     A --> C["🔍 Detect route: about"]
     
-    B --> D["📂 Load pre-built: .nuxt/i18n-merged/pages/about/fr.json"]
+    B --> D["📂 Load payload via /_locales (premerged or source mode)"]
     C --> D
     
-    D --> E["✅ Translations ready (root + page + fallback already merged at build time)"]
+    D --> E["✅ Translations ready (premerged at build time, or merged at runtime in source mode)"]
     
     E --> F["Available via $t()"]
 ```

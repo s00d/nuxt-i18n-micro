@@ -238,7 +238,29 @@ To optimize performance, `Nuxt I18n Micro` implements caching and supports pre-r
 
 By default, pre-merged translation payloads are emitted in multiple places so SSR, static generation, and local data routes work without extra setup. Large applications with many locales and page-level payloads may want tighter control, especially on serverless platforms where every Nitro server asset increases the Worker bundle.
 
-Use `translationPayloads` to disable outputs you do not need:
+Use `translationPayloads.mode: 'source'` for compact serverless deployments:
+
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    translationPayloads: {
+      mode: 'source',
+    },
+  },
+})
+```
+
+`mode: 'source'` keeps layer-merged source files in Nitro server assets and merges root/page/fallback translations at runtime through the built-in `/_locales` route. By default it disables public asset copies and prerendered payload routes, which is usually what you want on Cloudflare Workers.
+
+::: warning Static hosting / pure SSG
+With `mode: 'source'`, `publicAssets` and `prerenderRoutes` default to `false`. Pure static hosting without a Nitro/edge runtime therefore cannot load translations on the client unless you enable one of these outputs, keep `serverHandler` available at runtime, or host payloads externally.
+:::
+
+::: warning External CDN hosts
+When `apiBaseServerHost` or `apiBaseClientHost` is set, the module fetches already merged JSON from that origin. External hosts must serve the same `/{apiBaseUrl}/:page/:locale/data.json` responses as the built-in route. `mode: 'source'` applies only to locally bundled Nitro assets, not to an external CDN unless that CDN also serves runtime-merged payloads.
+:::
+
+Or disable individual outputs manually and host payloads externally:
 
 ```typescript
 export default defineNuxtConfig({
@@ -256,6 +278,8 @@ export default defineNuxtConfig({
 ```
 
 Keep `serverAssets` and `serverHandler` enabled when you rely on the built-in local `/{apiBaseUrl}/:page/:locale/data.json` route. Disable them when payloads are hosted externally and `apiBaseServerHost` points at that external origin. Disable `prerenderRoutes` when you do not want Nitro to materialize `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json` into public output.
+
+During build, the module warns when generated payload output exceeds `translationPayloads.warnFileCount` (default 500) or `translationPayloads.warnSizeBytes` (default 10 MB). It also warns when all local outputs are disabled without external payload hosts configured.
 
 ## 📝 Tips for Maximizing Performance
 

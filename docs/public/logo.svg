@@ -21,7 +21,6 @@
   </defs>
 
   <circle cx="200" cy="200" r="188" fill="url(#logo-glow)" />
-  <circle cx="200" cy="200" r="168" fill="none" stroke="#32ba8c" stroke-opacity="0.12" stroke-width="1.5" />
 
   <g filter="url(#logo-drop-shadow)">
     <path

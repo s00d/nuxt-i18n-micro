@@ -2,7 +2,12 @@
 
 ## 📖 Overview
 
-Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. This page describes how the built-in cache works and how to extend it for custom use cases (admin tools, external APIs, cache invalidation).
+Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. Payload loading depends on `translationPayloads.mode`:
+
+- **`premerged`** (default) — root, page, fallback, and layer files are merged at build time via `@i18n-micro/utils/build`
+- **`source`** — compact source files are bundled into Nitro assets and merged at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`
+
+This page describes how the built-in cache works and how to extend it for custom use cases (admin tools, external APIs, cache invalidation).
 
 ## 📊 Architecture Overview
 
@@ -10,15 +15,22 @@ Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. Thi
 
 ```mermaid
 flowchart TB
-    subgraph Build["Build Time (preMergeLocales)"]
-        F1["locales/*.json (root-level)"] -->|Merge layers + fallback| PM["Pre-Merge Engine<br/>(module.ts)"]
+    subgraph BuildPremerged["Build Time — mode: premerged (default)"]
+        F1["locales/*.json (root-level)"] -->|Merge layers + fallback| PM["preMergeLocales<br/>(@i18n-micro/utils/build)"]
         F2["locales/pages/**/*.json"] -->|Merge layers + fallback| PM
-        PM -->|"Root baked into every page"| NS["Nitro Storage<br/>(assets:i18n — single dir)"]
+        PM -->|"Root baked into every page"| NS1["Nitro Storage<br/>(assets:i18n)"]
+    end
+
+    subgraph BuildSource["Build Time — mode: source"]
+        SF1["locales/*.json"] --> SLayers["buildTranslationSourceLayers<br/>(@i18n-micro/utils/build)"]
+        SF2["locales/pages/**/*.json"] --> SLayers
+        SLayers --> NS2["Nitro Storage<br/>(compact source assets)"]
     end
 
     subgraph Server["Server Runtime"]
-        NS -->|"Read single pre-built file"| SL["server-loader.ts<br/>loadTranslationsFromServer()"]
-        SL -->|Symbol.for cache| SC["Server Cache<br/>(process-global Map)"]
+        NS1 -->|"Read single pre-built file"| SL["server-loader.ts<br/>loadTranslationsFromServer()"]
+        NS2 -->|"Read source + runtime merge"| SL
+        SL -->|SERVER_CC_KEY cache| SC["Server Cache<br/>(process-global Map)"]
         SC -->|JSON response| API["/_locales/:page/:locale/data.json"]
     end
 
@@ -82,7 +94,14 @@ export default defineNuxtConfig({
 
 **File**: `src/runtime/server/utils/server-loader.ts`
 
-Reads a single pre-built translation file from Nitro storage (`assets:i18n`). All merging (root + page-specific + fallback locale chains + layers) is done at build time by `preMergeLocales` in `module.ts`. The server-loader simply fetches and caches the result in a process-global `Map` via `Symbol.for('__NUXT_I18N_SERVER_CACHE_CC__')`.
+Loads translations for a locale/page and caches the merged result in a process-global `CacheControl` map keyed by `@i18n-micro/hmr/cache-keys` (`SERVER_CC_KEY`).
+
+Behavior depends on `translationPayloads.mode`:
+
+| Mode | Server behavior |
+|------|-----------------|
+| **`premerged`** (default) | Reads a single pre-built file from Nitro storage (`assets:i18n`). Merging (root + page + fallback chains + layers) was done at build time by `preMergeLocales` in `@i18n-micro/utils/build` (invoked from `src/module.ts`). |
+| **`source`** | Reads compact source files from Nitro storage and merges root/page/fallback at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`. |
 
 ```typescript
 import { loadTranslationsFromServer } from '../server/utils/server-loader'
@@ -111,7 +130,7 @@ On the client, `TranslationStorage.getFromCache()` checks `window.__I18N__` for 
 
 **File**: `src/runtime/server/routes/i18n.ts`
 
-This Nitro route serves pre-merged translations. It calls `loadTranslationsFromServer()` and returns the result as JSON. Cache headers are controlled by `dateBuild` version parameter.
+This Nitro route serves merged translations for the active payload mode. It calls `loadTranslationsFromServer()` and returns the result as JSON. Cache headers are controlled by `dateBuild` version parameter.
 
 ## 📥 Extending: Custom Translation Loading
 
@@ -136,39 +155,26 @@ export default defineEventHandler(async (event) => {
 import { defineEventHandler, readBody, createError } from 'h3'
 import { join } from 'node:path'
 import { readFile, writeFile } from 'node:fs/promises'
-
-function deepMerge(target: any, source: any): any {
-  for (const key in source) {
-    if (key === '__proto__' || key === 'constructor') continue
-    if (Array.isArray(source[key])) {
-      target[key] = source[key]
-    } else if (typeof source[key] === 'object' && source[key]) {
-      target[key] = deepMerge(target[key] || {}, source[key])
-    } else {
-      target[key] = source[key]
-    }
-  }
-  return target
-}
+import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
 
 export default defineEventHandler(async (event) => {
-  const { path, updates } = await readBody<{ path: string; updates: Record<string, any> }>(event)
+  const { path, updates } = await readBody<{ path: string; updates: Record<string, unknown> }>(event)
 
   if (!path || !updates) {
     throw createError({ statusCode: 400, statusMessage: 'Missing path or updates' })
   }
 
   const fullPath = join('locales', path)
-  let existing = {}
+  let existing: Record<string, unknown> = {}
 
   try {
     const content = await readFile(fullPath, 'utf-8')
-    existing = JSON.parse(content)
+    existing = JSON.parse(content) as Record<string, unknown>
   } catch {
     // File does not exist — create new
   }
 
-  const merged = deepMerge(existing, updates)
+  const merged = deepMergeTranslations(existing, updates)
   await writeFile(fullPath, JSON.stringify(merged, null, 2), 'utf-8')
 
   return { success: true, path, updated: merged }
@@ -229,7 +235,7 @@ export default defineNuxtConfig({
 | Client cache | `useStorage('cache')` | `TranslationStorage` singleton (Symbol.for on globalThis) |
 | SSR transfer | Runtime config | `window.__I18N__` script injection |
 | Server cache | Nitro cache storage | Process-global `Map` via `Symbol.for` |
-| Merge logic | Client-side | Build-time pre-merge (`preMergeLocales` in `module.ts`) |
+| Merge logic | Client-side | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
 | Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}` |
 
 ## 📚 Related

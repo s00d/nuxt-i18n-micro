@@ -192,7 +192,7 @@ Your translation files will be automatically generated when you run the applicat
 
 ::: tip Folder Structure Explanation
 
-- **Root-Level Files** (`locales/en.json`, etc.) — translations shared across the entire app (menus, footer, common UI), merged into every page at build time
+- **Root-Level Files** (`locales/en.json`, etc.) — translations shared across the entire app (menus, footer, common UI). With `translationPayloads.mode: 'premerged'` (default), they are merged into every page at build time.
 - **Page-Specific Files** (`locales/pages/<route>/<locale>.json`) — translations unique to specific pages, loaded only when the page is visited
 - **Dynamic Routes** — `pages/articles/[id].vue` maps to `locales/pages/articles-id/` (brackets replaced with dashes)
 - **Auto-Generation** — all translation files are automatically created when missing during `nuxt dev`
@@ -892,24 +892,28 @@ Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/exte
 
 #### `translationPayloads`
 
-Controls where pre-merged translation payload files are emitted during build.
+Controls how translation payload files are emitted during build and loaded at runtime.
 
 **Type**:
 
 ```typescript
 {
+  mode?: 'premerged' | 'source'
   serverAssets?: boolean
   serverHandler?: boolean
   publicAssets?: boolean
   prerenderRoutes?: boolean
   publicDir?: string
+  warnFileCount?: number
+  warnSizeBytes?: number
 }
 ```
 
-**Default**:
+**Default** (`mode: 'premerged'`):
 
 ```typescript
 {
+  mode: 'premerged',
   serverAssets: true,
   serverHandler: true,
   publicAssets: true,
@@ -919,7 +923,27 @@ Controls where pre-merged translation payload files are emitted during build.
 
 The defaults preserve the all-in-one behavior: translations are registered as Nitro server assets, the local `/{apiBaseUrl}/:page/:locale/data.json` handler is registered, data routes are added to prerender output, and the merged files are copied to Nitro public assets during production builds.
 
-For serverless deployments with large locale sets, you can disable the duplicated local outputs and serve translation payloads from a CDN or object storage:
+For serverless deployments with large locale sets, prefer compact runtime loading:
+
+```typescript
+i18n: {
+  translationPayloads: {
+    mode: 'source',
+  },
+}
+```
+
+`mode: 'source'` keeps layer-merged source files in Nitro server assets and merges root/page/fallback translations at runtime through the built-in `/_locales` route. By default it disables public asset copies and prerendered payload routes, which is usually what you want on Cloudflare Workers.
+
+::: warning Static hosting / pure SSG
+With `mode: 'source'`, `publicAssets` and `prerenderRoutes` default to `false`. Pure static hosting without a Nitro/edge runtime therefore cannot load translations on the client unless you enable one of these outputs, keep `serverHandler` available at runtime, or host payloads externally.
+:::
+
+::: warning External CDN hosts
+When `apiBaseServerHost` or `apiBaseClientHost` is set, the module fetches already merged JSON from that origin. External hosts must serve the same `/{apiBaseUrl}/:page/:locale/data.json` responses as the built-in route. `mode: 'source'` applies only to locally bundled Nitro assets, not to an external CDN unless that CDN also serves runtime-merged payloads.
+:::
+
+You can also disable duplicated local outputs manually and serve translation payloads from a CDN or object storage:
 
 ```typescript
 i18n: {
@@ -946,6 +970,10 @@ i18n: {
 ```
 
 Use `publicDir` to change the public output folder when `publicAssets` is enabled. It defaults to `translationDir`. `publicAssets` controls the direct merged-directory copy, while `prerenderRoutes` controls generated `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json`.
+
+If you disable all local payload outputs, you must configure both `apiBaseServerHost` (SSR) and `apiBaseClientHost` (client navigation). Otherwise translations will resolve to empty objects and UI keys may appear untranslated.
+
+`warnFileCount` and `warnSizeBytes` control build-time warnings when pre-merged payload output grows large (defaults: 500 files and 10 MB).
 
 ### 🔒 Proxy & Security
 
@@ -1097,7 +1125,7 @@ flowchart TB
         H[SSR Request] --> I{Server process cache?}
         I -->|Hit| J[Return Cached]
         I -->|Miss| K[loadTranslationsFromServer]
-        K --> L["Read pre-built file (root + page + fallback already merged)"]
+        K --> L["Load payload (premerged file or source + runtime merge)"]
         L --> M[Cache in process-global Map]
         M --> J
         J --> N["Inject window.__I18N__"]
@@ -1113,7 +1141,7 @@ flowchart TB
 
 - 🚀 **Zero extra requests on first load**: SSR-injected data in `window.__I18N__` is consumed synchronously on hydration
 - 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
-- ⚡ **Single request per page**: The API returns a pre-built file (root + page-specific + fallback merged at build time) — no runtime merging needed
+- ⚡ **Single request per page**: With `mode: 'premerged'` (default), the API returns a pre-built file (root + page-specific + fallback merged at build time). With `mode: 'source'`, the same route merges compact source files at runtime — see [translationPayloads](#translationpayloads).
 - 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically
 
 See the [Cache & Storage Architecture](../api/i18n-cache-api.md) for in-depth details.

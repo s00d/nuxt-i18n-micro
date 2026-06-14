@@ -4,13 +4,106 @@ outline: deep
 
 # News
 
+## Nuxt I18n Micro v3.19.0 — Utils & HMR Packages, Source Payload Mode
+
+**Date**: 2026-05-25
+
+**Version**: `v3.19.0`
+
+![v3.19.0 release](/3.19.0.png)
+
+This release focuses on **modularizing internal utilities**, adding a **compact serverless payload mode**, and **reusing shared logic** across Nuxt, Node, Astro, and DevTools — without changing the public module API for typical apps.
+
+### What's New?
+
+#### `@i18n-micro/utils` — Framework-Agnostic Utilities
+
+Shared logic previously scattered across `src/runtime/utils/` and `src/module.ts` now lives in a dedicated workspace package with **granular subpath imports** (no fat barrel, tree-shake friendly):
+
+- **Build** — `preMergeLocales`, `buildTranslationSourceLayers` (`@i18n-micro/utils/build`)
+- **Payloads** — `translationPayloads` resolution, URL building, fetch helpers, stats (`payload-config`, `payload-url`, `payload-fetch`, `payload-stats`)
+- **Source mode** — fallback chains, source file paths, runtime merge (`merge-source`, `source-loader`)
+- **Runtime helpers** — locale resolution, cookies, Accept-Language parsing, route/meta helpers (`resolve-locale`, `accept-language`, `cookie`, `route`, `route-pattern`, `runtime-config`)
+- **Shared FS paths** — translation file classification, nested page paths (`parse-path`)
+
+The Nuxt module keeps thin glue in `src/runtime/` and imports only the subpaths it needs.
+
+#### `@i18n-micro/hmr` — Dev Translation Hot Reload
+
+Development HMR is extracted into `@i18n-micro/hmr`:
+
+- **`watcher`** — file change handling, cache invalidation, source/premerged merge in dev
+- **`generate-plugin`** — client-side HMR plugin generation
+- **`cache-keys`** — shared `Symbol.for` keys for server/storage caches
+
+Works with both `translationPayloads.mode: 'premerged'` and `'source'`.
+
+#### `translationPayloads.mode: 'source'` — Compact Serverless Deployments
+
+New payload mode for large locale matrices on serverless platforms (Cloudflare Workers, etc.):
+
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    translationPayloads: {
+      mode: 'source',
+    },
+  },
+})
+```
+
+- Bundles **compact source files** into Nitro assets instead of a full pre-merged matrix
+- Merges root, page, and fallback locale chains **at runtime** via the built-in `/_locales/:page/:locale/data.json` route
+- Defaults `publicAssets` and `prerenderRoutes` to `false` — ideal when you rely on a Nitro/edge runtime rather than pure static hosting
+
+See [Performance — Serverless Payload Output](/guide/performance#serverless-payload-output) and [Cache & Storage Architecture](/api/i18n-cache-api).
+
+#### Shared Utilities Across Integration Packages
+
+- **`@i18n-micro/node`** and **`@i18n-micro/astro`** — unified translation path parsing and deep merge via `@i18n-micro/utils/parse-path`
+- **`@i18n-micro/astro`** — `detectLocaleFromAcceptLanguage` from `@i18n-micro/utils/accept-language` (removed duplicate parser)
+- **`@i18n-micro/devtools-ui`** — virtual file paths via `merge-source` + `parse-path` helpers
+- **Server locale detection** — Accept-Language handling aligned with shared utils
+
+#### HMR & DevTools Fixes
+
+- Client HMR plugin now calls **`$loadPageTranslations`** (correct API) instead of the removed `$loadTranslations`
+- Playwright coverage for translation watcher in **premerged** and **source** modes
+
+#### Documentation & Contributor Guide
+
+- [Cache & Storage Architecture](/api/i18n-cache-api) — documents both payload modes and package boundaries
+- [Server-Side Translations](/guide/server-side-translations), [Getting Started](/guide/getting-started), [Folder Structure](/guide/folder-structure) — `premerged` vs `source` caveats
+- [Contribution Guide](/guide/contribution) — Node 18+, pnpm 9+, Biome, monorepo layout with `packages/utils` and `packages/hmr`
+
+### Breaking Changes (Advanced / Internal)
+
+These affect only projects that imported **internal** module paths (not part of the public API):
+
+- Removed from `src/runtime/utils/`: `route-utils.ts`, `runtime-i18n-config.ts`, and other utilities moved to `@i18n-micro/utils/*`
+- Removed from `src/runtime/server/plugins/`: inline HMR watcher/generator — use `@i18n-micro/hmr/*` if you forked dev tooling
+- **`nuxt-i18n-micro`** now depends on `@i18n-micro/utils` and `@i18n-micro/hmr` workspace packages (installed automatically with the module)
+
+Typical `nuxt.config` + composables usage is unchanged.
+
+### Why It Matters
+
+- **Smaller serverless bundles** — `source` mode avoids shipping a pre-merged file per locale × page
+- **Single source of truth** — one implementation for path parsing, merge, locale detection, and payload config
+- **Easier maintenance** — framework-agnostic code is tested in `@i18n-micro/utils` (50+ unit tests) and reused everywhere
+- **Better dev UX** — HMR logic is isolated, testable, and consistent across payload modes
+
+For the full commit list, see the [changelog](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
+
+---
+
 ## Nuxt I18n Micro v3.0.0 — Performance Optimization, Route & Path Strategy Packages
 
 **Date**: 2026-02-04
 
 **Version**: `v3.0.0`
 
-![RouteGenerator](/3.0.0.png)
+![v3.0.0 release](/3.0.0.png)
 
 We're announcing **v3.0.0** with a **major architectural overhaul**: complete rewrite of the translation storage system for maximum performance, route generation and runtime path logic are now split into dedicated packages, and the redirect flow has been redesigned for better reliability and Serverless compatibility.
 
@@ -122,7 +215,7 @@ For upgrade notes and a full list of changes, see the [changelog](https://github
 
 **Version**: `v2.14.1`
 
-![Integrations](/2.14.0.png)
+![v2.14.0 release](/2.14.0.png)
 
 We're excited to announce **v2.14.1** with brand new integrations for Node.js, Vue 3, and Astro! These packages bring the same powerful i18n capabilities to your favorite frameworks, sharing the same core logic for consistency and performance.
 
@@ -160,7 +253,7 @@ For detailed documentation and examples, visit the [repository](https://github.c
 
 **Version**: `v2.0.0`
 
-![HMR Update](/2.0.0.png)
+![v2.0.0 release](/2.0.0.png)
 
 We’re introducing server‑side HMR for translation files in development. When a JSON translation changes, the server cache invalidates only the affected keys, and subsequent requests immediately receive fresh data—no restarts required.
 
@@ -193,7 +286,7 @@ export default defineNuxtConfig({
 
 **Version**: `v1.73.0`
 
-![DevTools Update](/1.73.0-devtools.gif)
+![v1.73.0 DevTools](/1.73.0.png)
 
 We’re excited to unveil the **fully revamped DevTools** in **v1.73.0**, bringing a modern, intuitive experience to your i18n workflow! The update introduces powerful new features, improved usability, and a host of enhancements to streamline localization and translation management.
 
@@ -212,7 +305,7 @@ We’re excited to unveil the **fully revamped DevTools** in **v1.73.0**, bringi
 
 **Version**: `v1.65.0`
 
-![1.65.0](/1.65.0.jpg)
+![v1.65.0 release](/1.65.0.png)
 
 We’re thrilled to announce **v1.65.0**, featuring a **complete rewrite of core logic** for better performance and maintainability! This release includes enhanced TypeScript support, client-side locale redirection, and streamlined translation handling. Upgrade now for a smoother, faster experience! 🚀
 
@@ -224,7 +317,7 @@ We’re thrilled to announce **v1.65.0**, featuring a **complete rewrite of core
 
 **Version Introduced**: `v1.58.0`
 
-![Optimized Loading Demo](/optimized-loading.png)
+![v1.58.0 release](/1.58.0.png)
 
 We are thrilled to announce the release of a **new algorithm for loading translations** in Nuxt I18n Micro. This update introduces significant performance improvements, a cleaner architecture, and more efficient memory usage.
 
@@ -298,7 +391,7 @@ Localization is essential for global applications, and improving translation-loa
 
 **Cli Version Introduced**: `v1.1.0`
 
-![text-to-i18n Command Demo](/text-to-i18n.gif)
+![v1.1.0 CLI text-to-i18n demo](/text-to-i18n.gif)
 
 We’re excited to announce the new `text-to-i18n` command in the Nuxt I18n Micro CLI! This powerful feature automates the process of extracting hardcoded text strings from your codebase and converting them into i18n translation keys. It’s designed to save time, reduce errors, and streamline your localization workflow.
 

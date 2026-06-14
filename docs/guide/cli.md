@@ -82,7 +82,7 @@ flowchart TB
 
 **Version introduced**: `v1.1.0` (CLI package [`nuxt-i18n-micro-cli`](https://www.npmjs.com/package/nuxt-i18n-micro-cli))
 
-![DevTools](/text-to-i18n.gif)
+![v1.1.0 CLI text-to-i18n demo](/text-to-i18n.gif)
 
 **Description**: Scans Vue/TS/JS files for hardcoded user-facing strings, replaces them with `$t('...')`, and merges new keys into your JSON translation file. Run from the **Nuxt project root** (where `nuxt.config` lives).
 

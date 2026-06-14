@@ -1,1 +1,13 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
+
+/* Hero logo — без рамки, только сам SVG */
+.VPHome .VPHero .image-src {
+  width: min(240px, 100%);
+  max-width: min(240px, 100%) !important;
+  max-height: min(240px, 100%) !important;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}

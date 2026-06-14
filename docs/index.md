@@ -5,6 +5,9 @@ hero:
   name: "Nuxt I18n Micro"
   text: "Fast, Simple, and Lightweight Internationalization for Nuxt"
   tagline: Optimize your Nuxt app with a powerful and efficient i18n solution.
+  image:
+    src: /logo.svg
+    alt: Nuxt I18n Micro logo
   actions:
     - theme: brand
       text: 🚀 Get Started

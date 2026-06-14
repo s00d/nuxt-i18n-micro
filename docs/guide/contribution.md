@@ -46,9 +46,21 @@ Use descriptive branch names, such as `bugfix/fix-translation-error` or `feature
 
 Before you begin, ensure that you have the following installed on your machine:
 
-- **Node.js**: v16 or later
-- **npm**: v7 or later
+- **Node.js**: v18 or later
 - **pnpm**: v9 or later
+
+## Monorepo layout
+
+The repository is a pnpm workspace with framework packages and Nuxt module glue:
+
+- `packages/types/` — shared TypeScript types
+- `packages/core/` — core translation/routing domain logic
+- `packages/utils/` — framework-agnostic utilities (`@i18n-micro/utils/*` subpath imports)
+- `packages/hmr/` — dev-mode translation hot-reload (`@i18n-micro/hmr/*`)
+- `packages/*` — framework integrations (vue, react, astro, node, …)
+- `src/` — Nuxt module and runtime glue (imports from `@i18n-micro/utils` and `@i18n-micro/hmr`)
+
+When adding reusable logic without Vue/Nuxt dependencies, prefer `@i18n-micro/utils` with granular subpath exports rather than `src/runtime/utils/`.
 
 ## 🚀 Getting Started
 
@@ -67,6 +79,7 @@ Next, install the project dependencies using pnpm.
 
 ```bash
 pnpm install
+pnpm --filter @i18n-micro/utils build
 pnpm --filter "./packages/**" run build
 pnpm run prepack && cd playground && pnpm run prepare && cd ..
 ```
@@ -93,7 +106,7 @@ This command prepares the module by building the necessary files, stubbing certa
 
 ### 5. 🧹 Linting the Code
 
-To ensure your code adheres to the project's coding standards, run the linter:
+To ensure your code adheres to the project's coding standards, run the linter (Biome):
 
 ```bash
 pnpm run lint

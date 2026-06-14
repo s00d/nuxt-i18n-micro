@@ -8,9 +8,11 @@ outline: deep
 
 Nuxt I18n Micro supports server-side translations and locale information, allowing you to translate content and access locale details on the server. This is particularly useful for APIs or server-rendered applications where localization is needed before reaching the client.
 
-The translations use locale messages defined in the Nuxt I18n configuration and are dynamically resolved based on the detected locale. 
+The translations use locale messages defined in the Nuxt I18n configuration and are dynamically resolved based on the detected locale.
 
-All translations are pre-merged at build time (root-level files are baked into every page file). The server-side middleware loads the same pre-built files as the client, so all keys (both shared and page-specific) are available in server handlers.
+By default (`translationPayloads.mode: 'premerged'`), root-level files are baked into every page file at build time. The server-side middleware loads the same pre-built payloads as the client, so all keys (both shared and page-specific) are available in server handlers.
+
+With `translationPayloads.mode: 'source'`, compact source files are bundled into Nitro assets and merged at runtime when `loadTranslationsFromServer()` (or the `/_locales` route) is called. See the [Performance Guide — Serverless Payload Output](/guide/performance#serverless-payload-output) and [Cache & Storage Architecture](/api/i18n-cache-api) for details.
 
 ## 🛠️ Setting Up Server-Side Middleware
 

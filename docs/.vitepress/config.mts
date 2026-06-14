@@ -62,20 +62,6 @@ export default withFolderTree(withChartjs(withMermaid({
       { text: 'Home', link: '/' },
       { text: 'News', link: '/news' },
       {
-        text: 'Integrations',
-        items: [
-          { text: 'Overview', link: '/integrations/' },
-          { text: 'Vue Package', link: '/integrations/vue-package' },
-          { text: 'React Package', link: '/integrations/react-package' },
-          { text: 'Preact Package', link: '/integrations/preact-package' },
-          { text: 'Solid Package', link: '/integrations/solid-package' },
-          { text: 'Astro Package', link: '/integrations/astro-package' },
-          { text: 'Node.js Package', link: '/integrations/nodejs-package' },
-          { text: 'Types Generator', link: '/integrations/types-generator' },
-          { text: 'Devtools Package', link: '/integrations/devtools-ui-package' },
-        ],
-      },
-      {
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
@@ -104,6 +90,20 @@ export default withFolderTree(withChartjs(withMermaid({
           { text: 'Runtime Overrides', link: '/guide/runtime-overrides' },
           { text: 'Excluding Static Files', link: '/guide/excluding-static-files' },
           { text: 'CLI Tool', link: '/guide/cli' },
+        ],
+      },
+      {
+        text: 'Integrations',
+        items: [
+          { text: 'Overview', link: '/integrations/' },
+          { text: 'Vue Package', link: '/integrations/vue-package' },
+          { text: 'React Package', link: '/integrations/react-package' },
+          { text: 'Preact Package', link: '/integrations/preact-package' },
+          { text: 'Solid Package', link: '/integrations/solid-package' },
+          { text: 'Astro Package', link: '/integrations/astro-package' },
+          { text: 'Node.js Package', link: '/integrations/nodejs-package' },
+          { text: 'Types Generator', link: '/integrations/types-generator' },
+          { text: 'Devtools Package', link: '/integrations/devtools-ui-package' },
         ],
       },
       {

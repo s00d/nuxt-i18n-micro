@@ -1,5 +1,5 @@
 ---
-titleTemplate: "false"
+titleTemplate: false
 title: "Nuxt I18n Micro"
 description: "Fast, lightweight i18n for Nuxt with strategy-based routing."
 layout: "home"

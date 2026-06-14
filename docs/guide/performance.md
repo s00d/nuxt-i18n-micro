@@ -23,18 +23,20 @@ We conducted a series of tests to demonstrate the performance improvements that 
 ::: details **Nuxt I18n v10**
 - **Code Bundle**: 19.24 MB
 - **Translations**: 38.05 MB (compiled into JS)
-- **Max CPU Usage**: 439%
-- **Max Memory Usage**: 9,528 MB
-- **Elapsed Time**: 84.91s
+- **Max CPU Usage**: 419%
+- **Max Memory Usage**: 9,117 MB
+- **Elapsed Time**: 82.26s
 :::
 
 ::: tip **Nuxt I18n Micro**
-- **Code Bundle**: 1.5 MB — **92% smaller**
-- **Translations**: 60.97 MB (lazy-loaded JSON)
-- **Max CPU Usage**: 208% — **53% lower**
-- **Max Memory Usage**: 1,658 MB — **83% less memory**
-- **Elapsed Time**: 23.47s — **72% faster**
+- **Code Bundle**: 1.48 MB — **92% smaller than i18n v10**
+- **Translations**: 55.76 MB (lazy-loaded JSON)
+- **Max CPU Usage**: 243% — **42% lower than i18n v10**
+- **Max Memory Usage**: 1,175 MB — **87% less memory than i18n v10**
+- **Elapsed Time**: 14.95s — **82% faster than i18n v10**
 :::
+
+See the [full benchmark report](/guide/performance-results) for charts, Autocannon results, and fixture details.
 
 ### 🌐 Server Performance Under Load
 
@@ -47,9 +49,9 @@ We also tested server performance using Artillery and Autocannon stress tests.
 :::
 
 ::: tip **Nuxt I18n Micro**
-- **Requests per Second (Artillery)**: 292 [#/sec] — **472% more requests per second**
-- **Average Response Time**: 411 ms — **70% faster**
-- **Max Memory Usage**: 347 MB — **72% less memory usage**
+- **Requests per Second (Artillery)**: 278 [#/sec] — **445% more requests per second than i18n v10**
+- **Average Response Time**: 437 ms — **63% faster than i18n v10**
+- **Max Memory Usage**: 275 MB — **75% less memory usage than i18n v10**
 :::
 
 ### 📈 Visual Comparison
@@ -57,9 +59,9 @@ We also tested server performance using Artillery and Autocannon stress tests.
 ```chart
 type: doughnut
 data:
-  labels: ["nuxt-i18n v10 (9,528 MB)", "i18n-micro (1,658 MB)"]
+  labels: ["nuxt-i18n v10 (9,117 MB)", "i18n-micro (1,175 MB)"]
   datasets:
-    - data: [9528, 1658]
+    - data: [9117, 1175]
       backgroundColor: ["rgba(255, 99, 132, 0.8)", "rgba(46, 204, 113, 0.8)"]
       borderColor: ["rgb(255, 99, 132)", "rgb(46, 204, 113)"]
       borderWidth: 2
@@ -80,12 +82,12 @@ data:
   labels: ["Build Time (s)", "Memory (GB)", "Code Bundle (MB)", "CPU Usage (%)"]
   datasets:
     - label: nuxt-i18n v10
-      data: [84.9, 9.5, 19.2, 439]
+      data: [82.3, 9.1, 19.2, 419]
       backgroundColor: "rgba(255, 99, 132, 0.8)"
       borderColor: "rgb(255, 99, 132)"
       borderWidth: 2
     - label: i18n-micro
-      data: [23.5, 1.7, 1.5, 208]
+      data: [15.0, 1.2, 1.5, 243]
       backgroundColor: "rgba(46, 204, 113, 0.8)"
       borderColor: "rgb(46, 204, 113)"
       borderWidth: 2
@@ -106,22 +108,22 @@ options:
 
 | Metric | nuxt-i18n v10 | i18n-micro | Improvement |
 |--------|---------------|------------|-------------|
-| Build Time | 84.91s | 23.47s | **72% faster** |
-| Memory (build) | 9,528 MB | 1,658 MB | **83% less** |
-| Code Bundle | 19.24 MB | 1.5 MB | **92% smaller** |
-| CPU Usage | 439% | 208% | **53% lower** |
-| Response Time | 1,363 ms | 411 ms | **70% faster** |
-| RPS (Artillery) | 51 | 292 | **472% more** |
+| Build Time | 82.26s | 14.95s | **82% faster** |
+| Memory (build) | 9,117 MB | 1,175 MB | **87% less** |
+| Code Bundle | 19.24 MB | 1.48 MB | **92% smaller** |
+| CPU Usage | 419% | 243% | **42% lower** |
+| Response Time | 1,177 ms | 437 ms | **63% faster** |
+| RPS (Artillery) | 51 | 278 | **445% more** |
 
 ### 🔍 Interpretation of Results
 
 These tests clearly indicate that `Nuxt I18n Micro` offers superior performance across multiple metrics:
 
-- 🗜️ **Smaller Code Bundle**: The code bundle is only 1.5 MB (vs 19.24 MB for i18n v10) — translations are stored as lazy-loaded JSON files.
-- 🔋 **Lower CPU Usage**: 53% lower CPU usage during build (208% vs 439%), allowing for more efficient CI/CD pipelines.
-- 🧠 **Reduced Memory Consumption**: Uses 83% less memory during build (1.7 GB vs 9.5 GB), making it feasible for resource-constrained environments.
-- 🕒 **Faster Build Times**: 72% faster builds (23.47s vs 84.91s), beneficial for development iteration speed.
-- ⚡ **Better Runtime Performance**: 70% faster response times (411 ms vs 1,363 ms) and 472% more requests per second under load.
+- 🗜️ **Smaller Code Bundle**: The code bundle is only 1.48 MB (vs 19.24 MB for i18n v10) — translations are stored as lazy-loaded JSON files.
+- 🔋 **Lower CPU Usage**: 42% lower CPU usage during build (243% vs 419%), allowing for more efficient CI/CD pipelines.
+- 🧠 **Reduced Memory Consumption**: Uses 87% less memory during build (1.2 GB vs 9.1 GB), making it feasible for resource-constrained environments.
+- 🕒 **Faster Build Times**: 82% faster builds (14.95s vs 82.26s), beneficial for development iteration speed.
+- ⚡ **Better Runtime Performance**: 63% faster response times (437 ms vs 1,177 ms) and 445% more requests per second under load.
 
 ## ⚙️ Key Optimizations
 

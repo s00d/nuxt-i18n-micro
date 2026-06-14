@@ -79,6 +79,7 @@ export default withFolderTree(withChartjs(withMermaid({
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
+          { text: 'Configuration', link: '/guide/configuration' },
           { text: 'Using', link: '/guide/using' },
           { text: 'Firebase Deployment', link: '/guide/firebase' },
           { text: 'Performance', link: '/guide/performance' },
@@ -108,6 +109,7 @@ export default withFolderTree(withChartjs(withMermaid({
       {
         text: 'API',
         items: [
+          { text: 'Overview', link: '/api/' },
           { text: 'Methods', link: '/api/methods' },
           { text: 'Events', link: '/api/events' },
           { text: 'Translations and Cache', link: '/api/i18n-cache-api' },
@@ -117,6 +119,7 @@ export default withFolderTree(withChartjs(withMermaid({
       {
         text: 'Components',
         items: [
+          { text: 'Overview', link: '/components/' },
           { text: 'i18n-t', link: '/components/i18n-t' },
           { text: 'i18n-switcher', link: '/components/i18n-switcher' },
           { text: 'i18n-link', link: '/components/i18n-link' },
@@ -126,6 +129,7 @@ export default withFolderTree(withChartjs(withMermaid({
       {
         text: 'Composables',
         items: [
+          { text: 'Overview', link: '/composables/' },
           { text: 'useI18n', link: '/composables/useI18n' },
           { text: 'useLocaleHead', link: '/composables/useLocaleHead' },
           { text: 'useI18nLocale', link: '/composables/useI18nLocale' },
@@ -175,6 +179,7 @@ export default withFolderTree(withChartjs(withMermaid({
           base: '/guide',
           items: [
             { text: 'Getting Started', link: '/getting-started' },
+            { text: 'Configuration', link: '/configuration' },
             { text: 'Using', link: '/using' },
             { text: 'Firebase Deployment', link: '/firebase' },
             { text: 'Performance', link: '/performance' },
@@ -207,9 +212,10 @@ export default withFolderTree(withChartjs(withMermaid({
           text: 'API',
           base: '/api',
           items: [
+            { text: 'Overview', link: '/' },
             { text: 'Methods', link: '/methods' },
             { text: 'Events', link: '/events' },
-            { text: 'Translations and Cache', link: '/api/i18n-cache-api' },
+            { text: 'Translations and Cache', link: '/i18n-cache-api' },
           ],
         },
       ],
@@ -218,8 +224,9 @@ export default withFolderTree(withChartjs(withMermaid({
           text: 'Components',
           base: '/components',
           items: [
+            { text: 'Overview', link: '/' },
             { text: 'i18n-t Component', link: '/i18n-t' },
-            { text: 'ii18n-switcher Component', link: '/i18n-switcher' },
+            { text: 'i18n-switcher Component', link: '/i18n-switcher' },
             { text: 'i18n-link Component', link: '/i18n-link' },
             { text: 'i18n-group Component', link: '/i18n-group' },
           ],
@@ -230,10 +237,18 @@ export default withFolderTree(withChartjs(withMermaid({
           text: 'Composables',
           base: '/composables',
           items: [
+            { text: 'Overview', link: '/' },
             { text: 'useI18n', link: '/useI18n' },
             { text: 'useLocaleHead', link: '/useLocaleHead' },
             { text: 'useI18nLocale', link: '/useI18nLocale' },
           ],
+        },
+      ],
+      '/news/': [
+        {
+          text: 'News',
+          base: '/news',
+          items: [{ text: 'Release notes', link: '/' }],
         },
       ],
     },

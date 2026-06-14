@@ -6,6 +6,10 @@ outline: "deep"
 
 # 📦 Upgrading from v2.x to v3.x
 
+::: tip Migrating from `@nuxtjs/i18n` instead?
+See [Migration from nuxt-i18n](/guide/migration) — that guide covers moving from the vue-i18n ecosystem, not from nuxt-i18n-micro v2.
+:::
+
 v3.0.0 introduces fundamental architectural changes: strategy packages, a new caching system, centralized locale management via `useI18nLocale()`, and a redesigned redirect pipeline. This section covers all breaking changes and how to update your code.
 
 ## Migration Steps

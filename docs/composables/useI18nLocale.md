@@ -15,8 +15,12 @@ const {
   locale,
   localeCookie,
   hashCookie,
+  validLocales,
   getPreferredLocale,
   getLocale,
+  getLocaleWithServerFallback,
+  getEffectiveLocale,
+  resolveInitialLocale,
   setLocale,
   syncLocale,
   isValidLocale,
@@ -38,13 +42,40 @@ const preferred = getPreferredLocale()
 | Property/Method | Type | Description |
 |-----------------|------|-------------|
 | `locale` | `Ref<string \| null>` | Reactive locale state (`useState('i18n-locale')`) |
-| `localeCookie` | `Ref` | Locale cookie (when `localeCookie` is enabled) |
-| `hashCookie` | `Ref` | Cookie for hashMode |
-| `getLocale()` | `() => string \| null` | Current locale: state → cookie |
-| `getPreferredLocale()` | `() => string \| null` | Valid preferred locale |
+| `localeCookie` | `Ref` | Locale cookie (when `localeCookie` option is enabled) |
+| `hashCookie` | `Ref` | Cookie used when `hashMode` is active |
+| `validLocales` | `string[]` | Enabled locale codes from module config (excludes `disabled`) |
+| `getLocale()` | `() => string \| null` | Current locale: state → cookie (or hash cookie in hash mode) |
+| `getPreferredLocale()` | `() => string \| null` | Locale from state/cookie **validated** against `validLocales`, or `null` |
+| `getLocaleWithServerFallback(serverLocale?)` | `(serverLocale?) => string \| null` | State → cookie → optional server context (used during `no_prefix` init) |
+| `getEffectiveLocale(route, getLocaleFromRoute)` | `(route, fn) => string` | Locale for loading translations: hash mode prefers state; otherwise reads from route |
+| `resolveInitialLocale(options)` | `(options) => string` | Resolves locale: state → `serverLocale` → route; syncs state when needed |
 | `setLocale(locale)` | `(locale: string \| null) => void` | Set locale and sync to cookies |
-| `syncLocale(locale)` | `(locale: string \| null) => void` | Sync cookies only |
-| `isValidLocale(locale)` | `(locale) => boolean` | Check if string is a valid locale |
+| `syncLocale(locale)` | `(locale: string \| null) => void` | Sync cookies only (no state update) |
+| `isValidLocale(locale)` | `(locale) => boolean` | Check if string is in `validLocales` |
+
+### `resolveInitialLocale` options
+
+```typescript
+interface ResolveInitialLocaleOptions {
+  route: unknown
+  serverLocale?: string | null
+  getLocaleFromRoute: (route?: unknown) => string
+}
+```
+
+Used internally by the main plugin on startup. Custom plugins can call it when implementing alternative detection flows.
+
+### `getEffectiveLocale`
+
+```typescript
+const { getEffectiveLocale } = useI18nLocale()
+const { $getLocale } = useNuxtApp()
+
+const locale = getEffectiveLocale(route, (r) => $getLocale(r))
+```
+
+Returns the locale used to load translations and format messages for a given route object.
 
 ## Programmatic Locale Setting
 
@@ -71,3 +102,4 @@ export default defineNuxtPlugin({
 
 - [Custom Language Detection](/guide/custom-auto-detect) — configuring auto-detection
 - [Strategy](/guide/strategy) — routing strategies and locale priority
+- [Methods — useI18nLocale section](/api/methods#-usei18nlocale-composable) — overlap with runtime plugin API

@@ -25,7 +25,7 @@ features:
   - title: 🪶 Compact and Lightweight
     details: 🧩 Designed for efficiency, reducing the total bundle size by up to 96% compared to traditional i18n modules.
   - title: 🎨 Minimalist Design
-    details: 🧱 A simple structure with just 5 components, easy to extend and maintain.
+    details: 🧱 A lean module core with a small set of runtime plugins, easy to extend and maintain.
   - title: 🔄 Strategy-Based Routing
     details: 🗺️ Locale prefix strategies (no_prefix, prefix, prefix_except_default, prefix_and_default) via @i18n-micro/route-strategy (build-time) and @i18n-micro/path-strategy (runtime) extend Nuxt pages with the right localized routes.
   - title: 📂 Streamlined Translation Loading
@@ -49,48 +49,48 @@ The `Nuxt I18n Micro` module was created to address critical performance issues 
 
 ### 🏁 Performance Comparison
 
-To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identical conditions. Both modules were tested with a **10MB translation file** on the same hardware. We also include a **plain-nuxt** baseline (no i18n) to measure the real overhead.
+To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identical conditions on the fixtures in [`test/performance.test.ts`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/performance.test.ts). See the [full benchmark report](/guide/performance-results) for methodology, charts, and raw numbers.
 
 #### ⏱️ Build Time and Resource Consumption
 
 > **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
 
 ::: details **plain-nuxt** (baseline)
-- **Build Time**: 4.48 seconds
-- **Max CPU Usage**: 242.60%
-- **Max Memory Usage**: 609.55 MB
+- **Build Time**: 6.50 seconds
+- **Max CPU Usage**: 195.10%
+- **Max Memory Usage**: 744.58 MB
 :::
 
 ::: details **Nuxt I18n v10**
-- **Build Time**: 77.81 seconds
-- **Max CPU Usage**: 449.00%
-- **Max Memory Usage**: 9494.69 MB
+- **Build Time**: 82.26 seconds
+- **Max CPU Usage**: 419.20%
+- **Max Memory Usage**: 9,117.41 MB
 :::
 
 ::: tip **Nuxt I18n Micro**
-- **Build Time**: 7.88 seconds — **90% faster than i18n v10**
-- **Max CPU Usage**: 336.00% — **25% lower than i18n v10**
-- **Max Memory Usage**: 1164.02 MB — **88% less memory than i18n v10**
+- **Build Time**: 14.95 seconds — **82% faster than i18n v10**
+- **Max CPU Usage**: 243.00% — **42% lower than i18n v10**
+- **Max Memory Usage**: 1,174.55 MB — **87% less memory than i18n v10**
 :::
 
 #### 🌐 Server Performance (Stress Test)
 
 ::: details **plain-nuxt** (baseline)
-- **Requests per Second**: 318 RPS
-- **Average Response Time**: 106.50 ms
-- **Max Memory Usage**: 229.02 MB
+- **Requests per Second**: 274 RPS (Artillery)
+- **Average Response Time**: 453.20 ms
+- **Max Memory Usage**: 324.30 MB
 :::
 
 ::: details **Nuxt I18n v10**
-- **Requests per Second**: 51 RPS
-- **Average Response Time**: 1130.20 ms
-- **Max Memory Usage**: 1050.38 MB
+- **Requests per Second**: 51 RPS (Artillery)
+- **Average Response Time**: 1,177.10 ms
+- **Max Memory Usage**: 1,094.72 MB
 :::
 
 ::: tip **Nuxt I18n Micro**
-- **Requests per Second**: 225 RPS — **4.4x more than i18n v10**
-- **Average Response Time**: 516.70 ms — **54% faster than i18n v10**
-- **Max Memory Usage**: 366.69 MB — **65% less memory than i18n v10**
+- **Requests per Second**: 278 RPS (Artillery) — **5.4x more than i18n v10**
+- **Average Response Time**: 437.20 ms — **63% faster than i18n v10**
+- **Max Memory Usage**: 274.70 MB — **75% less memory than i18n v10**
 :::
 
 These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area while staying close to the plain Nuxt baseline.
@@ -99,7 +99,7 @@ These results clearly demonstrate that `Nuxt I18n Micro` significantly outperfor
 
 - 🌐 **Compact Yet Powerful**: Despite its small size, `Nuxt I18n Micro` is designed for **large-scale projects**, focusing on performance and efficiency.
 - ⚡ **Optimized Build and Runtime**: Reduces build times, memory usage, and server load, making it ideal for **high-traffic applications**.
-- 🛠️ **Minimalist Design**: The module is structured around just **5 components** (1 module and 4 plugins), making it easy to understand, extend, and maintain.
+- 🛠️ **Minimalist Design**: The module core is a single Nuxt module plus a small set of runtime plugins, making it easy to understand, extend, and maintain.
 - 📏 **Strategy-Based Routing**: Uses `@i18n-micro/route-strategy` (build-time) and `@i18n-micro/path-strategy` (runtime) to extend Nuxt pages with localized routes according to the chosen strategy (prefix, no_prefix, etc.), so each page gets the correct locale variants without manual route duplication.
 - 🗂 **Streamlined Translation Loading**: Only **JSON files** are supported, with translations split between a global file for common texts (e.g., menus) and page-specific files, which are auto-generated in the `dev` mode if not present.
 

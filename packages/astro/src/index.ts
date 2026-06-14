@@ -18,9 +18,6 @@ export { createI18nMiddleware, detectLocale } from './middleware'
 export { createAstroRouterAdapter } from './router/adapter'
 // Router abstraction
 export type { I18nRoutingStrategy } from './router/types'
-// Legacy routing utilities (deprecated, use routingStrategy instead)
-// Kept for backward compatibility
-export { getLocaleFromPath, getRouteName, localizePath, removeLocaleFromPath, switchLocalePath } from './routing'
 export type { I18nClientProps, LocaleHeadOptions, LocaleHeadResult } from './utils'
 // Utilities
 export { getDefaultLocale, getI18n, getI18nProps, getLocale, getLocales, useI18n, useLocaleHead } from './utils'

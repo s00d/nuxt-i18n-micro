@@ -115,7 +115,7 @@ The `<i18n-link>` component automatically handles locale-specific routing:
 ```vue
 <template>
   <div>
-    <i18n-link to="/about" activeClass="current">About Us</i18n-link>
+    <i18n-link to="/about" :activeStyle="{ fontWeight: 'bold' }">About Us</i18n-link>
   </div>
 </template>
 ```

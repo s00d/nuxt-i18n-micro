@@ -30,40 +30,40 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 | Project | Build Time | Code Bundle | Max Memory | Max CPU |
 |---------|------------|-------------|------------|---------|
-| **plain-nuxt** (baseline) | 5.71s | 1.35 MB | 674 MB | 240% |
-| **i18n-micro** | 23.47s | 1.5 MB | 1,658 MB | 208% |
-| **i18n v10** | 84.91s | 19.24 MB | 9,528 MB | 439% |
+| **plain-nuxt** (baseline) | 6.50s | 1.35 MB | 745 MB | 195% |
+| **i18n-micro** | 14.95s | 1.48 MB | 1,175 MB | 243% |
+| **i18n v10** | 82.26s | 19.24 MB | 9,117 MB | 419% |
 
 > **Code Bundle** = JavaScript/CSS code only (excludes translation JSON files).
 > i18n-micro stores translations as lazy-loaded JSON files, keeping the code bundle minimal.
 
-- **i18n-micro vs baseline**: +17.76s build, +0.15 MB code, +984 MB memory
-- **i18n v10 vs baseline**: +79.20s build, +17.89 MB code, +8,854 MB memory
+- **i18n-micro vs baseline**: +8.45s build, +131 KB code, +430 MB memory
+- **i18n v10 vs baseline**: +75.76s build, +17.89 MB code, +8,372 MB memory
 
 #### Stress Test Results (Requests per Second)
 
 | Project | Avg Response | RPS (Artillery) | Max Memory |
 |---------|--------------|-----------------|------------|
-| **plain-nuxt** | 544 ms | 228 | 340 MB |
-| **i18n-micro** | 411 ms | 292 | 347 MB |
-| **i18n v10** | 1,363 ms | 51 | 1,243 MB |
+| **plain-nuxt** | 453 ms | 274 | 324 MB |
+| **i18n-micro** | 437 ms | 278 | 275 MB |
+| **i18n v10** | 1,177 ms | 51 | 1,095 MB |
 
 #### Comparison: i18n v10 vs i18n-micro
 
-- **Code Bundle**: 17.74 MB smaller (i18n-micro: 1.5 MB vs i18n v10: 19.24 MB)
-- **Build Time**: 61.44s faster (i18n-micro: 23.47s vs i18n v10: 84.91s)
-- **Max Memory (build)**: 7,870 MB less (i18n-micro: 1,658 MB vs i18n v10: 9,528 MB)
-- **Average Response Time**: 952 ms faster (i18n-micro: 411 ms vs i18n v10: 1,363 ms)
-- **Requests Per Second**: 241 more (i18n-micro: 292 vs i18n v10: 51)
+- **Code Bundle**: 17.76 MB smaller (i18n-micro: 1.48 MB vs i18n v10: 19.24 MB)
+- **Build Time**: 67.31s faster (i18n-micro: 14.95s vs i18n v10: 82.26s)
+- **Max Memory (build)**: 7,942 MB less (i18n-micro: 1,175 MB vs i18n v10: 9,117 MB)
+- **Average Response Time**: 740 ms faster (i18n-micro: 437 ms vs i18n v10: 1,177 ms)
+- **Requests Per Second**: 227 more (i18n-micro: 278 vs i18n v10: 51)
 
-These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area while staying close to the plain Nuxt baseline.
+These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area while staying close to the plain Nuxt baseline. See the [full benchmark report](https://s00d.github.io/nuxt-i18n-micro/guide/performance-results) for methodology and charts.
 
 ## Key Features
 
 - 🌐 **Compact Yet Powerful**: Despite its small size, `Nuxt I18n Micro` is designed for large-scale projects, focusing on performance and efficiency.
 - ⚡ **Optimized Build and Runtime**: Reduces build times, memory usage, and server load, making it ideal for high-traffic applications.
-- 🛠 **Minimalist Design**: The module is structured around just 5 components (1 module and 4 plugins), making it easy to understand, extend, and maintain.
-- 📏 **Efficient Routing**: Generates only 2 routes regardless of the number of locales, thanks to dynamic regex-based routing, unlike other i18n modules that generate separate routes for each locale.
+- 🛠 **Minimalist Design**: The module core is a single Nuxt module plus a small set of runtime plugins, making it easy to understand, extend, and maintain.
+- 📏 **Strategy-Based Routing**: Locale prefixes are handled via `@i18n-micro/route-strategy` (build-time) and `@i18n-micro/path-strategy` (runtime), with strategies such as `prefix`, `no_prefix`, `prefix_except_default`, and `prefix_and_default`.
 - 🗂 **Streamlined Translation Loading**: Only JSON files are supported, with translations split between a global file for common texts (e.g., menus) and page-specific files, which are auto-generated in the `dev` mode if not present.
 
 ## Quick Setup

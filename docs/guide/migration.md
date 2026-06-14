@@ -6,15 +6,18 @@ outline: "deep"
 
 # 🔄 Migrating from `nuxt-i18n` to `Nuxt I18n Micro`
 
-::: tip Looking for the v2 → v3 upgrade guide?
-See [Upgrading from v2.x to v3.0.0](/guide/v3-upgrade).
-:::
+## Which guide do you need?
+
+| You are migrating from… | Guide |
+|---|---|
+| `@nuxtjs/i18n` (vue-i18n based module) | **This page** |
+| `nuxt-i18n-micro` v2.x | [Upgrading from v2.x to v3.x](/guide/v3-upgrade) |
 
 ## Why Migrate?
 
-- **⚡ Improved Performance**: Up to 90% faster build times and 88% less memory
-- **🔧 Simplified Configuration**: Streamlined setup with sensible defaults
-- **📉 Better Resource Management**: Optimized handling of large translation files
+- **Improved performance**: ~82% faster builds and ~87% less memory vs `@nuxtjs/i18n` v10 in our [benchmark fixtures](/guide/performance-results)
+- **Simplified configuration**: Streamlined setup with sensible defaults
+- **Better resource management**: Optimized handling of large translation files
 
 ## Key Differences
 

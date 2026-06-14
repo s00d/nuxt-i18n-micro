@@ -150,9 +150,9 @@ The translations will be fetched from `https://cdn.example.com/_locales/{routeNa
 
 ## 🔗 Routing & Navigation Issues
 
-### ❓ Can I use `NuxtLink` or `i18nLink` directly in translation strings?
+### ❓ Can I use `NuxtLink` or `<i18n-link>` directly in translation strings?
 
-Yes, `Nuxt I18n Micro` allows the use of `NuxtLink` or `i18nLink` within translations through the `<i18n-t>` component, which is especially helpful for handling grammar and RTL language requirements without splitting translation strings.
+Yes, `Nuxt I18n Micro` allows the use of `NuxtLink` or `<i18n-link>` within translations through the `<i18n-t>` component, which is especially helpful for handling grammar and RTL language requirements without splitting translation strings.
 
 **Example:**
 

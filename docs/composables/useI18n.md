@@ -6,9 +6,9 @@ outline: "deep"
 
 # 🛠️ `useI18n` Composable
 
-The `useI18n` composable in `Nuxt I18n Micro` is designed to provide an easy and efficient way to access internationalization functionalities within your Nuxt application. It offers a variety of methods to handle localization, translation, and route management based on the current locale.
+The `useI18n` composable in `Nuxt I18n Micro` provides access to most runtime i18n helpers in components and scripts. Methods are available **with and without the `$` prefix** (for example `$t` and `t`).
 
-**All methods can be accessed both with and without the `$` prefix** for convenience.
+Some injections — `$defineI18nRoute` and `$clearCache` — are available on `useNuxtApp()` only. See [Methods — `$defineI18nRoute`](/api/methods#definei18nroute) and [`$clearCache`](/api/methods#clearcache).
 
 ## 📊 Methods Overview
 
@@ -27,6 +27,8 @@ classDiagram
     class TranslationMethods {
         $t(key, params?, default?)
         $ts(key, params?, default?)
+        $_t(route)
+        $_ts(route)
         $tc(key, count, default?)
         $has(key)
         $mergeTranslations(obj)
@@ -68,8 +70,6 @@ The `useI18n` composable returns an object containing several key methods and pr
   ```
 
 ## 🌍 `$getLocaleName`
-
-**Version introduced**: `v1.28.0`
 
 - **Type**: `() => string | null`
 - **Description**: Returns the current locale name from displayName config.
@@ -113,10 +113,38 @@ const locale = $getLocaleName()
   $tc('cart', { count: 3, name: 'Alice' }) // not $tc('cart', 3, { name: 'Alice' })
   ```
 
+### `$ts`
+
+- **Type**: `(key: string, params?: Record<string, unknown>, defaultValue?: string) => string`
+- **Description**: String-safe variant of `$t` — always returns a string (use in templates when the key might resolve to a non-string value).
+- **Example**:
+  ```js
+  const { $ts } = useI18n()
+  const label = $ts('page.title')
+  ```
+
+### `$_t` and `$_ts`
+
+Route-bound variants of `$t` and `$ts`. Pass a route object first; the returned function uses that route's locale and page context.
+
+- **Type**: `(route) => (key, params?, defaultValue?) => …`
+- **Use when**: SSR, transitions, or components like `<i18n-t>` where `router.currentRoute` is not the route you need.
+
+```typescript
+import { useRoute, useI18n } from '#imports'
+
+const route = useRoute()
+const { $_t, $_ts } = useI18n()
+
+const $t = $_t(route)
+const title = $t('page.title')
+const label = $_ts(route)('page.label')
+```
+
 ### `$has`
 
 - **Type**: `(key: string) => boolean`
-- **Description**: Checks if a translation key exists for the current locale.
+- **Description**: Checks whether a key exists in the active merged dictionary for the current locale and route. During same-locale transitions, keys from the previous page may still match until the transition animation completes (automatic v3 behavior — not a configurable option).
 - **Example**:
   ```js
   const { $has } = useI18n()
@@ -158,12 +186,15 @@ const locale = $getLocaleName()
 
 ### `$loadPageTranslations`
 
-- **Type**: `(locale: string, routeName: string) => Promise<void>`
-- **Description**: Loads translations for the specified page and locale, enabling lazy-loading of translations.
+- **Type**: `(locale: string, routeName: string, translations: Record<string, string>) => Promise<void>`
+- **Description**: Manually loads translations for a specific locale and route into the cache. Triggers a re-render when the loaded context matches the active page.
 - **Example**:
   ```js
   const { $loadPageTranslations } = useI18n()
-  await $loadPageTranslations('fr', 'home')
+  await $loadPageTranslations('en', 'about', {
+    title: 'About Us',
+    description: 'Learn more about our company',
+  })
   ```
 
 ### `$setMissingHandler`
@@ -186,6 +217,28 @@ const locale = $getLocaleName()
   // Remove the handler
   $setMissingHandler(null)
   ```
+
+## `useNuxtApp()`-only APIs
+
+These are **not** returned by `useI18n()`. Import them from `useNuxtApp()`:
+
+| Method | Purpose |
+|--------|---------|
+| `$defineI18nRoute(config)` | Per-page locale routes, restrictions, and inline translations in `script setup` |
+| `$clearCache()` | Clears in-memory translation cache and loaded chunks |
+
+```typescript
+import { useNuxtApp } from '#imports'
+
+const { $defineI18nRoute, $clearCache } = useNuxtApp()
+
+$defineI18nRoute({
+  locales: ['en', 'fr'],
+  localeRoutes: { en: '/about', fr: '/a-propos' },
+})
+```
+
+See [Methods](/api/methods) for full signatures and examples.
 
 ## 🛠️ Example Usages
 

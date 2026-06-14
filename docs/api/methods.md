@@ -19,6 +19,8 @@ classDiagram
         +$defaultLocale() string
         +$t(key, params?, defaultValue?) Translation
         +$ts(key, params?, defaultValue?) string
+        +$_t(route) Function
+        +$_ts(route) Function
         +$tc(key, countOrParams, defaultValue?) string
         +$tn(value, options?) string
         +$td(value, options?) string
@@ -31,9 +33,14 @@ classDiagram
         +$localeRoute(to, locale?) RouteLocation
         +$localePath(to, locale?) string
         +$mergeTranslations(translations) void
-        +$clearCache() void
         +$loadPageTranslations(locale, routeName, translations) void
         +$setMissingHandler(handler) void
+        +$setI18nRouteParams(params) I18nRouteParams
+    }
+
+    class useNuxtAppOnly {
+        +$defineI18nRoute(config) void
+        +$clearCache() void
     }
     
     class Locale {
@@ -61,6 +68,10 @@ classDiagram
     useI18n ..> Params : accepts
 ```
 
+::: info `useNuxtApp()`-only injections
+`$defineI18nRoute` and `$clearCache` are provided by the main i18n plugin on `useNuxtApp()` but are **not** returned by the `useI18n()` composable. See sections below.
+:::
+
 
 ## 🌍 Locale Management
 
@@ -77,8 +88,6 @@ const locale = $getLocale()
 ```
 
 ### `$getLocaleName`
-
-**Version introduced**: `v1.28.0`
 
 - **Type**: `() => string | null`
 - **Description**: Returns the current locale name from displayName config.
@@ -153,10 +162,36 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 // Output: "Welcome, Alice! You have 5 unread messages."
 ```
 
+### `$_t` and `$_ts`
+
+Route-bound variants of `$t` and `$ts`. They take a **route** first and return a translation function locked to that route's locale and page context.
+
+- **Type**: `(route: RouteLocationNormalizedLoaded) => (key, params?, defaultValue?) => …`
+- **Access**: `useNuxtApp()` (also re-exported by `useI18n()` as `$_t` / `$_ts`)
+
+Use these when the active route during SSR or transitions differs from `router.currentRoute` — for example inside `<i18n-t>`, `<i18n-group>`, or when rendering content for a specific `route` object.
+
+```typescript
+import { useRoute, useNuxtApp } from '#imports'
+
+const route = useRoute()
+const { $_t, $_ts } = useNuxtApp()
+
+const $t = $_t(route)
+const title = $t('page.title')
+
+// String-safe variant
+const label = $_ts(route)('page.label')
+```
+
+::: tip
+Prefer `$t` / `$ts` in most components. Reach for `$_t` / `$_ts` when you already have an explicit route and need translations for **that** route, not the currently active one.
+:::
+
 ### `$tc`
 
 - **Type**: `(key: string, countOrParams: number | Params, defaultValue?: string) => string`
-- **Description**: Fetches a pluralized translation for the given key based on `count`. Extra placeholders use the same `Params` object as `$t`. Internally calls the `plural` function configured in `nuxt.config.ts` (see [Pluralization Guide](/guide/getting-started#plural)).
+- **Description**: Fetches a pluralized translation for the given key based on `count`. Extra placeholders use the same `Params` object as `$t`. Internally calls the `plural` function configured in `nuxt.config.ts` (see [Configuration → plural](/guide/configuration#plural)).
 
 **Parameters**:
 - **key**: `string` — The translation key whose value contains `|`-separated plural forms
@@ -188,7 +223,7 @@ Do not pass extra params as a third argument — `$tc('cart', 10, { name: 'Alice
 **Component alternative** — `<i18n-t keypath="cart" :plural="count" :params="{ name }" />` (merges `count` with `params` internally).
 
 ::: tip
-The form selection logic depends on the `plural` function in your config. The default selects by index (0 → first form, 1 → second, etc.). For languages like Russian, Arabic, or Polish, configure a custom `plural` function. See [Getting Started → plural](/guide/getting-started#plural).
+The form selection logic depends on the `plural` function in your config. The default selects by index (0 → first form, 1 → second, etc.). For languages like Russian, Arabic, or Polish, configure a custom `plural` function. See [Configuration → plural](/guide/configuration#plural).
 :::
 
 ### `$mergeTranslations`
@@ -344,8 +379,6 @@ window.location.href = routeFr
 
 ### `$switchRoute`
 
-**Version introduced**: `v1.27.0`
-
 - **Type**: `(route: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric | string, toLocale?: string) => void`
 - **Description**: Switches the route to a new specified destination and changes the locale if needed, redirecting the user to the appropriate localized route.
 
@@ -417,8 +450,6 @@ Methods for getting route information and names.
 
 ### `$getRouteName`
 
-**Version introduced**: `v1.28.0`
-
 - **Type**: `(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string`
 - **Description**: Retrieves the base route name without any locale-specific prefixes or suffixes.
 
@@ -441,8 +472,8 @@ Methods for configuring route behavior and access control.
 - **Description**: Defines route behavior based on the current locale. Controls access to routes, provides translations, and sets custom routes for different locales.
 
 > [!IMPORTANT]
-> `$defineI18nRoute` must be read from `useNuxtApp()` (or `useI18n()`) inside `script setup`.
-> Calling `$defineI18nRoute(...)` as a global function will throw `"$defineI18nRoute is not defined"` during SSR/prerender.
+> `$defineI18nRoute` is provided by the **define plugin** and is available on `useNuxtApp()` only — it is **not** part of the `useI18n()` return object.
+> Always destructure it from `useNuxtApp()` inside `script setup`. Calling `$defineI18nRoute(...)` as a bare global throws `"$defineI18nRoute is not defined"` during SSR/prerender.
 
 **Parameters**:
 - **locales**: `string[] | Record<string, Record<string, string>>` — Available locales for the route
@@ -479,9 +510,7 @@ $defineI18nRoute({
 ```typescript
 // in pages/news/[id].vue
 // for en/news/1-first-article
-const { $switchLocaleRoute, $setI18nRouteParams, $defineI18nRoute } = useI18n();
-// OR
-const { $switchLocaleRoute, $setI18nRouteParams, $defineI18nRoute } = useNuxtApp();
+const { $switchLocaleRoute, $setI18nRouteParams, $defineI18nRoute } = useNuxtApp()
 $defineI18nRoute({
   localeRoutes: {
     en: '/news/:id()',
@@ -581,7 +610,9 @@ const i18n = useI18n()
 ### `$has`
 
 - **Type**: `(key: string) => boolean`
-- **Description**: Checks if a translation key exists in the current translations (including previous page fallback if enabled).
+- **Description**: Checks whether a translation key exists in the **active merged dictionary** for the current locale and route (top-level keys and dot paths).
+
+During same-locale page transitions, v3 automatically deep-merges translations from the leaving page into this dictionary until the transition finishes — so keys from the previous page may still return `true` briefly. There is no `previousPageFallback` option; this behavior is built in. See [FAQ — page transitions](/guide/faq#-why-do-translations-break-during-page-transitions-especially-with-defineasynccomponent).
 
 ```typescript
 if ($has('welcome')) {
@@ -594,11 +625,14 @@ if ($has('welcome')) {
 ### `$clearCache`
 
 - **Type**: `() => void`
-- **Description**: Clears both the `TranslationStorage` cache and the plugin-level loaded chunks. Useful after dynamically updating translations.
+- **Description**: Clears the in-memory `TranslationStorage` cache, plugin-level loaded chunks, and reactive translation context. The next render re-loads translations from payloads or the network.
+
+**Access**: `useNuxtApp().$clearCache` — exposed at runtime by the main i18n plugin but **not** included in the `PluginsInjections` TypeScript interface or the `useI18n()` helper object. Use a type assertion if needed:
 
 ```typescript
-$clearCache()
+const { $clearCache } = useNuxtApp()
 // All cached translations are removed; next render will re-fetch them
+$clearCache()
 ```
 
 ### `$loadPageTranslations`
@@ -614,8 +648,6 @@ await $loadPageTranslations('en', 'about', {
 ```
 
 ## 🧭 `useI18nLocale` Composable
-
-**Version introduced**: `v3.0.0`
 
 The centralized composable for locale state management. Use this instead of directly manipulating `useState('i18n-locale')` or `useCookie('user-locale')`.
 

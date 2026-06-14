@@ -51,9 +51,9 @@ flowchart LR
 
 URLs have no locale segment. Locale is determined by cookies, `useI18nLocale()` state, or browser detection.
 
-- **Routes**: `/about`, `/contact` — same URL for all locales
+- **Routes**: `/about`, `/contact` — same URL pattern for all locales (no `/en/`, `/fr/` prefix)
 - **Locale persistence**: Via `localeCookie` (automatically set to `'user-locale'` if not specified)
-- **Restrictions**: Does not support custom paths or route-level locale restrictions
+- **Custom paths**: Supported via [`globalLocaleRoutes`](/guide/configuration#globallocaleroutes) and [`defineI18nRoute`](/guide/custom-locale-routes) — localized slugs are generated without adding a locale prefix to URLs (e.g. `/about` vs `/ueber-uns`). Nested routes, aliases, and per-locale restrictions are simpler than in `prefix_except_default`.
 
 ::: tip Automatic `localeCookie`
 When using `no_prefix`, `localeCookie` is automatically set to `'user-locale'` if not specified. This is required because the URL contains no locale information.

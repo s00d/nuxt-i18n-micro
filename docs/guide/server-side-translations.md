@@ -16,6 +16,8 @@ By default (`translationPayloads.mode: 'premerged'`), root-level files are baked
 
 With `translationPayloads.mode: 'source'`, compact source files are bundled into Nitro assets and merged at runtime when `loadTranslationsFromServer()` (or the `/_locales` route) is called. See the [Performance Guide — Serverless Payload Output](/guide/performance#serverless-payload-output) and [Cache & Storage Architecture](/api/i18n-cache-api) for details.
 
+For a consolidated list of runtime and server APIs, see the [API Reference](/api/).
+
 ## 🛠️ Setting Up Server-Side Middleware
 
 To enable server-side translations and locale information, use the provided middleware functions:

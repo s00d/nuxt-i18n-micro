@@ -146,22 +146,22 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
   
 ### `customPluralRule`
 
-- **Type**: `(value: string, count: number, params: Record<string, string | number | boolean>, locale: string) => string`
+- **Type**: `PluralFunc` — `(key: string, count: number, params: Params, locale: string, getter: Getter) => string | null`
 - **Optional**: Yes
-- **Description**: A function that allows you to define custom pluralization logic. Useful if the default pluralization rules do not fit your specific needs.
+- **Description**: Overrides the module-level `plural` option for this component instance. The fifth argument (`getter`) is the route-bound `$t` helper used to fetch raw plural forms.
 - **Example**:
 ```vue
 <i18n-t
   keypath="items"
   :plural="itemCount"
-  :customPluralRule="(key, count, params, locale, getTranslation) => {
-    const translation = getTranslation(key, params)
-    if (!translation) {
-      return null
-    }
-    return count === 1 ? 'no items' : `${count} ${translation}`;
+  :customPluralRule="(key, count, params, locale, t) => {
+    const translation = t(key, params)
+    if (!translation) return null
+    const forms = String(translation).split('|').map((s) => s.trim())
+    const idx = count === 1 ? 1 : 2
+    return (forms[idx] ?? forms[forms.length - 1] ?? '').replace('{count}', String(count))
   }"
-></i18n-t>
+/>
 ```
 
 ## 🛠️ Example Usages
@@ -228,10 +228,12 @@ Use a custom function to handle pluralization.
 <i18n-t
   keypath="items"
   :plural="itemCount"
-  :customPluralRule="(key, value, count, locale) => {
-    return count === 1 ? 'One item' : `${count} items`;
+  :customPluralRule="(key, count, params, locale, t) => {
+    const raw = t(key, params)
+    if (!raw) return null
+    return count === 1 ? 'One item' : `${count} items`
   }"
-></i18n-t>
+/>
 ```
 
 ### Advanced Example with Slots

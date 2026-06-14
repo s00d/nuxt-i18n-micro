@@ -82,7 +82,7 @@ flowchart TB
 
 ### 🔄 `text-to-i18n` Command
 
-**Version introduced**: `v1.1.0` (CLI package [`nuxt-i18n-micro-cli`](https://www.npmjs.com/package/nuxt-i18n-micro-cli))
+CLI package: [`nuxt-i18n-micro-cli`](https://www.npmjs.com/package/nuxt-i18n-micro-cli)
 
 ![v1.1.0 CLI text-to-i18n demo](/text-to-i18n.gif)
 

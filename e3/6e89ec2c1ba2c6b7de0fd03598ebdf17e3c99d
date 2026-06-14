@@ -1,0 +1,91 @@
+docs/index.md
+  s_43f7072b0cae73::t_1646669fdc8a1c 9-10
+  s_43f7072b0cae73::t_d425bdabe988e9 8
+docs/guide/folder-structure.md
+  s_43f7072b0cae73::t_3175ef14e10f51 42
+  s_43f7072b0cae73::t_487c481336a031 61
+  s_43f7072b0cae73::t_4a1cfbd6f39d05 13-15
+  s_43f7072b0cae73::t_466ed7a57f4306 150,153
+docs/guide/server-side-translations.md
+  s_43f7072b0cae73::t_4271a6d7af13ae 11,13-15
+branding/logo.svg
+  s_43f7072b0cae73::t_6454422a189fae 1-37
+docs/api/i18n-cache-api.md
+  s_43f7072b0cae73::t_e83037f98bcd22 158,161,168,172,177
+  s_43f7072b0cae73::t_8d49324ba67499 238
+  s_43f7072b0cae73::t_8fb39fcc387275 18-19,21-27,31-33
+  s_43f7072b0cae73::t_183630bbad4484 133
+  s_43f7072b0cae73::t_c311e958860df7 5-10
+  s_43f7072b0cae73::t_e6f4ac7abb233f 97-104
+docs/guide/getting-started.md
+  s_43f7072b0cae73::t_5c4c8e164402fb 195
+  s_43f7072b0cae73::t_53f2fab147f4b5 974-977
+  s_43f7072b0cae73::t_9fd85b25b9a63b 895,901,907-908,912,916,937-944
+  s_43f7072b0cae73::t_f038cb2fd74955 1144
+  s_43f7072b0cae73::t_0a993f8d3bd3a8 1128
+  s_43f7072b0cae73::t_57b6bf9bda292d 926-936,945-946
+docs/guide/cli.md
+  s_43f7072b0cae73::t_5f7f6f4a379b95 85
+docs/public/logo.svg
+  s_43f7072b0cae73::t_c6005c471b95d2 1-36
+  s_43f7072b0cae73::t_1ec05d2eb5f2f6 37
+docs/scripts/generate-text-to-i18n-gif.mjs
+  s_43f7072b0cae73::t_5f995680e682ff 584
+  s_43f7072b0cae73::t_912436d913477f 533-534,537-538
+  s_43f7072b0cae73::t_bfc5c0f0c8610e 1-2,4-8,16-19,22-28,32-38,42-54,78,102,116,163-165,167-168,296-305,313-338,340-341,343-351,353,355-357,359-362,364-369,371-374,377,478-481,483-492,495-496,498-499,501-504,506-507,539-541,544,547,549-553,556,559-583,585,588-619,621-683,686-688,696,698-699,701-704,717-719
+  s_43f7072b0cae73::t_ba3f3e07a43900 55-77,79-101,103-115,117-162,166
+  s_43f7072b0cae73::t_2e554ee755afea 310-311
+  s_43f7072b0cae73::t_54d790d40fcb2d 620
+  s_43f7072b0cae73::t_dfca3e6fd78f6a 306-308
+  s_43f7072b0cae73::t_36755aab370da5 312
+  s_43f7072b0cae73::t_3af070e205ba32 684-685,689-695,697,700,705-716
+  s_43f7072b0cae73::t_06ac3b434d79d5 3
+  s_43f7072b0cae73::t_79cfa225122fc7 586-587
+  s_43f7072b0cae73::t_645c659ced140c 309
+  s_43f7072b0cae73::t_1518cd91210c2d 11-12,20-21,29-31,39-41
+  s_43f7072b0cae73::t_b827a8b8788251 505,509
+  s_43f7072b0cae73::t_c34caf3c79cadd 339,342,352,354,358,363,370,482,493-494,497,500,508,514-516,519-520,524,535-536,542-543,545-546,548,554-555,557-558
+  s_43f7072b0cae73::t_80523258d58d48 169-224
+  s_43f7072b0cae73::t_c042791aa5e641 375-376,378-477
+  s_43f7072b0cae73::t_2da106e72a0a81 9-10,13-15
+  s_43f7072b0cae73::t_51931a23f1c63f 510-513,517-518,521-523,525-532
+  s_43f7072b0cae73::t_a3e82d76f3daa3 225-295
+docs/guide/performance.md
+  s_43f7072b0cae73::t_d88fc447b9785d 241-252,263
+  s_43f7072b0cae73::t_19a7005ff3ef9c 253-262
+  s_43f7072b0cae73::t_a7e735cf56853a 282-283
+docs/.vitepress/theme/custom.css
+  s_43f7072b0cae73::t_f9660f03f11538 3,9-13
+  s_43f7072b0cae73::t_6454422a189fae 4-7
+  s_43f7072b0cae73::t_fd33ce3f18ffd5 2,8
+docs/news/index.md
+  s_43f7072b0cae73::t_ee7734c23d41b8 13-14
+  s_43f7072b0cae73::t_bb0d7f055bc621 256
+  s_43f7072b0cae73::t_cc1e0226ae67d1 320
+  s_43f7072b0cae73::t_01197b1d3f96d5 218
+  s_43f7072b0cae73::t_5a44590b629fbd 289
+  s_43f7072b0cae73::t_5c4fab998c885e 7-12,15-99
+  s_43f7072b0cae73::t_df32738e91fbd0 106
+  s_43f7072b0cae73::t_253fb7923a10a5 308
+  s_43f7072b0cae73::t_5ecba1cbd95141 394
+docs/guide/contribution.md
+  s_43f7072b0cae73::t_df8792af691080 109
+  s_43f7072b0cae73::t_5af6743ca221df 49,52-63
+  s_43f7072b0cae73::t_08fb8f893ad513 82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "e36e89ec2c1ba2c6b7de0fd03598ebdf17e3c99d",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

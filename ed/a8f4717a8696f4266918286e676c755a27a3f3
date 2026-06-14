@@ -1,0 +1,97 @@
+docs/components/i18n-t.md
+  s_43f7072b0cae73::t_752b0ea1850cbd 149,151,157-162,164
+  s_43f7072b0cae73::t_3c067304207795 231-234,236
+docs/guide/migration.md
+  s_43f7072b0cae73::t_de842164a98cbe 9-14,18-20
+docs/guide/strategy.md
+  s_43f7072b0cae73::t_805e5136755759 54,56
+docs/guide/getting-started.md
+  s_43f7072b0cae73::t_9e461d05db6e07 326
+  s_43f7072b0cae73::t_279e8f0ec93711 259,263,265-271,276,278-284
+  s_43f7072b0cae73::t_3913b65fd3adfa 209
+docs/api/index.md
+  s_43f7072b0cae73::t_35bf46ff85fee0 3,8,10-12,14-26
+docs/examples.md
+  s_43f7072b0cae73::t_30fbacddd68cb6 118
+docs/guide/firebase.md
+  s_43f7072b0cae73::t_20c7cc5d1c8ae0 443
+docs/guide/server-side-translations.md
+  s_43f7072b0cae73::t_d2f8212fc1407c 19-20
+docs/guide/cli.md
+  s_43f7072b0cae73::t_fd0048d66d76e9 85
+README.md
+  s_43f7072b0cae73::t_474fef49247649 40-41
+  s_43f7072b0cae73::t_314d8c8fc47558 53-57,59
+  s_43f7072b0cae73::t_f35a8c9771ce43 65-66
+  s_43f7072b0cae73::t_aa4ee1f51fe1eb 47-49
+  s_43f7072b0cae73::t_ea9373a8b9c2b7 33-35
+docs/index.md
+  s_43f7072b0cae73::t_39948e63497fde 52,59-61,65-67,71-73,79-81,85-87,91-93
+  s_43f7072b0cae73::t_584122018b1db7 102
+  s_43f7072b0cae73::t_0046ac9da52905 28
+docs/guide/v3-upgrade.md
+  s_43f7072b0cae73::t_f58f3bd0e327d9 9-12
+packages/astro/package.json
+  h_ee6cac30a1b83a 3
+docs/guide/configuration.md
+  s_43f7072b0cae73::t_d77d4821b1aaa8 61-62
+  s_43f7072b0cae73::t_3da073c1e58d67 79
+  s_43f7072b0cae73::t_70824040dcb8c1 1-60,63-78,80-243,245,293-951
+  s_43f7072b0cae73::t_f46b94fbb99af7 244,246-292
+docs/guide/faq.md
+  s_43f7072b0cae73::t_278a64ff2ec26d 153,155
+docs/.vitepress/config.mts
+  s_43f7072b0cae73::t_a908906004db0a 112,122,132
+  s_43f7072b0cae73::t_10eedc170e0674 182
+  s_43f7072b0cae73::t_bab29bb09d793b 215,227,240,247-251
+  s_43f7072b0cae73::t_62411f1e14faf5 218
+  s_43f7072b0cae73::t_afebf701c8f314 82
+  s_43f7072b0cae73::t_d7a7a2b38e5090 229
+docs/composables/useI18nLocale.md
+  s_43f7072b0cae73::t_6acbe828737980 18,21-23,45-52,54-78,105
+docs/composables/useI18n.md
+  s_43f7072b0cae73::t_28275a02465851 116-143,147
+  s_43f7072b0cae73::t_8d0dee877d1d47 30-31
+  s_43f7072b0cae73::t_f5ddcd83a1df3d 9
+  s_43f7072b0cae73::t_639bfb412027ff 11
+  s_43f7072b0cae73::t_cef2c50145c9e9 189-190,194-197
+  s_43f7072b0cae73::t_69ad532d87f441 221-242
+docs/api/methods.md
+  s_43f7072b0cae73::t_c272e696eb69f0 226
+  s_43f7072b0cae73::t_599126eee8c5e2 613-615
+  s_43f7072b0cae73::t_403c3e0267b8f3 475-476
+  s_43f7072b0cae73::t_93e2c9f9e111e6 194
+  s_43f7072b0cae73::t_f886c071c789c5 165-190
+  s_43f7072b0cae73::t_5b090522369f7e 628-630,633,635
+  s_43f7072b0cae73::t_a04b57839e7adb 513
+  s_43f7072b0cae73::t_579dc9bb62adc4 22-23,38-43,71-73
+docs/guide/performance.md
+  s_43f7072b0cae73::t_9eed88eb8a5df3 26-28
+  s_43f7072b0cae73::t_c71ca53248ac79 85,90
+  s_43f7072b0cae73::t_b505890009665a 52-54
+  s_43f7072b0cae73::t_4700479457c2bd 111-116
+  s_43f7072b0cae73::t_e80d879f947bd2 122-126
+  s_43f7072b0cae73::t_bcba129b0d205b 32-36,39
+  s_43f7072b0cae73::t_deb5fcd5856430 62,64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "eda8f4717a8696f4266918286e676c755a27a3f3",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

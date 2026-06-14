@@ -1,3 +1,8 @@
+---
+title: "Storybook Integration Guide"
+description: "Integrating Nuxt, Storybook, and nuxt-i18n-micro into your project allows you to build a robust, localized application with a component-driven development ap..."
+---
+
 # 🌐 Storybook Integration Guide
 
 ## 📖 Introduction

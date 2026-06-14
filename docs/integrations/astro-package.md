@@ -1,4 +1,7 @@
 ---
+title: "Astro Package (`@i18n-micro/astro`)"
+description: "The @i18n-micro/astro package provides a lightweight, high-performance internationalization solution for Astro applications. It shares the same core logic as..."
+
 outline: deep
 ---
 

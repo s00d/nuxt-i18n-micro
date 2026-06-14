@@ -4,10 +4,7 @@ import { ModalsContainer } from 'vue-final-modal'
 
 <template>
   <div>
-    <NuxtLoadingIndicator
-      color="#54c100"
-      :throttle="100"
-    />
+    <NuxtLoadingIndicator color="#54c100" :throttle="100" />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

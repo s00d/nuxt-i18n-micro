@@ -5,89 +5,58 @@
 
     <!-- Навигация -->
     <div class="navigation">
-      <i18n-link
-        to="/async-components-test-2"
-        class="nav-link"
-      >
+      <i18n-link to="/async-components-test-2" class="nav-link">
         {{ $t('async-components-test::navigation.goToTest2') }}
       </i18n-link>
-      <i18n-link
-        to="/"
-        class="nav-link"
-      >
+      <i18n-link to="/" class="nav-link">
         {{ $t('async-components-test::navigation.backToHome') }}
       </i18n-link>
     </div>
 
     <!-- Тест 1: Простой асинхронный компонент -->
-    <div
-      id="test1"
-      class="test-section"
-    >
+    <div id="test1" class="test-section">
       <h2>{{ $t('async-components-test::test1.title') }}</h2>
       <p>{{ $t('async-components-test::test1.description') }}</p>
       <SimpleAsyncComponent />
     </div>
 
     <!-- Тест 2: Асинхронный компонент с переводами -->
-    <div
-      id="test2"
-      class="test-section"
-    >
+    <div id="test2" class="test-section">
       <h2>{{ $t('async-components-test::test2.title') }}</h2>
       <p>{{ $t('async-components-test::test2.description') }}</p>
       <AsyncComponentWithTranslations />
     </div>
 
     <!-- Тест 3: Асинхронный компонент с defineI18nRoute -->
-    <div
-      id="test3"
-      class="test-section"
-    >
+    <div id="test3" class="test-section">
       <h2>{{ $t('async-components-test::test3.title') }}</h2>
       <p>{{ $t('async-components-test::test3.description') }}</p>
       <AsyncComponentWithI18nRoute />
     </div>
 
     <!-- Тест 4: Динамический асинхронный компонент -->
-    <div
-      id="test4"
-      class="test-section"
-    >
+    <div id="test4" class="test-section">
       <h2>{{ $t('async-components-test::test4.title') }}</h2>
       <p>{{ $t('async-components-test::test4.description') }}</p>
       <div class="controls">
-        <button
-          id="load-dynamic-btn"
-          :disabled="isLoading"
-          @click="loadDynamicComponent"
-        >
+        <button id="load-dynamic-btn" :disabled="isLoading" @click="loadDynamicComponent">
           {{ $t('async-components-test::test4.loadButton') }}
         </button>
       </div>
-      <div
-        v-if="showDynamicComponent && DynamicComponent"
-        id="dynamic-component-container"
-      >
+      <div v-if="showDynamicComponent && DynamicComponent" id="dynamic-component-container">
         <component :is="DynamicComponent" />
       </div>
     </div>
 
     <!-- Тест 5: Асинхронный компонент с ошибкой -->
-    <div
-      id="test5"
-      class="test-section"
-    >
+    <div id="test5" class="test-section">
       <h2>{{ $t('async-components-test::test5.title') }}</h2>
       <p>{{ $t('async-components-test::test5.description') }}</p>
       <AsyncComponentWithError />
     </div>
 
     <!-- Результаты тестов -->
-    <div
-      id="test-results"
-      class="test-results"
-    >
+    <div id="test-results" class="test-results">
       <h2>{{ $t('async-components-test::results.title') }}</h2>
       <div class="result-item">
         <span>{{ $t('async-components-test::results.currentLocale') }}:</span>
@@ -99,15 +68,14 @@
       </div>
       <div class="result-item">
         <span>{{ $t('async-components-test::results.translationsLoaded') }}:</span>
-        <strong id="translations-loaded">{{ translationsLoaded ? $t('async-components-test::results.yes') : $t('async-components-test::results.no') }}</strong>
+        <strong id="translations-loaded">{{
+          translationsLoaded ? $t('async-components-test::results.yes') : $t('async-components-test::results.no')
+        }}</strong>
       </div>
     </div>
 
     <!-- Переключатель языка -->
-    <div
-      id="language-switcher"
-      class="language-switcher"
-    >
+    <div id="language-switcher" class="language-switcher">
       <h3>{{ $t('async-components-test::switchLanguage') }}</h3>
       <div class="switcher-buttons">
         <button

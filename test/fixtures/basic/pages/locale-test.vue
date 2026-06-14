@@ -5,92 +5,50 @@
       <i18n-t keypath="page.content" />
     </p>
     <p id="username">
-      <i18n-t
-        keypath="page.greeting"
-        :params="{ name: 'John' }"
-      />
+      <i18n-t keypath="page.greeting" :params="{ name: 'John' }" />
     </p>
     <p id="plural-0">
-      <i18n-t
-        keypath="page.items"
-        :plural="0"
-      />
+      <i18n-t keypath="page.items" :plural="0" />
     </p>
     <p id="plural-1">
-      <i18n-t
-        keypath="page.items"
-        :plural="1"
-      />
+      <i18n-t keypath="page.items" :plural="1" />
     </p>
     <p id="plural-2">
-      <i18n-t
-        keypath="page.items"
-        :plural="2"
-      />
+      <i18n-t keypath="page.items" :plural="2" />
     </p>
     <p id="plural-3">
-      <i18n-t
-        keypath="page.items"
-        :plural="3"
-      />
+      <i18n-t keypath="page.items" :plural="3" />
     </p>
 
     <p id="number-tn">
       {{ $tn(1234567.89) }}
     </p>
     <p id="number-tn-component">
-      <i18n-t
-        keypath="page.number"
-        :number="1234567.89"
-      />
+      <i18n-t keypath="page.number" :number="1234567.89" />
     </p>
 
     <div id="date-td">
       {{ $td(oneYearAgo) }}
     </div>
     <p id="date-td-component">
-      <i18n-t
-        keypath="page.date"
-        :date="oneYearAgo"
-      />
+      <i18n-t keypath="page.date" :date="oneYearAgo" />
     </p>
 
     <div id="date-tdr">
       {{ $tdr(oneYearAgo) }}
     </div>
     <p id="date-tdr-component">
-      <i18n-t
-        keypath="page.relativeDate"
-        :relative-date="oneYearAgo"
-      />
+      <i18n-t keypath="page.relativeDate" :relative-date="oneYearAgo" />
     </p>
 
     <p id="html-content">
-      <i18n-t
-        keypath="page.htmlContent"
-        :html="true"
-      />
+      <i18n-t keypath="page.htmlContent" :html="true" />
     </p>
 
     <div id="locale-links">
-      <NuxtLink
-        id="link-en"
-        :to="$localeRoute({ name: 'locale-test' }, 'en')"
-      >
-        Switch to English
-      </NuxtLink>
-      <NuxtLink
-        id="link-de"
-        :to="$localeRoute({ name: 'locale-test' }, 'de')"
-      >
-        Switch to German
-      </NuxtLink>
-      <NuxtLink
-        id="link-ru"
-        :to="$localeRoute({ name: 'locale-test' }, 'ru')"
-      >
-        Switch to Russian
-      </NuxtLink>
+      <NuxtLink id="link-en" :to="$localeRoute({ name: 'locale-test' }, 'en')"> Switch to English </NuxtLink>
+      <NuxtLink id="link-de" :to="$localeRoute({ name: 'locale-test' }, 'de')"> Switch to German </NuxtLink>
+      <NuxtLink id="link-ru" :to="$localeRoute({ name: 'locale-test' }, 'ru')"> Switch to Russian </NuxtLink>
     </div>
   </div>
 </template>

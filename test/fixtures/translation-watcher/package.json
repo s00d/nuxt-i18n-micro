@@ -1,5 +1,5 @@
 {
-  "private": true,
   "name": "translation-watcher-fixture",
+  "private": true,
   "type": "module"
 }

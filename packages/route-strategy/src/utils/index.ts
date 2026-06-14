@@ -8,11 +8,4 @@ export {
   shouldAddLocalePrefix,
 } from './common'
 export { type ResolvedLocales, resolveLocales } from './locales'
-export {
-  buildFullPath,
-  buildFullPathNoPrefix,
-  joinPath,
-  normalizePath,
-  normalizeRouteKey,
-  removeLeadingSlash,
-} from './path'
+export { buildFullPath, buildFullPathNoPrefix, joinPath, normalizePath, normalizeRouteKey, removeLeadingSlash } from './path'

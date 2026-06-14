@@ -2,26 +2,33 @@
   "name": "@i18n-micro/utils",
   "version": "1.0.0",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
-    "directory": "packages/utils"
+  "keywords": [
+    "i18n",
+    "locale",
+    "translations",
+    "utils"
+  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/utils#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
   "license": "MIT",
-  "type": "module",
-  "sideEffects": false,
   "author": {
     "name": "s00d",
     "email": "Virus191288@gmail.com",
     "url": "https://s00d.github.io/"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/utils#readme",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/utils"
   },
-  "engines": {
-    "node": ">=18"
-  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "exports": {
     "./deep-merge": {
       "import": {
@@ -213,6 +220,9 @@
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build",
     "check:package": "publint",
@@ -220,19 +230,6 @@
     "test:dist": "vitest run --config vitest.dist.config.ts",
     "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "i18n",
-    "translations",
-    "utils",
-    "locale"
-  ],
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
     "globby": "catalog:"
@@ -243,5 +240,8 @@
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

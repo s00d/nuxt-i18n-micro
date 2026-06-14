@@ -2,16 +2,10 @@
   <div class="delayed-async-component">
     <h3>{{ $t('delayed-async-component::title') }}</h3>
     <p>{{ $t('delayed-async-component::description') }}</p>
-    <div
-      v-if="isLoading"
-      class="loading-indicator"
-    >
+    <div v-if="isLoading" class="loading-indicator">
       {{ $t('delayed-async-component::loading') }}
     </div>
-    <div
-      v-else
-      class="loaded-content"
-    >
+    <div v-else class="loaded-content">
       {{ $t('delayed-async-component::loaded') }}
     </div>
   </div>

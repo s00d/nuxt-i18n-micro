@@ -1,4 +1,7 @@
 ---
+title: "Upgrading from v2.x to v3.x"
+description: "v3.0.0 introduces fundamental architectural changes: strategy packages, a new caching system, centralized locale management via useI18nLocale(), and a redesi..."
+
 outline: deep
 ---
 

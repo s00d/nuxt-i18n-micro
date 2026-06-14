@@ -21,9 +21,7 @@
     </div>
 
     <div>
-      <i18n-switcher
-        :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }"
-      />
+      <i18n-switcher :custom-labels="{ en: 'English', de: 'Deutsch', ru: 'Русский' }" />
     </div>
 
     <p id="localized-route">
@@ -32,24 +30,14 @@
 
     <p id="localized-route-path">
       {{ localeRoute('/page') }}
-      <br>
-      <button
-        type="button"
-        @click="toCreationByStr"
-      >
-        toCreationByStr
-      </button>
+      <br />
+      <button type="button" @click="toCreationByStr">toCreationByStr</button>
     </p>
 
     <p id="localized-route-path">
       {{ localeRoute({ name: 'page' }) }}
-      <br>
-      <button
-        type="button"
-        @click="toCreationByObj"
-      >
-        toCreationByObj
-      </button>
+      <br />
+      <button type="button" @click="toCreationByObj">toCreationByObj</button>
     </p>
 
     <p class="localized-route-path-locale">
@@ -57,19 +45,14 @@
       {{ localeRoute({ name: 'contact' }, 'de') }}
 
       <NuxtLink :to="localeRoute({ name: 'contact' }, 'de')">
-        {{ $t("navigation.contact") }}
+        {{ $t('navigation.contact') }}
       </NuxtLink>
     </p>
 
     <p id="localized-route-path">
       {{ localeRoute({ name: 'subpage' }) }}
-      <br>
-      <button
-        type="button"
-        @click="toCreationByObjSubPage"
-      >
-        toCreationByObj
-      </button>
+      <br />
+      <button type="button" @click="toCreationByObjSubPage">toCreationByObj</button>
     </p>
 
     <p id="localized-route-2">
@@ -84,23 +67,18 @@
       {{ localePath('/news/aaa?info=1111') }}
     </p>
 
-    <button @click="$switchRoute('/page')">
-      switchRoute
-    </button>
+    <button @click="$switchRoute('/page')">switchRoute</button>
 
     <div>
-      <i18n-link :to="{ name: 'page' }">
-        Go to Page
-      </i18n-link>
+      <i18n-link :to="{ name: 'page' }"> Go to Page </i18n-link>
     </div>
 
     <a href="/">test</a>
 
-    <div
-      v-for="key in generatedKeys"
-      :key="key"
-    >
-      <p>{{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span></p>
+    <div v-for="key in generatedKeys" :key="key">
+      <p>
+        {{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span>
+      </p>
     </div>
   </div>
 </template>

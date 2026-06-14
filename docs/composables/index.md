@@ -1,3 +1,8 @@
+---
+title: "Composables"
+description: "Composables for Nuxt I18n Micro: useI18n, useLocaleHead, and useI18nLocale."
+---
+
 # Composables
 
 ## Available Composables

@@ -36,11 +36,7 @@ import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { extractDefineI18nRouteData } from './utils'
 
 export type { TranslationPayloadMode } from '@i18n-micro/utils/payload-config'
-export {
-  resolveTranslationPayloadMode,
-  resolveTranslationPayloadOptions,
-  resolveTranslationPayloadPublicDir,
-} from '@i18n-micro/utils/payload-config'
+export { resolveTranslationPayloadMode, resolveTranslationPayloadOptions, resolveTranslationPayloadPublicDir } from '@i18n-micro/utils/payload-config'
 
 const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
 

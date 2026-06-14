@@ -1,30 +1,15 @@
 <template>
   <div class="action-bar">
     <div class="action-bar__left">
-      <Button
-        class="action-btn action-btn--export"
-        title="Export"
-        variant="ghost"
-        @click="emit('export')"
-      >
+      <Button class="action-btn action-btn--export" title="Export" variant="ghost" @click="emit('export')">
         <span class="action-btn__icon">📤</span>
       </Button>
 
-      <Button
-        class="action-btn action-btn--import"
-        title="Import"
-        variant="ghost"
-        @click="emit('import')"
-      >
+      <Button class="action-btn action-btn--import" title="Import" variant="ghost" @click="emit('import')">
         <span class="action-btn__icon">📥</span>
       </Button>
 
-      <Button
-        class="action-btn action-btn--stats"
-        title="Stats"
-        variant="ghost"
-        @click="emit('show-stats')"
-      >
+      <Button class="action-btn action-btn--stats" title="Stats" variant="ghost" @click="emit('show-stats')">
         <span class="action-btn__icon">📊</span>
       </Button>
 
@@ -39,12 +24,7 @@
       </Button>
     </div>
 
-    <Button
-      class="action-btn action-btn--save"
-      title="Save"
-      variant="primary"
-      @click="emit('save')"
-    >
+    <Button class="action-btn action-btn--save" title="Save" variant="primary" @click="emit('save')">
       <span class="action-btn__icon">💾</span>
     </Button>
   </div>

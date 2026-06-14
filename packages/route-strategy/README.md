@@ -44,7 +44,7 @@ The generator supports the same strategies as the runtime:
 - **`no_prefix`**
   - URLs have **no locale prefix** (`/about`, `/kontakt`).
   - Locale is handled via cookies / runtime logic, not via path.
-  - `globalLocaleRoutes` are used to generate per‑locale variants where appropriate, but the *visible* URLs stay prefix‑less.
+  - `globalLocaleRoutes` are used to generate per‑locale variants where appropriate, but the _visible_ URLs stay prefix‑less.
 
 - **`prefix`**
   - All localized routes are prefixed: `/en/about`, `/de/ueber-uns`, etc.
@@ -69,13 +69,13 @@ import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '@i18n-micro/route-strategy'
 
 const generator = new RouteGenerator({
-  locales,               // Array<{ code, iso, name, baseUrl?, baseDefault? }>
-  defaultLocaleCode,     // e.g. 'en'
-  strategy,              // 'no_prefix' | 'prefix' | 'prefix_except_default' | 'prefix_and_default'
-  globalLocaleRoutes,    // Optional: per‑path custom routes per locale
-  filesLocaleRoutes,     // Optional: per‑file routes extracted at build time
-  routeLocales,          // Optional: per‑route locale restrictions
-  noPrefixRedirect,      // Optional: behavior for redirect helpers in no_prefix
+  locales, // Array<{ code, iso, name, baseUrl?, baseDefault? }>
+  defaultLocaleCode, // e.g. 'en'
+  strategy, // 'no_prefix' | 'prefix' | 'prefix_except_default' | 'prefix_and_default'
+  globalLocaleRoutes, // Optional: per‑path custom routes per locale
+  filesLocaleRoutes, // Optional: per‑file routes extracted at build time
+  routeLocales, // Optional: per‑route locale restrictions
+  noPrefixRedirect, // Optional: behavior for redirect helpers in no_prefix
 })
 
 const pages: NuxtPage[] = [
@@ -90,7 +90,7 @@ generator.extendPages(pages)
 Key config fields:
 
 - **`globalLocaleRoutes`**:
-  - Map from *canonical path* or *route name* to per‑locale paths:
+  - Map from _canonical path_ or _route name_ to per‑locale paths:
   - Example:
     ```ts
     const globalLocaleRoutes = {

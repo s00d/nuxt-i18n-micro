@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "seo-auto",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",

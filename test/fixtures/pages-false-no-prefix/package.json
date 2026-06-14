@@ -1,5 +1,5 @@
 {
-  "private": true,
   "name": "pages-false-no-prefix-fixture",
+  "private": true,
   "type": "module"
 }

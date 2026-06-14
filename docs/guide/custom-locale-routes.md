@@ -1,4 +1,7 @@
 ---
+title: "Custom Localized Routes with `localeRoutes` in `Nuxt I18n Micro`"
+description: "The localeRoutes feature in Nuxt I18n Micro allows you to define custom routes for specific locales, offering flexibility and control over the routing struct..."
+
 outline: deep
 ---
 

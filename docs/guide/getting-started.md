@@ -1,4 +1,7 @@
 ---
+title: "Getting Started with Nuxt I18n Micro"
+description: "Welcome to Nuxt I18n Micro! This guide will help you get up and running with our high-performance internationalization module for Nuxt.js."
+
 outline: deep
 ---
 

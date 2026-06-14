@@ -2,21 +2,29 @@
   "name": "@i18n-micro/preact",
   "version": "1.2.1",
   "description": "Preact bindings for i18n-micro — hooks, context, and UI components.",
-  "type": "module",
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "preact",
+    "translations"
+  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
   "license": "MIT",
-  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
     "directory": "packages/preact"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact#readme",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
-  },
-  "engines": {
-    "node": ">=18"
-  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -33,26 +41,20 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "publishConfig": {
     "access": "public"
   },
-  "keywords": [
-    "preact",
-    "i18n",
-    "internationalization",
-    "translations"
-  ],
+  "scripts": {
+    "build": "vite build",
+    "check:package": "publint",
+    "dev": "cd playground && vite",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
+  },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
     "@i18n-micro/types": "workspace:*"
-  },
-  "peerDependencies": {
-    "preact": "catalog:"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
@@ -69,12 +71,10 @@
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
   },
-  "scripts": {
-    "build": "vite build",
-    "check:package": "publint",
-    "dev": "cd playground && vite",
-    "test": "jest",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build && pnpm run check:package"
+  "peerDependencies": {
+    "preact": "catalog:"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

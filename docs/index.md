@@ -1,4 +1,8 @@
 ---
+titleTemplate: false
+title: "Nuxt I18n Micro"
+description: "Fast, simple, and lightweight internationalization for Nuxt.js. High-performance i18n with strategy-based routing and minimal bundle impact."
+
 layout: home
 
 hero:
@@ -29,8 +33,6 @@ features:
     details: 🔧 Supports only JSON files, with auto-generated page-specific translations.
   - title: 🌐 Seamless Nuxt Integration
     details: 🛠️ Seamless integration with Nuxt.js, making it easy to add powerful i18n features to your application.
----
-
 ---
 
 ## ✨ Introduction

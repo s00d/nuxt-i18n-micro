@@ -19,31 +19,27 @@ const { category, slug } = route.params
 
     <p>Route params:</p>
     <ul>
-      <li>category: <strong>{{ category }}</strong></li>
-      <li>slug: <strong>{{ slug }}</strong></li>
+      <li>
+        category: <strong>{{ category }}</strong>
+      </li>
+      <li>
+        slug: <strong>{{ slug }}</strong>
+      </li>
     </ul>
 
-    <hr>
+    <hr />
     <p>Locale switcher:</p>
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        :disabled="locale.code === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
+      <button v-for="locale in $getLocales()" :key="locale.code" :disabled="locale.code === $getLocale()" @click="() => $switchLocale(locale.code)">
         Switch to {{ locale.code }}
       </button>
     </div>
 
-    <hr>
+    <hr />
     <p>Direct links to localized alias routes:</p>
     <div>
-      <p
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-      >
-        Link to <a :href="`${locale.code === 'en' ? '': `/${locale.code}`}/alias-test/electronics/laptop`">alias route - {{ locale.code }}</a>
+      <p v-for="locale in $getLocales()" :key="locale.code">
+        Link to <a :href="`${locale.code === 'en' ? '' : `/${locale.code}`}/alias-test/electronics/laptop`">alias route - {{ locale.code }}</a>
       </p>
     </div>
   </div>

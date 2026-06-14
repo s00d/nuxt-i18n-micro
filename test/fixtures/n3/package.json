@@ -9,8 +9,8 @@
     "preview": "nuxi preview"
   },
   "dependencies": {
-    "vue-final-modal": "catalog:",
-    "nuxt": "catalog:nuxt3"
+    "nuxt": "catalog:nuxt3",
+    "vue-final-modal": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",

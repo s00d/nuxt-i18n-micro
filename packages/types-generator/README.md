@@ -20,10 +20,7 @@ Add to `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: [
-    'nuxt-i18n-micro',
-    '@i18n-micro/types-generator/nuxt',
-  ],
+  modules: ['nuxt-i18n-micro', '@i18n-micro/types-generator/nuxt'],
 })
 ```
 
@@ -59,4 +56,3 @@ See [full documentation](../../docs/integrations/types-generator.md) for detaile
 ## License
 
 MIT
-

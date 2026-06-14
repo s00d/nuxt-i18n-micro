@@ -74,10 +74,10 @@
     "release:patch": "pnpm run release:auth && pnpm run prepack && node scripts/run-changelogen-release.mjs patch && pnpm publish -r && git push --follow-tags",
     "release:minor": "pnpm run release:auth && pnpm run prepack && node scripts/run-changelogen-release.mjs minor && pnpm publish -r && git push --follow-tags",
     "release:major": "pnpm run release:auth && pnpm run prepack && node scripts/run-changelogen-release.mjs major && pnpm publish -r && git push --follow-tags",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
-    "format:check": "biome format .",
+    "lint": "oxlint src packages test client playground build.config.ts",
+    "lint:fix": "oxlint src packages test client playground build.config.ts --fix",
+    "format": "oxfmt --write src packages test client playground build.config.ts",
+    "format:check": "oxfmt --check src packages test client playground build.config.ts",
     "test": "playwright test",
     "test:vitest": "vitest run",
     "test:performance": "vitest run --config vitest.performance.config.ts",
@@ -100,7 +100,8 @@
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs",
     "docs:clean-dev": "vitepress dev docs --clean-cache",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "docs:og-image": "node docs/scripts/generate-og-image.mjs"
   },
   "stackblitz": {
     "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev",
@@ -123,7 +124,8 @@
     "ufo": "catalog:"
   },
   "devDependencies": {
-    "@biomejs/biome": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
     "@nuxt/devtools": "catalog:",
     "@nuxt/devtools-ui-kit": "catalog:",
     "@nuxt/module-builder": "catalog:",

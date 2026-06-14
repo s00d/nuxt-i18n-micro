@@ -4,17 +4,10 @@
       <table class="locale-table">
         <thead class="locale-table__header">
           <tr>
-            <th
-              v-for="header in headers"
-              :key="header.key"
-              class="locale-table__header-cell"
-            >
+            <th v-for="header in headers" :key="header.key" class="locale-table__header-cell">
               <div class="header-content">
                 <span class="header-icon">
-                  <component
-                    :is="header.iconComponent"
-                    v-if="header.iconComponent"
-                  />
+                  <component :is="header.iconComponent" v-if="header.iconComponent" />
                   <span v-else>{{ header.icon }}</span>
                 </span>
                 <span class="header-text">{{ header.label }}</span>
@@ -23,11 +16,7 @@
           </tr>
         </thead>
         <tbody class="locale-table__body">
-          <tr
-            v-for="locale in locales"
-            :key="locale.code"
-            class="locale-table__row"
-          >
+          <tr v-for="locale in locales" :key="locale.code" class="locale-table__row">
             <td class="locale-table__cell">
               <div class="locale-code">
                 <span class="locale-code__text">{{ locale.code }}</span>
@@ -41,10 +30,7 @@
             </td>
             <td class="locale-table__cell">
               <div class="direction-indicator">
-                <span
-                  class="direction-badge"
-                  :class="`direction-badge--${locale.dir || 'ltr'}`"
-                >
+                <span class="direction-badge" :class="`direction-badge--${locale.dir || 'ltr'}`">
                   {{ (locale.dir || 'ltr').toUpperCase() }}
                 </span>
               </div>
@@ -53,11 +39,7 @@
               <span class="base-url">{{ locale.baseUrl || '—' }}</span>
             </td>
             <td class="locale-table__cell">
-              <StatusIndicator
-                :status="locale.disabled ? 'disabled' : 'active'"
-                :label="locale.disabled ? 'Disabled' : 'Active'"
-                size="sm"
-              />
+              <StatusIndicator :status="locale.disabled ? 'disabled' : 'active'" :label="locale.disabled ? 'Disabled' : 'Active'" size="sm" />
             </td>
           </tr>
         </tbody>
@@ -197,9 +179,19 @@ const headers: Header[] = [
 }
 
 /* Animation delay for each row */
-.locale-table__row:nth-child(1) { animation-delay: 0.1s; }
-.locale-table__row:nth-child(2) { animation-delay: 0.2s; }
-.locale-table__row:nth-child(3) { animation-delay: 0.3s; }
-.locale-table__row:nth-child(4) { animation-delay: 0.4s; }
-.locale-table__row:nth-child(5) { animation-delay: 0.5s; }
+.locale-table__row:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.locale-table__row:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.locale-table__row:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.locale-table__row:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.locale-table__row:nth-child(5) {
+  animation-delay: 0.5s;
+}
 </style>

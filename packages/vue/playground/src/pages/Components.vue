@@ -6,59 +6,29 @@
     <section>
       <h2>I18nT Component</h2>
       <I18nT keypath="welcome" />
-      <br>
-      <I18nT
-        keypath="greeting"
-        :params="{ name: 'Vue' }"
-      />
-      <br>
-      <I18nT
-        keypath="apples"
-        :plural="0"
-      />
-      <br>
-      <I18nT
-        keypath="apples"
-        :plural="1"
-      />
-      <br>
-      <I18nT
-        keypath="apples"
-        :plural="5"
-      />
-      <br>
-      <I18nT
-        keypath="number"
-        :number="1234.56"
-      />
-      <br>
-      <I18nT
-        keypath="date"
-        :date="new Date()"
-      />
-      <br>
-      <I18nT
-        keypath="relativeDate"
-        :relative-date="oneHourAgo"
-      />
+      <br />
+      <I18nT keypath="greeting" :params="{ name: 'Vue' }" />
+      <br />
+      <I18nT keypath="apples" :plural="0" />
+      <br />
+      <I18nT keypath="apples" :plural="1" />
+      <br />
+      <I18nT keypath="apples" :plural="5" />
+      <br />
+      <I18nT keypath="number" :number="1234.56" />
+      <br />
+      <I18nT keypath="date" :date="new Date()" />
+      <br />
+      <I18nT keypath="relativeDate" :relative-date="oneHourAgo" />
     </section>
 
     <section>
       <h2>I18nLink Component</h2>
-      <I18nLink to="/">
-        Home Link
-      </I18nLink>
-      <br>
-      <I18nLink to="/about">
-        About Link
-      </I18nLink>
-      <br>
-      <I18nLink
-        to="/components"
-        :active-style="{ color: 'red' }"
-      >
-        Components Link (Active Style)
-      </I18nLink>
+      <I18nLink to="/"> Home Link </I18nLink>
+      <br />
+      <I18nLink to="/about"> About Link </I18nLink>
+      <br />
+      <I18nLink to="/components" :active-style="{ color: 'red' }"> Components Link (Active Style) </I18nLink>
     </section>
 
     <section>

@@ -2,26 +2,35 @@
   "name": "@i18n-micro/test-utils",
   "version": "1.2.1",
   "description": "Testing helpers for Nuxt I18n Micro (translations, locales, formatting mocks).",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
-    "directory": "packages/test-utils"
+  "keywords": [
+    "i18n",
+    "jest",
+    "nuxt",
+    "testing",
+    "vitest"
+  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/test-utils#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
   "license": "MIT",
-  "type": "module",
-  "sideEffects": false,
   "author": {
     "name": "s00d",
     "email": "Virus191288@gmail.com",
     "url": "https://s00d.github.io/"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/test-utils#readme",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
+    "directory": "packages/test-utils"
   },
-  "engines": {
-    "node": ">=18"
-  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "exports": {
@@ -38,27 +47,15 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build",
     "check:package": "publint",
     "test": "jest",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
-  "publishConfig": {
-    "access": "public"
-  },
-  "keywords": [
-    "nuxt",
-    "i18n",
-    "testing",
-    "vitest",
-    "jest"
-  ],
   "dependencies": {
     "@i18n-micro/core": "workspace:*"
   },
@@ -66,5 +63,8 @@
     "publint": "^0.3.17",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

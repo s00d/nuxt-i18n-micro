@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 150,
+  "tabWidth": 2,
+  "singleQuote": true,
+  "semi": false,
+  "trailingComma": "all",
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.nuxt/**",
+    "**/.output/**",
+    "**/coverage/**",
+    "**/test-results/**",
+    "**/.cache/**",
+    "**/.git/**",
+    "**/.astro/**"
+  ],
+  "overrides": [
+    {
+      "files": ["*.json", "*.jsonc", "*.json5"],
+      "options": {
+        "trailingComma": "none"
+      }
+    }
+  ]
+}

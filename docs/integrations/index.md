@@ -1,4 +1,7 @@
 ---
+title: "Integrations"
+description: "Framework packages for Nuxt I18n Micro: Vue, React, Preact, Solid, Astro, Node.js, and devtools."
+
 outline: deep
 ---
 

@@ -8,12 +8,4 @@ export { I18n, createI18n, loadTranslations, loadRootTranslations }
 // Re-export utilities from core
 export { FormatService, interpolate } from '@i18n-micro/core'
 // Re-export types from @i18n-micro/types
-export type {
-  CleanTranslation,
-  Getter,
-  Locale,
-  LocaleCode,
-  Params,
-  PluralFunc,
-  Translations,
-} from '@i18n-micro/types'
+export type { CleanTranslation, Getter, Locale, LocaleCode, Params, PluralFunc, Translations } from '@i18n-micro/types'

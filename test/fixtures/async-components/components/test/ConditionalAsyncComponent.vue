@@ -3,8 +3,12 @@
     <h3>{{ $t('conditional-async-component::title') }}</h3>
     <p>{{ $t('conditional-async-component::description') }}</p>
     <div class="component-info">
-      <p><strong>{{ $t('conditional-async-component::componentId') }}:</strong> Conditional Async Component</p>
-      <p><strong>{{ $t('conditional-async-component::status') }}:</strong> {{ $t('conditional-async-component::active') }}</p>
+      <p>
+        <strong>{{ $t('conditional-async-component::componentId') }}:</strong> Conditional Async Component
+      </p>
+      <p>
+        <strong>{{ $t('conditional-async-component::status') }}:</strong> {{ $t('conditional-async-component::active') }}
+      </p>
     </div>
   </div>
 </template>

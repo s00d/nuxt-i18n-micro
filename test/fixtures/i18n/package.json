@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "i18n",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",
@@ -8,11 +8,11 @@
     "generate": "nuxi generate",
     "init": "nuxt prepare"
   },
+  "dependencies": {
+    "nuxt": "catalog:"
+  },
   "devDependencies": {
     "@intlify/message-compiler": "catalog:",
     "@nuxtjs/i18n": "catalog:"
-  },
-  "dependencies": {
-    "nuxt": "catalog:"
   }
 }

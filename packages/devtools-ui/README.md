@@ -24,10 +24,3 @@ This package is primarily used internally by other `@i18n-micro` packages for De
 ## License
 
 MIT
-
-
-
-
-
-
-

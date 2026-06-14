@@ -12,17 +12,7 @@ const { $getLocale, $t, $switchLocale } = useNuxtApp()
     <p id="greeting">
       {{ $t('hello') }}
     </p>
-    <button
-      id="switch-zh"
-      @click="$switchLocale('zh')"
-    >
-      Switch to Chinese
-    </button>
-    <button
-      id="switch-en"
-      @click="$switchLocale('en')"
-    >
-      Switch to English
-    </button>
+    <button id="switch-zh" @click="$switchLocale('zh')">Switch to Chinese</button>
+    <button id="switch-en" @click="$switchLocale('en')">Switch to English</button>
   </div>
 </template>

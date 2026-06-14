@@ -1,4 +1,7 @@
 ---
+title: "Preact Package (`@i18n-micro/preact`)"
+description: "The @i18n-micro/preact package provides a lightweight, high-performance internationalization solution for Pure Preact applications. It shares the same core l..."
+
 outline: deep
 ---
 

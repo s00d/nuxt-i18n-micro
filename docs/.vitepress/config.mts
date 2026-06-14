@@ -2,6 +2,7 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 import { withChartjs } from 'vitepress-plugin-chartjs'
 import { withFolderTree } from 'vitepress-plugin-folder-tree'
 import pkg from '../../package.json'
+import { SITE, transformHead } from './seo'
 
 // https://vitepress.dev/reference/site-config
 export default withFolderTree(withChartjs(withMermaid({
@@ -22,13 +23,31 @@ export default withFolderTree(withChartjs(withMermaid({
   },
   lang: 'en-US',
   title: 'Nuxt I18n Micro',
-  description: 'Fast, simple, and lightweight i18n for Nuxt',
+  description: SITE.defaultDescription,
+  titleTemplate: ':title | Nuxt I18n Micro',
   lastUpdated: true,
   cleanUrls: true,
   base: process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/',
 
+  transformHead,
+
+  sitemap: {
+    hostname: 'https://s00d.github.io',
+    transformItems(items) {
+      const prefix = '/nuxt-i18n-micro'
+      return items.map((item) => {
+        const path = item.url === '/' ? '/' : item.url.startsWith('/') ? item.url : `/${item.url}`
+        return { ...item, url: `${prefix}${path}` }
+      })
+    },
+  },
+
   head: [
-    // DNS prefetch for GitHub
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: 'any' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
+    ['meta', { name: 'application-name', content: SITE.name }],
+    ['meta', { name: 'keywords', content: 'nuxt,i18n,internationalization,nuxt-module,localization,vue,ssr,seo' }],
     ['link', { rel: 'dns-prefetch', href: 'https://github.com' }],
   ],
 

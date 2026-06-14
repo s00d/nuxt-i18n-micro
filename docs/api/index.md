@@ -1,3 +1,8 @@
+---
+title: "API Reference"
+description: "API reference for Nuxt I18n Micro: runtime methods, events, and translation cache architecture."
+---
+
 # API Reference
 
 ## API Documentation

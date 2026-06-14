@@ -1,3 +1,8 @@
+---
+title: "Translation Cache & Storage Architecture"
+description: "Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. Payload loading depends on translationPayloads.mode:"
+---
+
 # 🗄️ Translation Cache & Storage Architecture
 
 ## 📖 Overview

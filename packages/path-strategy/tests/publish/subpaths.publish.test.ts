@@ -22,9 +22,7 @@ describe('@i18n-micro/path-strategy export subpaths', () => {
   it.each(subpaths)('$subpath resolves via package exports (esm)', async ({ subpath, exportName, strategy }) => {
     const mods = await smokeLoadExports(packageRoot, pkg, [{ subpath, condition: 'import' }])
     const mod = getLoadedModule(mods, `${subpath}:import`)
-    const Strategy = mod[exportName] as new (
-      ctx: ReturnType<typeof baseContext>,
-    ) => {
+    const Strategy = mod[exportName] as new (ctx: ReturnType<typeof baseContext>) => {
       shouldReturn404(path: string): string | null
     }
     expect(Strategy).toBeTypeOf('function')

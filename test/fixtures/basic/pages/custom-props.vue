@@ -4,13 +4,7 @@
     <p id="current-flag">{{ currentLocale?.flag }}</p>
     <p id="current-currency">{{ currentLocale?.currency }}</p>
     <ul id="locale-list">
-      <li
-        v-for="loc in $getLocales()"
-        :key="loc.code"
-        :data-code="loc.code"
-        :data-flag="loc.flag"
-        :data-currency="loc.currency"
-      >
+      <li v-for="loc in $getLocales()" :key="loc.code" :data-code="loc.code" :data-flag="loc.flag" :data-currency="loc.currency">
         {{ loc.displayName }} {{ loc.flag }} {{ loc.currency }}
       </li>
     </ul>

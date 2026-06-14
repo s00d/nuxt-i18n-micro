@@ -1,4 +1,7 @@
 ---
+title: "Methods"
+description: "This page documents all available methods provided by nuxt-i18n-micro. Methods are organized by functionality for easier navigation."
+
 outline: deep
 ---
 

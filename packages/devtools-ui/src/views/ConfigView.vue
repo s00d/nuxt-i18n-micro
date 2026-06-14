@@ -2,10 +2,7 @@
   <div class="config-view">
     <Loader v-if="isLoading" />
 
-    <div
-      v-else
-      class="space-y-6"
-    >
+    <div v-else class="space-y-6">
       <!-- General Settings Card -->
       <ConfigCard title="General Configuration">
         <template #icon>
@@ -26,10 +23,7 @@
           </div>
           <div class="config-row">
             <span class="config-label">Debug Mode</span>
-            <StatusIndicator
-              :status="configs.debug ? 'enabled' : 'disabled'"
-              :label="configs.debug ? 'Active' : 'Inactive'"
-            />
+            <StatusIndicator :status="configs.debug ? 'enabled' : 'disabled'" :label="configs.debug ? 'Active' : 'Inactive'" />
           </div>
         </div>
       </ConfigCard>

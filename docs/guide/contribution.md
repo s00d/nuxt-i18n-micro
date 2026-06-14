@@ -1,4 +1,7 @@
 ---
+title: "Contribution Guide"
+description: "Thank you for your interest in contributing to Nuxt I18n Micro! We welcome contributions from the community, whether it's bug fixes, new features, or improve..."
+
 outline: deep
 ---
 
@@ -106,7 +109,7 @@ This command prepares the module by building the necessary files, stubbing certa
 
 ### 5. 🧹 Linting the Code
 
-To ensure your code adheres to the project's coding standards, run the linter (Biome):
+To ensure your code adheres to the project's coding standards, run the linter (Oxlint):
 
 ```bash
 pnpm run lint

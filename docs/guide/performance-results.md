@@ -1,4 +1,7 @@
 ---
+title: "Performance Test Results"
+description: "Benchmark results comparing Nuxt I18n Micro with nuxt-i18n across real fixtures and workloads."
+
 outline: deep
 ---
 

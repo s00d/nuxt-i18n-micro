@@ -1,12 +1,7 @@
 <template>
   <Teleport to="body">
     <transition name="modal">
-      <div
-        v-if="show"
-        class="modal-overlay"
-        @click.self="handleOutsideClick"
-        @keydown.esc="handleEsc"
-      >
+      <div v-if="show" class="modal-overlay" @click.self="handleOutsideClick" @keydown.esc="handleEsc">
         <div
           class="modal-content"
           :style="{
@@ -15,10 +10,7 @@
           }"
         >
           <!-- Header -->
-          <div
-            class="modal-header"
-            :class="headerClass"
-          >
+          <div class="modal-header" :class="headerClass">
             <div class="header-content">
               <slot name="header">
                 <h3 class="modal-title">
@@ -26,16 +18,8 @@
                 </h3>
               </slot>
             </div>
-            <button
-              v-if="showCloseButton"
-              class="modal-close-button"
-              aria-label="Close modal"
-              @click="closeModal"
-            >
-              <svg
-                class="close-icon"
-                viewBox="0 0 24 24"
-              >
+            <button v-if="showCloseButton" class="modal-close-button" aria-label="Close modal" @click="closeModal">
+              <svg class="close-icon" viewBox="0 0 24 24">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
               </svg>
             </button>
@@ -47,10 +31,7 @@
           </div>
 
           <!-- Footer -->
-          <div
-            v-if="$slots.footer"
-            class="modal-footer"
-          >
+          <div v-if="$slots.footer" class="modal-footer">
             <slot name="footer" />
           </div>
         </div>

@@ -1,13 +1,7 @@
 <template>
   <div class="status-indicator">
-    <div
-      class="status-indicator__dot"
-      :class="dotClass"
-    />
-    <span
-      class="status-indicator__text"
-      :class="textClass"
-    >
+    <div class="status-indicator__dot" :class="dotClass" />
+    <span class="status-indicator__text" :class="textClass">
       {{ label }}
     </span>
   </div>

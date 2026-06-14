@@ -2,21 +2,30 @@
   "name": "@i18n-micro/vue",
   "version": "1.3.3",
   "description": "Vue 3 bindings for i18n-micro — composables, components, and routing helpers.",
-  "type": "module",
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "translations",
+    "vue",
+    "vue3"
+  ],
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
   "license": "MIT",
-  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
     "directory": "packages/vue"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue#readme",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
-  },
-  "engines": {
-    "node": ">=18"
-  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -33,46 +42,8 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "publishConfig": {
     "access": "public"
-  },
-  "keywords": [
-    "vue",
-    "vue3",
-    "i18n",
-    "internationalization",
-    "translations"
-  ],
-  "dependencies": {
-    "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
-  },
-  "peerDependencies": {
-    "vue": "catalog:",
-    "vue-router": "catalog:"
-  },
-  "peerDependenciesMeta": {
-    "vue-router": {
-      "optional": true
-    }
-  },
-  "devDependencies": {
-    "vue": "catalog:",
-    "vue-router": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
-    "jest": "catalog:",
-    "ts-jest": "catalog:",
-    "@types/jest": "catalog:",
-    "@vue/test-utils": "catalog:",
-    "jest-environment-jsdom": "catalog:",
-    "publint": "^0.3.17",
-    "vitest": "catalog:"
   },
   "scripts": {
     "build": "vite build",
@@ -83,5 +54,34 @@
     "test:dist": "vitest run --config vitest.dist.config.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
+  },
+  "dependencies": {
+    "@i18n-micro/core": "workspace:*",
+    "@i18n-micro/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "jest": "catalog:",
+    "jest-environment-jsdom": "catalog:",
+    "publint": "^0.3.17",
+    "ts-jest": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "peerDependencies": {
+    "vue": "catalog:",
+    "vue-router": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "vue-router": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

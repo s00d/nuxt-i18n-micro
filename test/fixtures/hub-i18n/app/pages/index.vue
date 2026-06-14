@@ -33,11 +33,7 @@ const color = useState('color', () => colors[Math.floor(Math.random() * colors.l
       <i18n-switcher />
     </div>
 
-    <NuxtLink
-      :to="$localeRoute({ name: 'index' })"
-    >
-      refresh
-    </NuxtLink>
+    <NuxtLink :to="$localeRoute({ name: 'index' })"> refresh </NuxtLink>
   </div>
 </template>
 
@@ -50,7 +46,18 @@ const color = useState('color', () => colors[Math.floor(Math.random() * colors.l
   left: 50%;
   transform: translate(-50%, -50%);
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Open Sans',
+    'Helvetica Neue',
+    sans-serif;
 }
 h1 {
   font-size: 32px;

@@ -1,4 +1,7 @@
 ---
+title: "Server-Side Translations and Locale Information in Nuxt I18n Micro"
+description: "Nuxt I18n Micro supports server-side translations and locale information, allowing you to translate content and access locale details on the server. This is..."
+
 outline: deep
 ---
 

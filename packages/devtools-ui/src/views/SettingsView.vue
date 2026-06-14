@@ -2,15 +2,8 @@
   <div class="settings-view">
     <div class="space-y-6">
       <!-- Translation Engine -->
-      <SettingsCard
-        title="Auto-Translation Engine"
-        icon="🌐"
-      >
-        <TranslationControls
-          v-model:driver="selectedDriver"
-          v-model:api-token="apiToken"
-          v-model:options="driverOptions"
-        />
+      <SettingsCard title="Auto-Translation Engine" icon="🌐">
+        <TranslationControls v-model:driver="selectedDriver" v-model:api-token="apiToken" v-model:options="driverOptions" />
       </SettingsCard>
     </div>
   </div>

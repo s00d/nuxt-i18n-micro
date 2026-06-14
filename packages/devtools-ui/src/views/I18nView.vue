@@ -2,27 +2,16 @@
   <div class="i18n-view">
     <Loader v-if="isLoading" />
 
-    <SplitPane
-      v-else
-      storage-key="tab-i18n-locales"
-      default-left-width="280px"
-    >
+    <SplitPane v-else storage-key="tab-i18n-locales" default-left-width="280px">
       <template #left>
         <div class="pane-inner">
-          <LocalesList
-            :locales="filteredLocales"
-            :selected-file="selectedFile"
-            @file-selected="handleFileSelected"
-          />
+          <LocalesList :locales="filteredLocales" :selected-file="selectedFile" @file-selected="handleFileSelected" />
         </div>
       </template>
 
       <template #right>
         <div class="pane-inner bg-white">
-          <div
-            v-if="selectedFile"
-            class="editor-layout"
-          >
+          <div v-if="selectedFile" class="editor-layout">
             <!-- Header section -->
             <div class="editor-header">
               <div class="breadcrumbs">
@@ -45,76 +34,42 @@
             <!-- Editor area -->
             <div class="editor-content-area">
               <div class="editor-scroll-container">
-                <TranslationEditor
-                  v-model="localContent"
-                  class="h-full"
-                />
+                <TranslationEditor v-model="localContent" class="h-full" />
               </div>
             </div>
           </div>
 
-          <div
-            v-else
-            class="empty-state"
-          >
-            <div class="empty-state__icon">
-              📁
-            </div>
-            <div class="empty-state__title">
-              No File Selected
-            </div>
-            <div class="empty-state__description">
-              Select a file from the tree to edit
-            </div>
+          <div v-else class="empty-state">
+            <div class="empty-state__icon">📁</div>
+            <div class="empty-state__title">No File Selected</div>
+            <div class="empty-state__description">Select a file from the tree to edit</div>
           </div>
         </div>
       </template>
     </SplitPane>
 
     <!-- Modals -->
-    <Modal
-      v-if="isStatisticsModalVisible"
-      v-model:show="isStatisticsModalVisible"
-      title="Statistics"
-      size="lg"
-    >
-      <Statistics
-        v-if="localContent"
-        :content="localContent"
-      />
+    <Modal v-if="isStatisticsModalVisible" v-model:show="isStatisticsModalVisible" title="Statistics" size="lg">
+      <Statistics v-if="localContent" :content="localContent" />
     </Modal>
 
-    <Modal
-      v-if="isConfirmModalVisible"
-      v-model:show="isConfirmModalVisible"
-      title="Confirm Translation"
-      size="md"
-    >
+    <Modal v-if="isConfirmModalVisible" v-model:show="isConfirmModalVisible" title="Confirm Translation" size="md">
       <p>Are you sure?</p>
       <div class="flex justify-end gap-2 mt-4">
-        <Button
-          variant="danger"
-          @click="isConfirmModalVisible = false"
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          @click="handleConfirm"
-        >
-          Confirm
-        </Button>
+        <Button variant="danger" @click="isConfirmModalVisible = false"> Cancel </Button>
+        <Button variant="primary" @click="handleConfirm"> Confirm </Button>
+      </div>
+    </Modal>
+
+    <Modal v-if="isFeedbackModalVisible" v-model:show="isFeedbackModalVisible" :title="feedbackTitle" size="sm">
+      <p>{{ feedbackMessage }}</p>
+      <div class="flex justify-end gap-2 mt-4">
+        <Button variant="primary" @click="isFeedbackModalVisible = false"> OK </Button>
       </div>
     </Modal>
 
     <!-- Hidden input -->
-    <input
-      v-show="false"
-      ref="file"
-      type="file"
-      accept=".json"
-      @change="importTranslations"
-    >
+    <input v-show="false" ref="file" type="file" accept=".json" @change="importTranslations" />
   </div>
 </template>
 
@@ -198,6 +153,15 @@ const showStatisticsModal = () => {
 }
 
 const isConfirmModalVisible = ref(false)
+const isFeedbackModalVisible = ref(false)
+const feedbackTitle = ref('')
+const feedbackMessage = ref('')
+
+const showFeedback = (title: string, message: string) => {
+  feedbackTitle.value = title
+  feedbackMessage.value = message
+  isFeedbackModalVisible.value = true
+}
 
 const confirmTranslateMissingKeys = () => {
   isConfirmModalVisible.value = true
@@ -217,7 +181,7 @@ const translateMissingKeys = async () => {
   const missingKeys = Object.keys(defaultFlatContent).filter((key) => !currentFlatContent[key])
 
   if (missingKeys.length === 0) {
-    alert('No missing keys.')
+    showFeedback('Translation', 'No missing keys.')
     return
   }
 
@@ -238,10 +202,10 @@ const translateMissingKeys = async () => {
     }
 
     localContent.value = unflattenTranslations(currentFlatContent)
-    alert('Translated.')
+    showFeedback('Translation', 'Translated.')
   } catch (error) {
     console.error(error)
-    alert('Error.')
+    showFeedback('Translation', 'Error.')
   }
 }
 

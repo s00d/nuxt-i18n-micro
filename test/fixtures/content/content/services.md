@@ -1,6 +1,6 @@
 ---
-title: "Our Services"
-description: "Discover the wide range of services we offer."
+title: 'Our Services'
+description: 'Discover the wide range of services we offer.'
 ---
 
 :i18n{keypath="services.description" class-name="services-description"}}

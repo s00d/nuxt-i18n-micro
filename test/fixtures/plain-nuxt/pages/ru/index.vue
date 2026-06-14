@@ -1,21 +1,14 @@
 <template>
   <div>
-    <h2 id="ok">
-      ok
-    </h2>
+    <h2 id="ok">ok</h2>
     <p>{{ t('key1.key1.key1.key1.key1') }}</p>
     <p>Current Locale: ru</p>
 
     <div>
-      <NuxtLink to="/ru/page">
-        Go to Page
-      </NuxtLink>
+      <NuxtLink to="/ru/page"> Go to Page </NuxtLink>
     </div>
 
-    <div
-      v-for="key in generatedKeys"
-      :key="key"
-    >
+    <div v-for="key in generatedKeys" :key="key">
       <p>{{ key }}: {{ t(key) }}</p>
     </div>
   </div>

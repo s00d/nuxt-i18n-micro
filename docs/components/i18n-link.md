@@ -1,4 +1,7 @@
 ---
+title: "`<i18n-link>` Component"
+description: "The <i18n-link> component in Nuxt I18n Micro is a versatile link component that automatically localizes routes based on the current locale. It acts as a wrap..."
+
 outline: deep
 ---
 

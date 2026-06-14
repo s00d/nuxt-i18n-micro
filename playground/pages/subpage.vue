@@ -3,9 +3,9 @@
     <p>{{ $t('key2.key2.key2.key2.key2') }}</p>
     <p>Current Locale: {{ $getLocale() }}</p>
 
-    <div>page  translate: {{ $t('greeting') }}</div>
+    <div>page translate: {{ $t('greeting') }}</div>
 
-    <hr>
+    <hr />
     <!-- Welcome and general information -->
     <div>
       {{ $t('welcome', { username: 'Alice', unreadCount: 5 }) }}
@@ -20,10 +20,18 @@
         <h1>{{ $t('mainHeader') }}</h1>
         <nav>
           <ul>
-            <li><a href="#">{{ $t('nav.home') }}</a></li>
-            <li><a href="#">{{ $t('nav.about') }}</a></li>
-            <li><a href="#">{{ $t('nav.services') }}</a></li>
-            <li><a href="#">{{ $t('nav.contact') }}</a></li>
+            <li>
+              <a href="#">{{ $t('nav.home') }}</a>
+            </li>
+            <li>
+              <a href="#">{{ $t('nav.about') }}</a>
+            </li>
+            <li>
+              <a href="#">{{ $t('nav.services') }}</a>
+            </li>
+            <li>
+              <a href="#">{{ $t('nav.contact') }}</a>
+            </li>
           </ul>
         </nav>
       </header>
@@ -106,8 +114,8 @@
         <div>
           <h4>{{ $t('footer.contact.header') }}</h4>
           <address>
-            {{ $t('footer.contact.address') }}<br>
-            {{ $t('footer.contact.city') }}<br>
+            {{ $t('footer.contact.address') }}<br />
+            {{ $t('footer.contact.city') }}<br />
             {{ $t('footer.contact.phone') }}
           </address>
         </div>
@@ -115,9 +123,15 @@
         <div>
           <h4>{{ $t('footer.links.header') }}</h4>
           <ul>
-            <li><a href="#">{{ $t('footer.links.privacy') }}</a></li>
-            <li><a href="#">{{ $t('footer.links.terms') }}</a></li>
-            <li><a href="#">{{ $t('footer.links.faq') }}</a></li>
+            <li>
+              <a href="#">{{ $t('footer.links.privacy') }}</a>
+            </li>
+            <li>
+              <a href="#">{{ $t('footer.links.terms') }}</a>
+            </li>
+            <li>
+              <a href="#">{{ $t('footer.links.faq') }}</a>
+            </li>
           </ul>
         </div>
       </footer>
@@ -125,24 +139,15 @@
 
     <!-- Links to switch locales -->
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        :disabled="locale.code === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
+      <button v-for="locale in $getLocales()" :key="locale.code" :disabled="locale.code === $getLocale()" @click="() => $switchLocale(locale.code)">
         Switch to {{ locale.code }}
       </button>
     </div>
 
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })">
-        Go to Index
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'index' })"> Go to Index </NuxtLink>
       |
-      <NuxtLink :to="$localeRoute({ name: 'page' })">
-        Go to page
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'page' })"> Go to page </NuxtLink>
     </div>
   </div>
 </template>

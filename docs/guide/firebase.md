@@ -1,4 +1,7 @@
 ---
+title: "Firebase AppHosting Deployment"
+description: "Firebase AppHosting is a powerful platform for deploying Nuxt applications with serverless infrastructure. However, when deploying applications with nuxt-i18..."
+
 outline: deep
 ---
 

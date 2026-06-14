@@ -67,7 +67,7 @@ export function useI18nLocale() {
    * hashMode: localeState takes priority; otherwise — from route.
    */
   const getEffectiveLocale = (route: unknown, getLocaleFromRoute: GetLocaleFromRoute): string => {
-    if (i18nConfig.hashMode && localeState.value != null) return localeState.value
+    if (i18nConfig.hashMode && localeState.value !== null && localeState.value !== undefined) return localeState.value
     return getLocaleFromRoute(route)
   }
 

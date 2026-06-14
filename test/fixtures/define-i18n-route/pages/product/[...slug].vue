@@ -3,14 +3,8 @@
     <h1>{{ product.title }}</h1>
     <p>{{ $t('price') }}: {{ product.price }}</p>
     <div class="locale-switcher">
-      <a
-        :href="$switchLocalePath('en')"
-        class="en"
-      >English</a>
-      <a
-        :href="$switchLocalePath('es')"
-        class="es"
-      >Español</a>
+      <a :href="$switchLocalePath('en')" class="en">English</a>
+      <a :href="$switchLocalePath('es')" class="es">Español</a>
     </div>
   </div>
 </template>

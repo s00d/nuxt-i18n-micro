@@ -3,18 +3,8 @@
     <p id="vehicle-type">{{ $ts('vehicleType') }}</p>
 
     <div id="locale-links">
-      <NuxtLink
-        id="link-en"
-        :to="$localeRoute({ name: 'inventory' }, 'en')"
-      >
-        Switch to English
-      </NuxtLink>
-      <NuxtLink
-        id="link-fr"
-        :to="$localeRoute({ name: 'inventory' }, 'fr')"
-      >
-        Switch to French
-      </NuxtLink>
+      <NuxtLink id="link-en" :to="$localeRoute({ name: 'inventory' }, 'en')"> Switch to English </NuxtLink>
+      <NuxtLink id="link-fr" :to="$localeRoute({ name: 'inventory' }, 'fr')"> Switch to French </NuxtLink>
     </div>
   </div>
 </template>
@@ -38,4 +28,3 @@ $defineI18nRoute({
   },
 })
 </script>
-

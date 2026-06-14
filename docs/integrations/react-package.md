@@ -1,4 +1,7 @@
 ---
+title: "React Package (`@i18n-micro/react`)"
+description: "The @i18n-micro/react package provides a lightweight, high-performance internationalization solution for React applications. It shares the same core logic as..."
+
 outline: deep
 ---
 

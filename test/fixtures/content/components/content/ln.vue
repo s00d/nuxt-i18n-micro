@@ -1,9 +1,6 @@
 <template>
   <div>
-    <i18n-link
-      class="page-link"
-      :to="`/${name}`"
-    >
+    <i18n-link class="page-link" :to="`/${name}`">
       {{ title }}
     </i18n-link>
   </div>

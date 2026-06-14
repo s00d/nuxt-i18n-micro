@@ -1,23 +1,20 @@
 <template>
-  <div
-    id="simple-async-component"
-    class="simple-async-component"
-  >
+  <div id="simple-async-component" class="simple-async-component">
     <h3>{{ $t('simple-async-component::title') }}</h3>
     <p>{{ $t('simple-async-component::description') }}</p>
 
     <div class="component-info">
-      <p><strong>{{ $t('simple-async-component::componentId') }}:</strong> Simple Async Component</p>
-      <p><strong>{{ $t('simple-async-component::loadTime') }}:</strong> {{ loadTime }}</p>
+      <p>
+        <strong>{{ $t('simple-async-component::componentId') }}:</strong> Simple Async Component
+      </p>
+      <p>
+        <strong>{{ $t('simple-async-component::loadTime') }}:</strong> {{ loadTime }}
+      </p>
     </div>
 
     <div class="test-content">
       <p>{{ $t('simple-async-component::testContent') }}</p>
-      <button
-        id="simple-counter-btn"
-        class="counter-button"
-        @click="incrementCounter"
-      >
+      <button id="simple-counter-btn" class="counter-button" @click="incrementCounter">
         {{ $t('simple-async-component::counterButton') }} ({{ counter }})
       </button>
     </div>

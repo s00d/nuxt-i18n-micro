@@ -2,21 +2,23 @@
   "name": "@i18n-micro/devtools-ui",
   "version": "1.2.2",
   "description": "DevTools UI and Vite plugin for Nuxt I18n Micro.",
+  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/devtools-ui#readme",
+  "bugs": {
+    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
+  },
   "license": "MIT",
-  "type": "module",
-  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/s00d/nuxt-i18n-micro.git",
     "directory": "packages/devtools-ui"
   },
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/devtools-ui#readme",
-  "bugs": {
-    "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
-  },
-  "engines": {
-    "node": ">=18"
-  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.umd.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -48,13 +50,15 @@
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "build": "vite build && vite build --mode umd && vite build --mode plugin",
+    "check:package": "publint",
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
@@ -72,11 +76,7 @@
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   },
-  "scripts": {
-    "build": "vite build && vite build --mode umd && vite build --mode plugin",
-    "check:package": "publint",
-    "test:dist": "vitest run --config vitest.dist.config.ts",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build && pnpm run check:package"
+  "engines": {
+    "node": ">=18"
   }
 }

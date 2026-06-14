@@ -1,0 +1,248 @@
+packages/utils/src/source-loader.ts
+  s_43f7072b0cae73::t_a6ec973cd12962 1-27
+packages/utils/README.md
+  s_43f7072b0cae73::t_6a71bbd2bcf4cc 8-10
+  s_43f7072b0cae73::t_0b636b860a4b9b 1-7,11-14
+src/runtime/plugins/06.redirect.ts
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 7-9
+packages/utils/src/payload-config.ts
+  s_43f7072b0cae73::t_53b98fe3d5443e 1-113
+packages/astro/src/load-translations.ts
+  s_43f7072b0cae73::t_ef06b58b3e7fa4 2,4,29-46,65,67-77,79,103
+src/runtime/utils/storage.ts
+  s_43f7072b0cae73::t_7916abc2226a67 22
+  s_43f7072b0cae73::t_cc85091789b1d2 39-40,42
+  s_43f7072b0cae73::t_09cdfefb42d819 72-82,84-86
+  s_43f7072b0cae73::t_73ab804cae0b71 6
+  s_43f7072b0cae73::t_47a03c06d47673 7-8
+packages/hmr/tsconfig.json
+  s_43f7072b0cae73::t_e734ff1e256543 5
+  s_43f7072b0cae73::t_39921b3e988495 1-4,6-19
+packages/hmr/vite.config.mts
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 19-22
+  s_43f7072b0cae73::t_5e43173a726f1b 1-18,23-73
+packages/utils/src/parse-path.ts
+  s_43f7072b0cae73::t_d9c4bb6333ef30 9-11,13-14,18-20,23,29-31,33-34,36-40,52-54,56-59,89
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 3
+  s_43f7072b0cae73::t_21f7660ee4a834 74-75
+  s_43f7072b0cae73::t_a69594e8c8d625 1-2,4-8,12,15-17,21-22,24-28,32,35,41-51,55,60-73,76-88
+packages/hmr/vitest.dist.config.ts
+  s_43f7072b0cae73::t_d5b662c60fdac4 1-8
+packages/utils/tests/source-mode-page-resolution.test.ts
+  s_43f7072b0cae73::t_6fabc8c4f3961d 1,5
+  s_43f7072b0cae73::t_77bde0c6f97aa4 2-4,6-22
+packages/utils/tests/translation-payload-fetch.test.ts
+  s_43f7072b0cae73::t_77bde0c6f97aa4 2-4,6-26,28-32,34-46
+  s_43f7072b0cae73::t_f4793cec92d6b9 1,5,27,33
+packages/hmr/tests/generate-plugin.test.ts
+  s_43f7072b0cae73::t_7a8abeebef63ef 1-11
+packages/devtools-ui/src/bridge/create-bridge.ts
+  s_43f7072b0cae73::t_1673b1b552f48f 77
+  s_43f7072b0cae73::t_c46047487c63c1 2-3
+  s_43f7072b0cae73::t_81ec191e5c6f02 103,105-108,110
+packages/utils/fix.ts
+  s_43f7072b0cae73::t_32519f50f4a4c0 1
+packages/hmr/tsconfig.build.json
+  s_43f7072b0cae73::t_87c74f6a084b86 1-13
+packages/utils/tests/source-translation-loader.test.ts
+  s_43f7072b0cae73::t_77bde0c6f97aa4 2-3,5,8,10,12,15-17,19,22-23,28-29
+  s_43f7072b0cae73::t_e412a70554ff95 4,6-7,9,11,13-14,18,20-21,24-27
+  s_43f7072b0cae73::t_f0d9e043c27ebd 1
+packages/utils/src/payload-fetch.ts
+  s_43f7072b0cae73::t_ddd1b71b5204a2 1-47
+packages/hmr/src/watcher.ts
+  s_43f7072b0cae73::t_30d9e19b661435 1-126
+src/runtime/server/utils/locale-detector.ts
+  s_43f7072b0cae73::t_99c52687675320 1
+  s_43f7072b0cae73::t_533a9661a49532 48-59
+packages/astro/src/middleware.ts
+  s_43f7072b0cae73::t_955920f370276d 151-153
+  s_43f7072b0cae73::t_81f499490eb39f 2
+packages/node/package.json
+  h_ee6cac30a1b83a 3
+  s_43f7072b0cae73::t_6f4f397f0b0f72 52-53
+packages/utils/tests/runtime-config.test.ts
+  s_43f7072b0cae73::t_5850120c92e338 2,36,44,54
+packages/utils/src/deep-merge.ts
+  s_43f7072b0cae73::t_b6b8fd8a0089bd 33-49
+packages/node/src/i18n.ts
+  s_43f7072b0cae73::t_ab36e4886a929f 3
+  s_43f7072b0cae73::t_a6dd405b58da80 76
+packages/utils/package.json
+  s_43f7072b0cae73::t_eb2a963b3f5054 1-26,35-37,46-48,57-59,68-70,79-81,90-92,101-103,112-114,123-125,134-136,145-147,156-158,167-168,202,211-225,236-247
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 27-34,38-45,49-56,60-67,71-78,82-89,93-100,104-111,115-122,126-133,137-144,148-155,159-166,203-210,226-235
+  s_43f7072b0cae73::t_90d2c56f34c702 169-201
+packages/utils/vite.config.mts
+  s_43f7072b0cae73::t_a970bcbb7ead33 55
+  s_43f7072b0cae73::t_f4aedb7e2232db 1-22,26-32,37-54,56-101
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 33-36
+  s_43f7072b0cae73::t_0bccea24f79eda 23-25
+packages/devtools-ui/tsconfig.json
+  s_43f7072b0cae73::t_4a65d90ab591c0 5
+src/runtime/plugins/01.plugin.ts
+  s_43f7072b0cae73::t_e08ba73fc54c65 142
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 4
+packages/node/src/loader.ts
+  s_43f7072b0cae73::t_b925e7d9f2df89 2,4,6,30,35
+packages/utils/tests/merge-source-translations.test.ts
+  s_43f7072b0cae73::t_77bde0c6f97aa4 2-44,46-62
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 1
+  s_43f7072b0cae73::t_3a305658b8a00f 45
+packages/utils/tsconfig.json
+  s_43f7072b0cae73::t_1c6f226c9e1077 1-4,6-19
+  s_43f7072b0cae73::t_1e56d6c01db9b5 5
+src/runtime/server/utils/locale-server-middleware.ts
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 2
+src/runtime/server/middleware/i18n.global.ts
+  s_43f7072b0cae73::t_d7f249d3e03626 7-9
+pnpm-lock.yaml
+  s_43f7072b0cae73::t_32519f50f4a4c0 255-257,270-272,387-389,498-500,533-557,566-568,984-1008,1309-1310,18185-18186,18188
+packages/types/package.json
+  h_ee6cac30a1b83a 3
+packages/utils/tests/translation-payload-stats.test.ts
+  s_43f7072b0cae73::t_77bde0c6f97aa4 1-3,5-6,9,12,16-17,20-21
+  s_43f7072b0cae73::t_c7cab0da25cacc 4,7-8,10-11,13-15,18-19
+packages/utils/src/route-pattern.ts
+  s_43f7072b0cae73::t_46abc7dce0a71c 1-27
+packages/astro/vite.config.mts
+  s_43f7072b0cae73::t_7e07c798cd7a60 35-36
+packages/utils/tsconfig.build.json
+  s_43f7072b0cae73::t_bb158a83656521 1-13
+packages/utils/tests/route-pattern.test.ts
+  s_43f7072b0cae73::t_e8c5a76761c5c2 1-14
+packages/utils/src/merge-source.ts
+  s_43f7072b0cae73::t_e6023a0624cd76 1-87
+packages/utils/jest.config.cjs
+  s_43f7072b0cae73::t_afbbee2e27afe5 1-8
+packages/hmr/src/cache-keys.ts
+  s_43f7072b0cae73::t_5c4f4080897a1d 1-2
+packages/utils/src/route.ts
+  s_43f7072b0cae73::t_131da1c45e7cf8 1,3-4,6,10,17-18,24,26,33,41,51,62-63,93
+  s_43f7072b0cae73::t_50f0894d12ba0c 5
+src/module.ts
+  s_43f7072b0cae73::t_22c517e599adcf 147-154
+  s_43f7072b0cae73::t_34f065c3e277c8 97
+  s_43f7072b0cae73::t_4fdba9724665fe 6,13-15,17-18
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 9,38
+  s_43f7072b0cae73::t_e89e4d4c976a9c 167,169-172
+  s_43f7072b0cae73::t_58f417b77b84b9 160-166,168
+  s_43f7072b0cae73::t_005ace15b8682b 648-651,653
+  s_43f7072b0cae73::t_3009f0d99e1442 1
+  s_43f7072b0cae73::t_14f165b6d02869 317
+  s_43f7072b0cae73::t_5c67b06f338ce5 587-589,593
+  s_43f7072b0cae73::t_359ed1cf0416e0 11-12,16
+  s_43f7072b0cae73::t_eda3288bbf5e62 39-43
+  s_43f7072b0cae73::t_9849064dd1bd20 143,146
+packages/hmr/jest.config.cjs
+  s_43f7072b0cae73::t_0813ef6be7ff51 1-8
+packages/utils/tests/translation-payload-config.test.ts
+  s_43f7072b0cae73::t_64b28ac887dda2 5-6
+  s_43f7072b0cae73::t_77bde0c6f97aa4 1-4,7-101
+packages/utils/vitest.dist.config.ts
+  s_43f7072b0cae73::t_ac17769a3e9ec8 1-8
+packages/node/vite.config.mts
+  s_43f7072b0cae73::t_4068f93c5e6bc5 27
+src/runtime/server/utils/translation-server-middleware.ts
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 3
+src/runtime/server/routes/i18n.ts
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 2
+packages/utils/tests/translation-payload-mode.test.ts
+  s_43f7072b0cae73::t_acfcad4e118411 1
+  s_43f7072b0cae73::t_77bde0c6f97aa4 2-37
+packages/utils/tests/translation-payloads.test.ts
+  s_43f7072b0cae73::t_402194e9359056 2
+  s_43f7072b0cae73::t_77bde0c6f97aa4 7,13-14,30,36-37
+packages/utils/tests/route.test.ts
+  s_43f7072b0cae73::t_245b99cda60bf8 1-30
+packages/utils/src/payload-url.ts
+  s_43f7072b0cae73::t_cc72e8d2292f88 1-44
+packages/types/src/index.ts
+  s_43f7072b0cae73::t_d3544d9757611b 514-525
+  s_43f7072b0cae73::t_559d570657c94e 545-546
+  s_43f7072b0cae73::t_f6cd728b72ab8d 470-477
+  s_43f7072b0cae73::t_6799dcc4526b25 478-482,495-497,505
+packages/utils/tests/translation-payload-url.test.ts
+  s_43f7072b0cae73::t_77bde0c6f97aa4 1-5,7-101
+  s_43f7072b0cae73::t_68961ed9f95a13 6
+packages/hmr/fix.ts
+  s_43f7072b0cae73::t_32519f50f4a4c0 1
+packages/astro/package.json
+  s_43f7072b0cae73::t_2b6cb1768ebfd6 85-86
+  h_ee6cac30a1b83a 3
+packages/utils/tests/publish/subpaths.publish.test.ts
+  s_43f7072b0cae73::t_5993d2fd3b5e52 1-3,5-12,17-25
+  s_43f7072b0cae73::t_05b33712440f80 4
+  s_43f7072b0cae73::t_76ea2e929f6ab2 13,16
+  s_43f7072b0cae73::t_bbb5d8ef7580aa 14-15
+packages/node/tsconfig.json
+  s_43f7072b0cae73::t_5d6a62507fde80 5
+packages/hmr/src/generate-plugin.ts
+  s_43f7072b0cae73::t_fdb2d822a6c1da 17,28
+packages/devtools-ui/package.json
+  h_ee6cac30a1b83a 3
+  s_43f7072b0cae73::t_432cb218035587 61
+packages/hmr/README.md
+  s_43f7072b0cae73::t_f2510f78fb71a8 1-9
+packages/hmr/tests/watcher.test.ts
+  s_43f7072b0cae73::t_b7bcd220eca04e 1-74
+packages/devtools-ui/vite.config.ts
+  s_43f7072b0cae73::t_98054fef941ca4 63,84
+src/runtime/server/plugins/watcher.dev.ts
+  s_43f7072b0cae73::t_4e502b309e2976 13
+  s_43f7072b0cae73::t_18adab73fb7eb1 89,92-98,101-117,122-123
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 7
+  s_43f7072b0cae73::t_b568890e52f434 118-121,124-128
+  s_43f7072b0cae73::t_d44efaae234977 5-6,8
+packages/utils/src/payload-stats.ts
+  s_43f7072b0cae73::t_0b03713ea0009f 17-19,23,26
+  s_43f7072b0cae73::t_25c937e9c2cff0 1-16,20-22,24-25
+packages/utils/tests/parse-path.test.ts
+  s_43f7072b0cae73::t_2de7fadb7b6464 61
+  s_43f7072b0cae73::t_89fa4f871d0952 7
+  s_43f7072b0cae73::t_54d1723154e890 1-6,8-50,52-60,62-80
+  s_43f7072b0cae73::t_2822832577715c 51
+package.json
+  s_43f7072b0cae73::t_4570ac3cb7b1e4 112,117
+  s_43f7072b0cae73::t_4dc276538f55c0 95
+packages/hmr/tests/publish/subpaths.publish.test.ts
+  s_43f7072b0cae73::t_8832fd4b530c9a 1-3,5-25
+  s_43f7072b0cae73::t_62b4cbceec2294 4
+packages/hmr/package.json
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 27-34,38-45,49-56,72-81
+  s_43f7072b0cae73::t_90832e02c6424d 1-26,35-37,46-48,57-71,82-93
+src/runtime/composables/useI18nLocale.ts
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 2-3
+packages/utils/src/build.ts
+  s_43f7072b0cae73::t_eac17c82cd74f4 1-147
+src/runtime/server/utils/server-loader.ts
+  s_43f7072b0cae73::t_9f758c1dcbd2cf 6,15
+  s_43f7072b0cae73::t_b4c9d60630c385 9-13
+  s_43f7072b0cae73::t_369d8123bef58a 7
+  s_43f7072b0cae73::t_a8fe5f411f9dd3 56
+  s_43f7072b0cae73::t_f134986b273c27 91
+  s_43f7072b0cae73::t_12a42e38325698 76,80
+  s_43f7072b0cae73::t_fc76b82ee98d04 3-4
+  s_43f7072b0cae73::t_916cbc0f4d2330 29,31,33
+  s_43f7072b0cae73::t_8ce8810cb71ba7 88-90,92-95
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "6a89c98c8d9c1c24c636eb4c9e19df1795813c51",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

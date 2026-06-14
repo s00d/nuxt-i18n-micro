@@ -2,9 +2,36 @@
 titleTemplate: false
 title: "Nuxt I18n Micro"
 description: "Fast, lightweight i18n for Nuxt with strategy-based routing."
-layout: "home"
-hero: ""
-features: ""
+layout: home
+
+hero:
+  name: "Nuxt I18n Micro"
+  text: "Fast, Simple, and Lightweight Internationalization for Nuxt"
+  tagline: Optimize your Nuxt app with a powerful and efficient i18n solution.
+  image:
+    src: /logo.svg
+    alt: Nuxt I18n Micro logo
+  actions:
+    - theme: brand
+      text: 🚀 Get Started
+      link: /guide/getting-started
+    - theme: alt
+      text: ⭐ View on GitHub
+      link: https://github.com/s00d/nuxt-i18n-micro
+
+features:
+  - title: ⚡ High Performance
+    details: 🚀 Significant reductions in build times, memory usage, and server load, making it ideal for large-scale projects.
+  - title: 🪶 Compact and Lightweight
+    details: 🧩 Designed for efficiency, reducing the total bundle size by up to 96% compared to traditional i18n modules.
+  - title: 🎨 Minimalist Design
+    details: 🧱 A simple structure with just 5 components, easy to extend and maintain.
+  - title: 🔄 Strategy-Based Routing
+    details: 🗺️ Locale prefix strategies (no_prefix, prefix, prefix_except_default, prefix_and_default) via @i18n-micro/route-strategy (build-time) and @i18n-micro/path-strategy (runtime) extend Nuxt pages with the right localized routes.
+  - title: 📂 Streamlined Translation Loading
+    details: 🔧 Supports only JSON files, with auto-generated page-specific translations.
+  - title: 🌐 Seamless Nuxt Integration
+    details: 🛠️ Seamless integration with Nuxt.js, making it easy to add powerful i18n features to your application.
 ---
 
 ## ✨ Introduction

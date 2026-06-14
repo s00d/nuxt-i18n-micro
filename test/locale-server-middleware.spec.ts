@@ -48,7 +48,7 @@ test.describe('locale server middleware', () => {
 
     const body = await response.json()
     expect(body.success).toBe(true)
-    expect(body.data.current).toBe('ru-RU')
+    expect(body.data.current).toBe('ru')
   })
 
   test('should detect locale from cookie', async ({ request }) => {

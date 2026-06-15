@@ -1,14 +1,67 @@
 import type { Getter, Params, PluralFunc, Strategies, TranslationKey } from '@i18n-micro/types'
 
 const RE_TOKEN = /\{(\w+)\}/g
+const DEFAULT_ROUTE_NAME = 'index'
+
+export function translationCacheKey(locale: string, routeName?: string): string {
+  return `${locale}:${routeName || DEFAULT_ROUTE_NAME}`
+}
+
+export function resolveTranslation(obj: Record<string, unknown> | null | undefined, key: string): unknown | null {
+  if (obj === null || obj === undefined) return null
+  const value = getByPath(obj, key)
+  return value === undefined ? null : value
+}
+
+export function hasTranslationValue(obj: Record<string, unknown> | null | undefined, key: string): boolean {
+  return resolveTranslation(obj, key) !== null
+}
+
+export interface MergeTranslationChunkOptions {
+  /** When true, existing keys win over incoming. Default: incoming wins. */
+  preserveExisting?: boolean
+}
+
+export function mergeTranslationChunk(
+  existing: Record<string, unknown>,
+  incoming: Record<string, unknown>,
+  options?: MergeTranslationChunkOptions,
+): Record<string, unknown> {
+  if (Object.keys(existing).length === 0) return incoming
+  if (options?.preserveExisting) {
+    return Object.assign({}, incoming, existing)
+  }
+  return Object.assign({}, existing, incoming)
+}
 
 export function interpolate(template: string, params: Params): string {
   if (!params) return template
+  if (template.indexOf('{') === -1) return template
 
   return template.replace(RE_TOKEN, (_, key) => {
     const value = params[key]
     return value !== undefined ? String(value) : `{${key}}`
   })
+}
+
+export function getByPath(obj: Record<string, unknown> | null | undefined, path: string): unknown {
+  if (obj === null || obj === undefined || typeof path !== 'string' || path.length === 0) return undefined
+
+  if (Object.prototype.hasOwnProperty.call(obj, path)) {
+    return obj[path]
+  }
+
+  if (!path.includes('.')) return undefined
+
+  const parts = path.split('.')
+  let current: unknown = obj
+  for (const part of parts) {
+    if (current === null || current === undefined || typeof current !== 'object') return undefined
+    const record = current as Record<string, unknown>
+    if (!Object.prototype.hasOwnProperty.call(record, part)) return undefined
+    current = record[part]
+  }
+  return current
 }
 
 export function withPrefixStrategy(strategy: Strategies) {

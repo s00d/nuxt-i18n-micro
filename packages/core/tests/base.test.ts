@@ -330,6 +330,14 @@ describe('BaseI18n', () => {
 
       expect(i18n.has('title')).toBe(true)
     })
+
+    test('should not treat fallback locale keys as present in active locale', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
+
+      expect(i18n.has('greeting')).toBe(false)
+      expect(i18n.t('greeting')).toBe('Hello')
+    })
   })
 
   describe('clearCache() method', () => {

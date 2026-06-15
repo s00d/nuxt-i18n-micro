@@ -1,15 +1,8 @@
 import type { Translations } from '@i18n-micro/types'
+import { toTranslations } from './normalize'
 import { buildTranslationPayloadFetchRequest } from './payload-url'
 
 export type TranslationPayloadFetcher = <T>(path: string, options: { baseURL: string; params?: Record<string, string | number> }) => Promise<T>
-
-function toTranslations(data: unknown): Translations {
-  if (!data) return {}
-  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
-    return data as Translations
-  }
-  return {}
-}
 
 export interface TranslationPayloadHostConfig {
   apiBaseUrl?: string

@@ -1,8 +1,4 @@
-/**
- * Translation Storage
- * Unified translation storage for client and server.
- * Cache control (TTL, maxSize) delegated to CacheControl.
- */
+import { translationCacheKey } from '@i18n-micro/core/helpers'
 import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
@@ -60,8 +56,13 @@ class TranslationStorage {
   // HELPERS
   // ==========================================================================
 
+  /** Plain clone before freeze — SSR payload chunks may be Vue reactive proxies. */
+  private freezePlainClone(data: Record<string, unknown>): Record<string, unknown> {
+    return Object.freeze(JSON.parse(JSON.stringify(data)) as Record<string, unknown>)
+  }
+
   private getCacheKey(locale: string, routeName?: string): string {
-    return `${locale}:${routeName || 'index'}`
+    return translationCacheKey(locale, routeName)
   }
 
   // ==========================================================================
@@ -76,7 +77,7 @@ class TranslationStorage {
       isServer: import.meta.server,
       baseURL: options.baseURL,
       apiBaseClientHost: options.apiBaseClientHost,
-      apiBaseServerHost: options.apiBaseServerHost,
+      apiBaseServerHost: options.apiBaseServerHost ?? (import.meta.server ? process.env.NUXT_I18N_APP_BASE_SERVER_HOST : undefined),
       dateBuild: options.dateBuild,
       routesLocaleLinks: options.routesLocaleLinks,
     })
@@ -90,6 +91,16 @@ class TranslationStorage {
   // ==========================================================================
   // PUBLIC API
   // ==========================================================================
+
+  /**
+   * Seed translation cache from SSR payload (`useState('i18n-ssr-chunks')`).
+   * Called on client before the first fetch.
+   */
+  seedFromSsrChunks(chunks: Record<string, Record<string, unknown>>): void {
+    for (const [cacheKey, data] of Object.entries(chunks)) {
+      this.cc.set(cacheKey, this.freezePlainClone(data))
+    }
+  }
 
   /**
    * Synchronous cache check and retrieval.
@@ -108,7 +119,7 @@ class TranslationStorage {
     if (import.meta.client && typeof window !== 'undefined' && window.__I18N__?.[cacheKey]) {
       const data = window.__I18N__[cacheKey] as Record<string, unknown>
       delete window.__I18N__[cacheKey]
-      this.cc.set(cacheKey, Object.freeze(data))
+      this.cc.set(cacheKey, this.freezePlainClone(data))
       return { data: this.cc.get(cacheKey)!, cacheKey }
     }
 
@@ -130,7 +141,7 @@ class TranslationStorage {
     const data = await this.fetchTranslations(locale, routeName, options)
 
     // Store in cache
-    this.cc.set(cacheKey, Object.freeze(data))
+    this.cc.set(cacheKey, this.freezePlainClone(data))
 
     // SERVER: Generate JSON for client injection
     const json = import.meta.server ? JSON.stringify(data).replace(/</g, '\\u003c') : undefined

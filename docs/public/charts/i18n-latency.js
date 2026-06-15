@@ -18,9 +18,9 @@ export default function() {
       {
         "label": "P95 Latency (ms)",
         "data": [
-          1108,
-          6065,
-          758,
+          2187,
+          5712,
+          0,
           0,
           0,
           0,

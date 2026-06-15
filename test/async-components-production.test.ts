@@ -43,8 +43,10 @@ const exec = promisify(execCb)
 
 /** Поиск свободного порта через временный net.Server */
 export async function getFreePort(base = 20011, max = 20): Promise<number> {
-  for (let i = 0; i < max; i++) {
-    const port = base + i
+  async function tryPort(index: number): Promise<number> {
+    if (index >= max) throw new Error(`No free port in range ${base}-${base + max}`)
+
+    const port = base + index
     try {
       await new Promise<void>((resolve, reject) => {
         const srv = net.createServer()
@@ -59,10 +61,11 @@ export async function getFreePort(base = 20011, max = 20): Promise<number> {
       })
       return port
     } catch {
-      /* порт занят, пробуем следующий */
+      return tryPort(index + 1)
     }
   }
-  throw new Error(`No free port in range ${base}-${base + max}`)
+
+  return tryPort(0)
 }
 
 /** Завершает процесс, удерживающий порт */
@@ -75,7 +78,7 @@ async function freePort(port: number) {
         .split('\n')
         .map((l) => l.trim().split(/\s+/).pop())
         .filter(Boolean)
-      for (const pid of pids) await exec(`taskkill /PID ${pid} /F`)
+      await Promise.all(pids.map((pid) => exec(`taskkill /PID ${pid} /F`)))
     } catch {
       /* empty */
     }
@@ -91,7 +94,9 @@ async function freePort(port: number) {
 
 /** Ожидаем появления текста на странице */
 async function waitForText(url: string, text: string, tries = 40, ms = 500) {
-  for (let i = 0; i < tries; i++) {
+  async function attempt(index: number): Promise<void> {
+    if (index >= tries) throw new Error(`"${text}" not found at ${url}`)
+
     try {
       const response = await fetch(url)
       const html = await response.text()
@@ -100,8 +105,10 @@ async function waitForText(url: string, text: string, tries = 40, ms = 500) {
       /* сервер не поднялся */
     }
     await delay(ms)
+    return attempt(index + 1)
   }
-  throw new Error(`"${text}" not found at ${url}`)
+
+  await attempt(0)
 }
 
 /** npm run generate / npm run build через spawn */

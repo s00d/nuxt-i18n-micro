@@ -29,57 +29,57 @@ The **i18n-micro** example simplifies the translation structure by consolidating
 
 | Dependency                   | Version   |
 |-------------------------------|-----------|
-| node                       | v20.19.6 |
+| node                       | v20.20.1 |
 | nuxt                       | N/A |
-| nuxt-i18n-micro                       | 3.9.0 |
+| nuxt-i18n-micro                       | 3.19.0 |
 | @nuxtjs/i18n                       | catalog: |
   
 ## Build Performance for ./test/fixtures/plain-nuxt
 
-- **Build Time**: 6.50 seconds
-- **Bundle Size**: 1.93 MB (code: 1.35 MB, translations: 589.99 KB)
-- **Code Bundle**: client: 194.81 KB, server: 1.16 MB
-- **Max CPU Usage**: 195.10%
-- **Min CPU Usage**: 57.30%
-- **Average CPU Usage**: 144.72%
-- **Max Memory Usage**: 744.58 MB
-- **Min Memory Usage**: 219.83 MB
-- **Average Memory Usage**: 488.47 MB
+- **Build Time**: 5.37 seconds
+- **Bundle Size**: 1.94 MB (code: 1.36 MB, translations: 589.99 KB)
+- **Code Bundle**: client: 194.8 KB, server: 1.17 MB
+- **Max CPU Usage**: 209.60%
+- **Min CPU Usage**: 105.20%
+- **Average CPU Usage**: 183.86%
+- **Max Memory Usage**: 757.78 MB
+- **Min Memory Usage**: 165.75 MB
+- **Average Memory Usage**: 441.48 MB
 
 
 ## Build Performance for ./test/fixtures/i18n
 
-- **Build Time**: 82.26 seconds
-- **Bundle Size**: 57.3 MB (code: 19.24 MB, translations: 38.05 MB)
-- **Code Bundle**: client: 17.13 MB, server: 2.11 MB
-- **Max CPU Usage**: 419.20%
-- **Min CPU Usage**: 15.50%
-- **Average CPU Usage**: 139.08%
-- **Max Memory Usage**: 9117.41 MB
-- **Min Memory Usage**: 277.22 MB
-- **Average Memory Usage**: 3964.05 MB
+- **Build Time**: 68.28 seconds
+- **Bundle Size**: 57.3 MB (code: 19.24 MB, translations: 38.06 MB)
+- **Code Bundle**: client: 17.13 MB, server: 2.12 MB
+- **Max CPU Usage**: 488.80%
+- **Min CPU Usage**: 31.80%
+- **Average CPU Usage**: 158.76%
+- **Max Memory Usage**: 8096.86 MB
+- **Min Memory Usage**: 165.45 MB
+- **Average Memory Usage**: 4127.67 MB
 
 
 ## Build Performance for ./test/fixtures/i18n-micro
 
-- **Build Time**: 14.95 seconds
-- **Bundle Size**: 57.24 MB (code: 1.48 MB, translations: 55.76 MB)
-- **Code Bundle**: client: 232.73 KB, server: 1.25 MB
-- **Max CPU Usage**: 243.00%
-- **Min CPU Usage**: 7.50%
-- **Average CPU Usage**: 96.66%
-- **Max Memory Usage**: 1174.55 MB
-- **Min Memory Usage**: 83.13 MB
-- **Average Memory Usage**: 416.37 MB
+- **Build Time**: 8.78 seconds
+- **Bundle Size**: 57.27 MB (code: 1.51 MB, translations: 55.76 MB)
+- **Code Bundle**: client: 243.68 KB, server: 1.27 MB
+- **Max CPU Usage**: 295.00%
+- **Min CPU Usage**: 125.50%
+- **Average CPU Usage**: 185.68%
+- **Max Memory Usage**: 1350.25 MB
+- **Min Memory Usage**: 186.80 MB
+- **Average Memory Usage**: 657.72 MB
 
 
 ## Build Performance Summary
 
 | Project | Build Time | Code Bundle | Translations | Total |
 |---------|------------|-------------|--------------|-------|
-| **plain-nuxt** (baseline) | 6.50s | 1.35 MB | 589.99 KB | 1.93 MB |
-| **i18n v10** | 82.26s | 19.24 MB | 38.05 MB | 57.3 MB |
-| **i18n-micro** | 14.95s | 1.48 MB | 55.76 MB | 57.24 MB |
+| **plain-nuxt** (baseline) | 5.37s | 1.36 MB | 589.99 KB | 1.94 MB |
+| **i18n v10** | 68.28s | 19.24 MB | 38.06 MB | 57.3 MB |
+| **i18n-micro** | 8.78s | 1.51 MB | 55.76 MB | 57.27 MB |
 
 > **Note**: "Code Bundle" = JavaScript/CSS code. "Translations" = JSON translation files in locales directories.
 > i18n-micro stores translations as lazy-loaded JSON files, while i18n v10 compiles them into JS bundles.
@@ -99,44 +99,44 @@ height: 400px
 ```
 
 **Code Bundle Comparison** (lower is better):
-- **i18n v10 vs baseline**: 17.89 MB larger
-- **i18n-micro vs baseline**: 131.49 KB larger
-- **i18n-micro vs i18n v10**: 17.76 MB smaller
+- **i18n v10 vs baseline**: 17.88 MB larger
+- **i18n-micro vs baseline**: 157.08 KB larger
+- **i18n-micro vs i18n v10**: 17.73 MB smaller
 
 
 ## Stress Test Results for plain-nuxt
 
 ### Resource Usage
-- **Max CPU Usage**: 146.40%
-- **Average CPU Usage**: 86.57%
-- **Max Memory Usage**: 324.30 MB
-- **Average Memory Usage**: 218.66 MB
+- **Max CPU Usage**: 140.90%
+- **Average CPU Usage**: 99.68%
+- **Max Memory Usage**: 223.69 MB
+- **Average Memory Usage**: 177.04 MB
 
 ### Artillery Results
-- **Test Duration**: 70.26 seconds
-- **Requests per Second**: 274.00
+- **Test Duration**: 69.09 seconds
+- **Requests per Second**: 287.00
 - **Error Rate**: 0.00%
 
 ### Latency (Artillery)
 | Metric | Value |
 |--------|-------|
-| Average | 453.20 ms |
+| Average | 387.60 ms |
 | Min | 0.00 ms |
-| Max | 5310.00 ms |
-| P50 | 37.70 ms |
-| P95 | 2780.00 ms |
-| P99 | 3905.80 ms |
+| Max | 2564.00 ms |
+| P50 | 37.00 ms |
+| P95 | 2515.50 ms |
+| P99 | 2515.50 ms |
 
 ### Autocannon Results (10 connections, 10s)
 | Metric | Value |
 |--------|-------|
-| Requests/sec (avg) | 154.00 |
-| Latency avg | 64.13 ms |
-| Latency P50 | 54.00 ms |
-| Latency P95 | 163.00 ms |
-| Latency P99 | 216.00 ms |
-| Latency max | 330.00 ms |
-| Throughput | 47.74 MB/s |
+| Requests/sec (avg) | 168.10 |
+| Latency avg | 58.82 ms |
+| Latency P50 | 57.00 ms |
+| Latency P95 | 77.00 ms |
+| Latency P99 | 93.00 ms |
+| Latency max | 129.00 ms |
+| Throughput | 52.12 MB/s |
 | Errors | 0 |
 
 
@@ -144,9 +144,9 @@ height: 400px
 
 <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
 
-| **3,636** | **3,047** completed | **274** | **333** |
+| **3,636** | **3,335** completed | **287** | **321** |
 |:---:|:---:|:---:|:---:|
-| vusers created | 83.80% / 16.20% failed | average req/s | peak req/s |
+| vusers created | 91.72% / 8.28% failed | average req/s | peak req/s |
 
 </div>
 
@@ -170,14 +170,14 @@ height: 300px
 
 | Time | Request Rate | Response P95 | VUsers Active | VUsers Created |
 |------|--------------|--------------|---------------|----------------|
-| Invalid Date | 183 req/s | 66 ms | 19 | 116 |
-| Invalid Date | 291 req/s | 1864 ms | 138 | 600 |
-| Invalid Date | 283 req/s | 3135 ms | 113 | 600 |
-| Invalid Date | 312 req/s | 2836 ms | 0 | 600 |
-| Invalid Date | 333 req/s | 2369 ms | 0 | 600 |
-| Invalid Date | 289 req/s | 2780 ms | 75 | 600 |
-| Invalid Date | 223 req/s | 4771 ms | 0 | 520 |
-| Invalid Date | 283 req/s | 2417 ms | 0 | 0 |
+| Invalid Date | 107 req/s | 40 ms | 14 | 76 |
+| Invalid Date | 318 req/s | 1130 ms | 88 | 600 |
+| Invalid Date | 319 req/s | 2466 ms | 82 | 600 |
+| Invalid Date | 321 req/s | 2516 ms | 42 | 600 |
+| Invalid Date | 320 req/s | 2516 ms | 4 | 600 |
+| Invalid Date | 321 req/s | 2516 ms | 0 | 600 |
+| Invalid Date | 319 req/s | 2516 ms | 0 | 560 |
+| Invalid Date | 275 req/s | 2466 ms | 0 | 0 |
 
 
 </details>
@@ -186,36 +186,36 @@ height: 300px
 ## Stress Test Results for i18n
 
 ### Resource Usage
-- **Max CPU Usage**: 162.80%
-- **Average CPU Usage**: 112.41%
-- **Max Memory Usage**: 1094.72 MB
-- **Average Memory Usage**: 716.95 MB
+- **Max CPU Usage**: 157.40%
+- **Average CPU Usage**: 121.28%
+- **Max Memory Usage**: 889.73 MB
+- **Average Memory Usage**: 548.46 MB
 
 ### Artillery Results
-- **Test Duration**: 75.44 seconds
-- **Requests per Second**: 51.00
+- **Test Duration**: 79.21 seconds
+- **Requests per Second**: 26.00
 - **Error Rate**: 0.00%
 
 ### Latency (Artillery)
 | Metric | Value |
 |--------|-------|
-| Average | 1177.10 ms |
-| Min | 17.00 ms |
-| Max | 9978.00 ms |
-| P50 | 645.60 ms |
-| P95 | 5065.60 ms |
-| P99 | 8692.80 ms |
+| Average | 992.00 ms |
+| Min | 14.00 ms |
+| Max | 7977.00 ms |
+| P50 | 608.00 ms |
+| P95 | 3605.50 ms |
+| P99 | 7117.00 ms |
 
 ### Autocannon Results (10 connections, 10s)
 | Metric | Value |
 |--------|-------|
-| Requests/sec (avg) | 11.70 |
-| Latency avg | 804.99 ms |
-| Latency P50 | 791.00 ms |
-| Latency P95 | 1399.00 ms |
-| Latency P99 | 1739.00 ms |
-| Latency max | 2110.00 ms |
-| Throughput | 3.71 MB/s |
+| Requests/sec (avg) | 12.10 |
+| Latency avg | 782.77 ms |
+| Latency P50 | 771.00 ms |
+| Latency P95 | 923.00 ms |
+| Latency P99 | 1088.00 ms |
+| Latency max | 1088.00 ms |
+| Throughput | 3.83 MB/s |
 | Errors | 0 |
 
 
@@ -223,9 +223,9 @@ height: 300px
 
 <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
 
-| **3,636** | **51** completed | **51** | **75** |
+| **3,636** | **48** completed | **26** | **72** |
 |:---:|:---:|:---:|:---:|
-| vusers created | 1.40% / 98.60% failed | average req/s | peak req/s |
+| vusers created | 1.32% / 98.68% failed | average req/s | peak req/s |
 
 </div>
 
@@ -249,14 +249,14 @@ height: 300px
 
 | Time | Request Rate | Response P95 | VUsers Active | VUsers Created |
 |------|--------------|--------------|---------------|----------------|
-| Invalid Date | 23 req/s | 1108 ms | 23 | 30 |
-| Invalid Date | 75 req/s | 6065 ms | 532 | 563 |
-| Invalid Date | 65 req/s | 758 ms | 0 | 600 |
-| Invalid Date | 60 req/s | 0 ms | 14 | 600 |
+| Invalid Date | 54 req/s | 2187 ms | 174 | 193 |
+| Invalid Date | 72 req/s | 5712 ms | 297 | 600 |
 | Invalid Date | 60 req/s | 0 ms | 8 | 600 |
+| Invalid Date | 60 req/s | 0 ms | 5 | 600 |
 | Invalid Date | 60 req/s | 0 ms | 0 | 600 |
 | Invalid Date | 60 req/s | 0 ms | 0 | 600 |
-| Invalid Date | 43 req/s | 0 ms | 0 | 43 |
+| Invalid Date | 60 req/s | 0 ms | 0 | 443 |
+| Invalid Date | 0 req/s | 0 ms | 0 | 0 |
 | Invalid Date | 0 req/s | 0 ms | 0 | 0 |
 
 
@@ -266,36 +266,36 @@ height: 300px
 ## Stress Test Results for i18n-micro
 
 ### Resource Usage
-- **Max CPU Usage**: 131.00%
-- **Average CPU Usage**: 86.46%
-- **Max Memory Usage**: 343.73 MB
-- **Average Memory Usage**: 274.70 MB
+- **Max CPU Usage**: 134.10%
+- **Average CPU Usage**: 89.28%
+- **Max Memory Usage**: 501.33 MB
+- **Average Memory Usage**: 254.83 MB
 
 ### Artillery Results
-- **Test Duration**: 69.81 seconds
-- **Requests per Second**: 278.00
+- **Test Duration**: 65.44 seconds
+- **Requests per Second**: 323.00
 - **Error Rate**: 0.00%
 
 ### Latency (Artillery)
 | Metric | Value |
 |--------|-------|
-| Average | 437.20 ms |
-| Min | 1.00 ms |
-| Max | 2910.00 ms |
-| P50 | 39.30 ms |
-| P95 | 2780.00 ms |
-| P99 | 2836.20 ms |
+| Average | 10.00 ms |
+| Min | 0.00 ms |
+| Max | 175.00 ms |
+| P50 | 8.90 ms |
+| P95 | 25.80 ms |
+| P99 | 34.80 ms |
 
 ### Autocannon Results (10 connections, 10s)
 | Metric | Value |
 |--------|-------|
-| Requests/sec (avg) | 150.70 |
-| Latency avg | 65.70 ms |
-| Latency P50 | 57.00 ms |
-| Latency P95 | 119.00 ms |
-| Latency P99 | 141.00 ms |
-| Latency max | 363.00 ms |
-| Throughput | 47.77 MB/s |
+| Requests/sec (avg) | 213.70 |
+| Latency avg | 46.17 ms |
+| Latency P50 | 40.00 ms |
+| Latency P95 | 82.00 ms |
+| Latency P99 | 86.00 ms |
+| Latency max | 117.00 ms |
+| Throughput | 67.6 MB/s |
 | Errors | 0 |
 
 
@@ -303,9 +303,9 @@ height: 300px
 
 <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
 
-| **3,636** | **3,090** completed | **278** | **300** |
+| **3,636** | **3,636** completed | **323** | **368** |
 |:---:|:---:|:---:|:---:|
-| vusers created | 84.98% / 15.02% failed | average req/s | peak req/s |
+| vusers created | 100.00% / 0.00% failed | average req/s | peak req/s |
 
 </div>
 
@@ -329,14 +329,14 @@ height: 300px
 
 | Time | Request Rate | Response P95 | VUsers Active | VUsers Created |
 |------|--------------|--------------|---------------|----------------|
-| Invalid Date | 195 req/s | 518 ms | 58 | 245 |
-| Invalid Date | 293 req/s | 2276 ms | 135 | 600 |
-| Invalid Date | 297 req/s | 2780 ms | 68 | 600 |
-| Invalid Date | 298 req/s | 2780 ms | 9 | 600 |
-| Invalid Date | 298 req/s | 2780 ms | 0 | 600 |
-| Invalid Date | 300 req/s | 2780 ms | 0 | 600 |
-| Invalid Date | 282 req/s | 2725 ms | 0 | 391 |
-| Invalid Date | 267 req/s | 2466 ms | 0 | 0 |
+| Invalid Date | 7 req/s | 11 ms | 5 | 5 |
+| Invalid Date | 254 req/s | 41 ms | 5 | 328 |
+| Invalid Date | 366 req/s | 25 ms | 0 | 600 |
+| Invalid Date | 360 req/s | 14 ms | 0 | 600 |
+| Invalid Date | 360 req/s | 20 ms | 0 | 600 |
+| Invalid Date | 360 req/s | 13 ms | 0 | 600 |
+| Invalid Date | 360 req/s | 13 ms | 0 | 600 |
+| Invalid Date | 368 req/s | 12 ms | 0 | 303 |
 
 
 </details>
@@ -347,23 +347,23 @@ height: 300px
 ### Artillery Results
 | Project | Avg Response | P95 | P99 | RPS | Error Rate |
 |---------|--------------|-----|-----|-----|------------|
-| **plain-nuxt** | 453.20 ms | 2780.00 ms | 3905.80 ms | 274.00 | 0.00% |
-| **i18n v10** | 1177.10 ms | 5065.60 ms | 8692.80 ms | 51.00 | 0.00% |
-| **i18n-micro** | 437.20 ms | 2780.00 ms | 2836.20 ms | 278.00 | 0.00% |
+| **plain-nuxt** | 387.60 ms | 2515.50 ms | 2515.50 ms | 287.00 | 0.00% |
+| **i18n v10** | 992.00 ms | 3605.50 ms | 7117.00 ms | 26.00 | 0.00% |
+| **i18n-micro** | 10.00 ms | 25.80 ms | 34.80 ms | 323.00 | 0.00% |
 
 ### Autocannon Results (10 connections, 10s)
 | Project | Avg Latency | P50 | P95 | P99 | Max | RPS |
 |---------|-------------|-----|-----|-----|-----|-----|
-| **plain-nuxt** | 64.13 ms | 54.00 ms | 163.00 ms | 216.00 ms | 330.00 ms | 154.00 |
-| **i18n v10** | 804.99 ms | 791.00 ms | 1399.00 ms | 1739.00 ms | 2110.00 ms | 11.70 |
-| **i18n-micro** | 65.70 ms | 57.00 ms | 119.00 ms | 141.00 ms | 363.00 ms | 150.70 |
+| **plain-nuxt** | 58.82 ms | 57.00 ms | 77.00 ms | 93.00 ms | 129.00 ms | 168.10 |
+| **i18n v10** | 782.77 ms | 771.00 ms | 923.00 ms | 1088.00 ms | 1088.00 ms | 12.10 |
+| **i18n-micro** | 46.17 ms | 40.00 ms | 82.00 ms | 86.00 ms | 117.00 ms | 213.70 |
 
 
 ## 🏆 Performance Comparison
 
 ### Throughput (Requests per Second)
 
-> **Winner: plain-nuxt** with 154 RPS
+> **Winner: i18n-micro** with 214 RPS
 
 ```chart
 url: /charts/comparison-rps-autocannon.js
@@ -377,7 +377,7 @@ height: 350px
 
 ### Latency Distribution
 
-> **Winner: plain-nuxt** with 64.13 ms avg latency
+> **Winner: i18n-micro** with 46.17 ms avg latency
 
 ```chart
 url: /charts/comparison-latency.js
@@ -388,9 +388,9 @@ height: 350px
 
 | Metric | **plain-nuxt** | **i18n-v10** | **i18n-micro** | Best |
 |--------|---|---|---|------|
-| RPS (Autocannon) | 154 | 12 | 151 | plain-nuxt |
-| Avg Latency | 64.13 ms | 804.99 ms | 65.70 ms | plain-nuxt |
-| P99 Latency | 216.00 ms | 1739.00 ms | 141.00 ms | plain-nuxt |
+| RPS (Autocannon) | 168 | 12 | 214 | i18n-micro |
+| Avg Latency | 58.82 ms | 782.77 ms | 46.17 ms | i18n-micro |
+| P99 Latency | 93.00 ms | 1088.00 ms | 86.00 ms | i18n-micro |
 | Errors | 0 | 0 | 0 | - |
 
 
@@ -399,42 +399,42 @@ height: 350px
 
 | Metric | plain-nuxt (baseline) | i18n v10 | Difference |
 |--------|----------|----------|------------|
-| Max Memory | 324.30 MB | 1094.72 MB | +770.42 MB |
-| Avg Memory | 218.66 MB | 716.95 MB | +498.29 MB |
-| Response Avg | 453.20 ms | 1177.10 ms | +723.90 ms |
-| Response P95 | 2780.00 ms | 5065.60 ms | +2285.60 ms |
-| Response P99 | 3905.80 ms | 8692.80 ms | +4787.00 ms |
-| RPS (Artillery) | 274.00 | 51.00 | -223.00 |
-| RPS (Autocannon) | 154.00 | 11.70 | -142.30 |
-| Latency avg (Autocannon) | 64.13 ms | 804.99 ms | +740.86 ms |
+| Max Memory | 223.69 MB | 889.73 MB | +666.05 MB |
+| Avg Memory | 177.04 MB | 548.46 MB | +371.42 MB |
+| Response Avg | 387.60 ms | 992.00 ms | +604.40 ms |
+| Response P95 | 2515.50 ms | 3605.50 ms | +1090.00 ms |
+| Response P99 | 2515.50 ms | 7117.00 ms | +4601.50 ms |
+| RPS (Artillery) | 287.00 | 26.00 | -261.00 |
+| RPS (Autocannon) | 168.10 | 12.10 | -156.00 |
+| Latency avg (Autocannon) | 58.82 ms | 782.77 ms | +723.95 ms |
 
 
 ## Comparison: plain-nuxt (baseline) vs i18n-micro
 
 | Metric | plain-nuxt (baseline) | i18n-micro | Difference |
 |--------|----------|----------|------------|
-| Max Memory | 324.30 MB | 343.73 MB | +19.44 MB |
-| Avg Memory | 218.66 MB | 274.70 MB | +56.04 MB |
-| Response Avg | 453.20 ms | 437.20 ms | -16.00 ms |
-| Response P95 | 2780.00 ms | 2780.00 ms | 0.00 ms |
-| Response P99 | 3905.80 ms | 2836.20 ms | -1069.60 ms |
-| RPS (Artillery) | 274.00 | 278.00 | +4.00 |
-| RPS (Autocannon) | 154.00 | 150.70 | -3.30 |
-| Latency avg (Autocannon) | 64.13 ms | 65.70 ms | +1.57 ms |
+| Max Memory | 223.69 MB | 501.33 MB | +277.64 MB |
+| Avg Memory | 177.04 MB | 254.83 MB | +77.79 MB |
+| Response Avg | 387.60 ms | 10.00 ms | -377.60 ms |
+| Response P95 | 2515.50 ms | 25.80 ms | -2489.70 ms |
+| Response P99 | 2515.50 ms | 34.80 ms | -2480.70 ms |
+| RPS (Artillery) | 287.00 | 323.00 | +36.00 |
+| RPS (Autocannon) | 168.10 | 213.70 | +45.60 |
+| Latency avg (Autocannon) | 58.82 ms | 46.17 ms | -12.65 ms |
 
 
 ## Comparison: i18n v10 vs i18n-micro
 
 | Metric | i18n v10 | i18n-micro | Difference |
 |--------|----------|----------|------------|
-| Max Memory | 1094.72 MB | 343.73 MB | -750.98 MB |
-| Avg Memory | 716.95 MB | 274.70 MB | -442.25 MB |
-| Response Avg | 1177.10 ms | 437.20 ms | -739.90 ms |
-| Response P95 | 5065.60 ms | 2780.00 ms | -2285.60 ms |
-| Response P99 | 8692.80 ms | 2836.20 ms | -5856.60 ms |
-| RPS (Artillery) | 51.00 | 278.00 | +227.00 |
-| RPS (Autocannon) | 11.70 | 150.70 | +139.00 |
-| Latency avg (Autocannon) | 804.99 ms | 65.70 ms | -739.29 ms |
+| Max Memory | 889.73 MB | 501.33 MB | -388.41 MB |
+| Avg Memory | 548.46 MB | 254.83 MB | -293.63 MB |
+| Response Avg | 992.00 ms | 10.00 ms | -982.00 ms |
+| Response P95 | 3605.50 ms | 25.80 ms | -3579.70 ms |
+| Response P99 | 7117.00 ms | 34.80 ms | -7082.20 ms |
+| RPS (Artillery) | 26.00 | 323.00 | +297.00 |
+| RPS (Autocannon) | 12.10 | 213.70 | +201.60 |
+| Latency avg (Autocannon) | 782.77 ms | 46.17 ms | -736.60 ms |
 
 
 ## 📊 Detailed Performance Analysis

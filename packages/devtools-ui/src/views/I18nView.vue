@@ -193,13 +193,15 @@ const translateMissingKeys = async () => {
       options: driverOptions.value,
     })
 
-    for (const key of missingKeys) {
-      const text = defaultFlatContent[key]
-      if (text) {
-        const fileName: string = selectedFile.value.split('/').pop() ?? ''
-        currentFlatContent[key] = await translator.translate(text, fromLang, fileName.replace('.json', ''))
-      }
-    }
+    const fileName: string = selectedFile.value.split('/').pop() ?? ''
+    await Promise.all(
+      missingKeys.map(async (key) => {
+        const text = defaultFlatContent[key]
+        if (text) {
+          currentFlatContent[key] = await translator.translate(text, fromLang, fileName.replace('.json', ''))
+        }
+      }),
+    )
 
     localContent.value = unflattenTranslations(currentFlatContent)
     showFeedback('Translation', 'Translated.')

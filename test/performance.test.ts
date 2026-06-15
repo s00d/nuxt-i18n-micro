@@ -397,7 +397,9 @@ function initializeMarkdown() {
   const relativePath = relative(process.cwd(), __filename)
 
   const header = `---
-outline: deep
+title: "Performance Test Results"
+description: "Benchmarks vs nuxt-i18n on real fixtures."
+outline: "deep"
 ---
 
 # Performance Test Results

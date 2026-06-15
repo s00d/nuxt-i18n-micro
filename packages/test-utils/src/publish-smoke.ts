@@ -83,14 +83,15 @@ export async function smokeLoadExports(
 ): Promise<Record<string, Record<string, unknown>>> {
   const packageRequire = createRequire(join(packageRoot, 'package.json'))
   const items = resolveExportTargets(pkg, targets, packageRoot)
-  const out: Record<string, Record<string, unknown>> = {}
+  const entries = await Promise.all(
+    items.map(async (item) => {
+      const key = `${item.subpath}:${item.condition}`
+      const mod = await loadResolvedExport(item, packageRequire)
+      return [key, mod] as const
+    }),
+  )
 
-  for (const item of items) {
-    const key = `${item.subpath}:${item.condition}`
-    out[key] = await loadResolvedExport(item, packageRequire)
-  }
-
-  return out
+  return Object.fromEntries(entries)
 }
 
 export function packageRootFromImportMeta(importMetaUrl: string, levelsUp = 2): string {

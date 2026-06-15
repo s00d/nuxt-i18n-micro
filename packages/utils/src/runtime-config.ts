@@ -52,6 +52,14 @@ function readRuntimeOverrides(runtimePublic?: Record<string, unknown>): RuntimeI
   }
 }
 
+function cloneLocale<T extends Record<string, unknown>>(locale: T): T {
+  return Object.assign({}, locale)
+}
+
+function cloneLocales(locales: Locale[]): Locale[] {
+  return locales.map((locale) => cloneLocale(locale))
+}
+
 function mergeOverrides(runtimePublic?: Record<string, unknown>): RuntimeI18nOverrides {
   const env = readEnvOverrides()
   const runtime = readRuntimeOverrides(runtimePublic)
@@ -69,7 +77,7 @@ export function resolveI18nConfigWithRuntimeOverrides(
   warn: (message: string) => void = (message) => console.warn(message),
 ): ModuleOptionsExtend {
   const overrides = mergeOverrides(runtimePublic)
-  const locales = (baseConfig.locales ?? []).map((locale) => ({ ...locale }))
+  const locales = cloneLocales(baseConfig.locales ?? [])
 
   if (overrides.strategy && overrides.strategy !== baseConfig.strategy) {
     warn(
@@ -91,7 +99,7 @@ export function resolveI18nConfigWithRuntimeOverrides(
     if (overrides.disabledLocales && overrides.disabledLocales.length > 0) {
       warn('[nuxt-i18n-micro] runtime disabledLocales override would disable all locales; override ignored.')
     }
-    return { ...baseConfig, locales: (baseConfig.locales ?? []).map((locale) => ({ ...locale })) }
+    return { ...baseConfig, locales: cloneLocales(baseConfig.locales ?? []) }
   }
 
   const allLocaleCodes = new Set(locales.map((locale) => locale.code))

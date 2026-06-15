@@ -17,14 +17,14 @@ export default function() {
       {
         "label": "P95 Latency (ms)",
         "data": [
-          66,
-          1864,
-          3135,
-          2836,
-          2369,
-          2780,
-          4771,
-          2417
+          40,
+          1130,
+          2466,
+          2516,
+          2516,
+          2516,
+          2516,
+          2466
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.2)",

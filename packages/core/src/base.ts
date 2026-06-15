@@ -52,57 +52,107 @@ export abstract class BaseI18n {
    */
   public abstract getRoute(): string
 
+  // --- Protected hooks (subclasses may override) ---
+
+  /**
+   * Called before translation lookup — subclasses use for reactivity tracking.
+   */
+  protected touch(): void {}
+
+  /**
+   * Resolve route name from optional route context (string route name or adapter-specific object).
+   */
+  protected resolveRouteName(routeContext?: unknown): string {
+    return typeof routeContext === 'string' ? routeContext : this.getRoute()
+  }
+
+  /**
+   * Lookup translation value. Returns null when missing.
+   */
+  protected resolveLookup(key: TranslationKey, routeContext?: unknown): unknown | null {
+    const locale = this.getLocale()
+    const routeName = this.resolveRouteName(routeContext)
+
+    let value = this.helper.getTranslation(locale, routeName, String(key))
+
+    if (value === null) {
+      const fallbackLocale = this.getFallbackLocale()
+      if (locale !== fallbackLocale) {
+        value = this.helper.getTranslation(fallbackLocale, routeName, String(key))
+      }
+    }
+
+    return value
+  }
+
+  /**
+   * Check if translation exists in lookup source.
+   */
+  protected resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
+    const locale = this.getLocale()
+    const routeName = this.resolveRouteName(routeContext)
+    return this.helper.getTranslation(locale, routeName, String(key)) !== null
+  }
+
+  /**
+   * Context passed to missing-key handlers.
+   */
+  protected getMissingContext(routeContext?: unknown): { locale: string; routeName: string } {
+    return { locale: this.getLocale(), routeName: this.resolveRouteName(routeContext) }
+  }
+
+  /**
+   * Warn or invoke handler when translation is missing.
+   */
+  protected warnMissing(key: TranslationKey, routeContext?: unknown): void {
+    const { locale, routeName } = this.getMissingContext(routeContext)
+    const customHandler = this.getCustomMissingHandler?.()
+    if (customHandler) {
+      customHandler(locale, String(key), routeName)
+      return
+    }
+    if (this.missingHandler) {
+      this.missingHandler(locale, String(key), routeName)
+      return
+    }
+    if (this.missingWarn) {
+      const isDev = process.env.NODE_ENV !== 'production'
+      const isClient = typeof window !== 'undefined'
+      if (isDev && isClient) {
+        console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
+      }
+    }
+  }
+
   // --- Public methods (implemented in base class) ---
 
   /**
    * Get translation for a key
-   * Based on logic from src/runtime/plugins/01.plugin.ts
    */
-  public t(key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string): CleanTranslation {
+  public t(key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown): CleanTranslation {
     if (!key) return ''
 
-    // Use abstract getters to get current state
-    const locale = this.getLocale()
-    const route = routeName || this.getRoute()
+    this.touch()
 
-    // 1. Try to find translation in current locale
-    let value = this.helper.getTranslation<string>(locale, route, key)
+    const resolved = this.resolveLookup(key, routeContext)
 
-    // 2. Fallback to fallbackLocale if not found and different
-    if (!value) {
-      const fallbackLocale = this.getFallbackLocale()
-      if (locale !== fallbackLocale) {
-        value = this.helper.getTranslation<string>(fallbackLocale, route, key)
-      }
+    if (resolved === null || resolved === undefined) {
+      this.warnMissing(key, routeContext)
+      const fallback = defaultValue === undefined ? key : defaultValue || key
+      return fallback as CleanTranslation
     }
 
-    // 3. Handle missing
-    if (!value) {
-      // Call custom handler if set (Nuxt runtime), otherwise use instance handler
-      const customHandler = this.getCustomMissingHandler?.()
-      if (customHandler) {
-        customHandler(locale, key, route)
-      } else if (this.missingHandler) {
-        this.missingHandler(locale, key as string, route)
-      } else if (this.missingWarn) {
-        const isDev = process.env.NODE_ENV !== 'production'
-        const isClient = typeof window !== 'undefined'
-        if (isDev && isClient) {
-          console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${route}'.`)
-        }
-      }
-      value = defaultValue === undefined ? key : defaultValue || key
-    }
+    if (typeof resolved !== 'string') return resolved as CleanTranslation
+    if (!params) return resolved as CleanTranslation
 
-    // 4. Interpolate
-    return typeof value === 'string' && params ? interpolate(value, params) : (value as CleanTranslation)
+    return interpolate(resolved, params) as CleanTranslation
   }
 
   /**
    * Get translation as string
    */
-  public ts(key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string): string {
-    const value = this.t(key, params, defaultValue, routeName)
+  public ts(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown): string {
+    const value = this.t(key, params, defaultValue, routeContext)
     return value?.toString() ?? defaultValue ?? key
   }
 
@@ -110,6 +160,8 @@ export abstract class BaseI18n {
    * Plural translation
    */
   public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
+    this.touch()
+
     const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
 
     if (countValue === undefined) {
@@ -130,6 +182,7 @@ export abstract class BaseI18n {
    * Format number
    */
   public tn(value: number, options?: Intl.NumberFormatOptions): string {
+    this.touch()
     return this.formatter.formatNumber(value, this.getLocale(), options)
   }
 
@@ -137,6 +190,7 @@ export abstract class BaseI18n {
    * Format date
    */
   public td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string {
+    this.touch()
     return this.formatter.formatDate(value, this.getLocale(), options)
   }
 
@@ -144,19 +198,16 @@ export abstract class BaseI18n {
    * Format relative time
    */
   public tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string {
+    this.touch()
     return this.formatter.formatRelativeTime(value, this.getLocale(), options)
   }
 
   /**
    * Check if translation exists
-   * Based on logic from src/runtime/plugins/01.plugin.ts
    */
-  public has(key: TranslationKey, routeName?: string): boolean {
-    const route = routeName || this.getRoute()
-    const locale = this.getLocale()
-
-    // Check only through getTranslation (as in plugin)
-    return !!this.helper.getTranslation(locale, route, key)
+  public has(key: TranslationKey, routeContext?: unknown): boolean {
+    this.touch()
+    return this.resolveHas(key, routeContext)
   }
 
   /**

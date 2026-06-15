@@ -17,11 +17,11 @@ export interface LocaleInfo {
 }
 
 export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string, currentLocale?: string): LocaleInfo => {
-  const {
-    locales,
-    defaultLocale: configDefaultLocale,
-    fallbackLocale,
-  } = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
+  const config = resolveI18nConfigWithRuntimeOverrides(
+    getI18nConfig() as ModuleOptionsExtend,
+    useRuntimeConfig(event).public as Record<string, unknown>,
+  )
+  const { locales, defaultLocale: configDefaultLocale, fallbackLocale } = config
   const enabledLocales = getEnabledLocales(locales)
 
   const detectedLocale =
@@ -32,6 +32,8 @@ export const useLocaleServerMiddleware = (event: H3Event, defaultLocale?: string
         fallbackLocale,
         defaultLocale: defaultLocale || configDefaultLocale,
         locales: enabledLocales,
+        localeCookie: config.localeCookie || 'user-locale',
+        autoDetectLanguage: true,
       },
       defaultLocale,
     )

@@ -1,0 +1,19 @@
+docs/guide/faq.md
+  s_e288f5e0b6851d::t_2eec902c172f87 132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "d367c328b4d629b0738c335853b09bd47869070a",
+  "prompts": {},
+  "sessions": {
+    "s_e288f5e0b6851d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "aab14fc1-6f17-4928-9423-e34b757e4e34",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

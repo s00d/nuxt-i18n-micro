@@ -1,0 +1,39 @@
+packages/core/src/base.ts
+  s_e288f5e0b6851d::t_9722611de85518 92-94
+src/unplugin-define-i18n-route.ts
+  s_e288f5e0b6851d::t_f6bf536f0c5423 19-20
+  s_e288f5e0b6851d::t_79d3a959e15409 33-34
+src/utils.ts
+  s_e288f5e0b6851d::t_f2d9ddea0e497d 153-159
+  s_e288f5e0b6851d::t_afbab855d712fb 165
+test/extract-define-i18n-route.test.ts
+  s_e288f5e0b6851d::t_daec76f6e7287d 10
+  s_e288f5e0b6851d::t_c96aa9ffba5200 123-139
+test/nuxt-i18n.test.ts
+  s_e288f5e0b6851d::t_968e8a0ddda1a0 41-50
+src/runtime/middleware/i18n-redirect.global.ts
+  s_e288f5e0b6851d::t_4caa2a1c0c494c 9,13-15
+  s_e288f5e0b6851d::t_020a2503c1062d 56,61
+packages/core/tests/base.test.ts
+  s_e288f5e0b6851d::t_9b3869e2ea8512 333-340
+src/runtime/utils/nuxt-i18n.ts
+  s_e288f5e0b6851d::t_6519651dd6ee65 145
+packages/utils/tests/normalize.test.ts
+  s_e288f5e0b6851d::t_65937d08083ea2 1-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "47ce12afc701d29247bdefd088a6fb43902a5920",
+  "prompts": {},
+  "sessions": {
+    "s_e288f5e0b6851d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "aab14fc1-6f17-4928-9423-e34b757e4e34",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

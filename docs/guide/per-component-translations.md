@@ -50,6 +50,15 @@ import { useNuxtApp } from "#imports";
 const { $defineI18nRoute } = useNuxtApp();
 ```
 
+## 🏗️ Build-Time Route Meta
+
+At build time, a Vite unplugin scans page `.vue` files for `defineI18nRoute(...)` / `$defineI18nRoute(...)` calls and extracts locale restrictions, `localeRoutes`, and `disableMeta` into route metadata used by `@i18n-micro/route-strategy`.
+
+- **Build**: unplugin (`src/unplugin-define-i18n-route.ts`) runs during Vite transform and writes `i18n-route-meta.json` under the Nuxt build directory
+- **Runtime**: the define plugin (`03.define.ts`) still exposes `$defineI18nRoute` in `script setup` for dev and inline configuration
+
+You normally only call `$defineI18nRoute` in pages — the module handles build-time extraction automatically.
+
 ## 🔧 `$defineI18nRoute` Function
 
 The `$defineI18nRoute` function configures route behavior based on the current locale, offering a versatile solution to:

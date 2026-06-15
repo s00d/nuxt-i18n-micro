@@ -294,34 +294,35 @@ Nuxt I18n Micro v3 uses a multi-layer caching architecture built around `Transla
 ```mermaid
 flowchart TB
     subgraph Client["🖥️ Client Side"]
-        A[Page Request] --> B{window.__I18N__?}
-        B -->|Found| C[Use SSR Data]
+        A[Page Request] --> B{useState i18n-ssr-chunks?}
+        B -->|Found| C[seedFromSsrChunks]
         B -->|Not Found| D{TranslationStorage cache?}
         D -->|Hit| E[Return Cached]
         D -->|Miss| F["$fetch /_locales/..."]
         F --> G[Store in TranslationStorage]
         G --> E
+        C --> H[NuxtI18n view layer]
+        E --> H
     end
 
     subgraph Server["🖧 Server Side"]
-        H[SSR Request] --> I{Server process cache?}
-        I -->|Hit| J[Return Cached]
-        I -->|Miss| K[loadTranslationsFromServer]
-        K --> L["Load payload (premerged file or source + runtime merge)"]
-        L --> M[Cache in process-global Map]
-        M --> J
-        J --> N["Inject window.__I18N__"]
+        I[SSR Request] --> J{Server process cache?}
+        J -->|Hit| K[Return Cached]
+        J -->|Miss| L[loadTranslationsFromServer]
+        L --> M["Load payload (premerged file or source + runtime merge)"]
+        M --> N[Cache in process-global Map]
+        N --> K
+        K --> O["Store in useState i18n-ssr-chunks"]
     end
 
-    A -.->|First Load| H
-    N -.->|Hydration| B
-    E --> O[Render Page]
-    C --> O
+    A -.->|First Load| I
+    O -.->|Hydration| B
+    H --> P[Render Page]
 ```
 
 ### Key Characteristics
 
-- 🚀 **Zero extra requests on first load**: SSR-injected data in `window.__I18N__` is consumed synchronously on hydration
+- 🚀 **Zero extra requests on first load**: SSR chunks in `useState('i18n-ssr-chunks')` are seeded into `TranslationStorage` synchronously on hydration
 - 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
 - ⚡ **Single request per page**: With `mode: 'premerged'` (default), the API returns a pre-built file (root + page-specific + fallback merged at build time). With `mode: 'source'`, the same route merges compact source files at runtime — see [translationPayloads](./configuration.md#translationpayloads).
 - 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically

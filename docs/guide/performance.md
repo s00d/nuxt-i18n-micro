@@ -217,15 +217,13 @@ if (val === undefined && key.includes('.')) {
 }
 ```
 
-### 💉 Server-Side Injection
+### 💉 Server-Side Payload Transfer
 
-During SSR, translations are injected directly into the HTML as a script tag:
+During SSR, loaded translation chunks are stored in `useState('i18n-ssr-chunks')` and serialized through the Nuxt payload. On the client, `01.plugin.ts` calls `translationStorage.seedFromSsrChunks()` before any `$fetch`, completely avoiding duplicate requests on first load.
 
-```html
-<script>window.__I18N__={"en:index":{...},"en:about":{...}};</script>
-```
+`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`. Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys.
 
-On the client, the plugin reads from `window.__I18N__` on initial hydration, completely avoiding duplicate fetch requests. This approach:
+This approach:
 
 - Eliminates waterfall requests on page load
 - Reduces Time to Interactive (TTI)

@@ -41,8 +41,9 @@ flowchart TB
 
     subgraph Client["Client Runtime"]
         API -->|$fetch| TS["TranslationStorage<br/>(singleton via Symbol.for)"]
-        SSR["window.__I18N__<br/>(SSR injection)"] -->|hydration| TS
-        TS -->|getFromCache / load| PL["01.plugin.ts<br/>Translation Context"]
+        SSR["useState i18n-ssr-chunks<br/>(Nuxt payload)"] -->|seedFromSsrChunks| TS
+        TS -->|getFromCache / load| NI["NuxtI18n<br/>active view layer"]
+        NI --> PL["01.plugin.ts"]
     end
 ```
 
@@ -58,7 +59,8 @@ A singleton class that provides unified translation storage for both client and 
 
 | Method | Description |
 |--------|-------------|
-| `getFromCache(locale, routeName?)` | Synchronous check: returns cached data or checks `window.__I18N__` (client) |
+| `getFromCache(locale, routeName?)` | Synchronous check: returns cached in-memory data, or `null` |
+| `seedFromSsrChunks(chunks)` | Seeds cache from `useState('i18n-ssr-chunks')` on client hydration |
 | `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
 | `clear()` | Clears the entire cache |
 
@@ -78,7 +80,6 @@ const result = await translationStorage.load('en', 'index', {
 })
 // result.data — merged translations
 // result.cacheKey — cache key used
-// result.json — JSON string (server only, for client injection)
 ```
 
 ### ⚙️ Deterministic Cache Busting (`i18n.dateBuild`)
@@ -115,19 +116,13 @@ import { loadTranslationsFromServer } from '../server/utils/server-loader'
 const { data, json } = await loadTranslationsFromServer('en', 'index')
 ```
 
-### 3. SSR Injection (`window.__I18N__`)
+### 3. SSR Payload Transfer (`useState('i18n-ssr-chunks')`)
 
-During server-side rendering, the main plugin (`01.plugin.ts`) collects all loaded translations and injects them into the HTML as:
+During server-side rendering, the main plugin (`01.plugin.ts`) collects loaded translation chunks into `useState('i18n-ssr-chunks')`. Nuxt serializes this state into the HTML payload.
 
-```html
-<script>
-window.__I18N__={};
-window.__I18N__["en:index"]={...};
-window.__I18N__["en:index"]={...};
-</script>
-```
+On the client, before the first fetch, the plugin calls `translationStorage.seedFromSsrChunks()` to populate `TranslationStorage`. This ensures **zero additional HTTP requests** on first page load.
 
-On the client, `TranslationStorage.getFromCache()` checks `window.__I18N__` for SSR-injected data before making any fetch requests. This ensures **zero additional HTTP requests** on first page load.
+`NuxtI18n` holds the active view-layer dictionary used by `$t()` and `$has()`. `NuxtTranslationLoader` switches locale/route context and merges chunks into that layer.
 
 ### 4. Server API Route
 
@@ -238,7 +233,7 @@ export default defineNuxtConfig({
 | Aspect | v2 | v3 |
 |--------|----|----|
 | Client cache | `useStorage('cache')` | `TranslationStorage` singleton (Symbol.for on globalThis) |
-| SSR transfer | Runtime config | `window.__I18N__` script injection |
+| SSR transfer | Runtime config | `useState('i18n-ssr-chunks')` via Nuxt payload |
 | Server cache | Nitro cache storage | Process-global `Map` via `Symbol.for` |
 | Merge logic | Client-side | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
 | Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}` |

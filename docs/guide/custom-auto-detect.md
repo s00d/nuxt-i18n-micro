@@ -16,22 +16,27 @@ Nuxt I18n Micro v3 provides a centralized composable — `useI18nLocale()` — f
 flowchart TB
     subgraph Plugins["Plugin Execution Order"]
         A["Your plugin<br/>order: -10"] -->|setLocale()| B["01.plugin.ts<br/>order: -5"]
-        B --> C["06.redirect.ts<br/>order: 10"]
+        B --> C["06.redirect.ts server<br/>order: 10"]
+    end
+
+    subgraph Client["Client SPA Navigation"]
+        D["i18n-redirect.global.ts<br/>route middleware"]
     end
 
     subgraph State["Locale State"]
-        D["useState('i18n-locale')"]
-        E["localeCookie"]
+        E["useState('i18n-locale')"]
+        F["localeCookie"]
     end
 
-    A -->|"setLocale() updates both"| D
     A -->|"setLocale() updates both"| E
-    B -->|reads| D
-    C -->|reads| D
+    A -->|"setLocale() updates both"| F
+    B -->|reads| E
     C -->|reads| E
+    C -->|reads| F
+    D -->|reads target route +| E
 ```
 
-**Key principle**: Call `useI18nLocale().setLocale()` in a server plugin with `order: -10`. This updates both `useState('i18n-locale')` and the locale cookie atomically, so the i18n plugin (`order: -5`) and redirect plugin (`order: 10`) see the correct locale immediately.
+**Key principle**: Call `useI18nLocale().setLocale()` in a server plugin with `order: -10`. This updates both `useState('i18n-locale')` and the locale cookie atomically, so the i18n plugin (`order: -5`) and the server redirect plugin (`order: 10`) see the correct locale on the first SSR request. Client-side auto-redirects run in the global route middleware on subsequent navigations.
 
 ## 🛠️ Disabling Built-In Auto-Detection
 
@@ -131,14 +136,16 @@ flowchart TB
         J --> K
         K --> L["Updates useState + cookie"]
         L --> M["i18n plugin reads locale"]
-        M --> N["Redirect plugin uses locale"]
+        M --> N["Server redirect plugin uses locale"]
+        M --> O["Client middleware on next navigation"]
     end
 ```
 
 1. **Plugin runs first** (`order: -10`) — detects locale from headers, domain, or other sources
 2. **`setLocale()` updates both** `useState('i18n-locale')` and cookie — ensures immediate visibility to all subsequent plugins
 3. **i18n plugin** (`order: -5`) reads the locale and loads correct translations
-4. **Redirect plugin** (`order: 10`) uses the locale for redirect decisions
+4. **Server redirect plugin** (`order: 10`) uses the locale for redirect decisions on SSR
+5. **Client route middleware** (`i18n-redirect`) applies redirects on SPA navigation when the URL locale does not match preference
 
 ## 🌐 Strategy-Specific Behavior
 

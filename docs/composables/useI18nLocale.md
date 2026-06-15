@@ -98,6 +98,10 @@ export default defineNuxtPlugin({
 })
 ```
 
+::: tip `setLocale()` vs `$switchLocale()`
+`setLocale()` updates locale preference (state + cookie) only. To also reload the active translation context on the client, use `$switchLocale()` from `useNuxtApp()` or `useI18n()`. This matters especially for `no_prefix`, where the URL does not change. See [FAQ — switch locale without changing the URL](/guide/faq#-switch-locale-without-changing-the-url).
+:::
+
 ## See Also
 
 - [Custom Language Detection](/guide/custom-auto-detect) — configuring auto-detection

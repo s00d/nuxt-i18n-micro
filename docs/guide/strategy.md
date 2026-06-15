@@ -119,38 +119,41 @@ flowchart TB
 
     B -->|Server SSR| C["Nitro Middleware<br/>i18n.global.ts"]
     C --> D["Sets event.context.i18n.locale"]
-    D --> E["Redirect Plugin<br/>06.redirect.ts (server)"]
+    D --> E["Redirect Plugin<br/>06.redirect.ts server only"]
     E --> F{Needs redirect?}
     F -->|Yes| G["302 sendRedirect<br/>(no page render)"]
     F -->|No| H["Continue to render"]
 
-    B -->|Client SPA| I["Redirect Plugin<br/>06.redirect.ts (client)"]
-    I --> J["useI18nLocale().getPreferredLocale()"]
+    B -->|Client SPA| I["Route Middleware<br/>i18n-redirect.global.ts"]
+    I --> J["Target route locale + getPreferredLocale()"]
     J --> K{Needs redirect?}
-    K -->|Yes| L["navigateTo()"]
+    K -->|Yes| L["navigateTo with query and hash"]
     K -->|No| M["Stay on page"]
 ```
 
 ### Server-Side (No Flash)
 
 1. **Nitro middleware** (`i18n.global.ts`) runs first — detects locale from URL, cookie, or `Accept-Language` header and sets `event.context.i18n.locale`
-2. **Redirect plugin** (`06.redirect.ts`, server branch) checks if the current path needs a redirect using `i18nStrategy.getClientRedirect()` and issues a 302 `sendRedirect` **before** any page rendering occurs
+2. **Redirect plugin** (`06.redirect.ts`, server-only) checks if the current path needs a redirect using `i18nStrategy.getClientRedirect()` and issues a 302 **before** any page rendering occurs
 3. This prevents the "error flash" where users briefly see a wrong page before redirect
 
 ### Client-Side (SPA Navigation)
 
-1. After hydration (`app:mounted`), the redirect plugin reads locale from `useI18nLocale().getPreferredLocale()`
-2. Uses `i18nStrategy.getClientRedirect()` to check if redirect is needed
-3. On SPA navigation (`router.afterEach`), re-checks for redirects
+1. Global route middleware (`i18n-redirect.global.ts`) runs on each client navigation when `redirects` is enabled
+2. Derives the preferred locale from the **target route** first, then falls back to `useI18nLocale().getPreferredLocale()`
+3. Uses `i18nStrategy.getClientRedirect()` to decide whether a redirect is needed
+4. Preserves `query` and `hash` when redirecting
 
 ### Locale Priority Order
 
-The redirect plugin determines the preferred locale in this order:
+On the server, the redirect plugin determines the preferred locale in this order:
 
 1. **`useState('i18n-locale')`** — highest priority (set programmatically via `useI18nLocale().setLocale()`)
 2. **Cookie** — if `localeCookie` is configured
 3. **`Accept-Language` header** — if `autoDetectLanguage: true`
 4. **`defaultLocale`** — final fallback
+
+On the client, the route middleware prefers the locale from the target route, then uses the same state/cookie fallback chain.
 
 ### Redirect Behavior Per Strategy
 
@@ -169,9 +172,10 @@ i18n: {
 }
 ```
 
-When `redirects: false`, the redirect plugin (`06.redirect`) is still registered but only the redirect logic is disabled. The plugin continues to perform:
-- **404 checks** for invalid locale prefixes (e.g. `/xx/about` where `xx` is not a valid locale)
-- **Cookie synchronization** from URL prefix (e.g. visiting `/fr/about` syncs the cookie to `fr`)
+When `redirects: false`, automatic locale redirects are disabled:
+
+- **Server**: the redirect plugin (`06.redirect.ts`, server-only) remains registered but skips redirect logic. It still performs **404 checks** for invalid locale prefixes (e.g. `/xx/about` where `xx` is not a valid locale) and **cookie synchronization** from URL prefix (e.g. visiting `/fr/about` syncs the cookie to `fr`)
+- **Client**: the `i18n-redirect` global route middleware is **not registered** — no SPA auto-redirects
 
 ## 🍪 Cookie-Based Locale Persistence
 

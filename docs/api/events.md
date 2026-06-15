@@ -26,6 +26,17 @@ The `i18n:register` event in `Nuxt I18n Micro` enables dynamic addition of trans
 - **Behavior**:
   - When triggered, the `register` function merges the new translations into the current context for the specified locale, updating the available translations across the application.
 
+### ⏱️ When It Fires
+
+The module's hooks plugin (`05.hooks.ts`, `dependsOn: ['i18n-plugin-loader']`) calls `nuxtApp.callHook('i18n:register', …)`:
+
+1. **Once on startup** — after the main i18n plugin (`01.plugin.ts`) has loaded translations for the initial route
+2. **On navigation** — in `router.beforeEach` when the path changes, or on every navigation when `strategy: 'no_prefix'`
+
+Register your listener in a normal Nuxt plugin with `nuxtApp.hook('i18n:register', …)`. The hooks plugin runs after the loader is ready, so your callback is invoked when translations need to be extended.
+
+Set `hooks: false` in `nuxt.config` to disable automatic `i18n:register` calls (see [Configuration — `hooks`](/guide/configuration#hooks)).
+
 ### 💡 Example Usage
 
 The following example demonstrates how to use the `i18n:register` event to dynamically add translations:
@@ -44,27 +55,24 @@ nuxt.hook('i18n:register', async (register: (translations: unknown, locale?: str
 ```mermaid
 sequenceDiagram
     participant App as Application
-    participant NuxtHooks as Nuxt Hooks
-    participant Plugin as Custom Plugin
-    participant Loader as Translation Loader
-    participant I18nContext as I18n Context
-    
-    App->>NuxtHooks: Initialize app
-    NuxtHooks->>Plugin: Execute plugin
-    Plugin->>NuxtHooks: nuxtApp.hook('i18n:register', callback)
-    
-    Note over NuxtHooks: Later, during i18n init...
-    
-    NuxtHooks->>Plugin: Trigger i18n:register(register, locale)
-    Plugin->>Loader: import(`../locales/${locale}.json`)
-    Loader-->>Plugin: translations object
-    Plugin->>I18nContext: register(translations, locale)
-    I18nContext->>I18nContext: mergeTranslations()
-    I18nContext-->>App: Updated $t() available
+    participant Custom as Custom Plugin
+    participant Loader as 01.plugin.ts
+    participant Hooks as 05.hooks.ts
+    participant I18n as NuxtI18n
+
+    App->>Custom: Register nuxtApp.hook i18n:register
+    Loader->>Loader: switchContext initial locale/route
+    Loader->>Hooks: dependsOn i18n-plugin-loader
+    Hooks->>Custom: callHook i18n:register register locale
+    Custom->>I18n: register merges translations
+
+    Note over Hooks: On router.beforeEach path change...
+    Hooks->>Custom: callHook i18n:register again
+    Custom->>I18n: register merges for new route
 ```
 
 - **Triggering the Event**:
-  - The event is hooked into the `i18n:register` lifecycle event provided by `Nuxt I18n Micro`.
+  - The hooks plugin (`05.hooks.ts`) fires `i18n:register` after the main loader is ready and on relevant navigations.
 
 - **Adding Translations**:
   - The example registers English translations for `"greeting"` and `"farewell"`.

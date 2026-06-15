@@ -3,12 +3,6 @@ import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
 
-declare global {
-  interface Window {
-    __I18N__?: Record<string, unknown>
-  }
-}
-
 export interface LoadOptions {
   apiBaseUrl: string
   baseURL: string
@@ -21,7 +15,6 @@ export interface LoadOptions {
 export interface LoadResult {
   data: Record<string, unknown>
   cacheKey: string
-  json?: string
 }
 
 // ============================================================================
@@ -115,14 +108,6 @@ class TranslationStorage {
       return { data: cached, cacheKey }
     }
 
-    // CLIENT: Check SSR injection
-    if (import.meta.client && typeof window !== 'undefined' && window.__I18N__?.[cacheKey]) {
-      const data = window.__I18N__[cacheKey] as Record<string, unknown>
-      delete window.__I18N__[cacheKey]
-      this.cc.set(cacheKey, this.freezePlainClone(data))
-      return { data: this.cc.get(cacheKey)!, cacheKey }
-    }
-
     return null
   }
 
@@ -143,10 +128,7 @@ class TranslationStorage {
     // Store in cache
     this.cc.set(cacheKey, this.freezePlainClone(data))
 
-    // SERVER: Generate JSON for client injection
-    const json = import.meta.server ? JSON.stringify(data).replace(/</g, '\\u003c') : undefined
-
-    return { data: this.cc.get(cacheKey)!, cacheKey, json }
+    return { data: this.cc.get(cacheKey)!, cacheKey }
   }
 
   /**

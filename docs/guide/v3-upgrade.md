@@ -23,12 +23,12 @@ flowchart LR
 
 - **Locale state** — `useState` / `useCookie` manually → `useI18nLocale()` composable
 - **Config access** — `useRuntimeConfig().public.i18nConfig` → `getI18nConfig()` from `#build/i18n.strategy.mjs`
-- **Redirect component** — `fallbackRedirectComponentPath` option → Server middleware + client plugin (automatic)
+- **Redirect component** — `fallbackRedirectComponentPath` option → Server redirect plugin + client route middleware (automatic)
 - **`includeDefaultLocaleRoute`** — Supported (deprecated) → Removed, use `strategy` option
 - **`experimental.hmr`** — Under `experimental` → Root-level option
 - **`previousPageFallback`** — Removed entirely (cumulative merge strategy handles this automatically)
 - **Caching** — `useStorage('cache')` → `TranslationStorage` singleton (`Symbol.for` on `globalThis`)
-- **SSR transfer** — Runtime config → `window.__I18N__` script injection
+- **SSR transfer** — Runtime config → `useState('i18n-ssr-chunks')` via Nuxt payload
 - **Strategy classes** — Internal → Separate packages (`@i18n-micro/route-strategy`, `@i18n-micro/path-strategy`)
 
 ## Removed: `fallbackRedirectComponentPath`
@@ -36,7 +36,8 @@ flowchart LR
 The `fallbackRedirectComponentPath` option and the `locale-redirect.vue` fallback component have been removed. Redirect logic is now handled by:
 
 1. **Server middleware** (`i18n.global.ts`) — sets `event.context.i18n.locale`
-2. **Redirect plugin** (`06.redirect.ts`) — handles 302 redirects on server (before render) and client (after hydration)
+2. **Server redirect plugin** (`06.redirect.ts`, server-only) — 302 redirects before render
+3. **Client route middleware** (`i18n-redirect.global.ts`) — SPA redirects after hydration
 
 ```diff
  i18n: {
@@ -119,8 +120,8 @@ See [Custom Language Detection](/guide/custom-auto-detect) for detailed examples
 
 Redirects are now handled automatically by two components:
 
-1. **Server-side** (`06.redirect.ts`): Runs during SSR, issues 302 redirects before any page rendering — no "error flash"
-2. **Client-side** (`06.redirect.ts`): Runs after hydration (`app:mounted`) and on SPA navigation (`router.afterEach`)
+1. **Server-side** (`06.redirect.ts`, server-only): Runs during SSR, issues 302 redirects before any page rendering — no "error flash"
+2. **Client-side** (`i18n-redirect.global.ts`): Global route middleware on SPA navigation; preserves query string and hash
 
 Locale priority for redirects:
 1. `useState('i18n-locale')` — set via `useI18nLocale().setLocale()`

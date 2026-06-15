@@ -338,15 +338,20 @@ Methods for switching between locales and routes.
 ### `$switchLocale`
 
 - **Type**: `(locale: string) => void`
-- **Description**: Switches to the given locale and redirects the user to the appropriate localized route.
+- **Description**: Switches to the given locale and navigates to the appropriate localized route (or reloads translations in place for `no_prefix`).
 
 **Parameters**:
 - **locale**: `string` — The locale to switch to
 
 ```typescript
 $switchLocale('fr')
-// Output: Redirects the user to the French version of the route
+// Prefix strategies: navigates to the French version of the route
+// no_prefix: updates locale and translations without changing the URL path
 ```
+
+::: tip Switch locale without changing the URL?
+See [FAQ — switch locale without changing the URL](/guide/faq#-switch-locale-without-changing-the-url). For prefix strategies, use `$switchLocalePath()` when you only need a link target.
+:::
 
 ### `$switchLocaleRoute`
 
@@ -610,7 +615,7 @@ const i18n = useI18n()
 ### `$has`
 
 - **Type**: `(key: string) => boolean`
-- **Description**: Checks whether a translation key exists in the **active merged dictionary** for the current locale and route (top-level keys and dot paths).
+- **Description**: Checks whether a translation key exists in the **active merged dictionary** for the current locale and route (top-level keys and dot paths). Does **not** count keys that exist only in the fallback locale — use `$t()` for fallback resolution.
 
 During same-locale page transitions, v3 automatically deep-merges translations from the leaving page into this dictionary until the transition finishes — so keys from the previous page may still return `true` briefly. There is no `previousPageFallback` option; this behavior is built in. See [FAQ — page transitions](/guide/faq#-why-do-translations-break-during-page-transitions-especially-with-defineasynccomponent).
 

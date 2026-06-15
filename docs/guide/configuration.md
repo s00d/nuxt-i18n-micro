@@ -448,13 +448,18 @@ define: false // Disables $defineI18nRoute
 
 #### `redirects`
 
-Enables automatic locale-based redirects. When `true`, visitors are redirected to their preferred locale (detected from cookie, `Accept-Language` header, or the default) on the first visit. When `false`, only the redirect logic is disabled — the plugin still handles 404 checks and cookie synchronization.
+Enables automatic locale-based redirects. When `true`, visitors are redirected to their preferred locale (detected from cookie, `Accept-Language` header, or the default) on the first visit.
+
+When `false`, redirect logic is disabled on both environments:
+
+- **Server**: `06.redirect.ts` (server-only) remains registered for 404 checks and cookie synchronization, but does not issue locale redirects
+- **Client**: the `i18n-redirect` global route middleware is not registered — no SPA auto-redirects
 
 **Type**: `boolean`  
 **Default**: `true`
 
 ```typescript
-redirects: false // Disable automatic locale redirection (404 checks and cookie sync remain active)
+redirects: false // Disable automatic locale redirection (server 404/cookie sync remain; no client middleware)
 ```
 
 #### `plugin`
@@ -470,14 +475,16 @@ plugin: false
 
 #### `hooks`
 
-Enables hooks integration.
+Enables the hooks plugin (`05.hooks.ts`) that fires the `i18n:register` event. When `true` (default), the module calls `i18n:register` on startup and on navigation so your plugins can merge extra translations into the active locale/route context.
 
 **Type**: `boolean`  
 **Default**: `true`
 
 ```typescript
-hooks: false
+hooks: false // Disable automatic i18n:register calls
 ```
+
+See [Events — `i18n:register`](/api/events#-i18n-register) for hook timing and plugin examples.
 
 #### `components`
 

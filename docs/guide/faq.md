@@ -62,6 +62,31 @@ showError({
 })
 ```
 
+## 🌐 Locale Switching
+
+### ❓ Switch locale without changing the URL?
+
+Yes — but it depends on your [routing strategy](/guide/strategy).
+
+**`no_prefix` strategy** — locale is not part of the URL. Use `$switchLocale()` to change locale and reload translations while staying on the same path:
+
+```typescript
+const { $switchLocale } = useNuxtApp()
+$switchLocale('de') // /about stays /about, content switches to German
+```
+
+Or update preference only with `useI18nLocale().setLocale('de')`. For a full client-side translation reload, prefer `$switchLocale()`.
+
+**Prefix strategies** (`prefix`, `prefix_except_default`, …) — locale and URL are linked. `$switchLocale()` always navigates to the localized route. There is no `redirect: false` option.
+
+If you only need the target URL (for example, a language switcher link), use `$switchLocalePath()` instead:
+
+```vue
+<NuxtLink :to="$switchLocalePath('fr')">Français</NuxtLink>
+```
+
+See [Route & Locale Switching](/api/methods#-route-locale-switching) for all switching methods.
+
 ## 🌐 Translation Issues
 
 ### ❓ Why do translations break during page transitions, especially with `defineAsyncComponent`?

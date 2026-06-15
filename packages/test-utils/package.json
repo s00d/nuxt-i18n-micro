@@ -26,6 +26,7 @@
   },
   "files": [
     "dist",
+    "src/publish-smoke.ts",
     "README.md",
     "LICENSE"
   ],

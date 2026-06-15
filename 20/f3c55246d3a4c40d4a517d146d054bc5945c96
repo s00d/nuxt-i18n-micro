@@ -1,0 +1,197 @@
+packages/types/src/index.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 242-246,578-579
+packages/core/jest.config.cjs
+  s_e288f5e0b6851d::t_5cd4c177035c8f 4
+packages/types/package.json
+  s_e288f5e0b6851d::t_5cd4c177035c8f 3
+test/performance.test.ts
+  h_ee6cac30a1b83a 400-402
+packages/core/src/helpers.ts
+  s_43f7072b0cae73::t_ef136cb8d332d2 5
+  s_e288f5e0b6851d::t_fb51b8fc4f39a2 65-66
+  s_e288f5e0b6851d::t_5cd4c177035c8f 4,6-35,39,47-64
+src/runtime/server/utils/locale-detector.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 1-4,8-15,18,20-21,27-36,38-47,49
+test/async-components-production.test.ts
+  s_e288f5e0b6851d::t_b0f79ec663550d 46-49,64,67-68
+  s_e288f5e0b6851d::t_09a6cd6effbaf6 97-99,108,110-111
+  s_e288f5e0b6851d::t_52ba41797e0a79 81
+packages/utils/src/source-loader.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 3,17
+packages/utils/src/runtime-config.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 55-62,80,102
+test/serverless.spec.ts
+  s_e288f5e0b6851d::t_90d09f79dfcb76 78,82
+  s_e288f5e0b6851d::t_2bc6579948440b 3
+src/runtime/middleware/i18n-redirect.global.ts
+  s_e288f5e0b6851d::t_863223258bd988 1-6,8-18,20-30,33-58
+  s_e288f5e0b6851d::t_fb046894bd9040 19
+  s_e288f5e0b6851d::t_9bfaadc150ed44 31-32
+  s_e288f5e0b6851d::t_076adc0109a309 7
+src/utils.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 2,5-9,29,93-132,145,150-160
+packages/utils/vite.config.mts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 26
+packages/core/src/base.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 55,58,60-67,69-72,74,76,78,81,85-120,123-125,127-146,152-153,161-162,183,191,199,206-208
+src/runtime/server/utils/locale-server-middleware.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 20-24,35-36
+src/runtime/utils/storage.ts
+  s_e288f5e0b6851d::t_ee2608aed0c0ae 104
+  s_e288f5e0b6851d::t_5cd4c177035c8f 1,59-63,65,80,95-103,122,144
+packages/hmr/src/watcher.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 120-122,124
+packages/core/src/format-service.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 16-17,19,21-22,36,40
+test/strategies.test.ts
+  s_e288f5e0b6851d::t_c5c4d06988412e 65-68,82,84,87-88
+  s_e288f5e0b6851d::t_e8932ba026b661 101
+  s_e288f5e0b6851d::t_b05ab3a76867c9 117-119,126,128-129
+pnpm-lock.yaml
+  s_e288f5e0b6851d::t_f4fcd2a8f44de6 108-110,285-287,297-299,18338,18376,18389,18400,18592,18594,18605-18606,18617
+packages/core/jest.perf.config.cjs
+  s_43f7072b0cae73::t_bb09f994e55323 1-7
+packages/core/src/helpers-entry.ts
+  s_43f7072b0cae73::t_8afbfa6a1731a8 4,10-12,14
+  s_e288f5e0b6851d::t_a643a47f11ea81 15
+  s_e288f5e0b6851d::t_61ba684420019e 1-3,5-9,13
+packages/path-strategy/bench/run-headless.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 140-141,145
+src/runtime/server/utils/translation-server-middleware.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 14-18,29-30
+test/helpers/translation-watcher-hmr.ts
+  s_e288f5e0b6851d::t_5e59891cbd7dab 4,58-61,63-66,71-72,74-80
+src/runtime/composables/useLocaleHead.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 6
+packages/core/vite.config.mts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 8-12,24-27,29,32
+package.json
+  s_e288f5e0b6851d::t_9c527f30fe5247 123-125
+packages/utils/package.json
+  s_e288f5e0b6851d::t_3a8444ccb46dfa 219
+  s_e288f5e0b6851d::t_5cd4c177035c8f 3,209-218
+src/runtime/plugins/01.plugin.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 1-2,15,17,38-46,57-62,64,67,78-79,82-90,101,107-110,113-134,140-143,151,165,167-168,173,189
+  s_e288f5e0b6851d::t_75336282ff5e15 135
+packages/utils/src/payload-fetch.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 2
+test/helpers/sequential.ts
+  s_e288f5e0b6851d::t_f4fcd2a8f44de6 10-13
+  s_e288f5e0b6851d::t_5d3efa7acd97a9 1-9,14-27
+src/runtime/composables/useI18nLocale.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 5
+packages/core/package.json
+  s_e288f5e0b6851d::t_5cd4c177035c8f 3,48-58,68
+src/unplugin-define-i18n-route.ts
+  s_e288f5e0b6851d::t_b632e036c6671f 63
+  s_e288f5e0b6851d::t_0d1fd2d1900556 1
+  s_e288f5e0b6851d::t_b07605b33d623b 2-62,64-83
+packages/core/tests/helpers.test.ts
+  s_43f7072b0cae73::t_51b98dfbe7fad8 184-185
+  s_e288f5e0b6851d::t_5cd4c177035c8f 2-3,9-11,46-81,144-183
+src/runtime/plugins/06.redirect.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 4,7,9,14,18-20,22,27,29,31-34
+test/n3.spec.ts
+  s_e288f5e0b6851d::t_8a1089bec8f173 7,42-108,121-125,130-134,139-143,157,162,167,177
+packages/node/src/loader.ts
+  s_e288f5e0b6851d::t_d0d6e69a101b70 40
+  s_e288f5e0b6851d::t_5cd4c177035c8f 23-39,41-43
+src/module.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 1,23,25,28,38,115,178-180,182,202,263-264,291,304,375,421,424,429-438,552-557,559-560,575-586,618-627
+packages/devtools-ui/vite/plugin.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 32-36,38-39
+packages/test-utils/src/publish-smoke.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 86-94
+src/runtime/server/middleware/i18n.global.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 12,15,27,50-59,62
+packages/core/src/translation.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 2,17,20,27,34,37-39,42-48,51,54,57,59,63-69
+packages/utils/src/normalize.ts
+  s_e288f5e0b6851d::t_ea9c50ba8b49c1 1-19
+packages/utils/src/build.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 30-31,123-126
+packages/core/src/index.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 5-6,12-14,16,23-27,36
+packages/core/tests/perf-benchmark.test.ts
+  s_e288f5e0b6851d::t_da3b5ca13ef9b4 291-292
+  s_43f7072b0cae73::t_275c3118ddaf71 224-231
+  s_43f7072b0cae73::t_d43263d7fa6f46 1-156,159-218,223,232-256,258-290,293-320,339-389
+  s_43f7072b0cae73::t_b780d4c15340d4 219-222
+  s_e288f5e0b6851d::t_b632e036c6671f 321-338
+test/seo-auto.spec.ts
+  s_e288f5e0b6851d::t_28e48a2a62adc0 160-161
+docs/guide/performance-results.md
+  h_ee6cac30a1b83a 32,34,39-47,52-60,65-73,80-82,102-104,110-113,116-117,123,125-128,133-139,147,149,173-180,189-192,195-196,202-207,212-218,226,228,252-253,255,258-259,269-272,275-276,282-287,292-298,306,308,332-339,350-352,357-359,366,380,391-393,402-409,416-423,430-437
+src/runtime/composables/useI18n.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 1
+packages/devtools-ui/src/views/I18nView.vue
+  s_e288f5e0b6851d::t_5cd4c177035c8f 196-204
+packages/route-strategy/tests/critical-scenarios.test.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 222
+src/runtime/utils/nuxt-i18n.ts
+  s_43f7072b0cae73::t_a4a0d3188892c4 23-57
+  s_43f7072b0cae73::t_c826cefc519e9f 179-180
+  s_43f7072b0cae73::t_d6d63680e35a37 382-384
+  s_43f7072b0cae73::t_5407110d0cbf00 408
+  s_e288f5e0b6851d::t_e8f08b55e843f2 302,304-305,307-308
+  s_43f7072b0cae73::t_30335497f08198 138
+  s_43f7072b0cae73::t_cb602b8a743e4d 10,14-21,94,112,196,199,201,203,205,207,212-213,215-217,219-221,223-232,234-238,240,242-248,250-251,253,255-256,258-298,301,303,310,312-318,320-347,349,375-381,385-407,409-416,418-426,428-431,433-434,436,447-452,457
+  s_e288f5e0b6851d::t_e97db7161e77fd 306
+  s_43f7072b0cae73::t_a7c823bd4ad98a 58-93,95-111,113-137,139-178,181-195,197-198,200,202,204,210-211,214,218,222,233,239,241,249,252,254,257,299-300,309,311,453,456
+  s_43f7072b0cae73::t_c774f6fc6f6ca6 435
+  s_43f7072b0cae73::t_5550a2f59fed78 1-9
+  s_43f7072b0cae73::t_73e505cd95a99f 12
+  s_43f7072b0cae73::t_d363e3bf8c0856 11
+  s_43f7072b0cae73::t_0d23e5fe815f2e 319
+  s_43f7072b0cae73::t_08713c1895571f 427
+  s_43f7072b0cae73::t_445de56b0e7688 22
+  s_43f7072b0cae73::t_df3fe268823caf 432
+  s_43f7072b0cae73::t_23369d78d26ee5 348,350-374
+  s_43f7072b0cae73::t_9681a594a1ab7e 13
+  s_43f7072b0cae73::t_818078052b37b5 206,208-209
+  s_43f7072b0cae73::t_f6a30d77f36b43 417
+  s_43f7072b0cae73::t_fd34c97c276c31 437-446
+  s_43f7072b0cae73::t_14d19fccc3879d 454-455,458
+pnpm-workspace.yaml
+  s_e288f5e0b6851d::t_56560f5523ef1b 33
+src/runtime/server/utils/server-loader.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 18,43,63,75-81
+internals.d.mts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 16
+src/runtime/plugins/05.hooks.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 10-30,32-35,41,46-57
+packages/utils/src/merge-source.ts
+  s_e288f5e0b6851d::t_5cd4c177035c8f 46-47
+test/nuxt-i18n.test.ts
+  s_43f7072b0cae73::t_752bfd9aa5858f 1-25,27-99
+  s_43f7072b0cae73::t_e7aba18a90d45f 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "20f3c55246d3a4c40d4a517d146d054bc5945c96",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    },
+    "s_e288f5e0b6851d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "aab14fc1-6f17-4928-9423-e34b757e4e34",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

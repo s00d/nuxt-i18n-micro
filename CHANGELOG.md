@@ -1,6 +1,39 @@
 # Changelog
 
 
+## v3.20.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.19.0...v3.20.0)
+
+### 🩹 Fixes
+
+- **docs:** Remove one-off OG script and shorten SEO descriptions ([4f737e43](https://github.com/s00d/nuxt-i18n-micro/commit/4f737e43))
+- **docs:** Restore home page hero and features frontmatter ([a82944f3](https://github.com/s00d/nuxt-i18n-micro/commit/a82944f3))
+- **hmr:** Resolve TS6059 publish-smoke import outside rootDir ([2d864ee7](https://github.com/s00d/nuxt-i18n-micro/commit/2d864ee7))
+- **test-utils:** Include publish-smoke in published files ([e27fd6ce](https://github.com/s00d/nuxt-i18n-micro/commit/e27fd6ce))
+- Address cubic PR review findings ([47ce12af](https://github.com/s00d/nuxt-i18n-micro/commit/47ce12af))
+- **define-route:** Restore writeMetaFile closure over metaByFile ([e57f7952](https://github.com/s00d/nuxt-i18n-micro/commit/e57f7952))
+
+### 💅 Refactors
+
+- **runtime:** Extract NuxtI18n layer and fix SSR/client regressions ([20f3c552](https://github.com/s00d/nuxt-i18n-micro/commit/20f3c552))
+
+### 📖 Documentation
+
+- Audit fixes, configuration reference, and Astro routing cleanup ([eda8f471](https://github.com/s00d/nuxt-i18n-micro/commit/eda8f471))
+- Put Guide before Integrations in top nav ([f2caf6b3](https://github.com/s00d/nuxt-i18n-micro/commit/f2caf6b3))
+- Sync guides with PR #229 runtime architecture ([#229](https://github.com/s00d/nuxt-i18n-micro/issues/229))
+
+### 🏡 Chore
+
+- Migrate to oxlint/oxfmt and improve docs SEO ([feab68a8](https://github.com/s00d/nuxt-i18n-micro/commit/feab68a8))
+- **docs:** Remove one-off text-to-i18n gif generator script ([d9deeb5a](https://github.com/s00d/nuxt-i18n-micro/commit/d9deeb5a))
+- **packages:** Bump package versions for multiple modules ([e8b449e5](https://github.com/s00d/nuxt-i18n-micro/commit/e8b449e5))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.19.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.18.3...v3.19.0)

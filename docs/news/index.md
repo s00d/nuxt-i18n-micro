@@ -6,6 +6,87 @@ outline: "deep"
 
 # News
 
+## Nuxt I18n Micro v3.20.0 — Runtime Layer Refactor & Redirect Split
+
+**Status**: Unreleased (planned)
+
+**Version**: `v3.20.0`
+
+![v3.20.0 release](/3.20.0.png)
+
+This release refactors the Nuxt runtime into a dedicated **`NuxtI18n`** layer, splits server/client redirect handling, and fixes several SSR/hydration regressions. Public composables and `nuxt.config` options stay the same for typical apps.
+
+### What's New?
+
+#### `NuxtI18n` & `NuxtTranslationLoader`
+
+Runtime i18n logic moves out of the monolithic plugin into focused classes:
+
+- **`NuxtI18n`** — active translation view layer (`$t`, `$has`, locale/route context, transition merge/cleanup)
+- **`NuxtTranslationLoader`** — loads chunks, switches context on navigation, seeds SSR payload
+- **`createNuxtI18nPluginApi`** — thin plugin surface (`$switchLocale`, `$localeRoute`, etc.)
+
+See updated [Cache & Storage Architecture](/api/i18n-cache-api) and [Performance](/guide/performance).
+
+#### SSR Payload via `useState('i18n-ssr-chunks')`
+
+SSR translations are serialized through **Nuxt state**, not a `window.__I18N__` script tag:
+
+1. Server loads chunks → `useState('i18n-ssr-chunks')`
+2. Client hydrates → `translationStorage.seedFromSsrChunks()`
+3. Zero extra fetches on first paint
+
+The legacy `window.__I18N__` read path is **removed**.
+
+#### Redirect Architecture Split
+
+Redirects are now environment-specific for clearer behavior and fewer client jank:
+
+| Environment | Component | Role |
+|-------------|-----------|------|
+| **Server SSR** | `06.redirect.ts` (server-only) | 302 before render, 404 checks, cookie sync |
+| **Client SPA** | `i18n-redirect.global.ts` | Global route middleware on navigation |
+
+Client redirects derive locale from the **target route**, preserve **query string and hash**, and respect `redirects: false` (middleware not registered). See [Routing Strategies — Redirect Architecture](/guide/strategy#-redirect-architecture-v3).
+
+#### `i18n:register` Hook Timing
+
+The **`05.hooks`** plugin (`dependsOn: i18n-plugin-loader`) fires `i18n:register` after the loader is ready — on startup and on navigation — so user plugins reliably receive the event. Disable with `hooks: false`. See [Events](/api/events).
+
+#### Build-Time `defineI18nRoute` Extraction
+
+A Vite unplugin scans page `.vue` files at build time and writes route meta for `@i18n-micro/route-strategy`. Runtime `$defineI18nRoute` in `script setup` remains for dev and inline config. See [Per-Component Translations](/guide/per-component-translations).
+
+### Bug Fixes
+
+- **SSR hydration** — clone reactive SSR chunks before `Object.freeze` (fixes client `#locale` / 404 crashes)
+- **Locale switch** — replace view layer on locale change (no stale keys from previous locale)
+- **Client redirect** — locale from target route; query/hash preserved on redirect
+- **`has()`** — checks active locale only; fallback applies in `$t()`, not in `$has()`
+- **`defineI18nRoute` meta** — per-plugin-instance cache; longest `rootDir` match; correct `pages/index` vs `pages/index/index` paths
+
+### Documentation
+
+Guides and API reference updated for the new architecture:
+
+- [Strategy](/guide/strategy), [v3 Upgrade](/guide/v3-upgrade), [Custom Language Detection](/guide/custom-auto-detect)
+- [FAQ — switch locale without changing the URL](/guide/faq#-switch-locale-without-changing-the-url)
+- [Configuration](/guide/configuration) — `redirects` and `hooks` behavior
+
+### Breaking Changes
+
+None for standard `nuxt.config` + composables usage. Internal paths and SSR injection mechanism changed; apps that relied on manual `window.__I18N__` injection must use Nuxt payload / module APIs instead.
+
+### Why It Matters
+
+- **More reliable SSR → client handoff** — Nuxt-native state instead of ad-hoc globals
+- **Clearer redirect model** — server 302 before paint; client middleware only where needed
+- **Easier to maintain** — runtime split into testable units with focused regression tests
+
+Full changelog will be published with the release on [GitHub](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
+
+---
+
 ## Nuxt I18n Micro v3.19.0 — Utils & HMR Packages, Source Payload Mode
 
 **Date**: 2026-05-25

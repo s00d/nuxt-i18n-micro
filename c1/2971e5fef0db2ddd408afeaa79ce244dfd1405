@@ -1,0 +1,32 @@
+playground/pages/scroll-test.vue
+  s_e288f5e0b6851d::t_d3edeed98ef88d 24,35,41
+playground/locales/pages/scroll-test/de.json
+  s_e288f5e0b6851d::t_33018dcd94a22c 4
+docs/guide/faq.md
+  s_e288f5e0b6851d::t_9103f12181baab 96,98,100,102,125,127,132,134
+  s_e288f5e0b6851d::t_b8a4d0d55b0973 90-95,97,99,101,103-111,113-115,117-120,122-124,126,131,133,135
+  s_e288f5e0b6851d::t_3185aaa1fcaa36 112,116,121,128-130
+playground/components/SwitchLocalePreserve.vue
+  s_e288f5e0b6851d::t_fc60993e8ec308 1-7,21-30,32,189,197-206,211
+  s_e288f5e0b6851d::t_64df8ddb3650c8 9,17,31,33-36,38-39,58,90-92,96-98,104,169-171,173,175-177,179-187,190-193,195-196,209
+playground/locales/pages/scroll-test/en.json
+  s_e288f5e0b6851d::t_ee26f02d444129 4
+playground/locales/pages/scroll-test/ru.json
+  s_e288f5e0b6851d::t_c0c764a77a9a2c 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "c12971e5fef0db2ddd408afeaa79ce244dfd1405",
+  "prompts": {},
+  "sessions": {
+    "s_e288f5e0b6851d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "aab14fc1-6f17-4928-9423-e34b757e4e34",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

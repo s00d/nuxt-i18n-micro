@@ -21,7 +21,7 @@
       <p>{{ $t('filler') }}</p>
     </section>
 
-    <section id="scroll-test-switcher" class="scroll-test__switcher">
+    <SwitchLocalePreserve class="scroll-test__switcher">
       <h2>{{ $t('switcher_title') }}</h2>
       <p>{{ $t('switcher_hint') }}</p>
       <p>
@@ -32,13 +32,13 @@
           v-for="locale in locales"
           :key="locale.code"
           type="button"
+          :data-locale="locale.code"
           :disabled="locale.code === currentLocale"
-          @click="(event) => onSwitchLocale(locale.code, event)"
         >
           {{ locale.code }}
         </button>
       </div>
-    </section>
+    </SwitchLocalePreserve>
 
     <section
       v-for="section in sectionsAfter"
@@ -65,7 +65,6 @@ definePageMeta({
 })
 
 const { $getLocales, $getLocale, $localeRoute, $t } = useI18n()
-const { switchLocale } = useSwitchLocalePreserveScroll()
 
 const sectionsBefore = Array.from({ length: 10 }, (_, i) => i + 1)
 const sectionsAfter = Array.from({ length: 10 }, (_, i) => i + 11)
@@ -86,10 +85,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', updateScrollY)
 })
-
-function onSwitchLocale(code: string, event: MouseEvent) {
-  switchLocale(code, event)
-}
 </script>
 
 <style scoped>

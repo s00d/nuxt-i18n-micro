@@ -87,6 +87,52 @@ If you only need the target URL (for example, a language switcher link), use `$s
 
 See [Route & Locale Switching](/api/methods#-route-locale-switching) for all switching methods.
 
+### ❓ Page scrolls to top (or jumps) when switching locale?
+
+That's expected — it's **Vue Router / Nuxt scroll behavior**, not something specific to nuxt-i18n-micro.
+
+With prefix strategies (`prefix`, `prefix_except_default`, …), `$switchLocale()` performs a normal client navigation (`/en/page` → `/de/page`). Nuxt's default [`scrollBehavior`](https://github.com/nuxt/nuxt/blob/main/packages/nuxt/src/pages/runtime/router.options.ts) scrolls to the top on route changes (except browser back/forward via `savedPosition`).
+
+nuxt-i18n-micro does not add hidden scroll handling — use a small wrapper component in your app.
+
+**`SwitchLocalePreserve` wrapper**
+
+Copy [`playground/components/SwitchLocalePreserve.vue`](https://github.com/s00d/nuxt-i18n-micro/blob/main/playground/components/SwitchLocalePreserve.vue) into your project (`components/SwitchLocalePreserve.vue`). Working demo: [`playground/pages/scroll-test.vue`](https://github.com/s00d/nuxt-i18n-micro/blob/main/playground/pages/scroll-test.vue).
+
+On the page, set `scrollToTop: false` and wrap your switcher UI. Mark clickable targets with `data-locale` — the wrapper intercepts clicks, calls `$switchLocale`, and restores scroll (including when translation length changes layout):
+
+```vue
+<script setup lang="ts">
+definePageMeta({ scrollToTop: false })
+
+const { $getLocales, $getLocale } = useI18n()
+</script>
+
+<template>
+  <SwitchLocalePreserve root-id="lang-switcher">
+    <button
+      v-for="locale in $getLocales()"
+      :key="locale.code"
+      :data-locale="locale.code"
+      :disabled="locale.code === $getLocale()"
+    >
+      {{ locale.code }}
+    </button>
+  </SwitchLocalePreserve>
+</template>
+```
+
+The component:
+
+1. **On click** — reads `data-locale` on the clicked element inside the slot (buttons, links, or any custom markup).
+2. **Before** `$switchLocale` — stores `scrollY` and the clicked element position (keeps it under the cursor).
+3. **During** navigation — patches `router.options.scrollBehavior` once and returns `{ top: scrollY }` instead of scrolling to top.
+4. **After** navigation — waits for `page:finish`, then re-applies scroll while a `ResizeObserver` catches layout shifts from different translation lengths.
+
+`scrollToTop: false` is required on pages where you use this wrapper. Docs: [Nuxt — `scrollToTop`](https://nuxt.com/docs/guide/recipes/custom-routing#scroll-behavior).
+
+Do not call `$switchLocale` directly on wrapped controls — the wrapper handles switching. For `<NuxtLink :to="$switchLocalePath('fr')">` outside the wrapper, scroll behavior follows normal Nuxt routing unless you add your own `app/router.options.ts`.
+
 ## 🌐 Translation Issues
 
 ### ❓ Why do translations break during page transitions, especially with `defineAsyncComponent`?

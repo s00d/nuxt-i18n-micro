@@ -1,6 +1,12 @@
+<template>
+  <div :id="rootId" ref="rootRef" @click.capture="onClick">
+    <slot />
+  </div>
+</template>
+
+<script setup lang="ts">
 interface ScrollPreservePointer {
-  root: string
-  tag: string
+  rootId: string
   index: number
   clientY: number
   offsetY: number
@@ -8,12 +14,29 @@ interface ScrollPreservePointer {
 }
 
 const POINTER_STATE_KEY = 'playground:scroll-preserve-pointer'
+const LOCALE_TARGET_SELECTOR = '[data-locale]'
 
 let scrollBehaviorPatched = false
 
+const props = withDefaults(
+  defineProps<{
+    rootId?: string
+  }>(),
+  {
+    rootId: 'scroll-test-switcher',
+  },
+)
+
+const rootRef = ref<HTMLElement | null>(null)
+const { $getLocale, $switchLocale } = useI18n()
+const currentLocale = computed(() => $getLocale())
+const pointerState = useState<ScrollPreservePointer | null>(POINTER_STATE_KEY, () => null)
+
+ensureScrollBehavior()
+
 function applyPointerScroll(pointer: ScrollPreservePointer): void {
-  const root = document.querySelector(pointer.root)
-  const el = root?.querySelectorAll(pointer.tag)[pointer.index]
+  const root = document.getElementById(pointer.rootId)
+  const el = root?.querySelectorAll(LOCALE_TARGET_SELECTOR)[pointer.index]
   if (!el) {
     return
   }
@@ -32,7 +55,7 @@ function scheduleRefine(pointer: ScrollPreservePointer): void {
   })
 }
 
-function ensureScrollBehavior(pointerState: Ref<ScrollPreservePointer | null>): void {
+function ensureScrollBehavior(): void {
   if (scrollBehaviorPatched || typeof window === 'undefined') {
     return
   }
@@ -64,27 +87,21 @@ function ensureScrollBehavior(pointerState: Ref<ScrollPreservePointer | null>): 
   }
 }
 
-function capturePointer(event: MouseEvent, rootSelector: string): ScrollPreservePointer | null {
-  const target = event.currentTarget
-  if (!(target instanceof HTMLButtonElement)) {
+function capturePointer(event: MouseEvent, root: HTMLElement): ScrollPreservePointer | null {
+  const target = (event.target as Element).closest(LOCALE_TARGET_SELECTOR)
+  if (!target || !root.contains(target)) {
     return null
   }
 
-  const root = target.closest(rootSelector)
-  if (!root) {
-    return null
-  }
-
-  const buttons = [...root.querySelectorAll('button')]
-  const index = buttons.indexOf(target)
-  if (index < 0) {
+  const targets = [...root.querySelectorAll(LOCALE_TARGET_SELECTOR)]
+  const index = targets.indexOf(target)
+  if (index < 0 || !root.id) {
     return null
   }
 
   const rect = target.getBoundingClientRect()
   return {
-    root: rootSelector,
-    tag: 'button',
+    rootId: root.id,
     index,
     clientY: event.clientY,
     offsetY: event.clientY - rect.top,
@@ -149,35 +166,46 @@ function restoreUntilStable(pointer: ScrollPreservePointer): Promise<void> {
   })
 }
 
-/**
- * Demo for discussion #228 — save scroll, $switchLocale, restore after layout.
- * Pair with definePageMeta({ scrollToTop: false }) on the page.
- */
-export function useSwitchLocalePreserveScroll(rootSelector = '#scroll-test-switcher') {
-  const { $switchLocale } = useI18n()
-  const pointerState = useState<ScrollPreservePointer | null>(POINTER_STATE_KEY, () => null)
+async function switchLocale(code: string, event: MouseEvent, root: HTMLElement) {
+  const pointer = capturePointer(event, root)
+  const scrollY = window.scrollY
 
-  ensureScrollBehavior(pointerState)
+  pointerState.value = pointer
 
-  async function switchLocale(code: string, event?: MouseEvent) {
-    const pointer = event ? capturePointer(event, rootSelector) : null
-    const scrollY = window.scrollY
+  try {
+    await $switchLocale(code)
+    await waitForPageSettled()
 
-    pointerState.value = pointer
-
-    try {
-      await $switchLocale(code)
-      await waitForPageSettled()
-
-      if (pointer) {
-        await restoreUntilStable(pointer)
-      } else {
-        window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' })
-      }
-    } finally {
-      pointerState.value = null
+    if (pointer) {
+      await restoreUntilStable(pointer)
+    } else {
+      window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' })
     }
+  } finally {
+    pointerState.value = null
+  }
+}
+
+function onClick(event: MouseEvent) {
+  const root = rootRef.value
+  if (!root) {
+    return
   }
 
-  return { switchLocale }
+  const target = (event.target as Element).closest(LOCALE_TARGET_SELECTOR)
+  if (!target || !root.contains(target)) {
+    return
+  }
+
+  const locale = target.getAttribute('data-locale')
+  if (!locale || locale === currentLocale.value) {
+    return
+  }
+
+  if (target instanceof HTMLAnchorElement) {
+    event.preventDefault()
+  }
+
+  switchLocale(locale, event, root)
 }
+</script>

@@ -1,7 +1,7 @@
 {
   "title": "scrollToTop: false Demo",
   "description": "Lange Seite zum Testen des Scroll-Verhaltens bei $switchLocale. Zur Mitte scrollen und Sprache wechseln.",
-  "meta_hint": "useSwitchLocalePreserveScroll() — speichern, $switchLocale, wiederherstellen. scrollToTop: false.",
+  "meta_hint": "SwitchLocalePreserve + scrollToTop: false. Ziele mit data-locale markieren — Klicks übernimmt der Wrapper.",
   "section": "Abschnitt {n}",
   "filler": "Langer deutscher Text — jeder Block ist deutlich höher als auf Englisch. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
   "switcher_title": "Sprachumschalter",

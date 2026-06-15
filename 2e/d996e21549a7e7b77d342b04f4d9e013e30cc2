@@ -1,0 +1,60 @@
+docs/guide/custom-auto-detect.md
+  s_e288f5e0b6851d::t_e7da347c4a1984 147-148
+  s_e288f5e0b6851d::t_86e36abddcd538 19-23,27-28,32-33,35-36,39
+  s_e288f5e0b6851d::t_e6f9c5ad832d65 139-140
+docs/api/i18n-cache-api.md
+  s_e288f5e0b6851d::t_294ce976851b9d 62
+  s_e288f5e0b6851d::t_5e1a9208fb21cd 44-46
+  s_e288f5e0b6851d::t_f583f679da03ee 119,121,123,125
+  s_e288f5e0b6851d::t_f4b32454929fee 236
+  s_e288f5e0b6851d::t_d5326b1f4d9140 63
+src/runtime/utils/storage.ts
+  s_e288f5e0b6851d::t_8c1b104c44d86f 131
+docs/api/methods.md
+  s_e288f5e0b6851d::t_d6d4319a347d24 341,348-349,352-354
+  s_e288f5e0b6851d::t_a34fccc7cb8889 618
+docs/guide/getting-started.md
+  s_e288f5e0b6851d::t_4bbfea6ea6f258 297-298,304-305,309-315,318-320
+  s_e288f5e0b6851d::t_1903af8d794211 325
+docs/api/events.md
+  s_e288f5e0b6851d::t_913c9f7ad86d45 58-71
+  s_e288f5e0b6851d::t_9ad45a5777d33c 75
+  s_e288f5e0b6851d::t_eb304de56386af 29-39
+docs/guide/per-component-translations.md
+  s_e288f5e0b6851d::t_944e7e47af0ea4 53-61
+docs/guide/performance.md
+  s_e288f5e0b6851d::t_7dcecaeb98948a 220,222,224,226
+docs/guide/strategy.md
+  s_e288f5e0b6851d::t_081ab994cc1d4b 175-178
+  s_e288f5e0b6851d::t_4ad2046286a694 122,127-128,130,137,142-145,149,156
+docs/guide/v3-upgrade.md
+  s_e288f5e0b6851d::t_72ea53be652379 31
+  s_e288f5e0b6851d::t_7461a0c60e53d0 26
+  s_e288f5e0b6851d::t_f1cf4d52aa985b 123-124
+  s_e288f5e0b6851d::t_473136f1331902 39-40
+docs/guide/configuration.md
+  s_e288f5e0b6851d::t_f8328f6baff2ac 451-456,462
+  s_e288f5e0b6851d::t_1605fe79c4d3b3 478,484,487
+docs/composables/useI18nLocale.md
+  s_e288f5e0b6851d::t_d89a8866db27b8 101-104
+docs/guide/faq.md
+  s_e288f5e0b6851d::t_ba6c7e791933df 65-89
+docs/guide/migration.md
+  s_e288f5e0b6851d::t_18d4a6ee530af6 206
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "2ed996e21549a7e7b77d342b04f4d9e013e30cc2",
+  "prompts": {},
+  "sessions": {
+    "s_e288f5e0b6851d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "aab14fc1-6f17-4928-9423-e34b757e4e34",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

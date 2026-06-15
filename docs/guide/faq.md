@@ -129,7 +129,7 @@ The component:
 3. **During** navigation — patches `router.options.scrollBehavior` once and returns `{ top: scrollY }` instead of scrolling to top.
 4. **After** navigation — waits for `page:finish`, then re-applies scroll while a `ResizeObserver` catches layout shifts from different translation lengths.
 
-`scrollToTop: false` is required on pages where you use this wrapper. Docs: [Nuxt — `scrollToTop`](https://nuxt.com/docs/guide/recipes/custom-routing#scroll-behavior).
+`scrollToTop: false` is required on pages where you use this wrapper. Docs: [Nuxt — `definePageMeta` / `scrollToTop`](https://nuxt.com/docs/4.x/api/utils/define-page-meta#meta).
 
 Do not call `$switchLocale` directly on wrapped controls — the wrapper handles switching. For `<NuxtLink :to="$switchLocalePath('fr')">` outside the wrapper, scroll behavior follows normal Nuxt routing unless you add your own `app/router.options.ts`.
 

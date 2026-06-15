@@ -23,6 +23,10 @@ const navLinks = computed(() => [
     to: 'contact',
     label: $t('navigation.contact'),
   },
+  {
+    to: 'scroll-test',
+    label: $t('navigation_component.scroll_test'),
+  },
 ])
 </script>
 

@@ -1,0 +1,12 @@
+{
+  "title": "scrollBehavior demo",
+  "description": "Long page for testing scroll when switching locale with $switchLocale. Scroll to the switcher in the middle, then change language.",
+  "meta_hint": "useSwitchLocalePreserveScroll() — save, $switchLocale, restore. scrollToTop: false on this page.",
+  "section": "Section {n}",
+  "filler": "Short English text — page height is smaller in this locale.",
+  "switcher_title": "Locale switcher",
+  "switcher_hint": "Click a locale — the button should stay under the cursor after switch (even when block height changes).",
+  "current_locale": "Current locale",
+  "footer": "End of page.",
+  "back_home": "Back to home"
+}

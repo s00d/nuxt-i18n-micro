@@ -1,0 +1,12 @@
+{
+  "title": "Демо scrollToTop: false",
+  "description": "Длинная страница для проверки скролла при $switchLocale. Прокрутите к переключателю и смените язык.",
+  "meta_hint": "useSwitchLocalePreserveScroll() — сохранить, $switchLocale, восстановить. scrollToTop: false.",
+  "section": "Секция {n}",
+  "filler": "Средний по длине русский текст — выше английского, ниже немецкого.",
+  "switcher_title": "Переключатель локали",
+  "switcher_hint": "Нажмите локаль — кнопка останется под курсором.",
+  "current_locale": "Текущая локаль",
+  "footer": "Конец страницы.",
+  "back_home": "На главную"
+}

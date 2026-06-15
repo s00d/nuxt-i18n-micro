@@ -4,7 +4,8 @@
   },
   "navigation_component": {
     "title": "Navigation DE",
-    "home": "Home DE"
+    "home": "Home DE",
+    "scroll_test": "Scroll-Test (scrollBehavior)"
   },
   "key1": {
     "key1": {

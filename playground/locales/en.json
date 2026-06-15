@@ -8,7 +8,8 @@
   },
   "navigation_component": {
     "title": "Navigation EN",
-    "home": "Home"
+    "home": "Home",
+    "scroll_test": "Scroll test (scrollBehavior)"
   },
   "key1": {
     "key1": {

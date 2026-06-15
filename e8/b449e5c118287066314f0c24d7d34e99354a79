@@ -1,0 +1,24 @@
+packages/test-utils/package.json
+  h_ee6cac30a1b83a 3
+packages/devtools-ui/package.json
+  h_ee6cac30a1b83a 3
+packages/hmr/package.json
+  h_ee6cac30a1b83a 3
+packages/route-strategy/package.json
+  h_ee6cac30a1b83a 3
+packages/path-strategy/package.json
+  h_ee6cac30a1b83a 3
+packages/node/package.json
+  h_ee6cac30a1b83a 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "e8b449e5c118287066314f0c24d7d34e99354a79",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

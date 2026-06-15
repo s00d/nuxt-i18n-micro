@@ -1,0 +1,20 @@
+docs/news/index.md
+  s_e288f5e0b6851d::t_183f4470917bf8 15-16
+  s_e288f5e0b6851d::t_0d75cfe076e1fd 9-14,17-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "9f51968482ac74d653a53f6cb4bd7c48b5b85a46",
+  "prompts": {},
+  "sessions": {
+    "s_e288f5e0b6851d": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "aab14fc1-6f17-4928-9423-e34b757e4e34",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

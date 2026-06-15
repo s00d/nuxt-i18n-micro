@@ -150,12 +150,17 @@ export function extractDefineI18nRouteData(content: string, _filePath: string): 
 
 export function pageFilePathToRoutePath(pageFile: string, rootDir: string): string {
   const relative = pageFile.replace(rootDir, '').replace(/^[/\\]+/, '')
-  const raw = relative
-    .replace(/^(app[/\\])?pages[/\\]/, '')
+  const withoutPagesPrefix = relative.replace(/^(app[/\\])?pages[/\\]/, '')
+
+  if (withoutPagesPrefix === 'index.vue') {
+    return '/'
+  }
+
+  const raw = withoutPagesPrefix
     .replace(/[/\\]index\.vue$/, '')
     .replace(/\.vue$/, '')
     .replace(/[/\\]$/, '')
     .replace(/\\/g, '/')
 
-  return raw === '' || raw === 'index' ? '/' : raw
+  return raw === '' ? '/' : raw
 }

@@ -6,8 +6,13 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import type { RouteLocationNormalized } from 'vue-router'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
+
+function redirectTo(path: string, to: RouteLocationNormalized) {
+  return navigateTo({ path, query: to.query, hash: to.hash }, { replace: true, redirectCode: 302 })
+}
 
 export default defineNuxtRouteMiddleware((to, from) => {
   if (import.meta.server) return
@@ -48,11 +53,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
     } else {
       targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
     }
-    return navigateTo(targetPath, { replace: true, redirectCode: 302 })
+    return redirectTo(targetPath, to)
   }
 
   const redirectPath = i18nStrategy.getClientRedirect(path, preferredLocale)
   if (redirectPath) {
-    return navigateTo(redirectPath, { replace: true, redirectCode: 302 })
+    return redirectTo(redirectPath, to)
   }
 })

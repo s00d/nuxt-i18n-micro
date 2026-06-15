@@ -142,7 +142,7 @@ export class NuxtI18n extends BaseI18n {
       this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, data)
       this.pendingCleanState = data
     } else {
-      this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, data)
+      this.cachedTranslations = data
       this.pendingCleanState = null
     }
 

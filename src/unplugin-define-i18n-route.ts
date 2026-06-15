@@ -15,10 +15,9 @@ export interface DefineI18nRoutePluginOptions {
   onMetaUpdate?: (entries: DefineI18nRouteMeta[]) => void
 }
 
-const metaByFile = new Map<string, DefineI18nRouteMeta | null>()
-
 function resolveRootDir(filePath: string, rootDirs: string[]): string | undefined {
-  return rootDirs.find((root) => filePath.startsWith(root))
+  const sorted = [...rootDirs].sort((a, b) => b.length - a.length)
+  return sorted.find((root) => filePath.startsWith(root))
 }
 
 function writeMetaFile(buildDir: string, onMetaUpdate?: (entries: DefineI18nRouteMeta[]) => void) {
@@ -31,6 +30,8 @@ function writeMetaFile(buildDir: string, onMetaUpdate?: (entries: DefineI18nRout
 }
 
 export function createDefineI18nRoutePlugin(options: DefineI18nRoutePluginOptions) {
+  const metaByFile = new Map<string, DefineI18nRouteMeta | null>()
+
   return createUnplugin(() => ({
     name: 'nuxt-i18n-micro-define-route',
     enforce: 'pre',

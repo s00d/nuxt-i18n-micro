@@ -89,7 +89,9 @@ export abstract class BaseI18n {
    * Check if translation exists in lookup source.
    */
   protected resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
-    return this.resolveLookup(key, routeContext) !== null
+    const locale = this.getLocale()
+    const routeName = this.resolveRouteName(routeContext)
+    return this.helper.getTranslation(locale, routeName, String(key)) !== null
   }
 
   /**

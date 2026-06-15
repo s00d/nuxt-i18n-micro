@@ -38,6 +38,16 @@ describe('NuxtI18n', () => {
     expect(i18n.t('title')).toBe('DE A')
   })
 
+  it('does not leak previous-locale keys after locale switch', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { onlyInEn: 'English only', title: 'EN' })
+    i18n.applySwitchContext('de', 'page-a', { title: 'DE' })
+
+    expect(i18n.t('title')).toBe('DE')
+    expect(i18n.has('onlyInEn')).toBe(false)
+    expect(i18n.t('onlyInEn')).toBe('onlyInEn')
+  })
+
   it('resolves route-specific translations via tForRoute', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     i18n.setRouteContextResolver((route) => route as { locale: string; routeName: string })

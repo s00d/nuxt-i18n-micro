@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/test-utils",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Testing helpers for Nuxt I18n Micro (translations, locales, formatting mocks).",
   "keywords": [
     "i18n",

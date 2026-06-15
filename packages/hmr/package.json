@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/hmr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Translation HMR utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "hmr",

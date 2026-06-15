@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { pollUntil } from './sequential'
 
 export const translationWatcherFixtureRoot = fileURLToPath(new URL('../fixtures/translation-watcher', import.meta.url))
 
@@ -53,35 +54,28 @@ export async function waitForTranslationPayloadValue(
 ): Promise<void> {
   const normalizedBase = baseURL.endsWith('/') ? baseURL : `${baseURL}/`
   const url = new URL(`_locales/${page}/${locale}/data.json`, normalizedBase)
-  const deadline = Date.now() + timeoutMs
 
-  while (Date.now() < deadline) {
-    const response = await fetch(url)
-    if (response.ok) {
+  await pollUntil(
+    async () => {
+      const response = await fetch(url)
+      if (!response.ok) return false
       const data = (await response.json()) as Record<string, string>
-      if (data[key] === expected) {
-        return
-      }
-    }
-    await new Promise((resolve) => setTimeout(resolve, 250))
-  }
-
-  throw new Error(`Timed out waiting for ${url.toString()} key "${key}" to become "${expected}"`)
+      return data[key] === expected
+    },
+    { timeoutMs, message: `Timed out waiting for ${url.toString()} key "${key}" to become "${expected}"` },
+  )
 }
 
 export async function waitForTranslationHtmlValue(pageUrl: string, selector: string, expected: string, timeoutMs = 20_000): Promise<void> {
   const elementId = selector.startsWith('#') ? selector.slice(1) : selector
-  const deadline = Date.now() + timeoutMs
+  const escaped = expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const pattern = new RegExp(`id="${elementId}"[^>]*>\\s*${escaped}\\s*<`)
 
-  while (Date.now() < deadline) {
-    const html = await fetch(pageUrl).then((response) => response.text())
-    const escaped = expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const pattern = new RegExp(`id="${elementId}"[^>]*>\\s*${escaped}\\s*<`)
-    if (pattern.test(html)) {
-      return
-    }
-    await new Promise((resolve) => setTimeout(resolve, 250))
-  }
-
-  throw new Error(`Timed out waiting for SSR ${pageUrl} ${selector}="${expected}"`)
+  await pollUntil(
+    async () => {
+      const html = await fetch(pageUrl).then((response) => response.text())
+      return pattern.test(html)
+    },
+    { timeoutMs, message: `Timed out waiting for SSR ${pageUrl} ${selector}="${expected}"` },
+  )
 }

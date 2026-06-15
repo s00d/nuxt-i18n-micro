@@ -5,7 +5,11 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
 function dualPackageBeforeWriteFile(filePath, content) {
-  if (!filePath.endsWith('index.d.ts')) {
+  const base = filePath
+    .split('/')
+    .pop()
+    ?.replace(/\.d\.ts$/, '')
+  if (base !== 'index' && base !== 'helpers') {
     return { filePath, content }
   }
   const ctsPath = filePath.replace(/\.d\.ts$/, '.d.cts')
@@ -17,13 +21,15 @@ function dualPackageBeforeWriteFile(filePath, content) {
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: '@i18n-micro/core',
+      entry: {
+        index: resolve(__dirname, 'src/index.ts'),
+        helpers: resolve(__dirname, 'src/helpers-entry.ts'),
+      },
       formats: ['cjs', 'es'],
-      fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
+      fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: [],
+      external: ['@i18n-micro/types'],
       output: {
         exports: 'named',
       },

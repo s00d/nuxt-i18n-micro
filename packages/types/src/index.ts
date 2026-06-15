@@ -239,6 +239,12 @@ export interface ModuleOptions {
   components?: boolean
 
   /**
+   * Preload index-page translations in Nitro global middleware (server-only, private config).
+   * @default false
+   */
+  serverTranslationPreload?: boolean
+
+  /**
    * The locale to use when no locale can be determined from URL or user preferences.
    * Also used as the fallback locale for missing translations when `fallbackLocale` is not set.
    * @default 'en'
@@ -569,6 +575,8 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   customRegexMatcher?: string | RegExp
   /** Resolved route-to-route translation sharing map. */
   routesLocaleLinks?: { [key: string]: string }
+  /** Preload index translations in Nitro global middleware. */
+  serverTranslationPreload?: boolean
 }
 
 /** Object shape for a translation value that contains singular/plural forms. */

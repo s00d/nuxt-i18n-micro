@@ -23,6 +23,7 @@ const libEntries = {
   'route-pattern': resolve(rootDir, 'src/route-pattern.ts'),
   route: resolve(rootDir, 'src/route.ts'),
   'runtime-config': resolve(rootDir, 'src/runtime-config.ts'),
+  normalize: resolve(rootDir, 'src/normalize.ts'),
   build: resolve(rootDir, 'src/build.ts'),
 } as const
 

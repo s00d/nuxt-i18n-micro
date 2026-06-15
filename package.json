@@ -120,7 +120,9 @@
     "@nuxt/kit": "catalog:",
     "chokidar": "catalog:",
     "globby": "catalog:",
-    "ufo": "catalog:"
+    "ufo": "catalog:",
+    "unplugin": "catalog:",
+    "@vue/compiler-sfc": "catalog:"
   },
   "devDependencies": {
     "oxfmt": "catalog:",

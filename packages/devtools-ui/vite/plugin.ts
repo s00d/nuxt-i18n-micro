@@ -29,12 +29,14 @@ async function scanTranslationFiles(dir: string, baseDir: string): Promise<strin
   const files: string[] = []
   try {
     const entries = await readdir(dir, { withFileTypes: true })
+    const subdirFiles = await Promise.all(
+      entries.filter((entry) => entry.isDirectory()).map((entry) => scanTranslationFiles(path.join(dir, entry.name), baseDir)),
+    )
+    files.push(...subdirFiles.flat())
+
     for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name)
-      if (entry.isDirectory()) {
-        const subFiles = await scanTranslationFiles(fullPath, baseDir)
-        files.push(...subFiles)
-      } else if (entry.isFile() && entry.name.endsWith('.json')) {
+      if (entry.isFile() && entry.name.endsWith('.json')) {
+        const fullPath = path.join(dir, entry.name)
         const relativePath = path.relative(baseDir, fullPath)
         files.push(relativePath.replace(/\\/g, '/')) // Normalize for cross-platform compatibility
       }

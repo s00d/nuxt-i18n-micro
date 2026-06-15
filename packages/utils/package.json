@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "i18n",
@@ -205,6 +205,17 @@
         "default": "./dist/runtime-config.cjs"
       },
       "default": "./dist/runtime-config.mjs"
+    },
+    "./normalize": {
+      "import": {
+        "types": "./dist/normalize.d.ts",
+        "default": "./dist/normalize.mjs"
+      },
+      "require": {
+        "types": "./dist/normalize.d.cts",
+        "default": "./dist/normalize.cjs"
+      },
+      "default": "./dist/normalize.mjs"
     },
     "./build": {
       "import": {

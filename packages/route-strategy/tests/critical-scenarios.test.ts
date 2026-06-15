@@ -219,7 +219,7 @@ describe('Critical: Alias handling', () => {
       routeLocales: {},
       noPrefixRedirect: false,
     })
-    const pagesNoPrefix: NuxtPage[] = [...pageWithAlias.map((p) => ({ ...p }))]
+    const pagesNoPrefix: NuxtPage[] = pageWithAlias.map((p) => Object.assign({}, p))
     noPrefix.extendPages(pagesNoPrefix)
     expect(pagesNoPrefix.some((r) => r.path === '/x' || r.path === '/y')).toBe(true)
     expect(pagesNoPrefix).toMatchSnapshot()

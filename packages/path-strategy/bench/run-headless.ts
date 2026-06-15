@@ -137,11 +137,12 @@ async function main() {
   const summaryRows: { browser: string; count: number; regressions: number }[] = []
 
   try {
-    for (const name of browsersToRun) {
+    await browsersToRun.reduce<Promise<void>>(async (prev, name) => {
+      await prev
       const { results, regressionCount } = await runForBrowser(name, url)
       totalRegressions += regressionCount
       summaryRows.push({ browser: name, count: results.length, regressions: regressionCount })
-    }
+    }, Promise.resolve())
 
     if (browsersToRun.length > 1) {
       console.log(`\n${'='.repeat(60)}`)

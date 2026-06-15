@@ -11,11 +11,11 @@ import { loadTranslationsFromServer } from './server-loader'
 const I18N_CONTEXT_KEY = '__i18n_translations__'
 
 export const useTranslationServerMiddleware = async (event: H3Event, defaultLocale?: string, currentLocale?: string) => {
-  const {
-    locales,
-    fallbackLocale,
-    defaultLocale: configDefaultLocale,
-  } = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig(event).public as Record<string, unknown>)
+  const config = resolveI18nConfigWithRuntimeOverrides(
+    getI18nConfig() as ModuleOptionsExtend,
+    useRuntimeConfig(event).public as Record<string, unknown>,
+  )
+  const { locales, fallbackLocale, defaultLocale: configDefaultLocale } = config
 
   const locale =
     currentLocale ||
@@ -26,6 +26,8 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
         fallbackLocale,
         defaultLocale: defaultLocale || configDefaultLocale,
         locales: getEnabledLocales(locales),
+        localeCookie: config.localeCookie,
+        autoDetectLanguage: config.autoDetectLanguage,
       },
       defaultLocale,
     )

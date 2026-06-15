@@ -15,6 +15,7 @@ import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime
 import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'
 import { useStorage } from 'nitropack/runtime'
 import { getI18nConfig } from '#i18n-internal/strategy'
+import { getI18nPrivateConfig } from '#i18n-internal/config'
 
 // ============================================================================
 // SERVER CACHE
@@ -39,13 +40,7 @@ function getServerCacheControl(): CacheControl<CacheEntry> {
 
 const ASSETS_PREFIX = 'assets:i18n'
 
-function toTranslations(data: unknown): Translations {
-  if (!data) return {}
-  if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
-    return data as Translations
-  }
-  return {}
-}
+import { toTranslations } from '@i18n-micro/utils/normalize'
 
 // ============================================================================
 // PUBLIC API
@@ -65,6 +60,7 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   }
 
   const config = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
+  const privateConfig = getI18nPrivateConfig()
   if (!isEnabledLocale(config.locales, locale)) {
     const empty = { data: {}, json: '{}' }
     cc.set(cacheKey, empty)
@@ -76,8 +72,13 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   const resolvedPage = resolveTranslationPayloadPage(routeName, routesLocaleLinks)
   const normalizedPage = resolvedPage.replace(/\//g, ':')
 
-  if (config.apiBaseServerHost) {
-    const data = await fetchTranslationPayloadFromHost(config, locale, resolvedPage, $fetch)
+  if (privateConfig.apiBaseServerHost) {
+    const data = await fetchTranslationPayloadFromHost(
+      { apiBaseUrl: config.apiBaseUrl, apiBaseServerHost: privateConfig.apiBaseServerHost, dateBuild: config.dateBuild },
+      locale,
+      resolvedPage,
+      $fetch,
+    )
     const json = JSON.stringify(data).replace(/</g, '\\u003c')
     const entry = { data, json }
 

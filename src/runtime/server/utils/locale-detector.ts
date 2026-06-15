@@ -1,60 +1,50 @@
-import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
+import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { getLocaleCookieName } from '@i18n-micro/utils/cookie'
+import { resolveServerLocale } from '@i18n-micro/utils/resolve-locale'
 import type { H3Event } from 'h3'
 import { getCookie, getQuery, getRequestURL } from 'h3'
 
+export interface DetectCurrentLocaleConfig {
+  fallbackLocale?: string
+  defaultLocale?: string
+  locales?: { code: string }[]
+  localeCookie?: string | null
+  autoDetectLanguage?: boolean
+}
+
 /**
  * Detects the current locale based on various sources (server-only).
- * @param event - H3Event object
- * @param config - Runtime configuration with i18n settings
- * @param config.fallbackLocale - Fallback locale from config
- * @param config.defaultLocale - Default locale from config
- * @param config.locales - List of available locales
- * @param defaultLocale - Optional default locale override
- * @returns The detected locale code
+ * Thin wrapper around `resolveServerLocale` with configured cookie name.
  */
-export const detectCurrentLocale = (
-  event: H3Event,
-  config: { fallbackLocale?: string; defaultLocale?: string; locales?: { code: string }[] },
-  defaultLocale?: string,
-): string => {
-  const { fallbackLocale, defaultLocale: configDefaultLocale, locales } = config
+export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleConfig, defaultLocale?: string): string => {
+  const { fallbackLocale, defaultLocale: configDefaultLocale, locales, localeCookie, autoDetectLanguage } = config
 
-  // 1. Priority: route parameters (if Nitro has already determined them)
   if (event.context.params?.locale) {
     return event.context.params.locale.toString()
   }
 
-  // 2. Priority: Query parameters (?locale=de)
-  const queryLocale = getQuery(event)?.locale
-  if (queryLocale) {
-    return queryLocale.toString()
-  }
+  const resolvedDefault = defaultLocale || configDefaultLocale || 'en'
+  const validLocales = getEnabledLocaleCodes(locales ?? [])
+  const url = getRequestURL(event)
+  const cleanPath = url.pathname.split('?')[0]?.split('#')[0] ?? url.pathname
+  const pathSegments = cleanPath.split('/').filter(Boolean)
+  const firstSegment = pathSegments[0] ?? ''
+  const hasLocaleInUrl = Boolean(firstSegment && validLocales.includes(firstSegment))
+  const queryLocale = getQuery(event)?.locale ? String(getQuery(event).locale) : null
+  const cookieName = getLocaleCookieName({ localeCookie } as ModuleOptionsExtend)
+  const cookieLocale = cookieName ? getCookie(event, cookieName) : null
 
-  // 3. Manual URL path check (for prefix strategy)
-  if (locales && locales.length > 0) {
-    const url = getRequestURL(event)
-    const querySplit = url.pathname.split('?')
-    const cleanPath = querySplit[0]?.split('#')[0]
-    if (cleanPath) {
-      const pathSegments = cleanPath.split('/').filter(Boolean)
-      const firstSegment = pathSegments[0] || ''
-      if (firstSegment && locales.some((l) => l.code === firstSegment)) {
-        return firstSegment
-      }
-    }
-  }
+  const locale = resolveServerLocale({
+    defaultLocale: resolvedDefault,
+    validLocales,
+    autoDetectLanguage,
+    hasLocaleInUrl,
+    urlLocale: firstSegment || null,
+    queryLocale,
+    cookieLocale,
+    acceptLanguageHeader: event.headers.get('accept-language'),
+  })
 
-  // 4. Other fallbacks (Cookie, Header, Default)
-  const cookieLocale = getCookie(event, 'user-locale')
-  if (cookieLocale) {
-    return cookieLocale.toString()
-  }
-
-  const localeCodes = locales?.map((locale) => locale.code) ?? []
-  const detectedFromHeader = detectLocaleFromAcceptLanguage(event.headers.get('accept-language') ?? undefined, localeCodes)
-  if (detectedFromHeader) {
-    return detectedFromHeader
-  }
-
-  return (fallbackLocale || defaultLocale || configDefaultLocale || 'en').toString()
+  return locale || fallbackLocale || resolvedDefault
 }

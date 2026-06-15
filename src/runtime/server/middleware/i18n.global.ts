@@ -9,13 +9,14 @@ import { getLocaleCookieName } from '@i18n-micro/utils/cookie'
 import { resolveServerLocale } from '@i18n-micro/utils/resolve-locale'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { defineEventHandler, getCookie, getHeader, getQuery, getRequestURL } from 'h3'
+import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getI18nConfig } from '#i18n-internal/strategy'
 import { useRuntimeConfig } from '#imports'
+import { loadTranslationsFromServer } from '../utils/server-loader'
 
 export default defineEventHandler(async (event) => {
   const path = event.path || getRequestURL(event).pathname
 
-  // Fast early exits — skip internal/static paths
   if (path.startsWith('/api') || path.startsWith('/_nuxt') || path.startsWith('/_locales') || path.startsWith('/__')) return
   if (path.includes('.') && !path.endsWith('.html')) return
 
@@ -23,6 +24,7 @@ export default defineEventHandler(async (event) => {
     getI18nConfig() as ModuleOptionsExtend,
     useRuntimeConfig(event).public as Record<string, unknown>,
   )
+  const privateConfig = getI18nPrivateConfig()
   const validLocales = getEnabledLocaleCodes(config.locales)
   const defaultLocale = config.defaultLocale || 'en'
 
@@ -45,9 +47,18 @@ export default defineEventHandler(async (event) => {
     acceptLanguageHeader: getHeader(event, 'accept-language'),
   })
 
-  // Set i18n context for plugins
+  let translations = {}
+  if (privateConfig.serverTranslationPreload) {
+    try {
+      const loaded = await loadTranslationsFromServer(locale, 'index')
+      translations = loaded.data
+    } catch {
+      translations = {}
+    }
+  }
+
   event.context.i18n = {
     locale,
-    translations: {},
+    translations,
   }
 })

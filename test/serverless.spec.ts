@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { runSequential } from './helpers/sequential'
 
 // Test: Serverless environment with caching
 // This simulates behavior similar to Cloudflare Workers with KV cache
@@ -74,11 +75,10 @@ test.describe('serverless with caching', () => {
   })
 
   test('translations work after multiple page loads (cache consistency)', async ({ page, goto }) => {
-    // Simulate multiple requests to the same page
-    for (let i = 0; i < 3; i++) {
+    await runSequential([0, 1, 2], async () => {
       await goto('/', { waitUntil: 'hydration' })
       await expect(page.locator('#hello')).toHaveText('Hello World')
       await expect(page.locator('#pageTitle')).toHaveText('Home Page')
-    }
+    })
   })
 })

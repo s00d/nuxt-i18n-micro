@@ -13,6 +13,7 @@ interface I18nPrivateConfig {
   apiBaseServerHost?: string
   customRegexMatcher?: string
   routesLocaleLinks?: Record<string, string>
+  serverTranslationPreload?: boolean
 }
 
 declare module '#build/i18n.config.mjs' {

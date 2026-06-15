@@ -20,21 +20,27 @@ export async function loadTranslations(dir: string, disablePageLocales: boolean 
 
   try {
     const files = await readdir(dir, { recursive: true, withFileTypes: true })
+    const jsonFiles = files.filter((file) => file.isFile() && file.name.endsWith('.json'))
 
-    for (const file of files) {
-      if (!file.isFile() || !file.name.endsWith('.json')) {
-        continue
-      }
+    const loaded = await Promise.all(
+      jsonFiles.map(async (file) => {
+        const fullPath = join(file.path, file.name)
+        const relativePath = relative(dir, fullPath).split(sep).join('/')
 
-      const fullPath = join(file.path, file.name)
-      const relativePath = relative(dir, fullPath).split(sep).join('/')
+        try {
+          const content = await readFile(fullPath, 'utf-8')
+          const translations = JSON.parse(content) as Translations
+          return { relativePath, translations }
+        } catch (error) {
+          console.error(`Failed to load translation file ${fullPath}:`, error)
+          return null
+        }
+      }),
+    )
 
-      try {
-        const content = await readFile(fullPath, 'utf-8')
-        const translations = JSON.parse(content) as Translations
-        storeLoadedTranslationFile(result, relativePath, translations, disablePageLocales)
-      } catch (error) {
-        console.error(`Failed to load translation file ${fullPath}:`, error)
+    for (const entry of loaded) {
+      if (entry) {
+        storeLoadedTranslationFile(result, entry.relativePath, entry.translations, disablePageLocales)
       }
     }
   } catch (error) {

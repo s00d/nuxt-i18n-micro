@@ -117,10 +117,10 @@ export async function handleTranslationWatchChange(input: HandleTranslationWatch
     return 'ignored'
   }
 
-  for (const pageName of input.listPageNames()) {
+  const pageNames = [...input.listPageNames(), 'index']
+  await pageNames.reduce<Promise<void>>(async (prev, pageName) => {
+    await prev
     await mergePage(parsed.locale, pageName)
-  }
-
-  await mergePage(parsed.locale, 'index')
+  }, Promise.resolve())
   return 'root'
 }

@@ -43,14 +43,8 @@ export async function mergeTranslationsFromFallbackChainAsync(
   readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>,
   relativePathForLocale: (localeCode: string) => string,
 ): Promise<Record<string, unknown>> {
-  let result: Record<string, unknown> = {}
-
-  for (const localeCode of chain) {
-    const data = await readLocaleFile(relativePathForLocale(localeCode))
-    result = deepMergeTranslations(result, data)
-  }
-
-  return result
+  const chunks = await Promise.all(chain.map((localeCode) => readLocaleFile(relativePathForLocale(localeCode))))
+  return chunks.reduce((result, data) => deepMergeTranslations(result, data), {} as Record<string, unknown>)
 }
 
 export function resolveSourcePageName(pageName: string, disablePageLocales?: boolean): string {

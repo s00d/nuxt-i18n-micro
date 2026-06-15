@@ -157,8 +157,8 @@ test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
     const count = await links.count()
     expect(count).toBeGreaterThan(0)
 
-    for (let i = 0; i < count; i++) {
-      const href = await links.nth(i).getAttribute('href')
+    const hrefs = await Promise.all(Array.from({ length: count }, (_, i) => links.nth(i).getAttribute('href')))
+    for (const href of hrefs) {
       expect(href).toBeTruthy()
       expect(href!.startsWith(`${domain}/`)).toBe(true)
     }

@@ -27,9 +27,8 @@ export async function preMergeLocales(
   const layerPaths = rootDirs.map((dir) => join(dir, translationDirName))
 
   const allFiles = new Set<string>()
-  for (const lp of layerPaths) {
-    if (!existsSync(lp)) continue
-    const files = await globby('**/*.json', { cwd: lp })
+  const filesByLayer = await Promise.all(layerPaths.filter((lp) => existsSync(lp)).map((lp) => globby('**/*.json', { cwd: lp })))
+  for (const files of filesByLayer) {
     files.forEach((f) => allFiles.add(f))
   }
 
@@ -121,9 +120,10 @@ export async function buildTranslationSourceLayers(rootDirs: string[], translati
   const layerPaths = rootDirs.map((dir) => join(dir, translationDirName))
   const allFiles = new Set<string>()
 
-  for (const layerPath of layerPaths) {
-    if (!existsSync(layerPath)) continue
-    const files = await globby('**/*.json', { cwd: layerPath })
+  const filesByLayer = await Promise.all(
+    layerPaths.filter((layerPath) => existsSync(layerPath)).map((layerPath) => globby('**/*.json', { cwd: layerPath })),
+  )
+  for (const files of filesByLayer) {
     files.forEach((file) => allFiles.add(file))
   }
 

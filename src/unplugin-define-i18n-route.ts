@@ -20,17 +20,17 @@ function resolveRootDir(filePath: string, rootDirs: string[]): string | undefine
   return sorted.find((root) => filePath.startsWith(root))
 }
 
-function writeMetaFile(buildDir: string, onMetaUpdate?: (entries: DefineI18nRouteMeta[]) => void) {
-  const entries = [...metaByFile.values()].filter((entry): entry is DefineI18nRouteMeta => entry !== null)
-  onMetaUpdate?.(entries)
-
-  const metaPath = join(buildDir, 'i18n-route-meta.json')
-  mkdirSync(dirname(metaPath), { recursive: true })
-  writeFileSync(metaPath, JSON.stringify(entries, null, 2))
-}
-
 export function createDefineI18nRoutePlugin(options: DefineI18nRoutePluginOptions) {
   const metaByFile = new Map<string, DefineI18nRouteMeta | null>()
+
+  const writeMetaFile = () => {
+    const entries = [...metaByFile.values()].filter((entry): entry is DefineI18nRouteMeta => entry !== null)
+    options.onMetaUpdate?.(entries)
+
+    const metaPath = join(options.buildDir, 'i18n-route-meta.json')
+    mkdirSync(dirname(metaPath), { recursive: true })
+    writeFileSync(metaPath, JSON.stringify(entries, null, 2))
+  }
 
   return createUnplugin(() => ({
     name: 'nuxt-i18n-micro-define-route',
@@ -52,11 +52,11 @@ export function createDefineI18nRoutePlugin(options: DefineI18nRoutePluginOption
         })
       }
 
-      writeMetaFile(options.buildDir, options.onMetaUpdate)
+      writeMetaFile()
       return null
     },
     buildEnd() {
-      writeMetaFile(options.buildDir, options.onMetaUpdate)
+      writeMetaFile()
     },
   }))
 }

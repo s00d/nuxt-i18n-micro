@@ -1,0 +1,123 @@
+test/use-locale-head.spec.ts
+  s_43f7072b0cae73::t_6094f2065c40b2 26
+packages/utils/vite.config.mts
+  s_43f7072b0cae73::t_1396fdb0fe6431 19
+playground/locales/pages/scroll-test/fr.json
+  s_43f7072b0cae73::t_084af0ff5e03ce 1
+playground/locales/pages/scroll-test/es.json
+  s_43f7072b0cae73::t_084af0ff5e03ce 1
+playground/pages/scroll-test.vue
+  s_43f7072b0cae73::t_084af0ff5e03ce 31
+test/fixtures/seo-og-locale-format/locales/pages/index/fr.json
+  s_43f7072b0cae73::t_388ab33d2582d3 1
+.github/workflows/docs.yml
+  h_ee6cac30a1b83a 19
+.github/workflows/ci.yml
+  h_ee6cac30a1b83a 13
+package.json
+  s_43f7072b0cae73::t_d6959575dce27b 3
+test/fixtures/seo-og-locale-format/nuxt.config.ts
+  s_43f7072b0cae73::t_084af0ff5e03ce 10
+  s_43f7072b0cae73::t_e0dab299561b53 12
+packages/utils/tests/resolve-og-locale.test.ts
+  s_43f7072b0cae73::t_a13378936228a5 2-29
+  s_43f7072b0cae73::t_f6db9a8784fc7e 30-76
+  s_43f7072b0cae73::t_3ff2f65dde459b 1
+test/define-i18n-route.spec.ts
+  s_43f7072b0cae73::t_efb884a3e829d4 286,322
+  s_43f7072b0cae73::t_620d1affe00357 355-357,367-369
+  s_43f7072b0cae73::t_c9c04767e40fcf 348-354,358-366,370-401
+  s_43f7072b0cae73::t_d2a1bf541ee79d 301,337
+test/fixtures/seo-og-locale-format/locales/zh.json
+  s_43f7072b0cae73::t_2333d236f547f1 1
+test/n3.spec.ts
+  s_43f7072b0cae73::t_51cf4e73d1f29b 175-176
+packages/types/package.json
+  s_43f7072b0cae73::t_d90840a04a69ea 3
+packages/types/src/index.ts
+  s_43f7072b0cae73::t_98dadf19516766 68
+  s_43f7072b0cae73::t_9b500c23219dda 69
+packages/astro/src/utils.ts
+  s_43f7072b0cae73::t_1674ecd7b44103 229
+  s_43f7072b0cae73::t_9524e48cbf6127 2
+  s_43f7072b0cae73::t_b139bea007cf2d 319-320
+  s_43f7072b0cae73::t_4004e3bf9bf938 314-318,321,331,338
+  s_43f7072b0cae73::t_caf4a40452c352 332-335
+packages/vue/src/composables/use-locale-head.ts
+  s_43f7072b0cae73::t_c034cd1d3ff457 104-106,110
+  s_43f7072b0cae73::t_ddfc0ea562a45d 120-126
+  s_43f7072b0cae73::t_ee1821ec6d5b59 2
+  s_43f7072b0cae73::t_833597d31810b2 225-229
+  s_43f7072b0cae73::t_1c3c754982412d 138-141
+  s_43f7072b0cae73::t_96541f65c9ffb4 116-117
+  s_43f7072b0cae73::t_4f2b683d0e4c44 77
+  s_43f7072b0cae73::t_4e2ae5d92c0442 137,148
+playground/locales/pages/scroll-test/ch.json
+  s_43f7072b0cae73::t_084af0ff5e03ce 1
+test/seo-auto.spec.ts
+  s_43f7072b0cae73::t_8d6ae0ae1df140 191-193
+packages/utils/src/resolve-og-locale.ts
+  s_43f7072b0cae73::t_5991964b280be4 5-10,41-54,56
+  s_43f7072b0cae73::t_dc15a4f38eb8d3 1-4,11-40,57
+  s_43f7072b0cae73::t_084af0ff5e03ce 55
+docs/guide/seo.md
+  s_43f7072b0cae73::t_17abe11ce118df 42-43,45-46,54-55
+  s_43f7072b0cae73::t_2754dbd4897574 47
+packages/utils/tests/publish/subpaths.publish.test.ts
+  s_43f7072b0cae73::t_ed21553e4c4b4d 13
+packages/vue/package.json
+  s_43f7072b0cae73::t_3dc004680e04ee 3
+  s_43f7072b0cae73::t_39fe7069da95b4 60-61
+test/fixtures/seo-og-locale-format/locales/fr.json
+  s_43f7072b0cae73::t_388ab33d2582d3 1
+docs/composables/useLocaleHead.md
+  s_43f7072b0cae73::t_ae0e6bc28b71cc 133
+test/seo-og-locale-format.spec.ts
+  s_43f7072b0cae73::t_b8219ae877be91 34-45
+  s_43f7072b0cae73::t_81a665e17b5f8f 47-74,76-82,84
+  s_43f7072b0cae73::t_eaf1309f489e9f 75,83
+src/runtime/composables/useLocaleHead.ts
+  s_43f7072b0cae73::t_1eecce981e030d 4
+  s_43f7072b0cae73::t_6f44be984081bc 111
+  s_43f7072b0cae73::t_f25f2844c0e74f 150-151,160
+  s_43f7072b0cae73::t_269ee780fc60d3 171,179,182
+  s_43f7072b0cae73::t_73f48d17fe4a98 112
+  s_43f7072b0cae73::t_a5779a8c258b52 137-139,142-145
+  s_43f7072b0cae73::t_4fb3acce97b316 172-175
+  s_43f7072b0cae73::t_fc0dae9fe7f5dd 257-261
+  s_43f7072b0cae73::t_2da5cd827635af 154-159
+packages/astro/package.json
+  s_43f7072b0cae73::t_1f360bbe498e20 3
+src/runtime/plugins/02.meta.ts
+  s_43f7072b0cae73::t_1b85a1c7b81c3c 54,60
+  s_43f7072b0cae73::t_4dc737628f37c8 1,6,11
+  s_43f7072b0cae73::t_fbccbcf9877d55 46-47,49-52,55-59,61-65
+packages/utils/package.json
+  s_43f7072b0cae73::t_3d782bd1056227 3
+  s_43f7072b0cae73::t_13fcd09d7c8a06 132-142
+.cursor/rules/package-versioning.mdc
+  s_43f7072b0cae73::t_e4b696fa3cd905 1-33
+test/fixtures/seo-og-locale-format/locales/pages/index/zh.json
+  s_43f7072b0cae73::t_e3473f5f7effd5 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "f19aa9212448a33f75bef5d34eaafc14bb79244e",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

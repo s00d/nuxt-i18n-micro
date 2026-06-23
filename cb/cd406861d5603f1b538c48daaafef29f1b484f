@@ -1,0 +1,21 @@
+packages/vue/tsconfig.json
+  s_43f7072b0cae73::t_85e0296a5af947 5
+packages/vue/jest.config.cjs
+  s_43f7072b0cae73::t_11ff1357d15513 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.10",
+  "base_commit_sha": "cbcd406861d5603f1b538c48daaafef29f1b484f",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

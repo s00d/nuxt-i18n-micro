@@ -1,6 +1,35 @@
 # Changelog
 
 
+## v3.20.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.20.0...v3.20.1)
+
+### 🚀 Enhancements
+
+- **scroll-test:** Add scroll test page with locale switching functionality ([37b043f7](https://github.com/s00d/nuxt-i18n-micro/commit/37b043f7))
+- **switch-locale:** Implement SwitchLocalePreserve component for scroll management ([c12971e5](https://github.com/s00d/nuxt-i18n-micro/commit/c12971e5))
+
+### 🩹 Fixes
+
+- **docs:** Correct scrollToTop link in FAQ ([d367c328](https://github.com/s00d/nuxt-i18n-micro/commit/d367c328))
+- **seo:** Correct og:locale format and meta refresh timing ([#230](https://github.com/s00d/nuxt-i18n-micro/pull/230))
+- **vue:** Resolve @i18n-micro/utils subpath imports in tests ([cbcd4068](https://github.com/s00d/nuxt-i18n-micro/commit/cbcd4068))
+- **test:** Use const for canonical in seo-auto SPA test ([ec86a308](https://github.com/s00d/nuxt-i18n-micro/commit/ec86a308))
+
+### 📖 Documentation
+
+- **news:** Add release notes for Nuxt I18n Micro v3.20.0 ([9f519684](https://github.com/s00d/nuxt-i18n-micro/commit/9f519684))
+
+### 🏡 Chore
+
+- **docs:** Compress release banner PNGs ([0c911baf](https://github.com/s00d/nuxt-i18n-micro/commit/0c911baf))
+- Revert premature nuxt-i18n-micro version bump ([a587cf6f](https://github.com/s00d/nuxt-i18n-micro/commit/a587cf6f))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.20.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.19.0...v3.20.0)

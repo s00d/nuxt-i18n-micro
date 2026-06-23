@@ -1,6 +1,7 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { findAllowedLocalesForRoute } from '@i18n-micro/utils/route'
+import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import { joinURL, parseURL, withQuery } from 'ufo'
 import { ref, unref, watch } from 'vue'
 import { useNuxtApp, useRoute } from '#app'
@@ -107,7 +108,8 @@ export const useLocaleHead = ({
     const locales = currentRouteLocales ? enabledLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code)) : enabledLocales
 
     const currentIso = currentLocale.iso || locale
-    const currentOg = currentLocale.og || currentIso
+    const currentOg = resolveOgLocale(currentLocale)
+    const missingWarn = i18nConfig.missingWarn ?? true
     const currentDir = currentLocale.dir || 'auto'
 
     let fullPath = unref(route.fullPath)
@@ -132,25 +134,30 @@ export const useLocaleHead = ({
       ogUrl = joinURL(unref(baseUrl), canonicalPath)
     }
 
-    metaObject.value = {
-      htmlAttrs: {
-        lang: currentIso,
-        ...(addDirAttribute ? { dir: currentDir } : {}),
-      },
-      link: [],
-      meta: [],
+    const htmlAttrs = {
+      lang: currentIso,
+      ...(addDirAttribute ? { dir: currentDir } : {}),
     }
 
-    if (!addSeoAttributes) return
+    if (!addSeoAttributes) {
+      metaObject.value = { htmlAttrs, link: [], meta: [] }
+      return
+    }
 
     // Locales included in hreflang / og:locale:alternate (omit `seo: false`)
     const localesForSeo = locales.filter((loc: Locale) => loc.seo !== false)
 
-    const ogLocaleMeta = {
-      [identifierAttribute]: 'i18n-og',
-      property: 'og:locale',
-      content: unref(currentOg),
+    if (!currentOg) {
+      warnUnresolvedOgLocale(currentLocale, { missingWarn, tag: 'og:locale' })
     }
+
+    const ogLocaleMeta = currentOg
+      ? {
+          [identifierAttribute]: 'i18n-og',
+          property: 'og:locale',
+          content: currentOg,
+        }
+      : null
 
     const ogUrlMeta = {
       [identifierAttribute]: 'i18n-og-url',
@@ -161,13 +168,18 @@ export const useLocaleHead = ({
     const alternateOgLocalesMeta = localesForSeo
       .filter((loc: Locale) => loc.code !== locale)
       .map((loc: Locale) => {
-        const ogAlt = loc.og || loc.iso || loc.code
+        const ogAlt = resolveOgLocale(loc)
+        if (!ogAlt) {
+          warnUnresolvedOgLocale(loc, { missingWarn, tag: 'og:locale:alternate' })
+          return null
+        }
         return {
           [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
           property: 'og:locale:alternate',
-          content: unref(ogAlt),
+          content: ogAlt,
         }
       })
+      .filter((meta): meta is MetaTag => meta !== null)
 
     const canonicalLink = {
       [identifierAttribute]: 'i18n-can',
@@ -242,8 +254,11 @@ export const useLocaleHead = ({
       }
     }
 
-    metaObject.value.meta = [ogLocaleMeta, ogUrlMeta, ...alternateOgLocalesMeta]
-    metaObject.value.link = [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])]
+    metaObject.value = {
+      htmlAttrs,
+      meta: [...(ogLocaleMeta ? [ogLocaleMeta] : []), ogUrlMeta, ...alternateOgLocalesMeta],
+      link: [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])],
+    }
   }
 
   if (autoUpdate) {

@@ -188,12 +188,9 @@ test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
     await page.click('#about')
     await page.waitForURL('**/en/about')
 
-    // After navigation — path changes, origin stays the same
-    canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
-    expect(canonical).toBe(`${domain}/en/about`)
-
-    const ogUrl = await page.locator('meta[property="og:url"]').getAttribute('content')
-    expect(ogUrl).toBe(`${domain}/en/about`)
+    // After navigation — path changes, origin stays the same (poll: head may lag URL)
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${domain}/en/about`)
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', `${domain}/en/about`)
   })
 
   test('client: locale switch updates og:locale and keeps emulated domain in canonical', async ({ page, baseURL }) => {

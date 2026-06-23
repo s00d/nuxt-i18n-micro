@@ -1,4 +1,5 @@
 import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import type { AstroGlobal } from 'astro'
 import type { AstroI18n } from './composer'
 import type { I18nRoutingStrategy } from './router/types'
@@ -225,6 +226,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   }
 
   const currentIso = currentLocaleObj.iso || locale
+  const currentOg = resolveOgLocale(currentLocaleObj)
   const currentDir = currentLocaleObj.dir || 'auto'
 
   const result: LocaleHeadResult = {
@@ -309,10 +311,14 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   }
 
   // Open Graph locale
-  result.meta.push({
-    property: 'og:locale',
-    content: currentIso,
-  })
+  if (currentOg) {
+    result.meta.push({
+      property: 'og:locale',
+      content: currentOg,
+    })
+  } else {
+    warnUnresolvedOgLocale(currentLocaleObj, { tag: 'og:locale' })
+  }
 
   result.meta.push({
     property: 'og:url',
@@ -322,9 +328,14 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   // Alternate OG locales
   for (const loc of localesForSeo) {
     if (loc.code === locale) continue
+    const ogAlt = resolveOgLocale(loc)
+    if (!ogAlt) {
+      warnUnresolvedOgLocale(loc, { tag: 'og:locale:alternate' })
+      continue
+    }
     result.meta.push({
       property: 'og:locale:alternate',
-      content: loc.og || loc.iso || loc.code,
+      content: ogAlt,
     })
   }
 

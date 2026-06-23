@@ -39,17 +39,20 @@ flowchart LR
 
 #### `og` per locale (`og:locale` vs BCP 47)
 
-`<html lang>` and `hreflang` should use **BCP 47** via `locale.iso` (e.g. `ar-AE`).  
-Open Graph often uses the classic **`language_TERRITORY`** form with an **underscore** (`ar_AE`).
+`<html lang>` and `hreflang` use **BCP 47** via `locale.iso` (e.g. `ar-AE`).  
+Open Graph requires **`language_TERRITORY`** with an **underscore** (`ar_AE`), per the [OG protocol](https://ogp.me/).
 
-Set an optional **`og`** string on each locale when the Open Graph value must differ from `iso`. If omitted, **`iso`** is used (then `code`).
+By default, `og:locale` is derived from `iso` when the mapping is unambiguous (`en-US` → `en_US`).  
+Set an explicit **`og`** string when you need a custom value (e.g. `zh-Hans` → `zh_CN`).  
+If neither `og` nor a convertible `iso` is available, `og:locale` tags are not generated — in development you get a console warning (respects `missingWarn`).
 
 ```typescript
 i18n: {
   meta: true,
   locales: [
     { code: 'ar', iso: 'ar-AE', og: 'ar_AE', dir: 'rtl' },
-    { code: 'en', iso: 'en-US' }, // og:locale uses en-US from iso
+    { code: 'en', iso: 'en-US' }, // og:locale → en_US
+    { code: 'zh', iso: 'zh-Hans', og: 'zh_CN' }, // script tags need explicit og
   ],
 }
 ```

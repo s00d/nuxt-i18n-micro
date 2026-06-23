@@ -130,7 +130,7 @@ const head = useLocaleHead({ baseUrl: 'https://mywebsite.com' })
 ### SEO Meta and Link Tags
 
 When `addSeoAttributes` is enabled, the composable automatically generates the following tags:
-- `og:locale` for the current locale.
+- `og:locale` for the current locale (`language_TERRITORY`, underscore). Derived from `locale.og` or converted from `locale.iso` when possible.
 - `og:url` for the canonical URL of the page.
 - `og:locale:alternate` for alternate language versions.
 - `rel="canonical"` and `rel="alternate"` links for SEO optimization.

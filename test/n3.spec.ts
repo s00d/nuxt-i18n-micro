@@ -172,8 +172,8 @@ test.describe('n3', () => {
         const htmlLang = await page.getAttribute('html', 'lang')
         expect(htmlLang).toBe(lang.code)
 
-        const hasMetaDescription = await page.locator('meta[id="i18n-og"]').count()
-        expect(hasMetaDescription).toBeGreaterThan(0)
+        const hasOgUrl = await page.locator('meta[id="i18n-og-url"]').count()
+        expect(hasOgUrl).toBeGreaterThan(0)
       })
     })
   })

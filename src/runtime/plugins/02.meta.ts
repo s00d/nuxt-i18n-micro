@@ -1,13 +1,14 @@
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import type { I18nRouteParams, ModuleOptionsExtend } from '@i18n-micro/types'
 import { isMetaDisabledForRoute } from '@i18n-micro/utils/route'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { watch } from 'vue'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
-import { defineNuxtPlugin, useHead, useRequestURL, useRoute } from '#imports'
+import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useState } from '#imports'
 import { useLocaleHead } from '../composables/useLocaleHead'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
+  const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
   const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
   const i18nConfig = resolveI18nConfigWithRuntimeOverrides(
     (typeof getRuntimeConfig === 'function' ? getRuntimeConfig() : getI18nConfig()) as ModuleOptionsExtend,
@@ -42,13 +43,24 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   useHead(metaObject)
 
+  const refreshMeta = () => updateMeta()
+
   if (import.meta.server) {
-    updateMeta()
-  } else if (import.meta.client) {
-    watch(
-      () => route.fullPath,
-      () => updateMeta(),
-      { immediate: true },
-    )
+    nuxtApp.hook('app:rendered', refreshMeta)
+  } else {
+    refreshMeta()
+    nuxtApp.hook('page:finish', refreshMeta)
   }
+
+  watch(
+    () => i18nRouteParams.value,
+    refreshMeta,
+    { deep: true, flush: 'post' },
+  )
+
+  watch(
+    () => [route.fullPath, route.name, route.matched.length] as const,
+    refreshMeta,
+    { flush: 'post' },
+  )
 })

@@ -283,7 +283,7 @@ test.describe('Product index page with localeRoutes', () => {
     // Test meta tags for the default locale (English)
     await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'en_EN')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/our-products`)
-    await expect(page.locator('meta#i18n-og-alt-es-ES')).toHaveAttribute('content', 'es-ES')
+    await expect(page.locator('meta#i18n-og-alt-es_ES')).toHaveAttribute('content', 'es_ES')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
     await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}/our-products`)
@@ -298,7 +298,7 @@ test.describe('Product index page with localeRoutes', () => {
     const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
 
     // Test meta tags for the Spanish locale
-    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'es-ES')
+    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'es_ES')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/es/nuestros-productos`)
     await expect(page.locator('meta#i18n-og-alt-en_EN')).toHaveAttribute('content', 'en_EN')
 
@@ -319,7 +319,7 @@ test.describe('Product detail page with localeRoutes', () => {
     // Test meta tags for the default locale (English)
     await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'en_EN')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/our-products/coffee-filter-en`)
-    await expect(page.locator('meta#i18n-og-alt-es-ES')).toHaveAttribute('content', 'es-ES')
+    await expect(page.locator('meta#i18n-og-alt-es_ES')).toHaveAttribute('content', 'es_ES')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/our-products/coffee-filter-en`)
     await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}/our-products/coffee-filter-en`)
@@ -334,7 +334,7 @@ test.describe('Product detail page with localeRoutes', () => {
     const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
 
     // Test meta tags for the Spanish locale
-    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'es-ES')
+    await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'es_ES')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/es/nuestros-productos/filtro-cafe-es`)
     await expect(page.locator('meta#i18n-og-alt-en_EN')).toHaveAttribute('content', 'en_EN')
 
@@ -343,5 +343,59 @@ test.describe('Product detail page with localeRoutes', () => {
     await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}/our-products/coffee-filter-en`)
     await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos/filtro-cafe-es`)
     await expect(page.locator('link#i18n-alternate-es-ES')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos/filtro-cafe-es`)
+  })
+})
+
+test.describe('Product detail SSR and SPA meta timing', () => {
+  test('SSR: hreflang alternates use locale-specific slugs on English product detail', async ({ request }) => {
+    const res = await request.get('/our-products/coffee-filter-en')
+    expect(res.status()).toBe(200)
+    const html = await res.text()
+
+    expect(html).toContain('id="i18n-alternate-es"')
+    expect(html).toContain('/es/nuestros-productos/filtro-cafe-es')
+    expect(html).not.toContain('/es/nuestros-productos/coffee-filter-en')
+    expect(html).toMatch(/<meta[^>]*property="og:locale"[^>]*content="en_EN"/)
+    expect(html).toMatch(/<meta[^>]*property="og:locale:alternate"[^>]*content="es_ES"/)
+  })
+
+  test('SSR: hreflang alternates use locale-specific slugs on Spanish product detail', async ({ request }) => {
+    const res = await request.get('/es/nuestros-productos/filtro-cafe-es')
+    expect(res.status()).toBe(200)
+    const html = await res.text()
+
+    expect(html).toContain('id="i18n-alternate-en"')
+    expect(html).toContain('/our-products/coffee-filter-en')
+    expect(html).not.toContain('/our-products/filtro-cafe-es')
+    expect(html).toMatch(/<meta[^>]*property="og:locale"[^>]*content="es_ES"/)
+    expect(html).toMatch(/<meta[^>]*property="og:locale:alternate"[^>]*content="en_EN"/)
+  })
+
+  test('client SPA: meta hreflang updates after navigating from English product index to detail', async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+
+    await goto('/our-products', { waitUntil: 'networkidle' })
+    await page.click('a:has-text("Coffee Filter")')
+    await page.waitForURL('**/our-products/coffee-filter-en')
+
+    await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute(
+      'href',
+      `${normalizedBaseURL}/es/nuestros-productos/filtro-cafe-es`,
+    )
+    await expect(page.locator('link#i18n-alternate-es')).not.toHaveAttribute(
+      'href',
+      `${normalizedBaseURL}/es/nuestros-productos/coffee-filter-en`,
+    )
+  })
+
+  test('client SPA: meta hreflang updates after navigating from Spanish product index to detail', async ({ page, goto, baseURL }) => {
+    const normalizedBaseURL = (baseURL || 'http://localhost:3000').replace(/\/$/, '')
+
+    await goto('/es/nuestros-productos', { waitUntil: 'networkidle' })
+    await page.click('a:has-text("Filtro de Café")')
+    await page.waitForURL('**/es/nuestros-productos/filtro-cafe-es')
+
+    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}/our-products/coffee-filter-en`)
+    await expect(page.locator('link#i18n-alternate-en')).not.toHaveAttribute('href', `${normalizedBaseURL}/our-products/filtro-cafe-es`)
   })
 })

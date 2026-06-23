@@ -23,6 +23,6 @@ test.describe('useLocaleHead manual usage', () => {
 
     expect(canonical).toBeTruthy()
     expect(new URL(canonical!, baseURL).pathname).toMatch(/^\/en\/?$/)
-    expect(ogLocale).toBe('en-US')
+    expect(ogLocale).toBe('en_US')
   })
 })

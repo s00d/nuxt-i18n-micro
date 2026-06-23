@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import { inject, ref } from 'vue'
 import { I18nDefaultLocaleKey, I18nRouterKey } from '../injection'
 import type { I18nRoutingStrategy } from '../router/types'
@@ -73,7 +74,7 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     }
 
     const currentIso = currentLocaleObj.iso || locale
-    const currentOg = currentLocaleObj.og || currentIso
+    const currentOg = resolveOgLocale(currentLocaleObj)
     const currentDir = currentLocaleObj.dir || 'auto'
 
     let fullPath = routerStrategy.getCurrentPath()
@@ -100,26 +101,29 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       ogUrl = `${baseUrlValue}${canonicalPath.startsWith('/') ? '' : '/'}${canonicalPath}`
     }
 
-    metaObject.value = {
-      htmlAttrs: {
-        lang: currentIso,
-        ...(addDirAttribute ? { dir: currentDir } : {}),
-      },
-      link: [],
-      meta: [],
+    const htmlAttrs = {
+      lang: currentIso,
+      ...(addDirAttribute ? { dir: currentDir } : {}),
     }
 
     if (!addSeoAttributes) {
+      metaObject.value = { htmlAttrs, link: [], meta: [] }
       return
     }
 
     const alternateLocales = allLocales.filter((loc: Locale) => !loc.disabled && loc.seo !== false)
 
-    const ogLocaleMeta: MetaTag = {
-      [identifierAttribute]: 'i18n-og',
-      property: 'og:locale',
-      content: currentOg,
+    if (!currentOg) {
+      warnUnresolvedOgLocale(currentLocaleObj, { tag: 'og:locale' })
     }
+
+    const ogLocaleMeta: MetaTag | null = currentOg
+      ? {
+          [identifierAttribute]: 'i18n-og',
+          property: 'og:locale',
+          content: currentOg,
+        }
+      : null
 
     const ogUrlMeta: MetaTag = {
       [identifierAttribute]: 'i18n-og-url',
@@ -130,13 +134,18 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
     const alternateOgLocalesMeta = alternateLocales
       .filter((loc: Locale) => loc.code !== locale)
       .map((loc: Locale) => {
-        const ogAlt = loc.og || loc.iso || loc.code
+        const ogAlt = resolveOgLocale(loc)
+        if (!ogAlt) {
+          warnUnresolvedOgLocale(loc, { tag: 'og:locale:alternate' })
+          return null
+        }
         return {
           [identifierAttribute]: `i18n-og-alt-${ogAlt}`,
           property: 'og:locale:alternate',
           content: ogAlt,
         }
       })
+      .filter((meta): meta is MetaTag => meta !== null)
 
     const canonicalLink: MetaLink = {
       [identifierAttribute]: 'i18n-can',
@@ -213,8 +222,11 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       }
     }
 
-    metaObject.value.meta = [ogLocaleMeta, ogUrlMeta, ...alternateOgLocalesMeta]
-    metaObject.value.link = [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])]
+    metaObject.value = {
+      htmlAttrs,
+      meta: [...(ogLocaleMeta ? [ogLocaleMeta] : []), ogUrlMeta, ...alternateOgLocalesMeta],
+      link: [canonicalLink, ...alternateLinks, ...(xDefaultLink ? [xDefaultLink] : [])],
+    }
   }
 
   return {

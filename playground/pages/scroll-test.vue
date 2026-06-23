@@ -28,13 +28,7 @@
         {{ $t('current_locale') }}: <strong>{{ currentLocale }}</strong>
       </p>
       <div class="scroll-test__buttons">
-        <button
-          v-for="locale in locales"
-          :key="locale.code"
-          type="button"
-          :data-locale="locale.code"
-          :disabled="locale.code === currentLocale"
-        >
+        <button v-for="locale in locales" :key="locale.code" type="button" :data-locale="locale.code" :disabled="locale.code === currentLocale">
           {{ locale.code }}
         </button>
       </div>

@@ -1029,6 +1029,9 @@ importers:
       '@i18n-micro/types':
         specifier: workspace:*
         version: link:../types
+      '@i18n-micro/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       '@types/jest':
         specifier: 'catalog:'

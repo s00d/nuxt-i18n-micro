@@ -16,6 +16,7 @@ const libEntries = {
   'payload-stats': resolve(rootDir, 'src/payload-stats.ts'),
   'accept-language': resolve(rootDir, 'src/accept-language.ts'),
   'resolve-locale': resolve(rootDir, 'src/resolve-locale.ts'),
+  'resolve-og-locale': resolve(rootDir, 'src/resolve-og-locale.ts'),
   'active-locales': resolve(rootDir, 'src/active-locales.ts'),
   cookie: resolve(rootDir, 'src/cookie.ts'),
   'cache-control': resolve(rootDir, 'src/cache-control.ts'),

@@ -1,0 +1,33 @@
+---
+description: Bump workspace package versions once before push and rebuild dist when packages change
+alwaysApply: true
+---
+
+# Package versioning & rebuild
+
+## When it applies
+
+Any edit under `packages/<name>/` (source, tests that change public API, `package.json` exports) or `src/` (main Nuxt module).
+
+## Workflow (once per push/PR, not per commit)
+
+1. Finish the logical change set on the branch.
+2. **Before push**, for each affected package, bump `version` in `packages/<name>/package.json` **one patch** (`1.2.3` → `1.2.4`). If `src/` changed, bump root `package.json` patch once too.
+3. Rebuild every bumped package that has a build step:
+   ```bash
+   pnpm --filter @i18n-micro/utils build
+   pnpm --filter @i18n-micro/core build
+   # …same for each touched package
+   ```
+4. Include in the commit: source + `package.json` version + updated `dist/` (when published).
+
+## Do not
+
+- Bump version on every small follow-up commit in the same branch.
+- Push package source changes without rebuilding `dist/` when the package ships built artifacts.
+- Manually edit root `CHANGELOG.md` unless the user requested a release.
+
+## Release vs day-to-day
+
+- **Day-to-day**: patch bump in affected `packages/*/package.json` (+ root if `src/` changed), rebuild, push.
+- **Formal release**: root version/changelog via `pnpm run release:*` / changelogen; news in `docs/news/index.md`.

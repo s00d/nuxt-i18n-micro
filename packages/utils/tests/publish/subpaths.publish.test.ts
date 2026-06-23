@@ -10,6 +10,7 @@ const subpaths = [
   { subpath: './deep-merge', exportName: 'deepMergeTranslations' },
   { subpath: './merge-source', exportName: 'mergeSourceTranslations' },
   { subpath: './payload-config', exportName: 'resolveTranslationPayloadOptions' },
+  { subpath: './resolve-og-locale', exportName: 'resolveOgLocale' },
   { subpath: './route', exportName: 'findAllowedLocalesForRoute' },
   { subpath: './parse-path', exportName: 'parseTranslationRelativePath' },
   { subpath: './accept-language', exportName: 'detectLocaleFromAcceptLanguage' },

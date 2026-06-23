@@ -65,7 +65,8 @@ export interface Locale {
   iso?: string
   /**
    * Open Graph locale for `og:locale` / `og:locale:alternate` meta `content` (e.g. `ar_AE`).
-   * If omitted or empty, `iso` is used (then `code`).
+   * When omitted, `iso` is converted to OG format when possible (`en-US` → `en_US`).
+   * If conversion is not possible, `og:locale` tags are not emitted (dev warning when `missingWarn` is enabled).
    */
   og?: string
   /**

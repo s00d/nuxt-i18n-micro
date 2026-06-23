@@ -7,7 +7,9 @@ export default defineNuxtConfig({
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', og: 'en_US', displayName: 'English' },
+      { code: 'fr', iso: 'fr-FR', displayName: 'French' },
       { code: 'ar', iso: 'ar-AE', og: 'ar_AE', dir: 'rtl', displayName: 'Arabic' },
+      { code: 'zh', iso: 'zh-Hans', displayName: 'Chinese' },
     ],
     meta: true,
     defaultLocale: 'en',

@@ -181,7 +181,7 @@ test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
     await page.goto(`${domain}/en`, { waitUntil: 'networkidle' })
 
     // Before navigation
-    let canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
     expect(canonical).toBe(`${domain}/en`)
 
     // SPA navigate to /en/about

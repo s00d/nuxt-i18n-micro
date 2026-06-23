@@ -10,6 +10,7 @@ module.exports = {
   moduleNameMapper: {
     '^@i18n-micro/core$': '<rootDir>/../core/src',
     '^@i18n-micro/types$': '<rootDir>/../types/src',
+    '^@i18n-micro/utils/(.*)$': '<rootDir>/../utils/src/$1',
   },
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
 }

@@ -1,0 +1,21 @@
+test/plugins-injections-tdr.test.ts
+  s_43f7072b0cae73::t_ed36a407efe91d 1-23
+packages/core/tests/format-service.test.ts
+  s_43f7072b0cae73::t_6cda139659579d 96-104
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.1",
+  "base_commit_sha": "649f8c9eeb19bfe4d1862f3de4a278966ac6d41d",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

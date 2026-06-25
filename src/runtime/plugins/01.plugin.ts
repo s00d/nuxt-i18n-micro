@@ -198,7 +198,7 @@ export interface PluginsInjections {
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
   $tn: (value: number, options?: Intl.NumberFormatOptions) => string
   $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
-  $tdr: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
+  $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
   $has: (key: string) => boolean
   $mergeTranslations: (newTranslations: Translations) => void
   $switchLocaleRoute: (locale: string) => RouteLocationRaw

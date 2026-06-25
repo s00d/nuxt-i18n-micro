@@ -1,0 +1,37 @@
+test/locale-state.spec.ts
+  s_43f7072b0cae73::t_96fcb736080760 4-5,10
+.github/workflows/ci.yml
+  s_43f7072b0cae73::t_8ecdc38b7381c3 82
+test/locale-state-prefix-and-default.spec.ts
+  s_43f7072b0cae73::t_fafd8228b1c241 4-5,10
+test/locale-state-prefix-except-default.spec.ts
+  s_43f7072b0cae73::t_e784d44b8114f9 4-5,10
+test/helpers/translation-watcher-hmr.ts
+  s_43f7072b0cae73::t_85f0f180d02409 84-108
+test/translation-watcher.spec.ts
+  s_43f7072b0cae73::t_8d80aaac6e0880 94
+  s_43f7072b0cae73::t_5e3e1e42749f27 4
+  s_43f7072b0cae73::t_ebae4147d020da 52
+  s_43f7072b0cae73::t_a0f42aee5cb0f0 36
+test/locale-state-prefix.spec.ts
+  s_43f7072b0cae73::t_881428f3d06640 4-5,10
+test/translation-watcher-source.spec.ts
+  s_43f7072b0cae73::t_9f7ab0669ab4e7 4
+  s_43f7072b0cae73::t_45600b10b6c033 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.1",
+  "base_commit_sha": "e50b3b2a2f12421a66cede22a81438dfea019fd7",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

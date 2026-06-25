@@ -1,0 +1,233 @@
+test/fixtures/use-i18n-head/locales/pages/post-slug/en.json
+  s_43f7072b0cae73::t_ee3b7bb333237d 1-3
+packages/types/README.md
+  s_43f7072b0cae73::t_216c9d62f8cc8f 114-128
+test/fixtures/use-i18n-head/locales/pages/guides-slug/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/locales/pages/canonical-slug/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/locales/pages/full-slug/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/translation-watcher-source/nuxt.config.ts
+  s_43f7072b0cae73::t_7d26a7c1fba63f 1-23
+test/fixtures/use-i18n-head/locales/pages/reactive/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/locales/pages/reactive/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/use-i18n-head-generate.test.ts
+  s_43f7072b0cae73::t_ef9186635e03bc 1-15,17-18,20-149,157-166,168-194,196-199,258-259
+  s_43f7072b0cae73::t_ef402c3fb062f7 150-156
+  s_43f7072b0cae73::t_fe0b04dab35adc 167
+  s_43f7072b0cae73::t_8e31aafc0202d8 195
+  s_43f7072b0cae73::t_4c4ca761a2a28d 200-257
+  s_43f7072b0cae73::t_7505ff2220c5c6 16
+  s_43f7072b0cae73::t_68ee5c15241584 19
+src/runtime/plugins/02.meta.ts
+  s_43f7072b0cae73::t_cc4bb8f5d33332 2,48,52-60,71,73-75
+  s_43f7072b0cae73::t_e8f275ce986789 5
+  s_43f7072b0cae73::t_7d091b7e0200a2 8
+  s_43f7072b0cae73::t_dc81dc37df2a5a 1
+  s_43f7072b0cae73::t_36bcff3e41cd6d 10
+  s_43f7072b0cae73::t_c890471851451c 15
+  s_43f7072b0cae73::t_278d1a67f3c7b9 49-51
+test/fixtures/use-i18n-head/pages/guides/[slug].vue
+  s_43f7072b0cae73::t_2a20ce0f4ef2ba 1-8,11-13,15-27
+  s_43f7072b0cae73::t_bf79e81e0065dd 9-10,14
+test/fixtures/use-i18n-head/locales/pages/custom-alternates/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+packages/types/package.json
+  h_ee6cac30a1b83a 3
+docs/guide/seo.md
+  s_43f7072b0cae73::t_7c0e8271574675 211,213-214,217-218,221,223,227-257,259,263-275,278
+  s_43f7072b0cae73::t_d32ba56d76db9c 209-210,212,215-216,219-220,222,224-226,258,260-262,276-277,279
+test/helpers/i18n-head-seo.ts
+  s_43f7072b0cae73::t_66a68d61dba98f 1-169,175-242
+  s_43f7072b0cae73::t_dea4fe357296f4 170-174
+src/runtime/composables/useI18nHead.ts
+  s_43f7072b0cae73::t_78f0c95da59aa1 13-16,27
+  s_43f7072b0cae73::t_997ac0dd6d7178 1-12,17-26,28
+packages/utils/src/merge-i18n-head.ts
+  s_43f7072b0cae73::t_b4630fc72df46b 53-61,63
+  s_43f7072b0cae73::t_1f4294f816ff94 1-41,62,64-68,71-91,93-101,103-118,120-215
+  s_43f7072b0cae73::t_2f62824bb90256 42-52,69-70
+  s_43f7072b0cae73::t_1755229fbe7456 92
+  s_43f7072b0cae73::t_2fd77bc527cd27 102
+  s_43f7072b0cae73::t_6c5284af41cc50 119
+test/fixtures/use-i18n-head/pages/partial/[slug].vue
+  s_43f7072b0cae73::t_0753b42f2f7195 9
+  s_43f7072b0cae73::t_8096f2a0680f71 1-8,10-42
+test/fixtures/use-i18n-head/server/api/articles/[slug].get.js
+  s_43f7072b0cae73::t_65d7da4d52a535 1-68
+docs/composables/useI18nHead.md
+  s_43f7072b0cae73::t_20e3ce25078359 9,11,13-16,18,20,22-47,50-96,98-119,122-123,125,127,129-130,133-134,136-138,141,146-149,154-155,157,159,163-165,167-336,338-378,381-401,404,406-409,435-446,448-451,453,455,457,459,461-464,466,468-474,476,478,480,484
+  s_43f7072b0cae73::t_0f9c31171adc75 1-8,10,12,17,19,21,48-49,97,120-121,124,126,128,131-132,135,139-140,142-145,150-153,156,158,160-162,166,337,379-380,402-403,405,410-434,447,452,454,456,458,460,465,467,475,477,479,481-483,485
+test/fixtures/use-i18n-head/composables/buildArticleHead.ts
+  s_43f7072b0cae73::t_35cdbb7245e229 1-26
+test/fixtures/use-i18n-head/pages/landing.vue
+  s_43f7072b0cae73::t_5957014ab73b0b 1-8,11-17
+  s_43f7072b0cae73::t_110afaf5db80bb 9-10
+test/fixtures/use-i18n-head/pages/no-hreflang.vue
+  s_43f7072b0cae73::t_c97a7ea3c8d6e0 1-8,11-14
+  s_43f7072b0cae73::t_51d4a1e19e55f7 9-10
+test/fixtures/use-i18n-head/locales/pages/x-default-slug/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+packages/utils/package.json
+  h_ee6cac30a1b83a 3
+  s_43f7072b0cae73::t_62506fcd14ba7a 143-153
+test/fixtures/use-i18n-head/locales/pages/guides-slug/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+packages/utils/README.md
+  s_43f7072b0cae73::t_60b8c2a6d8aca0 12,15
+  s_43f7072b0cae73::t_9ba136b83eb941 16
+test/fixtures/translation-watcher-source/app.vue
+  s_43f7072b0cae73::t_b20d3ff92fbce4 1-3
+test/fixtures/use-i18n-head/locales/pages/no-hreflang/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/pages/custom-alternates.vue
+  s_43f7072b0cae73::t_9443f20035bf35 9-10
+  s_43f7072b0cae73::t_67b7d26011f064 1-8,11-21
+docs/composables/useLocaleHead.md
+  s_43f7072b0cae73::t_1fdee2b33c7624 205-208
+test/fixtures/use-i18n-head/locales/pages/landing/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+docs/.vitepress/config.mts
+  s_43f7072b0cae73::t_26ffbaa70fc2de 135
+  s_43f7072b0cae73::t_9de7c23d2b3c01 244
+docs/news/index.md
+  s_43f7072b0cae73::t_b91e7325dda359 9-10,12-85
+  h_ee6cac30a1b83a 11,88
+docs/composables/index.md
+  s_43f7072b0cae73::t_30d5ffb127f731 12
+  s_43f7072b0cae73::t_6322c52ccf5c58 3
+test/fixtures/use-i18n-head/locales/pages/index/en.json
+  s_43f7072b0cae73::t_311d746762791f 1-3
+test/fixtures/use-i18n-head/app.vue
+  s_43f7072b0cae73::t_723ff8daeb18ba 1-5
+test/fixtures/use-i18n-head/pages/reactive.vue
+  s_43f7072b0cae73::t_72ca52c2e235ea 1-9,12-19,21-40
+  s_43f7072b0cae73::t_56992d5eb28ab2 10-11
+  s_43f7072b0cae73::t_ed341259896b0a 20
+test/fixtures/use-i18n-head/package.json
+  s_43f7072b0cae73::t_8e2ad1b9061f4d 1-14
+test/fixtures/translation-watcher-source/package.json
+  s_43f7072b0cae73::t_f4679a0412adc4 1-5
+src/runtime/plugins/01.plugin.ts
+  s_43f7072b0cae73::t_6979fba3b11f32 40
+  s_43f7072b0cae73::t_200ede2d9ffdf8 16
+  s_43f7072b0cae73::t_833f69a8ffc52c 141
+packages/types/src/index.ts
+  s_43f7072b0cae73::t_fba903913e2167 602-615,617-639
+  s_43f7072b0cae73::t_b1e40e6d876732 616
+test/fixtures/use-i18n-head/locales/pages/landing/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/locales/pages/post-slug/fr.json
+  s_43f7072b0cae73::t_b79461959479c2 1-3
+test/fixtures/use-i18n-head/locales/pages/full-slug/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/locales/pages/x-default-slug/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/translation-watcher-source.spec.ts
+  s_43f7072b0cae73::t_f0bd7ba59c9170 5
+  s_43f7072b0cae73::t_a768b2eed19b6c 13
+test/fixtures/use-i18n-head/locales/pages/blog-slug/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/pages/blog/[slug].vue
+  s_43f7072b0cae73::t_8dd93648cbfac2 9-10,14
+  s_43f7072b0cae73::t_b0f06dc23f879b 1-8,11-13,15-27
+test/fixtures/use-i18n-head/locales/pages/partial-slug/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/nuxt.config.ts
+  s_43f7072b0cae73::t_bf8e7f35adb45c 1-6,26-37
+  s_43f7072b0cae73::t_d182127943ee7d 7-25
+test/fixtures/use-i18n-head/locales/pages/partial-slug/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/locales/pages/no-hreflang/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/pages/x-default/[slug].vue
+  s_43f7072b0cae73::t_d12051ae2b5253 1-8,10-48
+  s_43f7072b0cae73::t_72567635c02a60 9
+test/fixtures/use-i18n-head/locales/pages/custom-alternates/en.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/pages/index.vue
+  s_43f7072b0cae73::t_50bfee1999cbd3 4-16
+  s_43f7072b0cae73::t_f6e03a426796ab 1-3,17-20,23-26
+  s_43f7072b0cae73::t_44ad3d86ff9e10 21-22
+test/fixtures/use-i18n-head/locales/pages/index/fr.json
+  s_43f7072b0cae73::t_43af99fe7f7825 1-3
+test/fixtures/translation-watcher/nuxt.config.ts
+  s_43f7072b0cae73::t_3efb1592c2f8f6 17
+test/fixtures/use-i18n-head/locales/pages/canonical-slug/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/helpers/translation-watcher-hmr.ts
+  s_43f7072b0cae73::t_d216df3fa8ccd5 8-9
+test/fixtures/use-i18n-head/locales/pages/blog-slug/fr.json
+  s_43f7072b0cae73::t_aa7206b75a0762 1
+test/fixtures/use-i18n-head/server/api/post/[slug].get.js
+  s_43f7072b0cae73::t_1ef2e02a98d22e 1-27
+test/fixtures/use-i18n-head/pages/full/[slug].vue
+  s_43f7072b0cae73::t_3ce07bf1ae31da 1-8,10-66
+  s_43f7072b0cae73::t_39f9119799969e 9
+test/fixtures/use-i18n-head/pages/post/[slug].vue
+  s_43f7072b0cae73::t_80ffb483b1f59e 18
+  s_43f7072b0cae73::t_666c0b2df232e7 9
+  s_43f7072b0cae73::t_c2f5f9cb08bbdc 1-8,10-17,19-61
+test/fixtures/use-i18n-head/locales/en.json
+  s_43f7072b0cae73::t_febfeedc02b24c 1-3
+test/fixtures/use-i18n-head/pages/canonical/[slug].vue
+  s_43f7072b0cae73::t_d027bd92f667f6 1-8,10-46
+  s_43f7072b0cae73::t_13fcd82fd2b0b7 9
+.oxlintrc.json
+  s_43f7072b0cae73::t_8ab4b2a5b1cfeb 58-59
+test/fixtures/use-i18n-head/locales/fr.json
+  s_43f7072b0cae73::t_e698fd0a1bafdb 1-3
+test/use-i18n-head.spec.ts
+  s_43f7072b0cae73::t_93a02a09165115 191,194
+  s_43f7072b0cae73::t_e4e656700c6fd9 68,186-190,192-193,195-198,200-204,206-208,210-211
+  s_43f7072b0cae73::t_d1037bcc36a4e0 199,205,209
+  s_43f7072b0cae73::t_a223ae6bc3ade4 1-2,5-10,33,46,52-54,64,89-90,100,107,109,121,129,137,147,149,213-214
+  s_43f7072b0cae73::t_4bfc12057cf093 91-95
+  s_43f7072b0cae73::t_69c413a631cb82 97
+  s_43f7072b0cae73::t_81fde08bbd4235 3,11-32
+  s_43f7072b0cae73::t_7f361e9f4ec2b7 34-45,47-51,55-63,65-67,69-88,98-99,101-106,108,110-120,122-128,130-136,138-146,148,150-176,179-185
+  s_c7eb1b0d453d21::t_b2e1ef268089c0 4,96,177-178,212
+packages/utils/tests/merge-i18n-head.test.ts
+  s_43f7072b0cae73::t_0f097426fd3c33 1-34,36-54,64-91,155
+  s_43f7072b0cae73::t_f75f0a7426be75 55-63
+  s_43f7072b0cae73::t_a7990445209fff 92-154
+  s_43f7072b0cae73::t_4acaf9ccdacb0f 35
+packages/utils/vite.config.mts
+  s_43f7072b0cae73::t_4e3987b9a46119 20
+test/fixtures/translation-watcher-source/locales
+  s_43f7072b0cae73::t_af34bc1ae65ec9 1
+test/fixtures/translation-watcher-source/pages
+  s_43f7072b0cae73::t_38ed383bf36c78 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.1",
+  "base_commit_sha": "2408a7a593b2db4b7769f7c31d68d677c746ee2f",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    },
+    "s_c7eb1b0d453d21": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "969d2a77-1405-4335-9d3c-64066365cd9f",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

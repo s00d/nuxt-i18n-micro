@@ -93,6 +93,15 @@ describe('FormatService', () => {
       expect(result).toBe('1 year ago')
     })
 
+    test('should format relative time with RelativeTimeFormatOptions', () => {
+      const past = new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+      const result = formatService.formatRelativeTime(past, 'en-US', {
+        numeric: 'always',
+        style: 'short',
+      })
+      expect(result).toMatch(/2 hr\. ago|2 hours ago/)
+    })
+
     test('should handle invalid date by returning "0 seconds ago"', () => {
       const result = formatService.formatRelativeTime('invalid-date', 'en-US')
       expect(result).toBe('in 0 seconds')

@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v3.21.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.20.1...v3.21.0)
+
+### 🚀 Enhancements
+
+- **seo:** Add useI18nHead for per-page i18n SEO overrides ([2408a7a5](https://github.com/s00d/nuxt-i18n-micro/commit/2408a7a5))
+
+### 🩹 Fixes
+
+- **runtime:** Use RelativeTimeFormatOptions for $tdr injection ([ec1befaa](https://github.com/s00d/nuxt-i18n-micro/commit/ec1befaa))
+- **nitro:** Trace @i18n-micro packages for production SSR ([#233](https://github.com/s00d/nuxt-i18n-micro/pull/233))
+- **test:** Stabilize translation-watcher HMR reloads on CI ([e50b3b2a](https://github.com/s00d/nuxt-i18n-micro/commit/e50b3b2a))
+
+### 🏡 Chore
+
+- Update lockfile for use-i18n-head test fixture ([44594563](https://github.com/s00d/nuxt-i18n-micro/commit/44594563))
+
+### ✅ Tests
+
+- **types:** Cover $tdr RelativeTimeFormatOptions typing ([#231](https://github.com/s00d/nuxt-i18n-micro/pull/231))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Thomas Lamant ([@tmlmt](http://github.com/tmlmt))
+
 ## v3.20.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.20.0...v3.20.1)

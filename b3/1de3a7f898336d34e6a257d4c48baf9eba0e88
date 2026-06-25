@@ -1,0 +1,29 @@
+test/use-locale-head-production.test.ts
+  s_43f7072b0cae73::t_6960843a214717 1-153
+src/module.ts
+  s_43f7072b0cae73::t_78992e1a0b6949 50-52,54-55
+  s_43f7072b0cae73::t_f294c25036df04 45-49,53
+  s_43f7072b0cae73::t_f6d2f773959206 578-581,590-592
+  s_43f7072b0cae73::t_0523a080de646b 582-589
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.1",
+  "base_commit_sha": "b31de3a7f898336d34e6a257d4c48baf9eba0e88",
+  "prompts": {},
+  "humans": {
+    "h_ee6cac30a1b83a": {
+      "author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

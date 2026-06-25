@@ -42,6 +42,17 @@ export { resolveTranslationPayloadMode, resolveTranslationPayloadOptions, resolv
 
 const DEFAULT_CANONICAL_QUERY_WHITELIST = ['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']
 
+const moduleRequire = createRequire(import.meta.url)
+
+/** Subpath entries used to force-copy @i18n-micro/* packages into Nitro output. */
+const I18N_MICRO_NITRO_TRACE_ENTRIES = [
+  '@i18n-micro/utils/route',
+  '@i18n-micro/core',
+  '@i18n-micro/route-strategy',
+  '@i18n-micro/path-strategy',
+  '@i18n-micro/hmr/cache-keys',
+] as const
+
 function generateI18nTypes() {
   return `
 import type {PluginsInjections} from "nuxt-i18n-micro";
@@ -563,6 +574,21 @@ declare module '#i18n-internal/plural' {
       nitroConfig.alias['#i18n-internal/plural'] = pluralTemplate.dst
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
+
+      // Force Nitro to copy @i18n-micro/* packages into .output/server/node_modules.
+      // Subpath exports (e.g. @i18n-micro/utils/route) are not always traced otherwise.
+      nitroConfig.externals = nitroConfig.externals || {}
+      nitroConfig.externals.traceInclude = nitroConfig.externals.traceInclude || []
+      for (const entry of I18N_MICRO_NITRO_TRACE_ENTRIES) {
+        try {
+          const resolved = moduleRequire.resolve(entry)
+          if (!nitroConfig.externals.traceInclude.includes(resolved)) {
+            nitroConfig.externals.traceInclude.push(resolved)
+          }
+        } catch {
+          // Optional runtime entry (e.g. hmr) may be absent in minimal installs.
+        }
+      }
 
       if (translationPayloads.serverAssets) {
         nitroConfig.serverAssets = nitroConfig.serverAssets || []

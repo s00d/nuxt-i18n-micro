@@ -1,0 +1,19 @@
+pnpm-lock.yaml
+  s_43f7072b0cae73::t_4a44936805a3f9 1329-1330,1343-1351,23531,26386-26409
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.1",
+  "base_commit_sha": "445945638c6241991d427f186eb4b8bf65a9d6fe",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

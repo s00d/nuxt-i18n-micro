@@ -2,7 +2,7 @@ import { expect, test } from '@nuxt/test-utils/playwright'
 import {
   patchTranslationWatcherFile,
   restoreTranslationWatcherFiles,
-  translationWatcherFixtureRoot,
+  translationWatcherSourceFixtureRoot,
   waitForTranslationPayloadValue,
 } from './helpers/translation-watcher-hmr'
 
@@ -10,14 +10,9 @@ test.describe.configure({ mode: 'serial', timeout: 120_000 })
 
 test.use({
   nuxt: {
-    rootDir: translationWatcherFixtureRoot,
+    rootDir: translationWatcherSourceFixtureRoot,
     dev: true,
     setupTimeout: 180_000,
-    nuxtConfig: {
-      i18n: {
-        translationPayloads: { mode: 'source' },
-      },
-    },
   },
 })
 

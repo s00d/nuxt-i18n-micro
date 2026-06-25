@@ -6,9 +6,86 @@ outline: "deep"
 
 # News
 
+## Nuxt I18n Micro v3.21.0 — `useI18nHead` for Per-Page SEO
+
+**Date**: 2026-06-25
+
+**Version**: `v3.21.0`
+
+![v3.21.0 release](/3.21.0.png)
+
+This release adds **`useI18nHead`** — a page-level composable for i18n SEO overrides on top of the built-in `02.meta` plugin. Customize `hreflang`, canonical, `og:url`, and Open Graph tags per route without a custom meta plugin or `meta: false`.
+
+### What's New?
+
+#### `useI18nHead` Composable
+
+Call `useI18nHead` in any page when `meta: true` (default). The module merges your input after `useLocaleHead` on every route update:
+
+```vue
+<script setup lang="ts">
+useI18nHead(() => ({
+  meta: [{ property: 'og:title', content: article.value?.title }],
+  replace: {
+    canonical: article.value?.canonicalUrl,
+    ogUrl: article.value?.canonicalUrl,
+    hreflang: localeCodes.map((locale) => ({
+      rel: 'alternate',
+      hreflang: locale,
+      href: article.value!.locales[locale]!,
+    })),
+    ogAlternates: localeCodes,
+  },
+}))
+</script>
+```
+
+Supports static objects, reactive getters, `meta` / `link` append, `replace` for built-in groups, and `disable` to remove auto-generated tags. See [`useI18nHead`](/composables/useI18nHead).
+
+#### `mergeI18nHead` Utility (`@i18n-micro/utils`)
+
+Framework-agnostic merge logic lives in `@i18n-micro/utils/merge-i18n-head` — used by the `02.meta` plugin and testable in isolation. Types (`I18nHeadInput`, `I18nHeadLink`, `I18nHeadMeta`) are exported from `@i18n-micro/types`.
+
+#### Plugin Integration
+
+- **`02.meta`** — merges `useLocaleHead` output with page state from `useI18nHead` via `useHead`
+- **`01.plugin`** — resets page overrides on route name change via `resetPageHead()` (shared state with the composable)
+
+#### Documentation & Tests
+
+- New guide: [`useI18nHead`](/composables/useI18nHead) with CMS/article examples
+- Updated [SEO](/guide/seo) and [`useLocaleHead`](/composables/useLocaleHead) — when to use which API
+- Playwright + Vitest coverage: SSR, SPA navigation, reload, `nuxi generate`, partial alternates, `x-default`, reactive client load
+
+### Typical Use Cases
+
+| Scenario | Approach |
+|----------|----------|
+| Blog/CMS with partial translations | `replace.hreflang` + `replace.ogAlternates` from API locales |
+| Custom canonical from CMS | `replace.canonical` + `replace.ogUrl` |
+| Landing page OG only | `meta: [{ property: 'og:title', ... }]` — keep module hreflang |
+| No hreflang on a page | `disable: ['hreflang', 'x-default']` |
+| Replace custom plugin (`i18nManualHreflang`) | `useI18nHead` per content page + `meta: true` |
+
+**JSON-LD** stays in `useHead({ script: [...] })` — `useI18nHead` does not generate structured data.
+
+### Breaking Changes
+
+None for standard `nuxt.config` usage. New composable and utils subpath are additive.
+
+### Why It Matters
+
+- **No custom meta plugin** for CMS posts, news, or guides with per-locale URLs
+- **Single pipeline** — module defaults + page overrides in one `useHead` call
+- **Type-safe** — `I18nHeadInput` for helpers like `buildArticleHead(content)`
+
+Full changelog will be published with the release on [GitHub](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
+
+---
+
 ## Nuxt I18n Micro v3.20.0 — Runtime Layer Refactor & Redirect Split
 
-**Status**: Unreleased (planned)
+**Date**: 2026-05-14
 
 **Version**: `v3.20.0`
 

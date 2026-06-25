@@ -13,6 +13,7 @@ import { useState } from '#app'
 import { plural } from '#build/i18n.plural.mjs'
 import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useRouter, useRuntimeConfig } from '#imports'
+import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader } from '../utils/nuxt-i18n'
 import { translationStorage } from '../utils/storage'
@@ -36,6 +37,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const { locale: localeState, setLocale, getLocale, getEffectiveLocale, resolveInitialLocale, isValidLocale } = useI18nLocale()
 
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
+  const { resetPageHead } = useI18nHead()
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
   const ssrChunks = useState<Record<string, Record<string, unknown>>>('i18n-ssr-chunks', () => ({}))
 
@@ -136,6 +138,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   router.beforeEach(async (to, from) => {
     if (to.name !== from.name) {
       i18nRouteParams.value = {}
+      resetPageHead()
     }
 
     const shouldSwitchContext = to.path !== from.path || isNoPrefixStrategy(i18nConfig.strategy!)

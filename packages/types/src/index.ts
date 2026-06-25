@@ -599,6 +599,44 @@ export interface Translations {
   [key: string]: Translation
 }
 
+/** Link entry for page-level i18n head overrides (`useI18nHead`). */
+export interface I18nHeadLink {
+  rel: string
+  href: string
+  hreflang?: string
+  [key: string]: string | undefined
+}
+
+/** Meta entry for page-level i18n head overrides (`useI18nHead`). */
+export interface I18nHeadMeta {
+  [key: string]: string | undefined
+}
+
+/** Groups of built-in i18n SEO tags that can be disabled per page. */
+export type I18nHeadDisableGroup = 'hreflang' | 'x-default' | 'canonical' | 'og' | 'og-alternates' | 'html'
+
+/** Page-level overrides merged on top of `useLocaleHead` output. */
+export interface I18nHeadInput {
+  /** Extra or overriding `<html>` attributes. */
+  htmlAttrs?: Record<string, string>
+  /** Meta tags appended after base i18n tags (deduped by `id` / `property` / `name`). */
+  meta?: I18nHeadMeta[]
+  /** Link tags appended after base i18n tags (deduped by `id` / `rel` + `hreflang`). */
+  link?: I18nHeadLink[]
+  /** Replace or remove specific built-in i18n SEO tags. */
+  replace?: {
+    canonical?: string | false
+    hreflang?: I18nHeadLink[] | false
+    xDefault?: I18nHeadLink | false
+    ogLocale?: string | false
+    ogUrl?: string | false
+    /** Locale codes for `og:locale:alternate` (resolved via `locale.og` / `iso`). */
+    ogAlternates?: string[] | false
+  }
+  /** Disable built-in i18n SEO tag groups for this page. */
+  disable?: I18nHeadDisableGroup[]
+}
+
 const init = () => {}
 
 export { init }

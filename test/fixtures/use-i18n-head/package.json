@@ -1,0 +1,14 @@
+{
+  "name": "use-i18n-head-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  },
+  "dependencies": {
+    "nuxt": "catalog:nuxt3",
+    "serve": "catalog:"
+  }
+}

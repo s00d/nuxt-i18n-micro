@@ -111,6 +111,21 @@ Represents global route configurations for different locales.
 
 Represents a key-value pair of translations.
 
+#### Page-level SEO head (`useI18nHead`)
+
+Types for per-page i18n SEO overrides: `I18nHeadInput`, `I18nHeadLink`, `I18nHeadMeta`, and `I18nHeadDisableGroup`. Use them in page helpers or when calling `useI18nHead` from `@i18n-micro/types` for typed `meta`, `link`, `replace`, and `disable` options.
+
+```typescript
+import type { I18nHeadInput } from '@i18n-micro/types'
+
+export function buildArticleHead(article: Article): I18nHeadInput {
+  return {
+    meta: [{ property: 'og:title', content: article.title }],
+    replace: { canonical: article.canonicalUrl, ogUrl: article.canonicalUrl },
+  }
+}
+```
+
 #### `Translation`
 
 Represents a translation value, which can be a string, number, boolean, nested translations, or `null`.

@@ -14,6 +14,7 @@ export default defineNuxtConfig({
     translationDir: 'locales',
     autoDetectLanguage: false,
     hmr: true,
+    meta: false,
     routesLocaleLinks: {
       'about-alias': 'about',
     },

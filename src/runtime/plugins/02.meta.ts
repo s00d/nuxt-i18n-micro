@@ -1,14 +1,18 @@
-import type { I18nRouteParams, ModuleOptionsExtend } from '@i18n-micro/types'
+import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
 import { isMetaDisabledForRoute } from '@i18n-micro/utils/route'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
 import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useState } from '#imports'
+import { useI18nHead } from '../composables/useI18nHead'
 import { useLocaleHead } from '../composables/useLocaleHead'
+import type { PluginsInjections } from './01.plugin'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
+  const { pageHead } = useI18nHead()
   const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
   const i18nConfig = resolveI18nConfigWithRuntimeOverrides(
     (typeof getRuntimeConfig === 'function' ? getRuntimeConfig() : getI18nConfig()) as ModuleOptionsExtend,
@@ -41,7 +45,19 @@ export default defineNuxtPlugin((nuxtApp) => {
     autoUpdate: false,
   })
 
-  useHead(metaObject)
+  const mergedHead = computed(() => {
+    const { $getLocales, $getLocale } = nuxtApp as typeof nuxtApp & Pick<PluginsInjections, '$getLocales' | '$getLocale'>
+    const allLocales = $getLocales?.() ?? i18nConfig.locales ?? []
+    const locale = $getLocale?.() || i18nConfig.defaultLocale || 'en'
+
+    return mergeI18nHead(metaObject.value, pageHead.value, {
+      identifierAttribute: 'id',
+      locales: allLocales as Locale[],
+      currentLocale: locale,
+    })
+  })
+
+  useHead(mergedHead)
 
   const refreshMeta = () => updateMeta()
 
@@ -52,15 +68,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.hook('page:finish', refreshMeta)
   }
 
-  watch(
-    () => i18nRouteParams.value,
-    refreshMeta,
-    { deep: true, flush: 'post' },
-  )
+  watch(() => i18nRouteParams.value, refreshMeta, { deep: true, flush: 'post' })
 
-  watch(
-    () => [route.fullPath, route.name, route.matched.length] as const,
-    refreshMeta,
-    { flush: 'post' },
-  )
+  watch(() => [route.fullPath, route.name, route.matched.length] as const, refreshMeta, { flush: 'post' })
+
+  watch(pageHead, refreshMeta, { deep: true, flush: 'post' })
 })

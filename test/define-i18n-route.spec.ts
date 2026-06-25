@@ -378,14 +378,8 @@ test.describe('Product detail SSR and SPA meta timing', () => {
     await page.click('a:has-text("Coffee Filter")')
     await page.waitForURL('**/our-products/coffee-filter-en')
 
-    await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute(
-      'href',
-      `${normalizedBaseURL}/es/nuestros-productos/filtro-cafe-es`,
-    )
-    await expect(page.locator('link#i18n-alternate-es')).not.toHaveAttribute(
-      'href',
-      `${normalizedBaseURL}/es/nuestros-productos/coffee-filter-en`,
-    )
+    await expect(page.locator('link#i18n-alternate-es')).toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos/filtro-cafe-es`)
+    await expect(page.locator('link#i18n-alternate-es')).not.toHaveAttribute('href', `${normalizedBaseURL}/es/nuestros-productos/coffee-filter-en`)
   })
 
   test('client SPA: meta hreflang updates after navigating from Spanish product index to detail', async ({ page, goto, baseURL }) => {

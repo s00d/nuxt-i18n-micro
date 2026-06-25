@@ -55,7 +55,8 @@
         "vitest/valid-title": "off",
         "jest/valid-describe-callback": "off",
         "jest/no-export": "off",
-        "vitest/require-mock-type-parameters": "off"
+        "vitest/require-mock-type-parameters": "off",
+        "eslint/no-await-in-loop": "off"
       }
     },
     {

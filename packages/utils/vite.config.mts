@@ -17,6 +17,7 @@ const libEntries = {
   'accept-language': resolve(rootDir, 'src/accept-language.ts'),
   'resolve-locale': resolve(rootDir, 'src/resolve-locale.ts'),
   'resolve-og-locale': resolve(rootDir, 'src/resolve-og-locale.ts'),
+  'merge-i18n-head': resolve(rootDir, 'src/merge-i18n-head.ts'),
   'active-locales': resolve(rootDir, 'src/active-locales.ts'),
   cookie: resolve(rootDir, 'src/cookie.ts'),
   'cache-control': resolve(rootDir, 'src/cache-control.ts'),

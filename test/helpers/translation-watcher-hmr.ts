@@ -5,6 +5,8 @@ import { pollUntil } from './sequential'
 
 export const translationWatcherFixtureRoot = fileURLToPath(new URL('../fixtures/translation-watcher', import.meta.url))
 
+export const translationWatcherSourceFixtureRoot = fileURLToPath(new URL('../fixtures/translation-watcher-source', import.meta.url))
+
 const localesRoot = join(translationWatcherFixtureRoot, 'locales')
 const backups = new Map<string, string>()
 

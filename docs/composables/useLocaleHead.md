@@ -202,3 +202,7 @@ export default defineNuxtPlugin(() => {
   else watch(() => route.fullPath, () => updateMeta(), { immediate: true })
 })
 ```
+
+## When to use `useI18nHead` instead
+
+When `meta: true` (the default), prefer [`useI18nHead`](/composables/useI18nHead) for **per-page** overrides (custom hreflang, extra `og:title`, partial disable). Use `useLocaleHead` directly only when `meta: false` or you manage `useHead` yourself.

@@ -206,6 +206,77 @@ i18n: {
 
 For the `no_prefix` strategy, only `canonical`, `og:url`, `og:locale`, and `html` attributes (`lang`, `dir`) are generated. Alternate language links (`hreflang`) and `x-default` are not generated because there are no distinct URLs per locale.
 
+## Page-level overrides (`useI18nHead`)
+
+For **articles, guides, or any CMS content** where not every locale exists or URLs come from an API, use [`useI18nHead`](/composables/useI18nHead) on the page instead of a custom i18n head plugin.
+
+### Article with partial translations
+
+```vue
+<script setup lang="ts">
+const article = await loadArticle()
+// article.locales = { en: '...', de: '...' } — only translated locales
+
+useI18nHead({
+  meta: [{ property: 'og:title', content: article.title }],
+  replace: {
+    hreflang: Object.entries(article.locales).map(([locale, href]) => ({
+      rel: 'alternate',
+      hreflang: locale,
+      href,
+    })),
+    ogAlternates: Object.keys(article.locales),
+  },
+})
+</script>
+```
+
+### Per-locale slugs with `$setI18nRouteParams`
+
+When slugs differ per language, set route params first, then override alternates with real URLs:
+
+```vue
+<script setup lang="ts">
+const { $defineI18nRoute, $setI18nRouteParams } = useNuxtApp()
+const { data: article } = await useFetch(`/api/articles/${slug}`)
+
+$defineI18nRoute({
+  localeRoutes: { en: '/blog/[slug]', de: '/de/blog/[slug]' },
+})
+
+$setI18nRouteParams({
+  en: { slug: article.value.slugEn },
+  de: { slug: article.value.slugDe },
+})
+
+useI18nHead({
+  replace: {
+    hreflang: ['en', 'de'].map((locale) => ({
+      rel: 'alternate',
+      hreflang: locale,
+      href: article.value.urls[locale],
+    })),
+    ogAlternates: ['en', 'de'],
+  },
+})
+</script>
+```
+
+### HTTPS origin behind a proxy
+
+For correct absolute URLs on SSR without a custom origin composable:
+
+```ts
+i18n: {
+  meta: true,
+  metaBaseUrl: undefined,
+  metaTrustForwardedHost: true,
+  metaTrustForwardedProto: true,
+}
+```
+
+More examples (canonical override, `x-default`, reactive fetch, shared helpers): [useI18nHead composable](/composables/useI18nHead).
+
 ### ⚠️ Trailing Slash
 
 The module generates canonical and `hreflang` URLs based on the actual path from `useRoute().fullPath`. If your application uses trailing slashes (e.g., via Nuxt's `router.options`), the generated URLs will reflect this. However, `$switchLocalePath` may normalize paths and remove trailing slashes. If trailing slash consistency is critical for your SEO, verify the generated URLs match your application's URL structure.

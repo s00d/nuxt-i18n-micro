@@ -1,6 +1,7 @@
 import { expect, test } from '@nuxt/test-utils/playwright'
 import {
   patchTranslationWatcherFile,
+  refreshTranslationWatcherPage,
   restoreTranslationWatcherFiles,
   translationWatcherFixtureRoot,
   waitForTranslationHtmlValue,
@@ -32,7 +33,7 @@ test.describe('translation watcher dev HMR (premerged)', () => {
     }))
 
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'aboutTitle', 'About EN HMR')
-    await page.reload({ waitUntil: 'networkidle' })
+    await refreshTranslationWatcherPage(goto, '/en/about')
     await expect(page.locator('#about-title')).toHaveText('About EN HMR')
   })
 
@@ -48,7 +49,7 @@ test.describe('translation watcher dev HMR (premerged)', () => {
     await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'sharedRoot', 'Shared EN HMR')
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'sharedRoot', 'Shared EN HMR')
 
-    await page.reload({ waitUntil: 'networkidle' })
+    await refreshTranslationWatcherPage(goto, '/en')
     await expect(page.locator('#shared-root')).toHaveText('Shared EN HMR')
 
     await goto('/en/about', { waitUntil: 'hydration' })
@@ -90,7 +91,7 @@ test.describe('translation watcher dev HMR (premerged)', () => {
     }))
 
     await waitForTranslationPayloadValue(baseURL!, 'about', 'de', 'aboutTitle', 'About DE HMR')
-    await page.reload({ waitUntil: 'networkidle' })
+    await refreshTranslationWatcherPage(goto, '/de/about')
     await expect(page.locator('#about-title')).toHaveText('About DE HMR')
   })
 })

@@ -79,4 +79,5 @@ jobs:
       - name: Test
         run: |
           pnpm run test:workspaces
+          pnpm run clean:test
           pnpm run test

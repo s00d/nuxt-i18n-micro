@@ -1,10 +1,13 @@
 import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
 
+test.describe.configure({ mode: 'serial', timeout: 60_000 })
+
 // Test: prefix_except_default strategy
 test.use({
   nuxt: {
     rootDir: fileURLToPath(new URL('./fixtures/locale-state', import.meta.url)),
+    setupTimeout: 180_000,
     nuxtConfig: {
       i18n: {
         strategy: 'prefix_except_default',

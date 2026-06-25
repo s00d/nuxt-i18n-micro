@@ -1,6 +1,7 @@
 import { expect, test } from '@nuxt/test-utils/playwright'
 import {
   patchTranslationWatcherFile,
+  refreshTranslationWatcherPage,
   restoreTranslationWatcherFiles,
   translationWatcherSourceFixtureRoot,
   waitForTranslationPayloadValue,
@@ -31,7 +32,7 @@ test.describe('translation watcher dev HMR (source mode)', () => {
     }))
 
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'aboutTitle', 'About EN Source HMR')
-    await page.reload({ waitUntil: 'networkidle' })
+    await refreshTranslationWatcherPage(goto, '/en/about')
     await expect(page.locator('#about-title')).toHaveText('About EN Source HMR')
   })
 

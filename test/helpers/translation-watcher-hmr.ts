@@ -81,3 +81,28 @@ export async function waitForTranslationHtmlValue(pageUrl: string, selector: str
     { timeoutMs, message: `Timed out waiting for SSR ${pageUrl} ${selector}="${expected}"` },
   )
 }
+
+type GotoWaitUntil = 'commit' | 'domcontentloaded' | 'load' | 'networkidle' | 'hydration'
+
+/**
+ * Re-navigate after locale HMR. Avoid page.reload(networkidle) in dev — HMR keeps
+ * sockets open and Nitro may restart, which aborts reload on CI.
+ */
+export async function refreshTranslationWatcherPage(
+  goto: (path: string, options?: { waitUntil?: GotoWaitUntil }) => Promise<unknown>,
+  path: string,
+): Promise<void> {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      await goto(path, { waitUntil: 'hydration' })
+      return
+    } catch (error) {
+      lastError = error
+      await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)))
+    }
+  }
+
+  throw lastError
+}

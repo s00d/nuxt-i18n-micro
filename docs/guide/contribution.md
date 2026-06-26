@@ -81,10 +81,12 @@ Next, install the project dependencies using pnpm.
 
 ```bash
 pnpm install
-pnpm --filter @i18n-micro/utils build
 pnpm --filter "./packages/**" run build
-pnpm run prepack && cd playground && pnpm run prepare && cd ..
+pnpm run dev:prepare
 ```
+
+`dev:prepare` stubs the module, runs `nuxt-module-build prepare`, and runs `nuxi prepare playground`.  
+Root `client:prepare` is only for the devtools app in `client/` — not for the playground.
 
 ### 3. 🖥️ Run the Development Server
 
@@ -167,6 +169,7 @@ You can access the playground app at `http://localhost:3000`.
 ## 🔧 Summary of Common Scripts
 
 - **`pnpm run dev`**: Start the development server using the playground.
+- **`pnpm run dev:prepare`**: Prepare the module stub and generate playground types (run after install or when module types change).
 - **`pnpm run prepack`**: Build the module and prepare it for publishing.
 - **`pnpm --filter "./packages/**" run build`**: Build the packages.
 - **`pnpm run lint`**: Run the linter to check for code quality issues.

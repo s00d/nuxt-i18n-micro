@@ -1,0 +1,21 @@
+docs/guide/contribution.md
+  s_43f7072b0cae73::t_b6ba877dd7d516 85,88-89
+  s_43f7072b0cae73::t_021ea08aacf74d 172
+  s_43f7072b0cae73::t_6569f126be07bd 90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "d7cb04c025d1ada7d719b4d1c4f59de55fc46b67",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

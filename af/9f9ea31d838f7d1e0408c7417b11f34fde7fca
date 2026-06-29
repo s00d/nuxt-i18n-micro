@@ -1,0 +1,30 @@
+test/nitro-export-conditions.test.ts
+  s_43f7072b0cae73::t_05f545ef7fb1b6 43-44,48,51-54
+  s_43f7072b0cae73::t_cd0381a754acba 2
+packages/utils/package.json
+  s_43f7072b0cae73::t_d2557dd84f10a6 34-37,46,49-52,61,64-67,76,79-82,91,94-97,106,109-112,121,124-127,136,139-142,151,154-157,166,169-172,181,184-187,196,199-202,211,214-217,226,229-232,241,244-247,256,259-262,271,274-277,286,289-292,301,304-307,316,319-322,331
+packages/path-strategy/package.json
+  s_43f7072b0cae73::t_d2557dd84f10a6 33-36,45,48-51,60,63-66,75,78-81,90,93-96,105,108-111,120
+packages/route-strategy/package.json
+  s_43f7072b0cae73::t_d2557dd84f10a6 46-49,58
+packages/core/package.json
+  s_43f7072b0cae73::t_d2557dd84f10a6 38-41,50,53-56,65
+packages/hmr/package.json
+  s_43f7072b0cae73::t_d2557dd84f10a6 34-37,46,49-52,61,64-67,76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "af9f9ea31d838f7d1e0408c7417b11f34fde7fca",
+  "prompts": {},
+  "sessions": {
+    "s_43f7072b0cae73": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "20569882-ab4e-4b2f-a5bf-0b0988b64fcc",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

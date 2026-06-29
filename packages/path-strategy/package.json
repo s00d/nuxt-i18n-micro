@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/path-strategy",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Shared strategy-based path and route name builder for Nuxt I18n Micro frontend routing.",
   "keywords": [
     "i18n",
@@ -38,7 +38,15 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       },
-      "default": "./dist/index.mjs"
+      "default": "./dist/index.mjs",
+      "node": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "production": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      }
     },
     "./prefix": {
       "import": {
@@ -49,7 +57,15 @@
         "types": "./dist/strategies/prefix.d.cts",
         "default": "./dist/prefix-strategy.cjs"
       },
-      "default": "./dist/prefix-strategy.mjs"
+      "default": "./dist/prefix-strategy.mjs",
+      "node": {
+        "types": "./dist/strategies/prefix.d.ts",
+        "default": "./dist/prefix-strategy.mjs"
+      },
+      "production": {
+        "types": "./dist/strategies/prefix.d.ts",
+        "default": "./dist/prefix-strategy.mjs"
+      }
     },
     "./no-prefix": {
       "import": {
@@ -60,7 +76,15 @@
         "types": "./dist/strategies/no-prefix.d.cts",
         "default": "./dist/no-prefix-strategy.cjs"
       },
-      "default": "./dist/no-prefix-strategy.mjs"
+      "default": "./dist/no-prefix-strategy.mjs",
+      "node": {
+        "types": "./dist/strategies/no-prefix.d.ts",
+        "default": "./dist/no-prefix-strategy.mjs"
+      },
+      "production": {
+        "types": "./dist/strategies/no-prefix.d.ts",
+        "default": "./dist/no-prefix-strategy.mjs"
+      }
     },
     "./prefix-except-default": {
       "import": {
@@ -71,7 +95,15 @@
         "types": "./dist/strategies/prefix-except-default.d.cts",
         "default": "./dist/prefix-except-default-strategy.cjs"
       },
-      "default": "./dist/prefix-except-default-strategy.mjs"
+      "default": "./dist/prefix-except-default-strategy.mjs",
+      "node": {
+        "types": "./dist/strategies/prefix-except-default.d.ts",
+        "default": "./dist/prefix-except-default-strategy.mjs"
+      },
+      "production": {
+        "types": "./dist/strategies/prefix-except-default.d.ts",
+        "default": "./dist/prefix-except-default-strategy.mjs"
+      }
     },
     "./prefix-and-default": {
       "import": {
@@ -82,7 +114,15 @@
         "types": "./dist/strategies/prefix-and-default.d.cts",
         "default": "./dist/prefix-and-default-strategy.cjs"
       },
-      "default": "./dist/prefix-and-default-strategy.mjs"
+      "default": "./dist/prefix-and-default-strategy.mjs",
+      "node": {
+        "types": "./dist/strategies/prefix-and-default.d.ts",
+        "default": "./dist/prefix-and-default-strategy.mjs"
+      },
+      "production": {
+        "types": "./dist/strategies/prefix-and-default.d.ts",
+        "default": "./dist/prefix-and-default-strategy.mjs"
+      }
     },
     "./types": {
       "import": {
@@ -93,7 +133,15 @@
         "types": "./dist/types.d.cts",
         "default": "./dist/types.cjs"
       },
-      "default": "./dist/types.mjs"
+      "default": "./dist/types.mjs",
+      "node": {
+        "types": "./dist/types.d.ts",
+        "default": "./dist/types.mjs"
+      },
+      "production": {
+        "types": "./dist/types.d.ts",
+        "default": "./dist/types.mjs"
+      }
     },
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"

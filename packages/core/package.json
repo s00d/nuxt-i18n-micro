@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/core",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Core utilities for translations, formatting, and locale routing in Nuxt I18n Micro.",
   "keywords": [
     "formatting",
@@ -43,7 +43,15 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       },
-      "default": "./dist/index.mjs"
+      "default": "./dist/index.mjs",
+      "node": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "production": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      }
     },
     "./helpers": {
       "import": {
@@ -54,7 +62,15 @@
         "types": "./dist/helpers.d.cts",
         "default": "./dist/helpers.cjs"
       },
-      "default": "./dist/helpers.mjs"
+      "default": "./dist/helpers.mjs",
+      "node": {
+        "types": "./dist/helpers.d.ts",
+        "default": "./dist/helpers.mjs"
+      },
+      "production": {
+        "types": "./dist/helpers.d.ts",
+        "default": "./dist/helpers.mjs"
+      }
     },
     "./package.json": "./package.json"
   },

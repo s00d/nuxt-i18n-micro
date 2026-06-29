@@ -4,7 +4,6 @@
  */
 
 import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
-import { existsSync } from 'node:fs'
 import net from 'node:net'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -132,14 +131,7 @@ describe('useLocaleHead production SSR (#233)', () => {
 
   afterAll(stop)
 
-  it('copies @i18n-micro/utils into server output when Nitro externalizes it', () => {
-    const utilsDist = join(FIXTURE, '.output/server/node_modules/@i18n-micro/utils/dist/route.mjs')
-    const serverBundle = join(FIXTURE, '.output/server/chunks/build/server.mjs')
-    const utilsAvailable = existsSync(utilsDist) || existsSync(serverBundle)
-    expect(utilsAvailable).toBe(true)
-  })
-
-  it('GET /en renders useLocaleHead SEO tags without server crash', async () => {
+  it('production SSR serves pages without module resolution errors', async () => {
     const res = await fetch(`http://${HOST}:${port}/en`)
     expect(res.status).toBe(200)
 

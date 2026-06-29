@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/utils",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "i18n",
@@ -39,7 +39,15 @@
         "types": "./dist/deep-merge.d.cts",
         "default": "./dist/deep-merge.cjs"
       },
-      "default": "./dist/deep-merge.mjs"
+      "default": "./dist/deep-merge.mjs",
+      "node": {
+        "types": "./dist/deep-merge.d.ts",
+        "default": "./dist/deep-merge.mjs"
+      },
+      "production": {
+        "types": "./dist/deep-merge.d.ts",
+        "default": "./dist/deep-merge.mjs"
+      }
     },
     "./merge-source": {
       "import": {
@@ -50,7 +58,15 @@
         "types": "./dist/merge-source.d.cts",
         "default": "./dist/merge-source.cjs"
       },
-      "default": "./dist/merge-source.mjs"
+      "default": "./dist/merge-source.mjs",
+      "node": {
+        "types": "./dist/merge-source.d.ts",
+        "default": "./dist/merge-source.mjs"
+      },
+      "production": {
+        "types": "./dist/merge-source.d.ts",
+        "default": "./dist/merge-source.mjs"
+      }
     },
     "./source-loader": {
       "import": {
@@ -61,7 +77,15 @@
         "types": "./dist/source-loader.d.cts",
         "default": "./dist/source-loader.cjs"
       },
-      "default": "./dist/source-loader.mjs"
+      "default": "./dist/source-loader.mjs",
+      "node": {
+        "types": "./dist/source-loader.d.ts",
+        "default": "./dist/source-loader.mjs"
+      },
+      "production": {
+        "types": "./dist/source-loader.d.ts",
+        "default": "./dist/source-loader.mjs"
+      }
     },
     "./payload-config": {
       "import": {
@@ -72,7 +96,15 @@
         "types": "./dist/payload-config.d.cts",
         "default": "./dist/payload-config.cjs"
       },
-      "default": "./dist/payload-config.mjs"
+      "default": "./dist/payload-config.mjs",
+      "node": {
+        "types": "./dist/payload-config.d.ts",
+        "default": "./dist/payload-config.mjs"
+      },
+      "production": {
+        "types": "./dist/payload-config.d.ts",
+        "default": "./dist/payload-config.mjs"
+      }
     },
     "./payload-url": {
       "import": {
@@ -83,7 +115,15 @@
         "types": "./dist/payload-url.d.cts",
         "default": "./dist/payload-url.cjs"
       },
-      "default": "./dist/payload-url.mjs"
+      "default": "./dist/payload-url.mjs",
+      "node": {
+        "types": "./dist/payload-url.d.ts",
+        "default": "./dist/payload-url.mjs"
+      },
+      "production": {
+        "types": "./dist/payload-url.d.ts",
+        "default": "./dist/payload-url.mjs"
+      }
     },
     "./payload-fetch": {
       "import": {
@@ -94,7 +134,15 @@
         "types": "./dist/payload-fetch.d.cts",
         "default": "./dist/payload-fetch.cjs"
       },
-      "default": "./dist/payload-fetch.mjs"
+      "default": "./dist/payload-fetch.mjs",
+      "node": {
+        "types": "./dist/payload-fetch.d.ts",
+        "default": "./dist/payload-fetch.mjs"
+      },
+      "production": {
+        "types": "./dist/payload-fetch.d.ts",
+        "default": "./dist/payload-fetch.mjs"
+      }
     },
     "./payload-stats": {
       "import": {
@@ -105,7 +153,15 @@
         "types": "./dist/payload-stats.d.cts",
         "default": "./dist/payload-stats.cjs"
       },
-      "default": "./dist/payload-stats.mjs"
+      "default": "./dist/payload-stats.mjs",
+      "node": {
+        "types": "./dist/payload-stats.d.ts",
+        "default": "./dist/payload-stats.mjs"
+      },
+      "production": {
+        "types": "./dist/payload-stats.d.ts",
+        "default": "./dist/payload-stats.mjs"
+      }
     },
     "./accept-language": {
       "import": {
@@ -116,7 +172,15 @@
         "types": "./dist/accept-language.d.cts",
         "default": "./dist/accept-language.cjs"
       },
-      "default": "./dist/accept-language.mjs"
+      "default": "./dist/accept-language.mjs",
+      "node": {
+        "types": "./dist/accept-language.d.ts",
+        "default": "./dist/accept-language.mjs"
+      },
+      "production": {
+        "types": "./dist/accept-language.d.ts",
+        "default": "./dist/accept-language.mjs"
+      }
     },
     "./resolve-locale": {
       "import": {
@@ -127,7 +191,15 @@
         "types": "./dist/resolve-locale.d.cts",
         "default": "./dist/resolve-locale.cjs"
       },
-      "default": "./dist/resolve-locale.mjs"
+      "default": "./dist/resolve-locale.mjs",
+      "node": {
+        "types": "./dist/resolve-locale.d.ts",
+        "default": "./dist/resolve-locale.mjs"
+      },
+      "production": {
+        "types": "./dist/resolve-locale.d.ts",
+        "default": "./dist/resolve-locale.mjs"
+      }
     },
     "./resolve-og-locale": {
       "import": {
@@ -138,7 +210,15 @@
         "types": "./dist/resolve-og-locale.d.cts",
         "default": "./dist/resolve-og-locale.cjs"
       },
-      "default": "./dist/resolve-og-locale.mjs"
+      "default": "./dist/resolve-og-locale.mjs",
+      "node": {
+        "types": "./dist/resolve-og-locale.d.ts",
+        "default": "./dist/resolve-og-locale.mjs"
+      },
+      "production": {
+        "types": "./dist/resolve-og-locale.d.ts",
+        "default": "./dist/resolve-og-locale.mjs"
+      }
     },
     "./merge-i18n-head": {
       "import": {
@@ -149,7 +229,15 @@
         "types": "./dist/merge-i18n-head.d.cts",
         "default": "./dist/merge-i18n-head.cjs"
       },
-      "default": "./dist/merge-i18n-head.mjs"
+      "default": "./dist/merge-i18n-head.mjs",
+      "node": {
+        "types": "./dist/merge-i18n-head.d.ts",
+        "default": "./dist/merge-i18n-head.mjs"
+      },
+      "production": {
+        "types": "./dist/merge-i18n-head.d.ts",
+        "default": "./dist/merge-i18n-head.mjs"
+      }
     },
     "./active-locales": {
       "import": {
@@ -160,7 +248,15 @@
         "types": "./dist/active-locales.d.cts",
         "default": "./dist/active-locales.cjs"
       },
-      "default": "./dist/active-locales.mjs"
+      "default": "./dist/active-locales.mjs",
+      "node": {
+        "types": "./dist/active-locales.d.ts",
+        "default": "./dist/active-locales.mjs"
+      },
+      "production": {
+        "types": "./dist/active-locales.d.ts",
+        "default": "./dist/active-locales.mjs"
+      }
     },
     "./cookie": {
       "import": {
@@ -171,7 +267,15 @@
         "types": "./dist/cookie.d.cts",
         "default": "./dist/cookie.cjs"
       },
-      "default": "./dist/cookie.mjs"
+      "default": "./dist/cookie.mjs",
+      "node": {
+        "types": "./dist/cookie.d.ts",
+        "default": "./dist/cookie.mjs"
+      },
+      "production": {
+        "types": "./dist/cookie.d.ts",
+        "default": "./dist/cookie.mjs"
+      }
     },
     "./cache-control": {
       "import": {
@@ -182,7 +286,15 @@
         "types": "./dist/cache-control.d.cts",
         "default": "./dist/cache-control.cjs"
       },
-      "default": "./dist/cache-control.mjs"
+      "default": "./dist/cache-control.mjs",
+      "node": {
+        "types": "./dist/cache-control.d.ts",
+        "default": "./dist/cache-control.mjs"
+      },
+      "production": {
+        "types": "./dist/cache-control.d.ts",
+        "default": "./dist/cache-control.mjs"
+      }
     },
     "./parse-path": {
       "import": {
@@ -193,7 +305,15 @@
         "types": "./dist/parse-path.d.cts",
         "default": "./dist/parse-path.cjs"
       },
-      "default": "./dist/parse-path.mjs"
+      "default": "./dist/parse-path.mjs",
+      "node": {
+        "types": "./dist/parse-path.d.ts",
+        "default": "./dist/parse-path.mjs"
+      },
+      "production": {
+        "types": "./dist/parse-path.d.ts",
+        "default": "./dist/parse-path.mjs"
+      }
     },
     "./route-pattern": {
       "import": {
@@ -204,7 +324,15 @@
         "types": "./dist/route-pattern.d.cts",
         "default": "./dist/route-pattern.cjs"
       },
-      "default": "./dist/route-pattern.mjs"
+      "default": "./dist/route-pattern.mjs",
+      "node": {
+        "types": "./dist/route-pattern.d.ts",
+        "default": "./dist/route-pattern.mjs"
+      },
+      "production": {
+        "types": "./dist/route-pattern.d.ts",
+        "default": "./dist/route-pattern.mjs"
+      }
     },
     "./route": {
       "import": {
@@ -215,7 +343,15 @@
         "types": "./dist/route.d.cts",
         "default": "./dist/route.cjs"
       },
-      "default": "./dist/route.mjs"
+      "default": "./dist/route.mjs",
+      "node": {
+        "types": "./dist/route.d.ts",
+        "default": "./dist/route.mjs"
+      },
+      "production": {
+        "types": "./dist/route.d.ts",
+        "default": "./dist/route.mjs"
+      }
     },
     "./runtime-config": {
       "import": {
@@ -226,7 +362,15 @@
         "types": "./dist/runtime-config.d.cts",
         "default": "./dist/runtime-config.cjs"
       },
-      "default": "./dist/runtime-config.mjs"
+      "default": "./dist/runtime-config.mjs",
+      "node": {
+        "types": "./dist/runtime-config.d.ts",
+        "default": "./dist/runtime-config.mjs"
+      },
+      "production": {
+        "types": "./dist/runtime-config.d.ts",
+        "default": "./dist/runtime-config.mjs"
+      }
     },
     "./normalize": {
       "import": {
@@ -237,7 +381,15 @@
         "types": "./dist/normalize.d.cts",
         "default": "./dist/normalize.cjs"
       },
-      "default": "./dist/normalize.mjs"
+      "default": "./dist/normalize.mjs",
+      "node": {
+        "types": "./dist/normalize.d.ts",
+        "default": "./dist/normalize.mjs"
+      },
+      "production": {
+        "types": "./dist/normalize.d.ts",
+        "default": "./dist/normalize.mjs"
+      }
     },
     "./build": {
       "import": {
@@ -248,7 +400,15 @@
         "types": "./dist/build.d.cts",
         "default": "./dist/build.cjs"
       },
-      "default": "./dist/build.mjs"
+      "default": "./dist/build.mjs",
+      "node": {
+        "types": "./dist/build.d.ts",
+        "default": "./dist/build.mjs"
+      },
+      "production": {
+        "types": "./dist/build.d.ts",
+        "default": "./dist/build.mjs"
+      }
     },
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"

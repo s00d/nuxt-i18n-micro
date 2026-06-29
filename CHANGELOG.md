@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v3.21.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.0...v3.21.2)
+
+### 🩹 Fixes
+
+- **nitro:** Resolve #233 via package export conditions, drop traceInclude hack ([#233](https://github.com/s00d/nuxt-i18n-micro/issues/233))
+- **packages:** Order production export before import to silence esbuild warnings ([af9f9ea3](https://github.com/s00d/nuxt-i18n-micro/commit/af9f9ea3))
+
+### 📖 Documentation
+
+- **contribution:** Update contribution guide with new dev:prepare script ([d7cb04c0](https://github.com/s00d/nuxt-i18n-micro/commit/d7cb04c0))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.21.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.20.1...v3.21.0)

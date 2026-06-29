@@ -35,6 +35,10 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "production": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.mjs"
@@ -43,17 +47,13 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       },
-      "default": "./dist/index.mjs",
-      "node": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.mjs"
-      },
-      "production": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.mjs"
-      }
+      "default": "./dist/index.mjs"
     },
     "./helpers": {
+      "production": {
+        "types": "./dist/helpers.d.ts",
+        "default": "./dist/helpers.mjs"
+      },
       "import": {
         "types": "./dist/helpers.d.ts",
         "default": "./dist/helpers.mjs"
@@ -62,15 +62,7 @@
         "types": "./dist/helpers.d.cts",
         "default": "./dist/helpers.cjs"
       },
-      "default": "./dist/helpers.mjs",
-      "node": {
-        "types": "./dist/helpers.d.ts",
-        "default": "./dist/helpers.mjs"
-      },
-      "production": {
-        "types": "./dist/helpers.d.ts",
-        "default": "./dist/helpers.mjs"
-      }
+      "default": "./dist/helpers.mjs"
     },
     "./package.json": "./package.json"
   },

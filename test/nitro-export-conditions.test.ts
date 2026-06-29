@@ -1,5 +1,5 @@
 /**
- * Issue #233 — Nitro traces externals with production/node export conditions (not import/require).
+ * Issue #233 — Nitro traces externals with the production export condition (not import/require).
  */
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -40,14 +40,17 @@ describe('Nitro export conditions (#233)', () => {
     expect(resolved).toMatch(/route\.mjs$/)
   })
 
-  it('production/node conditions resolve ESM for Nitro file trace', () => {
-    const resolved = resolveWithNodeConditions('@i18n-micro/utils/route', ['production', 'node'])
+  it('production condition resolves ESM for Nitro file trace', () => {
+    const resolved = resolveWithNodeConditions('@i18n-micro/utils/route', ['production'])
     expect(resolved).toMatch(/route\.mjs$/)
   })
 
-  it('route export declares node and production → .mjs', () => {
+  it('route export declares production → .mjs before import/require', () => {
     const entry = utilsPkg.exports['./route']
-    expect(entry.node.default).toBe('./dist/route.mjs')
     expect(entry.production.default).toBe('./dist/route.mjs')
+    const keys = Object.keys(entry)
+    expect(keys.indexOf('production')).toBeLessThan(keys.indexOf('import'))
+    expect(keys.indexOf('import')).toBeLessThan(keys.indexOf('require'))
+    expect(entry.node).toBeUndefined()
   })
 })

@@ -31,6 +31,10 @@
   "sideEffects": false,
   "exports": {
     "./watcher": {
+      "production": {
+        "types": "./dist/watcher.d.ts",
+        "default": "./dist/watcher.mjs"
+      },
       "import": {
         "types": "./dist/watcher.d.ts",
         "default": "./dist/watcher.mjs"
@@ -39,17 +43,13 @@
         "types": "./dist/watcher.d.cts",
         "default": "./dist/watcher.cjs"
       },
-      "default": "./dist/watcher.mjs",
-      "node": {
-        "types": "./dist/watcher.d.ts",
-        "default": "./dist/watcher.mjs"
-      },
-      "production": {
-        "types": "./dist/watcher.d.ts",
-        "default": "./dist/watcher.mjs"
-      }
+      "default": "./dist/watcher.mjs"
     },
     "./generate-plugin": {
+      "production": {
+        "types": "./dist/generate-plugin.d.ts",
+        "default": "./dist/generate-plugin.mjs"
+      },
       "import": {
         "types": "./dist/generate-plugin.d.ts",
         "default": "./dist/generate-plugin.mjs"
@@ -58,17 +58,13 @@
         "types": "./dist/generate-plugin.d.cts",
         "default": "./dist/generate-plugin.cjs"
       },
-      "default": "./dist/generate-plugin.mjs",
-      "node": {
-        "types": "./dist/generate-plugin.d.ts",
-        "default": "./dist/generate-plugin.mjs"
-      },
-      "production": {
-        "types": "./dist/generate-plugin.d.ts",
-        "default": "./dist/generate-plugin.mjs"
-      }
+      "default": "./dist/generate-plugin.mjs"
     },
     "./cache-keys": {
+      "production": {
+        "types": "./dist/cache-keys.d.ts",
+        "default": "./dist/cache-keys.mjs"
+      },
       "import": {
         "types": "./dist/cache-keys.d.ts",
         "default": "./dist/cache-keys.mjs"
@@ -77,15 +73,7 @@
         "types": "./dist/cache-keys.d.cts",
         "default": "./dist/cache-keys.cjs"
       },
-      "default": "./dist/cache-keys.mjs",
-      "node": {
-        "types": "./dist/cache-keys.d.ts",
-        "default": "./dist/cache-keys.mjs"
-      },
-      "production": {
-        "types": "./dist/cache-keys.d.ts",
-        "default": "./dist/cache-keys.mjs"
-      }
+      "default": "./dist/cache-keys.mjs"
     },
     "./package.json": "./package.json",
     "./dist/*": "./dist/*"

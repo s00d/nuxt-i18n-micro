@@ -43,6 +43,10 @@
   },
   "exports": {
     ".": {
+      "production": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
       "import": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.mjs"
@@ -51,15 +55,7 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       },
-      "default": "./dist/index.mjs",
-      "node": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.mjs"
-      },
-      "production": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.mjs"
-      }
+      "default": "./dist/index.mjs"
     }
   },
   "publishConfig": {

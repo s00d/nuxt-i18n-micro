@@ -1,9 +1,11 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getLocaleCookieName } from '@i18n-micro/utils/cookie'
 import { resolveServerLocale } from '@i18n-micro/utils/resolve-locale'
 import type { H3Event } from 'h3'
 import { getCookie, getQuery, getRequestURL } from 'h3'
+import { useRuntimeConfig } from '#imports'
 
 export interface DetectCurrentLocaleConfig {
   fallbackLocale?: string
@@ -27,7 +29,8 @@ export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleC
   const resolvedDefault = defaultLocale || configDefaultLocale || 'en'
   const validLocales = getEnabledLocaleCodes(locales ?? [])
   const url = getRequestURL(event)
-  const cleanPath = url.pathname.split('?')[0]?.split('#')[0] ?? url.pathname
+  const rawPath = url.pathname.split('?')[0]?.split('#')[0] ?? url.pathname
+  const cleanPath = withoutAppBaseURL(rawPath, useRuntimeConfig(event).app.baseURL)
   const pathSegments = cleanPath.split('/').filter(Boolean)
   const firstSegment = pathSegments[0] ?? ''
   const hasLocaleInUrl = Boolean(firstSegment && validLocales.includes(firstSegment))

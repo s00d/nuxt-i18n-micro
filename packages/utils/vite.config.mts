@@ -27,6 +27,7 @@ const libEntries = {
   'runtime-config': resolve(rootDir, 'src/runtime-config.ts'),
   normalize: resolve(rootDir, 'src/normalize.ts'),
   build: resolve(rootDir, 'src/build.ts'),
+  'app-path': resolve(rootDir, 'src/app-path.ts'),
 } as const
 
 const publishedEntryNames = new Set(Object.keys(libEntries))

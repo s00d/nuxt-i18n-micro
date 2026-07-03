@@ -8,10 +8,11 @@ import { isInternalPath } from '@i18n-micro/route-strategy'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
 import { resolvePreferredLocale } from '@i18n-micro/utils/resolve-locale'
 import { getCookie, getHeader, getRequestURL, setCookie } from 'h3'
-import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useState } from '#imports'
+import { createError, defineNuxtPlugin, navigateTo, useRequestEvent, useRuntimeConfig, useState } from '#imports'
 
 const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
 
@@ -32,6 +33,7 @@ export default defineNuxtPlugin({
       throw new Error('[nuxt-i18n-micro] i18n redirect plugin requires $getI18nConfig from the main i18n plugin.')
     }
     const i18nConfig = getRuntimeConfig()
+    const appBaseURL = useRuntimeConfig().app.baseURL
     const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
     const defaultLocale = i18nConfig.defaultLocale || 'en'
     const autoDetectPath = i18nConfig.autoDetectPath || '/'
@@ -42,7 +44,7 @@ export default defineNuxtPlugin({
       if (!event) return
 
       const url = getRequestURL(event)
-      const path = url.pathname
+      const path = withoutAppBaseURL(url.pathname, appBaseURL)
 
       const performRedirect = (targetUrl: string, code: number = 302): Promise<void> => {
         return navigateTo(targetUrl, { redirectCode: code }) as Promise<void>

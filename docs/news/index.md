@@ -6,6 +6,12 @@ outline: "deep"
 
 # News
 
+## Fix: infinite redirect loop with `app.baseURL` + `strategy: 'prefix'` (#234)
+
+**Date**: 2026-07-03
+
+Server-side redirect plugin (`06.redirect.ts`) now strips `runtimeConfig.app.baseURL` from `getRequestURL(event).pathname` before locale detection. Fixes `ERR_TOO_MANY_REDIRECTS` when the app is served under a sub-path (e.g. `/examples` → `/examples/ja` once, not `/examples/ja/examples/ja/...`).
+
 ## Nuxt I18n Micro v3.21.0 — `useI18nHead` for Per-Page SEO
 
 **Date**: 2026-06-25

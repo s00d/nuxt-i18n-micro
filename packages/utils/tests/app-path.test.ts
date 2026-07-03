@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { withoutAppBaseURL } from '../src/app-path'
 
 describe('withoutAppBaseURL', () => {

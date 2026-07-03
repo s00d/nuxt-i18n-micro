@@ -1,0 +1,35 @@
+test/fixtures/baseurl-prefix/locales/en.json
+  s_b9aa3066690b34::t_7de43b74e33151 1-3
+test/fixtures/baseurl-prefix/locales/ja.json
+  s_b9aa3066690b34::t_a579d4f7543aaf 1-3
+test/baseurl-prefix-redirect.spec.ts
+  s_b9aa3066690b34::t_11f8608f0f4ee6 1-53
+packages/utils/src/app-path.ts
+  s_b9aa3066690b34::t_aab7b4525abf1b 1-18
+test/fixtures/baseurl-prefix/pages/index.vue
+  s_b9aa3066690b34::t_181eabe97eeb46 1-3
+  s_b9aa3066690b34::t_2df16ae97bd42a 4-5
+test/fixtures/baseurl-prefix/app.vue
+  s_b9aa3066690b34::t_21e6676ee3b13b 1-3
+packages/utils/tests/app-path.test.ts
+  s_b9aa3066690b34::t_315df0a9159daa 2-26
+  s_b9aa3066690b34::t_acf12445a8346f 1
+test/fixtures/baseurl-prefix/nuxt.config.ts
+  s_b9aa3066690b34::t_afa6afe18c23d7 1-17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.9",
+  "base_commit_sha": "e70dc97b03cfe218f618f43330ac33048ff10a22",
+  "prompts": {},
+  "sessions": {
+    "s_b9aa3066690b34": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3f05066f-296d-4908-a610-67f68e8420ee",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

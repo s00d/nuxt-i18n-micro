@@ -1,0 +1,49 @@
+packages/route-strategy/package.json
+  s_b9aa3066690b34::t_3c34b2787ccb30 3
+packages/route-strategy/src/utils/index.ts
+  s_b9aa3066690b34::t_9dbc0a1a9a6c08 11
+packages/route-strategy/tests/utils-and-edge.test.ts
+  s_b9aa3066690b34::t_fa4e9391337621 123-126
+  s_b9aa3066690b34::t_ffb8692d585b8f 120-122
+  s_b9aa3066690b34::t_071bec1b053022 4
+packages/route-strategy/src/utils/path.ts
+  s_b9aa3066690b34::t_d7d0002481add8 40,43-47,60-64
+  s_b9aa3066690b34::t_711a8d20c69ce4 65
+packages/route-strategy/src/strategies/prefix-except-default.ts
+  s_b9aa3066690b34::t_9cbce18455dda3 293
+test/n3.spec.ts
+  s_b9aa3066690b34::t_97854fe2a8c28b 26,28-37
+  s_b9aa3066690b34::t_8d051edc633e4d 7
+  s_b9aa3066690b34::t_12937593bee063 120
+  s_b9aa3066690b34::t_87459a7db39be9 51
+packages/route-strategy/src/strategies/prefix.ts
+  s_b9aa3066690b34::t_738dd0dc464402 4
+  s_b9aa3066690b34::t_3fed9c3384d8f3 29,35-36
+packages/route-strategy/src/index.ts
+  s_b9aa3066690b34::t_72a4905c0dba02 34
+  s_b9aa3066690b34::t_91bcfb2378c4ac 5
+packages/route-strategy/tests/__snapshots__/deep-nesting.test.ts.snap
+  s_b9aa3066690b34::t_cfcfad7eed6d32 734,759,765,790,796,821
+packages/route-strategy/tests/__snapshots__/general.test.ts.snap
+  s_b9aa3066690b34::t_da1be8270a4c90 122,140,146,164,170,188
+packages/route-strategy/tests/__snapshots__/strategies.test.ts.snap
+  s_b9aa3066690b34::t_9d870e18fb3715 261,265,271,275,281,285
+packages/route-strategy/src/strategies/prefix-and-default.ts
+  s_b9aa3066690b34::t_ce0bd12f1be645 142
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "8e08d8874a5e9e00666d0e3a80a2e32e8b3312a5",
+  "prompts": {},
+  "sessions": {
+    "s_b9aa3066690b34": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3f05066f-296d-4908-a610-67f68e8420ee",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

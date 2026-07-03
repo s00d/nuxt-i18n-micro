@@ -1,0 +1,38 @@
+test/fixtures/baseurl-prefix/pages/index.vue
+  s_b9aa3066690b34::t_aa8c63bf3116bc 6-7
+  s_b9aa3066690b34::t_4b12ee8791a0c3 4-5,8-9
+src/runtime/server/utils/locale-detector.ts
+  s_b9aa3066690b34::t_603517915fbe94 3,8
+  s_b9aa3066690b34::t_4234f83c5436fd 32-33
+src/runtime/server/middleware/i18n.global.ts
+  s_b9aa3066690b34::t_abf4f9f0c052d5 8
+  s_b9aa3066690b34::t_8b8d09057e84b9 19-21
+packages/utils/vite.config.mts
+  s_b9aa3066690b34::t_266ba365240a2e 30
+docs/news/index.md
+  s_b9aa3066690b34::t_4f008f560b1077 9-14
+packages/utils/package.json
+  s_b9aa3066690b34::t_a29d41158ef8a9 3
+  s_b9aa3066690b34::t_fd8ab53db3a0f2 333-346
+  s_b9aa3066690b34::t_335e16b5b0f369 347
+src/runtime/plugins/06.redirect.ts
+  s_b9aa3066690b34::t_06fe1b9b62bce8 36
+  s_b9aa3066690b34::t_a8a27eeb487ca5 11,15
+  s_b9aa3066690b34::t_105edf169307d6 47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.9",
+  "base_commit_sha": "7aeed75d91d7eae7d06fc1794b973d4c41f15d9c",
+  "prompts": {},
+  "sessions": {
+    "s_b9aa3066690b34": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "3f05066f-296d-4908-a610-67f68e8420ee",
+        "model": "default"
+      },
+      "human_author": "Pavel Kuzmin <Virus191288@gmail.com>"
+    }
+  }
+}

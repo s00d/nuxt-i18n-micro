@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v3.21.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.2...v3.21.3)
+
+### 🚀 Enhancements
+
+- **utils:** Add withoutAppBaseURL utility function to strip baseURL from request paths ([e70dc97b](https://github.com/s00d/nuxt-i18n-micro/commit/e70dc97b))
+
+### 🩹 Fixes
+
+- **redirect:** Resolve infinite redirect loop with `app.baseURL` and `strategy: 'prefix'` ([7aeed75d](https://github.com/s00d/nuxt-i18n-micro/commit/7aeed75d))
+
+### 🏡 Chore
+
+- **release:** V3.21.2 ([a292a3ba](https://github.com/s00d/nuxt-i18n-micro/commit/a292a3ba))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.21.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.0...v3.21.2)

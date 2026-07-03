@@ -1,0 +1,16 @@
+{
+  "name": "nuxt-seo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "generate": "nuxi generate"
+  },
+  "dependencies": {
+    "nuxt": "catalog:"
+  },
+  "devDependencies": {
+    "@nuxtjs/seo": "catalog:"
+  }
+}

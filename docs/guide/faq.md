@@ -301,6 +301,20 @@ compatibility_flags = [ "nodejs_compat_v2" ]
 
 This flag allows many Node.js modules (including those used by `nuxt-i18n-micro`) to run smoothly.
 
+## 🔍 SEO & `@nuxtjs/seo`
+
+### ❓ Error: `nuxt-seo:defaults depends on nuxt-site-config:i18n but they are not registered`
+
+This happens when **`@nuxtjs/seo`** pulls in an old **`nuxt-site-config` 3.x** that only registers its i18n plugin for `@nuxtjs/i18n`, not for **nuxt-i18n-micro**.
+
+**Fix:**
+
+1. Upgrade to **`@nuxtjs/seo` 3+** (includes `nuxt-site-config` 4+ with micro support).
+2. Put **`nuxt-i18n-micro` before `@nuxtjs/seo`** in `modules`.
+3. Keep **`i18n.meta: true`** for locale-aware head tags.
+
+See the [SEO guide — Nuxt SEO section](/guide/seo#nuxt-seo-nuxtjs-seo) for a full example.
+
 ## 🔧 Configuration & Compatibility
 
 ### ❓ Is `Nuxt I18n Micro` inspired by `vue-i18n`? What about modifiers?

@@ -26,6 +26,7 @@ catalog:
   '@nuxt/test-utils': ^3.19.2
   '@nuxt/content': 3.6.3
   '@nuxtjs/sitemap': ^7.2.5
+  '@nuxtjs/seo': ^5.3.2
   '@nuxtjs/i18n': ^10.1.2
   '@nuxthub/core': ^0.8.17
   # Vue

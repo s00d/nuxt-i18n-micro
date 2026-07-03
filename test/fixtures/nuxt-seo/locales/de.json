@@ -1,0 +1,8 @@
+{
+  "hello": "Hallo",
+  "aboutTitle": "Über DE",
+  "nuxtSiteConfig": {
+    "name": "Site DE",
+    "description": "Deutsche Seitenbeschreibung"
+  }
+}

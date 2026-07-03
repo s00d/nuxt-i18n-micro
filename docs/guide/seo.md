@@ -288,3 +288,58 @@ By enabling the `meta` option, you benefit from:
 - **📈 Improved Search Engine Rankings**: Search engines can better index your site, understanding the relationships between different language versions.
 - **👥 Better User Experience**: Users are served the correct language version based on their preferences, leading to a more personalized experience.
 - **🔧 Reduced Manual Configuration**: The module handles SEO tasks automatically, freeing you from the need to manually add SEO-related meta tags and attributes.
+
+## 🔗 Nuxt SEO (`@nuxtjs/seo`)
+
+[`@nuxtjs/seo`](https://nuxtseo.com/) bundles sitemap, robots, schema.org, OG images, and related modules. It integrates with **nuxt-i18n-micro** through [`nuxt-site-config`](https://nuxtseo.com/docs/site-config/guides/i18n) (v4+).
+
+### Requirements
+
+- **`@nuxtjs/seo` 3+** (current releases use `nuxt-site-config` 4+, which registers the `nuxt-site-config:i18n` plugin for micro)
+- **`i18n.meta: true`** (recommended — micro supplies locale-aware head tags; Nuxt SEO adds sitemap, schema.org, etc.)
+
+### Module order
+
+List **nuxt-i18n-micro before `@nuxtjs/seo`** so site config can read your locale setup:
+
+```typescript
+export default defineNuxtConfig({
+  modules: [
+    'nuxt-i18n-micro',
+    '@nuxtjs/seo',
+  ],
+  site: {
+    url: 'https://example.com',
+    name: 'My Site',
+  },
+  i18n: {
+    meta: true,
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', iso: 'en-US' },
+      { code: 'de', iso: 'de-DE' },
+    ],
+  },
+})
+```
+
+### Translated site name & description
+
+Nuxt Site Config reads optional translation keys from your locale files:
+
+```json
+{
+  "nuxtSiteConfig": {
+    "name": "My Site",
+    "description": "My site description"
+  }
+}
+```
+
+Per-locale values in `locales/en.json`, `locales/de.json`, etc. are picked up automatically.
+
+### Troubleshooting
+
+If you see `Plugin nuxt-seo:defaults depends on nuxt-site-config:i18n but they are not registered`, upgrade **`@nuxtjs/seo` to 3+** (see [issue #133](https://github.com/s00d/nuxt-i18n-micro/issues/133)). Older `nuxt-site-config` 3.x only wired i18n for `@nuxtjs/i18n`, not micro.
+
+More: [Sitemap i18n guide](https://nuxtseo.com/docs/sitemap/guides/i18n), [Site Config i18n guide](https://nuxtseo.com/docs/site-config/guides/i18n).

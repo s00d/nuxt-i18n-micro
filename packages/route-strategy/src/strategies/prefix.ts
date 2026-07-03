@@ -1,7 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { createRoute } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
-import { buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
+import { buildEncodedPathAliases, buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
 import { BaseStrategy } from './abstract'
 
 function getAliasRoutes(page: NuxtPage): string[] {
@@ -26,13 +26,14 @@ export class PrefixStrategy extends BaseStrategy {
         const routeName = buildRouteName(pageName, locale, !!customPath, context.localizedRouteNamePrefix)
         const parentLocalizedPath = customPath ?? originalPath
         const children = this.localizeChildren(originalChildren, parentLocalizedPath, originalPath, locale, context, true)
+        const aliases = buildEncodedPathAliases(routePath)
         result.push(
           createRoute(page, {
             path: routePath,
             name: routeName,
             children,
-            alias: [],
-            meta: { alias: [] },
+            alias: aliases.length ? aliases : undefined,
+            meta: { alias: aliases.length ? aliases : [] },
           }),
         )
       }

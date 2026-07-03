@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
 import type { Page } from '@playwright/test'
 import availableLanguages from './fixtures/n3/app/locales/availableLanguages'
-import { runSequential } from './helpers/sequential'
+import { pollUntil, runSequential } from './helpers/sequential'
 
 export function loadJsonFile<T>(relativePath: string): T {
   const fullPath = join(process.cwd(), relativePath)
@@ -23,18 +23,19 @@ const routeTranslations = loadJsonFile<RouteTranslations>('./test/fixtures/n3/ap
 // Static pages that don't require parameters
 const staticRoutes = ['home', 'search', 'info', 'sea', 'topic']
 async function checkPageContent(page: Page, path: string) {
-  // Check if we're on the correct URL
-  await expect(page).toHaveURL(path)
+  await expect(page).toHaveURL(path, { timeout: process.env.CI ? 15_000 : 5_000 })
 
-  // Wait for #data element to be visible and have content
-  const dataEl = page.locator('#data')
-  await dataEl.waitFor({ state: 'visible', timeout: process.env.CI ? 30000 : 10000 })
+  await pollUntil(
+    async () => {
+      const content = await page.locator('#data').textContent()
+      return Boolean(content?.includes('Index'))
+    },
+    {
+      timeoutMs: process.env.CI ? 30_000 : 10_000,
+      message: `Expected #data to contain "Index" at ${path}`,
+    },
+  )
 
-  // Verify content exists
-  const content = await dataEl.textContent()
-  expect(content).toContain('Index')
-
-  // Check for 404
   const notFound = await page.locator('text=404').count()
   expect(notFound).toBe(0)
 }
@@ -47,7 +48,7 @@ function buildStaticRouteCases(): Array<{ path: string }> {
 
       if (route === 'home') translatedRoute = ''
 
-      return [{ path: encodeURI(`/${lang.code}/${translatedRoute}`) }]
+      return [{ path: `/${lang.code}/${translatedRoute}` }]
     }),
   )
 }
@@ -116,7 +117,7 @@ test.describe('n3', () => {
   test.describe('Page tests', async () => {
     // 27 languages * 5 routes = 135 page navigations — needs generous timeout
     test('static pages should work in all languages', async ({ page }) => {
-      test.setTimeout(180000)
+      test.setTimeout(process.env.CI ? 300_000 : 180_000)
       await page.goto('/', { waitUntil: 'domcontentloaded' })
       await runSequential(buildStaticRouteCases(), async ({ path }) => {
         console.log(`Testing static route: ${path}`)

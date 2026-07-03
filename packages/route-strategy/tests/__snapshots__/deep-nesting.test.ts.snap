@@ -731,7 +731,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) no_prefix: deep nested without
 exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custom paths, default routes removed 1`] = `
 [
   {
-    "alias": [],
+    "alias": undefined,
     "children": [
       {
         "children": [
@@ -756,13 +756,13 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custo
     ],
     "file": "/pages/section.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-section-en",
     "path": "/:locale(en)/section",
   },
   {
-    "alias": [],
+    "alias": undefined,
     "children": [
       {
         "children": [
@@ -787,13 +787,13 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custo
     ],
     "file": "/pages/section.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-section-de",
     "path": "/:locale(de)/bereich",
   },
   {
-    "alias": [],
+    "alias": undefined,
     "children": [
       {
         "children": [
@@ -818,7 +818,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custo
     ],
     "file": "/pages/section.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-section",
     "path": "/:locale(ru)/section",

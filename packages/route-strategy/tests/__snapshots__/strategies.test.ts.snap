@@ -258,31 +258,31 @@ exports[`RouteGenerator - Strategy: prefix 12. should apply custom paths to all 
     "path": "/:locale(en|de|ru)",
   },
   {
-    "alias": [],
+    "alias": undefined,
     "children": [],
     "file": "/pages/about.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-about-en",
     "path": "/:locale(en)/about-us",
   },
   {
-    "alias": [],
+    "alias": undefined,
     "children": [],
     "file": "/pages/about.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-about-de",
     "path": "/:locale(de)/ueber-uns",
   },
   {
-    "alias": [],
+    "alias": undefined,
     "children": [],
     "file": "/pages/about.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-about",
     "path": "/:locale(ru)/about",

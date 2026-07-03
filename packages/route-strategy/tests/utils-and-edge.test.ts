@@ -1,6 +1,7 @@
 import type { GlobalLocaleRoutes, Locale } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import {
+  buildEncodedPathAliases,
   buildFullPath,
   buildFullPathNoPrefix,
   buildRouteName,
@@ -115,6 +116,13 @@ describe('RouteGenerator - Exported utils', () => {
     })
     test('with custom regex', () => {
       expect(buildFullPath(['en', 'de'], '/about', /^[a-z]{2}$/)).toMatchSnapshot()
+    })
+    test('keeps unicode segments for router matching', () => {
+      expect(buildFullPath('bg', '/търсене')).toBe('/:locale(bg)/търсене')
+    })
+    test('adds encoded alias for unicode localized paths', () => {
+      expect(buildEncodedPathAliases('/:locale(bg)/търсене')).toEqual(['/:locale(bg)/%D1%82%D1%8A%D1%80%D1%81%D0%B5%D0%BD%D0%B5'])
+      expect(buildEncodedPathAliases('/:locale(en)/search')).toEqual([])
     })
   })
 

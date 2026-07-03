@@ -290,7 +290,7 @@ export class PrefixExceptDefaultStrategy extends BaseStrategy {
     const routePath = this.buildRoutePathForLocales(
       localeCodes,
       page.path ?? '',
-      encodeURI(customPath),
+      customPath,
       isCustom,
       customRegex,
       force,

@@ -37,10 +37,14 @@ function normalizeRegex(toNorm?: string): string | undefined {
 }
 
 /**
- * Encodes literal path segments (not dynamic params like :slug) that contain non-ASCII
- * so the route path matches URL-encoded requests (e.g. /bg/search → /bg/%73%65%61%72%63%68 for non-ASCII examples).
+ * Keeps Unicode in vue-router paths; Nitro may still deliver percent-encoded URLs.
  */
 function encodeLiteralPathSegments(routePath: string): string {
+  return routePath
+}
+
+/** Percent-encodes non-ASCII literal segments for route aliases. */
+function encodeNonAsciiLiteralPathSegments(routePath: string): string {
   if (!routePath || !/[\u0080-\uFFFF]/.test(routePath)) return routePath
   return routePath
     .split('/')
@@ -51,6 +55,12 @@ function encodeLiteralPathSegments(routePath: string): string {
       return encodeURI(segment)
     })
     .join('/')
+}
+
+/** Alias paths for percent-encoded variants of non-ASCII localized routes. */
+export function buildEncodedPathAliases(routePath: string): string[] {
+  const encodedPath = encodeNonAsciiLiteralPathSegments(routePath)
+  return encodedPath !== routePath ? [encodedPath] : []
 }
 
 export function buildFullPath(locale: string | string[], basePath: string, customRegex?: string | RegExp): string {

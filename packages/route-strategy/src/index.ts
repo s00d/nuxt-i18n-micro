@@ -2,6 +2,7 @@ import { extractLocalizedPaths, type LocalizedPathsMap } from './core/localized-
 import { isLocaleAllowedForUnlocalizedRoute } from './locale-route-access'
 import { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 import {
+  buildEncodedPathAliases,
   buildFullPath,
   buildFullPathNoPrefix,
   buildRouteName,
@@ -30,6 +31,7 @@ export {
   buildRouteName,
   shouldAddLocalePrefix,
   isLocaleDefault,
+  buildEncodedPathAliases,
   buildFullPath,
   buildFullPathNoPrefix,
 }

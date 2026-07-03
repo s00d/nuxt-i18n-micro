@@ -28,7 +28,7 @@ async function checkPageContent(page: Page, path: string) {
 
   // Wait for #data element to be visible and have content
   const dataEl = page.locator('#data')
-  await dataEl.waitFor({ state: 'visible' })
+  await dataEl.waitFor({ state: 'visible', timeout: process.env.CI ? 30000 : 10000 })
 
   // Verify content exists
   const content = await dataEl.textContent()

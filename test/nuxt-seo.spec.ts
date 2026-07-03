@@ -31,16 +31,18 @@ function extractJsonLd(html: string): unknown[] {
 }
 
 test.describe('@nuxtjs/seo integration (#133)', () => {
+  test.setTimeout(process.env.CI ? 120_000 : 60_000)
+
   test('builds and serves localized pages without plugin dependency error', async ({ page, goto }) => {
     await goto('/en', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/en')
     await expect(page.locator('#locale')).toHaveText('en')
-    await expect(page.locator('#hello')).toHaveText('Hello')
+    await expect(page.locator('#hello')).toHaveText('Hello', { timeout: 15_000 })
 
     await goto('/de', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/de')
     await expect(page.locator('#locale')).toHaveText('de')
-    await expect(page.locator('#hello')).toHaveText('Hallo')
+    await expect(page.locator('#hello')).toHaveText('Hallo', { timeout: 15_000 })
   })
 
   test('client navigation between localized routes works with i18n-link', async ({ page, goto }) => {

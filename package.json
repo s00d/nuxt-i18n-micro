@@ -160,5 +160,10 @@
     "packages/**",
     "test/fixtures/**/*"
   ],
-  "packageManager": "pnpm@9.14.2"
+  "packageManager": "pnpm@9.14.2",
+  "pnpm": {
+    "overrides": {
+      "@nuxtjs/sitemap": "^8.2.2"
+    }
+  }
 }

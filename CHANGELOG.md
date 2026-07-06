@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v3.21.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.3...v3.21.4)
+
+### 🩹 Fixes
+
+- **test:** Pin @nuxtjs/sitemap v8 for nuxt-site-config v4 CI builds ([a910ec76](https://github.com/s00d/nuxt-i18n-micro/commit/a910ec76))
+- **route-strategy:** Match unicode localized routes in n3 E2E tests ([8e08d887](https://github.com/s00d/nuxt-i18n-micro/commit/8e08d887))
+- **nitro:** Harden #233 export conditions with regression tests ([#233](https://github.com/s00d/nuxt-i18n-micro/issues/233))
+
+### ✅ Tests
+
+- **seo:** Add @nuxtjs/seo integration tests and docs ([ced0b87e](https://github.com/s00d/nuxt-i18n-micro/commit/ced0b87e))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.21.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.2...v3.21.3)

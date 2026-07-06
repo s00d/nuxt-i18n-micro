@@ -41,16 +41,17 @@ describe('Nitro export conditions (#233)', () => {
   })
 
   it('production condition resolves ESM for Nitro file trace', () => {
-    const resolved = resolveWithNodeConditions('@i18n-micro/utils/route', ['production'])
+    const resolved = resolveWithNodeConditions('@i18n-micro/utils/route', ['production', 'node'])
     expect(resolved).toMatch(/route\.mjs$/)
   })
 
-  it('route export declares production → .mjs before import/require', () => {
+  it('route export declares production → .mjs with default last (publint)', () => {
     const entry = utilsPkg.exports['./route']
     expect(entry.production.default).toBe('./dist/route.mjs')
+    expect(entry.node).toBeUndefined()
     const keys = Object.keys(entry)
     expect(keys.indexOf('production')).toBeLessThan(keys.indexOf('import'))
     expect(keys.indexOf('import')).toBeLessThan(keys.indexOf('require'))
-    expect(entry.node).toBeUndefined()
+    expect(keys.at(-1)).toBe('default')
   })
 })

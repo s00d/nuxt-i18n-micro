@@ -2,16 +2,8 @@ import type { NuxtPage } from '@nuxt/schema'
 import { createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { pathKeyForLocalizedPaths } from '../core/localized-paths'
-import {
-  buildFullPath,
-  buildRouteNameFromRoute,
-  cloneArray,
-  isInternalPath,
-  isPageRedirectOnly,
-  normalizePath,
-  normalizeRouteKey,
-  removeLeadingSlash,
-} from '../utils'
+import { isLocalizationDisabledForPage } from '../core/localization-disabled'
+import { buildFullPath, buildRouteNameFromRoute, cloneArray, isInternalPath, isPageRedirectOnly, normalizePath, removeLeadingSlash } from '../utils'
 import type { RouteStrategy } from './types'
 
 export abstract class BaseStrategy implements RouteStrategy {
@@ -27,9 +19,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     }
     const originalPath = page.path ?? ''
     const pageName = buildRouteNameFromRoute(page.name, page.path)
-    const normalizedOriginalPath = normalizeRouteKey(originalPath)
-    const isLocalizationDisabled = context.globalLocaleRoutes[pageName] === false || context.globalLocaleRoutes[normalizedOriginalPath] === false
-    if (isLocalizationDisabled) {
+    if (isLocalizationDisabledForPage(context.globalLocaleRoutes, originalPath, pageName)) {
       return [page]
     }
     return this.generateVariants(page, context)

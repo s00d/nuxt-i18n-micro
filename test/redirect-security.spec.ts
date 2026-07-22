@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/redirect-security', import.meta.url)),
-  },
+  nuxt: useSharedFixture('redirect-security'),
 })
 
 test.describe('redirect with render:response hook', () => {

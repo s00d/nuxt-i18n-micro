@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/content', import.meta.url)),
-  },
+  nuxt: useSharedFixture('content'),
 })
 
 async function switchLocale(page: import('@playwright/test').Page, localeClass: string) {

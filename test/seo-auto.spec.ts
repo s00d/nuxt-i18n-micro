@@ -1,11 +1,9 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 import type { Page } from '@playwright/test'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/seo-auto', import.meta.url)),
-  },
+  nuxt: useSharedFixture('seo-auto'),
 })
 
 /**

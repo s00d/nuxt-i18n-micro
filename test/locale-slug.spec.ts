@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
-  },
+  nuxt: useSharedFixture('basic'),
 })
 test.describe('locale-slug', () => {
   test.beforeEach(({ page }) => {

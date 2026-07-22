@@ -1,12 +1,10 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 import type { Page } from '@playwright/test'
 import { assertI18nHeadScenario, i18nHeadScenarios, i18nHeadStaticPages } from './helpers/i18n-head-seo'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/use-i18n-head', import.meta.url)),
-  },
+  nuxt: useSharedFixture('use-i18n-head'),
 })
 
 async function emulateDomain(page: Page, emulatedOrigin: string, realBaseURL: string) {

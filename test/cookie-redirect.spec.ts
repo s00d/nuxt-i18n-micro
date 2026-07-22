@@ -1,11 +1,9 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 // Tests for 'prefix' strategy (fixtures/named has strategy: 'prefix', defaultLocale: 'de')
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/named', import.meta.url)),
-  },
+  nuxt: useSharedFixture('named'),
 })
 
 test.describe('cookie-based redirect - prefix strategy', () => {

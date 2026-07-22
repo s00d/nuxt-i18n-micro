@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/seo-og-locale-format', import.meta.url)),
-  },
+  nuxt: useSharedFixture('seo-og-locale-format'),
 })
 
 test.describe('locale.og', () => {

@@ -20,6 +20,8 @@ dist
 # Nuxt
 .nuxt
 .output
+.output-shared
+.nuxt-test
 **/.astro
 .data
 .vercel_build_output
@@ -61,6 +63,8 @@ Temporary Items
 .apdisk
 test-results
 docs/.vitepress/cache
+docs/.vitepress/dist
+benchmark/artillery-output.json
 artillery-output.json
 combined.cjs
 combined.md
@@ -69,3 +73,11 @@ playground/server/assets/
 .cursorrules
 .r2x
 output.md
+
+# Graph Memory (symlink to ~/.graph-memory/graph-memory.yaml)
+graph-memory.yaml
+.graph-memory/
+.notes/
+.tasks/
+.skills/
+.epics/

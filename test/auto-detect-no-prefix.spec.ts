@@ -1,11 +1,9 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 // Test: autoDetectLanguage with no_prefix strategy
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/auto-detect-no-prefix', import.meta.url)),
-  },
+  nuxt: useSharedFixture('auto-detect-no-prefix'),
 })
 
 test.describe('autoDetectLanguage with no_prefix strategy', () => {

@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/layer', import.meta.url)),
-  },
+  nuxt: useSharedFixture('layer'),
 })
 test.describe('layer', () => {
   test('test layer', async ({ page, goto }) => {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 import type { Page } from '@playwright/test'
 import availableLanguages from './fixtures/n3/app/locales/availableLanguages'
 import { pollUntil, runSequential } from './helpers/sequential'
@@ -108,9 +108,7 @@ function buildNestedRouteCases(): Array<{ path: string }> {
 }
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/n3', import.meta.url)),
-  },
+  nuxt: useSharedFixture('n3'),
 })
 
 test.describe('n3', () => {

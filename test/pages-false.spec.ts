@@ -1,13 +1,11 @@
-import { fileURLToPath } from 'node:url'
 import { test as baseTest, expect } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 // Test: pages: false with i18n (prefix_except_default strategy)
 // Note: With pages: false, redirect functionality is limited because
 // the router doesn't have page-based routes to redirect to.
 const testPrefixExceptDefault = baseTest.extend({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/pages-false', import.meta.url)),
-  },
+  nuxt: useSharedFixture('pages-false'),
 })
 
 testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)', () => {
@@ -71,9 +69,7 @@ testPrefixExceptDefault.describe('pages: false with i18n (prefix_except_default)
 // Test: pages: false with no_prefix strategy
 // This is the recommended approach for pages: false
 const testNoPrefix = baseTest.extend({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/pages-false-no-prefix', import.meta.url)),
-  },
+  nuxt: useSharedFixture('pages-false-no-prefix'),
 })
 
 testNoPrefix.describe('pages: false with i18n (no_prefix)', () => {

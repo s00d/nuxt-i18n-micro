@@ -10,6 +10,8 @@ outline: "deep"
 
 Testing the `Nuxt I18n Micro` module is crucial to ensure that your application's localization features work as expected. This documentation will guide you through setting up the testing environment, creating mock configurations for vitest, and writing tests for your components. For a practical example, you can refer to the [example project on GitHub](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/test-utils/example).
 
+See [Testing routing strategies](/guide/testing-strategies) for how this repository runs strategy integration tests (`test/strategies.test.ts`, generate regressions, Playwright projects).
+
 ## 🛠️ Setting Up the Testing Environment
 
 ### 1. Install `@i18n-micro/test-utils`
@@ -183,8 +185,8 @@ Below is a table describing all the utility methods provided by `@i18n-micro/tes
 | `getRouteName()`                                | Returns the current route name.                                |
 | `settRouteName(val)`                            | Sets the current route name.                                   |
 | `ts(key, params, defaultValue)`                 | Translates a key and returns the result as a string.           |
-| `tn(value, options)`                            | Formats a number according to the current locale.              |
-| `td(value, options)`                            | Formats a date according to the current locale.                |
+| `tn(value, optionsOrKey?, localeOrOverrides?, overrides?)` | Formats a number (inline Intl options or named format key). |
+| `td(value, optionsOrKey?, localeOrOverrides?, overrides?)` | Formats a date (inline Intl options or named format key). |
 | `has(key)`                                      | Checks if a translation key exists.                            |
 
 By following these steps, you can effectively test the `Nuxt I18n Micro` module and ensure that your application's localization features work as expected.

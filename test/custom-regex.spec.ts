@@ -1,10 +1,8 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/custom-regex', import.meta.url)),
-  },
+  nuxt: useSharedFixture('custom-regex'),
   // launchOptions: {
   //   headless: false, // Show browser
   //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility

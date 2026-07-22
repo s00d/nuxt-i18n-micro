@@ -1,13 +1,11 @@
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 import { runSequential } from './helpers/sequential'
 
 // Test: Serverless environment with caching
 // This simulates behavior similar to Cloudflare Workers with KV cache
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/serverless', import.meta.url)),
-  },
+  nuxt: useSharedFixture('serverless'),
 })
 
 test.describe('serverless with caching', () => {

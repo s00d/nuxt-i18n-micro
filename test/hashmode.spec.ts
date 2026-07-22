@@ -1,12 +1,10 @@
 // Import necessary modules
-import { fileURLToPath } from 'node:url'
 import { expect, test } from '@nuxt/test-utils/playwright'
+import { useSharedFixture } from './setup/shared-host'
 
 // Use Nuxt fixture for testing
 test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/hashmode', import.meta.url)),
-  },
+  nuxt: useSharedFixture('hashmode'),
 })
 
 test.describe('hashmode', () => {

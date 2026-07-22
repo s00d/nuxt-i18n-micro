@@ -262,12 +262,27 @@ async function runPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise
   return results
 }
 
-/** When spec files are passed on the CLI, only build the fixtures they need. */
+/** True for Vitest CLI test-file args — not config files like `vitest.e2e.config.ts`. */
+function isTestFileArg(arg: string): boolean {
+  return /(?:^|[/\\])[^/\\]+\.(?:spec|e2e\.test)\.[cm]?[jt]sx?$/.test(arg)
+}
+
+/** Match a manifest spec name as a path basename (`seo.spec.ts` ≠ `nuxt-seo.spec.ts`). */
+function argMatchesSpec(arg: string, spec: string): boolean {
+  return arg === spec || arg.endsWith(`/${spec}`) || arg.endsWith(`\\${spec}`)
+}
+
+/**
+ * When spec files are passed on the CLI, only build the fixtures they need.
+ * Full runs (no test-file argv) return every shared fixture.
+ */
 export function requestedFixtures(): string[] {
   const all = Object.keys(SHARED_FIXTURES)
-  const fileArgs = process.argv.slice(2).filter((arg) => !arg.startsWith('-') && (arg.includes('.spec.') || arg.includes('.e2e.')))
+  const fileArgs = process.argv.slice(2).filter((arg) => !arg.startsWith('-') && isTestFileArg(arg))
   if (fileArgs.length === 0) return all
-  return all.filter((name) => SHARED_FIXTURES[name]!.some((spec) => fileArgs.some((arg) => arg.endsWith(spec) || arg.includes(spec))))
+  const matched = all.filter((name) => SHARED_FIXTURES[name]!.some((spec) => fileArgs.some((arg) => argMatchesSpec(arg, spec))))
+  // Unmatched CLI filters (e.g. only isolated specs) → skip shared prebuild.
+  return matched
 }
 
 /** Tear down all running fixture servers. */
@@ -295,9 +310,14 @@ export async function stopServers(): Promise<void> {
 export async function buildAndServe(names: string[] = requestedFixtures()): Promise<Record<string, string>> {
   if (process.env.SHARED_FIXTURES === '0') {
     console.log('[shared-fixtures] disabled via SHARED_FIXTURES=0, specs will build their own fixtures')
+    // Clear any stale host map from a previous run so workers do not reuse dead URLs.
+    clearNuxtHostsFile()
     return {}
   }
-  if (names.length === 0) return {}
+  if (names.length === 0) {
+    clearNuxtHostsFile()
+    return {}
+  }
 
   const started = Date.now()
   const concurrency = Number(process.env.FIXTURE_BUILD_CONCURRENCY) || Math.max(2, Math.floor(cpus().length / 2))

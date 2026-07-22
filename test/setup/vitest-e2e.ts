@@ -33,7 +33,7 @@ import { createPage, setup, url } from '@nuxt/test-utils/e2e'
 // cannot do these on Playwright locators, so we keep Playwright's expect.
 // `request` gives specs a browserless APIRequestContext (HTTP-level checks).
 import { expect, request as apiRequest } from '@playwright/test'
-import { afterAll, afterEach, beforeAll, beforeEach, describe, inject, test as base } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, test as base } from 'vitest'
 import { envKey, fixtureDir } from './manifest'
 import { readNuxtHostsFile } from './shared-fixtures-core'
 
@@ -59,13 +59,9 @@ type BuildConfig = { rootDir: string; nuxtConfig?: Record<string, unknown>; dev?
 export type E2EConfig = SharedConfig | BuildConfig
 
 function resolveSharedHost(name: string): string | undefined {
-  try {
-    const fromInject = inject('nuxtHosts')?.[name]
-    if (fromInject) return fromInject
-  } catch {
-    /* inject is unavailable during top-level module evaluation */
-  }
-  return readNuxtHostsFile()[name] ?? process.env[envKey(name)]
+  // Prefer env (filled by setupFiles from `.nuxt-hosts.json`). `inject` is
+  // unavailable during top-level `await setupE2E()` module evaluation.
+  return process.env[envKey(name)] ?? readNuxtHostsFile()[name]
 }
 
 function resolveSetupOptions(config: E2EConfig): Record<string, unknown> {

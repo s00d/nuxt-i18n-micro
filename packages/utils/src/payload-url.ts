@@ -42,3 +42,14 @@ export function buildTranslationPayloadFetchRequest(input: TranslationPayloadFet
     params: input.dateBuild ? { v: input.dateBuild } : undefined,
   }
 }
+
+/**
+ * Builds `Cache-Control` for `/{apiBaseUrl}/:page/:locale/data.json`.
+ * Safe with `dateBuild` (`?v=...`) cache-busting — long-lived immutable caching for CDN/browsers.
+ * Returns `null` when caching should be skipped (`duration <= 0` or undefined).
+ */
+export function buildTranslationPayloadCacheControl(durationSeconds: number | undefined): string | null {
+  const duration = Math.floor(durationSeconds ?? 0)
+  if (duration <= 0) return null
+  return `public, max-age=${duration}, immutable`
+}

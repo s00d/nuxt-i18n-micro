@@ -12,7 +12,7 @@
  */
 import { type ChildProcess, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync, unlinkSync } from 'node:fs'
 import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import { cpus } from 'node:os'
@@ -22,6 +22,32 @@ import { envKey, fixtureDir, SHARED_FIXTURES } from './manifest'
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const WORKER = fileURLToPath(new URL('./build-fixture-worker.mjs', import.meta.url))
+
+/** Written by globalSetup; read by worker setupFiles before spec modules load. */
+export const NUXT_HOSTS_FILE = fileURLToPath(new URL('./.nuxt-hosts.json', import.meta.url))
+
+export function readNuxtHostsFile(): Record<string, string> {
+  if (!existsSync(NUXT_HOSTS_FILE)) return {}
+  try {
+    return JSON.parse(readFileSync(NUXT_HOSTS_FILE, 'utf8')) as Record<string, string>
+  } catch {
+    return {}
+  }
+}
+
+export function applyNuxtHostsToEnv(hosts: Record<string, string>): void {
+  for (const [name, url] of Object.entries(hosts)) {
+    process.env[envKey(name)] = url
+  }
+}
+
+export function clearNuxtHostsFile(): void {
+  try {
+    unlinkSync(NUXT_HOSTS_FILE)
+  } catch {
+    /* already removed */
+  }
+}
 
 const SKIP_DIRS = new Set(['node_modules', '.nuxt', '.output', '.output-shared', '.nuxt-test', 'test-results', '.data', 'dist'])
 
@@ -246,6 +272,7 @@ export function requestedFixtures(): string[] {
 
 /** Tear down all running fixture servers. */
 export async function stopServers(): Promise<void> {
+  clearNuxtHostsFile()
   await Promise.all(
     servers.splice(0).map(
       ({ child }) =>
@@ -278,8 +305,11 @@ export async function buildAndServe(names: string[] = requestedFixtures()): Prom
   try {
     await runPool(names, concurrency, ensureBuilt)
     const entries = await runPool(names, 8, startFixtureServer)
+    const hosts = Object.fromEntries(entries)
+    applyNuxtHostsToEnv(hosts)
+    await writeFile(NUXT_HOSTS_FILE, JSON.stringify(hosts), 'utf8')
     console.log(`[shared-fixtures] ${names.length} fixture server(s) ready in ${((Date.now() - started) / 1000).toFixed(1)}s`)
-    return Object.fromEntries(entries)
+    return hosts
   } catch (error) {
     await stopServers()
     throw error

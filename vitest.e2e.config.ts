@@ -16,6 +16,8 @@ export default defineConfig({
     name: 'e2e',
     include: ['test/**/*.spec.ts'],
     globalSetup: ['./test/setup/vitest-global-setup.ts'],
+    // Populate NUXT_TEST_URL_* before top-level await setupE2E() in spec files.
+    setupFiles: ['./test/setup/vitest-e2e-env.ts'],
     // isolated specs run a full Nuxt build inside the setup hook
     testTimeout: 120_000,
     hookTimeout: 240_000,
@@ -26,7 +28,8 @@ export default defineConfig({
         // Each file may spawn a browser and (isolated) a Nuxt build — cap
         // concurrency like the old Playwright `workers: '50%'`.
         maxForks,
-        singleFork: isCI,
+        // Keep CI sequential (maxForks: 1) but restart the fork per file so
+        // Playwright/Nuxt memory is released; singleFork OOMs on full suite.
       },
     },
   },

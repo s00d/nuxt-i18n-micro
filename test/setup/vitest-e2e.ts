@@ -34,7 +34,8 @@ import { createPage, setup, url } from '@nuxt/test-utils/e2e'
 // `request` gives specs a browserless APIRequestContext (HTTP-level checks).
 import { expect, request as apiRequest } from '@playwright/test'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, inject, test as base } from 'vitest'
-import { fixtureDir } from './manifest'
+import { envKey, fixtureDir } from './manifest'
+import { readNuxtHostsFile } from './shared-fixtures-core'
 
 export { afterAll, afterEach, beforeAll, beforeEach, describe, expect }
 
@@ -57,10 +58,25 @@ type SharedConfig = { shared: string }
 type BuildConfig = { rootDir: string; nuxtConfig?: Record<string, unknown>; dev?: boolean; setupTimeout?: number }
 export type E2EConfig = SharedConfig | BuildConfig
 
+function resolveSharedHost(name: string): string | undefined {
+  try {
+    const fromInject = inject('nuxtHosts')?.[name]
+    if (fromInject) return fromInject
+  } catch {
+    /* inject is unavailable during top-level module evaluation */
+  }
+  return readNuxtHostsFile()[name] ?? process.env[envKey(name)]
+}
+
 function resolveSetupOptions(config: E2EConfig): Record<string, unknown> {
   if ('shared' in config) {
-    const host = inject('nuxtHosts')?.[config.shared] ?? process.env[`NUXT_TEST_URL_${config.shared.toUpperCase().replace(/-/g, '_')}`]
-    return host ? { rootDir: fixtureDir(config.shared), host, browser: true } : { rootDir: fixtureDir(config.shared), browser: true } // SHARED_FIXTURES=0 fallback: build per file
+    const host = resolveSharedHost(config.shared)
+    if (!host && process.env.SHARED_FIXTURES !== '0') {
+      console.warn(`[e2e] no shared host for "${config.shared}" — falling back to per-file build`)
+    }
+    return host
+      ? { rootDir: fixtureDir(config.shared), host, browser: true }
+      : { rootDir: fixtureDir(config.shared), browser: true } // SHARED_FIXTURES=0 fallback: build per file
   }
   return { ...config, browser: true }
 }

@@ -10,74 +10,99 @@ on:
 
 jobs:
   lint:
-    runs-on: self-hosted
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.14.2
-          run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install Vite globally
-        run: npm install -g vite
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Lint (Oxlint)
-        run: pnpm run lint
-
-  test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
         with:
           version: 9.14.2
           run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm run lint
 
-      - name: Install Vite globally
-        run: npm install -g vite
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.2
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm --filter "./packages/**" run build
+      - run: pnpm run test:workspaces
 
-      - name: Install dependencies
-        run: pnpm install
+  node-e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.2
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm --filter "./packages/**" run build
+      - run: pnpm run dev:prepare
+      - run: pnpm exec vitest run --shard=${{ matrix.shard }}/2
 
-      - name: Install playwright
-        run: pnpm exec playwright install chromium
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.2
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/cache@v4
+        with:
+          path: |
+            test/fixtures/**/.output-shared
+            test/fixtures/**/.build-hash
+          key: playwright-shared-${{ runner.os }}-${{ hashFiles('test/fixtures/**', 'src/**', 'packages/**/dist/**', 'pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-shared-${{ runner.os }}-
+      - run: pnpm install
+      - run: pnpm --filter "./packages/**" run build
+      - run: pnpm run dev:prepare
+      - run: pnpm exec playwright install chromium
+      - run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
 
-      - name: Run
-        run: |
-          pnpm --filter "./packages/**" run build
-          pnpm run dev:prepare
-
-      - name: Verify packages
-        run: |
-          pnpm verify:packages
-          pnpm verify:packages:publint
-          pnpm compare:published
-
-      - name: Dist publish smoke tests
-        run: |
-          pnpm --filter "@i18n-micro/core" --filter "@i18n-micro/vue" --filter "@i18n-micro/path-strategy" --filter "@i18n-micro/route-strategy" --filter "@i18n-micro/devtools-ui" --filter "@i18n-micro/astro" run test:dist
-
-      - name: Test
-        run: |
-          pnpm run test:workspaces
-          pnpm run clean:test
-          pnpm run test
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.14.2
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm --filter "./packages/**" run build
+      - run: pnpm run dev:prepare
+      - run: pnpm verify:packages && pnpm verify:packages:publint
+      - run: pnpm run test:dist:packages

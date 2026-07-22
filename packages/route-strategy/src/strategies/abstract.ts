@@ -70,6 +70,10 @@ export abstract class BaseStrategy implements RouteStrategy {
     context: GeneratorContext,
   ): NuxtPage[] {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+    const childName = buildRouteNameFromRoute(child.name, child.path)
+    if (isLocalizationDisabledForPage(context.globalLocaleRoutes, childOriginalPath, childName)) {
+      return [child]
+    }
     const fullPath = resolveChildPath(parentPath, child.path ?? '')
     const lookupKey = pathKeyForLocalizedPaths(fullPath)
     const customLocalePaths = context.localizedPaths[lookupKey]
@@ -104,6 +108,10 @@ export abstract class BaseStrategy implements RouteStrategy {
     addPrefix: boolean,
   ): NuxtPage[] {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+    const childName = buildRouteNameFromRoute(child.name, child.path)
+    if (isLocalizationDisabledForPage(context.globalLocaleRoutes, childOriginalPath, childName)) {
+      return [child]
+    }
     const customPath = context.getCustomPath(childOriginalPath, locale)
     const finalPathForRoute = customPath ? removeLeadingSlash(normalizePath(customPath)) : removeLeadingSlash(normalizePath(child.path ?? ''))
 

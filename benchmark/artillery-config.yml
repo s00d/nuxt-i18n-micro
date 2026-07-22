@@ -2,9 +2,9 @@ config:
   target: 'http://127.0.0.1:10000' # Target URL under test
   phases:
     - duration: 6
-      arrivalRate: 6 # Peak number of users during the warm-up phase
+      arrivalRate: 6 # 6 new virtual users per second during warm-up
     - duration: 60
-      arrivalRate: 60 # Main test phase with 60 users
+      arrivalRate: 60 # 60 new virtual users per second during the main phase
 scenarios:
   - name: test_scenario
     flow:

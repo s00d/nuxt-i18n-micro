@@ -109,9 +109,16 @@ describe('buildTranslationPayloadCacheControl', () => {
     expect(buildTranslationPayloadCacheControl(10.9)).toBe('public, max-age=10, immutable')
   })
 
+  it('omits immutable when cache-buster is disabled', () => {
+    expect(buildTranslationPayloadCacheControl(3600, false)).toBe('public, max-age=3600')
+  })
+
   it('returns null when caching is disabled', () => {
     expect(buildTranslationPayloadCacheControl(0)).toBeNull()
     expect(buildTranslationPayloadCacheControl(-1)).toBeNull()
     expect(buildTranslationPayloadCacheControl(undefined)).toBeNull()
+    expect(buildTranslationPayloadCacheControl(Number.NaN)).toBeNull()
+    expect(buildTranslationPayloadCacheControl(Number.POSITIVE_INFINITY)).toBeNull()
+    expect(buildTranslationPayloadCacheControl(1e21)).toBeNull()
   })
 })

@@ -17,8 +17,6 @@ export class AstroI18n extends BaseI18n {
   private _locale: string
   private _fallbackLocale: string
   private _currentRoute: string
-  private readonly _numberFormats?: NumberFormatsConfig
-  private readonly _datetimeFormats?: DateTimeFormatsConfig
 
   public readonly storage: TranslationStorage
 
@@ -42,8 +40,6 @@ export class AstroI18n extends BaseI18n {
     this._locale = options.locale
     this._fallbackLocale = options.fallbackLocale || options.locale
     this._currentRoute = 'index'
-    this._numberFormats = options.numberFormats
-    this._datetimeFormats = options.datetimeFormats
 
     if (options.messages) {
       this.initialMessages = { ...options.messages }
@@ -70,8 +66,8 @@ export class AstroI18n extends BaseI18n {
       plural: this.pluralFunc,
       missingWarn: this.missingWarn,
       missingHandler: this.missingHandler,
-      numberFormats: this._numberFormats,
-      datetimeFormats: this._datetimeFormats,
+      numberFormats: this.formatter.getNumberFormats(),
+      datetimeFormats: this.formatter.getDateTimeFormats(),
       _storage: isolatedStorage,
     })
   }

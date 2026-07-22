@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config'
 
 /**
- * Workspace package tests only (`packages/*`). Used by the CI `unit` job so it
+ * Workspace package tests only (`packages/*`). Used by the CI `test:packages` step
  * runs in isolation — without loading the root config's e2e project (whose
  * globalSetup would otherwise build every shared fixture) or needing `.nuxt`.
  */

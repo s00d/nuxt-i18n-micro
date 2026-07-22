@@ -56,6 +56,6 @@ export function buildTranslationPayloadFetchRequest(input: TranslationPayloadFet
  */
 export function buildTranslationPayloadCacheControl(durationSeconds: number | undefined, hasCacheBuster = true): string | null {
   const duration = Math.floor(durationSeconds ?? 0)
-  if (!Number.isFinite(duration) || duration <= 0) return null
+  if (!Number.isSafeInteger(duration) || duration <= 0) return null
   return hasCacheBuster ? `public, max-age=${duration}, immutable` : `public, max-age=${duration}`
 }

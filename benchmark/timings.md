@@ -7,10 +7,10 @@ Environment: local macOS, Node from project toolchain.
 | Command                              | Duration (wall)                           | Notes                                                                              |
 | ------------------------------------ | ----------------------------------------- | ---------------------------------------------------------------------------------- |
 | `pnpm test:workspaces`               | ~9s                                       | 77 files, 921 tests (1 pre-existing react characterization flake fixed separately) |
-| `pnpm test:vitest`                   | run `time pnpm test:vitest` after changes | Root vitest (build-spawning tests)                                                 |
-| `playwright test --project=shared`   | run after `pnpm clean:test`               | 32 specs, prebuilt fixtures                                                        |
-| `playwright test --project=isolated` | —                                         | 13 specs with per-spec nuxtConfig                                                  |
-| `playwright test --project=dev-hmr`  | —                                         | 2 HMR specs                                                                        |
+| `pnpm test`                            | pending                                   | Root vitest projects (unit + e2e + packages)                                         |
+| `pnpm test:unit`                       | pending                                   | Build/generate tests (`*.test.ts`, no `*.e2e.test.ts`)                              |
+| `pnpm test:e2e`                        | pending                                   | Browser specs with shared prebuilt fixtures                                        |
+| `pnpm exec vitest run --project e2e`   | pending                                   | Same as `test:e2e`                                                                 |
 
 ## Targets (from migration plan)
 

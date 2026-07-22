@@ -1,6 +1,14 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
+function rejectInvalidSymlink(linkPath: string, originalPath: string): void {
+  const linkTarget = fs.readlinkSync(linkPath)
+  const absoluteTarget = path.isAbsolute(linkTarget) ? linkTarget : path.resolve(path.dirname(linkPath), linkTarget)
+  if (!fs.existsSync(absoluteTarget)) {
+    throw new Error(`Access denied: Path ${originalPath} resolves through an invalid symlink`)
+  }
+}
+
 /**
  * Resolve the deepest existing ancestor of `p` through `fs.realpathSync` (so
  * symlinks are followed), then re-append the not-yet-existing tail. Lets us
@@ -9,12 +17,26 @@ import * as path from 'node:path'
 function realpathAllowingMissing(p: string): string {
   let current = p
   const tail: string[] = []
-  while (!fs.existsSync(current)) {
-    tail.unshift(path.basename(current))
-    const parent = path.dirname(current)
-    if (parent === current) break
-    current = parent
+
+  while (true) {
+    try {
+      const stat = fs.lstatSync(current)
+      if (stat.isSymbolicLink()) {
+        rejectInvalidSymlink(current, p)
+      }
+      break
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Access denied:')) {
+        throw error
+      }
+      // Missing segment — walk up and keep the tail.
+      tail.unshift(path.basename(current))
+      const parent = path.dirname(current)
+      if (parent === current) break
+      current = parent
+    }
   }
+
   const realExisting = fs.realpathSync(current)
   return tail.length > 0 ? path.join(realExisting, ...tail) : realExisting
 }

@@ -8,8 +8,8 @@ export type { CleanTranslation, Getter, Locale, LocaleCode, Params, PluralFunc, 
 export { AstroI18n, type AstroI18nOptions } from './composer'
 // Export integration options type
 export type { I18nIntegrationOptions } from './integration'
-// Main exports
 export { createI18n, i18nIntegration } from './integration'
+export { getGlobalRoutingStrategy, runWithRoutingStrategy, setGlobalRoutingStrategy } from './routing-context'
 export type { LoadedTranslations, LoadTranslationsOptions } from './load-translations'
 // Export translation loading utilities
 export { loadTranslationsFromDir, loadTranslationsIntoI18n } from './load-translations'

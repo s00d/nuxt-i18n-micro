@@ -4,14 +4,15 @@ import { defineConfig } from 'vitest/config'
 const isCI = !!process.env.CI
 
 /**
- * Unit / build-level tests in `test/` (`*.test.ts`) — no browser, no fixtures
- * server. Spawned Nuxt builds are isolated per file, so files run in parallel.
+ * Unit / build-level tests in `test/` (`*.test.ts`, excluding `*.e2e.test.ts`).
+ * Some suites spawn their own Nuxt server via @nuxt/test-utils; heavy
+ * generate/build tests are isolated per file. Browser e2e lives in the e2e project.
  */
 export default defineConfig({
   test: {
     name: 'unit',
     include: ['test/**/*.test.ts'],
-    exclude: ['test/performance.test.ts', 'test/fixtures/**'],
+    exclude: ['test/**/*.e2e.test.ts', 'test/performance.test.ts', 'test/fixtures/**'],
     testTimeout: 300_000, // 5 min per suite
     hookTimeout: 300_000,
     teardownTimeout: 60_000,

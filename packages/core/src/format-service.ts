@@ -9,13 +9,17 @@ export interface FormatServiceOptions {
 
 function stableOptionsKey(options: object | undefined): string {
   if (!options) return ''
-  const keys = Object.keys(options).sort()
-  if (keys.length === 0) return ''
   const normalized: Record<string, unknown> = {}
-  for (const key of keys) {
+  for (const key in options) {
     normalized[key] = (options as Record<string, unknown>)[key]
   }
-  return JSON.stringify(normalized)
+  const keys = Object.keys(normalized).sort()
+  if (keys.length === 0) return ''
+  const sorted: Record<string, unknown> = {}
+  for (const key of keys) {
+    sorted[key] = normalized[key]
+  }
+  return JSON.stringify(sorted)
 }
 
 function formatterCacheKey(locale: string, options: object | undefined): string {
@@ -48,6 +52,14 @@ export class FormatService {
   setDateTimeFormats(formats: DateTimeFormatsConfig): void {
     this.datetimeFormats = formats
     this.dateCache.clear()
+  }
+
+  getNumberFormats(): NumberFormatsConfig {
+    return this.numberFormats
+  }
+
+  getDateTimeFormats(): DateTimeFormatsConfig {
+    return this.datetimeFormats
   }
 
   clearCache(): void {

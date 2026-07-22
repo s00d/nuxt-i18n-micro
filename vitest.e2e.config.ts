@@ -1,5 +1,9 @@
-import { cpus } from 'node:os'
+import { availableParallelism, cpus } from 'node:os'
 import { defineConfig } from 'vitest/config'
+
+const isCI = !!process.env.CI
+const parallelism = availableParallelism?.() ?? cpus().length
+const maxForks = isCI ? 1 : Math.max(1, Math.floor(parallelism / 2))
 
 /**
  * Browser e2e specs, run through Vitest's node runner driving a real Playwright
@@ -15,12 +19,14 @@ export default defineConfig({
     // isolated specs run a full Nuxt build inside the setup hook
     testTimeout: 120_000,
     hookTimeout: 240_000,
+    fileParallelism: !isCI,
     pool: 'forks',
     poolOptions: {
       forks: {
         // Each file may spawn a browser and (isolated) a Nuxt build — cap
         // concurrency like the old Playwright `workers: '50%'`.
-        maxForks: Math.max(2, Math.floor(cpus().length / 2)),
+        maxForks,
+        singleFork: isCI,
       },
     },
   },

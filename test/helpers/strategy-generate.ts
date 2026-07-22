@@ -142,6 +142,10 @@ const GENERATE_CASES: GenerateCase[] = [
     buildName: 'generate-prefix-and-default',
     assertRoutes(publicDir) {
       const routeMatrix = [
+        ['about'],
+        ['contact'],
+        ['settings', 'profile'],
+        ['settings', 'team'],
         ['en', 'about'],
         ['de', 'a-propos'],
         ['ru', 'about'],

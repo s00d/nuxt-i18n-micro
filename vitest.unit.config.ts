@@ -11,6 +11,8 @@ export default defineConfig({
     include: ['test/**/*.test.ts'],
     exclude: ['test/performance.test.ts', 'test/fixtures/**'],
     testTimeout: 300_000, // 5 min per suite
+    hookTimeout: 300_000,
+    teardownTimeout: 60_000,
     pool: 'forks',
     // On CI, run files serially: these tests spawn heavy subprocesses (nuxi
     // build, headless Chromium), and running several in parallel forks on a
@@ -19,7 +21,9 @@ export default defineConfig({
     fileParallelism: !process.env.CI,
     poolOptions: {
       forks: {
-        maxForks: Math.max(2, Math.floor(cpus().length / 2)),
+        // One fork on CI avoids tinypool IPC races when subprocesses tear down.
+        singleFork: !!process.env.CI,
+        maxForks: process.env.CI ? 1 : Math.max(2, Math.floor(cpus().length / 2)),
       },
     },
   },

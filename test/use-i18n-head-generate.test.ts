@@ -6,7 +6,7 @@
  * 3. Serves static output and checks navigation, reload, and head tags in a real browser
  */
 
-import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
+import { type ChildProcess, exec as execCb } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import net from 'node:net'
 import { join } from 'node:path'
@@ -17,6 +17,7 @@ import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { assertI18nHeadScenario, expectHtmlScenario, i18nHeadScenarios, i18nHeadStaticPages, staticHtmlPath } from './helpers/i18n-head-seo'
 import { isolatedBuild } from './helpers/isolated-build'
+import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 
 const exec = promisify(execCb)
 
@@ -57,39 +58,14 @@ async function freePort(port: number) {
 }
 
 function runGenerate(): Promise<void> {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    ...build.env,
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.TEST
-
-  return new Promise((resolve, reject) => {
-    const child = spawn('npx', ['nuxi', 'generate'], {
-      cwd: FIXTURES,
-      stdio: 'inherit',
-      env,
-    })
-    child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`nuxi generate exited with code ${code}`))))
+  return runCommand('npx', ['nuxi', 'generate'], {
+    cwd: FIXTURES,
+    env: build.env,
   })
 }
 
 function serveStatic(port: number): ChildProcess {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.TEST
-
-  const child = spawn('npx', ['serve', OUTPUT_PUBLIC, '-p', String(port)], {
-    cwd: FIXTURES,
-    stdio: 'inherit',
-    env,
-  })
-  child.unref()
-  return child
+  return spawnServer('npx', ['serve', OUTPUT_PUBLIC, '-p', String(port)], { cwd: FIXTURES })
 }
 
 async function waitForServer(port: number, path = '/') {
@@ -112,7 +88,7 @@ describe('useI18nHead after nuxi generate', () => {
   let server: ChildProcess | null = null
 
   const stopServer = async () => {
-    if (server && !server.killed) server.kill()
+    await stopChild(server)
     server = null
     if (port) await freePort(port)
   }
@@ -203,7 +179,7 @@ describe('useI18nHead after nuxi generate', () => {
     let ssrServer: ChildProcess | null = null
 
     const stopSsr = async () => {
-      if (ssrServer && !ssrServer.killed) ssrServer.kill()
+      await stopChild(ssrServer)
       ssrServer = null
       if (ssrPort) await freePort(ssrPort)
     }
@@ -212,22 +188,16 @@ describe('useI18nHead after nuxi generate', () => {
       await stopServer()
       await rimraf(build.buildDir).catch(() => {})
 
-      await new Promise<void>((resolve, reject) => {
-        const child = spawn('npx', ['nuxi', 'build'], {
-          cwd: FIXTURES,
-          stdio: 'inherit',
-          env: { ...process.env, ...build.env, NODE_ENV: 'production' },
-        })
-        child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`nuxi build exited with code ${code}`))))
+      await runCommand('npx', ['nuxi', 'build'], {
+        cwd: FIXTURES,
+        env: build.env,
       })
 
       ssrPort = await getFreePort(24111)
-      ssrServer = spawn('node', [build.serverEntry], {
+      ssrServer = spawnServer('node', [build.serverEntry], {
         cwd: FIXTURES,
-        stdio: 'inherit',
-        env: { ...process.env, PORT: String(ssrPort), NODE_ENV: 'production' },
+        env: { PORT: String(ssrPort) },
       })
-      ssrServer.unref()
       await waitForServer(ssrPort, '/reactive')
     }, 300_000)
 

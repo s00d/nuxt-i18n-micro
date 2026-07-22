@@ -11,7 +11,7 @@
  * Запуск только этого файла: pnpm exec vitest run test/strategies.test.ts
  */
 
-import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
+import { type ChildProcess, exec as execCb } from 'node:child_process'
 import net from 'node:net'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -21,6 +21,7 @@ import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { isolatedBuild } from './helpers/isolated-build'
 import { registerStrategyGenerateTests } from './helpers/strategy-generate'
+import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 
 /* ──────────────── settings ──────────────── */
 
@@ -135,57 +136,23 @@ async function waitForText(url: string, text: string, tries = 40, ms = 500) {
 
 /** npm run generate / npm run build via spawn */
 function runNuxt(script: 'generate' | 'build', strategy: string): Promise<void> {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    ...BUILD.env,
-    NODE_ENV: 'production',
-    STRATEGY: strategy,
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
-
   const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
-
-  return new Promise((resolve, reject) => {
-    const child = spawn(npmCmd, ['run', script], {
-      cwd: FIXTURES,
-      stdio: 'inherit',
-      detached: true,
-      env,
-    })
-    child.unref()
-    child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`npm run ${script} exited with code ${code}`))))
+  return runCommand(npmCmd, ['run', script], {
+    cwd: FIXTURES,
+    env: { ...BUILD.env, STRATEGY: strategy },
   })
 }
 
 /** Start static or SSR server */
 function serve(cmd: string[], port: number): ChildProcess {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    PORT: String(port),
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
-
   const command = cmd[0]
   if (!command) {
     throw new Error('Command is required')
   }
-  const child = spawn(command, cmd.slice(1), {
+  return spawnServer(command, cmd.slice(1), {
     cwd: FIXTURES,
-    stdio: 'inherit',
-    detached: true,
-    env,
-  }) as import('child_process').ChildProcess
-  if (child && typeof child.unref === 'function') {
-    child.unref()
-  }
-  return child
+    env: { PORT: String(port) },
+  })
 }
 
 async function htmlIncludes(port: number, path: string, text: string) {
@@ -200,7 +167,7 @@ describe.each(Object.entries(ROUTES))('[%s] strategy', (strategy, routes) => {
   let server: ChildProcess | null = null
 
   const stop = async () => {
-    if (server && !server.killed) server.kill()
+    await stopChild(server)
     server = null
     if (port) await freePort(port)
   }

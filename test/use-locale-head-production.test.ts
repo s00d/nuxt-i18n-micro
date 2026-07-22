@@ -3,7 +3,7 @@
  * Verifies production SSR build + node .output/server/index.mjs serves pages without crashing.
  */
 
-import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
+import { type ChildProcess, exec as execCb } from 'node:child_process'
 import net from 'node:net'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 
 const ROOT = join(fileURLToPath(import.meta.url), '..', '..')
 const FIXTURE = join(ROOT, 'test/fixtures/use-locale-head')
@@ -70,41 +71,13 @@ async function waitForOk(url: string, tries = 40, ms = 500) {
 }
 
 function runNuxiBuild(): Promise<void> {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
-
-  return new Promise((resolve, reject) => {
-    const child = spawn('npx', ['nuxi', 'build', FIXTURE], {
-      cwd: ROOT,
-      stdio: 'inherit',
-      env,
-    })
-    child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`nuxi build exited with code ${code}`))))
-  })
+  return runCommand('npx', ['nuxi', 'build', FIXTURE], { cwd: ROOT })
 }
 
 function serveProduction(port: number): ChildProcess {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    PORT: String(port),
-    HOST,
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
-
-  return spawn('node', [join(FIXTURE, '.output/server/index.mjs')], {
+  return spawnServer('node', [join(FIXTURE, '.output/server/index.mjs')], {
     cwd: FIXTURE,
-    stdio: 'pipe',
-    env,
+    env: { PORT: String(port), HOST },
   })
 }
 
@@ -113,7 +86,7 @@ describe('useLocaleHead production SSR (#233)', () => {
   let server: ChildProcess | null = null
 
   const stop = async () => {
-    if (server && !server.killed) server.kill()
+    await stopChild(server)
     server = null
     if (port) await freePort(port)
   }

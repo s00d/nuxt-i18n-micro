@@ -23,7 +23,7 @@
           :style="[
             linkStyle,
             locale.code === currentLocale ? activeLinkStyle : {},
-            locale.code === currentLocale ? disabledLinkStyle : {},
+            locale.code === currentLocale ? customActiveLinkStyle : {},
             customLinkStyle,
           ]"
           :hreflang="locale.iso || locale.code"
@@ -69,7 +69,6 @@ interface Props {
   customItemStyle?: CSSProperties
   customLinkStyle?: CSSProperties
   customActiveLinkStyle?: CSSProperties
-  customDisabledLinkStyle?: CSSProperties
   customIconStyle?: CSSProperties
 }
 
@@ -81,12 +80,12 @@ const props = withDefaults(defineProps<Props>(), {
   customItemStyle: () => ({}),
   customLinkStyle: () => ({}),
   customActiveLinkStyle: () => ({}),
-  customDisabledLinkStyle: () => ({}),
   customIconStyle: () => ({}),
 })
 
 const { $switchLocaleRoute, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
-const locales = ref($getLocales())
+// Keep `$getLocales()` complete for SEO/meta; the switcher only shows switchable locales.
+const locales = computed(() => ($getLocales() ?? []).filter((locale: Locale) => !locale.disabled))
 const currentLocale = computed(() => $getLocale())
 const currentLocaleName = computed(() => $getLocaleName())
 const dropdownOpen = ref(false)
@@ -165,11 +164,8 @@ const linkStyle: CSSProperties = {
 const activeLinkStyle: CSSProperties = {
   fontWeight: 'bold',
   color: '#007bff',
-}
-
-const disabledLinkStyle: CSSProperties = {
+  // Current locale is not a meaningful switch target
   cursor: 'not-allowed',
-  color: '#aaa',
 }
 
 const iconStyle: CSSProperties = {

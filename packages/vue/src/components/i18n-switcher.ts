@@ -35,10 +35,6 @@ export const I18nSwitcher = defineComponent({
       type: Object as PropType<CSSProperties>,
       default: () => ({}),
     },
-    customDisabledLinkStyle: {
-      type: Object as PropType<CSSProperties>,
-      default: () => ({}),
-    },
     customIconStyle: {
       type: Object as PropType<CSSProperties>,
       default: () => ({}),
@@ -79,7 +75,7 @@ export const I18nSwitcher = defineComponent({
       )
     }
 
-    const locales = computed(() => props.locales || injectedLocales || [])
+    const locales = computed(() => (props.locales || injectedLocales || []).filter((locale) => !locale.disabled))
     const currentLocale = computed(() => {
       if (props.currentLocale !== undefined) {
         return typeof props.currentLocale === 'function' ? props.currentLocale() : props.currentLocale
@@ -196,6 +192,8 @@ export const I18nSwitcher = defineComponent({
     const activeLinkStyle: CSSProperties = {
       fontWeight: 'bold',
       color: '#007bff',
+      // Current locale is not a meaningful switch target
+      cursor: 'not-allowed',
     }
 
     const iconStyle: CSSProperties = {
@@ -338,6 +336,7 @@ export const I18nSwitcher = defineComponent({
                 style: {
                   ...linkStyle,
                   ...(isActive ? activeLinkStyle : {}),
+                  ...(isActive ? props.customActiveLinkStyle : {}),
                   ...props.customLinkStyle,
                 },
                 // Prevent default navigation, use only handleSwitchLocale

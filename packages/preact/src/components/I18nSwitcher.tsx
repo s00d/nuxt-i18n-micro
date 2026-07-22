@@ -5,6 +5,12 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 import { useI18n } from '../context'
 import { useI18nContext, useI18nLocales, useI18nRouter } from '../injection'
 
+function resolveCurrentLocale(prop: string | (() => string) | undefined, fallback: string): string {
+  if (typeof prop === 'function') return prop()
+  if (typeof prop === 'string') return prop
+  return fallback
+}
+
 export interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   locales?: Locale[]
   currentLocale?: string | (() => string)
@@ -46,21 +52,12 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // Use props if provided, otherwise fallback to injected or useI18n
-  const locales = localesProp || injectedLocales || i18n.getLocales() || []
+  // Use props if provided, otherwise fallback to injected or useI18n.
+  // Exclude `disabled: true` locales from the UI switcher (keep them available via getLocales for SEO).
+  const locales = (localesProp || injectedLocales || i18n.getLocales() || []).filter((locale) => !locale.disabled)
 
   // Get current locale value (handle both string and function)
-  const getCurrentLocale = (): string => {
-    if (typeof currentLocaleProp === 'function') {
-      return currentLocaleProp()
-    }
-    if (typeof currentLocaleProp === 'string') {
-      return currentLocaleProp
-    }
-    return i18n.locale
-  }
-
-  const currentLocale = getCurrentLocale()
+  const currentLocale = resolveCurrentLocale(currentLocaleProp, i18n.locale)
   const currentLocaleName = getLocaleNameProp ? getLocaleNameProp() : i18n.getLocaleName()
 
   const toggleDropdown = (event?: Event) => {
@@ -160,6 +157,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
   const activeLinkStyle: Record<string, string | number> = {
     fontWeight: 'bold',
     color: '#007bff',
+    cursor: 'not-allowed',
   }
 
   const iconStyle: Record<string, string | number> = {

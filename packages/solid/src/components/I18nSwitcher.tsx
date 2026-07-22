@@ -18,7 +18,6 @@ interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   customItemStyle?: JSX.CSSProperties
   customLinkStyle?: JSX.CSSProperties
   customActiveLinkStyle?: JSX.CSSProperties
-  customDisabledLinkStyle?: JSX.CSSProperties
   customIconStyle?: JSX.CSSProperties
 }
 
@@ -40,14 +39,13 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
     'customItemStyle',
     'customLinkStyle',
     'customActiveLinkStyle',
-    'customDisabledLinkStyle',
     'customIconStyle',
   ])
 
   const [dropdownOpen, setDropdownOpen] = createSignal(false)
   let wrapperRef: HTMLDivElement | undefined
 
-  const locales = createMemo(() => local.locales || injectedLocales || [])
+  const locales = createMemo(() => (local.locales || injectedLocales || []).filter((locale) => !locale.disabled))
   const currentLocale = createMemo(() => {
     if (local.currentLocale !== undefined) {
       return typeof local.currentLocale === 'function' ? local.currentLocale() : local.currentLocale
@@ -164,6 +162,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
   const activeLinkStyle: JSX.CSSProperties = {
     'font-weight': 'bold',
     color: '#007bff',
+    cursor: 'not-allowed',
   }
 
   const iconStyle: JSX.CSSProperties = {
@@ -256,8 +255,8 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
                   style={{
                     ...linkStyle,
                     ...(isActive ? activeLinkStyle : {}),
-                    ...local.customLinkStyle,
                     ...(isActive ? local.customActiveLinkStyle : {}),
+                    ...local.customLinkStyle,
                   }}
                   onClick={(e) => {
                     e.preventDefault()

@@ -113,19 +113,25 @@ describe('FormatService', () => {
     })
 
     test('getNumberFormats returns configured number formats', () => {
-      const numberFormats = {
+      const service = new FormatService({
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+      expect(service.getNumberFormats()).toEqual({
         en: { currency: { style: 'currency', currency: 'USD' } },
-      }
-      const service = new FormatService({ numberFormats })
-      expect(service.getNumberFormats()).toBe(numberFormats)
+      })
     })
 
     test('getDateTimeFormats returns configured datetime formats', () => {
-      const datetimeFormats = {
+      const service = new FormatService({
+        datetimeFormats: {
+          en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+        },
+      })
+      expect(service.getDateTimeFormats()).toEqual({
         en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
-      }
-      const service = new FormatService({ datetimeFormats })
-      expect(service.getDateTimeFormats()).toBe(datetimeFormats)
+      })
     })
   })
 

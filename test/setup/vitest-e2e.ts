@@ -59,6 +59,9 @@ type BuildConfig = { rootDir: string; nuxtConfig?: Record<string, unknown>; dev?
 export type E2EConfig = SharedConfig | BuildConfig
 
 function resolveSharedHost(name: string): string | undefined {
+  // Documented escape hatch: force per-file builds even if a stale hosts file
+  // remains from an interrupted earlier run.
+  if (process.env.SHARED_FIXTURES === '0') return undefined
   // Prefer env (filled by setupFiles from `.nuxt-hosts.json`). `inject` is
   // unavailable during top-level `await setupE2E()` module evaluation.
   return process.env[envKey(name)] ?? readNuxtHostsFile()[name]

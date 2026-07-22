@@ -1089,8 +1089,7 @@ Locale switcher component with dropdown interface.
 | `customDropdownStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom dropdown styles |
 | `customItemStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom item styles |
 | `customLinkStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom link styles |
-| `customActiveLinkStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom active link styles |
-| `customDisabledLinkStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom disabled link styles |
+| `customActiveLinkStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom styles for the current locale link |
 | `customIconStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom icon styles |
 
 **Examples:**

@@ -6,6 +6,43 @@ outline: "deep"
 
 # News
 
+## Unreleased — Formats, Cache & Switcher DX
+
+**Date**: 2026-07-22
+
+Batch of DX and runtime improvements toward the next release: Vue I18n-style number/date formats, CDN-friendly translation payload caching, and locale-switcher fixes.
+
+### What's New?
+
+#### Named `numberFormats` / `datetimeFormats` + formatter cache
+
+Vue I18n-compatible named formats and faster Intl formatting:
+
+- Config: `numberFormats` / `datetimeFormats` per locale
+- API: `$tn(1000, 'currency')`, `$td(date, 'short')` (+ locale override and option merges)
+- `FormatService` caches `Intl.NumberFormat` / `DateTimeFormat` / `RelativeTimeFormat` by locale+options
+
+See [Methods — `$tn` / `$td`](/api/methods#tn) and [Configuration](/guide/configuration#numberformats).
+
+#### `httpCacheDuration` for `/_locales` payloads
+
+The built-in `/{apiBaseUrl}/:page/:locale/data.json` route now sends HTTP `Cache-Control` for browsers and CDN:
+
+- Option: `httpCacheDuration` (seconds, default `31536000` / 1 year)
+- Header: `Cache-Control: public, max-age=…, immutable`
+- Safe with existing `dateBuild` cache-busting (`?v=...`); `0` disables the header; not applied in development
+
+Analog of `@nuxtjs/i18n` v10.2.0 `experimental.httpCacheDuration`, as an explicit response header.
+
+### Bug Fixes
+
+- **`<i18n-switcher>`** — omits locales with `disabled: true` from the dropdown (`$getLocales()` still returns the full list for SEO/meta)
+- **Switcher styles** — `cursor: not-allowed` applies to the **current** locale via `activeLinkStyle` / `customActiveLinkStyle`; removed misleading `customDisabledLinkStyle` (it never styled `locale.disabled`)
+
+Full changelog will be published with the release on [GitHub](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
+
+---
+
 ## Fix: infinite redirect loop with `app.baseURL` + `strategy: 'prefix'` (#234)
 
 **Date**: 2026-07-03

@@ -915,8 +915,7 @@ Locale switcher component with dropdown interface.
 | `customDropdownStyle` | `CSSProperties` | ❌ | `{}` | Custom dropdown styles |
 | `customItemStyle` | `CSSProperties` | ❌ | `{}` | Custom item styles |
 | `customLinkStyle` | `CSSProperties` | ❌ | `{}` | Custom link styles |
-| `customActiveLinkStyle` | `CSSProperties` | ❌ | `{}` | Custom active link styles |
-| `customDisabledLinkStyle` | `CSSProperties` | ❌ | `{}` | Custom disabled link styles |
+| `customActiveLinkStyle` | `CSSProperties` | ❌ | `{}` | Custom styles for the current locale link |
 | `customIconStyle` | `CSSProperties` | ❌ | `{}` | Custom icon styles |
 
 **Slots:**

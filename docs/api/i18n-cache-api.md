@@ -130,7 +130,15 @@ On the client, before the first fetch, the plugin calls `translationStorage.seed
 
 **File**: `src/runtime/server/routes/i18n.ts`
 
-This Nitro route serves merged translations for the active payload mode. It calls `loadTranslationsFromServer()` and returns the result as JSON. Cache headers are controlled by `dateBuild` version parameter.
+This Nitro route serves merged translations for the active payload mode. It calls `loadTranslationsFromServer()` and returns the result as JSON.
+
+In production it also sets:
+
+```http
+Cache-Control: public, max-age={httpCacheDuration}, immutable
+```
+
+Default `httpCacheDuration` is `31536000` (1 year). This is safe because clients request payloads with `?v={dateBuild}` cache-busting. Set `httpCacheDuration: 0` to omit the header. The header is not applied in development.
 
 ## 📥 Extending: Custom Translation Loading
 

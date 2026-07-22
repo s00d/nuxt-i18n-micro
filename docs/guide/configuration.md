@@ -47,6 +47,9 @@ Complete reference for every option under the `i18n` key in `nuxt.config`. Types
 | `apiBaseServerHost` | `string` | `undefined` | Cache / Payloads |
 | `cacheMaxSize` | `number` | `0` | Cache / Payloads |
 | `cacheTtl` | `number` | `0` | Cache / Payloads |
+| `httpCacheDuration` | `number` | `31536000` | Cache / Payloads |
+| `numberFormats` | `object` | `{}` | Formatting |
+| `datetimeFormats` | `object` | `{}` | Formatting |
 | `dateBuild` | `string \| number` | build time | Cache / Payloads |
 | `hmr` | `boolean` | `true` (dev) | Dev |
 | `debug` | `boolean` | `false` | Dev |
@@ -907,6 +910,95 @@ export default defineNuxtConfig({
 **Type**: `string | number`  
 **Default**: `Date.now()` (build time)
 
+#### `httpCacheDuration`
+
+HTTP `Cache-Control` max-age (seconds) for the built-in translation payload route
+`/{apiBaseUrl}/:page/:locale/data.json`.
+
+Because fetches already append `?v={dateBuild}`, responses are safe to cache aggressively:
+
+```http
+Cache-Control: public, max-age=31536000, immutable
+```
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    dateBuild: process.env.GIT_SHA ?? 'local-dev',
+    httpCacheDuration: 86400, // 24 hours
+    // httpCacheDuration: 0, // disable Cache-Control header
+  },
+})
+```
+
+**Type**: `number`  
+**Default**: `31536000` (1 year)
+
+- `0` — do not set `Cache-Control`
+- Not applied in development (`import.meta.dev`) so browser cache does not fight HMR
+- Analog of `@nuxtjs/i18n` v10.2.0 `experimental.httpCacheDuration`, as an explicit response header
+
+#### `numberFormats`
+
+Named number formats per locale (Vue I18n-compatible). Enables `$tn(1000, 'currency')`.
+
+**Type**: `Record<string, Record<string, Intl.NumberFormatOptions>>`  
+**Default**: `{}`
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    numberFormats: {
+      en: {
+        currency: { style: 'currency', currency: 'USD', notation: 'standard' },
+        decimal: { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 },
+        percent: { style: 'percent', useGrouping: false },
+      },
+      de: {
+        currency: { style: 'currency', currency: 'EUR' },
+      },
+    },
+  },
+})
+```
+
+```ts
+$tn(10000, 'currency')           // $10,000.00
+$tn(10000, 'currency', 'de')     // 10.000,00 €
+$tn(10000, 'currency', { notation: 'compact' })
+```
+
+Keys should match locale `code` values. If an exact locale key is missing, the language subtag is tried (`en-US` → `en`).
+
+#### `datetimeFormats`
+
+Named datetime formats per locale (Vue I18n-compatible). Enables `$td(date, 'short')`.
+
+**Type**: `Record<string, Record<string, Intl.DateTimeFormatOptions>>`  
+**Default**: `{}`
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    datetimeFormats: {
+      en: {
+        short: { year: 'numeric', month: 'short', day: 'numeric' },
+        long: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
+      },
+      ja: {
+        short: { year: 'numeric', month: 'short', day: 'numeric' },
+      },
+    },
+  },
+})
+```
+
+```ts
+$td(new Date(), 'short')
+$td(new Date(), 'long', 'en')
+```
+
+`Intl.NumberFormat` / `DateTimeFormat` / `RelativeTimeFormat` instances are cached inside `FormatService` by locale + options key.
 
 #### `hmr`
 

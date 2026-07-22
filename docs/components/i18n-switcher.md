@@ -8,6 +8,8 @@ outline: "deep"
 
 The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dropdown interface for switching between different locales in your application. This component is highly customizable, allowing seamless integration with your application's design and layout.
 
+Locales with `disabled: true` are **omitted** from the dropdown (they remain available via `$getLocales()` for SEO / head tags). Only switchable locales get `NuxtLink` + `hreflang`.
+
 ## ⚙️ Props
 
 ### `customLabels`
@@ -74,20 +76,10 @@ The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dr
 
 - **Type**: `CSSProperties`
 - **Default**: `{}`
-- **Description**: Sets the custom styles for the currently active locale, usually to highlight or indicate the selected option.
+- **Description**: Extra styles for the **current** locale link (on top of the default active styles: bold, accent color, `cursor: not-allowed`). Locales with `disabled: true` are omitted from the dropdown entirely — there is no separate “disabled link” style prop.
 - **Example**:
   ```vue
   <i18n-switcher :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"></i18n-switcher>
-  ```
-
-### `customDisabledLinkStyle`
-
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Applies custom styles to disable the link for the current locale, preventing users from selecting it.
-- **Example**:
-  ```vue
-  <i18n-switcher :customDisabledLinkStyle="{ color: 'gray', cursor: 'not-allowed' }"></i18n-switcher>
   ```
 
 ### `customIconStyle`
@@ -124,7 +116,6 @@ This renders a locale switcher with default styling and behavior.
     :customItemStyle="{ margin: '5px 0', padding: '5px' }"
     :customLinkStyle="{ padding: '8px 16px', color: '#333', textDecoration: 'none' }"
     :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"
-    :customDisabledLinkStyle="{ color: 'gray', cursor: 'not-allowed' }"
     :customIconStyle="{ fontSize: '20px', color: '#007bff' }"
   />
 </template>

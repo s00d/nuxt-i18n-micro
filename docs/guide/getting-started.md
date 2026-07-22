@@ -280,7 +280,7 @@ For every option, default, and example, see the dedicated [Configuration Referen
 | Locales & routing | `locales`, `defaultLocale`, `strategy`, `globalLocaleRoutes` |
 | Translations | `translationDir`, `fallbackLocale`, `disablePageLocales`, `translationPayloads` |
 | SEO | `meta`, `metaBaseUrl`, `canonicalQueryWhitelist` |
-| Runtime / CDN | `apiBaseUrl`, `apiBaseClientHost`, `apiBaseServerHost`, `cacheMaxSize`, `cacheTtl` |
+| Runtime / CDN | `apiBaseUrl`, `apiBaseClientHost`, `apiBaseServerHost`, `cacheMaxSize`, `cacheTtl`, `httpCacheDuration`, `dateBuild` |
 | Plugins | `plugin`, `define`, `redirects`, `hooks`, `components` |
 
 :::

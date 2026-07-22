@@ -69,7 +69,23 @@ classDiagram
 ```
 
 ::: info `useNuxtApp()`-only injections
-`$defineI18nRoute` and `$clearCache` are provided by the main i18n plugin on `useNuxtApp()` but are **not** returned by the `useI18n()` composable. See sections below.
+`$defineI18nRoute`, `$clearCache`, and `$getI18nConfig` are provided by the main i18n plugin on `useNuxtApp()` but are **not** returned by the `useI18n()` composable. See sections below.
+:::
+
+### `$getI18nConfig`
+
+- **Type**: `() => ModuleOptionsExtend`
+- **Description**: Returns the resolved i18n module config for the current app (strategy, locales, `localeCookie`, redirects, hooks flags, etc.). Prefer this over `useRuntimeConfig().public.i18nConfig` in plugins and server code.
+
+```typescript
+const nuxtApp = useNuxtApp()
+const { localeCookie, strategy, hooks } = nuxtApp.$getI18nConfig()
+```
+
+For build-time or non-Nuxt contexts, use `getI18nConfig()` from `#build/i18n.strategy.mjs` instead.
+
+::: info `serverTranslationPreload` (internal)
+`serverTranslationPreload` is a private module option exposed only in server private config (`#i18n-internal/config`). It is not part of the public runtime API and may change without notice.
 :::
 
 
@@ -283,39 +299,95 @@ Methods for formatting numbers and dates according to locale conventions.
 
 ### `$tn`
 
-- **Type**: `(value: number | string, options?: Intl.NumberFormatOptions) => string`
-- **Description**: Formats a number according to the current locale using `Intl.NumberFormat`.
+- **Type**:
+  - `(value: number, options?: Intl.NumberFormatOptions) => string`
+  - `(value: number, key: string, overrides?: Intl.NumberFormatOptions) => string`
+  - `(value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions) => string`
+- **Description**: Formats a number according to the current locale using `Intl.NumberFormat`. Supports named formats from `numberFormats`.
 
 **Parameters**:
-- **value**: `number | string` — The number to format
-- **options**: `Intl.NumberFormatOptions | undefined` — Optional. `Intl.NumberFormatOptions` to customize the formatting
+- **value**: `number` — The number to format
+- **options / key**: inline `Intl.NumberFormatOptions`, or a named format key (e.g. `'currency'`)
+- **locale** (optional): override locale when using a named format
+- **overrides** (optional): merged on top of the named format
 
 ```typescript
+// Inline options
 const formattedNumber = $tn(1234567.89, { style: 'currency', currency: 'USD' })
-// Output: "$1,234,567.89" in the 'en-US' locale
+// "$1,234,567.89"
+
+// Named format (from nuxt.config i18n.numberFormats)
+const price = $tn(1000, 'currency')
+const priceDe = $tn(1000, 'currency', 'de')
+const compact = $tn(1000, 'currency', { notation: 'compact' })
+```
+
+Unknown named format keys fall back to default `Intl.NumberFormat` options. In development (client), a `console.warn` is emitted when `missingWarn` is enabled (default).
+
+**Config example**:
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    numberFormats: {
+      en: {
+        currency: { style: 'currency', currency: 'USD' },
+        decimal: { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 2 },
+      },
+      de: {
+        currency: { style: 'currency', currency: 'EUR' },
+      },
+    },
+  },
+})
 ```
 
 **Use Cases**:
 - Formatting numbers as currency, percentages, or decimals in the appropriate locale format
-- Customizing the number format using `Intl.NumberFormatOptions` such as currency, minimum fraction digits, etc.
+- Reusing named formats across the app (Vue I18n migration parity)
 
 ### `$td`
 
-- **Type**: `(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string`
-- **Description**: Formats a date according to the current locale using `Intl.DateTimeFormat`.
+- **Type**:
+  - `(value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string`
+  - `(value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions) => string`
+  - `(value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions) => string`
+- **Description**: Formats a date according to the current locale using `Intl.DateTimeFormat`. Supports named formats from `datetimeFormats`.
 
 **Parameters**:
 - **value**: `Date | number | string` — The date to format
-- **options**: `Intl.DateTimeFormatOptions | undefined` — Optional. `Intl.DateTimeFormatOptions` to customize the formatting
+- **options / key**: inline `Intl.DateTimeFormatOptions`, or a named format key (e.g. `'short'`)
+- **locale** (optional): override locale when using a named format
+- **overrides** (optional): merged on top of the named format
 
 ```typescript
 const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-// Output: "Friday, September 1, 2023" in the 'en-US' locale
+// "Friday, September 1, 2023"
+
+const short = $td(new Date(), 'short')
+const longDe = $td(new Date(), 'long', 'de')
+```
+
+Unknown named format keys fall back to default `Intl.DateTimeFormat` options. In development (client), a `console.warn` is emitted when `missingWarn` is enabled (default).
+
+**Config example**:
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    datetimeFormats: {
+      en: {
+        short: { year: 'numeric', month: 'short', day: 'numeric' },
+        long: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
+      },
+    },
+  },
+})
 ```
 
 **Use Cases**:
 - Displaying dates in a format that aligns with the user's locale
-- Customizing date output using options like weekday names, time formats, and timezone settings
+- Sharing short/long/date-time presets app-wide
 
 ### `$tdr`
 

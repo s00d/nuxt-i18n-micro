@@ -5,22 +5,22 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="${SCRIPT_DIR}/artillery-config.yml"
 OUTPUT="${SCRIPT_DIR}/artillery-output.json"
 
-# Проверка наличия Artillery
+# Check that Artillery is installed
 if ! command -v artillery &> /dev/null; then
-    echo "Artillery не установлен. Установите его с помощью npm install -g artillery."
+    echo "Artillery is not installed. Install it with: npm install -g artillery"
     exit 1
 fi
 
-# Ключ Artillery Cloud берётся из окружения: export ARTILLERY_CLOUD_KEY=...
+# The Artillery Cloud key comes from the environment: export ARTILLERY_CLOUD_KEY=...
 if [ -z "${ARTILLERY_CLOUD_KEY:-}" ]; then
-    echo "ARTILLERY_CLOUD_KEY не задан. Запуск без записи в Artillery Cloud..."
+    echo "ARTILLERY_CLOUD_KEY is not set. Running without recording to Artillery Cloud..."
     artillery run "$CONFIG" --output "$OUTPUT"
 else
-    echo "Запуск Artillery теста (запись в Artillery Cloud)..."
-    # Ключ передаём через переменную окружения, чтобы он не светился в argv/списке процессов.
+    echo "Running the Artillery test (recording to Artillery Cloud)..."
+    # Pass the key via an environment variable so it does not leak into argv / the process list.
     ARTILLERY_CLOUD_API_KEY="$ARTILLERY_CLOUD_KEY" artillery run "$CONFIG" --record --output "$OUTPUT"
 fi
 
-# Обработка результатов
-echo "Результаты теста:"
+# Process the results
+echo "Test results:"
 artillery report "$OUTPUT"

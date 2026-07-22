@@ -24,29 +24,11 @@ jobs:
       - run: pnpm install
       - run: pnpm run lint
 
-  unit:
+  # Package tests + unit/build tests in one job. Unit files run serially on CI
+  # (fileParallelism disabled) because they spawn heavy subprocesses (nuxi build,
+  # headless Chromium) that OOM a runner when parallel.
+  test:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.14.2
-          run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm --filter "./packages/**" run build
-      # Dedicated packages config — avoids loading the root config's e2e project
-      # (whose globalSetup would build every shared fixture) and needing .nuxt.
-      - run: pnpm exec vitest run --config vitest.packages.config.ts
-
-  node-e2e:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        shard: [1, 2]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -60,15 +42,18 @@ jobs:
       - run: pnpm install
       - run: pnpm --filter "./packages/**" run build
       - run: pnpm run dev:prepare
-      # unit shards include browser-backed generate tests (chromium.launch())
+      # unit suite includes browser-backed generate tests (chromium.launch())
       - run: pnpm exec playwright install chromium
-      - run: pnpm exec vitest run --config vitest.unit.config.ts --shard=${{ matrix.shard }}/2
+      - run: pnpm run test:packages
+      - run: pnpm run test:unit
 
+  # Browser e2e: shared fixtures are built once (globalSetup) and served; specs
+  # run against them. Not sharded — sharding would rebuild every fixture per shard.
   e2e:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        shard: [1, 2, 3, 4]
+    env:
+      # Serialize shared-fixture builds so a constrained runner does not OOM.
+      FIXTURE_BUILD_CONCURRENCY: 1
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -84,14 +69,14 @@ jobs:
           path: |
             test/fixtures/**/.output-shared
             test/fixtures/**/.build-hash
-          key: playwright-shared-${{ runner.os }}-${{ hashFiles('test/fixtures/**', 'src/**', 'packages/**/dist/**', 'pnpm-lock.yaml') }}
+          key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/fixtures/**', 'src/**', 'packages/**/dist/**', 'pnpm-lock.yaml') }}
           restore-keys: |
-            playwright-shared-${{ runner.os }}-
+            e2e-shared-${{ runner.os }}-
       - run: pnpm install
       - run: pnpm --filter "./packages/**" run build
       - run: pnpm run dev:prepare
       - run: pnpm exec playwright install chromium
-      - run: pnpm exec vitest run --config vitest.e2e.config.ts --shard=${{ matrix.shard }}/4
+      - run: pnpm run test:e2e
 
   verify:
     runs-on: ubuntu-latest

@@ -38,10 +38,9 @@ jobs:
           cache: pnpm
       - run: pnpm install
       - run: pnpm --filter "./packages/**" run build
-      # root vitest.config resolves the e2e globalSetup (under the root tsconfig
-      # that extends .nuxt/tsconfig.json), so .nuxt must exist even for package runs.
-      - run: pnpm run dev:prepare
-      - run: pnpm exec vitest run --project '!unit' --project '!e2e'
+      # Dedicated packages config — avoids loading the root config's e2e project
+      # (whose globalSetup would build every shared fixture) and needing .nuxt.
+      - run: pnpm exec vitest run --config vitest.packages.config.ts
 
   node-e2e:
     runs-on: ubuntu-latest
@@ -63,7 +62,7 @@ jobs:
       - run: pnpm run dev:prepare
       # unit shards include browser-backed generate tests (chromium.launch())
       - run: pnpm exec playwright install chromium
-      - run: pnpm exec vitest run --project unit --shard=${{ matrix.shard }}/2
+      - run: pnpm exec vitest run --config vitest.unit.config.ts --shard=${{ matrix.shard }}/2
 
   e2e:
     runs-on: ubuntu-latest
@@ -92,7 +91,7 @@ jobs:
       - run: pnpm --filter "./packages/**" run build
       - run: pnpm run dev:prepare
       - run: pnpm exec playwright install chromium
-      - run: pnpm exec vitest run --project e2e --shard=${{ matrix.shard }}/4
+      - run: pnpm exec vitest run --config vitest.e2e.config.ts --shard=${{ matrix.shard }}/4
 
   verify:
     runs-on: ubuntu-latest

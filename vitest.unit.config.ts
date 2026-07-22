@@ -12,6 +12,11 @@ export default defineConfig({
     exclude: ['test/performance.test.ts', 'test/fixtures/**'],
     testTimeout: 300_000, // 5 min per suite
     pool: 'forks',
+    // On CI, run files serially: these tests spawn heavy subprocesses (nuxi
+    // build, headless Chromium), and running several in parallel forks on a
+    // constrained runner OOM-kills a worker (ERR_IPC_CHANNEL_CLOSED). Local
+    // machines keep parallelism for speed.
+    fileParallelism: !process.env.CI,
     poolOptions: {
       forks: {
         maxForks: Math.max(2, Math.floor(cpus().length / 2)),

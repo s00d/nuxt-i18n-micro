@@ -38,6 +38,9 @@ jobs:
           cache: pnpm
       - run: pnpm install
       - run: pnpm --filter "./packages/**" run build
+      # root vitest.config resolves the e2e globalSetup (under the root tsconfig
+      # that extends .nuxt/tsconfig.json), so .nuxt must exist even for package runs.
+      - run: pnpm run dev:prepare
       - run: pnpm exec vitest run --project '!unit' --project '!e2e'
 
   node-e2e:

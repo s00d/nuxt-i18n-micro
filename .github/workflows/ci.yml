@@ -40,10 +40,17 @@ jobs:
       # and constrained runners otherwise OOM-kill the Vitest worker (ERR_IPC_CHANNEL_CLOSED).
       - name: Add swap for heavy test steps
         run: |
-          sudo fallocate -l 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          SWAPFILE=/swapfile-ci
+          if swapon --show | grep -q "${SWAPFILE}"; then
+            echo "Swap already active: ${SWAPFILE}"
+          else
+            sudo swapoff "${SWAPFILE}" 2>/dev/null || true
+            sudo rm -f "${SWAPFILE}"
+            sudo fallocate -l 4G "${SWAPFILE}" 2>/dev/null || sudo dd if=/dev/zero of="${SWAPFILE}" bs=1M count=4096
+            sudo chmod 600 "${SWAPFILE}"
+            sudo mkswap "${SWAPFILE}"
+            sudo swapon "${SWAPFILE}"
+          fi
           free -h
       - run: pnpm run lint
       - run: pnpm --filter "./packages/**" run build

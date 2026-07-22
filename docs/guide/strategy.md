@@ -1,6 +1,6 @@
 ---
-title: "Routing Strategies in Nuxt I18n Micro"
-description: "URL prefix strategies for locale routing."
+title: 'Routing Strategies in Nuxt I18n Micro'
+description: 'URL prefix strategies for locale routing.'
 ---
 
 # 🗂️ Routing Strategies in Nuxt I18n Micro
@@ -157,12 +157,12 @@ On the client, the route middleware prefers the locale from the target route, th
 
 ### Redirect Behavior Per Strategy
 
-| Strategy | `GET /` behavior | Cookie required? |
-|----------|-----------------|-----------------|
-| `no_prefix` | No redirect (locale from cookie/state) | Auto-set |
-| `prefix` | 302 → `/{locale}/` | Recommended |
-| `prefix_except_default` | 302 → `/{locale}/` if locale ≠ default | Recommended |
-| `prefix_and_default` | No redirect (both `/` and `/{locale}/` valid) | Optional |
+| Strategy                | `GET /` behavior                              | Cookie required? |
+| ----------------------- | --------------------------------------------- | ---------------- |
+| `no_prefix`             | No redirect (locale from cookie/state)        | Auto-set         |
+| `prefix`                | 302 → `/{locale}/`                            | Recommended      |
+| `prefix_except_default` | 302 → `/{locale}/` if locale ≠ default        | Recommended      |
+| `prefix_and_default`    | No redirect (both `/` and `/{locale}/` valid) | Optional         |
 
 ### Disabling Redirects
 
@@ -188,6 +188,7 @@ i18n: {
   localeCookie: 'user-locale' // Required for redirects to work properly
 }
 ```
+
 :::
 
 **How `localeCookie` works in v3:**
@@ -197,12 +198,12 @@ i18n: {
 - On next visit to `/`, the cookie value is used to redirect to `/{locale}/`
 - If the cookie contains an invalid locale (not in `locales` list), it falls back to `defaultLocale`
 
-| Strategy | `localeCookie` default | Notes |
-|----------|----------------------|-------|
-| `no_prefix` | Auto: `'user-locale'` | Required; set automatically |
-| `prefix` | `null` (disabled) | Set to `'user-locale'` for redirects |
-| `prefix_except_default` | `null` (disabled) | Set to `'user-locale'` for redirects |
-| `prefix_and_default` | `null` (disabled) | Optional |
+| Strategy                | `localeCookie` default | Notes                                |
+| ----------------------- | ---------------------- | ------------------------------------ |
+| `no_prefix`             | Auto: `'user-locale'`  | Required; set automatically          |
+| `prefix`                | `null` (disabled)      | Set to `'user-locale'` for redirects |
+| `prefix_except_default` | `null` (disabled)      | Set to `'user-locale'` for redirects |
+| `prefix_and_default`    | `null` (disabled)      | Optional                             |
 
 ## 🔍 `autoDetectLanguage` and `autoDetectPath`
 
@@ -251,7 +252,7 @@ export default defineNuxtPlugin({
   setup() {
     const { setLocale } = useI18nLocale()
     setLocale('ja') // Your detection logic here
-  }
+  },
 })
 ```
 
@@ -285,6 +286,7 @@ export default defineNuxtConfig({
 ```
 
 **Limitations with `pages: false`:**
+
 - No automatic redirects
 - No URL-based locale detection
 - Client-side locale switching requires page reload or manual translation loading
@@ -295,10 +297,10 @@ If a cookie contains an invalid locale (not in the `locales` list), the module g
 
 ## 📝 Best Practices Summary
 
-| Recommendation | Details |
-|---------------|---------|
-| **Set `localeCookie`** | Always set for prefix strategies with `redirects: true` |
+| Recommendation            | Details                                                                             |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| **Set `localeCookie`**    | Always set for prefix strategies with `redirects: true`                             |
 | **Use `useI18nLocale()`** | The centralized way to manage locale state (replaces manual `useState`/`useCookie`) |
-| **Use named routes** | `$localeRoute({ name: 'page' })` over `$localeRoute('/page')` |
-| **Programmatic locale** | Use `useI18nLocale().setLocale()` in a server plugin with `order: -10` |
-| **Avoid manual cookies** | Don't use `useCookie('user-locale')` directly — `useI18nLocale()` manages this |
+| **Use named routes**      | `$localeRoute({ name: 'page' })` over `$localeRoute('/page')`                       |
+| **Programmatic locale**   | Use `useI18nLocale().setLocale()` in a server plugin with `order: -10`              |
+| **Avoid manual cookies**  | Don't use `useCookie('user-locale')` directly — `useI18nLocale()` manages this      |

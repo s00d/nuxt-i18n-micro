@@ -1,6 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { createRoute } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
+import { isLocalizationDisabledForPage } from '../core/localization-disabled'
 import { buildEncodedPathAliases, buildFullPath, buildRouteName, buildRouteNameFromRoute, cloneArray, isInternalPath, normalizePath } from '../utils'
 import { BaseStrategy } from './abstract'
 
@@ -76,7 +77,9 @@ export class PrefixStrategy extends BaseStrategy {
       if (p.name === 'index' && p.path === '/') return false
       const pagePath = p.path ?? ''
       if (pagePath && isInternalPath(pagePath, context.excludePatterns)) return true
-      if (context.globalLocaleRoutes[p.name ?? ''] === false) return true
+      // Keep pages disabled for localization (by name OR path-style key) as-is —
+      // matching processPage's predicate so they stay unlocalized instead of vanishing.
+      if (isLocalizationDisabledForPage(context.globalLocaleRoutes, pagePath, p.name ?? '')) return true
       if (/^\/:locale/.test(pagePath) || pagePath === '/') return true
       return false
     })

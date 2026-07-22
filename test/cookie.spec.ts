@@ -1,19 +1,18 @@
 import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/cookie', import.meta.url)),
-    nuxtConfig: {
-      i18n: {
-        autoDetectPath: '*',
-        autoDetectLanguage: false,
-      },
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({
+  rootDir: fileURLToPath(new URL('./fixtures/cookie', import.meta.url)),
+  nuxtConfig: {
+    i18n: {
+      autoDetectPath: '*',
+      autoDetectLanguage: false,
     },
   },
 })
 
-test.describe('cookie', () => {
+describe('cookie', () => {
   test('redirect to / and set default locale cookie when navigating to /de', async ({ page, goto }) => {
     // Go to the /de page directly
     await goto('/de', { waitUntil: 'hydration' })

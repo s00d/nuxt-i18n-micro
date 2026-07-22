@@ -1,6 +1,6 @@
 import fs, { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { defaultPlural, isNoPrefixStrategy, withPrefixStrategy } from '@i18n-micro/core'
 import { generateHmrPlugin } from '@i18n-micro/hmr/generate-plugin'
 import { isInternalPath, isLocaleAllowedForUnlocalizedRoute, normalizePath, RouteGenerator } from '@i18n-micro/route-strategy'
@@ -60,7 +60,15 @@ const strategyFiles: Record<Strategies, string> = {
 
 async function resolveStrategyPath(strategy: Strategies): Promise<string> {
   const strategyFile = strategyFiles[strategy] ?? strategyFiles.prefix_except_default
-  const absoluteStrategyPath = await resolvePath(`@i18n-micro/path-strategy/dist/${strategyFile}`)
+  const specifier = `@i18n-micro/path-strategy/dist/${strategyFile}`
+  let absoluteStrategyPath: string
+  try {
+    // Resolve relative to this module first, so pnpm layouts that nest
+    // @i18n-micro/path-strategy under nuxt-i18n-micro still resolve it.
+    absoluteStrategyPath = fileURLToPath(import.meta.resolve(specifier))
+  } catch {
+    absoluteStrategyPath = await resolvePath(specifier)
+  }
   return process.platform === 'win32' ? pathToFileURL(absoluteStrategyPath).href : absoluteStrategyPath.replace(/\\/g, '/')
 }
 

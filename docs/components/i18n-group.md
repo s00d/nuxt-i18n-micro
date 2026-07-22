@@ -1,6 +1,6 @@
 ---
-title: "`<i18n-group>` Component"
-description: "Group translations under a shared key prefix."
+title: '`<i18n-group>` Component'
+description: 'Group translations under a shared key prefix.'
 ---
 
 # 🌍 `<i18n-group>` Component
@@ -57,6 +57,7 @@ The slot exposes these properties through scoped slots:
 ```
 
 Translation file:
+
 ```json
 {
   "product": {
@@ -73,10 +74,7 @@ Translation file:
 
 ```vue
 <template>
-  <i18n-group 
-    prefix="user.profile" 
-    group-class="profile-section"
-  >
+  <i18n-group prefix="user.profile" group-class="profile-section">
     <template #default="{ t }">
       <div class="user-info">
         <h2>{{ t('title') }}</h2>
@@ -92,6 +90,7 @@ Translation file:
 ```
 
 Translation file:
+
 ```json
 {
   "user": {
@@ -152,18 +151,21 @@ The component wraps its content in a div with the class `i18n-group` and any add
 ## 🚀 Best Practices
 
 1. **Consistent Prefixes**: Use consistent and logical prefixes that reflect your application's structure
+
 ```vue
 <i18n-group prefix="features.pricing">
 <i18n-group prefix="features.security">
 ```
 
 2. **Modular Organization**: Group related translations together under meaningful prefixes
+
 ```vue
 <i18n-group prefix="checkout.payment">
 <i18n-group prefix="checkout.shipping">
 ```
 
 3. **Reusable Components**: Create reusable components with their own translation groups
+
 ```vue
 <!-- UserProfile.vue -->
 <i18n-group prefix="user.profile">
@@ -173,6 +175,7 @@ The component wraps its content in a div with the class `i18n-group` and any add
 ```
 
 4. **Nested Groups**: Avoid deeply nesting groups to maintain clarity
+
 ```vue
 <!-- Good -->
 <i18n-group prefix="shop.product">

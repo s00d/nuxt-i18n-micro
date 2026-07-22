@@ -1,7 +1,7 @@
 ---
-title: "`useLocaleHead` Composable"
-description: "SEO meta tags and head attrs for localized routes."
-outline: "deep"
+title: '`useLocaleHead` Composable'
+description: 'SEO meta tags and head attrs for localized routes.'
+outline: 'deep'
 ---
 
 # 🌍 `useLocaleHead` Composable
@@ -74,7 +74,11 @@ The `useLocaleHead` composable returns a reactive object and an updater function
   ```js
   const { metaObject, updateMeta } = useLocaleHead()
   useHead(metaObject)
-  watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+  watch(
+    () => route.fullPath,
+    () => updateMeta(),
+    { immediate: true },
+  )
   ```
 
 ### Accessing `link` and `meta`
@@ -130,6 +134,7 @@ const head = useLocaleHead({ baseUrl: 'https://mywebsite.com' })
 ### SEO Meta and Link Tags
 
 When `addSeoAttributes` is enabled, the composable automatically generates the following tags:
+
 - `og:locale` for the current locale (`language_TERRITORY`, underscore). Derived from `locale.og` or converted from `locale.iso` when possible.
 - `og:url` for the canonical URL of the page.
 - `og:locale:alternate` for alternate language versions.
@@ -146,7 +151,6 @@ If your routes are prefixed with locale codes (e.g., `/en/about`), the composabl
 
 This composable simplifies the process of optimizing your Nuxt application for international audiences, ensuring that your site is well-prepared for global search engines and users.
 
-
 ## 🛠️ Example Usage
 
 The following example demonstrates how to use the `useLocaleHead` composable within a Vue component with default settings:
@@ -161,7 +165,11 @@ const { metaObject, updateMeta } = useLocaleHead({
   addSeoAttributes: true,
 })
 useHead(metaObject)
-watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+watch(
+  () => route.fullPath,
+  () => updateMeta(),
+  { immediate: true },
+)
 </script>
 ```
 
@@ -199,7 +207,12 @@ export default defineNuxtPlugin(() => {
   const { metaObject, updateMeta } = useLocaleHead({ baseUrl: 'https://example.com' })
   useHead(metaObject)
   if (import.meta.server) updateMeta()
-  else watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+  else
+    watch(
+      () => route.fullPath,
+      () => updateMeta(),
+      { immediate: true },
+    )
 })
 ```
 

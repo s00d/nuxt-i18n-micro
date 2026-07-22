@@ -1,7 +1,7 @@
 ---
-title: "Contribution Guide"
-description: "How to contribute to Nuxt I18n Micro."
-outline: "deep"
+title: 'Contribution Guide'
+description: 'How to contribute to Nuxt I18n Micro.'
+outline: 'deep'
 ---
 
 # 🤝 Contribution Guide
@@ -127,11 +127,10 @@ pnpm run lint:fix
 To run the test suite, use the following command:
 
 ```bash
-pnpm run test:workspaces
 pnpm run test
 ```
 
-This will run all the Playwright tests to ensure everything is functioning as expected.
+This runs the full Vitest suite — unit/build tests, every workspace package, and the browser e2e specs — to ensure everything is functioning as expected. Narrow it with `--project unit` or `--project e2e` (e.g. `pnpm run test:e2e`).
 
 ### 7. 🔍 Type Checking
 
@@ -171,11 +170,11 @@ You can access the playground app at `http://localhost:3000`.
 - **`pnpm run dev`**: Start the development server using the playground.
 - **`pnpm run dev:prepare`**: Prepare the module stub and generate playground types (run after install or when module types change).
 - **`pnpm run prepack`**: Build the module and prepare it for publishing.
-- **`pnpm --filter "./packages/**" run build`**: Build the packages.
+- **`pnpm --filter "./packages/**" run build`\*\*: Build the packages.
 - **`pnpm run lint`**: Run the linter to check for code quality issues.
 - **`pnpm run lint:fix`**: Automatically fix linter issues.
-- **`pnpm run test`**: Run the test suite.
-- **`pnpm run test:workspaces`**: Run the test suite for packages.
+- **`pnpm run test`**: Run the full Vitest suite (unit + packages + browser e2e).
+- **`pnpm run test:unit`** / **`pnpm run test:e2e`**: Run only the unit or the browser-e2e project.
 - **`pnpm run typecheck`**: Check TypeScript types.
 - **`pnpm run docs:dev`**: Start the documentation site in development mode.
 - **`pnpm run docs:build`**: Build the documentation site.
@@ -207,7 +206,6 @@ Make sure your changes work and do not break any existing functionality:
 - Run all tests to ensure there are no errors:
 
 ```bash
-pnpm run test:workspaces
 pnpm run test
 ```
 

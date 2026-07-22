@@ -1,22 +1,20 @@
 import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
 
-test.describe.configure({ mode: 'serial', timeout: 60_000 })
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-// Test: prefix_except_default strategy
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/locale-state', import.meta.url)),
-    setupTimeout: 180_000,
-    nuxtConfig: {
-      i18n: {
-        strategy: 'prefix_except_default',
-      },
+await setupE2E({
+  rootDir: fileURLToPath(new URL('./fixtures/locale-state', import.meta.url)),
+  setupTimeout: 180_000,
+  nuxtConfig: {
+    i18n: {
+      strategy: 'prefix_except_default',
     },
   },
 })
 
-test.describe('useState locale override - prefix_except_default', () => {
+// Test: prefix_except_default strategy
+
+describe('useState locale override - prefix_except_default', () => {
   test('redirect from / to /ja when useState sets non-default locale', async ({ page, goto }) => {
     // With prefix_except_default, visiting / with locale=ja should redirect to /ja
     await goto('/', { waitUntil: 'hydration' })

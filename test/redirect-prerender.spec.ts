@@ -1,20 +1,20 @@
 import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
 
-// ── prefix strategy: redirect at runtime (SSR server) ──────────────────────
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
-    nuxtConfig: {
-      i18n: {
-        strategy: 'prefix',
-        localeCookie: 'user-locale',
-      },
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({
+  rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
+  nuxtConfig: {
+    i18n: {
+      strategy: 'prefix',
+      localeCookie: 'user-locale',
     },
   },
 })
 
-test.describe('prefix strategy — runtime redirect from /', () => {
+// ── prefix strategy: redirect at runtime (SSR server) ──────────────────────
+
+describe('prefix strategy — runtime redirect from /', () => {
   test('GET / returns 302 redirect to /en (no cookie)', async ({ page, goto }) => {
     await page.context().clearCookies()
 

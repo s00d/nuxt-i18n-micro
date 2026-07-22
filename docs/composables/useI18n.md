@@ -1,7 +1,7 @@
 ---
-title: "`useI18n` Composable"
-description: "Access i18n features in components and scripts."
-outline: "deep"
+title: '`useI18n` Composable'
+description: 'Access i18n features in components and scripts.'
+outline: 'deep'
 ---
 
 # 🛠️ `useI18n` Composable
@@ -17,13 +17,13 @@ classDiagram
     class useI18n {
         <<composable>>
     }
-    
+
     class LocaleMethods {
         $getLocale()
         $getLocaleName()
         $getLocales()
     }
-    
+
     class TranslationMethods {
         $t(key, params?, default?)
         $ts(key, params?, default?)
@@ -33,13 +33,13 @@ classDiagram
         $has(key)
         $mergeTranslations(obj)
     }
-    
+
     class FormattingMethods {
         $tn(value, options?)
         $td(date, options?)
         $tdr(date, options?)
     }
-    
+
     class RoutingMethods {
         $switchLocale(locale)
         $switchLocalePath(locale)
@@ -47,7 +47,7 @@ classDiagram
         $localePath(to, locale?)
         $loadPageTranslations(...)
     }
-    
+
     useI18n <|-- LocaleMethods
     useI18n <|-- TranslationMethods
     useI18n <|-- FormattingMethods
@@ -204,16 +204,17 @@ const label = $_ts(route)('page.label')
 - **Parameters**:
   - `handler`: A function that receives `(locale: string, key: string, routeName: string)` or `null` to remove the handler
 - **Example**:
+
   ```js
   const { $setMissingHandler } = useI18n()
-  
+
   // Set a custom handler
   $setMissingHandler((locale, key, routeName) => {
     console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`)
     // Send to Sentry or other error tracking service
     // Sentry.captureMessage(`Missing translation: ${key}`)
   })
-  
+
   // Remove the handler
   $setMissingHandler(null)
   ```
@@ -222,10 +223,10 @@ const label = $_ts(route)('page.label')
 
 These are **not** returned by `useI18n()`. Import them from `useNuxtApp()`:
 
-| Method | Purpose |
-|--------|---------|
+| Method                     | Purpose                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------- |
 | `$defineI18nRoute(config)` | Per-page locale routes, restrictions, and inline translations in `script setup` |
-| `$clearCache()` | Clears in-memory translation cache and loaded chunks |
+| `$clearCache()`            | Clears in-memory translation cache and loaded chunks                            |
 
 ```typescript
 import { useNuxtApp } from '#imports'

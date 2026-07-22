@@ -28,7 +28,7 @@ export const SHARED_FIXTURES: Record<string, string[]> = {
   n3: ['n3.spec.ts'],
   'nuxt-seo': ['nuxt-seo.spec.ts'],
   'pages-false': ['pages-false.spec.ts'],
-  'pages-false-no-prefix': ['pages-false.spec.ts'],
+  'pages-false-no-prefix': ['pages-false-no-prefix.spec.ts'],
   'redirect-security': ['redirect-security.spec.ts'],
   redirect: ['redirect.spec.ts'],
   'seo-auto': ['seo-auto.spec.ts'],

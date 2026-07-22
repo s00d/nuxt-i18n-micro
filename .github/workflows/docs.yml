@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'  # ограничиваем только изменениями в папке docs
+      - 'docs/**' # ограничиваем только изменениями в папке docs
   # trigger deployment when a new release is published
   release:
     types: [published]

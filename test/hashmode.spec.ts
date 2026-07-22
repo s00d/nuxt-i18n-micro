@@ -1,13 +1,11 @@
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({ shared: 'hashmode' })
 // Import necessary modules
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
 
 // Use Nuxt fixture for testing
-test.use({
-  nuxt: useSharedFixture('hashmode'),
-})
 
-test.describe('hashmode', () => {
+describe('hashmode', () => {
   test('test language detection and locale handling in hash mode', async ({ page, goto }) => {
     // Set the 'user-locale' cookie to 'vi' before navigation
     await page.context().addCookies([

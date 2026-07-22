@@ -1,7 +1,7 @@
 ---
-title: "News & Releases"
-description: "Release notes and project updates."
-outline: "deep"
+title: 'News & Releases'
+description: 'Release notes and project updates.'
+outline: 'deep'
 ---
 
 # News
@@ -36,7 +36,7 @@ Analog of `@nuxtjs/i18n` v10.2.0 `experimental.httpCacheDuration`, as an explici
 
 ### Bug Fixes
 
-- **`<i18n-switcher>`** — omits locales with `disabled: true` from the dropdown (`$getLocales()` still returns the full list for SEO/meta)
+- **`<i18n-switcher>`** — omits locales with `disabled: true` from the dropdown. `$getLocales()` still returns the full list for your own code, while built-in SEO/meta output excludes disabled locales.
 - **Switcher styles** — `cursor: not-allowed` applies to the **current** locale via `activeLinkStyle` / `customActiveLinkStyle`; removed misleading `customDisabledLinkStyle` (it never styled `locale.disabled`)
 
 Full changelog will be published with the release on [GitHub](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
@@ -102,13 +102,13 @@ Framework-agnostic merge logic lives in `@i18n-micro/utils/merge-i18n-head` — 
 
 ### Typical Use Cases
 
-| Scenario | Approach |
-|----------|----------|
-| Blog/CMS with partial translations | `replace.hreflang` + `replace.ogAlternates` from API locales |
-| Custom canonical from CMS | `replace.canonical` + `replace.ogUrl` |
-| Landing page OG only | `meta: [{ property: 'og:title', ... }]` — keep module hreflang |
-| No hreflang on a page | `disable: ['hreflang', 'x-default']` |
-| Replace custom plugin (`i18nManualHreflang`) | `useI18nHead` per content page + `meta: true` |
+| Scenario                                     | Approach                                                       |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| Blog/CMS with partial translations           | `replace.hreflang` + `replace.ogAlternates` from API locales   |
+| Custom canonical from CMS                    | `replace.canonical` + `replace.ogUrl`                          |
+| Landing page OG only                         | `meta: [{ property: 'og:title', ... }]` — keep module hreflang |
+| No hreflang on a page                        | `disable: ['hreflang', 'x-default']`                           |
+| Replace custom plugin (`i18nManualHreflang`) | `useI18nHead` per content page + `meta: true`                  |
 
 **JSON-LD** stays in `useHead({ script: [...] })` — `useI18nHead` does not generate structured data.
 
@@ -162,10 +162,10 @@ The legacy `window.__I18N__` read path is **removed**.
 
 Redirects are now environment-specific for clearer behavior and fewer client jank:
 
-| Environment | Component | Role |
-|-------------|-----------|------|
+| Environment    | Component                      | Role                                       |
+| -------------- | ------------------------------ | ------------------------------------------ |
 | **Server SSR** | `06.redirect.ts` (server-only) | 302 before render, 404 checks, cookie sync |
-| **Client SPA** | `i18n-redirect.global.ts` | Global route middleware on navigation |
+| **Client SPA** | `i18n-redirect.global.ts`      | Global route middleware on navigation      |
 
 Client redirects derive locale from the **target route**, preserve **query string and hash**, and respect `redirects: false` (middleware not registered). See [Routing Strategies — Redirect Architecture](/guide/strategy#-redirect-architecture-v3).
 
@@ -331,6 +331,7 @@ The translation loading and caching system has been completely rewritten for max
 - **Build-time pre-merge** — A `preMergeLocales` step in `module.ts` merges all layers, fallback locale chains, and root-level translations into every page file at build time. The server-loader simply reads a single pre-built file — no runtime merging needed.
 
 **Performance improvements:**
+
 - Reduced memory allocation per request (no object re-creation on each `$t()` call)
 - Lower garbage collection pressure
 - Faster response times under load
@@ -378,15 +379,15 @@ export default defineNuxtConfig({
   i18n: {
     experimental: {
       hmr: true,
-    }
-  }
+    },
+  },
 })
 
 // After (v3.0.0)
 export default defineNuxtConfig({
   i18n: {
     hmr: true,
-  }
+  },
 })
 ```
 
@@ -432,6 +433,7 @@ We're excited to announce **v2.14.1** with brand new integrations for Node.js, V
 ### Key Features
 
 All integrations share the same core benefits:
+
 - Lightweight and performant
 - Route-specific translations support
 - Built-in pluralization
@@ -440,6 +442,7 @@ All integrations share the same core benefits:
 - Same JSON translation file structure
 
 **Types Generator** provides additional developer experience enhancements:
+
 - Automatic type generation from JSON translation files
 - Type-safe translation keys with compile-time validation
 - Full IDE autocomplete support
@@ -479,7 +482,7 @@ We’re introducing server‑side HMR for translation files in development. When
 export default defineNuxtConfig({
   i18n: {
     experimental: { hmr: true }, // default in dev
-  }
+  },
 })
 ```
 
@@ -501,10 +504,9 @@ We’re excited to unveil the **fully revamped DevTools** in **v1.73.0**, bringi
 4. Enhanced Settings
 5. Advanced Statistics
 
-
 ## Nuxt I18n Micro v1.65.0
 
-**Date**: 2025-01-20 
+**Date**: 2025-01-20
 
 **Version**: `v1.65.0`
 
@@ -527,6 +529,7 @@ We are thrilled to announce the release of a **new algorithm for loading transla
 ### What’s New?
 
 The new translation-loading algorithm focuses on:
+
 1. **Optimized File Merging**: Enhanced the deep merge functionality to handle translations more efficiently.
 2. **Caching Enhancements**: Leveraged server storage for pre-rendered translations, reducing redundant computations.
 3. **Streamlined Code**: Simplified file paths and structure for better maintainability.
@@ -536,6 +539,7 @@ The new translation-loading algorithm focuses on:
 ### Key Benefits
 
 #### **1. Faster Build Times**
+
 The new algorithm reduces build times by efficiently handling translation files and minimizing memory overhead.
 
 - **Old Build Time**: 7.20 seconds
@@ -543,24 +547,28 @@ The new algorithm reduces build times by efficiently handling translation files 
 - **Improvement**: **4.03% faster**
 
 #### **2. Reduced CPU Usage**
+
 Lower maximum and average CPU usage during builds and stress tests:
 
 - **Build Max CPU**: From **257.60%** → **198.20%** (23.06% lower)
 - **Stress Test Avg CPU**: From **93.85%** → **89.14%** (5.01% lower)
 
 #### **3. Lower Memory Usage**
+
 Memory consumption has been significantly optimized across builds and runtime stress tests:
 
 - **Build Max Memory**: From **1286.00 MB** → **885.19 MB** (31.15% lower)
 - **Stress Test Max Memory**: From **624.22 MB** → **429.52 MB** (31.20% lower)
 
 #### **4. Enhanced Response Times**
+
 Stress test response times saw drastic improvement:
 
 - **Average Response Time**: From **411.50 ms** → **9.30 ms** (97.74% faster)
 - **Max Response Time**: From **2723.00 ms** → **187.00 ms** (93.13% faster)
 
 #### **5. Increased Request Throughput**
+
 The new algorithm boosts the number of handled requests per second:
 
 - **Requests per Second**: From **288.00** → **305.00** (5.90% increase)
@@ -570,6 +578,7 @@ The new algorithm boosts the number of handled requests per second:
 ### Why It’s Important
 
 Localization is essential for global applications, and improving translation-loading performance can have a direct impact on:
+
 - **User Experience**: Faster response times lead to a smoother user experience.
 - **Scalability**: Lower resource usage allows better handling of high traffic.
 - **Developer Productivity**: Reduced build times and a simplified codebase streamline workflows.
@@ -579,14 +588,16 @@ Localization is essential for global applications, and improving translation-loa
 ### How It Works
 
 1. **Efficient Deep Merging**
-  - The algorithm has been rewritten to handle translation merging more intelligently, ensuring minimal memory overhead and faster operations.
+
+- The algorithm has been rewritten to handle translation merging more intelligently, ensuring minimal memory overhead and faster operations.
 
 2. **Smart Caching**
-  - Server-side storage is now used to cache translations during pre-rendering, which are then reused during runtime. This avoids repetitive reads and merges.
+
+- Server-side storage is now used to cache translations during pre-rendering, which are then reused during runtime. This avoids repetitive reads and merges.
 
 3. **Streamlined File Loading**
-  - Translation files are loaded in a more predictable and maintainable way by unifying fallback handling and caching.
 
+- Translation files are loaded in a more predictable and maintainable way by unifying fallback handling and caching.
 
 ## [New CLI Feature: `text-to-i18n`](/guide/cli#🔄-text-to-i18n-command)
 
@@ -625,6 +636,7 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 ### Example Transformations
 
 #### Before
+
 ```vue
 <template>
   <div>
@@ -635,6 +647,7 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 ```
 
 #### After
+
 ```vue
 <template>
   <div>
@@ -647,4 +660,3 @@ i18n-micro text-to-i18n --translationFile locales/en.json --context auth
 For more details, check out the [documentation](/guide/cli#🔄-text-to-i18n-command).
 
 ---
-

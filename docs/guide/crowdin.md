@@ -1,7 +1,7 @@
 ---
-title: "Crowdin Integration Guide"
-description: "Connect Crowdin to your Nuxt I18n Micro project."
-outline: "deep"
+title: 'Crowdin Integration Guide'
+description: 'Connect Crowdin to your Nuxt I18n Micro project.'
+outline: 'deep'
 ---
 
 # 🌐 Crowdin Integration Guide
@@ -39,23 +39,17 @@ This command will guide you through the setup process, including setting your pr
 The Crowdin configuration file (`crowdin.yml`) defines how your source files are mapped and where translations should be placed. Below is an example configuration:
 
 ```yml
-"project_id": "YOUR_PROJECT_ID"
-"api_token": "YOUR_API_TOKEN"
-"base_path": "./locales"
-"base_url": "https://api.crowdin.com"
-"preserve_hierarchy": true
+'project_id': 'YOUR_PROJECT_ID'
+'api_token': 'YOUR_API_TOKEN'
+'base_path': './locales'
+'base_url': 'https://api.crowdin.com'
+'preserve_hierarchy': true
 
-files: [
-  {
-    "source": "/en.json",
-    "translation": "/%two_letters_code%.json",
-  },
-  {
-    "source": "/pages/**/en.json",
-    "translation": "/pages/**/%two_letters_code%.json",
-  }
-]
-
+files:
+  [
+    { 'source': '/en.json', 'translation': '/%two_letters_code%.json' },
+    { 'source': '/pages/**/en.json', 'translation': '/pages/**/%two_letters_code%.json' },
+  ]
 ```
 
 ### 📂 Key Configuration Parameters

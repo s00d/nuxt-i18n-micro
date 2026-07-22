@@ -10,6 +10,8 @@
     "**/dist/**",
     "**/.nuxt/**",
     "**/.output/**",
+    "**/.output-shared/**",
+    "**/.nuxt-test/**",
     "**/coverage/**",
     "**/test-results/**",
     "**/.cache/**",

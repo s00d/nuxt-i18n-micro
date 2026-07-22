@@ -255,8 +255,10 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
                   style={{
                     ...linkStyle,
                     ...(isActive ? activeLinkStyle : {}),
-                    ...(isActive ? local.customActiveLinkStyle : {}),
                     ...local.customLinkStyle,
+                    // active-specific customization wins over the generic link style
+                    // (matches the React/Preact/Vue switchers)
+                    ...(isActive ? local.customActiveLinkStyle : {}),
                   }}
                   onClick={(e) => {
                     e.preventDefault()

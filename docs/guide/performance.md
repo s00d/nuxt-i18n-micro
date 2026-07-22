@@ -1,7 +1,7 @@
 ---
-title: "Performance Guide"
-description: "Performance tips and optimizations."
-outline: "deep"
+title: 'Performance Guide'
+description: 'Performance tips and optimizations.'
+outline: 'deep'
 ---
 
 # 🚀 Performance Guide
@@ -21,20 +21,22 @@ We conducted a series of tests to demonstrate the performance improvements that 
 ### ⏱️ Build Time and Resource Consumption
 
 ::: details **Nuxt I18n v10**
+
 - **Code Bundle**: 19.24 MB
 - **Translations**: 38.05 MB (compiled into JS)
 - **Max CPU Usage**: 419%
 - **Max Memory Usage**: 9,117 MB
 - **Elapsed Time**: 82.26s
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Code Bundle**: 1.48 MB — **92% smaller than i18n v10**
 - **Translations**: 55.76 MB (lazy-loaded JSON)
 - **Max CPU Usage**: 243% — **42% lower than i18n v10**
 - **Max Memory Usage**: 1,175 MB — **87% less memory than i18n v10**
 - **Elapsed Time**: 14.95s — **82% faster than i18n v10**
-:::
+  :::
 
 See the [full benchmark report](/guide/performance-results) for charts, Autocannon results, and fixture details.
 
@@ -43,16 +45,18 @@ See the [full benchmark report](/guide/performance-results) for charts, Autocann
 We also tested server performance using Artillery and Autocannon stress tests.
 
 ::: details **Nuxt I18n v10**
+
 - **Requests per Second (Artillery)**: 51 [#/sec]
 - **Average Response Time**: 1,363 ms
 - **Max Memory Usage**: 1,243 MB
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Requests per Second (Artillery)**: 278 [#/sec] — **445% more requests per second than i18n v10**
 - **Average Response Time**: 437 ms — **63% faster than i18n v10**
 - **Max Memory Usage**: 275 MB — **75% less memory usage than i18n v10**
-:::
+  :::
 
 ### 📈 Visual Comparison
 
@@ -106,14 +110,14 @@ options:
       type: logarithmic
 ```
 
-| Metric | nuxt-i18n v10 | i18n-micro | Improvement |
-|--------|---------------|------------|-------------|
-| Build Time | 82.26s | 14.95s | **82% faster** |
-| Memory (build) | 9,117 MB | 1,175 MB | **87% less** |
-| Code Bundle | 19.24 MB | 1.48 MB | **92% smaller** |
-| CPU Usage | 419% | 243% | **42% lower** |
-| Response Time | 1,177 ms | 437 ms | **63% faster** |
-| RPS (Artillery) | 51 | 278 | **445% more** |
+| Metric          | nuxt-i18n v10 | i18n-micro | Improvement     |
+| --------------- | ------------- | ---------- | --------------- |
+| Build Time      | 82.26s        | 14.95s     | **82% faster**  |
+| Memory (build)  | 9,117 MB      | 1,175 MB   | **87% less**    |
+| Code Bundle     | 19.24 MB      | 1.48 MB    | **92% smaller** |
+| CPU Usage       | 419%          | 243%       | **42% lower**   |
+| Response Time   | 1,177 ms      | 437 ms     | **63% faster**  |
+| RPS (Artillery) | 51            | 278        | **445% more**   |
 
 ### 🔍 Interpretation of Results
 
@@ -156,20 +160,20 @@ Starting from v3.0.0, the module uses a `globalThis` singleton pattern with `Sym
 flowchart LR
     subgraph Process["Node.js Process"]
         G["globalThis[Symbol.for('CACHE')]"]
-        
+
         subgraph R1["SSR Request 1"]
             P1[Plugin Instance] --> G
         end
-        
+
         subgraph R2["SSR Request 2"]
             P2[Plugin Instance] --> G
         end
-        
+
         subgraph R3["SSR Request 3"]
             P3[Plugin Instance] --> G
         end
     end
-    
+
     G --> Cache["Single Map Instance"]
     Cache --> D1["en:index → translations"]
     Cache --> D2["en:about → translations"
@@ -204,7 +208,7 @@ flowchart TB
     F -->|Yes| R
     F -->|No| J[Return Key / Default]
     D -->|No| J
-    
+
     style R fill:#2ed573
     style J fill:#ff9f43
 ```

@@ -1,10 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('layer'),
-})
-test.describe('layer', () => {
+await setupE2E({ shared: 'layer' })
+
+describe('layer', () => {
   test('test layer', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
     await expect(page.locator('#replace')).toHaveText('replaced text in en')

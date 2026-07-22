@@ -1,6 +1,6 @@
 ---
-title: "Storybook Integration Guide"
-description: "Use nuxt-i18n-micro with Storybook."
+title: 'Storybook Integration Guide'
+description: 'Use nuxt-i18n-micro with Storybook.'
 ---
 
 # 🌐 Storybook Integration Guide
@@ -32,7 +32,7 @@ export default defineNuxtConfig({
     ],
     strategy: 'prefix',
   },
-});
+})
 ```
 
 ## 🛠 Storybook Configuration
@@ -65,11 +65,11 @@ function mergeAllTranslations(target: TranslationStructure, ...sources: Translat
 const getLocales = (): string[] => {
   const localesDir = path.join(__dirname, '../', localesRoot)
   try {
-    return fs.readdirSync(localesDir)
-      .filter(file => file.endsWith('.json'))
-      .map(file => path.basename(file, '.json'))
-  }
-  catch (error) {
+    return fs
+      .readdirSync(localesDir)
+      .filter((file) => file.endsWith('.json'))
+      .map((file) => path.basename(file, '.json'))
+  } catch (error) {
     console.error('Error reading locales directory:', error)
     return []
   }
@@ -88,8 +88,7 @@ const mergeTranslations = () => {
       const entryPath = path.join(dir, entry.name)
       if (entry.isDirectory()) {
         translations = mergeAllTranslations(translations, collectAllTranslations(entryPath, lang))
-      }
-      else if (entry.isFile() && entry.name === `${lang}.json`) {
+      } else if (entry.isFile() && entry.name === `${lang}.json`) {
         const content = JSON.parse(fs.readFileSync(entryPath, 'utf-8'))
         translations = mergeAllTranslations(translations, content)
       }
@@ -118,24 +117,16 @@ const mergeTranslations = () => {
 mergeTranslations()
 
 const config: StorybookConfig = {
-  stories: [
-    '../components/**/*.mdx',
-    '../components/**/*.stories.@(js|jsx|ts|tsx|mdx)',
-  ],
+  stories: ['../components/**/*.mdx', '../components/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
   staticDirs: ['../storybook_locales'],
-  addons: [
-    '@storybook/addon-essentials',
-    '@chromatic-com/storybook',
-    '@storybook/addon-interactions',
-  ],
+  addons: ['@storybook/addon-essentials', '@chromatic-com/storybook', '@storybook/addon-interactions'],
   framework: {
     name: '@storybook-vue/nuxt',
     options: {},
-  }
+  },
 }
 export default config
 ```
-
 
 ## 🚀 Example Projects
 

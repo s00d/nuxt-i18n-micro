@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('baseurl-prefix'),
-})
+await setupE2E({ shared: 'baseurl-prefix' })
 
-test.describe('baseURL + prefix strategy redirect (#234)', () => {
+describe('baseURL + prefix strategy redirect (#234)', () => {
   test('GET /examples redirects once to /examples/ja without loop', async ({ page, goto }) => {
     const responses: { url: string; status: number }[] = []
     page.on('response', (response) => {

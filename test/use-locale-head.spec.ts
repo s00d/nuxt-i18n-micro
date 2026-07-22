@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('use-locale-head'),
-})
+await setupE2E({ shared: 'use-locale-head' })
 
-test.describe('useLocaleHead manual usage', () => {
+describe('useLocaleHead manual usage', () => {
   test('populates metaObject without explicit updateMeta()', async ({ page, goto, baseURL }) => {
     await goto('/en', { waitUntil: 'domcontentloaded' })
 

@@ -1,7 +1,7 @@
 ---
-title: "Nuxt I18n Micro Examples and Usage"
-description: "Examples of locale switching and i18n components."
-outline: "deep"
+title: 'Nuxt I18n Micro Examples and Usage'
+description: 'Examples of locale switching and i18n components.'
+outline: 'deep'
 ---
 
 # 📚 Nuxt I18n Micro Examples and Usage
@@ -39,12 +39,7 @@ This example demonstrates how to switch locales programmatically using buttons:
   <div>
     <p>Current Locale: {{ $getLocale() }}</p>
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        :disabled="locale.code === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
+      <button v-for="locale in $getLocales()" :key="locale.code" :disabled="locale.code === $getLocale()" @click="() => $switchLocale(locale.code)">
         Switch to {{ $t(locale.code) }}
       </button>
     </div>
@@ -75,9 +70,7 @@ The `<i18n-switcher>` component provides a dropdown for locale switching with cu
 ```vue
 <template>
   <div>
-    <i18n-switcher
-      :custom-labels="{ en: 'English', fr: 'Français', de: 'Deutsch' }"
-    />
+    <i18n-switcher :custom-labels="{ en: 'English', fr: 'Français', de: 'Deutsch' }" />
   </div>
 </template>
 ```
@@ -95,9 +88,9 @@ The `<i18n-link>` component automatically handles locale-specific routing:
 </template>
 
 <script setup>
-  import { useNuxtApp } from '#imports'
+import { useNuxtApp } from '#imports'
 
-  const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
+const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
 </script>
 ```
 
@@ -135,11 +128,10 @@ This example fetches an array of keys from a specific translation path (in this 
 ```vue
 <template>
   <div>
-    <div
-      v-for="key in $t('dynamic')"
-      :key="key"
-    >
-      <p>{{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span></p>
+    <div v-for="key in $t('dynamic')" :key="key">
+      <p>
+        {{ key }}: <span v-if="$has(key)">{{ $t(key) }}</span>
+      </p>
     </div>
   </div>
 </template>
@@ -243,10 +235,18 @@ Here's a complex structure demonstrating multiple translation uses within a sing
 
     <nav>
       <ul>
-        <li><a href="#">{{ $t('nav.home') }}</a></li>
-        <li><a href="#">{{ $t('nav.about') }}</a></li>
-        <li><a href="#">{{ $t('nav.services') }}</a></li>
-        <li><a href="#">{{ $t('nav.contact') }}</a></li>
+        <li>
+          <a href="#">{{ $t('nav.home') }}</a>
+        </li>
+        <li>
+          <a href="#">{{ $t('nav.about') }}</a>
+        </li>
+        <li>
+          <a href="#">{{ $t('nav.services') }}</a>
+        </li>
+        <li>
+          <a href="#">{{ $t('nav.contact') }}</a>
+        </li>
       </ul>
     </nav>
 
@@ -272,19 +272,14 @@ Here's a complex structure demonstrating multiple translation uses within a sing
     <footer>
       <h4>{{ $t('footer.contact.header') }}</h4>
       <address>
-        {{ $t('footer.contact.address') }}<br>
-        {{ $t('footer.contact.city') }}<br>
+        {{ $t('footer.contact.address') }}<br />
+        {{ $t('footer.contact.city') }}<br />
         {{ $t('footer.contact.phone') }}
       </address>
     </footer>
 
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        :disabled="locale.code === $getLocale()"
-        @click="() => $switchLocale(locale.code)"
-      >
+      <button v-for="locale in $getLocales()" :key="locale.code" :disabled="locale.code === $getLocale()" @click="() => $switchLocale(locale.code)">
         Switch to {{ locale.code }}
       </button>
     </div>
@@ -318,9 +313,7 @@ const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
     },
     "subsection2": {
       "header": "Development",
-      "item1":
-
- "Web Development",
+      "item1": "Web Development",
       "item2": "Mobile Apps",
       "item3": "Custom Software"
     }
@@ -336,7 +329,6 @@ const { $getLocale, $switchLocale, $getLocales, $t } = useNuxtApp()
 }
 ```
 
-
 ## 🌟 Using `$tc` for Pluralization
 
 The `$tc` function in `Nuxt I18n Micro` handles pluralization based on the count and locale settings. This is useful for dynamically adjusting messages that involve counts, such as items, notifications, or other entities that can vary in number.
@@ -349,9 +341,12 @@ In the following example, we display a message indicating the number of apples u
 <template>
   <div>
     <!-- Display a pluralized message about the number of apples -->
-    <p>{{ $tc('apples', 0) }}</p>  <!-- Outputs: no apples -->
-    <p>{{ $tc('apples', 1) }}</p>  <!-- Outputs: one apple -->
-    <p>{{ $tc('apples', 10) }}</p> <!-- Outputs: 10 apples -->
+    <p>{{ $tc('apples', 0) }}</p>
+    <!-- Outputs: no apples -->
+    <p>{{ $tc('apples', 1) }}</p>
+    <!-- Outputs: one apple -->
+    <p>{{ $tc('apples', 10) }}</p>
+    <!-- Outputs: 10 apples -->
   </div>
 </template>
 
@@ -391,7 +386,6 @@ If your application needs to handle more complex pluralization rules (e.g., spec
 - **`$tc('apples', 2)`**: Could be set up to return `"two apples"`.
 - **`$tc('apples', 3)`**: Could return `"a few apples"`, depending on the rules defined for the count.
 
-
 ## 🌐 Using `$tn` for Number Formatting
 
 The `$tn` function formats numbers according to the current locale using the `Intl.NumberFormat` API. This is useful for displaying numbers in a way that matches the user's regional settings, such as currency, percentages, or other number formats.
@@ -402,10 +396,12 @@ The `$tn` function formats numbers according to the current locale using the `In
 <template>
   <div>
     <!-- Format a number as currency -->
-    <p>{{ $tn(1234567.89, { style: 'currency', currency: 'USD' }) }}</p> <!-- Outputs: $1,234,567.89 in 'en-US' locale -->
+    <p>{{ $tn(1234567.89, { style: 'currency', currency: 'USD' }) }}</p>
+    <!-- Outputs: $1,234,567.89 in 'en-US' locale -->
 
     <!-- Format a number with custom options -->
-    <p>{{ $tn(0.567, { style: 'percent', minimumFractionDigits: 1 }) }}</p> <!-- Outputs: 56.7% in 'en-US' locale -->
+    <p>{{ $tn(0.567, { style: 'percent', minimumFractionDigits: 1 }) }}</p>
+    <!-- Outputs: 56.7% in 'en-US' locale -->
   </div>
 </template>
 
@@ -426,10 +422,12 @@ The `$td` function formats dates and times according to the current locale using
 <template>
   <div>
     <!-- Format a date with full options -->
-    <p>{{ $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p> <!-- Outputs: "Friday, September 1, 2023" in 'en-US' locale -->
+    <p>{{ $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+    <!-- Outputs: "Friday, September 1, 2023" in 'en-US' locale -->
 
     <!-- Format a date with time -->
-    <p>{{ $td(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}</p> <!-- Outputs: "10:15:30 AM" in 'en-US' locale -->
+    <p>{{ $td(new Date(), { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }}</p>
+    <!-- Outputs: "10:15:30 AM" in 'en-US' locale -->
   </div>
 </template>
 
@@ -450,10 +448,12 @@ The `$tdr` function formats dates as relative times (e.g., "5 minutes ago", "2 d
 <template>
   <div>
     <!-- Format a date as a relative time -->
-    <p>{{ $tdr(new Date(Date.now() - 1000 * 60 * 5)) }}</p> <!-- Outputs: "5 minutes ago" in 'en-US' locale -->
+    <p>{{ $tdr(new Date(Date.now() - 1000 * 60 * 5)) }}</p>
+    <!-- Outputs: "5 minutes ago" in 'en-US' locale -->
 
     <!-- Format a date that is in the future -->
-    <p>{{ $tdr(new Date(Date.now() + 1000 * 60 * 60 * 24)) }}</p> <!-- Outputs: "in 1 day" in 'en-US' locale -->
+    <p>{{ $tdr(new Date(Date.now() + 1000 * 60 * 60 * 24)) }}</p>
+    <!-- Outputs: "in 1 day" in 'en-US' locale -->
   </div>
 </template>
 

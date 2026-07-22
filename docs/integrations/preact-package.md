@@ -1,7 +1,7 @@
 ---
-title: "Preact Package (`@i18n-micro/preact`)"
-description: "i18n for Preact with @i18n-micro/preact."
-outline: "deep"
+title: 'Preact Package (`@i18n-micro/preact`)'
+description: 'i18n for Preact with @i18n-micro/preact.'
+outline: 'deep'
 ---
 
 # Preact Package (`@i18n-micro/preact`)
@@ -93,12 +93,16 @@ const localesConfig = [
 
 const root = document.getElementById('app')!
 render(
-  h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale: 'en',
-  }, h(App)),
-  root
+  h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale: 'en',
+    },
+    h(App),
+  ),
+  root,
 )
 ```
 
@@ -133,16 +137,20 @@ const i18n = createI18n({
 // RouterRoot component that creates the adapter
 function RouterRoot({ children }: { children?: any }) {
   const [location, navigate] = useLocation()
-  
+
   // Create adapter using wouter hooks
   const routingStrategy = createWouterAdapter(localesConfig, defaultLocale, location, navigate)
 
-  return h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale,
-    routingStrategy,
-  }, children)
+  return h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale,
+      routingStrategy,
+    },
+    children,
+  )
 }
 
 // Helper function to create wouter adapter
@@ -152,10 +160,10 @@ function createWouterAdapter(
   locationPath: string,
   navigate: (to: string, options?: { replace?: boolean }) => void,
 ) {
-  const localeCodes = locales.map(loc => loc.code)
-  
+  const localeCodes = locales.map((loc) => loc.code)
+
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
     if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
       pathSegments.shift()
@@ -177,10 +185,7 @@ function createWouterAdapter(
 }
 
 const root = document.getElementById('app')!
-render(
-  h(Router, null, h(RouterRoot, null, h(App))),
-  root
-)
+render(h(Router, null, h(RouterRoot, null, h(App))), root)
 ```
 
 **Note:** The `createPreactRouterAdapter` (aliased as `createBrowserHistoryAdapter`) is exported from the package and provides a basic History API-based adapter. For router-specific adapters (like wouter), you can create custom adapters as shown above.
@@ -194,11 +199,13 @@ import { useI18n } from '@i18n-micro/preact'
 function MyComponent() {
   const { t, tc, tn, locale, setLocale } = useI18n()
 
-  return h('div', null,
+  return h(
+    'div',
+    null,
     h('p', null, t('greeting', { name: 'World' })),
     h('p', null, tc('apples', 5)),
     h('p', null, tn(1234.56)),
-    h('button', { onClick: () => setLocale('fr') }, 'Switch to French')
+    h('button', { onClick: () => setLocale('fr') }, 'Switch to French'),
   )
 }
 ```
@@ -218,7 +225,11 @@ The `I18nRoutingStrategy` interface defines the contract between i18n and your r
 ```typescript
 interface I18nRoutingStrategy {
   getCurrentPath: () => string
-  linkComponent?: string | React.ComponentType<{ /* ... */ }>
+  linkComponent?:
+    | string
+    | React.ComponentType<{
+        /* ... */
+      }>
   push: (target: { path: string }) => void
   replace: (target: { path: string }) => void
   resolvePath?: (to: string | { path?: string }, locale: string) => string | { path?: string }
@@ -269,12 +280,16 @@ const i18n = createI18n({
 
 const root = document.getElementById('app')!
 render(
-  h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale: 'en',
-  }, h(App)),
-  root
+  h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale: 'en',
+    },
+    h(App),
+  ),
+  root,
 )
 ```
 
@@ -309,13 +324,17 @@ const routingStrategy = createPreactRouterAdapter(localesConfig, defaultLocale)
 
 const root = document.getElementById('app')!
 render(
-  h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale,
-    routingStrategy,
-  }, h(App)),
-  root
+  h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale,
+      routingStrategy,
+    },
+    h(App),
+  ),
+  root,
 )
 ```
 
@@ -327,14 +346,14 @@ Creates a new i18n instance for your Preact application.
 
 **Parameters:**
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `locale` | `string` | ✅ | - | Current locale code (e.g., `'en'`) |
-| `fallbackLocale` | `string` | ❌ | Same as `locale` | Fallback locale when translation is missing |
-| `messages` | `Record<string, Translations>` | ❌ | `{}` | Initial translation messages |
-| `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
-| `missingWarn` | `boolean` | ❌ | `false` | Show console warnings for missing translations |
-| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom handler for missing translations |
+| Property         | Type                                                       | Required | Default          | Description                                    |
+| ---------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------- |
+| `locale`         | `string`                                                   | ✅       | -                | Current locale code (e.g., `'en'`)             |
+| `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
+| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                   |
+| `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
+| `missingWarn`    | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations |
+| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
 
 **Returns:** `PreactI18n`
 
@@ -381,7 +400,9 @@ The core i18n instance class that handles all translation logic.
 Translates a key with optional parameters and fallback value.
 
 ```typescript
-const i18n = createI18n({ /* ... */ })
+const i18n = createI18n({
+  /* ... */
+})
 
 // Basic translation
 i18n.t('welcome') // "Welcome"
@@ -463,9 +484,13 @@ i18n.addTranslations('en', {
 })
 
 // Replace existing (merge = false)
-i18n.addTranslations('en', {
-  welcome: 'New Welcome',
-}, false)
+i18n.addTranslations(
+  'en',
+  {
+    welcome: 'New Welcome',
+  },
+  false,
+)
 ```
 
 ##### `addRouteTranslations(locale: string, routeName: string, translations: Translations, merge?: boolean): void`
@@ -503,7 +528,7 @@ import { useI18n } from '@i18n-micro/preact'
 
 function MyComponent() {
   const { t, locale, fallbackLocale } = useI18n()
-  
+
   return h('div', null, t('welcome'))
 }
 ```
@@ -519,10 +544,12 @@ import { useI18n } from '@i18n-micro/preact'
 function Navigation() {
   const { t, locale, switchLocale, localeRoute, localePath } = useI18n()
 
-  return h('nav', null,
+  return h(
+    'nav',
+    null,
     h('a', { href: localePath('/') }, t('nav.home')),
     h('a', { href: localePath('/about') }, t('nav.about')),
-    h('button', { onClick: () => switchLocale('fr') }, 'Switch to French')
+    h('button', { onClick: () => switchLocale('fr') }, 'Switch to French'),
   )
 }
 ```
@@ -687,14 +714,16 @@ import { useI18n } from '@i18n-micro/preact'
 function HomePage() {
   const { t, tc, tn, td, tdr, locale, setLocale } = useI18n()
 
-  return h('div', null,
+  return h(
+    'div',
+    null,
     h('h1', null, t('home.title')),
     h('p', null, t('greeting', { name: 'World' })),
     h('p', null, tc('apples', 5)),
     h('p', null, t('number', { number: tn(1234.56) })),
     h('p', null, t('date', { date: td(new Date()) })),
     h('p', null, t('relativeDate', { relativeDate: tdr(Date.now() - 86400000) })),
-    h('button', { onClick: () => setLocale('fr') }, 'Switch to French')
+    h('button', { onClick: () => setLocale('fr') }, 'Switch to French'),
   )
 }
 ```
@@ -707,13 +736,13 @@ Context provider component that makes the i18n instance available to all child c
 
 #### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `i18n` | `PreactI18n` | ✅ | The i18n instance created with `createI18n` |
-| `locales` | `Locale[]` | ❌ | Array of locale objects |
-| `defaultLocale` | `string` | ❌ | Default locale code |
-| `routingStrategy` | `I18nRoutingStrategy` | ❌ | Router adapter for routing features |
-| `children` | `preact.ComponentChildren` | ✅ | Child components |
+| Prop              | Type                       | Required | Description                                 |
+| ----------------- | -------------------------- | -------- | ------------------------------------------- |
+| `i18n`            | `PreactI18n`               | ✅       | The i18n instance created with `createI18n` |
+| `locales`         | `Locale[]`                 | ❌       | Array of locale objects                     |
+| `defaultLocale`   | `string`                   | ❌       | Default locale code                         |
+| `routingStrategy` | `I18nRoutingStrategy`      | ❌       | Router adapter for routing features         |
+| `children`        | `preact.ComponentChildren` | ✅       | Child components                            |
 
 #### Example
 
@@ -725,15 +754,21 @@ import { createI18n, I18nProvider } from '@i18n-micro/preact'
 
 const i18n = createI18n({
   locale: 'en',
-  messages: { /* ... */ },
+  messages: {
+    /* ... */
+  },
 })
 
 function App() {
-  return h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale: 'en',
-  }, h(YourApp))
+  return h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale: 'en',
+    },
+    h(YourApp),
+  )
 }
 ```
 
@@ -748,12 +783,16 @@ function RouterRoot({ children }: { children?: any }) {
   const [location] = useLocation()
   const routingStrategy = createPreactRouterAdapter(localesConfig, defaultLocale)
 
-  return h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale,
-    routingStrategy,
-  }, children)
+  return h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale,
+      routingStrategy,
+    },
+    children,
+  )
 }
 ```
 
@@ -767,17 +806,17 @@ Translation component with support for pluralization, formatting, and HTML rende
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `keypath` | `string` | ✅ | - | Translation key path |
-| `params` | `Params` | ❌ | `{}` | Parameters for interpolation |
-| `plural` | `number \| string` | ❌ | - | Count for pluralization |
-| `defaultValue` | `string` | ❌ | `''` | Default value if key not found |
-| `tag` | `string` | ❌ | `'span'` | HTML tag to wrap content |
-| `html` | `boolean` | ❌ | `false` | Render as HTML |
-| `number` | `number \| string` | ❌ | - | Number to format and interpolate |
-| `date` | `Date \| string \| number` | ❌ | - | Date to format and interpolate |
-| `relativeDate` | `Date \| string \| number` | ❌ | - | Relative date to format |
+| Prop           | Type                       | Required | Default  | Description                      |
+| -------------- | -------------------------- | -------- | -------- | -------------------------------- |
+| `keypath`      | `string`                   | ✅       | -        | Translation key path             |
+| `params`       | `Params`                   | ❌       | `{}`     | Parameters for interpolation     |
+| `plural`       | `number \| string`         | ❌       | -        | Count for pluralization          |
+| `defaultValue` | `string`                   | ❌       | `''`     | Default value if key not found   |
+| `tag`          | `string`                   | ❌       | `'span'` | HTML tag to wrap content         |
+| `html`         | `boolean`                  | ❌       | `false`  | Render as HTML                   |
+| `number`       | `number \| string`         | ❌       | -        | Number to format and interpolate |
+| `date`         | `Date \| string \| number` | ❌       | -        | Date to format and interpolate   |
+| `relativeDate` | `Date \| string \| number` | ❌       | -        | Relative date to format          |
 
 #### Examples
 
@@ -813,12 +852,12 @@ Localized link component that automatically handles locale prefixes using the ro
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `to` | `string \| { path?: string }` | ✅ | - | Link destination |
-| `activeStyle` | `JSX.CSSProperties` | ❌ | - | Styles to apply when link is active |
-| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌ | - | Custom locale route function (uses routing strategy if not provided) |
-| `...restProps` | `JSX.AnchorHTMLAttributes<HTMLAnchorElement>` | ❌ | - | All standard anchor attributes |
+| Prop           | Type                                                                                | Required | Default | Description                                                          |
+| -------------- | ----------------------------------------------------------------------------------- | -------- | ------- | -------------------------------------------------------------------- |
+| `to`           | `string \| { path?: string }`                                                       | ✅       | -       | Link destination                                                     |
+| `activeStyle`  | `JSX.CSSProperties`                                                                 | ❌       | -       | Styles to apply when link is active                                  |
+| `localeRoute`  | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Custom locale route function (uses routing strategy if not provided) |
+| `...restProps` | `JSX.AnchorHTMLAttributes<HTMLAnchorElement>`                                       | ❌       | -       | All standard anchor attributes                                       |
 
 #### Examples
 
@@ -830,19 +869,28 @@ import { I18nLink } from '@i18n-micro/preact'
 h(I18nLink, { to: '/about' }, 'About Us')
 
 // With active style
-h(I18nLink, {
-  to: '/',
-  activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' },
-}, 'Home')
+h(
+  I18nLink,
+  {
+    to: '/',
+    activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' },
+  },
+  'Home',
+)
 
 // With custom locale route
-h(I18nLink, {
-  to: '/about',
-  localeRoute: (to, locale) => `/${locale}${to}`,
-}, 'About')
+h(
+  I18nLink,
+  {
+    to: '/about',
+    localeRoute: (to, locale) => `/${locale}${to}`,
+  },
+  'About',
+)
 ```
 
 The component automatically:
+
 - Uses the routing strategy's `linkComponent` if available (e.g., `Link` from `wouter-preact`)
 - Falls back to a native `<a>` tag with `onClick` handler if no `linkComponent` is provided
 - Handles active state detection using `getCurrentPath()` from the routing strategy
@@ -854,15 +902,15 @@ Language switcher component that generates links for all available locales. Uses
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `locales` | `Locale[]` | ❌ | - | Array of locale objects (uses injected locales if not provided) |
-| `currentLocale` | `string \| (() => string)` | ❌ | - | Current locale (uses injected locale if not provided) |
-| `getLocaleName` | `() => string \| null` | ❌ | - | Function to get locale display name |
-| `switchLocale` | `(locale: string) => void` | ❌ | - | Function to switch locale (uses routing strategy if not provided) |
-| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌ | - | Custom locale route function (uses routing strategy if not provided) |
-| `customLabels` | `Record<string, string>` | ❌ | `{}` | Custom labels for locales |
-| `...restProps` | `JSX.HTMLAttributes<HTMLDivElement>` | ❌ | - | All standard div attributes |
+| Prop            | Type                                                                                | Required | Default | Description                                                          |
+| --------------- | ----------------------------------------------------------------------------------- | -------- | ------- | -------------------------------------------------------------------- |
+| `locales`       | `Locale[]`                                                                          | ❌       | -       | Array of locale objects (uses injected locales if not provided)      |
+| `currentLocale` | `string \| (() => string)`                                                          | ❌       | -       | Current locale (uses injected locale if not provided)                |
+| `getLocaleName` | `() => string \| null`                                                              | ❌       | -       | Function to get locale display name                                  |
+| `switchLocale`  | `(locale: string) => void`                                                          | ❌       | -       | Function to switch locale (uses routing strategy if not provided)    |
+| `localeRoute`   | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Custom locale route function (uses routing strategy if not provided) |
+| `customLabels`  | `Record<string, string>`                                                            | ❌       | `{}`    | Custom labels for locales                                            |
+| `...restProps`  | `JSX.HTMLAttributes<HTMLDivElement>`                                                | ❌       | -       | All standard div attributes                                          |
 
 #### Examples
 
@@ -884,6 +932,7 @@ h(I18nSwitcher, {
 ```
 
 The component automatically:
+
 - Filters out disabled locales
 - Highlights the current locale
 - Generates localized paths for each locale using the routing strategy
@@ -896,11 +945,11 @@ Component for grouping translations with a common prefix.
 
 #### Props
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `prefix` | `string` | ✅ | - | Translation key prefix |
-| `groupClass` | `string` | ❌ | `''` | CSS class for the wrapper div |
-| `children` | `preact.ComponentChildren` | ✅ | - | Child components |
+| Prop         | Type                       | Required | Default | Description                   |
+| ------------ | -------------------------- | -------- | ------- | ----------------------------- |
+| `prefix`     | `string`                   | ✅       | -       | Translation key prefix        |
+| `groupClass` | `string`                   | ❌       | `''`    | CSS class for the wrapper div |
+| `children`   | `preact.ComponentChildren` | ✅       | -       | Child components              |
 
 #### Examples
 
@@ -908,9 +957,11 @@ Component for grouping translations with a common prefix.
 import { h } from 'preact'
 import { I18nGroup, I18nT } from '@i18n-micro/preact'
 
-h(I18nGroup, { prefix: 'home' },
+h(
+  I18nGroup,
+  { prefix: 'home' },
   h(I18nT, { keypath: 'title' }), // Uses "home.title"
-  h(I18nT, { keypath: 'description' }) // Uses "home.description"
+  h(I18nT, { keypath: 'description' }), // Uses "home.description"
 )
 ```
 
@@ -931,13 +982,15 @@ interface I18nRoutingStrategy {
   /**
    * Component to use for rendering links (e.g., Link from wouter-preact)
    */
-  linkComponent?: string | React.ComponentType<{
-    href: string
-    children?: React.ReactNode
-    style?: React.CSSProperties
-    className?: string
-    [key: string]: unknown
-  }>
+  linkComponent?:
+    | string
+    | React.ComponentType<{
+        href: string
+        children?: React.ReactNode
+        style?: React.CSSProperties
+        className?: string
+        [key: string]: unknown
+      }>
 
   /**
    * Function to navigate to another route/locale
@@ -985,12 +1038,16 @@ function RouterRoot({ children }: { children?: any }) {
   const [location, navigate] = useLocation() // from wouter-preact
   const routingStrategy = createWouterAdapter(localesConfig, defaultLocale, location, navigate)
 
-  return h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale,
-    routingStrategy,
-  }, children)
+  return h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale,
+      routingStrategy,
+    },
+    children,
+  )
 }
 ```
 
@@ -1009,14 +1066,14 @@ A router adapter is an implementation of the `I18nRoutingStrategy` interface tha
 
 The `I18nRoutingStrategy` interface defines the following methods:
 
-| Method | Required | Description |
-|--------|----------|-------------|
-| `getCurrentPath()` | ✅ | Returns the current path (used for active link detection) |
-| `linkComponent` | ❌ | Component to use for rendering links (e.g., `Link` from wouter-preact) |
-| `push(target)` | ❌ | Function to navigate to another route/locale |
-| `replace(target)` | ❌ | Function to replace current route |
-| `resolvePath(to, locale)` | ❌ | Generate path for specific locale |
-| `getRoute()` | ❌ | Returns current route object with query params |
+| Method                    | Required | Description                                                            |
+| ------------------------- | -------- | ---------------------------------------------------------------------- |
+| `getCurrentPath()`        | ✅       | Returns the current path (used for active link detection)              |
+| `linkComponent`           | ❌       | Component to use for rendering links (e.g., `Link` from wouter-preact) |
+| `push(target)`            | ❌       | Function to navigate to another route/locale                           |
+| `replace(target)`         | ❌       | Function to replace current route                                      |
+| `resolvePath(to, locale)` | ❌       | Generate path for specific locale                                      |
+| `getRoute()`              | ❌       | Returns current route object with query params                         |
 
 ### Step-by-Step Guide
 
@@ -1035,6 +1092,7 @@ At minimum, you must implement `getCurrentPath()`. All other methods are optiona
 #### Step 3: Handle Edge Cases
 
 Consider:
+
 - Empty paths (`/`)
 - Root locale (default locale - should it be in URL?)
 - Invalid locales
@@ -1057,10 +1115,10 @@ export function createWouterAdapter(
   locationPath: string, // from useLocation()[0]
   navigate: (to: string, options?: { replace?: boolean }) => void, // from useLocation()[1]
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code)
 
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
     if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
       pathSegments.shift()
@@ -1081,9 +1139,9 @@ export function createWouterAdapter(
 
     getCurrentPath: () => locationPath,
 
-    push: target => navigate(target.path),
+    push: (target) => navigate(target.path),
 
-    replace: target => navigate(target.path, { replace: true }),
+    replace: (target) => navigate(target.path, { replace: true }),
 
     resolvePath: (to, locale) => resolvePath(to, locale),
 
@@ -1107,12 +1165,16 @@ function RouterRoot({ children }: { children?: any }) {
   const [location, navigate] = useLocation()
   const routingStrategy = createWouterAdapter(localesConfig, defaultLocale, location, navigate)
 
-  return h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale,
-    routingStrategy,
-  }, children)
+  return h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale,
+      routingStrategy,
+    },
+    children,
+  )
 }
 
 function App() {
@@ -1134,10 +1196,10 @@ export function createPreactRouterAdapter(
   defaultLocale: string,
   router: any, // preact-router instance
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code)
 
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
     if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
       pathSegments.shift()
@@ -1171,12 +1233,8 @@ This example uses query parameters for locale (e.g., `/?locale=fr`):
 import type { I18nRoutingStrategy } from '@i18n-micro/preact'
 import type { Locale } from '@i18n-micro/types'
 
-export function createQueryParamRouterAdapter(
-  locales: Locale[],
-  defaultLocale: string,
-  paramName: string = 'locale',
-): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+export function createQueryParamRouterAdapter(locales: Locale[], defaultLocale: string, paramName: string = 'locale'): I18nRoutingStrategy {
+  const localeCodes = locales.map((loc) => loc.code)
 
   const getCurrentPath = (): string => {
     if (typeof window !== 'undefined') {
@@ -1186,15 +1244,15 @@ export function createQueryParamRouterAdapter(
   }
 
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const url = new URL(path, 'http://localhost')
-    
+
     if (locale !== defaultLocale) {
       url.searchParams.set(paramName, locale)
     } else {
       url.searchParams.delete(paramName)
     }
-    
+
     return url.pathname + url.search
   }
 
@@ -1238,7 +1296,7 @@ export function createQueryParamRouterAdapter(
 
 ```typescript
 const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-  const path = typeof to === 'string' ? to : (to.path || '/')
+  const path = typeof to === 'string' ? to : to.path || '/'
   const url = new URL(path, 'http://localhost')
   // ... locale switching logic ...
   return url.pathname + url.search + url.hash
@@ -1298,7 +1356,7 @@ import { createPreactRouterAdapter } from '@i18n-micro/preact'
 
 export function createExtendedAdapter(locales: Locale[], defaultLocale: string) {
   const baseAdapter = createPreactRouterAdapter(locales, defaultLocale)
-  
+
   return {
     ...baseAdapter,
     // Override specific method
@@ -1314,12 +1372,15 @@ export function createExtendedAdapter(locales: Locale[], defaultLocale: string) 
 ### Troubleshooting
 
 **Problem**: Locale not detected correctly
+
 - **Solution**: Check that your `getCurrentPath` correctly returns the current path, and `resolvePath` properly handles locale prefixes
 
 **Problem**: Links don't switch locale
+
 - **Solution**: Ensure `push` and `replace` methods correctly update the URL and dispatch events for your router
 
 **Problem**: Active state detection doesn't work
+
 - **Solution**: Verify `getCurrentPath` returns the correct path format that matches your routing strategy
 
 ## Async Translation Loading
@@ -1365,18 +1426,16 @@ async function initApp() {
   }
 
   // Preload other locales in background
-  const otherLocales = ['en', 'fr', 'de'].filter(c => c !== initialLocale)
-  Promise.all(
-    otherLocales.map(code => 
-      loadTranslations(code).then(msgs => ({ code, msgs }))
-    )
-  ).then((results) => {
-    results.forEach(({ code, msgs }) => {
-      i18n.addTranslations(code, msgs, false)
+  const otherLocales = ['en', 'fr', 'de'].filter((c) => c !== initialLocale)
+  Promise.all(otherLocales.map((code) => loadTranslations(code).then((msgs) => ({ code, msgs }))))
+    .then((results) => {
+      results.forEach(({ code, msgs }) => {
+        i18n.addTranslations(code, msgs, false)
+      })
     })
-  }).catch(() => {
-    // Ignore errors for preloading
-  })
+    .catch(() => {
+      // Ignore errors for preloading
+    })
 }
 
 // Start loading translations
@@ -1424,7 +1483,7 @@ async function ensureLocaleLoaded(locale: string) {
   if (loadedLocales.has(locale)) {
     return
   }
-  
+
   await loadTranslations(locale)
   loadedLocales.add(locale)
 }
@@ -1438,12 +1497,14 @@ function LocaleSwitcher() {
     setLocale(newLocale)
   }
 
-  return h('select', {
-    value: locale,
-    onChange: (e: any) => handleLocaleSwitch(e.target.value),
-  },
+  return h(
+    'select',
+    {
+      value: locale,
+      onChange: (e: any) => handleLocaleSwitch(e.target.value),
+    },
     h('option', { value: 'en' }, 'English'),
-    h('option', { value: 'fr' }, 'Français')
+    h('option', { value: 'fr' }, 'Français'),
   )
 }
 ```
@@ -1487,7 +1548,7 @@ const i18n = createI18n({
     if (key === 'special') {
       return count === 0 ? 'none' : count === 1 ? 'one' : 'many'
     }
-    
+
     // Use default for others
     return defaultPlural(key, count, params, locale, getTranslation)
   },
@@ -1509,7 +1570,7 @@ const i18n = createI18n({
   missingHandler: (locale, key, routeName) => {
     // Send to error tracking service
     console.error(`Missing translation: ${key} in ${locale} for route ${routeName}`)
-    
+
     // Or send to Sentry
     // Sentry.captureMessage(`Missing translation: ${key}`, {
     //   extra: { locale, routeName }
@@ -1584,10 +1645,7 @@ import type {
 You can create type-safe translation keys:
 
 ```typescript
-type TranslationKeys = 
-  | 'welcome'
-  | 'greeting'
-  | 'apples'
+type TranslationKeys = 'welcome' | 'greeting' | 'apples'
 
 function t(key: TranslationKeys, params?: Params): string {
   const { t } = useI18n()
@@ -1665,7 +1723,7 @@ async function initApp() {
   // Detect initial locale from URL
   const path = window.location.pathname
   const firstSegment = path.split('/')[1]
-  const initialLocale = localesConfig.some(l => l.code === firstSegment) ? firstSegment : defaultLocale
+  const initialLocale = localesConfig.some((l) => l.code === firstSegment) ? firstSegment : defaultLocale
 
   // Load initial locale
   const translations = await loadTranslations(initialLocale)
@@ -1675,21 +1733,18 @@ async function initApp() {
   }
 
   // Preload other locales in background
-  const otherLocales = localesConfig.map(l => l.code).filter(c => c !== initialLocale)
-  Promise.all(
-    otherLocales.map(code => loadTranslations(code).then(msgs => ({ code, msgs })))
-  ).then((results) => {
-    results.forEach(({ code, msgs }) => {
-      i18n.addTranslations(code, msgs, false)
+  const otherLocales = localesConfig.map((l) => l.code).filter((c) => c !== initialLocale)
+  Promise.all(otherLocales.map((code) => loadTranslations(code).then((msgs) => ({ code, msgs }))))
+    .then((results) => {
+      results.forEach(({ code, msgs }) => {
+        i18n.addTranslations(code, msgs, false)
+      })
     })
-  }).catch(() => {})
+    .catch(() => {})
 
   const appElement = document.getElementById('app')
   if (appElement) {
-    render(
-      h(Router, null, h(App)),
-      appElement
-    )
+    render(h(Router, null, h(App)), appElement)
   }
 }
 
@@ -1711,10 +1766,10 @@ export function createWouterAdapter(
   locationPath: string,
   navigate: (to: string, options?: { replace?: boolean }) => void,
 ): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code)
 
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
     if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
       pathSegments.shift()
@@ -1732,8 +1787,8 @@ export function createWouterAdapter(
       [key: string]: unknown
     }>,
     getCurrentPath: () => locationPath,
-    push: target => navigate(target.path),
-    replace: target => navigate(target.path, { replace: true }),
+    push: (target) => navigate(target.path),
+    replace: (target) => navigate(target.path, { replace: true }),
     resolvePath: (to, locale) => resolvePath(to, locale),
     getRoute: () => ({
       fullPath: locationPath,
@@ -1778,12 +1833,16 @@ function RouterRoot({ children }: { children?: any }) {
   const [location, navigate] = useLocation()
   const routingStrategy = createWouterAdapter(localesConfig, defaultLocale, location, navigate)
 
-  return h(I18nProvider, {
-    i18n,
-    locales: localesConfig,
-    defaultLocale,
-    routingStrategy,
-  }, children)
+  return h(
+    I18nProvider,
+    {
+      i18n,
+      locales: localesConfig,
+      defaultLocale,
+      routingStrategy,
+    },
+    children,
+  )
 }
 
 // Component to handle locale synchronization from URL
@@ -1806,46 +1865,50 @@ function LocaleHandler({ children }: { children?: any }) {
 function Navigation() {
   const { t, getLocales, locale, getLocaleName, switchLocale, localeRoute } = useI18n({ locales: localesConfig, defaultLocale })
 
-  return h('nav', { style: { marginBottom: '20px', display: 'flex', gap: '15px', alignItems: 'center' } },
+  return h(
+    'nav',
+    { style: { marginBottom: '20px', display: 'flex', gap: '15px', alignItems: 'center' } },
     h(I18nLink, { to: '/', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.home')),
     h(I18nLink, { to: '/about', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.about')),
     h(I18nLink, { to: '/components', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.components')),
-    h('div', { style: { marginLeft: 'auto' } },
+    h(
+      'div',
+      { style: { marginLeft: 'auto' } },
       h(I18nSwitcher, {
         locales: getLocales(),
         currentLocale: locale,
         getLocaleName: () => getLocaleName(),
         switchLocale: switchLocale,
         localeRoute: localeRoute,
-      })
-    )
+      }),
+    ),
   )
 }
 
 function Layout({ children }: { children?: any }) {
-  return h('div', { style: { padding: '20px', fontFamily: 'Arial, sans-serif' } },
+  return h(
+    'div',
+    { style: { padding: '20px', fontFamily: 'Arial, sans-serif' } },
     h(Navigation),
-    h('div', { style: { padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' } }, children)
+    h('div', { style: { padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' } }, children),
   )
 }
 
 function AppRoutes() {
-  return h(Switch, null,
+  return h(
+    Switch,
+    null,
     h(Route, { path: '/', component: () => h(LocaleHandler, null, h(Home)) }),
     h(Route, { path: '/about', component: () => h(LocaleHandler, null, h(About)) }),
     h(Route, { path: '/components', component: () => h(LocaleHandler, null, h(Components)) }),
     h(Route, { path: '/:locale', component: () => h(LocaleHandler, null, h(Home)) }),
     h(Route, { path: '/:locale/about', component: () => h(LocaleHandler, null, h(About)) }),
-    h(Route, { path: '/:locale/components', component: () => h(LocaleHandler, null, h(Components)) })
+    h(Route, { path: '/:locale/components', component: () => h(LocaleHandler, null, h(Components)) }),
   )
 }
 
 export default function App() {
-  return h(Router, null,
-    h(RouterRoot, null,
-      h(Layout, null, h(AppRoutes))
-    )
-  )
+  return h(Router, null, h(RouterRoot, null, h(Layout, null, h(AppRoutes))))
 }
 ```
 
@@ -1859,7 +1922,9 @@ import { useI18n } from '@i18n-micro/preact'
 export function Home() {
   const { t, tc, tn, td, tdr, locale } = useI18n()
 
-  return h('div', null,
+  return h(
+    'div',
+    null,
     h('h1', null, t('home.title')),
     h('p', null, t('home.description')),
     h('p', null, t('welcome')),
@@ -1870,7 +1935,7 @@ export function Home() {
     h('p', null, t('number', { number: tn(1234.56) })),
     h('p', null, t('date', { date: td(new Date()) })),
     h('p', null, t('relativeDate', { relativeDate: tdr(Date.now() - 86400000) })),
-    h('p', null, `Current locale: ${locale}`)
+    h('p', null, `Current locale: ${locale}`),
   )
 }
 ```

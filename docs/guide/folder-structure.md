@@ -1,7 +1,7 @@
 ---
-title: "Folder Structure Guide"
-description: "Recommended locales folder layout."
-outline: "deep"
+title: 'Folder Structure Guide'
+description: 'Recommended locales folder layout.'
+outline: 'deep'
 ---
 
 # 📂 Folder Structure Guide
@@ -44,6 +44,7 @@ locales/
 - **Purpose:** These files contain translations shared across the entire application (navigation menus, headers, footers, etc.). With `mode: 'premerged'` (default), they are automatically merged into every page-specific file at build time, so the server returns a single pre-built file per page.
 
   **Example Content (`/locales/en.json`):**
+
   ```json
   {
     "menu": {
@@ -63,6 +64,7 @@ locales/
 - **Purpose:** These files contain translations specific to individual pages. With `mode: 'premerged'` (default), root-level translations are merged in as a base at build time, so each page file becomes self-contained.
 
   **Example Content (`/locales/pages/index/en.json`):**
+
   ```json
   {
     "title": "Welcome to Our Website",
@@ -71,6 +73,7 @@ locales/
   ```
 
   **Example Content (`/locales/pages/about/en.json`):**
+
   ```json
   {
     "title": "About Us",
@@ -131,8 +134,8 @@ If you prefer to store translations in a different directory, `Nuxt I18n Micro` 
 ```typescript
 export default defineNuxtConfig({
   i18n: {
-    translationDir: 'i18n' // Custom directory path
-  }
+    translationDir: 'i18n', // Custom directory path
+  },
 })
 ```
 
@@ -148,16 +151,17 @@ This will instruct `Nuxt I18n Micro` to look for translation files in the `/i18n
 flowchart TB
     A["📥 Request: /fr/about"] --> B["🔍 Detect locale: fr"]
     A --> C["🔍 Detect route: about"]
-    
+
     B --> D["📂 Load payload via /_locales (premerged or source mode)"]
     C --> D
-    
+
     D --> E["✅ Translations ready (premerged at build time, or merged at runtime in source mode)"]
-    
+
     E --> F["Available via $t()"]
 ```
 
 For example:
+
 - Visiting `/en/index` will load translations from `/locales/pages/index/en.json`.
 - Visiting `/fr/about` will load translations from `/locales/pages/about/fr.json`.
 
@@ -166,6 +170,7 @@ This method ensures that only the necessary translations are loaded, optimizing 
 ### 💾 Caching and Pre-rendering
 
 To further enhance performance, `Nuxt I18n Micro` supports caching and pre-rendering of translation files:
+
 - **Caching**: Once a translation file is loaded, it’s cached for subsequent requests, reducing the need to repeatedly fetch the same data.
 - **Pre-rendering**: During the build process, you can pre-render translation files for all configured locales and routes, allowing them to be served directly from the server without runtime delays.
 

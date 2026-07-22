@@ -1,7 +1,7 @@
 ---
-title: "Custom Localized Routes with `localeRoutes` in `Nuxt I18n Micro`"
-description: "Custom per-locale routes with localeRoutes."
-outline: "deep"
+title: 'Custom Localized Routes with `localeRoutes` in `Nuxt I18n Micro`'
+description: 'Custom per-locale routes with localeRoutes.'
+outline: 'deep'
 ---
 
 # 🔗 Custom Localized Routes with `localeRoutes` in `Nuxt I18n Micro`
@@ -19,14 +19,14 @@ The primary use case for `localeRoutes` is to provide distinct routes for differ
 Here’s an example of how you might define custom routes for specific locales using `localeRoutes` in your `$defineI18nRoute` function:
 
 ```typescript
-import { useNuxtApp } from "#imports";
+import { useNuxtApp } from '#imports'
 
-const { $defineI18nRoute } = useNuxtApp();
+const { $defineI18nRoute } = useNuxtApp()
 
 $defineI18nRoute({
   localeRoutes: {
     ru: '/localesubpage', // Custom route path for the Russian locale
-    de: '/lokaleseite',   // Custom route path for the German locale
+    de: '/lokaleseite', // Custom route path for the German locale
   },
 })
 ```
@@ -43,13 +43,13 @@ flowchart TB
         D2["/de/products"] --> DP
         D3["/ru/products"] --> DP
     end
-    
+
     subgraph Custom["Custom Behavior (with localeRoutes)"]
         C1["/en/products"] --> CP[products.vue]
         C2["/de/produkte"] --> CP
         C3["/ru/tovary"] --> CP
     end
-    
+
     subgraph Config["localeRoutes Config"]
         CFG["localeRoutes: {
           en: '/products',
@@ -57,7 +57,7 @@ flowchart TB
           ru: '/tovary'
         }"]
     end
-    
+
     Config -.->|Applies| Custom
 ```
 
@@ -78,13 +78,9 @@ Here’s a simple Vue component demonstrating the use of `$defineI18nRoute` with
 
     <!-- Navigation links -->
     <div>
-      <NuxtLink :to="$localeRoute({ name: 'index' })">
-        Go to Index
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'index' })"> Go to Index </NuxtLink>
       |
-      <NuxtLink :to="$localeRoute({ name: 'about' })">
-        Go to About Page
-      </NuxtLink>
+      <NuxtLink :to="$localeRoute({ name: 'about' })"> Go to About Page </NuxtLink>
     </div>
   </div>
 </template>
@@ -121,17 +117,17 @@ As localised routes don't directly match filenames in the page directory, you ne
    * ES /sobre-nosotros
    * FR /a-propos
    */
-  
+
   // Using NuxtLink
   <NuxtLink :to="$localeRoute({ name: 'about-us' })">
     Go to About Page
   </NuxtLink>
-  
+
   // Using I18nLink
   <I18nLink :to="{ name: 'about-us' }">
     Go to About Page
   </NuxtLink>
-  
+
   // The string literal navigation wouldn't work for any locale but english
   <I18nLink to="/about-us">
     Go to About Page
@@ -142,6 +138,7 @@ As localised routes don't directly match filenames in the page directory, you ne
 ### Nested Page Naming
 
 By default, your pages are named based on their file & path name. Here's what it means:
+
 - `/pages/about-us.vue` can be accessed with `$localeRoute({ name: 'about-us' })`
 - `/pages/about-us/physical-stores.vue` can be accessed with `$localeRoute({ name: 'about-us-physical-stores' })`
 
@@ -154,7 +151,6 @@ definePageMeta({
   name: 'our-stores'
 })
 ```
-
 
 This page can now be referenced with either `$localeRoute` or `I18nLink` by its name `:to='{ name: "our-stores" }'`.
 
@@ -195,8 +191,8 @@ import { useNuxtApp, useRoute, useFetch, createError } from '#imports'
 interface Product {
   title: string
   price: string
-  urlEn: string  // English slug
-  urlEs: string  // Spanish slug
+  urlEn: string // English slug
+  urlEs: string // Spanish slug
 }
 
 const { $defineI18nRoute, $setI18nRouteParams } = useNuxtApp()
@@ -206,11 +202,12 @@ const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.par
 
 // Fetch product data that includes locale-specific slugs
 const { data: product, error } = await useFetch<Product>(`/api/product/${slug}`)
-if (error.value) throw createError({
-  statusCode: error.value?.statusCode,
-  statusMessage: error.value?.statusMessage,
-  fatal: true,
-})
+if (error.value)
+  throw createError({
+    statusCode: error.value?.statusCode,
+    statusMessage: error.value?.statusMessage,
+    fatal: true,
+  })
 
 // Define custom routes with dynamic segments
 $defineI18nRoute({
@@ -266,11 +263,12 @@ const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.par
 
 // Fetch product data
 const { data: product, error } = await useFetch<Product>(`/api/product/${slug}`)
-if (error.value) throw createError({
-  statusCode: error.value?.statusCode,
-  statusMessage: error.value?.statusMessage,
-  fatal: true,
-})
+if (error.value)
+  throw createError({
+    statusCode: error.value?.statusCode,
+    statusMessage: error.value?.statusMessage,
+    fatal: true,
+  })
 
 // Define locale-specific routes with dynamic segments
 $defineI18nRoute({
@@ -300,9 +298,7 @@ When linking to dynamic routes from a list page, use the route name with paramet
     <h1>{{ $t('title') }}</h1>
     <ul>
       <li v-for="product in products?.[$getLocale()] || []" :key="product.id">
-        <I18nLink :to="{ name: 'product-slug', params: { slug: product.url } }">
-          {{ product.title }} – {{ product.price }}
-        </I18nLink>
+        <I18nLink :to="{ name: 'product-slug', params: { slug: product.url } }"> {{ product.title }} – {{ product.price }} </I18nLink>
       </li>
     </ul>
   </div>
@@ -323,11 +319,12 @@ type ProductsByLocale = Record<string, Product[]>
 const { $t, $defineI18nRoute, $getLocale } = useNuxtApp()
 
 const { data: products, error } = await useFetch<ProductsByLocale>('/api/product')
-if (error.value) throw createError({
-  statusCode: error.value?.statusCode,
-  statusMessage: error.value?.statusMessage,
-  fatal: true,
-})
+if (error.value)
+  throw createError({
+    statusCode: error.value?.statusCode,
+    statusMessage: error.value?.statusMessage,
+    fatal: true,
+  })
 
 $defineI18nRoute({
   locales: {
@@ -355,6 +352,7 @@ $defineI18nRoute({
 2. **Parameter Setting**: `$setI18nRouteParams` sets the actual parameter values for each locale. When a user switches locales using `$switchLocalePath`, the module uses these parameters to construct the correct URL.
 
 3. **Parameter Format**: The parameter object should match the structure:
+
    ```typescript
    {
      [localeCode]: {

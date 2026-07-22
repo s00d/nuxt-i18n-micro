@@ -1,7 +1,7 @@
 ---
-title: "Configuration Reference"
-description: "All nuxt-i18n-micro module options, defaults, and examples."
-outline: "deep"
+title: 'Configuration Reference'
+description: 'All nuxt-i18n-micro module options, defaults, and examples.'
+outline: 'deep'
 ---
 
 # Configuration Reference
@@ -10,57 +10,56 @@ Complete reference for every option under the `i18n` key in `nuxt.config`. Types
 
 ## Quick reference
 
-| Option | Type | Default | Group |
-|--------|------|---------|-------|
-| `locales` | `Locale[]` | `[]` | Core |
-| `defaultLocale` | `string` | `'en'` | Core |
-| `strategy` | `Strategies` | `'prefix_except_default'` | Routing |
-| `translationDir` | `string` | `'locales'` | Translation |
-| `disablePageLocales` | `boolean` | `false` | Translation |
-| `fallbackLocale` | `string` | `undefined` | Translation |
-| `translationPayloads` | `TranslationPayloadOptions` | see below | Cache / Payloads |
-| `plural` | `string \| PluralFunc` | built-in | Translation |
-| `routesLocaleLinks` | `Record<string, string>` | `{}` | Translation |
-| `types` | `boolean` | `true` | Dev |
-| `meta` | `boolean` | `true` | SEO |
-| `metaBaseUrl` | `string` | `undefined` | SEO |
-| `metaTrustForwardedHost` | `boolean` | `true` | SEO |
-| `metaTrustForwardedProto` | `boolean` | `true` | SEO |
-| `canonicalQueryWhitelist` | `string[]` | see below | SEO |
-| `globalLocaleRoutes` | `GlobalLocaleRoutes` | `{}` | Routing |
-| `routeLocales` | `Record<string, string[]>` | build-time | Routing |
-| `routeDisableMeta` | `Record<string, boolean \| string[]>` | build-time | SEO |
-| `customRegexMatcher` | `string \| RegExp` | auto | Routing |
-| `noPrefixRedirect` | `boolean` | `false` | Routing |
-| `localizedRouteNamePrefix` | `string` | `'localized-'` | Routing |
-| `excludePatterns` | `(string \| RegExp)[]` | `undefined` | Routing |
-| `autoDetectLanguage` | `boolean` | `true` | Detection |
-| `autoDetectPath` | `string` | `'/'` | Detection |
-| `localeCookie` | `string \| null` | `null` | Detection |
-| `redirects` | `boolean` | `true` | Plugins |
-| `define` | `boolean` | `true` | Plugins |
-| `plugin` | `boolean` | `true` | Plugins |
-| `hooks` | `boolean` | `true` | Plugins |
-| `components` | `boolean` | `true` | Plugins |
-| `apiBaseUrl` | `string` | `'_locales'` | Cache / Payloads |
-| `apiBaseClientHost` | `string` | `undefined` | Cache / Payloads |
-| `apiBaseServerHost` | `string` | `undefined` | Cache / Payloads |
-| `cacheMaxSize` | `number` | `0` | Cache / Payloads |
-| `cacheTtl` | `number` | `0` | Cache / Payloads |
-| `httpCacheDuration` | `number` | `31536000` | Cache / Payloads |
-| `numberFormats` | `object` | `{}` | Formatting |
-| `datetimeFormats` | `object` | `{}` | Formatting |
-| `dateBuild` | `string \| number` | build time | Cache / Payloads |
-| `hmr` | `boolean` | `true` (dev) | Dev |
-| `debug` | `boolean` | `false` | Dev |
-| `disableWatcher` | `boolean` | `false` | Dev |
-| `missingWarn` | `boolean` | `true` | Dev |
-| `experimental` | `Record<string, unknown>` | `undefined` | Dev |
+| Option                     | Type                                  | Default                   | Group            |
+| -------------------------- | ------------------------------------- | ------------------------- | ---------------- |
+| `locales`                  | `Locale[]`                            | `[]`                      | Core             |
+| `defaultLocale`            | `string`                              | `'en'`                    | Core             |
+| `strategy`                 | `Strategies`                          | `'prefix_except_default'` | Routing          |
+| `translationDir`           | `string`                              | `'locales'`               | Translation      |
+| `disablePageLocales`       | `boolean`                             | `false`                   | Translation      |
+| `fallbackLocale`           | `string`                              | `undefined`               | Translation      |
+| `translationPayloads`      | `TranslationPayloadOptions`           | see below                 | Cache / Payloads |
+| `plural`                   | `string \| PluralFunc`                | built-in                  | Translation      |
+| `routesLocaleLinks`        | `Record<string, string>`              | `{}`                      | Translation      |
+| `types`                    | `boolean`                             | `true`                    | Dev              |
+| `meta`                     | `boolean`                             | `true`                    | SEO              |
+| `metaBaseUrl`              | `string`                              | `undefined`               | SEO              |
+| `metaTrustForwardedHost`   | `boolean`                             | `true`                    | SEO              |
+| `metaTrustForwardedProto`  | `boolean`                             | `true`                    | SEO              |
+| `canonicalQueryWhitelist`  | `string[]`                            | see below                 | SEO              |
+| `globalLocaleRoutes`       | `GlobalLocaleRoutes`                  | `{}`                      | Routing          |
+| `routeLocales`             | `Record<string, string[]>`            | build-time                | Routing          |
+| `routeDisableMeta`         | `Record<string, boolean \| string[]>` | build-time                | SEO              |
+| `customRegexMatcher`       | `string \| RegExp`                    | auto                      | Routing          |
+| `noPrefixRedirect`         | `boolean`                             | `false`                   | Routing          |
+| `localizedRouteNamePrefix` | `string`                              | `'localized-'`            | Routing          |
+| `excludePatterns`          | `(string \| RegExp)[]`                | `undefined`               | Routing          |
+| `autoDetectLanguage`       | `boolean`                             | `true`                    | Detection        |
+| `autoDetectPath`           | `string`                              | `'/'`                     | Detection        |
+| `localeCookie`             | `string \| null`                      | `null`                    | Detection        |
+| `redirects`                | `boolean`                             | `true`                    | Plugins          |
+| `define`                   | `boolean`                             | `true`                    | Plugins          |
+| `plugin`                   | `boolean`                             | `true`                    | Plugins          |
+| `hooks`                    | `boolean`                             | `true`                    | Plugins          |
+| `components`               | `boolean`                             | `true`                    | Plugins          |
+| `apiBaseUrl`               | `string`                              | `'_locales'`              | Cache / Payloads |
+| `apiBaseClientHost`        | `string`                              | `undefined`               | Cache / Payloads |
+| `apiBaseServerHost`        | `string`                              | `undefined`               | Cache / Payloads |
+| `cacheMaxSize`             | `number`                              | `0`                       | Cache / Payloads |
+| `cacheTtl`                 | `number`                              | `0`                       | Cache / Payloads |
+| `httpCacheDuration`        | `number`                              | `31536000`                | Cache / Payloads |
+| `numberFormats`            | `object`                              | `{}`                      | Formatting       |
+| `datetimeFormats`          | `object`                              | `{}`                      | Formatting       |
+| `dateBuild`                | `string \| number`                    | build time                | Cache / Payloads |
+| `hmr`                      | `boolean`                             | `true` (dev)              | Dev              |
+| `debug`                    | `boolean`                             | `false`                   | Dev              |
+| `disableWatcher`           | `boolean`                             | `false`                   | Dev              |
+| `missingWarn`              | `boolean`                             | `true`                    | Dev              |
+| `experimental`             | `Record<string, unknown>`             | `undefined`               | Dev              |
 
 Default `canonicalQueryWhitelist`: `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']`.
 
 Default `translationPayloads` (`mode: 'premerged'`): `{ serverAssets: true, serverHandler: true, publicAssets: true, prerenderRoutes: true }`.
-
 
 # Option details
 
@@ -76,17 +75,17 @@ Defines the locales available in your application.
 
 Each locale object supports:
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `code` | `string` | ✅ | Unique identifier (e.g., `'en'`) |
-| `displayName` | `string` | ❌ | Human-readable name for switchers (e.g., `'English'`) |
-| `iso` | `string` | ❌ | ISO code (e.g., `'en-US'`) |
-| `dir` | `string` | ❌ | Text direction (`'ltr'` or `'rtl'`) |
-| `disabled` | `boolean` | ❌ | Disable in dropdown if `true` |
-| `baseUrl` | `string` | ❌ | Base URL for locale-specific domains |
-| `baseDefault` | `boolean` | ❌ | Remove locale prefix from URLs |
-| `fallbackLocale` | `string` | ❌ | Per-locale fallback (overrides global) |
-| `[key: string]` | `unknown` | ❌ | Any custom properties (see below) |
+| Property         | Type      | Required | Description                                           |
+| ---------------- | --------- | -------- | ----------------------------------------------------- |
+| `code`           | `string`  | ✅       | Unique identifier (e.g., `'en'`)                      |
+| `displayName`    | `string`  | ❌       | Human-readable name for switchers (e.g., `'English'`) |
+| `iso`            | `string`  | ❌       | ISO code (e.g., `'en-US'`)                            |
+| `dir`            | `string`  | ❌       | Text direction (`'ltr'` or `'rtl'`)                   |
+| `disabled`       | `boolean` | ❌       | Disable in dropdown if `true`                         |
+| `baseUrl`        | `string`  | ❌       | Base URL for locale-specific domains                  |
+| `baseDefault`    | `boolean` | ❌       | Remove locale prefix from URLs                        |
+| `fallbackLocale` | `string`  | ❌       | Per-locale fallback (overrides global)                |
+| `[key: string]`  | `unknown` | ❌       | Any custom properties (see below)                     |
 
 **Example**:
 
@@ -95,12 +94,12 @@ locales: [
   { code: 'en', iso: 'en-US', dir: 'ltr' },
   { code: 'fr', iso: 'fr-FR', dir: 'ltr' },
   { code: 'ar', iso: 'ar-SA', dir: 'rtl', disabled: true },
-  { 
-    code: 'de', 
-    iso: 'de-DE', 
-    dir: 'ltr', 
-    baseUrl: 'https://de.example.com', 
-    baseDefault: true 
+  {
+    code: 'de',
+    iso: 'de-DE',
+    dir: 'ltr',
+    baseUrl: 'https://de.example.com',
+    baseDefault: true,
   },
 ]
 ```
@@ -128,9 +127,7 @@ Access them in components:
 ```vue
 <template>
   <ul>
-    <li v-for="locale in $getLocales()" :key="locale.code">
-      {{ locale.flag }} {{ locale.displayName }} ({{ locale.currency }})
-    </li>
+    <li v-for="locale in $getLocales()" :key="locale.code">{{ locale.flag }} {{ locale.displayName }} ({{ locale.currency }})</li>
   </ul>
 </template>
 ```
@@ -151,7 +148,7 @@ After this, all custom properties are fully typed:
 
 ```typescript
 const locales = $getLocales()
-locales[0].flag     // string | undefined ✅
+locales[0].flag // string | undefined ✅
 locales[0].currency // string | undefined ✅
 ```
 
@@ -521,8 +518,8 @@ Specifies routes where locale detection is active.
 **Default**: `"/"`
 
 ```typescript
-autoDetectPath: "/" // Only on home route
-autoDetectPath: "*" // On all routes (use with caution)
+autoDetectPath: '/' // Only on home route
+autoDetectPath: '*' // On all routes (use with caution)
 ```
 
 ### 🔢 Customization
@@ -548,6 +545,7 @@ Translations use `|` to separate plural forms:
 Use `$tc('apples', count)` or `$tc('cart', { count, name })` when a form needs more than `{count}` — pass **`count` and other params in the second argument object**, not as a third argument (third is `defaultValue` only).
 
 The `$tc` call invokes the `plural` function, which:
+
 1. Calls `t(key)` to get the raw translation string (e.g. `"no apples | one apple | {count} apples"`)
 2. Splits by `|` to get the forms array
 3. Selects a form based on `count`
@@ -561,10 +559,11 @@ For languages with complex pluralization rules (e.g., Russian, Arabic, Polish), 
 
 ::: danger Serialization requirement
 The function is serialized via `.toString()` and injected into a virtual module at build time. This means:
+
 - **Must use `function` keyword** — NOT shorthand method syntax, NOT arrow functions with external references
 - **No imports or external references** — the function must be fully self-contained
 - **No TypeScript-only syntax** that doesn't survive `.toString()` (type annotations are fine in `nuxt.config.ts` because Nuxt strips them)
-:::
+  :::
 
 **Example: Russian pluralization** (4 forms: zero, one, few, many):
 
@@ -576,7 +575,12 @@ export default defineNuxtConfig({
       const translation = t(key)
       if (!translation) return key
 
-      const forms = translation.toString().split('|').map(function (s) { return s.trim() })
+      const forms = translation
+        .toString()
+        .split('|')
+        .map(function (s) {
+          return s.trim()
+        })
       let idx
 
       if (count === 0) {
@@ -609,6 +613,7 @@ With this translation:
 ```
 
 Results:
+
 - `$tc('apples', 0)` → `"нет яблок"`
 - `$tc('apples', 1)` → `"1 яблоко"`
 - `$tc('apples', 3)` → `"3 яблока"`
@@ -696,6 +701,7 @@ localeCookie: null
 ```
 
 **What `localeCookie` enables:**
+
 - Persists user's locale preference across page reloads
 - Remembers locale when user returns to your site
 - Required for `no_prefix` strategy to work correctly
@@ -924,7 +930,8 @@ Cache-Control: public, max-age=31536000, immutable
 ```ts
 export default defineNuxtConfig({
   i18n: {
-    dateBuild: process.env.GIT_SHA ?? 'local-dev',
+    // Per-build fallback (Date.now()) so immutable payloads never go stale when GIT_SHA is missing.
+    dateBuild: process.env.GIT_SHA ?? String(Date.now()),
     httpCacheDuration: 86400, // 24 hours
     // httpCacheDuration: 0, // disable Cache-Control header
   },
@@ -963,8 +970,8 @@ export default defineNuxtConfig({
 ```
 
 ```ts
-$tn(10000, 'currency')           // $10,000.00
-$tn(10000, 'currency', 'de')     // 10.000,00 €
+$tn(10000, 'currency') // $10,000.00
+$tn(10000, 'currency', 'de') // 10.000,00 €
 $tn(10000, 'currency', { notation: 'compact' })
 ```
 

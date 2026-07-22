@@ -1,15 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('basic'),
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
-  // },
-})
+await setupE2E({ shared: 'basic' })
 
-test.describe('basic', () => {
+describe('basic', () => {
   test('renders only on client', async ({ page, baseURL }) => {
     // 1) Fetch the raw server response for the client page
     const res = await fetch(`${baseURL}client`)

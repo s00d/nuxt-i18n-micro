@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('basic'),
-})
+await setupE2E({ shared: 'basic' })
 
-test.describe('locale server middleware', () => {
+describe('locale server middleware', () => {
   test('should return locale information for English locale', async ({ request }) => {
     const response = await request.get('/api/locale-info?locale=en')
     expect(response.status()).toBe(200)

@@ -1,15 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('fallback-locale'),
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
-  // },
-})
+await setupE2E({ shared: 'fallback-locale' })
 
-test.describe('fallback-locale', () => {
+describe('fallback-locale', () => {
   test('verify fallbackLocale functionality and content update when switching', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })

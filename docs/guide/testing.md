@@ -1,7 +1,7 @@
 ---
-title: "Testing `Nuxt I18n Micro` Module"
-description: "Test i18n behavior in your Nuxt app."
-outline: "deep"
+title: 'Testing `Nuxt I18n Micro` Module'
+description: 'Test i18n behavior in your Nuxt app.'
+outline: 'deep'
 ---
 
 # 🧪 Testing `Nuxt I18n Micro` Module
@@ -62,9 +62,7 @@ export function createFakeI18n() {
   }
 }
 
-mockNuxtImport<() => ReturnType<typeof createFakeI18n>>('useI18n', () =>
-  vi.fn(() => createFakeI18n()),
-)
+mockNuxtImport<() => ReturnType<typeof createFakeI18n>>('useI18n', () => vi.fn(() => createFakeI18n()))
 
 export const setTranslationsFromJson = i18nUtils.setTranslationsFromJson
 ```
@@ -111,9 +109,7 @@ const message = props.message || $t('defaultMessage')
 <template>
   <div>
     <p>Test from component: {{ $t('welcome') }}</p>
-    <p data-testid="message">
-      Test message from props: {{ message }}
-    </p>
+    <p data-testid="message">Test message from props: {{ message }}</p>
   </div>
 </template>
 ```
@@ -169,24 +165,24 @@ describe('ExampleComponent', () => {
 
 Below is a table describing all the utility methods provided by `@i18n-micro/test-utils`.
 
-| Method                                          | Description                                                    |
-|-------------------------------------------------|----------------------------------------------------------------|
-| `t(key, params, defaultValue)`                  | Translates a key with optional parameters and a default value. |
-| `tc(key, params, defaultValue)`                 | Translates a key with pluralization support.                   |
-| `setTranslationsFromJson(locale, translations)` | Loads translations from a JSON object for a specific locale.   |
-| `getLocale()`                                   | Returns the current locale.                                    |
-| `setLocale(val)`                                | Sets the current locale.                                       |
-| `getLocaleName()`                               | Returns the current locale name.                               |
-| `setLocaleName(val)`                            | Sets the current locale name.                                  |
-| `getLocales()`                                  | Returns the list of available locales.                         |
-| `setLocales(val)`                               | Sets the list of available locales.                            |
-| `defaultLocale()`                               | Returns the default locale.                                    |
-| `setDefaultLocale(val)`                         | Sets the default locale.                                       |
-| `getRouteName()`                                | Returns the current route name.                                |
-| `settRouteName(val)`                            | Sets the current route name.                                   |
-| `ts(key, params, defaultValue)`                 | Translates a key and returns the result as a string.           |
-| `tn(value, optionsOrKey?, localeOrOverrides?, overrides?)` | Formats a number (inline Intl options or named format key). |
-| `td(value, optionsOrKey?, localeOrOverrides?, overrides?)` | Formats a date (inline Intl options or named format key). |
-| `has(key)`                                      | Checks if a translation key exists.                            |
+| Method                                          | Description                                                                                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `t(key, params, defaultValue)`                  | Translates a key with optional parameters and a default value.                                                                             |
+| `tc(key, params, defaultValue)`                 | Translates a key with pluralization support.                                                                                               |
+| `setTranslationsFromJson(locale, translations)` | Loads translations from a JSON object for a specific locale.                                                                               |
+| `getLocale()`                                   | Returns the current locale.                                                                                                                |
+| `setLocale(val)`                                | Sets the current locale.                                                                                                                   |
+| `getLocaleName()`                               | Returns the current locale name.                                                                                                           |
+| `setLocaleName(val)`                            | Sets the current locale name.                                                                                                              |
+| `getLocales()`                                  | Returns the list of available locales.                                                                                                     |
+| `setLocales(val)`                               | Sets the list of available locales.                                                                                                        |
+| `defaultLocale()`                               | Returns the default locale.                                                                                                                |
+| `setDefaultLocale(val)`                         | Sets the default locale.                                                                                                                   |
+| `getRouteName()`                                | Returns the current route name.                                                                                                            |
+| `settRouteName(val)`                            | Sets the current route name.                                                                                                               |
+| `ts(key, params, defaultValue)`                 | Translates a key and returns the result as a string.                                                                                       |
+| `tn(value, options?)`                           | Formats a number with inline `Intl.NumberFormatOptions`. Named formats need module config and are not available in this standalone helper. |
+| `td(value, options?)`                           | Formats a date with inline `Intl.DateTimeFormatOptions`. Named formats need module config and are not available in this standalone helper. |
+| `has(key)`                                      | Checks if a translation key exists.                                                                                                        |
 
 By following these steps, you can effectively test the `Nuxt I18n Micro` module and ensure that your application's localization features work as expected.

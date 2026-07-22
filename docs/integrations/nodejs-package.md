@@ -1,7 +1,7 @@
 ---
-title: "Node.js Runtime"
-description: "i18n for Node.js with @i18n-micro/node."
-outline: "deep"
+title: 'Node.js Runtime'
+description: 'i18n for Node.js with @i18n-micro/node.'
+outline: 'deep'
 ---
 
 # 🌐 Node.js Runtime
@@ -62,6 +62,7 @@ locales/
 Creates a new I18n instance.
 
 **Options:**
+
 - `locale: string` - Current locale
 - `fallbackLocale?: string` - Fallback locale (default: same as locale)
 - `translationDir?: string` - Path to locales directory
@@ -168,7 +169,7 @@ await i18n.loadTranslations()
 app.use(async (req, res, next) => {
   const locale = req.headers['accept-language']?.split(',')[0] || 'en'
   const route = req.path.split('/').filter(Boolean)[0] || 'index'
-  
+
   i18n.locale = locale
   i18n.setRoute(route)
   req.i18n = i18n
@@ -391,7 +392,7 @@ function detectLocale(req: IncomingMessage): string {
   const cookies = req.headers.cookie || ''
   const localeFromCookie = cookies
     .split(';')
-    .find(c => c.trim().startsWith('user-locale='))
+    .find((c) => c.trim().startsWith('user-locale='))
     ?.split('=')[1]
   if (localeFromCookie) return localeFromCookie
 
@@ -542,4 +543,3 @@ export default defineEventHandler(async (event) => {
 - **[Folder Structure](../guide/folder-structure.md)** - Learn about translation file organization
 - **[Server Side Translations](../guide/server-side-translations.md)** - Nuxt server-side usage
 - **[API Reference](../api/methods.md)** - Complete method documentation
-

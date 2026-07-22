@@ -1,7 +1,7 @@
 ---
-title: "`<i18n-t>` Component"
-description: "Translation component with slot-based interpolation."
-outline: "deep"
+title: '`<i18n-t>` Component'
+description: 'Translation component with slot-based interpolation.'
+outline: 'deep'
 ---
 
 # 🌍 `<i18n-t>` Component
@@ -16,6 +16,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Required**: Yes
 - **Description**: Defines the key path to the translation string in your localization files.
 - **Example**:
+
 ```vue
 <i18n-t keypath="feedback.text" />
 ```
@@ -26,6 +27,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Optional**: Yes
 - **Description**: Specifies a number for pluralization rules.
 - **Example**:
+
 ```vue
 <i18n-t keypath="items" :plural="10" />
 ```
@@ -36,13 +38,13 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 }
 ```
 
-
 ### `number`
 
 - **Type**: `number | string`
 - **Optional**: Yes
 - **Description**: This prop is used for number formatting. It can be passed as a number or string to render a localized number.
 - **Example**:
+
 ```vue
 <i18n-t keypath="data.item" :number="1234567.89" />
 ```
@@ -61,6 +63,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Optional**: Yes
 - **Description**: This prop is used for date formatting. It can be passed as a `Date`, string, or number to render a localized date.
 - **Example**:
+
 ```vue
 <i18n-t keypath="data.item" :date="'2023-12-31'" />
 ```
@@ -79,6 +82,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Optional**: Yes
 - **Description**: This prop is used for formatting relative dates. It can be passed as a `Date`, string, or number to render a localized relative date.
 - **Example**:
+
 ```vue
 <i18n-t keypath="data.item" :relative-date="'2023-12-31'" />
 ```
@@ -98,6 +102,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Default**: `'span'`
 - **Description**: Specifies the HTML tag to wrap the translated content.
 - **Example**:
+
 ```vue
 <i18n-t keypath="feedback.text" tag="div" />
 ```
@@ -108,6 +113,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Optional**: Yes
 - **Description**: Provides parameters for interpolating dynamic values in the translation.
 - **Example**:
+
 ```vue
 <i18n-t keypath="user.greeting" :params="{ name: userName }" />
 ```
@@ -118,6 +124,7 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Optional**: Yes
 - **Description**: The default value to use if the translation key is not found.
 - **Example**:
+
 ```vue
 <i18n-t keypath="nonExistentKey" defaultValue="Fallback text"></i18n-t>
 ```
@@ -127,8 +134,9 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Type**: `boolean`
 - **Optional**: Yes
 - **Default**: `false`
-- **Description**: Enables the rendering of the translation as raw HTML. 
+- **Description**: Enables the rendering of the translation as raw HTML.
 - **Example**:
+
 ```vue
 <i18n-t keypath="feedback.text" html />
 ```
@@ -140,27 +148,33 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 - **Default**: `false`
 - **Description**: If `true`, the component will not render anything if the translation is empty.
 - **Example**:
+
 ```vue
 <i18n-t keypath="optionalMessage" :hideIfEmpty="true"></i18n-t>
 ```
-  
+
 ### `customPluralRule`
 
 - **Type**: `PluralFunc` — `(key: string, count: number, params: Params, locale: string, getter: Getter) => string | null`
 - **Optional**: Yes
 - **Description**: Overrides the module-level `plural` option for this component instance. The fifth argument (`getter`) is the route-bound `$t` helper used to fetch raw plural forms.
 - **Example**:
+
 ```vue
 <i18n-t
   keypath="items"
   :plural="itemCount"
-  :customPluralRule="(key, count, params, locale, t) => {
-    const translation = t(key, params)
-    if (!translation) return null
-    const forms = String(translation).split('|').map((s) => s.trim())
-    const idx = count === 1 ? 1 : 2
-    return (forms[idx] ?? forms[forms.length - 1] ?? '').replace('{count}', String(count))
-  }"
+  :customPluralRule="
+    (key, count, params, locale, t) => {
+      const translation = t(key, params)
+      if (!translation) return null
+      const forms = String(translation)
+        .split('|')
+        .map((s) => s.trim())
+      const idx = count === 1 ? 1 : 2
+      return (forms[idx] ?? forms[forms.length - 1] ?? '').replace('{count}', String(count))
+    }
+  "
 />
 ```
 
@@ -228,11 +242,13 @@ Use a custom function to handle pluralization.
 <i18n-t
   keypath="items"
   :plural="itemCount"
-  :customPluralRule="(key, count, params, locale, t) => {
-    const raw = t(key, params)
-    if (!raw) return null
-    return count === 1 ? 'One item' : `${count} items`
-  }"
+  :customPluralRule="
+    (key, count, params, locale, t) => {
+      const raw = t(key, params)
+      if (!raw) return null
+      return count === 1 ? 'One item' : `${count} items`
+    }
+  "
 />
 ```
 

@@ -1,7 +1,7 @@
 ---
-title: "`useI18nHead` Composable"
-description: "Page-level overrides for i18n SEO meta and link tags."
-outline: "deep"
+title: '`useI18nHead` Composable'
+description: 'Page-level overrides for i18n SEO meta and link tags.'
+outline: 'deep'
 ---
 
 # `useI18nHead` Composable
@@ -143,9 +143,7 @@ useI18nHead({
       hreflang: locale,
       href,
     })),
-    xDefault: defaultHref
-      ? { rel: 'alternate', hreflang: 'x-default', href: defaultHref }
-      : false,
+    xDefault: defaultHref ? { rel: 'alternate', hreflang: 'x-default', href: defaultHref } : false,
     ogAlternates: Object.keys(article.locales),
   },
 })
@@ -421,34 +419,34 @@ Merged into `<html>` attributes from `useLocaleHead` (`lang`, `dir`).
 
 ### `replace`
 
-| Key | Type | Effect |
-|-----|------|--------|
-| `canonical` | `string \| false` | Replace or remove canonical link |
-| `hreflang` | `I18nHeadLink[] \| false` | Replace or remove all `rel="alternate"` links |
-| `xDefault` | `I18nHeadLink \| false` | Replace or remove `hreflang="x-default"` |
-| `ogLocale` | `string \| false` | Replace or remove `og:locale` |
-| `ogUrl` | `string \| false` | Replace or remove `og:url` |
-| `ogAlternates` | `string[] \| false` | Rebuild `og:locale:alternate` for locale codes |
+| Key            | Type                      | Effect                                         |
+| -------------- | ------------------------- | ---------------------------------------------- |
+| `canonical`    | `string \| false`         | Replace or remove canonical link               |
+| `hreflang`     | `I18nHeadLink[] \| false` | Replace or remove all `rel="alternate"` links  |
+| `xDefault`     | `I18nHeadLink \| false`   | Replace or remove `hreflang="x-default"`       |
+| `ogLocale`     | `string \| false`         | Replace or remove `og:locale`                  |
+| `ogUrl`        | `string \| false`         | Replace or remove `og:url`                     |
+| `ogAlternates` | `string[] \| false`       | Rebuild `og:locale:alternate` for locale codes |
 
 ### `disable`
 
-| Value | Removes |
-|-------|---------|
-| `hreflang` | Locale alternate links (not `x-default`) |
-| `x-default` | `hreflang="x-default"` link |
-| `canonical` | Canonical link |
-| `og` | `og:locale` and `og:url` |
-| `og-alternates` | `og:locale:alternate` tags |
-| `html` | `lang` / `dir` on `<html>` |
+| Value           | Removes                                  |
+| --------------- | ---------------------------------------- |
+| `hreflang`      | Locale alternate links (not `x-default`) |
+| `x-default`     | `hreflang="x-default"` link              |
+| `canonical`     | Canonical link                           |
+| `og`            | `og:locale` and `og:url`                 |
+| `og-alternates` | `og:locale:alternate` tags               |
+| `html`          | `lang` / `dir` on `<html>`               |
 
 ---
 
 ## `useLocaleHead` vs `useI18nHead`
 
-| Composable | Scope | When to use |
-|------------|-------|-------------|
+| Composable      | Scope                | When to use                                |
+| --------------- | -------------------- | ------------------------------------------ |
 | `useLocaleHead` | Global / manual head | `meta: false`, full custom `useHead` setup |
-| `useI18nHead` | Per-page overrides | `meta: true`, customize specific pages |
+| `useI18nHead`   | Per-page overrides   | `meta: true`, customize specific pages     |
 
 When `meta: true`, you do **not** need `useLocaleHead` on pages that only use `useI18nHead`.
 
@@ -465,13 +463,13 @@ Many projects maintain a custom plugin that:
 
 You can replace that with `useI18nHead` on each content page and module defaults.
 
-| Previous approach | With `useI18nHead` |
-|-------------------|-------------------|
-| Shared state + “which locales exist for this article” | `replace: { ogAlternates: localeCodes }` |
-| Separate helper building `rel="alternate"` links | `replace: { hreflang: links }` |
-| Custom plugin merging page state into head | Built-in merge in `02.meta` |
-| Custom “public origin” for absolute URLs | `metaBaseUrl` + forwarded headers (see Example 12) |
-| Short `og:locale` (`en` instead of `en_US`) | Set `locale.og` or use `iso` → `en_US` (OG protocol) |
+| Previous approach                                     | With `useI18nHead`                                   |
+| ----------------------------------------------------- | ---------------------------------------------------- |
+| Shared state + “which locales exist for this article” | `replace: { ogAlternates: localeCodes }`             |
+| Separate helper building `rel="alternate"` links      | `replace: { hreflang: links }`                       |
+| Custom plugin merging page state into head            | Built-in merge in `02.meta`                          |
+| Custom “public origin” for absolute URLs              | `metaBaseUrl` + forwarded headers (see Example 12)   |
+| Short `og:locale` (`en` instead of `en_US`)           | Set `locale.og` or use `iso` → `en_US` (OG protocol) |
 
 **Regional `hreflang` duplicates:** the module may emit both `en` and `en-US` when `iso` differs from `code`. For article pages that need only language codes, use `replace.hreflang` with your own list.
 

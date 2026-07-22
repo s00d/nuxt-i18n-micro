@@ -38,7 +38,7 @@ jobs:
           cache: pnpm
       - run: pnpm install
       - run: pnpm --filter "./packages/**" run build
-      - run: pnpm run test:workspaces
+      - run: pnpm exec vitest run --project '!unit' --project '!e2e'
 
   node-e2e:
     runs-on: ubuntu-latest
@@ -58,7 +58,9 @@ jobs:
       - run: pnpm install
       - run: pnpm --filter "./packages/**" run build
       - run: pnpm run dev:prepare
-      - run: pnpm exec vitest run --shard=${{ matrix.shard }}/2
+      # unit shards include browser-backed generate tests (chromium.launch())
+      - run: pnpm exec playwright install chromium
+      - run: pnpm exec vitest run --project unit --shard=${{ matrix.shard }}/2
 
   e2e:
     runs-on: ubuntu-latest
@@ -87,7 +89,7 @@ jobs:
       - run: pnpm --filter "./packages/**" run build
       - run: pnpm run dev:prepare
       - run: pnpm exec playwright install chromium
-      - run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
+      - run: pnpm exec vitest run --project e2e --shard=${{ matrix.shard }}/4
 
   verify:
     runs-on: ubuntu-latest
@@ -106,3 +108,4 @@ jobs:
       - run: pnpm run dev:prepare
       - run: pnpm verify:packages && pnpm verify:packages:publint
       - run: pnpm run test:dist:packages
+      - run: pnpm run compare:published

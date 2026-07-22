@@ -96,13 +96,16 @@ describe('ReactI18n reactive store', () => {
     expect(listener).toHaveBeenCalledTimes(1)
   })
 
-  test('fallbackLocale setter does not notify (current behavior)', () => {
+  test('fallbackLocale setter notifies on change (and not on same value)', () => {
     const i18n = make()
     const listener = vi.fn()
     i18n.subscribe(listener)
     i18n.fallbackLocale = 'de'
-    expect(listener).not.toHaveBeenCalled()
+    expect(listener).toHaveBeenCalledTimes(1)
     expect(i18n.getFallbackLocale()).toBe('de')
+    // no notification when the value is unchanged
+    i18n.fallbackLocale = 'de'
+    expect(listener).toHaveBeenCalledTimes(1)
   })
 
   test('locale switch changes translation resolution', () => {

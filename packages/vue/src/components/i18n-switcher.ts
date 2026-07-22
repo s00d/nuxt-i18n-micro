@@ -336,8 +336,10 @@ export const I18nSwitcher = defineComponent({
                 style: {
                   ...linkStyle,
                   ...(isActive ? activeLinkStyle : {}),
-                  ...(isActive ? props.customActiveLinkStyle : {}),
                   ...props.customLinkStyle,
+                  // active-specific customization wins over the generic link style
+                  // (matches the React/Preact/Solid switchers)
+                  ...(isActive ? props.customActiveLinkStyle : {}),
                 },
                 // Prevent default navigation, use only handleSwitchLocale
                 onClick: (e: MouseEvent) => {

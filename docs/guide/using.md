@@ -1,6 +1,6 @@
 ---
-title: "Using Translations in Components"
-description: "Use $t() and translations in Vue components."
+title: 'Using Translations in Components'
+description: 'Use $t() and translations in Vue components.'
 ---
 
 # Using Translations in Components
@@ -11,6 +11,7 @@ Once the module is installed and configured, you can display translations by cal
 
 1. **Root-level** translations reside directly under the `/locales` folder (e.g. `/locales/en.json`, `/locales/fr.json`). At build time, they are automatically merged into every page-specific file, making them available on all pages.
 2. **Page-specific** translations live under `/locales/pages/...`, matching your Nuxt pages folder structure:
+
 ```tree
 locales/
 ├── en.json
@@ -52,7 +53,7 @@ In your `.vue` files, you can directly use `$t` in the template:
 const { $t } = useI18n()
 
 // You can now use $t in your script, for example:
-console.log($t('test_key'))  // "Hello World!"
+console.log($t('test_key')) // "Hello World!"
 </script>
 ```
 
@@ -84,7 +85,7 @@ const { $t, $switchLocale } = useI18n()
 - **Placeholders** allow you to insert dynamic values:
   ```json
   { "greeting": "Hello, {name}!" }
-  ```  
+  ```
   ```vue
   <p>{{ $t('greeting', { name: 'Alice' }) }}</p>
   <!-- Displays: Hello, Alice! -->
@@ -104,8 +105,10 @@ To explore more advanced features, be sure to check out:
 
 1. **`<i18n-t>` Component**  
    The `<i18n-t>` component is a powerful alternative to `$t`, especially useful for situations involving nested elements, advanced placeholder usage, and more complex translation structures.
+
 - **Documentation**: [i18n-t](/components/i18n-t)
 
 2. **`useI18n` Composable**  
    The `useI18n` composable offers a complete set of functions and reactive properties for managing translations, handling locale switching, formatting, and more.
+
 - **Documentation**: [useI18n](/composables/useI18n)

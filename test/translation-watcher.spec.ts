@@ -1,4 +1,4 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { afterAll, describe, expect, setupE2E, test } from './setup/vitest-e2e'
 import {
   patchTranslationWatcherFile,
   refreshTranslationWatcherPage,
@@ -8,21 +8,17 @@ import {
   waitForTranslationPayloadValue,
 } from './helpers/translation-watcher-hmr'
 
-test.describe.configure({ mode: 'serial', timeout: 120_000 })
-
-test.use({
-  nuxt: {
-    rootDir: translationWatcherFixtureRoot,
-    dev: true,
-    setupTimeout: 180_000,
-  },
+await setupE2E({
+  rootDir: translationWatcherFixtureRoot,
+  dev: true,
+  setupTimeout: 180_000,
 })
 
-test.afterAll(() => {
-  restoreTranslationWatcherFiles()
-})
+describe('translation watcher dev HMR (premerged)', () => {
+  afterAll(() => {
+    restoreTranslationWatcherFiles()
+  })
 
-test.describe('translation watcher dev HMR (premerged)', () => {
   test('updates page translations after a page locale file change', async ({ page, goto, baseURL }) => {
     await goto('/en/about', { waitUntil: 'hydration' })
     await expect(page.locator('#about-title')).toHaveText('About EN')

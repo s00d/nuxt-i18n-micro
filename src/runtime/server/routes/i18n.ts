@@ -34,9 +34,10 @@ export default defineEventHandler(async (event) => {
   setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')
 
   // Skip long-lived Cache-Control in dev so HMR / live edits are not stuck in the browser cache.
-  // Production: dateBuild (`?v=...`) invalidates URLs on deploy, so immutable is safe.
+  // Production: `immutable` is only safe when dateBuild (`?v=...`) busts the URL on deploy;
+  // without it we emit a plain max-age that revalidates instead of pinning stale payloads.
   if (!import.meta.dev) {
-    const cacheControl = buildTranslationPayloadCacheControl(config.httpCacheDuration)
+    const cacheControl = buildTranslationPayloadCacheControl(config.httpCacheDuration, Boolean(config.dateBuild))
     if (cacheControl) {
       setResponseHeader(event, 'Cache-Control', cacheControl)
     }

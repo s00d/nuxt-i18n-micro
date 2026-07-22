@@ -1,15 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('custom-regex'),
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
-  // },
-})
+await setupE2E({ shared: 'custom-regex' })
 
-test.describe('custom-regex', () => {
+describe('custom-regex', () => {
   test('test 404 on unknown locale', async ({ goto }) => {
     const response = await goto('/un-kn', { waitUntil: 'networkidle' })
     expect(response?.status()).toBe(404)

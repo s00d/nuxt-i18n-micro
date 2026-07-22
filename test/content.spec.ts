@@ -1,9 +1,6 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('content'),
-})
+await setupE2E({ shared: 'content' })
 
 async function switchLocale(page: import('@playwright/test').Page, localeClass: string) {
   const switcher = page.locator('#locale-switcher button')
@@ -17,10 +14,8 @@ async function switchLocale(page: import('@playwright/test').Page, localeClass: 
   await localeOption.click()
 }
 
-test.describe('content', () => {
+describe('content', () => {
   test('Test About Page', async ({ page, goto }) => {
-    test.setTimeout(60000)
-
     await goto('/about', { waitUntil: 'hydration' })
 
     await expect(page).toHaveURL('/about')
@@ -44,8 +39,6 @@ test.describe('content', () => {
   })
 
   test('Test cs About Page', async ({ page, goto }) => {
-    test.setTimeout(60000)
-
     await goto('/about', { waitUntil: 'hydration' })
 
     await switchLocale(page, '.switcher-locale-cs')

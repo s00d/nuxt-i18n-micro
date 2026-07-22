@@ -1,7 +1,7 @@
 ---
-title: "Server-Side Translations and Locale Information in Nuxt I18n Micro"
-description: "Server-side translations and locale data."
-outline: "deep"
+title: 'Server-Side Translations and Locale Information in Nuxt I18n Micro'
+description: 'Server-side translations and locale data.'
+outline: 'deep'
 ---
 
 # 🌍 Server-Side Translations and Locale Information in Nuxt I18n Micro
@@ -34,6 +34,7 @@ The locale detection logic is shared between both middleware functions through t
 You can seamlessly translate content in any `eventHandler` by using the translation middleware.
 
 ### Example: Basic Translation Usage
+
 ```typescript
 import { defineEventHandler } from 'h3'
 
@@ -46,6 +47,7 @@ export default defineEventHandler(async (event) => {
 ```
 
 In this example:
+
 - The user's locale is detected automatically from query parameters, cookies, or headers.
 - The `t` function retrieves the appropriate translation for the detected locale.
 
@@ -58,11 +60,11 @@ import { defineEventHandler } from 'h3'
 
 export default defineEventHandler((event) => {
   const localeInfo = useLocaleServerMiddleware(event)
-  
+
   return {
     success: true,
     data: localeInfo,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 })
 ```
@@ -75,11 +77,11 @@ import { defineEventHandler } from 'h3'
 export default defineEventHandler((event) => {
   // Force specific locale with custom default
   const localeInfo = useLocaleServerMiddleware(event, 'en', 'ru')
-  
+
   return {
     success: true,
     data: localeInfo,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 })
 ```
@@ -90,13 +92,13 @@ The locale middleware returns a `LocaleInfo` object with the following propertie
 
 ```typescript
 interface LocaleInfo {
-  current: string        // Current detected locale code
-  default: string        // Default locale code
-  fallback: string       // Fallback locale code
-  available: string[]    // Array of all available locale codes
-  locale: Locale | null  // Full locale configuration object
-  isDefault: boolean     // Whether current locale is the default
-  isFallback: boolean    // Whether current locale is the fallback
+  current: string // Current detected locale code
+  default: string // Default locale code
+  fallback: string // Fallback locale code
+  available: string[] // Array of all available locale codes
+  locale: Locale | null // Full locale configuration object
+  isDefault: boolean // Whether current locale is the default
+  isFallback: boolean // Whether current locale is the fallback
 }
 ```
 
@@ -128,15 +130,16 @@ interface LocaleInfo {
 If you need to specify a locale manually (e.g., for testing or certain requests), you can pass it to the translation middleware:
 
 ### Example: Custom Locale
+
 ```typescript
 import { defineEventHandler } from 'h3'
 
 function detectLocale(event): string | null {
-  const urlSearchParams = new URLSearchParams(event.node.req.url?.split('?')[1]);
-  const localeFromQuery = urlSearchParams.get('locale');
-  if (localeFromQuery) return localeFromQuery;
+  const urlSearchParams = new URLSearchParams(event.node.req.url?.split('?')[1])
+  const localeFromQuery = urlSearchParams.get('locale')
+  if (localeFromQuery) return localeFromQuery
 
-  return 'en';
+  return 'en'
 }
 
 export default defineEventHandler(async (event) => {
@@ -168,7 +171,7 @@ flowchart TB
     F -->|No| G{Default Locale?}
     G -->|Configured| Z5[Use Default]
     G -->|No| H["Use 'en'"]
-    
+
     Z --> I[Return Locale]
     Z2 --> I
     Z3 --> I
@@ -196,29 +199,29 @@ import { defineEventHandler } from 'h3'
 
 export default defineEventHandler((event) => {
   const { current, isDefault, locale } = useLocaleServerMiddleware(event)
-  
+
   // Return different content based on locale
   if (current === 'ru') {
     return {
       message: 'Привет, мир!',
       locale: current,
-      isDefault
+      isDefault,
     }
   }
-  
+
   if (current === 'de') {
     return {
       message: 'Hallo, Welt!',
       locale: current,
-      isDefault
+      isDefault,
     }
   }
-  
+
   // Default English response
   return {
     message: 'Hello, World!',
     locale: current,
-    isDefault
+    isDefault,
   }
 })
 ```
@@ -231,11 +234,11 @@ import { defineEventHandler } from 'h3'
 export default defineEventHandler((event) => {
   // Force German locale with English as fallback
   const { current, isDefault, locale } = useLocaleServerMiddleware(event, 'en', 'de')
-  
+
   return {
     message: 'Hallo, Welt!',
     locale: current,
-    isDefault: false // Will be false since we forced German
+    isDefault: false, // Will be false since we forced German
   }
 })
 ```
@@ -247,21 +250,21 @@ import { defineEventHandler, createError } from 'h3'
 
 export default defineEventHandler((event) => {
   const { current, available, locale } = useLocaleServerMiddleware(event)
-  
+
   // Validate if the detected locale is supported
   if (!available.includes(current)) {
     throw createError({
       statusCode: 400,
-      statusMessage: `Unsupported locale: ${current}. Available locales: ${available.join(', ')}`
+      statusMessage: `Unsupported locale: ${current}. Available locales: ${available.join(', ')}`,
     })
   }
-  
+
   // Return locale-specific configuration
   return {
     locale: current,
     direction: locale?.dir || 'ltr',
     displayName: locale?.displayName || current,
-    availableLocales: available
+    availableLocales: available,
   }
 })
 ```
@@ -276,12 +279,12 @@ import { defineEventHandler } from 'h3'
 export default defineEventHandler(async (event) => {
   const localeInfo = useLocaleServerMiddleware(event)
   const t = await useTranslationServerMiddleware(event)
-  
+
   return {
     locale: localeInfo.current,
     message: t('welcome_message'),
     availableLocales: localeInfo.available,
-    isDefault: localeInfo.isDefault
+    isDefault: localeInfo.isDefault,
   }
 })
 ```

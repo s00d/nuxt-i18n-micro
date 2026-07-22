@@ -1,7 +1,7 @@
 ---
-title: "Layers in `Nuxt I18n Micro`"
-description: "Locale settings across Nuxt layers."
-outline: "deep"
+title: 'Layers in `Nuxt I18n Micro`'
+description: 'Locale settings across Nuxt layers.'
+outline: 'deep'
 ---
 
 # 🗂️ Layers in `Nuxt I18n Micro`
@@ -19,22 +19,22 @@ flowchart TB
         P2["defaultLocale: en"]
         P3["meta: true"]
     end
-    
+
     subgraph Admin["👔 Admin Layer"]
         A1["extends: ../nuxt.config"]
         A2["+ locale: es"]
         A3["meta: false"]
     end
-    
+
     subgraph Support["🎧 Support Layer"]
         S1["extends: ../nuxt.config"]
         S2["+ locale: de"]
         S3["defaultLocale: de"]
     end
-    
+
     Primary --> Admin
     Primary --> Support
-    
+
     Admin --> AR["Result: en, fr, es<br/>default: en<br/>meta: false"]
     Support --> SR["Result: en, fr, de<br/>default: de<br/>meta: true"]
 ```
@@ -165,6 +165,7 @@ export default defineNuxtConfig({
 ```
 
 In this modular example:
+
 - Each section (admin, support) has its own i18n settings, but they all inherit the base configuration.
 - The admin panel adds Spanish (`es`) as a locale and disables meta tag generation.
 - The support portal adds German (`de`) as a locale and defaults to German for the user interface.

@@ -1,17 +1,17 @@
 ---
-title: "Migration from nuxt-i18n"
-description: "Migrate from @nuxtjs/i18n to Nuxt I18n Micro."
-outline: "deep"
+title: 'Migration from nuxt-i18n'
+description: 'Migrate from @nuxtjs/i18n to Nuxt I18n Micro.'
+outline: 'deep'
 ---
 
 # 🔄 Migrating from `nuxt-i18n` to `Nuxt I18n Micro`
 
 ## Which guide do you need?
 
-| You are migrating from… | Guide |
-|---|---|
-| `@nuxtjs/i18n` (vue-i18n based module) | **This page** |
-| `nuxt-i18n-micro` v2.x | [Upgrading from v2.x to v3.x](/guide/v3-upgrade) |
+| You are migrating from…                | Guide                                            |
+| -------------------------------------- | ------------------------------------------------ |
+| `@nuxtjs/i18n` (vue-i18n based module) | **This page**                                    |
+| `nuxt-i18n-micro` v2.x                 | [Upgrading from v2.x to v3.x](/guide/v3-upgrade) |
 
 ## Why Migrate?
 
@@ -21,13 +21,13 @@ outline: "deep"
 
 ## Key Differences
 
-| Feature | `nuxt-i18n` | `Nuxt I18n Micro` |
-|---------|------------|-------------------|
-| Translation files | JS/TS/JSON, loaded via `vueI18n` | JSON only, auto-generated in dev |
-| Route generation | Runtime | Build-time (`@i18n-micro/route-strategy`) |
-| Translation loading | Bundled into JS | Lazy-loaded JSON per page |
-| Locale state | `useI18n()` from `vue-i18n` | `useI18nLocale()` composable |
-| `detectBrowserLanguage` | Supported | Use `autoDetectLanguage` instead |
+| Feature                 | `nuxt-i18n`                      | `Nuxt I18n Micro`                         |
+| ----------------------- | -------------------------------- | ----------------------------------------- |
+| Translation files       | JS/TS/JSON, loaded via `vueI18n` | JSON only, auto-generated in dev          |
+| Route generation        | Runtime                          | Build-time (`@i18n-micro/route-strategy`) |
+| Translation loading     | Bundled into JS                  | Lazy-loaded JSON per page                 |
+| Locale state            | `useI18n()` from `vue-i18n`      | `useI18nLocale()` composable              |
+| `detectBrowserLanguage` | Supported                        | Use `autoDetectLanguage` instead          |
 
 ## Step-by-Step
 

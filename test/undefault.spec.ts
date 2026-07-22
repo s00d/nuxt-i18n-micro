@@ -1,22 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('undefault'),
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
-  // },
-})
+await setupE2E({ shared: 'undefault' })
 
-test.describe('undefault', () => {
-  test.beforeEach(({ page }) => {
-    page.on('console', (msg) => {
-      const text = msg.text()
-      if (text.includes('[path-strategy]') || text.includes('[i18n')) console.log('[browser]', msg.type(), text)
-    })
-  })
-
+describe('undefault', () => {
   test('test redirection and link clicks in English', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
     // Navigate to /page2, should redirect to /en/custom-page2-en

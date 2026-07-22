@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('seo-og-locale-format'),
-})
+await setupE2E({ shared: 'seo-og-locale-format' })
 
-test.describe('locale.og', () => {
+describe('locale.og', () => {
   test('og:locale uses locale.og; html lang and hreflang stay BCP 47 from iso', async ({ page, goto }) => {
     await goto('/en', { waitUntil: 'domcontentloaded' })
 
@@ -43,7 +40,7 @@ test.describe('locale.og', () => {
   })
 })
 
-test.describe('og:locale SSR and unresolved locales (#230)', () => {
+describe('og:locale SSR and unresolved locales (#230)', () => {
   test('SSR: og:locale uses explicit og and iso-derived format', async ({ request }) => {
     const en = await request.get('/en')
     expect(en.status()).toBe(200)

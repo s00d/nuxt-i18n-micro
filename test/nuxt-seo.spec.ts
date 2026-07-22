@@ -1,9 +1,6 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('nuxt-seo'),
-})
+await setupE2E({ shared: 'nuxt-seo' })
 
 function extractSitemapLocs(xml: string): string[] {
   return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]!)
@@ -28,9 +25,7 @@ function extractJsonLd(html: string): unknown[] {
   return scripts.map((match) => JSON.parse(match[1]!))
 }
 
-test.describe('@nuxtjs/seo integration (#133)', () => {
-  test.setTimeout(process.env.CI ? 120_000 : 60_000)
-
+describe('@nuxtjs/seo integration (#133)', () => {
   test('builds and serves localized pages without plugin dependency error', async ({ page, goto }) => {
     await goto('/en', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/en')

@@ -1,14 +1,13 @@
 import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-// Test: pages: false with i18n (prefix_except_default strategy)
-// Note: With pages: false, redirect functionality is limited because
-// the router doesn't have page-based routes to redirect to.
-await setupE2E({ shared: 'pages-false' })
+// Test: pages: false with no_prefix strategy.
+// This is the recommended approach for pages: false.
+await setupE2E({ shared: 'pages-false-no-prefix' })
 
-describe('pages: false with i18n (prefix_except_default)', () => {
+describe('pages: false with i18n (no_prefix)', () => {
   // Fresh browser context per test — cookies start clean.
 
-  test('prefix_except_default: renders default locale content on root path', async ({ page, goto }) => {
+  test('no_prefix: renders default locale content on root path', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 
     // Should show English content (default locale)
@@ -16,7 +15,7 @@ describe('pages: false with i18n (prefix_except_default)', () => {
     await expect(page.locator('#greeting')).toHaveText('Hello')
   })
 
-  test('prefix_except_default: respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
+  test('no_prefix: respects cookie locale and shows correct translations', async ({ page, goto, baseURL }) => {
     // Set Chinese locale cookie
     await page.context().addCookies([
       {
@@ -28,13 +27,16 @@ describe('pages: false with i18n (prefix_except_default)', () => {
 
     await goto('/', { waitUntil: 'hydration' })
 
-    // With pages: false and prefix_except_default, there's no redirect
-    // but translations should still work based on cookie
+    // With no_prefix, locale is determined by cookie
     await expect(page.locator('#locale')).toHaveText('zh')
     await expect(page.locator('#greeting')).toHaveText('你好')
   })
 
-  test('prefix_except_default: handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
+  // Note: Client-side locale switching with pages: false requires
+  // a page reload because the router doesn't have routes to trigger
+  // translation reloading. This is a known limitation.
+
+  test('no_prefix: handles invalid cookie gracefully', async ({ page, goto, baseURL }) => {
     // Set invalid locale cookie
     await page.context().addCookies([
       {
@@ -47,15 +49,6 @@ describe('pages: false with i18n (prefix_except_default)', () => {
     await goto('/', { waitUntil: 'hydration' })
 
     // Should fallback to default locale (en), not throw error
-    await expect(page.locator('#locale')).toHaveText('en')
-    await expect(page.locator('#greeting')).toHaveText('Hello')
-  })
-
-  test('prefix_except_default: handles cleared cookie gracefully', async ({ page, goto }) => {
-    // No cookie set
-    await goto('/', { waitUntil: 'hydration' })
-
-    // Should use default locale (en), not throw error
     await expect(page.locator('#locale')).toHaveText('en')
     await expect(page.locator('#greeting')).toHaveText('Hello')
   })

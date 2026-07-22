@@ -1,12 +1,12 @@
 ---
 titleTemplate: false
-title: "Nuxt I18n Micro"
-description: "Fast, lightweight i18n for Nuxt with strategy-based routing."
+title: 'Nuxt I18n Micro'
+description: 'Fast, lightweight i18n for Nuxt with strategy-based routing.'
 layout: home
 
 hero:
-  name: "Nuxt I18n Micro"
-  text: "Fast, Simple, and Lightweight Internationalization for Nuxt"
+  name: 'Nuxt I18n Micro'
+  text: 'Fast, Simple, and Lightweight Internationalization for Nuxt'
   tagline: Optimize your Nuxt app with a powerful and efficient i18n solution.
   image:
     src: /logo.svg
@@ -56,42 +56,48 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 > **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
 
 ::: details **plain-nuxt** (baseline)
+
 - **Build Time**: 6.50 seconds
 - **Max CPU Usage**: 195.10%
 - **Max Memory Usage**: 744.58 MB
-:::
+  :::
 
 ::: details **Nuxt I18n v10**
+
 - **Build Time**: 82.26 seconds
 - **Max CPU Usage**: 419.20%
 - **Max Memory Usage**: 9,117.41 MB
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Build Time**: 14.95 seconds — **82% faster than i18n v10**
 - **Max CPU Usage**: 243.00% — **42% lower than i18n v10**
 - **Max Memory Usage**: 1,174.55 MB — **87% less memory than i18n v10**
-:::
+  :::
 
 #### 🌐 Server Performance (Stress Test)
 
 ::: details **plain-nuxt** (baseline)
+
 - **Requests per Second**: 274 RPS (Artillery)
 - **Average Response Time**: 453.20 ms
 - **Max Memory Usage**: 324.30 MB
-:::
+  :::
 
 ::: details **Nuxt I18n v10**
+
 - **Requests per Second**: 51 RPS (Artillery)
 - **Average Response Time**: 1,177.10 ms
 - **Max Memory Usage**: 1,094.72 MB
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Requests per Second**: 278 RPS (Artillery) — **5.4x more than i18n v10**
 - **Average Response Time**: 437.20 ms — **63% faster than i18n v10**
 - **Max Memory Usage**: 274.70 MB — **75% less memory than i18n v10**
-:::
+  :::
 
 These results clearly demonstrate that `Nuxt I18n Micro` significantly outperforms the original module in every critical area while staying close to the plain Nuxt baseline.
 
@@ -115,9 +121,7 @@ Then, add it to your `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: [
-    'nuxt-i18n-micro',
-  ],
+  modules: ['nuxt-i18n-micro'],
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr' },
@@ -137,18 +141,18 @@ That's it! You're now ready to use **Nuxt I18n Micro** in your Nuxt app.
 
 Starting from v2.14+/v3.0.0, the i18n-micro ecosystem includes standalone packages for other frameworks and tools:
 
-| Package | Description |
-|---------|-------------|
-| [`@i18n-micro/vue`](https://www.npmjs.com/package/@i18n-micro/vue) | Vue 3 integration (standalone, without Nuxt) |
-| [`@i18n-micro/react`](https://www.npmjs.com/package/@i18n-micro/react) | React integration |
-| [`@i18n-micro/solid`](https://www.npmjs.com/package/@i18n-micro/solid) | SolidJS integration |
-| [`@i18n-micro/preact`](https://www.npmjs.com/package/@i18n-micro/preact) | Preact integration |
-| [`@i18n-micro/astro`](https://www.npmjs.com/package/@i18n-micro/astro) | Astro integration |
-| [`@i18n-micro/node`](https://www.npmjs.com/package/@i18n-micro/node) | Node.js server-side loader |
-| [`@i18n-micro/core`](https://www.npmjs.com/package/@i18n-micro/core) | Core utilities (shared by all packages) |
-| [`@i18n-micro/types`](https://www.npmjs.com/package/@i18n-micro/types) | TypeScript type definitions |
+| Package                                                                                    | Description                                           |
+| ------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| [`@i18n-micro/vue`](https://www.npmjs.com/package/@i18n-micro/vue)                         | Vue 3 integration (standalone, without Nuxt)          |
+| [`@i18n-micro/react`](https://www.npmjs.com/package/@i18n-micro/react)                     | React integration                                     |
+| [`@i18n-micro/solid`](https://www.npmjs.com/package/@i18n-micro/solid)                     | SolidJS integration                                   |
+| [`@i18n-micro/preact`](https://www.npmjs.com/package/@i18n-micro/preact)                   | Preact integration                                    |
+| [`@i18n-micro/astro`](https://www.npmjs.com/package/@i18n-micro/astro)                     | Astro integration                                     |
+| [`@i18n-micro/node`](https://www.npmjs.com/package/@i18n-micro/node)                       | Node.js server-side loader                            |
+| [`@i18n-micro/core`](https://www.npmjs.com/package/@i18n-micro/core)                       | Core utilities (shared by all packages)               |
+| [`@i18n-micro/types`](https://www.npmjs.com/package/@i18n-micro/types)                     | TypeScript type definitions                           |
 | [`@i18n-micro/types-generator`](https://www.npmjs.com/package/@i18n-micro/types-generator) | Auto-generate TypeScript types from translation files |
-| [`@i18n-micro/test-utils`](https://www.npmjs.com/package/@i18n-micro/test-utils) | Testing utilities |
+| [`@i18n-micro/test-utils`](https://www.npmjs.com/package/@i18n-micro/test-utils)           | Testing utilities                                     |
 
 ## 🗂 Folder Structure
 

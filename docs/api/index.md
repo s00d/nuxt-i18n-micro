@@ -1,6 +1,6 @@
 ---
-title: "API Reference"
-description: "Runtime methods, events, translation cache, and server middleware."
+title: 'API Reference'
+description: 'Runtime methods, events, translation cache, and server middleware.'
 ---
 
 # API Reference

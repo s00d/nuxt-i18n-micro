@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('define-i18n-route'),
-})
+await setupE2E({ shared: 'define-i18n-route' })
 
-test.describe('$defineI18nRoute behavior', () => {
+describe('$defineI18nRoute behavior', () => {
   test('should generate alternates only for specified locales in $defineI18nRoute', async ({ page, goto }) => {
     // Navigate to test page that uses $defineI18nRoute with locales: ['en']
     await goto('/test', { waitUntil: 'domcontentloaded' })
@@ -110,7 +107,7 @@ test.describe('$defineI18nRoute behavior', () => {
   })
 })
 
-test.describe('$setI18nRouteParams behavior', () => {
+describe('$setI18nRouteParams behavior', () => {
   test('should use correct slug from $setI18nRouteParams when switching from English to Spanish', async ({ page, goto }) => {
     // Navigate to English product page
     await goto('/our-products/coffee-filter-en', { waitUntil: 'domcontentloaded' })
@@ -150,7 +147,7 @@ test.describe('$setI18nRouteParams behavior', () => {
   })
 })
 
-test.describe('Product index page with localeRoutes', () => {
+describe('Product index page with localeRoutes', () => {
   test('should be accessible via localized routes', async ({ page, goto }) => {
     // Test English route
     await goto('/our-products', { waitUntil: 'domcontentloaded' })
@@ -308,7 +305,7 @@ test.describe('Product index page with localeRoutes', () => {
   })
 })
 
-test.describe('Product detail page with localeRoutes', () => {
+describe('Product detail page with localeRoutes', () => {
   test('should have correct meta tags for English product detail page', async ({ page, goto, baseURL }) => {
     await goto('/our-products/coffee-filter-en', { waitUntil: 'hydration' })
 
@@ -344,7 +341,7 @@ test.describe('Product detail page with localeRoutes', () => {
   })
 })
 
-test.describe('Product detail SSR and SPA meta timing', () => {
+describe('Product detail SSR and SPA meta timing', () => {
   test('SSR: hreflang alternates use locale-specific slugs on English product detail', async ({ request }) => {
     const res = await request.get('/our-products/coffee-filter-en')
     expect(res.status()).toBe(200)

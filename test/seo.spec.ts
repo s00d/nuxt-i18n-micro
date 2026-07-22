@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('seo'),
-})
+await setupE2E({ shared: 'seo' })
 
-test.describe('SEO with strategy: prefix', () => {
+describe('SEO with strategy: prefix', () => {
   test('should include only whitelisted query params in canonical and og:url', async ({ page, goto }) => {
     await goto('/en/contact?q=hello&page=2&foo=ignore', { waitUntil: 'domcontentloaded' })
 

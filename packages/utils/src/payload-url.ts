@@ -45,11 +45,17 @@ export function buildTranslationPayloadFetchRequest(input: TranslationPayloadFet
 
 /**
  * Builds `Cache-Control` for `/{apiBaseUrl}/:page/:locale/data.json`.
- * Safe with `dateBuild` (`?v=...`) cache-busting — long-lived immutable caching for CDN/browsers.
- * Returns `null` when caching should be skipped (`duration <= 0` or undefined).
+ *
+ * `immutable` is only emitted when a cache-buster is active (`hasCacheBuster`),
+ * i.e. requests carry `?v=<dateBuild>`. Without a cache-buster (`dateBuild` set
+ * to `0`/`''`) the URL is stable across deploys, so we fall back to a plain
+ * `max-age` that revalidates instead of pinning stale payloads forever.
+ *
+ * Returns `null` when caching should be skipped — non-positive or non-finite
+ * `duration` (guards `NaN`/`Infinity` from producing a malformed header).
  */
-export function buildTranslationPayloadCacheControl(durationSeconds: number | undefined): string | null {
+export function buildTranslationPayloadCacheControl(durationSeconds: number | undefined, hasCacheBuster = true): string | null {
   const duration = Math.floor(durationSeconds ?? 0)
-  if (duration <= 0) return null
-  return `public, max-age=${duration}, immutable`
+  if (!Number.isFinite(duration) || duration <= 0) return null
+  return hasCacheBuster ? `public, max-age=${duration}, immutable` : `public, max-age=${duration}`
 }

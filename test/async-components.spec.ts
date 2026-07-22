@@ -1,15 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('async-components'),
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
-  // },
-})
+await setupE2E({ shared: 'async-components' })
 
-test.describe('async-components', () => {
+describe('async-components', () => {
   test('renders async components test page', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 

@@ -1,21 +1,15 @@
 /**
- * Playwright global setup: prebuilds "shared" fixtures once and starts one
- * production server per fixture. Specs in the `shared` project connect to
- * these servers via the @nuxt/test-utils `host` option instead of each
- * building the fixture from scratch (which used to mean ~45 full Nuxt
- * builds per run).
+ * Runner-agnostic build + serve core for shared fixtures.
  *
- * - Builds are cached: a stat-based hash of the fixture sources, the module
- *   sources (src/ and package dist dirs) and the lockfile is stored next to
- *   the build output; unchanged fixtures are not rebuilt. Cached builds are
- *   also checked against Nitro public-asset sizes so a truncated/corrupt
- *   `_nuxt` chunk forces a rebuild (avoids SPA hydration hanging on SyntaxError).
- * - When specific spec files are passed on the CLI, only the fixtures those
- *   specs need are built.
- * - Set SHARED_FIXTURES=0 to disable prebuilds entirely (specs then fall
- *   back to the old per-worker builds via useSharedFixture()).
+ * Extracted from the former Playwright `global-setup.ts` so both the Playwright
+ * globalSetup (during migration) and the Vitest globalSetup can prebuild
+ * fixtures once and start one production server per fixture, then hand specs a
+ * `host` URL instead of each rebuilding the fixture.
+ *
+ * Build caching, corruption checks and concurrency behaviour are unchanged —
+ * only the transport of the resulting `{ fixture -> url }` map differs per
+ * runner (env var + return value here; Vitest `provide` on top).
  */
-import type { FullConfig } from '@playwright/test'
 import { type ChildProcess, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync } from 'node:fs'
@@ -202,7 +196,7 @@ function waitForPort(port: number, timeoutMs = 30_000): Promise<void> {
   })
 }
 
-async function startFixtureServer(name: string): Promise<void> {
+async function startFixtureServer(name: string): Promise<[string, string]> {
   const port = await getFreePort()
   const serverEntry = join(buildDirFor(name), 'output', 'server', 'index.mjs')
   // Same env contract as @nuxt/test-utils' startServer
@@ -218,17 +212,20 @@ async function startFixtureServer(name: string): Promise<void> {
   const url = `http://127.0.0.1:${port}/`
   servers.push({ child, url })
   await waitForPort(port)
+  // Keep the env contract too, so any code path still reading it works.
   process.env[envKey(name)] = url
+  return [name, url]
 }
 
-async function runPool<T>(items: T[], limit: number, fn: (item: T) => Promise<void>): Promise<void> {
-  const queue = [...items]
+async function runPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const queue = items.map((item, index) => [index, item] as const)
+  const results: R[] = new Array(items.length)
   const errors: unknown[] = []
   const workers = Array.from({ length: Math.min(limit, queue.length) }, async () => {
     while (queue.length > 0) {
-      const item = queue.shift()!
+      const [index, item] = queue.shift()!
       try {
-        await fn(item)
+        results[index] = await fn(item)
       } catch (error) {
         errors.push(error)
       }
@@ -236,52 +233,55 @@ async function runPool<T>(items: T[], limit: number, fn: (item: T) => Promise<vo
   })
   await Promise.all(workers)
   if (errors.length > 0) throw errors[0]
+  return results
 }
 
 /** When spec files are passed on the CLI, only build the fixtures they need. */
-function requestedFixtures(): string[] {
+export function requestedFixtures(): string[] {
   const all = Object.keys(SHARED_FIXTURES)
-  const fileArgs = process.argv.slice(2).filter((arg) => !arg.startsWith('-') && arg.includes('.spec.'))
+  const fileArgs = process.argv.slice(2).filter((arg) => !arg.startsWith('-') && (arg.includes('.spec.') || arg.includes('.e2e.')))
   if (fileArgs.length === 0) return all
   return all.filter((name) => SHARED_FIXTURES[name]!.some((spec) => fileArgs.some((arg) => arg.endsWith(spec) || arg.includes(spec))))
 }
 
-export default async function globalSetup(_config: FullConfig): Promise<() => Promise<void>> {
-  const teardown = async () => {
-    await Promise.all(
-      servers.map(
-        ({ child }) =>
-          new Promise<void>((resolvePromise) => {
-            child.once('exit', () => resolvePromise())
-            child.kill('SIGTERM')
-            setTimeout(() => {
-              child.kill('SIGKILL')
-              resolvePromise()
-            }, 5000).unref()
-          }),
-      ),
-    )
-  }
+/** Tear down all running fixture servers. */
+export async function stopServers(): Promise<void> {
+  await Promise.all(
+    servers.splice(0).map(
+      ({ child }) =>
+        new Promise<void>((resolvePromise) => {
+          child.once('exit', () => resolvePromise())
+          child.kill('SIGTERM')
+          setTimeout(() => {
+            child.kill('SIGKILL')
+            resolvePromise()
+          }, 5000).unref()
+        }),
+    ),
+  )
+}
 
+/**
+ * Build (if needed) and start one server per requested fixture.
+ * Returns a `{ fixtureName -> baseURL }` map. No-op map when SHARED_FIXTURES=0.
+ */
+export async function buildAndServe(names: string[] = requestedFixtures()): Promise<Record<string, string>> {
   if (process.env.SHARED_FIXTURES === '0') {
     console.log('[shared-fixtures] disabled via SHARED_FIXTURES=0, specs will build their own fixtures')
-    return teardown
+    return {}
   }
-
-  const names = requestedFixtures()
-  if (names.length === 0) return teardown
+  if (names.length === 0) return {}
 
   const started = Date.now()
   const concurrency = Number(process.env.FIXTURE_BUILD_CONCURRENCY) || Math.max(2, Math.floor(cpus().length / 2))
 
   try {
     await runPool(names, concurrency, ensureBuilt)
-    await runPool(names, 8, startFixtureServer)
+    const entries = await runPool(names, 8, startFixtureServer)
+    console.log(`[shared-fixtures] ${names.length} fixture server(s) ready in ${((Date.now() - started) / 1000).toFixed(1)}s`)
+    return Object.fromEntries(entries)
   } catch (error) {
-    await teardown()
+    await stopServers()
     throw error
   }
-
-  console.log(`[shared-fixtures] ${names.length} fixture server(s) ready in ${((Date.now() - started) / 1000).toFixed(1)}s`)
-  return teardown
 }

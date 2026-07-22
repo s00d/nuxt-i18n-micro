@@ -1,6 +1,6 @@
 ---
-title: "Translation Cache & Storage Architecture"
-description: "Translation cache layers and payload modes in v3."
+title: 'Translation Cache & Storage Architecture'
+description: 'Translation cache layers and payload modes in v3.'
 ---
 
 # 🗄️ Translation Cache & Storage Architecture
@@ -57,12 +57,12 @@ A singleton class that provides unified translation storage for both client and 
 
 **Key methods:**
 
-| Method | Description |
-|--------|-------------|
-| `getFromCache(locale, routeName?)` | Synchronous check: returns cached in-memory data, or `null` |
-| `seedFromSsrChunks(chunks)` | Seeds cache from `useState('i18n-ssr-chunks')` on client hydration |
+| Method                              | Description                                                            |
+| ----------------------------------- | ---------------------------------------------------------------------- |
+| `getFromCache(locale, routeName?)`  | Synchronous check: returns cached in-memory data, or `null`            |
+| `seedFromSsrChunks(chunks)`         | Seeds cache from `useState('i18n-ssr-chunks')` on client hydration     |
 | `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
-| `clear()` | Clears the entire cache |
+| `clear()`                           | Clears the entire cache                                                |
 
 **Cache key format**: `{locale}:{routeName}` (e.g., `en:index`, `fr:about`)
 
@@ -76,13 +76,14 @@ const cached = translationStorage.getFromCache('en', 'index')
 const result = await translationStorage.load('en', 'index', {
   apiBaseUrl: '_locales',
   baseURL: '/',
-  dateBuild: '2024-01-01'
+  dateBuild: '2024-01-01',
 })
 // result.data — merged translations
 // result.cacheKey — cache key used
 ```
 
 ### ⚙️ Deterministic Cache Busting (`i18n.dateBuild`)
+
 By default, this module generates `dateBuild` during build time using `Date.now()`. It is then embedded into the generated `#build/i18n.strategy.mjs` and used as a query parameter (`?v=...`) to invalidate translation fetch caches after rebuilds.
 
 If you need reproducible builds (for example, to improve chunk cache hit rates in rolling deployments), set a stable value in `nuxt.config`:
@@ -91,8 +92,8 @@ If you need reproducible builds (for example, to improve chunk cache hit rates i
 export default defineNuxtConfig({
   i18n: {
     // Any stable string/number (git SHA, CI build number, release tag, etc.)
-    dateBuild: process.env.GIT_SHA ?? 'local-dev'
-  }
+    dateBuild: process.env.GIT_SHA ?? 'local-dev',
+  },
 })
 ```
 
@@ -104,10 +105,10 @@ Loads translations for a locale/page and caches the merged result in a process-g
 
 Behavior depends on `translationPayloads.mode`:
 
-| Mode | Server behavior |
-|------|-----------------|
+| Mode                      | Server behavior                                                                                                                                                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`premerged`** (default) | Reads a single pre-built file from Nitro storage (`assets:i18n`). Merging (root + page + fallback chains + layers) was done at build time by `preMergeLocales` in `@i18n-micro/utils/build` (invoked from `src/module.ts`). |
-| **`source`** | Reads compact source files from Nitro storage and merges root/page/fallback at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`. |
+| **`source`**              | Reads compact source files from Nitro storage and merges root/page/fallback at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`.                                                          |
 
 ```typescript
 import { loadTranslationsFromServer } from '../server/utils/server-loader'
@@ -211,6 +212,7 @@ $clearCache()
 ### Server cache behavior
 
 The server-side cache (`loadTranslationsFromServer`) is process-global and persists until:
+
 - The server process restarts
 - A new deployment is detected (different `dateBuild` value)
 
@@ -229,22 +231,22 @@ export default defineNuxtConfig({
       // Only needed if default file-system storage is unavailable
       'assets:server': {
         driver: 'cloudflare-kv-binding',
-        binding: 'MY_KV_NAMESPACE'
-      }
-    }
-  }
+        binding: 'MY_KV_NAMESPACE',
+      },
+    },
+  },
 })
 ```
 
 ## 💡 Key Differences from v2
 
-| Aspect | v2 | v3 |
-|--------|----|----|
-| Client cache | `useStorage('cache')` | `TranslationStorage` singleton (Symbol.for on globalThis) |
-| SSR transfer | Runtime config | `useState('i18n-ssr-chunks')` via Nuxt payload |
-| Server cache | Nitro cache storage | Process-global `Map` via `Symbol.for` |
-| Merge logic | Client-side | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
-| Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}` |
+| Aspect           | v2                            | v3                                                                       |
+| ---------------- | ----------------------------- | ------------------------------------------------------------------------ |
+| Client cache     | `useStorage('cache')`         | `TranslationStorage` singleton (Symbol.for on globalThis)                |
+| SSR transfer     | Runtime config                | `useState('i18n-ssr-chunks')` via Nuxt payload                           |
+| Server cache     | Nitro cache storage           | Process-global `Map` via `Symbol.for`                                    |
+| Merge logic      | Client-side                   | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
+| Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}`                                                   |
 
 ## 📚 Related
 

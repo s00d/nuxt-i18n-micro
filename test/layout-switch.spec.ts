@@ -1,12 +1,9 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('layout-switch'),
-})
+await setupE2E({ shared: 'layout-switch' })
 
-test.describe('Layout Switch and Cookie Redirect', () => {
-  test.describe('$switchLocale - layout translations', () => {
+describe('Layout Switch and Cookie Redirect', () => {
+  describe('$switchLocale - layout translations', () => {
     test('layout text should update when switching locale via $switchLocale', async ({ page, goto }) => {
       await goto('/', { waitUntil: 'hydration' })
 
@@ -65,7 +62,7 @@ test.describe('Layout Switch and Cookie Redirect', () => {
     })
   })
 
-  test.describe('Cookie-based redirect', () => {
+  describe('Cookie-based redirect', () => {
     test('should redirect to cookie locale on homepage visit', async ({ page, goto }) => {
       await goto('/', { waitUntil: 'hydration' })
 

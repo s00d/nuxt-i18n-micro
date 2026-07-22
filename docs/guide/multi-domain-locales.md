@@ -1,7 +1,7 @@
 ---
-title: "Setting Up Multi-Domain Locales with `Nuxt I18n Micro` Using Layers"
-description: "Multi-domain locale setup with layers."
-outline: "deep"
+title: 'Setting Up Multi-Domain Locales with `Nuxt I18n Micro` Using Layers'
+description: 'Multi-domain locale setup with layers.'
+outline: 'deep'
 ---
 
 # 🌍 Setting Up Multi-Domain Locales with `Nuxt I18n Micro` Using Layers
@@ -23,31 +23,31 @@ flowchart TB
         B2["defaultLocale: en"]
         B3["translationDir: locales"]
     end
-    
+
     subgraph Domains["🌐 Domain Layers"]
         subgraph FR["fr.example.com"]
             F1["extends: base"]
             F2["defaultLocale: fr"]
             F3["disabled: en, de, es"]
         end
-        
+
         subgraph DE["de.example.com"]
             D1["extends: base"]
             D2["defaultLocale: de"]
             D3["disabled: en, fr, es"]
         end
-        
+
         subgraph EN["example.com"]
             E1["extends: base"]
             E2["defaultLocale: en"]
             E3["disabled: fr, de, es"]
         end
     end
-    
+
     Base --> FR
     Base --> DE
     Base --> EN
-    
+
     FR --> FD["Deploy fr.example.com"]
     DE --> DD["Deploy de.example.com"]
     EN --> ED["Deploy example.com"]
@@ -134,6 +134,7 @@ export default defineNuxtConfig({
 ### 3. **Deploy the Application for Each Domain**
 
 Deploy the application with the appropriate configuration for each domain. For example:
+
 - Deploy the `fr` layer configuration to `fr.example.com`.
 - Deploy the `de` layer configuration to `de.example.com`.
 

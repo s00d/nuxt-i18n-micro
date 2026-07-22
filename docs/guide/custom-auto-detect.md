@@ -1,7 +1,7 @@
 ---
-title: "Custom Language Detection in Nuxt I18n Micro"
-description: "Custom locale detection with useI18nLocale()."
-outline: "deep"
+title: 'Custom Language Detection in Nuxt I18n Micro'
+description: 'Custom locale detection with useI18nLocale().'
+outline: 'deep'
 ---
 
 # 🔧 Custom Language Detection in Nuxt I18n Micro
@@ -45,8 +45,8 @@ If you want full control over locale detection, disable the built-in mechanism:
 ```ts
 export default defineNuxtConfig({
   i18n: {
-    autoDetectLanguage: false
-  }
+    autoDetectLanguage: false,
+  },
 })
 ```
 
@@ -67,9 +67,9 @@ export default defineNuxtConfig({
     locales: [
       { code: 'en', iso: 'en-US' },
       { code: 'de', iso: 'de-DE' },
-      { code: 'ja', iso: 'ja-JP' }
-    ]
-  }
+      { code: 'ja', iso: 'ja-JP' },
+    ],
+  },
 })
 ```
 
@@ -106,7 +106,7 @@ export default defineNuxtPlugin({
 
     // --- APPLY THE LOCALE ---
     setLocale(detectedLocale)
-  }
+  },
 })
 ```
 
@@ -161,6 +161,7 @@ flowchart TB
 :::
 
 **Important notes:**
+
 - Cookie-based locale detection is disabled by default (`localeCookie: null`)
 - Set `localeCookie: 'user-locale'` to enable cookie persistence
 - If the cookie/state value is not in the `locales` list, it falls back to `defaultLocale`
@@ -193,7 +194,7 @@ export default defineNuxtPlugin({
     }
 
     setLocale(detectedLocale)
-  }
+  },
 })
 ```
 
@@ -229,7 +230,7 @@ export default defineNuxtPlugin({
     }
 
     setLocale(detectedLocale)
-  }
+  },
 })
 ```
 
@@ -246,15 +247,16 @@ For locale detection that relies on server headers (`x-country`, `accept-languag
 
 ## ✅ Summary
 
-| Feature | Description |
-|---------|-------------|
-| `useI18nLocale().setLocale()` | Updates `useState` + cookie atomically; works with all strategies |
-| `useI18nLocale().getLocale()` | Returns current locale from state or cookie |
-| `useI18nLocale().getPreferredLocale()` | Returns preferred locale (validated against `locales` list) |
-| Plugin `order: -10` | Ensures your plugin runs before i18n initialization |
-| `enforce: 'pre'` | Runs in the "pre" plugin group |
+| Feature                                | Description                                                       |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| `useI18nLocale().setLocale()`          | Updates `useState` + cookie atomically; works with all strategies |
+| `useI18nLocale().getLocale()`          | Returns current locale from state or cookie                       |
+| `useI18nLocale().getPreferredLocale()` | Returns preferred locale (validated against `locales` list)       |
+| Plugin `order: -10`                    | Ensures your plugin runs before i18n initialization               |
+| `enforce: 'pre'`                       | Runs in the "pre" plugin group                                    |
 
 **Do NOT:**
+
 - Use `useCookie('user-locale')` directly — `useI18nLocale()` manages cookies internally
 - Use `useState('i18n-locale')` directly — use `useI18nLocale().setLocale()` instead
 - Set `order` >= -5 — your plugin must run before the i18n plugin

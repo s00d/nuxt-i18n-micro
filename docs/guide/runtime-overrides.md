@@ -1,6 +1,6 @@
 ---
-title: "Runtime i18n Overrides"
-description: "Per-environment locale defaults at runtime."
+title: 'Runtime i18n Overrides'
+description: 'Per-environment locale defaults at runtime.'
 ---
 
 # Runtime i18n Overrides

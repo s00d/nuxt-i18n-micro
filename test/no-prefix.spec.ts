@@ -1,22 +1,17 @@
 import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
 
-test.use({
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down step execution (in milliseconds) for better visibility
-  // },
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
-    nuxtConfig: {
-      i18n: {
-        strategy: 'no_prefix',
-      },
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({
+  rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
+  nuxtConfig: {
+    i18n: {
+      strategy: 'no_prefix',
     },
   },
 })
 
-test.describe('no_prefix', () => {
+describe('no_prefix', () => {
   test('navigate to test-page, check URL and text, switch language and verify text changes', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })

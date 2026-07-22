@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('transition-merge'),
-})
+await setupE2E({ shared: 'transition-merge' })
 
-test.describe('Cumulative merge: translations survive page transition', () => {
+describe('Cumulative merge: translations survive page transition', () => {
   test('page A translations remain visible during leave animation when navigating to page B', async ({ page, goto }) => {
     // 1. Open page A — verify translations work
     await goto('/en/page-a', { waitUntil: 'hydration' })
@@ -69,7 +66,7 @@ test.describe('Cumulative merge: translations survive page transition', () => {
   })
 })
 
-test.describe('Deep merge: overlapping nested keys survive page transition', () => {
+describe('Deep merge: overlapping nested keys survive page transition', () => {
   /**
    * BUG: shallow spread { ...cachedTranslations, ...data } overwrites nested objects entirely.
    *

@@ -1,7 +1,7 @@
 ---
-title: "Upgrading from v2.x to v3.x"
-description: "Upgrade from v2.x to v3.x."
-outline: "deep"
+title: 'Upgrading from v2.x to v3.x'
+description: 'Upgrade from v2.x to v3.x.'
+outline: 'deep'
 ---
 
 # 📦 Upgrading from v2.x to v3.x
@@ -58,7 +58,7 @@ export default defineNuxtPlugin({
     const { setLocale } = useI18nLocale()
     // Your custom detection logic
     setLocale(detectedLocale)
-  }
+  },
 })
 ```
 
@@ -124,6 +124,7 @@ Redirects are now handled automatically by two components:
 2. **Client-side** (`i18n-redirect.global.ts`): Global route middleware on SPA navigation; preserves query string and hash
 
 Locale priority for redirects:
+
 1. `useState('i18n-locale')` — set via `useI18nLocale().setLocale()`
 2. Cookie — if `localeCookie` is configured
 3. `Accept-Language` header — if `autoDetectLanguage: true`

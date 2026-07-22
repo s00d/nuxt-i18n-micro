@@ -1,4 +1,4 @@
-import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
+import { BaseI18n, type DateTimeFormatsConfig, type NumberFormatsConfig, type TranslationStorage } from '@i18n-micro/core'
 import type { PluralFunc, Translations } from '@i18n-micro/types'
 
 export interface AstroI18nOptions {
@@ -8,6 +8,8 @@ export interface AstroI18nOptions {
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
+  numberFormats?: NumberFormatsConfig
+  datetimeFormats?: DateTimeFormatsConfig
   _storage?: TranslationStorage
 }
 
@@ -15,6 +17,8 @@ export class AstroI18n extends BaseI18n {
   private _locale: string
   private _fallbackLocale: string
   private _currentRoute: string
+  private readonly _numberFormats?: NumberFormatsConfig
+  private readonly _datetimeFormats?: DateTimeFormatsConfig
 
   public readonly storage: TranslationStorage
 
@@ -30,12 +34,16 @@ export class AstroI18n extends BaseI18n {
       plural: options.plural,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
+      numberFormats: options.numberFormats,
+      datetimeFormats: options.datetimeFormats,
     })
 
     this.storage = storage
     this._locale = options.locale
     this._fallbackLocale = options.fallbackLocale || options.locale
     this._currentRoute = 'index'
+    this._numberFormats = options.numberFormats
+    this._datetimeFormats = options.datetimeFormats
 
     if (options.messages) {
       this.initialMessages = { ...options.messages }
@@ -62,6 +70,8 @@ export class AstroI18n extends BaseI18n {
       plural: this.pluralFunc,
       missingWarn: this.missingWarn,
       missingHandler: this.missingHandler,
+      numberFormats: this._numberFormats,
+      datetimeFormats: this._datetimeFormats,
       _storage: isolatedStorage,
     })
   }

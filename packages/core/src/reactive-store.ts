@@ -52,7 +52,10 @@ export function createReactiveI18nStore(options: ReactiveI18nStoreOptions): Reac
       return fallbackLocale
     },
     setFallbackLocale(val) {
-      fallbackLocale = val
+      if (fallbackLocale !== val) {
+        fallbackLocale = val
+        notify()
+      }
     },
     getRoute() {
       return currentRoute

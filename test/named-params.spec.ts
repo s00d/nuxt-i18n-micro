@@ -1,11 +1,8 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('named'),
-})
+await setupE2E({ shared: 'named' })
 
-test.describe('named-params', () => {
+describe('named-params', () => {
   test('test navigation links and buttons', async ({ page, goto }) => {
     // Go to the main page - should redirect to /de (defaultLocale)
     await goto('/', { waitUntil: 'hydration' })

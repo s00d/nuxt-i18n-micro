@@ -1,14 +1,10 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: useSharedFixture('basic'),
-})
+await setupE2E({ shared: 'basic' })
 
-test.describe('Critical i18n scenarios', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.context().clearCookies()
-  })
+describe('Critical i18n scenarios', () => {
+  // Each test gets a fresh browser context (own page), so cookies start clean
+  // without an explicit beforeEach clearCookies (Playwright shared-worker relic).
 
   test('reactivity: computed translations update immediately after locale switch', async ({ page, goto }) => {
     await goto('/page', { waitUntil: 'hydration' })

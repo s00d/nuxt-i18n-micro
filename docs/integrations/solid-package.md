@@ -1,7 +1,7 @@
 ---
-title: "Solid Package (`@i18n-micro/solid`)"
-description: "i18n for SolidJS with @i18n-micro/solid."
-outline: "deep"
+title: 'Solid Package (`@i18n-micro/solid`)'
+description: 'i18n for SolidJS with @i18n-micro/solid.'
+outline: 'deep'
 ---
 
 # Solid Package (`@i18n-micro/solid`)
@@ -349,7 +349,7 @@ function RouterRoot({ children }: { children?: unknown }) {
   const navigate = useNavigate()
   const location = useLocation()
   const routingStrategy = createSolidRouterAdapter(localesConfig, defaultLocale, navigate, location)
-  
+
   // ... rest of your code
 }
 ```
@@ -394,15 +394,15 @@ A router adapter is an implementation of the `I18nRoutingStrategy` interface tha
 
 The `I18nRoutingStrategy` interface defines the following methods:
 
-| Method | Required | Description |
-|--------|----------|-------------|
-| `getCurrentPath()` | ✅ | Returns the current path (used for active link detection) |
+| Method                     | Required                  | Description                                                                                                                                                                         |
+| -------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getCurrentPath()`         | ✅                        | Returns the current path (used for active link detection)                                                                                                                           |
 | `getCurrentPathAccessor()` | ⚠️ **Highly Recommended** | Returns reactive accessor for current path (SolidJS-specific). **Required for proper reactivity** - without this, active link states and path-dependent UI won't update reactively. |
-| `linkComponent` | ❌ | Component to use for rendering links (e.g., `A` from @solidjs/router) |
-| `push(target)` | ❌ | Function to navigate to another route/locale |
-| `replace(target)` | ❌ | Function to replace current route |
-| `resolvePath(to, locale)` | ❌ | Generate path for specific locale |
-| `getRoute()` | ❌ | Returns current route object with query params |
+| `linkComponent`            | ❌                        | Component to use for rendering links (e.g., `A` from @solidjs/router)                                                                                                               |
+| `push(target)`             | ❌                        | Function to navigate to another route/locale                                                                                                                                        |
+| `replace(target)`          | ❌                        | Function to replace current route                                                                                                                                                   |
+| `resolvePath(to, locale)`  | ❌                        | Generate path for specific locale                                                                                                                                                   |
+| `getRoute()`               | ❌                        | Returns current route object with query params                                                                                                                                      |
 
 ### Step-by-Step Guide
 
@@ -416,13 +416,14 @@ Before creating an adapter, understand how your routing works:
 
 #### Step 2: Implement Required Methods
 
-At minimum, you must implement `getCurrentPath()`. 
+At minimum, you must implement `getCurrentPath()`.
 
 **For SolidJS, you MUST also implement `getCurrentPathAccessor()`** - this is critical for proper reactivity. Without it, active link states and any UI that depends on the current path won't update when navigation occurs. The accessor should return a signal that tracks pathname changes.
 
 #### Step 3: Handle Edge Cases
 
 Consider:
+
 - Empty paths (`/`)
 - Root locale (default locale - should it be in URL?)
 - Invalid locales
@@ -451,7 +452,7 @@ export function createCustomRouterAdapter(
   locales: Locale[],
   defaultLocale: string,
 ): I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string> } {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code)
 
   // Create signal to track pathname changes
   const [pathname, setPathname] = createSignal(customRouter.getCurrentPath())
@@ -462,9 +463,9 @@ export function createCustomRouterAdapter(
   })
 
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
-    
+
     if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {
       pathSegments.shift()
     }
@@ -514,7 +515,7 @@ export function createQueryParamRouterAdapter(
   defaultLocale: string,
   paramName: string = 'locale',
 ): I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string> } {
-  const localeCodes = locales.map(loc => loc.code)
+  const localeCodes = locales.map((loc) => loc.code)
 
   const getCurrentPath = (): string => {
     if (typeof window !== 'undefined') {
@@ -535,15 +536,15 @@ export function createQueryParamRouterAdapter(
   }
 
   const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const url = new URL(path, 'http://localhost')
-    
+
     if (locale !== defaultLocale) {
       url.searchParams.set(paramName, locale)
     } else {
       url.searchParams.delete(paramName)
     }
-    
+
     return url.pathname + url.search
   }
 
@@ -606,7 +607,7 @@ createEffect(() => {
 
 ```typescript
 const resolvePath = (to: string | { path?: string }, locale: string): string | { path?: string } => {
-  const path = typeof to === 'string' ? to : (to.path || '/')
+  const path = typeof to === 'string' ? to : to.path || '/'
   const url = new URL(path, 'http://localhost')
   // ... locale switching logic ...
   return url.pathname + url.search + url.hash
@@ -648,14 +649,9 @@ You can extend the built-in adapter and override specific methods:
 ```typescript
 import { createSolidRouterAdapter } from '@i18n-micro/solid'
 
-export function createExtendedAdapter(
-  locales: Locale[],
-  defaultLocale: string,
-  navigate: NavigateFunction,
-  location: Location,
-) {
+export function createExtendedAdapter(locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) {
   const baseAdapter = createSolidRouterAdapter(locales, defaultLocale, navigate, location)
-  
+
   return {
     ...baseAdapter,
     // Override specific method
@@ -671,15 +667,19 @@ export function createExtendedAdapter(
 ### Troubleshooting
 
 **Problem**: Locale not detected correctly
+
 - **Solution**: Check that `getCurrentPath` correctly returns the current path, and `resolvePath` properly handles locale prefixes
 
 **Problem**: Links don't switch locale
+
 - **Solution**: Ensure `push` and `replace` methods correctly update the URL and dispatch events for your router
 
 **Problem**: Active state detection doesn't work
+
 - **Solution**: **You MUST provide `getCurrentPathAccessor`** in your router adapter. Verify it's implemented and returns a signal accessor. The accessor should be called inside `createMemo` for proper reactivity. Without `getCurrentPathAccessor`, active states won't update reactively.
 
 **Problem**: Components don't update when path changes
+
 - **Solution**: **You MUST implement `getCurrentPathAccessor`** in your router adapter. It must return a signal accessor that tracks pathname changes. Components should call it inside reactive contexts (`createMemo`, `createEffect`, JSX). If you're using `createSolidRouterAdapter`, ensure it's called inside a component (not at module level) so `createSignal` and `createEffect` work correctly.
 
 ## Core API
@@ -690,14 +690,14 @@ Creates a SolidJS i18n instance.
 
 **Parameters:**
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `locale` | `string` | ✅ | - | Current locale code (e.g., `'en'`) |
-| `fallbackLocale` | `string` | ❌ | Same as `locale` | Fallback locale when translation is missing |
-| `messages` | `Record<string, Translations>` | ❌ | `{}` | Initial translation messages |
-| `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
-| `missingWarn` | `boolean` | ❌ | `false` | Show console warnings for missing translations |
-| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom handler for missing translations |
+| Property         | Type                                                       | Required | Default          | Description                                    |
+| ---------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------- |
+| `locale`         | `string`                                                   | ✅       | -                | Current locale code (e.g., `'en'`)             |
+| `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
+| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                   |
+| `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
+| `missingWarn`    | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations |
+| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
 
 **Returns:** `SolidI18n`
 
@@ -746,7 +746,9 @@ The core i18n instance class that handles all translation logic.
 Translates a key with optional parameters and fallback value.
 
 ```typescript
-const i18n = createI18n({ /* ... */ })
+const i18n = createI18n({
+  /* ... */
+})
 
 // Basic translation
 i18n.t('welcome') // "Welcome"
@@ -828,9 +830,13 @@ i18n.addTranslations('en', {
 })
 
 // Replace existing (merge = false)
-i18n.addTranslations('en', {
-  welcome: 'New Welcome',
-}, false)
+i18n.addTranslations(
+  'en',
+  {
+    welcome: 'New Welcome',
+  },
+  false,
+)
 ```
 
 ##### `addRouteTranslations(locale: string, routeName: string, translations: Translations, merge?: boolean): void`
@@ -951,19 +957,19 @@ Translation component for rendering translated text.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `keypath` | `TranslationKey` | ✅ | - | Translation key |
-| `plural` | `number \| string` | ❌ | - | Count for pluralization |
-| `tag` | `string` | ❌ | `'span'` | HTML tag to render |
-| `params` | `Record<string, string \| number \| boolean>` | ❌ | `{}` | Parameters for interpolation |
-| `defaultValue` | `string` | ❌ | `''` | Default value if translation is missing |
-| `html` | `boolean` | ❌ | `false` | Render as HTML |
-| `hideIfEmpty` | `boolean` | ❌ | `false` | Hide component if translation is empty |
-| `customPluralRule` | `PluralFunc` | ❌ | - | Custom pluralization function |
-| `number` | `number \| string` | ❌ | - | Number to format and interpolate |
-| `date` | `Date \| string \| number` | ❌ | - | Date to format and interpolate |
-| `relativeDate` | `Date \| string \| number` | ❌ | - | Date for relative time formatting |
+| Prop               | Type                                          | Required | Default  | Description                             |
+| ------------------ | --------------------------------------------- | -------- | -------- | --------------------------------------- |
+| `keypath`          | `TranslationKey`                              | ✅       | -        | Translation key                         |
+| `plural`           | `number \| string`                            | ❌       | -        | Count for pluralization                 |
+| `tag`              | `string`                                      | ❌       | `'span'` | HTML tag to render                      |
+| `params`           | `Record<string, string \| number \| boolean>` | ❌       | `{}`     | Parameters for interpolation            |
+| `defaultValue`     | `string`                                      | ❌       | `''`     | Default value if translation is missing |
+| `html`             | `boolean`                                     | ❌       | `false`  | Render as HTML                          |
+| `hideIfEmpty`      | `boolean`                                     | ❌       | `false`  | Hide component if translation is empty  |
+| `customPluralRule` | `PluralFunc`                                  | ❌       | -        | Custom pluralization function           |
+| `number`           | `number \| string`                            | ❌       | -        | Number to format and interpolate        |
+| `date`             | `Date \| string \| number`                    | ❌       | -        | Date to format and interpolate          |
+| `relativeDate`     | `Date \| string \| number`                    | ❌       | -        | Date for relative time formatting       |
 
 **Examples:**
 
@@ -1024,11 +1030,11 @@ Localized link component that works with or without a router adapter.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `to` | `string \| { path?: string }` | ✅ | - | Target path or route object |
-| `activeStyle` | `JSX.CSSProperties` | ❌ | `{}` | Styles to apply when link is active |
-| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌ | - | Custom locale route resolver |
+| Prop          | Type                                                                                | Required | Default | Description                         |
+| ------------- | ----------------------------------------------------------------------------------- | -------- | ------- | ----------------------------------- |
+| `to`          | `string \| { path?: string }`                                                       | ✅       | -       | Target path or route object         |
+| `activeStyle` | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Styles to apply when link is active |
+| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Custom locale route resolver        |
 
 **Examples:**
 
@@ -1041,28 +1047,18 @@ const MyComponent = () => {
   return (
     <>
       {/* Basic link */}
-      <I18nLink to="/">
-        Home
-      </I18nLink>
+      <I18nLink to="/">Home</I18nLink>
 
       {/* With active style */}
-      <I18nLink
-        to="/about"
-        activeStyle={{ color: 'red', fontWeight: 'bold' }}
-      >
+      <I18nLink to="/about" activeStyle={{ color: 'red', fontWeight: 'bold' }}>
         About
       </I18nLink>
 
       {/* External link (automatically detected) */}
-      <I18nLink to="https://example.com">
-        External Link
-      </I18nLink>
+      <I18nLink to="https://example.com">External Link</I18nLink>
 
       {/* With custom locale route */}
-      <I18nLink
-        to="/products"
-        localeRoute={localeRoute}
-      >
+      <I18nLink to="/products" localeRoute={localeRoute}>
         Products
       </I18nLink>
     </>
@@ -1076,21 +1072,21 @@ Locale switcher component with dropdown interface.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `locales` | `Locale[]` | ❌ | - | Locales list (uses injected if not provided) |
-| `currentLocale` | `string \| (() => string)` | ❌ | - | Current locale (uses i18n instance if not provided) |
-| `getLocaleName` | `() => string \| null` | ❌ | - | Function to get current locale name |
-| `switchLocale` | `(locale: string) => void` | ❌ | - | Function to switch locale |
-| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌ | - | Function to resolve locale route |
-| `customLabels` | `Record<string, string>` | ❌ | `{}` | Custom labels for locales |
-| `customWrapperStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom wrapper styles |
-| `customButtonStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom button styles |
-| `customDropdownStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom dropdown styles |
-| `customItemStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom item styles |
-| `customLinkStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom link styles |
-| `customActiveLinkStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom styles for the current locale link |
-| `customIconStyle` | `JSX.CSSProperties` | ❌ | `{}` | Custom icon styles |
+| Prop                    | Type                                                                                | Required | Default | Description                                         |
+| ----------------------- | ----------------------------------------------------------------------------------- | -------- | ------- | --------------------------------------------------- |
+| `locales`               | `Locale[]`                                                                          | ❌       | -       | Locales list (uses injected if not provided)        |
+| `currentLocale`         | `string \| (() => string)`                                                          | ❌       | -       | Current locale (uses i18n instance if not provided) |
+| `getLocaleName`         | `() => string \| null`                                                              | ❌       | -       | Function to get current locale name                 |
+| `switchLocale`          | `(locale: string) => void`                                                          | ❌       | -       | Function to switch locale                           |
+| `localeRoute`           | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Function to resolve locale route                    |
+| `customLabels`          | `Record<string, string>`                                                            | ❌       | `{}`    | Custom labels for locales                           |
+| `customWrapperStyle`    | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Custom wrapper styles                               |
+| `customButtonStyle`     | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Custom button styles                                |
+| `customDropdownStyle`   | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Custom dropdown styles                              |
+| `customItemStyle`       | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Custom item styles                                  |
+| `customLinkStyle`       | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Custom link styles                                  |
+| `customActiveLinkStyle` | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Custom styles for the current locale link           |
+| `customIconStyle`       | `JSX.CSSProperties`                                                                 | ❌       | `{}`    | Custom icon styles                                  |
 
 **Examples:**
 
@@ -1107,24 +1103,13 @@ const MyComponent = () => {
       <I18nSwitcher />
 
       {/* With custom props */}
-      <I18nSwitcher
-        locales={locales}
-        currentLocale={locale}
-        getLocaleName={getLocaleName}
-        switchLocale={switchLocale}
-        localeRoute={localeRoute}
-      />
+      <I18nSwitcher locales={locales} currentLocale={locale} getLocaleName={getLocaleName} switchLocale={switchLocale} localeRoute={localeRoute} />
 
       {/* With custom styling */}
-      <I18nSwitcher
-        customButtonStyle={{ backgroundColor: '#007bff', color: 'white' }}
-        customDropdownStyle={{ borderRadius: '8px' }}
-      />
+      <I18nSwitcher customButtonStyle={{ backgroundColor: '#007bff', color: 'white' }} customDropdownStyle={{ borderRadius: '8px' }} />
 
       {/* With custom labels */}
-      <I18nSwitcher
-        customLabels={{ en: 'English', fr: 'Français', de: 'Deutsch' }}
-      />
+      <I18nSwitcher customLabels={{ en: 'English', fr: 'Français', de: 'Deutsch' }} />
     </>
   )
 }
@@ -1136,10 +1121,10 @@ Component for grouping translations with a common prefix.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `prefix` | `string` | ✅ | - | Translation key prefix |
-| `groupClass` | `string` | ❌ | `''` | CSS class for the wrapper div |
+| Prop         | Type     | Required | Default | Description                   |
+| ------------ | -------- | -------- | ------- | ----------------------------- |
+| `prefix`     | `string` | ✅       | -       | Translation key prefix        |
+| `groupClass` | `string` | ❌       | `''`    | CSS class for the wrapper div |
 
 **Slots:**
 
@@ -1150,7 +1135,7 @@ Component for grouping translations with a common prefix.
 ```tsx
 import { I18nGroup } from '@i18n-micro/solid'
 
-<I18nGroup prefix="home">
+;<I18nGroup prefix="home">
   {({ t: groupT }) => (
     <>
       <h1>{groupT('title')}</h1>
@@ -1160,14 +1145,13 @@ import { I18nGroup } from '@i18n-micro/solid'
   )}
 </I18nGroup>
 
-{/* With custom class */}
-<I18nGroup prefix="about" groupClass="about-section">
-  {({ t }) => (
-    <div>{t('content')}</div>
-  )}
+{
+  /* With custom class */
+}
+;<I18nGroup prefix="about" groupClass="about-section">
+  {({ t }) => <div>{t('content')}</div>}
 </I18nGroup>
 ```
-
 
 ## Advanced Usage
 
@@ -1209,10 +1193,7 @@ async function loadLocaleTranslations(locale: string) {
 await loadLocaleTranslations('fr')
 
 // Preload in background
-Promise.all([
-  loadLocaleTranslations('de'),
-  loadLocaleTranslations('es'),
-]).catch(() => {
+Promise.all([loadLocaleTranslations('de'), loadLocaleTranslations('es')]).catch(() => {
   // Handle errors
 })
 ```
@@ -1452,18 +1433,10 @@ const App: Component = () => {
       </nav>
 
       <div class="locale-switcher">
-        <I18nSwitcher
-          locales={locales}
-          currentLocale={locale}
-          getLocaleName={getLocaleName}
-          switchLocale={switchLocale}
-          localeRoute={localeRoute}
-        />
+        <I18nSwitcher locales={locales} currentLocale={locale} getLocaleName={getLocaleName} switchLocale={switchLocale} localeRoute={localeRoute} />
       </div>
 
-      <main>
-        {/* Your routes */}
-      </main>
+      <main>{/* Your routes */}</main>
     </div>
   )
 }
@@ -1476,12 +1449,10 @@ import { createEffect } from 'solid-js'
 import { useParams } from '@solidjs/router'
 import { useI18n } from '@i18n-micro/solid'
 
-const LocaleHandler: Component<{ params: { locale?: string }, children?: unknown }> = (props) => {
+const LocaleHandler: Component<{ params: { locale?: string }; children?: unknown }> = (props) => {
   const { instance: i18n } = useI18n()
   const localeCodes = ['en', 'fr', 'de']
-  const currentLocale = props.params.locale && localeCodes.includes(props.params.locale)
-    ? props.params.locale
-    : 'en'
+  const currentLocale = props.params.locale && localeCodes.includes(props.params.locale) ? props.params.locale : 'en'
 
   // Sync locale with i18n instance
   if (currentLocale !== i18n.getLocale()) {
@@ -1500,4 +1471,3 @@ const LocaleHandler: Component<{ params: { locale?: string }, children?: unknown
 ## License
 
 MIT
-

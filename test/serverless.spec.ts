@@ -1,14 +1,13 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
 import { runSequential } from './helpers/sequential'
+
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({ shared: 'serverless' })
 
 // Test: Serverless environment with caching
 // This simulates behavior similar to Cloudflare Workers with KV cache
-test.use({
-  nuxt: useSharedFixture('serverless'),
-})
 
-test.describe('serverless with caching', () => {
+describe('serverless with caching', () => {
   test('translations load correctly on first request (cold start)', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 

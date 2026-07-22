@@ -1,7 +1,7 @@
 ---
-title: "FAQ: Common Issues & Solutions"
-description: "Common questions and troubleshooting."
-outline: "deep"
+title: 'FAQ: Common Issues & Solutions'
+description: 'Common questions and troubleshooting.'
+outline: 'deep'
 ---
 
 # ❓ FAQ: Common Issues & Solutions
@@ -47,7 +47,7 @@ Alternatively, retrieve the translation value first, then pass it to a utility f
 ```javascript
 const val = nuxtApp.$t('common.errors.unknown.title')
 showError({
-    title: val
+  title: val,
 })
 ```
 
@@ -58,7 +58,7 @@ In services or utility functions, pass the translation keys instead of using `$t
 showError({
   title: 'common.errors.unknown.title',
   message: 'common.errors.unknown.message',
-  i18n: true
+  i18n: true,
 })
 ```
 
@@ -110,12 +110,7 @@ const { $getLocales, $getLocale } = useI18n()
 
 <template>
   <SwitchLocalePreserve root-id="lang-switcher">
-    <button
-      v-for="locale in $getLocales()"
-      :key="locale.code"
-      :data-locale="locale.code"
-      :disabled="locale.code === $getLocale()"
-    >
+    <button v-for="locale in $getLocales()" :key="locale.code" :data-locale="locale.code" :disabled="locale.code === $getLocale()">
       {{ locale.code }}
     </button>
   </SwitchLocalePreserve>
@@ -140,6 +135,7 @@ Do not call `$switchLocale` directly on wrapped controls — the wrapper handles
 When using `nuxt-i18n-micro` with page transitions, translations may briefly stop working during the transition. This issue occurs because the route changes before the transition completes, causing translations for the new page to load while the old page is still visible.
 
 **Root Cause:**
+
 - Page transitions cause route changes before translations are fully loaded
 - `defineAsyncComponent` and `useAsyncData` can delay translation loading
 - Translation keys may appear as raw paths during loading
@@ -156,11 +152,11 @@ If you prefer manual control, explicitly pass the current route to `$_t`:
 
 ```vue
 <script lang="ts" setup>
-  import { useNuxtApp } from '#imports'
-  const route = useRoute()
-  const { $_t } = useNuxtApp()
+import { useNuxtApp } from '#imports'
+const route = useRoute()
+const { $_t } = useNuxtApp()
 
-  const $t = $_t(route)
+const $t = $_t(route)
 </script>
 
 <template>
@@ -202,10 +198,10 @@ If translations are hosted externally on a CDN or different domain, use `apiBase
 ```typescript
 export default defineNuxtConfig({
   i18n: {
-    apiBaseUrl: '/_locales',                    // Path prefix only
-    apiBaseClientHost: 'https://cdn.example.com',  // CDN domain for client
-    apiBaseServerHost: 'https://cdn.example.com'  // CDN domain for server (SSR)
-  }
+    apiBaseUrl: '/_locales', // Path prefix only
+    apiBaseClientHost: 'https://cdn.example.com', // CDN domain for client
+    apiBaseServerHost: 'https://cdn.example.com', // CDN domain for server (SSR)
+  },
 })
 ```
 
@@ -228,6 +224,7 @@ Yes, `Nuxt I18n Micro` allows the use of `NuxtLink` or `<i18n-link>` within tran
 **Example:**
 
 Translation file:
+
 ```json
 {
   "example": "Share your {link} with friends",
@@ -236,6 +233,7 @@ Translation file:
 ```
 
 Vue template:
+
 ```vue
 <template>
   <i18n-t keypath="example">
@@ -257,6 +255,7 @@ This allows dynamic links within translations while preserving proper localizati
 During deployment, especially on platforms like Netlify, the build process might differ from local development. This can lead to issues where certain files or folders are missing during server-side rendering (SSR).
 
 **Explanation:**
+
 - **Build Process:** Translation files are cached in the production folder during the build. However, on Netlify, server code moves to functions, sometimes isolating localization files.
 - **Prerendering:** Prerendering does not work with `$fetch` in SSR, causing middleware to miss localization files.
 - **Server Assets:** To resolve this, localization files are saved in the Nitro server assets during prerendering. They are then accessible in production directly from server assets.
@@ -265,6 +264,7 @@ During deployment, especially on platforms like Netlify, the build process might
 
 **Cause:**
 Some projects experience build conflicts or missing dependencies when using `nuxt-i18n-micro`. In particular:
+
 - Deployments on **Cloudflare Pages** or **Cloudflare Workers** may require additional compatibility flags.
 - Prerendering steps can fail if dependencies like `@unhead/vue` are not properly installed.
 - Certain modules (e.g., **nuxthub**, **nitro-cloudflare-dev**) can introduce conflicts unless configured with correct flags or dependencies.
@@ -338,4 +338,3 @@ For example:
 ```
 
 This approach is flexible, so releasing modifiers is currently unnecessary. However, modifiers may be added in future releases if there is demand.
-

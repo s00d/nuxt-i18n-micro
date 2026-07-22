@@ -1,7 +1,7 @@
 ---
-title: "`<i18n-switcher>` Component"
-description: "Dropdown component for switching app locales."
-outline: "deep"
+title: '`<i18n-switcher>` Component'
+description: 'Dropdown component for switching app locales.'
+outline: 'deep'
 ---
 
 # 🌍 `<i18n-switcher>` Component
@@ -266,7 +266,7 @@ The `<i18n-switcher>` component provides several slots that allow you to insert 
 ### Summary of Slots
 
 | Slot Name                | Description                                                 | Props    |
-|--------------------------|-------------------------------------------------------------|----------|
+| ------------------------ | ----------------------------------------------------------- | -------- |
 | `before-button`          | Content before the language switcher button                 | None     |
 | `before-selected-locale` | Content before the selected locale label within the button  | None     |
 | `after-selected-locale`  | Content after the selected locale label within the button   | None     |
@@ -278,7 +278,6 @@ The `<i18n-switcher>` component provides several slots that allow you to insert 
 | `after-item`             | Content after each locale item                              | `locale` |
 | `before-link-content`    | Content before the locale label inside each link            | `locale` |
 | `after-link-content`     | Content after the locale label inside each link             | `locale` |
-
 
 ## 🎨 Styles Overview
 

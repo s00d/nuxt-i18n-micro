@@ -1,12 +1,10 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
-import { useSharedFixture } from './setup/shared-host'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({ shared: 'named' })
 
 // Tests for 'prefix' strategy (fixtures/named has strategy: 'prefix', defaultLocale: 'de')
-test.use({
-  nuxt: useSharedFixture('named'),
-})
 
-test.describe('cookie-based redirect - prefix strategy', () => {
+describe('cookie-based redirect - prefix strategy', () => {
   test('redirect to cookie locale when valid', async ({ page, goto, baseURL }) => {
     // Clear cookies first
     await page.context().clearCookies()

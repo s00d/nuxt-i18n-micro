@@ -8,7 +8,10 @@ let installedRoutingStrategy: I18nRoutingStrategy | null = null
 const requestRoutingStrategy = new AsyncLocalStorage<I18nRoutingStrategy | null>()
 
 export function getGlobalRoutingStrategy(): I18nRoutingStrategy | null {
-  return requestRoutingStrategy.getStore() ?? installedRoutingStrategy
+  const store = requestRoutingStrategy.getStore()
+  // Distinguish an explicit per-request override (including `null`, i.e. routing
+  // disabled for this request) from "no request context" (`undefined`).
+  return store !== undefined ? store : installedRoutingStrategy
 }
 
 export function setGlobalRoutingStrategy(strategy: I18nRoutingStrategy | null): void {

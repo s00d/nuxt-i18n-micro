@@ -124,7 +124,7 @@ export async function openRootPage() {
   await page.goto('http://127.0.0.1:10000/')
 
   check(page, {
-    'status is 200': r => r.status === 200,
+    'status is 200': (r) => r.status === 200,
   })
 
   sleep(1)
@@ -139,7 +139,7 @@ export async function openRootRUPage() {
   await page.goto('http://127.0.0.1:10000/ru')
 
   check(page, {
-    'status is 200': r => r.status === 200,
+    'status is 200': (r) => r.status === 200,
   })
 
   sleep(1)
@@ -154,7 +154,7 @@ export async function openRootDEPage() {
   await page.goto('http://127.0.0.1:10000/de')
 
   check(page, {
-    'status is 200': r => r.status === 200,
+    'status is 200': (r) => r.status === 200,
   })
 
   sleep(1)
@@ -169,7 +169,7 @@ export async function openPagePage() {
   await page.goto('http://127.0.0.1:10000/page')
 
   check(page, {
-    'status is 200': r => r.status === 200,
+    'status is 200': (r) => r.status === 200,
   })
 
   sleep(1)
@@ -184,7 +184,7 @@ export async function openPageRUPage() {
   await page.goto('http://127.0.0.1:10000/ru/page')
 
   check(page, {
-    'status is 200': r => r.status === 200,
+    'status is 200': (r) => r.status === 200,
   })
 
   sleep(1)
@@ -199,7 +199,7 @@ export async function openPageDEPage() {
   await page.goto('http://127.0.0.1:10000/de/page')
 
   check(page, {
-    'status is 200': r => r.status === 200,
+    'status is 200': (r) => r.status === 200,
   })
 
   sleep(1)
@@ -210,6 +210,6 @@ export async function openPageDEPage() {
 export function handleSummary(data) {
   return {
     'summary.json': JSON.stringify(data),
-    'stdout': textSummary(data, { indent: ' ', enableColors: true }),
+    stdout: textSummary(data, { indent: ' ', enableColors: true }),
   }
 }

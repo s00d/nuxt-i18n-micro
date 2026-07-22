@@ -11,18 +11,19 @@ import { existsSync, readFileSync } from 'node:fs'
 import net from 'node:net'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
-import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { chromium, expect as playwrightExpect } from '@playwright/test'
 import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { assertI18nHeadScenario, expectHtmlScenario, i18nHeadScenarios, i18nHeadStaticPages, staticHtmlPath } from './helpers/i18n-head-seo'
+import { isolatedBuild } from './helpers/isolated-build'
 
 const exec = promisify(execCb)
 
-const FIXTURES = join(fileURLToPath(import.meta.url), '..', 'fixtures/use-i18n-head')
-const OUTPUT_DIR = join(FIXTURES, '.output')
-const OUTPUT_PUBLIC = join(OUTPUT_DIR, 'public')
+const build = isolatedBuild('use-i18n-head', 'use-i18n-head-generate')
+const FIXTURES = build.fixtureDir
+const OUTPUT_DIR = build.outputDir
+const OUTPUT_PUBLIC = build.publicDir
 const HOST = '127.0.0.1'
 
 async function getFreePort(base = 24011, max = 20): Promise<number> {
@@ -58,6 +59,7 @@ async function freePort(port: number) {
 function runGenerate(): Promise<void> {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
+    ...build.env,
     NODE_ENV: 'production',
   }
   delete env.VITEST
@@ -116,8 +118,7 @@ describe('useI18nHead after nuxi generate', () => {
   }
 
   beforeAll(async () => {
-    await rimraf(OUTPUT_DIR).catch(() => {})
-    await rimraf(join(FIXTURES, '.nuxt')).catch(() => {})
+    await rimraf(build.buildDir).catch(() => {})
     await runGenerate()
     port = await getFreePort()
     server = serveStatic(port)
@@ -126,9 +127,7 @@ describe('useI18nHead after nuxi generate', () => {
 
   afterAll(async () => {
     await stopServer()
-    await rimraf(OUTPUT_DIR).catch(() => {})
-    await rimraf(join(FIXTURES, '.nuxt')).catch(() => {})
-    await rimraf(join(FIXTURES, 'node_modules/.cache')).catch(() => {})
+    await rimraf(build.buildDir).catch(() => {})
   })
 
   describe('prerendered HTML files', () => {
@@ -211,20 +210,19 @@ describe('useI18nHead after nuxi generate', () => {
 
     beforeAll(async () => {
       await stopServer()
-      await rimraf(OUTPUT_DIR).catch(() => {})
-      await rimraf(join(FIXTURES, '.nuxt')).catch(() => {})
+      await rimraf(build.buildDir).catch(() => {})
 
       await new Promise<void>((resolve, reject) => {
         const child = spawn('npx', ['nuxi', 'build'], {
           cwd: FIXTURES,
           stdio: 'inherit',
-          env: { ...process.env, NODE_ENV: 'production' },
+          env: { ...process.env, ...build.env, NODE_ENV: 'production' },
         })
         child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`nuxi build exited with code ${code}`))))
       })
 
       ssrPort = await getFreePort(24111)
-      ssrServer = spawn('node', [join(OUTPUT_DIR, 'server/index.mjs')], {
+      ssrServer = spawn('node', [build.serverEntry], {
         cwd: FIXTURES,
         stdio: 'inherit',
         env: { ...process.env, PORT: String(ssrPort), NODE_ENV: 'production' },

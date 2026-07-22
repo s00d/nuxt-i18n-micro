@@ -1,5 +1,10 @@
+import { join } from 'node:path'
 import type { Strategies } from '../../../src/module'
 import MyModule from '../../../src/module'
+
+// Несколько тестовых файлов собирают эту фикстуру параллельно — каждый задаёт
+// свой NUXT_TEST_BUILD_DIR, чтобы сборки не затирали общие .nuxt/.output.
+const testBuildDir = process.env.NUXT_TEST_BUILD_DIR
 
 export default defineNuxtConfig({
   modules: [MyModule],
@@ -10,12 +15,15 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-08-16',
 
+  ...(testBuildDir ? { buildDir: testBuildDir } : {}),
+
   // Краулер при prefix находит ссылки типа /ru/kontakt (с /de), которых нет — 404.
   // Не падать generate на ошибках prerender (тест проверяет только успешную сборку и маршруты).
   nitro: {
     prerender: {
       failOnError: false,
     },
+    ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output') } } : {}),
   },
 
   i18n: {

@@ -5,8 +5,9 @@
  *  – освобождение порта через lsof / netstat
  *  – глобальный fetch из Node ≥ 18
  *
- * Все 8 сценариев используют фикстуру test/fixtures/strategy. Чтобы при полном прогоне
- * (pnpm test:vitest) другой тест не затирал .nuxt/.output, в vitest.config задан один воркер.
+ * Все 8 сценариев используют фикстуру test/fixtures/strategy, но собирают её в
+ * собственный каталог (NUXT_TEST_BUILD_DIR), поэтому файл может идти параллельно
+ * с другими тестами этой же фикстуры (generate-*.test.ts).
  * Запуск только этого файла: pnpm exec vitest run test/strategies.test.ts
  */
 
@@ -18,10 +19,13 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { isolatedBuild } from './helpers/isolated-build'
+import { registerStrategyGenerateTests } from './helpers/strategy-generate'
 
 /* ──────────────── settings ──────────────── */
 
-const FIXTURES = join(fileURLToPath(import.meta.url), '..', 'fixtures/strategy')
+const BUILD = isolatedBuild('strategy', 'strategies')
+const FIXTURES = BUILD.fixtureDir
 const HOST = 'localhost'
 
 const ROUTES = {
@@ -133,6 +137,7 @@ async function waitForText(url: string, text: string, tries = 40, ms = 500) {
 function runNuxt(script: 'generate' | 'build', strategy: string): Promise<void> {
   const env: NodeJS.ProcessEnv = {
     ...process.env,
+    ...BUILD.env,
     NODE_ENV: 'production',
     STRATEGY: strategy,
   }
@@ -206,11 +211,10 @@ describe.each(Object.entries(ROUTES))('[%s] strategy', (strategy, routes) => {
       port = await getFreePort()
       await stop()
       await delay(800) // дать ОС освободить порт после предыдущего сервера
-      await rimraf(join(FIXTURES, '.nuxt'))
-      await rimraf(join(FIXTURES, '.output'))
+      await rimraf(BUILD.buildDir)
       await runNuxt('generate', strategy)
 
-      server = serve(['npx', 'serve', '.output/public', '-p', String(port)], port)
+      server = serve(['npx', 'serve', BUILD.publicDir, '-p', String(port)], port)
       await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
     }, 300_000)
 
@@ -232,11 +236,10 @@ describe.each(Object.entries(ROUTES))('[%s] strategy', (strategy, routes) => {
       port = await getFreePort()
       await stop()
       await delay(800) // дать ОС освободить порт после предыдущего сервера
-      await rimraf(join(FIXTURES, '.nuxt'))
-      await rimraf(join(FIXTURES, '.output'))
+      await rimraf(BUILD.buildDir)
       await runNuxt('build', strategy)
 
-      server = serve(['node', '.output/server/index.mjs'], port)
+      server = serve(['node', BUILD.serverEntry], port)
       await waitForText(`http://${HOST}:${port}${routes[0][0]}`, routes[0][1])
     }, 300_000)
 
@@ -252,3 +255,5 @@ describe.each(Object.entries(ROUTES))('[%s] strategy', (strategy, routes) => {
     })
   })
 })
+
+registerStrategyGenerateTests()

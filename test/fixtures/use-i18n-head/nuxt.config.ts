@@ -1,9 +1,13 @@
+import { join } from 'node:path'
 import MyModule from '../../../src/module'
+
+const testBuildDir = process.env.NUXT_TEST_BUILD_DIR
 
 export default defineNuxtConfig({
   modules: [MyModule],
   devtools: { enabled: false },
   compatibilityDate: '2024-08-16',
+  ...(testBuildDir ? { buildDir: testBuildDir } : {}),
   nitro: {
     prerender: {
       failOnError: false,
@@ -22,6 +26,7 @@ export default defineNuxtConfig({
         '/guides/shared-guide',
       ],
     },
+    ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output') } } : {}),
   },
   i18n: {
     locales: [

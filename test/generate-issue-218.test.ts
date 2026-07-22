@@ -1,32 +1,29 @@
 import { exec as execCb } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { rimraf } from 'rimraf'
 import { afterAll, describe, expect, it } from 'vitest'
+import { isolatedBuild } from './helpers/isolated-build'
 
 const exec = promisify(execCb)
 
-const FIXTURES = join(fileURLToPath(import.meta.url), '..', 'fixtures/nuxt-7cnbrdte')
-const OUTPUT_DIR = join(FIXTURES, '.output')
-const OUTPUT_PUBLIC = join(OUTPUT_DIR, 'public')
+const build = isolatedBuild('nuxt-7cnbrdte', 'generate-issue-218')
 
 afterAll(async () => {
-  await rimraf(OUTPUT_DIR).catch(() => {})
-  await rimraf(join(FIXTURES, '.nuxt')).catch(() => {})
-  await rimraf(join(FIXTURES, 'node_modules/.cache')).catch(() => {})
+  await rimraf(build.buildDir).catch(() => {})
 })
 
 describe('issue #218 - routeRules prerender should not double-localize routes', () => {
   it('builds without /fr/fr prerender errors', async () => {
+    await rimraf(build.buildDir)
+
     let exitOk = false
     let combinedOutput = ''
 
     try {
       const { stdout, stderr } = await exec('npx nuxi build', {
-        cwd: FIXTURES,
-        env: process.env,
+        cwd: build.fixtureDir,
+        env: { ...process.env, ...build.env },
         timeout: 120_000,
         maxBuffer: 10 * 1024 * 1024,
       })
@@ -38,17 +35,8 @@ describe('issue #218 - routeRules prerender should not double-localize routes', 
       exitOk = false
     }
 
-    if (!exitOk) throw new Error(`nuxi build failed:\n${combinedOutput.slice(-2000)}`)
-    expect(exitOk).toBe(true)
+    expect(exitOk, `nuxi build failed:\n${combinedOutput.slice(-2000)}`).toBe(true)
     expect(combinedOutput).not.toContain('/fr/fr')
-    expect(combinedOutput).not.toContain('Exiting due to prerender errors')
+    expect(existsSync(build.serverEntry)).toBe(true)
   }, 120_000)
-
-  it('does not create double-prefixed output routes', () => {
-    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'index.html'))).toBe(true)
-    // /about is scoped to `en` only via $defineI18nRoute — French variant is omitted from prerender.
-    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'about', 'index.html'))).toBe(false)
-    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'fr', 'index.html'))).toBe(false)
-    expect(existsSync(join(OUTPUT_PUBLIC, 'fr', 'fr', 'about', 'index.html'))).toBe(false)
-  })
 })

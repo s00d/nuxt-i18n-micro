@@ -1626,7 +1626,7 @@ height: 400px
 
 `)
 
-      const artilleryConfigPath = './artillery-config.yml'
+      const artilleryConfigPath = './benchmark/artillery-config.yml'
 
       // 2. Stress tests
       const plainNuxtStressResults = await stressTestServerWithArtillery('./test/fixtures/plain-nuxt', 'plain-nuxt', artilleryConfigPath)

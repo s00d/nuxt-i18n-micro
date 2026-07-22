@@ -36,6 +36,15 @@ jobs:
             e2e-shared-${{ runner.os }}-
 
       - run: pnpm install
+      # Extra swap: unit tests spawn nuxi build/generate right after test:packages
+      # and constrained runners otherwise OOM-kill the Vitest worker (ERR_IPC_CHANNEL_CLOSED).
+      - name: Add swap for heavy test steps
+        run: |
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
       - run: pnpm run lint
       - run: pnpm --filter "./packages/**" run build
       - run: pnpm run dev:prepare

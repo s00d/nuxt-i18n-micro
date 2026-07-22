@@ -1,4 +1,4 @@
-import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
+import { BaseI18n, createReactiveI18nStore, type ReactiveI18nStore, type TranslationStorage } from '@i18n-micro/core'
 import type { PluralFunc, Translations } from '@i18n-micro/types'
 
 export interface PreactI18nOptions {
@@ -11,12 +11,7 @@ export interface PreactI18nOptions {
 }
 
 export class PreactI18n extends BaseI18n {
-  private _locale: string
-  private _fallbackLocale: string
-  private _currentRoute: string = 'index'
-  private listeners = new Set<() => void>()
-  private revision = 0
-
+  private readonly store: ReactiveI18nStore
   public readonly storage: TranslationStorage
 
   constructor(options: PreactI18nOptions) {
@@ -32,8 +27,10 @@ export class PreactI18n extends BaseI18n {
     })
 
     this.storage = storage
-    this._locale = options.locale
-    this._fallbackLocale = options.fallbackLocale || options.locale
+    this.store = createReactiveI18nStore({
+      locale: options.locale,
+      fallbackLocale: options.fallbackLocale || options.locale,
+    })
 
     if (options.messages) {
       for (const [lang, msgs] of Object.entries(options.messages)) {
@@ -42,73 +39,59 @@ export class PreactI18n extends BaseI18n {
     }
   }
 
-  subscribe = (listener: () => void) => {
-    this.listeners.add(listener)
-    return () => this.listeners.delete(listener)
-  }
+  subscribe = (listener: () => void) => this.store.subscribe(listener)
 
-  getSnapshot = () => `${this._locale}:${this._currentRoute}:${this.revision}`
-
-  private notify() {
-    this.revision++
-    this.listeners.forEach((listener) => listener())
-  }
+  getSnapshot = () => this.store.getSnapshot()
 
   get locale(): string {
-    return this._locale
+    return this.store.getLocale()
   }
 
   set locale(val: string) {
-    if (this._locale !== val) {
-      this._locale = val
-      this.notify()
-    }
+    this.store.setLocale(val)
   }
 
   get fallbackLocale(): string {
-    return this._fallbackLocale
+    return this.store.getFallbackLocale()
   }
 
   set fallbackLocale(val: string) {
-    this._fallbackLocale = val
+    this.store.setFallbackLocale(val)
   }
 
   get currentRoute(): string {
-    return this._currentRoute
+    return this.store.getRoute()
   }
 
   setRoute(routeName: string): void {
-    if (this._currentRoute !== routeName) {
-      this._currentRoute = routeName
-      this.notify()
-    }
+    this.store.setRoute(routeName)
   }
 
   public getLocale(): string {
-    return this._locale
+    return this.store.getLocale()
   }
 
   public getFallbackLocale(): string {
-    return this._fallbackLocale
+    return this.store.getFallbackLocale()
   }
 
   public getRoute(): string {
-    return this._currentRoute
+    return this.store.getRoute()
   }
 
   public addTranslations(locale: string, translations: Translations, merge = true): void {
     super.loadTranslationsCore(locale, translations, merge)
-    this.notify()
+    this.store.notify()
   }
 
   public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
     super.loadRouteTranslationsCore(locale, routeName, translations, merge)
-    this.notify()
+    this.store.notify()
   }
 
   public override clearCache(): void {
     super.clearCache()
-    this.notify()
+    this.store.notify()
   }
 }
 

@@ -454,6 +454,45 @@ export interface ModuleOptions {
   cacheTtl?: number
 
   /**
+   * Named number formats per locale (Vue I18n-compatible).
+   * Enables `$tn(1000, 'currency')` style calls.
+   *
+   * @example
+   * numberFormats: {
+   *   en: { currency: { style: 'currency', currency: 'USD' } },
+   *   de: { currency: { style: 'currency', currency: 'EUR' } },
+   * }
+   */
+  numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>>
+
+  /**
+   * Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`).
+   * Enables `$td(date, 'short')` style calls.
+   *
+   * @example
+   * datetimeFormats: {
+   *   en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+   *   de: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+   * }
+   */
+  datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>>
+
+  /**
+   * HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`.
+   *
+   * Translation fetches already use `dateBuild` cache-busting (`?v=...`), so long-lived
+   * `public, max-age=…, immutable` responses are safe for browsers and CDN.
+   *
+   * - Default: `31536000` (1 year)
+   * - `0` — do not set `Cache-Control` (useful in local debugging)
+   * - Not applied in development (`import.meta.dev`) so HMR is not fought by the browser cache
+   *
+   * Analogous to `@nuxtjs/i18n` experimental `httpCacheDuration` (v10.2.0), but as an
+   * explicit response header rather than Nitro `defineCachedEventHandler` maxAge.
+   */
+  httpCacheDuration?: number
+
+  /**
    * Value used for cache-busting translation requests (`?v=...`).
    *
    * When not provided, the module falls back to `Date.now()` (non-deterministic).

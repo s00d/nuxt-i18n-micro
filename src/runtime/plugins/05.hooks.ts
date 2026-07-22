@@ -33,15 +33,18 @@ export default defineNuxtPlugin({
     const callRegister = async (route?: RouteLocationResolvedGeneric) => {
       const locale = $getLocale(route)
       const routeName = $getRouteName(route as RouteLocationResolvedGeneric)
+      const mergeTasks: Promise<void>[] = []
 
       await nuxtApp.callHook(
         // @ts-expect-error i18n:register is custom hook
         'i18n:register',
         (translations: Translations, selectedLocale?: string) => {
-          void i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true)
+          mergeTasks.push(i18nHelper.mergeTranslation(selectedLocale ?? locale, routeName, translations, true))
         },
         locale,
       )
+
+      await Promise.all(mergeTasks)
     }
 
     if (i18nConfig.hooks !== false) {

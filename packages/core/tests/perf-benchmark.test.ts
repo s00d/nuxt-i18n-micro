@@ -21,6 +21,7 @@ import {
   withPrefixStrategy,
 } from '../src/helpers'
 import { useTranslationHelper } from '../src/translation'
+import { afterAll, describe, expect, test } from 'vitest'
 
 const ITERATIONS_FAST = 50_000
 const ITERATIONS_MEDIUM = 20_000

@@ -1,4 +1,5 @@
 import { interpolate, useTranslationHelper } from '../src'
+import { describe, expect, test } from 'vitest'
 
 describe('Translation Helper', () => {
   const translations = {

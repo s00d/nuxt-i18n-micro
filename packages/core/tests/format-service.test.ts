@@ -1,4 +1,5 @@
 import { FormatService } from '../src'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 describe('FormatService', () => {
   let formatService: FormatService
@@ -25,6 +26,23 @@ describe('FormatService', () => {
       const result = formatService.formatNumber(123456.789, 'invalid-locale')
       expect(result).toBe('123,456.789') // Fallback to default formatting
     })
+
+    test('should reuse cached Intl.NumberFormat instances', () => {
+      const spy = vi.spyOn(Intl, 'NumberFormat')
+      formatService.formatNumber(1, 'en-US', { style: 'currency', currency: 'USD' })
+      formatService.formatNumber(2, 'en-US', { style: 'currency', currency: 'USD' })
+      formatService.formatNumber(3, 'en-US', { style: 'currency', currency: 'USD' })
+      expect(spy).toHaveBeenCalledTimes(1)
+      spy.mockRestore()
+    })
+
+    test('should create separate formatters for different options', () => {
+      const spy = vi.spyOn(Intl, 'NumberFormat')
+      formatService.formatNumber(1, 'en-US', { style: 'currency', currency: 'USD' })
+      formatService.formatNumber(1, 'en-US', { style: 'currency', currency: 'EUR' })
+      expect(spy).toHaveBeenCalledTimes(2)
+      spy.mockRestore()
+    })
   })
 
   describe('formatDate', () => {
@@ -47,6 +65,51 @@ describe('FormatService', () => {
     test('should handle invalid date by returning "Invalid Date"', () => {
       const result = formatService.formatDate('invalid-date', 'en-US')
       expect(result).toBe('Invalid Date')
+    })
+
+    test('should reuse cached Intl.DateTimeFormat instances', () => {
+      const spy = vi.spyOn(Intl, 'DateTimeFormat')
+      const date = new Date('2023-10-05T12:34:56Z')
+      formatService.formatDate(date, 'en-US', { year: 'numeric' })
+      formatService.formatDate(date, 'en-US', { year: 'numeric' })
+      expect(spy).toHaveBeenCalledTimes(1)
+      spy.mockRestore()
+    })
+  })
+
+  describe('named formats', () => {
+    test('resolveNumberFormat returns locale-specific options', () => {
+      const service = new FormatService({
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+          de: { currency: { style: 'currency', currency: 'EUR' } },
+        },
+      })
+      expect(service.resolveNumberFormat('en', 'currency')).toEqual({ style: 'currency', currency: 'USD' })
+      expect(service.resolveNumberFormat('de', 'currency')).toEqual({ style: 'currency', currency: 'EUR' })
+      expect(service.resolveNumberFormat('fr', 'currency')).toBeUndefined()
+    })
+
+    test('resolveNumberFormat falls back to language subtag', () => {
+      const service = new FormatService({
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+      expect(service.resolveNumberFormat('en-US', 'currency')).toEqual({ style: 'currency', currency: 'USD' })
+    })
+
+    test('resolveDateTimeFormat returns named datetime options', () => {
+      const service = new FormatService({
+        datetimeFormats: {
+          en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+        },
+      })
+      expect(service.resolveDateTimeFormat('en', 'short')).toEqual({
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
     })
   })
 
@@ -105,6 +168,15 @@ describe('FormatService', () => {
     test('should handle invalid date by returning "0 seconds ago"', () => {
       const result = formatService.formatRelativeTime('invalid-date', 'en-US')
       expect(result).toBe('in 0 seconds')
+    })
+
+    test('should reuse cached Intl.RelativeTimeFormat instances', () => {
+      const past = new Date(Date.now() - 60_000)
+      const a = formatService.getRelativeTimeFormatter('en-US')
+      const b = formatService.getRelativeTimeFormatter('en-US')
+      expect(a).toBe(b)
+      formatService.formatRelativeTime(past, 'en-US')
+      expect(formatService.getRelativeTimeFormatter('en-US')).toBe(a)
     })
   })
 })

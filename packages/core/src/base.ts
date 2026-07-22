@@ -1,5 +1,5 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
-import { FormatService } from './format-service'
+import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
 import { defaultPlural, interpolate } from './helpers'
 import { type TranslationStorage, useTranslationHelper } from './translation'
 
@@ -9,6 +9,10 @@ export interface BaseI18nOptions {
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
   getCustomMissingHandler?: () => MissingHandler | null
+  /** Named number formats per locale (Vue I18n-compatible). */
+  numberFormats?: NumberFormatsConfig
+  /** Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). */
+  datetimeFormats?: DateTimeFormatsConfig
 }
 
 /**
@@ -28,7 +32,11 @@ export abstract class BaseI18n {
 
   constructor(options: BaseI18nOptions = {}) {
     this.helper = useTranslationHelper(options.storage)
-    this.formatter = new FormatService()
+    const formatOptions: FormatServiceOptions = {
+      numberFormats: options.numberFormats,
+      datetimeFormats: options.datetimeFormats,
+    }
+    this.formatter = new FormatService(formatOptions)
     this.pluralFunc = options.plural || defaultPlural
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
@@ -102,6 +110,17 @@ export abstract class BaseI18n {
   }
 
   /**
+   * Dev-only client `console.warn`, gated by `missingWarn`.
+   * Shared by missing translations and missing named formats.
+   */
+  protected warnDev(message: string): void {
+    if (!this.missingWarn) return
+    if (process.env.NODE_ENV === 'production') return
+    if (typeof window === 'undefined') return
+    console.warn(message)
+  }
+
+  /**
    * Warn or invoke handler when translation is missing.
    */
   protected warnMissing(key: TranslationKey, routeContext?: unknown): void {
@@ -115,13 +134,15 @@ export abstract class BaseI18n {
       this.missingHandler(locale, String(key), routeName)
       return
     }
-    if (this.missingWarn) {
-      const isDev = process.env.NODE_ENV !== 'production'
-      const isClient = typeof window !== 'undefined'
-      if (isDev && isClient) {
-        console.warn(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
-      }
-    }
+    this.warnDev(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
+  }
+
+  /**
+   * Warn when a named number/datetime format key is missing.
+   * Falls back to default Intl options (visible in dev via {@link warnDev}).
+   */
+  protected warnMissingFormat(kind: 'number' | 'datetime', key: string, locale: string): void {
+    this.warnDev(`Not found '${key}' ${kind} format in '${locale}' locale. Falling back to default Intl options.`)
   }
 
   // --- Public methods (implemented in base class) ---
@@ -179,19 +200,39 @@ export abstract class BaseI18n {
   }
 
   /**
-   * Format number
+   * Format number.
+   * Supports Vue I18n-style named formats: `tn(1000, 'currency')`.
    */
-  public tn(value: number, options?: Intl.NumberFormatOptions): string {
+  public tn(value: number, options?: Intl.NumberFormatOptions): string
+  public tn(value: number, key: string, overrides?: Intl.NumberFormatOptions): string
+  public tn(value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string
+  public tn(
+    value: number,
+    keyOrOptions?: string | Intl.NumberFormatOptions,
+    localeOrOverrides?: string | Intl.NumberFormatOptions,
+    overrides?: Intl.NumberFormatOptions,
+  ): string {
     this.touch()
-    return this.formatter.formatNumber(value, this.getLocale(), options)
+    const resolved = this.resolveNumberFormatArgs(keyOrOptions, localeOrOverrides, overrides)
+    return this.formatter.formatNumber(value, resolved.locale, resolved.options)
   }
 
   /**
-   * Format date
+   * Format date.
+   * Supports Vue I18n-style named formats: `td(date, 'short')`.
    */
-  public td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string {
+  public td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string
+  public td(value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string
+  public td(value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string
+  public td(
+    value: Date | number | string,
+    keyOrOptions?: string | Intl.DateTimeFormatOptions,
+    localeOrOverrides?: string | Intl.DateTimeFormatOptions,
+    overrides?: Intl.DateTimeFormatOptions,
+  ): string {
     this.touch()
-    return this.formatter.formatDate(value, this.getLocale(), options)
+    const resolved = this.resolveDateTimeFormatArgs(keyOrOptions, localeOrOverrides, overrides)
+    return this.formatter.formatDate(value, resolved.locale, resolved.options)
   }
 
   /**
@@ -211,10 +252,67 @@ export abstract class BaseI18n {
   }
 
   /**
-   * Clear cache
+   * Clear translation + formatter caches
    */
   public clearCache(): void {
     this.helper.clearCache()
+    this.formatter.clearCache()
+  }
+
+  private resolveNumberFormatArgs(
+    keyOrOptions?: string | Intl.NumberFormatOptions,
+    localeOrOverrides?: string | Intl.NumberFormatOptions,
+    overrides?: Intl.NumberFormatOptions,
+  ): { locale: string; options: Intl.NumberFormatOptions | undefined } {
+    if (typeof keyOrOptions !== 'string') {
+      return { locale: this.getLocale(), options: keyOrOptions }
+    }
+
+    let locale = this.getLocale()
+    let extra: Intl.NumberFormatOptions | undefined
+    if (typeof localeOrOverrides === 'string') {
+      locale = localeOrOverrides
+      extra = overrides
+    } else {
+      extra = localeOrOverrides
+    }
+
+    const named = this.formatter.resolveNumberFormat(locale, keyOrOptions)
+    if (!named) {
+      this.warnMissingFormat('number', keyOrOptions, locale)
+    }
+    if (!named && !extra) {
+      return { locale, options: undefined }
+    }
+    return { locale, options: named ? { ...named, ...extra } : extra }
+  }
+
+  private resolveDateTimeFormatArgs(
+    keyOrOptions?: string | Intl.DateTimeFormatOptions,
+    localeOrOverrides?: string | Intl.DateTimeFormatOptions,
+    overrides?: Intl.DateTimeFormatOptions,
+  ): { locale: string; options: Intl.DateTimeFormatOptions | undefined } {
+    if (typeof keyOrOptions !== 'string') {
+      return { locale: this.getLocale(), options: keyOrOptions }
+    }
+
+    let locale = this.getLocale()
+    let extra: Intl.DateTimeFormatOptions | undefined
+    if (typeof localeOrOverrides === 'string') {
+      locale = localeOrOverrides
+      extra = overrides
+    } else {
+      extra = localeOrOverrides
+    }
+
+    const named = this.formatter.resolveDateTimeFormat(locale, keyOrOptions)
+    if (!named) {
+      this.warnMissingFormat('datetime', keyOrOptions, locale)
+    }
+    if (!named && !extra) {
+      return { locale, options: undefined }
+    }
+    return { locale, options: named ? { ...named, ...extra } : extra }
   }
 
   // --- Public methods (for subclasses to use) ---

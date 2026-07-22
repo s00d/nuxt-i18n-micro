@@ -1,5 +1,6 @@
 import type { PluralFunc, Translations } from '@i18n-micro/types'
 import { BaseI18n, type BaseI18nOptions } from '../src/base'
+import { describe, expect, test, vi } from 'vitest'
 
 // Test implementation of BaseI18n
 class TestI18n extends BaseI18n {
@@ -62,7 +63,7 @@ describe('BaseI18n', () => {
     })
 
     test('should initialize with missingHandler', () => {
-      const handler = jest.fn()
+      const handler = vi.fn()
       const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
       expect(i18n).toBeDefined()
     })
@@ -119,7 +120,7 @@ describe('BaseI18n', () => {
     })
 
     test('should call missingHandler when translation is missing', () => {
-      const handler = jest.fn()
+      const handler = vi.fn()
       const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
 
       i18n.t('missing.key')
@@ -128,7 +129,7 @@ describe('BaseI18n', () => {
     })
 
     test('should call customMissingHandler when set (Nuxt runtime)', () => {
-      const customHandler = jest.fn()
+      const customHandler = vi.fn()
       const i18n = new TestI18n('en', 'en', 'index', {
         getCustomMissingHandler: () => customHandler,
       })
@@ -139,7 +140,7 @@ describe('BaseI18n', () => {
     })
 
     test('should not warn when missingWarn is false', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
 
       i18n.t('missing.key')
@@ -241,6 +242,68 @@ describe('BaseI18n', () => {
       // Russian locale uses different number formatting
       expect(result).toBeDefined()
     })
+
+    test('should format number with named format key', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+      const result = i18n.tn(1000, 'currency')
+      expect(result).toMatch(/\$1,000\.00|USD/)
+    })
+
+    test('should allow locale override with named format', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+          de: { currency: { style: 'currency', currency: 'EUR' } },
+        },
+      })
+      const result = i18n.tn(1000, 'currency', 'de')
+      expect(result).toMatch(/€|EUR/)
+    })
+
+    test('should merge overrides onto named format', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+      const withGrouping = i18n.tn(1000, 'currency')
+      const withoutGrouping = i18n.tn(1000, 'currency', { useGrouping: false })
+      expect(withGrouping).not.toBe(withoutGrouping)
+      expect(withoutGrouping).toMatch(/\$1000\.00|USD\s*1000/)
+    })
+
+    test('should warn in dev when named number format is missing', () => {
+      vi.stubGlobal('window', {})
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+
+      const result = i18n.tn(1000, 'nonexistent')
+
+      expect(result).toBeDefined()
+      expect(consoleSpy).toHaveBeenCalledWith("Not found 'nonexistent' number format in 'en' locale. Falling back to default Intl options.")
+      consoleSpy.mockRestore()
+      vi.unstubAllGlobals()
+    })
+
+    test('should not warn for missing named number format when missingWarn is false', () => {
+      vi.stubGlobal('window', {})
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+
+      i18n.tn(1000, 'nonexistent')
+
+      expect(consoleSpy).not.toHaveBeenCalled()
+      consoleSpy.mockRestore()
+      vi.unstubAllGlobals()
+    })
   })
 
   describe('td() method', () => {
@@ -273,6 +336,40 @@ describe('BaseI18n', () => {
       const result = i18n.td('2024-01-15')
       expect(result).toBeDefined()
       expect(result).not.toBe('Invalid Date')
+    })
+
+    test('should format date with named format key', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        datetimeFormats: {
+          en: {
+            short: { year: 'numeric', month: 'short', day: 'numeric' },
+            long: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
+          },
+        },
+      })
+      const date = new Date('2024-01-15T12:00:00Z')
+      const short = i18n.td(date, 'short')
+      const long = i18n.td(date, 'long')
+      expect(short).toContain('2024')
+      expect(long).toMatch(/January|Monday|2024/)
+      expect(long.length).toBeGreaterThan(short.length)
+    })
+
+    test('should warn in dev when named datetime format is missing', () => {
+      vi.stubGlobal('window', {})
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const i18n = new TestI18n('en', 'en', 'index', {
+        datetimeFormats: {
+          en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+        },
+      })
+
+      const result = i18n.td(new Date('2024-01-15'), 'nonexistent')
+
+      expect(result).toBeDefined()
+      expect(consoleSpy).toHaveBeenCalledWith("Not found 'nonexistent' datetime format in 'en' locale. Falling back to default Intl options.")
+      consoleSpy.mockRestore()
+      vi.unstubAllGlobals()
     })
   })
 

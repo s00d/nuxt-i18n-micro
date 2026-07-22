@@ -45,6 +45,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     plural,
     missingWarn: i18nConfig.missingWarn ?? true,
     getCustomMissingHandler: () => customMissingHandler.value,
+    numberFormats: i18nConfig.numberFormats,
+    datetimeFormats: i18nConfig.datetimeFormats,
   })
 
   const getCurrentLocale = (route?: ResolvedRouteLike): string => {
@@ -196,8 +198,16 @@ export interface PluginsInjections {
   $ts: (key: string, params?: Params, defaultValue?: string) => string
   $_ts: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => string
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
-  $tn: (value: number, options?: Intl.NumberFormatOptions) => string
-  $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
+  $tn: {
+    (value: number, options?: Intl.NumberFormatOptions): string
+    (value: number, key: string, overrides?: Intl.NumberFormatOptions): string
+    (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string
+  }
+  $td: {
+    (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string
+    (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string
+    (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string
+  }
   $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
   $has: (key: string) => boolean
   $mergeTranslations: (newTranslations: Translations) => void

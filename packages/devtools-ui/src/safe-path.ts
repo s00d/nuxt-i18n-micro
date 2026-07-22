@@ -29,6 +29,10 @@ function realpathAllowingMissing(p: string): string {
       if (error instanceof Error && error.message.startsWith('Access denied:')) {
         throw error
       }
+      const code = error instanceof Error && 'code' in error ? (error as NodeJS.ErrnoException).code : undefined
+      if (code !== 'ENOENT' && code !== 'ENOTDIR') {
+        throw error
+      }
       // Missing segment — walk up and keep the tail.
       tail.unshift(path.basename(current))
       const parent = path.dirname(current)

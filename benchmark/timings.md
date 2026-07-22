@@ -8,7 +8,7 @@ Environment: local macOS, Node from project toolchain.
 | ------------------------------------ | ----------------------------------------- | ---------------------------------------------------------------------------------- |
 | `pnpm test:workspaces`               | ~9s                                       | 77 files, 921 tests (1 pre-existing react characterization flake fixed separately) |
 | `pnpm test`                            | pending                                   | Root vitest projects (unit + e2e + packages)                                         |
-| `pnpm test:unit`                       | pending                                   | Build/generate tests (`*.test.ts`, no `*.e2e.test.ts`)                              |
+| `pnpm test:unit`                       | pending                                   | Unit/build tests (`*.test.ts`, excluding `*.e2e.test.ts` and `performance.test.ts`) |
 | `pnpm test:e2e`                        | pending                                   | Browser specs with shared prebuilt fixtures                                        |
 | `pnpm exec vitest run --project e2e`   | pending                                   | Same as `test:e2e`                                                                 |
 

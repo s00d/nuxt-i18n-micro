@@ -1,8 +1,8 @@
-import { availableParallelism, cpus } from 'node:os'
+import os from 'node:os'
 import { defineConfig } from 'vitest/config'
 
 const isCI = !!process.env.CI
-const parallelism = availableParallelism?.() ?? cpus().length
+const parallelism = typeof os.availableParallelism === 'function' ? os.availableParallelism() : os.cpus().length
 const maxForks = isCI ? 1 : Math.max(1, Math.floor(parallelism / 2))
 
 /**

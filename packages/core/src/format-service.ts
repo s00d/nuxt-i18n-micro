@@ -9,17 +9,13 @@ export interface FormatServiceOptions {
 
 function stableOptionsKey(options: object | undefined): string {
   if (!options) return ''
+  const keys = Object.keys(options).sort()
+  if (keys.length === 0) return ''
   const normalized: Record<string, unknown> = {}
-  for (const key in options) {
+  for (const key of keys) {
     normalized[key] = (options as Record<string, unknown>)[key]
   }
-  const keys = Object.keys(normalized).sort()
-  if (keys.length === 0) return ''
-  const sorted: Record<string, unknown> = {}
-  for (const key of keys) {
-    sorted[key] = normalized[key]
-  }
-  return JSON.stringify(sorted)
+  return JSON.stringify(normalized)
 }
 
 function formatterCacheKey(locale: string, options: object | undefined): string {

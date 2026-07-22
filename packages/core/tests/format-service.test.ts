@@ -111,6 +111,22 @@ describe('FormatService', () => {
         day: 'numeric',
       })
     })
+
+    test('getNumberFormats returns configured number formats', () => {
+      const numberFormats = {
+        en: { currency: { style: 'currency', currency: 'USD' } },
+      }
+      const service = new FormatService({ numberFormats })
+      expect(service.getNumberFormats()).toBe(numberFormats)
+    })
+
+    test('getDateTimeFormats returns configured datetime formats', () => {
+      const datetimeFormats = {
+        en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+      }
+      const service = new FormatService({ datetimeFormats })
+      expect(service.getDateTimeFormats()).toBe(datetimeFormats)
+    })
   })
 
   describe('formatRelativeTime', () => {

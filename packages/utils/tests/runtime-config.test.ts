@@ -1,5 +1,6 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { resolveI18nConfigWithRuntimeOverrides } from '../src/runtime-config'
+import { describe, expect, it, vi } from 'vitest'
 
 function createBaseConfig(): ModuleOptionsExtend {
   return {
@@ -33,7 +34,7 @@ describe('resolveI18nConfigWithRuntimeOverrides', () => {
   })
 
   it('ignores strategy override and warns', () => {
-    const warn = jest.fn()
+    const warn = vi.fn()
     const config = resolveI18nConfigWithRuntimeOverrides(createBaseConfig(), { i18nRuntime: { strategy: 'no_prefix' } }, warn)
 
     expect(config.strategy).toBe('prefix_except_default')
@@ -41,7 +42,7 @@ describe('resolveI18nConfigWithRuntimeOverrides', () => {
   })
 
   it('rejects disabling all locales and keeps original locales', () => {
-    const warn = jest.fn()
+    const warn = vi.fn()
     const base = createBaseConfig()
     const config = resolveI18nConfigWithRuntimeOverrides(base, { i18nRuntime: { disabledLocales: ['en', 'fr', 'de'] } }, warn)
 
@@ -51,7 +52,7 @@ describe('resolveI18nConfigWithRuntimeOverrides', () => {
   })
 
   it('falls back to first enabled locale when defaultLocale is disabled', () => {
-    const warn = jest.fn()
+    const warn = vi.fn()
     const config = resolveI18nConfigWithRuntimeOverrides(createBaseConfig(), { i18nRuntime: { disabledLocales: ['en'] } }, warn)
 
     expect(config.defaultLocale).toBe('fr')

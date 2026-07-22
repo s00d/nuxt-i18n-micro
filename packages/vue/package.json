@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/vue",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Vue 3 bindings for i18n-micro — composables, components, and routing helpers.",
   "keywords": [
     "i18n",
@@ -50,7 +50,7 @@
     "check:package": "publint",
     "dev": "cd playground && vite",
     "dev:ssr": "cd playground && node server.js",
-    "test": "jest",
+    "test": "vitest run",
     "test:dist": "vitest run --config vitest.dist.config.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
@@ -61,12 +61,9 @@
     "@i18n-micro/utils": "workspace:*"
   },
   "devDependencies": {
-    "@types/jest": "catalog:",
     "@vue/test-utils": "catalog:",
-    "jest": "catalog:",
-    "jest-environment-jsdom": "catalog:",
+    "jsdom": "catalog:",
     "publint": "^0.3.17",
-    "ts-jest": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:",

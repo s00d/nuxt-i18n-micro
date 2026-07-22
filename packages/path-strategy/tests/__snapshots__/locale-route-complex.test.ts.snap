@@ -1,4 +1,40 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildPathFromBaseNameAndParams (router does not have route) > prefix: route name test-id with param id, router throws → hyphen form path test-:id 1`] = `
+{
+  "fullPath": "/de/test-42",
+  "params": {
+    "id": "42",
+  },
+  "path": "/de/test-42",
+}
+`;
+
+exports[`buildPathFromBaseNameAndParams (router does not have route) > prefix_except_default: route with params, path from resolved route when router returns path 1`] = `
+{
+  "fullPath": "/de/products/1",
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "1",
+  },
+  "path": "/de/products/1",
+  "query": {},
+}
+`;
+
+exports[`buildPathFromBaseNameAndParams (router does not have route) > prefix_except_default: when source has no path and router throws on base name resolve, path built from baseName+params 1`] = `
+{
+  "fullPath": "/de/products/id",
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "1",
+  },
+  "path": "/de/products/id",
+  "query": {},
+}
+`;
 
 exports[`buildPathFromBaseNameAndParams (router does not have route) prefix: route name test-id with param id, router throws → hyphen form path test-:id 1`] = `
 {
@@ -36,6 +72,35 @@ exports[`buildPathFromBaseNameAndParams (router does not have route) prefix_exce
 }
 `;
 
+exports[`getRedirect edge cases for all strategies > no_prefix: no redirect for path without locale segment 1`] = `
+{
+  "aboutEn": null,
+  "productsDe": null,
+}
+`;
+
+exports[`getRedirect edge cases for all strategies > prefix: redirect root to /locale for every locale 1`] = `
+{
+  "rootEn": "/en",
+  "rootRu": "/ru",
+}
+`;
+
+exports[`getRedirect edge cases for all strategies > prefix_and_default: redirect / to /en, /about to /de/about 1`] = `
+{
+  "aboutDe": "/de/about",
+  "enAboutEn": null,
+  "rootEn": "/en",
+}
+`;
+
+exports[`getRedirect edge cases for all strategies > prefix_except_default: redirect /de to /en, /de/about to /en/about when target is default locale 1`] = `
+{
+  "deAboutToEn": "/en/about",
+  "deToEn": "/en",
+}
+`;
+
 exports[`getRedirect edge cases for all strategies no_prefix: no redirect for path without locale segment 1`] = `
 {
   "aboutEn": null,
@@ -65,6 +130,23 @@ exports[`getRedirect edge cases for all strategies prefix_except_default: redire
 }
 `;
 
+exports[`localeRoute with baseUrl > localeRoute applies baseUrl when locale has baseUrl 1`] = `
+{
+  "de": {
+    "fullPath": "https://de.example.com/de/about",
+    "path": "https://de.example.com/de/about",
+  },
+  "en": {
+    "fullPath": "/about",
+    "path": "/about",
+  },
+  "ru": {
+    "fullPath": "https://ru.example.com/ru/about",
+    "path": "https://ru.example.com/ru/about",
+  },
+}
+`;
+
 exports[`localeRoute with baseUrl localeRoute applies baseUrl when locale has baseUrl 1`] = `
 {
   "de": {
@@ -82,6 +164,17 @@ exports[`localeRoute with baseUrl localeRoute applies baseUrl when locale has ba
 }
 `;
 
+exports[`localeRoute with query and hash preserved when using baseUrl > applyBaseUrl on RouteLike preserves query and hash in fullPath 1`] = `
+{
+  "fullPath": "https://de.example.com/de/about?tab=info#section",
+  "hash": "#section",
+  "path": "https://de.example.com/de/about",
+  "query": {
+    "tab": "info",
+  },
+}
+`;
+
 exports[`localeRoute with query and hash preserved when using baseUrl applyBaseUrl on RouteLike preserves query and hash in fullPath 1`] = `
 {
   "fullPath": "https://de.example.com/de/about?tab=info#section",
@@ -89,6 +182,19 @@ exports[`localeRoute with query and hash preserved when using baseUrl applyBaseU
   "path": "https://de.example.com/de/about",
   "query": {
     "tab": "info",
+  },
+}
+`;
+
+exports[`nested globalLocaleRoutes (parent key) > prefix_except_default: nested route uses full path from globalLocaleRoutes when key matches path 1`] = `
+{
+  "de": {
+    "fullPath": "/de/eltern/kind",
+    "path": "/de/eltern/kind",
+  },
+  "en": {
+    "fullPath": "/parent-en/child",
+    "path": "/parent-en/child",
   },
 }
 `;
@@ -103,6 +209,38 @@ exports[`nested globalLocaleRoutes (parent key) prefix_except_default: nested ro
     "fullPath": "/parent-en/child",
     "path": "/parent-en/child",
   },
+}
+`;
+
+exports[`snapshots (documentation: baseUrl, routesLocaleLinks, switchLocaleRoute) > localeRoute with baseUrl: path per locale with baseUrl 1`] = `
+{
+  "de": {
+    "fullPath": "https://de.example.com/de/about",
+    "path": "https://de.example.com/de/about",
+  },
+  "en": {
+    "fullPath": "/about",
+    "path": "/about",
+  },
+  "ru": {
+    "fullPath": "https://ru.example.com/ru/about",
+    "path": "https://ru.example.com/ru/about",
+  },
+}
+`;
+
+exports[`snapshots (documentation: baseUrl, routesLocaleLinks, switchLocaleRoute) > switchLocaleRoute with i18nRouteParams: merged params result 1`] = `
+{
+  "fullPath": "/products/2",
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "2",
+    "locale": "de",
+    "slug": "product-2",
+  },
+  "path": "/products/2",
+  "query": {},
 }
 `;
 
@@ -124,6 +262,21 @@ exports[`snapshots (documentation: baseUrl, routesLocaleLinks, switchLocaleRoute
 `;
 
 exports[`snapshots (documentation: baseUrl, routesLocaleLinks, switchLocaleRoute) switchLocaleRoute with i18nRouteParams: merged params result 1`] = `
+{
+  "fullPath": "/products/2",
+  "hash": "",
+  "name": "localized-products-id-de",
+  "params": {
+    "id": "2",
+    "locale": "de",
+    "slug": "product-2",
+  },
+  "path": "/products/2",
+  "query": {},
+}
+`;
+
+exports[`switchLocaleRoute with i18nRouteParams > i18nRouteParams override and extend params for target locale 1`] = `
 {
   "fullPath": "/products/2",
   "hash": "",

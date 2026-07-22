@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'vitest'
 import { createI18n, ReactI18n } from '../src/i18n'
 
 describe('ReactI18n', () => {

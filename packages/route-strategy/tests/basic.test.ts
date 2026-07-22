@@ -2,6 +2,7 @@ import path from 'node:path'
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src'
 import { defaultLocaleCode, fixturesDir, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - Basic Functionality', () => {
   describe('Basic Functionality', () => {

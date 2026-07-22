@@ -1,6 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
 import { createNestedPages, defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - default locale behavior in extendPages', () => {
   test('prefix_except_default: updates page.path from localizedPaths for default locale', () => {

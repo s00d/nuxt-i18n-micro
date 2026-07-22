@@ -1,6 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
 import { createManager, defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - Complex combinations (globalLocaleRoutes + filesLocaleRoutes + routeLocales)', () => {
   test('globalLocaleRoutes overrides filesLocaleRoutes for same path', () => {

@@ -60,12 +60,8 @@ catalog:
   '@astrojs/svelte': ^7.2.2
   svelte: "^4.0.0 || ^5.0.0"
   # Testing
-  jest: ^29.7.0
-  ts-jest: ^29.4.6
-  babel-jest: ^29.7.0
-  jest-environment-jsdom: ^29.7.0
-  '@types/jest': ^29.5.14
   vitest: ^3.2.4
+  jsdom: ^25.0.1
   '@playwright/test': ^1.55.0
   '@testing-library/jest-dom': ^6.9.1
   '@testing-library/react': ^14.3.1
@@ -75,9 +71,6 @@ catalog:
   typescript: ^5.9.3
   '@types/node': ^20.19.26
   tsx: ^4.0.0
-  # Babel
-  '@babel/core': ^7.26.0
-  '@babel/preset-env': ^7.26.0
   # Docs & lint
   vitepress: ^1.6.4
   oxfmt: ^0.43.0

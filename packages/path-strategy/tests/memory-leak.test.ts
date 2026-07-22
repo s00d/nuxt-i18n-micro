@@ -11,6 +11,7 @@
 import { createPathStrategy } from '../src'
 import { preserveQueryAndHash } from '../src/helpers'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike, RouterAdapter } from '../src/types'
+import { describe, expect, test } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Helpers

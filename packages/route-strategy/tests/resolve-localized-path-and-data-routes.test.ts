@@ -1,6 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
 import { createBasicPages, defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator.resolveLocalizedPath', () => {
   test('no_prefix: returns path without locale prefix for any locale', () => {

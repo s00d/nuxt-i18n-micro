@@ -3,6 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import type { Locale } from '@i18n-micro/types'
 import { RouteGenerator } from '../src/index'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 
 function join(...parts: string[]) {
   return path.join(...parts)

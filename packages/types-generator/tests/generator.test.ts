@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, beforeEach, describe, expect, test } from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { generateTypes } from '../src/core/generator'
 
 describe('generateTypes', () => {
@@ -141,7 +141,7 @@ describe('generateTypes', () => {
     const outputFile = join(testDir, 'i18n-types.d.ts')
 
     // Suppress expected warning for invalid JSON
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     // Should not throw
     await generateTypes({

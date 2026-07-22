@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { scanTranslationPayloadDirectory } from '../src/payload-stats'
+import { describe, expect, it } from 'vitest'
 
 describe('scanTranslationPayloadDirectory', () => {
   it('counts json files recursively', () => {

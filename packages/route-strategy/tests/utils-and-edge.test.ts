@@ -16,6 +16,7 @@ import {
   shouldAddLocalePrefix,
 } from '../src/index'
 import { createBasicPages, createManager, defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - Exported utils', () => {
   describe('normalizeRouteKey', () => {

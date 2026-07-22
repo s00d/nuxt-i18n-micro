@@ -1,17 +1,17 @@
 import type { Locale } from '@i18n-micro/types'
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { createApp } from 'vue'
 import { createI18n, I18nDefaultLocaleKey, I18nLocalesKey, useI18n, VueI18n } from '../src'
 
 // Suppress expected Vue warnings about router injection in tests
 // These warnings are expected when router is not installed (e.g., in unit tests)
-let warnSpy: ReturnType<typeof jest.spyOn> | undefined
+let warnSpy: ReturnType<typeof vi.spyOn> | undefined
 const originalWarn = console.warn
 
 beforeEach(() => {
   // Suppress Vue warnings about missing router injection
   // These are expected in tests where router is not set up
-  warnSpy = jest.spyOn(console, 'warn').mockImplementation((message: string) => {
+  warnSpy = vi.spyOn(console, 'warn').mockImplementation((message: string) => {
     // Only suppress router-related warnings
     if (
       typeof message === 'string' &&

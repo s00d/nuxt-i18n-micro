@@ -3,6 +3,7 @@
  * otherwise getRedirect gives wrong result and redirect loop / query loss on navigation may occur.
  */
 import { getPathWithoutLocale } from '../src/path'
+import { describe, expect, test } from 'vitest'
 
 const localeCodes = ['en', 'de', 'ru']
 

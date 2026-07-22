@@ -1,3 +1,4 @@
+import { cpus } from 'node:os'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -8,7 +9,7 @@ export default defineConfig({
     pool: 'forks',
     poolOptions: {
       forks: {
-        maxForks: 1,
+        maxForks: Math.max(1, Math.floor(cpus().length / 2)),
       },
     },
   },

@@ -4,6 +4,7 @@
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
+import { describe, expect, test } from 'vitest'
 
 describe('makeRouterAdapter', () => {
   describe('resolve with string input', () => {

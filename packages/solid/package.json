@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/solid",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "SolidJS bindings for i18n-micro — primitives, context, and UI components.",
   "keywords": [
     "i18n",
@@ -49,7 +49,7 @@
     "build": "vite build",
     "check:package": "publint",
     "dev": "cd playground && vite",
-    "test": "jest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
@@ -58,15 +58,13 @@
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
-    "@types/jest": "catalog:",
-    "jest": "catalog:",
-    "jest-environment-jsdom": "catalog:",
+    "jsdom": "catalog:",
     "publint": "^0.3.17",
     "solid-js": "catalog:",
-    "ts-jest": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vite-plugin-solid": "catalog:"
+    "vite-plugin-solid": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "@solidjs/router": "catalog:",

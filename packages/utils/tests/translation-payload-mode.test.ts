@@ -1,4 +1,5 @@
 import { resolveTranslationPayloadMode, resolveTranslationPayloadOptions } from '../src/payload-config'
+import { describe, expect, it } from 'vitest'
 
 describe('translationPayloads mode', () => {
   it('defaults to premerged mode', () => {

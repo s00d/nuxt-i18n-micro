@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'vitest'
 import { flattenKeys } from '../src/core/parser'
 
 describe('flattenKeys', () => {

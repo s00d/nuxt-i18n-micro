@@ -1,6 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
 import { createDeepNestedPages, createManager, createVeryDeepNestedPages, defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - Deep nesting (4 levels)', () => {
   test('prefix_except_default: deep nested without custom paths', () => {

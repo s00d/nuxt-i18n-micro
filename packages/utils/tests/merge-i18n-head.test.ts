@@ -1,5 +1,6 @@
 import type { I18nHeadObject } from '../src/merge-i18n-head'
 import { mergeI18nHead } from '../src/merge-i18n-head'
+import { describe, expect, it } from 'vitest'
 
 const base: I18nHeadObject = {
   htmlAttrs: { lang: 'en-US', dir: 'ltr' },

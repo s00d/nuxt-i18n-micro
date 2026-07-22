@@ -2,6 +2,7 @@ import type { Locale } from '@i18n-micro/types'
 import type { NuxtPage } from '@nuxt/schema'
 import { isLocaleAllowedForUnlocalizedRoute, RouteGenerator } from '../src/index'
 import { defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - Locale restrictions ($defineI18nRoute)', () => {
   test('should respect locale restrictions from $defineI18nRoute - locales only', () => {

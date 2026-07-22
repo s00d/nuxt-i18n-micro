@@ -1,4 +1,5 @@
 import { withoutAppBaseURL } from '../src/app-path'
+import { describe, expect, it } from 'vitest'
 
 describe('withoutAppBaseURL', () => {
   it('returns pathname unchanged when baseURL is empty or root', () => {

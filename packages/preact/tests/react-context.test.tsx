@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { describe, expect, jest, test } from '@jest/globals'
+import { describe, expect, test, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/preact'
 import { h } from 'preact'
 import React from 'react'
@@ -49,7 +49,7 @@ describe('I18nProvider and useI18n', () => {
 
   test('should throw error when used outside provider', () => {
     // Suppress console.error for this test
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // React Testing Library will catch the error, so we need to check it differently
     const ErrorComponent = () => {

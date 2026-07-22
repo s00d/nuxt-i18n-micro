@@ -1,4 +1,5 @@
 import { loadSourceTranslationsFromStorage } from '../src/source-loader'
+import { describe, expect, it } from 'vitest'
 
 describe('loadSourceTranslationsFromStorage', () => {
   it('loads and merges root/page source files from Nitro storage keys', async () => {

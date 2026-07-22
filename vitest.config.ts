@@ -1,3 +1,4 @@
+import { cpus } from 'node:os'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -8,12 +9,13 @@ export default defineConfig({
       'test/fixtures/**',
     ],
     testTimeout: 300_000, // 5 min per suite
-    // Single worker: tests do not run in parallel by file, so fixtures
-    // (strategy, async-components) don't overwrite each other's .nuxt/.output during full runs.
     pool: 'forks',
     poolOptions: {
       forks: {
-        maxForks: 1,
+        // Build-spawning tests are isolated per file (NUXT_TEST_BUILD_DIR or
+        // unique fixtures), so files can run in parallel. Each spawned
+        // `nuxi build` is itself multi-process — cap forks to avoid thrash.
+        maxForks: Math.max(2, Math.floor(cpus().length / 2)),
       },
     },
   },

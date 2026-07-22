@@ -1,4 +1,5 @@
 import { buildFallbackLocaleChain, buildSourcePagePath, buildSourceRootPath, mergeSourceTranslations, toSourceStorageKey } from '../src/merge-source'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('buildFallbackLocaleChain', () => {
   const locales = [{ code: 'en' }, { code: 'de', fallbackLocale: 'en' }, { code: 'fr', fallbackLocale: 'en' }]
@@ -42,7 +43,7 @@ describe('mergeSourceTranslations', () => {
   })
 
   it('uses index page when disablePageLocales is true', async () => {
-    const readLocaleFile = jest.fn((relativePath: string) => {
+    const readLocaleFile = vi.fn((relativePath: string) => {
       if (relativePath === 'en.json') return { greeting: 'Hello' }
       if (relativePath === 'pages/index/en.json') return { page: 'Index' }
       return {}

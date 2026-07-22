@@ -1,4 +1,5 @@
 import { i18nUtils } from '../src'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 describe('i18nUtils', () => {
   const mockTranslations = {
@@ -10,14 +11,14 @@ describe('i18nUtils', () => {
   }
 
   beforeEach(async () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {})
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     i18nUtils.setLocale('en')
     await i18nUtils.setTranslationsFromJson('en', mockTranslations)
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   test('t function returns correct translation', () => {

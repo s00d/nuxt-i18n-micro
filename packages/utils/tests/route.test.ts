@@ -1,4 +1,5 @@
 import { findAllowedLocalesForRoute, isMetaDisabledForRoute } from '../src/route'
+import { describe, expect, it } from 'vitest'
 
 describe('route locale helpers', () => {
   it('finds allowed locales by route name and path', () => {

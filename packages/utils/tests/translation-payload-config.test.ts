@@ -4,6 +4,7 @@ import {
   hasLocalTranslationPayloadOutput,
   resolveTranslationPayloadOptions,
 } from '../src/payload-config'
+import { describe, expect, it } from 'vitest'
 
 describe('hasLocalTranslationPayloadOutput', () => {
   it('returns true when any local output remains enabled', () => {

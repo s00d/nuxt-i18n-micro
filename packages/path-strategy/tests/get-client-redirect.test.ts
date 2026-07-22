@@ -1,6 +1,7 @@
 import type { PathStrategyContext } from '../src'
 import { createPathStrategy } from '../src'
 import { makeRouterAdapter } from './test-utils'
+import { describe, expect, it } from 'vitest'
 
 describe('getClientRedirect', () => {
   describe('prefix strategy', () => {

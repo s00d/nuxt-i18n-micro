@@ -2,6 +2,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
 import { PrefixExceptDefaultPathStrategy } from '../src'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
+import { describe, expect, test } from 'vitest'
 
 const baseConfig: ModuleOptionsExtend = {
   defaultLocale: 'en',

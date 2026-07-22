@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { createI18n, I18n } from '../src'
+import { describe, expect, test, vi } from 'vitest'
 
 describe('I18n (Simple API)', () => {
   const translations = {
@@ -115,7 +116,7 @@ describe('I18n (Simple API)', () => {
   describe('addRouteTranslations', () => {
     test('adds route-specific translations', () => {
       // Suppress expected warning for mergeTranslation without pre-loading
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const i18n = createI18n({
         locale: 'en',
@@ -148,7 +149,7 @@ describe('I18n (Simple API)', () => {
 
     test('t() uses currentRoute by default', () => {
       // Suppress expected warning for mergeTranslation without pre-loading
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const i18n = createI18n({
         locale: 'en',

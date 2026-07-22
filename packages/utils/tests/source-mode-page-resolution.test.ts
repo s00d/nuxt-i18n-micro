@@ -1,8 +1,9 @@
 import { mergeSourceTranslations } from '../src/merge-source'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('source mode page resolution', () => {
   it('loads linked page files when pageName is already resolved', async () => {
-    const readLocaleFile = jest.fn((relativePath: string) => {
+    const readLocaleFile = vi.fn((relativePath: string) => {
       if (relativePath === 'en.json') return { shared: 'Root' }
       if (relativePath === 'pages/contact/en.json') return { title: 'Contact' }
       return {}

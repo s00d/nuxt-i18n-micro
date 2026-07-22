@@ -1,4 +1,5 @@
 import { handleTranslationWatchChange, parseTranslationWatchRelativePath } from '../src/watcher'
+import { describe, expect, it } from 'vitest'
 
 describe('parseTranslationWatchRelativePath', () => {
   it('parses page locale files', () => {

@@ -178,10 +178,32 @@ You can access the playground app at `http://localhost:3000`.
 - **`pnpm run test:integration`**: Suites that spawn real Nuxt builds.
 - **`pnpm run test:e2e`**: Browser specs against real servers.
 - **`pnpm run typecheck`**: Check TypeScript types.
+- **`pnpm run check:versions`**: Verify every changed package in `packages/*` also got a version bump (see below).
 - **`pnpm run docs:dev`**: Start the documentation site in development mode.
 - **`pnpm run docs:build`**: Build the documentation site.
 - **`pnpm run docs:serve`**: Serve the built documentation site locally.
 - **`pnpm run dev:build`**: Build the playground environment.
+
+## 📦 Changing a package under `packages/*`
+
+Packages are versioned independently and **by hand** — `changelogen` only bumps the root package. Since `pnpm publish -r` silently _skips_ any package whose version already exists on npm, a forgotten bump does not fail the release: it just leaves that package stale on npm while everything else moves on.
+
+So: **if you change a package, bump its `version` in the same PR.**
+
+CI enforces this via `pnpm run check:versions`, which compares each package against the PR's merge-base (or the last release tag outside a PR):
+
+```bash
+# what CI runs
+pnpm run check:versions
+
+# against an explicit baseline
+node scripts/check-package-versions.mjs --base v3.21.4
+
+# also reject versions already published on npm (part of `release:check`)
+node scripts/check-package-versions.mjs --npm
+```
+
+Changes to tests, docs, playgrounds and test configs are ignored — they cannot affect the published artifact. Everything else counts, so the check fails closed.
 
 # 🚧 Making Changes
 

@@ -20,6 +20,9 @@ jobs:
       FIXTURE_BUILD_CONCURRENCY: 4
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: check:versions diffs against the PR merge-base / last tag.
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 9.14.2
@@ -40,6 +43,10 @@ jobs:
             e2e-shared-${{ runner.os }}-
 
       - run: pnpm install
+      # Packages in packages/* are versioned by hand and `pnpm publish -r` silently
+      # skips a version that already exists on npm — so a forgotten bump ships a
+      # stale package. Fail here instead. Cheap (git only), so it runs early.
+      - run: pnpm run check:versions
       # Memory headroom on the runner, for the record: ubuntu-latest gives
       # 4 vCPU / 15 GiB with ~14 GiB free and ~4 GiB of swap already configured.
       # The previous ERR_IPC_CHANNEL_CLOSED crashes were tests killing processes

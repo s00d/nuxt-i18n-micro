@@ -7,44 +7,56 @@ export const translationWatcherFixtureRoot = fileURLToPath(new URL('../fixtures/
 
 export const translationWatcherSourceFixtureRoot = fileURLToPath(new URL('../fixtures/translation-watcher-source', import.meta.url))
 
-const localesRoot = join(translationWatcherFixtureRoot, 'locales')
-const backups = new Map<string, string>()
+/**
+ * File mutations bound to one fixture.
+ *
+ * These suites edit translation files on disk to trigger the dev watcher, so each
+ * spec must own its files: the two HMR specs assert different values for the same
+ * key and now run in parallel. (Both used to write into the premerged fixture —
+ * the source fixture's `locales` was a symlink to it — which only stayed green
+ * while the suite ran serially.)
+ */
+export function createTranslationWatcherFiles(fixtureRoot: string) {
+  const localesRoot = join(fixtureRoot, 'locales')
+  const backups = new Map<string, string>()
 
-function resolveLocaleFile(relativePath: string): string {
-  return join(localesRoot, relativePath)
-}
+  const resolveLocaleFile = (relativePath: string): string => join(localesRoot, relativePath)
 
-function readLocaleJson(relativePath: string): Record<string, unknown> {
-  return JSON.parse(readFileSync(resolveLocaleFile(relativePath), 'utf-8')) as Record<string, unknown>
-}
+  const backupLocaleFile = (relativePath: string): void => {
+    const filePath = resolveLocaleFile(relativePath)
+    if (!backups.has(filePath)) {
+      backups.set(filePath, readFileSync(filePath, 'utf-8'))
+    }
+  }
 
-function backupLocaleFile(relativePath: string): void {
-  const filePath = resolveLocaleFile(relativePath)
-  if (!backups.has(filePath)) {
-    backups.set(filePath, readFileSync(filePath, 'utf-8'))
+  return {
+    /** Read → patch → write one locale file, keeping a backup for restore. */
+    patchFile(relativePath: string, patch: (current: Record<string, unknown>) => Record<string, unknown>): Record<string, unknown> {
+      const current = JSON.parse(readFileSync(resolveLocaleFile(relativePath), 'utf-8')) as Record<string, unknown>
+      const next = patch(current)
+      backupLocaleFile(relativePath)
+      writeFileSync(resolveLocaleFile(relativePath), `${JSON.stringify(next, null, 2)}\n`)
+      return next
+    },
+
+    /** Restore every file this instance touched (call from afterAll). */
+    restoreAll(): void {
+      for (const [filePath, content] of backups) {
+        writeFileSync(filePath, content)
+      }
+      backups.clear()
+    },
   }
 }
 
-function writeLocaleFile(relativePath: string, content: Record<string, unknown>): void {
-  backupLocaleFile(relativePath)
-  writeFileSync(resolveLocaleFile(relativePath), `${JSON.stringify(content, null, 2)}\n`)
-}
-
-export function patchTranslationWatcherFile(
-  relativePath: string,
-  patch: (current: Record<string, unknown>) => Record<string, unknown>,
-): Record<string, unknown> {
-  const next = patch(readLocaleJson(relativePath))
-  writeLocaleFile(relativePath, next)
-  return next
-}
-
-export function restoreTranslationWatcherFiles(): void {
-  for (const [filePath, content] of backups) {
-    writeFileSync(filePath, content)
-  }
-  backups.clear()
-}
+/**
+ * Dev-mode HMR is inherently slow to observe: a file write has to reach the
+ * watcher, re-merge translations and be served again. On a busy CI runner (specs
+ * run in parallel, several Nuxt processes competing for 4 cores) that regularly
+ * exceeds 20s. Polling returns as soon as the value appears, so a generous
+ * ceiling costs nothing on a healthy run and only prevents load-induced flakes.
+ */
+const HMR_POLL_TIMEOUT_MS = 60_000
 
 export async function waitForTranslationPayloadValue(
   baseURL: string,
@@ -52,7 +64,7 @@ export async function waitForTranslationPayloadValue(
   locale: string,
   key: string,
   expected: string,
-  timeoutMs = 20_000,
+  timeoutMs = HMR_POLL_TIMEOUT_MS,
 ): Promise<void> {
   const normalizedBase = baseURL.endsWith('/') ? baseURL : `${baseURL}/`
   const url = new URL(`_locales/${page}/${locale}/data.json`, normalizedBase)
@@ -68,7 +80,12 @@ export async function waitForTranslationPayloadValue(
   )
 }
 
-export async function waitForTranslationHtmlValue(pageUrl: string, selector: string, expected: string, timeoutMs = 20_000): Promise<void> {
+export async function waitForTranslationHtmlValue(
+  pageUrl: string,
+  selector: string,
+  expected: string,
+  timeoutMs = HMR_POLL_TIMEOUT_MS,
+): Promise<void> {
   const elementId = selector.startsWith('#') ? selector.slice(1) : selector
   const escaped = expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const pattern = new RegExp(`id="${elementId}"[^>]*>\\s*${escaped}\\s*<`)

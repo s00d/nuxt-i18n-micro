@@ -1,7 +1,6 @@
 import {
-  patchTranslationWatcherFile,
+  createTranslationWatcherFiles,
   refreshTranslationWatcherPage,
-  restoreTranslationWatcherFiles,
   translationWatcherSourceFixtureRoot,
   waitForTranslationPayloadValue,
 } from './helpers/translation-watcher-hmr'
@@ -13,8 +12,11 @@ await setupE2E({
   setupTimeout: 180_000,
 })
 
+// Each spec mutates ITS OWN fixture's locale files (they run in parallel).
+const files = createTranslationWatcherFiles(translationWatcherSourceFixtureRoot)
+
 afterAll(() => {
-  restoreTranslationWatcherFiles()
+  files.restoreAll()
 })
 
 describe('translation watcher dev HMR (source mode)', () => {
@@ -22,7 +24,7 @@ describe('translation watcher dev HMR (source mode)', () => {
     await goto('/en/about', { waitUntil: 'hydration' })
     await expect(page.locator('#about-title')).toHaveText('About EN')
 
-    patchTranslationWatcherFile('pages/about/en.json', (current) => ({
+    files.patchFile('pages/about/en.json', (current) => ({
       ...current,
       aboutTitle: 'About EN Source HMR',
     }))
@@ -33,7 +35,7 @@ describe('translation watcher dev HMR (source mode)', () => {
   })
 
   test('applies fallback chain when refreshing German payloads after a root locale change', async ({ baseURL }) => {
-    patchTranslationWatcherFile('de.json', (current) => ({
+    files.patchFile('de.json', (current) => ({
       ...current,
       hello: 'Hallo DE Source HMR',
     }))

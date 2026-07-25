@@ -1,8 +1,7 @@
 import { afterAll, describe, expect, setupE2E, test } from './setup/vitest-e2e'
 import {
-  patchTranslationWatcherFile,
+  createTranslationWatcherFiles,
   refreshTranslationWatcherPage,
-  restoreTranslationWatcherFiles,
   translationWatcherFixtureRoot,
   waitForTranslationHtmlValue,
   waitForTranslationPayloadValue,
@@ -14,16 +13,19 @@ await setupE2E({
   setupTimeout: 180_000,
 })
 
+// Each spec mutates ITS OWN fixture's locale files (they run in parallel).
+const files = createTranslationWatcherFiles(translationWatcherFixtureRoot)
+
 describe('translation watcher dev HMR (premerged)', () => {
   afterAll(() => {
-    restoreTranslationWatcherFiles()
+    files.restoreAll()
   })
 
   test('updates page translations after a page locale file change', async ({ page, goto, baseURL }) => {
     await goto('/en/about', { waitUntil: 'hydration' })
     await expect(page.locator('#about-title')).toHaveText('About EN')
 
-    patchTranslationWatcherFile('pages/about/en.json', (current) => ({
+    files.patchFile('pages/about/en.json', (current) => ({
       ...current,
       aboutTitle: 'About EN HMR',
     }))
@@ -37,7 +39,7 @@ describe('translation watcher dev HMR (premerged)', () => {
     await goto('/en', { waitUntil: 'hydration' })
     await expect(page.locator('#shared-root')).toHaveText('Shared EN')
 
-    patchTranslationWatcherFile('en.json', (current) => ({
+    files.patchFile('en.json', (current) => ({
       ...current,
       sharedRoot: 'Shared EN HMR',
     }))
@@ -53,7 +55,7 @@ describe('translation watcher dev HMR (premerged)', () => {
   })
 
   test('applies root translation changes to SSR HTML', async ({ baseURL }) => {
-    patchTranslationWatcherFile('en.json', (current) => ({
+    files.patchFile('en.json', (current) => ({
       ...current,
       hello: 'Hello EN SSR HMR',
     }))
@@ -66,7 +68,7 @@ describe('translation watcher dev HMR (premerged)', () => {
     await goto('/en', { waitUntil: 'hydration' })
     await expect(page.locator('#index-title')).toHaveText('Home EN')
 
-    patchTranslationWatcherFile('pages/about/en.json', (current) => ({
+    files.patchFile('pages/about/en.json', (current) => ({
       ...current,
       aboutTitle: 'About EN Client HMR',
     }))
@@ -81,7 +83,7 @@ describe('translation watcher dev HMR (premerged)', () => {
     await goto('/de/about', { waitUntil: 'hydration' })
     await expect(page.locator('#about-title')).toHaveText('About DE')
 
-    patchTranslationWatcherFile('pages/about/de.json', (current) => ({
+    files.patchFile('pages/about/de.json', (current) => ({
       ...current,
       aboutTitle: 'About DE HMR',
     }))

@@ -24,6 +24,10 @@ export default defineConfig({
     // isolated specs run a full Nuxt build inside the setup hook
     testTimeout: 120_000,
     hookTimeout: 240_000,
+    // Parity with the pre-migration Playwright config (`retries: CI ? 1 : 0`).
+    // Shared fixtures are already built, so a retry is cheap, and it absorbs
+    // races between the parallel dev-server specs. A real break still fails twice.
+    retry: process.env.CI ? 1 : 0,
     fileParallelism: true,
     pool: 'forks',
     poolOptions: {

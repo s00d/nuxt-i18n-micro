@@ -922,7 +922,6 @@ Component for grouping translations with a common prefix.
 
 ```tsx
 import { I18nGroup, I18nT } from '@i18n-micro/react'
-
 ;<I18nGroup prefix="home">
   <I18nT keypath="title" /> {/* Uses "home.title" */}
   <I18nT keypath="description" /> {/* Uses "home.description" */}

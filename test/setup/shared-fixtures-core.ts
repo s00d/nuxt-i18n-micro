@@ -16,7 +16,7 @@ import { existsSync, readFileSync, unlinkSync } from 'node:fs'
 import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import { cpus } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { envKey, fixtureDir, SHARED_FIXTURES } from './manifest'
 
@@ -51,6 +51,16 @@ export function clearNuxtHostsFile(): void {
 
 const SKIP_DIRS = new Set(['node_modules', '.nuxt', '.output', '.output-shared', '.nuxt-test', 'test-results', '.data', 'dist'])
 
+/** OS/editor noise that must not influence the fixture hash. */
+const SKIP_FILES = new Set(['.DS_Store'])
+
+/**
+ * Paths (relative to the scanned root) that a Nuxt build writes back into the
+ * fixture *source* directory. Hashing them would make the hash depend on whether
+ * a build already ran, so a warm cache could never validate.
+ */
+const SKIP_RELATIVE = new Set(['server/assets', '~'])
+
 interface RunningServer {
   child: ChildProcess
   url: string
@@ -58,9 +68,20 @@ interface RunningServer {
 
 const servers: RunningServer[] = []
 
-/** Stat-based manifest hash: fast (no file reads) and good enough — a false
- *  mismatch only costs one extra rebuild. */
-async function collectStats(dir: string, lines: string[]): Promise<void> {
+function sha1(content: Buffer | string): string {
+  return createHash('sha1').update(content).digest('hex')
+}
+
+/**
+ * Content-based manifest hash: repo-relative path + sha1 of the file bytes.
+ *
+ * Deliberately does NOT use mtime or size. `git checkout` rewrites mtimes on
+ * every CI run, so an mtime-based hash never matched the `.build-hash` stored in
+ * a restored `actions/cache`, and all shared fixtures were rebuilt from scratch
+ * on every run. Paths are relative so the hash does not depend on the checkout
+ * directory either.
+ */
+async function collectFileHashes(dir: string, lines: string[], root: string = dir): Promise<void> {
   let entries
   try {
     entries = await readdir(dir, { withFileTypes: true })
@@ -68,35 +89,37 @@ async function collectStats(dir: string, lines: string[]): Promise<void> {
     return
   }
   for (const entry of entries) {
-    if (SKIP_DIRS.has(entry.name)) continue
+    if (SKIP_DIRS.has(entry.name) || SKIP_FILES.has(entry.name)) continue
     const path = join(dir, entry.name)
+    if (SKIP_RELATIVE.has(relative(root, path))) continue
     if (entry.isDirectory()) {
-      await collectStats(path, lines)
+      await collectFileHashes(path, lines, root)
     } else if (entry.isFile()) {
-      const s = await stat(path)
-      lines.push(`${path}|${s.size}|${s.mtimeMs}`)
+      lines.push(`${relative(ROOT, path)}|${sha1(await readFile(path))}`)
     }
   }
 }
 
 async function fixtureHash(name: string): Promise<string> {
   const lines: string[] = []
-  await collectStats(fixtureDir(name), lines)
-  await collectStats(join(ROOT, 'src'), lines)
-  // Module source imports @i18n-micro/* from workspace packages' dist
+  await collectFileHashes(fixtureDir(name), lines)
+  await collectFileHashes(join(ROOT, 'src'), lines)
+  // Fixtures build against @i18n-micro/* from the workspace packages. Hash their
+  // sources, not dist: dist is rebuilt on every CI run, so hashing it could never
+  // match a warm cache. CI always rebuilds packages before tests, so src is the
+  // authoritative input (and matches the actions/cache key).
   const packagesDir = join(ROOT, 'packages')
   for (const pkg of await readdir(packagesDir)) {
-    await collectStats(join(packagesDir, pkg, 'dist'), lines)
+    await collectFileHashes(join(packagesDir, pkg, 'src'), lines)
   }
   for (const file of ['package.json', 'pnpm-lock.yaml']) {
     try {
-      const s = await stat(join(ROOT, file))
-      lines.push(`${file}|${s.size}|${s.mtimeMs}`)
+      lines.push(`${file}|${sha1(await readFile(join(ROOT, file)))}`)
     } catch {
       /* optional */
     }
   }
-  return createHash('sha1').update(lines.sort().join('\n')).digest('hex')
+  return sha1(lines.sort().join('\n'))
 }
 
 function buildDirFor(name: string): string {

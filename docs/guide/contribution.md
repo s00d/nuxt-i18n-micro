@@ -130,7 +130,7 @@ To run the test suite, use the following command:
 pnpm run test
 ```
 
-This runs the full Vitest suite — unit/build tests, every workspace package, and the browser e2e specs — to ensure everything is functioning as expected. Narrow it with `--project unit` or `--project e2e` (e.g. `pnpm run test:e2e`).
+This runs the full Vitest suite — fast unit tests, build-heavy integration suites, every workspace package, and the browser e2e specs. While developing, `pnpm run test:unit` gives a ~1 s feedback loop; the slower projects are `pnpm run test:integration` and `pnpm run test:e2e`.
 
 ### 7. 🔍 Type Checking
 
@@ -173,8 +173,10 @@ You can access the playground app at `http://localhost:3000`.
 - **`pnpm --filter "./packages/**" run build`\*\*: Build the packages.
 - **`pnpm run lint`**: Run the linter to check for code quality issues.
 - **`pnpm run lint:fix`**: Automatically fix linter issues.
-- **`pnpm run test`**: Run the full Vitest suite (unit + packages + browser e2e).
-- **`pnpm run test:unit`** / **`pnpm run test:e2e`**: Run only the unit or the browser-e2e project.
+- **`pnpm run test`**: Run the full Vitest suite (unit + integration + packages + browser e2e).
+- **`pnpm run test:unit`**: Fast unit tests only, no builds (~1 s).
+- **`pnpm run test:integration`**: Suites that spawn real Nuxt builds.
+- **`pnpm run test:e2e`**: Browser specs against real servers.
 - **`pnpm run typecheck`**: Check TypeScript types.
 - **`pnpm run docs:dev`**: Start the documentation site in development mode.
 - **`pnpm run docs:build`**: Build the documentation site.

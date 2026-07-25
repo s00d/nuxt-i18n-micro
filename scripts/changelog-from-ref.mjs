@@ -8,8 +8,14 @@
 import { execSync } from 'node:child_process'
 
 function semverCmp(a, b) {
-  const va = a.slice(1).split('.').map((n) => Number.parseInt(n, 10))
-  const vb = b.slice(1).split('.').map((n) => Number.parseInt(n, 10))
+  const va = a
+    .slice(1)
+    .split('.')
+    .map((n) => Number.parseInt(n, 10))
+  const vb = b
+    .slice(1)
+    .split('.')
+    .map((n) => Number.parseInt(n, 10))
   for (let i = 0; i < 3; i++) {
     const da = va[i] ?? 0
     const db = vb[i] ?? 0
@@ -51,9 +57,7 @@ function main() {
     }
   }
 
-  console.error(
-    'changelog-from-ref: no v3+ semver tag found on the ancestry of HEAD. Tag a release first.',
-  )
+  console.error('changelog-from-ref: no v3+ semver tag found on the ancestry of HEAD. Tag a release first.')
   process.exit(1)
 }
 

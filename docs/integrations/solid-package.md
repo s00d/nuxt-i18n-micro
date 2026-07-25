@@ -1134,7 +1134,6 @@ Component for grouping translations with a common prefix.
 
 ```tsx
 import { I18nGroup } from '@i18n-micro/solid'
-
 ;<I18nGroup prefix="home">
   {({ t: groupT }) => (
     <>

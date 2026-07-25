@@ -2,11 +2,16 @@
 /**
  * Compare local npm pack tarballs with the latest published version on npm.
  *
+ * Only local-pack problems fail the run (hashed chunks in dist, astro client CJS);
+ * differences against the published version are reported as warnings/info. Hence
+ * `--local-only`, which keeps the gates but needs no network — used on PRs.
+ *
  * Usage:
  *   node scripts/compare-published-dist.mjs
  *   node scripts/compare-published-dist.mjs --json
  *   node scripts/compare-published-dist.mjs --package path-strategy
  *   node scripts/compare-published-dist.mjs --skip-download
+ *   node scripts/compare-published-dist.mjs --local-only
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -20,6 +25,13 @@ const cacheRoot = join(root, '.compare-published')
 const args = process.argv.slice(2)
 const jsonOut = args.includes('--json')
 const skipDownload = args.includes('--skip-download')
+/**
+ * Skip the published-version reference entirely (no `npm view`, no download).
+ * The packaging gates (hashed chunks, astro client CJS) are computed from the
+ * local pack, so they still run — only the informational diff against npm is
+ * dropped. Used on PRs: fast and independent of the npm registry.
+ */
+const localOnly = args.includes('--local-only')
 const packageFilter = (() => {
   const i = args.indexOf('--package')
   return i >= 0 ? args[i + 1] : null
@@ -119,8 +131,43 @@ const DIST_RUNTIME_RE = /^dist\/[^/]+\.(?:mjs|cjs|js)$/
 const results = []
 let errorCount = 0
 
+/**
+ * Packaging checks that depend only on the LOCAL `npm pack`.
+ * These are the only conditions that fail the run — everything derived from the
+ * published reference tarball is reported as a warning/info. That is why
+ * `--local-only` can skip the npm download without losing any gate.
+ *
+ * @param {Record<string, unknown>} entry
+ * @param {string} name
+ * @param {string[]} localPaths
+ * @returns {number} number of errors added
+ */
+function checkLocalPackaging(entry, name, localPaths) {
+  let added = 0
+  const errors = /** @type {string[]} */ (entry.errors)
+
+  const hashedInLocal = localPaths
+    .filter((p) => p.startsWith('dist/'))
+    .map((p) => p.replace(/^dist\//, ''))
+    .filter((n) => HASHED_CHUNK_RE.test(n))
+  if (hashedInLocal.length) {
+    errors.push(`hashed chunks in local dist: ${hashedInLocal.join(', ')}`)
+    added++
+  }
+
+  if (name === '@i18n-micro/astro') {
+    const clientCjs = localPaths.filter((p) => /^dist\/client\/.*\.cjs$/.test(p))
+    if (clientCjs.length) {
+      errors.push(`astro client CJS artifacts in pack: ${clientCjs.join(', ')}`)
+      added++
+    }
+  }
+
+  return added
+}
+
 for (const { name, dir, localVersion } of listWorkspacePackages()) {
-  const npmVer = npmVersion(name)
+  const npmVer = localOnly ? null : npmVersion(name)
   /** @type {Record<string, unknown>} */
   const entry = {
     name,
@@ -131,8 +178,21 @@ for (const { name, dir, localVersion } of listWorkspacePackages()) {
     errors: [],
   }
 
+  // No reference to compare against (either --local-only, or not published yet):
+  // still pack locally so the gating checks run.
   if (!npmVer) {
-    entry.info.push('not published on npm yet — skipping ref download')
+    entry.info.push(localOnly ? 'local-only mode — skipped npm reference comparison' : 'not published on npm yet — skipping ref download')
+    const localDir = join(cacheRoot, name.replace('@', '').replace('/', '__'), `local-${localVersion}`)
+    try {
+      mkdirSync(cacheRoot, { recursive: true })
+      rmSync(localDir, { recursive: true, force: true })
+      mkdirSync(localDir, { recursive: true })
+      const local = npmPack(dir, localDir)
+      errorCount += checkLocalPackaging(entry, name, listTarballPaths(local.tarball))
+    } catch (error) {
+      entry.errors.push(error instanceof Error ? error.message : String(error))
+      errorCount++
+    }
     results.push(entry)
     continue
   }
@@ -192,14 +252,7 @@ for (const { name, dir, localVersion } of listWorkspacePackages()) {
       }
     }
 
-    const hashedInLocal = localPaths
-      .filter((p) => p.startsWith('dist/'))
-      .map((p) => p.replace(/^dist\//, ''))
-      .filter((n) => HASHED_CHUNK_RE.test(n))
-    if (hashedInLocal.length) {
-      entry.errors.push(`hashed chunks in local dist: ${hashedInLocal.join(', ')}`)
-      errorCount++
-    }
+    errorCount += checkLocalPackaging(entry, name, localPaths)
 
     if (localVersion !== npmVer) {
       entry.info.push(`version bump ${npmVer} → ${localVersion}`)
@@ -213,14 +266,6 @@ for (const { name, dir, localVersion } of listWorkspacePackages()) {
     const localDcts = localPaths.filter((p) => p.endsWith('.d.cts'))
     if (localDcts.length > refDcts.length) {
       entry.info.push(`added ${localDcts.length - refDcts.length} .d.cts file(s) for require types`)
-    }
-
-    if (name === '@i18n-micro/astro') {
-      const clientCjs = localPaths.filter((p) => /^dist\/client\/.*\.cjs$/.test(p))
-      if (clientCjs.length) {
-        entry.errors.push(`astro client CJS artifacts in pack: ${clientCjs.join(', ')}`)
-        errorCount++
-      }
     }
 
     if (onlyRef.length > 0 || onlyLocal.length > 0) {

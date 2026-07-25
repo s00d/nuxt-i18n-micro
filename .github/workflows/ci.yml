@@ -14,8 +14,10 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     env:
-      # Serialize shared-fixture builds so the runner does not OOM.
-      FIXTURE_BUILD_CONCURRENCY: 1
+      # Build shared fixtures in parallel. The runner has 4 vCPU / 15 GiB with
+      # ~14 GiB free (the earlier ERR_IPC_CHANNEL_CLOSED crashes were caused by
+      # tests killing processes by port, not by memory pressure).
+      FIXTURE_BUILD_CONCURRENCY: 4
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -38,33 +40,27 @@ jobs:
             e2e-shared-${{ runner.os }}-
 
       - run: pnpm install
-      # Extra swap: unit tests spawn nuxi build/generate right after test:packages
-      # and constrained runners otherwise OOM-kill the Vitest worker (ERR_IPC_CHANNEL_CLOSED).
-      - name: Add swap for heavy test steps
-        run: |
-          SWAPFILE=/swapfile-ci
-          if swapon --show | grep -q "${SWAPFILE}"; then
-            echo "Swap already active: ${SWAPFILE}"
-          else
-            sudo swapoff "${SWAPFILE}" 2>/dev/null || true
-            sudo rm -f "${SWAPFILE}"
-            sudo fallocate -l 4G "${SWAPFILE}" 2>/dev/null || sudo dd if=/dev/zero of="${SWAPFILE}" bs=1M count=4096
-            sudo chmod 600 "${SWAPFILE}"
-            sudo mkswap "${SWAPFILE}"
-            sudo swapon "${SWAPFILE}"
-          fi
-          free -h
+      # Memory headroom on the runner, for the record: ubuntu-latest gives
+      # 4 vCPU / 15 GiB with ~14 GiB free and ~4 GiB of swap already configured.
+      # The previous ERR_IPC_CHANNEL_CLOSED crashes were tests killing processes
+      # by port (lsof + SIGKILL), not memory — so no extra swap is provisioned.
+      # If a step ever does run out of memory, print `free -h` here first to
+      # confirm it before adding any.
       - run: pnpm run lint
       - run: pnpm --filter "./packages/**" run build
       - run: pnpm run dev:prepare
       - run: pnpm run typecheck
-      # unit + e2e both drive a real browser (chromium.launch / createPage)
+      # integration + e2e both drive a real browser (chromium.launch / createPage)
       - run: pnpm exec playwright install chromium
 
       - run: pnpm run test:packages
       - run: pnpm run test:unit
+      - run: pnpm run test:integration
       - run: pnpm run test:e2e
 
       - run: pnpm verify:packages && pnpm verify:packages:publint
       - run: pnpm run test:dist:packages
-      - run: pnpm run compare:published
+      # --local-only keeps both packaging gates (hashed chunks, astro client CJS),
+      # which are computed from the local pack, and skips the npm reference
+      # download that only feeds informational diffs. Full comparison runs on release.
+      - run: pnpm run compare:published -- --local-only

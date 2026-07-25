@@ -10,7 +10,7 @@ outline: 'deep'
 
 Testing the `Nuxt I18n Micro` module is crucial to ensure that your application's localization features work as expected. This documentation will guide you through setting up the testing environment, creating mock configurations for vitest, and writing tests for your components. For a practical example, you can refer to the [example project on GitHub](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/test-utils/example).
 
-See [Testing routing strategies](/guide/testing-strategies) for how this repository runs strategy integration tests (`test/strategies.test.ts`, generate regressions, Playwright projects).
+See [Testing routing strategies](/guide/testing-strategies) for how this repository runs its own suites — the `unit` / `integration` / `e2e` Vitest projects, the per-strategy files (`test/strategies-*.test.ts`), and generate regressions.
 
 ## 🛠️ Setting Up the Testing Environment
 

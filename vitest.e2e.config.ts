@@ -1,9 +1,12 @@
 import os from 'node:os'
 import { defineConfig } from 'vitest/config'
 
-const isCI = !!process.env.CI
 const parallelism = typeof os.availableParallelism === 'function' ? os.availableParallelism() : os.cpus().length
-const maxForks = isCI ? 1 : Math.max(1, Math.floor(parallelism / 2))
+// One fork per core. Most specs only drive a browser against an already-running
+// shared server (cheap); the `isolated` specs that build their own app are the
+// memory-heavy ones, and a per-core cap keeps those within a CI runner.
+// Override with VITEST_E2E_MAX_FORKS if a runner turns out to be tighter.
+const maxForks = Number(process.env.VITEST_E2E_MAX_FORKS) || Math.max(1, parallelism)
 
 /**
  * Browser e2e specs, run through Vitest's node runner driving a real Playwright
@@ -21,15 +24,13 @@ export default defineConfig({
     // isolated specs run a full Nuxt build inside the setup hook
     testTimeout: 120_000,
     hookTimeout: 240_000,
-    fileParallelism: !isCI,
+    fileParallelism: true,
     pool: 'forks',
     poolOptions: {
       forks: {
-        // Each file may spawn a browser and (isolated) a Nuxt build — cap
-        // concurrency like the old Playwright `workers: '50%'`.
         maxForks,
-        // Keep CI sequential (maxForks: 1) but restart the fork per file so
-        // Playwright/Nuxt memory is released; singleFork OOMs on full suite.
+        // Fresh fork per file so Playwright/Nuxt memory is released between specs.
+        isolate: true,
       },
     },
   },

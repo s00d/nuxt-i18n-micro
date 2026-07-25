@@ -36,7 +36,14 @@ const nuxt = await kit.loadNuxt({
   dev: false,
   overrides: {
     buildDir,
-    nitro: { output: { dir: resolve(buildDir, 'output') } },
+    // Fixtures are only asserted against, never shipped or debugged: skipping
+    // minification and sourcemaps cuts a noticeable slice off each build.
+    sourcemap: { server: false, client: false },
+    vite: { build: { minify: false } },
+    nitro: {
+      output: { dir: resolve(buildDir, 'output') },
+      minify: false,
+    },
   },
 })
 

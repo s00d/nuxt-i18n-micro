@@ -2,42 +2,39 @@
   "name": "nuxt-i18n-micro",
   "version": "3.21.4",
   "description": "Nuxt I18n Micro is a lightweight, high-performance internationalization module for Nuxt, designed to handle multi-language support with minimal overhead, fast build times, and efficient runtime performance.",
-  "repository": "s00d/nuxt-i18n-micro",
-  "license": "MIT",
-  "type": "module",
-  "author": {
-    "name": "s00d",
-    "email": "Virus191288@gmail.com",
-    "url": "https://s00d.github.io/"
-  },
   "keywords": [
-    "nuxt",
     "i18n",
     "internationalization",
     "localization",
     "multi-language",
-    "translation",
+    "nuxt",
     "nuxt-module",
+    "nuxt3",
     "performance",
     "seo",
-    "nuxt3"
+    "translation"
   ],
   "homepage": "https://github.com/s00d/nuxt-i18n-micro",
   "bugs": {
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
-  "exports": {
-    ".": {
-      "types": "./dist/types.d.mts",
-      "default": "./dist/module.mjs"
-    },
-    "./internals": "./internals.d.mts"
+  "license": "MIT",
+  "author": {
+    "name": "s00d",
+    "email": "Virus191288@gmail.com",
+    "url": "https://s00d.github.io/"
   },
-  "imports": {
-    "#i18n-internal/plural": "./internals.d.mts",
-    "#i18n-internal/strategy": "./internals.d.mts",
-    "#i18n-internal/config": "./internals.d.mts"
-  },
+  "repository": "s00d/nuxt-i18n-micro",
+  "workspaces": [
+    "client",
+    "packages/**",
+    "test/fixtures/**/*"
+  ],
+  "files": [
+    "dist",
+    "internals.d.mts"
+  ],
+  "type": "module",
   "main": "./dist/module.mjs",
   "typesVersions": {
     "*": {
@@ -58,10 +55,18 @@
       ]
     }
   },
-  "files": [
-    "dist",
-    "internals.d.mts"
-  ],
+  "imports": {
+    "#i18n-internal/plural": "./internals.d.mts",
+    "#i18n-internal/strategy": "./internals.d.mts",
+    "#i18n-internal/config": "./internals.d.mts"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "default": "./dist/module.mjs"
+    },
+    "./internals": "./internals.d.mts"
+  },
   "scripts": {
     "prepack": "pnpm --filter \"./packages/**\" run build && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
     "dev": "nuxi dev playground",
@@ -69,7 +74,7 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "dev:generate": "nuxi generate playground",
     "release": "pnpm run release:check && pnpm run release:patch",
-    "release:check": "pnpm run format && pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test",
+    "release:check": "pnpm run format && pnpm run lint && pnpm run typecheck && pnpm run test:types && pnpm run test && pnpm run compare:published",
     "release:auth": "node scripts/ensure-npm-auth.mjs",
     "release:patch": "pnpm run release:auth && pnpm run prepack && node scripts/run-changelogen-release.mjs patch && pnpm publish -r && git push --follow-tags",
     "release:minor": "pnpm run release:auth && pnpm run prepack && node scripts/run-changelogen-release.mjs minor && pnpm publish -r && git push --follow-tags",
@@ -80,11 +85,12 @@
     "format:check": "oxfmt --check src packages test client playground build.config.ts",
     "test": "vitest run",
     "test:unit": "vitest run --config vitest.unit.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:packages": "vitest run --config vitest.packages.config.ts",
     "test:performance": "vitest run --config vitest.performance.config.ts",
-    "test:strategies": "vitest run test/strategies.test.ts",
-    "test:watch": "vitest watch --project unit",
+    "test:strategies": "vitest run --config vitest.integration.config.ts test/strategies-",
+    "test:watch": "vitest watch --config vitest.unit.config.ts",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
     "client:build": "nuxi generate client",
     "client:prepare": "nuxi client:prepare client",
@@ -102,12 +108,6 @@
     "docs:serve": "vitepress serve docs",
     "docs:clean-dev": "vitepress dev docs --clean-cache",
     "docs:preview": "vitepress preview docs"
-  },
-  "stackblitz": {
-    "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev",
-    "env": {
-      "PORT": "3000"
-    }
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",
@@ -146,22 +146,23 @@
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
+  "peerDependencies": {
+    "vue-router": ">=4.4.0"
+  },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "catalog:",
     "@rollup/rollup-win32-x64-msvc": "catalog:"
   },
-  "peerDependencies": {
-    "vue-router": ">=4.4.0"
-  },
-  "workspaces": [
-    "client",
-    "packages/**",
-    "test/fixtures/**/*"
-  ],
   "packageManager": "pnpm@9.14.2",
   "pnpm": {
     "overrides": {
       "@nuxtjs/sitemap": "^8.2.2"
+    }
+  },
+  "stackblitz": {
+    "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev",
+    "env": {
+      "PORT": "3000"
     }
   }
 }

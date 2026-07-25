@@ -73,9 +73,7 @@ function resolveSetupOptions(config: E2EConfig): Record<string, unknown> {
     if (!host && process.env.SHARED_FIXTURES !== '0') {
       console.warn(`[e2e] no shared host for "${config.shared}" — falling back to per-file build`)
     }
-    return host
-      ? { rootDir: fixtureDir(config.shared), host, browser: true }
-      : { rootDir: fixtureDir(config.shared), browser: true } // SHARED_FIXTURES=0 fallback: build per file
+    return host ? { rootDir: fixtureDir(config.shared), host, browser: true } : { rootDir: fixtureDir(config.shared), browser: true } // SHARED_FIXTURES=0 fallback: build per file
   }
   return { ...config, browser: true }
 }

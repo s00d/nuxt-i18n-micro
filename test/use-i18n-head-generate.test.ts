@@ -6,56 +6,23 @@
  * 3. Serves static output and checks navigation, reload, and head tags in a real browser
  */
 
-import { type ChildProcess, exec as execCb } from 'node:child_process'
+import type { ChildProcess } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
-import net from 'node:net'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
-import { promisify } from 'node:util'
 import { chromium, expect as playwrightExpect } from '@playwright/test'
 import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { assertI18nHeadScenario, expectHtmlScenario, i18nHeadScenarios, i18nHeadStaticPages, staticHtmlPath } from './helpers/i18n-head-seo'
 import { isolatedBuild } from './helpers/isolated-build'
+import { getFreePort } from './helpers/port'
 import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
-
-const exec = promisify(execCb)
 
 const build = isolatedBuild('use-i18n-head', 'use-i18n-head-generate')
 const FIXTURES = build.fixtureDir
 const OUTPUT_DIR = build.outputDir
 const OUTPUT_PUBLIC = build.publicDir
 const HOST = '127.0.0.1'
-
-async function getFreePort(base = 24011, max = 20): Promise<number> {
-  async function tryPort(index: number): Promise<number> {
-    if (index >= max) throw new Error(`No free port in range ${base}-${base + max}`)
-    const port = base + index
-    try {
-      await new Promise<void>((resolve, reject) => {
-        const srv = net.createServer()
-        srv.once('error', reject)
-        srv.once('listening', () => srv.close((err) => (err ? reject(err) : resolve())))
-        srv.listen(port, HOST)
-      })
-      return port
-    } catch {
-      return tryPort(index + 1)
-    }
-  }
-  return tryPort(0)
-}
-
-async function freePort(port: number) {
-  try {
-    const { stdout } = await exec(`lsof -ti tcp:${port}`)
-    for (const pid of stdout.trim().split('\n').filter(Boolean)) {
-      process.kill(Number(pid), 'SIGKILL')
-    }
-  } catch {
-    /* port already free */
-  }
-}
 
 function runGenerate(): Promise<void> {
   return runCommand('npx', ['nuxi', 'generate'], {
@@ -88,9 +55,9 @@ describe('useI18nHead after nuxi generate', () => {
   let server: ChildProcess | null = null
 
   const stopServer = async () => {
+    // stopChild kills the whole process group, so the port is released with it.
     await stopChild(server)
     server = null
-    if (port) await freePort(port)
   }
 
   beforeAll(async () => {
@@ -179,9 +146,9 @@ describe('useI18nHead after nuxi generate', () => {
     let ssrServer: ChildProcess | null = null
 
     const stopSsr = async () => {
+      // stopChild kills the whole process group, so the port is released with it.
       await stopChild(ssrServer)
       ssrServer = null
-      if (ssrPort) await freePort(ssrPort)
     }
 
     beforeAll(async () => {
@@ -193,7 +160,7 @@ describe('useI18nHead after nuxi generate', () => {
         env: build.env,
       })
 
-      ssrPort = await getFreePort(24111)
+      ssrPort = await getFreePort()
       ssrServer = spawnServer('node', [build.serverEntry], {
         cwd: FIXTURES,
         env: { PORT: String(ssrPort) },

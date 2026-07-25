@@ -77,21 +77,12 @@ function checkDualPackageTypes(pkgName, pkgDir, pkg) {
   const root = exports['.']
   if (!root || typeof root !== 'object') return
 
-  const hasRequire =
-    typeof root === 'object' &&
-    ('require' in root || (typeof root.require === 'object' && root.require !== null))
+  const hasRequire = typeof root === 'object' && ('require' in root || (typeof root.require === 'object' && root.require !== null))
   if (!hasRequire) return
 
   const importTypes =
-    typeof root.import === 'object' && root.import && 'types' in root.import
-      ? root.import.types
-      : typeof root.types === 'string'
-        ? root.types
-        : null
-  const requireTypes =
-    typeof root.require === 'object' && root.require && 'types' in root.require
-      ? root.require.types
-      : null
+    typeof root.import === 'object' && root.import && 'types' in root.import ? root.import.types : typeof root.types === 'string' ? root.types : null
+  const requireTypes = typeof root.require === 'object' && root.require && 'types' in root.require ? root.require.types : null
 
   if (typeof root.types === 'string' && (root.import || root.require)) {
     add(
@@ -103,21 +94,11 @@ function checkDualPackageTypes(pkgName, pkgDir, pkg) {
   }
 
   if (requireTypes && !String(requireTypes).endsWith('.d.cts')) {
-    add(
-      'warnings',
-      pkgName,
-      'require-types-cts',
-      `require.types should use .d.cts for "type":"module" (got ${requireTypes})`,
-    )
+    add('warnings', pkgName, 'require-types-cts', `require.types should use .d.cts for "type":"module" (got ${requireTypes})`)
   }
 
   if (importTypes && requireTypes && importTypes === requireTypes) {
-    add(
-      'warnings',
-      pkgName,
-      'same-types-import-require',
-      'import.types and require.types point to the same file — use .d.cts for require',
-    )
+    add('warnings', pkgName, 'same-types-import-require', 'import.types and require.types point to the same file — use .d.cts for require')
   }
 }
 

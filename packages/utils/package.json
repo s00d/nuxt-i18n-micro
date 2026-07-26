@@ -364,7 +364,7 @@
   },
   "devDependencies": {
     "@i18n-micro/test-utils": "workspace:*",
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"

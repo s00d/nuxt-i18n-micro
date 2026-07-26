@@ -81,7 +81,7 @@
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"

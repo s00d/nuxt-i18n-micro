@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "jsdom": "catalog:",
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "solid-js": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",

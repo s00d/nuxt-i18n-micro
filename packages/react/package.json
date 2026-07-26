@@ -63,7 +63,7 @@
     "@types/react": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "jsdom": "catalog:",
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "react": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",

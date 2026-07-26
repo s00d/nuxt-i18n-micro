@@ -63,11 +63,13 @@ describe('hashTranslationSources', () => {
     mkdirSync(join(other, 'locales'), { recursive: true })
     writeFileSync(join(other, 'locales', 'en.json'), JSON.stringify({ greeting: 'Hey' }))
 
-    const ab = hashTranslationSources([root, other], 'locales')
-    const ba = hashTranslationSources([other, root], 'locales')
-    expect(ab).not.toBe(ba)
-
-    rmSync(other, { recursive: true, force: true })
+    try {
+      const ab = hashTranslationSources([root, other], 'locales')
+      const ba = hashTranslationSources([other, root], 'locales')
+      expect(ab).not.toBe(ba)
+    } finally {
+      rmSync(other, { recursive: true, force: true })
+    }
   })
 
   it('returns null when there is nothing to hash, so the caller can fall back', () => {

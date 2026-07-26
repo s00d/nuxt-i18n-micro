@@ -61,7 +61,7 @@
     "@testing-library/preact": "catalog:",
     "jsdom": "catalog:",
     "preact": "catalog:",
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"

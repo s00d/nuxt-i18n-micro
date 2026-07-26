@@ -567,3 +567,53 @@ describe('BaseI18n', () => {
     })
   })
 })
+
+describe('key recorder', () => {
+  const collect = (i18n: BaseI18n) => {
+    const seen: Record<string, Record<string, unknown>> = {}
+    i18n.setKeyRecorder((cacheKey, key, value) => {
+      seen[cacheKey] ??= {}
+      seen[cacheKey]![key] = value
+    })
+    return seen
+  }
+
+  test('records resolved keys under locale:route, and nothing for misses', () => {
+    const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+    i18n.helper.loadTranslations('en', { greeting: 'Hello' } as Translations, 'index')
+    const seen = collect(i18n)
+
+    i18n.t('greeting')
+    i18n.t('absent')
+
+    expect(seen).toEqual({ 'en:index': { greeting: 'Hello' } })
+  })
+
+  test('records a fallback hit under the locale that supplied it', () => {
+    // The client resolves the key the same way, so recording it under the current
+    // locale would seed a bucket that never gets consulted.
+    const i18n = new TestI18n('de', 'en', 'index', { missingWarn: false })
+    i18n.helper.loadTranslations('en', { greeting: 'Hello' } as Translations, 'index')
+    const seen = collect(i18n)
+
+    expect(i18n.t('greeting')).toBe('Hello')
+    expect(seen).toEqual({ 'en:index': { greeting: 'Hello' } })
+  })
+
+  test('stops once detached', () => {
+    const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+    i18n.helper.loadTranslations('en', { greeting: 'Hello' } as Translations, 'index')
+    const seen = collect(i18n)
+
+    i18n.setKeyRecorder(null)
+    i18n.t('greeting')
+
+    expect(seen).toEqual({})
+  })
+
+  test('is inert by default', () => {
+    const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+    i18n.helper.loadTranslations('en', { greeting: 'Hello' } as Translations, 'index')
+    expect(() => i18n.t('greeting')).not.toThrow()
+  })
+})

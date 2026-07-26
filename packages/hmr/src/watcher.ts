@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import type { Locale } from '@i18n-micro/types'
 import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
@@ -124,4 +126,33 @@ export async function handleTranslationWatchChange(input: HandleTranslationWatch
   const pageNames = [...input.listPageNames(), 'index']
   await Promise.all(pageNames.map((pageName) => mergePage(parsed.locale, pageName)))
   return 'root'
+}
+
+/**
+ * Tracks translation file contents so a write that changes nothing is not acted on.
+ *
+ * Editors save on focus loss and formatters rewrite files byte-for-byte; a root locale
+ * change re-merges every page for that locale, which is far too much to spend on a
+ * file identical to the one already merged.
+ */
+export class TranslationContentTracker {
+  private readonly hashes = new Map<string, string>()
+
+  /** `true` when the file should be processed: new content, or unreadable so assume changed. */
+  shouldProcess(filePath: string): boolean {
+    let hash: string
+    try {
+      hash = createHash('sha256').update(readFileSync(filePath)).digest('hex')
+    } catch {
+      return true
+    }
+
+    if (this.hashes.get(filePath) === hash) return false
+    this.hashes.set(filePath, hash)
+    return true
+  }
+
+  forget(filePath: string): void {
+    this.hashes.delete(filePath)
+  }
 }

@@ -75,16 +75,18 @@ describe('translation watcher dev HMR (premerged)', () => {
 
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'aboutTitle', 'About EN Client HMR')
 
-    // Patching a locale file makes the dev server push an HMR update, which can
-    // re-render the link between the click and the navigation — the click is then
-    // lost and a bare `waitForURL` sits there until it times out. Retry the click
-    // instead of assuming the first one survives.
+    // Patching a locale file makes the dev server push an HMR update, and it can land
+    // at any point around the navigation: before the click (the link re-renders and
+    // the click is lost), or after it (the destination re-mounts and the assertion
+    // races the remount). Retry the whole hop from a known starting point rather than
+    // assuming any single attempt survives — the thing under test is that a client
+    // navigation picks up the new translation, which each attempt still exercises.
     await expect(async () => {
+      await goto('/en', { waitUntil: 'hydration' })
       await page.click('#go-about')
       await page.waitForURL('**/en/about', { timeout: 5_000 })
-    }).toPass({ timeout: 60_000 })
-
-    await expect(page.locator('#about-title')).toHaveText('About EN Client HMR')
+      await expect(page.locator('#about-title')).toHaveText('About EN Client HMR', { timeout: 5_000 })
+    }).toPass({ timeout: 90_000 })
   })
 
   test('updates German page translations after a locale file change', async ({ page, goto, baseURL }) => {

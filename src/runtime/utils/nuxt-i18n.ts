@@ -102,6 +102,24 @@ export class NuxtI18n extends BaseI18n {
     this.storage.translations.set(this.getCacheKey(locale, routeName), data as Translations)
   }
 
+  /**
+   * Install SSR render-set buckets, keyed the way they were recorded.
+   *
+   * The loader only installs the chunk for the page being rendered, but a render set
+   * can hold buckets for other `(locale, route)` pairs — `$tForRoute()` and friends
+   * resolve against `getChunk()` directly. Without this they hydrate as missing until
+   * some later navigation happens to load that chunk.
+   *
+   * Existing entries win: anything already loaded is more complete than a render set.
+   */
+  seedChunks(chunks: Record<string, Record<string, unknown>>): void {
+    for (const [cacheKey, data] of Object.entries(chunks)) {
+      if (!this.storage.translations.has(cacheKey)) {
+        this.storage.translations.set(cacheKey, data as Translations)
+      }
+    }
+  }
+
   hasChunk(locale: string, routeName?: string): boolean {
     return this.storage.translations.has(this.getCacheKey(locale, routeName))
   }

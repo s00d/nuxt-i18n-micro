@@ -56,7 +56,7 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "devDependencies": {
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"

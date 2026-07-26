@@ -30,6 +30,7 @@ catalog:
   '@nuxtjs/i18n': ^10.1.2
   '@nuxthub/core': ^0.8.17
   # Vue
+  publint: ^0.3.17
   vue: ^3.5.25
   '@vue/compiler-sfc': ^3.5.25
   vue-router: ^4.6.3

@@ -228,3 +228,45 @@ describe('completing a render-set seed', () => {
     expect(i18n.getChunk('de', 'index')).toEqual({ b: 'B' })
   })
 })
+
+describe('seeding render-set buckets', () => {
+  it('installs buckets for contexts other than the rendered page', () => {
+    // `$tForRoute()` resolves straight against `getChunk()`. The loader only installs
+    // the chunk for the page being rendered, so without seeding every recorded bucket
+    // these keys hydrate as missing.
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.seedChunks({ 'en:index': { a: 'A' }, 'de:about': { b: 'B' } })
+
+    expect(i18n.getChunk('en', 'index')).toEqual({ a: 'A' })
+    expect(i18n.getChunk('de', 'about')).toEqual({ b: 'B' })
+  })
+
+  it('never overwrites a chunk that is already loaded', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.setChunk('en', 'index', { a: 'full', extra: 'kept' })
+    i18n.seedChunks({ 'en:index': { a: 'render-set' } })
+
+    expect(i18n.getChunk('en', 'index')).toEqual({ a: 'full', extra: 'kept' })
+  })
+
+  it('carries a key named __proto__ through the render set', () => {
+    // Assigning `bucket.__proto__ = v` on a plain object sets the prototype instead
+    // of creating a property, so such a key would render on the server and vanish
+    // from the payload. The recorder buckets are Maps for exactly this reason.
+    const recorded = new Map<string, Map<string, unknown>>()
+    const bucket = new Map<string, unknown>()
+    bucket.set('__proto__', 'polluted')
+    bucket.set('normal', 'ok')
+    recorded.set('en:index', bucket)
+
+    const payload = Object.fromEntries([...recorded].map(([k, v]) => [k, Object.fromEntries(v)]))
+
+    expect(Object.hasOwn(payload['en:index']!, '__proto__')).toBe(true)
+    expect(Object.getPrototypeOf(payload['en:index'])).toBe(Object.prototype)
+
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.seedChunks(payload as Record<string, Record<string, unknown>>)
+    i18n.applySwitchContext('en', 'index', payload['en:index'] as Record<string, unknown>)
+    expect(i18n.t('normal')).toBe('ok')
+  })
+})

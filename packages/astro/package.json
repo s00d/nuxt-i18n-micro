@@ -94,7 +94,7 @@
   "devDependencies": {
     "astro": "catalog:",
     "preact": "catalog:",
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "react": "catalog:",
     "svelte": "catalog:",
     "vite": "catalog:",

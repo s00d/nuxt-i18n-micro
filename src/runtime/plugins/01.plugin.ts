@@ -59,17 +59,21 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     // The SSR payload carries only the keys this render resolved, so the HTML stays
     // proportional to the page instead of the dictionary. Plugins run per request on
     // the server, so this map is request-scoped.
-    const rendered = new Map<string, Record<string, unknown>>()
+    // Buckets are Maps, converted with `Object.fromEntries` at the end: assigning
+    // `bucket['__proto__'] = v` on a plain object sets the prototype instead of
+    // creating a property, so a key named `__proto__` would render on the server and
+    // vanish from the seed.
+    const rendered = new Map<string, Map<string, unknown>>()
     i18n.setKeyRecorder((cacheKey, key, value) => {
       let bucket = rendered.get(cacheKey)
-      if (!bucket) rendered.set(cacheKey, (bucket = {}))
-      bucket[key] = value
+      if (!bucket) rendered.set(cacheKey, (bucket = new Map()))
+      bucket.set(key, value)
     })
     // Written after the render rather than from the loader: the loader finishes long
     // before the last component has resolved its keys, and it only runs on a cache miss.
     nuxtApp.hook('app:rendered', () => {
       i18n.setKeyRecorder(null)
-      nuxtApp.payload.data[SSR_CHUNKS_KEY] = Object.fromEntries(rendered)
+      nuxtApp.payload.data[SSR_CHUNKS_KEY] = Object.fromEntries([...rendered].map(([cacheKey, bucket]) => [cacheKey, Object.fromEntries(bucket)]))
     })
   }
 
@@ -105,7 +109,10 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 
   if (import.meta.client) {
     const seeded = readSsrChunks()
-    if (Object.keys(seeded).length > 0) translationStorage.seedFromSsrChunks(seeded)
+    if (Object.keys(seeded).length > 0) {
+      translationStorage.seedFromSsrChunks(seeded)
+      i18n.seedChunks(seeded)
+    }
   }
 
   const loader = new NuxtTranslationLoader({

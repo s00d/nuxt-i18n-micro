@@ -70,6 +70,9 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
 
     addDevServerHandler({
       route: DEVTOOLS_UI_ROUTE,
+      // `addDevServerHandler` strips the mount prefix, so `event.path` arrives as `/`
+      // or `/_nuxt/...` and the route has to be put back on for the client dev server,
+      // which serves itself under that same base.
       handler: defineEventHandler((event) => proxyRequest(event, `http://localhost:${DEVTOOLS_UI_PORT}${joinURL(DEVTOOLS_UI_ROUTE, event.path)}`)),
     })
   }

@@ -1,16 +1,6 @@
-import { fileURLToPath } from 'node:url'
-
 import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-await setupE2E({
-  rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
-  nuxtConfig: {
-    i18n: {
-      strategy: 'prefix',
-      localeCookie: 'user-locale',
-    },
-  },
-})
+await setupE2E({ shared: 'strategy-prefix' })
 
 describe('prefix strategy', () => {
   test('navigate to test-page, check URL and text, switch language and verify text and URL changes', async ({ page, goto }) => {

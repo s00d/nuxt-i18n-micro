@@ -1,17 +1,6 @@
-import { fileURLToPath } from 'node:url'
-
 import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-await setupE2E({
-  rootDir: fileURLToPath(new URL('./fixtures/cookie', import.meta.url)),
-  nuxtConfig: {
-    i18n: {
-      localeCookie: 'user-change-cookie',
-      autoDetectPath: '*',
-      autoDetectLanguage: false,
-    },
-  },
-})
+await setupE2E({ shared: 'cookie-custom-name' })
 
 describe('cookie-replace', () => {
   test('redirect to / and set custom locale cookie when navigating to /de', async ({ page, goto }) => {

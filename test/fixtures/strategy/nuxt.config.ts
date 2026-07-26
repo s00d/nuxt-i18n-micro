@@ -37,5 +37,6 @@ export default defineNuxtConfig({
     translationDir: 'locales',
     autoDetectLanguage: false,
     strategy: (process.env.STRATEGY ?? 'no_prefix') as Strategies,
+    ...(process.env.LOCALE_COOKIE ? { localeCookie: process.env.LOCALE_COOKIE } : {}),
   },
 })

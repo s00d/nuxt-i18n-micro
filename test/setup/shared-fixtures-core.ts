@@ -18,7 +18,7 @@ import net from 'node:net'
 import { cpus } from 'node:os'
 import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { envKey, fixtureDir, SHARED_FIXTURES } from './manifest'
+import { envKey, fixtureDir, fixtureEnv, SHARED_FIXTURES } from './manifest'
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const WORKER = fileURLToPath(new URL('./build-fixture-worker.mjs', import.meta.url))
@@ -112,6 +112,10 @@ async function fixtureHash(name: string): Promise<string> {
   for (const pkg of await readdir(packagesDir)) {
     await collectFileHashes(join(packagesDir, pkg, 'src'), lines)
   }
+  // Variants share a source dir; their build-time env is part of the identity.
+  for (const [key, value] of Object.entries(fixtureEnv(name)).sort()) {
+    lines.push(`env:${key}=${value}`)
+  }
   for (const file of ['package.json', 'pnpm-lock.yaml']) {
     try {
       lines.push(`${file}|${sha1(await readFile(join(ROOT, file)))}`)
@@ -122,8 +126,17 @@ async function fixtureHash(name: string): Promise<string> {
   return sha1(lines.sort().join('\n'))
 }
 
+/**
+ * Build outputs live outside test/fixtures on purpose: they are workspace members
+ * (`test/fixtures/**` in pnpm-workspace.yaml) and Nitro's bundled
+ * `output/server/node_modules/.nitro` contains symlink loops that make
+ * `pnpm install` die with ENAMETOOLONG once a build exists. Keeping them here
+ * also gives one flat directory to cache and one to clean.
+ */
+const BUILDS_ROOT = join(ROOT, 'test', '.fixture-builds')
+
 function buildDirFor(name: string): string {
-  return join(fixtureDir(name), '.output-shared')
+  return join(BUILDS_ROOT, name)
 }
 
 /**
@@ -195,7 +208,7 @@ async function ensureBuilt(name: string): Promise<void> {
     const child = spawn(process.execPath, [WORKER, fixtureDir(name), buildDir], {
       cwd: fixtureDir(name),
       stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env },
+      env: { ...process.env, ...fixtureEnv(name) },
     })
     let output = ''
     child.stdout!.on('data', (chunk: Buffer) => {

@@ -1,16 +1,6 @@
-import { fileURLToPath } from 'node:url'
-
 import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-await setupE2E({
-  rootDir: fileURLToPath(new URL('./fixtures/locale-state', import.meta.url)),
-  setupTimeout: 180_000,
-  nuxtConfig: {
-    i18n: {
-      strategy: 'prefix_and_default',
-    },
-  },
-})
+await setupE2E({ shared: 'locale-state-prefix-and-default' })
 
 // Test: prefix_and_default strategy
 

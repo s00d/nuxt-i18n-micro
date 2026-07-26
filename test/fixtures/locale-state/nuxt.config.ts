@@ -1,3 +1,4 @@
+import type { Strategies } from '../../../src/module'
 import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
@@ -9,7 +10,7 @@ export default defineNuxtConfig({
     locales: [{ code: 'en' }, { code: 'ja' }],
     localeCookie: 'user-locale',
     autoDetectLanguage: false,
-    strategy: 'no_prefix',
+    strategy: (process.env.STRATEGY ?? 'no_prefix') as Strategies,
     defaultLocale: 'en',
     translationDir: 'locales',
   },

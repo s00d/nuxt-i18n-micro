@@ -1,15 +1,6 @@
-import { fileURLToPath } from 'node:url'
-
 import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-await setupE2E({
-  rootDir: fileURLToPath(new URL('./fixtures/canonical-whitelist', import.meta.url)),
-  nuxtConfig: {
-    i18n: {
-      canonicalQueryWhitelist: ['page'],
-    },
-  },
-})
+await setupE2E({ shared: 'canonical-whitelist' })
 
 describe('canonicalQueryWhitelist override', () => {
   test('replaces defaults instead of merging arrays', async ({ page, goto }) => {

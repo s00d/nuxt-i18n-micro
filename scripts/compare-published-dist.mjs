@@ -12,11 +12,13 @@
  *   node scripts/compare-published-dist.mjs --package path-strategy
  *   node scripts/compare-published-dist.mjs --skip-download
  *   node scripts/compare-published-dist.mjs --local-only
+ *   node scripts/compare-published-dist.mjs --local-only --changed-only
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { assertBaseResolvable, changedPackageNames, resolveBase } from './lib/git-baseline.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const packagesRoot = join(root, 'packages')
@@ -32,6 +34,16 @@ const skipDownload = args.includes('--skip-download')
  * dropped. Used on PRs: fast and independent of the npm registry.
  */
 const localOnly = args.includes('--local-only')
+/**
+ * Only inspect packages whose publishable files changed since the baseline.
+ * On a typical PR that is 1-3 packages instead of all 15 — `npm pack` per package
+ * is the whole cost of this check.
+ */
+const changedOnly = args.includes('--changed-only')
+const explicitBase = (() => {
+  const i = args.indexOf('--base')
+  return i >= 0 ? args[i + 1] : null
+})()
 const packageFilter = (() => {
   const i = args.indexOf('--package')
   return i >= 0 ? args[i + 1] : null
@@ -166,7 +178,16 @@ function checkLocalPackaging(entry, name, localPaths) {
   return added
 }
 
+let changedNames = null
+if (changedOnly) {
+  const base = resolveBase(explicitBase)
+  assertBaseResolvable(base)
+  changedNames = changedPackageNames(base)
+  console.log(`Only checking packages changed since ${base}: ${changedNames.size ? [...changedNames].join(', ') : '(none)'}\n`)
+}
+
 for (const { name, dir, localVersion } of listWorkspacePackages()) {
+  if (changedNames && !changedNames.has(name)) continue
   const npmVer = localOnly ? null : npmVersion(name)
   /** @type {Record<string, unknown>} */
   const entry = {

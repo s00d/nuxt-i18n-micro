@@ -120,6 +120,9 @@ catalogs:
     chokidar:
       specifier: ^4.0.3
       version: 4.0.3
+    citty:
+      specifier: ^0.2.2
+      version: 0.2.2
     compression:
       specifier: ^1.7.4
       version: 1.8.1
@@ -1042,6 +1045,24 @@ importers:
       nuxt:
         specifier: 'catalog:'
         version: 4.5.0(@babel/plugin-proposal-decorators@7.28.0(@babel/core@7.29.7))(@babel/plugin-syntax-jsx@7.27.1(@babel/core@7.29.7))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7))(@netlify/blobs@9.1.2)(@types/node@24.10.1)(@vue/compiler-sfc@3.5.40)(better-sqlite3@12.2.0)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.2.0))(encoding@0.1.13)(esbuild@0.28.1)(ioredis@5.11.1)(lightningcss@1.32.0)(magicast@0.5.3)(optionator@0.9.4)(oxc-parser@0.140.0)(oxlint@1.69.0(oxlint-tsgolint@0.24.0))(rollup-plugin-visualizer@7.0.1(rolldown@1.2.0)(rollup@4.62.2))(rollup@4.62.2)(sass@1.94.2)(srvx@0.11.22)(terser@5.39.0)(tsx@4.21.0)(typescript@5.9.3)(vite@8.1.5(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.9.0))(vue-tsc@3.0.6(typescript@5.9.3))(webpack@5.98.0(esbuild@0.28.1))(yaml@2.9.0)
+
+  scripts:
+    devDependencies:
+      '@playwright/test':
+        specifier: 'catalog:'
+        version: 1.55.0
+      citty:
+        specifier: 'catalog:'
+        version: 0.2.2
+      globby:
+        specifier: 'catalog:'
+        version: 14.1.0
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   test/fixtures/async-components:
     dependencies:

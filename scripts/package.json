@@ -13,9 +13,9 @@
     "format": "oxfmt --write ."
   },
   "devDependencies": {
+    "@playwright/test": "catalog:",
     "citty": "catalog:",
     "globby": "catalog:",
-    "playwright": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
   }

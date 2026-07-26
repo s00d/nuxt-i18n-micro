@@ -84,7 +84,8 @@ jobs:
 
       - name: Report the resolved module version
         working-directory: ${{ env.APP_DIR }}
-        run: node -p "'resolved: ' + require('nuxt-i18n-micro/package.json').version"
+        run: |
+          node -p "'resolved: ' + require('nuxt-i18n-micro/package.json').version"
 
       - name: Build
         working-directory: ${{ env.APP_DIR }}

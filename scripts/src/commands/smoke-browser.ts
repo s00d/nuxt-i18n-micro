@@ -1,4 +1,4 @@
-import { chromium } from 'playwright'
+import { chromium } from '@playwright/test'
 import { defineCommand } from 'citty'
 
 interface CheckResult {
@@ -50,21 +50,28 @@ export const smokeBrowserCommand = defineCommand({
     // A raw key surfacing mid-transition is the failure this is here to catch: the
     // merge-on-transition machinery exists precisely to prevent it.
     const keyHits = new Set<string>()
-    await page.addInitScript(() => {
-      const w = window as unknown as { __keyHits: Set<string> }
-      w.__keyHits = new Set()
-      const KEY_RE = /^(?:nav\.\w+|[a-z0-9_]+(?:\.[a-z0-9_]+)+)$/
-      const scan = () => {
-        for (const el of document.querySelectorAll('h1,p,a')) {
-          const text = (el.textContent || '').trim()
-          if (text && text.length < 60 && KEY_RE.test(text)) w.__keyHits.add(text)
+    // Passed as source text, not a function: tsx transpiles this file with esbuild's
+    // keep-names on, which injects a `__name` helper — harmless in Node, but the browser
+    // has never heard of it and every page then throws.
+    await page.addInitScript({
+      content: `
+        window.__keyHits = new Set()
+        var KEY_RE = /^(?:nav\\.\\w+|[a-z0-9_]+(?:\\.[a-z0-9_]+)+)$/
+        var scan = function () {
+          var nodes = document.querySelectorAll('h1,p,a')
+          for (var i = 0; i < nodes.length; i++) {
+            var text = (nodes[i].textContent || '').trim()
+            if (text && text.length < 60 && KEY_RE.test(text)) window.__keyHits.add(text)
+          }
         }
-      }
-      // Init scripts run before the document exists, so the observer has to wait for a
-      // node to attach to — otherwise every page logs an uncaught MutationObserver error.
-      const observe = () => new MutationObserver(scan).observe(document.documentElement, { subtree: true, childList: true, characterData: true })
-      if (document.documentElement) observe()
-      else document.addEventListener('DOMContentLoaded', observe, { once: true })
+        // Init scripts run before the document exists, so the observer has to wait for a
+        // node to attach to — otherwise every page logs an uncaught MutationObserver error.
+        var observe = function () {
+          new MutationObserver(scan).observe(document.documentElement, { subtree: true, childList: true, characterData: true })
+        }
+        if (document.documentElement) observe()
+        else document.addEventListener('DOMContentLoaded', observe, { once: true })
+      `,
     })
 
     const pageErrors: string[] = []

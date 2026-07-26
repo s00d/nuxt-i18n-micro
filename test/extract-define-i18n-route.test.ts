@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { extractDefineI18nRouteData, pageFilePathToRoutePath } from '../src/utils'
 
 /* ──────────────── settings ──────────────── */
@@ -98,6 +98,92 @@ describe('extractDefineI18nRouteData', () => {
       const result = extractDefineI18nRouteData(content, filePath)
 
       expect(result).toMatchSnapshot()
+    })
+  })
+
+  // The argument is still sliced out by counting brackets, but the scanner now
+  // knows what it is counting. Before, a brace, paren or the call name itself
+  // sitting inside a string, comment, template or regex cut the slice in the
+  // wrong place and the whole config was dropped without a word.
+  describe('delimiters inside strings, comments and literals', () => {
+    const page = (script: string) => `<script setup lang="ts">\n${script}\n</script>`
+
+    it('keeps a closing brace inside a route string', () => {
+      const result = extractDefineI18nRouteData(
+        page(`$defineI18nRoute({ locales: ['en', 'de'], localeRoutes: { en: '/a}b', de: '/c' } })`),
+        'braced.vue',
+      )
+      expect(result).toEqual({ locales: ['en', 'de'], localeRoutes: { en: '/a}b', de: '/c' } })
+    })
+
+    it('keeps a closing brace inside a template literal', () => {
+      const result = extractDefineI18nRouteData(page('$defineI18nRoute({ localeRoutes: { en: `/x}y` } })'), 'template.vue')
+      expect(result).toEqual({ localeRoutes: { en: '/x}y' } })
+    })
+
+    it('ignores delimiters in comments', () => {
+      const result = extractDefineI18nRouteData(page(`// ) } '\n$defineI18nRoute({ locales: ['en'] })`), 'comment.vue')
+      expect(result).toEqual({ locales: ['en'] })
+    })
+
+    it('ignores delimiters in a regex literal', () => {
+      const result = extractDefineI18nRouteData(page(`const re = /\\)\\}/g\n$defineI18nRoute({ locales: ['en'] })`), 'regex.vue')
+      expect(result).toEqual({ locales: ['en'] })
+    })
+
+    it('reads braces inside a template hole', () => {
+      const script = "const p = (l: string) => `/${ { en: 'w' }[l] ?? l }`\n$defineI18nRoute({ localeRoutes: { en: p('en') } })"
+      expect(extractDefineI18nRouteData(page(script), 'hole.vue')).toEqual({ localeRoutes: { en: '/w' } })
+    })
+
+    it('does not treat a division as the start of a regex', () => {
+      const script = `const half = 10 / 2\n$defineI18nRoute({ locales: ['en'] })`
+      expect(extractDefineI18nRouteData(page(script), 'division.vue')).toEqual({ locales: ['en'] })
+    })
+
+    // The call name used to be found with a plain indexOf, so the first mention
+    // won — even one that is not a call at all.
+    it('skips the call name mentioned in a comment', () => {
+      const script = `// $defineI18nRoute({ locales: ['wrong'] })\n$defineI18nRoute({ locales: ['right'] })`
+      expect(extractDefineI18nRouteData(page(script), 'commented-call.vue')).toEqual({ locales: ['right'] })
+    })
+
+    it('skips the call name inside a string', () => {
+      const script = `const doc = '$defineI18nRoute({ locales: [\\'wrong\\'] })'\n$defineI18nRoute({ locales: ['right'] })`
+      expect(extractDefineI18nRouteData(page(script), 'stringified-call.vue')).toEqual({ locales: ['right'] })
+    })
+
+    it('does not match an identifier that merely contains the call name', () => {
+      const script = `const my$defineI18nRouteHelper = () => {}\n$defineI18nRoute({ locales: ['right'] })`
+      expect(extractDefineI18nRouteData(page(script), 'lookalike.vue')).toEqual({ locales: ['right'] })
+    })
+  })
+
+  describe('unresolvable config', () => {
+    it('warns instead of silently dropping a config built from an import', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const content = `<script setup lang="ts">\nimport { ROUTES } from './routes'\n$defineI18nRoute({ localeRoutes: ROUTES })\n</script>`
+
+      // An imported binding cannot be resolved at build time, so `null` stays the
+      // result — but it must be reported, naming the file and the missing binding.
+      expect(extractDefineI18nRouteData(content, 'imported-config.vue')).toBeNull()
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(warn.mock.calls[0]?.[0]).toContain('imported-config.vue')
+      expect(warn.mock.calls[0]?.[0]).toContain('ROUTES is not defined')
+
+      // Every `.vue` file in the project goes through this, and transform reruns on
+      // HMR — one warning per file, not one per pass.
+      extractDefineI18nRouteData(content, 'imported-config.vue')
+      expect(warn).toHaveBeenCalledTimes(1)
+
+      warn.mockRestore()
+    })
+
+    it('stays quiet for pages that do not call $defineI18nRoute', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      expect(extractDefineI18nRouteData('<script setup>const a = 1</script>', 'plain.vue')).toBeNull()
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
     })
   })
 

@@ -30,12 +30,9 @@ export default defineConfig({
     retry: process.env.CI ? 1 : 0,
     fileParallelism: true,
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks,
-        // Fresh fork per file so Playwright/Nuxt memory is released between specs.
-        isolate: true,
-      },
-    },
+    // Vitest 4 moved pool sizing/isolation out of `poolOptions`.
+    maxWorkers: maxForks,
+    // Fresh worker per file so Playwright/Nuxt memory is released between specs.
+    isolate: true,
   },
 })

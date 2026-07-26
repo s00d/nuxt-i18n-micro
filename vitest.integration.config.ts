@@ -23,14 +23,9 @@ export default defineConfig({
     teardownTimeout: 60_000,
     pool: 'forks',
     fileParallelism: true,
-    poolOptions: {
-      forks: {
-        // One fork per core: each file's cost is a Nuxt build, which is itself
-        // multi-process, so going wider than the CPU count only thrashes.
-        maxForks: Math.max(2, parallelism),
-        // Fresh fork per file so build/server memory is released between suites.
-        isolate: true,
-      },
-    },
+    // One worker per core: each file's cost is a Nuxt build, itself multi-process.
+    maxWorkers: Math.max(2, parallelism),
+    // Fresh worker per file so build/server memory is released between suites.
+    isolate: true,
   },
 })

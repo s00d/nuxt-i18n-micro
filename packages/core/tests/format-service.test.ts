@@ -1,6 +1,19 @@
 import { FormatService } from '../src'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
+/**
+ * Spy on an Intl constructor while keeping the real implementation.
+ * Vitest 4 no longer calls through automatically when spying on a constructor,
+ * so `new Intl.NumberFormat(...)` would yield an object without `.format`.
+ */
+function spyOnIntlConstructor<K extends 'NumberFormat' | 'DateTimeFormat'>(key: K) {
+  const Original = Intl[key] as unknown as new (...args: unknown[]) => unknown
+  // Must be a `function` (not an arrow): Vitest 4 requires a constructible mock.
+  return vi.spyOn(Intl, key).mockImplementation(function (...args: unknown[]) {
+    return new Original(...args)
+  } as never)
+}
+
 describe('FormatService', () => {
   let formatService: FormatService
 
@@ -28,7 +41,7 @@ describe('FormatService', () => {
     })
 
     test('should reuse cached Intl.NumberFormat instances', () => {
-      const spy = vi.spyOn(Intl, 'NumberFormat')
+      const spy = spyOnIntlConstructor('NumberFormat')
       formatService.formatNumber(1, 'en-US', { style: 'currency', currency: 'USD' })
       formatService.formatNumber(2, 'en-US', { style: 'currency', currency: 'USD' })
       formatService.formatNumber(3, 'en-US', { style: 'currency', currency: 'USD' })
@@ -37,7 +50,7 @@ describe('FormatService', () => {
     })
 
     test('should create separate formatters for different options', () => {
-      const spy = vi.spyOn(Intl, 'NumberFormat')
+      const spy = spyOnIntlConstructor('NumberFormat')
       formatService.formatNumber(1, 'en-US', { style: 'currency', currency: 'USD' })
       formatService.formatNumber(1, 'en-US', { style: 'currency', currency: 'EUR' })
       expect(spy).toHaveBeenCalledTimes(2)
@@ -68,7 +81,7 @@ describe('FormatService', () => {
     })
 
     test('should reuse cached Intl.DateTimeFormat instances', () => {
-      const spy = vi.spyOn(Intl, 'DateTimeFormat')
+      const spy = spyOnIntlConstructor('DateTimeFormat')
       const date = new Date('2023-10-05T12:34:56Z')
       formatService.formatDate(date, 'en-US', { year: 'numeric' })
       formatService.formatDate(date, 'en-US', { year: 'numeric' })

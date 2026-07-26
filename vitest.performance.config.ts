@@ -7,10 +7,6 @@ export default defineConfig({
     exclude: ['test/fixtures/**'],
     testTimeout: 1_600_000, // ~27 min for performance test
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: Math.max(1, Math.floor(cpus().length / 2)),
-      },
-    },
+    maxWorkers: Math.max(1, Math.floor(cpus().length / 2)),
   },
 })

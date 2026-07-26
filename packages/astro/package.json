@@ -103,7 +103,7 @@
     "vue": "catalog:"
   },
   "peerDependencies": {
-    "astro": "catalog:",
+    "astro": "^5.0.0 || ^6.0.0 || ^7.0.0",
     "preact": "catalog:",
     "react": "catalog:",
     "svelte": "catalog:",

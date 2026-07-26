@@ -2,6 +2,11 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  // Vite 8 (via Vitest 4) no longer infers the JSX transform for .tsx here.
+  esbuild: {
+    jsx: 'automatic',
+    jsxImportSource: 'react',
+  },
   resolve: {
     alias: [
       { find: /\.vue$/, replacement: fileURLToPath(new URL('./tests/mocks/vue-mock.ts', import.meta.url)) },

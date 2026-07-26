@@ -1548,6 +1548,8 @@ function pause(duration: number): Promise<void> {
 describe('performance', () => {
   it(
     'compare build performance and stress test',
+    // Vitest 4 takes the options object as the second argument.
+    { timeout: 1800000 }, // 30 minutes
     async () => {
       initializeMarkdown()
       addDependencyVersions()
@@ -1674,6 +1676,5 @@ ${comparisonCharts}
 
       addTestLogicExplanation()
     },
-    { timeout: 1800000 },
-  ) // 30 minutes timeout
+  )
 })

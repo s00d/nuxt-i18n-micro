@@ -157,10 +157,7 @@
   "packageManager": "pnpm@9.14.2",
   "pnpm": {
     "overrides": {
-      "@nuxtjs/sitemap": "^8.2.2",
-      "nuxt": "^4.5.0",
-      "@nuxt/schema": "^4.5.0",
-      "@nuxt/kit": "^4.5.0"
+      "@nuxtjs/sitemap": "^8.2.2"
     }
   },
   "stackblitz": {

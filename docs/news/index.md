@@ -22,13 +22,19 @@ Now the payload carries only the keys the server actually resolved for that page
 
 Measured on the playground (index page, 6.65 MB dictionary, 3130 rendered keys):
 
-| | before | after |
-| --- | ---: | ---: |
-| bytes before the app mounts | 7 030 434 | 678 934 |
-| inline `__NUXT_DATA__` | 7 262 448 | 300 801 |
-| cold SSR response | 201 ms | 57 ms |
-| server RSS | 272 MB | 190 MB |
-| SSG: pages with the dictionary in HTML | 24 of 24 | 0 of 24 |
+Before, a response looked one of two ways depending on whether that `(locale, route)` was already
+cached in the server process — so the two are listed separately:
+
+| | before (cold) | before (warm) | after |
+| --- | ---: | ---: | ---: |
+| HTML | 7 640 581 | 378 450 | 678 934 |
+| of that, inline `__NUXT_DATA__` | 7 262 448 | 317 | 300 801 |
+| blocking chunk fetch before mount | — | 6 651 984 | — |
+| **bytes before the app mounts** | **7 640 581** | **7 030 434** | **678 934** |
+| SSR response | 201 ms | 17 ms | 57 ms |
+
+Server RSS drops from 272 MB to 190 MB, and on SSG the dictionary leaves the HTML entirely: 24 of 24
+prerendered pages carried it before, none do now.
 
 No configuration — this is how payload transfer works now. See [Performance](/guide/performance#server-side-payload-transfer).
 

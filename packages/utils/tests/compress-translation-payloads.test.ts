@@ -15,9 +15,10 @@ describe('compressTranslationPayloads', () => {
 
   beforeEach(() => {
     dir = mkdtempSync(join(tmpdir(), 'i18n-gz-'))
-    writeFileSync(join(dir, 'en.json'), JSON.stringify({ greeting: 'Hello'.repeat(200) }))
+    // Both well over Nitro's 1024-byte floor, which this pass mirrors.
+    writeFileSync(join(dir, 'en.json'), JSON.stringify({ greeting: 'Hello'.repeat(400) }))
     mkdirSync(join(dir, 'pages', 'about'), { recursive: true })
-    writeFileSync(join(dir, 'pages', 'about', 'en.json'), JSON.stringify({ title: 'About' }))
+    writeFileSync(join(dir, 'pages', 'about', 'en.json'), JSON.stringify({ title: 'About'.repeat(400) }))
     writeFileSync(join(dir, 'notes.txt'), 'not a payload')
   })
 
@@ -58,5 +59,17 @@ describe('compressTranslationPayloads', () => {
     compressTranslationPayloads(dir, true)
     const raw = readFileSync(join(dir, 'en.json')).length
     expect(readFileSync(join(dir, 'en.json.gz')).length).toBeLessThan(raw)
+  })
+
+  it('skips files below the size Nitro itself refuses to compress', () => {
+    // Under ~1 KB the compressed copy is routinely larger than the source, and Nitro
+    // leaves those alone — following the setting means following that floor too.
+    writeFileSync(join(dir, 'tiny.json'), JSON.stringify({ a: 'b' }))
+    const compressed = compressTranslationPayloads(dir, true)
+
+    expect(existsSync(join(dir, 'tiny.json.gz'))).toBe(false)
+    expect(existsSync(join(dir, 'tiny.json.br'))).toBe(false)
+    expect(existsSync(join(dir, 'en.json.gz'))).toBe(true)
+    expect(compressed).toBe(2)
   })
 })

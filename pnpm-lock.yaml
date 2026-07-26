@@ -479,9 +479,6 @@ importers:
       '@i18n-micro/utils':
         specifier: workspace:*
         version: link:../utils
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.25(typescript@5.9.3)
     devDependencies:
       '@tailwindcss/vite':
         specifier: 'catalog:'
@@ -510,6 +507,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.10(@types/node@24.10.1)(jsdom@29.1.1)(vite@7.3.6(@types/node@24.10.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.9.0))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.25(typescript@5.9.3)
 
   packages/hmr:
     dependencies:

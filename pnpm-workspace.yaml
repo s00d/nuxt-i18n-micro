@@ -8,6 +8,7 @@ packages:
 
 catalog:
   # Build & dev
+  publint: ^0.3.17
   vite: ^7.3.6
   vite-plugin-dts: ^4.5.4
   vite-plugin-solid: ^2.11.10
@@ -30,7 +31,6 @@ catalog:
   '@nuxtjs/i18n': ^10.1.2
   '@nuxthub/core': ^0.8.17
   # Vue
-  publint: ^0.3.17
   vue: ^3.5.25
   '@vue/compiler-sfc': ^3.5.25
   vue-router: ^4.6.3

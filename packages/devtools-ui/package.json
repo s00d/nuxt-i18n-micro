@@ -74,9 +74,7 @@
     "tailwindcss": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:"
-  },
-  "peerDependencies": {
+    "vitest": "catalog:",
     "vue": "catalog:"
   },
   "engines": {

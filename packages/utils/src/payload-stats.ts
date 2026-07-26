@@ -68,6 +68,9 @@ export function hashTranslationSources(rootDirs: string[], translationDirName: s
   return seen > 0 ? hash.digest('hex').slice(0, 16) : null
 }
 
+/** Nitro skips public assets below this size; mirrored so both passes agree. */
+const NITRO_MIN_COMPRESS_BYTES = 1024
+
 /** Nitro's `compressPublicAssets`: `true` means both encodings, an object selects them. */
 export type PublicAssetCompression = boolean | { gzip?: boolean; brotli?: boolean } | undefined
 
@@ -79,7 +82,7 @@ export type PublicAssetCompression = boolean | { gzip?: boolean; brotli?: boolea
  * would serve the single largest part of the output uncompressed. This applies the
  * user's setting to those files; it does not turn compression on by itself.
  *
- * Returns the number of source files compressed.
+ * Returns the number of files actually compressed.
  */
 export function compressTranslationPayloads(dir: string, compression: PublicAssetCompression): number {
   if (!compression || !existsSync(dir)) return 0
@@ -91,8 +94,14 @@ export function compressTranslationPayloads(dir: string, compression: PublicAsse
   const files: string[] = []
   collectJsonFiles(dir, files)
 
+  let compressed = 0
   for (const file of files) {
     const raw = readFileSync(file)
+    // Same floor Nitro applies to public assets: below it the compressed copy is
+    // often bigger than the source, and diverging from `compressPublicAssets` would
+    // make this pass behave differently from the setting it is following.
+    if (raw.length < NITRO_MIN_COMPRESS_BYTES) continue
+
     if (gzip) writeFileSync(`${file}.gz`, gzipSync(raw, { level: 9 }))
     if (brotli) {
       writeFileSync(
@@ -100,7 +109,8 @@ export function compressTranslationPayloads(dir: string, compression: PublicAsse
         brotliCompressSync(raw, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: raw.length } }),
       )
     }
+    compressed += 1
   }
 
-  return files.length
+  return compressed
 }

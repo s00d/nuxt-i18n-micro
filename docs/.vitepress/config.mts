@@ -214,6 +214,7 @@ export default withFolderTree(
                     { text: 'Benchmark Results', link: '/performance-results' },
                     { text: 'Server Side Translations', link: '/server-side-translations' },
                     { text: 'Firebase Deployment', link: '/firebase' },
+                    { text: 'Release Smoke Checks', link: '/release-smoke' },
                   ],
                 },
                 {

@@ -1,0 +1,7 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos"
+  },
+  "items": "un élément|{count} éléments"
+}

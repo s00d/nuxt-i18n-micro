@@ -4,6 +4,10 @@
     "dist",
     "node_modules",
     "playground",
+    // Standalone app: its types come from its own .nuxt once the module is installed
+    // from a tarball or npm, so it is not part of this repo's TS project.
+    "test/deploy-smoke",
+    "scripts",
   ],
 
 }

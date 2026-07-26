@@ -83,3 +83,13 @@ graph-memory.yaml
 .tasks/
 .skills/
 .epics/
+
+# release smoke artifacts
+.smoke-tarballs/
+test/deploy-smoke/.output/
+test/deploy-smoke/.nuxt/
+test/deploy-smoke/node_modules/
+test/deploy-smoke/pnpm-workspace.yaml
+test/deploy-smoke/pnpm-lock.yaml
+# `vercel link` writes the project ids here; CI reads them from secrets instead
+.vercel

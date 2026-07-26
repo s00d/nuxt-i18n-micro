@@ -1,0 +1,7 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About"
+  },
+  "items": "one item|{count} items"
+}

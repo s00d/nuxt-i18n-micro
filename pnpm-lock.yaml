@@ -132,6 +132,9 @@ catalogs:
     globby:
       specifier: ^14.1.0
       version: 14.1.0
+    h3:
+      specifier: ^1.15.11
+      version: 1.15.11
     jsdom:
       specifier: ^29.1.1
       version: 29.1.1
@@ -275,6 +278,9 @@ importers:
       globby:
         specifier: 'catalog:'
         version: 14.1.0
+      h3:
+        specifier: 'catalog:'
+        version: 1.15.11
       sirv:
         specifier: 'catalog:'
         version: 2.0.4

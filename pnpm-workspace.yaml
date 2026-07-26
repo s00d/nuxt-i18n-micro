@@ -3,11 +3,13 @@ packages:
   - 'packages/*/playground'
   - 'packages/*/playground-*'
   - 'client'
+  - 'scripts'
   - 'playground'
   - 'test/fixtures/**/*'
 
 catalog:
   # Build & dev
+  h3: ^1.15.11
   publint: ^0.3.17
   vite: ^7.3.6
   vite-plugin-dts: ^4.5.4
@@ -79,6 +81,7 @@ catalog:
   changelogen: ^0.5.7
   # Utils
   chokidar: ^4.0.3
+  citty: ^0.2.2
   globby: ^14.1.0
   glob: ^11.0.1
   ufo: ^1.5.4

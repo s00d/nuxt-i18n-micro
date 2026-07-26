@@ -1,0 +1,22 @@
+{
+  "name": "@i18n-micro/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Release and verification tooling for nuxt-i18n-micro.",
+  "main": "src/run.ts",
+  "scripts": {
+    "cli": "pnpm exec tsx ./src/run.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt --write ."
+  },
+  "devDependencies": {
+    "citty": "catalog:",
+    "globby": "catalog:",
+    "playwright": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

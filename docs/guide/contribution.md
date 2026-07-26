@@ -197,10 +197,10 @@ CI enforces this via `pnpm run check:versions`, which compares each package agai
 pnpm run check:versions
 
 # against an explicit baseline
-node scripts/check-package-versions.mjs --base v3.21.4
+pnpm -C scripts cli check-versions --base v3.21.4
 
 # also reject versions already published on npm (part of `release:check`)
-node scripts/check-package-versions.mjs --npm
+pnpm -C scripts cli check-versions --npm
 ```
 
 Changes to tests, docs, playgrounds and test configs are ignored — they cannot affect the published artifact. Everything else counts, so the check fails closed.

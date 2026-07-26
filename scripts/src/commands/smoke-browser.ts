@@ -74,6 +74,12 @@ export const smokeBrowserCommand = defineCommand({
       `,
     })
 
+    /** Drain the page's hits before a navigation throws the document away. */
+    const drainKeyHits = async () => {
+      const hits = await page.evaluate(() => [...((window as unknown as { __keyHits?: Set<string> }).__keyHits ?? [])])
+      for (const key of hits) keyHits.add(key)
+    }
+
     const pageErrors: string[] = []
     page.on('pageerror', (error) => pageErrors.push(String(error.message).slice(0, 200)))
 
@@ -94,6 +100,7 @@ export const smokeBrowserCommand = defineCommand({
       })
 
       await check('locale switch loads the other dictionary', async () => {
+        await drainKeyHits()
         await page.goto(`${base}/de`, { waitUntil: 'networkidle', timeout: 60_000 })
         await page.waitForSelector('#title', { timeout: 30_000 })
         expect((await page.textContent('#title')) === 'Smoke Home DE', 'German title missing')
@@ -104,8 +111,7 @@ export const smokeBrowserCommand = defineCommand({
       })
 
       await check('no raw translation key was ever visible', async () => {
-        const hits = await page.evaluate(() => [...(window as unknown as { __keyHits: Set<string> }).__keyHits])
-        for (const key of hits) keyHits.add(key)
+        await drainKeyHits()
         expect(keyHits.size === 0, `saw: ${[...keyHits].slice(0, 5).join(', ')}`)
         return 'none'
       })

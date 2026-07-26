@@ -1,5 +1,8 @@
 import { defineCommand } from 'citty'
 
+/** A bare translation key rendered as text — what a broken payload looks like on screen. */
+export const RAW_KEY = /<(?:h1|p|a)[^>]*>\s*(?:[a-z0-9_]+(?:\.[a-z0-9_]+)+|nav\.\w+)\s*<\//i
+
 interface CheckResult {
   name: string
   ok: boolean
@@ -53,9 +56,6 @@ export const smokeVerifyCommand = defineCommand({
     const expect = (condition: boolean, message: string) => {
       if (!condition) throw new Error(message)
     }
-
-    /** A bare translation key rendered as text — what a broken payload looks like on screen. */
-    const RAW_KEY = /<(?:h1|p|a)[^>]*>\s*(?:[a-z0-9_]+(?:\.[a-z0-9_]+)+|nav\.\w+)\s*<\//i
 
     // --- SSR and localized routes -----------------------------------------------------
 

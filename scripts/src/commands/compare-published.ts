@@ -140,7 +140,7 @@ export const comparePublishedCommand = defineCommand({
       console.log(`Only checking packages changed since ${base}: ${changedNames.size ? [...changedNames].join(', ') : '(none)'}\n`)
     }
 
-    for (const { name, dir, localVersion } of listWorkspacePackages()) {
+    for (const { name, dir, localVersion } of listWorkspacePackages(packageFilter)) {
       if (changedNames && !changedNames.has(name)) continue
       const npmVer = args.localOnly ? null : npmVersion(name)
 

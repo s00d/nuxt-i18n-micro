@@ -103,6 +103,25 @@ export const verifyPackagesCommand = defineCommand({
       if (importTypes && requireTypes && importTypes === requireTypes) {
         add('warnings', pkgName, 'same-types-import-require', 'import.types and require.types point to the same file — use .d.cts for require')
       }
+
+      // Everything above only fires when at least one types entry exists. A dual export
+      // with none at all is the worse case — TypeScript resolves no types for either
+      // condition — and it was passing silently.
+      if (!importTypes && !requireTypes) {
+        add(
+          'errors',
+          pkgName,
+          'exports-no-types',
+          'Root export "." has import/require conditions but declares no "types" — consumers resolve no types at all',
+        )
+      } else if (!requireTypes) {
+        add(
+          'warnings',
+          pkgName,
+          'require-no-types',
+          'Root export "." has a "require" condition with no "types" — CommonJS consumers resolve no types',
+        )
+      }
     }
 
     function checkPublishFields(pkgName: string, pkgDir: string, pkg: Manifest): void {
@@ -127,6 +146,34 @@ export const verifyPackagesCommand = defineCommand({
       checkDualPackageTypes(pkgName, pkgDir, pkg)
     }
 
+    /**
+     * Would `npm pack` include `rel`, given this manifest's "files"?
+     *
+     * Deliberately coarse: it only answers for the prefixes `files` can express, and
+     * treats an absent `files` (everything ships) and npm's always-included entries as
+     * published. Being wrong here would mean a false error on a working package, so it
+     * errs towards published.
+     */
+    function isPublished(pkg: Manifest, rel: string): boolean {
+      const files = pkg.files
+      if (!Array.isArray(files)) return true
+
+      const path = rel.replace(/^\.\//, '')
+      // npm publishes these regardless of "files".
+      if (/^(package\.json|README|LICEN[CS]E|CHANGELOG)/i.test(path)) return true
+
+      return files.some((entry) => {
+        if (typeof entry !== 'string') return false
+        const pattern = entry.replace(/^\.\//, '').replace(/^!/, '').replace(/\/$/, '')
+        if (!pattern) return false
+        // A bare directory name in "files" ships the whole subtree.
+        const star = pattern.indexOf('*')
+        const prefix = star === -1 ? pattern : pattern.slice(0, star).replace(/\/$/, '')
+        if (!prefix) return true
+        return path === prefix || path.startsWith(`${prefix}/`)
+      })
+    }
+
     function checkReferencedFiles(pkgName: string, pkgDir: string, pkg: Manifest): void {
       const relPaths = new Set<string>()
       collectRelativePaths(pkg.exports, relPaths)
@@ -146,6 +193,13 @@ export const verifyPackagesCommand = defineCommand({
         if (rel === './package.json') continue
         if (!pathExists(pkgDir, rel)) {
           add('errors', pkgName, 'missing-file', `Referenced path does not exist: ${rel}`)
+          continue
+        }
+        // Existing on disk is not the same as reaching the registry: "files" decides
+        // what `npm pack` includes, and an export left out of it resolves locally and
+        // 404s for everyone else.
+        if (!isPublished(pkg, rel)) {
+          add('errors', pkgName, 'unpublished-file', `Referenced path is excluded by "files" and will not be published: ${rel}`)
         }
       }
 

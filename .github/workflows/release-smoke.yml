@@ -56,10 +56,14 @@ jobs:
           node-version: 20
           cache: pnpm
 
+      # The scripts CLI runs from the root workspace, so this is needed for both
+      # matrix values — not just the branch that packs.
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Build the module and pack it
         if: matrix.source == 'git'
         run: |
-          pnpm install --frozen-lockfile
           pnpm run prepack
           pnpm -C scripts cli smoke-pack --app "$APP_DIR" --out "$RUNNER_TEMP/tarballs"
 
@@ -129,6 +133,9 @@ jobs:
         with:
           node-version: 20
           cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
 
       # Deploys always use the published package: the point is to check what a user
       # would get, and a local tarball would not survive the platform's own install.

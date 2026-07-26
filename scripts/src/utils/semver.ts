@@ -18,9 +18,15 @@ function comparePrerelease(a: string, b: string): number {
     if (idB === undefined) return 1
     if (idA === idB) continue
 
-    const numA = /^\d+$/.test(idA) ? Number(idA) : null
-    const numB = /^\d+$/.test(idB) ? Number(idB) : null
-    if (numA !== null && numB !== null) return numA - numB
+    const numA = /^\d+$/.test(idA) ? idA.replace(/^0+(?=\d)/, '') : null
+    const numB = /^\d+$/.test(idB) ? idB.replace(/^0+(?=\d)/, '') : null
+    if (numA !== null && numB !== null) {
+      // Compared as digit strings, not numbers: a build-stamp identifier can exceed
+      // Number.MAX_SAFE_INTEGER, and past that `Number()` rounds two different
+      // identifiers to the same value and reports them equal.
+      if (numA.length !== numB.length) return numA.length - numB.length
+      return numA === numB ? 0 : numA < numB ? -1 : 1
+    }
     // Numeric identifiers always have lower precedence than alphanumeric ones.
     if (numA !== null) return -1
     if (numB !== null) return 1

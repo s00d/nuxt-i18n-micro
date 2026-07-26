@@ -21,14 +21,22 @@ function versionAtRef(ref: string, relDir: string): string | null {
   }
 }
 
-function publishedVersions(name: string): string[] {
+/**
+ * Versions of `name` on npm, or `null` when the lookup itself failed.
+ *
+ * The distinction matters: this feeds a release gate, and treating an unreachable
+ * registry as "nothing published" lets an already-published version through — the
+ * exact case the gate exists to catch.
+ */
+export function publishedVersions(name: string): string[] | null {
   const out = tryRun('npm', ['view', name, 'versions', '--json'])
+  if (out === null) return null
   if (!out) return []
   try {
     const parsed = JSON.parse(out) as string | string[]
     return Array.isArray(parsed) ? parsed : [parsed]
   } catch {
-    return []
+    return null
   }
 }
 
@@ -80,7 +88,15 @@ export const checkVersionsCommand = defineCommand({
      */
     const checkAlreadyPublished = (entry: Entry, name: string, version: string): number => {
       if (!args.npm || entry.errors.length > 0) return 0
-      if (!publishedVersions(name).includes(version)) return 0
+
+      const published = publishedVersions(name)
+      if (published === null) {
+        entry.status = 'NPM LOOKUP FAILED'
+        entry.errors.push(`could not read published versions from npm — refusing to pass the gate on an unknown registry state`)
+        return 1
+      }
+
+      if (!published.includes(version)) return 0
       entry.status = 'ALREADY PUBLISHED'
       entry.errors.push(`version ${version} is already published on npm — bump before releasing`)
       return 1

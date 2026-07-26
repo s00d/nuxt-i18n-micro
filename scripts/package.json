@@ -10,13 +10,15 @@
     "typecheck": "tsc --noEmit",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
-    "format": "oxfmt --write ."
+    "format": "oxfmt --write .",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
     "citty": "catalog:",
     "globby": "catalog:",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

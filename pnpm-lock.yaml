@@ -1063,6 +1063,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.10(@types/node@24.10.1)(jsdom@29.1.1)(vite@8.1.5(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.9.0))
 
   test/fixtures/async-components:
     dependencies:
@@ -19583,7 +19586,6 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 8.1.5(@types/node@24.10.1)(esbuild@0.28.1)(jiti@2.7.0)(sass@1.94.2)(terser@5.39.0)(tsx@4.21.0)(yaml@2.9.0)
-    optional: true
 
   '@vitest/pretty-format@4.1.10':
     dependencies:
@@ -29650,7 +29652,6 @@ snapshots:
       jsdom: 29.1.1
     transitivePeerDependencies:
       - msw
-    optional: true
 
   vscode-jsonrpc@8.2.0: {}
 

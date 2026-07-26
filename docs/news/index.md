@@ -6,6 +6,51 @@ outline: 'deep'
 
 # News
 
+## Unreleased — Render-Set SSR Payload
+
+**Date**: 2026-07-26
+
+The SSR payload no longer carries whole translation chunks, and translation payload URLs are now keyed by content instead of build time.
+
+### What's New?
+
+#### Render-set SSR payload
+
+Previously the full `(locale, route)` chunk was mirrored into the payload — but only on the *first* render of each pair after a cold start, because the process-global cache short-circuited the loader afterwards. The first visitor got the whole dictionary inlined in the HTML; everyone else got nothing and had to download the chunk before the app could mount.
+
+Now the payload carries only the keys the server actually resolved for that page, written to `nuxtApp.payload.data` (Nuxt externalizes `data` into `_payload.json` on prerendered routes; `state` never leaves the HTML). The rest of the chunk loads in the background after hydration, so it is off the critical path.
+
+Measured on the playground (index page, 6.65 MB dictionary, 3130 rendered keys):
+
+| | before | after |
+| --- | ---: | ---: |
+| bytes before the app mounts | 7 030 434 | 678 934 |
+| inline `__NUXT_DATA__` | 7 262 448 | 300 801 |
+| cold SSR response | 201 ms | 57 ms |
+| server RSS | 272 MB | 190 MB |
+| SSG: pages with the dictionary in HTML | 24 of 24 | 0 of 24 |
+
+No configuration — this is how payload transfer works now. See [Performance](/guide/performance#server-side-payload-transfer).
+
+#### `dateBuild` defaults to a content fingerprint
+
+`?v=` on `/_locales` requests used to default to `Date.now()`, while responses are served `immutable` for a year. Every rebuild therefore invalidated every client's dictionary, even when no translation had changed.
+
+The default is now a SHA-256 fingerprint of the translation sources, in layer order. Rebuilds with untouched translations keep the same URL. Setting `dateBuild` explicitly still wins. See [Configuration — `dateBuild`](/guide/configuration#datebuild).
+
+#### Compressed public payloads
+
+`nitro.compressPublicAssets` now reaches the translation payloads copied into the public directory
+(`.gz` + `.br`). Nitro compresses public assets before the copy happens, so previously the payloads
+were the one uncompressed part of a static build — 6.65 MB raw versus 1.01 MB gzip on the playground
+index. The module still never enables compression on its own. See
+[Performance](/guide/performance#compressed-public-payloads).
+
+### Bug Fixes
+
+- **Dev HMR** — a write that leaves file content unchanged (editor save-on-blur, formatter rewrite) no longer triggers a re-merge. Root-locale changes rebuild every page for that locale, so this was expensive to spend on a no-op.
+- **Dev HMR** — pages are re-merged concurrently on a root-locale change instead of one after another.
+
 ## Unreleased — Formats, Cache & Switcher DX
 
 **Date**: 2026-07-22

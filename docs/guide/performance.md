@@ -223,13 +223,36 @@ if (val === undefined && key.includes('.')) {
 
 ### 💉 Server-Side Payload Transfer
 
-During SSR, loaded translation chunks are stored in `useState('i18n-ssr-chunks')` and serialized through the Nuxt payload. On the client, `01.plugin.ts` calls `translationStorage.seedFromSsrChunks()` before any `$fetch`, completely avoiding duplicate requests on first load.
+The SSR payload carries a **render set**: only the keys the server actually resolved while rendering
+that page, not the whole `(locale, route)` chunk. The HTML therefore grows with what the page shows,
+not with the size of your dictionary.
 
-`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`. Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys.
+It is written on `app:rendered` into `nuxtApp.payload.data['i18n-ssr-chunks']`. `payload.data` and not
+`useState` on purpose — Nuxt externalizes `data` into `_payload.json` on prerendered routes, while
+`state` always stays inline in the HTML.
+
+On the client, `01.plugin.ts` seeds `translationStorage` from it before any `$fetch`, so hydration
+needs no network round-trip. The seed is flagged as partial, and the rest of the chunk is fetched in
+the background right after; keys outside the render set resolve once it lands. Keys that only the
+render set can provide — component-local `$defineI18nRoute` translations, which no locale file
+contains — are kept when the chunk arrives.
+
+`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`. Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys. That merge is what stops raw keys from flashing while the outgoing page is still mounted.
+
+Measured on the playground (index page with a 6.65 MB dictionary, 3130 rendered keys):
+
+| | before | after |
+| --- | ---: | ---: |
+| bytes before the app mounts | 7 030 434 | 678 934 |
+| inline `__NUXT_DATA__` | 7 262 448 | 300 801 |
+| cold SSR response | 201 ms | 57 ms |
+| server RSS | 272 MB | 190 MB |
+| SSG: pages with the dictionary in HTML | 24 of 24 | 0 of 24 |
 
 This approach:
 
 - Eliminates waterfall requests on page load
+- Keeps HTML size proportional to the page, not to the dictionary
 - Reduces Time to Interactive (TTI)
 - Works seamlessly with pre-rendering and SSG
 
@@ -239,6 +262,24 @@ To optimize performance, `Nuxt I18n Micro` implements caching and supports pre-r
 
 - 🗄️ **Caching**: Translations are cached after the initial load, reducing the need for subsequent requests and improving response times.
 - 🏁 **Pre-rendering**: During the build process, translation files for all configured locales and routes can be pre-rendered. This eliminates the need for runtime requests, ensuring that translations are served quickly and efficiently.
+
+### 🗜️ Compressed Public Payloads
+
+When `nitro.compressPublicAssets` is enabled, the translation payloads copied into the public
+directory get `.gz` and `.br` siblings too:
+
+```ts
+export default defineNuxtConfig({
+  nitro: { compressPublicAssets: true },
+})
+```
+
+Nitro compresses public assets before the hook that copies the payloads, so without this they would
+be the one uncompressed part of a static build. The module does not turn compression on by itself —
+it only applies the setting you chose. Per-encoding selection (`{ gzip: true, brotli: false }`) is
+respected.
+
+Playground index payload: 6 651 984 B raw, 1 012 831 B gzip, 821 617 B brotli.
 
 ### ☁️ Serverless Payload Output
 

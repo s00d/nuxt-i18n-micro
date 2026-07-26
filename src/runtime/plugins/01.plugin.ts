@@ -39,7 +39,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
   const { resetPageHead } = useI18nHead()
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
-  const ssrChunks = useState<Record<string, Record<string, unknown>>>('i18n-ssr-chunks', () => ({}))
+  // Deliberately `payload.data` and not `useState`: Nuxt externalizes `data` into
+  // `_payload.json` on prerendered routes but always leaves `state` inline in the
+  // HTML. The render set is read once at hydration and never mutated, so it has no
+  // business being reactive state anyway.
+  const SSR_CHUNKS_KEY = 'i18n-ssr-chunks'
+  const readSsrChunks = (): Record<string, Record<string, unknown>> =>
+    (nuxtApp.payload.data?.[SSR_CHUNKS_KEY] as Record<string, Record<string, unknown>> | undefined) ?? {}
 
   const i18n = new NuxtI18n({
     plural,
@@ -48,6 +54,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     numberFormats: i18nConfig.numberFormats,
     datetimeFormats: i18nConfig.datetimeFormats,
   })
+
+  if (import.meta.server) {
+    // The SSR payload carries only the keys this render resolved, so the HTML stays
+    // proportional to the page instead of the dictionary. Plugins run per request on
+    // the server, so this map is request-scoped.
+    const rendered = new Map<string, Record<string, unknown>>()
+    i18n.setKeyRecorder((cacheKey, key, value) => {
+      let bucket = rendered.get(cacheKey)
+      if (!bucket) rendered.set(cacheKey, (bucket = {}))
+      bucket[key] = value
+    })
+    // Written after the render rather than from the loader: the loader finishes long
+    // before the last component has resolved its keys, and it only runs on a cache miss.
+    nuxtApp.hook('app:rendered', () => {
+      i18n.setKeyRecorder(null)
+      nuxtApp.payload.data[SSR_CHUNKS_KEY] = Object.fromEntries(rendered)
+    })
+  }
 
   const getCurrentLocale = (route?: ResolvedRouteLike): string => {
     const r = route ?? (router.currentRoute.value as unknown as ResolvedRouteLike)
@@ -79,17 +103,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     routesLocaleLinks: i18nConfig.routesLocaleLinks,
   }
 
-  if (import.meta.client && Object.keys(ssrChunks.value).length > 0) {
-    translationStorage.seedFromSsrChunks(ssrChunks.value)
+  if (import.meta.client) {
+    const seeded = readSsrChunks()
+    if (Object.keys(seeded).length > 0) translationStorage.seedFromSsrChunks(seeded)
   }
 
   const loader = new NuxtTranslationLoader({
     i18n,
     loadOptions,
-    getSsrChunks: () => ssrChunks.value,
-    setSsrChunk: (cacheKey, data) => {
-      ssrChunks.value = { ...ssrChunks.value, [cacheKey]: data }
-    },
     isDev,
   })
 

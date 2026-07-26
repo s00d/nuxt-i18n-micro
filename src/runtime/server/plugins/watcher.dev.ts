@@ -1,5 +1,6 @@
 // src/runtime/server/plugins/watcher.dev.ts
 
+import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { SERVER_CC_KEY, STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
@@ -84,8 +85,30 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const translationsRoot = path.resolve(i18nConfig.rootDir, i18nConfig.translationDir)
   log(`Watching for translation changes in: ${translationsRoot}`)
 
+  // Editors save on focus loss and formatters rewrite files byte-for-byte, so a
+  // write event says nothing about the content having changed. Re-merging a root
+  // locale rebuilds every page for it, one after another — too expensive to spend
+  // on a file that is identical to what we already merged.
+  const contentHashes = new Map<string, string>()
+  const hashFile = (filePath: string): string | null => {
+    try {
+      return createHash('sha256').update(readFileSync(filePath)).digest('hex')
+    } catch {
+      return null
+    }
+  }
+
   const invalidateAndRefresh = async (filePath: string, event: 'add' | 'change' | 'unlink') => {
     const relativePath = path.relative(translationsRoot, filePath).replace(/\\/g, '/')
+
+    if (event === 'unlink') {
+      contentHashes.delete(filePath)
+    } else {
+      const hash = hashFile(filePath)
+      if (hash && contentHashes.get(filePath) === hash) return
+      if (hash) contentHashes.set(filePath, hash)
+    }
+
     const runtimeConfig: ModuleOptionsExtend = getI18nConfig() as ModuleOptionsExtend
 
     try {

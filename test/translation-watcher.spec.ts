@@ -74,8 +74,16 @@ describe('translation watcher dev HMR (premerged)', () => {
     }))
 
     await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'aboutTitle', 'About EN Client HMR')
-    await page.click('#go-about')
-    await page.waitForURL('**/en/about')
+
+    // Patching a locale file makes the dev server push an HMR update, which can
+    // re-render the link between the click and the navigation — the click is then
+    // lost and a bare `waitForURL` sits there until it times out. Retry the click
+    // instead of assuming the first one survives.
+    await expect(async () => {
+      await page.click('#go-about')
+      await page.waitForURL('**/en/about', { timeout: 5_000 })
+    }).toPass({ timeout: 60_000 })
+
     await expect(page.locator('#about-title')).toHaveText('About EN Client HMR')
   })
 

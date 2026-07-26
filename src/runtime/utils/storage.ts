@@ -33,6 +33,8 @@ function getStorageCacheControl(): CacheControl<Record<string, unknown>> {
 
 class TranslationStorage {
   private cc: CacheControl<Record<string, unknown>>
+  /** cacheKey -> keys seeded from an SSR render set, pending completion. */
+  private partialKeys = new Map<string, string[]>()
 
   constructor() {
     this.cc = getStorageCacheControl()
@@ -49,7 +51,11 @@ class TranslationStorage {
   // HELPERS
   // ==========================================================================
 
-  /** Plain clone before freeze — SSR payload chunks may be Vue reactive proxies. */
+  /**
+   * Detach from Vue reactivity before freezing. Only the SSR payload needs this:
+   * its chunks come back as reactive proxies, and freezing a proxy would freeze
+   * the reactive object the app is still using.
+   */
   private freezePlainClone(data: Record<string, unknown>): Record<string, unknown> {
     return Object.freeze(JSON.parse(JSON.stringify(data)) as Record<string, unknown>)
   }
@@ -88,11 +94,35 @@ class TranslationStorage {
   /**
    * Seed translation cache from SSR payload (`useState('i18n-ssr-chunks')`).
    * Called on client before the first fetch.
+   *
+   * The payload holds only the keys the server resolved while rendering — enough to
+   * hydrate, but not the whole dictionary. Entries are flagged so the loader still
+   * completes them in the background, and so their keys can be dropped again once
+   * the full chunk arrives.
    */
   seedFromSsrChunks(chunks: Record<string, Record<string, unknown>>): void {
     for (const [cacheKey, data] of Object.entries(chunks)) {
       this.cc.set(cacheKey, this.freezePlainClone(data))
+      this.partialKeys.set(cacheKey, Object.keys(data))
     }
+  }
+
+  /** Whether this cache entry came from a render set and still lacks the rest of the chunk. */
+  isPartial(cacheKey: string): boolean {
+    return this.partialKeys.has(cacheKey)
+  }
+
+  /**
+   * Keys that were seeded from the render set, cleared in the same call.
+   *
+   * The render set is stored flat (`{'nav.about': 'About'}`) and `getByPath` checks
+   * own properties before splitting on dots, so a leftover flat key would shadow the
+   * nested value from the full chunk — stale after an HMR edit. Completion drops them.
+   */
+  takePartialKeys(cacheKey: string): string[] {
+    const keys = this.partialKeys.get(cacheKey)
+    this.partialKeys.delete(cacheKey)
+    return keys ?? []
   }
 
   /**
@@ -116,17 +146,20 @@ class TranslationStorage {
    * Returns data, cache key, and JSON for injection (server only).
    */
   async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
-    // Fast path — synchronous from cache
-    const cached = this.getFromCache(locale, routeName)
-    if (cached) return cached
-
     const cacheKey = this.getCacheKey(locale, routeName)
 
-    // Load via fetch
+    // Fast path — synchronous from cache. A render-set seed lives in this same cache
+    // but holds only the rendered keys, so it must not satisfy a load: that is the
+    // request that fetches the rest of the dictionary.
+    const cached = this.getFromCache(locale, routeName)
+    if (cached && !this.isPartial(cacheKey)) return cached
+
+    // Load via fetch (or, on the server, straight from the payload loader)
     const data = await this.fetchTranslations(locale, routeName, options)
 
-    // Store in cache
-    this.cc.set(cacheKey, this.freezePlainClone(data))
+    // Already a plain object — freezing is enough, and it guards the loader's own
+    // cached copy against in-place mutation now that we may be sharing it.
+    this.cc.set(cacheKey, Object.freeze(data))
 
     return { data: this.cc.get(cacheKey)!, cacheKey }
   }
@@ -136,6 +169,7 @@ class TranslationStorage {
    */
   clear(): void {
     this.cc.clear()
+    this.partialKeys.clear()
   }
 }
 

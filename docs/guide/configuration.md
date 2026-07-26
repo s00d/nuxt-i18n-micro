@@ -50,7 +50,7 @@ Complete reference for every option under the `i18n` key in `nuxt.config`. Types
 | `httpCacheDuration`        | `number`                              | `31536000`                | Cache / Payloads |
 | `numberFormats`            | `object`                              | `{}`                      | Formatting       |
 | `datetimeFormats`          | `object`                              | `{}`                      | Formatting       |
-| `dateBuild`                | `string \| number`                    | build time                | Cache / Payloads |
+| `dateBuild`                | `string \| number`                    | translations fingerprint  | Cache / Payloads |
 | `hmr`                      | `boolean`                             | `true` (dev)              | Dev              |
 | `debug`                    | `boolean`                             | `false`                   | Dev              |
 | `disableWatcher`           | `boolean`                             | `false`                   | Dev              |
@@ -901,8 +901,15 @@ localizedRouteNamePrefix: 'i18n-' // Custom prefix for localized route names
 
 Value used for cache-busting translation fetch requests (`?v=...`).
 
-By default, the module generates `dateBuild` during build time using `Date.now()` (non-deterministic).
-If you need reproducible builds / better CDN cache hit rates (e.g. rolling deployments), set a stable value:
+By default the module fingerprints your translation sources (SHA-256 over every
+`<layer>/<translationDir>/**/*.json`, in layer order) and uses that. The value only changes when a
+translation actually changes, so rebuilding or redeploying untouched translations leaves browser and
+CDN caches intact — with `httpCacheDuration` set to a year, a build timestamp would instead force
+every client to re-download the whole dictionary on each deploy.
+
+It falls back to `Date.now()` only when there are no translation files to hash.
+
+Set it explicitly to take control (e.g. to tie payload URLs to a release rather than to content):
 
 ```ts
 export default defineNuxtConfig({
@@ -914,7 +921,7 @@ export default defineNuxtConfig({
 ```
 
 **Type**: `string | number`  
-**Default**: `Date.now()` (build time)
+**Default**: content fingerprint of the translation sources (falls back to `Date.now()` when there is nothing to hash)
 
 #### `httpCacheDuration`
 

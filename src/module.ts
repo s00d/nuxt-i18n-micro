@@ -24,7 +24,7 @@ import {
   resolveTranslationPayloadWarningThresholds,
   type TranslationPayloadMode,
 } from '@i18n-micro/utils/payload-config'
-import { scanTranslationPayloadDirectory } from '@i18n-micro/utils/payload-stats'
+import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from '@i18n-micro/utils/payload-stats'
 import {
   addComponentsDir,
   addImportsDir,
@@ -111,6 +111,7 @@ function buildFullConfig(params: {
   routeDisableMeta: Record<string, boolean | string[]>
   mergedGlobalLocaleRoutes: GlobalLocaleRoutes
   locales: ModuleOptionsExtend['locales']
+  translationsHash: string | null
 }) {
   const {
     options,
@@ -123,8 +124,11 @@ function buildFullConfig(params: {
     routeDisableMeta,
     mergedGlobalLocaleRoutes,
     locales,
+    translationsHash,
   } = params
-  const dateBuild = options.dateBuild ?? Date.now()
+  // Prefer a fingerprint of the translations themselves: a timestamp would move on
+  // every build and make clients re-download a dictionary that never changed.
+  const dateBuild = options.dateBuild ?? translationsHash ?? Date.now()
 
   return {
     locales: locales ?? [],
@@ -331,6 +335,7 @@ export default defineNuxtModule<ModuleOptions>({
     const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
     const sourceLocalesDir = resolve(nuxt.options.buildDir, 'i18n-source')
     const translationDirName = options.translationDir || 'locales'
+    const translationsHash = hashTranslationSources(rootDirs, translationDirName)
     const translationPayloads = resolveTranslationPayloadOptions(options)
     const translationAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
 
@@ -441,6 +446,7 @@ export default defineNuxtModule<ModuleOptions>({
       routeDisableMeta,
       mergedGlobalLocaleRoutes,
       locales: routeGenerator.locales ?? [],
+      translationsHash,
     })
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [])
@@ -707,6 +713,15 @@ declare module '#i18n-internal/plural' {
           if (existsSync(translationAssetsDir)) {
             fs.cpSync(translationAssetsDir, publicDir, { recursive: true })
             logger.log(`Translation payloads copied to public directory`)
+
+            // Nitro compresses public assets before this hook runs, so files copied
+            // here are never covered by `compressPublicAssets` — honour the setting
+            // ourselves rather than leaving the payloads as the one uncompressed part
+            // of the output.
+            const compressed = compressTranslationPayloads(publicDir, nitro.options.compressPublicAssets)
+            if (compressed > 0) {
+              logger.log(`Compressed ${compressed} translation payload file(s)`)
+            }
           } else {
             logger.warn(`Translation assets directory not found: ${translationAssetsDir}`)
           }

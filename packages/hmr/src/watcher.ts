@@ -117,10 +117,11 @@ export async function handleTranslationWatchChange(input: HandleTranslationWatch
     return 'ignored'
   }
 
+  // A root locale file feeds every page, so all of them have to be re-merged. The
+  // merges are independent — each reads its own files and writes its own cache key
+  // (`locale:pageName`, plus aliases that belong to that page alone) — so there is
+  // nothing to serialize them for.
   const pageNames = [...input.listPageNames(), 'index']
-  await pageNames.reduce<Promise<void>>(async (prev, pageName) => {
-    await prev
-    await mergePage(parsed.locale, pageName)
-  }, Promise.resolve())
+  await Promise.all(pageNames.map((pageName) => mergePage(parsed.locale, pageName)))
   return 'root'
 }

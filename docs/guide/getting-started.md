@@ -287,7 +287,7 @@ Nuxt I18n Micro v3 uses a multi-layer caching architecture built around `Transla
 ```mermaid
 flowchart TB
     subgraph Client["🖥️ Client Side"]
-        A[Page Request] --> B{useState i18n-ssr-chunks?}
+        A[Page Request] --> B{payload.data render set?}
         B -->|Found| C[seedFromSsrChunks]
         B -->|Not Found| D{TranslationStorage cache?}
         D -->|Hit| E[Return Cached]
@@ -295,6 +295,7 @@ flowchart TB
         F --> G[Store in TranslationStorage]
         G --> E
         C --> H[NuxtI18n view layer]
+        C -.->|background| F
         E --> H
     end
 
@@ -305,7 +306,7 @@ flowchart TB
         L --> M["Load payload (premerged file or source + runtime merge)"]
         M --> N[Cache in process-global Map]
         N --> K
-        K --> O["Store in useState i18n-ssr-chunks"]
+        K --> O["Render set -> payload.data (on app:rendered)"]
     end
 
     A -.->|First Load| I
@@ -315,7 +316,7 @@ flowchart TB
 
 ### Key Characteristics
 
-- 🚀 **Zero extra requests on first load**: SSR chunks in `useState('i18n-ssr-chunks')` are seeded into `TranslationStorage` synchronously on hydration
+- 🚀 **No blocking request on first load**: the SSR payload carries a render set — only the keys the server resolved for that page — seeded into `TranslationStorage` synchronously on hydration. The rest of the chunk loads in the background afterwards. See [Performance](./performance.md#server-side-payload-transfer).
 - 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
 - ⚡ **Single request per page**: With `mode: 'premerged'` (default), the API returns a pre-built file (root + page-specific + fallback merged at build time). With `mode: 'source'`, the same route merges compact source files at runtime — see [translationPayloads](./configuration.md#translationpayloads).
 - 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically

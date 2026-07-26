@@ -41,7 +41,7 @@ flowchart TB
 
     subgraph Client["Client Runtime"]
         API -->|$fetch| TS["TranslationStorage<br/>(singleton via Symbol.for)"]
-        SSR["useState i18n-ssr-chunks<br/>(Nuxt payload)"] -->|seedFromSsrChunks| TS
+        SSR["render set<br/>payload.data i18n-ssr-chunks"] -->|seedFromSsrChunks| TS
         TS -->|getFromCache / load| NI["NuxtI18n<br/>active view layer"]
         NI --> PL["01.plugin.ts"]
     end
@@ -60,7 +60,9 @@ A singleton class that provides unified translation storage for both client and 
 | Method                              | Description                                                            |
 | ----------------------------------- | ---------------------------------------------------------------------- |
 | `getFromCache(locale, routeName?)`  | Synchronous check: returns cached in-memory data, or `null`            |
-| `seedFromSsrChunks(chunks)`         | Seeds cache from `useState('i18n-ssr-chunks')` on client hydration     |
+| `seedFromSsrChunks(chunks)`         | Seeds cache from the SSR render set; entries are flagged partial       |
+| `isPartial(cacheKey)`               | Whether an entry came from a render set and still lacks the full chunk |
+| `takePartialKeys(cacheKey)`         | Returns and clears the keys seeded for that entry                      |
 | `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
 | `clear()`                           | Clears the entire cache                                                |
 
@@ -117,11 +119,21 @@ import { loadTranslationsFromServer } from '../server/utils/server-loader'
 const { data, json } = await loadTranslationsFromServer('en', 'index')
 ```
 
-### 3. SSR Payload Transfer (`useState('i18n-ssr-chunks')`)
+### 3. SSR Payload Transfer (render set)
 
-During server-side rendering, the main plugin (`01.plugin.ts`) collects loaded translation chunks into `useState('i18n-ssr-chunks')`. Nuxt serializes this state into the HTML payload.
+The payload carries a **render set**: only the keys the server resolved while rendering that page,
+not the whole `(locale, route)` chunk. `01.plugin.ts` records them in `NuxtI18n.resolveLookup` /
+`resolveHas` and writes them on `app:rendered` to `nuxtApp.payload.data['i18n-ssr-chunks']`.
 
-On the client, before the first fetch, the plugin calls `translationStorage.seedFromSsrChunks()` to populate `TranslationStorage`. This ensures **zero additional HTTP requests** on first page load.
+`payload.data` rather than `useState`: Nuxt externalizes `data` into `_payload.json` on prerendered
+routes, while `state` always stays inline in the HTML.
+
+On the client the plugin seeds `TranslationStorage` from it before the first fetch, so hydration
+needs **no network round-trip**. The seed is flagged partial, and `NuxtTranslationLoader` completes
+it in the background right after — keys outside the render set resolve once that lands.
+
+Keys that only the render set can supply — component-local `$defineI18nRoute` translations, which no
+locale file contains — are preserved when the full chunk arrives.
 
 `NuxtI18n` holds the active view-layer dictionary used by `$t()` and `$has()`. `NuxtTranslationLoader` switches locale/route context and merges chunks into that layer.
 
@@ -243,7 +255,7 @@ export default defineNuxtConfig({
 | Aspect           | v2                            | v3                                                                       |
 | ---------------- | ----------------------------- | ------------------------------------------------------------------------ |
 | Client cache     | `useStorage('cache')`         | `TranslationStorage` singleton (Symbol.for on globalThis)                |
-| SSR transfer     | Runtime config                | `useState('i18n-ssr-chunks')` via Nuxt payload                           |
+| SSR transfer     | Runtime config                | Render set via `payload.data` (v3.0 used `useState` with whole chunks)   |
 | Server cache     | Nitro cache storage           | Process-global `Map` via `Symbol.for`                                    |
 | Merge logic      | Client-side                   | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
 | Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}`                                                   |

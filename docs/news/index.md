@@ -46,6 +46,27 @@ were the one uncompressed part of a static build — 6.65 MB raw versus 1.01 MB 
 index. The module still never enables compression on its own. See
 [Performance](/guide/performance#compressed-public-payloads).
 
+### Breaking Changes
+
+Nothing in the public config surface changes, and no app code needs editing. These matter only if
+you reach into the runtime internals:
+
+- **The SSR payload moved from `useState('i18n-ssr-chunks')` to `nuxtApp.payload.data['i18n-ssr-chunks']`,
+  and holds a render set instead of whole chunks.** `useState('i18n-ssr-chunks')` now returns nothing.
+  Reading translations that way was never supported, but it was described in the cache API docs, so
+  it is called out here.
+- **`TranslationStorage.seedFromSsrChunks(chunks)` no longer takes a second argument.** Seeded entries
+  are always treated as partial now.
+- **`NuxtTranslationLoaderOptions` no longer has `getSsrChunks` / `setSsrChunk`.** The loader does not
+  write to the payload any more; the plugin does, once, after the render. `getSsrChunks` was never read
+  by anything.
+- **`nitro.compressPublicAssets` now emits `.gz` / `.br` next to the copied payloads.** Expect more
+  files in public output if you had it enabled. Deploy tooling that enumerates the translation
+  directory may need to account for them.
+- **Payload URLs change once on upgrade**, because `?v=` switches from a build timestamp to a content
+  fingerprint. Clients re-download the dictionary on the first request after the upgrade and then keep
+  it across subsequent deploys — which is the point.
+
 ### Bug Fixes
 
 - **Dev HMR** — a write that leaves file content unchanged (editor save-on-blur, formatter rewrite) no longer triggers a re-merge. Root-locale changes rebuild every page for that locale, so this was expensive to spend on a no-op.

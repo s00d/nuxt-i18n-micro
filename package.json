@@ -123,6 +123,7 @@
     "@vue/compiler-sfc": "catalog:",
     "chokidar": "catalog:",
     "globby": "catalog:",
+    "sirv": "catalog:",
     "ufo": "catalog:",
     "unplugin": "catalog:"
   },

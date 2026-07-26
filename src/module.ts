@@ -825,8 +825,13 @@ declare module '#i18n-internal/plural' {
       }
     })
 
-    if (nuxt.options.dev) {
-      setupDevToolsUI(options, resolver.resolve, rootDirs)
+    // `devtools: false` and `devtools: { enabled: false }` both mean no tab, and
+    // therefore no route to serve it from, no RPC and — while this repo is being
+    // worked on — no dev server for the client UI.
+    const devtoolsOptions = nuxt.options.devtools
+    const devtoolsEnabled = devtoolsOptions !== false && devtoolsOptions?.enabled !== false
+    if (nuxt.options.dev && devtoolsEnabled) {
+      setupDevToolsUI(options, rootDirs)
     }
   },
 })

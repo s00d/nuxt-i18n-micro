@@ -11,12 +11,6 @@ const targetDistDir = resolve(currentDir, '../dist/client')
 export default defineNuxtConfig({
   modules: [DevtoolsUIKit],
 
-  $production: {
-    app: {
-      baseURL: '/__NUXT_DEVTOOLS_I18N_BASE__/',
-    },
-  },
-
   ssr: false,
 
   devtools: {
@@ -24,21 +18,12 @@ export default defineNuxtConfig({
   },
 
   app: {
-    baseURL: '/__nuxt-i18n-micro/client',
+    // Matches DEVTOOLS_UI_ROUTE in src/devtools.ts: the module serves this build from
+    // there, and proxies to this dev server at the same path while the UI is developed.
+    baseURL: '/__nuxt-i18n-micro',
   },
 
   compatibilityDate: '2024-08-16',
-
-  vite: {
-    server: {
-      hmr: {
-        protocol: 'ws',
-        host: 'localhost',
-        clientPort: 3000,
-        path: '/_nuxt/',
-      },
-    },
-  },
 
   // Remove nitro.output as it works unreliably for paths outside the root
   // during nuxi generate

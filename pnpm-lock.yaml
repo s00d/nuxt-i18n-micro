@@ -275,6 +275,9 @@ importers:
       globby:
         specifier: 'catalog:'
         version: 14.1.0
+      sirv:
+        specifier: 'catalog:'
+        version: 2.0.4
       ufo:
         specifier: 'catalog:'
         version: 1.6.1

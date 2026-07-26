@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@nuxt/test-utils": "catalog:",
-    "nuxt": "catalog:nuxt3",
+    "nuxt": "catalog:",
     "serve": "catalog:"
   }
 }

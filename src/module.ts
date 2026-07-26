@@ -726,6 +726,27 @@ declare module '#i18n-internal/plural' {
       const additionalRoutes = new Set<string>()
       const localeCodes = new Set(routeGenerator.locales.map((locale) => locale.code))
 
+      // Static generation needs an entry point the crawler can actually follow.
+      // With `prefix`, `/` only answers with a redirect to `/<defaultLocale>`:
+      // Nitro writes the redirect stub but never enqueues its target, so nothing
+      // beyond the explicitly listed routes is prerendered. Seed the localized
+      // roots instead (never `/` itself — prerendering that would shadow the SSR
+      // handler with a static redirect).
+      if (isSSG) {
+        // `/` itself is kept so a static host still answers the bare root (it
+        // renders as the redirect stub to the default locale). Only for SSG:
+        // prerendering it in an SSR build would shadow the dynamic handler.
+        if (routeRules['/']?.prerender !== false) {
+          routesSet.add('/')
+        }
+        for (const locale of routeGenerator.locales) {
+          const localizedRoot = routeGenerator.resolveLocalizedPath('/', locale.code)
+          if (localizedRoot && localizedRoot !== '/' && routeRules[localizedRoot]?.prerender !== false) {
+            routesSet.add(localizedRoot)
+          }
+        }
+      }
+
       for (const route of routesSet) {
         if (isInternalPath(route, options.excludePatterns)) {
           routesSet.delete(route)

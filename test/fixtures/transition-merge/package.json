@@ -7,6 +7,6 @@
     "build": "nuxi build"
   },
   "dependencies": {
-    "nuxt": "catalog:nuxt3"
+    "nuxt": "catalog:"
   }
 }

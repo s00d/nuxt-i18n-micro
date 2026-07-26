@@ -8,7 +8,7 @@ packages:
 
 catalog:
   # Build & dev
-  vite: ^7.3.1
+  vite: ^7.3.6
   vite-plugin-dts: ^4.5.4
   vite-plugin-solid: ^2.11.10
   vite-plugin-vue-devtools: ^8.0.5
@@ -16,12 +16,12 @@ catalog:
   '@vitejs/plugin-vue': ^6.0.3
   '@tailwindcss/vite': ^4.1.17
   # Nuxt
-  nuxt: 4.1.2
+  nuxt: ^4.5.0
   '@nuxt/kit': ^3.18.1 || ^4.0.0
   '@nuxt/schema': ^3.18.1 || ^4.0.0
-  '@nuxt/devtools': ^2.6.3
-  '@nuxt/devtools-kit': ^2.6.3
-  '@nuxt/devtools-ui-kit': ^2.6.3
+  '@nuxt/devtools': ^3.3.1
+  '@nuxt/devtools-kit': ^3.3.1
+  '@nuxt/devtools-ui-kit': ^3.3.1
   '@nuxt/module-builder': ^1.0.0
   '@nuxt/test-utils': ^3.19.2
   '@nuxt/content': 3.6.3
@@ -72,7 +72,7 @@ catalog:
   '@types/node': ^20.19.26
   tsx: ^4.0.0
   # Docs & lint
-  vitepress: ^1.6.4
+  vitepress: ^2.0.0-alpha.18
   oxfmt: ^0.43.0
   oxlint: ^1.58.0
   changelogen: ^0.5.7
@@ -100,10 +100,6 @@ catalog:
   sirv: ^2.0.3
 
 # Именованные каталоги: альтернативные версии (где была 3 — остаётся 3)
-catalogs:
-  nuxt3:
-    nuxt: 3.18.1
-
 onlyBuiltDependencies:
   - better-sqlite3
   - esbuild

@@ -11,6 +11,6 @@
     "test:types": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "nuxt": "catalog:nuxt3"
+    "nuxt": "catalog:"
   }
 }

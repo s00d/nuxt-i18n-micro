@@ -53,8 +53,16 @@ jobs:
       # If a step ever does run out of memory, print `free -h` here first to
       # confirm it before adding any.
       - run: pnpm run lint
-      - run: pnpm --filter "./packages/**" run build
+      # Three steps, in this order, because the dependency runs both ways:
+      # `dev:prepare` loads src/module.ts, which imports the packages from their
+      # `dist`, so the packages have to be built first — while the demo apps
+      # under packages/*/playground are bundled by tools that walk up to the
+      # repo-root tsconfig.json, which `extends` the `.nuxt/tsconfig.json` that
+      # only `dev:prepare` generates. Astro 7 (vite 8 / rolldown) hard-errors on
+      # that missing file instead of ignoring it, so the demos build last.
+      - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
       - run: pnpm run dev:prepare
+      - run: pnpm --filter "./packages/*/playground" run build
       - run: pnpm run typecheck
       # integration + e2e both drive a real browser (chromium.launch / createPage)
       - run: pnpm exec playwright install chromium

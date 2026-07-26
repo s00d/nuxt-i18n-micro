@@ -740,6 +740,12 @@ declare module '#i18n-internal/plural' {
           routesSet.add('/')
         }
         for (const locale of routeGenerator.locales) {
+          // Same allowed-locale guard as the localization loop below: a locale
+          // excluded from the index route has no root to prerender, and asking
+          // for one yields a 404/fallback page.
+          if (!isLocaleAllowedForUnlocalizedRoute(routeGenerator.routeLocales, routeGenerator.locales, '/', locale.code)) {
+            continue
+          }
           const localizedRoot = routeGenerator.resolveLocalizedPath('/', locale.code)
           if (localizedRoot && localizedRoot !== '/' && routeRules[localizedRoot]?.prerender !== false) {
             routesSet.add(localizedRoot)

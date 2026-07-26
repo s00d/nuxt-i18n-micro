@@ -8,15 +8,9 @@
  * it just leaves a stale package published while the rest of the release moves
  * on. This script turns that silent skip into a loud failure.
  *
- * A package "changed" when any file in it changed since the baseline, except
- * files that cannot affect the published artifact (tests, docs, playgrounds,
- * test configs). The rule fails closed: anything not explicitly ignored counts.
- *
- * Baseline resolution (first match wins):
- *   --base <ref>              explicit
- *   GITHUB_BASE_REF           pull request → merge-base with origin/<base>
- *   git describe --tags       last release tag (the release baseline)
- *   origin/HEAD → main        fallback
+ * Baseline resolution, diffing and the "does this file affect the published
+ * artifact" rule live in ./lib/git-baseline.mjs, shared with
+ * compare-published-dist.mjs so the two cannot drift apart.
  *
  * Usage:
  *   node scripts/check-package-versions.mjs
@@ -24,95 +18,21 @@
  *   node scripts/check-package-versions.mjs --npm     # also reject versions already on npm
  *   node scripts/check-package-versions.mjs --json
  */
-import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const root = fileURLToPath(new URL('..', import.meta.url))
-const packagesRoot = join(root, 'packages')
+import {
+  affectsPublishedArtifact,
+  assertBaseResolvable,
+  changedFiles,
+  listWorkspacePackages,
+  readOptionValue,
+  resolveBase,
+  tryRun,
+} from './lib/git-baseline.mjs'
 
 const args = process.argv.slice(2)
 const jsonOut = args.includes('--json')
 const checkNpm = args.includes('--npm')
-const explicitBase = (() => {
-  const i = args.indexOf('--base')
-  return i >= 0 ? args[i + 1] : null
-})()
+const explicitBase = readOptionValue(args, '--base')
 
-/** @param {string} cmd @param {string[]} cmdArgs */
-function run(cmd, cmdArgs, options = {}) {
-  return execFileSync(cmd, cmdArgs, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options }).trim()
-}
-
-/** @param {string} cmd @param {string[]} cmdArgs @returns {string | null} */
-function tryRun(cmd, cmdArgs) {
-  try {
-    return run(cmd, cmdArgs)
-  } catch {
-    return null
-  }
-}
-
-/**
- * Files that can never change what gets published.
- * Everything else counts as a publishable change (fail closed).
- * @param {string} relPath path relative to the package directory
- */
-function affectsPublishedArtifact(relPath) {
-  const ignored = [
-    /^tests?\//,
-    /^__tests__\//,
-    /^playground\//,
-    /^examples?\//,
-    /\.md$/i,
-    /^vitest\..*\.?config\.[cm]?[jt]s$/,
-    /^jest\..*config\./,
-    /^\.npmignore$/,
-    /^CHANGELOG/i,
-  ]
-  return !ignored.some((re) => re.test(relPath))
-}
-
-function resolveBase() {
-  if (explicitBase) return explicitBase
-
-  const prBase = process.env.GITHUB_BASE_REF
-  if (prBase) {
-    // Pull request: diff against the merge-base with the target branch.
-    tryRun('git', ['fetch', '--no-tags', '--quiet', 'origin', prBase])
-    const mergeBase = tryRun('git', ['merge-base', 'HEAD', `origin/${prBase}`])
-    if (mergeBase) return mergeBase
-  }
-
-  const lastTag = tryRun('git', ['describe', '--tags', '--abbrev=0'])
-  if (lastTag) return lastTag
-
-  return tryRun('git', ['rev-parse', 'origin/main']) ? 'origin/main' : 'HEAD~1'
-}
-
-/** @returns {{ name: string, dir: string, relDir: string, version: string }[]} */
-function listWorkspacePackages() {
-  const out = []
-  for (const entry of readdirSync(packagesRoot, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
-    const dir = join(packagesRoot, entry.name)
-    const manifest = join(dir, 'package.json')
-    if (!existsSync(manifest)) continue
-    const pkg = JSON.parse(readFileSync(manifest, 'utf8'))
-    if (pkg.private === true || !pkg.name) continue
-    out.push({ name: pkg.name, dir, relDir: `packages/${entry.name}`, version: String(pkg.version ?? '') })
-  }
-  return out.sort((a, b) => a.name.localeCompare(b.name))
-}
-
-/**
- * Compare dot-separated prerelease identifiers per SemVer §11.4: numeric
- * identifiers compare numerically and rank lower than alphanumeric ones, and a
- * shorter set of identifiers ranks lower when all preceding ones are equal.
- * Comparing the whole string lexically would order `beta.10` before `beta.2`.
- * @param {string} a @param {string} b
- */
 function comparePrerelease(a, b) {
   const idsA = a.split('.')
   const idsB = b.split('.')
@@ -163,21 +83,6 @@ function compareVersions(a, b) {
   return comparePrerelease(va.pre, vb.pre)
 }
 
-/**
- * Files changed in `relDir` between the baseline and HEAD.
- * Throws when git itself fails: swallowing the error would report every package
- * as unchanged and make this guard pass vacuously (e.g. on a shallow clone or a
- * baseline ref that does not exist locally).
- * @param {string} ref @param {string} relDir
- */
-function changedFiles(ref, relDir) {
-  const out = run('git', ['diff', '--name-only', `${ref}...HEAD`, '--', relDir])
-  return out
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-}
-
 /** @param {string} ref @param {string} relDir */
 function versionAtRef(ref, relDir) {
   const manifest = tryRun('git', ['show', `${ref}:${relDir}/package.json`])
@@ -217,22 +122,13 @@ function checkAlreadyPublished(entry, name, version) {
   return 1
 }
 
-const base = resolveBase()
-
-// Fail loudly on an unusable baseline. Without this the git diffs below would
-// throw mid-run (or, worse, a swallowed failure would mark everything unchanged
-// and let unbumped packages through).
-if (tryRun('git', ['rev-parse', '--verify', '--quiet', `${base}^{commit}`]) === null) {
-  console.error(
-    `Cannot resolve baseline "${base}". ` + `Fetch it first (CI needs full history: actions/checkout with fetch-depth: 0) or pass --base <ref>.`,
-  )
-  process.exit(1)
-}
+const base = resolveBase(explicitBase)
+assertBaseResolvable(base)
 
 const results = []
 let errorCount = 0
 
-for (const { name, relDir, version } of listWorkspacePackages()) {
+for (const { name, relDir, localVersion: version } of listWorkspacePackages()) {
   const entry = { name, version, status: 'unchanged', changedFiles: 0, baseVersion: null, errors: [] }
 
   const changed = changedFiles(base, relDir).filter((file) => affectsPublishedArtifact(file.slice(`${relDir}/`.length)))

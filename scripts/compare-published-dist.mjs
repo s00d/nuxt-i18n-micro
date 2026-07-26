@@ -18,7 +18,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { assertBaseResolvable, changedPackageNames, resolveBase } from './lib/git-baseline.mjs'
+import { assertBaseResolvable, changedPackageNames, readOptionValue, resolveBase } from './lib/git-baseline.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const packagesRoot = join(root, 'packages')
@@ -40,14 +40,8 @@ const localOnly = args.includes('--local-only')
  * is the whole cost of this check.
  */
 const changedOnly = args.includes('--changed-only')
-const explicitBase = (() => {
-  const i = args.indexOf('--base')
-  return i >= 0 ? args[i + 1] : null
-})()
-const packageFilter = (() => {
-  const i = args.indexOf('--package')
-  return i >= 0 ? args[i + 1] : null
-})()
+const explicitBase = readOptionValue(args, '--base')
+const packageFilter = readOptionValue(args, '--package')
 
 /** @typedef {{ name: string, dir: string, localVersion: string, pkg: Record<string, unknown> }} WorkspacePackage */
 

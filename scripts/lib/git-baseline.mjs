@@ -28,6 +28,24 @@ export function tryRun(cmd, args) {
 }
 
 /**
+ * Read `--flag <value>`. Exits when the flag is present but its value is missing
+ * (or is another flag) — silently falling back to the default baseline would
+ * make the run look fine while ignoring what the caller asked for.
+ * @param {string[]} args @param {string} flag
+ * @returns {string | null}
+ */
+export function readOptionValue(args, flag) {
+  const i = args.indexOf(flag)
+  if (i < 0) return null
+  const value = args[i + 1]
+  if (!value || value.startsWith('--')) {
+    console.error(`${flag} requires a value, e.g. \`${flag} origin/main\`.`)
+    process.exit(1)
+  }
+  return value
+}
+
+/**
  * Baseline ref, first match wins:
  *   explicit `--base` → PR merge-base (GITHUB_BASE_REF) → last tag → origin/main.
  * @param {string | null} explicitBase
@@ -102,7 +120,6 @@ export function affectsPublishedArtifact(relPath) {
     /\.md$/i,
     /^vitest\..*\.?config\.[cm]?[jt]s$/,
     /^jest\..*config\./,
-    /^\.npmignore$/,
     /^CHANGELOG/i,
   ]
   return !ignored.some((re) => re.test(relPath))

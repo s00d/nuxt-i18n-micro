@@ -4,6 +4,10 @@ description: 'Performance tips and optimizations.'
 outline: 'deep'
 ---
 
+<script setup>
+import { data as budget } from './payload-budget.data.ts'
+</script>
+
 # 🚀 Performance Guide
 
 ## 📖 Introduction
@@ -254,6 +258,33 @@ cached in the server process — so the two are listed separately:
 
 Server RSS drops from 272 MB to 190 MB, and on SSG the dictionary leaves the HTML entirely: 24 of 24
 prerendered pages carried it before, none do now.
+
+#### Where it stands today
+
+The table above is a one-off before/after. The numbers below are read from the budget
+file `pnpm run budget:payload` measures and enforces, so the page cannot describe a build
+that no longer exists.
+
+<p>
+  Measured on <code>{{ budget.app }}</code> across
+  <span v-for="(route, index) in budget.routes" :key="route"><code>{{ route }}</code><span v-if="index < budget.routes.length - 1">, </span></span>:
+</p>
+
+<table>
+  <thead><tr><th></th><th style="text-align:right">Size</th></tr></thead>
+  <tbody>
+    <tr v-for="row in budget.rows" :key="row.label">
+      <td>{{ row.label }}</td>
+      <td style="text-align:right">{{ row.display }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p v-if="budget.ratio">
+  The dictionary is <strong>{{ budget.ratio }}×</strong> larger than the payload any single page
+  inlines. That ratio is what the budget enforces — see
+  <a href="/guide/maintenance-commands#payload-budget">payload-budget</a>.
+</p>
 
 This approach:
 

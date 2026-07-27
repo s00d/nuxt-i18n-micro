@@ -77,6 +77,26 @@ export function pageCandidatesForLink(link: string): string[] {
   return path.endsWith('/') ? [`${clean}/index.md`] : [`${clean}.md`, `${clean}/index.md`]
 }
 
+/** A VitePress dynamic route template, e.g. `api/packages/[pkg].md`. */
+export function isDynamicTemplate(page: string): boolean {
+  return /\[[^\]/]+\]\.md$/.test(page)
+}
+
+/**
+ * Does a dynamic template cover `page`?
+ *
+ * `api/packages/[pkg].md` renders one page per package, so a link to
+ * `api/packages/core.md` resolves even though no such file exists. Only the last segment
+ * is matched, which is all the `[param].md` convention can produce.
+ */
+export function coveredByDynamicRoute(page: string, templates: string[]): boolean {
+  const directory = page.includes('/') ? page.slice(0, page.lastIndexOf('/')) : ''
+  return templates.some((template) => {
+    const templateDir = template.includes('/') ? template.slice(0, template.lastIndexOf('/')) : ''
+    return templateDir === directory
+  })
+}
+
 /** Relative markdown links inside a page body, excluding code fences. */
 export function markdownLinks(source: string): string[] {
   const withoutCode = source.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '')
@@ -119,6 +139,7 @@ export const docsAuditCommand = defineCommand({
 
     const pages = walkFiles(docsDir, { extensions: ['.md'] })
     report.pages = pages.length
+    const dynamicTemplates = pages.filter(isDynamicTemplate)
 
     const bodies = new Map(pages.map((page) => [page, readFileSync(join(docsDir, page), 'utf8')]))
     const corpus = [...bodies.values()].join('\n')
@@ -152,11 +173,14 @@ export const docsAuditCommand = defineCommand({
 
         const resolved = candidates.find((candidate) => bodies.has(candidate))
         if (resolved) linked.add(resolved)
-        else add('errors', 'dead-nav-link', '.vitepress/config.mts', `"${link}" resolves to none of ${candidates.join(', ')}`)
+        else if (!candidates.some((candidate) => coveredByDynamicRoute(candidate, dynamicTemplates))) {
+          add('errors', 'dead-nav-link', '.vitepress/config.mts', `"${link}" resolves to none of ${candidates.join(', ')}`)
+        }
       }
 
       for (const page of pages) {
-        if (page.startsWith('public/') || page === 'index.md') continue
+        // A dynamic template is never linked directly; the pages it renders are.
+        if (page.startsWith('public/') || page === 'index.md' || isDynamicTemplate(page)) continue
         if (!linked.has(page)) add('warnings', 'unlinked-page', page, 'page is not reachable from the nav or the sidebar')
       }
     }
@@ -170,7 +194,9 @@ export const docsAuditCommand = defineCommand({
 
         const [target = ''] = link.split('#', 1)
         const resolved = target.startsWith('/') ? target.slice(1) : join(dir, target)
-        if (!bodies.has(resolved)) add('errors', 'dead-link', page, `links to "${link}", which does not exist`)
+        if (!bodies.has(resolved) && !coveredByDynamicRoute(resolved, dynamicTemplates)) {
+          add('errors', 'dead-link', page, `links to "${link}", which does not exist`)
+        }
       }
     }
 

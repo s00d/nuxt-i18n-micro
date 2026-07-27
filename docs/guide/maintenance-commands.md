@@ -27,6 +27,31 @@ after publishing. They are the checks with no other owner.
 | [`fixtures-audit`](#fixtures-audit) | test fixtures nothing references |
 | [`preflight`](#preflight) | all of the above, before a release |
 
+Two of them do double duty: the artifacts `api-surface` and `payload-budget` produce are
+also what the [Package APIs](/api/packages) and [Performance](/guide/performance) pages
+read at build time, so the reference documentation and the release gates cannot disagree
+— they are the same files. See [Documentation from data](#documentation-from-data).
+
+## Documentation from data
+
+Three reference pages are built from data rather than written by hand, using VitePress
+[build-time data loaders](https://vitepress.dev/guide/data-loading):
+
+| Page | Loader | Reads |
+| --- | --- | --- |
+| [Module Options](/api/module-options) | `docs/api/module-options.data.ts` | the `ModuleOptions` interface, through the TypeScript AST |
+| [Package APIs](/api/packages) | `docs/api/packages.data.ts` | `scripts/api-surface/*.api.txt` |
+| [Performance](/guide/performance#where-it-stands-today) | `docs/guide/payload-budget.data.ts` | `scripts/payload-budget.json` |
+
+Per-package pages under `/api/packages/` come from a
+[dynamic route](https://vitepress.dev/guide/routing#dynamic-routes) —
+`docs/api/packages/[pkg].md` plus its `.paths.ts` — so adding a package to the workspace
+adds its page and removing one removes it.
+
+Nothing here is generated into a committed file, which is the point: there is no
+regeneration step to forget, no `--check` gate to keep honest, and `docs:dev` picks up an
+edit to the type or a snapshot immediately through each loader's `watch` globs.
+
 ## payload-budget
 
 The module keeps the dictionary out of the HTML: only the keys a page actually rendered
@@ -67,6 +92,10 @@ Four kinds of drift, none of which the VitePress build notices:
 - a nav or sidebar entry points at a page that was renamed or removed
 - a page links to another page that no longer exists
 - a page is not reachable from the nav or the sidebar at all *(warning)*
+
+Dynamic routes are understood: a `[param].md` template is not itself expected to be
+linked, and a link to a page that template renders (`/api/packages/core`) resolves even
+though no such file exists.
 
 ```bash
 pnpm run audit:docs

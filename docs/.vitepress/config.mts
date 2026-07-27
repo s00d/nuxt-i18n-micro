@@ -252,6 +252,8 @@ export default withFolderTree(
                 { text: 'Methods', link: '/methods' },
                 { text: 'Events', link: '/events' },
                 { text: 'Translations and Cache', link: '/i18n-cache-api' },
+                { text: 'Module Options', link: '/module-options' },
+                { text: 'Package APIs', link: '/packages' },
               ],
             },
           ],

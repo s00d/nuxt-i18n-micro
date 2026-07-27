@@ -11,66 +11,66 @@ Complete reference for every option under the `i18n` key in `nuxt.config`. Types
 ## Quick reference
 
 Every option the module accepts, from the `ModuleOptions` type. The sections below explain
-how they work together; the [Module Options reference](/api/module-options) has the full
-descriptions.
+The sections below explain how they work together; the
+[Module Options reference](/api/module-options) has the full descriptions.
 
 <!-- generated:options-index — do not edit; run `pnpm run docs:generate` -->
 
 | Option | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| [`locales`](/api/module-options) | `Locale[]` | `[]` | List of supported locales |
-| [`meta`](/api/module-options) | `boolean` | `true` | Generate SEO meta tags (`hreflang`, `canonical`, `og:url`, `og:locale`) automatically |
-| [`strategy`](/api/module-options) | `Strategies` | `'prefix_except_default'` | URL routing strategy for locale prefixes |
-| [`metaBaseUrl`](/api/module-options) | `string` | `undefined` | Base URL for SEO meta tags (canonical, og:url, hreflang) |
-| [`metaTrustForwardedHost`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Host` header when resolving the base URL for meta tags |
-| [`metaTrustForwardedProto`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Proto` header when resolving the protocol for meta tags |
-| [`define`](/api/module-options) | `boolean` | `true` | Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls |
-| [`redirects`](/api/module-options) | `boolean` | `true` | Enable automatic locale-based redirects |
-| [`plugin`](/api/module-options) | `boolean` | `true` | Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`, `$switchLocale()`, and other runtime helpers |
-| [`hooks`](/api/module-options) | `boolean` | `true` | Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch` / `i18n:afterLocaleSwitch` app-level hooks |
-| [`components`](/api/module-options) | `boolean` | `true` | Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`) |
-| [`serverTranslationPreload`](/api/module-options) | `boolean` | `false` | Preload index-page translations in Nitro global middleware (server-only, private config) |
-| [`defaultLocale`](/api/module-options) | `string` | `'en'` | The locale to use when no locale can be determined from URL or user preferences |
-| [`apiBaseUrl`](/api/module-options) | `string` | `'_locales'` | Base URL path segment for the translations API route (used in SSR/SSG data fetching) |
-| [`apiBaseClientHost`](/api/module-options) | `string` | `undefined` | Override the host used for client-side translation fetch requests |
-| [`apiBaseServerHost`](/api/module-options) | `string` | `undefined` | Override the host used for server-side translation fetch requests |
-| [`translationDir`](/api/module-options) | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root |
-| [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how pre-merged translation payload files are emitted during build |
-| [`translationPayloads.mode`](/api/module-options) | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy |
-| [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Register translation payload files as Nitro server assets |
-| [`translationPayloads.serverHandler`](/api/module-options) | `boolean` | `true` | Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json` |
-| [`translationPayloads.publicAssets`](/api/module-options) | `boolean` | `true in `premerged` mode, `false` in `source` mode` | Copy translation payload files into Nitro public assets during production builds |
-| [`translationPayloads.prerenderRoutes`](/api/module-options) | `boolean` | `true in `premerged` mode, `false` in `source` mode` | Add translation data routes to Nuxt/Nitro prerender output |
-| [`translationPayloads.publicDir`](/api/module-options) | `string` | — | Public output directory for copied translation payloads, relative to Nitro's public directory |
-| [`translationPayloads.warnFileCount`](/api/module-options) | `number` | `500` | Warn during build when generated payload file count exceeds this threshold |
-| [`translationPayloads.warnSizeBytes`](/api/module-options) | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes |
-| [`autoDetectLanguage`](/api/module-options) | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header |
-| [`autoDetectPath`](/api/module-options) | `string` | `'/'` | URL path on which automatic language detection and redirect occur |
-| [`disableWatcher`](/api/module-options) | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode |
-| [`types`](/api/module-options) | `boolean` | `true` | Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers based on the translation keys in your default locale files |
-| [`routesLocaleLinks`](/api/module-options) | `{ [key: string]: string }` | `{}` | Map route names to other route names to share the same translation files |
-| [`plural`](/api/module-options) | `string \| PluralFunc` | `built-in pluralization (singular/plural by count)` | Custom pluralization function or a path to a file exporting one |
-| [`disablePageLocales`](/api/module-options) | `boolean` | `false` | Disable per-page translation files |
-| [`fallbackLocale`](/api/module-options) | `string` | `undefined (no fallback; returns the raw key)` | Global fallback locale code |
-| [`localeCookie`](/api/module-options) | `string \| null` | `null` | Cookie name for persisting the user's locale preference across sessions |
-| [`debug`](/api/module-options) | `boolean` | `false` | Enable verbose debug logging for locale detection, route generation, and translation loading |
-| [`globalLocaleRoutes`](/api/module-options) | `GlobalLocaleRoutes` | `{}` | Global route-level locale configuration |
-| [`customRegexMatcher`](/api/module-options) | `string \| RegExp` | `undefined (uses built-in pattern based on locale codes)` | Custom regular expression (or its string source) for matching locale codes in URL segments |
-| [`noPrefixRedirect`](/api/module-options) | `boolean` | `false` | For `no_prefix` strategy: enable redirect from a locale-prefixed URL (e.g |
-| [`canonicalQueryWhitelist`](/api/module-options) | `string[]` | `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']` | List of query parameter names preserved in canonical and `og:url` meta tags |
-| [`excludePatterns`](/api/module-options) | `(string \| RegExp)[]` | `undefined` | URL patterns (strings or RegExp) to exclude from i18n processing entirely |
-| [`localizedRouteNamePrefix`](/api/module-options) | `string` | `'localized-'` | Prefix prepended to localized route names (e.g |
-| [`routeLocales`](/api/module-options) | `Record<string, string[]>` | — | Per-route locale restrictions, extracted from `defineI18nRoute()` calls |
-| [`routeDisableMeta`](/api/module-options) | `Record<string, boolean \| string[]>` | — | Per-route meta tag disabling, extracted from `defineI18nRoute()` calls |
-| [`missingWarn`](/api/module-options) | `boolean` | `true` | Show console warnings when a translation key is missing |
-| [`hmr`](/api/module-options) | `boolean` | `true` | Enable Hot Module Replacement for translation files in development |
-| [`cacheMaxSize`](/api/module-options) | `number` | `0` | Maximum number of entries in the in-memory translation cache |
-| [`cacheTtl`](/api/module-options) | `number` | `0` | Time-to-live (in seconds) for cached translation entries |
-| [`numberFormats`](/api/module-options) | `Record<string, Record<string, Intl.NumberFormatOptions>>` | — | Named number formats per locale (Vue I18n-compatible) |
-| [`datetimeFormats`](/api/module-options) | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` | — | Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`) |
-| [`httpCacheDuration`](/api/module-options) | `number` | — | HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json` |
-| [`dateBuild`](/api/module-options) | `string \| number` | — | Value used for cache-busting translation requests (`?v=...`) |
-| [`experimental`](/api/module-options) | `Record<string, unknown>` | — | Bucket for experimental/unstable options |
+| [`locales`](/api/module-options) | `Locale[]` | `[]` | List of supported locales. |
+| [`meta`](/api/module-options) | `boolean` | `true` | Generate SEO meta tags (`hreflang`, `canonical`, `og:url`, `og:locale`) automatically. |
+| [`strategy`](/api/module-options) | `Strategies` | `'prefix_except_default'` | URL routing strategy for locale prefixes. - `'no_prefix'` — no locale in URL; locale stored in cookie. - `'prefix_except_default'` — prefix all locales except the default. - `'prefix'` — always prefix, including the default locale. - `'prefix_and_default'` — like `prefix`, but the default locale is also accessible without prefix. |
+| [`metaBaseUrl`](/api/module-options) | `string` | `undefined` | Base URL for SEO meta tags (canonical, og:url, hreflang). - `undefined` — dynamically resolved from the current request URL (`useRequestURL().origin` on server, `window.location.origin` on client). |
+| [`metaTrustForwardedHost`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Host` header when resolving the base URL for meta tags. |
+| [`metaTrustForwardedProto`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Proto` header when resolving the protocol for meta tags. |
+| [`define`](/api/module-options) | `boolean` | `true` | Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls. |
+| [`redirects`](/api/module-options) | `boolean` | `true` | Enable automatic locale-based redirects. |
+| [`plugin`](/api/module-options) | `boolean` | `true` | Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`, `$switchLocale()`, and other runtime helpers. |
+| [`hooks`](/api/module-options) | `boolean` | `true` | Register the i18n hooks plugin that provides `i18n:register` and `i18n:beforeLocaleSwitch` / `i18n:afterLocaleSwitch` app-level hooks. |
+| [`components`](/api/module-options) | `boolean` | `true` | Register built-in i18n components (`<i18n-link>`, `<i18n-switcher>`, `<i18n-t>`, `<i18n-group>`). |
+| [`serverTranslationPreload`](/api/module-options) | `boolean` | `false` | Preload index-page translations in Nitro global middleware (server-only, private config). |
+| [`defaultLocale`](/api/module-options) | `string` | `'en'` | The locale to use when no locale can be determined from URL or user preferences. |
+| [`apiBaseUrl`](/api/module-options) | `string` | `'_locales'` | Base URL path segment for the translations API route (used in SSR/SSG data fetching). |
+| [`apiBaseClientHost`](/api/module-options) | `string` | `undefined` | Override the host used for client-side translation fetch requests. |
+| [`apiBaseServerHost`](/api/module-options) | `string` | `undefined` | Override the host used for server-side translation fetch requests. |
+| [`translationDir`](/api/module-options) | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root. |
+| [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how pre-merged translation payload files are emitted during build. |
+| [`translationPayloads.mode`](/api/module-options) | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy. - `premerged`: build-time page/locale matrix (default) - `source`: compact source files merged at runtime (recommended for large serverless apps) |
+| [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Register translation payload files as Nitro server assets. |
+| [`translationPayloads.serverHandler`](/api/module-options) | `boolean` | `true` | Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json`. |
+| [`translationPayloads.publicAssets`](/api/module-options) | `boolean` | `true in premerged mode, false in source mode` | Copy translation payload files into Nitro public assets during production builds. |
+| [`translationPayloads.prerenderRoutes`](/api/module-options) | `boolean` | `true in premerged mode, false in source mode` | Add translation data routes to Nuxt/Nitro prerender output. |
+| [`translationPayloads.publicDir`](/api/module-options) | `string` | — | Public output directory for copied translation payloads, relative to Nitro's public directory. |
+| [`translationPayloads.warnFileCount`](/api/module-options) | `number` | `500` | Warn during build when generated payload file count exceeds this threshold. |
+| [`translationPayloads.warnSizeBytes`](/api/module-options) | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes. |
+| [`autoDetectLanguage`](/api/module-options) | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header. |
+| [`autoDetectPath`](/api/module-options) | `string` | `'/'` | URL path on which automatic language detection and redirect occur. - `'/'` — detect only on the root path. - `'*'` — detect and redirect on every path (including locale-prefixed ones). |
+| [`disableWatcher`](/api/module-options) | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode. |
+| [`types`](/api/module-options) | `boolean` | `true` | Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers based on the translation keys in your default locale files. |
+| [`routesLocaleLinks`](/api/module-options) | `{ [key: string]: string }` | `{}` | Map route names to other route names to share the same translation files. |
+| [`plural`](/api/module-options) | `string \| PluralFunc` | `built-in pluralization (singular/plural by count)` | Custom pluralization function or a path to a file exporting one. |
+| [`disablePageLocales`](/api/module-options) | `boolean` | `false` | Disable per-page translation files. |
+| [`fallbackLocale`](/api/module-options) | `string` | `undefined (no fallback; returns the raw key)` | Global fallback locale code. |
+| [`localeCookie`](/api/module-options) | `string \| null` | `null` | Cookie name for persisting the user's locale preference across sessions. |
+| [`debug`](/api/module-options) | `boolean` | `false` | Enable verbose debug logging for locale detection, route generation, and translation loading. |
+| [`globalLocaleRoutes`](/api/module-options) | `GlobalLocaleRoutes` | `{}` | Global route-level locale configuration. |
+| [`customRegexMatcher`](/api/module-options) | `string \| RegExp` | `undefined (uses built-in pattern based on locale codes)` | Custom regular expression (or its string source) for matching locale codes in URL segments. |
+| [`noPrefixRedirect`](/api/module-options) | `boolean` | `false` | For `no_prefix` strategy: enable redirect from a locale-prefixed URL (e.g. `/en/about`) to the unprefixed version (`/about`). |
+| [`canonicalQueryWhitelist`](/api/module-options) | `string[]` | `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']` | List of query parameter names preserved in canonical and `og:url` meta tags. |
+| [`excludePatterns`](/api/module-options) | `(string \| RegExp)[]` | `undefined` | URL patterns (strings or RegExp) to exclude from i18n processing entirely. |
+| [`localizedRouteNamePrefix`](/api/module-options) | `string` | `'localized-'` | Prefix prepended to localized route names (e.g. `'localized-index'`). |
+| [`routeLocales`](/api/module-options) | `Record<string, string[]>` | — | Per-route locale restrictions, extracted from `defineI18nRoute()` calls. |
+| [`routeDisableMeta`](/api/module-options) | `Record<string, boolean \| string[]>` | — | Per-route meta tag disabling, extracted from `defineI18nRoute()` calls. |
+| [`missingWarn`](/api/module-options) | `boolean` | `true` | Show console warnings when a translation key is missing. |
+| [`hmr`](/api/module-options) | `boolean` | `true` | Enable Hot Module Replacement for translation files in development. |
+| [`cacheMaxSize`](/api/module-options) | `number` | `0` | Maximum number of entries in the in-memory translation cache. |
+| [`cacheTtl`](/api/module-options) | `number` | `0` | Time-to-live (in seconds) for cached translation entries. |
+| [`numberFormats`](/api/module-options) | `Record<string, Record<string, Intl.NumberFormatOptions>>` | — | Named number formats per locale (Vue I18n-compatible). |
+| [`datetimeFormats`](/api/module-options) | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` | — | Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). |
+| [`httpCacheDuration`](/api/module-options) | `number` | `31536000` | HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`. |
+| [`dateBuild`](/api/module-options) | `string \| number` | — | Value used for cache-busting translation requests (`?v=...`). |
+| [`experimental`](/api/module-options) | `Record<string, unknown>` | — | Bucket for experimental/unstable options. |
 
 <!-- /generated:options-index -->
 

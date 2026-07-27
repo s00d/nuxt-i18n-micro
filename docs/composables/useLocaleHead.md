@@ -13,7 +13,7 @@ The `useLocaleHead` composable is a utility in `Nuxt I18n Micro` that helps you 
 <!-- generated:symbol:useLocaleHead — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-useLocaleHead(__namedParameters: UseLocaleHeadOptions): { metaObject: Ref<{ htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string }[]; meta: { content: string; property: string; [key: string]: string }[] }, MetaObject | { htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string }[]; meta: { content: string; property: string; [key: string]: string }[] }>; updateMeta: () => void }
+useLocaleHead(options: UseLocaleHeadOptions): { metaObject: Ref<{ htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }, MetaObject | { htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }>; updateMeta: () => void }
 ```
 
 The SEO head tags for the current route: `hreflang` alternates for every locale plus
@@ -24,7 +24,7 @@ the module registers the same tags itself.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `__namedParameters` | `UseLocaleHeadOptions` |  |
+| `options` | `UseLocaleHeadOptions` |  |
 
 **Returns** — a ref holding the head object, ready to pass to `useHead`
 

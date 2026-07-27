@@ -100,8 +100,19 @@ function optionsIndex(options: ModuleOption[]): string {
 
 const anchorOf = (name: string): string => name.replace(/^\$/, '').toLowerCase()
 
-function methodsIndex(methods: DocSymbol[]): string {
-  const rows = methods.map((method) => [`[\`${method.name}\`](#${anchorOf(method.name)})`, code(method.signature), summarise(method.description)])
+/**
+ * The index of injected helpers.
+ *
+ * `documented` are the helpers with a section of their own on the page; the rest are
+ * listed without a link rather than pointing at an anchor that does not exist — `$_t`
+ * and `$_ts` share one hand-written section under a combined heading.
+ */
+function methodsIndex(methods: DocSymbol[], documented: Set<string>): string {
+  const rows = methods.map((method) => [
+    documented.has(method.name) ? `[\`${method.name}\`](#${anchorOf(method.name)})` : `\`${method.name}\``,
+    code(method.signature),
+    summarise(method.description),
+  ])
   return table(['Helper', 'Signature', 'Purpose'], rows)
 }
 
@@ -273,9 +284,10 @@ function packagePage(pkg: ApiPackage, index: MemberIndex): string {
         // entry point of the same package — that was the largest source of duplication.
         if (first) {
           const samePage = first.pkg.slug === pkg.slug
-          const where = samePage ? `[\`${first.symbol}\`](#${first.symbol.toLowerCase()})` : `[\`${first.symbol}\`](/api/packages/${first.pkg.slug})`
-          const label = first.symbol === item.name && samePage ? 'documented above' : `identical to ${where}`
-          return `<code>${item.name}</code> — ${item.members.length} members, ${first.symbol === item.name && samePage ? label : `${label}`}.`
+          // No `#symbol` anchors exist on these pages — only entry-point headings — so a
+          // same-page repeat says where to look instead of linking somewhere dead.
+          const where = samePage ? `\`${first.symbol}\` above` : `[\`${first.symbol}\`](/api/packages/${first.pkg.slug})`
+          return `<code>${item.name}</code> — ${item.members.length} members, identical to ${where}.`
         }
 
         index.seen.set(key, { pkg, symbol: item.name })
@@ -421,12 +433,12 @@ export const docsGenerateCommand = defineCommand({
 
     // --- runtime helpers and composables ----------------------------------------------
     const methods = await readInterface('src/runtime/plugins/01.plugin.ts', 'PluginsInjections')
-    inBlock('docs/api/methods.md', 'methods-index', methodsIndex(methods))
+    const methodsPage = readFileSync(join(repoRoot, 'docs/api/methods.md'), 'utf8')
+    const documented = new Set(methods.filter((method) => methodsPage.includes(BLOCK_START(`method:${method.name}`))).map((method) => method.name))
 
-    for (const method of methods) {
-      const page = 'docs/api/methods.md'
-      const id = `method:${method.name}`
-      if (readFileSync(join(repoRoot, page), 'utf8').includes(BLOCK_START(id))) inBlock(page, id, symbolBlock(method))
+    inBlock('docs/api/methods.md', 'methods-index', methodsIndex(methods, documented))
+    for (const name of documented) {
+      inBlock('docs/api/methods.md', `method:${name}`, symbolBlock(methods.find((method) => method.name === name)!))
     }
 
     const composables = (await readModules('src/runtime/composables')).flatMap((module) => module.symbols)
@@ -463,11 +475,14 @@ export const docsGenerateCommand = defineCommand({
     const memberIndex: MemberIndex = { seen: new Map() }
     for (const pkg of byOwnership) emit(`docs/api/packages/${pkg.slug}.md`, packagePage(pkg, memberIndex))
 
-    // A package removed from the workspace must lose its page too.
-    if (!args.check && existsSync(packagesDir)) {
+    // A package removed from the workspace must lose its page too — and `--check` has to
+    // say so, or a stale page passes CI forever.
+    if (existsSync(packagesDir)) {
       const expected = new Set(packages.map((pkg) => `${pkg.slug}.md`))
       for (const file of readdirSync(packagesDir)) {
-        if (file.endsWith('.md') && !expected.has(file)) rmSync(join(packagesDir, file))
+        if (!file.endsWith('.md') || expected.has(file)) continue
+        if (args.check) report.stale.push(`docs/api/packages/${file}`)
+        else rmSync(join(packagesDir, file))
       }
     }
 

@@ -19,7 +19,9 @@ interface I18nHeadLink
 member I18nHeadLink.href: string
 member I18nHeadLink.hreflang?: string | undefined
 member I18nHeadLink.rel: string
+member I18nHeadLink.[string]: string | undefined
 interface I18nHeadMeta
+member I18nHeadMeta.[string]: string | undefined
 type I18nRouteParams: Record<LocaleCode, Record<string, string>> | null
 const init: () => void
 interface Locale
@@ -33,6 +35,7 @@ member Locale.fallbackLocale?: string | undefined
 member Locale.iso?: string | undefined
 member Locale.og?: string | undefined
 member Locale.seo?: boolean | undefined
+member Locale.[string]: unknown
 type LocaleCode: string
 type MissingHandler: (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
 interface ModuleOptions
@@ -182,7 +185,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 interface PluralTranslations
 member PluralTranslations.plural: string
 member PluralTranslations.singular: string
-type ScopedKey: Extract<TranslationKey, `${Scope}.${string}`>
+type ScopedKey<Scope extends string>: Extract<TranslationKey, `${Scope}.${string}`>
 type Strategies: 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
 type Translation: CleanTranslation | unknown
 type TranslationKey: keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
@@ -196,3 +199,4 @@ member TranslationPayloadOptions.serverHandler?: boolean | undefined
 member TranslationPayloadOptions.warnFileCount?: number | undefined
 member TranslationPayloadOptions.warnSizeBytes?: number | undefined
 interface Translations
+member Translations.[string]: unknown

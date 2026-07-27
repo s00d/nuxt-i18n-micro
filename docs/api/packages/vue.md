@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `createI18n` | function | `(options: CreateI18nOptions) => I18nPlugin` |
 | `createVueRouterAdapter` | function | `(router: Router, locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 18 members |
+| `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nDefaultLocaleKey` | const | `InjectionKey<string>` |
 | `I18nGroup` | const | `import("vue/dist/vue").DefineComponent<I18nGroupProps, {}, {}, {}, {}, import("vue/dist/vue").ComponentOptionsMixin, import("vue/dist/vue").ComponentOptionsMixin, {}, string, import("vue/dist/vue").PublicProps, Readonly<I18nGroupProps> & Readonly<{}>, {}, {}, {}, {}, string, import("vue/dist/vue").ComponentProvideOptions, false, {}, any>` |
@@ -34,19 +34,19 @@ import { /* … */ } from '@i18n-micro/vue'
 | `I18nSwitcher` | const | `import("vue/dist/vue").DefineComponent<import("vue/dist/vue").ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string \| (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string \| null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>, () => VNode<import("vue/dist/vue").RendererNode, import("vue/dist/vue").RendererElement, { [key: string]: any; }>, {}, {}, {}, import("vue/dist/vue").ComponentOptionsMixin, import("vue/dist/vue").ComponentOptionsMixin, {}, string, import("vue/dist/vue").PublicProps, Readonly<import("vue/dist/vue").ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string \| (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string \| null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { localeRoute: (to: string \| { path?: string; }, locale?: string) => string \| { path?: string; }; customLabels: Record<string, string>; customWrapperStyle: CSSProperties; customButtonStyle: CSSProperties; customDropdownStyle: CSSProperties; customItemStyle: CSSProperties; customLinkStyle: CSSProperties; customActiveLinkStyle: CSSProperties; customIconStyle: CSSProperties; locales: Locale[]; currentLocale: string \| (() => string); getLocaleName: () => string \| null; switchLocale: (locale: string) => void; }, {}, {}, {}, string, import("vue/dist/vue").ComponentProvideOptions, true, {}, any>` |
 | `I18nT` | const | `import("vue/dist/vue").DefineComponent<import("vue/dist/vue").ExtractPropTypes<{ keypath: { type: PropType<TranslationKey>; required: true; }; plural: { type: PropType<number \| string>; }; tag: { type: PropType<string>; default: string; }; params: { type: PropType<Record<string, string \| number \| boolean>>; default: () => {}; }; defaultValue: { type: PropType<string>; default: string; }; html: { type: PropType<boolean>; default: boolean; }; hideIfEmpty: { type: PropType<boolean>; default: boolean; }; customPluralRule: { type: PropType<PluralFunc>; default: null; }; number: { type: PropType<number \| string>; }; date: { type: PropType<Date \| string \| number>; }; relativeDate: { type: PropType<Date \| string \| number>; }; }>, () => string \| VNode<import("vue/dist/vue").RendererNode, import("vue/dist/vue").RendererElement, { [key: string]: any; }>, {}, {}, {}, import("vue/dist/vue").ComponentOptionsMixin, import("vue/dist/vue").ComponentOptionsMixin, {}, string, import("vue/dist/vue").PublicProps, Readonly<import("vue/dist/vue").ExtractPropTypes<{ keypath: { type: PropType<TranslationKey>; required: true; }; plural: { type: PropType<number \| string>; }; tag: { type: PropType<string>; default: string; }; params: { type: PropType<Record<string, string \| number \| boolean>>; default: () => {}; }; defaultValue: { type: PropType<string>; default: string; }; html: { type: PropType<boolean>; default: boolean; }; hideIfEmpty: { type: PropType<boolean>; default: boolean; }; customPluralRule: { type: PropType<PluralFunc>; default: null; }; number: { type: PropType<number \| string>; }; date: { type: PropType<Date \| string \| number>; }; relativeDate: { type: PropType<Date \| string \| number>; }; }>> & Readonly<{}>, { html: boolean; tag: string; params: Record<string, string \| number \| boolean>; defaultValue: string; hideIfEmpty: boolean; customPluralRule: PluralFunc; }, {}, {}, {}, string, import("vue/dist/vue").ComponentProvideOptions, true, {}, any>` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `Locale` | interface | 10 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `Translations` | interface | — |
+| `Translations` | interface | 1 members |
 | `useI18n` | function | `(options?: UseI18nOptions) => { instance: VueI18n; locale: import("vue/dist/vue").WritableComputedRef<string, string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: string \| { path?: string; }, localeCode?: string) => string \| { path?: string; }; localePath: (to: string \| { path?: string; }, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string \| null, routeContext?: unknown) => import("packages/types/dist/index").CleanTranslation; ts: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("packages/types/dist/index").TranslationKey, count: number \| import("packages/types/dist/index").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("packages/types/dist/index").TranslationKey, routeContext?: unknown) => boolean; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: import("packages/types/dist/index").Translations) => void; clearCache: () => void; }` |
 | `UseI18nOptions` | interface | 2 members |
 | `useLocaleHead` | function | `(options?: UseLocaleHeadOptions) => { metaObject: import("vue/dist/vue").Ref<{ htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }, MetaObject \| { htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }>; updateMeta: (canonicalQueryWhitelist?: string[]) => void; }` |
 | `UseLocaleHeadOptions` | interface | 4 members |
-| `VueI18n` | class | 50 members |
+| `VueI18n` | class | 51 members |
 | `VueI18nOptions` | interface | 6 members |
 
-<code>FormatService</code> — 18 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
 <details>
 <summary><code>I18nRoutingStrategy</code> — 6 members</summary>
 
@@ -61,10 +61,11 @@ import { /* … */ } from '@i18n-micro/vue'
 
 </details>
 <details>
-<summary><code>Locale</code> — 10 members</summary>
+<summary><code>Locale</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `[string]` | `unknown` |
 | `baseDefault?` | `boolean \| undefined` |
 | `baseUrl?` | `string \| undefined` |
 | `code` | `string` |
@@ -77,7 +78,8 @@ import { /* … */ } from '@i18n-micro/vue'
 | `seo?` | `boolean \| undefined` |
 
 </details>
-<code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/solid).
+<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+<code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
 <details>
 <summary><code>UseLocaleHeadOptions</code> — 4 members</summary>
 
@@ -90,7 +92,7 @@ import { /* … */ } from '@i18n-micro/vue'
 
 </details>
 <details>
-<summary><code>VueI18n</code> — 50 members</summary>
+<summary><code>VueI18n</code> — 51 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -122,6 +124,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `mergeTranslations` | `(locale: string, routeName: string, translations: Translations) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
+| `new` | `(options: VueI18nOptions): VueI18n` |
 | `notifyListeners` | `private () => void` |
 | `pluralFunc` | `PluralFunc` |
 | `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |

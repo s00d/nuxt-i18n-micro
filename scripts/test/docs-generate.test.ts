@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseSnapshot } from '../src/commands/docs-generate'
+import { code, summarise, table } from '../src/utils/markdown'
 import { coveredByDynamicRoute, isDynamicTemplate } from '../src/commands/docs-audit'
 
 /**
@@ -56,5 +57,63 @@ describe('dynamic routes', () => {
     // A different directory is not covered by it.
     expect(coveredByDynamicRoute('api/methods.md', templates)).toBe(false)
     expect(coveredByDynamicRoute('api/packages/core.md', [])).toBe(false)
+  })
+})
+
+
+describe('deprecation reporting', () => {
+  it('reports the @deprecated reason rather than the symbol summary', async () => {
+    const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const { readModuleOptions } = await import('../src/utils/module-options')
+
+    const dir = mkdtempSync(join(tmpdir(), 'deprecated-'))
+    try {
+      const file = join(dir, 'index.ts')
+      writeFileSync(
+        file,
+        `export interface ModuleOptions {
+           /**
+            * What it does.
+            * @deprecated use \`meta\` instead
+            */
+           legacy?: boolean
+         }`,
+      )
+      const [option] = readModuleOptions('ModuleOptions', file)
+      expect(option?.deprecated).toBe('use `meta` instead')
+      expect(option?.description).toBe('What it does.')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('markdown rendering', () => {
+  it('renders a present but falsy default rather than an em dash', () => {
+    // `false` and `0` are real defaults; a truthiness test reported them as absent.
+    expect(code('false')).toBe('`false`')
+    expect(code('0')).toBe('`0`')
+    expect(code(null)).toBe('—')
+    expect(code('')).toBe('—')
+  })
+
+  it('widens the fence for a value containing backticks', () => {
+    // A template-literal type closes a single-backtick span on its own delimiter.
+    expect(code('Extract<Key, `${Scope}.${string}`>')).toBe('``Extract<Key, `${Scope}.${string}`>``')
+  })
+
+  it('escapes a pipe so a union type cannot break the table', () => {
+    expect(code('string | null')).toBe('`string \\| null`')
+  })
+
+  it('does not truncate a summary at an abbreviation', () => {
+    expect(summarise('For `no_prefix` (e.g. `/en/x`) enable it. Second sentence.')).toBe('For `no_prefix` (e.g. `/en/x`) enable it.')
+    expect(summarise('One sentence only')).toBe('One sentence only')
+  })
+
+  it('renders nothing for a table with no rows', () => {
+    expect(table(['A'], [])).toBe('')
   })
 })

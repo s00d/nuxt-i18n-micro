@@ -22,6 +22,7 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 const I18nDefaultLocaleKey: InjectionKey<string>
 const I18nGroup: import("vue/dist/vue").DefineComponent<I18nGroupProps, {}, {}, {}, {}, import("vue/dist/vue").ComponentOptionsMixin, import("vue/dist/vue").ComponentOptionsMixin, {}, string, import("vue/dist/vue").PublicProps, Readonly<I18nGroupProps> & Readonly<{}>, {}, {}, {}, {}, string, import("vue/dist/vue").ComponentProvideOptions, false, {}, any>
@@ -50,10 +51,12 @@ member Locale.fallbackLocale?: string | undefined
 member Locale.iso?: string | undefined
 member Locale.og?: string | undefined
 member Locale.seo?: boolean | undefined
+member Locale.[string]: unknown
 type LocaleCode: string
 type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 interface Translations
+member Translations.[string]: unknown
 function useI18n: (options?: UseI18nOptions) => { instance: VueI18n; locale: import("vue/dist/vue").WritableComputedRef<string, string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string | null; localeRoute: (to: string | { path?: string; }, localeCode?: string) => string | { path?: string; }; localePath: (to: string | { path?: string; }, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string | null, routeContext?: unknown) => import("packages/types/dist/index").CleanTranslation; ts: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("packages/types/dist/index").TranslationKey, count: number | import("packages/types/dist/index").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("packages/types/dist/index").TranslationKey, routeContext?: unknown) => boolean; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: import("packages/types/dist/index").Translations) => void; clearCache: () => void; }
 interface UseI18nOptions
 member UseI18nOptions.defaultLocale?: string | undefined
@@ -115,6 +118,7 @@ member VueI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string,
 member VueI18n.warnDev: protected (message: string) => void
 member VueI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member VueI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member VueI18n.new: (options: VueI18nOptions): VueI18n
 interface VueI18nOptions
 member VueI18nOptions.fallbackLocale?: string | undefined
 member VueI18nOptions.locale: string

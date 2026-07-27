@@ -37,6 +37,7 @@ member RouteGenerator.rawGlobalLocaleRoutes: GlobalLocaleRoutes
 member RouteGenerator.resolveLocalizedPath: (originalPath: string, localeCode: string) => string
 member RouteGenerator.routeLocales: Record<string, string[]>
 member RouteGenerator.strategy: Strategies
+member RouteGenerator.new: (options: RouteGeneratorOptions): RouteGenerator
 interface RouteGeneratorOptions
 member RouteGeneratorOptions.customRegexMatcher?: string | RegExp | undefined
 member RouteGeneratorOptions.defaultLocaleCode: string

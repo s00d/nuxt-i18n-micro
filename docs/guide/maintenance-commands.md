@@ -235,9 +235,13 @@ listed is a candidate to check, not a verdict. References are searched across `t
 `.github/`, `package.json` and the vitest configs, since a fixture is often named from a
 config rather than from a test file.
 
-It also flags build leftovers (`.nuxt`, `.output`, `.output-shared`, `.nuxt-test`,
-`test-results`) committed inside a fixture. `pnpm run clean:test` removes most of them;
-`.output` it does not, so remove that one by hand.
+It also flags build output (`.nuxt`, `.output`, `.output-shared`, `.nuxt-test`,
+`test-results`) inside a fixture. `pnpm run clean:test` removes most of it; `.output` it
+does not, so remove that one by hand.
+
+`--strict` fails only on build output that is **committed**: a local `.nuxt` is gitignored
+and expected after running the suites, and an unreferenced fixture is a candidate to check
+rather than a defect — which is why the command never deletes either.
 
 ## preflight
 

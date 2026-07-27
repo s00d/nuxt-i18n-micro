@@ -38,6 +38,7 @@ type LocaleData: Record<string, TranslationContent>
 function register: () => void
 function setupRpcHost: (iframeWindow: Window, bridge: I18nDevToolsBridge) => () => void
 interface TranslationContent
+member TranslationContent.[string]: JSONValue
 interface TreeNode
 member TreeNode.children: TreeNode[]
 member TreeNode.fullPath: string
@@ -54,6 +55,7 @@ member I18nDevToolsBridge.saveTranslation: (filePath: string, content: Translati
 type JSONValue: string | null | number | boolean | { [key: string]: JSONValue }
 type LocaleData: Record<string, TranslationContent>
 interface TranslationContent
+member TranslationContent.[string]: JSONValue
 
 # ./bridge/create (src/bridge/create-bridge.ts)
 interface BridgeAdapter

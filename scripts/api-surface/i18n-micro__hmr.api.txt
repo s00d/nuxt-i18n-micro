@@ -20,3 +20,4 @@ class TranslationContentTracker
 member TranslationContentTracker.forget: (filePath: string) => void
 member TranslationContentTracker.hashes: private Map<string, string>
 member TranslationContentTracker.shouldProcess: (filePath: string) => boolean
+member TranslationContentTracker.new: (): TranslationContentTracker

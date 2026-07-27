@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/types`
 
-26 exports across 1 entry point.
+25 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -25,11 +25,11 @@ import { /* … */ } from '@i18n-micro/types'
 | `GlobalLocaleRoutes` | type | `Record<string, Record<LocaleCode, string> \| false \| boolean> \| null \| undefined` |
 | `I18nHeadDisableGroup` | type | `'hreflang' \| 'x-default' \| 'canonical' \| 'og' \| 'og-alternates' \| 'html'` |
 | `I18nHeadInput` | interface | 5 members |
-| `I18nHeadLink` | interface | 3 members |
-| `I18nHeadMeta` | interface | — |
+| `I18nHeadLink` | interface | 4 members |
+| `I18nHeadMeta` | interface | 1 members |
 | `I18nRouteParams` | type | `Record<LocaleCode, Record<string, string>> \| null` |
 | `init` | const | `() => void` |
-| `Locale` | interface | 10 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
 | `ModuleOptions` | interface | 45 members |
@@ -38,12 +38,11 @@ import { /* … */ } from '@i18n-micro/types'
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
-| `ScopedKey` | type | `Extract<TranslationKey, `${Scope}.${string}`>` |
 | `Strategies` | type | `'no_prefix' \| 'prefix_except_default' \| 'prefix' \| 'prefix_and_default'` |
 | `Translation` | type | `CleanTranslation \| unknown` |
 | `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |
 | `TranslationPayloadOptions` | interface | 8 members |
-| `Translations` | interface | — |
+| `Translations` | interface | 1 members |
 
 <details>
 <summary><code>DefineI18nRouteConfig</code> — 3 members</summary>
@@ -76,20 +75,30 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>I18nHeadLink</code> — 3 members</summary>
+<summary><code>I18nHeadLink</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `[string]` | `string \| undefined` |
 | `href` | `string` |
 | `hreflang?` | `string \| undefined` |
 | `rel` | `string` |
 
 </details>
 <details>
-<summary><code>Locale</code> — 10 members</summary>
+<summary><code>I18nHeadMeta</code> — 1 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `[string]` | `string \| undefined` |
+
+</details>
+<details>
+<summary><code>Locale</code> — 11 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `unknown` |
 | `baseDefault?` | `boolean \| undefined` |
 | `baseUrl?` | `string \| undefined` |
 | `code` | `string` |
@@ -284,6 +293,14 @@ import { /* … */ } from '@i18n-micro/types'
 | `serverHandler?` | `boolean \| undefined` |
 | `warnFileCount?` | `number \| undefined` |
 | `warnSizeBytes?` | `number \| undefined` |
+
+</details>
+<details>
+<summary><code>Translations</code> — 1 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `unknown` |
 
 </details>
 

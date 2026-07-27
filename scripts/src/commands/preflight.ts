@@ -31,18 +31,20 @@ function gatesFor(options: { npm: boolean; offline: boolean; budget: boolean }):
 
   return [
     { name: 'deps-audit', args: ['deps-audit'] },
-    // Builds an app, so it is opt-in: a release gate should not take ten minutes by
-    // default, and the budget is checked on pull requests that touch the runtime.
-    ...(options.budget ? [{ name: 'payload-budget', args: ['payload-budget'] }] : []),
     { name: 'verify-packages', args: ['verify-packages', '--publint'] },
     { name: 'api-surface', args: ['api-surface'] },
     { name: 'docs-audit', args: ['docs-audit'] },
     { name: 'docs-generate', args: ['docs-generate', '--check'] },
-    { name: 'fixtures-audit', args: ['fixtures-audit'] },
+    // `--strict` or the audit exits 0 on its own findings and the verdict would disagree
+    // with the report printed above it.
+    { name: 'fixtures-audit', args: ['fixtures-audit', '--strict'] },
     // `check-versions` resolves its baseline with `git fetch` under GITHUB_BASE_REF, so
     // it is a network gate even without --npm.
     { name: 'check-versions', args: options.npm ? ['check-versions', '--npm'] : ['check-versions'], skip: registryOnly },
     { name: 'ensure-npm-auth', args: ['ensure-npm-auth'], skip: options.npm ? registryOnly : () => 'needs --npm' },
+    // Last on purpose: it builds an application, and discovering a packaging failure
+    // after a ten-minute build defeats the point of ordering the gates at all.
+    ...(options.budget ? [{ name: 'payload-budget', args: ['payload-budget'] }] : []),
   ]
 }
 

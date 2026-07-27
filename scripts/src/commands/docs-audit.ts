@@ -113,6 +113,13 @@ export function pageLinks(page: string, body: string): string[] {
     const [target = ''] = link.split('#', 1)
     if (!target) return []
 
+    // A trailing slash names a directory, so only its index resolves — without this the
+    // reachability walk missed every link written the way VitePress renders one.
+    if (target.endsWith('/')) {
+      const asIndex = `${target}index.md`
+      return [asIndex.startsWith('/') ? asIndex.slice(1) : join(dir, asIndex)]
+    }
+
     const withExtension = target.endsWith('.md') ? target : `${target}.md`
     const resolved = withExtension.startsWith('/') ? withExtension.slice(1) : join(dir, withExtension)
     return [resolved, resolved.replace(/\.md$/, '/index.md')]
@@ -122,9 +129,10 @@ export function pageLinks(page: string, body: string): string[] {
 /** Relative markdown links inside a page body, excluding code fences. */
 export function markdownLinks(source: string): string[] {
   const withoutCode = source.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '')
-  // The optional title form `](/page.md "Title")` is valid Markdown; requiring the paren
-  // to follow the target immediately skipped those links entirely.
-  return [...withoutCode.matchAll(/\]\(\s*<?([^)\s>]+)>?(?:\s+["'(][^)]*)?\)/g)].map((match) => match[1]!)
+  // Both optional forms are valid Markdown and were skipped entirely: a title after the
+  // target (`](/page.md "Title")`), and an angle-bracketed target, which is the only way
+  // to write one containing a space.
+  return [...withoutCode.matchAll(/\]\(\s*(?:<([^>]+)>|([^)\s]+))(?:\s+["'(][^)]*)?\)/g)].map((match) => (match[1] ?? match[2])!)
 }
 
 export const docsAuditCommand = defineCommand({
@@ -234,7 +242,7 @@ export const docsAuditCommand = defineCommand({
       for (const page of pages) {
         // A dynamic template is never linked directly; the pages it renders are.
         if (page.startsWith('public/') || page === 'index.md' || isDynamicTemplate(page)) continue
-        if (!reachable.has(page)) add('warnings', 'unlinked-page', page, 'page is not reachable from the nav, the sidebar, or a page that is')
+        if (!reachable.has(page)) add('warnings', 'unlinked-page', page, 'page is not reachable from the nav, the sidebar, or another reachable page')
       }
     }
 

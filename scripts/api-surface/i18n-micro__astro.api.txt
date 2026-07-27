@@ -46,6 +46,7 @@ member AstroI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: strin
 member AstroI18n.warnDev: protected (message: string) => void
 member AstroI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member AstroI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member AstroI18n.new: (options: AstroI18nOptions): AstroI18n
 interface AstroI18nOptions
 member AstroI18nOptions._storage?: TranslationStorage | undefined
 member AstroI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
@@ -81,6 +82,7 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 function getDefaultLocale: (astro: AstroGlobal) => string
 function getGlobalRoutingStrategy: () => I18nRoutingStrategy | null
 function getI18n: (astro: AstroGlobal) => AstroI18n
@@ -186,6 +188,7 @@ member Locale.fallbackLocale?: string | undefined
 member Locale.iso?: string | undefined
 member Locale.og?: string | undefined
 member Locale.seo?: boolean | undefined
+member Locale.[string]: unknown
 type LocaleCode: string
 interface LocaleHeadOptions
 member LocaleHeadOptions.addDirAttribute?: boolean | undefined
@@ -200,6 +203,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 function runWithRoutingStrategy: <T>(strategy: I18nRoutingStrategy | null, fn: () => T) => T
 function setGlobalRoutingStrategy: (strategy: I18nRoutingStrategy | null) => void
 interface Translations
+member Translations.[string]: unknown
 function useI18n: (astro: AstroGlobal) => { locale: string; defaultLocale: string; locales: Locale[]; t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; getRoute: () => string; getRouteName: (path?: string) => string; getLocaleFromPath: (path?: string) => string; switchLocalePath: (newLocale: string) => string; localizePath: (path: string, targetLocale?: string) => string; getI18n: () => AstroI18n; getBasePath: (url?: URL) => string; addTranslations: (locale: string, translations: Record<string, unknown>, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Record<string, unknown>, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>) => void; clearCache: () => void; }
 function useLocaleHead: (astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult
 

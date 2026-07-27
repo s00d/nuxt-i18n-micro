@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { collectLinks, markdownLinks, pageCandidatesForLink } from '../src/commands/docs-audit'
+import { collectLinks, markdownLinks, pageCandidatesForLink, pageLinks } from '../src/commands/docs-audit'
 
 describe('collectLinks', () => {
   it('flattens nav items and their children', () => {
@@ -48,14 +48,41 @@ describe('pageCandidatesForLink', () => {
     expect(pageCandidatesForLink('/guide/seo#meta')).toEqual(['guide/seo.md', 'guide/seo/index.md'])
   })
 
-  it.each(['https://example.dev', 'mailto:a@b.dev', './relative', '#anchor'])('returns nothing for %s, which leaves the docs', (link) => {
+  it.each(['https://example.dev', 'mailto:a@b.dev', './relative', '#anchor', '//example.dev/x'])('returns nothing for %s, which leaves the docs', (link) => {
     expect(pageCandidatesForLink(link)).toEqual([])
+  })
+})
+
+describe('pageLinks', () => {
+  it('resolves a relative link against the page it is on', () => {
+    expect(pageLinks('api/packages.md', 'see [core](./packages/core.md)')).toContain('api/packages/core.md')
+  })
+
+  it('accepts the extensionless form the site renders', () => {
+    expect(pageLinks('api/packages.md', 'see [core](/api/packages/core)')).toContain('api/packages/core.md')
+  })
+
+  it('offers the index form for a bare path', () => {
+    // `/guide/` and `/guide` are both written; only one has a file behind it.
+    expect(pageLinks('index.md', 'see [guide](/guide)')).toContain('guide/index.md')
+    expect(pageLinks('index.md', 'see [guide](/guide/)')).toEqual(['guide/index.md'])
+  })
+
+  it('ignores external links and bare anchors', () => {
+    expect(pageLinks('a.md', 'see [x](https://example.dev) and [y](#section)')).toEqual([])
   })
 })
 
 describe('markdownLinks', () => {
   it('finds inline links', () => {
     expect(markdownLinks('see [a](./a.md) and [b](/guide/b.md)')).toEqual(['./a.md', '/guide/b.md'])
+  })
+
+  it('reads a link that carries a title', () => {
+    // `](/page.md "Title")` is valid Markdown; requiring the paren to follow the target
+    // immediately skipped those links entirely.
+    expect(markdownLinks('see [a](./a.md "Why")')).toEqual(['./a.md'])
+    expect(markdownLinks('see [a](<./a b.md>)')).toEqual(['./a b.md'])
   })
 
   it('ignores links inside fenced and inline code', () => {

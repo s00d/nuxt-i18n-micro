@@ -688,7 +688,7 @@ export function createExtendedAdapter(locales: Locale[], defaultLocale: string, 
 
 Creates a SolidJS i18n instance.
 
-**Parameters:** the [shared `createI18n` options](./index.md#create-i18n-options) — `locale`, `fallbackLocale`, `messages`, `plural`, `missingWarn` and `missingHandler`.
+**Parameters:** the [shared `createI18n` options](/integrations/#create-i18n-options) — `locale`, `fallbackLocale`, `messages`, `plural`, `missingWarn` and `missingHandler`.
 
 **Returns:** `SolidI18n`
 

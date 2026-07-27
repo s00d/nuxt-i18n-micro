@@ -207,7 +207,7 @@ are identical:
 | `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
 | `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                   |
 | `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
-| `missingWarn`    | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations |
+| `missingWarn`    | `boolean`                                                  | ❌       | `true`           | Show console warnings for missing translations |
 | `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
 
 Anything beyond these is framework-specific and documented on that package's page.

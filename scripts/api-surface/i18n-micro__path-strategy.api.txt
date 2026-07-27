@@ -36,6 +36,7 @@ member BasePathStrategy.resolvePathForLocale: (path: string, targetLocale: strin
 member BasePathStrategy.setRouter: (router: RouterAdapter) => void
 member BasePathStrategy.shouldReturn404: (currentPath: string) => string | null
 member BasePathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member BasePathStrategy.new: (ctx: PathStrategyContext): BasePathStrategy
 function buildLocalizedName: (baseName: string, locale: string, prefix?: string) => string
 function createPathStrategy: (ctx: PathStrategyContext) => PathStrategy
 function getRouteBaseName: (route: { name?: string | null; } & Record<string, any>, options: GetRouteBaseNameOptions) => string | null
@@ -83,6 +84,7 @@ member NoPrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: s
 member NoPrefixPathStrategy.setRouter: (router: RouterAdapter) => void
 member NoPrefixPathStrategy.shouldReturn404: (_currentPath: string) => string | null
 member NoPrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member NoPrefixPathStrategy.new: (ctx: PathStrategyContext): NoPrefixPathStrategy
 type NormalizedRouteInput: | { kind: 'path'; path: string } | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
 interface PathStrategy
 member PathStrategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
@@ -160,6 +162,7 @@ member PrefixAndDefaultPathStrategy.rewriteWithLocalePrefix: private (route: Rou
 member PrefixAndDefaultPathStrategy.setRouter: (router: RouterAdapter) => void
 member PrefixAndDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
 member PrefixAndDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member PrefixAndDefaultPathStrategy.new: (ctx: PathStrategyContext): PrefixAndDefaultPathStrategy
 class PrefixExceptDefaultPathStrategy
 member PrefixExceptDefaultPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
 member PrefixExceptDefaultPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
@@ -204,6 +207,7 @@ member PrefixExceptDefaultPathStrategy.setRouter: (router: RouterAdapter) => voi
 member PrefixExceptDefaultPathStrategy.shouldHavePrefix: protected (locale: string) => boolean
 member PrefixExceptDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
 member PrefixExceptDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.new: (ctx: PathStrategyContext): PrefixExceptDefaultPathStrategy
 class PrefixPathStrategy
 member PrefixPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
 member PrefixPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
@@ -240,6 +244,7 @@ member PrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: str
 member PrefixPathStrategy.setRouter: (router: RouterAdapter) => void
 member PrefixPathStrategy.shouldReturn404: (currentPath: string) => string | null
 member PrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member PrefixPathStrategy.new: (ctx: PathStrategyContext): PrefixPathStrategy
 interface ResolvedRouteLike
 member ResolvedRouteLike.fullPath: string
 member ResolvedRouteLike.hash?: string | undefined
@@ -301,6 +306,7 @@ member NoPrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: s
 member NoPrefixPathStrategy.setRouter: (router: RouterAdapter) => void
 member NoPrefixPathStrategy.shouldReturn404: (_currentPath: string) => string | null
 member NoPrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member NoPrefixPathStrategy.new: (ctx: PathStrategyContext): NoPrefixPathStrategy
 class Strategy
 member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
 member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
@@ -337,6 +343,7 @@ member Strategy.resolvePathForLocale: (path: string, targetLocale: string) => st
 member Strategy.setRouter: (router: RouterAdapter) => void
 member Strategy.shouldReturn404: (_currentPath: string) => string | null
 member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member Strategy.new: (ctx: PathStrategyContext): NoPrefixPathStrategy
 
 # ./prefix (src/strategies/prefix.ts)
 class PrefixPathStrategy
@@ -375,6 +382,7 @@ member PrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: str
 member PrefixPathStrategy.setRouter: (router: RouterAdapter) => void
 member PrefixPathStrategy.shouldReturn404: (currentPath: string) => string | null
 member PrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member PrefixPathStrategy.new: (ctx: PathStrategyContext): PrefixPathStrategy
 class Strategy
 member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
 member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
@@ -411,6 +419,7 @@ member Strategy.resolvePathForLocale: (path: string, targetLocale: string) => st
 member Strategy.setRouter: (router: RouterAdapter) => void
 member Strategy.shouldReturn404: (currentPath: string) => string | null
 member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member Strategy.new: (ctx: PathStrategyContext): PrefixPathStrategy
 
 # ./prefix-and-default (src/strategies/prefix-and-default.ts)
 class PrefixAndDefaultPathStrategy
@@ -450,6 +459,7 @@ member PrefixAndDefaultPathStrategy.rewriteWithLocalePrefix: private (route: Rou
 member PrefixAndDefaultPathStrategy.setRouter: (router: RouterAdapter) => void
 member PrefixAndDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
 member PrefixAndDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member PrefixAndDefaultPathStrategy.new: (ctx: PathStrategyContext): PrefixAndDefaultPathStrategy
 class Strategy
 member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
 member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
@@ -487,6 +497,7 @@ member Strategy.rewriteWithLocalePrefix: private (route: RouteLike, targetLocale
 member Strategy.setRouter: (router: RouterAdapter) => void
 member Strategy.shouldReturn404: (currentPath: string) => string | null
 member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member Strategy.new: (ctx: PathStrategyContext): PrefixAndDefaultPathStrategy
 
 # ./prefix-except-default (src/strategies/prefix-except-default.ts)
 class PrefixExceptDefaultPathStrategy
@@ -533,6 +544,7 @@ member PrefixExceptDefaultPathStrategy.setRouter: (router: RouterAdapter) => voi
 member PrefixExceptDefaultPathStrategy.shouldHavePrefix: protected (locale: string) => boolean
 member PrefixExceptDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
 member PrefixExceptDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.new: (ctx: PathStrategyContext): PrefixExceptDefaultPathStrategy
 class Strategy
 member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
 member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
@@ -577,6 +589,7 @@ member Strategy.setRouter: (router: RouterAdapter) => void
 member Strategy.shouldHavePrefix: protected (locale: string) => boolean
 member Strategy.shouldReturn404: (currentPath: string) => string | null
 member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member Strategy.new: (ctx: PathStrategyContext): PrefixExceptDefaultPathStrategy
 
 # ./types (src/types.ts)
 type GlobalLocaleRoutes: Record<string, Record<string, string> | false | boolean>

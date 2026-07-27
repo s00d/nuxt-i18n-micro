@@ -20,31 +20,31 @@ import { /* … */ } from '@i18n-micro/solid'
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: SolidI18nOptions) => SolidI18n` |
-| `createSolidRouterAdapter` | value | `unknown` |
+| `createSolidRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) => I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string>; }` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 18 members |
+| `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nContext` | const | `import("solid-js/types/index").Context<SolidI18n \| undefined>` |
 | `I18nDefaultLocaleContext` | const | `import("solid-js/types/index").Context<string \| undefined>` |
-| `I18nGroup` | value | `unknown` |
-| `I18nLink` | value | `unknown` |
+| `I18nGroup` | const | `Component<I18nGroupProps>` |
+| `I18nLink` | const | `Component<I18nLinkProps>` |
 | `I18nLocalesContext` | const | `import("solid-js/types/index").Context<Locale[] \| undefined>` |
-| `I18nProvider` | value | `unknown` |
-| `I18nProviderProps` | value | `unknown` |
+| `I18nProvider` | const | `ParentComponent<I18nProviderProps>` |
+| `I18nProviderProps` | interface | 4 members |
 | `I18nRouterContext` | const | `import("solid-js/types/index").Context<I18nRoutingStrategy \| undefined>` |
 | `I18nRoutingStrategy` | interface | 7 members |
-| `I18nSwitcher` | value | `unknown` |
-| `I18nT` | value | `unknown` |
+| `I18nSwitcher` | const | `Component<I18nSwitcherProps>` |
+| `I18nT` | const | `Component<I18nTProps>` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `Locale` | interface | 10 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 45 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `SolidI18n` | class | 51 members |
+| `SolidI18n` | class | 52 members |
 | `SolidI18nOptions` | interface | 6 members |
 | `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |
-| `Translations` | interface | — |
+| `Translations` | interface | 1 members |
 | `useI18n` | function | `(options?: UseI18nOptions) => { instance: import("packages/solid/src/i18n").SolidI18n; locale: import("solid-js/types/index").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: string \| { path?: string; }, localeCode?: string) => string \| { path?: string; }; localePath: (to: string \| { path?: string; }, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string \| null, routeContext?: unknown) => import("packages/types/dist/index").CleanTranslation; ts: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("packages/types/dist/index").TranslationKey, count: number \| import("packages/types/dist/index").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("packages/types/dist/index").TranslationKey, routeContext?: unknown) => boolean; setRoute: (val: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; clearCache: () => void; }` |
 | `useI18nContext` | const | `() => SolidI18n` |
 | `useI18nDefaultLocale` | const | `() => string` |
@@ -52,7 +52,18 @@ import { /* … */ } from '@i18n-micro/solid'
 | `UseI18nOptions` | interface | 2 members |
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| undefined` |
 
-<code>FormatService</code> — 18 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+<details>
+<summary><code>I18nProviderProps</code> — 4 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `defaultLocale?` | `string \| undefined` |
+| `i18n` | `SolidI18n` |
+| `locales?` | `Locale[] \| undefined` |
+| `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
+
+</details>
 <details>
 <summary><code>I18nRoutingStrategy</code> — 7 members</summary>
 
@@ -67,10 +78,10 @@ import { /* … */ } from '@i18n-micro/solid'
 | `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
 
 </details>
-<code>Locale</code> — 10 members, identical to [`Locale`](/api/packages/types).
+<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
 <code>ModuleOptions</code> — 45 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
-<summary><code>SolidI18n</code> — 51 members</summary>
+<summary><code>SolidI18n</code> — 52 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -101,6 +112,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `localeAccessor` | `Accessor<string>` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
+| `new` | `(options: SolidI18nOptions): SolidI18n` |
 | `notifyListeners` | `private () => void` |
 | `pluralFunc` | `PluralFunc` |
 | `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
@@ -128,14 +140,7 @@ import { /* … */ } from '@i18n-micro/solid'
 
 </details>
 <code>SolidI18nOptions</code> — 6 members, identical to [`PreactI18nOptions`](/api/packages/preact).
-<details>
-<summary><code>UseI18nOptions</code> — 2 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `defaultLocale?` | `string \| undefined` |
-| `locales?` | `Locale[] \| undefined` |
-
-</details>
+<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+<code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

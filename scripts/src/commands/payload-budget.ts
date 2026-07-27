@@ -1,6 +1,7 @@
 import { execFileSync, spawn } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { connect } from 'node:net'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { defineCommand } from 'citty'
 import { dirSize, walkFiles } from '../utils/fs-walk'
@@ -60,14 +61,27 @@ function splitClientOutput(publicDir: string): { payloadFiles: number; clientAss
   return { payloadFiles, clientAssets }
 }
 
-/** Refuse to measure whatever is already answering on the port — it is not this build. */
-async function assertPortFree(base: string): Promise<void> {
-  try {
-    await fetch(base, { signal: AbortSignal.timeout(1500) })
-  } catch {
-    return
-  }
-  throw new Error(`something is already listening at ${base}; stop it or pass --port`)
+/**
+ * Refuse to measure whatever is already on the port — it is not this build.
+ *
+ * A TCP connect rather than an HTTP request: a listener that accepts the socket but never
+ * answers looks free to `fetch`, and the run then spends its whole polling budget waiting
+ * for a server that will never start.
+ */
+async function assertPortFree(port: number): Promise<void> {
+  const occupied = await new Promise<boolean>((resolve) => {
+    const socket = connect({ port, host: '127.0.0.1' })
+    const finish = (result: boolean) => {
+      socket.destroy()
+      resolve(result)
+    }
+    socket.setTimeout(1500)
+    socket.once('connect', () => finish(true))
+    socket.once('timeout', () => finish(true))
+    socket.once('error', () => finish(false))
+  })
+
+  if (occupied) throw new Error(`something is already listening on port ${port}; stop it or pass --port`)
 }
 
 async function waitForServer(base: string, attempts = 90): Promise<void> {
@@ -163,8 +177,8 @@ export const payloadBudgetCommand = defineCommand({
   async setup({ args }) {
     const port = Number(args.port)
     const tolerance = Number(args.tolerance)
-    if (!Number.isFinite(port) || port <= 0) {
-      console.error(`--port must be a number, got "${args.port}"`)
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      console.error(`--port must be an integer between 1 and 65535, got "${args.port}"`)
       process.exit(1)
     }
     if (!Number.isFinite(tolerance) || tolerance < 0) {
@@ -189,7 +203,7 @@ export const payloadBudgetCommand = defineCommand({
       execFileSync('pnpm', ['exec', 'nuxt', 'build'], { cwd: appDir, stdio: 'inherit' })
     }
 
-    await assertPortFree(`http://127.0.0.1:${port}`)
+    await assertPortFree(port)
     const measurement = await measure(appDir, app, routes, port)
 
     if (args.update) {

@@ -19,7 +19,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `analyzeRoute` | function | `(ctx: PathStrategyContext, route: ResolvedRouteLike) => RouteAnalysis` |
-| `BasePathStrategy` | class | 35 members |
+| `BasePathStrategy` | class | 36 members |
 | `buildLocalizedName` | function | `(baseName: string, locale: string, prefix?: string) => string` |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
 | `getRouteBaseName` | function | `(route: { name?: string \| null; } & Record<string, any>, options: GetRouteBaseNameOptions) => string \| null` |
@@ -27,13 +27,13 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `GlobalLocaleRoutes` | type | `Record<string, Record<string, string> \| false \| boolean>` |
 | `isIndexRouteName` | function | `(name: string \| null \| undefined, options?: IsIndexRouteNameOptions) => boolean` |
 | `IsIndexRouteNameOptions` | interface | 2 members |
-| `NoPrefixPathStrategy` | class | 35 members |
+| `NoPrefixPathStrategy` | class | 36 members |
 | `NormalizedRouteInput` | type | `\| { kind: 'path'; path: string } \| { kind: 'route'; inputName: string \| null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }` |
 | `PathStrategy` | interface | 22 members |
 | `PathStrategyContext` | interface | 15 members |
-| `PrefixAndDefaultPathStrategy` | class | 36 members |
-| `PrefixExceptDefaultPathStrategy` | class | 43 members |
-| `PrefixPathStrategy` | class | 35 members |
+| `PrefixAndDefaultPathStrategy` | class | 37 members |
+| `PrefixExceptDefaultPathStrategy` | class | 44 members |
+| `PrefixPathStrategy` | class | 36 members |
 | `ResolvedRouteLike` | interface | 6 members |
 | `RouteAnalysis` | interface | 2 members |
 | `RouteLike` | interface | 6 members |
@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `SwitchLocaleOptions` | interface | 1 members |
 
 <details>
-<summary><code>BasePathStrategy</code> — 35 members</summary>
+<summary><code>BasePathStrategy</code> — 36 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -74,6 +74,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getStrategy` | `() => PathStrategyContext["strategy"]` |
 | `getSwitchLocaleFallbackWhenNoRoute` | `(route: ResolvedRouteLike, targetName: string) => RouteLike \| string` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
+| `new` | `(ctx: PathStrategyContext): BasePathStrategy` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, _currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolvePathForLocale` | `(path: string, targetLocale: string) => string` |
@@ -101,7 +102,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 <details>
-<summary><code>NoPrefixPathStrategy</code> — 35 members</summary>
+<summary><code>NoPrefixPathStrategy</code> — 36 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -134,6 +135,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getStrategy` | `() => PathStrategyContext["strategy"]` |
 | `getSwitchLocaleFallbackWhenNoRoute` | `(route: ResolvedRouteLike, _targetName: string) => RouteLike \| string` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
+| `new` | `(ctx: PathStrategyContext): NoPrefixPathStrategy` |
 | `resolveLocaleFromPath` | `(_path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolvePathForLocale` | `(path: string, targetLocale: string) => string` |
@@ -194,7 +196,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 <details>
-<summary><code>PrefixAndDefaultPathStrategy</code> — 36 members</summary>
+<summary><code>PrefixAndDefaultPathStrategy</code> — 37 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -227,6 +229,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getStrategy` | `() => PathStrategyContext["strategy"]` |
 | `getSwitchLocaleFallbackWhenNoRoute` | `(route: ResolvedRouteLike, targetName: string) => RouteLike \| string` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
+| `new` | `(ctx: PathStrategyContext): PrefixAndDefaultPathStrategy` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolvePathForLocale` | `(path: string, targetLocale: string) => string` |
@@ -237,7 +240,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 <details>
-<summary><code>PrefixExceptDefaultPathStrategy</code> — 43 members</summary>
+<summary><code>PrefixExceptDefaultPathStrategy</code> — 44 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -274,6 +277,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getSwitchLocaleFallbackWhenNoRoute` | `(route: ResolvedRouteLike, targetName: string) => RouteLike \| string` |
 | `isLocaleRules` | `private (key: string) => boolean` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
+| `new` | `(ctx: PathStrategyContext): PrefixExceptDefaultPathStrategy` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolveLocaleRouteFallback` | `private (targetLocale: string, resolved: ResolvedRouteLike, sourceRoute: RouteLike, needsPrefix: boolean, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
@@ -287,7 +291,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 
 </details>
 <details>
-<summary><code>PrefixPathStrategy</code> — 35 members</summary>
+<summary><code>PrefixPathStrategy</code> — 36 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -320,6 +324,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getStrategy` | `() => PathStrategyContext["strategy"]` |
 | `getSwitchLocaleFallbackWhenNoRoute` | `(route: ResolvedRouteLike, targetName: string) => RouteLike \| string` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
+| `new` | `(ctx: PathStrategyContext): PrefixPathStrategy` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolvePathForLocale` | `(path: string, targetLocale: string) => string` |
@@ -389,11 +394,11 @@ import { /* … */ } from '@i18n-micro/path-strategy/no-prefix'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `NoPrefixPathStrategy` | class | 35 members |
-| `Strategy` | class | 35 members |
+| `NoPrefixPathStrategy` | class | 36 members |
+| `Strategy` | class | 36 members |
 
-<code>NoPrefixPathStrategy</code> — 35 members, documented above.
-<code>Strategy</code> — 35 members, identical to [`NoPrefixPathStrategy`](#noprefixpathstrategy).
+<code>NoPrefixPathStrategy</code> — 36 members, identical to `NoPrefixPathStrategy` above.
+<code>Strategy</code> — 36 members, identical to `NoPrefixPathStrategy` above.
 ## `@i18n-micro/path-strategy/prefix`
 
 ```ts
@@ -402,11 +407,11 @@ import { /* … */ } from '@i18n-micro/path-strategy/prefix'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `PrefixPathStrategy` | class | 35 members |
-| `Strategy` | class | 35 members |
+| `PrefixPathStrategy` | class | 36 members |
+| `Strategy` | class | 36 members |
 
-<code>PrefixPathStrategy</code> — 35 members, documented above.
-<code>Strategy</code> — 35 members, identical to [`PrefixPathStrategy`](#prefixpathstrategy).
+<code>PrefixPathStrategy</code> — 36 members, identical to `PrefixPathStrategy` above.
+<code>Strategy</code> — 36 members, identical to `PrefixPathStrategy` above.
 ## `@i18n-micro/path-strategy/prefix-and-default`
 
 ```ts
@@ -415,11 +420,11 @@ import { /* … */ } from '@i18n-micro/path-strategy/prefix-and-default'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `PrefixAndDefaultPathStrategy` | class | 36 members |
-| `Strategy` | class | 36 members |
+| `PrefixAndDefaultPathStrategy` | class | 37 members |
+| `Strategy` | class | 37 members |
 
-<code>PrefixAndDefaultPathStrategy</code> — 36 members, documented above.
-<code>Strategy</code> — 36 members, identical to [`PrefixAndDefaultPathStrategy`](#prefixanddefaultpathstrategy).
+<code>PrefixAndDefaultPathStrategy</code> — 37 members, identical to `PrefixAndDefaultPathStrategy` above.
+<code>Strategy</code> — 37 members, identical to `PrefixAndDefaultPathStrategy` above.
 ## `@i18n-micro/path-strategy/prefix-except-default`
 
 ```ts
@@ -428,11 +433,11 @@ import { /* … */ } from '@i18n-micro/path-strategy/prefix-except-default'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `PrefixExceptDefaultPathStrategy` | class | 43 members |
-| `Strategy` | class | 43 members |
+| `PrefixExceptDefaultPathStrategy` | class | 44 members |
+| `Strategy` | class | 44 members |
 
-<code>PrefixExceptDefaultPathStrategy</code> — 43 members, documented above.
-<code>Strategy</code> — 43 members, identical to [`PrefixExceptDefaultPathStrategy`](#prefixexceptdefaultpathstrategy).
+<code>PrefixExceptDefaultPathStrategy</code> — 44 members, identical to `PrefixExceptDefaultPathStrategy` above.
+<code>Strategy</code> — 44 members, identical to `PrefixExceptDefaultPathStrategy` above.
 ## `@i18n-micro/path-strategy/types`
 
 ```ts
@@ -450,11 +455,11 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | `RouterAdapter` | interface | 3 members |
 | `SwitchLocaleOptions` | interface | 1 members |
 
-<code>PathStrategy</code> — 22 members, documented above.
-<code>PathStrategyContext</code> — 15 members, documented above.
-<code>ResolvedRouteLike</code> — 6 members, documented above.
-<code>RouteLike</code> — 6 members, documented above.
-<code>RouterAdapter</code> — 3 members, documented above.
-<code>SwitchLocaleOptions</code> — 1 members, documented above.
+<code>PathStrategy</code> — 22 members, identical to `PathStrategy` above.
+<code>PathStrategyContext</code> — 15 members, identical to `PathStrategyContext` above.
+<code>ResolvedRouteLike</code> — 6 members, identical to `ResolvedRouteLike` above.
+<code>RouteLike</code> — 6 members, identical to `RouteLike` above.
+<code>RouterAdapter</code> — 3 members, identical to `RouterAdapter` above.
+<code>SwitchLocaleOptions</code> — 1 members, identical to `SwitchLocaleOptions` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

@@ -23,9 +23,11 @@ export default withFolderTree(
             domain: new URL(SITE.url).origin,
             title: 'Nuxt I18n Micro',
             description: SITE.defaultDescription,
-            // The reference pages render from generated data at build time; their sources
-            // are Vue components, which carry no prose worth feeding to a model.
-            ignoreFiles: ['**/index.md'],
+            // Only the landing page: it is a marketing hero with no prose an assistant
+            // could answer from. Every section index carries real documentation — the
+            // news entries, the integration overview, the API overview — and excluding
+            // them cost the bundle several hundred lines of exactly the content it is for.
+            ignoreFiles: ['index.md'],
           }),
         ],
         build: {

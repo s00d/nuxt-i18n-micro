@@ -9,7 +9,9 @@
  * runtime sources that import Nuxt's virtual `#imports`, which type checking resolves and
  * a standalone TypeDoc run does not. `skipErrorChecking` is what makes that survivable.
  */
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import ts from 'typescript'
 import {
   Application,
   type Comment,
@@ -73,9 +75,17 @@ function typeText(reflection: { type?: { toString(): string } } | undefined): st
   return reflection?.type ? flat(String(reflection.type)) : 'unknown'
 }
 
+/**
+ * TypeScript's internal name for a destructured parameter. Showing it to a reader as
+ * `useLocaleHead(__namedParameters: UseLocaleHeadOptions)` explains nothing.
+ */
+const DESTRUCTURED = /^__(?:namedParameters|object)\d*$/
+
+const parameterName = (name: string): string => (DESTRUCTURED.test(name) ? 'options' : name)
+
 function signatureText(name: string, signature: SignatureReflection): string {
   const parameters = (signature.parameters ?? [])
-    .map((parameter) => `${parameter.name}${parameter.flags.isOptional ? '?' : ''}: ${typeText(parameter)}`)
+    .map((parameter) => `${parameterName(parameter.name)}${parameter.flags.isOptional ? '?' : ''}: ${typeText(parameter)}`)
     .join(', ')
   return `${name}(${parameters}): ${typeText(signature)}`
 }
@@ -88,7 +98,7 @@ function fromSignature(name: string, kind: string, signature: SignatureReflectio
     signature: signatureText(name, signature),
     description: summaryOf(comment, true),
     params: (signature.parameters ?? []).map((parameter) => ({
-      name: parameter.name,
+      name: parameterName(parameter.name),
       type: typeText(parameter),
       description: summaryOf(parameter.comment),
       optional: parameter.flags.isOptional,
@@ -152,6 +162,29 @@ export async function readModules(directory: string): Promise<DocModule[]> {
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 
+/**
+ * Types exactly as written in the source, keyed by member name.
+ *
+ * TypeDoc normalises what it reports and, without `strictNullChecks` reaching its program
+ * — which it does not from a `tsconfig` passed this way — renders `string | null` as
+ * `string`. The written text is both more faithful and what a reader recognises.
+ */
+function writtenMemberTypes(file: string, interfaceName: string): Map<string, string> {
+  const source = ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.ESNext, true)
+  const written = new Map<string, string>()
+
+  source.forEachChild((node) => {
+    if (!ts.isInterfaceDeclaration(node) || node.name.text !== interfaceName) return
+    for (const member of node.members) {
+      if (!ts.isPropertySignature(member) || !member.name || !member.type) continue
+      const name = ts.isIdentifier(member.name) || ts.isStringLiteral(member.name) ? member.name.text : null
+      if (name) written.set(name, flat(member.type.getText(source)))
+    }
+  })
+
+  return written
+}
+
 /** Members of one interface — used for the helpers injected into every component. */
 export async function readInterface(file: string, interfaceName: string): Promise<DocSymbol[]> {
   const project = await convert([join(repoRoot, file)], false)
@@ -165,9 +198,18 @@ export async function readInterface(file: string, interfaceName: string): Promis
     return null
   }
 
+  const written = writtenMemberTypes(join(repoRoot, file), interfaceName)
+
   for (const child of project.children ?? []) {
     const found = search(child)
-    if (found) return (found.children ?? []).flatMap(fromDeclaration)
+    if (found) {
+      const symbols = (found.children ?? []).flatMap(fromDeclaration)
+      for (const symbol of symbols) {
+        const source = written.get(symbol.name)
+        if (source) symbol.signature = source
+      }
+      return symbols
+    }
   }
   return []
 }

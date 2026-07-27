@@ -33,12 +33,12 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `normalizePath` | const | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
 | `removeLeadingSlash` | const | `(routePath: string) => string` |
-| `RouteGenerator` | class | 22 members |
+| `RouteGenerator` | class | 23 members |
 | `RouteGeneratorOptions` | interface | 11 members |
 | `shouldAddLocalePrefix` | const | `(locale: string, defaultLocale: Locale, addLocalePrefix: boolean) => boolean` |
 
 <details>
-<summary><code>RouteGenerator</code> — 22 members</summary>
+<summary><code>RouteGenerator</code> — 23 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -59,6 +59,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `locales` | `Locale[]` |
 | `localizedPaths` | `LocalizedPathsMap` |
 | `localizedRouteNamePrefix` | `string` |
+| `new` | `(options: RouteGeneratorOptions): RouteGenerator` |
 | `noPrefixRedirect` | `boolean` |
 | `rawGlobalLocaleRoutes` | `GlobalLocaleRoutes` |
 | `resolveLocalizedPath` | `(originalPath: string, localeCode: string) => string` |

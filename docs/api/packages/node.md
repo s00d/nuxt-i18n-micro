@@ -20,23 +20,23 @@ import { /* … */ } from '@i18n-micro/node'
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
-| `FormatService` | class | 18 members |
+| `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 44 members |
+| `I18n` | class | 45 members |
 | `I18nOptions` | interface | 7 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
 | `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
-| `Locale` | interface | 10 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `Translations` | interface | — |
+| `Translations` | interface | 1 members |
 
-<code>FormatService</code> — 18 members, identical to [`FormatService`](/api/packages/astro).
+<code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
 <details>
-<summary><code>I18n</code> — 44 members</summary>
+<summary><code>I18n</code> — 45 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -63,6 +63,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `locale` | `string` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
+| `new` | `(options: I18nOptions): I18n` |
 | `pluralFunc` | `PluralFunc` |
 | `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `reload` | `() => Promise<void>` |
@@ -101,6 +102,7 @@ import { /* … */ } from '@i18n-micro/node'
 
 </details>
 <code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
-<code>Locale</code> — 10 members, identical to [`Locale`](/api/packages/types).
+<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+<code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

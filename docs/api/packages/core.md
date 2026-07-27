@@ -18,12 +18,12 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 32 members |
+| `BaseI18n` | class | 33 members |
 | `BaseI18nOptions` | interface | 7 members |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
 | `defaultPlural` | const | `PluralFunc` |
-| `FormatService` | class | 18 members |
+| `FormatService` | class | 19 members |
 | `FormatServiceOptions` | interface | 2 members |
 | `getByPath` | function | `(obj: Record<string, unknown> \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Record<string, unknown> \| null \| undefined, key: string) => boolean` |
@@ -43,7 +43,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 32 members</summary>
+<summary><code>BaseI18n</code> — 33 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -61,6 +61,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
+| `new` | `(options?: BaseI18nOptions): BaseI18n` |
 | `pluralFunc` | `PluralFunc` |
 | `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `resolveDateTimeFormatArgs` | `private (keyOrOptions?: string \| Intl.DateTimeFormatOptions, localeOrOverrides?: string \| Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions \| undefined; }` |
@@ -96,7 +97,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 </details>
 <details>
-<summary><code>FormatService</code> — 18 members</summary>
+<summary><code>FormatService</code> — 19 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -111,6 +112,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `getNumberFormats` | `() => NumberFormatsConfig` |
 | `getNumberFormatter` | `(locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat` |
 | `getRelativeTimeFormatter` | `(locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat` |
+| `new` | `(options?: FormatServiceOptions): FormatService` |
 | `numberCache` | `private Map<string, Intl.NumberFormat>` |
 | `numberFormats` | `private NumberFormatsConfig` |
 | `relativeCache` | `private Map<string, Intl.RelativeTimeFormat>` |
@@ -183,6 +185,6 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
-<code>MergeTranslationChunkOptions</code> — 1 members, documented above.
+<code>MergeTranslationChunkOptions</code> — 1 members, identical to `MergeTranslationChunkOptions` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

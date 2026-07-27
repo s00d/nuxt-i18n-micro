@@ -5,14 +5,12 @@ description: 'Centralized locale state, cookies, and sync.'
 
 # useI18nLocale
 
-Centralized composable for i18n locale management. Combines `useState('i18n-locale')`, locale cookies, and sync utilities.
-
 ## Signature
 
 <!-- generated:symbol:useI18nLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string; getLocaleWithServerFallback: (serverLocale?: string) => string; getPreferredLocale: () => string; hashCookie: any; isValidLocale: (locale: string) => locale is string; locale: any; localeCookie: any; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string) => void; syncLocale: (locale: string) => void; validLocales: string[] }
+useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string | null; getLocaleWithServerFallback: (serverLocale?: string | null) => string | null; getPreferredLocale: () => string | null; hashCookie: any; isValidLocale: (locale: string | null | undefined) => locale is string; locale: any; localeCookie: any; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string | null) => void; syncLocale: (locale: string | null) => void; validLocales: string[] }
 ```
 
 Centralized entry point for i18n locale management.

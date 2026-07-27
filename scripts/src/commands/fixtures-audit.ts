@@ -2,6 +2,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineCommand } from 'citty'
 import { walkFiles } from '../utils/fs-walk'
+import { tryRun } from '../utils/git-baseline'
 import { repoRoot } from '../utils/workspace'
 
 /**
@@ -23,13 +24,22 @@ const VITEST_CONFIGS = [
 export interface FixtureEntry {
   name: string
   references: number
+  /** Build output present on this machine — usually just a local build. */
   staleDirs: string[]
+  /** The subset of those that is committed, which is a defect in the repository. */
+  committedDirs: string[]
 }
 
 export interface FixturesAuditReport {
   fixtures: FixtureEntry[]
   unreferenced: string[]
   withStaleDirs: string[]
+  withCommittedDirs: string[]
+}
+
+/** Is anything under `path` committed? A local build is not a repository defect. */
+function isTracked(path: string): boolean {
+  return Boolean(tryRun('git', ['ls-files', '--', path]))
 }
 
 /**
@@ -79,12 +89,12 @@ export const fixturesAuditCommand = defineCommand({
       'Examples:',
       '  pnpm -C scripts cli fixtures-audit',
       '  pnpm -C scripts cli fixtures-audit --json',
-      '  pnpm -C scripts cli fixtures-audit --strict   # exit 1 on any finding',
+      '  pnpm -C scripts cli fixtures-audit --strict   # exit 1 on committed build output',
     ].join('\n'),
   },
   args: {
     dir: { type: 'string', default: 'test/fixtures', description: 'Fixtures directory' },
-    strict: { type: 'boolean', default: false, description: 'Exit non-zero when anything is reported' },
+    strict: { type: 'boolean', default: false, description: 'Exit non-zero when build output is committed inside a fixture' },
     json: { type: 'boolean', default: false, description: 'Print machine-readable output' },
   },
   setup({ args }) {
@@ -117,12 +127,14 @@ export const fixturesAuditCommand = defineCommand({
         const path = join(fixturesDir, name, dir)
         return existsSync(path) && statSync(path).isDirectory()
       }),
+      committedDirs: STALE_DIRS.filter((dir) => isTracked(`${args.dir}/${name}/${dir}`)),
     }))
 
     const report: FixturesAuditReport = {
       fixtures,
       unreferenced: fixtures.filter((f) => f.references === 0).map((f) => f.name),
       withStaleDirs: fixtures.filter((f) => f.staleDirs.length > 0).map((f) => f.name),
+      withCommittedDirs: fixtures.filter((f) => f.committedDirs.length > 0).map((f) => f.name),
     }
 
     if (args.json) {
@@ -138,14 +150,18 @@ export const fixturesAuditCommand = defineCommand({
       }
 
       if (report.withStaleDirs.length > 0) {
-        console.log(`\nBuild leftovers inside fixtures (run \`pnpm run clean:test\`):`)
+        console.log(`\nBuild output inside fixtures (\`pnpm run clean:test\` removes most; \`.output\` by hand):`)
         for (const entry of fixtures.filter((f) => f.staleDirs.length > 0)) {
-          console.log(`  ! ${entry.name} — ${entry.staleDirs.join(', ')}`)
+          const committed = entry.committedDirs.length > 0 ? ` — committed: ${entry.committedDirs.join(', ')}` : ''
+          console.log(`  ! ${entry.name} — ${entry.staleDirs.join(', ')}${committed}`)
         }
       }
       console.log()
     }
 
-    if (args.strict && (report.unreferenced.length > 0 || report.withStaleDirs.length > 0)) process.exit(1)
+    // Only committed build output fails: a local `.nuxt` is gitignored and expected after
+    // running the suites, and an unreferenced fixture is a candidate to check by hand —
+    // a name can be composed at runtime, which is why this command never deletes either.
+    if (args.strict && report.withCommittedDirs.length > 0) process.exit(1)
   },
 })

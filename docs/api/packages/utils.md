@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-89 exports across 21 entry points.
+90 exports across 21 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -73,11 +73,12 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `CacheControl` | class | 12 members |
+| `CacheControl` | unknown | 13 members |
+| `CacheControl<T>` | class | — |
 | `CacheControlOptions` | interface | 2 members |
 
 <details>
-<summary><code>CacheControl</code> — 12 members</summary>
+<summary><code>CacheControl</code> — 13 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -90,6 +91,7 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 | `has` | `(key: string) => boolean` |
 | `keys` | `() => IterableIterator<string>` |
 | `maxSize` | `private number` |
+| `new` | `<T>(options?: CacheControlOptions \| undefined): CacheControl<T>` |
 | `set` | `(key: string, value: T) => void` |
 | `size` | `number` |
 | `ttlMs` | `private number` |
@@ -195,7 +197,7 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 | `readLocaleFile` | `(relativePath: string) => Record<string, unknown> \| Promise<Record<string, unknown>>` |
 
 </details>
-<code>SourceLocaleInfo</code> — 2 members, identical to [`PreMergeLocaleInfo`](#premergelocaleinfo).
+<code>SourceLocaleInfo</code> — 2 members, identical to `PreMergeLocaleInfo` above.
 ## `@i18n-micro/utils/normalize`
 
 ```ts
@@ -221,7 +223,7 @@ import { /* … */ } from '@i18n-micro/utils/parse-path'
 | `ParsedTranslationRelativePath` | type | `{ type: 'page'; pageName: string; locale: string } \| { type: 'root'; locale: string } \| { type: 'ignore' }` |
 | `parseTranslationRelativePath` | function | `(relativePath: string) => ParsedTranslationRelativePath` |
 | `storeLoadedTranslationFile` | function | `<T extends Record<string, unknown>>(buckets: TranslationFileBuckets<T>, relativePath: string, translations: T, disablePageLocales?: boolean) => void` |
-| `TranslationFileBuckets` | interface | 2 members |
+| `TranslationFileBuckets` | unknown | 2 members |
 
 <details>
 <summary><code>TranslationFileBuckets</code> — 2 members</summary>

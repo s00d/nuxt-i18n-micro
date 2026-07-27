@@ -4,7 +4,8 @@ import { fileImports, stripComments } from '../src/utils/imports'
 describe('stripComments', () => {
   it('removes line and block comments', () => {
     expect(stripComments('a // b\nc')).toBe('a \nc')
-    expect(stripComments('a /* b\nc */ d')).toBe('a  d')
+    // A block comment leaves one space so `import/* x */'p'` keeps its token boundary.
+    expect(stripComments('a /* b\nc */ d')).toBe('a   d')
   })
 
   it('keeps quoted strings, including ones that look like comments', () => {
@@ -51,6 +52,21 @@ describe('fileImports', () => {
     const found = fileImports(`import type { A } from 'alpha'\nimport { run } from 'alpha'`)
     expect(found.value).toEqual(['alpha'])
     expect(found.typeOnly).toEqual([])
+  })
+
+  it('keeps a side-effect import whose specifier is separated by a comment', () => {
+    // Removing the comment outright glued `import` to `'alpha'` and lost the match.
+    expect(fileImports("import/* why */'alpha'").value).toEqual(['alpha'])
+  })
+
+  it('does not treat an interpolated string as code', () => {
+    // The interpolation is rescanned as source, so a string inside it must stay a string.
+    expect(fileImports("const s = `${'import \"ghost\"'}`").value).toEqual([])
+  })
+
+  it('survives a lone brace inside an interpolated string', () => {
+    // A naive brace count closes the interpolation early and hides everything after it.
+    expect(fileImports("const s = `${x['}']}`; import 'alpha'").value).toEqual(['alpha'])
   })
 
   it('ignores prose in a comment that reads like an import', () => {

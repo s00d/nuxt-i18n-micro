@@ -38,7 +38,11 @@ interface NpmViewError {
 }
 
 function isNpmError(value: NpmViewVersions): value is NpmViewError {
-  return typeof value === 'object' && value !== null && !Array.isArray(value) && 'error' in value
+  // `error` may be a string, or null — reading `.code` off either would throw before the
+  // gate could report anything, which is the one outcome a release gate must not have.
+  if (typeof value !== 'object' || value === null || Array.isArray(value) || !('error' in value)) return false
+  const error = (value as { error: unknown }).error
+  return typeof error === 'object' && error !== null
 }
 
 /**

@@ -39,7 +39,10 @@ export function walkFiles(root: string, options: WalkOptions = {}): string[] {
         continue
       }
       if (options.extensions && !options.extensions.some((ext) => entry.name.endsWith(ext))) continue
-      found.push(relative(root, full))
+      // Always POSIX separators: every consumer compares these against `/`-joined paths,
+      // and on Windows the native form silently fails those comparisons — locale files
+      // get counted as client assets, fixture names parse wrong.
+      found.push(relative(root, full).split(sep).join('/'))
     }
   }
 

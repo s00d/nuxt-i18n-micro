@@ -31,7 +31,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `LocaleData` | type | `Record<string, TranslationContent>` |
 | `register` | function | `() => void` |
 | `setupRpcHost` | function | `(iframeWindow: Window, bridge: I18nDevToolsBridge) => () => void` |
-| `TranslationContent` | interface | — |
+| `TranslationContent` | interface | 1 members |
 | `TreeNode` | interface | 4 members |
 
 <details>
@@ -102,6 +102,14 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 
 </details>
 <details>
+<summary><code>TranslationContent</code> — 1 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `[string]` | `JSONValue` |
+
+</details>
+<details>
 <summary><code>TreeNode</code> — 4 members</summary>
 
 | Member | Type |
@@ -124,9 +132,10 @@ import { /* … */ } from '@i18n-micro/devtools-ui/bridge'
 | `I18nDevToolsBridge` | interface | 4 members |
 | `JSONValue` | type | `string \| null \| number \| boolean \| { [key: string]: JSONValue }` |
 | `LocaleData` | type | `Record<string, TranslationContent>` |
-| `TranslationContent` | interface | — |
+| `TranslationContent` | interface | 1 members |
 
-<code>I18nDevToolsBridge</code> — 4 members, documented above.
+<code>I18nDevToolsBridge</code> — 4 members, identical to `I18nDevToolsBridge` above.
+<code>TranslationContent</code> — 1 members, identical to `TranslationContent` above.
 ## `@i18n-micro/devtools-ui/bridge/create`
 
 ```ts
@@ -139,8 +148,8 @@ import { /* … */ } from '@i18n-micro/devtools-ui/bridge/create'
 | `createBridge` | function | `(options: CreateBridgeOptions) => I18nDevToolsBridge` |
 | `CreateBridgeOptions` | interface | 4 members |
 
-<code>BridgeAdapter</code> — 6 members, documented above.
-<code>CreateBridgeOptions</code> — 4 members, documented above.
+<code>BridgeAdapter</code> — 6 members, identical to `BridgeAdapter` above.
+<code>CreateBridgeOptions</code> — 4 members, identical to `CreateBridgeOptions` above.
 ## `@i18n-micro/devtools-ui/vite`
 
 ```ts

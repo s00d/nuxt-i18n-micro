@@ -32,6 +32,7 @@ member BaseI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string
 member BaseI18n.warnDev: protected (message: string) => void
 member BaseI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member BaseI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member BaseI18n.new: (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member BaseI18nOptions.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -62,6 +63,7 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.new: (options?: FormatServiceOptions): FormatService
 interface FormatServiceOptions
 member FormatServiceOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member FormatServiceOptions.numberFormats?: NumberFormatsConfig | undefined

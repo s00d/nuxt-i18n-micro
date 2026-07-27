@@ -17,32 +17,32 @@ list cannot drift from what is actually available.
 
 | Helper | Signature | Purpose |
 | --- | --- | --- |
-| [`$_t`](#_t) | `(route: RouteLocationNormalizedLoadedGeneric) => (key: string, params?: Params, defaultValue?: string) => CleanTranslation` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example |
-| [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoadedGeneric) => (key: string, params?: Params, defaultValue?: string) => string` | Bind `$ts` to a specific route |
-| [`$defaultLocale`](#defaultlocale) | `() => string` | Code of the configured default locale |
-| [`$getI18nConfig`](#geti18nconfig) | `() => ModuleOptionsExtend` | The resolved module configuration, as the runtime sees it |
-| [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoadedGeneric \| RouteLocationResolvedGeneric) => string` | Code of the active locale |
-| [`$getLocaleName`](#getlocalename) | `() => string` | The active locale's `displayName` from the config, or `null` when it has none |
-| [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata |
-| [`$getRouteName`](#getroutename) | `(route?: RouteLocationResolvedGeneric \| RouteLocationNamedRaw, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by |
-| [`$has`](#has) | `(key: string) => boolean` | Whether a key resolves in the active locale |
-| [`$i18nStrategy`](#i18nstrategy) | `PathStrategy` | The active routing strategy, resolving locales to and from paths |
-| [`$loadPageTranslations`](#loadpagetranslations) | `(locale: string, routeName: string, translations: Translations) => Promise<void>` | Load translations for a page at runtime, for content whose keys are not known at build time |
-| [`$localePath`](#localepath) | `(to: string \| RouteLocationResolvedGeneric \| RouteLocationNamedRaw, locale?: string) => string` | Resolve a path in the given locale, or the active one |
-| [`$localeRoute`](#localeroute) | `(to: string \| RouteLocationResolvedGeneric \| RouteLocationNamedRaw, locale?: string) => RouteLocationResolvedGeneric` | Resolve a route in the given locale, or the active one |
-| [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded |
-| [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language |
-| [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler) => void` | Install a callback invoked for every unresolved key |
-| [`$switchLocale`](#switchlocale) | `(locale: string) => void` | Navigate to the current page in another locale |
-| [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating |
-| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => string \| RouteLocationAsRelativeGeneric \| RouteLocationAsPathGeneric` | The route object for the current page in another locale, without navigating |
-| [`$switchRoute`](#switchroute) | `(route: string \| RouteLocationResolvedGeneric \| RouteLocationNamedRaw, toLocale?: string) => void` | Navigate to another route, keeping the active locale or switching to `toLocale` |
-| [`$t`](#t) | `(key: string, params?: Params, defaultValue?: string) => CleanTranslation` | Translate a key, interpolating `params` into it |
-| [`$tc`](#tc) | `(key: string, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization |
-| [`$td`](#td) | `{ (value: string \| number \| Date, options?: DateTimeFormatOptions): string; (value: string \| number \| Date, key: string, overrides?: DateTimeFormatOptions): string; (value: string \| number \| Date, key: string, locale: string, overrides?: DateTimeFormatOptions): string }` | Format a date with `Intl.DateTimeFormat` in the active locale |
-| [`$tdr`](#tdr) | `(value: string \| number \| Date, options?: RelativeTimeFormatOptions) => string` | Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat` |
-| [`$tn`](#tn) | `{ (value: number, options?: NumberFormatOptions): string; (value: number, key: string, overrides?: NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: NumberFormatOptions): string }` | Format a number with `Intl.NumberFormat` in the active locale |
-| [`$ts`](#ts) | `(key: string, params?: Params, defaultValue?: string) => string` | Like `$t`, but always returns a string: an object or array value is stringified rather than returned as-is |
+| `$_t` | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => CleanTranslation` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example. |
+| `$_ts` | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => string` | Bind `$ts` to a specific route. |
+| [`$defaultLocale`](#defaultlocale) | `() => string \| undefined` | Code of the configured default locale. |
+| [`$getI18nConfig`](#geti18nconfig) | `() => ModuleOptionsExtend` | The resolved module configuration, as the runtime sees it. |
+| [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric) => string` | Code of the active locale. |
+| [`$getLocaleName`](#getlocalename) | `() => string \| null` | The active locale's `displayName` from the config, or `null` when it has none. |
+| [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata. |
+| [`$getRouteName`](#getroutename) | `(route?: RouteLocationNamedRaw \| RouteLocationResolvedGeneric, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by. |
+| [`$has`](#has) | `(key: string) => boolean` | Whether a key resolves in the active locale. |
+| `$i18nStrategy` | `PathStrategy` | The active routing strategy, resolving locales to and from paths. |
+| [`$loadPageTranslations`](#loadpagetranslations) | `(locale: string, routeName: string, translations: Translations) => Promise<void>` | Load translations for a page at runtime, for content whose keys are not known at build time. |
+| [`$localePath`](#localepath) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => string` | Resolve a path in the given locale, or the active one. |
+| [`$localeRoute`](#localeroute) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => RouteLocationResolved` | Resolve a route in the given locale, or the active one. |
+| [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
+| [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
+| [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
+| [`$switchLocale`](#switchlocale) | `(locale: string) => void` | Navigate to the current page in another locale. |
+| [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
+| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
+| [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => void` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
+| [`$t`](#t) | `(key: string, params?: Params, defaultValue?: string \| null) => CleanTranslation` | Translate a key, interpolating `params` into it. |
+| [`$tc`](#tc) | `(key: string, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
+| [`$td`](#td) | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }` | Format a date with `Intl.DateTimeFormat` in the active locale. |
+| [`$tdr`](#tdr) | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` | Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`. |
+| [`$tn`](#tn) | `{ (value: number, options?: Intl.NumberFormatOptions): string (value: number, key: string, overrides?: Intl.NumberFormatOptions): string (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string }` | Format a number with `Intl.NumberFormat` in the active locale. |
+| [`$ts`](#ts) | `(key: string, params?: Params, defaultValue?: string) => string` | Like `$t`, but always returns a string: an object or array value is stringified rather than returned as-is. |
 
 <!-- /generated:methods-index -->
 
@@ -85,7 +85,7 @@ Methods for getting and managing locale information.
 <!-- generated:method:$getLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(route?: RouteLocationNormalizedLoadedGeneric | RouteLocationResolvedGeneric) => string
+(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => string
 ```
 
 Code of the active locale. Pass a route to read the locale that route belongs to.
@@ -102,7 +102,7 @@ const locale = $getLocale()
 <!-- generated:method:$getLocaleName — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-() => string
+() => string | null
 ```
 
 The active locale's `displayName` from the config, or `null` when it has none.
@@ -136,7 +136,7 @@ const locales = $getLocales()
 <!-- generated:method:$defaultLocale — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-() => string
+() => string | undefined
 ```
 
 Code of the configured default locale.
@@ -157,7 +157,7 @@ Core methods for retrieving and managing translations.
 <!-- generated:method:$t — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(key: string, params?: Params, defaultValue?: string) => CleanTranslation
+(key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
 ```
 
 Translate a key, interpolating `params` into it. Returns `defaultValue` when the key is
@@ -289,7 +289,7 @@ $mergeTranslations({
 <!-- generated:method:$setMissingHandler — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(handler: MissingHandler) => void
+(handler: MissingHandler | null) => void
 ```
 
 Install a callback invoked for every unresolved key. Pass `null` to remove it.
@@ -329,7 +329,7 @@ Methods for formatting numbers and dates according to locale conventions.
 <!-- generated:method:$tn — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-{ (value: number, options?: NumberFormatOptions): string; (value: number, key: string, overrides?: NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: NumberFormatOptions): string }
+{ (value: number, options?: Intl.NumberFormatOptions): string (value: number, key: string, overrides?: Intl.NumberFormatOptions): string (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string }
 ```
 
 Format a number with `Intl.NumberFormat` in the active locale. A key selects a named format
@@ -378,7 +378,7 @@ export default defineNuxtConfig({
 <!-- generated:method:$td — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-{ (value: string | number | Date, options?: DateTimeFormatOptions): string; (value: string | number | Date, key: string, overrides?: DateTimeFormatOptions): string; (value: string | number | Date, key: string, locale: string, overrides?: DateTimeFormatOptions): string }
+{ (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }
 ```
 
 Format a date with `Intl.DateTimeFormat` in the active locale. A key selects a named format
@@ -421,7 +421,7 @@ export default defineNuxtConfig({
 <!-- generated:method:$tdr — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(value: string | number | Date, options?: RelativeTimeFormatOptions) => string
+(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 ```
 
 Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`.
@@ -464,7 +464,7 @@ See [FAQ — switch locale without changing the URL](/guide/faq#-switch-locale-w
 <!-- generated:method:$switchLocaleRoute — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(locale: string) => string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric
+(locale: string) => RouteLocationRaw
 ```
 
 The route object for the current page in another locale, without navigating.
@@ -501,7 +501,7 @@ window.location.href = routeFr
 <!-- generated:method:$switchRoute — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(route: string | RouteLocationResolvedGeneric | RouteLocationNamedRaw, toLocale?: string) => void
+(route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
 ```
 
 Navigate to another route, keeping the active locale or switching to `toLocale`.
@@ -543,7 +543,7 @@ Methods for generating localized routes and paths.
 <!-- generated:method:$localeRoute — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(to: string | RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale?: string) => RouteLocationResolvedGeneric
+(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
 ```
 
 Resolve a route in the given locale, or the active one.
@@ -560,7 +560,7 @@ const localizedRoute = $localeRoute({ name: 'index' })
 <!-- generated:method:$localePath — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(to: string | RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale?: string) => string
+(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
 ```
 
 Resolve a path in the given locale, or the active one.
@@ -581,7 +581,7 @@ Methods for getting route information and names.
 <!-- generated:method:$getRouteName — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(route?: RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale?: string) => string
+(route?: RouteLocationNamedRaw | RouteLocationResolvedGeneric, locale?: string) => string
 ```
 
 Route name with the locale prefix stripped — the name translations are keyed by.

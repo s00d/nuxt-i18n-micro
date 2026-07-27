@@ -88,7 +88,9 @@ function entriesForSymbol(name: string, symbol: ts.Symbol, checker: ts.TypeCheck
       declaration && ts.isTypeAliasDeclaration(declaration)
         ? flat(declaration.type.getText())
         : flat(checker.typeToString(checker.getDeclaredTypeOfSymbol(symbol), undefined, FORMAT_FLAGS))
-    return [{ path: name, kind, signature: body }]
+    // Consumers write `ScopedKey<'errors'>`, so the parameter list is part of what they
+    // depend on — a snapshot without it cannot see a constraint change.
+    return [{ path: `${name}${typeParametersOf(symbol)}`, kind, signature: body }]
   }
 
   if (!STRUCTURAL_KINDS.has(kind)) {
@@ -112,7 +114,43 @@ function entriesForSymbol(name: string, symbol: ts.Symbol, checker: ts.TypeCheck
     })
     .sort((a, b) => a.path.localeCompare(b.path))
 
-  return [{ path: name, kind, signature: '' }, ...members]
+  return [{ path: `${name}${typeParametersOf(symbol)}`, kind, signature: '' }, ...members, ...callableMembers(name, symbol, checker)]
+}
+
+/** `<Scope extends string = string>` as written, or an empty string. */
+function typeParametersOf(symbol: ts.Symbol): string {
+  const declaration = symbol.declarations?.[0]
+  if (!declaration) return ''
+  const parameters = (declaration as { typeParameters?: ts.NodeArray<ts.TypeParameterDeclaration> }).typeParameters
+  return parameters && parameters.length > 0 ? `<${parameters.map((parameter) => flat(parameter.getText())).join(', ')}>` : ''
+}
+
+/**
+ * Signatures a property list does not carry: constructors, call signatures and index
+ * signatures.
+ *
+ * `new FormatService(options)` and `{ [key: string]: Translation }` are public contracts
+ * that `getPropertiesOfType` never returns, so a change to either was invisible.
+ */
+function callableMembers(name: string, symbol: ts.Symbol, checker: ts.TypeChecker): SurfaceEntry[] {
+  const entries: SurfaceEntry[] = []
+  const declared = checker.getDeclaredTypeOfSymbol(symbol)
+  const staticSide = symbol.valueDeclaration ? checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration) : null
+
+  for (const signature of staticSide?.getConstructSignatures() ?? declared.getConstructSignatures()) {
+    entries.push({ path: `${name}.new`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
+  }
+  for (const signature of declared.getCallSignatures()) {
+    entries.push({ path: `${name}.call`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
+  }
+  for (const [label, index] of [
+    ['string', declared.getStringIndexType()],
+    ['number', declared.getNumberIndexType()],
+  ] as const) {
+    if (index) entries.push({ path: `${name}.[${label}]`, kind: 'member', signature: flat(checker.typeToString(index, undefined, FORMAT_FLAGS)) })
+  }
+
+  return entries.sort((a, b) => a.path.localeCompare(b.path))
 }
 
 /** The first target a conditional export resolves to. */
@@ -192,6 +230,10 @@ export function readSurface(pkgDir: string, pkg: PackageManifest): EntryPointSur
       skipLibCheck: true,
       noEmit: true,
       strict: true,
+      // Without this every export from a `.tsx` file resolves to `unknown`, which is how
+      // the React, Preact and Solid component contracts were absent from their snapshots.
+      jsx: ts.JsxEmit.Preserve,
+      allowJs: true,
     },
   )
   const checker = program.getTypeChecker()

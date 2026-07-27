@@ -11,26 +11,103 @@ const SOURCE_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx', '.js', '.mjs', '.cjs',
 /**
  * Contents of a `${…}` starting at `start`, and the index just past its closing brace.
  *
- * Brace counting is enough: the caller re-processes the result, so a brace inside a
- * string within the interpolation is the only thing that could mislead it, and that
- * would have to be unbalanced to matter.
+ * Braces are counted lexically, skipping strings, comments, regexes and nested templates:
+ * a lone `}` inside a string (`` `${x['}']}` ``) would otherwise close the interpolation
+ * early and hide every import after it.
+ *
+ * The text is returned with ordinary string literals blanked, because the caller
+ * re-scans it as code — `${'import "ghost"'}` is a string, not an import.
  */
 function readInterpolation(source: string, start: number): { text: string; end: number } {
   let depth = 1
   let i = start
+  let out = ''
 
   while (i < source.length && depth > 0) {
+    const char = source[i]!
+    const next = source[i + 1]
+
+    if (char === '\\') {
+      out += source.slice(i, i + 2)
+      i += 2
+      continue
+    }
+
+    if (char === '/' && next === '/') {
+      while (i < source.length && source[i] !== '\n') i++
+      continue
+    }
+    if (char === '/' && next === '*') {
+      i += 2
+      while (i < source.length && !(source[i] === '*' && source[i + 1] === '/')) i++
+      i += 2
+      out += ' '
+      continue
+    }
+
+    if (char === '"' || char === "'") {
+      const quote = char
+      const from = i
+      i++
+      while (i < source.length) {
+        if (source[i] === '\\') {
+          i += 2
+          continue
+        }
+        if (source[i] === quote) {
+          i++
+          break
+        }
+        i++
+      }
+      // Kept only where an import specifier could be: after `from`, `import(` or
+      // `require(`. Anywhere else it is data, and rescanning it invented dependencies.
+      out += /(?:\bfrom|\bimport\s*\(|\brequire\s*\(|\bimport)\s*$/.test(out) ? source.slice(from, i) : '""'
+      continue
+    }
+
+    if (char === '`') {
+      const nested = readTemplate(source, i)
+      out += nested.text
+      i = nested.end
+      continue
+    }
+
+    if (char === '{') depth++
+    else if (char === '}') depth--
+
+    if (depth > 0 || char !== '}') out += char
+    i++
+  }
+
+  return { text: out, end: i }
+}
+
+/** A template literal starting at the backtick: its text dropped, its interpolations kept. */
+function readTemplate(source: string, start: number): { text: string; end: number } {
+  let i = start + 1
+  let out = '``'
+
+  while (i < source.length) {
     const char = source[i]!
     if (char === '\\') {
       i += 2
       continue
     }
-    if (char === '{') depth++
-    else if (char === '}') depth--
+    if (char === '`') {
+      i++
+      break
+    }
+    if (char === '$' && source[i + 1] === '{') {
+      const body = readInterpolation(source, i + 2)
+      out += body.text
+      i = body.end
+      continue
+    }
     i++
   }
 
-  return { text: source.slice(start, i - 1), end: i }
+  return { text: out, end: i }
 }
 
 /** Tokens after which a `/` starts a regex literal rather than division. */
@@ -67,6 +144,9 @@ export function stripComments(source: string): string {
       i += 2
       while (i < source.length && !(source[i] === '*' && source[i + 1] === '/')) i++
       i += 2
+      // A space, not nothing: `import/* x */'p'` must not become `import'p'` and lose the
+      // token boundary the patterns below rely on.
+      out += ' '
       continue
     }
 
@@ -96,30 +176,11 @@ export function stripComments(source: string): string {
     }
 
     if (char === '`') {
-      out += '``'
-      i++
-
-      // Literal text is dropped, interpolations are kept and processed the same way —
-      // a nested template inside one is generated text again, and `${await import(x)}`
-      // is a real dependency either way.
-      while (i < source.length) {
-        const inner = source[i]!
-        if (inner === '\\') {
-          i += 2
-          continue
-        }
-        if (inner === '`') {
-          i++
-          break
-        }
-        if (inner === '$' && source[i + 1] === '{') {
-          const body = readInterpolation(source, i + 2)
-          out += stripComments(body.text)
-          i = body.end
-          continue
-        }
-        i++
-      }
+      // Literal text is dropped, interpolations are kept — `${await import(x)}` is a real
+      // dependency, while the text around it is usually generated code.
+      const template = readTemplate(source, i)
+      out += template.text
+      i = template.end
       continue
     }
 

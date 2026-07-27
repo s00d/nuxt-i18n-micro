@@ -20,6 +20,7 @@ member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Int
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 class I18n
 member I18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
@@ -66,6 +67,7 @@ member I18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, ro
 member I18n.warnDev: protected (message: string) => void
 member I18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member I18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member I18n.new: (options: I18nOptions): I18n
 interface I18nOptions
 member I18nOptions.disablePageLocales?: boolean | undefined
 member I18nOptions.fallbackLocale?: string | undefined
@@ -91,7 +93,9 @@ member Locale.fallbackLocale?: string | undefined
 member Locale.iso?: string | undefined
 member Locale.og?: string | undefined
 member Locale.seo?: boolean | undefined
+member Locale.[string]: unknown
 type LocaleCode: string
 type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 interface Translations
+member Translations.[string]: unknown

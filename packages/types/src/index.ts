@@ -483,12 +483,12 @@ export interface ModuleOptions {
    * Translation fetches already use `dateBuild` cache-busting (`?v=...`), so long-lived
    * `public, max-age=…, immutable` responses are safe for browsers and CDN.
    *
-   * - Default: `31536000` (1 year)
    * - `0` — do not set `Cache-Control` (useful in local debugging)
    * - Not applied in development (`import.meta.dev`) so HMR is not fought by the browser cache
    *
    * Analogous to `@nuxtjs/i18n` experimental `httpCacheDuration` (v10.2.0), but as an
    * explicit response header rather than Nitro `defineCachedEventHandler` maxAge.
+   * @default 31536000
    */
   httpCacheDuration?: number
 
@@ -540,7 +540,7 @@ export interface TranslationPayloadOptions {
   /**
    * Copy translation payload files into Nitro public assets during production builds.
    * In `source` mode this copies the compact source directory, not a pre-merged matrix.
-   * @default true in `premerged` mode, `false` in `source` mode
+   * @default true in premerged mode, false in source mode
    */
   publicAssets?: boolean
 
@@ -548,7 +548,7 @@ export interface TranslationPayloadOptions {
    * Add translation data routes to Nuxt/Nitro prerender output.
    * Disable this when `_locales` payloads are served from an external host/CDN or should not be
    * materialized into public output.
-   * @default true in `premerged` mode, `false` in `source` mode
+   * @default true in premerged mode, false in source mode
    */
   prerenderRoutes?: boolean
 

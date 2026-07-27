@@ -32,6 +32,7 @@ member BaseI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string
 member BaseI18n.warnDev: protected (message: string) => void
 member BaseI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
 member BaseI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member BaseI18n.new: abstract (options?: BaseI18nOptions): BaseI18n
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member BaseI18nOptions.getCustomMissingHandler?: (() => MissingHandler | null) | undefined

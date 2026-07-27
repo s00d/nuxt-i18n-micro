@@ -114,10 +114,16 @@ describe('readSurface', () => {
     expect(surface.get('Service.new')).toContain('options: string')
   })
 
-  it('omits an implicit no-argument constructor and an abstract one', () => {
-    // Neither is something a reader has to know, and both were pure noise.
+  it('omits an implicit no-argument constructor, which carries no contract', () => {
     expect(surfaceOf('export class Plain { a = 1 }\n').has('Plain.new')).toBe(false)
-    expect(surfaceOf('export abstract class Base { constructor(readonly x: string) {} }\n').has('Base.new')).toBe(false)
+  })
+
+  it('keeps a declared abstract constructor, marked as such', () => {
+    // Subclasses call it, so a change to it breaks them; `abstract` says it cannot be
+    // instantiated directly.
+    const surface = surfaceOf('export abstract class Base { constructor(readonly x: string) {} }\n')
+    expect(surface.get('Base.new')).toContain('abstract')
+    expect(surface.get('Base.new')).toContain('x: string')
   })
 
   it('keeps each constructor overload distinct', () => {

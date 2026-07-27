@@ -1,0 +1,14 @@
+{
+  "//": "The build tsconfig excludes `tests` and pins `rootDir` to `src`, so the program Vitest builds from it never contains the type tests — every `expectTypeOf` in them passed regardless of what it asserted. This is the same compiler setup with the tests included and the emit settings dropped.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "declaration": false,
+    "declarationDir": null,
+    "sourceMap": false,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

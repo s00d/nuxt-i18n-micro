@@ -19,10 +19,17 @@ describe('stripComments', () => {
     expect(stripComments('const t = `a ${`x ${y}`} c`; const z = 1')).toBe('const t = ````y; const z = 1')
   })
 
-  it('leaves a regex literal alone, even when it contains comment or quote characters', () => {
+  it('consumes a regex literal whole, including comment and quote characters', () => {
     // Treating `/*` inside a character class as a comment swallowed the rest of the file.
-    expect(stripComments("const re = /[/*]/ ; const s = 'kept'")).toBe("const re = /[/*]/ ; const s = 'kept'")
-    expect(stripComments("const re = /it's/ ; const s = 'kept'")).toBe("const re = /it's/ ; const s = 'kept'")
+    // The body is replaced rather than kept: it is a pattern, not code.
+    expect(stripComments("const re = /[/*]/ ; const s = 'kept'")).toBe("const re = /re/ ; const s = 'kept'")
+    expect(stripComments("const re = /it's/ ; const s = 'kept'")).toBe("const re = /re/ ; const s = 'kept'")
+  })
+
+  it('reads division after a closing brace as division, not as a regex', () => {
+    // Guessing regex there runs to the end of the line and takes every later import with
+    // it; guessing division only leaves harmless text behind.
+    expect(stripComments("const r = {a: 1}\nconst h = obj.n / 2 // gone")).toBe('const r = {a: 1}\nconst h = obj.n / 2 ')
   })
 })
 
@@ -67,7 +74,16 @@ describe('fileImports', () => {
   it('survives a regex literal inside an interpolation', () => {
     // A brace or quote in a regex used to end the interpolation early and hide the rest.
     expect(fileImports("const s = `${x.replace(/[{}'\"]/g, '')}`; import 'alpha'").value).toEqual(['alpha'])
-    expect(fileImports("const s = `${/from 'ghost'/.test(y)}`").value).toEqual([])
+  })
+
+  it('does not read a regex body as an import, anywhere', () => {
+    // `deps-audit` reported `ghost` as an undeclared dependency of the file below.
+    expect(fileImports("const r = /import 'ghost'/").value).toEqual([])
+    expect(fileImports("const s = `${/import 'ghost'/.test(y)}`").value).toEqual([])
+  })
+
+  it('finds an import after a line that divides', () => {
+    expect(fileImports("const r = {a: 1}\nconst h = obj.n / 2\nimport 'alpha'").value).toEqual(['alpha'])
   })
 
   it('survives a lone brace inside an interpolated string', () => {

@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 32 members |
+| `BaseI18n` | class | 33 members |
 | `BaseI18nOptions` | interface | 7 members |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
@@ -43,7 +43,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 32 members</summary>
+<summary><code>BaseI18n</code> — 33 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -61,6 +61,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
+| `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
 | `pluralFunc` | `PluralFunc` |
 | `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `resolveDateTimeFormatArgs` | `private (keyOrOptions?: string \| Intl.DateTimeFormatOptions, localeOrOverrides?: string \| Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions \| undefined; }` |

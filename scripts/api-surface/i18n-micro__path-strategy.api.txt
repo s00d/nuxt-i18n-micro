@@ -36,6 +36,7 @@ member BasePathStrategy.resolvePathForLocale: (path: string, targetLocale: strin
 member BasePathStrategy.setRouter: (router: RouterAdapter) => void
 member BasePathStrategy.shouldReturn404: (currentPath: string) => string | null
 member BasePathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+member BasePathStrategy.new: abstract (ctx: PathStrategyContext): BasePathStrategy
 function buildLocalizedName: (baseName: string, locale: string, prefix?: string) => string
 function createPathStrategy: (ctx: PathStrategyContext) => PathStrategy
 function getRouteBaseName: (route: { name?: string | null; } & Record<string, any>, options: GetRouteBaseNameOptions) => string | null

@@ -90,7 +90,9 @@ function readInterpolation(source: string, start: number): { text: string; end: 
         else if (inner === ']') inClass = false
         else if ((inner === '/' && !inClass) || inner === '\n') break
       }
-      out += source.slice(from, i)
+      // The body is replaced, not kept: `/import 'ghost'/` is a pattern, and leaving it
+      // in place had `deps-audit` report `ghost` as an undeclared dependency.
+      out += '/re/'
       continue
     }
 
@@ -131,8 +133,16 @@ function readTemplate(source: string, start: number): { text: string; end: numbe
   return { text: out, end: i }
 }
 
-/** Tokens after which a `/` starts a regex literal rather than division. */
-const BEFORE_REGEX = /(?:^|[(,=:[!&|?{};+\-*%~^]|\b(?:return|typeof|instanceof|in|of|new|delete|void|case|do|else|yield|await))\s*$/
+/**
+ * Tokens after which a `/` starts a regex literal rather than division.
+ *
+ * `}` is deliberately absent. It is ambiguous — a regex after a block, division after an
+ * object literal — and the two mistakes are not equally bad: reading division as a regex
+ * runs to the end of the line looking for a closing slash and takes every import after it
+ * with it, while reading a regex as division only leaves its text in place, where the
+ * placeholder below makes it harmless.
+ */
+const BEFORE_REGEX = /(?:^|[(,=:[!&|?{;+\-*%~^]|\b(?:return|typeof|instanceof|in|of|new|delete|void|case|do|else|yield|await))\s*$/
 
 function regexCanStart(before: string): boolean {
   return BEFORE_REGEX.test(before)
@@ -174,25 +184,21 @@ export function stripComments(source: string): string {
     if (char === '/' && regexCanStart(out)) {
       // A regex literal can hold `/*`, `//` or an unbalanced quote; treating those as a
       // comment or a string swallows the rest of the file.
-      out += char
       i++
       let inClass = false
       while (i < source.length) {
         const inner = source[i]!
-        out += inner
         i++
         if (inner === '\\') {
-          if (i < source.length) {
-            out += source[i]
-            i++
-          }
+          i++
           continue
         }
         if (inner === '[') inClass = true
         else if (inner === ']') inClass = false
-        else if (inner === '/' && !inClass) break
-        else if (inner === '\n') break
+        else if ((inner === '/' && !inClass) || inner === '\n') break
       }
+      // Same as inside an interpolation: the body is a pattern, not code.
+      out += '/re/'
       continue
     }
 

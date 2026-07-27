@@ -140,27 +140,43 @@ function callableMembers(name: string, symbol: ts.Symbol, checker: ts.TypeChecke
   const declared = checker.getDeclaredTypeOfSymbol(symbol)
   const staticSide = symbol.valueDeclaration ? checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration) : null
 
-  // An abstract class cannot be constructed, and an implicit no-argument constructor
-  // carries no contract — recording either is noise a reader has to discount.
   const declaration = symbol.declarations?.[0]
   const isAbstract =
-    declaration &&
-    ts.canHaveModifiers(declaration) &&
-    (ts.getModifiers(declaration) ?? []).some((modifier) => modifier.kind === ts.SyntaxKind.AbstractKeyword)
+    Boolean(declaration) &&
+    ts.canHaveModifiers(declaration!) &&
+    (ts.getModifiers(declaration!) ?? []).some((modifier) => modifier.kind === ts.SyntaxKind.AbstractKeyword)
 
-  if (!isAbstract) {
-    const constructors = staticSide?.getConstructSignatures() ?? declared.getConstructSignatures()
-    // Overloads share a name, so each gets its own key — one `.new` would let
-    // `indexSurface` overwrite all but the last and hide a changed overload.
-    const meaningful = constructors.filter((signature) => signature.parameters.length > 0 || signature.declaration)
-    meaningful.forEach((signature, index) => {
-      entries.push({ path: `${name}.new${index > 0 ? `#${index + 1}` : ''}`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
+  // An abstract class exposes no construct signatures through its type — TypeScript marks
+  // it non-constructable — so its declared constructor is read from the AST. It is kept:
+  // subclasses call it, and a change to it breaks them.
+  const fromType = staticSide?.getConstructSignatures() ?? declared.getConstructSignatures()
+  const constructors =
+    fromType.length > 0
+      ? [...fromType]
+      : declaration && ts.isClassDeclaration(declaration)
+        ? declaration.members
+            .filter(ts.isConstructorDeclaration)
+            .map((member) => checker.getSignatureFromDeclaration(member))
+            .filter((signature): signature is ts.Signature => Boolean(signature))
+        : []
+
+  // An implicit no-argument constructor carries no contract. Overloads share a name, so
+  // each gets its own key — one `.new` would let `indexSurface` overwrite all but the
+  // last and hide a changed overload.
+  constructors
+    .filter((signature) => signature.parameters.length > 0 || signature.declaration)
+    .forEach((signature, index) => {
+      entries.push({
+        path: `${name}.new${index > 0 ? `#${index + 1}` : ''}`,
+        kind: 'member',
+        signature: `${isAbstract ? 'abstract ' : ''}${flat(checker.signatureToString(signature))}`,
+      })
     })
-  }
 
   declared.getCallSignatures().forEach((signature, index) => {
     entries.push({ path: `${name}.call${index > 0 ? `#${index + 1}` : ''}`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
   })
+
   for (const [label, index] of [
     ['string', declared.getStringIndexType()],
     ['number', declared.getNumberIndexType()],

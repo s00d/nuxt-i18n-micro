@@ -137,7 +137,8 @@ export const comparePublishedCommand = defineCommand({
       const base = resolveBase(args.base)
       assertBaseResolvable(base)
       changedNames = changedPackageNames(base)
-      console.log(`Only checking packages changed since ${base}: ${changedNames.size ? [...changedNames].join(', ') : '(none)'}\n`)
+      // Not under --json: it would sit in front of the document and make stdout unparseable.
+      if (!args.json) console.log(`Only checking packages changed since ${base}: ${changedNames.size ? [...changedNames].join(', ') : '(none)'}\n`)
     }
 
     for (const { name, dir, localVersion } of listWorkspacePackages(packageFilter)) {

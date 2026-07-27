@@ -27,7 +27,7 @@ function pack(cwd: string, outDir: string): Packed {
  * on their own. Rewriting them is what keeps the install off the registry while still
  * installing the real artifact.
  */
-function relinkWorkspaceDeps(tarball: string, byName: Map<string, string>): void {
+export function relinkWorkspaceDeps(tarball: string, byName: Map<string, string>): void {
   const work = mkdtempSync(join(tmpdir(), 'i18n-relink-'))
   try {
     execFileSync('tar', ['-xzf', tarball, '-C', work])

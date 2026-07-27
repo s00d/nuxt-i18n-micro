@@ -60,6 +60,16 @@ function splitClientOutput(publicDir: string): { payloadFiles: number; clientAss
   return { payloadFiles, clientAssets }
 }
 
+/** Refuse to measure whatever is already answering on the port — it is not this build. */
+async function assertPortFree(base: string): Promise<void> {
+  try {
+    await fetch(base, { signal: AbortSignal.timeout(1500) })
+  } catch {
+    return
+  }
+  throw new Error(`something is already listening at ${base}; stop it or pass --port`)
+}
+
 async function waitForServer(base: string, attempts = 90): Promise<void> {
   for (let i = 0; i < attempts; i++) {
     try {
@@ -86,7 +96,7 @@ async function measure(appDir: string, app: string, routes: string[], port: numb
   })
 
   try {
-    await waitForServer(base)
+    await waitForServer(base, 60)
 
     const measured: RouteMeasurement[] = []
     for (const route of routes) {
@@ -96,6 +106,9 @@ async function measure(appDir: string, app: string, routes: string[], port: numb
       const response = await fetch(`${base}${route}`, { signal: AbortSignal.timeout(60_000) })
       // oxlint-disable-next-line no-await-in-loop -- see above
       const html = await response.text()
+      // A 404 or a 500 page is small, so measuring it would quietly report a healthy
+      // budget for a build that does not work.
+      if (!response.ok) throw new Error(`${route} responded ${response.status}; the build is not serving that route`)
       measured.push({ route, html: Buffer.byteLength(html, 'utf8'), nuxtData: nuxtDataBytes(html) })
     }
 
@@ -148,6 +161,17 @@ export const payloadBudgetCommand = defineCommand({
     json: { type: 'boolean', default: false, description: 'Print machine-readable output' },
   },
   async setup({ args }) {
+    const port = Number(args.port)
+    const tolerance = Number(args.tolerance)
+    if (!Number.isFinite(port) || port <= 0) {
+      console.error(`--port must be a number, got "${args.port}"`)
+      process.exit(1)
+    }
+    if (!Number.isFinite(tolerance) || tolerance < 0) {
+      console.error(`--tolerance must be a non-negative number, got "${args.tolerance}"`)
+      process.exit(1)
+    }
+
     const budgetPath = join(repoRoot, BUDGET_FILE)
     const existing: Budget | null = existsSync(budgetPath) ? (JSON.parse(readFileSync(budgetPath, 'utf8')) as Budget) : null
 
@@ -165,10 +189,11 @@ export const payloadBudgetCommand = defineCommand({
       execFileSync('pnpm', ['exec', 'nuxt', 'build'], { cwd: appDir, stdio: 'inherit' })
     }
 
-    const measurement = await measure(appDir, app, routes, Number(args.port))
+    await assertPortFree(`http://127.0.0.1:${port}`)
+    const measurement = await measure(appDir, app, routes, port)
 
     if (args.update) {
-      const headroom = 1 + Number(args.tolerance) / 100
+      const headroom = 1 + tolerance / 100
       const budget: Budget = {
         app,
         routes,

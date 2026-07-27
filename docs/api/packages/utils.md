@@ -81,18 +81,18 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 
 | Member | Type |
 | --- | --- |
-| `cache` | `Map<string, T>` |
+| `cache` | `private Map<string, T>` |
 | `clear` | `() => void` |
 | `configure` | `(options: CacheControlOptions) => void` |
 | `delete` | `(key: string) => boolean` |
-| `expiry` | `Map<string, number>` |
+| `expiry` | `private Map<string, number>` |
 | `get` | `(key: string) => T \| undefined` |
 | `has` | `(key: string) => boolean` |
 | `keys` | `() => IterableIterator<string>` |
-| `maxSize` | `number` |
+| `maxSize` | `private number` |
 | `set` | `(key: string, value: T) => void` |
 | `size` | `number` |
-| `ttlMs` | `number` |
+| `ttlMs` | `private number` |
 
 </details>
 <details>

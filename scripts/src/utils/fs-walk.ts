@@ -1,6 +1,6 @@
 /** Directory walking shared by the audit commands. */
 import { readdirSync, statSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { join, relative, sep } from 'node:path'
 
 /** Directories that are build output or installed packages, never sources. */
 export const IGNORED_DIRS = new Set([
@@ -29,12 +29,9 @@ export function walkFiles(root: string, options: WalkOptions = {}): string[] {
   const skip = options.skipDirs ?? IGNORED_DIRS
 
   const visit = (dir: string): void => {
-    let entries
-    try {
-      entries = readdirSync(dir, { withFileTypes: true })
-    } catch {
-      return
-    }
+    // A directory that cannot be read is not an empty one: swallowing the error would let
+    // `deps-audit` report a package as importing nothing and pass it.
+    const entries = readdirSync(dir, { withFileTypes: true })
     for (const entry of entries) {
       const full = join(dir, entry.name)
       if (entry.isDirectory()) {

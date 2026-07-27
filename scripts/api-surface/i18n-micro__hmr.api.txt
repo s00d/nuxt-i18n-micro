@@ -18,5 +18,5 @@ member HandleTranslationWatchChangeInput.storageCache?: TranslationWatchCache | 
 function parseTranslationWatchRelativePath: (relativePath: string) => ParsedTranslationWatchPath
 class TranslationContentTracker
 member TranslationContentTracker.forget: (filePath: string) => void
-member TranslationContentTracker.hashes: Map<string, string>
+member TranslationContentTracker.hashes: private Map<string, string>
 member TranslationContentTracker.shouldProcess: (filePath: string) => boolean

@@ -9,8 +9,8 @@ import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
  * Renders one translation into an element, with pluralization, interpolation and
  * number/date formatting handled for you.
  *
- * Exactly one of `plural`, `number`, `date` and `relativeDate` applies at a time; when
- * several are set the first of that list wins.
+ * Exactly one of `number`, `date`, `relativeDate` and `plural` applies at a time; when
+ * several are set the first of that list wins — the order the render function checks them.
  *
  * @slot default — receives `{ translation }`, for wrapping the resolved string in markup
  * @slot {name} — any other named slot replaces the `{name}` placeholder inside the translation

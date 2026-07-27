@@ -75,6 +75,14 @@ How translations reach the browser. [Performance](/guide/performance) explains w
 | `apiBaseClientHost` | `string` | `undefined` | Override the host used for client-side translation fetch requests. Useful when the client reaches the server via a different hostname than the one Nuxt sees. Can also be set via `NUXT_I18N_APP_BASE_CLIENT_HOST` environment variable. |
 | `apiBaseServerHost` | `string` | `undefined` | Override the host used for server-side translation fetch requests. Useful in container/microservice setups where the server reaches itself via an internal hostname. Can also be set via `NUXT_I18N_APP_BASE_SERVER_HOST` environment variable. |
 | `translationPayloads` | `TranslationPayloadOptions` | — | Controls how pre-merged translation payload files are emitted during build. Keep the defaults for the existing all-in-one behavior. For serverless or CDN-backed deployments, disable individual outputs to avoid duplicating large locale payloads in both Nitro server assets and public assets. |
+| `translationPayloads.mode` | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy. - `premerged`: build-time page/locale matrix (default) - `source`: compact source files merged at runtime (recommended for large serverless apps) |
+| `translationPayloads.serverAssets` | `boolean` | `true` | Register translation payload files as Nitro server assets. In `premerged` mode this is the fully merged page/locale matrix. In `source` mode this is the compact layer-merged source directory. Required for the built-in local `_locales` server route unless translations are fetched from `apiBaseServerHost`. |
+| `translationPayloads.serverHandler` | `boolean` | `true` | Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json`. Disable this when translation payloads are served from an external host/CDN. |
+| `translationPayloads.publicAssets` | `boolean` | `true in `premerged` mode, `false` in `source` mode` | Copy translation payload files into Nitro public assets during production builds. In `source` mode this copies the compact source directory, not a pre-merged matrix. |
+| `translationPayloads.prerenderRoutes` | `boolean` | `true in `premerged` mode, `false` in `source` mode` | Add translation data routes to Nuxt/Nitro prerender output. Disable this when `_locales` payloads are served from an external host/CDN or should not be materialized into public output. |
+| `translationPayloads.publicDir` | `string` | — | Public output directory for copied translation payloads, relative to Nitro's public directory. Defaults to `translationDir`. |
+| `translationPayloads.warnFileCount` | `number` | `500` | Warn during build when generated payload file count exceeds this threshold. |
+| `translationPayloads.warnSizeBytes` | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes. |
 
 ## SEO
 

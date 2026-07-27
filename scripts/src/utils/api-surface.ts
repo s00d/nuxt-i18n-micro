@@ -45,7 +45,19 @@ const KIND_BY_FLAG: [ts.SymbolFlags, string][] = [
 /** Kinds whose members are part of the contract and get a line each. */
 const STRUCTURAL_KINDS = new Set(['class', 'interface', 'enum'])
 
-const flat = (text: string): string => text.replace(/\s+/g, ' ').trim()
+/**
+ * Collapse a type string to something reproducible.
+ *
+ * TypeScript prints an unexported type as `import("<absolute path>").Name`, which makes
+ * the snapshot depend on where the repository is checked out and on the pnpm store
+ * layout — a diff on someone else's machine before they change anything.
+ */
+const flat = (text: string): string =>
+  text
+    .replace(/import\("[^"]*\/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?([^"]*)"\)/g, 'import("$1")')
+    .replace(/import\("[^"]*\/(packages\/[^"]*)"\)/g, 'import("$1")')
+    .replace(/\s+/g, ' ')
+    .trim()
 
 function kindOf(symbol: ts.Symbol): string {
   for (const [flag, name] of KIND_BY_FLAG) {
@@ -87,7 +99,16 @@ function entriesForSymbol(name: string, symbol: ts.Symbol, checker: ts.TypeCheck
     .getPropertiesOfType(checker.getDeclaredTypeOfSymbol(symbol))
     .map((property) => {
       const optional = property.flags & ts.SymbolFlags.Optional ? '?' : ''
-      return { path: `${name}.${property.getName()}${optional}`, kind: 'member', signature: typeOf(property, checker) }
+      // Access modifiers are part of the contract: a member going from public to
+      // protected breaks a consumer, and the snapshot has to see the difference.
+      const declaration = property.declarations?.[0]
+      const modifiers = declaration && ts.canHaveModifiers(declaration) ? (ts.getModifiers(declaration) ?? []) : []
+      const access = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword)
+        ? 'private '
+        : modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ProtectedKeyword)
+          ? 'protected '
+          : ''
+      return { path: `${name}.${property.getName()}${optional}`, kind: 'member', signature: `${access}${typeOf(property, checker)}` }
     })
     .sort((a, b) => a.path.localeCompare(b.path))
 
@@ -119,10 +140,15 @@ function firstTarget(entry: ExportEntry | undefined): string | null {
  */
 export function sourceForTarget(pkgDir: string, target: string): string | null {
   const relative = target.replace(/^\.\//, '')
-  if (!relative.startsWith('dist/')) return null
+  // A subpath may point straight at `src/` — `test-utils/publish-smoke` does — so both
+  // forms are accepted; requiring `dist/` silently dropped those entry points from the
+  // snapshot, and with them any breaking change to what they export.
+  if (!relative.startsWith('dist/') && !relative.startsWith('src/')) return null
 
-  const stem = relative.slice('dist/'.length).replace(/\.(?:d\.[cm]?ts|[cm]?js|[cm]?ts)$/, '')
-  for (const candidate of [`src/${stem}.ts`, `src/${stem}/index.ts`, `src/${stem}.tsx`]) {
+  const stem = relative.replace(/^(?:dist|src)\//, '').replace(/\.(?:d\.[cm]?ts|[cm]?js|[cm]?ts|tsx)$/, '')
+  // `src/` first, then the package root: the devtools Vite plugin is built from
+  // `vite/plugin.ts`, and looking only under `src/` dropped that entry point.
+  for (const candidate of [`src/${stem}.ts`, `src/${stem}/index.ts`, `src/${stem}.tsx`, `${stem}.ts`, `${stem}/index.ts`]) {
     if (existsSync(join(pkgDir, candidate))) return candidate
   }
   return null
@@ -145,7 +171,10 @@ export function entryPoints(pkgDir: string, pkg: PackageManifest): Map<string, s
     if (source) found.set('.', source)
   }
 
-  if (found.size === 0 && existsSync(join(pkgDir, 'src/index.ts'))) found.set('.', 'src/index.ts')
+  // Only fall back when nothing was declared at all: inventing a `.` for a manifest whose
+  // exports map deliberately has no root entry would snapshot an API it does not publish.
+  const declaresSubpaths = isExportMap(exports) && Object.keys(exports).some((key) => key.startsWith('.'))
+  if (found.size === 0 && !declaresSubpaths && existsSync(join(pkgDir, 'src/index.ts'))) found.set('.', 'src/index.ts')
   return found
 }
 

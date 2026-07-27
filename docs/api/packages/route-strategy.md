@@ -43,11 +43,11 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | Member | Type |
 | --- | --- |
 | `activeLocaleCodes` | `string[]` |
-| `collectPageNames` | `(pages: NuxtPage[]) => string[]` |
-| `computeActiveLocaleCodes` | `() => string[]` |
+| `collectPageNames` | `private (pages: NuxtPage[]) => string[]` |
+| `computeActiveLocaleCodes` | `private () => string[]` |
 | `customRegex` | `string \| RegExp \| undefined` |
 | `defaultLocale` | `Locale` |
-| `ensureFileExists` | `(filePath: string) => void` |
+| `ensureFileExists` | `private (filePath: string) => void` |
 | `ensureTranslationFilesExist` | `(pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void` |
 | `excludePatterns` | `(string \| RegExp)[] \| undefined` |
 | `extendPages` | `(pages: NuxtPage[]) => void` |

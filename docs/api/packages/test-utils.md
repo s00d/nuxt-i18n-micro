@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/test-utils`
 
-27 exports across 1 entry point.
+34 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -46,5 +46,31 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `tn` | const | `(value: number, options?: Intl.NumberFormatOptions) => string` |
 | `ts` | const | `(key: TranslationKey, params?: Params, defaultValue?: string) => string` |
 
+## `@i18n-micro/test-utils/publish-smoke`
+
+```ts
+import { /* … */ } from '@i18n-micro/test-utils/publish-smoke'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `ExportTarget` | interface | 3 members |
+| `getLoadedModule` | function | `(mods: Record<string, Record<string, unknown>>, key: string) => Record<string, unknown>` |
+| `loadResolvedExport` | function | `(item: ResolvedExport, packageRequire: NodeRequire) => Promise<Record<string, unknown>>` |
+| `packageRootFromImportMeta` | function | `(importMetaUrl: string, levelsUp?: number) => string` |
+| `PublishFormat` | type | `'esm' \| 'cjs'` |
+| `resolveExportTargets` | function | `(pkg: { exports?: unknown; }, targets: ExportTarget[], packageRoot: string) => ResolvedExport[]` |
+| `smokeLoadExports` | function | `(packageRoot: string, pkg: { exports?: unknown; }, targets: ExportTarget[]) => Promise<Record<string, Record<string, unknown>>>` |
+
+<details>
+<summary><code>ExportTarget</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `condition?` | `"import" \| "require" \| "default" \| undefined` |
+| `formats?` | `PublishFormat[] \| undefined` |
+| `subpath` | `string` |
+
+</details>
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

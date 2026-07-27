@@ -52,33 +52,33 @@ import { /* … */ } from '@i18n-micro/core'
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
 | `getFallbackLocale` | `() => string` |
 | `getLocale` | `() => string` |
-| `getMissingContext` | `(routeContext?: unknown) => { locale: string; routeName: string; }` |
+| `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
 | `getRoute` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `keyRecorder` | `((cacheKey: string, key: string, value: unknown) => void) \| null` |
+| `keyRecorder` | `private ((cacheKey: string, key: string, value: unknown) => void) \| null` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `pluralFunc` | `PluralFunc` |
-| `recordResolvedKey` | `(cacheKey: string, key: string, value: unknown) => void` |
-| `resolveDateTimeFormatArgs` | `(keyOrOptions?: string \| Intl.DateTimeFormatOptions, localeOrOverrides?: string \| Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions \| undefined; }` |
-| `resolveHas` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `resolveLookup` | `(key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveNumberFormatArgs` | `(keyOrOptions?: string \| Intl.NumberFormatOptions, localeOrOverrides?: string \| Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions \| undefined; }` |
-| `resolveRouteName` | `(routeContext?: unknown) => string` |
+| `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
+| `resolveDateTimeFormatArgs` | `private (keyOrOptions?: string \| Intl.DateTimeFormatOptions, localeOrOverrides?: string \| Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions \| undefined; }` |
+| `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
+| `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
+| `resolveNumberFormatArgs` | `private (keyOrOptions?: string \| Intl.NumberFormatOptions, localeOrOverrides?: string \| Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions \| undefined; }` |
+| `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
 | `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
 | `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
-| `touch` | `() => void` |
+| `touch` | `protected () => void` |
 | `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string` |
-| `warnDev` | `(message: string) => void` |
-| `warnMissing` | `(key: TranslationKey, routeContext?: unknown) => void` |
-| `warnMissingFormat` | `(kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `warnDev` | `protected (message: string) => void` |
+| `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
+| `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
 <details>
@@ -101,8 +101,8 @@ import { /* … */ } from '@i18n-micro/core'
 | Member | Type |
 | --- | --- |
 | `clearCache` | `() => void` |
-| `dateCache` | `Map<string, Intl.DateTimeFormat>` |
-| `datetimeFormats` | `DateTimeFormatsConfig` |
+| `dateCache` | `private Map<string, Intl.DateTimeFormat>` |
+| `datetimeFormats` | `private DateTimeFormatsConfig` |
 | `formatDate` | `(value: Date \| number \| string, locale: string, options?: Intl.DateTimeFormatOptions) => string` |
 | `formatNumber` | `(value: number, locale: string, options?: Intl.NumberFormatOptions) => string` |
 | `formatRelativeTime` | `(value: Date \| number \| string, locale: string, options?: Intl.RelativeTimeFormatOptions) => string` |
@@ -111,9 +111,9 @@ import { /* … */ } from '@i18n-micro/core'
 | `getNumberFormats` | `() => NumberFormatsConfig` |
 | `getNumberFormatter` | `(locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat` |
 | `getRelativeTimeFormatter` | `(locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat` |
-| `numberCache` | `Map<string, Intl.NumberFormat>` |
-| `numberFormats` | `NumberFormatsConfig` |
-| `relativeCache` | `Map<string, Intl.RelativeTimeFormat>` |
+| `numberCache` | `private Map<string, Intl.NumberFormat>` |
+| `numberFormats` | `private NumberFormatsConfig` |
+| `relativeCache` | `private Map<string, Intl.RelativeTimeFormat>` |
 | `resolveDateTimeFormat` | `(locale: string, key: string) => Intl.DateTimeFormatOptions \| undefined` |
 | `resolveNumberFormat` | `(locale: string, key: string) => Intl.NumberFormatOptions \| undefined` |
 | `setDateTimeFormats` | `(formats: DateTimeFormatsConfig) => void` |

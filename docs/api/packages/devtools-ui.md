@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/devtools-ui`
 
-23 exports across 3 entry points.
+25 exports across 4 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -23,7 +23,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `CreateBridgeOptions` | interface | 4 members |
 | `createRpcClient` | function | `() => I18nDevToolsBridge` |
 | `I18nDevToolsBridge` | interface | 4 members |
-| `I18nDevToolsElement` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/vue@3.5.25_typescript@5.9.3/node_modules/vue/dist/vue").VueElementConstructor<any>` |
+| `I18nDevToolsElement` | const | `import("vue/dist/vue").VueElementConstructor<any>` |
 | `JsonRpcEvent` | interface | 3 members |
 | `JsonRpcRequest` | interface | 4 members |
 | `JsonRpcResponse` | interface | 4 members |
@@ -141,5 +141,26 @@ import { /* … */ } from '@i18n-micro/devtools-ui/bridge/create'
 
 <code>BridgeAdapter</code> — 6 members, documented above.
 <code>CreateBridgeOptions</code> — 4 members, documented above.
+## `@i18n-micro/devtools-ui/vite`
+
+```ts
+import { /* … */ } from '@i18n-micro/devtools-ui/vite'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `DevToolsPluginOptions` | interface | 3 members |
+| `i18nDevToolsPlugin` | function | `(options?: DevToolsPluginOptions) => PluginOption` |
+
+<details>
+<summary><code>DevToolsPluginOptions</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `base?` | `string \| undefined` |
+| `injectButton?` | `boolean \| undefined` |
+| `translationDir?` | `string \| undefined` |
+
+</details>
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

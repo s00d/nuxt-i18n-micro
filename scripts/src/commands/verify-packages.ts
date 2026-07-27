@@ -111,7 +111,10 @@ export function isPublished(pkg: PackageManifest, rel: string): boolean {
     // A bare directory name in "files" ships the whole subtree.
     const star = pattern.indexOf('*')
     const prefix = star === -1 ? pattern : pattern.slice(0, star).replace(/\/$/, '')
-    const matches = !prefix || path === prefix || path.startsWith(`${prefix}/`)
+    // An empty prefix means the pattern is a bare glob like `*.map`. Letting that match
+    // everything turns one negation into "publish nothing", which would block a release
+    // over files npm actually packs — so only positive patterns may match everything.
+    const matches = prefix ? path === prefix || path.startsWith(`${prefix}/`) : !negated
     if (matches) included = !negated
   }
   return included

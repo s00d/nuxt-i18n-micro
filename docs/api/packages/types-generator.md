@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/types-generator'
 | `generateTypes` | function | `(options: GeneratorOptions) => Promise<string>` |
 | `GeneratorOptions` | interface | 3 members |
 | `getTypesString` | function | `(options: GeneratorOptions) => Promise<string>` |
-| `I18nTypesPlugin` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/unplugin@1.16.1/node_modules/unplugin/dist/index").UnpluginInstance<GeneratorOptions, boolean>` |
+| `I18nTypesPlugin` | const | `import("unplugin/dist/index").UnpluginInstance<GeneratorOptions, boolean>` |
 
 <details>
 <summary><code>GeneratorOptions</code> — 3 members</summary>
@@ -42,7 +42,7 @@ import { /* … */ } from '@i18n-micro/types-generator/nuxt'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `default` | value | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/@nuxt+schema@4.5.0/node_modules/@nuxt/schema/dist/index").NuxtModule<I18nTypesGeneratorOptions, I18nTypesGeneratorOptions, false>` |
+| `default` | value | `import("@nuxt/schema/dist/index").NuxtModule<I18nTypesGeneratorOptions, I18nTypesGeneratorOptions, false>` |
 | `I18nTypesGeneratorOptions` | interface | 2 members |
 
 <details>

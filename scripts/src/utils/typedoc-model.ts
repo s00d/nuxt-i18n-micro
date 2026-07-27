@@ -62,6 +62,13 @@ function tagContent(comment: Comment | undefined, tag: `@${string}`): string[] {
   return (comment?.blockTags ?? []).filter((block) => block.tag === tag).map((block) => partsToText(block.content, true))
 }
 
+/** The `@deprecated` reason, not the symbol's summary — those are different sentences. */
+function deprecationOf(comment: Comment | undefined): string | null {
+  const tag = comment?.getTag('@deprecated')
+  if (!tag) return null
+  return partsToText(tag.content) || 'deprecated'
+}
+
 function typeText(reflection: { type?: { toString(): string } } | undefined): string {
   return reflection?.type ? flat(String(reflection.type)) : 'unknown'
 }
@@ -88,7 +95,7 @@ function fromSignature(name: string, kind: string, signature: SignatureReflectio
     })),
     returns: tagContent(comment, '@returns')[0] ?? '',
     examples: tagContent(comment, '@example'),
-    deprecated: comment?.getTag('@deprecated') ? summaryOf(comment, false) || 'deprecated' : null,
+    deprecated: deprecationOf(comment),
   }
 }
 
@@ -109,7 +116,7 @@ function fromDeclaration(reflection: DeclarationReflection): DocSymbol[] {
       params: [],
       returns: '',
       examples: tagContent(comment, '@example'),
-      deprecated: comment?.getTag('@deprecated') ? 'deprecated' : null,
+      deprecated: deprecationOf(comment),
     },
   ]
 }

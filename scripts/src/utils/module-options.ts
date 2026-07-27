@@ -57,10 +57,13 @@ function readJsDoc(member: ts.PropertySignature): JsDocInfo {
     else if (name === 'deprecated') info.deprecated = tagText(tag) || 'deprecated'
   }
 
+  // Every block, not just the last: a declaration preceded by two JSDoc comments would
+  // otherwise lose all but the final one.
   const docs = (member as unknown as { jsDoc?: ts.JSDoc[] }).jsDoc ?? []
-  const comment = docs.at(-1)?.comment
-  if (typeof comment === 'string') info.description = flat(comment)
-  else if (Array.isArray(comment)) info.description = flat(comment.map((part) => part.text).join(''))
+  const parts = docs
+    .map((doc) => (typeof doc.comment === 'string' ? doc.comment : Array.isArray(doc.comment) ? doc.comment.map((part) => part.text).join('') : ''))
+    .filter(Boolean)
+  info.description = flat(parts.join(' '))
 
   return info
 }
@@ -72,6 +75,12 @@ function readJsDoc(member: ts.PropertySignature): JsDocInfo {
 export function readModuleOptions(interfaceName = 'ModuleOptions', file = join(repoRoot, 'packages/types/src/index.ts')): ModuleOption[] {
   const source = ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.ESNext, true)
   const options: ModuleOption[] = []
+
+  const interfaces = new Map<string, ts.NodeArray<ts.TypeElement>>()
+  source.forEachChild((node) => {
+    if (ts.isInterfaceDeclaration(node)) interfaces.set(node.name.text, node.members)
+    if (ts.isTypeAliasDeclaration(node) && ts.isTypeLiteralNode(node.type)) interfaces.set(node.name.text, node.type.members)
+  })
 
   const collect = (members: ts.NodeArray<ts.TypeElement>, prefix: string, depth: number): void => {
     for (const member of members) {
@@ -91,8 +100,15 @@ export function readModuleOptions(interfaceName = 'ModuleOptions', file = join(r
         deprecated: doc.deprecated,
       })
 
-      if (depth < MAX_DEPTH && member.type && ts.isTypeLiteralNode(member.type)) {
+      if (depth >= MAX_DEPTH || !member.type) continue
+
+      if (ts.isTypeLiteralNode(member.type)) {
         collect(member.type.members, path, depth + 1)
+      } else if (ts.isTypeReferenceNode(member.type)) {
+        // A nested option group is usually a named interface (`TranslationPayloadOptions`),
+        // not an inline literal — reading only the literal form hid every option inside it.
+        const referenced = interfaces.get(member.type.typeName.getText())
+        if (referenced) collect(referenced, path, depth + 1)
       }
     }
   }

@@ -18,7 +18,7 @@ member I18nDevToolsBridge.getConfigs: () => Promise<ModuleOptions>
 member I18nDevToolsBridge.getLocalesAndTranslations: () => Promise<LocaleData>
 member I18nDevToolsBridge.onLocalesUpdate: (callback: (data: LocaleData) => void) => () => void
 member I18nDevToolsBridge.saveTranslation: (filePath: string, content: TranslationContent) => Promise<void>
-const I18nDevToolsElement: import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/vue@3.5.25_typescript@5.9.3/node_modules/vue/dist/vue").VueElementConstructor<any>
+const I18nDevToolsElement: import("vue/dist/vue").VueElementConstructor<any>
 interface JsonRpcEvent
 member JsonRpcEvent.jsonrpc: "2.0"
 member JsonRpcEvent.method: string
@@ -69,3 +69,10 @@ member CreateBridgeOptions.adapter: BridgeAdapter
 member CreateBridgeOptions.defaultLocale?: string | undefined
 member CreateBridgeOptions.locales?: Locale[] | undefined
 member CreateBridgeOptions.translationDir?: string | undefined
+
+# ./vite (vite/plugin.ts)
+interface DevToolsPluginOptions
+member DevToolsPluginOptions.base?: string | undefined
+member DevToolsPluginOptions.injectButton?: boolean | undefined
+member DevToolsPluginOptions.translationDir?: string | undefined
+function i18nDevToolsPlugin: (options?: DevToolsPluginOptions) => PluginOption

@@ -20,18 +20,18 @@ function preMergeLocales: (rootDirs: string[], translationDirName: string, outpu
 
 # ./cache-control (src/cache-control.ts)
 class CacheControl
-member CacheControl.cache: Map<string, T>
+member CacheControl.cache: private Map<string, T>
 member CacheControl.clear: () => void
 member CacheControl.configure: (options: CacheControlOptions) => void
 member CacheControl.delete: (key: string) => boolean
-member CacheControl.expiry: Map<string, number>
+member CacheControl.expiry: private Map<string, number>
 member CacheControl.get: (key: string) => T | undefined
 member CacheControl.has: (key: string) => boolean
 member CacheControl.keys: () => IterableIterator<string>
-member CacheControl.maxSize: number
+member CacheControl.maxSize: private number
 member CacheControl.set: (key: string, value: T) => void
 member CacheControl.size: number
-member CacheControl.ttlMs: number
+member CacheControl.ttlMs: private number
 interface CacheControlOptions
 member CacheControlOptions.maxSize?: number | undefined
 member CacheControlOptions.ttl?: number | undefined

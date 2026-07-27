@@ -28,8 +28,9 @@ describe('component reference sources', () => {
 
   it('reads scoped slot bindings, which a page needs to be usable', async () => {
     const doc = await parse(componentFile('i18n-group'))
-    const [slot] = doc.slots ?? []
-    expect(slot?.bindings?.map((binding) => binding.name).sort()).toEqual(['prefix', 't'])
+    const slot = (doc.slots ?? []).find((entry) => entry.name === 'default')
+    expect(slot, 'i18n-group lost its default slot').toBeDefined()
+    expect((slot?.bindings ?? []).map((binding) => binding.name).sort()).toEqual(['prefix', 't'])
   })
 
   it('resolves a union prop type rather than reporting it as unknown', async () => {

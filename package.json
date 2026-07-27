@@ -107,7 +107,7 @@
     "docs:dev": "pnpm run docs:generate && vitepress dev docs",
     "docs:build": "pnpm run docs:generate && vitepress build docs",
     "docs:serve": "vitepress serve docs",
-    "docs:clean-dev": "vitepress dev docs --clean-cache",
+    "docs:clean-dev": "pnpm run docs:generate && vitepress dev docs --clean-cache",
     "docs:preview": "vitepress preview docs",
     "smoke:pack": "pnpm -C scripts cli smoke-pack",
     "smoke:verify": "pnpm -C scripts cli smoke-verify",

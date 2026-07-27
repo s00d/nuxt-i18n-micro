@@ -1,12 +1,19 @@
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { readModuleOptions } from '../src/utils/module-options'
+
+const temporary: string[] = []
+afterAll(() => {
+  for (const dir of temporary) rmSync(dir, { recursive: true, force: true })
+})
 
 /** Parse a throwaway declaration file, so the assertions do not chase the real types. */
 function parse(source: string) {
-  const file = join(mkdtempSync(join(tmpdir(), 'options-')), 'index.ts')
+  const dir = mkdtempSync(join(tmpdir(), 'options-'))
+  temporary.push(dir)
+  const file = join(dir, 'index.ts')
   writeFileSync(file, source)
   return readModuleOptions('ModuleOptions', file)
 }

@@ -64,7 +64,7 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 | Member | Type |
 | --- | --- |
 | `forget` | `(filePath: string) => void` |
-| `hashes` | `Map<string, string>` |
+| `hashes` | `private Map<string, string>` |
 | `shouldProcess` | `(filePath: string) => boolean` |
 
 </details>

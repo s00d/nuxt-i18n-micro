@@ -16,8 +16,8 @@ class ProcessExit extends Error {
 }
 
 /**
- * Invoke a citty command's `setup` the way the CLI would, capturing what a caller
- * actually observes: stdout, stderr and the exit code.
+ * Invoke a citty command the way the CLI would — `setup` then `run` — capturing what a
+ * caller actually observes: stdout, stderr and the exit code.
  *
  * `process.exit` is replaced with a throw so the command stops where it really would —
  * a stub that returns lets the rest of the body run against state the command already
@@ -31,7 +31,7 @@ class ProcessExit extends Error {
  * and the test then asserts on a default the command never saw. Picking only the keys
  * the command declares turns that into a compile error.
  */
-export type CommandArgs<T extends ArgsDef> = Partial<Pick<ParsedArgs<T>, Extract<keyof T, string>>>
+export type CommandArgs<T extends ArgsDef> = Partial<Pick<ParsedArgs<T>, Extract<keyof T, string>>> & { _?: string[]; '--'?: string[] }
 
 export async function runCli<T extends ArgsDef>(cmd: CommandDef<T>, args: CommandArgs<T> = {}): Promise<CliRun> {
   const out: string[] = []
@@ -49,7 +49,11 @@ export async function runCli<T extends ArgsDef>(cmd: CommandDef<T>, args: Comman
   })
 
   try {
-    await cmd.setup?.({ args: args as ParsedArgs<T>, cmd, rawArgs: [], data: undefined })
+    // citty always supplies the positional arrays; a command reading `args._` would
+    // otherwise crash here while the type says it is present.
+    const context = { args: { _: [], '--': [], ...args } as unknown as ParsedArgs<T>, cmd, rawArgs: [], data: undefined }
+    await cmd.setup?.(context)
+    await cmd.run?.(context)
   } catch (e) {
     if (!(e instanceof ProcessExit)) throw e
     exitCode = e.code

@@ -25,7 +25,7 @@ after publishing. They are the checks with no other owner.
 | [`api-surface`](#api-surface) | an export removed or retyped without anyone noticing |
 | [`deps-audit`](#deps-audit) | versions escaping the catalog, packages imported but never declared |
 | [`fixtures-audit`](#fixtures-audit) | test fixtures nothing references |
-| [`preflight`](#preflight) | all of the above, before a release |
+| [`preflight`](#preflight) | the rest of them, before a release |
 
 Two of them do double duty: the artifacts `api-surface` and `payload-budget` produce are
 also what the [Package APIs](/api/packages) and [Performance](/guide/performance) pages
@@ -235,8 +235,9 @@ listed is a candidate to check, not a verdict. References are searched across `t
 `.github/`, `package.json` and the vitest configs, since a fixture is often named from a
 config rather than from a test file.
 
-It also flags build leftovers (`.nuxt`, `.output`, `.nuxt-test`) committed inside a
-fixture — `pnpm run clean:test` removes those.
+It also flags build leftovers (`.nuxt`, `.output`, `.output-shared`, `.nuxt-test`,
+`test-results`) committed inside a fixture. `pnpm run clean:test` removes most of them;
+`.output` it does not, so remove that one by hand.
 
 ## preflight
 
@@ -249,7 +250,11 @@ nothing.
 pnpm run preflight
 pnpm -C scripts cli preflight --npm       # also check the registry and npm auth
 pnpm -C scripts cli preflight --offline   # skip everything needing the network
+pnpm -C scripts cli preflight --budget    # also build the app and check the payload budget
 ```
+
+`payload-budget` is behind `--budget` because it builds an application: a gate that takes
+ten minutes by default is a gate people stop running.
 
 ```
 Release preflight

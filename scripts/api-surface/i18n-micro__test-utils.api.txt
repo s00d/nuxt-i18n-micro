@@ -26,3 +26,15 @@ function tc: (key: TranslationKey, params: number | Params, defaultValue?: strin
 const td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
 const tn: (value: number, options?: Intl.NumberFormatOptions) => string
 const ts: (key: TranslationKey, params?: Params, defaultValue?: string) => string
+
+# ./publish-smoke (src/publish-smoke.ts)
+interface ExportTarget
+member ExportTarget.condition?: "import" | "require" | "default" | undefined
+member ExportTarget.formats?: PublishFormat[] | undefined
+member ExportTarget.subpath: string
+function getLoadedModule: (mods: Record<string, Record<string, unknown>>, key: string) => Record<string, unknown>
+function loadResolvedExport: (item: ResolvedExport, packageRequire: NodeRequire) => Promise<Record<string, unknown>>
+function packageRootFromImportMeta: (importMetaUrl: string, levelsUp?: number) => string
+type PublishFormat: 'esm' | 'cjs'
+function resolveExportTargets: (pkg: { exports?: unknown; }, targets: ExportTarget[], packageRoot: string) => ResolvedExport[]
+function smokeLoadExports: (packageRoot: string, pkg: { exports?: unknown; }, targets: ExportTarget[]) => Promise<Record<string, Record<string, unknown>>>

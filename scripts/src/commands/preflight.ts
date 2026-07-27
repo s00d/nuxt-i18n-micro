@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { defineCommand } from 'citty'
 import { listWorkspacePackages, tryRun } from '../utils/git-baseline'
-import { resolveFromTag } from '../utils/release-tag'
+import { releaseTags } from '../utils/release-tag'
 import { repoRoot, scriptsDir } from '../utils/workspace'
 
 export interface GateResult {
@@ -26,16 +26,22 @@ interface Gate {
 }
 
 /** Every gate a release has to pass, in the order that fails cheapest first. */
-function gatesFor(options: { npm: boolean; offline: boolean }): Gate[] {
+function gatesFor(options: { npm: boolean; offline: boolean; budget: boolean }): Gate[] {
   const registryOnly = () => (options.offline ? 'offline' : null)
 
   return [
     { name: 'deps-audit', args: ['deps-audit'] },
+    // Builds an app, so it is opt-in: a release gate should not take ten minutes by
+    // default, and the budget is checked on pull requests that touch the runtime.
+    ...(options.budget ? [{ name: 'payload-budget', args: ['payload-budget'] }] : []),
     { name: 'verify-packages', args: ['verify-packages', '--publint'] },
     { name: 'api-surface', args: ['api-surface'] },
     { name: 'docs-audit', args: ['docs-audit'] },
     { name: 'docs-generate', args: ['docs-generate', '--check'] },
-    { name: 'check-versions', args: options.npm ? ['check-versions', '--npm'] : ['check-versions'], skip: options.npm ? registryOnly : undefined },
+    { name: 'fixtures-audit', args: ['fixtures-audit'] },
+    // `check-versions` resolves its baseline with `git fetch` under GITHUB_BASE_REF, so
+    // it is a network gate even without --npm.
+    { name: 'check-versions', args: options.npm ? ['check-versions', '--npm'] : ['check-versions'], skip: registryOnly },
     { name: 'ensure-npm-auth', args: ['ensure-npm-auth'], skip: options.npm ? registryOnly : () => 'needs --npm' },
   ]
 }
@@ -55,17 +61,19 @@ export const preflightCommand = defineCommand({
       '  pnpm -C scripts cli preflight',
       '  pnpm -C scripts cli preflight --npm       # also check the registry and auth',
       '  pnpm -C scripts cli preflight --offline   # skip everything needing the network',
+      '  pnpm -C scripts cli preflight --budget    # also build and check the payload budget',
     ].join('\n'),
   },
   args: {
     npm: { type: 'boolean', default: false, description: 'Include the gates that talk to the registry' },
+    budget: { type: 'boolean', default: false, description: 'Also build the playground and check the payload budget' },
     offline: { type: 'boolean', default: false, description: 'Skip every gate that needs the network' },
     json: { type: 'boolean', default: false, description: 'Print machine-readable output' },
   },
   setup({ args }) {
     const report: PreflightReport = { gates: [], failed: 0, wouldPublish: [], from: null }
 
-    for (const gate of gatesFor({ npm: args.npm, offline: args.offline })) {
+    for (const gate of gatesFor({ npm: args.npm, offline: args.offline, budget: args.budget })) {
       const skipReason = gate.skip?.() ?? null
       if (skipReason) {
         report.gates.push({ name: gate.name, ok: true, skipped: true, detail: skipReason })
@@ -85,7 +93,7 @@ export const preflightCommand = defineCommand({
       }
     }
 
-    report.from = tryRun('git', ['tag', '-l']) === null ? null : resolveFromTagSafely()
+    report.from = changelogBase()
     report.wouldPublish = listWorkspacePackages().map(({ name, localVersion }) => ({ name, version: localVersion }))
 
     if (args.json) {
@@ -111,13 +119,18 @@ export const preflightCommand = defineCommand({
   },
 })
 
-/** `resolveFromTag` exits the process when there is no tag; preflight only wants the label. */
-function resolveFromTagSafely(): string | null {
+/**
+ * The changelog base, or null when there is none.
+ *
+ * Not `resolveFromTag`: that exits the process when no v3+ tag is on the ancestry, which
+ * in a preflight means the run dies before printing the verdict it was asked for.
+ */
+function changelogBase(): string | null {
   const tags = tryRun('git', ['tag', '-l'])
   if (!tags) return null
-  try {
-    return resolveFromTag('preflight')
-  } catch {
-    return null
+
+  for (const tag of releaseTags(tags.split('\n').filter(Boolean))) {
+    if (tryRun('git', ['merge-base', '--is-ancestor', tag, 'HEAD']) !== null) return tag
   }
+  return null
 }

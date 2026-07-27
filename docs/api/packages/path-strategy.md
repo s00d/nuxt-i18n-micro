@@ -230,7 +230,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolvePathForLocale` | `(path: string, targetLocale: string) => string` |
-| `rewriteWithLocalePrefix` | `(route: RouteLike, targetLocale: string) => RouteLike` |
+| `rewriteWithLocalePrefix` | `private (route: RouteLike, targetLocale: string) => RouteLike` |
 | `setRouter` | `(router: RouterAdapter) => void` |
 | `shouldReturn404` | `(currentPath: string) => string \| null` |
 | `switchLocaleRoute` | `(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
@@ -247,7 +247,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `buildLocalizedName` | `(baseName: string, locale: string) => string` |
 | `buildLocalizedPath` | `(path: string, locale: string, _isCustom: boolean) => string` |
 | `buildLocalizedRouteName` | `(baseName: string, locale: string) => string` |
-| `buildNestedCustomResult` | `(customPath: string, routeName: string, targetLocale: string, needsPrefix: boolean, sourceRoute: RouteLike, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
+| `buildNestedCustomResult` | `private (customPath: string, routeName: string, targetLocale: string, needsPrefix: boolean, sourceRoute: RouteLike, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `ctx` | `PathStrategyContext` |
 | `detectLocaleFromName` | `(name: string \| null) => string \| null` |
 | `formatPathForResolve` | `(path: string, fromLocale: string, toLocale: string) => string` |
@@ -261,9 +261,9 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getLocaleFromPath` | `(path: string) => string \| null` |
 | `getLocales` | `() => Locale[]` |
 | `getLocalizedRouteNamePrefix` | `() => string` |
-| `getNestedRouteInfo` | `(baseRouteName: string) => { parentKey: string; keyWithSlash: string; } \| null` |
+| `getNestedRouteInfo` | `private (baseRouteName: string) => { parentKey: string; keyWithSlash: string; } \| null` |
 | `getNoPrefixRedirect` | `() => boolean \| undefined` |
-| `getParentPathForTarget` | `(parentKey: string, keyWithSlash: string, targetLocale: string, currentRoute?: ResolvedRouteLike) => string` |
+| `getParentPathForTarget` | `private (parentKey: string, keyWithSlash: string, targetLocale: string, currentRoute?: ResolvedRouteLike) => string` |
 | `getPathWithoutLocale` | `(path: string) => { pathWithoutLocale: string; localeFromPath: string \| null; }` |
 | `getPluginRouteName` | `(route: ResolvedRouteLike, locale: string) => string` |
 | `getRedirect` | `(currentPath: string, detectedLocale: string) => string \| null` |
@@ -272,16 +272,16 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getRoutesLocaleLinks` | `() => PathStrategyContext["routesLocaleLinks"]` |
 | `getStrategy` | `() => PathStrategyContext["strategy"]` |
 | `getSwitchLocaleFallbackWhenNoRoute` | `(route: ResolvedRouteLike, targetName: string) => RouteLike \| string` |
-| `isLocaleRules` | `(key: string) => boolean` |
+| `isLocaleRules` | `private (key: string) => boolean` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
-| `resolveLocaleRouteFallback` | `(targetLocale: string, resolved: ResolvedRouteLike, sourceRoute: RouteLike, needsPrefix: boolean, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
-| `resolveLocaleRouteFull` | `(targetLocale: string, inputName: string \| null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
-| `resolveLocaleRouteSimple` | `(targetLocale: string, inputName: string \| null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
+| `resolveLocaleRouteFallback` | `private (targetLocale: string, resolved: ResolvedRouteLike, sourceRoute: RouteLike, needsPrefix: boolean, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
+| `resolveLocaleRouteFull` | `private (targetLocale: string, inputName: string \| null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
+| `resolveLocaleRouteSimple` | `private (targetLocale: string, inputName: string \| null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolvePathForLocale` | `(path: string, targetLocale: string) => string` |
 | `setRouter` | `(router: RouterAdapter) => void` |
-| `shouldHavePrefix` | `(locale: string) => boolean` |
+| `shouldHavePrefix` | `protected (locale: string) => boolean` |
 | `shouldReturn404` | `(currentPath: string) => string \| null` |
 | `switchLocaleRoute` | `(fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike \| string` |
 

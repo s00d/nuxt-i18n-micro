@@ -25,16 +25,16 @@ import { /* … */ } from '@i18n-micro/preact'
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 18 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<PreactI18n \| null>` |
-| `I18nDefaultLocaleContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<string \| null>` |
+| `I18nContext` | const | `import("preact/src/index").Context<PreactI18n \| null>` |
+| `I18nDefaultLocaleContext` | const | `import("preact/src/index").Context<string \| null>` |
 | `I18nGroup` | value | `unknown` |
 | `I18nGroupProps` | value | `unknown` |
 | `I18nLink` | value | `unknown` |
 | `I18nLinkProps` | value | `unknown` |
-| `I18nLocalesContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<Locale[] \| null>` |
+| `I18nLocalesContext` | const | `import("preact/src/index").Context<Locale[] \| null>` |
 | `I18nProvider` | value | `unknown` |
 | `I18nProviderProps` | value | `unknown` |
-| `I18nRouterContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<I18nRoutingStrategy \| null>` |
+| `I18nRouterContext` | const | `import("preact/src/index").Context<I18nRoutingStrategy \| null>` |
 | `I18nRoutingStrategy` | interface | 6 members |
 | `I18nSwitcher` | value | `unknown` |
 | `I18nSwitcherProps` | value | `unknown` |
@@ -88,39 +88,39 @@ import { /* … */ } from '@i18n-micro/preact'
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
 | `getFallbackLocale` | `() => string` |
 | `getLocale` | `() => string` |
-| `getMissingContext` | `(routeContext?: unknown) => { locale: string; routeName: string; }` |
+| `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
 | `getRoute` | `() => string` |
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `keyRecorder` | `any` |
+| `keyRecorder` | `private any` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `pluralFunc` | `PluralFunc` |
-| `recordResolvedKey` | `(cacheKey: string, key: string, value: unknown) => void` |
-| `resolveDateTimeFormatArgs` | `any` |
-| `resolveHas` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `resolveLookup` | `(key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveNumberFormatArgs` | `any` |
-| `resolveRouteName` | `(routeContext?: unknown) => string` |
+| `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
+| `resolveDateTimeFormatArgs` | `private any` |
+| `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
+| `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
+| `resolveNumberFormatArgs` | `private any` |
+| `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `storage` | `TranslationStorage` |
-| `store` | `ReactiveI18nStore` |
+| `store` | `private ReactiveI18nStore` |
 | `subscribe` | `(listener: () => void) => () => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
 | `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
 | `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
-| `touch` | `() => void` |
+| `touch` | `protected () => void` |
 | `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string` |
-| `warnDev` | `(message: string) => void` |
-| `warnMissing` | `(key: TranslationKey, routeContext?: unknown) => void` |
-| `warnMissingFormat` | `(kind: "number" \| "datetime", key: string, locale: string) => void` |
+| `warnDev` | `protected (message: string) => void` |
+| `warnMissing` | `protected (key: TranslationKey, routeContext?: unknown) => void` |
+| `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
 <details>

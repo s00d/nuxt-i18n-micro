@@ -1,26 +1,36 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { runCli } from './helpers'
 
-const run = vi.hoisted(() => vi.fn<(cmd: string, args: string[]) => string>())
-const tryRun = vi.hoisted(() => vi.fn<(cmd: string, args: string[]) => string | null>())
+/**
+ * Plain mutable functions, not `vi.fn()`: Vitest records a mock's thrown calls and
+ * reports one as a failure as soon as anything touches that mock afterwards, even though
+ * the command caught it and behaved correctly.
+ */
+const state = vi.hoisted(() => ({
+  run: (() => '') as (cmd: string, args: string[]) => string,
+  tryRun: (() => null) as (cmd: string, args: string[]) => string | null,
+}))
+const run = { set: (impl: (cmd: string, args: string[]) => string) => (state.run = impl) }
+const tryRun = { set: (impl: (cmd: string, args: string[]) => string | null) => (state.tryRun = impl) }
 
 vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../src/utils/git-baseline')>()),
-  run,
-  tryRun,
+  run: (cmd: string, args: string[]) => state.run(cmd, args),
+  tryRun: (cmd: string, args: string[]) => state.tryRun(cmd, args),
 }))
 
 const { changelogFromRefCommand } = await import('../src/commands/changelog-from-ref')
 
 /** `git tag -l` output, plus which of those tags are ancestors of HEAD. */
 function repoTags(tags: string[], ancestors: string[] = tags) {
-  run.mockImplementation((_cmd, args) => (args[0] === 'tag' ? tags.join('\n') : ''))
-  tryRun.mockImplementation((_cmd, args) => (args[0] === 'merge-base' ? (ancestors.includes(args[2]!) ? '' : null) : null))
+  run.set((_cmd, args) => (args[0] === 'tag' ? tags.join('\n') : ''))
+  tryRun.set((_cmd, args) => (args[0] === 'merge-base' ? (ancestors.includes(args[2]!) ? '' : null) : null))
 }
 
-// No mock reset between tests: every test sets the implementations it needs, and
-// clearing a `vi.fn()` that recorded a thrown call makes Vitest report that throw as a
-// test failure even when the command handled it exactly as intended.
+beforeEach(() => {
+  run.set(() => '')
+  tryRun.set(() => null)
+})
 describe('changelog-from-ref', () => {
   it('picks the highest v3+ tag', async () => {
     repoTags(['v3.9.0', 'v3.10.0', 'v3.21.4'])
@@ -55,7 +65,7 @@ describe('changelog-from-ref', () => {
   })
 
   it('exits 1 when git itself fails', async () => {
-    run.mockImplementation(() => {
+    run.set(() => {
       throw new Error('not a git repository')
     })
     const { exitCode, stderr } = await runCli(changelogFromRefCommand)

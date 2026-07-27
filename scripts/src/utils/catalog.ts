@@ -43,5 +43,18 @@ export function isWorkspaceProtocol(spec: string): boolean {
  * local paths, git URLs, tarballs and the catalog/workspace protocols themselves.
  */
 export function isNonRegistrySpec(spec: string): boolean {
-  return /^(?:catalog:|workspace:|file:|link:|portal:|git\+|git:|https?:|npm:)/.test(spec)
+  // `npm:` is deliberately absent: `npm:other@1.0.0` does name a registry version, just
+  // under a different package name, and skipping it let a pin drift from the catalog.
+  return (
+    /^(?:catalog:|workspace:|file:|link:|portal:|git\+|git:|ssh:|https?:|github:|gitlab:|bitbucket:)/.test(spec) ||
+    /^[\w.-]+\/[\w.-]+(?:#|$)/.test(spec)
+  )
+}
+
+/** The package a `npm:` alias points at, or null when `spec` is not an alias. */
+export function aliasTarget(spec: string): string | null {
+  if (!spec.startsWith('npm:')) return null
+  const rest = spec.slice('npm:'.length)
+  const at = rest.lastIndexOf('@')
+  return at > 0 ? rest.slice(0, at) : rest
 }

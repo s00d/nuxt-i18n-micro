@@ -5,33 +5,33 @@ member BaseI18n.formatter: FormatService
 member BaseI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
 member BaseI18n.getFallbackLocale: () => string
 member BaseI18n.getLocale: () => string
-member BaseI18n.getMissingContext: (routeContext?: unknown) => { locale: string; routeName: string; }
+member BaseI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member BaseI18n.getRoute: () => string
 member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
-member BaseI18n.keyRecorder: ((cacheKey: string, key: string, value: unknown) => void) | null
+member BaseI18n.keyRecorder: private ((cacheKey: string, key: string, value: unknown) => void) | null
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
 member BaseI18n.pluralFunc: PluralFunc
-member BaseI18n.recordResolvedKey: (cacheKey: string, key: string, value: unknown) => void
-member BaseI18n.resolveDateTimeFormatArgs: (keyOrOptions?: string | Intl.DateTimeFormatOptions, localeOrOverrides?: string | Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions | undefined; }
-member BaseI18n.resolveHas: (key: TranslationKey, routeContext?: unknown) => boolean
-member BaseI18n.resolveLookup: (key: TranslationKey, routeContext?: unknown) => unknown | null
-member BaseI18n.resolveNumberFormatArgs: (keyOrOptions?: string | Intl.NumberFormatOptions, localeOrOverrides?: string | Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions | undefined; }
-member BaseI18n.resolveRouteName: (routeContext?: unknown) => string
+member BaseI18n.recordResolvedKey: protected (cacheKey: string, key: string, value: unknown) => void
+member BaseI18n.resolveDateTimeFormatArgs: private (keyOrOptions?: string | Intl.DateTimeFormatOptions, localeOrOverrides?: string | Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions | undefined; }
+member BaseI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
+member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
+member BaseI18n.resolveNumberFormatArgs: private (keyOrOptions?: string | Intl.NumberFormatOptions, localeOrOverrides?: string | Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions | undefined; }
+member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member BaseI18n.setKeyRecorder: (recorder: ((cacheKey: string, key: string, value: unknown) => void) | null) => void
 member BaseI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member BaseI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member BaseI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member BaseI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member BaseI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
-member BaseI18n.touch: () => void
+member BaseI18n.touch: protected () => void
 member BaseI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string
-member BaseI18n.warnDev: (message: string) => void
-member BaseI18n.warnMissing: (key: TranslationKey, routeContext?: unknown) => void
-member BaseI18n.warnMissingFormat: (kind: "number" | "datetime", key: string, locale: string) => void
+member BaseI18n.warnDev: protected (message: string) => void
+member BaseI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
+member BaseI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
 interface BaseI18nOptions
 member BaseI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
 member BaseI18nOptions.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -45,8 +45,8 @@ type DateTimeFormatsConfig: Record<string, Record<string, Intl.DateTimeFormatOpt
 const defaultPlural: PluralFunc
 class FormatService
 member FormatService.clearCache: () => void
-member FormatService.dateCache: Map<string, Intl.DateTimeFormat>
-member FormatService.datetimeFormats: DateTimeFormatsConfig
+member FormatService.dateCache: private Map<string, Intl.DateTimeFormat>
+member FormatService.datetimeFormats: private DateTimeFormatsConfig
 member FormatService.formatDate: (value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions) => string
 member FormatService.formatNumber: (value: number, locale: string, options?: Intl.NumberFormatOptions) => string
 member FormatService.formatRelativeTime: (value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions) => string
@@ -55,9 +55,9 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
-member FormatService.numberCache: Map<string, Intl.NumberFormat>
-member FormatService.numberFormats: NumberFormatsConfig
-member FormatService.relativeCache: Map<string, Intl.RelativeTimeFormat>
+member FormatService.numberCache: private Map<string, Intl.NumberFormat>
+member FormatService.numberFormats: private NumberFormatsConfig
+member FormatService.relativeCache: private Map<string, Intl.RelativeTimeFormat>
 member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Intl.DateTimeFormatOptions | undefined
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void

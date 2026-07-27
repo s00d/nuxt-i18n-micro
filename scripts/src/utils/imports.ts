@@ -8,6 +8,38 @@
  */
 const SOURCE_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx', '.js', '.mjs', '.cjs', '.jsx', '.vue']
 
+/**
+ * Contents of a `${…}` starting at `start`, and the index just past its closing brace.
+ *
+ * Brace counting is enough: the caller re-processes the result, so a brace inside a
+ * string within the interpolation is the only thing that could mislead it, and that
+ * would have to be unbalanced to matter.
+ */
+function readInterpolation(source: string, start: number): { text: string; end: number } {
+  let depth = 1
+  let i = start
+
+  while (i < source.length && depth > 0) {
+    const char = source[i]!
+    if (char === '\\') {
+      i += 2
+      continue
+    }
+    if (char === '{') depth++
+    else if (char === '}') depth--
+    i++
+  }
+
+  return { text: source.slice(start, i - 1), end: i }
+}
+
+/** Tokens after which a `/` starts a regex literal rather than division. */
+const BEFORE_REGEX = /(?:^|[(,=:[!&|?{};+\-*%~^]|\b(?:return|typeof|instanceof|in|of|new|delete|void|case|do|else|yield|await))\s*$/
+
+function regexCanStart(before: string): boolean {
+  return BEFORE_REGEX.test(before)
+}
+
 export { SOURCE_EXTENSIONS }
 
 /**
@@ -37,29 +69,54 @@ export function stripComments(source: string): string {
       i += 2
       continue
     }
+
+    if (char === '/' && regexCanStart(out)) {
+      // A regex literal can hold `/*`, `//` or an unbalanced quote; treating those as a
+      // comment or a string swallows the rest of the file.
+      out += char
+      i++
+      let inClass = false
+      while (i < source.length) {
+        const inner = source[i]!
+        out += inner
+        i++
+        if (inner === '\\') {
+          if (i < source.length) {
+            out += source[i]
+            i++
+          }
+          continue
+        }
+        if (inner === '[') inClass = true
+        else if (inner === ']') inClass = false
+        else if (inner === '/' && !inClass) break
+        else if (inner === '\n') break
+      }
+      continue
+    }
+
     if (char === '`') {
       out += '``'
       i++
-      let depth = 0
+
+      // Literal text is dropped, interpolations are kept and processed the same way —
+      // a nested template inside one is generated text again, and `${await import(x)}`
+      // is a real dependency either way.
       while (i < source.length) {
         const inner = source[i]!
         if (inner === '\\') {
           i += 2
           continue
         }
-        if (inner === '$' && source[i + 1] === '{') {
-          depth++
-          i += 2
-          continue
-        }
-        if (inner === '}' && depth > 0) {
-          depth--
-          i++
-          continue
-        }
-        if (inner === '`' && depth === 0) {
+        if (inner === '`') {
           i++
           break
+        }
+        if (inner === '$' && source[i + 1] === '{') {
+          const body = readInterpolation(source, i + 2)
+          out += stripComments(body.text)
+          i = body.end
+          continue
         }
         i++
       }

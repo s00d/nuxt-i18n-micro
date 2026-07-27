@@ -2,7 +2,7 @@ import { builtinModules } from 'node:module'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineCommand } from 'citty'
-import { catalogRef, isNonRegistrySpec, isWorkspaceProtocol, readCatalog } from '../utils/catalog'
+import { aliasTarget, catalogRef, isNonRegistrySpec, isWorkspaceProtocol, readCatalog } from '../utils/catalog'
 import { walkFiles } from '../utils/fs-walk'
 import { SOURCE_EXTENSIONS, fileImports } from '../utils/imports'
 import { listWorkspacePackages } from '../utils/git-baseline'
@@ -117,7 +117,10 @@ export const depsAuditCommand = defineCommand({
       }
       for (const field of DEPENDENCY_FIELDS) {
         for (const [dep, spec] of Object.entries(manifest[field] ?? {})) {
-          if (catalogRef(spec).isCatalog) catalogUsed.add(dep)
+          const ref = catalogRef(spec)
+          // Keyed by catalog too: a use of `catalog:react17` must not mark the default
+          // catalog's entry of the same name as used.
+          if (ref.isCatalog) catalogUsed.add(`${ref.name ?? 'default'}:${dep}`)
         }
       }
     }
@@ -127,6 +130,12 @@ export const depsAuditCommand = defineCommand({
       const { isCatalog, name: catalogName } = catalogRef(spec)
 
       if (isCatalog) {
+        // A workspace package resolved through the catalog installs the published copy,
+        // not the local one — the whole point of `workspace:` is that it does not.
+        if (workspaceNames.has(dep)) {
+          add('errors', pkgName, 'workspace-protocol', `${field}.${dep} is a workspace package but resolves through the catalog — use workspace:*`)
+          return
+        }
         const entries = catalogName === null ? catalog.entries : (catalog.named.get(catalogName) ?? new Map())
         if (!entries.has(dep)) {
           add(
@@ -141,6 +150,19 @@ export const depsAuditCommand = defineCommand({
 
       if (workspaceNames.has(dep) && !isWorkspaceProtocol(spec)) {
         add('errors', pkgName, 'workspace-protocol', `${field}.${dep} is a workspace package but is pinned to "${spec}" — use workspace:*`)
+        return
+      }
+
+      // An alias pins a registry version of another package, so the catalog still applies
+      // — to the aliased name.
+      const alias = aliasTarget(spec)
+      if (alias && catalog.entries.has(alias)) {
+        add(
+          'errors',
+          pkgName,
+          'not-catalogued',
+          `${field}.${dep} aliases "${spec}" while the catalog pins ${alias} at ${catalog.entries.get(alias)} — use catalog:`,
+        )
         return
       }
 
@@ -218,7 +240,12 @@ export const depsAuditCommand = defineCommand({
       }
     }
 
-    report.unusedCatalogEntries = [...catalog.entries.keys()].filter((dep) => !catalogUsed.has(dep)).sort()
+    report.unusedCatalogEntries = [
+      ...[...catalog.entries.keys()].filter((dep) => !catalogUsed.has(`default:${dep}`)),
+      ...[...catalog.named].flatMap(([name, entries]) =>
+        [...entries.keys()].filter((dep) => !catalogUsed.has(`${name}:${dep}`)).map((dep) => `${dep} (catalog:${name})`),
+      ),
+    ].sort()
 
     if (args.json) {
       console.log(JSON.stringify(report, null, 2))

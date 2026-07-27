@@ -16,11 +16,11 @@ function normalizeRouteKey: (key: string) => string
 const removeLeadingSlash: (routePath: string) => string
 class RouteGenerator
 member RouteGenerator.activeLocaleCodes: string[]
-member RouteGenerator.collectPageNames: (pages: NuxtPage[]) => string[]
-member RouteGenerator.computeActiveLocaleCodes: () => string[]
+member RouteGenerator.collectPageNames: private (pages: NuxtPage[]) => string[]
+member RouteGenerator.computeActiveLocaleCodes: private () => string[]
 member RouteGenerator.customRegex: string | RegExp | undefined
 member RouteGenerator.defaultLocale: Locale
-member RouteGenerator.ensureFileExists: (filePath: string) => void
+member RouteGenerator.ensureFileExists: private (filePath: string) => void
 member RouteGenerator.ensureTranslationFilesExist: (pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void
 member RouteGenerator.excludePatterns: (string | RegExp)[] | undefined
 member RouteGenerator.extendPages: (pages: NuxtPage[]) => void

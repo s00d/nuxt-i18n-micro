@@ -13,9 +13,15 @@ describe('stripComments', () => {
     expect(stripComments(`const s = 'it\\'s fine' // gone`)).toBe(`const s = 'it\\'s fine' `)
   })
 
-  it('empties template literals, including nested interpolations', () => {
-    expect(stripComments('const t = `a ${b} c`')).toBe('const t = ``')
-    expect(stripComments('const t = `a ${`x ${y}`} c`; const z = 1')).toBe('const t = ``; const z = 1')
+  it('empties template text but keeps its interpolations, which are real code', () => {
+    expect(stripComments('const t = `a ${b} c`')).toBe('const t = ``b')
+    expect(stripComments('const t = `a ${`x ${y}`} c`; const z = 1')).toBe('const t = ````y; const z = 1')
+  })
+
+  it('leaves a regex literal alone, even when it contains comment or quote characters', () => {
+    // Treating `/*` inside a character class as a comment swallowed the rest of the file.
+    expect(stripComments("const re = /[/*]/ ; const s = 'kept'")).toBe("const re = /[/*]/ ; const s = 'kept'")
+    expect(stripComments("const re = /it's/ ; const s = 'kept'")).toBe("const re = /it's/ ; const s = 'kept'")
   })
 })
 
@@ -51,6 +57,11 @@ describe('fileImports', () => {
     // The real false positive this guards: a sentence ending `… from "no request context"`.
     expect(fileImports('// disabled for this request) from "no request context"').value).toEqual([])
     expect(fileImports('/* import x from "ghost" */').value).toEqual([])
+  })
+
+  it('finds a runtime import written inside a template interpolation', () => {
+    // The interpolation is code the module really runs, unlike the literal text around it.
+    expect(fileImports("const html = `<b>${require('alpha').x}</b>`").value).toEqual(['alpha'])
   })
 
   it('ignores imports inside generated code held in a template literal', () => {

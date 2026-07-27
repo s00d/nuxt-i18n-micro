@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { packageOfSpecifier } from '../src/commands/deps-audit'
-import { catalogRef, isNonRegistrySpec, isWorkspaceProtocol } from '../src/utils/catalog'
+import { aliasTarget, catalogRef, isNonRegistrySpec, isWorkspaceProtocol } from '../src/utils/catalog'
 
 describe('packageOfSpecifier', () => {
   it('reduces a subpath to its package', () => {
@@ -29,20 +29,35 @@ describe('catalogRef', () => {
   })
 })
 
+describe('aliasTarget', () => {
+  it('reads the aliased package name', () => {
+    expect(aliasTarget('npm:other@1.0.0')).toBe('other')
+    expect(aliasTarget('npm:@scope/other@^2')).toBe('@scope/other')
+    expect(aliasTarget('npm:other')).toBe('other')
+  })
+
+  it('returns null for anything that is not an alias', () => {
+    expect(aliasTarget('^1.0.0')).toBeNull()
+    expect(aliasTarget('catalog:')).toBeNull()
+  })
+})
+
 describe('spec protocols', () => {
   it('recognises the workspace protocol', () => {
     expect(isWorkspaceProtocol('workspace:*')).toBe(true)
     expect(isWorkspaceProtocol('^1.0.0')).toBe(false)
   })
 
-  it.each(['catalog:', 'workspace:*', 'file:../x.tgz', 'link:../x', 'git+https://e.dev/x.git', 'https://e.dev/x.tgz', 'npm:other@1.0.0'])(
+  it.each(['catalog:', 'workspace:*', 'file:../x.tgz', 'link:../x', 'git+https://e.dev/x.git', 'https://e.dev/x.tgz', 'github:user/repo', 'gitlab:org/repo', 'user/repo#main'])(
     'treats %s as naming no registry version',
     (spec) => {
       expect(isNonRegistrySpec(spec)).toBe(true)
     },
   )
 
-  it.each(['^1.2.3', '1.2.3', '~1.2', '>=1 <2', '*'])('treats %s as a registry version', (spec) => {
+  // `npm:other@1.0.0` does name a registry version, just under another package name —
+  // skipping it let a pin drift from the catalog.
+  it.each(['^1.2.3', '1.2.3', '~1.2', '>=1 <2', '*', 'npm:other@1.0.0'])('treats %s as a registry version', (spec) => {
     expect(isNonRegistrySpec(spec)).toBe(false)
   })
 })

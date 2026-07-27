@@ -6,8 +6,8 @@ value createPreactRouterAdapter: unknown
 const defaultPlural: PluralFunc
 class FormatService
 member FormatService.clearCache: () => void
-member FormatService.dateCache: any
-member FormatService.datetimeFormats: any
+member FormatService.dateCache: private any
+member FormatService.datetimeFormats: private any
 member FormatService.formatDate: (value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions) => string
 member FormatService.formatNumber: (value: number, locale: string, options?: Intl.NumberFormatOptions) => string
 member FormatService.formatRelativeTime: (value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions) => string
@@ -16,24 +16,24 @@ member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateT
 member FormatService.getNumberFormats: () => NumberFormatsConfig
 member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
 member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
-member FormatService.numberCache: any
-member FormatService.numberFormats: any
-member FormatService.relativeCache: any
+member FormatService.numberCache: private any
+member FormatService.numberFormats: private any
+member FormatService.relativeCache: private any
 member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Intl.DateTimeFormatOptions | undefined
 member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
 member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
 member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
-const I18nContext: import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<PreactI18n | null>
-const I18nDefaultLocaleContext: import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<string | null>
+const I18nContext: import("preact/src/index").Context<PreactI18n | null>
+const I18nDefaultLocaleContext: import("preact/src/index").Context<string | null>
 value I18nGroup: unknown
 value I18nGroupProps: unknown
 value I18nLink: unknown
 value I18nLinkProps: unknown
-const I18nLocalesContext: import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<Locale[] | null>
+const I18nLocalesContext: import("preact/src/index").Context<Locale[] | null>
 value I18nProvider: unknown
 value I18nProviderProps: unknown
-const I18nRouterContext: import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/preact@10.26.1/node_modules/preact/src/index").Context<I18nRoutingStrategy | null>
+const I18nRouterContext: import("preact/src/index").Context<I18nRoutingStrategy | null>
 interface I18nRoutingStrategy
 member I18nRoutingStrategy.getCurrentPath: () => string
 member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
@@ -116,39 +116,39 @@ member PreactI18n.formatter: FormatService
 member PreactI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
 member PreactI18n.getFallbackLocale: () => string
 member PreactI18n.getLocale: () => string
-member PreactI18n.getMissingContext: (routeContext?: unknown) => { locale: string; routeName: string; }
+member PreactI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member PreactI18n.getRoute: () => string
 member PreactI18n.getSnapshot: () => string
 member PreactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
-member PreactI18n.keyRecorder: any
+member PreactI18n.keyRecorder: private any
 member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member PreactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member PreactI18n.locale: string
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.pluralFunc: PluralFunc
-member PreactI18n.recordResolvedKey: (cacheKey: string, key: string, value: unknown) => void
-member PreactI18n.resolveDateTimeFormatArgs: any
-member PreactI18n.resolveHas: (key: TranslationKey, routeContext?: unknown) => boolean
-member PreactI18n.resolveLookup: (key: TranslationKey, routeContext?: unknown) => unknown | null
-member PreactI18n.resolveNumberFormatArgs: any
-member PreactI18n.resolveRouteName: (routeContext?: unknown) => string
+member PreactI18n.recordResolvedKey: protected (cacheKey: string, key: string, value: unknown) => void
+member PreactI18n.resolveDateTimeFormatArgs: private any
+member PreactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
+member PreactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
+member PreactI18n.resolveNumberFormatArgs: private any
+member PreactI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member PreactI18n.setKeyRecorder: (recorder: ((cacheKey: string, key: string, value: unknown) => void) | null) => void
 member PreactI18n.setRoute: (routeName: string) => void
 member PreactI18n.storage: TranslationStorage
-member PreactI18n.store: ReactiveI18nStore
+member PreactI18n.store: private ReactiveI18nStore
 member PreactI18n.subscribe: (listener: () => void) => () => void
 member PreactI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member PreactI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member PreactI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
 member PreactI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 member PreactI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
-member PreactI18n.touch: () => void
+member PreactI18n.touch: protected () => void
 member PreactI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string
-member PreactI18n.warnDev: (message: string) => void
-member PreactI18n.warnMissing: (key: TranslationKey, routeContext?: unknown) => void
-member PreactI18n.warnMissingFormat: (kind: "number" | "datetime", key: string, locale: string) => void
+member PreactI18n.warnDev: protected (message: string) => void
+member PreactI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
+member PreactI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
 interface PreactI18nOptions
 member PreactI18nOptions.fallbackLocale?: string | undefined
 member PreactI18nOptions.locale: string

@@ -68,7 +68,9 @@ export function collectLinks(theme: ThemeConfig): string[] {
  * A trailing slash names a directory, so only the index form applies.
  */
 export function pageCandidatesForLink(link: string): string[] {
-  if (/^[a-z]+:/i.test(link)) return []
+  // `//example.dev/x` is an external URL, not a path — matching it as one produced a
+  // dead-link error for a link that works.
+  if (/^[a-z]+:/i.test(link) || link.startsWith('//')) return []
   const [path = ''] = link.split('#', 1)
   if (!path.startsWith('/')) return []
 
@@ -120,7 +122,9 @@ export function pageLinks(page: string, body: string): string[] {
 /** Relative markdown links inside a page body, excluding code fences. */
 export function markdownLinks(source: string): string[] {
   const withoutCode = source.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '')
-  return [...withoutCode.matchAll(/\]\(([^)\s]+)\)/g)].map((match) => match[1]!)
+  // The optional title form `](/page.md "Title")` is valid Markdown; requiring the paren
+  // to follow the target immediately skipped those links entirely.
+  return [...withoutCode.matchAll(/\]\(\s*<?([^)\s>]+)>?(?:\s+["'(][^)]*)?\)/g)].map((match) => match[1]!)
 }
 
 export const docsAuditCommand = defineCommand({
@@ -178,6 +182,17 @@ export const docsAuditCommand = defineCommand({
         'packages/types/src/index.ts',
         `option "${option.path}" appears nowhere in ${args.dir}/`,
       )
+    }
+
+    // --- options documented that no longer exist --------------------------------------
+    // Only the hand-written option sections of the Configuration guide: that is a
+    // thousand lines that can outlive an option, while the generated tables cannot go
+    // stale by construction, and prose elsewhere mentions option-like words constantly.
+    const known = new Set(options.map((option) => option.path.split('.').pop()!))
+    const configuration = bodies.get('guide/configuration.md')
+    for (const match of (configuration ?? '').matchAll(/^#{3,4}\s+`([a-zA-Z][\w.]*)`\s*$/gm)) {
+      const name = match[1]!.split('.').pop()!
+      if (!known.has(name)) add('warnings', 'stale-option', 'guide/configuration.md', `documents "${match[1]!}", which is not in ModuleOptions`)
     }
 
     // --- nav and sidebar --------------------------------------------------------------

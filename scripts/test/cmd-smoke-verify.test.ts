@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { type SmokeVerifyReport, smokeVerifyCommand } from '../src/commands/smoke-verify'
 import { runCli } from './helpers'
 
@@ -59,11 +59,12 @@ async function failuresFor(mutate: (app: App) => void) {
   return { exitCode: run.exitCode, names: report.results.filter((r) => !r.ok).map((r) => r.name) }
 }
 
-beforeEach(() => vi.unstubAllGlobals())
 afterEach(() => vi.unstubAllGlobals())
 
 describe('smoke-verify', () => {
-  it('passes against a working deployment and exits 0', async () => {
+  it('passes against a working deployment without exiting', async () => {
+    // `runCli` reports null when the command returned normally; only a `process.exit`
+    // produces a code, so this is the success case.
     const { exitCode, names } = await failuresFor(() => {})
     expect(names).toEqual([])
     expect(exitCode).toBeNull()

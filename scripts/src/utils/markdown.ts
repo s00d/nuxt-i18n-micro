@@ -13,7 +13,9 @@ export function cell(value: string): string {
 }
 
 export function code(value: string | null | undefined): string {
-  return value ? `\`${cell(value)}\`` : '—'
+  // Presence, not truthiness: `false` and `0` are real defaults, and testing for truth
+  // rendered them as "no default at all".
+  return value === null || value === undefined || value === '' ? '—' : `\`${cell(value)}\``
 }
 
 export function table(headers: string[], rows: string[][]): string {

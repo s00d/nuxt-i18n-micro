@@ -36,6 +36,14 @@ descriptions.
 | [`apiBaseServerHost`](/api/module-options) | `string` | `undefined` | Override the host used for server-side translation fetch requests |
 | [`translationDir`](/api/module-options) | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root |
 | [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how pre-merged translation payload files are emitted during build |
+| [`translationPayloads.mode`](/api/module-options) | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy |
+| [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Register translation payload files as Nitro server assets |
+| [`translationPayloads.serverHandler`](/api/module-options) | `boolean` | `true` | Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json` |
+| [`translationPayloads.publicAssets`](/api/module-options) | `boolean` | `true in `premerged` mode, `false` in `source` mode` | Copy translation payload files into Nitro public assets during production builds |
+| [`translationPayloads.prerenderRoutes`](/api/module-options) | `boolean` | `true in `premerged` mode, `false` in `source` mode` | Add translation data routes to Nuxt/Nitro prerender output |
+| [`translationPayloads.publicDir`](/api/module-options) | `string` | — | Public output directory for copied translation payloads, relative to Nitro's public directory |
+| [`translationPayloads.warnFileCount`](/api/module-options) | `number` | `500` | Warn during build when generated payload file count exceeds this threshold |
+| [`translationPayloads.warnSizeBytes`](/api/module-options) | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes |
 | [`autoDetectLanguage`](/api/module-options) | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header |
 | [`autoDetectPath`](/api/module-options) | `string` | `'/'` | URL path on which automatic language detection and redirect occur |
 | [`disableWatcher`](/api/module-options) | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode |

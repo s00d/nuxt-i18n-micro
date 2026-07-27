@@ -41,7 +41,9 @@ export function summarise(text: string): string {
   const flat = cell(text)
   // A period ends a sentence only when a new one follows and it is not part of a known
   // abbreviation — `noPrefixRedirect` used to render as `For … (e.g`.
-  const match = /(?<!\b(?:e\.g|i\.e|etc|vs|cf|approx|Mr|Mrs|Dr|St|No|[A-Za-z]))[.!?](?=\s+[A-Z(`]|$)/.exec(flat)
+  // Anything that can open a sentence counts, not just a capital: a Markdown link, a
+  // quote, an emphasis marker or a tag all start one.
+  const match = /(?<!\b(?:e\.g|i\.e|etc|vs|cf|approx|Mr|Mrs|Dr|St|No|[A-Za-z]))[.!?](?=\s+[A-Z(`[<"'*_~]|$)/.exec(flat)
   return match ? flat.slice(0, match.index + 1) : flat
 }
 

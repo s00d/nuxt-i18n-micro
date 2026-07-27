@@ -68,8 +68,11 @@ describe('pageLinks', () => {
     expect(pageLinks('index.md', 'see [guide](/guide/)')).toEqual(['guide/index.md'])
   })
 
-  it('ignores external links and bare anchors', () => {
+  it('ignores external links, bare anchors and protocol-relative URLs', () => {
     expect(pageLinks('a.md', 'see [x](https://example.dev) and [y](#section)')).toEqual([])
+    // `//example.dev/x` is external; treating it as a path put a phantom page into the
+    // reachability walk.
+    expect(pageLinks('a.md', 'see [x](//example.dev/x)')).toEqual([])
   })
 })
 

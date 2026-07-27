@@ -64,6 +64,12 @@ describe('fileImports', () => {
     expect(fileImports("const s = `${'import \"ghost\"'}`").value).toEqual([])
   })
 
+  it('survives a regex literal inside an interpolation', () => {
+    // A brace or quote in a regex used to end the interpolation early and hide the rest.
+    expect(fileImports("const s = `${x.replace(/[{}'\"]/g, '')}`; import 'alpha'").value).toEqual(['alpha'])
+    expect(fileImports("const s = `${/from 'ghost'/.test(y)}`").value).toEqual([])
+  })
+
   it('survives a lone brace inside an interpolated string', () => {
     // A naive brace count closes the interpolation early and hides everything after it.
     expect(fileImports("const s = `${x['}']}`; import 'alpha'").value).toEqual(['alpha'])

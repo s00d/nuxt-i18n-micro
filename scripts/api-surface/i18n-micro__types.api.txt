@@ -185,7 +185,7 @@ type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: st
 interface PluralTranslations
 member PluralTranslations.plural: string
 member PluralTranslations.singular: string
-type ScopedKey<Scope extends string>: Extract<TranslationKey, `${Scope}.${string}`>
+type ScopedKey: <Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>
 type Strategies: 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
 type Translation: CleanTranslation | unknown
 type TranslationKey: keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string

@@ -73,6 +73,27 @@ function readInterpolation(source: string, start: number): { text: string; end: 
       continue
     }
 
+    if (char === '/' && regexCanStart(out)) {
+      // A regex can hold quotes and braces; scanning it as text both invents specifiers
+      // and closes the interpolation early, hiding every import after it.
+      const from = i
+      i++
+      let inClass = false
+      while (i < source.length) {
+        const inner = source[i]!
+        i++
+        if (inner === '\\') {
+          i++
+          continue
+        }
+        if (inner === '[') inClass = true
+        else if (inner === ']') inClass = false
+        else if ((inner === '/' && !inClass) || inner === '\n') break
+      }
+      out += source.slice(from, i)
+      continue
+    }
+
     if (char === '{') depth++
     else if (char === '}') depth--
 

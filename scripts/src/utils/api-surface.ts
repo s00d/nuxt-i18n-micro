@@ -89,8 +89,9 @@ function entriesForSymbol(name: string, symbol: ts.Symbol, checker: ts.TypeCheck
         ? flat(declaration.type.getText())
         : flat(checker.typeToString(checker.getDeclaredTypeOfSymbol(symbol), undefined, FORMAT_FLAGS))
     // Consumers write `ScopedKey<'errors'>`, so the parameter list is part of what they
-    // depend on — a snapshot without it cannot see a constraint change.
-    return [{ path: `${name}${typeParametersOf(symbol)}`, kind, signature: body }]
+    // depend on — carried in the signature, because a path containing spaces cannot be
+    // parsed back out of the snapshot and the comparison would silently drop the line.
+    return [{ path: name, kind, signature: `${typeParametersOf(symbol)}${typeParametersOf(symbol) ? ' = ' : ''}${body}` }]
   }
 
   if (!STRUCTURAL_KINDS.has(kind)) {
@@ -114,7 +115,9 @@ function entriesForSymbol(name: string, symbol: ts.Symbol, checker: ts.TypeCheck
     })
     .sort((a, b) => a.path.localeCompare(b.path))
 
-  return [{ path: `${name}${typeParametersOf(symbol)}`, kind, signature: '' }, ...members, ...callableMembers(name, symbol, checker)]
+  // Same reason as above, and the members below are keyed on the plain name — putting
+  // parameters in the path made every member of a generic class an orphan.
+  return [{ path: name, kind, signature: typeParametersOf(symbol) }, ...members, ...callableMembers(name, symbol, checker)]
 }
 
 /** `<Scope extends string = string>` as written, or an empty string. */
@@ -137,12 +140,27 @@ function callableMembers(name: string, symbol: ts.Symbol, checker: ts.TypeChecke
   const declared = checker.getDeclaredTypeOfSymbol(symbol)
   const staticSide = symbol.valueDeclaration ? checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration) : null
 
-  for (const signature of staticSide?.getConstructSignatures() ?? declared.getConstructSignatures()) {
-    entries.push({ path: `${name}.new`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
+  // An abstract class cannot be constructed, and an implicit no-argument constructor
+  // carries no contract — recording either is noise a reader has to discount.
+  const declaration = symbol.declarations?.[0]
+  const isAbstract =
+    declaration &&
+    ts.canHaveModifiers(declaration) &&
+    (ts.getModifiers(declaration) ?? []).some((modifier) => modifier.kind === ts.SyntaxKind.AbstractKeyword)
+
+  if (!isAbstract) {
+    const constructors = staticSide?.getConstructSignatures() ?? declared.getConstructSignatures()
+    // Overloads share a name, so each gets its own key — one `.new` would let
+    // `indexSurface` overwrite all but the last and hide a changed overload.
+    const meaningful = constructors.filter((signature) => signature.parameters.length > 0 || signature.declaration)
+    meaningful.forEach((signature, index) => {
+      entries.push({ path: `${name}.new${index > 0 ? `#${index + 1}` : ''}`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
+    })
   }
-  for (const signature of declared.getCallSignatures()) {
-    entries.push({ path: `${name}.call`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
-  }
+
+  declared.getCallSignatures().forEach((signature, index) => {
+    entries.push({ path: `${name}.call${index > 0 ? `#${index + 1}` : ''}`, kind: 'member', signature: flat(checker.signatureToString(signature)) })
+  })
   for (const [label, index] of [
     ['string', declared.getStringIndexType()],
     ['number', declared.getNumberIndexType()],

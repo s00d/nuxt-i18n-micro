@@ -149,11 +149,15 @@ export const fixturesAuditCommand = defineCommand({
         for (const name of report.unreferenced) console.log(`  ? ${name}`)
       }
 
-      if (report.withStaleDirs.length > 0) {
+      // Committed entries are listed even when nothing is present locally — that is the
+      // case `--strict` fails on, and a failure without the fixture name is unactionable.
+      const reported = fixtures.filter((f) => f.staleDirs.length > 0 || f.committedDirs.length > 0)
+      if (reported.length > 0) {
         console.log(`\nBuild output inside fixtures (\`pnpm run clean:test\` removes most; \`.output\` by hand):`)
-        for (const entry of fixtures.filter((f) => f.staleDirs.length > 0)) {
+        for (const entry of reported) {
+          const local = entry.staleDirs.length > 0 ? entry.staleDirs.join(', ') : '(not present locally)'
           const committed = entry.committedDirs.length > 0 ? ` — committed: ${entry.committedDirs.join(', ')}` : ''
-          console.log(`  ! ${entry.name} — ${entry.staleDirs.join(', ')}${committed}`)
+          console.log(`  ! ${entry.name} — ${local}${committed}`)
         }
       }
       console.log()

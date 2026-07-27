@@ -113,6 +113,13 @@ describe('markdown rendering', () => {
     expect(summarise('One sentence only')).toBe('One sentence only')
   })
 
+  it('stops at a sentence that opens with markup rather than a capital', () => {
+    // The whitelist used to miss a link, a quote or an emphasis marker.
+    expect(summarise('First. [See here](/x) for more.')).toBe('First.')
+    expect(summarise('First. *emphasised* follows.')).toBe('First.')
+    expect(summarise('First. "Quoted" follows.')).toBe('First.')
+  })
+
   it('renders nothing for a table with no rows', () => {
     expect(table(['A'], [])).toBe('')
   })

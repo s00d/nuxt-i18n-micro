@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/types`
 
-25 exports across 1 entry point.
+26 exports across 1 entry point.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -38,6 +38,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
+| `ScopedKey` | type | ``<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>`` |
 | `Strategies` | type | `'no_prefix' \| 'prefix_except_default' \| 'prefix' \| 'prefix_and_default'` |
 | `Translation` | type | `CleanTranslation \| unknown` |
 | `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |

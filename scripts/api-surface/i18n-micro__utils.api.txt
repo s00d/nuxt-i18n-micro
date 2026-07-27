@@ -19,7 +19,7 @@ member PreMergeLocaleInfo.fallbackLocale?: string | undefined
 function preMergeLocales: (rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean) => Promise<void>
 
 # ./cache-control (src/cache-control.ts)
-class CacheControl<T>
+class CacheControl: <T>
 member CacheControl.cache: private Map<string, T>
 member CacheControl.clear: () => void
 member CacheControl.configure: (options: CacheControlOptions) => void
@@ -92,7 +92,7 @@ function pagePathSegmentsToRouteName: (segments: string[]) => string | null
 type ParsedTranslationRelativePath: { type: 'page'; pageName: string; locale: string } | { type: 'root'; locale: string } | { type: 'ignore' }
 function parseTranslationRelativePath: (relativePath: string) => ParsedTranslationRelativePath
 function storeLoadedTranslationFile: <T extends Record<string, unknown>>(buckets: TranslationFileBuckets<T>, relativePath: string, translations: T, disablePageLocales?: boolean) => void
-interface TranslationFileBuckets<T = Record<string, unknown>>
+interface TranslationFileBuckets: <T = Record<string, unknown>>
 member TranslationFileBuckets.root: Record<string, T>
 member TranslationFileBuckets.routes: Record<string, Record<string, T>>
 

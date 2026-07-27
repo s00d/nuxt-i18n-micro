@@ -42,7 +42,7 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 | `handleTranslationWatchChange` | function | `(input: HandleTranslationWatchChangeInput) => Promise<"page" \| "root" \| "ignored">` |
 | `HandleTranslationWatchChangeInput` | interface | 7 members |
 | `parseTranslationWatchRelativePath` | function | `(relativePath: string) => ParsedTranslationWatchPath` |
-| `TranslationContentTracker` | class | 4 members |
+| `TranslationContentTracker` | class | 3 members |
 
 <details>
 <summary><code>HandleTranslationWatchChangeInput</code> — 7 members</summary>
@@ -59,13 +59,12 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 
 </details>
 <details>
-<summary><code>TranslationContentTracker</code> — 4 members</summary>
+<summary><code>TranslationContentTracker</code> — 3 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `forget` | `(filePath: string) => void` |
 | `hashes` | `private Map<string, string>` |
-| `new` | `(): TranslationContentTracker` |
 | `shouldProcess` | `(filePath: string) => boolean` |
 
 </details>

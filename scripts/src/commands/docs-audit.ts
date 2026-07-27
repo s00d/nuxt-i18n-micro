@@ -109,7 +109,9 @@ export function pageLinks(page: string, body: string): string[] {
   const dir = page.includes('/') ? page.slice(0, page.lastIndexOf('/')) : ''
 
   return markdownLinks(body).flatMap((link) => {
-    if (/^[a-z]+:/i.test(link) || link.startsWith('#')) return []
+    // `//example.dev/x` is an external URL; treating it as a path put a phantom page into
+    // the reachability walk.
+    if (/^[a-z]+:/i.test(link) || link.startsWith('#') || link.startsWith('//')) return []
     const [target = ''] = link.split('#', 1)
     if (!target) return []
 

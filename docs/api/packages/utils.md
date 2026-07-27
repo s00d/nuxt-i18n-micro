@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-90 exports across 21 entry points.
+89 exports across 21 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -73,8 +73,7 @@ import { /* … */ } from '@i18n-micro/utils/cache-control'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `CacheControl` | unknown | 13 members |
-| `CacheControl<T>` | class | — |
+| `CacheControl` | class | `<T>` |
 | `CacheControlOptions` | interface | 2 members |
 
 <details>
@@ -223,7 +222,7 @@ import { /* … */ } from '@i18n-micro/utils/parse-path'
 | `ParsedTranslationRelativePath` | type | `{ type: 'page'; pageName: string; locale: string } \| { type: 'root'; locale: string } \| { type: 'ignore' }` |
 | `parseTranslationRelativePath` | function | `(relativePath: string) => ParsedTranslationRelativePath` |
 | `storeLoadedTranslationFile` | function | `<T extends Record<string, unknown>>(buckets: TranslationFileBuckets<T>, relativePath: string, translations: T, disablePageLocales?: boolean) => void` |
-| `TranslationFileBuckets` | unknown | 2 members |
+| `TranslationFileBuckets` | interface | `<T = Record<string, unknown>>` |
 
 <details>
 <summary><code>TranslationFileBuckets</code> — 2 members</summary>

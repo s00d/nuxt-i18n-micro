@@ -19,7 +19,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `analyzeRoute` | function | `(ctx: PathStrategyContext, route: ResolvedRouteLike) => RouteAnalysis` |
-| `BasePathStrategy` | class | 36 members |
+| `BasePathStrategy` | class | 35 members |
 | `buildLocalizedName` | function | `(baseName: string, locale: string, prefix?: string) => string` |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
 | `getRouteBaseName` | function | `(route: { name?: string \| null; } & Record<string, any>, options: GetRouteBaseNameOptions) => string \| null` |
@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `SwitchLocaleOptions` | interface | 1 members |
 
 <details>
-<summary><code>BasePathStrategy</code> — 36 members</summary>
+<summary><code>BasePathStrategy</code> — 35 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -74,7 +74,6 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `getStrategy` | `() => PathStrategyContext["strategy"]` |
 | `getSwitchLocaleFallbackWhenNoRoute` | `(route: ResolvedRouteLike, targetName: string) => RouteLike \| string` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, currentRoute?: ResolvedRouteLike) => RouteLike` |
-| `new` | `(ctx: PathStrategyContext): BasePathStrategy` |
 | `resolveLocaleFromPath` | `(path: string) => string \| null` |
 | `resolveLocaleRoute` | `(targetLocale: string, normalized: NormalizedRouteInput, _currentRoute?: ResolvedRouteLike) => RouteLike \| string` |
 | `resolvePathForLocale` | `(path: string, targetLocale: string) => string` |

@@ -12,6 +12,109 @@ interface Finding {
   message: string
 }
 
+export interface TypedFinding {
+  level: 'errors' | 'warnings'
+  code: string
+  message: string
+}
+
+/**
+ * Problems with the `types` conditions of a dual CJS/ESM root export.
+ *
+ * Only meaningful for `"type": "module"` packages that expose a `require` condition —
+ * that is the shape where TypeScript resolves types per condition and a missing or
+ * mis-extensioned entry silently gives CommonJS consumers no types at all.
+ */
+export function dualPackageTypeFindings(pkg: Manifest): TypedFinding[] {
+  const exports = pkg.exports as Record<string, unknown> | undefined
+  if (!exports || typeof exports !== 'object' || pkg.type !== 'module') return []
+
+  const root = exports['.'] as Record<string, unknown> | undefined
+  if (!root || typeof root !== 'object') return []
+  if (!('require' in root)) return []
+
+  const findings: TypedFinding[] = []
+  // A top-level `types` inside the "." object is a condition of its own and applies to
+  // both `import` and `require`, so it counts as types for either — it is just not the
+  // recommended shape.
+  const rootTypes = typeof root.types === 'string' ? root.types : null
+  const importTypes =
+    typeof root.import === 'object' && root.import && 'types' in root.import ? (root.import as Record<string, unknown>).types : rootTypes
+  const requireTypes =
+    typeof root.require === 'object' && root.require && 'types' in root.require ? (root.require as Record<string, unknown>).types : null
+
+  if (rootTypes && (root.import || root.require)) {
+    findings.push({
+      level: 'warnings',
+      code: 'exports-types-top-level',
+      message: 'Root export "." uses top-level "types" with import/require conditions — prefer types under import/require',
+    })
+  }
+
+  if (requireTypes && !String(requireTypes).endsWith('.d.cts')) {
+    findings.push({
+      level: 'warnings',
+      code: 'require-types-cts',
+      message: `require.types should use .d.cts for "type":"module" (got ${requireTypes})`,
+    })
+  }
+
+  if (importTypes && requireTypes && importTypes === requireTypes) {
+    findings.push({
+      level: 'warnings',
+      code: 'same-types-import-require',
+      message: 'import.types and require.types point to the same file — use .d.cts for require',
+    })
+  }
+
+  if (!importTypes && !requireTypes) {
+    findings.push({
+      level: 'errors',
+      code: 'exports-no-types',
+      message: 'Root export "." has import/require conditions but declares no "types" — consumers resolve no types at all',
+    })
+  } else if (!requireTypes && !rootTypes) {
+    findings.push({
+      level: 'warnings',
+      code: 'require-no-types',
+      message: 'Root export "." has a "require" condition with no "types" — CommonJS consumers resolve no types',
+    })
+  }
+
+  return findings
+}
+
+/**
+ * Would `npm pack` include `rel`, given this manifest's "files"?
+ *
+ * Deliberately coarse: it only answers for the prefixes `files` can express, and treats
+ * an absent `files` (everything ships) and npm's always-included entries as published.
+ * Being wrong here would mean a false error on a working package, so it errs towards
+ * published.
+ */
+export function isPublished(pkg: Manifest, rel: string): boolean {
+  const files = pkg.files
+  if (!Array.isArray(files)) return true
+
+  const path = rel.replace(/^\.\//, '')
+  // npm publishes these regardless of "files".
+  if (/^(package\.json|README|LICEN[CS]E|CHANGELOG)/i.test(path)) return true
+
+  let included = false
+  for (const entry of files) {
+    if (typeof entry !== 'string') continue
+    const negated = entry.startsWith('!')
+    const pattern = entry.replace(/^!/, '').replace(/^\.\//, '').replace(/\/$/, '')
+    if (!pattern) continue
+    // A bare directory name in "files" ships the whole subtree.
+    const star = pattern.indexOf('*')
+    const prefix = star === -1 ? pattern : pattern.slice(0, star).replace(/\/$/, '')
+    const matches = !prefix || path === prefix || path.startsWith(`${prefix}/`)
+    if (matches) included = !negated
+  }
+  return included
+}
+
 export const verifyPackagesCommand = defineCommand({
   meta: {
     name: 'verify-packages',
@@ -69,61 +172,6 @@ export const verifyPackagesCommand = defineCommand({
       return existsSync(resolvePkgPath(pkgDir, rel))
     }
 
-    function checkDualPackageTypes(pkgName: string, pkgDir: string, pkg: Manifest): void {
-      const exports = pkg.exports as Record<string, unknown> | undefined
-      if (!exports || typeof exports !== 'object' || pkg.type !== 'module') return
-
-      const root = exports['.'] as Record<string, unknown> | undefined
-      if (!root || typeof root !== 'object') return
-
-      const hasRequire = typeof root === 'object' && ('require' in root || (typeof root.require === 'object' && root.require !== null))
-      if (!hasRequire) return
-
-      const importTypes =
-        typeof root.import === 'object' && root.import && 'types' in root.import
-          ? root.import.types
-          : typeof root.types === 'string'
-            ? root.types
-            : null
-      const requireTypes = typeof root.require === 'object' && root.require && 'types' in root.require ? root.require.types : null
-
-      if (typeof root.types === 'string' && (root.import || root.require)) {
-        add(
-          'warnings',
-          pkgName,
-          'exports-types-top-level',
-          'Root export "." uses top-level "types" with import/require conditions — prefer types under import/require',
-        )
-      }
-
-      if (requireTypes && !String(requireTypes).endsWith('.d.cts')) {
-        add('warnings', pkgName, 'require-types-cts', `require.types should use .d.cts for "type":"module" (got ${requireTypes})`)
-      }
-
-      if (importTypes && requireTypes && importTypes === requireTypes) {
-        add('warnings', pkgName, 'same-types-import-require', 'import.types and require.types point to the same file — use .d.cts for require')
-      }
-
-      // Everything above only fires when at least one types entry exists. A dual export
-      // with none at all is the worse case — TypeScript resolves no types for either
-      // condition — and it was passing silently.
-      if (!importTypes && !requireTypes) {
-        add(
-          'errors',
-          pkgName,
-          'exports-no-types',
-          'Root export "." has import/require conditions but declares no "types" — consumers resolve no types at all',
-        )
-      } else if (!requireTypes) {
-        add(
-          'warnings',
-          pkgName,
-          'require-no-types',
-          'Root export "." has a "require" condition with no "types" — CommonJS consumers resolve no types',
-        )
-      }
-    }
-
     function checkPublishFields(pkgName: string, pkgDir: string, pkg: Manifest): void {
       if (!pkg.license) {
         add('warnings', pkgName, 'missing-license', 'Missing "license" field')
@@ -143,35 +191,7 @@ export const verifyPackagesCommand = defineCommand({
       if (existsSync(join(pkgDir, 'README.md')) && Array.isArray(pkg.files) && !pkg.files.includes('README.md')) {
         add('warnings', pkgName, 'files-readme', '"files" should include README.md')
       }
-      checkDualPackageTypes(pkgName, pkgDir, pkg)
-    }
-
-    /**
-     * Would `npm pack` include `rel`, given this manifest's "files"?
-     *
-     * Deliberately coarse: it only answers for the prefixes `files` can express, and
-     * treats an absent `files` (everything ships) and npm's always-included entries as
-     * published. Being wrong here would mean a false error on a working package, so it
-     * errs towards published.
-     */
-    function isPublished(pkg: Manifest, rel: string): boolean {
-      const files = pkg.files
-      if (!Array.isArray(files)) return true
-
-      const path = rel.replace(/^\.\//, '')
-      // npm publishes these regardless of "files".
-      if (/^(package\.json|README|LICEN[CS]E|CHANGELOG)/i.test(path)) return true
-
-      return files.some((entry) => {
-        if (typeof entry !== 'string') return false
-        const pattern = entry.replace(/^\.\//, '').replace(/^!/, '').replace(/\/$/, '')
-        if (!pattern) return false
-        // A bare directory name in "files" ships the whole subtree.
-        const star = pattern.indexOf('*')
-        const prefix = star === -1 ? pattern : pattern.slice(0, star).replace(/\/$/, '')
-        if (!prefix) return true
-        return path === prefix || path.startsWith(`${prefix}/`)
-      })
+      for (const finding of dualPackageTypeFindings(pkg)) add(finding.level, pkgName, finding.code, finding.message)
     }
 
     function checkReferencedFiles(pkgName: string, pkgDir: string, pkg: Manifest): void {

@@ -1,5 +1,13 @@
 import { defineCommand } from 'citty'
-import { assertBaseResolvable, affectsPublishedArtifact, changedFiles, listWorkspacePackages, resolveBase, tryRun } from '../utils/git-baseline'
+import {
+  assertBaseResolvable,
+  affectsPublishedArtifact,
+  changedFiles,
+  listWorkspacePackages,
+  resolveBase,
+  runCapture,
+  tryRun,
+} from '../utils/git-baseline'
 import { compareVersions } from '../utils/semver'
 
 interface Entry {
@@ -24,20 +32,34 @@ function versionAtRef(ref: string, relDir: string): string | null {
 /**
  * Versions of `name` on npm, or `null` when the lookup itself failed.
  *
- * The distinction matters: this feeds a release gate, and treating an unreachable
- * registry as "nothing published" lets an already-published version through — the
- * exact case the gate exists to catch.
+ * Three outcomes, and the difference between the last two is the whole point:
+ * a list of versions, `[]` for a package the registry has never heard of, and `null`
+ * when the registry could not be reached. Reading an unreachable registry as "nothing
+ * published" lets an already-published version through the gate the check exists to
+ * guard; reading a never-published package as a failure blocks the first release of
+ * every new package.
+ *
+ * `npm view` reports both cases with a non-zero exit, so the JSON body decides:
+ * E404 means the package does not exist, anything else means the lookup failed.
  */
 export function publishedVersions(name: string): string[] | null {
-  const out = tryRun('npm', ['view', name, 'versions', '--json'])
-  if (out === null) return null
-  if (!out) return []
+  const { ok, stdout } = runCapture('npm', ['view', name, 'versions', '--json'])
+  if (ok && !stdout) return []
+
+  let parsed: unknown
   try {
-    const parsed = JSON.parse(out) as string | string[]
-    return Array.isArray(parsed) ? parsed : [parsed]
+    parsed = JSON.parse(stdout)
   } catch {
     return null
   }
+
+  const errorCode = (parsed as { error?: { code?: string } })?.error?.code
+  if (errorCode) return errorCode === 'E404' ? [] : null
+  if (!ok) return null
+
+  if (Array.isArray(parsed)) return parsed as string[]
+  if (typeof parsed === 'string') return [parsed]
+  return null
 }
 
 export const checkVersionsCommand = defineCommand({
@@ -92,7 +114,7 @@ export const checkVersionsCommand = defineCommand({
       const published = publishedVersions(name)
       if (published === null) {
         entry.status = 'NPM LOOKUP FAILED'
-        entry.errors.push(`could not read published versions from npm — refusing to pass the gate on an unknown registry state`)
+        entry.errors.push('could not read published versions from npm — refusing to pass the gate on an unknown registry state')
         return 1
       }
 

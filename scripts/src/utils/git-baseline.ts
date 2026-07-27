@@ -31,6 +31,28 @@ export function run(cmd: string, args: string[], options: ExecFileSyncOptions = 
     .trim()
 }
 
+export interface CommandResult {
+  ok: boolean
+  stdout: string
+  stderr: string
+}
+
+/**
+ * Like `tryRun`, but keeps the output of a *failed* command.
+ *
+ * Some tools answer a legitimate question on a non-zero exit — `npm view` reports a
+ * package that was never published as E404 while still printing a JSON body — so the
+ * caller needs to see stdout before deciding whether the failure was meaningful.
+ */
+export function runCapture(cmd: string, args: string[]): CommandResult {
+  try {
+    return { ok: true, stdout: run(cmd, args), stderr: '' }
+  } catch (error) {
+    const err = error as { stdout?: Buffer | string; stderr?: Buffer | string }
+    return { ok: false, stdout: (err.stdout?.toString() ?? '').trim(), stderr: (err.stderr?.toString() ?? '').trim() }
+  }
+}
+
 export function tryRun(cmd: string, args: string[]): string | null {
   try {
     return run(cmd, args)

@@ -17,6 +17,10 @@ Typical cases:
 
 ---
 
+## Signature
+
+<SymbolDoc name="useI18nHead" />
+
 ## How it fits in the pipeline
 
 ```mermaid

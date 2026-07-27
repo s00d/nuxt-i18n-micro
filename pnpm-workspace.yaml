@@ -11,7 +11,9 @@ catalog:
   # Build & dev
   h3: ^1.15.11
   publint: ^0.3.17
+  typedoc: ^0.28.20
   vite: ^7.3.6
+  vue-docgen-api: ^4.79.2
   yaml: ^2.8.2
   vite-plugin-dts: ^4.5.4
   vite-plugin-solid: ^2.11.10

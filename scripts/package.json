@@ -17,8 +17,10 @@
     "citty": "catalog:",
     "globby": "catalog:",
     "tsx": "catalog:",
+    "typedoc": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
+    "vue-docgen-api": "catalog:",
     "yaml": "catalog:"
   }
 }

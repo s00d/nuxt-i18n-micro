@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { parseSnapshot } from '../../docs/api/packages.data'
-import { formatSize } from '../../docs/guide/payload-budget.data'
+import { parseSnapshot } from '../src/commands/docs-data'
 import { coveredByDynamicRoute, isDynamicTemplate } from '../src/commands/docs-audit'
+import { formatSize } from '../../docs/.vitepress/data/loaders'
 
 /**
  * The documentation reads these artifacts directly, so a parsing mistake here shows up as

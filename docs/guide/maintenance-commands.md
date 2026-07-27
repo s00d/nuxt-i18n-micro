@@ -34,23 +34,69 @@ read at build time, so the reference documentation and the release gates cannot 
 
 ## Documentation from data
 
-Three reference pages are built from data rather than written by hand, using VitePress
-[build-time data loaders](https://vitepress.dev/guide/data-loading):
+Reference pages are built from the code rather than written beside it. One command
+collects the facts, the pages render them:
 
-| Page | Loader | Reads |
+```bash
+pnpm run docs:data          # writes docs/.data/*.json
+pnpm run docs:data:check    # fails when a file would change — what CI runs
+```
+
+`pnpm run docs:dev` and `docs:build` run it first, so the site is never built from stale
+data.
+
+| Dataset | Read from | Using |
 | --- | --- | --- |
-| [Module Options](/api/module-options) | `docs/api/module-options.data.ts` | the `ModuleOptions` interface, through the TypeScript AST |
-| [Package APIs](/api/packages) | `docs/api/packages.data.ts` | `scripts/api-surface/*.api.txt` |
-| [Performance](/guide/performance#where-it-stands-today) | `docs/guide/payload-budget.data.ts` | `scripts/payload-budget.json` |
+| `components.json` | `src/runtime/components/*.vue` | [vue-docgen-api](https://vue-docgen-api.vuejs.org) — props, slots, bindings, events |
+| `composables.json` | `src/runtime/composables/*.ts` | [TypeDoc](https://typedoc.org) — signatures, `@param`, `@returns`, `@example` |
+| `methods.json` | the `PluginsInjections` interface | TypeDoc |
+| `module-options.json` | the `ModuleOptions` type | the TypeScript AST |
+| `packages.json` | `scripts/api-surface/*.api.txt` | the snapshots `api-surface` checks |
+| `payload-budget.json` | `scripts/payload-budget.json` | the budget `payload-budget` enforces |
 
-Per-package pages under `/api/packages/` come from a
-[dynamic route](https://vitepress.dev/guide/routing#dynamic-routes) —
-`docs/api/packages/[pkg].md` plus its `.paths.ts` — so adding a package to the workspace
-adds its page and removing one removes it.
+`docs/` reads those JSON files and nothing else — no compiler, no TypeDoc and no SFC
+parser at build time, and no import from the tooling package.
 
-Nothing here is generated into a committed file, which is the point: there is no
-regeneration step to forget, no `--check` gate to keep honest, and `docs:dev` picks up an
-edit to the type or a snapshot immediately through each loader's `watch` globs.
+### Writing the documentation in the code
+
+The prose lives next to what it describes, so a rename cannot leave it behind:
+
+```ts
+/** Translate with pluralization. `params` may be the count itself, or an object containing `count`. */
+$tc: (key: string, params: number | Params, defaultValue?: string) => string
+```
+
+```vue
+<!-- @slot Content before the button that opens the dropdown. -->
+<slot name="before-button" />
+```
+
+A `<script setup>` component is described through `defineOptions`, which is the form
+vue-docgen-api reads:
+
+```ts
+/** A link that keeps the active locale. */
+defineOptions({ name: 'I18nLink' })
+```
+
+Two tests keep this honest: every prop and slot must carry a comment, and every injected
+helper and composable must carry a description. Adding one without documenting it fails
+the suite rather than producing a blank table cell.
+
+### Rendering it
+
+Three global components, registered in the theme:
+
+```md
+<PropsTable tag="i18n-switcher" />   <!-- props, slots and events of a component -->
+<SymbolDoc name="$tc" from="methods" />  <!-- signature, params, description, examples -->
+<MethodsTable />                     <!-- every injected helper, as an index -->
+<OptionsTable />                     <!-- every module option -->
+```
+
+Per-package API pages under `/api/packages/` come from a
+[dynamic route](https://vitepress.dev/guide/routing#dynamic-routes), so adding a package
+to the workspace adds its page.
 
 ## payload-budget
 

@@ -29,13 +29,32 @@ interface MetaObject {
 }
 
 interface UseLocaleHeadOptions {
+  /** Set `dir` on `<html>` from the locale's direction. */
   addDirAttribute?: boolean
+  /** Attribute used to key the generated tags so they can be replaced rather than duplicated. */
   identifierAttribute?: string
+  /** Emit `hreflang` alternates, `canonical` and `og:` tags. */
   addSeoAttributes?: boolean
+  /** Base URL for absolute URLs in the generated tags. */
   baseUrl?: string
+  /** Recompute the tags on every route change. */
   autoUpdate?: boolean
 }
 
+/**
+ * The SEO head tags for the current route: `hreflang` alternates for every locale plus
+ * `x-default`, a canonical link, `og:locale`, and `lang`/`dir` on `<html>`.
+ *
+ * Only needed when `meta` is disabled or the defaults need adjusting — with `meta: true`
+ * the module registers the same tags itself.
+ *
+ * @returns a ref holding the head object, ready to pass to `useHead`
+ * @example
+ * ```ts
+ * const head = useLocaleHead({ addSeoAttributes: true })
+ * useHead(head)
+ * ```
+ */
 export const useLocaleHead = ({
   addDirAttribute = true,
   identifierAttribute = 'id',

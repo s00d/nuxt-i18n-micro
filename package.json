@@ -104,8 +104,8 @@
     "test:dist:packages": "pnpm --filter \"@i18n-micro/core\" --filter \"@i18n-micro/utils\" --filter \"@i18n-micro/hmr\" --filter \"@i18n-micro/vue\" --filter \"@i18n-micro/path-strategy\" --filter \"@i18n-micro/route-strategy\" --filter \"@i18n-micro/devtools-ui\" --filter \"@i18n-micro/astro\" run test:dist",
     "typecheck": "tsc --noEmit",
     "typecheck:nuxt": "nuxt typecheck --no-emit",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
+    "docs:dev": "pnpm run docs:data && vitepress dev docs",
+    "docs:build": "pnpm run docs:data && vitepress build docs",
     "docs:serve": "vitepress serve docs",
     "docs:clean-dev": "vitepress dev docs --clean-cache",
     "docs:preview": "vitepress preview docs",
@@ -119,7 +119,9 @@
     "api:surface:update": "pnpm -C scripts cli api-surface --update",
     "budget:payload": "pnpm -C scripts cli payload-budget",
     "budget:payload:update": "pnpm -C scripts cli payload-budget --update",
-    "preflight": "pnpm -C scripts cli preflight"
+    "preflight": "pnpm -C scripts cli preflight",
+    "docs:data": "pnpm -C scripts cli docs-data",
+    "docs:data:check": "pnpm -C scripts cli docs-data --check"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:*",

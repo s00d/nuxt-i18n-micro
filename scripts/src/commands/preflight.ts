@@ -34,6 +34,7 @@ function gatesFor(options: { npm: boolean; offline: boolean }): Gate[] {
     { name: 'verify-packages', args: ['verify-packages', '--publint'] },
     { name: 'api-surface', args: ['api-surface'] },
     { name: 'docs-audit', args: ['docs-audit'] },
+    { name: 'docs-data', args: ['docs-data', '--check'] },
     { name: 'check-versions', args: options.npm ? ['check-versions', '--npm'] : ['check-versions'], skip: options.npm ? registryOnly : undefined },
     { name: 'ensure-npm-auth', args: ['ensure-npm-auth'], skip: options.npm ? registryOnly : () => 'needs --npm' },
   ]

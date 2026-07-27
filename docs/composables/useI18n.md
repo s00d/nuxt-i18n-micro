@@ -10,64 +10,17 @@ The `useI18n` composable in `Nuxt I18n Micro` provides access to most runtime i1
 
 Some injections — `$defineI18nRoute` and `$clearCache` — are available on `useNuxtApp()` only. See [Methods — `$defineI18nRoute`](/api/methods#definei18nroute) and [`$clearCache`](/api/methods#clearcache).
 
-## 📊 Methods Overview
+## 📊 What it returns
 
-```mermaid
-classDiagram
-    class useI18n {
-        <<composable>>
-    }
+<SymbolDoc name="useI18n" />
 
-    class LocaleMethods {
-        $getLocale()
-        $getLocaleName()
-        $getLocales()
-    }
+Every helper is available twice: under its dollar-prefixed name (`$t`) and as a bare
+alias (`t`), so either destructuring style works.
 
-    class TranslationMethods {
-        $t(key, params?, default?)
-        $ts(key, params?, default?)
-        $_t(route)
-        $_ts(route)
-        $tc(key, count, default?)
-        $has(key)
-        $mergeTranslations(obj)
-    }
+<MethodsTable />
 
-    class FormattingMethods {
-        $tn(value, options?)
-        $td(date, options?)
-        $tdr(date, options?)
-    }
-
-    class RoutingMethods {
-        $switchLocale(locale)
-        $switchLocalePath(locale)
-        $localeRoute(to, locale?)
-        $localePath(to, locale?)
-        $loadPageTranslations(...)
-    }
-
-    useI18n <|-- LocaleMethods
-    useI18n <|-- TranslationMethods
-    useI18n <|-- FormattingMethods
-    useI18n <|-- RoutingMethods
-```
-
-## ⚙️ Return Values
-
-The `useI18n` composable returns an object containing several key methods and properties for managing internationalization:
-
-### `$getLocale`
-
-- **Type**: `() => string`
-- **Description**: Returns the current locale of the application.
-- **Example**:
-  ```js
-  const { $getLocale } = useI18n()
-  const locale = $getLocale()
-  console.log(locale) // e.g., 'en'
-  ```
+Each helper is documented in full on the [Methods](/api/methods) page — signatures,
+examples and edge cases.
 
 ## 🌍 `$getLocaleName`
 

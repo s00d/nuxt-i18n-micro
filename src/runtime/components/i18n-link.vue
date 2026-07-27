@@ -1,5 +1,6 @@
 <template>
   <a v-if="isExternalLink" :href="externalHref" :style="computedStyle" target="_blank" rel="noopener noreferrer">
+    <!-- @slot Link content. -->
     <slot />
   </a>
 
@@ -13,10 +14,18 @@ import { computed } from 'vue'
 import type { RouteLocationNamedRaw, RouteLocationResolvedGeneric } from 'vue-router'
 import { useNuxtApp, useRoute, useRouter } from '#imports'
 
+/**
+ * A link that keeps the active locale: renders `NuxtLink` to the localized route, or a
+ * plain `<a target="_blank">` when `to` is an external URL.
+ */
+defineOptions({ name: 'I18nLink' })
+
 const { $localePath } = useNuxtApp()
 
 interface Props {
+  /** Target route. Localized automatically; an external URL is passed through unchanged. */
   to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string
+  /** Inline style applied while the link points at the current route. */
   activeStyle?: Partial<CSSStyleValue>
 }
 

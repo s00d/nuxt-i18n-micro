@@ -9,35 +9,20 @@ The `<i18n-group>` component in Nuxt I18n Micro provides a convenient way to gro
 
 ## ⚙️ Props
 
-### `prefix`
-
-- **Type**: `String`
-- **Required**: Yes
-- **Description**: The translation key prefix that will be automatically prepended to all translations within the group.
-- **Example**: `"product.details"`, `"user.profile"`
-
-### `groupClass`
-
-- **Type**: `String`
-- **Required**: No
-- **Default**: `""`
-- **Description**: Additional CSS class(es) to be applied to the wrapper div element.
+<PropsTable tag="i18n-group" />
 
 ## 🎯 Slots
 
-### Default Slot
-
-The default slot provides access to two important properties:
-
-- **prefix**: The current prefix string
-- **t**: A translation function that automatically prepends the prefix
-
-The slot exposes these properties through scoped slots:
+The default slot receives `prefix` and a `t` function scoped to it, so keys inside are
+written relative to the prefix:
 
 ```vue
-<template #default="{ prefix, t }">
-  <!-- Your content here -->
-</template>
+<i18n-group prefix="checkout">
+  <template #default="{ t }">
+    <h2>{{ t('title') }}</h2>
+    <p>{{ t('summary', { count: 3 }) }}</p>
+  </template>
+</i18n-group>
 ```
 
 ## 🛠️ Example Usage

@@ -10,56 +10,11 @@ Complete reference for every option under the `i18n` key in `nuxt.config`. Types
 
 ## Quick reference
 
-| Option                     | Type                                  | Default                   | Group            |
-| -------------------------- | ------------------------------------- | ------------------------- | ---------------- |
-| `locales`                  | `Locale[]`                            | `[]`                      | Core             |
-| `defaultLocale`            | `string`                              | `'en'`                    | Core             |
-| `strategy`                 | `Strategies`                          | `'prefix_except_default'` | Routing          |
-| `translationDir`           | `string`                              | `'locales'`               | Translation      |
-| `disablePageLocales`       | `boolean`                             | `false`                   | Translation      |
-| `fallbackLocale`           | `string`                              | `undefined`               | Translation      |
-| `translationPayloads`      | `TranslationPayloadOptions`           | see below                 | Cache / Payloads |
-| `plural`                   | `string \| PluralFunc`                | built-in                  | Translation      |
-| `routesLocaleLinks`        | `Record<string, string>`              | `{}`                      | Translation      |
-| `types`                    | `boolean`                             | `true`                    | Dev              |
-| `meta`                     | `boolean`                             | `true`                    | SEO              |
-| `metaBaseUrl`              | `string`                              | `undefined`               | SEO              |
-| `metaTrustForwardedHost`   | `boolean`                             | `true`                    | SEO              |
-| `metaTrustForwardedProto`  | `boolean`                             | `true`                    | SEO              |
-| `canonicalQueryWhitelist`  | `string[]`                            | see below                 | SEO              |
-| `globalLocaleRoutes`       | `GlobalLocaleRoutes`                  | `{}`                      | Routing          |
-| `routeLocales`             | `Record<string, string[]>`            | build-time                | Routing          |
-| `routeDisableMeta`         | `Record<string, boolean \| string[]>` | build-time                | SEO              |
-| `customRegexMatcher`       | `string \| RegExp`                    | auto                      | Routing          |
-| `noPrefixRedirect`         | `boolean`                             | `false`                   | Routing          |
-| `localizedRouteNamePrefix` | `string`                              | `'localized-'`            | Routing          |
-| `excludePatterns`          | `(string \| RegExp)[]`                | `undefined`               | Routing          |
-| `autoDetectLanguage`       | `boolean`                             | `true`                    | Detection        |
-| `autoDetectPath`           | `string`                              | `'/'`                     | Detection        |
-| `localeCookie`             | `string \| null`                      | `null`                    | Detection        |
-| `redirects`                | `boolean`                             | `true`                    | Plugins          |
-| `define`                   | `boolean`                             | `true`                    | Plugins          |
-| `plugin`                   | `boolean`                             | `true`                    | Plugins          |
-| `hooks`                    | `boolean`                             | `true`                    | Plugins          |
-| `components`               | `boolean`                             | `true`                    | Plugins          |
-| `apiBaseUrl`               | `string`                              | `'_locales'`              | Cache / Payloads |
-| `apiBaseClientHost`        | `string`                              | `undefined`               | Cache / Payloads |
-| `apiBaseServerHost`        | `string`                              | `undefined`               | Cache / Payloads |
-| `cacheMaxSize`             | `number`                              | `0`                       | Cache / Payloads |
-| `cacheTtl`                 | `number`                              | `0`                       | Cache / Payloads |
-| `httpCacheDuration`        | `number`                              | `31536000`                | Cache / Payloads |
-| `numberFormats`            | `object`                              | `{}`                      | Formatting       |
-| `datetimeFormats`          | `object`                              | `{}`                      | Formatting       |
-| `dateBuild`                | `string \| number`                    | translations fingerprint  | Cache / Payloads |
-| `hmr`                      | `boolean`                             | `true` (dev)              | Dev              |
-| `debug`                    | `boolean`                             | `false`                   | Dev              |
-| `disableWatcher`           | `boolean`                             | `false`                   | Dev              |
-| `missingWarn`              | `boolean`                             | `true`                    | Dev              |
-| `experimental`             | `Record<string, unknown>`             | `undefined`               | Dev              |
+Every option the module accepts, from the `ModuleOptions` type. The sections below explain
+how they work together; the [Module Options reference](/api/module-options) has the full
+descriptions.
 
-Default `canonicalQueryWhitelist`: `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']`.
-
-Default `translationPayloads` (`mode: 'premerged'`): `{ serverAssets: true, serverHandler: true, publicAssets: true, prerenderRoutes: true }`.
+<OptionsTable />
 
 # Option details
 

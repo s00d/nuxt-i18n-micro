@@ -10,47 +10,7 @@ The `useLocaleHead` composable is a utility in `Nuxt I18n Micro` that helps you 
 
 ## ⚙️ Options
 
-The `useLocaleHead` composable accepts an options object to customize its behavior:
-
-### `addDirAttribute`
-
-- **Type**: `boolean`
-- **Default**: `true`
-- **Description**: If `true`, adds the `dir` attribute to the HTML document based on the current locale's direction (`ltr` or `rtl`).
-- **Example**:
-  ```js
-  const head = useLocaleHead({ addDirAttribute: false })
-  ```
-
-### `identifierAttribute`
-
-- **Type**: `string`
-- **Default**: `'id'`
-- **Description**: Specifies the attribute used to identify the generated meta and link tags. This is useful for differentiating tags when inspecting the document head.
-- **Example**:
-  ```js
-  const head = useLocaleHead({ identifierAttribute: 'data-i18n' })
-  ```
-
-### `addSeoAttributes`
-
-- **Type**: `boolean`
-- **Default**: `true`
-- **Description**: If `true`, includes SEO-related meta and link tags, such as `og:locale`, `og:url`, and `hreflang` attributes for alternate languages.
-- **Example**:
-  ```js
-  const head = useLocaleHead({ addSeoAttributes: false })
-  ```
-
-### `baseUrl`
-
-- **Type**: `string`
-- **Default**: `'/'`
-- **Description**: The base URL of your application, used to generate canonical and alternate URLs for SEO purposes.
-- **Example**:
-  ```js
-  const head = useLocaleHead({ baseUrl: 'https://example.com' })
-  ```
+<SymbolDoc name="useLocaleHead" />
 
 ## 🛠️ Return Values
 

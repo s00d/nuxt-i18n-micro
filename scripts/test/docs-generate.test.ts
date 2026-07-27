@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { parseSnapshot } from '../src/commands/docs-data'
+import { parseSnapshot } from '../src/commands/docs-generate'
 import { coveredByDynamicRoute, isDynamicTemplate } from '../src/commands/docs-audit'
-import { formatSize } from '../../docs/.vitepress/data/loaders'
 
 /**
- * The documentation reads these artifacts directly, so a parsing mistake here shows up as
- * a wrong reference page rather than as a failure.
+ * The reference pages are rendered from these artifacts, so a parsing mistake here shows
+ * up as a wrong page rather than as a failure.
  */
 describe('parseSnapshot', () => {
   const snapshot = [
@@ -21,14 +20,14 @@ describe('parseSnapshot', () => {
   ].join('\n')
 
   const parsed = parseSnapshot('@i18n-micro/core', snapshot)
+  const root = parsed.entryPoints[0]!
 
   it('folds members under the export they belong to', () => {
-    const [root] = parsed.entryPoints
-    const baseI18n = root!.exports.find((item) => item.name === 'BaseI18n')!
+    const baseI18n = root.exports.find((item) => item.name === 'BaseI18n')!
     expect(baseI18n.kind).toBe('class')
     expect(baseI18n.members.map((member) => member.name).sort()).toEqual(['has', 't'])
     // The class itself is one export, not one per member.
-    expect(root!.exports.map((item) => item.name)).toEqual(['BaseI18n', 'createI18n'])
+    expect(root.exports.map((item) => item.name)).toEqual(['BaseI18n', 'createI18n'])
   })
 
   it('turns each subpath into the specifier a consumer writes', () => {
@@ -41,14 +40,6 @@ describe('parseSnapshot', () => {
 
   it('derives the route slug from the package name', () => {
     expect(parsed.slug).toBe('core')
-  })
-})
-
-describe('formatSize', () => {
-  it('switches to MB once KB stops being readable', () => {
-    expect(formatSize(1024)).toBe('1.0 KB')
-    expect(formatSize(300_801)).toBe('293.8 KB')
-    expect(formatSize(15_960_520)).toBe('15.2 MB')
   })
 })
 

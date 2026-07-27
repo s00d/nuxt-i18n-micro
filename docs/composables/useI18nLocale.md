@@ -9,7 +9,16 @@ Centralized composable for i18n locale management. Combines `useState('i18n-loca
 
 ## Signature
 
-<SymbolDoc name="useI18nLocale" />
+<!-- generated:symbol:useI18nLocale — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string; getLocaleWithServerFallback: (serverLocale?: string) => string; getPreferredLocale: () => string; hashCookie: any; isValidLocale: (locale: string) => locale is string; locale: any; localeCookie: any; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string) => void; syncLocale: (locale: string) => void; validLocales: string[] }
+```
+
+Centralized entry point for i18n locale management.
+Combines useState('i18n-locale'), locale cookie, and sync utilities.
+
+<!-- /generated:symbol:useI18nLocale -->
 
 ## Usage
 

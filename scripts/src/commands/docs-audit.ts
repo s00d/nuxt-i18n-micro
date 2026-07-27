@@ -97,6 +97,26 @@ export function coveredByDynamicRoute(page: string, templates: string[]): boolea
   })
 }
 
+/**
+ * Pages a body links to, resolved to file paths.
+ *
+ * Accepts both `./other.md` and the extensionless form VitePress uses in prose
+ * (`/api/packages/core`), since a generated index links the way the site does.
+ */
+export function pageLinks(page: string, body: string): string[] {
+  const dir = page.includes('/') ? page.slice(0, page.lastIndexOf('/')) : ''
+
+  return markdownLinks(body).flatMap((link) => {
+    if (/^[a-z]+:/i.test(link) || link.startsWith('#')) return []
+    const [target = ''] = link.split('#', 1)
+    if (!target) return []
+
+    const withExtension = target.endsWith('.md') ? target : `${target}.md`
+    const resolved = withExtension.startsWith('/') ? withExtension.slice(1) : join(dir, withExtension)
+    return [resolved, resolved.replace(/\.md$/, '/index.md')]
+  })
+}
+
 /** Relative markdown links inside a page body, excluding code fences. */
 export function markdownLinks(source: string): string[] {
   const withoutCode = source.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '')
@@ -178,10 +198,28 @@ export const docsAuditCommand = defineCommand({
         }
       }
 
+      // A page linked from a reachable page is reachable too — a generated reference
+      // index links its per-package pages, and listing all fifteen in the sidebar would
+      // bury everything else in it.
+      const reachable = new Set(linked)
+      for (let added = true; added; ) {
+        added = false
+        for (const page of reachable) {
+          const body = bodies.get(page)
+          if (!body) continue
+          for (const target of pageLinks(page, body)) {
+            if (bodies.has(target) && !reachable.has(target)) {
+              reachable.add(target)
+              added = true
+            }
+          }
+        }
+      }
+
       for (const page of pages) {
         // A dynamic template is never linked directly; the pages it renders are.
         if (page.startsWith('public/') || page === 'index.md' || isDynamicTemplate(page)) continue
-        if (!linked.has(page)) add('warnings', 'unlinked-page', page, 'page is not reachable from the nav or the sidebar')
+        if (!reachable.has(page)) add('warnings', 'unlinked-page', page, 'page is not reachable from the nav, the sidebar, or a page that is')
       }
     }
 

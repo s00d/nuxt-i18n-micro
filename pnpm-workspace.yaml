@@ -78,6 +78,7 @@ catalog:
   '@types/node': ^20.19.26
   tsx: ^4.0.0
   # Docs & lint
+  vitepress-plugin-llms: ^1.13.3
   vitepress: ^2.0.0-alpha.18
   oxfmt: ^0.43.0
   oxlint: ^1.58.0

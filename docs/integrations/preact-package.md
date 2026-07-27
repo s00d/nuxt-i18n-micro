@@ -344,16 +344,7 @@ render(
 
 Creates a new i18n instance for your Preact application.
 
-**Parameters:**
-
-| Property         | Type                                                       | Required | Default          | Description                                    |
-| ---------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------- |
-| `locale`         | `string`                                                   | ✅       | -                | Current locale code (e.g., `'en'`)             |
-| `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
-| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                   |
-| `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
-| `missingWarn`    | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations |
-| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
+**Parameters:** the [shared `createI18n` options](./index.md#create-i18n-options) — `locale`, `fallbackLocale`, `messages`, `plural`, `missingWarn` and `missingHandler`.
 
 **Returns:** `PreactI18n`
 

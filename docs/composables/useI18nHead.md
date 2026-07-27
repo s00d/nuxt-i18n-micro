@@ -19,7 +19,20 @@ Typical cases:
 
 ## Signature
 
-<SymbolDoc name="useI18nHead" />
+<!-- generated:symbol:useI18nHead — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+useI18nHead(input?: MaybeRefOrGetter<I18nHeadInput>): { pageHead: any; resetPageHead: () => void }
+```
+
+Register page-level overrides for i18n SEO head tags.
+Merged on top of `useLocaleHead` output by the `02.meta` plugin.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `input` *(optional)* | `MaybeRefOrGetter<I18nHeadInput>` |  |
+
+<!-- /generated:symbol:useI18nHead -->
 
 ## How it fits in the pipeline
 

@@ -10,7 +10,25 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 
 ## ⚙️ Props
 
-<PropsTable tag="i18n-t" />
+<!-- generated:component:i18n-t — do not edit; run `pnpm run docs:generate` -->
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `keypath` **\*** | `string` | — | Translation key to render. |
+| `plural` | `number \| string` | — | Count selecting the plural form. Set it to use `$tc` instead of `$t`. |
+| `tag` | `string` | `'span'` | Element to render. |
+| `params` | `Record<string, string \| number \| boolean>` | `() => ({})` | Interpolation values substituted into the translation. |
+| `defaultValue` | `string` | `''` | Rendered instead of the component when `hideIfEmpty` suppresses an empty translation. |
+| `html` | `boolean` | `false` | Render the translation as HTML rather than text. Only for content you control. |
+| `hideIfEmpty` | `boolean` | `false` | Render nothing when the translation resolves to an empty string. |
+| `customPluralRule` | `PluralFunc` | `null` | Plural rule for this element only, overriding the configured one. |
+| `number` | `number \| string` | — | Formats the value with `$tn` and passes it to the translation as `{number}`. |
+| `date` | `Date \| string \| number` | — | Formats the value with `$td` and passes it to the translation as `{date}`. |
+| `relativeDate` | `Date \| string \| number` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`. |
+
+**\*** required.
+
+<!-- /generated:component:i18n-t -->
 
 Only one of `plural`, `number`, `date` and `relativeDate` applies at a time; when several
 are set, the first in that list wins.

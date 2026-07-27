@@ -1,3 +1,4 @@
+import llmstxt from 'vitepress-plugin-llms'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { withChartjs } from 'vitepress-plugin-chartjs'
 import { withFolderTree } from 'vitepress-plugin-folder-tree'
@@ -11,6 +12,22 @@ export default withFolderTree(
   withChartjs(
     withMermaid({
       vite: {
+        plugins: [
+          // Publishes the docs in the form an LLM can actually read: `/llms.txt` as an
+          // index, `/llms-full.txt` as one bundle, and a `.md` twin of every page — so an
+          // assistant answering about this module quotes the docs instead of guessing
+          // from the HTML it scraped.
+          llmstxt({
+            // Origin only: the plugin prepends VitePress's own `base`, so a domain that
+            // already contains it produces `/nuxt-i18n-micro/nuxt-i18n-micro/…`.
+            domain: new URL(SITE.url).origin,
+            title: 'Nuxt I18n Micro',
+            description: SITE.defaultDescription,
+            // The reference pages render from generated data at build time; their sources
+            // are Vue components, which carry no prose worth feeding to a model.
+            ignoreFiles: ['**/index.md'],
+          }),
+        ],
         build: {
           chunkSizeWarningLimit: 1000,
           rollupOptions: {

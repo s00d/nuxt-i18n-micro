@@ -12,15 +12,35 @@ Some injections — `$defineI18nRoute` and `$clearCache` — are available on `u
 
 ## 📊 What it returns
 
-<SymbolDoc name="useI18n" />
+<!-- generated:symbol:useI18n — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+useI18n(): PluginsInjectionsWithAliases
+```
+
+Every runtime helper, as a plain object.
+
+The same functions the plugin injects as `$t`, `$tc` and so on, available under both
+the dollar-prefixed name and a bare alias — so `const { t } = useI18n()` and
+`const { $t } = useI18n()` both work.
+
+**Returns** — the helpers described in the [methods reference](/api/methods)
+
+```ts
+const { t, tc, switchLocale, getLocale } = useI18n()
+
+t('welcome', { name: 'Ada' })
+tc('items', 3)
+switchLocale('de')
+```
+
+<!-- /generated:symbol:useI18n -->
 
 Every helper is available twice: under its dollar-prefixed name (`$t`) and as a bare
 alias (`t`), so either destructuring style works.
 
-<MethodsTable />
-
-Each helper is documented in full on the [Methods](/api/methods) page — signatures,
-examples and edge cases.
+Every helper is listed with its signature on the [Methods reference](/api/methods),
+which documents each one in full.
 
 ## 🌍 `$getLocaleName`
 

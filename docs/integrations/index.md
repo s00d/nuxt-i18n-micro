@@ -195,6 +195,23 @@ A component for grouping translations with a common prefix, useful for organizin
 
 All framework packages support DevTools integration through the `@i18n-micro/devtools-ui` Vite plugin. See the [DevTools UI Package documentation](./devtools-ui-package.md) for details.
 
+## Shared `createI18n` options {#create-i18n-options}
+
+Every framework package is created the same way — only the options type is named after
+the framework (`ReactI18nOptions`, `SolidI18nOptions`, and so on). The options themselves
+are identical:
+
+| Property         | Type                                                       | Required | Default          | Description                                    |
+| ---------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------- |
+| `locale`         | `string`                                                   | ✅       | -                | Current locale code (e.g., `'en'`)             |
+| `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
+| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                   |
+| `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
+| `missingWarn`    | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations |
+| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
+
+Anything beyond these is framework-specific and documented on that package's page.
+
 ## Router Adapter Abstraction
 
 All framework packages use a **router adapter pattern** to decouple i18n functionality from specific router implementations. This design allows:

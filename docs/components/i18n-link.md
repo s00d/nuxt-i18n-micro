@@ -10,7 +10,22 @@ The `<i18n-link>` component in `Nuxt I18n Micro` is a versatile link component t
 
 ## ⚙️ Props
 
-<PropsTable tag="i18n-link" />
+<!-- generated:component:i18n-link — do not edit; run `pnpm run docs:generate` -->
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `to` **\*** | `RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string` | — | Target route. Localized automatically; an external URL is passed through unchanged. |
+| `activeStyle` | `Partial<CSSStyleValue>` | — | Inline style applied while the link points at the current route. |
+
+**\*** required.
+
+### Slots
+
+| Slot | Bindings | Description |
+| --- | --- | --- |
+| `default` | — | Link content. |
+
+<!-- /generated:component:i18n-link -->
 
 `to` accepts anything `NuxtLink` does — a path, a named route, or a resolved route object.
 An absolute URL is detected and rendered as a plain `<a target="_blank" rel="noopener noreferrer">`

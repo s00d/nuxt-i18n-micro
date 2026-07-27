@@ -4,7 +4,7 @@ import { checkVersionsCommand } from './check-versions'
 import { comparePublishedCommand } from './compare-published'
 import { depsAuditCommand } from './deps-audit'
 import { docsAuditCommand } from './docs-audit'
-import { docsDataCommand } from './docs-data'
+import { docsGenerateCommand } from './docs-generate'
 import { ensureNpmAuthCommand } from './ensure-npm-auth'
 import { fixturesAuditCommand } from './fixtures-audit'
 import { payloadBudgetCommand } from './payload-budget'
@@ -22,7 +22,7 @@ export const commands = {
   'compare-published': comparePublishedCommand,
   'deps-audit': depsAuditCommand,
   'docs-audit': docsAuditCommand,
-  'docs-data': docsDataCommand,
+  'docs-generate': docsGenerateCommand,
   'ensure-npm-auth': ensureNpmAuthCommand,
   'fixtures-audit': fixturesAuditCommand,
   'payload-budget': payloadBudgetCommand,

@@ -32,30 +32,39 @@ also what the [Package APIs](/api/packages) and [Performance](/guide/performance
 read at build time, so the reference documentation and the release gates cannot disagree
 — they are the same files. See [Documentation from data](#documentation-from-data).
 
-## Documentation from data
+## Documentation from code
 
-Reference pages are built from the code rather than written beside it. One command
-collects the facts, the pages render them:
+Reference pages are generated as plain Markdown, so the site, the `llms.txt` bundle and
+anything else reading the sources all get the same content:
 
 ```bash
-pnpm run docs:data          # writes docs/.data/*.json
-pnpm run docs:data:check    # fails when a file would change — what CI runs
+pnpm run docs:generate          # write the reference
+pnpm run docs:generate:check    # fail when a page would change — what CI runs
 ```
 
 `pnpm run docs:dev` and `docs:build` run it first, so the site is never built from stale
-data.
+pages.
 
-| Dataset | Read from | Using |
+| What is generated | Read from | Using |
 | --- | --- | --- |
-| `components.json` | `src/runtime/components/*.vue` | [vue-docgen-api](https://vue-docgen-api.vuejs.org) — props, slots, bindings, events |
-| `composables.json` | `src/runtime/composables/*.ts` | [TypeDoc](https://typedoc.org) — signatures, `@param`, `@returns`, `@example` |
-| `methods.json` | the `PluginsInjections` interface | TypeDoc |
-| `module-options.json` | the `ModuleOptions` type | the TypeScript AST |
-| `packages.json` | `scripts/api-surface/*.api.txt` | the snapshots `api-surface` checks |
-| `payload-budget.json` | `scripts/payload-budget.json` | the budget `payload-budget` enforces |
+| Component props, slots and events | `src/runtime/components/*.vue` | [vue-docgen-api](https://vue-docgen-api.vuejs.org) |
+| Composable and helper reference | `src/runtime/composables/*.ts`, `PluginsInjections` | [TypeDoc](https://typedoc.org) |
+| [Module options](/api/module-options) | the `ModuleOptions` type | the TypeScript AST |
+| [Package APIs](/api/packages) | `scripts/api-surface/*.api.txt` | the snapshots `api-surface` checks |
+| Payload numbers in [Performance](/guide/performance) | `scripts/payload-budget.json` | the budget `payload-budget` enforces |
 
-`docs/` reads those JSON files and nothing else — no compiler, no TypeDoc and no SFC
-parser at build time, and no import from the tooling package.
+Whole pages (one per package) are written outright; everything else replaces a marked
+region inside a hand-written page, so the prose and examples around it stay under an
+author's control:
+
+```md
+<!-- generated:methods-index — do not edit; run `pnpm run docs:generate` -->
+<!-- /generated:methods-index -->
+```
+
+Repeated content links instead of repeating: a member list already documented on another
+package's page becomes a one-line reference to it. That alone removed 17 KB from the
+package reference.
 
 ### Writing the documentation in the code
 
@@ -71,7 +80,7 @@ $tc: (key: string, params: number | Params, defaultValue?: string) => string
 <slot name="before-button" />
 ```
 
-A `<script setup>` component is described through `defineOptions`, which is the form
+A `<script setup>` component is described through `defineOptions`, the form
 vue-docgen-api reads:
 
 ```ts
@@ -83,20 +92,13 @@ Two tests keep this honest: every prop and slot must carry a comment, and every 
 helper and composable must carry a description. Adding one without documenting it fails
 the suite rather than producing a blank table cell.
 
-### Rendering it
+### For LLMs
 
-Three global components, registered in the theme:
-
-```md
-<PropsTable tag="i18n-switcher" />   <!-- props, slots and events of a component -->
-<SymbolDoc name="$tc" from="methods" />  <!-- signature, params, description, examples -->
-<MethodsTable />                     <!-- every injected helper, as an index -->
-<OptionsTable />                     <!-- every module option -->
-```
-
-Per-package API pages under `/api/packages/` come from a
-[dynamic route](https://vitepress.dev/guide/routing#dynamic-routes), so adding a package
-to the workspace adds its page.
+[`vitepress-plugin-llms`](https://github.com/okineadev/vitepress-plugin-llms) publishes
+`/llms.txt` (an index) and `/llms-full.txt` (one bundle), plus a `.md` twin of every page.
+Because the reference is real Markdown rather than a component rendering JSON in the
+browser, all of it reaches those files — the option table, the helper signatures and the
+component props included.
 
 ## payload-budget
 

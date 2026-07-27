@@ -1,0 +1,141 @@
+---
+title: '@i18n-micro/solid'
+description: 'Exported API of @i18n-micro/solid, generated from the source.'
+outline: 'deep'
+---
+
+# `@i18n-micro/solid`
+
+33 exports across 1 entry point.
+Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
+checks against the TypeScript sources.
+
+## `@i18n-micro/solid`
+
+```ts
+import { /* … */ } from '@i18n-micro/solid'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
+| `createI18n` | function | `(options: SolidI18nOptions) => SolidI18n` |
+| `createSolidRouterAdapter` | value | `unknown` |
+| `defaultPlural` | const | `PluralFunc` |
+| `FormatService` | class | 18 members |
+| `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
+| `I18nContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/solid-js@1.9.10/node_modules/solid-js/types/index").Context<SolidI18n \| undefined>` |
+| `I18nDefaultLocaleContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/solid-js@1.9.10/node_modules/solid-js/types/index").Context<string \| undefined>` |
+| `I18nGroup` | value | `unknown` |
+| `I18nLink` | value | `unknown` |
+| `I18nLocalesContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/solid-js@1.9.10/node_modules/solid-js/types/index").Context<Locale[] \| undefined>` |
+| `I18nProvider` | value | `unknown` |
+| `I18nProviderProps` | value | `unknown` |
+| `I18nRouterContext` | const | `import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/solid-js@1.9.10/node_modules/solid-js/types/index").Context<I18nRoutingStrategy \| undefined>` |
+| `I18nRoutingStrategy` | interface | 7 members |
+| `I18nSwitcher` | value | `unknown` |
+| `I18nT` | value | `unknown` |
+| `interpolate` | function | `(template: string, params: Params) => string` |
+| `Locale` | interface | 10 members |
+| `LocaleCode` | type | `string` |
+| `ModuleOptions` | interface | 45 members |
+| `Params` | type | `Record<string, string \| number \| boolean>` |
+| `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
+| `SolidI18n` | class | 51 members |
+| `SolidI18nOptions` | interface | 6 members |
+| `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |
+| `Translations` | interface | — |
+| `useI18n` | function | `(options?: UseI18nOptions) => { instance: import("/Users/s00d/packeges/nuxt-i18n-next/packages/solid/src/i18n").SolidI18n; locale: import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/solid-js@1.9.10/node_modules/solid-js/types/index").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string \| null; localeRoute: (to: string \| { path?: string; }, localeCode?: string) => string \| { path?: string; }; localePath: (to: string \| { path?: string; }, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").TranslationKey, params?: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").Params, defaultValue?: string \| null, routeContext?: unknown) => import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").CleanTranslation; ts: (key: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").TranslationKey, params?: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").TranslationKey, count: number \| import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").TranslationKey, routeContext?: unknown) => boolean; setRoute: (val: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("/Users/s00d/packeges/nuxt-i18n-next/packages/types/dist/index").Translations, merge?: boolean) => void; clearCache: () => void; }` |
+| `useI18nContext` | const | `() => SolidI18n` |
+| `useI18nDefaultLocale` | const | `() => string` |
+| `useI18nLocales` | const | `() => Locale[]` |
+| `UseI18nOptions` | interface | 2 members |
+| `useI18nRouter` | const | `() => I18nRoutingStrategy \| undefined` |
+
+<code>FormatService</code> — 18 members, identical to [`FormatService`](/api/packages/astro).
+<details>
+<summary><code>I18nRoutingStrategy</code> — 7 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `getCurrentPath` | `() => string` |
+| `getCurrentPathAccessor?` | `(() => Accessor<string>) \| undefined` |
+| `getRoute?` | `(() => { fullPath: string; query: Record<string, unknown>; }) \| undefined` |
+| `linkComponent?` | `string \| Component<{ [key: string]: unknown; href: string; children?: JSX.Element; style?: JSX.CSSProperties; class?: string; }> \| undefined` |
+| `push` | `(target: { path: string; }) => void` |
+| `replace` | `(target: { path: string; }) => void` |
+| `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
+
+</details>
+<code>Locale</code> — 10 members, identical to [`Locale`](/api/packages/types).
+<code>ModuleOptions</code> — 45 members, identical to [`ModuleOptions`](/api/packages/types).
+<details>
+<summary><code>SolidI18n</code> — 51 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `_fallbackSignal` | `Accessor<string>` |
+| `_localeSignal` | `Accessor<string>` |
+| `_routeSignal` | `Accessor<string>` |
+| `_setLocaleSignal` | `(v: string) => void` |
+| `_setRouteSignal` | `(v: string) => void` |
+| `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
+| `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
+| `clearCache` | `() => void` |
+| `currentRoute` | `string` |
+| `fallbackLocale` | `string` |
+| `formatter` | `FormatService` |
+| `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
+| `getFallbackLocale` | `() => string` |
+| `getLocale` | `() => string` |
+| `getMissingContext` | `(routeContext?: unknown) => { locale: string; routeName: string; }` |
+| `getRoute` | `() => string` |
+| `getSnapshot` | `() => string` |
+| `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `keyRecorder` | `any` |
+| `listeners` | `Set<() => void>` |
+| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
+| `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
+| `locale` | `string` |
+| `localeAccessor` | `Accessor<string>` |
+| `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
+| `missingWarn` | `boolean` |
+| `notifyListeners` | `() => void` |
+| `pluralFunc` | `PluralFunc` |
+| `recordResolvedKey` | `(cacheKey: string, key: string, value: unknown) => void` |
+| `resolveDateTimeFormatArgs` | `any` |
+| `resolveHas` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
+| `resolveLookup` | `(key: TranslationKey, routeContext?: unknown) => unknown \| null` |
+| `resolveNumberFormatArgs` | `any` |
+| `resolveRouteName` | `(routeContext?: unknown) => string` |
+| `routeAccessor` | `Accessor<string>` |
+| `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
+| `setRoute` | `(val: string) => void` |
+| `storage` | `TranslationStorage` |
+| `store` | `ReactiveI18nStore` |
+| `subscribe` | `(cb: () => void) => () => void` |
+| `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
+| `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
+| `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
+| `tdr` | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` |
+| `tn` | `{ (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }` |
+| `touch` | `() => void` |
+| `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string` |
+| `warnDev` | `(message: string) => void` |
+| `warnMissing` | `(key: TranslationKey, routeContext?: unknown) => void` |
+| `warnMissingFormat` | `(kind: "number" \| "datetime", key: string, locale: string) => void` |
+
+</details>
+<code>SolidI18nOptions</code> — 6 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+<details>
+<summary><code>UseI18nOptions</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `defaultLocale?` | `string \| undefined` |
+| `locales?` | `Locale[] \| undefined` |
+
+</details>
+
+Back to [all packages](/api/packages) · [Integration guides](/integrations/)

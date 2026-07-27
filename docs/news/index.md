@@ -20,21 +20,7 @@ Previously the full `(locale, route)` chunk was mirrored into the payload — bu
 
 Now the payload carries only the keys the server actually resolved for that page, written to `nuxtApp.payload.data` (Nuxt externalizes `data` into `_payload.json` on prerendered routes; `state` never leaves the HTML). The rest of the chunk loads in the background after hydration, so it is off the critical path.
 
-Measured on the playground (index page, 6.65 MB dictionary, 3130 rendered keys):
-
-Before, a response looked one of two ways depending on whether that `(locale, route)` was already
-cached in the server process — so the two are listed separately:
-
-| | before (cold) | before (warm) | after |
-| --- | ---: | ---: | ---: |
-| HTML | 7 640 581 | 378 450 | 678 934 |
-| of that, inline `__NUXT_DATA__` | 7 262 448 | 317 | 300 801 |
-| blocking chunk fetch before mount | — | 6 651 984 | — |
-| **bytes before the app mounts** | **7 640 581** | **7 030 434** | **678 934** |
-| SSR response | 201 ms | 17 ms | 57 ms |
-
-Server RSS drops from 272 MB to 190 MB, and on SSG the dictionary leaves the HTML entirely: 24 of 24
-prerendered pages carried it before, none do now.
+On the playground, bytes before the app mounts drop from 7 030 434 to 678 934, and on SSG the dictionary leaves the HTML entirely — 24 of 24 prerendered pages carried it before, none do now. The full measurement, including the cold and warm cases, is in [Performance → Server-Side Payload Transfer](/guide/performance#server-side-payload-transfer).
 
 No configuration — this is how payload transfer works now. See [Performance](/guide/performance#server-side-payload-transfer).
 

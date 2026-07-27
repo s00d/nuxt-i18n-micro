@@ -9,7 +9,22 @@ The `<i18n-group>` component in Nuxt I18n Micro provides a convenient way to gro
 
 ## ⚙️ Props
 
-<PropsTable tag="i18n-group" />
+<!-- generated:component:i18n-group — do not edit; run `pnpm run docs:generate` -->
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `prefix` **\*** | `string` | — | Key prefix every lookup inside the slot is resolved against. |
+| `groupClass` | `string` | `''` | Extra class on the wrapper element. |
+
+**\*** required.
+
+### Slots
+
+| Slot | Bindings | Description |
+| --- | --- | --- |
+| `default` | `prefix`, `t` | Receives `prefix` and a `t` function scoped to it. |
+
+<!-- /generated:component:i18n-group -->
 
 ## 🎯 Slots
 

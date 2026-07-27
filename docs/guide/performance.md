@@ -4,10 +4,6 @@ description: 'Performance tips and optimizations.'
 outline: 'deep'
 ---
 
-<script setup>
-import { data as budget } from './payload-budget.data.ts'
-</script>
-
 # 🚀 Performance Guide
 
 ## 📖 Introduction
@@ -261,37 +257,25 @@ prerendered pages carried it before, none do now.
 
 #### Where it stands today
 
+
 The table above is a one-off before/after. The numbers below are read from the budget
 file `pnpm run budget:payload` measures and enforces, so the page cannot describe a build
 that no longer exists.
 
-<p>
-  Measured on <code>{{ budget.app }}</code> across
-  <span v-for="(route, index) in budget.routes" :key="route"><code>{{ route }}</code><span v-if="index < budget.routes.length - 1">, </span></span>:
-</p>
+<!-- generated:payload-budget — do not edit; run `pnpm run docs:generate` -->
 
-<table>
-  <thead><tr><th></th><th style="text-align:right">Size</th></tr></thead>
-  <tbody>
-    <tr v-for="row in budget.rows" :key="row.label">
-      <td>{{ row.label }}</td>
-      <td style="text-align:right">{{ row.display }}</td>
-    </tr>
-  </tbody>
-</table>
+Measured on `playground` across `/`, `/de`:
 
-<p v-if="budget.ratio">
-  The dictionary is <strong>{{ budget.ratio }}×</strong> larger than the payload any single page
-  inlines. That ratio is what the budget enforces — see
-  <a href="/guide/maintenance-commands#payload-budget">payload-budget</a>.
-</p>
+| Measurement | Size |
+| --- | --- |
+| Translation sources on disk | 15.2 MB |
+| Served as separate payload files | 76.3 MB |
+| Largest inline `__NUXT_DATA__` | 293.8 KB |
+| Client assets | 450.3 KB |
 
-This approach:
+The dictionary is **53×** larger than the payload any single page inlines. That ratio is what the budget enforces.
 
-- Eliminates waterfall requests on page load
-- Keeps HTML size proportional to the page, not to the dictionary
-- Reduces Time to Interactive (TTI)
-- Works seamlessly with pre-rendering and SSG
+<!-- /generated:payload-budget -->
 
 ### 💾 Caching and Pre-rendering
 
@@ -341,7 +325,7 @@ With `mode: 'source'`, `publicAssets` and `prerenderRoutes` default to `false`. 
 :::
 
 ::: warning External CDN hosts
-When `apiBaseServerHost` or `apiBaseClientHost` is set, the module fetches already merged JSON from that origin. External hosts must serve the same `/{apiBaseUrl}/:page/:locale/data.json` responses as the built-in route. `mode: 'source'` applies only to locally bundled Nitro assets, not to an external CDN unless that CDN also serves runtime-merged payloads.
+Setting `apiBaseServerHost` or `apiBaseClientHost` moves payload serving to that origin, which comes with its own requirements — see [Configuration → External CDN hosts](/guide/configuration#external-cdn-hosts).
 :::
 
 Or disable individual outputs manually and host payloads externally:

@@ -13,7 +13,38 @@ This page documents all available methods provided by nuxt-i18n-micro. Methods a
 Every helper the plugin injects, read from the `PluginsInjections` interface — so this
 list cannot drift from what is actually available.
 
-<MethodsTable />
+<!-- generated:methods-index — do not edit; run `pnpm run docs:generate` -->
+
+| Helper | Signature | Purpose |
+| --- | --- | --- |
+| [`$_t`](#_t) | `(route: RouteLocationNormalizedLoadedGeneric) => (key: string, params?: Params, defaultValue?: string) => CleanTranslation` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example |
+| [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoadedGeneric) => (key: string, params?: Params, defaultValue?: string) => string` | Bind `$ts` to a specific route |
+| [`$defaultLocale`](#defaultlocale) | `() => string` | Code of the configured default locale |
+| [`$getI18nConfig`](#geti18nconfig) | `() => ModuleOptionsExtend` | The resolved module configuration, as the runtime sees it |
+| [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoadedGeneric \| RouteLocationResolvedGeneric) => string` | Code of the active locale |
+| [`$getLocaleName`](#getlocalename) | `() => string` | The active locale's `displayName` from the config, or `null` when it has none |
+| [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata |
+| [`$getRouteName`](#getroutename) | `(route?: RouteLocationResolvedGeneric \| RouteLocationNamedRaw, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by |
+| [`$has`](#has) | `(key: string) => boolean` | Whether a key resolves in the active locale |
+| [`$i18nStrategy`](#i18nstrategy) | `PathStrategy` | The active routing strategy, resolving locales to and from paths |
+| [`$loadPageTranslations`](#loadpagetranslations) | `(locale: string, routeName: string, translations: Translations) => Promise<void>` | Load translations for a page at runtime, for content whose keys are not known at build time |
+| [`$localePath`](#localepath) | `(to: string \| RouteLocationResolvedGeneric \| RouteLocationNamedRaw, locale?: string) => string` | Resolve a path in the given locale, or the active one |
+| [`$localeRoute`](#localeroute) | `(to: string \| RouteLocationResolvedGeneric \| RouteLocationNamedRaw, locale?: string) => RouteLocationResolvedGeneric` | Resolve a route in the given locale, or the active one |
+| [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded |
+| [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language |
+| [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler) => void` | Install a callback invoked for every unresolved key |
+| [`$switchLocale`](#switchlocale) | `(locale: string) => void` | Navigate to the current page in another locale |
+| [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating |
+| [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => string \| RouteLocationAsRelativeGeneric \| RouteLocationAsPathGeneric` | The route object for the current page in another locale, without navigating |
+| [`$switchRoute`](#switchroute) | `(route: string \| RouteLocationResolvedGeneric \| RouteLocationNamedRaw, toLocale?: string) => void` | Navigate to another route, keeping the active locale or switching to `toLocale` |
+| [`$t`](#t) | `(key: string, params?: Params, defaultValue?: string) => CleanTranslation` | Translate a key, interpolating `params` into it |
+| [`$tc`](#tc) | `(key: string, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization |
+| [`$td`](#td) | `{ (value: string \| number \| Date, options?: DateTimeFormatOptions): string; (value: string \| number \| Date, key: string, overrides?: DateTimeFormatOptions): string; (value: string \| number \| Date, key: string, locale: string, overrides?: DateTimeFormatOptions): string }` | Format a date with `Intl.DateTimeFormat` in the active locale |
+| [`$tdr`](#tdr) | `(value: string \| number \| Date, options?: RelativeTimeFormatOptions) => string` | Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat` |
+| [`$tn`](#tn) | `{ (value: number, options?: NumberFormatOptions): string; (value: number, key: string, overrides?: NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: NumberFormatOptions): string }` | Format a number with `Intl.NumberFormat` in the active locale |
+| [`$ts`](#ts) | `(key: string, params?: Params, defaultValue?: string) => string` | Like `$t`, but always returns a string: an object or array value is stringified rather than returned as-is |
+
+<!-- /generated:methods-index -->
 
 ::: info `useNuxtApp()`-only injections
 `$defineI18nRoute` and `$clearCache` are provided by the main i18n plugin on
@@ -24,7 +55,15 @@ below.
 
 ### `$getI18nConfig`
 
-<SymbolDoc name="$getI18nConfig" from="methods" />
+<!-- generated:method:$getI18nConfig — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+() => ModuleOptionsExtend
+```
+
+The resolved module configuration, as the runtime sees it.
+
+<!-- /generated:method:$getI18nConfig -->
 
 ```typescript
 const nuxtApp = useNuxtApp()
@@ -43,7 +82,15 @@ Methods for getting and managing locale information.
 
 ### `$getLocale`
 
-<SymbolDoc name="$getLocale" from="methods" />
+<!-- generated:method:$getLocale — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(route?: RouteLocationNormalizedLoadedGeneric | RouteLocationResolvedGeneric) => string
+```
+
+Code of the active locale. Pass a route to read the locale that route belongs to.
+
+<!-- /generated:method:$getLocale -->
 
 ```typescript
 const locale = $getLocale()
@@ -52,7 +99,15 @@ const locale = $getLocale()
 
 ### `$getLocaleName`
 
-<SymbolDoc name="$getLocaleName" from="methods" />
+<!-- generated:method:$getLocaleName — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+() => string
+```
+
+The active locale's `displayName` from the config, or `null` when it has none.
+
+<!-- /generated:method:$getLocaleName -->
 
 ```typescript
 const locale = $getLocaleName()
@@ -61,7 +116,15 @@ const locale = $getLocaleName()
 
 ### `$getLocales`
 
-<SymbolDoc name="$getLocales" from="methods" />
+<!-- generated:method:$getLocales — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+() => Locale[]
+```
+
+Every configured locale, with its metadata.
+
+<!-- /generated:method:$getLocales -->
 
 ```typescript
 const locales = $getLocales()
@@ -70,7 +133,15 @@ const locales = $getLocales()
 
 ### `$defaultLocale`
 
-<SymbolDoc name="$defaultLocale" from="methods" />
+<!-- generated:method:$defaultLocale — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+() => string
+```
+
+Code of the configured default locale.
+
+<!-- /generated:method:$defaultLocale -->
 
 ```typescript
 const defaultLocale = $defaultLocale()
@@ -83,7 +154,16 @@ Core methods for retrieving and managing translations.
 
 ### `$t`
 
-<SymbolDoc name="$t" from="methods" />
+<!-- generated:method:$t — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(key: string, params?: Params, defaultValue?: string) => CleanTranslation
+```
+
+Translate a key, interpolating `params` into it. Returns `defaultValue` when the key is
+missing, or the key itself when no default is given.
+
+<!-- /generated:method:$t -->
 
 ```typescript
 const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
@@ -102,7 +182,16 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 
 ### `$ts`
 
-<SymbolDoc name="$ts" from="methods" />
+<!-- generated:method:$ts — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(key: string, params?: Params, defaultValue?: string) => string
+```
+
+Like `$t`, but always returns a string: an object or array value is stringified rather than
+returned as-is.
+
+<!-- /generated:method:$ts -->
 
 ```typescript
 const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
@@ -137,7 +226,16 @@ Prefer `$t` / `$ts` in most components. Reach for `$_t` / `$_ts` when you alread
 
 ### `$tc`
 
-<SymbolDoc name="$tc" from="methods" />
+<!-- generated:method:$tc — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(key: string, params: number | Params, defaultValue?: string) => string
+```
+
+Translate with pluralization. `params` may be the count itself, or an object containing
+`count`.
+
+<!-- /generated:method:$tc -->
 
 **Translation format**: forms separated by `|`. Put placeholders in **each** form:
 
@@ -169,7 +267,15 @@ The form selection logic depends on the `plural` function in your config. The de
 
 ### `$mergeTranslations`
 
-<SymbolDoc name="$mergeTranslations" from="methods" />
+<!-- generated:method:$mergeTranslations — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(newTranslations: Translations) => void
+```
+
+Merge translations into the active locale at runtime, overriding what is loaded.
+
+<!-- /generated:method:$mergeTranslations -->
 
 ```typescript
 $mergeTranslations({
@@ -180,7 +286,15 @@ $mergeTranslations({
 
 ### `$setMissingHandler`
 
-<SymbolDoc name="$setMissingHandler" from="methods" />
+<!-- generated:method:$setMissingHandler — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(handler: MissingHandler) => void
+```
+
+Install a callback invoked for every unresolved key. Pass `null` to remove it.
+
+<!-- /generated:method:$setMissingHandler -->
 
 **Type Definition**:
 
@@ -212,7 +326,16 @@ Methods for formatting numbers and dates according to locale conventions.
 
 ### `$tn`
 
-<SymbolDoc name="$tn" from="methods" />
+<!-- generated:method:$tn — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+{ (value: number, options?: NumberFormatOptions): string; (value: number, key: string, overrides?: NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: NumberFormatOptions): string }
+```
+
+Format a number with `Intl.NumberFormat` in the active locale. A key selects a named format
+from the config.
+
+<!-- /generated:method:$tn -->
 
 ```typescript
 // Inline options
@@ -252,7 +375,16 @@ export default defineNuxtConfig({
 
 ### `$td`
 
-<SymbolDoc name="$td" from="methods" />
+<!-- generated:method:$td — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+{ (value: string | number | Date, options?: DateTimeFormatOptions): string; (value: string | number | Date, key: string, overrides?: DateTimeFormatOptions): string; (value: string | number | Date, key: string, locale: string, overrides?: DateTimeFormatOptions): string }
+```
+
+Format a date with `Intl.DateTimeFormat` in the active locale. A key selects a named format
+from the config.
+
+<!-- /generated:method:$td -->
 
 ```typescript
 const formattedDate = $td(new Date(), { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
@@ -286,7 +418,15 @@ export default defineNuxtConfig({
 
 ### `$tdr`
 
-<SymbolDoc name="$tdr" from="methods" />
+<!-- generated:method:$tdr — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(value: string | number | Date, options?: RelativeTimeFormatOptions) => string
+```
+
+Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`.
+
+<!-- /generated:method:$tdr -->
 
 ```typescript
 const relativeDate = $tdr(new Date(Date.now() - 1000 * 60 * 5))
@@ -299,7 +439,15 @@ Methods for switching between locales and routes.
 
 ### `$switchLocale`
 
-<SymbolDoc name="$switchLocale" from="methods" />
+<!-- generated:method:$switchLocale — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string) => void
+```
+
+Navigate to the current page in another locale.
+
+<!-- /generated:method:$switchLocale -->
 
 ```typescript
 $switchLocale('fr')
@@ -313,7 +461,15 @@ See [FAQ — switch locale without changing the URL](/guide/faq#-switch-locale-w
 
 ### `$switchLocaleRoute`
 
-<SymbolDoc name="$switchLocaleRoute" from="methods" />
+<!-- generated:method:$switchLocaleRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string) => string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric
+```
+
+The route object for the current page in another locale, without navigating.
+
+<!-- /generated:method:$switchLocaleRoute -->
 
 ```typescript
 // on /en/news
@@ -323,7 +479,15 @@ const routeFr = $switchLocaleRoute('fr')
 
 ### `$switchLocalePath`
 
-<SymbolDoc name="$switchLocalePath" from="methods" />
+<!-- generated:method:$switchLocalePath — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string) => string
+```
+
+The path of the current page in another locale, without navigating.
+
+<!-- /generated:method:$switchLocalePath -->
 
 ```typescript
 // on /en/news
@@ -334,7 +498,15 @@ window.location.href = routeFr
 
 ### `$switchRoute`
 
-<SymbolDoc name="$switchRoute" from="methods" />
+<!-- generated:method:$switchRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(route: string | RouteLocationResolvedGeneric | RouteLocationNamedRaw, toLocale?: string) => void
+```
+
+Navigate to another route, keeping the active locale or switching to `toLocale`.
+
+<!-- /generated:method:$switchRoute -->
 
 **Examples**:
 
@@ -368,7 +540,15 @@ Methods for generating localized routes and paths.
 
 ### `$localeRoute`
 
-<SymbolDoc name="$localeRoute" from="methods" />
+<!-- generated:method:$localeRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(to: string | RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale?: string) => RouteLocationResolvedGeneric
+```
+
+Resolve a route in the given locale, or the active one.
+
+<!-- /generated:method:$localeRoute -->
 
 ```typescript
 const localizedRoute = $localeRoute({ name: 'index' })
@@ -377,7 +557,15 @@ const localizedRoute = $localeRoute({ name: 'index' })
 
 ### `$localePath`
 
-<SymbolDoc name="$localePath" from="methods" />
+<!-- generated:method:$localePath — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(to: string | RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale?: string) => string
+```
+
+Resolve a path in the given locale, or the active one.
+
+<!-- /generated:method:$localePath -->
 
 ```typescript
 const localizedPath = $localePath({ name: 'news' })
@@ -390,7 +578,15 @@ Methods for getting route information and names.
 
 ### `$getRouteName`
 
-<SymbolDoc name="$getRouteName" from="methods" />
+<!-- generated:method:$getRouteName — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(route?: RouteLocationResolvedGeneric | RouteLocationNamedRaw, locale?: string) => string
+```
+
+Route name with the locale prefix stripped — the name translations are keyed by.
+
+<!-- /generated:method:$getRouteName -->
 
 ```typescript
 const routeName = $getRouteName(routeObject, 'fr')
@@ -438,7 +634,16 @@ $defineI18nRoute({
 
 ### `$setI18nRouteParams`
 
-<SymbolDoc name="$setI18nRouteParams" from="methods" />
+<!-- generated:method:$setI18nRouteParams — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(value: I18nRouteParams) => I18nRouteParams
+```
+
+Set per-locale params for the current route, so a dynamic segment can differ per language.
+Call it during SSR, before the head is rendered.
+
+<!-- /generated:method:$setI18nRouteParams -->
 
 ```typescript
 // in pages/news/[id].vue
@@ -535,7 +740,16 @@ const i18n = useI18n()
 
 ### `$has`
 
-<SymbolDoc name="$has" from="methods" />
+<!-- generated:method:$has — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(key: string) => boolean
+```
+
+Whether a key resolves in the active locale. Use it to branch on optional copy instead of
+rendering a raw key.
+
+<!-- /generated:method:$has -->
 
 During same-locale page transitions, v3 automatically deep-merges translations from the leaving page into this dictionary until the transition finishes — so keys from the previous page may still return `true` briefly. There is no `previousPageFallback` option; this behavior is built in. See [FAQ — page transitions](/guide/faq#-why-do-translations-break-during-page-transitions-especially-with-defineasynccomponent).
 
@@ -562,7 +776,15 @@ $clearCache()
 
 ### `$loadPageTranslations`
 
-<SymbolDoc name="$loadPageTranslations" from="methods" />
+<!-- generated:method:$loadPageTranslations — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(locale: string, routeName: string, translations: Translations) => Promise<void>
+```
+
+Load translations for a page at runtime, for content whose keys are not known at build time.
+
+<!-- /generated:method:$loadPageTranslations -->
 
 ```typescript
 await $loadPageTranslations('en', 'about', {

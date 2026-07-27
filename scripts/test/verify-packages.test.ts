@@ -48,6 +48,13 @@ describe('isPublished', () => {
   it('ignores non-string entries rather than throwing', () => {
     expect(isPublished(files(['dist', null, 42]), './dist/index.mjs')).toBe(true)
   })
+
+  it('handles negations with no directory prefix conservatively', () => {
+    expect(isPublished(files(['dist', '!*.map']), './dist/index.mjs')).toBe(true)
+    expect(isPublished(files(['dist', '!*.map']), './dist/index.mjs.map')).toBe(true)
+    expect(isPublished(files(['dist', '!dist/*']), './dist/index.mjs.map')).toBe(false)
+    expect(isPublished(files(['dist', '!dist/*']), './dist/index.mjs')).toBe(false)
+  })
 })
 
 describe('dualPackageTypeFindings', () => {

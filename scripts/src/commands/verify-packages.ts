@@ -108,9 +108,9 @@ export function isPublished(pkg: PackageManifest, rel: string): boolean {
     const negated = entry.startsWith('!')
     const pattern = entry.replace(/^!/, '').replace(/^\.\//, '').replace(/\/$/, '')
     if (!pattern) continue
-    // A bare directory name in "files" ships the whole subtree.
     const star = pattern.indexOf('*')
     const prefix = star === -1 ? pattern : pattern.slice(0, star).replace(/\/$/, '')
+    if (negated && !prefix) continue
     const matches = !prefix || path === prefix || path.startsWith(`${prefix}/`)
     if (matches) included = !negated
   }

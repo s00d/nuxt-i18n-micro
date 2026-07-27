@@ -1,0 +1,642 @@
+# . (src/index.ts)
+function analyzeRoute: (ctx: PathStrategyContext, route: ResolvedRouteLike) => RouteAnalysis
+class BasePathStrategy
+member BasePathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member BasePathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member BasePathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member BasePathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member BasePathStrategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member BasePathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member BasePathStrategy.ctx: PathStrategyContext
+member BasePathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member BasePathStrategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member BasePathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member BasePathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member BasePathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member BasePathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member BasePathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member BasePathStrategy.getDefaultLocale: () => string
+member BasePathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member BasePathStrategy.getLocaleFromPath: (path: string) => string | null
+member BasePathStrategy.getLocales: () => Locale[]
+member BasePathStrategy.getLocalizedRouteNamePrefix: () => string
+member BasePathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member BasePathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member BasePathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member BasePathStrategy.getRedirect: (currentPath: string, targetLocale: string) => string | null
+member BasePathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member BasePathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member BasePathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member BasePathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member BasePathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member BasePathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member BasePathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member BasePathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, _currentRoute?: ResolvedRouteLike) => RouteLike | string
+member BasePathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member BasePathStrategy.setRouter: (router: RouterAdapter) => void
+member BasePathStrategy.shouldReturn404: (currentPath: string) => string | null
+member BasePathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+function buildLocalizedName: (baseName: string, locale: string, prefix?: string) => string
+function createPathStrategy: (ctx: PathStrategyContext) => PathStrategy
+function getRouteBaseName: (route: { name?: string | null; } & Record<string, any>, options: GetRouteBaseNameOptions) => string | null
+interface GetRouteBaseNameOptions
+member GetRouteBaseNameOptions.locales: { code: string; }[]
+member GetRouteBaseNameOptions.localizedRouteNamePrefix?: string | undefined
+type GlobalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
+function isIndexRouteName: (name: string | null | undefined, options?: IsIndexRouteNameOptions) => boolean
+interface IsIndexRouteNameOptions
+member IsIndexRouteNameOptions.localeCodes?: readonly string[] | undefined
+member IsIndexRouteNameOptions.localizedRouteNamePrefix?: string | undefined
+class NoPrefixPathStrategy
+member NoPrefixPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member NoPrefixPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member NoPrefixPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member NoPrefixPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member NoPrefixPathStrategy.buildLocalizedPath: (path: string, _locale: string, _isCustom: boolean) => string
+member NoPrefixPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member NoPrefixPathStrategy.ctx: PathStrategyContext
+member NoPrefixPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member NoPrefixPathStrategy.formatPathForResolve: (path: string, _fromLocale: string, _toLocale: string) => string
+member NoPrefixPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member NoPrefixPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member NoPrefixPathStrategy.getClientRedirect: (_currentPath: string, _preferredLocale: string) => string | null
+member NoPrefixPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member NoPrefixPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member NoPrefixPathStrategy.getDefaultLocale: () => string
+member NoPrefixPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member NoPrefixPathStrategy.getLocaleFromPath: (path: string) => string | null
+member NoPrefixPathStrategy.getLocales: () => Locale[]
+member NoPrefixPathStrategy.getLocalizedRouteNamePrefix: () => string
+member NoPrefixPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member NoPrefixPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member NoPrefixPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member NoPrefixPathStrategy.getRedirect: (currentPath: string, _targetLocale: string) => string | null
+member NoPrefixPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member NoPrefixPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member NoPrefixPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member NoPrefixPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member NoPrefixPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, _targetName: string) => RouteLike | string
+member NoPrefixPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member NoPrefixPathStrategy.resolveLocaleFromPath: (_path: string) => string | null
+member NoPrefixPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member NoPrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member NoPrefixPathStrategy.setRouter: (router: RouterAdapter) => void
+member NoPrefixPathStrategy.shouldReturn404: (_currentPath: string) => string | null
+member NoPrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+type NormalizedRouteInput: | { kind: 'path'; path: string } | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
+interface PathStrategy
+member PathStrategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
+member PathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member PathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PathStrategy.getDefaultLocale: () => string
+member PathStrategy.getGlobalLocaleRoutes: () => GlobalLocaleRoutes | undefined
+member PathStrategy.getLocaleFromPath: (path: string) => string | null
+member PathStrategy.getLocales: () => Locale[]
+member PathStrategy.getLocalizedRouteNamePrefix: () => string
+member PathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PathStrategy.getRedirect: (currentPath: string, targetLocale: string) => string | null
+member PathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PathStrategy.getRouteLocales: () => Record<string, string[]> | undefined
+member PathStrategy.getRoutesLocaleLinks: () => Record<string, string> | undefined
+member PathStrategy.getStrategy: () => Strategies
+member PathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PathStrategy.setRouter: (router: RouterAdapter) => void
+member PathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+interface PathStrategyContext
+member PathStrategyContext._hasGR?: boolean | undefined
+member PathStrategyContext._hasRL?: boolean | undefined
+member PathStrategyContext.debug?: boolean | undefined
+member PathStrategyContext.defaultLocale: string
+member PathStrategyContext.disablePageLocales?: boolean | undefined
+member PathStrategyContext.globalLocaleRoutes?: GlobalLocaleRoutes | undefined
+member PathStrategyContext.hashMode?: boolean | undefined
+member PathStrategyContext.localeCodes?: readonly string[] | undefined
+member PathStrategyContext.locales: Locale[]
+member PathStrategyContext.localizedRouteNamePrefix: string
+member PathStrategyContext.noPrefixRedirect?: boolean | undefined
+member PathStrategyContext.routeLocales?: Record<string, string[]> | undefined
+member PathStrategyContext.router: RouterAdapter
+member PathStrategyContext.routesLocaleLinks?: Record<string, string> | undefined
+member PathStrategyContext.strategy: Strategies
+class PrefixAndDefaultPathStrategy
+member PrefixAndDefaultPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member PrefixAndDefaultPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member PrefixAndDefaultPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member PrefixAndDefaultPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member PrefixAndDefaultPathStrategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member PrefixAndDefaultPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member PrefixAndDefaultPathStrategy.ctx: PathStrategyContext
+member PrefixAndDefaultPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member PrefixAndDefaultPathStrategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member PrefixAndDefaultPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member PrefixAndDefaultPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PrefixAndDefaultPathStrategy.getClientRedirect: (currentPath: string, _preferredLocale: string) => string | null
+member PrefixAndDefaultPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PrefixAndDefaultPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PrefixAndDefaultPathStrategy.getDefaultLocale: () => string
+member PrefixAndDefaultPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member PrefixAndDefaultPathStrategy.getLocaleFromPath: (path: string) => string | null
+member PrefixAndDefaultPathStrategy.getLocales: () => Locale[]
+member PrefixAndDefaultPathStrategy.getLocalizedRouteNamePrefix: () => string
+member PrefixAndDefaultPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PrefixAndDefaultPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member PrefixAndDefaultPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PrefixAndDefaultPathStrategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member PrefixAndDefaultPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PrefixAndDefaultPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member PrefixAndDefaultPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member PrefixAndDefaultPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member PrefixAndDefaultPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member PrefixAndDefaultPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PrefixAndDefaultPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PrefixAndDefaultPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixAndDefaultPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member PrefixAndDefaultPathStrategy.rewriteWithLocalePrefix: (route: RouteLike, targetLocale: string) => RouteLike
+member PrefixAndDefaultPathStrategy.setRouter: (router: RouterAdapter) => void
+member PrefixAndDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PrefixAndDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+class PrefixExceptDefaultPathStrategy
+member PrefixExceptDefaultPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member PrefixExceptDefaultPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member PrefixExceptDefaultPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member PrefixExceptDefaultPathStrategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member PrefixExceptDefaultPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member PrefixExceptDefaultPathStrategy.buildNestedCustomResult: (customPath: string, routeName: string, targetLocale: string, needsPrefix: boolean, sourceRoute: RouteLike, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.ctx: PathStrategyContext
+member PrefixExceptDefaultPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member PrefixExceptDefaultPathStrategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
+member PrefixExceptDefaultPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PrefixExceptDefaultPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PrefixExceptDefaultPathStrategy.getDefaultLocale: () => string
+member PrefixExceptDefaultPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member PrefixExceptDefaultPathStrategy.getLocaleFromPath: (path: string) => string | null
+member PrefixExceptDefaultPathStrategy.getLocales: () => Locale[]
+member PrefixExceptDefaultPathStrategy.getLocalizedRouteNamePrefix: () => string
+member PrefixExceptDefaultPathStrategy.getNestedRouteInfo: (baseRouteName: string) => { parentKey: string; keyWithSlash: string; } | null
+member PrefixExceptDefaultPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PrefixExceptDefaultPathStrategy.getParentPathForTarget: (parentKey: string, keyWithSlash: string, targetLocale: string, currentRoute?: ResolvedRouteLike) => string
+member PrefixExceptDefaultPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member PrefixExceptDefaultPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PrefixExceptDefaultPathStrategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PrefixExceptDefaultPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member PrefixExceptDefaultPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member PrefixExceptDefaultPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member PrefixExceptDefaultPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.isLocaleRules: (key: string) => boolean
+member PrefixExceptDefaultPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PrefixExceptDefaultPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PrefixExceptDefaultPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolveLocaleRouteFallback: (targetLocale: string, resolved: ResolvedRouteLike, sourceRoute: RouteLike, needsPrefix: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolveLocaleRouteFull: (targetLocale: string, inputName: string | null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolveLocaleRouteSimple: (targetLocale: string, inputName: string | null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member PrefixExceptDefaultPathStrategy.setRouter: (router: RouterAdapter) => void
+member PrefixExceptDefaultPathStrategy.shouldHavePrefix: (locale: string) => boolean
+member PrefixExceptDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PrefixExceptDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+class PrefixPathStrategy
+member PrefixPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member PrefixPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member PrefixPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member PrefixPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member PrefixPathStrategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member PrefixPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member PrefixPathStrategy.ctx: PathStrategyContext
+member PrefixPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member PrefixPathStrategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member PrefixPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member PrefixPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PrefixPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member PrefixPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PrefixPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PrefixPathStrategy.getDefaultLocale: () => string
+member PrefixPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member PrefixPathStrategy.getLocaleFromPath: (path: string) => string | null
+member PrefixPathStrategy.getLocales: () => Locale[]
+member PrefixPathStrategy.getLocalizedRouteNamePrefix: () => string
+member PrefixPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PrefixPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member PrefixPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PrefixPathStrategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member PrefixPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PrefixPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member PrefixPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member PrefixPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member PrefixPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member PrefixPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PrefixPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PrefixPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member PrefixPathStrategy.setRouter: (router: RouterAdapter) => void
+member PrefixPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+interface ResolvedRouteLike
+member ResolvedRouteLike.fullPath: string
+member ResolvedRouteLike.hash?: string | undefined
+member ResolvedRouteLike.name: string | null
+member ResolvedRouteLike.params?: Record<string, unknown> | undefined
+member ResolvedRouteLike.path: string
+member ResolvedRouteLike.query?: Record<string, unknown> | undefined
+interface RouteAnalysis
+member RouteAnalysis.baseRouteName: string | null
+member RouteAnalysis.pathWithoutLocale: string
+interface RouteLike
+member RouteLike.fullPath?: string | undefined
+member RouteLike.hash?: string | undefined
+member RouteLike.name?: string | null | undefined
+member RouteLike.params?: Record<string, unknown> | undefined
+member RouteLike.path?: string | undefined
+member RouteLike.query?: Record<string, unknown> | undefined
+interface RouterAdapter
+member RouterAdapter.getRoutes?: (() => unknown[]) | undefined
+member RouterAdapter.hasRoute: (name: string) => boolean
+member RouterAdapter.resolve: (to: RouteLike | string) => ResolvedRouteLike
+interface SwitchLocaleOptions
+member SwitchLocaleOptions.i18nRouteParams?: I18nRouteParams | undefined
+
+# ./no-prefix (src/strategies/no-prefix.ts)
+class NoPrefixPathStrategy
+member NoPrefixPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member NoPrefixPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member NoPrefixPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member NoPrefixPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member NoPrefixPathStrategy.buildLocalizedPath: (path: string, _locale: string, _isCustom: boolean) => string
+member NoPrefixPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member NoPrefixPathStrategy.ctx: PathStrategyContext
+member NoPrefixPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member NoPrefixPathStrategy.formatPathForResolve: (path: string, _fromLocale: string, _toLocale: string) => string
+member NoPrefixPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member NoPrefixPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member NoPrefixPathStrategy.getClientRedirect: (_currentPath: string, _preferredLocale: string) => string | null
+member NoPrefixPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member NoPrefixPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member NoPrefixPathStrategy.getDefaultLocale: () => string
+member NoPrefixPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member NoPrefixPathStrategy.getLocaleFromPath: (path: string) => string | null
+member NoPrefixPathStrategy.getLocales: () => Locale[]
+member NoPrefixPathStrategy.getLocalizedRouteNamePrefix: () => string
+member NoPrefixPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member NoPrefixPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member NoPrefixPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member NoPrefixPathStrategy.getRedirect: (currentPath: string, _targetLocale: string) => string | null
+member NoPrefixPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member NoPrefixPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member NoPrefixPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member NoPrefixPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member NoPrefixPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, _targetName: string) => RouteLike | string
+member NoPrefixPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member NoPrefixPathStrategy.resolveLocaleFromPath: (_path: string) => string | null
+member NoPrefixPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member NoPrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member NoPrefixPathStrategy.setRouter: (router: RouterAdapter) => void
+member NoPrefixPathStrategy.shouldReturn404: (_currentPath: string) => string | null
+member NoPrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+class Strategy
+member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member Strategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member Strategy.buildLocalizedName: (baseName: string, locale: string) => string
+member Strategy.buildLocalizedPath: (path: string, _locale: string, _isCustom: boolean) => string
+member Strategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member Strategy.ctx: PathStrategyContext
+member Strategy.detectLocaleFromName: (name: string | null) => string | null
+member Strategy.formatPathForResolve: (path: string, _fromLocale: string, _toLocale: string) => string
+member Strategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member Strategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member Strategy.getClientRedirect: (_currentPath: string, _preferredLocale: string) => string | null
+member Strategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member Strategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member Strategy.getDefaultLocale: () => string
+member Strategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member Strategy.getLocaleFromPath: (path: string) => string | null
+member Strategy.getLocales: () => Locale[]
+member Strategy.getLocalizedRouteNamePrefix: () => string
+member Strategy.getNoPrefixRedirect: () => boolean | undefined
+member Strategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member Strategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member Strategy.getRedirect: (currentPath: string, _targetLocale: string) => string | null
+member Strategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member Strategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member Strategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member Strategy.getStrategy: () => PathStrategyContext["strategy"]
+member Strategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, _targetName: string) => RouteLike | string
+member Strategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member Strategy.resolveLocaleFromPath: (_path: string) => string | null
+member Strategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member Strategy.setRouter: (router: RouterAdapter) => void
+member Strategy.shouldReturn404: (_currentPath: string) => string | null
+member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+
+# ./prefix (src/strategies/prefix.ts)
+class PrefixPathStrategy
+member PrefixPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member PrefixPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member PrefixPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member PrefixPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member PrefixPathStrategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member PrefixPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member PrefixPathStrategy.ctx: PathStrategyContext
+member PrefixPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member PrefixPathStrategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member PrefixPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member PrefixPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PrefixPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member PrefixPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PrefixPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PrefixPathStrategy.getDefaultLocale: () => string
+member PrefixPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member PrefixPathStrategy.getLocaleFromPath: (path: string) => string | null
+member PrefixPathStrategy.getLocales: () => Locale[]
+member PrefixPathStrategy.getLocalizedRouteNamePrefix: () => string
+member PrefixPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PrefixPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member PrefixPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PrefixPathStrategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member PrefixPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PrefixPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member PrefixPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member PrefixPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member PrefixPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member PrefixPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PrefixPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PrefixPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member PrefixPathStrategy.setRouter: (router: RouterAdapter) => void
+member PrefixPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+class Strategy
+member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member Strategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member Strategy.buildLocalizedName: (baseName: string, locale: string) => string
+member Strategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member Strategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member Strategy.ctx: PathStrategyContext
+member Strategy.detectLocaleFromName: (name: string | null) => string | null
+member Strategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member Strategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member Strategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member Strategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member Strategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member Strategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member Strategy.getDefaultLocale: () => string
+member Strategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member Strategy.getLocaleFromPath: (path: string) => string | null
+member Strategy.getLocales: () => Locale[]
+member Strategy.getLocalizedRouteNamePrefix: () => string
+member Strategy.getNoPrefixRedirect: () => boolean | undefined
+member Strategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member Strategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member Strategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member Strategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member Strategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member Strategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member Strategy.getStrategy: () => PathStrategyContext["strategy"]
+member Strategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member Strategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member Strategy.resolveLocaleFromPath: (path: string) => string | null
+member Strategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member Strategy.setRouter: (router: RouterAdapter) => void
+member Strategy.shouldReturn404: (currentPath: string) => string | null
+member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+
+# ./prefix-and-default (src/strategies/prefix-and-default.ts)
+class PrefixAndDefaultPathStrategy
+member PrefixAndDefaultPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member PrefixAndDefaultPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member PrefixAndDefaultPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member PrefixAndDefaultPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member PrefixAndDefaultPathStrategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member PrefixAndDefaultPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member PrefixAndDefaultPathStrategy.ctx: PathStrategyContext
+member PrefixAndDefaultPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member PrefixAndDefaultPathStrategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member PrefixAndDefaultPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member PrefixAndDefaultPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PrefixAndDefaultPathStrategy.getClientRedirect: (currentPath: string, _preferredLocale: string) => string | null
+member PrefixAndDefaultPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PrefixAndDefaultPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PrefixAndDefaultPathStrategy.getDefaultLocale: () => string
+member PrefixAndDefaultPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member PrefixAndDefaultPathStrategy.getLocaleFromPath: (path: string) => string | null
+member PrefixAndDefaultPathStrategy.getLocales: () => Locale[]
+member PrefixAndDefaultPathStrategy.getLocalizedRouteNamePrefix: () => string
+member PrefixAndDefaultPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PrefixAndDefaultPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member PrefixAndDefaultPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PrefixAndDefaultPathStrategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member PrefixAndDefaultPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PrefixAndDefaultPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member PrefixAndDefaultPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member PrefixAndDefaultPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member PrefixAndDefaultPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member PrefixAndDefaultPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PrefixAndDefaultPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PrefixAndDefaultPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixAndDefaultPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member PrefixAndDefaultPathStrategy.rewriteWithLocalePrefix: (route: RouteLike, targetLocale: string) => RouteLike
+member PrefixAndDefaultPathStrategy.setRouter: (router: RouterAdapter) => void
+member PrefixAndDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PrefixAndDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+class Strategy
+member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member Strategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member Strategy.buildLocalizedName: (baseName: string, locale: string) => string
+member Strategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member Strategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member Strategy.ctx: PathStrategyContext
+member Strategy.detectLocaleFromName: (name: string | null) => string | null
+member Strategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member Strategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member Strategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member Strategy.getClientRedirect: (currentPath: string, _preferredLocale: string) => string | null
+member Strategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member Strategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member Strategy.getDefaultLocale: () => string
+member Strategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member Strategy.getLocaleFromPath: (path: string) => string | null
+member Strategy.getLocales: () => Locale[]
+member Strategy.getLocalizedRouteNamePrefix: () => string
+member Strategy.getNoPrefixRedirect: () => boolean | undefined
+member Strategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member Strategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member Strategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member Strategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member Strategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member Strategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member Strategy.getStrategy: () => PathStrategyContext["strategy"]
+member Strategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member Strategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member Strategy.resolveLocaleFromPath: (path: string) => string | null
+member Strategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member Strategy.rewriteWithLocalePrefix: (route: RouteLike, targetLocale: string) => RouteLike
+member Strategy.setRouter: (router: RouterAdapter) => void
+member Strategy.shouldReturn404: (currentPath: string) => string | null
+member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+
+# ./prefix-except-default (src/strategies/prefix-except-default.ts)
+class PrefixExceptDefaultPathStrategy
+member PrefixExceptDefaultPathStrategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member PrefixExceptDefaultPathStrategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member PrefixExceptDefaultPathStrategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.buildLocalizedName: (baseName: string, locale: string) => string
+member PrefixExceptDefaultPathStrategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member PrefixExceptDefaultPathStrategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member PrefixExceptDefaultPathStrategy.buildNestedCustomResult: (customPath: string, routeName: string, targetLocale: string, needsPrefix: boolean, sourceRoute: RouteLike, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.ctx: PathStrategyContext
+member PrefixExceptDefaultPathStrategy.detectLocaleFromName: (name: string | null) => string | null
+member PrefixExceptDefaultPathStrategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
+member PrefixExceptDefaultPathStrategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PrefixExceptDefaultPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PrefixExceptDefaultPathStrategy.getDefaultLocale: () => string
+member PrefixExceptDefaultPathStrategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member PrefixExceptDefaultPathStrategy.getLocaleFromPath: (path: string) => string | null
+member PrefixExceptDefaultPathStrategy.getLocales: () => Locale[]
+member PrefixExceptDefaultPathStrategy.getLocalizedRouteNamePrefix: () => string
+member PrefixExceptDefaultPathStrategy.getNestedRouteInfo: (baseRouteName: string) => { parentKey: string; keyWithSlash: string; } | null
+member PrefixExceptDefaultPathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PrefixExceptDefaultPathStrategy.getParentPathForTarget: (parentKey: string, keyWithSlash: string, targetLocale: string, currentRoute?: ResolvedRouteLike) => string
+member PrefixExceptDefaultPathStrategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member PrefixExceptDefaultPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PrefixExceptDefaultPathStrategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member PrefixExceptDefaultPathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PrefixExceptDefaultPathStrategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member PrefixExceptDefaultPathStrategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member PrefixExceptDefaultPathStrategy.getStrategy: () => PathStrategyContext["strategy"]
+member PrefixExceptDefaultPathStrategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.isLocaleRules: (key: string) => boolean
+member PrefixExceptDefaultPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PrefixExceptDefaultPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PrefixExceptDefaultPathStrategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolveLocaleRouteFallback: (targetLocale: string, resolved: ResolvedRouteLike, sourceRoute: RouteLike, needsPrefix: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolveLocaleRouteFull: (targetLocale: string, inputName: string | null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolveLocaleRouteSimple: (targetLocale: string, inputName: string | null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member PrefixExceptDefaultPathStrategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member PrefixExceptDefaultPathStrategy.setRouter: (router: RouterAdapter) => void
+member PrefixExceptDefaultPathStrategy.shouldHavePrefix: (locale: string) => boolean
+member PrefixExceptDefaultPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PrefixExceptDefaultPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+class Strategy
+member Strategy._ensureRouteLike: (value: RouteLike | string, source?: RouteLike | null) => RouteLike
+member Strategy._normalizeRouteInput: (routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => NormalizedRouteInput
+member Strategy.applyBaseUrl: (localeCode: string, route: RouteLike | string) => RouteLike | string
+member Strategy.buildLocalizedName: (baseName: string, locale: string) => string
+member Strategy.buildLocalizedPath: (path: string, locale: string, _isCustom: boolean) => string
+member Strategy.buildLocalizedRouteName: (baseName: string, locale: string) => string
+member Strategy.buildNestedCustomResult: (customPath: string, routeName: string, targetLocale: string, needsPrefix: boolean, sourceRoute: RouteLike, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.ctx: PathStrategyContext
+member Strategy.detectLocaleFromName: (name: string | null) => string | null
+member Strategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
+member Strategy.getBaseRouteName: (route: RouteLike, locale: string) => string | null
+member Strategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member Strategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member Strategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member Strategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member Strategy.getDefaultLocale: () => string
+member Strategy.getGlobalLocaleRoutes: () => PathStrategyContext["globalLocaleRoutes"]
+member Strategy.getLocaleFromPath: (path: string) => string | null
+member Strategy.getLocales: () => Locale[]
+member Strategy.getLocalizedRouteNamePrefix: () => string
+member Strategy.getNestedRouteInfo: (baseRouteName: string) => { parentKey: string; keyWithSlash: string; } | null
+member Strategy.getNoPrefixRedirect: () => boolean | undefined
+member Strategy.getParentPathForTarget: (parentKey: string, keyWithSlash: string, targetLocale: string, currentRoute?: ResolvedRouteLike) => string
+member Strategy.getPathWithoutLocale: (path: string) => { pathWithoutLocale: string; localeFromPath: string | null; }
+member Strategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member Strategy.getRedirect: (currentPath: string, detectedLocale: string) => string | null
+member Strategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member Strategy.getRouteLocales: () => PathStrategyContext["routeLocales"]
+member Strategy.getRoutesLocaleLinks: () => PathStrategyContext["routesLocaleLinks"]
+member Strategy.getStrategy: () => PathStrategyContext["strategy"]
+member Strategy.getSwitchLocaleFallbackWhenNoRoute: (route: ResolvedRouteLike, targetName: string) => RouteLike | string
+member Strategy.isLocaleRules: (key: string) => boolean
+member Strategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member Strategy.resolveLocaleFromPath: (path: string) => string | null
+member Strategy.resolveLocaleRoute: (targetLocale: string, normalized: NormalizedRouteInput, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.resolveLocaleRouteFallback: (targetLocale: string, resolved: ResolvedRouteLike, sourceRoute: RouteLike, needsPrefix: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.resolveLocaleRouteFull: (targetLocale: string, inputName: string | null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.resolveLocaleRouteSimple: (targetLocale: string, inputName: string | null, sourceRoute: RouteLike, resolved: ResolvedRouteLike, needsPrefix: boolean, hasParams: boolean, currentRoute?: ResolvedRouteLike) => RouteLike | string
+member Strategy.resolvePathForLocale: (path: string, targetLocale: string) => string
+member Strategy.setRouter: (router: RouterAdapter) => void
+member Strategy.shouldHavePrefix: (locale: string) => boolean
+member Strategy.shouldReturn404: (currentPath: string) => string | null
+member Strategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+
+# ./types (src/types.ts)
+type GlobalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
+type NormalizedRouteInput: | { kind: 'path'; path: string } | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
+interface PathStrategy
+member PathStrategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
+member PathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
+member PathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member PathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member PathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member PathStrategy.getDefaultLocale: () => string
+member PathStrategy.getGlobalLocaleRoutes: () => GlobalLocaleRoutes | undefined
+member PathStrategy.getLocaleFromPath: (path: string) => string | null
+member PathStrategy.getLocales: () => Locale[]
+member PathStrategy.getLocalizedRouteNamePrefix: () => string
+member PathStrategy.getNoPrefixRedirect: () => boolean | undefined
+member PathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member PathStrategy.getRedirect: (currentPath: string, targetLocale: string) => string | null
+member PathStrategy.getRouteBaseName: (route: RouteLike, locale?: string) => string | null
+member PathStrategy.getRouteLocales: () => Record<string, string[]> | undefined
+member PathStrategy.getRoutesLocaleLinks: () => Record<string, string> | undefined
+member PathStrategy.getStrategy: () => Strategies
+member PathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike) => RouteLike
+member PathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member PathStrategy.setRouter: (router: RouterAdapter) => void
+member PathStrategy.shouldReturn404: (currentPath: string) => string | null
+member PathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
+interface PathStrategyContext
+member PathStrategyContext._hasGR?: boolean | undefined
+member PathStrategyContext._hasRL?: boolean | undefined
+member PathStrategyContext.debug?: boolean | undefined
+member PathStrategyContext.defaultLocale: string
+member PathStrategyContext.disablePageLocales?: boolean | undefined
+member PathStrategyContext.globalLocaleRoutes?: GlobalLocaleRoutes | undefined
+member PathStrategyContext.hashMode?: boolean | undefined
+member PathStrategyContext.localeCodes?: readonly string[] | undefined
+member PathStrategyContext.locales: Locale[]
+member PathStrategyContext.localizedRouteNamePrefix: string
+member PathStrategyContext.noPrefixRedirect?: boolean | undefined
+member PathStrategyContext.routeLocales?: Record<string, string[]> | undefined
+member PathStrategyContext.router: RouterAdapter
+member PathStrategyContext.routesLocaleLinks?: Record<string, string> | undefined
+member PathStrategyContext.strategy: Strategies
+interface ResolvedRouteLike
+member ResolvedRouteLike.fullPath: string
+member ResolvedRouteLike.hash?: string | undefined
+member ResolvedRouteLike.name: string | null
+member ResolvedRouteLike.params?: Record<string, unknown> | undefined
+member ResolvedRouteLike.path: string
+member ResolvedRouteLike.query?: Record<string, unknown> | undefined
+interface RouteLike
+member RouteLike.fullPath?: string | undefined
+member RouteLike.hash?: string | undefined
+member RouteLike.name?: string | null | undefined
+member RouteLike.params?: Record<string, unknown> | undefined
+member RouteLike.path?: string | undefined
+member RouteLike.query?: Record<string, unknown> | undefined
+interface RouterAdapter
+member RouterAdapter.getRoutes?: (() => unknown[]) | undefined
+member RouterAdapter.hasRoute: (name: string) => boolean
+member RouterAdapter.resolve: (to: RouteLike | string) => ResolvedRouteLike
+interface SwitchLocaleOptions
+member SwitchLocaleOptions.i18nRouteParams?: I18nRouteParams | undefined

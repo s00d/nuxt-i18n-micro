@@ -1,0 +1,71 @@
+# . (src/index.ts)
+interface BridgeAdapter
+member BridgeAdapter.addRouteTranslations: (locale: string, routeName: string, content: TranslationContent, merge: boolean) => void
+member BridgeAdapter.addTranslations: (locale: string, content: TranslationContent, merge: boolean) => void
+member BridgeAdapter.getCurrentLocale?: (() => string) | undefined
+member BridgeAdapter.getFallbackLocale?: (() => string) | undefined
+member BridgeAdapter.getRouteCache: () => Record<string, TranslationContent>
+member BridgeAdapter.subscribe: (callback: () => void) => () => void
+function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
+interface CreateBridgeOptions
+member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.defaultLocale?: string | undefined
+member CreateBridgeOptions.locales?: Locale[] | undefined
+member CreateBridgeOptions.translationDir?: string | undefined
+function createRpcClient: () => I18nDevToolsBridge
+interface I18nDevToolsBridge
+member I18nDevToolsBridge.getConfigs: () => Promise<ModuleOptions>
+member I18nDevToolsBridge.getLocalesAndTranslations: () => Promise<LocaleData>
+member I18nDevToolsBridge.onLocalesUpdate: (callback: (data: LocaleData) => void) => () => void
+member I18nDevToolsBridge.saveTranslation: (filePath: string, content: TranslationContent) => Promise<void>
+const I18nDevToolsElement: import("/Users/s00d/packeges/nuxt-i18n-next/node_modules/.pnpm/vue@3.5.25_typescript@5.9.3/node_modules/vue/dist/vue").VueElementConstructor<any>
+interface JsonRpcEvent
+member JsonRpcEvent.jsonrpc: "2.0"
+member JsonRpcEvent.method: string
+member JsonRpcEvent.params?: unknown
+interface JsonRpcRequest
+member JsonRpcRequest.id: string
+member JsonRpcRequest.jsonrpc: "2.0"
+member JsonRpcRequest.method: string
+member JsonRpcRequest.params?: unknown
+interface JsonRpcResponse
+member JsonRpcResponse.error?: { code: number; message: string; data?: unknown; } | undefined
+member JsonRpcResponse.id: string
+member JsonRpcResponse.jsonrpc: "2.0"
+member JsonRpcResponse.result?: unknown
+type JSONValue: string | null | number | boolean | { [key: string]: JSONValue }
+type LocaleData: Record<string, TranslationContent>
+function register: () => void
+function setupRpcHost: (iframeWindow: Window, bridge: I18nDevToolsBridge) => () => void
+interface TranslationContent
+interface TreeNode
+member TreeNode.children: TreeNode[]
+member TreeNode.fullPath: string
+member TreeNode.isFile: boolean
+member TreeNode.name: string
+
+# ./bridge (src/bridge/interface.ts)
+const BRIDGE_INTERFACE_MODULE: true
+interface I18nDevToolsBridge
+member I18nDevToolsBridge.getConfigs: () => Promise<ModuleOptions>
+member I18nDevToolsBridge.getLocalesAndTranslations: () => Promise<LocaleData>
+member I18nDevToolsBridge.onLocalesUpdate: (callback: (data: LocaleData) => void) => () => void
+member I18nDevToolsBridge.saveTranslation: (filePath: string, content: TranslationContent) => Promise<void>
+type JSONValue: string | null | number | boolean | { [key: string]: JSONValue }
+type LocaleData: Record<string, TranslationContent>
+interface TranslationContent
+
+# ./bridge/create (src/bridge/create-bridge.ts)
+interface BridgeAdapter
+member BridgeAdapter.addRouteTranslations: (locale: string, routeName: string, content: TranslationContent, merge: boolean) => void
+member BridgeAdapter.addTranslations: (locale: string, content: TranslationContent, merge: boolean) => void
+member BridgeAdapter.getCurrentLocale?: (() => string) | undefined
+member BridgeAdapter.getFallbackLocale?: (() => string) | undefined
+member BridgeAdapter.getRouteCache: () => Record<string, TranslationContent>
+member BridgeAdapter.subscribe: (callback: () => void) => () => void
+function createBridge: (options: CreateBridgeOptions) => I18nDevToolsBridge
+interface CreateBridgeOptions
+member CreateBridgeOptions.adapter: BridgeAdapter
+member CreateBridgeOptions.defaultLocale?: string | undefined
+member CreateBridgeOptions.locales?: Locale[] | undefined
+member CreateBridgeOptions.translationDir?: string | undefined

@@ -1,0 +1,52 @@
+# . (src/index.ts)
+function buildEncodedPathAliases: (routePath: string) => string[]
+function buildFullPath: (locale: string | string[], basePath: string, customRegex?: string | RegExp) => string
+function buildFullPathNoPrefix: (basePath: string) => string
+const buildRouteName: (baseName: string, localeCode: string, isCustom: boolean, prefix?: string) => string
+const cloneArray: <T extends object>(array: T[]) => T[]
+function extractLocalizedPaths: (pages: NuxtPage[], globalLocaleRoutes: LocaleRoutesConfig, filesLocaleRoutes: LocaleRoutesConfig, parentPath?: string) => LocalizedPathsMap
+function isInternalPath: (path: string, excludePatterns?: (string | RegExp | object)[]) => boolean
+function isLocaleAllowedForUnlocalizedRoute: (routeLocales: Record<string, string[]>, locales: Locale[], unlocalizedPath: string, localeCode: string) => boolean
+const isLocaleDefault: (locale: string | Locale, defaultLocale: Locale) => boolean
+function isLocalizationDisabledForPage: (globalLocaleRoutes: LocaleRoutesConfig, originalPath: string, pageName: string) => boolean
+const isPageRedirectOnly: (page: NuxtPage) => boolean
+type LocalizedPathsMap: Record<string, Record<string, string>>
+const normalizePath: (routePath: string) => string
+function normalizeRouteKey: (key: string) => string
+const removeLeadingSlash: (routePath: string) => string
+class RouteGenerator
+member RouteGenerator.activeLocaleCodes: string[]
+member RouteGenerator.collectPageNames: (pages: NuxtPage[]) => string[]
+member RouteGenerator.computeActiveLocaleCodes: () => string[]
+member RouteGenerator.customRegex: string | RegExp | undefined
+member RouteGenerator.defaultLocale: Locale
+member RouteGenerator.ensureFileExists: (filePath: string) => void
+member RouteGenerator.ensureTranslationFilesExist: (pagesNames: string[], translationDir: string, rootDir: string, disablePageLocales?: boolean) => void
+member RouteGenerator.excludePatterns: (string | RegExp)[] | undefined
+member RouteGenerator.extendPages: (pages: NuxtPage[]) => void
+member RouteGenerator.extractLocalizedPaths: (pages: NuxtPage[], parentPath?: string) => { [key: string]: { [locale: string]: string; }; }
+member RouteGenerator.fallbackRedirectComponentPath: string | undefined
+member RouteGenerator.filesLocaleRoutes: LocaleRoutesConfig
+member RouteGenerator.generateDataRoutes: (pages: NuxtPage[], apiBaseUrl: string, disablePageLocales: boolean) => string[]
+member RouteGenerator.globalLocaleRoutes: LocaleRoutesConfig
+member RouteGenerator.locales: Locale[]
+member RouteGenerator.localizedPaths: LocalizedPathsMap
+member RouteGenerator.localizedRouteNamePrefix: string
+member RouteGenerator.noPrefixRedirect: boolean
+member RouteGenerator.rawGlobalLocaleRoutes: GlobalLocaleRoutes
+member RouteGenerator.resolveLocalizedPath: (originalPath: string, localeCode: string) => string
+member RouteGenerator.routeLocales: Record<string, string[]>
+member RouteGenerator.strategy: Strategies
+interface RouteGeneratorOptions
+member RouteGeneratorOptions.customRegexMatcher?: string | RegExp | undefined
+member RouteGeneratorOptions.defaultLocaleCode: string
+member RouteGeneratorOptions.excludePatterns?: (string | RegExp)[] | undefined
+member RouteGeneratorOptions.fallbackRedirectComponentPath?: string | undefined
+member RouteGeneratorOptions.filesLocaleRoutes?: GlobalLocaleRoutes
+member RouteGeneratorOptions.globalLocaleRoutes: GlobalLocaleRoutes
+member RouteGeneratorOptions.locales: Locale[]
+member RouteGeneratorOptions.localizedRouteNamePrefix?: string | undefined
+member RouteGeneratorOptions.noPrefixRedirect: boolean
+member RouteGeneratorOptions.routeLocales?: Record<string, string[]> | undefined
+member RouteGeneratorOptions.strategy: Strategies
+const shouldAddLocalePrefix: (locale: string, defaultLocale: Locale, addLocalePrefix: boolean) => boolean

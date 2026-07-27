@@ -12,6 +12,7 @@ catalog:
   h3: ^1.15.11
   publint: ^0.3.17
   vite: ^7.3.6
+  yaml: ^2.8.2
   vite-plugin-dts: ^4.5.4
   vite-plugin-solid: ^2.11.10
   vite-plugin-vue-devtools: ^8.0.5

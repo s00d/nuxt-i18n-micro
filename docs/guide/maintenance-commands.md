@@ -1,0 +1,199 @@
+---
+title: 'Maintenance Commands'
+description: 'Repository checks that catch drift no test or build would notice: payload budgets, docs vs code, the public API surface, dependencies, fixtures, and a single release preflight.'
+outline: 'deep'
+---
+
+# Maintenance Commands
+
+These are checks for the repository itself, not for apps that use the module. They all
+live in the [`@i18n-micro/scripts`](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts)
+workspace package and run through one CLI:
+
+```bash
+pnpm -C scripts cli <command> --help
+```
+
+Each one exists because something drifted silently: the code still built, every test
+still passed, and the problem only surfaced later — in a review, in a bug report, or
+after publishing. They are the checks with no other owner.
+
+| Command | Catches |
+| --- | --- |
+| [`payload-budget`](#payload-budget) | the translation dictionary creeping back into the HTML |
+| [`docs-audit`](#docs-audit) | options and pages the documentation no longer matches |
+| [`api-surface`](#api-surface) | an export removed or retyped without anyone noticing |
+| [`deps-audit`](#deps-audit) | versions escaping the catalog, packages imported but never declared |
+| [`fixtures-audit`](#fixtures-audit) | test fixtures nothing references |
+| [`preflight`](#preflight) | all of the above, before a release |
+
+## payload-budget
+
+The module keeps the dictionary out of the HTML: only the keys a page actually rendered
+go into `__NUXT_DATA__`, and the full dictionary is fetched separately as a cacheable
+file. Break that and nothing complains — the page renders correctly, hydrates correctly
+and passes every test. It is simply megabytes heavier.
+
+```bash
+pnpm run budget:payload                 # build the playground and compare
+pnpm -C scripts cli payload-budget --skip-build   # reuse an existing .output
+pnpm run budget:payload:update          # record the current numbers as the budget
+```
+
+The budget lives in `scripts/payload-budget.json` and is committed, so a change to it is
+a change a reviewer sees:
+
+```json
+{
+  "app": "playground",
+  "routes": ["/", "/de"],
+  "limits": { "maxNuxtData": 330882, "totalNuxtData": 661075, "clientAssets": 507227 }
+}
+```
+
+The playground is the default target because its dictionary is deliberately enormous
+(~15 MB on disk). That makes an inlining regression unmissable rather than marginal —
+reintroducing it takes `__NUXT_DATA__` from ~294 KB to ~7.1 MB per page.
+
+`--update` writes the measured numbers plus `--tolerance` percent of headroom (10% by
+default), so ordinary growth does not trip the check while a regression of that size
+cannot hide.
+
+## docs-audit
+
+Four kinds of drift, none of which the VitePress build notices:
+
+- an option exists in `ModuleOptions` but appears nowhere in `docs/`
+- a nav or sidebar entry points at a page that was renamed or removed
+- a page links to another page that no longer exists
+- a page is not reachable from the nav or the sidebar at all *(warning)*
+
+```bash
+pnpm run audit:docs
+pnpm -C scripts cli docs-audit --warnings-as-errors
+```
+
+Options are read from the TypeScript AST of `packages/types/src/index.ts` rather than by
+pattern-matching the file, because the interface carries JSDoc prose and nested object
+types that a regex reports as members that do not exist.
+
+Sidebar links are resolved the way VitePress resolves them, including the `base` a group
+declares and the `cleanUrls` behaviour where `/news` may be served by either `news.md` or
+`news/index.md`.
+
+## api-surface
+
+Removing an export or changing its type breaks consumers, and nothing in the repository
+notices: the package builds, its tests pass, and it publishes. This turns that into a
+diff, and into a list you can paste into the release notes.
+
+```bash
+pnpm run api:surface           # compare against the committed snapshots
+pnpm run api:surface:update    # accept the current surface
+pnpm -C scripts cli api-surface --package core
+```
+
+Snapshots live in `scripts/api-surface/*.api.txt`, one file per package, one line per
+export **or member**:
+
+```
+# . (src/index.ts)
+class BaseI18n
+member BaseI18n.clearCache: () => void
+member BaseI18n.t: (key: string, params?: Params, …) => CleanTranslation
+```
+
+A line per member rather than per symbol is deliberate: a class with thirty methods on
+one line turns "renamed one method" into a diff nobody can read, and TypeScript truncates
+long shapes to `... 7 more ...`, which would make the snapshot lossy as well.
+
+The surface is read from `src` through the TypeScript program, so no build is needed and
+a stale `dist` cannot hide a change. Removals and signature changes fail the command;
+additions are reported but do not.
+
+## deps-audit
+
+Two failures that otherwise surface late and confusingly.
+
+**A version escaping the catalog.** A dependency pinned in a `package.json` while
+`pnpm-workspace.yaml` moves on — the package keeps building against a version nothing
+else in the workspace uses.
+
+**A package imported but never declared.** `unbuild` only reports this as
+`Implicitly bundling X` at pack time, long after the change that caused it. The audit
+distinguishes three cases, because they are not equally wrong:
+
+| Finding | Level | Meaning |
+| --- | --- | --- |
+| `undeclared-import` | error | imported at runtime, declared nowhere |
+| `dev-only-import` | warning | only a devDependency — correct if the build inlines it, wrong otherwise |
+| `undeclared-type-import` | warning | `import type` only; the emitted `.d.ts` references a package consumers may not have |
+
+```bash
+pnpm run audit:deps
+pnpm -C scripts cli deps-audit --warnings-as-errors
+```
+
+It also reports catalog entries nothing uses, and `peerDependencies` with no matching
+`devDependency` — a peer the package cannot resolve locally cannot be typechecked or
+tested here.
+
+Sources are scanned with comments removed and template literals emptied. Both matter:
+a sentence ending `… from "no request context"` matches a naive import pattern, and
+`types-generator` writes a real `import '@i18n-micro/types';` into the `.d.ts` it
+generates — which is that file's dependency, not the generator's.
+
+## fixtures-audit
+
+Every fixture is a full Nuxt app, so one that outlived the test it was written for is
+invisible: it just makes the suite slower and every config change bigger.
+
+```bash
+pnpm run audit:fixtures
+pnpm -C scripts cli fixtures-audit --strict
+```
+
+It reports and never deletes. A fixture name can be composed at runtime, so anything
+listed is a candidate to check, not a verdict. References are searched across `test/`,
+`.github/`, `package.json` and the vitest configs, since a fixture is often named from a
+config rather than from a test file.
+
+It also flags build leftovers (`.nuxt`, `.output`, `.nuxt-test`) committed inside a
+fixture — `pnpm run clean:test` removes those.
+
+## preflight
+
+The release scripts chain the gates with `&&`, which stops at the first failure: a run
+that fails on the first gate tells you nothing about the other five, and each fix-and-retry
+runs the whole chain again. `preflight` runs them all and reports together, publishing
+nothing.
+
+```bash
+pnpm run preflight
+pnpm -C scripts cli preflight --npm       # also check the registry and npm auth
+pnpm -C scripts cli preflight --offline   # skip everything needing the network
+```
+
+```
+Release preflight
+
+  ok deps-audit
+  ok verify-packages
+  ok api-surface
+  ok docs-audit
+  ok check-versions
+  -  ensure-npm-auth   skipped (needs --npm)
+
+Would publish 15 package(s) (changelog from v3.21.4):
+  …
+
+All gates passed. Safe to release.
+```
+
+## In CI
+
+`payload-budget` builds an app, so it belongs on pull requests that touch the runtime
+rather than on every push. The rest are seconds each and are cheap enough to run always.
+
+See also [Release Smoke Checks](/guide/release-smoke), which verifies the **published**
+package by installing it into a real app.

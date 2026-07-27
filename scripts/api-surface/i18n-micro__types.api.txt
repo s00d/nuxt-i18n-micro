@@ -1,0 +1,198 @@
+# . (src/index.ts)
+type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
+interface DefineI18nRouteConfig
+member DefineI18nRouteConfig.disableMeta?: boolean | string[] | undefined
+member DefineI18nRouteConfig.localeRoutes?: Record<string, string> | undefined
+member DefineI18nRouteConfig.locales?: string[] | Record<string, Translations> | undefined
+interface DefineLocaleMessage
+member DefineLocaleMessage.__augmentation?: undefined
+type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+type GlobalLocaleRoutes: Record<string, Record<LocaleCode, string> | false | boolean> | null | undefined
+type I18nHeadDisableGroup: 'hreflang' | 'x-default' | 'canonical' | 'og' | 'og-alternates' | 'html'
+interface I18nHeadInput
+member I18nHeadInput.disable?: I18nHeadDisableGroup[] | undefined
+member I18nHeadInput.htmlAttrs?: Record<string, string> | undefined
+member I18nHeadInput.link?: I18nHeadLink[] | undefined
+member I18nHeadInput.meta?: I18nHeadMeta[] | undefined
+member I18nHeadInput.replace?: { canonical?: string | false; hreflang?: I18nHeadLink[] | false; xDefault?: I18nHeadLink | false; ogLocale?: string | false; ogUrl?: string | false; ogAlternates?: string[] | false; } | undefined
+interface I18nHeadLink
+member I18nHeadLink.href: string
+member I18nHeadLink.hreflang?: string | undefined
+member I18nHeadLink.rel: string
+interface I18nHeadMeta
+type I18nRouteParams: Record<LocaleCode, Record<string, string>> | null
+const init: () => void
+interface Locale
+member Locale.baseDefault?: boolean | undefined
+member Locale.baseUrl?: string | undefined
+member Locale.code: string
+member Locale.dir?: "ltr" | "rtl" | "auto" | undefined
+member Locale.disabled?: boolean | undefined
+member Locale.displayName?: string | undefined
+member Locale.fallbackLocale?: string | undefined
+member Locale.iso?: string | undefined
+member Locale.og?: string | undefined
+member Locale.seo?: boolean | undefined
+type LocaleCode: string
+type MissingHandler: (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
+interface ModuleOptions
+member ModuleOptions.apiBaseClientHost?: string | undefined
+member ModuleOptions.apiBaseServerHost?: string | undefined
+member ModuleOptions.apiBaseUrl?: string | undefined
+member ModuleOptions.autoDetectLanguage?: boolean | undefined
+member ModuleOptions.autoDetectPath?: string | undefined
+member ModuleOptions.cacheMaxSize?: number | undefined
+member ModuleOptions.cacheTtl?: number | undefined
+member ModuleOptions.canonicalQueryWhitelist?: string[] | undefined
+member ModuleOptions.components?: boolean | undefined
+member ModuleOptions.customRegexMatcher?: string | RegExp | undefined
+member ModuleOptions.dateBuild?: string | number | undefined
+member ModuleOptions.datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>> | undefined
+member ModuleOptions.debug?: boolean | undefined
+member ModuleOptions.defaultLocale?: string | undefined
+member ModuleOptions.define?: boolean | undefined
+member ModuleOptions.disablePageLocales?: boolean | undefined
+member ModuleOptions.disableWatcher?: boolean | undefined
+member ModuleOptions.excludePatterns?: (string | RegExp)[] | undefined
+member ModuleOptions.experimental?: Record<string, unknown> | undefined
+member ModuleOptions.fallbackLocale?: string | undefined
+member ModuleOptions.globalLocaleRoutes?: GlobalLocaleRoutes
+member ModuleOptions.hmr?: boolean | undefined
+member ModuleOptions.hooks?: boolean | undefined
+member ModuleOptions.httpCacheDuration?: number | undefined
+member ModuleOptions.localeCookie?: string | null | undefined
+member ModuleOptions.locales?: Locale[] | undefined
+member ModuleOptions.localizedRouteNamePrefix?: string | undefined
+member ModuleOptions.meta?: boolean | undefined
+member ModuleOptions.metaBaseUrl?: string | undefined
+member ModuleOptions.metaTrustForwardedHost?: boolean | undefined
+member ModuleOptions.metaTrustForwardedProto?: boolean | undefined
+member ModuleOptions.missingWarn?: boolean | undefined
+member ModuleOptions.noPrefixRedirect?: boolean | undefined
+member ModuleOptions.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
+member ModuleOptions.plugin?: boolean | undefined
+member ModuleOptions.plural?: string | PluralFunc | undefined
+member ModuleOptions.redirects?: boolean | undefined
+member ModuleOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
+member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
+member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
+member ModuleOptions.serverTranslationPreload?: boolean | undefined
+member ModuleOptions.strategy?: Strategies | undefined
+member ModuleOptions.translationDir?: string | undefined
+member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
+member ModuleOptions.types?: boolean | undefined
+interface ModuleOptionsExtend
+member ModuleOptionsExtend.apiBaseClientHost?: string | undefined
+member ModuleOptionsExtend.apiBaseServerHost?: string | undefined
+member ModuleOptionsExtend.apiBaseUrl: string
+member ModuleOptionsExtend.autoDetectLanguage?: boolean | undefined
+member ModuleOptionsExtend.autoDetectPath?: string | undefined
+member ModuleOptionsExtend.cacheMaxSize?: number | undefined
+member ModuleOptionsExtend.cacheTtl?: number | undefined
+member ModuleOptionsExtend.canonicalQueryWhitelist?: string[] | undefined
+member ModuleOptionsExtend.components?: boolean | undefined
+member ModuleOptionsExtend.customRegexMatcher?: string | RegExp | undefined
+member ModuleOptionsExtend.dateBuild: string | number
+member ModuleOptionsExtend.datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>> | undefined
+member ModuleOptionsExtend.debug?: boolean | undefined
+member ModuleOptionsExtend.defaultLocale?: string | undefined
+member ModuleOptionsExtend.define?: boolean | undefined
+member ModuleOptionsExtend.disablePageLocales: boolean
+member ModuleOptionsExtend.disableWatcher?: boolean | undefined
+member ModuleOptionsExtend.excludePatterns?: (string | RegExp)[] | undefined
+member ModuleOptionsExtend.experimental?: Record<string, unknown> | undefined
+member ModuleOptionsExtend.fallbackLocale?: string | undefined
+member ModuleOptionsExtend.globalLocaleRoutes?: GlobalLocaleRoutes
+member ModuleOptionsExtend.hashMode: boolean
+member ModuleOptionsExtend.hmr?: boolean | undefined
+member ModuleOptionsExtend.hooks?: boolean | undefined
+member ModuleOptionsExtend.httpCacheDuration?: number | undefined
+member ModuleOptionsExtend.isSSG: boolean
+member ModuleOptionsExtend.localeCookie?: string | null | undefined
+member ModuleOptionsExtend.locales?: Locale[] | undefined
+member ModuleOptionsExtend.localizedRouteNamePrefix?: string | undefined
+member ModuleOptionsExtend.meta?: boolean | undefined
+member ModuleOptionsExtend.metaBaseUrl?: string | undefined
+member ModuleOptionsExtend.metaTrustForwardedHost?: boolean | undefined
+member ModuleOptionsExtend.metaTrustForwardedProto?: boolean | undefined
+member ModuleOptionsExtend.missingWarn?: boolean | undefined
+member ModuleOptionsExtend.noPrefixRedirect?: boolean | undefined
+member ModuleOptionsExtend.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
+member ModuleOptionsExtend.plugin?: boolean | undefined
+member ModuleOptionsExtend.plural?: string | PluralFunc | undefined
+member ModuleOptionsExtend.redirects?: boolean | undefined
+member ModuleOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
+member ModuleOptionsExtend.routeLocales?: Record<string, string[]> | undefined
+member ModuleOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
+member ModuleOptionsExtend.serverTranslationPreload?: boolean | undefined
+member ModuleOptionsExtend.strategy?: Strategies | undefined
+member ModuleOptionsExtend.translationDir?: string | undefined
+member ModuleOptionsExtend.translationPayloadMode?: "premerged" | "source" | undefined
+member ModuleOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
+member ModuleOptionsExtend.types?: boolean | undefined
+interface ModulePrivateOptionsExtend
+member ModulePrivateOptionsExtend.apiBaseClientHost?: string | undefined
+member ModulePrivateOptionsExtend.apiBaseServerHost?: string | undefined
+member ModulePrivateOptionsExtend.apiBaseUrl: string
+member ModulePrivateOptionsExtend.autoDetectLanguage?: boolean | undefined
+member ModulePrivateOptionsExtend.autoDetectPath?: string | undefined
+member ModulePrivateOptionsExtend.cacheMaxSize?: number | undefined
+member ModulePrivateOptionsExtend.cacheTtl?: number | undefined
+member ModulePrivateOptionsExtend.canonicalQueryWhitelist?: string[] | undefined
+member ModulePrivateOptionsExtend.components?: boolean | undefined
+member ModulePrivateOptionsExtend.customRegexMatcher?: string | RegExp | undefined
+member ModulePrivateOptionsExtend.dateBuild?: string | number | undefined
+member ModulePrivateOptionsExtend.datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>> | undefined
+member ModulePrivateOptionsExtend.debug: boolean
+member ModulePrivateOptionsExtend.defaultLocale?: string | undefined
+member ModulePrivateOptionsExtend.define?: boolean | undefined
+member ModulePrivateOptionsExtend.disablePageLocales?: boolean | undefined
+member ModulePrivateOptionsExtend.disableWatcher?: boolean | undefined
+member ModulePrivateOptionsExtend.excludePatterns?: (string | RegExp)[] | undefined
+member ModulePrivateOptionsExtend.experimental?: Record<string, unknown> | undefined
+member ModulePrivateOptionsExtend.fallbackLocale: string
+member ModulePrivateOptionsExtend.globalLocaleRoutes?: GlobalLocaleRoutes
+member ModulePrivateOptionsExtend.hmr?: boolean | undefined
+member ModulePrivateOptionsExtend.hooks?: boolean | undefined
+member ModulePrivateOptionsExtend.httpCacheDuration?: number | undefined
+member ModulePrivateOptionsExtend.localeCookie?: string | null | undefined
+member ModulePrivateOptionsExtend.locales?: Locale[] | undefined
+member ModulePrivateOptionsExtend.localizedRouteNamePrefix?: string | undefined
+member ModulePrivateOptionsExtend.meta?: boolean | undefined
+member ModulePrivateOptionsExtend.metaBaseUrl?: string | undefined
+member ModulePrivateOptionsExtend.metaTrustForwardedHost?: boolean | undefined
+member ModulePrivateOptionsExtend.metaTrustForwardedProto?: boolean | undefined
+member ModulePrivateOptionsExtend.missingWarn?: boolean | undefined
+member ModulePrivateOptionsExtend.noPrefixRedirect?: boolean | undefined
+member ModulePrivateOptionsExtend.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
+member ModulePrivateOptionsExtend.plugin?: boolean | undefined
+member ModulePrivateOptionsExtend.plural?: string | PluralFunc | undefined
+member ModulePrivateOptionsExtend.redirects?: boolean | undefined
+member ModulePrivateOptionsExtend.rootDir: string
+member ModulePrivateOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
+member ModulePrivateOptionsExtend.routeLocales?: Record<string, string[]> | undefined
+member ModulePrivateOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
+member ModulePrivateOptionsExtend.serverTranslationPreload?: boolean | undefined
+member ModulePrivateOptionsExtend.strategy?: Strategies | undefined
+member ModulePrivateOptionsExtend.translationDir: string
+member ModulePrivateOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
+member ModulePrivateOptionsExtend.types?: boolean | undefined
+type Params: Record<string, string | number | boolean>
+type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+interface PluralTranslations
+member PluralTranslations.plural: string
+member PluralTranslations.singular: string
+type ScopedKey: Extract<TranslationKey, `${Scope}.${string}`>
+type Strategies: 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
+type Translation: CleanTranslation | unknown
+type TranslationKey: keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
+interface TranslationPayloadOptions
+member TranslationPayloadOptions.mode?: "premerged" | "source" | undefined
+member TranslationPayloadOptions.prerenderRoutes?: boolean | undefined
+member TranslationPayloadOptions.publicAssets?: boolean | undefined
+member TranslationPayloadOptions.publicDir?: string | undefined
+member TranslationPayloadOptions.serverAssets?: boolean | undefined
+member TranslationPayloadOptions.serverHandler?: boolean | undefined
+member TranslationPayloadOptions.warnFileCount?: number | undefined
+member TranslationPayloadOptions.warnSizeBytes?: number | undefined
+interface Translations

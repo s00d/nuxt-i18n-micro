@@ -1,0 +1,19 @@
+{
+  "app": "playground",
+  "routes": [
+    "/",
+    "/de"
+  ],
+  "limits": {
+    "maxNuxtData": 330882,
+    "totalNuxtData": 661075,
+    "clientAssets": 507227
+  },
+  "observed": {
+    "maxNuxtData": 300801,
+    "totalNuxtData": 600977,
+    "clientAssets": 461115,
+    "payloadFiles": 80023515,
+    "sourceDictionary": 15960520
+  }
+}

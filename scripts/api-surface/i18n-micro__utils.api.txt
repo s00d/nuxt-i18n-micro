@@ -1,0 +1,214 @@
+# ./accept-language (src/accept-language.ts)
+function applyAutoDetectLanguage: (locale: string, hasExplicitPreference: boolean, autoDetectLanguage: boolean | undefined, acceptLanguageHeader: string | undefined, validLocales: string[]) => string
+function detectLocaleFromAcceptLanguage: (header: string | undefined, validLocales: string[]) => string | null
+function parseAcceptLanguage: (header: string | undefined) => string[]
+
+# ./active-locales (src/active-locales.ts)
+function getEnabledLocaleCodes: (locales?: Locale[] | null) => string[]
+function getEnabledLocales: (locales?: Locale[] | null) => Locale[]
+function isEnabledLocale: (locales: Locale[] | null | undefined, code: string) => boolean
+
+# ./app-path (src/app-path.ts)
+function withoutAppBaseURL: (pathname: string, baseURL?: string | null) => string
+
+# ./build (src/build.ts)
+function buildTranslationSourceLayers: (rootDirs: string[], translationDirName: string, outputDir: string) => Promise<void>
+interface PreMergeLocaleInfo
+member PreMergeLocaleInfo.code: string
+member PreMergeLocaleInfo.fallbackLocale?: string | undefined
+function preMergeLocales: (rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean) => Promise<void>
+
+# ./cache-control (src/cache-control.ts)
+class CacheControl
+member CacheControl.cache: Map<string, T>
+member CacheControl.clear: () => void
+member CacheControl.configure: (options: CacheControlOptions) => void
+member CacheControl.delete: (key: string) => boolean
+member CacheControl.expiry: Map<string, number>
+member CacheControl.get: (key: string) => T | undefined
+member CacheControl.has: (key: string) => boolean
+member CacheControl.keys: () => IterableIterator<string>
+member CacheControl.maxSize: number
+member CacheControl.set: (key: string, value: T) => void
+member CacheControl.size: number
+member CacheControl.ttlMs: number
+interface CacheControlOptions
+member CacheControlOptions.maxSize?: number | undefined
+member CacheControlOptions.ttl?: number | undefined
+
+# ./cookie (src/cookie.ts)
+const DEFAULT_COOKIE_MAX_AGE: number
+const DEFAULT_COOKIE_NAME: "user-locale"
+const DEFAULT_HASH_COOKIE_NAME: "hash-locale"
+function getHashCookieName: (config: ModuleOptionsExtend) => string | null
+function getLocaleCookieName: (config: ModuleOptionsExtend) => string | null
+function getLocaleCookieOptions: () => { expires: Date; maxAge: number; path: string; watch: boolean; sameSite: "lax"; }
+
+# ./deep-merge (src/deep-merge.ts)
+function deepMergeTranslations: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
+function deepMergeTranslationsRecursive: (target: Record<string, unknown>, source: Record<string, unknown>) => Record<string, unknown>
+
+# ./merge-i18n-head (src/merge-i18n-head.ts)
+interface I18nHeadObject
+member I18nHeadObject.htmlAttrs: Record<string, string | undefined>
+member I18nHeadObject.link: I18nHeadLink[]
+member I18nHeadObject.meta: I18nHeadMeta[]
+function mergeI18nHead: (base: I18nHeadObject, override: I18nHeadInput | null | undefined, options?: MergeI18nHeadOptions) => I18nHeadObject
+interface MergeI18nHeadOptions
+member MergeI18nHeadOptions.currentLocale?: string | undefined
+member MergeI18nHeadOptions.identifierAttribute?: string | undefined
+member MergeI18nHeadOptions.locales?: Locale[] | undefined
+
+# ./merge-source (src/merge-source.ts)
+function buildFallbackLocaleChain: (locale: string, locales: SourceLocaleInfo[], globalFallbackLocale?: string) => string[]
+function buildSourcePagePath: (pageName: string, localeCode: string) => string
+function buildSourceRootPath: (localeCode: string) => string
+function mergeSourceTranslations: (input: MergeSourceTranslationsInput) => Promise<Record<string, unknown>>
+interface MergeSourceTranslationsInput
+member MergeSourceTranslationsInput.disablePageLocales?: boolean | undefined
+member MergeSourceTranslationsInput.globalFallbackLocale?: string | undefined
+member MergeSourceTranslationsInput.locale: string
+member MergeSourceTranslationsInput.locales: SourceLocaleInfo[]
+member MergeSourceTranslationsInput.pageName: string
+member MergeSourceTranslationsInput.readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>
+function mergeTranslationsFromFallbackChain: (chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown>, relativePathForLocale: (localeCode: string) => string) => Record<string, unknown>
+function mergeTranslationsFromFallbackChainAsync: (chain: string[], readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>, relativePathForLocale: (localeCode: string) => string) => Promise<Record<string, unknown>>
+function normalizeConfiguredLocales: (locales: Array<string | Locale> | undefined) => SourceLocaleInfo[]
+function resolveSourcePageName: (pageName: string, disablePageLocales?: boolean) => string
+interface SourceLocaleInfo
+member SourceLocaleInfo.code: string
+member SourceLocaleInfo.fallbackLocale?: string | undefined
+function toSourceStorageKey: (relativePath: string) => string
+
+# ./normalize (src/normalize.ts)
+function toTranslationRecord: (data: unknown) => Record<string, unknown>
+function toTranslations: (data: unknown) => Translations
+
+# ./parse-path (src/parse-path.ts)
+function classifyTranslationRelativePath: (relativePath: string, disablePageLocales?: boolean) => ParsedTranslationRelativePath
+function mergeRouteTranslationsWithRoot: <T extends Record<string, unknown>>(rootTranslations: T | undefined, routeTranslations: T) => T
+function pagePathSegmentsToRouteName: (segments: string[]) => string | null
+type ParsedTranslationRelativePath: { type: 'page'; pageName: string; locale: string } | { type: 'root'; locale: string } | { type: 'ignore' }
+function parseTranslationRelativePath: (relativePath: string) => ParsedTranslationRelativePath
+function storeLoadedTranslationFile: <T extends Record<string, unknown>>(buckets: TranslationFileBuckets<T>, relativePath: string, translations: T, disablePageLocales?: boolean) => void
+interface TranslationFileBuckets
+member TranslationFileBuckets.root: Record<string, T>
+member TranslationFileBuckets.routes: Record<string, Record<string, T>>
+
+# ./payload-config (src/payload-config.ts)
+const DEFAULT_TRANSLATION_PAYLOAD_WARN_FILE_COUNT: 500
+const DEFAULT_TRANSLATION_PAYLOAD_WARN_SIZE_BYTES: number
+function formatBytes: (bytes: number) => string
+function getTranslationPayloadMisconfigurationWarnings: (input: TranslationPayloadMisconfigurationInput) => string[]
+function getTranslationPayloadSizeWarning: (stats: TranslationPayloadStats, thresholds?: TranslationPayloadSizeThresholds) => string | null
+function hasLocalTranslationPayloadOutput: (translationPayloads: ResolvedTranslationPayloadOptions) => boolean
+interface ResolvedTranslationPayloadOptions
+member ResolvedTranslationPayloadOptions.mode: TranslationPayloadMode
+member ResolvedTranslationPayloadOptions.prerenderRoutes: boolean
+member ResolvedTranslationPayloadOptions.publicAssets: boolean
+member ResolvedTranslationPayloadOptions.publicDir?: string | undefined
+member ResolvedTranslationPayloadOptions.serverAssets: boolean
+member ResolvedTranslationPayloadOptions.serverHandler: boolean
+member ResolvedTranslationPayloadOptions.warnFileCount?: number | undefined
+member ResolvedTranslationPayloadOptions.warnSizeBytes?: number | undefined
+function resolveTranslationPayloadMode: (options: ModuleOptions) => TranslationPayloadMode
+function resolveTranslationPayloadOptions: (options: ModuleOptions) => ResolvedTranslationPayloadOptions
+function resolveTranslationPayloadPublicDir: (outputPublicDir: string | undefined, options: ModuleOptions) => string
+function resolveTranslationPayloadWarningThresholds: (options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>
+interface TranslationPayloadMisconfigurationInput
+member TranslationPayloadMisconfigurationInput.apiBaseClientHost?: string | undefined
+member TranslationPayloadMisconfigurationInput.apiBaseServerHost?: string | undefined
+member TranslationPayloadMisconfigurationInput.translationPayloads: ResolvedTranslationPayloadOptions
+type TranslationPayloadMode: 'premerged' | 'source'
+interface TranslationPayloadSizeThresholds
+member TranslationPayloadSizeThresholds.warnFileCount?: number | undefined
+member TranslationPayloadSizeThresholds.warnSizeBytes?: number | undefined
+interface TranslationPayloadStats
+member TranslationPayloadStats.fileCount: number
+member TranslationPayloadStats.totalBytes: number
+
+# ./payload-fetch (src/payload-fetch.ts)
+function fetchTranslationPayloadFromHost: (config: TranslationPayloadHostConfig, locale: string, page: string, fetcher: TranslationPayloadFetcher) => Promise<Translations>
+type TranslationPayloadFetcher: <T>(path: string, options: { baseURL: string; params?: Record<string, string | number> }) => Promise<T>
+interface TranslationPayloadHostConfig
+member TranslationPayloadHostConfig.apiBaseServerHost?: string | undefined
+member TranslationPayloadHostConfig.apiBaseUrl?: string | undefined
+member TranslationPayloadHostConfig.dateBuild?: string | number | undefined
+
+# ./payload-stats (src/payload-stats.ts)
+function compressTranslationPayloads: (dir: string, compression: PublicAssetCompression) => number
+function hashTranslationSources: (rootDirs: string[], translationDirName: string) => string | null
+type PublicAssetCompression: boolean | { gzip?: boolean; brotli?: boolean } | undefined
+function scanTranslationPayloadDirectory: (dir: string) => TranslationPayloadStats
+
+# ./payload-url (src/payload-url.ts)
+function buildTranslationPayloadCacheControl: (durationSeconds: number | undefined, hasCacheBuster?: boolean) => string | null
+function buildTranslationPayloadFetchRequest: (input: TranslationPayloadFetchRequestInput) => { path: string; baseURL: string; params?: Record<string, string | number>; }
+function buildTranslationPayloadPath: (apiBaseUrl: string, page: string, locale: string) => string
+function resolveTranslationPayloadBaseURL: (options: { isServer: boolean; baseURL: string; apiBaseClientHost?: string; apiBaseServerHost?: string; }) => string
+function resolveTranslationPayloadPage: (routeName: string | undefined, routesLocaleLinks?: Record<string, string>) => string
+interface TranslationPayloadFetchRequestInput
+member TranslationPayloadFetchRequestInput.apiBaseClientHost?: string | undefined
+member TranslationPayloadFetchRequestInput.apiBaseServerHost?: string | undefined
+member TranslationPayloadFetchRequestInput.apiBaseUrl: string
+member TranslationPayloadFetchRequestInput.baseURL: string
+member TranslationPayloadFetchRequestInput.dateBuild?: string | number | undefined
+member TranslationPayloadFetchRequestInput.isServer: boolean
+member TranslationPayloadFetchRequestInput.locale: string
+member TranslationPayloadFetchRequestInput.routeName?: string | undefined
+member TranslationPayloadFetchRequestInput.routesLocaleLinks?: Record<string, string> | undefined
+
+# ./resolve-locale (src/resolve-locale.ts)
+function resolvePreferredLocale: (input: ResolvePreferredLocaleInput) => string
+interface ResolvePreferredLocaleInput
+member ResolvePreferredLocaleInput.acceptLanguageHeader?: string | null | undefined
+member ResolvePreferredLocaleInput.autoDetectLanguage?: boolean | undefined
+member ResolvePreferredLocaleInput.cookieLocale?: string | null | undefined
+member ResolvePreferredLocaleInput.defaultLocale: string
+member ResolvePreferredLocaleInput.ignoreStateLocale?: boolean | undefined
+member ResolvePreferredLocaleInput.stateLocale?: string | null | undefined
+member ResolvePreferredLocaleInput.validLocales: string[]
+function resolveServerLocale: (input: ResolveServerLocaleInput) => string
+interface ResolveServerLocaleInput
+member ResolveServerLocaleInput.acceptLanguageHeader?: string | null | undefined
+member ResolveServerLocaleInput.autoDetectLanguage?: boolean | undefined
+member ResolveServerLocaleInput.cookieLocale?: string | null | undefined
+member ResolveServerLocaleInput.defaultLocale: string
+member ResolveServerLocaleInput.hasLocaleInUrl: boolean
+member ResolveServerLocaleInput.queryLocale?: string | null | undefined
+member ResolveServerLocaleInput.urlLocale?: string | null | undefined
+member ResolveServerLocaleInput.validLocales: string[]
+
+# ./resolve-og-locale (src/resolve-og-locale.ts)
+function resolveOgLocale: (locale: OgLocaleInput) => string | null
+function warnUnresolvedOgLocale: (locale: OgLocaleInput, options?: WarnUnresolvedOgLocaleOptions) => void
+interface WarnUnresolvedOgLocaleOptions
+member WarnUnresolvedOgLocaleOptions.missingWarn?: boolean | undefined
+member WarnUnresolvedOgLocaleOptions.tag?: "og:locale" | "og:locale:alternate" | undefined
+
+# ./route (src/route.ts)
+function findAllowedLocalesForRoute: (route: I18nRouteContext, routeLocales: Record<string, string[]> | undefined, localizedRouteNamePrefix?: string, localeCodes?: string[]) => string[] | null
+interface I18nRouteContext
+member I18nRouteContext.matched?: { path: string; }[] | undefined
+member I18nRouteContext.name?: string | symbol | null | undefined
+member I18nRouteContext.path: string
+function isMetaDisabledForRoute: (route: I18nRouteContext, routeDisableMeta: Record<string, boolean | string[]> | undefined, currentLocale?: string, localizedRouteNamePrefix?: string) => boolean
+
+# ./route-pattern (src/route-pattern.ts)
+function extractBaseRoutePattern: (matchedPath: string) => string
+function routeNameToPath: (normalizedRouteName: string | undefined) => string | undefined
+function stripLeadingSlash: (path: string) => string
+function stripLocalizedRouteNamePrefix: (routeName: string | undefined | null, localizedRouteNamePrefix?: string) => string | undefined
+
+# ./runtime-config (src/runtime-config.ts)
+function resolveI18nConfigWithRuntimeOverrides: (baseConfig: ModuleOptionsExtend, runtimePublic?: Record<string, unknown>, warn?: (message: string) => void) => ModuleOptionsExtend
+interface RuntimeI18nOverrides
+member RuntimeI18nOverrides.defaultLocale?: string | undefined
+member RuntimeI18nOverrides.disabledLocales?: string[] | undefined
+member RuntimeI18nOverrides.fallbackLocale?: string | undefined
+member RuntimeI18nOverrides.strategy?: string | undefined
+
+# ./source-loader (src/source-loader.ts)
+function loadSourceTranslationsFromStorage: (storage: TranslationStorageReader, input: Omit<MergeSourceTranslationsInput, "readLocaleFile">) => Promise<Translations>
+interface TranslationStorageReader
+member TranslationStorageReader.getItem: (key: string) => Promise<unknown>

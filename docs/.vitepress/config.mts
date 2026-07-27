@@ -215,6 +215,7 @@ export default withFolderTree(
                     { text: 'Server Side Translations', link: '/server-side-translations' },
                     { text: 'Firebase Deployment', link: '/firebase' },
                     { text: 'Release Smoke Checks', link: '/release-smoke' },
+                    { text: 'Maintenance Commands', link: '/maintenance-commands' },
                   ],
                 },
                 {

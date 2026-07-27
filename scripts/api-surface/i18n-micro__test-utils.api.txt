@@ -1,0 +1,28 @@
+# . (src/index.ts)
+const defaultLocale: () => string | undefined
+const getLocale: () => string
+const getLocaleName: () => string | null
+const getLocales: () => Locale[]
+const getRouteName: (_route?: unknown, _locale?: string) => string
+type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+const has: (key: TranslationKey) => boolean
+const i18nUtils: { t: (key: TranslationKey, params?: Params, defaultValue?: string) => Translation; tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string; setTranslationsFromJson: (locale: string, translations: Record<string, unknown>) => Promise<void>; getLocale: () => string; setLocale: (val: string) => string; getLocaleName: () => string | null; setLocaleName: (val: string | null) => string | null; getLocales: () => Locale[]; setLocales: (val: Locale[]) => Locale[]; defaultLocale: () => string | undefined; setDefaultLocale: (val: string | undefined) => string | undefined; getRouteName: (_route?: unknown, _locale?: string) => string; settRouteName: (val: string) => string; ts: (key: TranslationKey, params?: Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; has: (key: TranslationKey) => boolean; mergeTranslations: (newTranslations: Translations) => void; switchLocaleRoute: (val: string) => string; switchLocalePath: (val: string) => string; switchLocale: (val: string) => string; switchRoute: (_route: unknown, _toLocale?: string) => void; localeRoute: (_to: unknown, _locale?: string) => void; localePath: (_to: unknown, _locale?: string) => string; setI18nRouteParams: (_value: unknown) => void; }
+const localePath: (_to: unknown, _locale?: string) => string
+const localeRoute: (_to: unknown, _locale?: string) => void
+const mergeTranslations: (newTranslations: Translations) => void
+const setDefaultLocale: (val: string | undefined) => string | undefined
+const setI18nRouteParams: (_value: unknown) => void
+const setLocale: (val: string) => string
+const setLocaleName: (val: string | null) => string | null
+const setLocales: (val: Locale[]) => Locale[]
+function setTranslationsFromJson: (locale: string, translations: Record<string, unknown>) => Promise<void>
+const settRouteName: (val: string) => string
+const switchLocale: (val: string) => string
+const switchLocalePath: (val: string) => string
+const switchLocaleRoute: (val: string) => string
+const switchRoute: (_route: unknown, _toLocale?: string) => void
+function t: (key: TranslationKey, params?: Params, defaultValue?: string) => Translation
+function tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string
+const td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
+const tn: (value: number, options?: Intl.NumberFormatOptions) => string
+const ts: (key: TranslationKey, params?: Params, defaultValue?: string) => string

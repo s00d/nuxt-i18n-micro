@@ -2,18 +2,23 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineCommand } from 'citty'
-import { assertBaseResolvable, changedPackageNames, listWorkspacePackages, resolveBase, run, type PackageManifest } from '../utils/git-baseline'
+import { assertBaseResolvable, changedPackageNames, listWorkspacePackages, resolveBase, run } from '../utils/git-baseline'
+import { type ExportEntry, type PackageManifest, isExportMap, parseManifest } from '../utils/manifest'
 import { repoRoot } from '../utils/workspace'
 
-type Manifest = PackageManifest & { exports?: unknown; files?: string[] }
-
-interface Entry {
+/** One package's line in the report. Exported: it is the `--json` contract. */
+export interface ComparisonEntry {
   name: string
   localVersion: string
   npmVersion: string | null
   errors: string[]
   warnings: string[]
   info: string[]
+}
+
+export interface ComparePublishedReport {
+  results: ComparisonEntry[]
+  errorCount: number
 }
 
 export const comparePublishedCommand = defineCommand({
@@ -78,15 +83,15 @@ export const comparePublishedCommand = defineCommand({
         .filter((p) => p && p !== 'package')
     }
 
-    function readPackedManifest(tarball: string): Manifest {
+    function readPackedManifest(tarball: string): PackageManifest {
       const extractDir = join(cacheRoot, '_manifest-extract')
       rmSync(extractDir, { recursive: true, force: true })
       mkdirSync(extractDir, { recursive: true })
       run('tar', ['-xzf', tarball, '-C', extractDir, 'package/package.json'])
-      return JSON.parse(readFileSync(join(extractDir, 'package/package.json'), 'utf8'))
+      return parseManifest(readFileSync(join(extractDir, 'package/package.json'), 'utf8'))
     }
 
-    function collectExportTypePaths(value: unknown, out: string[] = []): string[] {
+    function collectExportTypePaths(value: ExportEntry | undefined, out: string[] = []): string[] {
       // The string branch used to sit after the object guard, so it never ran and a
       // plain `"./x.d.ts"` export was silently skipped. TypeScript surfaced it as an
       // unreachable `never`; checking strings first is what was meant all along.
@@ -94,10 +99,12 @@ export const comparePublishedCommand = defineCommand({
         if (/\.d\.(?:ts|cts|mts)$/.test(value)) out.push(value.replace(/^\.\//, ''))
         return out
       }
-      if (!value || typeof value !== 'object') return out
-      if ('types' in value && typeof value.types === 'string') {
-        out.push(value.types.replace(/^\.\//, ''))
+      if (Array.isArray(value)) {
+        for (const item of value) collectExportTypePaths(item, out)
+        return out
       }
+      if (!isExportMap(value)) return out
+      if (typeof value.types === 'string') out.push(value.types.replace(/^\.\//, ''))
       for (const child of Object.values(value)) collectExportTypePaths(child, out)
       return out
     }
@@ -105,10 +112,10 @@ export const comparePublishedCommand = defineCommand({
     const HASHED_CHUNK_RE = /^(?:base-strategy|common)-[A-Za-z0-9_-]{6,}\.(?:js|cjs|mjs)$/
     const DIST_RUNTIME_RE = /^dist\/[^/]+\.(?:mjs|cjs|js)$/
 
-    const results = []
+    const results: ComparisonEntry[] = []
     let errorCount = 0
 
-    function checkLocalPackaging(entry: Entry, name: string, localPaths: string[]): number {
+    function checkLocalPackaging(entry: ComparisonEntry, name: string, localPaths: string[]): number {
       let added = 0
       const errors = entry.errors
 
@@ -145,7 +152,7 @@ export const comparePublishedCommand = defineCommand({
       if (changedNames && !changedNames.has(name)) continue
       const npmVer = args.localOnly ? null : npmVersion(name)
 
-      const entry: Entry = {
+      const entry: ComparisonEntry = {
         name,
         localVersion,
         npmVersion: npmVer,
@@ -256,7 +263,8 @@ export const comparePublishedCommand = defineCommand({
     }
 
     if (args.json) {
-      console.log(JSON.stringify({ results, errorCount }, null, 2))
+      const report: ComparePublishedReport = { results, errorCount }
+      console.log(JSON.stringify(report, null, 2))
     } else {
       console.log(`Compared ${results.length} package(s) (local npm pack vs npm latest)\n`)
       for (const entry of results) {

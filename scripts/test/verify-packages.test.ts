@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { dualPackageTypeFindings, isPublished } from '../src/commands/verify-packages'
+import type { ExportEntry, PackageManifest } from '../src/utils/manifest'
 
-type Manifest = Parameters<typeof isPublished>[0]
-
-const codes = (pkg: unknown) => dualPackageTypeFindings(pkg as Manifest).map((f) => `${f.level}:${f.code}`)
-const files = (list: unknown) => ({ files: list }) as Manifest
+const codes = (pkg: PackageManifest) => dualPackageTypeFindings(pkg).map((f) => `${f.level}:${f.code}`)
+const files = (list: unknown[]): PackageManifest => ({ files: list })
 
 describe('isPublished', () => {
   it('treats a manifest without "files" as publishing everything', () => {
-    expect(isPublished({} as Manifest, './dist/index.mjs')).toBe(true)
+    expect(isPublished({}, './dist/index.mjs')).toBe(true)
   })
 
   it('ships the whole subtree of a bare directory entry', () => {
@@ -52,7 +51,7 @@ describe('isPublished', () => {
 })
 
 describe('dualPackageTypeFindings', () => {
-  const esm = (root: unknown) => ({ type: 'module', exports: { '.': root } })
+  const esm = (root: ExportEntry): PackageManifest => ({ type: 'module', exports: { '.': root } })
 
   it('only looks at "type":"module" packages with a require condition', () => {
     expect(codes({ type: 'commonjs', exports: { '.': { import: './a.mjs', require: './a.cjs' } } })).toEqual([])

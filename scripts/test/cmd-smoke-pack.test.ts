@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { relinkWorkspaceDeps } from '../src/commands/smoke-pack'
+import type { PackageManifest } from '../src/utils/manifest'
 
 /**
  * Rewriting a packed tarball is the part of `smoke-pack` that has no visible failure
@@ -14,7 +15,7 @@ import { relinkWorkspaceDeps } from '../src/commands/smoke-pack'
 
 let work: string
 
-const tarballFor = (manifest: Record<string, unknown>): string => {
+const tarballFor = (manifest: PackageManifest): string => {
   const dir = join(work, `src-${Math.random().toString(36).slice(2)}`, 'package')
   mkdirSync(dir, { recursive: true })
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, 2))
@@ -24,11 +25,11 @@ const tarballFor = (manifest: Record<string, unknown>): string => {
   return tarball
 }
 
-const manifestIn = (tarball: string): Record<string, Record<string, string>> => {
+const manifestIn = (tarball: string): PackageManifest => {
   const out = join(work, `read-${Math.random().toString(36).slice(2)}`)
   mkdirSync(out, { recursive: true })
   execFileSync('tar', ['-xzf', tarball, '-C', out])
-  return JSON.parse(readFileSync(join(out, 'package', 'package.json'), 'utf8'))
+  return JSON.parse(readFileSync(join(out, 'package', 'package.json'), 'utf8')) as PackageManifest
 }
 
 const entriesIn = (tarball: string): string[] => execFileSync('tar', ['-tzf', tarball], { encoding: 'utf8' }).trim().split('\n').sort()
@@ -99,6 +100,6 @@ describe('relinkWorkspaceDeps', () => {
   it('handles a manifest with no dependency fields at all', () => {
     const tarball = tarballFor({ name: 'bare', version: '1.0.0' })
     expect(() => relinkWorkspaceDeps(tarball, new Map([['@i18n-micro/core', '/tmp/core.tgz']]))).not.toThrow()
-    expect(manifestIn(tarball).name as unknown).toBe('bare')
+    expect(manifestIn(tarball).name).toBe('bare')
   })
 })

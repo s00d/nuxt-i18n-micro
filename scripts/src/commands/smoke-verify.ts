@@ -3,10 +3,17 @@ import { defineCommand } from 'citty'
 /** A bare translation key rendered as text — what a broken payload looks like on screen. */
 export const RAW_KEY = /<(?:h1|p|a)[^>]*>\s*(?:[a-z0-9_]+(?:\.[a-z0-9_]+)+|nav\.\w+)\s*<\//i
 
-interface CheckResult {
+/** One assertion's outcome. Exported: it is the `--json` contract. */
+export interface SmokeCheckResult {
   name: string
   ok: boolean
   detail: string
+}
+
+export interface SmokeVerifyReport {
+  base: string
+  results: SmokeCheckResult[]
+  failed: number
 }
 
 export const smokeVerifyCommand = defineCommand({
@@ -38,7 +45,7 @@ export const smokeVerifyCommand = defineCommand({
   },
   async setup({ args }) {
     const base = args.url.replace(/\/+$/, '')
-    const results: CheckResult[] = []
+    const results: SmokeCheckResult[] = []
 
     const check = async (name: string, fn: () => Promise<string>) => {
       try {
@@ -156,7 +163,8 @@ export const smokeVerifyCommand = defineCommand({
     const failed = results.filter((r) => !r.ok)
 
     if (args.json) {
-      console.log(JSON.stringify({ base, results, failed: failed.length }, null, 2))
+      const report: SmokeVerifyReport = { base, results, failed: failed.length }
+      console.log(JSON.stringify(report, null, 2))
     } else {
       console.log(`\nSmoke checks against ${base}\n`)
       for (const r of results) {

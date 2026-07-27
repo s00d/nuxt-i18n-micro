@@ -2,14 +2,20 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { defineCommand } from 'citty'
-import { listWorkspacePackages, type PackageManifest } from '../utils/git-baseline'
+import { listWorkspacePackages } from '../utils/git-baseline'
+import { FILE_FIELDS, type ExportEntry, type PackageManifest, isExportMap, typesTargetOf } from '../utils/manifest'
 
-type Manifest = PackageManifest & { exports?: unknown; main?: string; module?: string; types?: string; files?: string[]; bin?: unknown }
-
-interface Finding {
+/** One packaging complaint. Exported: it is the `--json` contract. */
+export interface Finding {
   pkg: string
   code: string
   message: string
+}
+
+export interface VerifyPackagesReport {
+  errors: Finding[]
+  warnings: Finding[]
+  ok: string[]
 }
 
 export interface TypedFinding {
@@ -25,23 +31,19 @@ export interface TypedFinding {
  * that is the shape where TypeScript resolves types per condition and a missing or
  * mis-extensioned entry silently gives CommonJS consumers no types at all.
  */
-export function dualPackageTypeFindings(pkg: Manifest): TypedFinding[] {
-  const exports = pkg.exports as Record<string, unknown> | undefined
-  if (!exports || typeof exports !== 'object' || pkg.type !== 'module') return []
+export function dualPackageTypeFindings(pkg: PackageManifest): TypedFinding[] {
+  if (pkg.type !== 'module' || !isExportMap(pkg.exports)) return []
 
-  const root = exports['.'] as Record<string, unknown> | undefined
-  if (!root || typeof root !== 'object') return []
-  if (!('require' in root)) return []
+  const root = pkg.exports['.']
+  if (!isExportMap(root) || !('require' in root)) return []
 
   const findings: TypedFinding[] = []
   // A top-level `types` inside the "." object is a condition of its own and applies to
   // both `import` and `require`, so it counts as types for either — it is just not the
   // recommended shape.
-  const rootTypes = typeof root.types === 'string' ? root.types : null
-  const importTypes =
-    typeof root.import === 'object' && root.import && 'types' in root.import ? (root.import as Record<string, unknown>).types : rootTypes
-  const requireTypes =
-    typeof root.require === 'object' && root.require && 'types' in root.require ? (root.require as Record<string, unknown>).types : null
+  const rootTypes = typesTargetOf(root)
+  const importTypes = typesTargetOf(root.import) ?? rootTypes
+  const requireTypes = typesTargetOf(root.require)
 
   if (rootTypes && (root.import || root.require)) {
     findings.push({
@@ -51,7 +53,7 @@ export function dualPackageTypeFindings(pkg: Manifest): TypedFinding[] {
     })
   }
 
-  if (requireTypes && !String(requireTypes).endsWith('.d.cts')) {
+  if (requireTypes && !requireTypes.endsWith('.d.cts')) {
     findings.push({
       level: 'warnings',
       code: 'require-types-cts',
@@ -92,7 +94,7 @@ export function dualPackageTypeFindings(pkg: Manifest): TypedFinding[] {
  * Being wrong here would mean a false error on a working package, so it errs towards
  * published.
  */
-export function isPublished(pkg: Manifest, rel: string): boolean {
+export function isPublished(pkg: PackageManifest, rel: string): boolean {
   const files = pkg.files
   if (!Array.isArray(files)) return true
 
@@ -143,19 +145,23 @@ export const verifyPackagesCommand = defineCommand({
     },
   },
   setup({ args }) {
-    const report: { errors: Finding[]; warnings: Finding[]; ok: string[] } = { errors: [], warnings: [], ok: [] }
+    const report: VerifyPackagesReport = { errors: [], warnings: [], ok: [] }
 
     const add = (level: 'errors' | 'warnings', pkg: string, code: string, message: string) => {
       report[level].push({ pkg, code, message })
     }
 
-    function collectRelativePaths(value: unknown, paths: Set<string>): void {
+    function collectRelativePaths(value: ExportEntry | undefined, paths: Set<string>): void {
       if (typeof value === 'string') {
         if (value.startsWith('./') || value.startsWith('../')) paths.add(value)
         return
       }
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        for (const v of Object.values(value)) collectRelativePaths(v, paths)
+      if (Array.isArray(value)) {
+        for (const item of value) collectRelativePaths(item, paths)
+        return
+      }
+      if (isExportMap(value)) {
+        for (const item of Object.values(value)) collectRelativePaths(item, paths)
       }
     }
 
@@ -172,14 +178,14 @@ export const verifyPackagesCommand = defineCommand({
       return existsSync(resolvePkgPath(pkgDir, rel))
     }
 
-    function checkPublishFields(pkgName: string, pkgDir: string, pkg: Manifest): void {
+    function checkPublishFields(pkgName: string, pkgDir: string, pkg: PackageManifest): void {
       if (!pkg.license) {
         add('warnings', pkgName, 'missing-license', 'Missing "license" field')
       }
       if (pkg.sideEffects === undefined && pkg.exports) {
         add('warnings', pkgName, 'missing-sideEffects', 'Missing "sideEffects" (recommended false for libraries)')
       }
-      if (!(pkg.engines as { node?: string } | undefined)?.node) {
+      if (!pkg.engines?.node) {
         add('warnings', pkgName, 'missing-engines', 'Missing engines.node')
       }
       if (pkg.module && pkg.exports) {
@@ -194,12 +200,12 @@ export const verifyPackagesCommand = defineCommand({
       for (const finding of dualPackageTypeFindings(pkg)) add(finding.level, pkgName, finding.code, finding.message)
     }
 
-    function checkReferencedFiles(pkgName: string, pkgDir: string, pkg: Manifest): void {
+    function checkReferencedFiles(pkgName: string, pkgDir: string, pkg: PackageManifest): void {
       const relPaths = new Set<string>()
       collectRelativePaths(pkg.exports, relPaths)
-      for (const field of ['main', 'module', 'types']) {
-        if (typeof pkg[field] !== 'string') continue
-        const value = pkg[field] as string
+      for (const field of FILE_FIELDS) {
+        const value = pkg[field]
+        if (typeof value !== 'string') continue
         relPaths.add(value.startsWith('./') || value.startsWith('../') ? value : `./${value}`)
       }
       if (Array.isArray(pkg.files)) {

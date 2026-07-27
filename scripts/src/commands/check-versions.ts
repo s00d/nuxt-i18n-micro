@@ -10,7 +10,8 @@ import {
 } from '../utils/git-baseline'
 import { compareVersions } from '../utils/semver'
 
-interface Entry {
+/** One package's line in the report. Exported: it is the `--json` contract. */
+export interface VersionEntry {
   name: string
   version: string
   status: string
@@ -27,6 +28,17 @@ function versionAtRef(ref: string, relDir: string): string | null {
   } catch {
     return null
   }
+}
+
+/** What `npm view <name> versions --json` writes to stdout. */
+type NpmViewVersions = string | string[] | NpmViewError
+
+interface NpmViewError {
+  error: { code?: string; summary?: string; detail?: string }
+}
+
+function isNpmError(value: NpmViewVersions): value is NpmViewError {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && 'error' in value
 }
 
 /**
@@ -46,20 +58,25 @@ export function publishedVersions(name: string): string[] | null {
   const { ok, stdout } = runCapture('npm', ['view', name, 'versions', '--json'])
   if (ok && !stdout) return []
 
-  let parsed: unknown
+  let parsed: NpmViewVersions
   try {
-    parsed = JSON.parse(stdout)
+    parsed = JSON.parse(stdout) as NpmViewVersions
   } catch {
     return null
   }
 
-  const errorCode = (parsed as { error?: { code?: string } })?.error?.code
-  if (errorCode) return errorCode === 'E404' ? [] : null
+  if (isNpmError(parsed)) return parsed.error.code === 'E404' ? [] : null
   if (!ok) return null
 
-  if (Array.isArray(parsed)) return parsed as string[]
+  if (Array.isArray(parsed)) return parsed
   if (typeof parsed === 'string') return [parsed]
   return null
+}
+
+export interface CheckVersionsReport {
+  base: string
+  results: VersionEntry[]
+  errorCount: number
 }
 
 export const checkVersionsCommand = defineCommand({
@@ -100,7 +117,7 @@ export const checkVersionsCommand = defineCommand({
     const base = resolveBase(args.base)
     assertBaseResolvable(base)
 
-    const results: Entry[] = []
+    const results: VersionEntry[] = []
     let errorCount = 0
 
     /**
@@ -108,7 +125,7 @@ export const checkVersionsCommand = defineCommand({
      * skips it, so the change would never reach consumers. Applies to changed *and* newly
      * added packages.
      */
-    const checkAlreadyPublished = (entry: Entry, name: string, version: string): number => {
+    const checkAlreadyPublished = (entry: VersionEntry, name: string, version: string): number => {
       if (!args.npm || entry.errors.length > 0) return 0
 
       const published = publishedVersions(name)
@@ -125,7 +142,7 @@ export const checkVersionsCommand = defineCommand({
     }
 
     for (const { name, relDir, localVersion: version } of listWorkspacePackages()) {
-      const entry: Entry = { name, version, status: 'unchanged', changedFiles: 0, baseVersion: null, errors: [] }
+      const entry: VersionEntry = { name, version, status: 'unchanged', changedFiles: 0, baseVersion: null, errors: [] }
 
       const changed = changedFiles(base, relDir).filter((file) => affectsPublishedArtifact(file.slice(`${relDir}/`.length)))
       entry.changedFiles = changed.length
@@ -168,7 +185,8 @@ export const checkVersionsCommand = defineCommand({
     }
 
     if (args.json) {
-      console.log(JSON.stringify({ base, results, errorCount }, null, 2))
+      const report: CheckVersionsReport = { base, results, errorCount }
+      console.log(JSON.stringify(report, null, 2))
     } else {
       console.log(`Checked ${results.length} package(s) for version bumps against ${base}\n`)
       for (const entry of results) {

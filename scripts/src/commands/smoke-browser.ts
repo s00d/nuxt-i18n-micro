@@ -1,6 +1,13 @@
 import { chromium } from '@playwright/test'
 import { defineCommand } from 'citty'
 
+declare global {
+  interface Window {
+    /** Raw translation keys the in-page observer saw. Set by the init script below. */
+    __keyHits?: Set<string>
+  }
+}
+
 interface CheckResult {
   name: string
   ok: boolean
@@ -76,7 +83,7 @@ export const smokeBrowserCommand = defineCommand({
 
     /** Drain the page's hits before a navigation throws the document away. */
     const drainKeyHits = async () => {
-      const hits = await page.evaluate(() => [...((window as unknown as { __keyHits?: Set<string> }).__keyHits ?? [])])
+      const hits = await page.evaluate(() => [...(window.__keyHits ?? [])])
       for (const key of hits) keyHits.add(key)
     }
 

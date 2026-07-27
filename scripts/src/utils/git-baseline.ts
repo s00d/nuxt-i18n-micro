@@ -8,14 +8,8 @@
 import { execFileSync, type ExecFileSyncOptions } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { parseManifest, type PackageManifest } from './manifest'
 import { repoRoot } from './workspace'
-
-export interface PackageManifest {
-  name?: string
-  version?: string
-  private?: boolean
-  [key: string]: unknown
-}
 
 export interface WorkspacePackage {
   name: string
@@ -116,7 +110,7 @@ export function listWorkspacePackages(filter: string | null = null): WorkspacePa
     const manifest = join(dir, 'package.json')
     if (!existsSync(manifest)) continue
 
-    const pkg = JSON.parse(readFileSync(manifest, 'utf8')) as PackageManifest
+    const pkg = parseManifest(readFileSync(manifest, 'utf8'))
     if (pkg.private === true || !pkg.name) continue
 
     out.push({ name: pkg.name, dir, relDir: `packages/${entry.name}`, localVersion: String(pkg.version ?? ''), pkg })

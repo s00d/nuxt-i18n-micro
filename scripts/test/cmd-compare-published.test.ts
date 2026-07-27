@@ -14,15 +14,16 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
 }))
 
 const { comparePublishedCommand } = await import('../src/commands/compare-published')
+type ComparePublishedReport = import('../src/commands/compare-published').ComparePublishedReport
 
 const pkg = (name: string): WorkspacePackage =>
-  ({ name, dir: `/repo/packages/${name}`, relDir: `packages/${name}`, localVersion: '1.0.0', pkg: { name, version: '1.0.0' } }) as WorkspacePackage
+  ({ name, dir: `/repo/packages/${name}`, relDir: `packages/${name}`, localVersion: '1.0.0', pkg: { name, version: '1.0.0' } })
 
 /**
  * `--changed-only` with nothing changed skips every package before it packs anything,
  * which is what makes these assertions cheap: no npm, no tarballs, no filesystem.
  */
-const run = (args: Record<string, unknown>) => runCli(comparePublishedCommand, { json: true, changedOnly: true, ...args })
+const run = (args: Partial<{ package: string }> = {}) => runCli(comparePublishedCommand, { json: true, changedOnly: true, ...args })
 
 describe('compare-published', () => {
   it('passes --package through to the package listing', async () => {
@@ -48,7 +49,7 @@ describe('compare-published', () => {
     changedPackageNames.mockReturnValue(new Set())
 
     const cli = await run({})
-    expect(cli.json<{ results: unknown[] }>().results).toEqual([])
+    expect(cli.json<ComparePublishedReport>().results).toEqual([])
     expect(cli.exitCode).toBeNull()
   })
 })

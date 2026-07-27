@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSyn
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { defineCommand } from 'citty'
+import { INSTALLED_DEPENDENCY_FIELDS, parseManifest, type PackageManifest } from '../utils/manifest'
 import { repoRoot } from '../utils/workspace'
 
 interface Packed {
@@ -32,14 +33,15 @@ export function relinkWorkspaceDeps(tarball: string, byName: Map<string, string>
   try {
     execFileSync('tar', ['-xzf', tarball, '-C', work])
     const pkgPath = join(work, 'package', 'package.json')
-    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as Record<string, Record<string, string> | unknown>
+    const pkg = parseManifest(readFileSync(pkgPath, 'utf8'))
 
     let changed = false
-    for (const field of ['dependencies', 'peerDependencies', 'optionalDependencies'] as const) {
-      const deps = pkg[field] as Record<string, string> | undefined
-      for (const name of Object.keys(deps ?? {})) {
-        if (byName.has(name)) {
-          deps![name] = `file:${byName.get(name)}`
+    for (const field of INSTALLED_DEPENDENCY_FIELDS) {
+      const deps = pkg[field]
+      if (!deps) continue
+      for (const [name, tarballPath] of byName) {
+        if (name in deps) {
+          deps[name] = `file:${tarballPath}`
           changed = true
         }
       }
@@ -94,7 +96,7 @@ export const smokePackCommand = defineCommand({
       .map((entry) => join(repoRoot, 'packages', entry.name))
       .filter((dir) => {
         try {
-          return Boolean((JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as { name?: string }).name)
+          return Boolean(parseManifest(readFileSync(join(dir, 'package.json'), 'utf8')).name)
         } catch {
           return false
         }
@@ -106,10 +108,8 @@ export const smokePackCommand = defineCommand({
     for (const { tarball } of packed) relinkWorkspaceDeps(tarball, byName)
 
     const manifestPath = join(appDir, 'package.json')
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
-      dependencies: Record<string, string>
-      pnpm?: { overrides?: Record<string, string> }
-    }
+    const manifest = parseManifest(readFileSync(manifestPath, 'utf8'))
+    manifest.dependencies ??= {}
 
     const root = packed.find((p) => p.name === 'nuxt-i18n-micro')
     if (!root) throw new Error('nuxt-i18n-micro was not packed')

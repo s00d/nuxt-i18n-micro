@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { PackageManifest, WorkspacePackage } from '../src/utils/git-baseline'
+import type { WorkspacePackage } from '../src/utils/git-baseline'
+import type { PackageManifest } from '../src/utils/manifest'
 import { runCli } from './helpers'
 
 const listWorkspacePackages = vi.hoisted(() => vi.fn<() => WorkspacePackage[]>())
@@ -17,24 +18,20 @@ vi.mock('node:fs', async (importOriginal) => ({
 }))
 
 const { verifyPackagesCommand } = await import('../src/commands/verify-packages')
+type VerifyPackagesReport = import('../src/commands/verify-packages').VerifyPackagesReport
 
 const DIR = '/repo/packages/core'
 
 function workspace(pkg: PackageManifest, files: string[] = []) {
   onDisk.clear()
   for (const file of files) onDisk.add(`${DIR}/${file}`)
-  listWorkspacePackages.mockReturnValue([{ name: String(pkg.name), dir: DIR, relDir: 'packages/core', localVersion: '1.0.0', pkg } as WorkspacePackage])
-}
-
-interface Report {
-  errors: { pkg: string; code: string }[]
-  warnings: { pkg: string; code: string }[]
+  listWorkspacePackages.mockReturnValue([{ name: String(pkg.name), dir: DIR, relDir: 'packages/core', localVersion: '1.0.0', pkg }])
 }
 
 async function report(pkg: PackageManifest, files?: string[]) {
   workspace(pkg, files)
   const cli = await runCli(verifyPackagesCommand, { json: true, publint: false })
-  const parsed = cli.json<Report>()
+  const parsed = cli.json<VerifyPackagesReport>()
   return {
     exitCode: cli.exitCode,
     errors: parsed.errors.map((e) => e.code),

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CommandResult, WorkspacePackage } from '../src/utils/git-baseline'
+import type { CheckVersionsReport, VersionEntry } from '../src/commands/check-versions'
 import { runCli } from './helpers'
 
 const listWorkspacePackages = vi.hoisted(() => vi.fn<() => WorkspacePackage[]>())
@@ -19,14 +20,8 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
 
 const { checkVersionsCommand } = await import('../src/commands/check-versions')
 
-interface Entry {
-  name: string
-  status: string
-  errors: string[]
-}
-
 const pkg = (name: string, version: string): WorkspacePackage =>
-  ({ name, dir: `/repo/packages/${name}`, relDir: `packages/${name}`, localVersion: version, pkg: { name, version } }) as WorkspacePackage
+  ({ name, dir: `/repo/packages/${name}`, relDir: `packages/${name}`, localVersion: version, pkg: { name, version } })
 
 /** `git show <ref>:<dir>/package.json` for the baseline versions a test declares. */
 function baselineVersions(versions: Record<string, string | null>) {
@@ -46,12 +41,12 @@ const npmHas = (versions: Record<string, string[]>) =>
     return { ok: true, stdout: JSON.stringify(list), stderr: '' }
   })
 
-const run = async (args: Record<string, unknown> = {}) => {
+const run = async (args: Partial<{ npm: boolean }> = {}) => {
   const cli = await runCli(checkVersionsCommand, { json: true, npm: false, ...args })
-  return { ...cli, report: cli.json<{ results: Entry[]; errorCount: number }>() }
+  return { ...cli, report: cli.json<CheckVersionsReport>() }
 }
 
-const entry = (results: Entry[], name: string) => results.find((r) => r.name === name)!
+const entry = (results: VersionEntry[], name: string) => results.find((r) => r.name === name)!
 
 beforeEach(() => {
   listWorkspacePackages.mockReset()

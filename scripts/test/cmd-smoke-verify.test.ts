@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { smokeVerifyCommand } from '../src/commands/smoke-verify'
+import { type SmokeVerifyReport, smokeVerifyCommand } from '../src/commands/smoke-verify'
 import { runCli } from './helpers'
 
 /**
@@ -55,7 +55,7 @@ async function failuresFor(mutate: (app: App) => void) {
   mutate(app)
   serve(app)
   const run = await runCli(smokeVerifyCommand, { url: BASE, json: true })
-  const report = run.json<{ results: { name: string; ok: boolean }[]; failed: number }>()
+  const report = run.json<SmokeVerifyReport>()
   return { exitCode: run.exitCode, names: report.results.filter((r) => !r.ok).map((r) => r.name) }
 }
 

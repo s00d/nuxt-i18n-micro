@@ -28,8 +28,8 @@
           :to="switchLocaleRoute(locale.code)"
           :style="[
             linkStyle,
-          locale.code === currentLocale ? activeLinkStyle : {},
-          customLinkStyle,
+            locale.code === currentLocale ? activeLinkStyle : {},
+            customLinkStyle,
             locale.code === currentLocale ? customActiveLinkStyle : {},
           ]"
           :hreflang="locale.iso || locale.code"

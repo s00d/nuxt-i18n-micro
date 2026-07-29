@@ -269,15 +269,19 @@ export class NuxtTranslationLoader {
   constructor(private readonly options: NuxtTranslationLoaderOptions) {}
 
   loadFromCacheSync(locale: string, routeName?: string): Record<string, unknown> | null {
-    const { i18n } = this.options
+    const { i18n, setSsrChunk } = this.options
+    const cacheKey = i18n.getCacheKey(locale, routeName)
 
     if (i18n.hasChunk(locale, routeName)) {
-      return i18n.getChunk(locale, routeName)
+      const data = i18n.getChunk(locale, routeName)
+      setSsrChunk(cacheKey, data)
+      return data
     }
 
     const cached = translationStorage.getFromCache(locale, routeName)
     if (cached) {
       i18n.setChunk(locale, routeName, cached.data)
+      setSsrChunk(cacheKey, cached.data)
       return cached.data
     }
 
@@ -297,9 +301,7 @@ export class NuxtTranslationLoader {
         const mergedChunk = mergeTranslationChunk(existing, result.data, { preserveExisting: true })
         i18n.setChunk(locale, routeName, mergedChunk)
 
-        if (import.meta.server) {
-          setSsrChunk(cacheKey, mergedChunk)
-        }
+        setSsrChunk(cacheKey, mergedChunk)
 
         return mergedChunk
       } catch (e) {

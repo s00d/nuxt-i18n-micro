@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { NuxtI18n } from '../src/runtime/utils/nuxt-i18n'
+import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
+import { translationStorage } from '../src/runtime/utils/storage'
 
 describe('NuxtI18n', () => {
   it('does not use fallback locale when key is missing in current locale', () => {
@@ -105,6 +106,35 @@ describe('NuxtI18n', () => {
 
     expect(i18n.has('title')).toBe(false)
     expect(i18n.getChunk('en', 'index')).toEqual({})
+  })
+})
+
+describe('NuxtTranslationLoader SSR chunk recording', () => {
+  const loadOptions = {
+    apiBaseUrl: '_locales',
+    baseURL: '/',
+    dateBuild: 0,
+  }
+
+  it('records in-memory chunk hits via setSsrChunk', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const setSsrChunk = vi.fn()
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions, setSsrChunk })
+
+    i18n.setChunk('en', 'index', { title: 'Warm cache' })
+    expect(loader.loadFromCacheSync('en', 'index')).toEqual({ title: 'Warm cache' })
+    expect(setSsrChunk).toHaveBeenCalledWith('en:index', { title: 'Warm cache' })
+  })
+
+  it('records translationStorage cache hits via setSsrChunk', () => {
+    translationStorage.clear()
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const setSsrChunk = vi.fn()
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions, setSsrChunk })
+
+    translationStorage.seedFromSsrChunks({ 'en:about': { title: 'About' } })
+    expect(loader.loadFromCacheSync('en', 'about')).toEqual({ title: 'About' })
+    expect(setSsrChunk).toHaveBeenCalledWith('en:about', { title: 'About' })
   })
 })
 

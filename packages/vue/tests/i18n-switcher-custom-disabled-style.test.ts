@@ -26,8 +26,10 @@ describe('I18nSwitcher — customDisabledLinkStyle', () => {
       },
     })
 
-    const style = wrapper.find('button.i18n-switcher-button').attributes('style') ?? ''
+    const button = wrapper.find('button.i18n-switcher-button')
+    const style = button.attributes('style') ?? ''
     expect(style).toMatch(/cursor:\s*not-allowed/i)
+    expect(button.text()).toContain('German')
   })
 })
 

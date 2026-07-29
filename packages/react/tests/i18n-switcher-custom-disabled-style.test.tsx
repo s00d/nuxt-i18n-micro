@@ -13,13 +13,16 @@ describe('I18nSwitcher — customDisabledLinkStyle', () => {
     })
 
     render(
+      // @ts-expect-error - React Testing Library type issue
       <I18nProvider i18n={i18n}>
+        {/* @ts-expect-error - React Testing Library type issue */}
         <I18nLocalesContext.Provider
           value={[
             { code: 'en', displayName: 'English' },
             { code: 'de', displayName: 'German', disabled: true },
           ]}
         >
+          {/* @ts-expect-error - React Testing Library type issue */}
           <I18nSwitcher currentLocale="de" customDisabledLinkStyle={{ cursor: 'not-allowed' }} />
         </I18nLocalesContext.Provider>
       </I18nProvider>,

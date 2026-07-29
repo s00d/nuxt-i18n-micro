@@ -28,7 +28,7 @@ flowchart LR
 - **`experimental.hmr`** — Under `experimental` → Root-level option
 - **`previousPageFallback`** — Removed entirely (cumulative merge strategy handles this automatically)
 - **Caching** — `useStorage('cache')` → `TranslationStorage` singleton (`Symbol.for` on `globalThis`)
-- **SSR transfer** — Runtime config → Nuxt payload (v3 used `useState`; it now ships a render set through `payload.data`, see [Performance](./performance.md#server-side-payload-transfer))
+- **SSR transfer** — Runtime config → Nuxt payload (v3 used `useState`; chunks now live in `payload.data`, see [Performance](./performance.md#server-side-payload-transfer))
 - **Strategy classes** — Internal → Separate packages (`@i18n-micro/route-strategy`, `@i18n-micro/path-strategy`)
 
 ## Removed: `fallbackRedirectComponentPath`

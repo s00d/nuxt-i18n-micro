@@ -25,6 +25,7 @@ import {
   type TranslationPayloadMode,
 } from '@i18n-micro/utils/payload-config'
 import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from '@i18n-micro/utils/payload-stats'
+import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
 import {
   addComponentsDir,
   addImportsDir,
@@ -650,6 +651,11 @@ declare module '#i18n-internal/plural' {
       }
 
       nitroConfig.routeRules = nitroConfig.routeRules || {}
+      const httpCacheDuration = Math.floor(options.httpCacheDuration ?? 0)
+      // Must match `buildFullConfig`: `options.dateBuild` wins even when it is `0`/''.
+      const dateBuild = options.dateBuild ?? translationsHash ?? Date.now()
+      const hasCacheBuster = Boolean(dateBuild)
+      const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, hasCacheBuster)
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),
         cors: true,
@@ -660,6 +666,15 @@ declare module '#i18n-internal/plural' {
                 maxAge: 60,
                 swr: true,
               },
+              ...(Number.isSafeInteger(httpCacheDuration) && httpCacheDuration > 0
+                ? (cacheControl
+                    ? {
+                        headers: {
+                          'Cache-Control': cacheControl,
+                        },
+                      }
+                    : {})
+                : {}),
             }),
       }
 

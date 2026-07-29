@@ -18,6 +18,7 @@ interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   customItemStyle?: JSX.CSSProperties
   customLinkStyle?: JSX.CSSProperties
   customActiveLinkStyle?: JSX.CSSProperties
+  customDisabledLinkStyle?: JSX.CSSProperties
   customIconStyle?: JSX.CSSProperties
 }
 
@@ -39,13 +40,15 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
     'customItemStyle',
     'customLinkStyle',
     'customActiveLinkStyle',
+    'customDisabledLinkStyle',
     'customIconStyle',
   ])
 
   const [dropdownOpen, setDropdownOpen] = createSignal(false)
   let wrapperRef: HTMLDivElement | undefined
 
-  const locales = createMemo(() => (local.locales || injectedLocales || []).filter((locale) => !locale.disabled))
+  const allLocales = createMemo(() => local.locales || injectedLocales || [])
+  const locales = createMemo(() => allLocales().filter((locale) => !locale.disabled))
   const currentLocale = createMemo(() => {
     if (local.currentLocale !== undefined) {
       return typeof local.currentLocale === 'function' ? local.currentLocale() : local.currentLocale
@@ -53,6 +56,7 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
     // Используем реактивный accessor для отслеживания изменений
     return i18n.localeAccessor()
   })
+  const currentLocaleDisabled = createMemo(() => allLocales().some((l) => l.code === currentLocale() && l.disabled))
   const currentLocaleName = createMemo(() => {
     if (local.getLocaleName) {
       return local.getLocaleName() || null
@@ -210,7 +214,11 @@ export const I18nSwitcher: Component<I18nSwitcherProps> = (props): JSX.Element =
       <button
         type="button"
         class="i18n-switcher-button"
-        style={{ ...buttonStyle, ...local.customButtonStyle }}
+        style={{
+          ...buttonStyle,
+          ...local.customButtonStyle,
+          ...(currentLocaleDisabled() ? local.customDisabledLinkStyle : {}),
+        }}
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()

@@ -43,15 +43,12 @@ index. The module still never enables compression on its own. See
 Nothing in the public config surface changes, and no app code needs editing. These matter only if
 you reach into the runtime internals:
 
-- **The SSR payload moved from `useState('i18n-ssr-chunks')` to `nuxtApp.payload.data['i18n-ssr-chunks']`,
-  and holds a render set instead of whole chunks.** `useState('i18n-ssr-chunks')` now returns nothing.
-  Reading translations that way was never supported, but it was described in the cache API docs, so
-  it is called out here.
-- **`TranslationStorage.seedFromSsrChunks(chunks)` no longer takes a second argument.** Seeded entries
-  are always treated as partial now.
-- **`NuxtTranslationLoaderOptions` no longer has `getSsrChunks` / `setSsrChunk`.** The loader does not
-  write to the payload any more; the plugin does, once, after the render. `getSsrChunks` was never read
-  by anything.
+- **The SSR payload moved from `useState('i18n-ssr-chunks')` to `nuxtApp.payload.data['i18n-ssr-chunks']`.**
+  It still carries **full translation chunks** for every `(locale, route)` loaded during SSR — not a
+  partial render set. `useState('i18n-ssr-chunks')` now returns nothing. Reading translations that way
+  was never supported, but it was described in the cache API docs, so it is called out here.
+- **`NuxtTranslationLoaderOptions` again exposes `setSsrChunk`.** The loader writes each merged
+  chunk into `payload.data` on the server as it loads. `getSsrChunks` is not used.
 - **`nitro.compressPublicAssets` now emits `.gz` / `.br` next to the copied payloads.** Expect more
   files in public output if you had it enabled. Deploy tooling that enumerates the translation
   directory may need to account for them.
@@ -95,7 +92,7 @@ Analog of `@nuxtjs/i18n` v10.2.0 `experimental.httpCacheDuration`, as an explici
 ### Bug Fixes
 
 - **`<i18n-switcher>`** — omits locales with `disabled: true` from the dropdown. `$getLocales()` still returns the full list for your own code, while built-in SEO/meta output excludes disabled locales.
-- **Switcher styles** — `cursor: not-allowed` applies to the **current** locale via `activeLinkStyle` / `customActiveLinkStyle`; removed misleading `customDisabledLinkStyle` (it never styled `locale.disabled`)
+- **Switcher styles** — `cursor: not-allowed` applies to the **current** locale via `activeLinkStyle` / `customActiveLinkStyle`; restored `customDisabledLinkStyle` for backward compatibility and apply it to the switcher button when the current locale is `disabled: true`
 
 Full changelog will be published with the release on [GitHub](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
 

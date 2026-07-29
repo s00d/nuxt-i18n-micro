@@ -24,6 +24,7 @@ export interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   customItemStyle?: Record<string, string | number>
   customLinkStyle?: Record<string, string | number>
   customActiveLinkStyle?: Record<string, string | number>
+  customDisabledLinkStyle?: Record<string, string | number>
   customIconStyle?: Record<string, string | number>
 }
 
@@ -41,6 +42,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
     customItemStyle,
     customLinkStyle,
     customActiveLinkStyle,
+    customDisabledLinkStyle = {},
     customIconStyle,
     ...restProps
   } = props
@@ -54,10 +56,12 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
 
   // Use props if provided, otherwise fallback to injected or useI18n.
   // Exclude `disabled: true` locales from the UI switcher (keep them available via getLocales for SEO).
-  const locales = (localesProp || injectedLocales || i18n.getLocales() || []).filter((locale) => !locale.disabled)
+  const allLocales = localesProp || injectedLocales || i18n.getLocales() || []
+  const locales = allLocales.filter((locale) => !locale.disabled)
 
   // Get current locale value (handle both string and function)
   const currentLocale = resolveCurrentLocale(currentLocaleProp, i18n.locale)
+  const currentLocaleDisabled = allLocales.some((l) => l.code === currentLocale && l.disabled)
   const currentLocaleName = getLocaleNameProp ? getLocaleNameProp() : i18n.getLocaleName()
 
   const toggleDropdown = (event?: Event) => {
@@ -192,7 +196,11 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
   }, [dropdownOpen])
 
   const mergedWrapperStyle = { ...wrapperStyle, ...customWrapperStyle }
-  const mergedButtonStyle = { ...buttonStyle, ...customButtonStyle }
+  const mergedButtonStyle = {
+    ...buttonStyle,
+    ...customButtonStyle,
+    ...(currentLocaleDisabled ? customDisabledLinkStyle : {}),
+  }
   const mergedDropdownStyle = { ...dropdownStyle, ...customDropdownStyle }
   const mergedItemStyle = { ...itemStyle, ...customItemStyle }
   const mergedIconStyle = {

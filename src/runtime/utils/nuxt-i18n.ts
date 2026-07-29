@@ -103,14 +103,13 @@ export class NuxtI18n extends BaseI18n {
   }
 
   /**
-   * Install SSR render-set buckets, keyed the way they were recorded.
+   * Install SSR chunks from the payload into the view layer.
    *
-   * The loader only installs the chunk for the page being rendered, but a render set
-   * can hold buckets for other `(locale, route)` pairs — `$tForRoute()` and friends
-   * resolve against `getChunk()` directly. Without this they hydrate as missing until
-   * some later navigation happens to load that chunk.
+   * The loader only installs the chunk for the page being rendered, but SSR may
+   * load buckets for other `(locale, route)` pairs — `$tForRoute()` resolves against
+   * `getChunk()` directly. Without this they hydrate as missing until navigation.
    *
-   * Existing entries win: anything already loaded is more complete than a render set.
+   * Existing entries win: anything already loaded is kept as-is.
    */
   seedChunks(chunks: Record<string, Record<string, unknown>>): void {
     for (const [cacheKey, data] of Object.entries(chunks)) {
@@ -169,34 +168,6 @@ export class NuxtI18n extends BaseI18n {
     triggerRef(this.contextSignal)
   }
 
-  /**
-   * Apply a chunk that completes an earlier render-set seed.
-   *
-   * `setChunk` alone is not enough: lookups read `cachedTranslations`, so without
-   * refreshing it every key outside the render set stays unresolvable even after the
-   * full chunk has arrived. `staleKeys` are the flat render-set keys — own-property
-   * lookup beats path traversal, so they shadow the nested values and have to go —
-   * but only where `data` actually carries that path. A render set also holds keys
-   * that no locale file provides (component-local `$defineI18nRoute` translations);
-   * dropping those would leave nothing behind and the key would render as its name.
-   */
-  completeChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>, staleKeys: string[]): void {
-    this.setChunk(locale, routeName, data)
-    if (locale !== this.currentLocale || (routeName || '') !== this.currentRouteName) return
-
-    let base = this.cachedTranslations
-    if (staleKeys.length > 0) {
-      base = { ...base }
-      for (const key of staleKeys) {
-        if (resolveTranslation(data, key) !== null) delete base[key]
-      }
-    }
-
-    this.cachedTranslations = deepMergeTranslations(base, data)
-    if (this.pendingCleanState) this.pendingCleanState = data
-    triggerRef(this.contextSignal)
-  }
-
   finishTransition(): void {
     if (this.pendingCleanState) {
       this.cachedTranslations = this.pendingCleanState
@@ -247,37 +218,19 @@ export class NuxtI18n extends BaseI18n {
   }
 
   protected override resolveLookup(key: TranslationKey, routeContext?: unknown): unknown | null {
-    let cacheKey = ''
     const translations =
       routeContext && this.resolveRouteContext
         ? (() => {
             const { locale, routeName } = this.resolveRouteContext!(routeContext)
-            cacheKey = this.getCacheKey(locale, routeName)
             return this.getChunk(locale, routeName)
           })()
         : this.cachedTranslations
 
-    const value = resolveTranslation(translations, String(key))
-
-    // Record against the context the client will resolve under: `cachedTranslations`
-    // is the merged snapshot for the active (locale, route), which is exactly what
-    // `applySwitchContext` rebuilds from the seeded render set.
-    if (value !== null) {
-      this.recordResolvedKey(cacheKey || this.getCacheKey(this.currentLocale, this.currentRouteName), String(key), value)
-    }
-
-    return value
+    return resolveTranslation(translations, String(key))
   }
 
   protected override resolveHas(key: TranslationKey): boolean {
-    const value = resolveTranslation(this.cachedTranslations, String(key))
-    if (value !== null) {
-      // `has()` shapes markup too (`v-if="$has(k)"`). If the key is absent from the
-      // render set, the client answers `false` until the full chunk lands and
-      // hydration mismatches — so a probed key counts as rendered.
-      this.recordResolvedKey(this.getCacheKey(this.currentLocale, this.currentRouteName), String(key), value)
-    }
-    return value !== null
+    return resolveTranslation(this.cachedTranslations, String(key)) !== null
   }
 
   protected override getMissingContext(_routeContext?: unknown): { locale: string; routeName: string } {
@@ -306,6 +259,7 @@ export class NuxtI18n extends BaseI18n {
 export interface NuxtTranslationLoaderOptions {
   i18n: NuxtI18n
   loadOptions: LoadOptions
+  setSsrChunk: (cacheKey: string, data: Record<string, unknown>) => void
   isDev?: boolean
 }
 
@@ -331,7 +285,7 @@ export class NuxtTranslationLoader {
   }
 
   loadAsync(locale: string, routeName?: string): Promise<Record<string, unknown>> {
-    const { i18n, loadOptions, isDev } = this.options
+    const { i18n, loadOptions, setSsrChunk, isDev } = this.options
     const cacheKey = i18n.getCacheKey(locale, routeName)
     const pending = this.pendingLoads.get(cacheKey)
     if (pending) return pending
@@ -339,30 +293,18 @@ export class NuxtTranslationLoader {
     const promise = (async () => {
       try {
         const result = await translationStorage.load(locale, routeName, loadOptions)
-
-        // A render-set seed holds flat keys (`'nav.about'`) copied out of this very
-        // chunk. Own-property lookup wins over path traversal, so leaving them in
-        // would shadow the nested values that just arrived.
-        const seededKeys = translationStorage.takePartialKeys(cacheKey)
-        let existing = i18n.getChunk(locale, routeName)
-        if (seededKeys.length > 0) {
-          existing = { ...existing }
-          // Only where the fetched chunk supplies the same path — see `completeChunk`.
-          for (const key of seededKeys) {
-            if (resolveTranslation(result.data, key) !== null) delete existing[key]
-          }
-        }
-
+        const existing = i18n.getChunk(locale, routeName)
         const mergedChunk = mergeTranslationChunk(existing, result.data, { preserveExisting: true })
-        if (seededKeys.length > 0) {
-          i18n.completeChunk(locale, routeName, mergedChunk, seededKeys)
-        } else {
-          i18n.setChunk(locale, routeName, mergedChunk)
+        i18n.setChunk(locale, routeName, mergedChunk)
+
+        if (import.meta.server) {
+          setSsrChunk(cacheKey, mergedChunk)
         }
 
         return mergedChunk
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)
+        else console.warn('[i18n] Translation load failed:', locale, routeName)
         return {}
       } finally {
         this.pendingLoads.delete(cacheKey)
@@ -378,10 +320,6 @@ export class NuxtTranslationLoader {
 
     if (data === null) {
       data = await this.loadAsync(locale, routeName)
-    } else if (translationStorage.isPartial(this.options.i18n.getCacheKey(locale, routeName))) {
-      // Enough to hydrate what the server rendered — the rest of the dictionary is
-      // fetched without blocking the mount, which is the whole point of `render-set`.
-      void this.loadAsync(locale, routeName)
     }
 
     this.options.i18n.applySwitchContext(locale, routeName, data)

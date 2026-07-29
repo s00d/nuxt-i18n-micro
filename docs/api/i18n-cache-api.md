@@ -41,7 +41,7 @@ flowchart TB
 
     subgraph Client["Client Runtime"]
         API -->|$fetch| TS["TranslationStorage<br/>(singleton via Symbol.for)"]
-        SSR["render set<br/>payload.data i18n-ssr-chunks"] -->|seedFromSsrChunks| TS
+        SSR["full chunks<br/>payload.data i18n-ssr-chunks"] -->|seedFromSsrChunks| TS
         TS -->|getFromCache / load| NI["NuxtI18n<br/>active view layer"]
         NI --> PL["01.plugin.ts"]
     end
@@ -60,9 +60,7 @@ A singleton class that provides unified translation storage for both client and 
 | Method                              | Description                                                            |
 | ----------------------------------- | ---------------------------------------------------------------------- |
 | `getFromCache(locale, routeName?)`  | Synchronous check: returns cached in-memory data, or `null`            |
-| `seedFromSsrChunks(chunks)`         | Seeds cache from the SSR render set; entries are flagged partial       |
-| `isPartial(cacheKey)`               | Whether an entry came from a render set and still lacks the full chunk |
-| `takePartialKeys(cacheKey)`         | Returns and clears the keys seeded for that entry                      |
+| `seedFromSsrChunks(chunks)`         | Seeds cache from the SSR payload (`payload.data['i18n-ssr-chunks']`) |
 | `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
 | `clear()`                           | Clears the entire cache                                                |
 
@@ -119,21 +117,16 @@ import { loadTranslationsFromServer } from '../server/utils/server-loader'
 const { data, json } = await loadTranslationsFromServer('en', 'index')
 ```
 
-### 3. SSR Payload Transfer (render set)
+### 3. SSR Payload Transfer
 
-The payload carries a **render set**: only the keys the server resolved while rendering that page,
-not the whole `(locale, route)` chunk. `01.plugin.ts` records them in `NuxtI18n.resolveLookup` /
-`resolveHas` and writes them on `app:rendered` to `nuxtApp.payload.data['i18n-ssr-chunks']`.
+Each `(locale, route)` chunk loaded during SSR is stored in `nuxtApp.payload.data['i18n-ssr-chunks']`
+when `NuxtTranslationLoader` merges it on the server (`setSsrChunk`).
 
 `payload.data` rather than `useState`: Nuxt externalizes `data` into `_payload.json` on prerendered
 routes, while `state` always stays inline in the HTML.
 
-On the client the plugin seeds `TranslationStorage` from it before the first fetch, so hydration
-needs **no network round-trip**. The seed is flagged partial, and `NuxtTranslationLoader` completes
-it in the background right after — keys outside the render set resolve once that lands.
-
-Keys that only the render set can supply — component-local `$defineI18nRoute` translations, which no
-locale file contains — are preserved when the full chunk arrives.
+On the client the plugin seeds `TranslationStorage` and `NuxtI18n` from it before the first fetch, so
+hydration needs **no network round-trip** for chunks the server already loaded.
 
 `NuxtI18n` holds the active view-layer dictionary used by `$t()` and `$has()`. `NuxtTranslationLoader` switches locale/route context and merges chunks into that layer.
 

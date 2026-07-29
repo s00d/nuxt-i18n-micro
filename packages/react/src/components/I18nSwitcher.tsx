@@ -22,6 +22,7 @@ export interface I18nSwitcherProps extends React.HTMLAttributes<HTMLDivElement> 
   customItemStyle?: React.CSSProperties
   customLinkStyle?: React.CSSProperties
   customActiveLinkStyle?: React.CSSProperties
+  customDisabledLinkStyle?: React.CSSProperties
   customIconStyle?: React.CSSProperties
 }
 
@@ -39,6 +40,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
     customItemStyle,
     customLinkStyle,
     customActiveLinkStyle,
+    customDisabledLinkStyle = {},
     customIconStyle,
     ...restProps
   } = props
@@ -52,9 +54,11 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
 
   // Use props if provided, otherwise fallback to injected or useI18n.
   // Exclude `disabled: true` locales from the UI switcher (keep them available via getLocales for SEO).
-  const locales = (localesProp || injectedLocales || i18n.getLocales() || []).filter((locale) => !locale.disabled)
+  const allLocales = localesProp || injectedLocales || i18n.getLocales() || []
+  const locales = allLocales.filter((locale) => !locale.disabled)
 
   const currentLocale = resolveCurrentLocale(currentLocaleProp, i18n.locale)
+  const currentLocaleDisabled = allLocales.some((l) => l.code === currentLocale && l.disabled)
   const currentLocaleName = getLocaleNameProp ? getLocaleNameProp() : i18n.getLocaleName()
 
   const toggleDropdown = (event?: React.MouseEvent<HTMLButtonElement>) => {
@@ -189,7 +193,11 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
   }, [dropdownOpen])
 
   const mergedWrapperStyle = { ...wrapperStyle, ...customWrapperStyle }
-  const mergedButtonStyle = { ...buttonStyle, ...customButtonStyle }
+  const mergedButtonStyle = {
+    ...buttonStyle,
+    ...customButtonStyle,
+    ...(currentLocaleDisabled ? customDisabledLinkStyle : {}),
+  }
   const mergedDropdownStyle = { ...dropdownStyle, ...customDropdownStyle }
   const mergedItemStyle = { ...itemStyle, ...customItemStyle }
   const mergedIconStyle = {

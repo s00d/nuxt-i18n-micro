@@ -3,7 +3,7 @@
     <!-- @slot Content before the button that opens the dropdown. -->
     <slot name="before-button" />
 
-    <button class="language-switcher" :style="[buttonStyle, customButtonStyle]" @click="toggleDropdown">
+    <button class="language-switcher" :style="[buttonStyle, customButtonStyle, currentLocaleDisabled ? customDisabledLinkStyle : {}]" @click="toggleDropdown">
       <!-- @slot Content before the active locale label inside the button. -->
       <slot name="before-selected-locale" />
       {{ currentLocaleLabel }}
@@ -28,9 +28,9 @@
           :to="switchLocaleRoute(locale.code)"
           :style="[
             linkStyle,
+            customLinkStyle,
             locale.code === currentLocale ? activeLinkStyle : {},
             locale.code === currentLocale ? customActiveLinkStyle : {},
-            customLinkStyle,
           ]"
           :hreflang="locale.iso || locale.code"
           @click="switchLocale(locale.code)"
@@ -96,6 +96,8 @@ interface Props {
   customLinkStyle?: CSSProperties
   /** Inline style for the link of the currently active locale. */
   customActiveLinkStyle?: CSSProperties
+  /** Inline style for the *current* locale when it is `disabled: true` in config. */
+  customDisabledLinkStyle?: CSSProperties
   /** Inline style for the caret icon on the button. */
   customIconStyle?: CSSProperties
 }
@@ -108,13 +110,16 @@ const props = withDefaults(defineProps<Props>(), {
   customItemStyle: () => ({}),
   customLinkStyle: () => ({}),
   customActiveLinkStyle: () => ({}),
+  customDisabledLinkStyle: () => ({}),
   customIconStyle: () => ({}),
 })
 
 const { $switchLocaleRoute, $switchLocale, $getLocales, $getLocale, $getLocaleName } = useNuxtApp()
 // Keep `$getLocales()` complete for SEO/meta; the switcher only shows switchable locales.
-const locales = computed(() => ($getLocales() ?? []).filter((locale: Locale) => !locale.disabled))
+const allLocales = computed(() => $getLocales() ?? [])
+const locales = computed(() => allLocales.value.filter((locale: Locale) => !locale.disabled))
 const currentLocale = computed(() => $getLocale())
+const currentLocaleDisabled = computed(() => allLocales.value.some((l: Locale) => l.code === currentLocale.value && l.disabled))
 const currentLocaleName = computed(() => $getLocaleName())
 const dropdownOpen = ref(false)
 

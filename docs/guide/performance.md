@@ -223,44 +223,20 @@ if (val === undefined && key.includes('.')) {
 
 ### 💉 Server-Side Payload Transfer
 
-The SSR payload carries a **render set**: only the keys the server actually resolved while rendering
-that page, not the whole `(locale, route)` chunk. The HTML therefore grows with what the page shows,
-not with the size of your dictionary.
+The SSR payload carries **full translation chunks** for every `(locale, route)` loaded during SSR.
+`NuxtTranslationLoader` writes each merged chunk into `nuxtApp.payload.data['i18n-ssr-chunks']` via
+`setSsrChunk`. `payload.data` and not `useState` on purpose — Nuxt externalizes `data` into
+`_payload.json` on prerendered routes, while `state` always stays inline in the HTML.
 
-It is written on `app:rendered` into `nuxtApp.payload.data['i18n-ssr-chunks']`. `payload.data` and not
-`useState` on purpose — Nuxt externalizes `data` into `_payload.json` on prerendered routes, while
-`state` always stays inline in the HTML.
+On the client, `01.plugin.ts` seeds `translationStorage` and `NuxtI18n` from it before any `$fetch`, so
+hydration needs no network round-trip for chunks the server already loaded.
 
-On the client, `01.plugin.ts` seeds `translationStorage` from it before any `$fetch`, so hydration
-needs no network round-trip. The seed is flagged as partial, and the rest of the chunk is fetched in
-the background right after; keys outside the render set resolve once it lands. Keys that only the
-render set can provide — component-local `$defineI18nRoute` translations, which no locale file
-contains — are kept when the chunk arrives.
-
-`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`. Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys. That merge is what stops raw keys from flashing while the outgoing page is still mounted.
-
-Measured on the playground (index page with a 6.65 MB dictionary, 3130 rendered keys):
-
-Before, a response looked one of two ways depending on whether that `(locale, route)` was already
-cached in the server process — so the two are listed separately:
-
-| | before (cold) | before (warm) | after |
-| --- | ---: | ---: | ---: |
-| HTML | 7 640 581 | 378 450 | 678 934 |
-| of that, inline `__NUXT_DATA__` | 7 262 448 | 317 | 300 801 |
-| blocking chunk fetch before mount | — | 6 651 984 | — |
-| **bytes before the app mounts** | **7 640 581** | **7 030 434** | **678 934** |
-| SSR response | 201 ms | 17 ms | 57 ms |
-
-Server RSS drops from 272 MB to 190 MB, and on SSG the dictionary leaves the HTML entirely: 24 of 24
-prerendered pages carried it before, none do now.
+`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`.
+Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys.
 
 #### Where it stands today
 
-
-The table above is a one-off before/after. The numbers below are read from the budget
-file `pnpm run budget:payload` measures and enforces, so the page cannot describe a build
-that no longer exists.
+The numbers below are read from the budget file `pnpm run budget:payload` measures and enforces.
 
 <!-- generated:payload-budget — do not edit; run `pnpm run docs:generate` -->
 

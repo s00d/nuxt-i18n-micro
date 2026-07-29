@@ -22,6 +22,13 @@ export interface I18nSwitcherProps extends React.HTMLAttributes<HTMLDivElement> 
   customItemStyle?: React.CSSProperties
   customLinkStyle?: React.CSSProperties
   customActiveLinkStyle?: React.CSSProperties
+  /**
+   * Inline style applied to the main switcher button when the current locale is
+   * marked as `disabled: true` in the locale config.
+   *
+   * Disabled locales are omitted from the dropdown items, but still shown as the
+   * active button label.
+   */
   customDisabledLinkStyle?: React.CSSProperties
   customIconStyle?: React.CSSProperties
 }

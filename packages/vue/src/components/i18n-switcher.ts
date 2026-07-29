@@ -36,8 +36,8 @@ export const I18nSwitcher = defineComponent({
       default: () => ({}),
     },
     /**
-     * Inline style for the *current* locale when it is marked as `disabled: true`
-     * in the locale config.
+     * Inline style applied to the switcher button when the *current* locale is
+     * marked as `disabled: true` in the locale config.
      *
      * Note: disabled locales are omitted from the dropdown list, but the current
      * locale label is still shown on the button.
@@ -99,7 +99,9 @@ export const I18nSwitcher = defineComponent({
       if (props.getLocaleName) {
         return props.getLocaleName() || null
       }
-      const current = locales.value.find((l) => l.code === i18n.locale.value)
+      // Use `allLocales` (not dropdown-only `locales`) so disabled locales still resolve
+      // displayName/customLabels for the currently active button.
+      const current = allLocales.value.find((l) => l.code === i18n.locale.value)
       return current?.displayName || null
     })
 
@@ -120,7 +122,7 @@ export const I18nSwitcher = defineComponent({
     }
 
     const currentLocaleLabel = computed(() => {
-      const current = locales.value.find((l) => l.code === currentLocale.value)
+      const current = allLocales.value.find((l) => l.code === currentLocale.value)
       return current ? localeLabel(current) : currentLocaleName.value || currentLocale.value
     })
 

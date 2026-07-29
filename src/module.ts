@@ -667,13 +667,11 @@ declare module '#i18n-internal/plural' {
                 swr: true,
               },
               ...(Number.isSafeInteger(httpCacheDuration) && httpCacheDuration > 0
-                ? (cacheControl
-                    ? {
-                        headers: {
-                          'Cache-Control': cacheControl,
-                        },
-                      }
-                    : {})
+                ? {
+                    headers: {
+                      'Cache-Control': cacheControl!,
+                    },
+                  }
                 : {}),
             }),
       }

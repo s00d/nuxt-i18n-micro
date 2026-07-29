@@ -24,6 +24,12 @@ export interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
   customItemStyle?: Record<string, string | number>
   customLinkStyle?: Record<string, string | number>
   customActiveLinkStyle?: Record<string, string | number>
+  /**
+   * Inline style applied to the main switcher button when the current locale is
+   * marked as `disabled: true` in locale config.
+   *
+   * Disabled locales are omitted from dropdown items.
+   */
   customDisabledLinkStyle?: Record<string, string | number>
   customIconStyle?: Record<string, string | number>
 }

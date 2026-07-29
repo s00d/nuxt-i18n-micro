@@ -28,8 +28,8 @@
           :to="switchLocaleRoute(locale.code)"
           :style="[
             linkStyle,
-            customLinkStyle,
-            locale.code === currentLocale ? activeLinkStyle : {},
+          locale.code === currentLocale ? activeLinkStyle : {},
+          customLinkStyle,
             locale.code === currentLocale ? customActiveLinkStyle : {},
           ]"
           :hreflang="locale.iso || locale.code"
@@ -96,7 +96,7 @@ interface Props {
   customLinkStyle?: CSSProperties
   /** Inline style for the link of the currently active locale. */
   customActiveLinkStyle?: CSSProperties
-  /** Inline style for the *current* locale when it is `disabled: true` in config. */
+  /** Inline style for the *current* locale button when it is `disabled: true` in config. */
   customDisabledLinkStyle?: CSSProperties
   /** Inline style for the caret icon on the button. */
   customIconStyle?: CSSProperties

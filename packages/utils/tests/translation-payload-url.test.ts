@@ -109,7 +109,7 @@ describe('buildTranslationPayloadCacheControl', () => {
     expect(buildTranslationPayloadCacheControl(10.9)).toBe('public, max-age=10, immutable')
   })
 
-  it('omits immutable when cache-buster is disabled', () => {
+  it('forces revalidation when cache-buster is disabled', () => {
     expect(buildTranslationPayloadCacheControl(3600, false)).toBe('public, max-age=0, must-revalidate')
   })
 

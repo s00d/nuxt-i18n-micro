@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v3.22.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.4...v3.22.0)
+
+### 🚀 Enhancements
+
+- **react, preact:** Update aria attributes for accessibility ([882390c2](https://github.com/s00d/nuxt-i18n-micro/commit/882390c2))
+- **vite.config:** Add afterDiagnostic handler for TypeScript errors ([eae3fc6e](https://github.com/s00d/nuxt-i18n-micro/commit/eae3fc6e))
+
+### 🩹 Fixes
+
+- **i18n:** Merge translation layers without flattening dumps ([25fc2de8](https://github.com/s00d/nuxt-i18n-micro/commit/25fc2de8))
+
+### 📖 Documentation
+
+- **news:** Update release notes for v3.22.0 with new features and fixes ([cfa409c6](https://github.com/s00d/nuxt-i18n-micro/commit/cfa409c6))
+
+### 🏡 Chore
+
+- Restore root package version to 3.21.4 ([ec299229](https://github.com/s00d/nuxt-i18n-micro/commit/ec299229))
+- **github-actions:** Update runner to use `ubuntu-latest` instead of `self-hosted` ([a1c6d4d6](https://github.com/s00d/nuxt-i18n-micro/commit/a1c6d4d6))
+- **workflows:** Update GitHub Actions runner to `ubuntu-latest` ([acd48120](https://github.com/s00d/nuxt-i18n-micro/commit/acd48120))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.21.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.3...v3.21.4)

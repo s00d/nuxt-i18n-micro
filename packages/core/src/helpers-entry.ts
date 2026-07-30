@@ -7,6 +7,7 @@ export {
   isPrefixAndDefaultStrategy,
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
+  collectTranslationPaths,
   mergeTranslationChunk,
   resolveTranslation,
   setTranslationAtKey,

@@ -51,7 +51,7 @@ export function createFakeI18n() {
     $tn: vi.fn(i18nUtils.tn),
     $td: vi.fn(i18nUtils.td),
     $has: vi.fn(i18nUtils.has),
-    $getTranslations: vi.fn(i18nUtils.getTranslations),
+    $resolveTranslations: vi.fn(i18nUtils.resolveTranslations),
     $setTranslation: vi.fn(i18nUtils.setTranslation),
     $mergeTranslations: vi.fn(i18nUtils.mergeTranslations),
     $switchLocaleRoute: vi.fn(i18nUtils.switchLocaleRoute),
@@ -186,7 +186,7 @@ Below is a table describing all the utility methods provided by `@i18n-micro/tes
 | `tn(value, options?)`                           | Formats a number with inline `Intl.NumberFormatOptions`. Named formats need module config and are not available in this standalone helper. |
 | `td(value, options?)`                           | Formats a date with inline `Intl.DateTimeFormatOptions`. Named formats need module config and are not available in this standalone helper. |
 | `has(key)`                                      | Checks if a translation key exists.                                                                                                        |
-| `getTranslations()`                             | Returns the active translation tree for the current locale and route.                                                                      |
+| `resolveTranslations()`                             | Returns the active translation tree for the current locale and route.                                                                      |
 | `setTranslation(key, value)`                    | Replaces the value at `key` in the active dictionary (replace, not merge).                                                                 |
 | `mergeTranslations(newTranslations)`              | Merges translations into the active locale at runtime.                                                                                     |
 

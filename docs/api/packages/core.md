@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-38 exports across 2 entry points.
+40 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -20,6 +20,7 @@ import { /* … */ } from '@i18n-micro/core'
 | --- | --- | --- |
 | `BaseI18n` | class | 34 members |
 | `BaseI18nOptions` | interface | 7 members |
+| `collectTranslationPaths` | function | `(obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
 | `defaultPlural` | const | `PluralFunc` |
@@ -55,7 +56,6 @@ import { /* … */ } from '@i18n-micro/core'
 | `getLocale` | `() => string` |
 | `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
 | `getRoute` | `() => string` |
-| `getTranslations` | `(routeContext?: unknown) => Translations` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
@@ -70,7 +70,8 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveNumberFormatArgs` | `private (keyOrOptions?: string \| Intl.NumberFormatOptions, localeOrOverrides?: string \| Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions \| undefined; }` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `resolveTranslations` | `protected (routeContext?: unknown) => Translations` |
+| `resolveTranslations` | `(routeContext?: unknown) => Translations` |
+| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
@@ -173,6 +174,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `collectTranslationPaths` | function | `(obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void` |
 | `defaultPlural` | const | `PluralFunc` |
 | `getByPath` | function | `(obj: Record<string, unknown> \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Record<string, unknown> \| null \| undefined, key: string) => boolean` |

@@ -208,6 +208,43 @@ describe('PreactI18n', () => {
 
     unsubscribe()
   })
+
+  test('should expose resolveTranslations and setTranslation', () => {
+    const i18n = new PreactI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
+    i18n.setTranslation('greeting', 'Hi')
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hi' })
+    expect(i18n.t('greeting')).toBe('Hi')
+  })
+
+  test('should notify subscribers on setTranslation', () => {
+    const i18n = new PreactI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    let notified = false
+    const unsubscribe = i18n.subscribe(() => {
+      notified = true
+    })
+
+    i18n.setTranslation('greeting', 'Hi')
+    expect(notified).toBe(true)
+
+    unsubscribe()
+  })
 })
 
 describe('createI18n function', () => {

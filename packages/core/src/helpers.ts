@@ -118,9 +118,7 @@ export function setTranslationAtKey(tree: Record<string, unknown>, key: string, 
   }
 
   const path = key.split('.')
-  // An empty segment (`a..b`) is unreachable through `getByPath`, and `__proto__` would
-  // walk the prototype chain of the tree being built.
-  if (path.some((segment) => segment.length === 0 || segment === '__proto__')) return tree
+  if (path.some((segment) => segment === '__proto__')) return tree
 
   const root: Record<string, unknown> = { ...tree }
   let node = root
@@ -134,6 +132,16 @@ export function setTranslationAtKey(tree: Record<string, unknown>, key: string, 
   }
   node[path[path.length - 1]!] = value
   return root
+}
+
+export function collectTranslationPaths(obj: Record<string, unknown>, paths: Set<string>, prefix = ''): void {
+  for (const key of Object.keys(obj)) {
+    if (key === '__proto__') continue
+    const path = prefix ? `${prefix}.${key}` : key
+    paths.add(path)
+    const value = obj[key]
+    if (isPlainTranslationObject(value)) collectTranslationPaths(value, paths, path)
+  }
 }
 
 export function withPrefixStrategy(strategy: Strategies) {

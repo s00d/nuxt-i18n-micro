@@ -1,4 +1,4 @@
-import { interpolate, mergeTranslationChunk, setTranslationAtKey, useTranslationHelper } from '@i18n-micro/core'
+import { collectTranslationPaths, interpolate, setTranslationAtKey, useTranslationHelper } from '@i18n-micro/core'
 import type { Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
 
 type LocaleCode = string
@@ -99,12 +99,22 @@ export const has = (key: TranslationKey): boolean => i18nHelper.hasTranslation(l
 
 export const mergeTranslations = (newTranslations: Translations): void => i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)
 
-export const getTranslations = (): Record<string, unknown> => {
+export const resolveTranslations = (): Record<string, unknown> => {
   const active = (i18nHelper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
   const fallback = defLocale
   if (!fallback || locale === fallback) return active
-  const fb = i18nHelper.getCache(fallback, routeName) as Record<string, unknown> | undefined
-  return fb ? mergeTranslationChunk(fb, active) : active
+  const fb = (i18nHelper.getCache(fallback, routeName) ?? {}) as Record<string, unknown>
+  const paths = new Set<string>()
+  collectTranslationPaths(fb, paths)
+  collectTranslationPaths(active, paths)
+
+  let tree: Record<string, unknown> = {}
+  for (const path of paths) {
+    let value = i18nHelper.getTranslation(locale, routeName, path)
+    if (value === null) value = i18nHelper.getTranslation(fallback, routeName, path)
+    if (value !== null && value !== undefined) tree = setTranslationAtKey(tree, path, value)
+  }
+  return tree
 }
 
 export const setTranslation = (key: TranslationKey, value: unknown): void => {
@@ -147,7 +157,7 @@ export const i18nUtils = {
   td,
   has,
   mergeTranslations,
-  getTranslations,
+  resolveTranslations,
   setTranslation,
   switchLocaleRoute,
   switchLocalePath,

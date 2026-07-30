@@ -19,7 +19,7 @@ or CI failing.
 | Package | Entry points | Exports |
 | --- | --- | --- |
 | [`@i18n-micro/astro`](/api/packages/astro) | `@i18n-micro/astro`, `@i18n-micro/astro/client`, `@i18n-micro/astro/client/preact`, `@i18n-micro/astro/client/react`, `@i18n-micro/astro/client/svelte`, `@i18n-micro/astro/client/vue` | 56 |
-| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/helpers` | 38 |
+| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/helpers` | 40 |
 | [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) | `@i18n-micro/devtools-ui`, `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite` | 25 |
 | [`@i18n-micro/hmr`](/api/packages/hmr) | `@i18n-micro/hmr/cache-keys`, `@i18n-micro/hmr/generate-plugin`, `@i18n-micro/hmr/watcher` | 8 |
 | [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 15 |

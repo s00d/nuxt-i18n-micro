@@ -9,7 +9,7 @@ This is a utility library designed to facilitate testing for Nuxt.js application
 - **Locale Management**: Set and get the current locale and locale-specific data (e.g., route name, locale list).
 - **Number and Date Formatting**: Format numbers and dates according to the current locale.
 - **Translation Merging**: Merge new translations into the existing cache with the `mergeTranslations` function.
-- **Translation Memory**: Read and replace the active dictionary with `getTranslations` and `setTranslation`.
+- **Translation Memory**: Read and replace the active dictionary with `resolveTranslations` and `setTranslation`.
 - **Locale Switching**: Switch between locales dynamically and update route and path accordingly.
 
 ## Installation
@@ -87,7 +87,7 @@ i18nUtils.mergeTranslations({ welcome_message: 'Hello, {name}!' })
 Read the active dictionary:
 
 ```typescript
-const tree = i18nUtils.getTranslations()
+const tree = i18nUtils.resolveTranslations()
 ```
 
 Replace a value by key (replace, not merge):

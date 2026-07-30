@@ -221,4 +221,32 @@ describe('Translation management', () => {
     // Cache clearing shouldn't affect loaded translations
     expect(i18n.t('test')).toBe('Test')
   })
+
+  test('resolveTranslations returns the active translation tree', () => {
+    const i18n = new AstroI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
+  })
+
+  test('setTranslation replaces values and t() sees the change', () => {
+    const i18n = new AstroI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    i18n.setTranslation('greeting', 'Hi')
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hi' })
+    expect(i18n.t('greeting')).toBe('Hi')
+  })
 })

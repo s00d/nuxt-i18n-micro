@@ -1,6 +1,6 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
-import { defaultPlural, interpolate, mergeTranslationChunk, setTranslationAtKey } from './helpers'
+import { defaultPlural, interpolate, collectTranslationPaths, setTranslationAtKey } from './helpers'
 import { type TranslationStorage, useTranslationHelper } from './translation'
 
 export interface BaseI18nOptions {
@@ -108,13 +108,38 @@ export abstract class BaseI18n {
   }
 
   /**
-   * The whole tree a lookup reads from, for {@link getTranslations}.
+   * Snapshot two live layers into one tree via {@link resolveLookup}.
    *
-   * Separate from {@link resolveLookup} because an adapter that keeps its own active
-   * dictionary (the Nuxt one does) has to answer both from the same place, or `t()` and
-   * `getTranslations()` disagree about what is loaded.
+   * Used when the hot path keeps two objects (fallback locale, or Nuxt page-transition
+   * hot-reload) instead of merging them — the dump has to walk the same fallthrough `t()`
+   * uses, or it lies about what is loaded.
    */
-  protected resolveTranslations(routeContext?: unknown): Translations {
+  protected resolveTranslationTree(
+    lower: Record<string, unknown>,
+    upper: Record<string, unknown>,
+    routeContext?: unknown,
+  ): Translations {
+    const paths = new Set<string>()
+    collectTranslationPaths(lower, paths)
+    collectTranslationPaths(upper, paths)
+
+    let tree: Record<string, unknown> = {}
+    for (const path of paths) {
+      const value = this.resolveLookup(path as TranslationKey, routeContext)
+      if (value !== null && value !== undefined) tree = setTranslationAtKey(tree, path, value)
+    }
+    return tree as Translations
+  }
+
+  /**
+   * Dump of what `t()` can resolve right now for the active locale and route.
+   *
+   * Live tree, not a clone — read-only; mutate via {@link setTranslation} / merge helpers.
+   * When a second layer is live (fallback locale, Nuxt transition hot-reload), walks both
+   * through {@link resolveTranslationTree} so the dump matches `t()`.
+   */
+  public resolveTranslations(routeContext?: unknown): Translations {
+    this.touch()
     const locale = this.getLocale()
     const routeName = this.resolveRouteName(routeContext)
     const active = (this.helper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
@@ -122,10 +147,10 @@ export abstract class BaseI18n {
     const fallbackLocale = this.getFallbackLocale()
     if (fallbackLocale === locale) return active
 
-    // `t()` falls back to the fallback locale key by key, so the tree has to as well —
-    // reporting only the active locale would omit keys that do resolve.
     const fallback = this.helper.getCache(fallbackLocale, routeName) as Record<string, unknown> | undefined
-    return fallback ? mergeTranslationChunk(fallback, active) : active
+    if (!fallback) return active
+
+    return this.resolveTranslationTree(fallback, active, routeContext)
   }
 
   /**
@@ -281,24 +306,6 @@ export abstract class BaseI18n {
   public has(key: TranslationKey, routeContext?: unknown): boolean {
     this.touch()
     return this.resolveHas(key, routeContext)
-  }
-
-  /**
-   * Every translation currently in memory for the active locale and route, as a tree.
-   *
-   * `t()` answers one key at a time and says nothing about what else is loaded; this is the
-   * whole dictionary — `{ aaa: { bbb: 'ccc' }, ddd: 1111 }` comes back in that shape.
-   *
-   * The live tree, not a copy: a large dictionary is expensive to clone and most callers
-   * only read. Treat it as read-only and go through {@link setTranslation} to change it.
-   * To patch without replacing siblings, use merge helpers such as `mergeTranslations`.
-   *
-   * Framework adapters may expose storage dumps separately when you need every loaded chunk,
-   * not just the active lookup tree.
-   */
-  public getTranslations(routeContext?: unknown): Translations {
-    this.touch()
-    return this.resolveTranslations(routeContext)
   }
 
   /**

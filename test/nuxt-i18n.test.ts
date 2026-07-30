@@ -146,17 +146,28 @@ describe('NuxtI18n', () => {
     expect(i18n.getChunk('en', 'index')).toEqual({})
   })
 
-  it('getTranslations exposes the merged view layer during a transition', () => {
+  it('resolveTranslations exposes the merged view layer during a transition', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     i18n.applySwitchContext('en', 'page-a', { common: { fromA: 'From A' } })
     i18n.applySwitchContext('en', 'page-b', { common: { fromB: 'From B' }, pageB: 'B' })
 
-    expect(i18n.getTranslations()).toEqual({
+    expect(i18n.resolveTranslations()).toEqual({
       common: { fromA: 'From A', fromB: 'From B' },
       pageB: 'B',
     })
     expect(i18n.t('common.fromA')).toBe('From A')
     expect(i18n.t('pageB')).toBe('B')
+  })
+
+  it('resolveTranslations keeps outgoing descendant keys when incoming replaces a namespace with a scalar', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { page: { a: { title: 'A title' } } })
+    i18n.applySwitchContext('en', 'page-b', { page: 'B scalar' })
+
+    expect(i18n.t('page')).toBe('B scalar')
+    expect(i18n.t('page.a.title')).toBe('A title')
+    const tree = i18n.resolveTranslations() as Record<string, unknown>
+    expect(tree.page).toEqual({ a: { title: 'A title' } })
   })
 
   it('setTranslation updates the active view and persisted chunk', () => {

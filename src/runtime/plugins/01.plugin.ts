@@ -277,7 +277,7 @@ export interface PluginsInjections {
    * Every translation currently in memory for the active locale and route, as a tree.
    * Read-only view of what `$t()` can resolve right now.
    */
-  $getTranslations: () => Translations
+  $resolveTranslations: () => Translations
   /**
    * Replace the value at `key` in the active dictionary. This is a replace, not a merge —
    * use `$mergeTranslations` when existing siblings should survive.

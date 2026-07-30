@@ -46,15 +46,15 @@ describe('i18nUtils', () => {
     expect(result).toBe('New value')
   })
 
-  test('getTranslations returns the active translation tree', () => {
-    expect(i18nUtils.getTranslations()).toEqual(mockTranslations)
+  test('resolveTranslations returns the active translation tree', () => {
+    expect(i18nUtils.resolveTranslations()).toEqual(mockTranslations)
   })
 
   test('setTranslation replaces a value by key', () => {
     i18nUtils.setTranslation('aaa', { fff: 'ggg' })
     i18nUtils.setTranslation('nested', 'flat')
 
-    expect(i18nUtils.getTranslations()).toEqual({
+    expect(i18nUtils.resolveTranslations()).toEqual({
       greeting: 'Hello, {name}!',
       aaa: { fff: 'ggg' },
       nested: 'flat',

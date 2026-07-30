@@ -36,7 +36,6 @@ member I18n.getFallbackLocale: () => string
 member I18n.getLocale: () => string
 member I18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member I18n.getRoute: () => string
-member I18n.getTranslations: (routeContext?: unknown) => Translations
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
 member I18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
@@ -54,7 +53,8 @@ member I18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) 
 member I18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member I18n.resolveNumberFormatArgs: private any
 member I18n.resolveRouteName: protected (routeContext?: unknown) => string
-member I18n.resolveTranslations: protected (routeContext?: unknown) => Translations
+member I18n.resolveTranslations: (routeContext?: unknown) => Translations
+member I18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
 member I18n.setRoute: (routeName: string) => void
 member I18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member I18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation

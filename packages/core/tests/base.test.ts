@@ -567,21 +567,30 @@ describe('BaseI18n', () => {
     })
   })
 
-  describe('getTranslations / setTranslation', () => {
-    test('getTranslations returns the loaded tree for the active locale and route', async () => {
+  describe('resolveTranslations / setTranslation', () => {
+    test('resolveTranslations returns the loaded tree for the active locale and route', async () => {
       const i18n = new TestI18n('en', 'en', 'index')
       const translations: Translations = { aaa: { bbb: 'ccc' }, ddd: 1111 }
       await i18n['helper'].loadTranslations('en', translations)
 
-      expect(i18n.getTranslations()).toEqual({ aaa: { bbb: 'ccc' }, ddd: 1111 })
+      expect(i18n.resolveTranslations()).toEqual({ aaa: { bbb: 'ccc' }, ddd: 1111 })
     })
 
-    test('getTranslations merges fallback keys like t() does', async () => {
+    test('resolveTranslations merges fallback keys like t() does', async () => {
       const i18n = new TestI18n('de', 'en', 'index')
       await i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
 
-      expect(i18n.getTranslations()).toEqual({ greeting: 'Hello' })
+      expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
       expect(i18n.has('greeting')).toBe(false)
+      expect(i18n.t('greeting')).toBe('Hello')
+    })
+
+    test('resolveTranslations falls through nullish active leaves to fallback', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
+      await i18n['helper'].loadTranslations('de', { greeting: null })
+
+      expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
       expect(i18n.t('greeting')).toBe('Hello')
     })
 
@@ -590,7 +599,7 @@ describe('BaseI18n', () => {
       await i18n['helper'].loadTranslations('en', { aaa: { bbb: 'ccc', keep: 'yes' }, ddd: 1111 })
 
       i18n.setTranslation('aaa', { fff: 'ggg' })
-      expect(i18n.getTranslations()).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
+      expect(i18n.resolveTranslations()).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
       expect(i18n.t('aaa.fff')).toBe('ggg')
       expect(i18n.has('aaa.keep')).toBe(false)
 

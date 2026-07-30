@@ -258,8 +258,12 @@ describe('Helpers', () => {
     test('ignores unsafe or invalid paths', () => {
       const tree = { a: '1' }
       expect(setTranslationAtKey(tree, '__proto__', 'x')).toBe(tree)
-      expect(setTranslationAtKey(tree, 'a..b', 'x')).toBe(tree)
       expect(setTranslationAtKey(tree, '', 'x')).toBe(tree)
+    })
+
+    test('updates a flat dotted key when the path contains empty segments', () => {
+      const tree = { 'a..b': 'old' }
+      expect(setTranslationAtKey(tree, 'a..b', 'new')).toEqual({ 'a..b': 'new' })
     })
   })
 })

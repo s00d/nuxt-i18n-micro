@@ -83,10 +83,10 @@ export class NuxtI18n extends BaseI18n {
   private readonly contextSignal: ShallowRef<number>
   private cachedTranslations: Record<string, unknown> = {}
   /**
-   * The chunk the outgoing page was using, while it is still mounted.
+   * Hot-reload buffer for page transitions: the leaving page's chunk, kept until it unmounts.
    *
-   * Consulted only when the incoming chunk has no answer, and only until
-   * `finishTransition` — which is what stops a left page's keys resolving afterwards.
+   * `$t` falls through here on a miss so the old page keeps rendering while the new chunk is
+   * already installed. Cleared in `finishTransition`.
    */
   private outgoingTranslations: Record<string, unknown> | null = null
   private currentLocale = ''
@@ -169,18 +169,14 @@ export class NuxtI18n extends BaseI18n {
   }
 
   /**
-   * Install the chunk for the route being navigated to.
+   * Hot-reload the active dictionary for the next route — replace, don't merge.
    *
-   * The active dictionary becomes that chunk outright — no merge. On a same-locale
-   * navigation the outgoing page is still mounted and still rendering its own keys, so the
-   * chunk it was using is kept as a second layer that lookups fall back to, and dropped at
-   * `finishTransition`.
+   * Same-locale nav: stash the old chunk in `outgoingTranslations` so the leaving page still
+   * resolves `$t` until `finishTransition`. Cross-locale: drop it, old keys must not leak.
    *
-   * A layer rather than a merge because merging cannot be both correct and cheap here: a
-   * one-level merge loses keys nested deeper than two levels when both chunks share a
-   * top-level namespace, and a full merge walks the entire incoming chunk on every
-   * navigation — 3.8 ms on the playground's dictionary. Two lookups on a miss, for the
-   * duration of one transition, cost neither.
+   * Why not merge into one object: full deep merge is ~3.8 ms on a real dictionary per nav;
+   * a shallow merge loses nested keys. Two plain objects + fallthrough on miss is cheaper
+   * and correct for the short hot-reload window.
    */
   applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
     this.setChunk(locale, routeName, data)
@@ -261,20 +257,17 @@ export class NuxtI18n extends BaseI18n {
   }
 
   /**
-   * The active dictionary, plus the outgoing layer underneath it while a transition is
-   * pending — the same two places `resolveLookup` reads, so `getTranslations()` reports
-   * exactly the keys `t()` can answer.
+   * Dump what `$t` can resolve right now — including the hot-reload buffer while a transition
+   * is in flight. Outside that window this is just `cachedTranslations`.
    */
-  protected override resolveTranslations(routeContext?: unknown): Translations {
+  public override resolveTranslations(routeContext?: unknown): Translations {
     if (routeContext && this.resolveRouteContext) {
       const { locale, routeName } = this.resolveRouteContext(routeContext)
       return this.getChunk(locale, routeName) as Translations
     }
 
     if (this.outgoingTranslations === null) return this.cachedTranslations as Translations
-    // Cold path: called by hand, never during a navigation, so the full walk is affordable
-    // here in a way it is not in `applySwitchContext`.
-    return deepMergeTranslationsRecursive(this.outgoingTranslations, this.cachedTranslations) as Translations
+    return this.resolveTranslationTree(this.outgoingTranslations, this.cachedTranslations, routeContext)
   }
 
   /**
@@ -481,7 +474,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     td: i18n.td.bind(i18n),
     tdr: i18n.tdr.bind(i18n),
     has: i18n.has.bind(i18n),
-    getTranslations: i18n.getTranslations.bind(i18n),
+    resolveTranslations: i18n.resolveTranslations.bind(i18n),
     setTranslation: i18n.setTranslation.bind(i18n),
     mergeTranslations: i18n.mergeTranslations.bind(i18n),
     switchLocaleRoute: (toLocale: string) => {

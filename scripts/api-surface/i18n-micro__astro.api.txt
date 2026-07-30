@@ -16,7 +16,6 @@ member AstroI18n.getLocale: () => string
 member AstroI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member AstroI18n.getRoute: () => string
 member AstroI18n.getRouteTranslations: (locale: string, routeName: string) => Translations | null
-member AstroI18n.getTranslations: (routeContext?: unknown) => Translations
 member AstroI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member AstroI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
 member AstroI18n.initialMessages: private Record<string, Translations>
@@ -33,7 +32,8 @@ member AstroI18n.resolveHas: protected (key: TranslationKey, routeContext?: unkn
 member AstroI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member AstroI18n.resolveNumberFormatArgs: private any
 member AstroI18n.resolveRouteName: protected (routeContext?: unknown) => string
-member AstroI18n.resolveTranslations: protected (routeContext?: unknown) => Translations
+member AstroI18n.resolveTranslations: (routeContext?: unknown) => Translations
+member AstroI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
 member AstroI18n.setRoute: (routeName: string) => void
 member AstroI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member AstroI18n.storage: TranslationStorage

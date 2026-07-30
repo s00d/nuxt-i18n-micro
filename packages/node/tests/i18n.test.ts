@@ -212,4 +212,20 @@ describe('I18n (Simple API)', () => {
       await expect(i18n.reload()).resolves.not.toThrow()
     })
   })
+
+  describe('resolveTranslations / setTranslation', () => {
+    test('resolveTranslations returns the active translation tree', () => {
+      const i18n = createI18n({ locale: 'en' })
+      i18n.addTranslations('en', translations.en)
+      expect(i18n.resolveTranslations()).toEqual(translations.en)
+    })
+
+    test('setTranslation replaces values and t() sees the change', () => {
+      const i18n = createI18n({ locale: 'en' })
+      i18n.addTranslations('en', translations.en)
+      i18n.setTranslation('welcome', 'Hi')
+      expect(i18n.resolveTranslations().welcome).toBe('Hi')
+      expect(i18n.t('welcome')).toBe('Hi')
+    })
+  })
 })

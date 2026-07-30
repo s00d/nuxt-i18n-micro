@@ -144,6 +144,38 @@ describe('VueI18n', () => {
 
     expect(i18n.t('greeting')).toBe('Hello')
   })
+
+  test('resolveTranslations returns the active translation tree', () => {
+    const i18n = new VueI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+          nested: { deep: 'value' },
+        },
+      },
+    })
+
+    expect(i18n.resolveTranslations()).toEqual({
+      greeting: 'Hello',
+      nested: { deep: 'value' },
+    })
+  })
+
+  test('setTranslation replaces values and notifies reactivity', () => {
+    const i18n = new VueI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    i18n.setTranslation('greeting', 'Hi')
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hi' })
+    expect(i18n.t('greeting')).toBe('Hi')
+  })
 })
 
 describe('createI18n plugin', () => {
@@ -226,13 +258,15 @@ describe('useI18n composable', () => {
     const app = createApp({
       template: '<div></div>',
       setup() {
-        const { t, tc, tn, td, tdr, has } = useI18n()
+        const { t, tc, tn, td, tdr, has, resolveTranslations, setTranslation } = useI18n()
         expect(typeof t).toBe('function')
         expect(typeof tc).toBe('function')
         expect(typeof tn).toBe('function')
         expect(typeof td).toBe('function')
         expect(typeof tdr).toBe('function')
         expect(typeof has).toBe('function')
+        expect(typeof resolveTranslations).toBe('function')
+        expect(typeof setTranslation).toBe('function')
         return {}
       },
     })

@@ -25,13 +25,13 @@ list cannot drift from what is actually available.
 | [`$getLocaleName`](#getlocalename) | `() => string \| null` | The active locale's `displayName` from the config, or `null` when it has none. |
 | [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata. |
 | [`$getRouteName`](#getroutename) | `(route?: RouteLocationNamedRaw \| RouteLocationResolvedGeneric, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by. |
-| [`$getTranslations`](#gettranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
 | [`$has`](#has) | `(key: string) => boolean` | Whether a key resolves in the active locale. |
 | `$i18nStrategy` | `PathStrategy` | The active routing strategy, resolving locales to and from paths. |
 | [`$loadPageTranslations`](#loadpagetranslations) | `(locale: string, routeName: string, translations: Translations) => Promise<void>` | Load translations for a page at runtime, for content whose keys are not known at build time. |
 | [`$localePath`](#localepath) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => string` | Resolve a path in the given locale, or the active one. |
 | [`$localeRoute`](#localeroute) | `(to: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, locale?: string) => RouteLocationResolved` | Resolve a route in the given locale, or the active one. |
 | [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
+| [`$resolveTranslations`](#resolvetranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
 | [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
@@ -307,9 +307,9 @@ $mergeTranslations({
 // Output: Updates the translation cache with the new French translation
 ```
 
-### `$getTranslations`
+### `$resolveTranslations`
 
-<!-- generated:method:$getTranslations — do not edit; run `pnpm run docs:generate` -->
+<!-- generated:method:$resolveTranslations — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
 () => Translations
@@ -318,10 +318,10 @@ $mergeTranslations({
 Every translation currently in memory for the active locale and route, as a tree.
 Read-only view of what `$t()` can resolve right now.
 
-<!-- /generated:method:$getTranslations -->
+<!-- /generated:method:$resolveTranslations -->
 
 ```typescript
-const tree = $getTranslations()
+const tree = $resolveTranslations()
 // { aaa: { bbb: 'ccc' }, ddd: 1111 } — the same dictionary $t() reads from
 ```
 

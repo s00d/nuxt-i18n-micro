@@ -7,7 +7,6 @@ member BaseI18n.getFallbackLocale: () => string
 member BaseI18n.getLocale: () => string
 member BaseI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member BaseI18n.getRoute: () => string
-member BaseI18n.getTranslations: (routeContext?: unknown) => Translations
 member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
@@ -21,7 +20,8 @@ member BaseI18n.resolveHas: protected (key: TranslationKey, routeContext?: unkno
 member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member BaseI18n.resolveNumberFormatArgs: private (keyOrOptions?: string | Intl.NumberFormatOptions, localeOrOverrides?: string | Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions | undefined; }
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
-member BaseI18n.resolveTranslations: protected (routeContext?: unknown) => Translations
+member BaseI18n.resolveTranslations: (routeContext?: unknown) => Translations
+member BaseI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
 member BaseI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member BaseI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member BaseI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -42,6 +42,7 @@ member BaseI18nOptions.missingWarn?: boolean | undefined
 member BaseI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member BaseI18nOptions.plural?: PluralFunc | undefined
 member BaseI18nOptions.storage?: TranslationStorage | undefined
+function collectTranslationPaths: (obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void
 function createReactiveI18nStore: (options: ReactiveI18nStoreOptions) => ReactiveI18nStore
 type DateTimeFormatsConfig: Record<string, Record<string, Intl.DateTimeFormatOptions>>
 const defaultPlural: PluralFunc
@@ -98,6 +99,7 @@ function useTranslationHelper: (storage?: TranslationStorage) => { hasCache(loca
 function withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./helpers (src/helpers.ts)
+function collectTranslationPaths: (obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void
 const defaultPlural: PluralFunc
 function getByPath: (obj: Record<string, unknown> | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Record<string, unknown> | null | undefined, key: string) => boolean

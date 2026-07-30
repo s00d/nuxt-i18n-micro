@@ -10,19 +10,16 @@ import {
 import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
 import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsExtend, Params, TranslationKey, Translations } from '@i18n-micro/types'
 /**
- * Two merges, chosen by what is being merged in — not by which is "safer".
+ * Merging is for *patches* only — `$mergeTranslations`, `$loadPageTranslations` — where the
+ * input is a fragment of a tree and everything it does not mention has to survive. Patches
+ * are small, so a full recursive walk costs nothing.
  *
- * `deepMergeTranslations` walks only the top level and then replaces subtrees. That is
- * correct for a *complete* chunk, because the incoming tree is authoritative for every
- * path it contains, and it is the only affordable option on the navigation path: on the
- * playground's 103k-key chunk the one-level merge is unmeasurable while a full walk costs
- * ~3.8 ms per navigation.
- *
- * `deepMergeTranslationsRecursive` is for *patches* — `$mergeTranslations`,
- * `$loadPageTranslations` — where the input is a fragment of a tree and everything it does
- * not mention has to survive. Patches are small, so the walk costs nothing.
+ * Navigation does not merge at all: installing a chunk replaces the active dictionary and
+ * keeps the outgoing one as a fallback layer (see `applySwitchContext`). A merge there
+ * would have to walk the whole incoming chunk to be correct — ~3.8 ms on the playground's
+ * 103k-key dictionary, on every navigation.
  */
-import { deepMergeTranslations, deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { type ShallowRef, shallowRef, triggerRef, unref } from 'vue'
 import type {
   RouteLocationNamedRaw,
@@ -84,7 +81,13 @@ export class NuxtI18n extends BaseI18n {
   readonly storage: TranslationStorage
   private readonly contextSignal: ShallowRef<number>
   private cachedTranslations: Record<string, unknown> = {}
-  private pendingCleanState: Record<string, unknown> | null = null
+  /**
+   * The chunk the outgoing page was using, while it is still mounted.
+   *
+   * Consulted only when the incoming chunk has no answer, and only until
+   * `finishTransition` — which is what stops a left page's keys resolving afterwards.
+   */
+  private outgoingTranslations: Record<string, unknown> | null = null
   private currentLocale = ''
   private currentRouteName = ''
   private resolveRouteContext?: GetRouteTranslationContext
@@ -164,46 +167,50 @@ export class NuxtI18n extends BaseI18n {
     return this.currentRouteName
   }
 
+  /**
+   * Install the chunk for the route being navigated to.
+   *
+   * The active dictionary becomes that chunk outright — no merge. On a same-locale
+   * navigation the outgoing page is still mounted and still rendering its own keys, so the
+   * chunk it was using is kept as a second layer that lookups fall back to, and dropped at
+   * `finishTransition`.
+   *
+   * A layer rather than a merge because merging cannot be both correct and cheap here: a
+   * one-level merge loses keys nested deeper than two levels when both chunks share a
+   * top-level namespace, and a full merge walks the entire incoming chunk on every
+   * navigation — 3.8 ms on the playground's dictionary. Two lookups on a miss, for the
+   * duration of one transition, cost neither.
+   */
   applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
     this.setChunk(locale, routeName, data)
-    const sameLocale = this.currentLocale === locale
 
-    if (sameLocale) {
-      // `data` is the complete chunk for the incoming route, so a one-level merge keeps the
-      // outgoing page's keys visible for the transition without walking the whole tree.
-      this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, data)
-      this.pendingCleanState = data
-    } else {
-      this.cachedTranslations = data
-      this.pendingCleanState = null
-    }
+    this.outgoingTranslations = this.currentLocale === locale ? this.cachedTranslations : null
+    this.cachedTranslations = data
 
     this.currentLocale = locale
     this.currentRouteName = routeName || ''
     triggerRef(this.contextSignal)
   }
 
+  /** The outgoing page has unmounted, so its keys must stop resolving. */
   finishTransition(): void {
-    if (this.pendingCleanState) {
-      this.cachedTranslations = this.pendingCleanState
-      this.pendingCleanState = null
-    }
+    if (this.outgoingTranslations === null) return
+    this.outgoingTranslations = null
+    triggerRef(this.contextSignal)
   }
 
   mergeTranslations(newTranslations: Translations): void {
-    const merged = this.mergeChunk(this.currentLocale, this.currentRouteName, newTranslations as Record<string, unknown>)
-    // The patch, not `merged`: the active dictionary already holds this chunk, so walking
-    // the whole thing again costs the size of the chunk for the sake of a few new keys.
+    this.mergeChunk(this.currentLocale, this.currentRouteName, newTranslations as Record<string, unknown>)
+    // The patch, not the merged chunk: the active dictionary already holds this chunk, so
+    // walking the whole thing again costs its size for the sake of a few new keys.
     this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, newTranslations as Record<string, unknown>)
-    if (this.pendingCleanState) this.pendingCleanState = merged
     triggerRef(this.contextSignal)
   }
 
   async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
-    const mergedChunk = this.mergeChunk(locale, routeName, translations as Record<string, unknown>)
+    this.mergeChunk(locale, routeName, translations as Record<string, unknown>)
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
       this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, translations as Record<string, unknown>)
-      if (this.pendingCleanState) this.pendingCleanState = mergedChunk
       triggerRef(this.contextSignal)
     }
   }
@@ -214,10 +221,9 @@ export class NuxtI18n extends BaseI18n {
       this.setChunk(locale, routeName, loaded)
     }
 
-    const mergedChunk = this.mergeChunk(locale, routeName, newTranslations as Record<string, unknown>)
+    this.mergeChunk(locale, routeName, newTranslations as Record<string, unknown>)
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
       this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, newTranslations as Record<string, unknown>)
-      if (this.pendingCleanState) this.pendingCleanState = mergedChunk
       triggerRef(this.contextSignal)
     }
   }
@@ -243,11 +249,14 @@ export class NuxtI18n extends BaseI18n {
           })()
         : this.cachedTranslations
 
-    return resolveTranslation(translations, String(key))
+    const value = resolveTranslation(translations, String(key))
+    if (value !== null || translations !== this.cachedTranslations) return value
+
+    return this.outgoingTranslations === null ? null : resolveTranslation(this.outgoingTranslations, String(key))
   }
 
   protected override resolveHas(key: TranslationKey): boolean {
-    return resolveTranslation(this.cachedTranslations, String(key)) !== null
+    return this.resolveLookup(key) !== null
   }
 
   protected override getMissingContext(_routeContext?: unknown): { locale: string; routeName: string } {
@@ -268,7 +277,7 @@ export class NuxtI18n extends BaseI18n {
   public override clearCache(): void {
     super.clearCache()
     this.cachedTranslations = {}
-    this.pendingCleanState = null
+    this.outgoingTranslations = null
     triggerRef(this.contextSignal)
   }
 }

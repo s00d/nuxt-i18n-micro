@@ -29,6 +29,43 @@ describe('NuxtI18n', () => {
     expect(i18n.t('common.fromB')).toBe('From B')
   })
 
+  it('keeps deeply nested outgoing keys visible during a same-locale transition', () => {
+    // The failure this pins: both chunks share the `page` namespace, so a one-level merge
+    // replaced it wholesale and the outgoing page's own subtree vanished mid-transition —
+    // it rendered raw keys while it was still mounted.
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { page: { a: { title: 'A title', sub: { deep: 'A deep' } } } })
+    i18n.applySwitchContext('en', 'page-b', { page: { b: { title: 'B title' } } })
+
+    expect(i18n.t('page.a.title')).toBe('A title')
+    expect(i18n.t('page.a.sub.deep')).toBe('A deep')
+    expect(i18n.t('page.b.title')).toBe('B title')
+
+    i18n.finishTransition()
+
+    expect(i18n.has('page.a.title')).toBe(false)
+    expect(i18n.t('page.b.title')).toBe('B title')
+  })
+
+  it('lets the incoming chunk win over the outgoing one on a shared key', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { title: 'A' })
+    i18n.applySwitchContext('en', 'page-b', { title: 'B' })
+
+    expect(i18n.t('title')).toBe('B')
+  })
+
+  it('keeps a patch applied mid-transition after the transition ends', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { nav: { about: 'About' } })
+    i18n.applySwitchContext('en', 'page-b', { nav: { about: 'About' } })
+
+    i18n.mergeTranslations({ nav: { extra: 'Extra' } })
+    i18n.finishTransition()
+
+    expect(i18n.t('nav.extra')).toBe('Extra')
+  })
+
   it('clears pending cleanup on locale switch', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     i18n.applySwitchContext('en', 'page-a', { title: 'EN A' })

@@ -183,5 +183,40 @@ describe('Helpers', () => {
     test('preserves existing keys when preserveExisting is true', () => {
       expect(mergeTranslationChunk({ a: 1, b: 1 }, { b: 2, c: 3 }, { preserveExisting: true })).toEqual({ a: 1, b: 1, c: 3 })
     })
+
+    // Flat objects pass under a plain `Object.assign` too, so the assertions that matter are
+    // the nested ones: this is the shape a locale file actually has.
+    test('keeps siblings at every depth', () => {
+      expect(mergeTranslationChunk({ page: { index: { title: 'T', sub: 'S' } } }, { page: { index: { extra: 'E' }, about: 'A' } })).toEqual({
+        page: { index: { title: 'T', sub: 'S', extra: 'E' } , about: 'A' },
+      })
+    })
+
+    test('keeps nested existing values when preserveExisting is true', () => {
+      expect(mergeTranslationChunk({ nav: { about: 'Overridden' } }, { nav: { about: 'About', home: 'Home' } }, { preserveExisting: true })).toEqual({
+        nav: { about: 'Overridden', home: 'Home' },
+      })
+    })
+
+    test('replaces arrays and type changes rather than merging them', () => {
+      expect(mergeTranslationChunk({ items: ['a', 'b'] }, { items: ['c'] })).toEqual({ items: ['c'] })
+      expect(mergeTranslationChunk({ a: { b: '1' } }, { a: 'flat' })).toEqual({ a: 'flat' })
+    })
+
+    test('merges a key named constructor like any other', () => {
+      expect(mergeTranslationChunk({ a: '1' }, { constructor: 'Konstruktor' })).toEqual({ a: '1', constructor: 'Konstruktor' })
+    })
+
+    test('ignores a key that would reach the prototype chain', () => {
+      const merged = mergeTranslationChunk({ a: '1' }, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
+      expect(merged).toEqual({ a: '1', b: '2' })
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    })
+
+    test('ignores inherited members of the incoming object', () => {
+      const inherited = Object.create({ leaked: 'no' }) as Record<string, unknown>
+      inherited.own = 'yes'
+      expect(mergeTranslationChunk({ a: '1' }, inherited)).toEqual({ a: '1', own: 'yes' })
+    })
   })
 })

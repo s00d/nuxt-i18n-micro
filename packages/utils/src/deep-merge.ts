@@ -15,8 +15,10 @@
 export function deepMergeTranslations(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = { ...target }
 
-  for (const key in source) {
-    if (key === '__proto__' || key === 'constructor') continue
+  // Own keys only, and `__proto__` alone is unsafe to assign — a `constructor` key is an
+  // ordinary own property on a plain object, and dropping it would drop a translation.
+  for (const key of Object.keys(source)) {
+    if (key === '__proto__') continue
 
     const src = source[key]
     const dst = result[key]
@@ -35,8 +37,8 @@ export function deepMergeTranslations(target: Record<string, unknown>, source: R
 export function deepMergeTranslationsRecursive(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   if (!target || Object.keys(target).length === 0) return { ...source }
   const output = { ...target }
-  for (const key in source) {
-    if (key === '__proto__' || key === 'constructor') continue
+  for (const key of Object.keys(source)) {
+    if (key === '__proto__') continue
     const src = source[key]
     const dst = output[key]
     if (src && typeof src === 'object' && !Array.isArray(src) && dst && typeof dst === 'object' && !Array.isArray(dst)) {

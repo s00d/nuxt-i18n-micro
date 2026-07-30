@@ -22,6 +22,10 @@ describe('deepMergeTranslations', () => {
     expect(deepMergeTranslations({ a: '1' }, { a: '2' })).toEqual({ a: '2' })
   })
 
+  it('merges a key named constructor like any other', () => {
+    expect(deepMergeTranslations({ a: '1' }, { constructor: 'Konstruktor' })).toEqual({ a: '1', constructor: 'Konstruktor' })
+  })
+
   it('ignores keys that would reach the prototype chain', () => {
     const merged = deepMergeTranslations({ a: '1' }, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
     expect(merged).toEqual({ a: '1', b: '2' })
@@ -49,6 +53,10 @@ describe('deepMergeTranslationsRecursive', () => {
 
   it('copies the source when the target is empty', () => {
     expect(deepMergeTranslationsRecursive({}, { a: '1' })).toEqual({ a: '1' })
+  })
+
+  it('merges a key named constructor like any other', () => {
+    expect(deepMergeTranslationsRecursive({ a: '1' }, { constructor: 'Konstruktor' })).toEqual({ a: '1', constructor: 'Konstruktor' })
   })
 
   it('ignores keys that would reach the prototype chain', () => {

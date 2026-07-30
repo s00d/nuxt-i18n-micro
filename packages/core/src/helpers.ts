@@ -49,9 +49,12 @@ const isPlainTranslationObject = (value: unknown): value is Record<string, unkno
 function mergeTranslationTrees(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = { ...target }
 
-  for (const key in source) {
-    // Assigning either would walk up the prototype chain of the merged object.
-    if (key === '__proto__' || key === 'constructor') continue
+  // Own keys only: `for…in` also walks the prototype chain, so a chunk deserialised into a
+  // non-plain object would contribute inherited members as if they were translations.
+  for (const key of Object.keys(source)) {
+    // The only key that must be skipped: assigning it invokes the prototype setter. A
+    // `constructor` key is an ordinary own property here, and a locale file may well have one.
+    if (key === '__proto__') continue
 
     const incoming = source[key]
     const existing = result[key]

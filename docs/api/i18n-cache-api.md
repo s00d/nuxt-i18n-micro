@@ -9,8 +9,8 @@ description: 'Translation cache layers and payload modes in v3.'
 
 Nuxt I18n Micro v3 uses a multi-layer caching architecture for translations. Payload loading depends on `translationPayloads.mode`:
 
-- **`premerged`** (default) — root, page, fallback, and layer files are merged at build time via `@i18n-micro/utils/build`
-- **`source`** — compact source files are bundled into Nitro assets and merged at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`
+- **`premerged`** (default) — root, page, fallback, and layer files are merged at build time via `@i18n-micro/utils/build` into `{page}/{locale}/data.json`
+- **`source`** — compact source files are kept for runtime merge via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source` (Edge embeds them in Nitro `serverAssets`; Node reads them from `public/` when copied)
 
 This page describes how the built-in cache works and how to extend it for custom use cases (admin tools, external APIs, cache invalidation).
 
@@ -23,25 +23,24 @@ flowchart TB
     subgraph BuildPremerged["Build Time — mode: premerged (default)"]
         F1["locales/*.json (root-level)"] -->|Merge layers + fallback| PM["preMergeLocales<br/>(@i18n-micro/utils/build)"]
         F2["locales/pages/**/*.json"] -->|Merge layers + fallback| PM
-        PM -->|"Root baked into every page"| NS1["Nitro Storage<br/>(assets:i18n)"]
+        PM -->|"page/locale/data.json"| OUT1["public/&lt;apiBaseUrl&gt;<br/>+ Edge assets:i18n"]
     end
 
     subgraph BuildSource["Build Time — mode: source"]
         SF1["locales/*.json"] --> SLayers["buildTranslationSourceLayers<br/>(@i18n-micro/utils/build)"]
         SF2["locales/pages/**/*.json"] --> SLayers
-        SLayers --> NS2["Nitro Storage<br/>(compact source assets)"]
+        SLayers --> OUT2["compact source tree<br/>(Edge embed / optional public)"]
     end
 
     subgraph Server["Server Runtime"]
-        NS1 -->|"Read single pre-built file"| SL["server-loader.ts<br/>loadTranslationsFromServer()"]
-        NS2 -->|"Read source + runtime merge"| SL
+        OUT1 -->|"#i18n-internal/payload-source"| SL["server-loader.ts<br/>loadTranslationsFromServer()"]
+        OUT2 -->|"#i18n-internal/payload-source + merge"| SL
         SL -->|SERVER_CC_KEY cache| SC["Server Cache<br/>(process-global Map)"]
         SC -->|JSON response| API["/_locales/:page/:locale/data.json"]
     end
 
     subgraph Client["Client Runtime"]
         API -->|$fetch| TS["TranslationStorage<br/>(singleton via Symbol.for)"]
-        SSR["full chunks<br/>payload.data i18n-ssr-chunks"] -->|seedFromSsrChunks| TS
         TS -->|getFromCache / load| NI["NuxtI18n<br/>active view layer"]
         NI --> PL["01.plugin.ts"]
     end
@@ -60,7 +59,6 @@ A singleton class that provides unified translation storage for both client and 
 | Method                              | Description                                                            |
 | ----------------------------------- | ---------------------------------------------------------------------- |
 | `getFromCache(locale, routeName?)`  | Synchronous check: returns cached in-memory data, or `null`            |
-| `seedFromSsrChunks(chunks)`         | Seeds cache from the SSR payload (`payload.data['i18n-ssr-chunks']`) |
 | `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
 | `clear()`                           | Clears the entire cache                                                |
 
@@ -103,12 +101,7 @@ export default defineNuxtConfig({
 
 Loads translations for a locale/page and caches the merged result in a process-global `CacheControl` map keyed by `@i18n-micro/hmr/cache-keys` (`SERVER_CC_KEY`).
 
-Behavior depends on `translationPayloads.mode`:
-
-| Mode                      | Server behavior                                                                                                                                                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`premerged`** (default) | Reads a single pre-built file from Nitro storage (`assets:i18n`). Merging (root + page + fallback chains + layers) was done at build time by `preMergeLocales` in `@i18n-micro/utils/build` (invoked from `src/module.ts`). |
-| **`source`**              | Reads compact source files from Nitro storage and merges root/page/fallback at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`.                                                          |
+Behavior: SSR loads from `#i18n-internal/payload-source` — **Node** `readFile` under `public/<apiBaseUrl>` (`{page}/{locale}/data.json` in premerged mode), **Edge** `assets:i18n`. `premerged` reads one file; `source` merges root/page/fallback via `@i18n-micro/utils/source-loader`.
 
 ```typescript
 import { loadTranslationsFromServer } from '../server/utils/server-loader'
@@ -117,16 +110,11 @@ import { loadTranslationsFromServer } from '../server/utils/server-loader'
 const { data, json } = await loadTranslationsFromServer('en', 'index')
 ```
 
-### 3. SSR Payload Transfer
+### 3. Client load (no HTML embed)
 
-Each `(locale, route)` chunk loaded during SSR is stored in `nuxtApp.payload.data['i18n-ssr-chunks']`
-when `NuxtTranslationLoader` merges it on the server (`setSsrChunk`).
-
-`payload.data` rather than `useState`: Nuxt externalizes `data` into `_payload.json` on prerendered
-routes, while `state` always stays inline in the HTML.
-
-On the client the plugin seeds `TranslationStorage` and `NuxtI18n` from it before the first fetch, so
-hydration needs **no network round-trip** for chunks the server already loaded.
+Dictionaries are **not** written into `nuxtApp.payload`. The server keeps them in memory for SSR
+render; the client plugin `await`s `switchContext`, which loads `/{apiBaseUrl}/:page/:locale/data.json`
+(same default posture as `@nuxtjs/i18n` with `experimental.preload: false`).
 
 `NuxtI18n` holds the active view-layer dictionary used by `$t()` and `$has()`. `NuxtTranslationLoader` switches locale/route context and merges chunks into that layer.
 

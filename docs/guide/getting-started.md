@@ -287,15 +287,12 @@ Nuxt I18n Micro v3 uses a multi-layer caching architecture built around `Transla
 ```mermaid
 flowchart TB
     subgraph Client["🖥️ Client Side"]
-        A[Page Request] --> B{payload.data chunks?}
-        B -->|Found| C[seedFromSsrChunks]
-        B -->|Not Found| D{TranslationStorage cache?}
+        A[Page Request] --> D{TranslationStorage cache?}
         D -->|Hit| E[Return Cached]
         D -->|Miss| F["$fetch /_locales/..."]
         F --> G[Store in TranslationStorage]
         G --> E
-        C --> H[NuxtI18n view layer]
-        E --> H
+        E --> H[NuxtI18n view layer]
     end
 
     subgraph Server["🖧 Server Side"]
@@ -305,17 +302,16 @@ flowchart TB
         L --> M["Load payload (premerged file or source + runtime merge)"]
         M --> N[Cache in process-global Map]
         N --> K
-        K --> O["Chunks -> payload.data (setSsrChunk)"]
+        K --> O[Render HTML — dictionaries stay in memory, not in payload]
     end
 
-    A -.->|First Load| I
-    O -.->|Hydration| B
+    A -.->|SSR| I
     H --> P[Render Page]
 ```
 
 ### Key Characteristics
 
-- 🚀 **No blocking request on first load**: chunks loaded during SSR are seeded into `TranslationStorage` synchronously on hydration via `payload.data['i18n-ssr-chunks']`. See [Performance](./performance.md#server-side-payload-transfer).
+- 🚀 **HTML stays small**: dictionaries are not inlined into `nuxtApp.payload` (same default as `@nuxtjs/i18n` preload off). The client loads `/{apiBaseUrl}/.../data.json` in the plugin via `await switchContext`. See [Performance](./performance.md#server-side-load-no-html-embed).
 - 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
 - ⚡ **Single request per page**: With `mode: 'premerged'` (default), the API returns a pre-built file (root + page-specific + fallback merged at build time). With `mode: 'source'`, the same route merges compact source files at runtime — see [translationPayloads](./configuration.md#translationpayloads).
 - 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically

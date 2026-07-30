@@ -12,7 +12,7 @@ describe('hasLocalTranslationPayloadOutput', () => {
     expect(
       hasLocalTranslationPayloadOutput(
         resolveTranslationPayloadOptions({
-          translationPayloads: { serverAssets: false, publicAssets: false, prerenderRoutes: false },
+          translationPayloads: { publicAssets: false, prerenderRoutes: false },
         }),
       ),
     ).toBe(true)
@@ -35,6 +35,15 @@ describe('hasLocalTranslationPayloadOutput', () => {
 })
 
 describe('getTranslationPayloadMisconfigurationWarnings', () => {
+  it('warns when serverAssets and publicAssets are off without apiBaseServerHost', () => {
+    const warnings = getTranslationPayloadMisconfigurationWarnings({
+      translationPayloads: resolveTranslationPayloadOptions({
+        translationPayloads: { serverAssets: false, publicAssets: false },
+      }),
+    })
+    expect(warnings.some((w) => w.includes('apiBaseServerHost'))).toBe(true)
+  })
+
   it('warns when all local outputs are disabled without external hosts', () => {
     const warnings = getTranslationPayloadMisconfigurationWarnings({
       translationPayloads: resolveTranslationPayloadOptions({

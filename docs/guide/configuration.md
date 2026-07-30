@@ -35,13 +35,13 @@ The sections below explain how they work together; the
 | [`apiBaseClientHost`](/api/module-options) | `string` | `undefined` | Override the host used for client-side translation fetch requests. |
 | [`apiBaseServerHost`](/api/module-options) | `string` | `undefined` | Override the host used for server-side translation fetch requests. |
 | [`translationDir`](/api/module-options) | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root. |
-| [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how pre-merged translation payload files are emitted during build. |
-| [`translationPayloads.mode`](/api/module-options) | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy. - `premerged`: build-time page/locale matrix (default) - `source`: compact source files merged at runtime (recommended for large serverless apps) |
-| [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Register translation payload files as Nitro server assets. |
+| [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how translation payloads are emitted (Node: `public/<apiBaseUrl>`; Edge: Nitro `serverAssets`). - **Node**: `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`). - **Edge**: `serverAssets` registers Nitro `serverAssets` (`assets:i18n`); it does not force a public copy. |
+| [`translationPayloads.mode`](/api/module-options) | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy. - `premerged`: build-time `{page}/{locale}/data.json` matrix (default) - `source`: compact source files merged at runtime (prefer on Edge / large catalogs) |
+| [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Local SSR payloads: Node reads `public/<apiBaseUrl>` (forces public copy); Edge embeds via Nitro `serverAssets`. - **Node**: no Nitro `serverAssets` (avoids Rollup `raw:`). |
 | [`translationPayloads.serverHandler`](/api/module-options) | `boolean` | `true` | Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json`. |
-| [`translationPayloads.publicAssets`](/api/module-options) | `boolean` | `true in premerged mode, false in source mode` | Copy translation payload files into Nitro public assets during production builds. |
-| [`translationPayloads.prerenderRoutes`](/api/module-options) | `boolean` | `true in premerged mode, false in source mode` | Add translation data routes to Nuxt/Nitro prerender output. |
-| [`translationPayloads.publicDir`](/api/module-options) | `string` | — | Public output directory for copied translation payloads, relative to Nitro's public directory. |
+| [`translationPayloads.publicAssets`](/api/module-options) | `boolean` | `true in premerged mode, false in source mode` | Copy payloads into Nitro public output. |
+| [`translationPayloads.prerenderRoutes`](/api/module-options) | `boolean` | `false` | Opt in to Nitro-prerender `/{apiBaseUrl}/.../data.json`. |
+| [`translationPayloads.publicDir`](/api/module-options) | `string` | — | Public output folder relative to Nitro public root. |
 | [`translationPayloads.warnFileCount`](/api/module-options) | `number` | `500` | Warn during build when generated payload file count exceeds this threshold. |
 | [`translationPayloads.warnSizeBytes`](/api/module-options) | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes. |
 | [`autoDetectLanguage`](/api/module-options) | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header. |
@@ -892,11 +892,13 @@ Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/exte
 
 **Type** `TranslationPayloadOptions` · **Default** —
 
-Controls how pre-merged translation payload files are emitted during build.
+Controls how translation payloads are emitted (Node: `public/<apiBaseUrl>`; Edge: Nitro `serverAssets`).
 
-Keep the defaults for the existing all-in-one behavior. For serverless or CDN-backed
-deployments, disable individual outputs to avoid duplicating large locale payloads in
-both Nitro server assets and public assets.
+- **Node**: `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).
+- **Edge**: `serverAssets` registers Nitro `serverAssets` (`assets:i18n`); it does not force a public copy.
+
+Keep the defaults for the usual all-in-one setup. For large Edge catalogs prefer `mode: 'source'`.
+For CDN-backed deployments, disable local outputs and set `apiBaseClientHost` / `apiBaseServerHost`.
 
 <!-- /generated:option:translationPayloads -->
 
@@ -921,13 +923,17 @@ both Nitro server assets and public assets.
   serverAssets: true,
   serverHandler: true,
   publicAssets: true,
-  prerenderRoutes: true
+  prerenderRoutes: false
 }
 ```
 
-The defaults preserve the all-in-one behavior: translations are registered as Nitro server assets, the local `/{apiBaseUrl}/:page/:locale/data.json` handler is registered, data routes are added to prerender output, and the merged files are copied to Nitro public assets during production builds.
+SSR on **Node** reads the same tree copied to `public/<apiBaseUrl>/` (`readFile`). On **Edge**, Nitro `serverAssets` embeds it (no forced public copy — set `publicAssets: true` for CDN). `mode: 'premerged'` → `{page}/{locale}/data.json` per page/locale; `mode: 'source'` → compact source + runtime merge.
 
-For serverless deployments with large locale sets, prefer compact runtime loading:
+`serverAssets: true` on **Node** forces the public copy even if `publicAssets` is false. On **Edge** it only registers the Nitro embed. Prefer `mode: 'source'` on Edge for large catalogs. Without local payloads and without `apiBaseServerHost`, the build fails.
+
+The local `/{apiBaseUrl}/:page/:locale/data.json` handler, prerender routes, and public asset copies remain optional outputs.
+
+For compact **public** / Edge payloads:
 
 ```typescript
 i18n: {
@@ -937,14 +943,16 @@ i18n: {
 }
 ```
 
-`mode: 'source'` keeps layer-merged source files in Nitro server assets and merges root/page/fallback translations at runtime through the built-in `/_locales` route. By default it disables public asset copies and prerendered payload routes, which is usually what you want on Cloudflare Workers.
+`mode: 'source'` keeps layer files compact and merges root/page/fallback at runtime through the built-in `/_locales` route (or Edge `assets:i18n`). By default it disables public asset copies and prerendered payload routes.
 
 ::: warning Static hosting / pure SSG
-With `mode: 'source'`, `publicAssets` and `prerenderRoutes` default to `false`. Pure static hosting without a Nitro/edge runtime therefore cannot load translations on the client unless you enable one of these outputs, keep `serverHandler` available at runtime, or host payloads externally.
+With `mode: 'source'`, `publicAssets` defaults to `false` (`prerenderRoutes` is always off unless you opt in). Pure static hosting without a Nitro/edge runtime therefore cannot load translations on the client unless you enable one of these outputs, keep `serverHandler` available at runtime, or host payloads externally.
+
+With default `mode: 'premerged'` and `publicAssets: true`, static files already land at `public/<apiBaseUrl>/{page}/{locale}/data.json` — matching client `$fetch` URLs — so a static host can serve them without Nitro.
 :::
 
 ::: warning External CDN hosts
-When `apiBaseServerHost` or `apiBaseClientHost` is set, the module fetches already merged JSON from that origin. External hosts must serve the same `/{apiBaseUrl}/:page/:locale/data.json` responses as the built-in route. `mode: 'source'` applies only to locally bundled Nitro assets, not to an external CDN unless that CDN also serves runtime-merged payloads.
+When `apiBaseServerHost` or `apiBaseClientHost` is set, the module fetches already merged JSON from that origin. External hosts must serve the same `/{apiBaseUrl}/:page/:locale/data.json` responses as the built-in route. `mode: 'source'` applies to local payload dirs, not to an external CDN unless that CDN also serves runtime-merged payloads.
 :::
 
 You can also disable duplicated local outputs manually and serve translation payloads from a CDN or object storage:
@@ -954,7 +962,6 @@ i18n: {
   apiBaseClientHost: 'https://cdn.example.com',
   apiBaseServerHost: 'https://cdn.example.com',
   translationPayloads: {
-    serverAssets: false,
     serverHandler: false,
     publicAssets: false,
     prerenderRoutes: false
@@ -973,7 +980,9 @@ i18n: {
 }
 ```
 
-Use `publicDir` to change the public output folder when `publicAssets` is enabled. It defaults to `translationDir`. `publicAssets` controls the direct merged-directory copy, while `prerenderRoutes` controls generated `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json`.
+On **Node**, `serverAssets: true` still forces a public copy for SSR even when `publicAssets` is false — set `serverAssets: false` and `apiBaseServerHost` if you want zero local payload files.
+
+Use `publicDir` to change the public output folder when payloads are copied. It defaults to `apiBaseUrl` (`_locales`). In premerged mode `publicAssets` writes `{page}/{locale}/data.json` there (same paths the client fetches). `prerenderRoutes` is an optional Nitro prerender of the handler routes — usually redundant when that tree was already copied.
 
 If you disable all local payload outputs, you must configure both `apiBaseServerHost` (SSR) and `apiBaseClientHost` (client navigation). Otherwise translations will resolve to empty objects and UI keys may appear untranslated.
 

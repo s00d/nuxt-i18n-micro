@@ -14,6 +14,10 @@ interface I18nPrivateConfig {
   customRegexMatcher?: string
   routesLocaleLinks?: Record<string, string>
   serverTranslationPreload?: boolean
+  /** Absolute buildDir payload dir for Node fs reads in dev/prerender. */
+  payloadFsDir: string
+  /** Relative dir under Nitro `public/` for prod payload files. */
+  payloadPublicRel: string
 }
 
 declare module '#build/i18n.config.mjs' {
@@ -93,4 +97,8 @@ declare module '#i18n-internal/config' {
 declare module '#i18n-internal/strategy' {
   export function getI18nConfig(): unknown
   export function createI18nStrategy(router: I18nStrategyRouterLike): I18nStrategyInstance
+}
+
+declare module '#i18n-internal/payload-source' {
+  export function readPayload(relPath: string): Promise<Record<string, unknown>>
 }

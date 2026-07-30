@@ -1,4 +1,4 @@
-import { buildFallbackLocaleChain, buildSourcePagePath, buildSourceRootPath, mergeSourceTranslations, toSourceStorageKey } from '../src/merge-source'
+import { buildFallbackLocaleChain, buildSourcePagePath, buildSourceRootPath, mergeSourceTranslations, toPremergedStorageKey, toSourceStorageKey } from '../src/merge-source'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('buildFallbackLocaleChain', () => {
@@ -14,7 +14,9 @@ describe('source translation paths', () => {
   it('maps source files to Nitro storage keys', () => {
     expect(buildSourceRootPath('en')).toBe('en.json')
     expect(buildSourcePagePath('contact', 'de')).toBe('pages/contact/de.json')
-    expect(toSourceStorageKey('pages/contact/de.json')).toBe('assets:i18n:pages:contact:de.json')
+    expect(toSourceStorageKey('pages/contact/de.json')).toBe('pages/contact/de.json')
+    expect(toPremergedStorageKey('index', 'en')).toBe('index/en/data.json')
+    expect(toPremergedStorageKey('blog/post', 'de')).toBe('blog/post/de/data.json')
   })
 })
 

@@ -1,6 +1,6 @@
 {
   "name": "nuxt-i18n-micro",
-  "version": "3.22.0",
+  "version": "3.23.0",
   "description": "Nuxt I18n Micro is a lightweight, high-performance internationalization module for Nuxt, designed to handle multi-language support with minimal overhead, fast build times, and efficient runtime performance.",
   "keywords": [
     "i18n",
@@ -52,13 +52,17 @@
       ],
       "#i18n-internal/config": [
         "./internals.d.mts"
+      ],
+      "#i18n-internal/payload-source": [
+        "./internals.d.mts"
       ]
     }
   },
   "imports": {
     "#i18n-internal/plural": "./internals.d.mts",
     "#i18n-internal/strategy": "./internals.d.mts",
-    "#i18n-internal/config": "./internals.d.mts"
+    "#i18n-internal/config": "./internals.d.mts",
+    "#i18n-internal/payload-source": "./internals.d.mts"
   },
   "exports": {
     ".": {

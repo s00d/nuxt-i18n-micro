@@ -53,6 +53,7 @@ async function runGenerate(fixtureDir: string, env: NodeJS.ProcessEnv, strategy:
 }
 
 function assertPayloads(publicDir: string) {
+  // publicAssets copies the premerged tree as `{page}/{locale}/data.json` under apiBaseUrl (`_locales`).
   for (const [pageName, locale, key] of FULL_PAYLOAD) {
     const payloadPath = join(publicDir, '_locales', pageName, locale, 'data.json')
     expect(existsSync(payloadPath), `missing payload: ${payloadPath}`).toBe(true)

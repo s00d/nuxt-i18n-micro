@@ -11,7 +11,7 @@ export interface PreMergeLocaleInfo {
 /**
  * Pre-merge all translation files at build time.
  *
- * Output: flat directory with structure pages/{routeName}/{locale}.json
+ * Output: `{page}/{locale}/data.json` (same relative path the client fetches under `apiBaseUrl`).
  */
 export async function preMergeLocales(
   rootDirs: string[],
@@ -102,8 +102,10 @@ export async function preMergeLocales(
   }
 
   for (const [context, localeMap] of pageMap) {
+    // Source dirs are `pages/{page}`; emit client URL layout `{page}/{locale}/data.json`.
+    const page = context.replace(/^pages\/?/, '') || 'index'
     for (const [locale, data] of localeMap) {
-      const targetPath = join(outputDir, context, `${locale}.json`)
+      const targetPath = join(outputDir, page, locale, 'data.json')
       mkdirSync(dirname(targetPath), { recursive: true })
       writeFileSync(targetPath, JSON.stringify(data))
     }

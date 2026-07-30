@@ -1,28 +1,25 @@
 /**
  * Server-side translation loader.
- * In `premerged` mode, layers/fallback/root+page are merged at build time and this loader
- * reads a single Nitro asset. In `source` mode, compact source files are merged at runtime.
+ * - Node: JSON from public locales dir (`#i18n-internal/payload-source` → fs)
+ * - Edge: Nitro `serverAssets` (`assets:i18n`)
+ * `premerged` reads one file; `source` merges root+page+fallback at runtime.
  */
 
 import { SERVER_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
-import { normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
+import { normalizeConfiguredLocales, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
 import { fetchTranslationPayloadFromHost } from '@i18n-micro/utils/payload-fetch'
 import { resolveTranslationPayloadPage } from '@i18n-micro/utils/payload-url'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'
-import { useStorage } from 'nitropack/runtime'
-import { getI18nConfig } from '#i18n-internal/strategy'
+import { toTranslations } from '@i18n-micro/utils/normalize'
+import { readPayload } from '#i18n-internal/payload-source'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
+import { getI18nConfig } from '#i18n-internal/strategy'
 
-// ============================================================================
-// SERVER CACHE
-// ============================================================================
-
-type CacheEntry = { data: Translations; json: string }
-
+type CacheEntry = { data: Translations, json: string }
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
 function getServerCacheControl(): CacheControl<CacheEntry> {
@@ -34,23 +31,7 @@ function getServerCacheControl(): CacheControl<CacheEntry> {
   return g[SERVER_CC_KEY] as CacheControl<CacheEntry>
 }
 
-// ============================================================================
-// HELPERS
-// ============================================================================
-
-const ASSETS_PREFIX = 'assets:i18n'
-
-import { toTranslations } from '@i18n-micro/utils/normalize'
-
-// ============================================================================
-// PUBLIC API
-// ============================================================================
-
-/**
- * Load translations for a given locale and page.
- * Returns merged translations and a pre-serialized JSON string for the API route.
- */
-export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<{ data: Translations; json: string }> {
+export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<{ data: Translations, json: string }> {
   const cc = getServerCacheControl()
   const cacheKey = `${locale}:${routeName}`
 
@@ -67,10 +48,8 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
     return empty
   }
 
-  const storage = useStorage()
   const routesLocaleLinks = config.routesLocaleLinks || {}
   const resolvedPage = resolveTranslationPayloadPage(routeName, routesLocaleLinks)
-  const normalizedPage = resolvedPage.replace(/\//g, ':')
 
   if (privateConfig.apiBaseServerHost) {
     const data = await fetchTranslationPayloadFromHost(
@@ -81,34 +60,31 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
     )
     const json = JSON.stringify(data).replace(/</g, '\\u003c')
     const entry = { data, json }
-
     cc.set(cacheKey, entry)
     return entry
   }
 
-  if (config.translationPayloadMode === 'source') {
-    const data = await loadSourceTranslationsFromStorage(storage, {
-      locale,
-      pageName: resolvedPage,
-      locales: normalizeConfiguredLocales(config.locales),
-      globalFallbackLocale: config.fallbackLocale,
-      disablePageLocales: config.disablePageLocales,
-    })
-    const json = JSON.stringify(data).replace(/</g, '\\u003c')
-    const entry = { data, json }
+  const mode = config.translationPayloadMode === 'source' ? 'source' : 'premerged'
 
-    cc.set(cacheKey, entry)
-    return entry
+  let data: Translations
+  if (mode === 'source') {
+    data = await loadSourceTranslationsFromStorage(
+      { getItem: (key: string) => readPayload(key) },
+      {
+        locale,
+        pageName: resolvedPage,
+        locales: normalizeConfiguredLocales(config.locales),
+        globalFallbackLocale: config.fallbackLocale,
+        disablePageLocales: config.disablePageLocales,
+      },
+    )
   }
-
-  const key = `${ASSETS_PREFIX}:pages:${normalizedPage}:${locale}.json`
-
-  const loaded = await storage.getItem(key)
-  const data: Translations = toTranslations(loaded)
+  else {
+    data = toTranslations(await readPayload(toPremergedStorageKey(resolvedPage, locale)))
+  }
 
   const json = JSON.stringify(data).replace(/</g, '\\u003c')
   const entry = { data, json }
-
   cc.set(cacheKey, entry)
   return entry
 }

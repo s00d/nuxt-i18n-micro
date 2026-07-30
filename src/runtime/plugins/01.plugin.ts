@@ -48,17 +48,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
   const { resetPageHead } = useI18nHead()
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
-  // Deliberately `payload.data` and not `useState`: Nuxt externalizes `data` into
-  // `_payload.json` on prerendered routes but always leaves `state` inline in the
-  // HTML. Chunks are read once at hydration and never mutated, so they have no
-  // business being reactive state anyway.
-  const SSR_CHUNKS_KEY = 'i18n-ssr-chunks'
-  const readSsrChunks = (): Record<string, Record<string, unknown>> =>
-    (nuxtApp.payload.data?.[SSR_CHUNKS_KEY] as Record<string, Record<string, unknown>> | undefined) ?? {}
-
-  if (import.meta.server) {
-    nuxtApp.payload.data[SSR_CHUNKS_KEY] ??= {}
-  }
 
   const i18n = new NuxtI18n({
     plural,
@@ -98,24 +87,11 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     routesLocaleLinks: i18nConfig.routesLocaleLinks,
   }
 
-  if (import.meta.client) {
-    const seeded = readSsrChunks()
-    if (Object.keys(seeded).length > 0) {
-      translationStorage.seedFromSsrChunks(seeded)
-      i18n.seedChunks(seeded)
-    }
-  }
-
-  const setSsrChunk = (cacheKey: string, data: Record<string, unknown>) => {
-    if (!import.meta.server) return
-    const chunks = (nuxtApp.payload.data[SSR_CHUNKS_KEY] ??= {}) as Record<string, Record<string, unknown>>
-    chunks[cacheKey] = data
-  }
-
+  // Same as @nuxtjs/i18n with preload:false — dictionaries stay off the HTML payload.
+  // Server loads into memory for SSR; client loads via /_locales in switchContext below.
   const loader = new NuxtTranslationLoader({
     i18n,
     loadOptions,
-    setSsrChunk,
     isDev,
   })
 

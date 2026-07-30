@@ -12,7 +12,7 @@ describe('toTranslations', () => {
     expect(toTranslations(input)).toBe(input)
   })
 
-  it('returns empty object for arrays and primitives', () => {
+  it('returns empty object for arrays and non-object primitives', () => {
     expect(toTranslations([])).toEqual({})
     expect(toTranslations('hello')).toEqual({})
     expect(toTranslations(42)).toEqual({})

@@ -60,8 +60,20 @@ export function buildSourcePagePath(pageName: string, localeCode: string): strin
   return `pages/${resolveSourcePageName(pageName)}/${localeCode}.json`
 }
 
+/**
+ * Storage key relative to the Nitro unstorage mount (fs-friendly `/` paths).
+ */
 export function toSourceStorageKey(relativePath: string): string {
-  return `assets:i18n:${relativePath.replace(/\//g, ':')}`
+  return relativePath.replace(/^\/+/, '').replace(/\\/g, '/')
+}
+
+/**
+ * Premerged page/locale payload key — matches the client URL path under `apiBaseUrl`
+ * (`{page}/{locale}/data.json`, e.g. `index/en/data.json` → `/_locales/index/en/data.json`).
+ */
+export function toPremergedStorageKey(pageName: string, locale: string): string {
+  const page = pageName.replace(/^\/+|\/+$/g, '') || 'index'
+  return toSourceStorageKey(`${page}/${locale}/data.json`)
 }
 
 export async function mergeSourceTranslations(input: MergeSourceTranslationsInput): Promise<Record<string, unknown>> {

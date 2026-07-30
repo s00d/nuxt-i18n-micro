@@ -21,7 +21,10 @@ import {
   getTranslationPayloadSizeWarning,
   resolveTranslationPayloadOptions,
   resolveTranslationPayloadPublicDir,
+  resolveTranslationPayloadPublicRel,
   resolveTranslationPayloadWarningThresholds,
+  shouldCopyTranslationPayloadsToPublic,
+  shouldRegisterNitroServerAssets,
   type TranslationPayloadMode,
 } from '@i18n-micro/utils/payload-config'
 import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from '@i18n-micro/utils/payload-stats'
@@ -50,7 +53,14 @@ import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
 
 export type { TranslationPayloadMode } from '@i18n-micro/utils/payload-config'
-export { resolveTranslationPayloadMode, resolveTranslationPayloadOptions, resolveTranslationPayloadPublicDir } from '@i18n-micro/utils/payload-config'
+export {
+  resolveTranslationPayloadMode,
+  resolveTranslationPayloadOptions,
+  resolveTranslationPayloadPublicDir,
+  resolveTranslationPayloadPublicRel,
+  shouldCopyTranslationPayloadsToPublic,
+  shouldRegisterNitroServerAssets,
+} from '@i18n-micro/utils/payload-config'
 
 const strategyFiles: Record<Strategies, string> = {
   no_prefix: 'no-prefix-strategy.mjs',
@@ -183,7 +193,14 @@ function buildFullConfig(params: {
   }
 }
 
-function buildPrivateConfig(options: ModuleOptions, nuxt: Nuxt, apiConfig: NormalizedApiConfig, locales: ModulePrivateOptionsExtend['locales']) {
+function buildPrivateConfig(
+  options: ModuleOptions,
+  nuxt: Nuxt,
+  apiConfig: NormalizedApiConfig,
+  locales: ModulePrivateOptionsExtend['locales'],
+  payloadFsDir: string,
+  payloadPublicRel: string,
+) {
   return {
     rootDir: nuxt.options.rootDir,
     debug: options.debug ?? false,
@@ -196,6 +213,8 @@ function buildPrivateConfig(options: ModuleOptions, nuxt: Nuxt, apiConfig: Norma
     apiBaseClientHost: apiConfig.apiBaseClientHost,
     apiBaseServerHost: apiConfig.apiBaseServerHost,
     serverTranslationPreload: options.serverTranslationPreload ?? false,
+    payloadFsDir,
+    payloadPublicRel,
   }
 }
 
@@ -206,7 +225,6 @@ function registerI18nTemplates(
   privateConfig: ReturnType<typeof buildPrivateConfig>,
 ) {
   let runtimeFullConfig = fullConfig
-  const privateConfigJson = JSON.stringify(privateConfig)
 
   const pluralTemplate = addTemplate({
     filename: 'i18n.plural.mjs',
@@ -263,7 +281,7 @@ export function createI18nStrategy(router) {
   const configTemplate = addTemplate({
     filename: 'i18n.config.mjs',
     write: true,
-    getContents: () => `const __privateConfig = ${privateConfigJson}
+    getContents: () => `const __privateConfig = ${JSON.stringify(privateConfig)}
 export function getI18nPrivateConfig() { return __privateConfig }
 `,
   })
@@ -310,8 +328,10 @@ export default defineNuxtModule<ModuleOptions>({
       mode: 'premerged',
       serverAssets: true,
       serverHandler: true,
-      publicAssets: true,
-      prerenderRoutes: true,
+      // Do not default publicAssets here — Nuxt deep-merges nested defaults and would
+      // force publicAssets:true even for mode:'source' (resolveTranslationPayloadOptions
+      // sets publicAssets false in source mode unless explicitly opted in).
+      prerenderRoutes: false,
     },
     routesLocaleLinks: {},
     globalLocaleRoutes: {},
@@ -350,7 +370,8 @@ export default defineNuxtModule<ModuleOptions>({
     const translationDirName = options.translationDir || 'locales'
     const translationsHash = hashTranslationSources(rootDirs, translationDirName)
     const translationPayloads = resolveTranslationPayloadOptions(options)
-    const translationAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
+    // Public / Edge embed use the same tree: premerged matrix or compact source (`mode`).
+    const publicAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
 
     for (const warning of getTranslationPayloadMisconfigurationWarnings({
       translationPayloads,
@@ -360,20 +381,32 @@ export default defineNuxtModule<ModuleOptions>({
       logger.warn(warning.replace('[nuxt-i18n-micro] ', ''))
     }
 
+    if (
+      !translationPayloads.serverAssets
+      && !translationPayloads.publicAssets
+      && !(process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost)
+    ) {
+      throw new Error(
+        'nuxt-i18n-micro: local SSR payloads are disabled (serverAssets/publicAssets false) and apiBaseServerHost is not set. '
+        + 'SSR would load empty translations.',
+      )
+    }
+
     const localeInfos: PreMergeLocaleInfo[] = (options.locales ?? []).map((l) =>
       typeof l === 'string' ? { code: l } : { code: l.code, fallbackLocale: l.fallbackLocale },
     )
 
     nuxt.hook('build:before', async () => {
-      if (translationPayloads.mode === 'source') {
-        await buildTranslationSourceLayers(rootDirs, translationDirName, sourceLocalesDir)
-        logger.info(`Built compact translation source from ${rootDirs.length} layer(s) into ${sourceLocalesDir}`)
-      } else {
+      // Compact source: needed for mode=source public, and for Edge serverAssets embed.
+      await buildTranslationSourceLayers(rootDirs, translationDirName, sourceLocalesDir)
+      logger.info(`Built compact translation source from ${rootDirs.length} layer(s) into ${sourceLocalesDir}`)
+
+      if (translationPayloads.mode !== 'source') {
         await preMergeLocales(rootDirs, translationDirName, mergedLocalesDir, localeInfos, options.fallbackLocale, options.disablePageLocales)
         logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
       }
 
-      const payloadStats = scanTranslationPayloadDirectory(translationAssetsDir)
+      const payloadStats = scanTranslationPayloadDirectory(publicAssetsDir)
       const sizeWarning = getTranslationPayloadSizeWarning(payloadStats, resolveTranslationPayloadWarningThresholds(options.translationPayloads))
       if (sizeWarning) {
         logger.warn(sizeWarning.replace('[nuxt-i18n-micro] ', ''))
@@ -434,6 +467,8 @@ export default defineNuxtModule<ModuleOptions>({
     }
     const apiBaseUrl = rawUrl.replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
     const apiConfig = { apiBaseUrl, apiBaseClientHost, apiBaseServerHost }
+    // Public copy lands under apiBaseUrl so static hosts serve the same paths the client fetches.
+    const payloadPublicRel = resolveTranslationPayloadPublicRel(options, apiBaseUrl)
 
     const routeGenerator = new RouteGenerator({
       locales: options.locales ?? [],
@@ -462,7 +497,14 @@ export default defineNuxtModule<ModuleOptions>({
       translationsHash,
     })
 
-    const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [])
+    const privateConfig = buildPrivateConfig(
+      options,
+      nuxt,
+      apiConfig,
+      routeGenerator.locales ?? [],
+      publicAssetsDir,
+      payloadPublicRel,
+    )
     const templates = registerI18nTemplates(options, resolvedStrategyPath, fullConfig, privateConfig)
 
     if (typeof options.customRegexMatcher !== 'undefined') {
@@ -610,6 +652,10 @@ declare module '#i18n-internal/strategy' {
 declare module '#i18n-internal/plural' {
   export const plural: PluralFunc
 }
+
+declare module '#i18n-internal/payload-source' {
+  export function readPayload(relPath: string): Promise<Record<string, unknown>>
+}
 `
       },
     })
@@ -654,12 +700,34 @@ declare module '#i18n-internal/plural' {
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
 
-      if (translationPayloads.serverAssets) {
+      // Node: read public/ via fs (no Rollup raw:). Edge: Nitro serverAssets embed.
+      const isNode = nitroConfig.node !== false
+      nitroConfig.alias['#i18n-internal/payload-source'] = isNode
+        ? resolver.resolve('./runtime/server/payload-source.fs')
+        : resolver.resolve('./runtime/server/payload-source.assets')
+
+      if (shouldRegisterNitroServerAssets(translationPayloads, isNode)) {
         nitroConfig.serverAssets = nitroConfig.serverAssets || []
         nitroConfig.serverAssets.push({
           baseName: 'i18n',
-          dir: translationAssetsDir,
+          // Same layout as public (`mode`): premerged matrix or compact source.
+          dir: publicAssetsDir,
         })
+        if (translationPayloads.mode === 'premerged') {
+          logger.warn(
+            'Edge target with translationPayloads.mode:"premerged" embeds the full page/locale matrix via Nitro serverAssets (Rollup raw:). '
+            + "Prefer mode:'source' for large catalogs.",
+          )
+        }
+      }
+
+      if (isNode && translationPayloads.serverAssets && !translationPayloads.publicAssets) {
+        logger.info('translationPayloads.serverAssets: on Node, payloads are served from public/ (publicAssets copy enabled for SSR).')
+      }
+
+      nitroConfig.plugins = nitroConfig.plugins || []
+      if (nuxt.options.dev && (options.hmr ?? true)) {
+        nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
       }
 
       nitroConfig.routeRules = nitroConfig.routeRules || {}
@@ -705,10 +773,6 @@ declare module '#i18n-internal/plural' {
         }
       }
 
-      nitroConfig.plugins = nitroConfig.plugins || []
-      if (nuxt.options.dev && (options.hmr ?? true)) {
-        nitroConfig.plugins.push(resolver.resolve('./runtime/server/plugins/watcher.dev'))
-      }
       nitroConfig.handlers = nitroConfig.handlers || []
       nitroConfig.handlers.unshift({
         middleware: true,
@@ -718,24 +782,25 @@ declare module '#i18n-internal/plural' {
 
     nuxt.hook('nitro:build:public-assets', (nitro) => {
       const isProd = nuxt.options.dev === false
-      if (isProd && translationPayloads.publicAssets) {
-        const publicDir = resolveTranslationPayloadPublicDir(nitro.options.output.publicDir, options)
+      const isNode = nitro.options.node !== false
+      // publicAssets always; on Node, serverAssets also forces copy (SSR via fs).
+      // Edge serverAssets is Nitro embed only — do not force a public tree.
+      const copyPublicPayloads = shouldCopyTranslationPayloadsToPublic(translationPayloads, isNode)
+
+      if (isProd && copyPublicPayloads) {
+        const publicDir = resolveTranslationPayloadPublicDir(nitro.options.output.publicDir, options, apiBaseUrl)
 
         try {
-          if (existsSync(translationAssetsDir)) {
-            fs.cpSync(translationAssetsDir, publicDir, { recursive: true })
+          if (existsSync(publicAssetsDir)) {
+            fs.cpSync(publicAssetsDir, publicDir, { recursive: true })
             logger.log(`Translation payloads copied to public directory`)
 
-            // Nitro compresses public assets before this hook runs, so files copied
-            // here are never covered by `compressPublicAssets` — honour the setting
-            // ourselves rather than leaving the payloads as the one uncompressed part
-            // of the output.
             const compressed = compressTranslationPayloads(publicDir, nitro.options.compressPublicAssets)
             if (compressed > 0) {
               logger.log(`Compressed ${compressed} translation payload file(s)`)
             }
           } else {
-            logger.warn(`Translation assets directory not found: ${translationAssetsDir}`)
+            logger.warn(`Translation assets directory not found: ${publicAssetsDir}`)
           }
         } catch (err) {
           logger.error('Error copying translations:', err)

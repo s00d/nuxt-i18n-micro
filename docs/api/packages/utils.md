@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-89 exports across 21 entry points.
+93 exports across 21 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -181,6 +181,7 @@ import { /* … */ } from '@i18n-micro/utils/merge-source'
 | `normalizeConfiguredLocales` | function | `(locales: Array<string \| Locale> \| undefined) => SourceLocaleInfo[]` |
 | `resolveSourcePageName` | function | `(pageName: string, disablePageLocales?: boolean) => string` |
 | `SourceLocaleInfo` | interface | 2 members |
+| `toPremergedStorageKey` | function | `(pageName: string, locale: string) => string` |
 | `toSourceStorageKey` | function | `(relativePath: string) => string` |
 
 <details>
@@ -250,8 +251,11 @@ import { /* … */ } from '@i18n-micro/utils/payload-config'
 | `ResolvedTranslationPayloadOptions` | interface | 8 members |
 | `resolveTranslationPayloadMode` | function | `(options: ModuleOptions) => TranslationPayloadMode` |
 | `resolveTranslationPayloadOptions` | function | `(options: ModuleOptions) => ResolvedTranslationPayloadOptions` |
-| `resolveTranslationPayloadPublicDir` | function | `(outputPublicDir: string \| undefined, options: ModuleOptions) => string` |
+| `resolveTranslationPayloadPublicDir` | function | `(outputPublicDir: string \| undefined, options: ModuleOptions, apiBaseUrl?: string) => string` |
+| `resolveTranslationPayloadPublicRel` | function | `(options: ModuleOptions, apiBaseUrl?: string) => string` |
 | `resolveTranslationPayloadWarningThresholds` | function | `(options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>` |
+| `shouldCopyTranslationPayloadsToPublic` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean` |
+| `shouldRegisterNitroServerAssets` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean` |
 | `TranslationPayloadMisconfigurationInput` | interface | 3 members |
 | `TranslationPayloadMode` | type | `'premerged' \| 'source'` |
 | `TranslationPayloadSizeThresholds` | interface | 2 members |

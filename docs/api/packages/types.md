@@ -34,7 +34,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
 | `ModuleOptions` | interface | 45 members |
 | `ModuleOptionsExtend` | interface | 48 members |
-| `ModulePrivateOptionsExtend` | interface | 46 members |
+| `ModulePrivateOptionsExtend` | interface | 48 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -220,7 +220,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 46 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 48 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -258,6 +258,8 @@ import { /* … */ } from '@i18n-micro/types'
 | `missingWarn?` | `boolean \| undefined` |
 | `noPrefixRedirect?` | `boolean \| undefined` |
 | `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
+| `payloadFsDir` | `string` |
+| `payloadPublicRel` | `string` |
 | `plugin?` | `boolean \| undefined` |
 | `plural?` | `string \| PluralFunc \| undefined` |
 | `redirects?` | `boolean \| undefined` |

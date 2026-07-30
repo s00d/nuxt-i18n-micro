@@ -175,6 +175,8 @@ member ModulePrivateOptionsExtend.rootDir: string
 member ModulePrivateOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModulePrivateOptionsExtend.routeLocales?: Record<string, string[]> | undefined
 member ModulePrivateOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
+member ModulePrivateOptionsExtend.payloadFsDir: string
+member ModulePrivateOptionsExtend.payloadPublicRel: string
 member ModulePrivateOptionsExtend.serverTranslationPreload?: boolean | undefined
 member ModulePrivateOptionsExtend.strategy?: Strategies | undefined
 member ModulePrivateOptionsExtend.translationDir: string
@@ -191,10 +193,10 @@ type Translation: CleanTranslation | unknown
 type TranslationKey: keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
 interface TranslationPayloadOptions
 member TranslationPayloadOptions.mode?: "premerged" | "source" | undefined
+member TranslationPayloadOptions.serverAssets?: boolean | undefined
 member TranslationPayloadOptions.prerenderRoutes?: boolean | undefined
 member TranslationPayloadOptions.publicAssets?: boolean | undefined
 member TranslationPayloadOptions.publicDir?: string | undefined
-member TranslationPayloadOptions.serverAssets?: boolean | undefined
 member TranslationPayloadOptions.serverHandler?: boolean | undefined
 member TranslationPayloadOptions.warnFileCount?: number | undefined
 member TranslationPayloadOptions.warnSizeBytes?: number | undefined

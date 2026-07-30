@@ -314,7 +314,6 @@ export class NuxtI18n extends BaseI18n {
 export interface NuxtTranslationLoaderOptions {
   i18n: NuxtI18n
   loadOptions: LoadOptions
-  setSsrChunk: (cacheKey: string, data: Record<string, unknown>) => void
   isDev?: boolean
 }
 
@@ -324,19 +323,15 @@ export class NuxtTranslationLoader {
   constructor(private readonly options: NuxtTranslationLoaderOptions) {}
 
   loadFromCacheSync(locale: string, routeName?: string): Record<string, unknown> | null {
-    const { i18n, setSsrChunk } = this.options
-    const cacheKey = i18n.getCacheKey(locale, routeName)
+    const { i18n } = this.options
 
     if (i18n.hasChunk(locale, routeName)) {
-      const data = i18n.getChunk(locale, routeName)
-      setSsrChunk(cacheKey, data)
-      return data
+      return i18n.getChunk(locale, routeName)
     }
 
     const cached = translationStorage.getFromCache(locale, routeName)
     if (cached) {
       i18n.setChunk(locale, routeName, cached.data)
-      setSsrChunk(cacheKey, cached.data)
       return cached.data
     }
 
@@ -344,7 +339,7 @@ export class NuxtTranslationLoader {
   }
 
   loadAsync(locale: string, routeName?: string): Promise<Record<string, unknown>> {
-    const { i18n, loadOptions, setSsrChunk, isDev } = this.options
+    const { i18n, loadOptions, isDev } = this.options
     const cacheKey = i18n.getCacheKey(locale, routeName)
     const pending = this.pendingLoads.get(cacheKey)
     if (pending) return pending
@@ -355,9 +350,6 @@ export class NuxtTranslationLoader {
         const existing = i18n.getChunk(locale, routeName)
         const mergedChunk = mergeTranslationChunk(existing, result.data, { preserveExisting: true })
         i18n.setChunk(locale, routeName, mergedChunk)
-
-        setSsrChunk(cacheKey, mergedChunk)
-
         return mergedChunk
       } catch (e) {
         if (isDev) console.error('[i18n] Load error:', e)

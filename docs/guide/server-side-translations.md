@@ -12,9 +12,9 @@ Nuxt I18n Micro supports server-side translations and locale information, allowi
 
 The translations use locale messages defined in the Nuxt I18n configuration and are dynamically resolved based on the detected locale.
 
-By default (`translationPayloads.mode: 'premerged'`), root-level files are baked into every page file at build time. The server-side middleware loads the same pre-built payloads as the client, so all keys (both shared and page-specific) are available in server handlers.
+By default (`translationPayloads.mode: 'premerged'`), root-level files are baked into every page payload at build time as `{page}/{locale}/data.json`. The server loads the same pre-built files as the client fetches under `/{apiBaseUrl}/...`, so all keys (both shared and page-specific) are available in server handlers.
 
-With `translationPayloads.mode: 'source'`, compact source files are bundled into Nitro assets and merged at runtime when `loadTranslationsFromServer()` (or the `/_locales` route) is called. See the [Performance Guide — Serverless Payload Output](/guide/performance#serverless-payload-output) and [Cache & Storage Architecture](/api/i18n-cache-api) for details.
+With `translationPayloads.mode: 'source'`, compact source files are merged at runtime when `loadTranslationsFromServer()` (or the `/_locales` route) is called — on **Edge** via Nitro `serverAssets`, on **Node** from the optional public copy. See the [Performance Guide — Serverless Payload Output](/guide/performance#serverless-payload-output) and [Cache & Storage Architecture](/api/i18n-cache-api) for details.
 
 For a consolidated list of runtime and server APIs, see the [API Reference](/api/).
 

@@ -908,11 +908,15 @@ function generateChartMarkdown(name: string, artillery: ArtilleryResult): string
   // Extract detailed time-series data for table
   const intermediate = artillery.intermediate || []
   const timeSeriesData = intermediate.map((entry, index) => {
-    const timestamp = new Date(entry.period).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })
+    // Artillery `period` is epoch ms as a string (e.g. "1785425690000"), not an ISO date.
+    const periodMs = Number(entry.period)
+    const timestamp = Number.isFinite(periodMs)
+      ? new Date(periodMs).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+      : `${index * 10}s`
     return {
       time: timestamp,
       index,

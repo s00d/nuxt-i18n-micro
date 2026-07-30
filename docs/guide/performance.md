@@ -221,18 +221,13 @@ if (val === undefined && key.includes('.')) {
 }
 ```
 
-### 💉 Server-Side Payload Transfer
+### 💉 Server-side load (no HTML embed)
 
-The SSR payload carries **full translation chunks** for every `(locale, route)` loaded during SSR.
-`NuxtTranslationLoader` writes each merged chunk into `nuxtApp.payload.data['i18n-ssr-chunks']` via
-`setSsrChunk`. `payload.data` and not `useState` on purpose — Nuxt externalizes `data` into
-`_payload.json` on prerendered routes, while `state` always stays inline in the HTML.
+Translations loaded during SSR stay in **server memory** for `$t` during render. They are **not** copied into `nuxtApp.payload` / the HTML document (same idea as `@nuxtjs/i18n` with `experimental.preload: false`).
 
-On the client, `01.plugin.ts` seeds `translationStorage` and `NuxtI18n` from it before any `$fetch`, so
-hydration needs no network round-trip for chunks the server already loaded.
+On the client, `01.plugin.ts` `await`s `switchContext`, which loads `/{apiBaseUrl}/:page/:locale/data.json` before the app continues — one request, not an 8 MB inline blob.
 
-`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`.
-Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys.
+`NuxtI18n` still keeps the active merged dictionary (`cachedTranslations`) for `$t()` / `$has()`. Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys.
 
 #### Where it stands today
 
@@ -280,14 +275,16 @@ Two rules keep them from contradicting each other:
   `max-age` on a URL that never changes pins the first response a browser ever saw.
 
 ::: warning Static hosting bypasses the first two layers
-With `translationPayloads.publicAssets` the payloads are copied into `public/`, and a
-platform that serves that directory itself (Cloudflare Pages, Vercel static) applies its
-own headers — the `routeRules` header only reaches responses that go through Nitro. Set
-the cache policy for those files in the platform's own configuration.
+With `translationPayloads.publicAssets` (default in premerged mode) payloads are copied to
+`public/<apiBaseUrl>/{page}/{locale}/data.json`. A platform that serves that directory itself
+(Cloudflare Pages, Firebase Hosting, `npx serve`) applies its own headers — the Nitro
+`routeRules` header only reaches responses that go through the server. Set cache policy for
+those static files in the platform's own configuration.
 :::
 
-🏁 **Pre-rendering**: during the build, translation files for all configured locales and
-routes can be pre-rendered, removing the runtime request entirely.
+🏁 **Pre-rendering**: in premerged mode, `publicAssets` already writes the client URL tree into
+`public/`. Opt into `prerenderRoutes` only if you need Nitro to materialize handler routes when
+that copy is disabled.
 
 ### 🗜️ Compressed Public Payloads
 
@@ -309,9 +306,20 @@ Playground index payload: 6 651 984 B raw, 1 012 831 B gzip, 821 617 B brotli.
 
 ### ☁️ Serverless Payload Output
 
-By default, pre-merged translation payloads are emitted in multiple places so SSR, static generation, and local data routes work without extra setup. Large applications with many locales and page-level payloads may want tighter control, especially on serverless platforms where every Nitro server asset increases the Worker bundle.
+On **Node**, SSR reads translation JSON from `public/<apiBaseUrl>` (`readFile`, no Nitro `serverAssets` / Rollup `raw:`). On **Edge**, Nitro `serverAssets` embeds the same tree (prefer `mode: 'source'` for large catalogs).
 
-Use `translationPayloads.mode: 'source'` for compact serverless deployments:
+```typescript
+export default defineNuxtConfig({
+  i18n: {
+    translationPayloads: {
+      serverAssets: true, // default — Node → public copy; Edge → serverAssets embed
+      publicAssets: true, // default in premerged mode
+    },
+  },
+})
+```
+
+Use `translationPayloads.mode: 'source'` for compact Edge embeds (and optional compact public copies):
 
 ```typescript
 export default defineNuxtConfig({
@@ -323,17 +331,19 @@ export default defineNuxtConfig({
 })
 ```
 
-`mode: 'source'` keeps layer-merged source files in Nitro server assets and merges root/page/fallback translations at runtime through the built-in `/_locales` route. By default it disables public asset copies and prerendered payload routes, which is usually what you want on Cloudflare Workers.
+`mode: 'source'` keeps layer-merged source files compact and merges root/page/fallback at runtime through the built-in `/_locales` route (or Edge `assets:i18n`). By default it disables public asset copies and prerendered payload routes.
 
 ::: warning Static hosting / pure SSG
-With `mode: 'source'`, `publicAssets` and `prerenderRoutes` default to `false`. Pure static hosting without a Nitro/edge runtime therefore cannot load translations on the client unless you enable one of these outputs, keep `serverHandler` available at runtime, or host payloads externally.
+`prerenderRoutes` defaults to `false`. With `mode: 'source'`, `publicAssets` also defaults to `false`. Pure static hosting without a Nitro/edge runtime therefore cannot load translations on the client unless you enable one of these outputs, keep `serverHandler` available at runtime, or host payloads externally.
+
+Default premerged + `publicAssets` already places `/{apiBaseUrl}/{page}/{locale}/data.json` under `public/`, so static hosts can serve client fetches without Nitro.
 :::
 
 ::: warning External CDN hosts
 Setting `apiBaseServerHost` or `apiBaseClientHost` moves payload serving to that origin, which comes with its own requirements — see [Configuration → External CDN hosts](/guide/configuration#external-cdn-hosts).
 :::
 
-Or disable individual outputs manually and host payloads externally:
+Or disable individual HTTP/public outputs and host payloads externally:
 
 ```typescript
 export default defineNuxtConfig({
@@ -341,7 +351,6 @@ export default defineNuxtConfig({
     apiBaseClientHost: 'https://cdn.example.com',
     apiBaseServerHost: 'https://cdn.example.com',
     translationPayloads: {
-      serverAssets: false,
       serverHandler: false,
       publicAssets: false,
       prerenderRoutes: false,
@@ -350,7 +359,7 @@ export default defineNuxtConfig({
 })
 ```
 
-Keep `serverAssets` and `serverHandler` enabled when you rely on the built-in local `/{apiBaseUrl}/:page/:locale/data.json` route. Disable them when payloads are hosted externally and `apiBaseServerHost` points at that external origin. Disable `prerenderRoutes` when you do not want Nitro to materialize `/{apiBaseUrl}/.../data.json` files such as `/_locales/index/en/data.json` into public output.
+Keep `serverHandler` enabled when you rely on the built-in local `/{apiBaseUrl}/:page/:locale/data.json` route. Disable it when payloads are hosted externally and `apiBaseServerHost` points at that external origin. Enable `prerenderRoutes` only when you need Nitro to materialize static payload routes and `publicAssets` did not already write them.
 
 During build, the module warns when generated payload output exceeds `translationPayloads.warnFileCount` (default 500) or `translationPayloads.warnSizeBytes` (default 10 MB). It also warns when all local outputs are disabled without external payload hosts configured.
 

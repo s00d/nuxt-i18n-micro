@@ -250,15 +250,15 @@ This allows dynamic links within translations while preserving proper localizati
 
 ## 🏗️ Build & Deployment Issues
 
-### ❓ Why is the `assets/_locales/` folder added to the server folder?
+### ❓ Why do translation payloads end up under `public/_locales/` (or in the server bundle on Edge)?
 
-During deployment, especially on platforms like Netlify, the build process might differ from local development. This can lead to issues where certain files or folders are missing during server-side rendering (SSR).
+SSR and the client both need the same `/{apiBaseUrl}/{page}/{locale}/data.json` payloads. How they are packaged depends on the Nitro target:
 
 **Explanation:**
 
-- **Build Process:** Translation files are cached in the production folder during the build. However, on Netlify, server code moves to functions, sometimes isolating localization files.
-- **Prerendering:** Prerendering does not work with `$fetch` in SSR, causing middleware to miss localization files.
-- **Server Assets:** To resolve this, localization files are saved in the Nitro server assets during prerendering. They are then accessible in production directly from server assets.
+- **Node (default):** the module does **not** embed translations as Nitro `serverAssets` / Rollup `raw:` (that blew up build RAM on large catalogs). Instead it copies the premerged tree to `public/<apiBaseUrl>/` (default `_locales`) and SSR reads those files with `readFile`. The client `$fetch`es the same URLs — either as static files or via the Nitro handler.
+- **Edge** (`nitro.node === false`): there is no durable public FS for SSR, so payloads are embedded via Nitro `serverAssets` (`assets:i18n`). Prefer `translationPayloads.mode: 'source'` so the embed stays compact. Set `publicAssets: true` only if you also need a CDN/static copy.
+- **`prerenderRoutes`:** optional. In premerged mode `publicAssets` already writes `{page}/{locale}/data.json`, so prerendering those routes is usually redundant.
 
 ### ❓ Why do I get a build error referring to `@unhead/vue` or an undefined object, especially on Cloudflare Pages?
 

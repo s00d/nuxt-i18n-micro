@@ -6,10 +6,10 @@ describe('loadSourceTranslationsFromStorage', () => {
     const storage = {
       async getItem(key: string) {
         const files: Record<string, Record<string, unknown>> = {
-          'assets:i18n:en.json': { greeting: 'Hello' },
-          'assets:i18n:de.json': { greeting: 'Hallo' },
-          'assets:i18n:pages:contact:en.json': { title: 'Contact' },
-          'assets:i18n:pages:contact:de.json': { title: 'Kontakt' },
+          'en.json': { greeting: 'Hello' },
+          'de.json': { greeting: 'Hallo' },
+          'pages/contact/en.json': { title: 'Contact' },
+          'pages/contact/de.json': { title: 'Kontakt' },
         }
         return files[key]
       },

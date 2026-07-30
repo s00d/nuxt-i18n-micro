@@ -6,6 +6,64 @@ outline: 'deep'
 
 # News
 
+## Nuxt I18n Micro v3.23.0 — Node SSR from `public/`, no Rollup `raw:`
+
+**Date**: 2026-07-30
+
+**Version**: `v3.23.0`
+
+Node production builds no longer embed translation payloads as Nitro `serverAssets` / Rollup `raw:` (multi‑GB build RSS on large catalogs). SSR reads the same `/{apiBaseUrl}/{page}/{locale}/data.json` tree the client fetches — from `public/` via `readFile`. Edge keeps a Nitro embed and should prefer `mode: 'source'`.
+
+### What's New?
+
+#### Node: SSR from `public/<apiBaseUrl>`
+
+- Node does **not** register Nitro `serverAssets`.
+- Payloads are copied to `public/<apiBaseUrl>` (default `_locales`) as `{page}/{locale}/data.json`.
+- SSR loads them through `#i18n-internal/payload-source` → `readFile` (prod path next to `.output/server`).
+- `translationPayloads.serverAssets: true` still means “local SSR” and **forces** that public copy even if `publicAssets` is false.
+
+Playground (vs previous `serverAssets` embed): ~**1.25 GB** / ~6–7 s / `raw`=0 vs ~**3 GB** / ~13 s / ~170 raw chunks.
+
+#### Edge: `serverAssets` only when needed
+
+- Edge (`nitro.node === false`) still embeds via Nitro `serverAssets` (`assets:i18n`) with the same layout as `mode`.
+- Edge does **not** force a public copy — set `publicAssets: true` for CDN/static.
+- Warns when Edge + `mode: 'premerged'` (prefer `mode: 'source'` for large catalogs).
+
+#### `publicDir` aligns with client URLs
+
+- `translationPayloads.publicDir` defaults to **`apiBaseUrl`** (not `translationDir`).
+- Premerged public/Edge tree is `{page}/{locale}/data.json`, matching `$fetch('/_locales/...')`.
+- Module defaults no longer set nested `publicAssets: true` (Nuxt deep-merge was forcing public copy even for `mode: 'source'`).
+
+See [Configuration — `translationPayloads`](/guide/configuration#translationpayloads), [Performance — Serverless Payload Output](/guide/performance#serverless-payload-output), and [Cache & Storage Architecture](/api/i18n-cache-api).
+
+### Breaking Changes
+
+- **No dictionaries in the Nuxt SSR HTML payload.** `payload.data['i18n-ssr-chunks']`, `setSsrChunk`, and `seedFromSsrChunks` are **removed**. Same default posture as `@nuxtjs/i18n` (`experimental.preload: false`): server keeps translations in memory for SSR; the client loads `/{apiBaseUrl}/.../data.json` during plugin setup (`await switchContext`).
+- **`prerenderRoutes` defaults to `false`.** Opt in only if you need Nitro to materialize handler routes when `publicAssets` did not already write the tree (premerged `publicAssets` already emits `{page}/{locale}/data.json`).
+- **`publicDir` default is `apiBaseUrl`**, not `translationDir`. Static output moves from e.g. `public/locales/...` to `public/_locales/{page}/{locale}/data.json` unless you set `publicDir` explicitly.
+- **Premerged storage layout** is now `{page}/{locale}/data.json` (was `pages/{page}/{locale}.json`). Anything that read Nitro/storage keys or copied trees by the old shape must update.
+- **On Node, `serverAssets: true` no longer means Nitro embed** — it means local SSR via the public copy. True Rollup `raw:` embed remains Edge-only.
+
+### Migration
+
+1. Remove any code that read `payload.data['i18n-ssr-chunks']` or called `seedFromSsrChunks` / `setSsrChunk`.
+2. For pure static hosts: keep default premerged + `publicAssets` (files land at `/_locales/.../data.json`), or set `prerenderRoutes: true` / host payloads on a CDN.
+3. For Cloudflare / other Edge: set `translationPayloads: { mode: 'source' }` on large catalogs; add `publicAssets: true` only if you need a static/CDN copy.
+4. If you depended on payloads under `public/<translationDir>`, set `translationPayloads.publicDir` or point tooling at `public/<apiBaseUrl>`.
+
+### Why It Matters
+
+- Node builds stay lean: no multi‑GB Rollup `raw:` spike from translation catalogs.
+- Public files and client `$fetch` URLs share one path layout — static hosting works without a special remap.
+- Edge can still embed compact `source` payloads without forcing a duplicate public tree.
+
+Full changelog will be published with the release on [GitHub](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
+
+---
+
 ## Nuxt I18n Micro v3.22.0 — Formats, Cache & Translation Memory
 
 **Date**: 2026-07-30

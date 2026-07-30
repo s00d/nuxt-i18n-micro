@@ -207,36 +207,30 @@ describe('NuxtI18n', () => {
   })
 })
 
-describe('NuxtTranslationLoader SSR chunk recording', () => {
+describe('NuxtTranslationLoader cache hits', () => {
   const loadOptions = {
     apiBaseUrl: '_locales',
     baseURL: '/',
     dateBuild: 0,
   }
 
-  it('records in-memory chunk hits via setSsrChunk', () => {
+  it('returns in-memory chunk hits without a network load', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
-    const setSsrChunk = vi.fn()
-    const loader = new NuxtTranslationLoader({ i18n, loadOptions, setSsrChunk })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
 
     i18n.setChunk('en', 'index', { title: 'Warm cache' })
     expect(loader.loadFromCacheSync('en', 'index')).toEqual({ title: 'Warm cache' })
-    expect(setSsrChunk).toHaveBeenCalledWith('en:index', { title: 'Warm cache' })
   })
 
-  it('records translationStorage cache hits via setSsrChunk', () => {
+  it('returns null when neither i18n nor storage has the chunk', () => {
     translationStorage.clear()
     const i18n = new NuxtI18n({ missingWarn: false })
-    const setSsrChunk = vi.fn()
-    const loader = new NuxtTranslationLoader({ i18n, loadOptions, setSsrChunk })
-
-    translationStorage.seedFromSsrChunks({ 'en:about': { title: 'About' } })
-    expect(loader.loadFromCacheSync('en', 'about')).toEqual({ title: 'About' })
-    expect(setSsrChunk).toHaveBeenCalledWith('en:about', { title: 'About' })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
+    expect(loader.loadFromCacheSync('en', 'missing')).toBeNull()
   })
 })
 
-describe('seeding SSR chunks', () => {
+describe('seeding chunks', () => {
   it('installs buckets for contexts other than the rendered page', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     i18n.seedChunks({ 'en:index': { a: 'A' }, 'de:about': { b: 'B' } })

@@ -79,6 +79,7 @@ function resolveSourcePageName: (pageName: string, disablePageLocales?: boolean)
 interface SourceLocaleInfo
 member SourceLocaleInfo.code: string
 member SourceLocaleInfo.fallbackLocale?: string | undefined
+function toPremergedStorageKey: (pageName: string, locale: string) => string
 function toSourceStorageKey: (relativePath: string) => string
 
 # ./normalize (src/normalize.ts)
@@ -114,8 +115,11 @@ member ResolvedTranslationPayloadOptions.warnFileCount?: number | undefined
 member ResolvedTranslationPayloadOptions.warnSizeBytes?: number | undefined
 function resolveTranslationPayloadMode: (options: ModuleOptions) => TranslationPayloadMode
 function resolveTranslationPayloadOptions: (options: ModuleOptions) => ResolvedTranslationPayloadOptions
-function resolveTranslationPayloadPublicDir: (outputPublicDir: string | undefined, options: ModuleOptions) => string
+function resolveTranslationPayloadPublicDir: (outputPublicDir: string | undefined, options: ModuleOptions, apiBaseUrl?: string) => string
+function resolveTranslationPayloadPublicRel: (options: ModuleOptions, apiBaseUrl?: string) => string
 function resolveTranslationPayloadWarningThresholds: (options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>
+function shouldCopyTranslationPayloadsToPublic: (translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean
+function shouldRegisterNitroServerAssets: (translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean
 interface TranslationPayloadMisconfigurationInput
 member TranslationPayloadMisconfigurationInput.apiBaseClientHost?: string | undefined
 member TranslationPayloadMisconfigurationInput.apiBaseServerHost?: string | undefined

@@ -282,11 +282,13 @@ export interface ModuleOptions {
   translationDir?: string
 
   /**
-   * Controls how pre-merged translation payload files are emitted during build.
+   * Controls how translation payloads are emitted (Node: `public/<apiBaseUrl>`; Edge: Nitro `serverAssets`).
    *
-   * Keep the defaults for the existing all-in-one behavior. For serverless or CDN-backed
-   * deployments, disable individual outputs to avoid duplicating large locale payloads in
-   * both Nitro server assets and public assets.
+   * - **Node**: `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).
+   * - **Edge**: `serverAssets` registers Nitro `serverAssets` (`assets:i18n`); it does not force a public copy.
+   *
+   * Keep the defaults for the usual all-in-one setup. For large Edge catalogs prefer `mode: 'source'`.
+   * For CDN-backed deployments, disable local outputs and set `apiBaseClientHost` / `apiBaseServerHost`.
    */
   translationPayloads?: TranslationPayloadOptions
 
@@ -519,18 +521,20 @@ export interface ModuleOptions {
 export interface TranslationPayloadOptions {
   /**
    * Translation payload strategy.
-   * - `premerged`: build-time page/locale matrix (default)
-   * - `source`: compact source files merged at runtime (recommended for large serverless apps)
+   * - `premerged`: build-time `{page}/{locale}/data.json` matrix (default)
+   * - `source`: compact source files merged at runtime (prefer on Edge / large catalogs)
    * @default 'premerged'
    */
   mode?: 'premerged' | 'source'
 
   /**
-   * Register translation payload files as Nitro server assets.
-   * In `premerged` mode this is the fully merged page/locale matrix.
-   * In `source` mode this is the compact layer-merged source directory.
-   * Required for the built-in local `_locales` server route unless translations are fetched
-   * from `apiBaseServerHost`.
+   * Local SSR payloads: Node reads `public/<apiBaseUrl>` (forces public copy); Edge embeds via Nitro `serverAssets`.
+   *
+   * - **Node**: no Nitro `serverAssets` (avoids Rollup `raw:`). SSR reads
+   *   `public/<apiBaseUrl|publicDir>` as `{page}/{locale}/data.json`; when this is `true`,
+   *   a public copy is forced even if `publicAssets` is false.
+   * - **Edge** (`nitro.node === false`): Nitro `serverAssets` (`assets:i18n`) with the same
+   *   layout as `mode`. Does **not** force a public copy — set `publicAssets: true` for CDN.
    * @default true
    */
   serverAssets?: boolean
@@ -543,23 +547,23 @@ export interface TranslationPayloadOptions {
   serverHandler?: boolean
 
   /**
-   * Copy translation payload files into Nitro public assets during production builds.
-   * In `source` mode this copies the compact source directory, not a pre-merged matrix.
+   * Copy payloads into Nitro public output. Premerged → `{page}/{locale}/data.json` under `apiBaseUrl`; source → compact tree.
+   *
+   * On Node this tree is also the SSR source when `serverAssets` forces a public copy.
    * @default true in premerged mode, false in source mode
    */
   publicAssets?: boolean
 
   /**
-   * Add translation data routes to Nuxt/Nitro prerender output.
-   * Disable this when `_locales` payloads are served from an external host/CDN or should not be
-   * materialized into public output.
-   * @default true in premerged mode, false in source mode
+   * Opt in to Nitro-prerender `/{apiBaseUrl}/.../data.json`. Usually redundant when premerged `publicAssets` already wrote those files.
+   * @default false
    */
   prerenderRoutes?: boolean
 
   /**
-   * Public output directory for copied translation payloads, relative to Nitro's public directory.
-   * Defaults to `translationDir`.
+   * Public output folder relative to Nitro public root. Defaults to `apiBaseUrl` (`_locales`).
+   *
+   * So static files match client fetch URLs (`/{apiBaseUrl}/{page}/{locale}/data.json`).
    */
   publicDir?: string
 
@@ -622,6 +626,15 @@ export interface ModulePrivateOptionsExtend extends ModuleOptions {
   routesLocaleLinks?: { [key: string]: string }
   /** Preload index translations in Nitro global middleware. */
   serverTranslationPreload?: boolean
+  /**
+   * Absolute buildDir path to payload files (`.nuxt/i18n-merged` or `.nuxt/i18n-source`).
+   * Used by the Node fs reader in `import.meta.dev` / `import.meta.prerender`.
+   */
+  payloadFsDir: string
+  /**
+   * Directory under Nitro `public/` for prod payload files (defaults to `translationDir`).
+   */
+  payloadPublicRel: string
 }
 
 /** Object shape for a translation value that contains singular/plural forms. */

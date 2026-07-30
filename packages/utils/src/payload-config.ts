@@ -46,16 +46,56 @@ export function resolveTranslationPayloadOptions(options: ModuleOptions): Resolv
     serverAssets: options.translationPayloads?.serverAssets !== false,
     serverHandler: options.translationPayloads?.serverHandler !== false,
     publicAssets: isSourceMode ? options.translationPayloads?.publicAssets === true : options.translationPayloads?.publicAssets !== false,
-    prerenderRoutes: isSourceMode ? options.translationPayloads?.prerenderRoutes === true : options.translationPayloads?.prerenderRoutes !== false,
+    // Off by default: prerendering `/_locales` without a live handler writes empty public stubs.
+    // Opt in when you need static `/{apiBaseUrl}/.../data.json` and payloads are already available.
+    prerenderRoutes: options.translationPayloads?.prerenderRoutes === true,
     publicDir: options.translationPayloads?.publicDir,
     warnFileCount: options.translationPayloads?.warnFileCount,
     warnSizeBytes: options.translationPayloads?.warnSizeBytes,
   }
 }
 
-export function resolveTranslationPayloadPublicDir(outputPublicDir: string | undefined, options: ModuleOptions): string {
-  const translationPayloads = resolveTranslationPayloadOptions(options)
-  return join(outputPublicDir ?? './dist', translationPayloads.publicDir ?? options.translationDir ?? 'locales')
+/**
+ * Public payload directory relative to Nitro's public root.
+ * Defaults to `apiBaseUrl` (`_locales`) so static files match client fetch URLs.
+ */
+export function resolveTranslationPayloadPublicRel(options: ModuleOptions, apiBaseUrl?: string): string {
+  const explicit = options.translationPayloads?.publicDir
+  if (explicit !== undefined && explicit !== null && String(explicit).length > 0) {
+    return String(explicit).replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/') || '_locales'
+  }
+  const base = (apiBaseUrl ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
+  return base || '_locales'
+}
+
+export function resolveTranslationPayloadPublicDir(
+  outputPublicDir: string | undefined,
+  options: ModuleOptions,
+  apiBaseUrl?: string,
+): string {
+  return join(outputPublicDir ?? './dist', resolveTranslationPayloadPublicRel(options, apiBaseUrl))
+}
+
+/**
+ * Whether production builds should copy the payload tree into Nitro public output.
+ * - `publicAssets: true` always copies (CDN / static clients).
+ * - On Node, `serverAssets: true` also forces a copy — SSR reads `public/` via fs (no Rollup `raw:`).
+ * - On Edge, `serverAssets` means Nitro `serverAssets` embed only — do not force a public tree.
+ */
+export function shouldCopyTranslationPayloadsToPublic(
+  translationPayloads: ResolvedTranslationPayloadOptions,
+  isNode: boolean,
+): boolean {
+  if (translationPayloads.publicAssets) return true
+  return isNode && translationPayloads.serverAssets
+}
+
+/** Edge-only: register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled. */
+export function shouldRegisterNitroServerAssets(
+  translationPayloads: ResolvedTranslationPayloadOptions,
+  isNode: boolean,
+): boolean {
+  return !isNode && translationPayloads.serverAssets
 }
 
 export function resolveTranslationPayloadWarningThresholds(options?: TranslationPayloadOptions): Required<TranslationPayloadSizeThresholds> {
@@ -66,15 +106,21 @@ export function resolveTranslationPayloadWarningThresholds(options?: Translation
 }
 
 export function hasLocalTranslationPayloadOutput(translationPayloads: ResolvedTranslationPayloadOptions): boolean {
-  return (
-    translationPayloads.serverAssets || translationPayloads.serverHandler || translationPayloads.publicAssets || translationPayloads.prerenderRoutes
-  )
+  return translationPayloads.serverAssets || translationPayloads.serverHandler || translationPayloads.publicAssets || translationPayloads.prerenderRoutes
 }
 
 export function getTranslationPayloadMisconfigurationWarnings(input: TranslationPayloadMisconfigurationInput): string[] {
-  if (hasLocalTranslationPayloadOutput(input.translationPayloads)) return []
-
   const warnings: string[] = []
+
+  if (!input.translationPayloads.serverAssets && !input.translationPayloads.publicAssets && !input.apiBaseServerHost) {
+    warnings.push(
+      '[nuxt-i18n-micro] translationPayloads.serverAssets and publicAssets are false and apiBaseServerHost is not set. SSR will load empty translations unless you provide an external server payload host.',
+    )
+  }
+
+  if (hasLocalTranslationPayloadOutput(input.translationPayloads)) {
+    return warnings
+  }
 
   if (!input.apiBaseServerHost) {
     warnings.push(
@@ -109,5 +155,5 @@ export function getTranslationPayloadSizeWarning(stats: TranslationPayloadStats,
     return null
   }
 
-  return `[nuxt-i18n-micro] Generated translation payloads are large (${stats.fileCount} files, ${formatBytes(stats.totalBytes)}). Consider translationPayloads.mode: 'source' for serverless deployments, disabling unused outputs, or hosting payloads externally.`
+  return `[nuxt-i18n-micro] Generated translation payloads are large (${stats.fileCount} files, ${formatBytes(stats.totalBytes)}). Consider translationPayloads.mode: 'source' for public output, hosting payloads externally, or disabling unused public/prerender outputs.`
 }

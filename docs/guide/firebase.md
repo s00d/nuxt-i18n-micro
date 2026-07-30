@@ -195,11 +195,12 @@ After building, check that translation files are generated:
 ```bash
 pnpm build
 
-# Check prerendered translations
-ls -la .output/public/_locales/index/
+# Check public payload copy (premerged layout)
+ls -la .output/public/_locales/index/en/
+# → data.json
 ```
 
-You should see JSON files for each locale.
+You should see `data.json` for each locale under each page.
 
 ## 🚀 Build Configuration
 
@@ -335,7 +336,7 @@ export default defineNuxtConfig({
 After applying the fixes, verify everything works:
 
 - [ ] Build completes without errors
-- [ ] Translation JSON files are in `.output/public/_locales/`
+- [ ] Translation JSON files are in `.output/public/_locales/{page}/{locale}/data.json`
 - [ ] Network tab shows `Content-Type: application/json` for translation files
 - [ ] Translations display correctly on first page load
 - [ ] No hydration mismatches in console
@@ -353,8 +354,8 @@ pnpm install
 # Build for production
 pnpm build
 
-# Verify translations are prerendered
-ls -la .output/public/_locales/
+# Verify public payload copy
+ls -la .output/public/_locales/index/en/data.json
 ```
 
 ### 2. Deploy to Firebase
@@ -408,9 +409,9 @@ export default defineNuxtConfig({
 **Solution:** Check if page-specific translations are being generated:
 
 ```bash
-# Should show files for each page
-ls -la .output/public/_locales/index/
-ls -la .output/public/_locales/about/
+# Should show data.json for each page/locale
+ls -la .output/public/_locales/index/en/
+ls -la .output/public/_locales/about/en/
 ```
 
 If page-specific translations are missing, ensure `disablePageLocales` is not set to `true`:

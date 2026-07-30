@@ -50,21 +50,9 @@ class TranslationStorage {
   // ==========================================================================
 
   /**
-   * Detach from Vue reactivity before freezing. Only the SSR payload needs this:
-   * its chunks come back as reactive proxies, and freezing a proxy would freeze
-   * the reactive object the app is still using.
-   */
-  /**
-   * Freeze a chunk before it enters the cache, so a consumer cannot mutate what other
-   * callers will read.
-   *
-   * The freeze is applied to a copy, never to the caller's object: the SSR seed arrives as
-   * `nuxtApp.payload.data['i18n-ssr-chunks']`, which Nuxt still owns, and freezing that in
-   * place would make the payload immutable for everything else on the page.
-   *
-   * A shallow copy, though — the nested values are shared, which is what makes this cheap.
-   * Deep-cloning meant serialising and re-parsing the largest object on the page during
-   * hydration, and it protected nothing: no caller mutates a chunk in place.
+   * Freeze a shallow copy before it enters the cache so a consumer cannot mutate
+   * what other callers will read. Nested values are shared on purpose — cheap, and
+   * no caller mutates a chunk in place.
    */
   private freezeChunk(data: Record<string, unknown>): Record<string, unknown> {
     return Object.freeze({ ...data })
@@ -100,16 +88,6 @@ class TranslationStorage {
   // ==========================================================================
   // PUBLIC API
   // ==========================================================================
-
-  /**
-   * Seed translation cache from the SSR payload (`payload.data['i18n-ssr-chunks']`).
-   * Called on the client before the first fetch.
-   */
-  seedFromSsrChunks(chunks: Record<string, Record<string, unknown>>): void {
-    for (const [cacheKey, data] of Object.entries(chunks)) {
-      this.cc.set(cacheKey, this.freezeChunk(data))
-    }
-  }
 
   /**
    * Synchronous cache check and retrieval.

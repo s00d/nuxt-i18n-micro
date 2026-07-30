@@ -2,6 +2,7 @@ import type { Translations } from '@i18n-micro/types'
 
 /**
  * Normalize unknown fetch/storage payloads into a plain translation object.
+ * Unstorage already runs `destr` on JSON files — strings are not expected here.
  */
 export function toTranslations(data: unknown): Translations {
   if (!data) return {}

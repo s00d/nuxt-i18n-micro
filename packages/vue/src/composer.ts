@@ -114,6 +114,11 @@ export class VueI18n extends BaseI18n {
     this.notifyListeners()
   }
 
+  protected override onTranslationsChanged(): void {
+    this._revision.value++
+    this.notifyListeners()
+  }
+
   public subscribeToChanges(cb: () => void): () => void {
     this.listeners.add(cb)
     return () => this.listeners.delete(cb)
@@ -121,22 +126,6 @@ export class VueI18n extends BaseI18n {
 
   private notifyListeners(): void {
     this.listeners.forEach((cb) => cb())
-  }
-
-  public getAllTranslations(): Record<string, Translations> {
-    const result: Record<string, Translations> = {}
-    for (const [key, translations] of this.storage.translations) {
-      if (!key.includes(':')) {
-        result[key] = translations
-      } else {
-        const locale = key.split(':')[0]
-        if (locale) {
-          if (!result[locale]) result[locale] = {}
-          Object.assign(result[locale], translations)
-        }
-      }
-    }
-    return result
   }
 
   public getStorage(): TranslationStorage {

@@ -16,6 +16,7 @@ member HandleTranslationWatchChangeInput.routesLocaleLinks?: Record<string, stri
 member HandleTranslationWatchChangeInput.serverCache: TranslationWatchCache
 member HandleTranslationWatchChangeInput.storageCache?: TranslationWatchCache | null | undefined
 function parseTranslationWatchRelativePath: (relativePath: string) => ParsedTranslationWatchPath
+function readTranslationFile: (filePath: string) => Record<string, unknown>
 class TranslationContentTracker
 member TranslationContentTracker.forget: (filePath: string) => void
 member TranslationContentTracker.hashes: private Map<string, string>

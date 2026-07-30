@@ -1,6 +1,6 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
-import { defaultPlural, interpolate } from './helpers'
+import { defaultPlural, interpolate, mergeTranslationChunk, setTranslationAtKey } from './helpers'
 import { type TranslationStorage, useTranslationHelper } from './translation'
 
 export interface BaseI18nOptions {
@@ -106,6 +106,33 @@ export abstract class BaseI18n {
     const routeName = this.resolveRouteName(routeContext)
     return this.helper.getTranslation(locale, routeName, String(key)) !== null
   }
+
+  /**
+   * The whole tree a lookup reads from, for {@link getTranslations}.
+   *
+   * Separate from {@link resolveLookup} because an adapter that keeps its own active
+   * dictionary (the Nuxt one does) has to answer both from the same place, or `t()` and
+   * `getTranslations()` disagree about what is loaded.
+   */
+  protected resolveTranslations(routeContext?: unknown): Translations {
+    const locale = this.getLocale()
+    const routeName = this.resolveRouteName(routeContext)
+    const active = (this.helper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
+
+    const fallbackLocale = this.getFallbackLocale()
+    if (fallbackLocale === locale) return active
+
+    // `t()` falls back to the fallback locale key by key, so the tree has to as well —
+    // reporting only the active locale would omit keys that do resolve.
+    const fallback = this.helper.getCache(fallbackLocale, routeName) as Record<string, unknown> | undefined
+    return fallback ? mergeTranslationChunk(fallback, active) : active
+  }
+
+  /**
+   * Called after {@link setTranslation} changes the dictionary. Adapters override it to
+   * bump whatever their reactivity is built on.
+   */
+  protected onTranslationsChanged(): void {}
 
   /**
    * Context passed to missing-key handlers.
@@ -254,6 +281,43 @@ export abstract class BaseI18n {
   public has(key: TranslationKey, routeContext?: unknown): boolean {
     this.touch()
     return this.resolveHas(key, routeContext)
+  }
+
+  /**
+   * Every translation currently in memory for the active locale and route, as a tree.
+   *
+   * `t()` answers one key at a time and says nothing about what else is loaded; this is the
+   * whole dictionary — `{ aaa: { bbb: 'ccc' }, ddd: 1111 }` comes back in that shape.
+   *
+   * The live tree, not a copy: a large dictionary is expensive to clone and most callers
+   * only read. Treat it as read-only and go through {@link setTranslation} to change it.
+   * To patch without replacing siblings, use merge helpers such as `mergeTranslations`.
+   *
+   * Framework adapters may expose storage dumps separately when you need every loaded chunk,
+   * not just the active lookup tree.
+   */
+  public getTranslations(routeContext?: unknown): Translations {
+    this.touch()
+    return this.resolveTranslations(routeContext)
+  }
+
+  /**
+   * Replace the value at `key` — a subtree, a string, a number, anything.
+   *
+   * `set` and not `merge`: `setTranslation('aaa', { fff: 'ggg' })` leaves `aaa` holding only
+   * `fff`, and `setTranslation('aaa', 'fff')` leaves a string where the subtree was. Use
+   * `mergeTranslations` when the existing siblings should survive.
+   *
+   * Writes to the active locale and route, so the change is visible to `t()` immediately and
+   * lives exactly as long as the chunk it belongs to.
+   */
+  public setTranslation(key: TranslationKey, value: unknown): void {
+    const locale = this.getLocale()
+    const routeName = this.getRoute()
+    const current = (this.helper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
+
+    this.helper.setTranslations(locale, setTranslationAtKey(current, String(key), value), routeName)
+    this.onTranslationsChanged()
   }
 
   /**

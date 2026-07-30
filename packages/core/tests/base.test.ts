@@ -566,4 +566,54 @@ describe('BaseI18n', () => {
       expect(i18n.t('greeting')).toBe('Hello')
     })
   })
+
+  describe('getTranslations / setTranslation', () => {
+    test('getTranslations returns the loaded tree for the active locale and route', async () => {
+      const i18n = new TestI18n('en', 'en', 'index')
+      const translations: Translations = { aaa: { bbb: 'ccc' }, ddd: 1111 }
+      await i18n['helper'].loadTranslations('en', translations)
+
+      expect(i18n.getTranslations()).toEqual({ aaa: { bbb: 'ccc' }, ddd: 1111 })
+    })
+
+    test('getTranslations merges fallback keys like t() does', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
+
+      expect(i18n.getTranslations()).toEqual({ greeting: 'Hello' })
+      expect(i18n.has('greeting')).toBe(false)
+      expect(i18n.t('greeting')).toBe('Hello')
+    })
+
+    test('setTranslation replaces values and t() sees the change immediately', async () => {
+      const i18n = new TestI18n('en', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { aaa: { bbb: 'ccc', keep: 'yes' }, ddd: 1111 })
+
+      i18n.setTranslation('aaa', { fff: 'ggg' })
+      expect(i18n.getTranslations()).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
+      expect(i18n.t('aaa.fff')).toBe('ggg')
+      expect(i18n.has('aaa.keep')).toBe(false)
+
+      i18n.setTranslation('aaa', 'text')
+      expect(i18n.t('aaa')).toBe('text')
+
+      i18n.setTranslation('ddd', 2222)
+      expect(i18n.ts('ddd')).toBe('2222')
+    })
+
+    test('setTranslation calls onTranslationsChanged', async () => {
+      const onChanged = vi.fn()
+      class ReactiveTestI18n extends TestI18n {
+        protected override onTranslationsChanged(): void {
+          onChanged()
+        }
+      }
+
+      const i18n = new ReactiveTestI18n('en', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
+
+      i18n.setTranslation('greeting', 'Hi')
+      expect(onChanged).toHaveBeenCalledTimes(1)
+    })
+  })
 })

@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/hmr`
 
-7 exports across 3 entry points.
+8 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -42,6 +42,7 @@ import { /* … */ } from '@i18n-micro/hmr/watcher'
 | `handleTranslationWatchChange` | function | `(input: HandleTranslationWatchChangeInput) => Promise<"page" \| "root" \| "ignored">` |
 | `HandleTranslationWatchChangeInput` | interface | 7 members |
 | `parseTranslationWatchRelativePath` | function | `(relativePath: string) => ParsedTranslationWatchPath` |
+| `readTranslationFile` | function | `(filePath: string) => Record<string, unknown>` |
 | `TranslationContentTracker` | class | 3 members |
 
 <details>

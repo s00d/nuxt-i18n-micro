@@ -46,6 +46,24 @@ describe('i18nUtils', () => {
     expect(result).toBe('New value')
   })
 
+  test('getTranslations returns the active translation tree', () => {
+    expect(i18nUtils.getTranslations()).toEqual(mockTranslations)
+  })
+
+  test('setTranslation replaces a value by key', () => {
+    i18nUtils.setTranslation('aaa', { fff: 'ggg' })
+    i18nUtils.setTranslation('nested', 'flat')
+
+    expect(i18nUtils.getTranslations()).toEqual({
+      greeting: 'Hello, {name}!',
+      aaa: { fff: 'ggg' },
+      nested: 'flat',
+      plural: 'One item|{count} items',
+    })
+    expect(i18nUtils.t('aaa.fff')).toBe('ggg')
+    expect(i18nUtils.t('nested')).toBe('flat')
+  })
+
   test('tn formats numbers correctly', () => {
     const formatted = i18nUtils.tn(123456.789, { style: 'currency', currency: 'USD' })
     expect(formatted).toBe('$123,456.79')

@@ -126,6 +126,7 @@ member SolidI18n.getLocale: () => string
 member SolidI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member SolidI18n.getRoute: () => string
 member SolidI18n.getSnapshot: () => string
+member SolidI18n.getTranslations: (routeContext?: unknown) => Translations
 member SolidI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
 member SolidI18n.listeners: private Set<() => void>
@@ -136,14 +137,17 @@ member SolidI18n.localeAccessor: Accessor<string>
 member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member SolidI18n.missingWarn: boolean
 member SolidI18n.notifyListeners: private () => void
+member SolidI18n.onTranslationsChanged: protected () => void
 member SolidI18n.pluralFunc: PluralFunc
 member SolidI18n.resolveDateTimeFormatArgs: private any
 member SolidI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member SolidI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member SolidI18n.resolveNumberFormatArgs: private any
 member SolidI18n.resolveRouteName: protected (routeContext?: unknown) => string
+member SolidI18n.resolveTranslations: protected (routeContext?: unknown) => Translations
 member SolidI18n.routeAccessor: Accessor<string>
 member SolidI18n.setRoute: (val: string) => void
+member SolidI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member SolidI18n.storage: TranslationStorage
 member SolidI18n.store: private ReactiveI18nStore
 member SolidI18n.subscribe: (cb: () => void) => () => void

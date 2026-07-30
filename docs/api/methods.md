@@ -25,6 +25,7 @@ list cannot drift from what is actually available.
 | [`$getLocaleName`](#getlocalename) | `() => string \| null` | The active locale's `displayName` from the config, or `null` when it has none. |
 | [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata. |
 | [`$getRouteName`](#getroutename) | `(route?: RouteLocationNamedRaw \| RouteLocationResolvedGeneric, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by. |
+| [`$getTranslations`](#gettranslations) | `() => Translations` | Every translation currently in memory for the active locale and route, as a tree. |
 | [`$has`](#has) | `(key: string) => boolean` | Whether a key resolves in the active locale. |
 | `$i18nStrategy` | `PathStrategy` | The active routing strategy, resolving locales to and from paths. |
 | [`$loadPageTranslations`](#loadpagetranslations) | `(locale: string, routeName: string, translations: Translations) => Promise<void>` | Load translations for a page at runtime, for content whose keys are not known at build time. |
@@ -33,6 +34,7 @@ list cannot drift from what is actually available.
 | [`$mergeTranslations`](#mergetranslations) | `(newTranslations: Translations) => void` | Merge translations into the active locale at runtime, overriding what is loaded. |
 | [`$setI18nRouteParams`](#seti18nrouteparams) | `(value: I18nRouteParams) => I18nRouteParams` | Set per-locale params for the current route, so a dynamic segment can differ per language. |
 | [`$setMissingHandler`](#setmissinghandler) | `(handler: MissingHandler \| null) => void` | Install a callback invoked for every unresolved key. |
+| [`$setTranslation`](#settranslation) | `(key: string, value: unknown) => void` | Replace the value at `key` in the active dictionary. |
 | [`$switchLocale`](#switchlocale) | `(locale: string) => void` | Navigate to the current page in another locale. |
 | [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
 | [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
@@ -304,6 +306,48 @@ $mergeTranslations({
 })
 // Output: Updates the translation cache with the new French translation
 ```
+
+### `$getTranslations`
+
+<!-- generated:method:$getTranslations — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+() => Translations
+```
+
+Every translation currently in memory for the active locale and route, as a tree.
+Read-only view of what `$t()` can resolve right now.
+
+<!-- /generated:method:$getTranslations -->
+
+```typescript
+const tree = $getTranslations()
+// { aaa: { bbb: 'ccc' }, ddd: 1111 } — the same dictionary $t() reads from
+```
+
+Use this when you need the full in-memory dictionary (DevTools, tests, runtime editors). Treat the return value as read-only; change values through `$setTranslation` or merge patches with `$mergeTranslations`.
+
+### `$setTranslation`
+
+<!-- generated:method:$setTranslation — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(key: string, value: unknown) => void
+```
+
+Replace the value at `key` in the active dictionary. This is a replace, not a merge —
+use `$mergeTranslations` when existing siblings should survive.
+
+<!-- /generated:method:$setTranslation -->
+
+```typescript
+$setTranslation('aaa', { fff: 'ggg' }) // replaces the whole `aaa` subtree
+$setTranslation('aaa', 'text')          // replaces `aaa` with a string
+$setTranslation('ddd', 1111)            // scalar at the top level
+$setTranslation('aaa.bbb', 'nested')    // dotted path
+```
+
+This is a **replace**, not a merge. Existing siblings under the same key are removed. To patch without losing siblings, use `$mergeTranslations`.
 
 ### `$setMissingHandler`
 

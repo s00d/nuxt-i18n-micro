@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/test-utils`
 
-34 exports across 2 entry points.
+36 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -24,8 +24,9 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `getLocales` | const | `() => Locale[]` |
 | `getRouteName` | const | `(_route?: unknown, _locale?: string) => string` |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
+| `getTranslations` | const | `() => Record<string, unknown>` |
 | `has` | const | `(key: TranslationKey) => boolean` |
-| `i18nUtils` | const | `{ t: (key: TranslationKey, params?: Params, defaultValue?: string) => Translation; tc: (key: TranslationKey, params: number \| Params, defaultValue?: string) => string; setTranslationsFromJson: (locale: string, translations: Record<string, unknown>) => Promise<void>; getLocale: () => string; setLocale: (val: string) => string; getLocaleName: () => string \| null; setLocaleName: (val: string \| null) => string \| null; getLocales: () => Locale[]; setLocales: (val: Locale[]) => Locale[]; defaultLocale: () => string \| undefined; setDefaultLocale: (val: string \| undefined) => string \| undefined; getRouteName: (_route?: unknown, _locale?: string) => string; settRouteName: (val: string) => string; ts: (key: TranslationKey, params?: Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; has: (key: TranslationKey) => boolean; mergeTranslations: (newTranslations: Translations) => void; switchLocaleRoute: (val: string) => string; switchLocalePath: (val: string) => string; switchLocale: (val: string) => string; switchRoute: (_route: unknown, _toLocale?: string) => void; localeRoute: (_to: unknown, _locale?: string) => void; localePath: (_to: unknown, _locale?: string) => string; setI18nRouteParams: (_value: unknown) => void; }` |
+| `i18nUtils` | const | `{ t: (key: TranslationKey, params?: Params, defaultValue?: string) => Translation; tc: (key: TranslationKey, params: number \| Params, defaultValue?: string) => string; setTranslationsFromJson: (locale: string, translations: Record<string, unknown>) => Promise<void>; getLocale: () => string; setLocale: (val: string) => string; getLocaleName: () => string \| null; setLocaleName: (val: string \| null) => string \| null; getLocales: () => Locale[]; setLocales: (val: Locale[]) => Locale[]; defaultLocale: () => string \| undefined; setDefaultLocale: (val: string \| undefined) => string \| undefined; getRouteName: (_route?: unknown, _locale?: string) => string; settRouteName: (val: string) => string; ts: (key: TranslationKey, params?: Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions) => string; has: (key: TranslationKey) => boolean; mergeTranslations: (newTranslations: Translations) => void; getTranslations: () => Record<string, unknown>; setTranslation: (key: TranslationKey, value: unknown) => void; switchLocaleRoute: (val: string) => string; switchLocalePath: (val: string) => string; switchLocale: (val: string) => string; switchRoute: (_route: unknown, _toLocale?: string) => void; localeRoute: (_to: unknown, _locale?: string) => void; localePath: (_to: unknown, _locale?: string) => string; setI18nRouteParams: (_value: unknown) => void; }` |
 | `localePath` | const | `(_to: unknown, _locale?: string) => string` |
 | `localeRoute` | const | `(_to: unknown, _locale?: string) => void` |
 | `mergeTranslations` | const | `(newTranslations: Translations) => void` |
@@ -34,6 +35,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `setLocale` | const | `(val: string) => string` |
 | `setLocaleName` | const | `(val: string \| null) => string \| null` |
 | `setLocales` | const | `(val: Locale[]) => Locale[]` |
+| `setTranslation` | const | `(key: TranslationKey, value: unknown) => void` |
 | `setTranslationsFromJson` | function | `(locale: string, translations: Record<string, unknown>) => Promise<void>` |
 | `settRouteName` | const | `(val: string) => string` |
 | `switchLocale` | const | `(val: string) => string` |

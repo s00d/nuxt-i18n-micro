@@ -273,6 +273,16 @@ export interface PluginsInjections {
    * rendering a raw key.
    */
   $has: (key: string) => boolean
+  /**
+   * Every translation currently in memory for the active locale and route, as a tree.
+   * Read-only view of what `$t()` can resolve right now.
+   */
+  $getTranslations: () => Translations
+  /**
+   * Replace the value at `key` in the active dictionary. This is a replace, not a merge —
+   * use `$mergeTranslations` when existing siblings should survive.
+   */
+  $setTranslation: (key: string, value: unknown) => void
   /** Merge translations into the active locale at runtime, overriding what is loaded. */
   $mergeTranslations: (newTranslations: Translations) => void
   /** The route object for the current page in another locale, without navigating. */

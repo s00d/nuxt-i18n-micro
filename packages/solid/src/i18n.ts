@@ -123,6 +123,11 @@ export class SolidI18n extends BaseI18n {
     this.notifyListeners()
   }
 
+  protected override onTranslationsChanged(): void {
+    this.store.notify()
+    this.notifyListeners()
+  }
+
   private listeners = new Set<() => void>()
 
   public subscribe(cb: () => void): () => void {

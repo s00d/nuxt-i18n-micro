@@ -7,18 +7,22 @@ member BaseI18n.getFallbackLocale: () => string
 member BaseI18n.getLocale: () => string
 member BaseI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member BaseI18n.getRoute: () => string
+member BaseI18n.getTranslations: (routeContext?: unknown) => Translations
 member BaseI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
 member BaseI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member BaseI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member BaseI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member BaseI18n.missingWarn: boolean
+member BaseI18n.onTranslationsChanged: protected () => void
 member BaseI18n.pluralFunc: PluralFunc
 member BaseI18n.resolveDateTimeFormatArgs: private (keyOrOptions?: string | Intl.DateTimeFormatOptions, localeOrOverrides?: string | Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions | undefined; }
 member BaseI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member BaseI18n.resolveNumberFormatArgs: private (keyOrOptions?: string | Intl.NumberFormatOptions, localeOrOverrides?: string | Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions | undefined; }
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
+member BaseI18n.resolveTranslations: protected (routeContext?: unknown) => Translations
+member BaseI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member BaseI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member BaseI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member BaseI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
@@ -86,6 +90,7 @@ member ReactiveI18nStore.setLocale: (locale: string) => void
 member ReactiveI18nStore.setRoute: (routeName: string) => void
 member ReactiveI18nStore.subscribe: (listener: () => void) => () => void
 function resolveTranslation: (obj: Record<string, unknown> | null | undefined, key: string) => unknown | null
+function setTranslationAtKey: (tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>
 function translationCacheKey: (locale: string, routeName?: string) => string
 interface TranslationStorage
 member TranslationStorage.translations: Map<string, Translations>
@@ -105,5 +110,6 @@ function mergeTranslationChunk: (existing: Record<string, unknown>, incoming: Re
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
 function resolveTranslation: (obj: Record<string, unknown> | null | undefined, key: string) => unknown | null
+function setTranslationAtKey: (tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>
 function translationCacheKey: (locale: string, routeName?: string) => string
 function withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"

@@ -3,7 +3,12 @@
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { SERVER_CC_KEY, STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
-import { handleTranslationWatchChange, parseTranslationWatchRelativePath, readTranslationFile, TranslationContentTracker } from '@i18n-micro/hmr/watcher'
+import {
+  handleTranslationWatchChange,
+  parseTranslationWatchRelativePath,
+  readTranslationFile,
+  TranslationContentTracker,
+} from '@i18n-micro/hmr/watcher'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
 import { type FSWatcher, watch } from 'chokidar'

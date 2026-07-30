@@ -94,6 +94,48 @@ export function getByPath(obj: Record<string, unknown> | null | undefined, path:
   return current
 }
 
+/**
+ * A translation tree with `key` set to `value`, whatever either of them is.
+ *
+ * Replaces rather than merges: `set('aaa', { x: 1 })` on `{ aaa: { bbb: 'ccc' } }` leaves
+ * `aaa` holding only `x`, and `set('aaa', 'text')` leaves a string where a subtree was.
+ * Merging is what `mergeTranslationChunk` is for.
+ *
+ * The tree is not mutated — only the nodes along the path are copied, so the call costs the
+ * depth of the key and not the size of the dictionary, and callers holding the old tree
+ * (a frozen SSR chunk, a rendered snapshot) keep seeing what they had.
+ *
+ * Key resolution mirrors {@link getByPath}: an existing flat key wins over the dotted path,
+ * so a dictionary written as `{ 'a.b': 'x' }` is updated in place rather than gaining a
+ * nested `a.b` that `t('a.b')` would never read.
+ */
+export function setTranslationAtKey(tree: Record<string, unknown>, key: string, value: unknown): Record<string, unknown> {
+  if (typeof key !== 'string' || key.length === 0) return tree
+
+  if (Object.prototype.hasOwnProperty.call(tree, key) || !key.includes('.')) {
+    if (key === '__proto__') return tree
+    return { ...tree, [key]: value }
+  }
+
+  const path = key.split('.')
+  // An empty segment (`a..b`) is unreachable through `getByPath`, and `__proto__` would
+  // walk the prototype chain of the tree being built.
+  if (path.some((segment) => segment.length === 0 || segment === '__proto__')) return tree
+
+  const root: Record<string, unknown> = { ...tree }
+  let node = root
+  for (const segment of path.slice(0, -1)) {
+    const existing = node[segment]
+    // Anything that is not a plain object has nowhere to put the rest of the path, so it is
+    // replaced: `set('a.b', 1)` where `a` is a string means `a` becomes `{ b: 1 }`.
+    const next = isPlainTranslationObject(existing) ? { ...existing } : {}
+    node[segment] = next
+    node = next
+  }
+  node[path[path.length - 1]!] = value
+  return root
+}
+
 export function withPrefixStrategy(strategy: Strategies) {
   return strategy === 'prefix' || strategy === 'prefix_and_default'
 }

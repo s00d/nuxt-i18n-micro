@@ -3,6 +3,7 @@ import {
   isNoPrefixStrategy,
   mergeTranslationChunk,
   resolveTranslation,
+  setTranslationAtKey,
   translationCacheKey,
   type BaseI18nOptions,
   type TranslationStorage,
@@ -259,6 +260,40 @@ export class NuxtI18n extends BaseI18n {
     return this.resolveLookup(key) !== null
   }
 
+  /**
+   * The active dictionary, plus the outgoing layer underneath it while a transition is
+   * pending — the same two places `resolveLookup` reads, so `getTranslations()` reports
+   * exactly the keys `t()` can answer.
+   */
+  protected override resolveTranslations(routeContext?: unknown): Translations {
+    if (routeContext && this.resolveRouteContext) {
+      const { locale, routeName } = this.resolveRouteContext(routeContext)
+      return this.getChunk(locale, routeName) as Translations
+    }
+
+    if (this.outgoingTranslations === null) return this.cachedTranslations as Translations
+    // Cold path: called by hand, never during a navigation, so the full walk is affordable
+    // here in a way it is not in `applySwitchContext`.
+    return deepMergeTranslationsRecursive(this.outgoingTranslations, this.cachedTranslations) as Translations
+  }
+
+  /**
+   * Replace the value at `key`, in the active dictionary and in the chunk behind it.
+   *
+   * Both, because they answer different questions: the dictionary is what the current page
+   * renders from, the chunk is what a return to this route re-installs. Writing only the
+   * first makes the change vanish on the next navigation.
+   */
+  public override setTranslation(key: TranslationKey, value: unknown): void {
+    this.cachedTranslations = setTranslationAtKey(this.cachedTranslations, String(key), value)
+    this.setChunk(
+      this.currentLocale,
+      this.currentRouteName,
+      setTranslationAtKey(this.getChunk(this.currentLocale, this.currentRouteName), String(key), value),
+    )
+    triggerRef(this.contextSignal)
+  }
+
   protected override getMissingContext(_routeContext?: unknown): { locale: string; routeName: string } {
     return { locale: this.currentLocale, routeName: this.currentRouteName }
   }
@@ -446,6 +481,8 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     td: i18n.td.bind(i18n),
     tdr: i18n.tdr.bind(i18n),
     has: i18n.has.bind(i18n),
+    getTranslations: i18n.getTranslations.bind(i18n),
+    setTranslation: i18n.setTranslation.bind(i18n),
     mergeTranslations: i18n.mergeTranslations.bind(i18n),
     switchLocaleRoute: (toLocale: string) => {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike

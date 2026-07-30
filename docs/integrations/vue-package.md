@@ -590,6 +590,16 @@ i18n.global.addRouteTranslations('en', 'home', {
 
 Merges translations into existing route translations.
 
+##### `getTranslations(): Translations`
+
+Returns the full translation tree for the active locale and route — the same dictionary `t()` reads from.
+
+##### `setTranslation(key: TranslationKey, value: unknown): void`
+
+Replaces the value at `key` in the active dictionary. This is a replace, not a merge; use `mergeTranslations` when siblings should survive.
+
+For a dump of every loaded chunk, use `getStorage()` or `getRouteCache()` instead.
+
 ##### `clearCache(): void`
 
 Clears the translation cache.
@@ -645,6 +655,8 @@ interface UseI18nOptions {
   td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
   has: (key: TranslationKey, routeName?: string) => boolean
+  getTranslations: () => Translations
+  setTranslation: (key: TranslationKey, value: unknown) => void
 
   // Route management
   setRoute: (routeName: string) => void

@@ -8,6 +8,7 @@ import {
   isPrefixStrategy,
   mergeTranslationChunk,
   resolveTranslation,
+  setTranslationAtKey,
   translationCacheKey,
   withPrefixStrategy,
 } from '../src/helpers'
@@ -188,7 +189,7 @@ describe('Helpers', () => {
     // the nested ones: this is the shape a locale file actually has.
     test('keeps siblings at every depth', () => {
       expect(mergeTranslationChunk({ page: { index: { title: 'T', sub: 'S' } } }, { page: { index: { extra: 'E' }, about: 'A' } })).toEqual({
-        page: { index: { title: 'T', sub: 'S', extra: 'E' } , about: 'A' },
+        page: { index: { title: 'T', sub: 'S', extra: 'E' }, about: 'A' },
       })
     })
 
@@ -217,6 +218,48 @@ describe('Helpers', () => {
       const inherited = Object.create({ leaked: 'no' }) as Record<string, unknown>
       inherited.own = 'yes'
       expect(mergeTranslationChunk({ a: '1' }, inherited)).toEqual({ a: '1', own: 'yes' })
+    })
+  })
+
+  describe('setTranslationAtKey', () => {
+    test('replaces top-level object, string, and number', () => {
+      const tree = { aaa: { bbb: 'ccc' }, ddd: 1111 }
+      expect(setTranslationAtKey(tree, 'aaa', { fff: 'ggg' })).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
+      expect(setTranslationAtKey(tree, 'aaa', 'text')).toEqual({ aaa: 'text', ddd: 1111 })
+      expect(setTranslationAtKey(tree, 'ddd', 2222)).toEqual({ aaa: { bbb: 'ccc' }, ddd: 2222 })
+    })
+
+    test('creates and replaces nested values by dotted path', () => {
+      const tree = { nested: { deep: 'old' } }
+      expect(setTranslationAtKey(tree, 'nested.deep', 'new')).toEqual({ nested: { deep: 'new' } })
+      expect(setTranslationAtKey({}, 'new.branch', 'value')).toEqual({ new: { branch: 'value' } })
+    })
+
+    test('prefers literal dotted key over nested traversal', () => {
+      const tree = { 'dotted.key': 'literal', dotted: { key: 'nested' } }
+      expect(setTranslationAtKey(tree, 'dotted.key', 'updated')).toEqual({
+        'dotted.key': 'updated',
+        dotted: { key: 'nested' },
+      })
+    })
+
+    test('replaces a string parent with an object when setting a nested path', () => {
+      const tree = { a: 'flat' }
+      expect(setTranslationAtKey(tree, 'a.b', 1)).toEqual({ a: { b: 1 } })
+    })
+
+    test('does not mutate the original tree', () => {
+      const tree = { aaa: { bbb: 'ccc' } }
+      const next = setTranslationAtKey(tree, 'aaa.bbb', 'updated')
+      expect(tree.aaa).toEqual({ bbb: 'ccc' })
+      expect(next).toEqual({ aaa: { bbb: 'updated' } })
+    })
+
+    test('ignores unsafe or invalid paths', () => {
+      const tree = { a: '1' }
+      expect(setTranslationAtKey(tree, '__proto__', 'x')).toBe(tree)
+      expect(setTranslationAtKey(tree, 'a..b', 'x')).toBe(tree)
+      expect(setTranslationAtKey(tree, '', 'x')).toBe(tree)
     })
   })
 })

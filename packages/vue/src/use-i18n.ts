@@ -84,6 +84,8 @@ export function useI18n(options?: UseI18nOptions) {
     td: i18n.td.bind(i18n),
     tdr: i18n.tdr.bind(i18n),
     has: i18n.has.bind(i18n),
+    getTranslations: i18n.getTranslations.bind(i18n),
+    setTranslation: i18n.setTranslation.bind(i18n),
 
     // Route management
     setRoute: i18n.setRoute.bind(i18n),

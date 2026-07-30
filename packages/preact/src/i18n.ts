@@ -93,6 +93,10 @@ export class PreactI18n extends BaseI18n {
     super.clearCache()
     this.store.notify()
   }
+
+  protected override onTranslationsChanged(): void {
+    this.store.notify()
+  }
 }
 
 export function createI18n(options: PreactI18nOptions): PreactI18n {

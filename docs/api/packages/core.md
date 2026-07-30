@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-36 exports across 2 entry points.
+38 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 30 members |
+| `BaseI18n` | class | 34 members |
 | `BaseI18nOptions` | interface | 7 members |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
@@ -37,13 +37,14 @@ import { /* … */ } from '@i18n-micro/core'
 | `NumberFormatsConfig` | type | `Record<string, Record<string, Intl.NumberFormatOptions>>` |
 | `ReactiveI18nStore` | interface | 9 members |
 | `resolveTranslation` | function | `(obj: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null` |
+| `setTranslationAtKey` | function | `(tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `TranslationStorage` | interface | 1 members |
 | `useTranslationHelper` | function | `(storage?: TranslationStorage) => { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 30 members</summary>
+<summary><code>BaseI18n</code> — 34 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -54,6 +55,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `getLocale` | `() => string` |
 | `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
 | `getRoute` | `() => string` |
+| `getTranslations` | `(routeContext?: unknown) => Translations` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
@@ -61,12 +63,15 @@ import { /* … */ } from '@i18n-micro/core'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
+| `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private (keyOrOptions?: string \| Intl.DateTimeFormatOptions, localeOrOverrides?: string \| Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions \| undefined; }` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveNumberFormatArgs` | `private (keyOrOptions?: string \| Intl.NumberFormatOptions, localeOrOverrides?: string \| Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions \| undefined; }` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
+| `resolveTranslations` | `protected (routeContext?: unknown) => Translations` |
+| `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
@@ -179,6 +184,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `mergeTranslationChunk` | function | `(existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `resolveTranslation` | function | `(obj: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null` |
+| `setTranslationAtKey` | function | `(tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 

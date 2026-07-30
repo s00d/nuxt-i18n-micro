@@ -6,6 +6,25 @@ outline: 'deep'
 
 # News
 
+## Unreleased — Translation Memory API
+
+**Date**: 2026-07-30
+
+Runtime helpers to read and replace the active translation dictionary in memory.
+
+### What's New?
+
+#### `getTranslations()` and `setTranslation(key, value)`
+
+- **`getTranslations()`** returns the full tree that `$t()` reads from for the active locale and route — useful for DevTools, tests, and runtime editors.
+- **`setTranslation(key, value)`** replaces the value at a key (top-level, dotted path, object, string, or scalar). This is a **replace**, not a merge; use `$mergeTranslations` when siblings should survive.
+- Available on `useI18n()`, `useNuxtApp()`, and framework i18n instances inherited from `@i18n-micro/core`.
+- `@i18n-micro/test-utils` adds matching `getTranslations` / `setTranslation` helpers for unit tests.
+
+#### `getAllTranslations()` removed from Vue package
+
+Use `getTranslations()` for the active lookup tree. For a full storage dump in Vue, use `getStorage()` or `getRouteCache()`.
+
 ## Unreleased — Render-Set SSR Payload
 
 **Date**: 2026-07-26

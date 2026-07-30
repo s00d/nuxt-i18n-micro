@@ -9,6 +9,7 @@ export {
   isPrefixStrategy,
   mergeTranslationChunk,
   resolveTranslation,
+  setTranslationAtKey,
   translationCacheKey,
   withPrefixStrategy,
   type MergeTranslationChunkOptions,

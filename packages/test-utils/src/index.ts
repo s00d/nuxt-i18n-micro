@@ -1,4 +1,4 @@
-import { interpolate, useTranslationHelper } from '@i18n-micro/core'
+import { interpolate, mergeTranslationChunk, setTranslationAtKey, useTranslationHelper } from '@i18n-micro/core'
 import type { Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
 
 type LocaleCode = string
@@ -68,7 +68,7 @@ export function tc(key: TranslationKey, params: number | Params, defaultValue?: 
 }
 
 export async function setTranslationsFromJson(locale: string, translations: Record<string, unknown>) {
-  await i18nHelper.loadTranslations(locale, translations, routeName)
+  i18nHelper.setTranslations(locale, { ...translations } as Translations, routeName)
 }
 
 export const getLocale = () => locale
@@ -98,6 +98,19 @@ export const td = (value: Date | number | string, options?: Intl.DateTimeFormatO
 export const has = (key: TranslationKey): boolean => i18nHelper.hasTranslation(locale, key)
 
 export const mergeTranslations = (newTranslations: Translations): void => i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)
+
+export const getTranslations = (): Record<string, unknown> => {
+  const active = (i18nHelper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
+  const fallback = defLocale
+  if (!fallback || locale === fallback) return active
+  const fb = i18nHelper.getCache(fallback, routeName) as Record<string, unknown> | undefined
+  return fb ? mergeTranslationChunk(fb, active) : active
+}
+
+export const setTranslation = (key: TranslationKey, value: unknown): void => {
+  const current = (i18nHelper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
+  i18nHelper.setTranslations(locale, setTranslationAtKey(current, String(key), value), routeName)
+}
 
 export const switchLocaleRoute = (val: string) => (locale = val)
 
@@ -134,6 +147,8 @@ export const i18nUtils = {
   td,
   has,
   mergeTranslations,
+  getTranslations,
+  setTranslation,
   switchLocaleRoute,
   switchLocalePath,
   switchLocale,

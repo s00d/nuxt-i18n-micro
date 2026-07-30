@@ -145,6 +145,45 @@ describe('NuxtI18n', () => {
     expect(i18n.has('title')).toBe(false)
     expect(i18n.getChunk('en', 'index')).toEqual({})
   })
+
+  it('getTranslations exposes the merged view layer during a transition', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { common: { fromA: 'From A' } })
+    i18n.applySwitchContext('en', 'page-b', { common: { fromB: 'From B' }, pageB: 'B' })
+
+    expect(i18n.getTranslations()).toEqual({
+      common: { fromA: 'From A', fromB: 'From B' },
+      pageB: 'B',
+    })
+    expect(i18n.t('common.fromA')).toBe('From A')
+    expect(i18n.t('pageB')).toBe('B')
+  })
+
+  it('setTranslation updates the active view and persisted chunk', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { aaa: { bbb: 'ccc' }, ddd: 1111 })
+
+    i18n.setTranslation('aaa', { fff: 'ggg' })
+    expect(i18n.t('aaa.fff')).toBe('ggg')
+    expect(i18n.getChunk('en', 'page-a')).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
+
+    i18n.applySwitchContext('en', 'page-b', { other: 'x' })
+    i18n.applySwitchContext('en', 'page-a', i18n.getChunk('en', 'page-a'))
+
+    expect(i18n.t('aaa.fff')).toBe('ggg')
+    expect(i18n.t('ddd')).toBe(1111)
+  })
+
+  it('setTranslation during a transition does not remove outgoing keys', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { page: { a: { title: 'A title' } } })
+    i18n.applySwitchContext('en', 'page-b', { page: { b: { title: 'B title' } } })
+
+    i18n.setTranslation('page.b.title', 'Updated B')
+
+    expect(i18n.t('page.a.title')).toBe('A title')
+    expect(i18n.t('page.b.title')).toBe('Updated B')
+  })
 })
 
 describe('NuxtTranslationLoader SSR chunk recording', () => {

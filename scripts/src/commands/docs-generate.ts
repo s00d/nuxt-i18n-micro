@@ -85,6 +85,43 @@ function groupedOptions(options: ModuleOption[]): string {
   return sections.join('\n\n')
 }
 
+/**
+ * Type, default and description of one option, for the detail section that explains it.
+ *
+ * The guide keeps the examples and the caveats — the part that cannot be derived — and
+ * takes the facts from the type, so a renamed or retyped option cannot be described
+ * correctly on the reference page and wrongly two pages away.
+ */
+function optionFacts(option: ModuleOption): string {
+  const facts = [`**Type** ${code(option.type)}`, `**Default** ${code(option.default)}`]
+  if (!option.optional) facts.push('**Required**')
+
+  const lines = [facts.join(' · ')]
+  if (option.deprecated) lines.push('', `**Deprecated** — ${cell(option.deprecated)}`)
+  if (option.description) lines.push('', openListsWithABlankLine(option.description))
+
+  return lines.join('\n')
+}
+
+/**
+ * A Markdown list needs a blank line before its first item, or the renderer folds it into
+ * the paragraph above. Only the first: a blank line between items makes the list loose and
+ * wraps every item in a paragraph.
+ */
+function openListsWithABlankLine(text: string): string {
+  const lines = text.split('\n')
+  const out: string[] = []
+
+  for (const line of lines) {
+    const isItem = /^\s*[-*] /.test(line)
+    const previous = out.at(-1)
+    if (isItem && previous !== undefined && previous.trim() !== '' && !/^\s*[-*] /.test(previous)) out.push('')
+    out.push(line)
+  }
+
+  return out.join('\n')
+}
+
 /** The compact index used inside the Configuration guide. */
 function optionsIndex(options: ModuleOption[]): string {
   const rows = options.map((option) => [
@@ -431,6 +468,17 @@ export const docsGenerateCommand = defineCommand({
     inBlock('docs/api/module-options.md', 'module-options', groupedOptions(options))
     inBlock('docs/guide/configuration.md', 'options-index', optionsIndex(options))
 
+    // Any page may give an option a section of its own — the Configuration guide does for
+    // most, the Strategy guide for `strategy` — and each takes its facts from the type.
+    const optionPages = ['docs/guide/configuration.md', 'docs/guide/strategy.md']
+    for (const page of optionPages) {
+      const body = readFileSync(join(repoRoot, page), 'utf8')
+      for (const option of options) {
+        const id = `option:${option.path}`
+        if (body.includes(BLOCK_START(id))) inBlock(page, id, optionFacts(option))
+      }
+    }
+
     // --- runtime helpers and composables ----------------------------------------------
     const methods = await readInterface('src/runtime/plugins/01.plugin.ts', 'PluginsInjections')
     const methodsPage = readFileSync(join(repoRoot, 'docs/api/methods.md'), 'utf8')
@@ -439,6 +487,14 @@ export const docsGenerateCommand = defineCommand({
     inBlock('docs/api/methods.md', 'methods-index', methodsIndex(methods, documented))
     for (const name of documented) {
       inBlock('docs/api/methods.md', `method:${name}`, symbolBlock(methods.find((method) => method.name === name)!))
+    }
+
+    // `$defineI18nRoute` and `$clearCache` reach an app through `useNuxtApp()` only, so
+    // they are not in `PluginsInjections` — and were the last helpers described by hand.
+    const appOnly = await readInterface('src/runtime/plugins/01.plugin.ts', 'NuxtAppOnlyInjections')
+    for (const symbol of appOnly) {
+      const id = `method:${symbol.name}`
+      if (methodsPage.includes(BLOCK_START(id))) inBlock('docs/api/methods.md', id, symbolBlock(symbol))
     }
 
     const composables = (await readModules('src/runtime/composables')).flatMap((module) => module.symbols)

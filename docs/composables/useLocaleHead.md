@@ -37,12 +37,14 @@ useHead(head)
 
 ## 🛠️ Return Values
 
-The `useLocaleHead` composable returns a reactive object and an updater function you should call when source data changes.
+The `useLocaleHead` composable returns a reactive object and an updater function you should
+call when source data changes. Both shapes are in the signature above, generated from the
+source.
 
 ### `metaObject`
 
-- **Type**: `{ htmlAttrs: Record<string,string>; meta: Array<Record<string,string>>; link: Array<Record<string,string>> }` (as a ref)
-- **Description**: Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)`.
+Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)`.
+
 - **Example**:
   ```js
   const { metaObject } = useLocaleHead()
@@ -51,8 +53,9 @@ The `useLocaleHead` composable returns a reactive object and an updater function
 
 ### `updateMeta`
 
-- **Type**: `() => void`
-- **Description**: Recomputes `metaObject` based on current route/locale/config. Call it when inputs change (e.g. on route change).
+Recomputes `metaObject` based on current route, locale and config. Call it when inputs
+change — on a route change, for example.
+
 - **Example**:
   ```js
   const { metaObject, updateMeta } = useLocaleHead()

@@ -17,8 +17,8 @@ list cannot drift from what is actually available.
 
 | Helper | Signature | Purpose |
 | --- | --- | --- |
-| `$_t` | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => CleanTranslation` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example. |
-| `$_ts` | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => string` | Bind `$ts` to a specific route. |
+| [`$_t`](#_t) | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => CleanTranslation` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example. |
+| [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => string` | Bind `$ts` to a specific route. |
 | [`$defaultLocale`](#defaultlocale) | `() => string \| undefined` | Code of the configured default locale. |
 | [`$getI18nConfig`](#geti18nconfig) | `() => ModuleOptionsExtend` | The resolved module configuration, as the runtime sees it. |
 | [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric) => string` | Code of the active locale. |
@@ -200,9 +200,29 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 
 ### `$_t` and `$_ts`
 
+<!-- generated:method:$_t — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+```
+
+Bind `$t` to a specific route, for translating outside the current page — a layout rendering
+a link to another route, for example.
+
+<!-- /generated:method:$_t -->
+
+<!-- generated:method:$_ts — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => string
+```
+
+Bind `$ts` to a specific route. See `$_t`.
+
+<!-- /generated:method:$_ts -->
+
 Route-bound variants of `$t` and `$ts`. They take a **route** first and return a translation function locked to that route's locale and page context.
 
-- **Type**: `(route: RouteLocationNormalizedLoaded) => (key, params?, defaultValue?) => …`
 - **Access**: `useNuxtApp()` (also re-exported by `useI18n()` as `$_t` / `$_ts`)
 
 Use these when the active route during SSR or transitions differs from `router.currentRoute` — for example inside `<i18n-t>`, `<i18n-group>`, or when rendering content for a specific `route` object.
@@ -223,6 +243,7 @@ const label = $_ts(route)('page.label')
 ::: tip
 Prefer `$t` / `$ts` in most components. Reach for `$_t` / `$_ts` when you already have an explicit route and need translations for **that** route, not the currently active one.
 :::
+
 
 ### `$tc`
 
@@ -599,8 +620,16 @@ Methods for configuring route behavior and access control.
 
 ### `$defineI18nRoute`
 
-- **Type**: `(routeDefinition: DefineI18nRouteConfig) => void`
-- **Description**: Defines route behavior based on the current locale. Controls access to routes, provides translations, and sets custom routes for different locales.
+<!-- generated:method:$defineI18nRoute — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+(routeDefinition: DefineI18nRouteConfig) => Promise<void>
+```
+
+Register per-page locale configuration and translations from inside a component.
+Merges into the active locale and re-applies when the locale changes.
+
+<!-- /generated:method:$defineI18nRoute -->
 
 > [!IMPORTANT]
 > `$defineI18nRoute` is provided by the **define plugin** and is available on `useNuxtApp()` only — it is **not** part of the `useI18n()` return object.
@@ -631,6 +660,7 @@ $defineI18nRoute({
 ```
 
 > 📖 **For detailed usage examples, configuration formats, and best practices, see the [Per-Component Translations Guide](/guide/per-component-translations.md).**
+
 
 ### `$setI18nRouteParams`
 
@@ -763,16 +793,24 @@ if ($has('welcome')) {
 
 ### `$clearCache`
 
-- **Type**: `() => void`
-- **Description**: Clears the in-memory `TranslationStorage` cache, plugin-level loaded chunks, and reactive translation context. The next render re-loads translations from payloads or the network.
+<!-- generated:method:$clearCache — do not edit; run `pnpm run docs:generate` -->
 
-**Access**: `useNuxtApp().$clearCache` — exposed at runtime by the main i18n plugin but **not** included in the `PluginsInjections` TypeScript interface or the `useI18n()` helper object. Use a type assertion if needed:
+```ts
+() => void
+```
+
+Drop every cached chunk, on the client and in the active dictionary.
+
+<!-- /generated:method:$clearCache -->
+
+**Access**: `useNuxtApp().$clearCache`. Declared in `NuxtAppOnlyInjections` rather than `PluginsInjections`, so it is typed but deliberately absent from the `useI18n()` helper object:
 
 ```typescript
 const { $clearCache } = useNuxtApp()
 // All cached translations are removed; next render will re-fetch them
 $clearCache()
 ```
+
 
 ### `$loadPageTranslations`
 

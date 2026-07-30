@@ -6,6 +6,9 @@ import { walkFiles } from '../utils/fs-walk'
 import { readModuleOptions } from '../utils/module-options'
 import { repoRoot } from '../utils/workspace'
 
+/** Pages whose `#### \`name\`` headings document module options. Kept in step with the generator. */
+const OPTION_PAGES = new Set(['guide/configuration.md', 'guide/strategy.md'])
+
 export interface DocsFinding {
   code: string
   where: string
@@ -192,6 +195,28 @@ export const docsAuditCommand = defineCommand({
         'packages/types/src/index.ts',
         `option "${option.path}" appears nowhere in ${args.dir}/`,
       )
+    }
+
+    // --- an option section must take its facts from the type --------------------------
+    // Without this the invariant decays one section at a time: a new option gets a heading,
+    // its type and default are typed in by hand, and nothing notices when they go stale.
+    //
+    // Scoped to the pages that document module options. Elsewhere a heading like `meta` or
+    // `locales` names a field of `I18nHeadInput` or `$defineI18nRoute`, not an option.
+    for (const [page, body] of [...bodies].filter(([name]) => OPTION_PAGES.has(name))) {
+      for (const match of body.matchAll(/^#{3,4}\s+`([a-zA-Z][\w.]*)`\s*$/gm)) {
+        const name = match[1]!
+        if (!options.some((option) => option.path === name || option.path.endsWith(`.${name}`))) continue
+        const after = body.slice(match.index + match[0].length, match.index + match[0].length + 400)
+        if (!after.includes(`<!-- generated:option:${name}`)) {
+          add(
+            'errors',
+            'handwritten-option',
+            page,
+            `documents "${name}" by hand — add a <!-- generated:option:${name} --> region and run docs:generate`,
+          )
+        }
+      }
     }
 
     // --- options documented that no longer exist --------------------------------------

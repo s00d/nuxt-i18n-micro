@@ -1,6 +1,15 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
-import type { CleanTranslation, I18nRouteParams, Locale, MissingHandler, ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
+import type {
+  CleanTranslation,
+  DefineI18nRouteConfig,
+  I18nRouteParams,
+  Locale,
+  MissingHandler,
+  ModuleOptionsExtend,
+  Params,
+  Translations,
+} from '@i18n-micro/types'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import type {
   RouteLocationNamedRaw,
@@ -287,4 +296,21 @@ export interface PluginsInjections {
   $loadPageTranslations: (locale: string, routeName: string, translations: Translations) => Promise<void>
   /** Install a callback invoked for every unresolved key. Pass `null` to remove it. */
   $setMissingHandler: (handler: MissingHandler | null) => void
+}
+
+/**
+ * Helpers reachable through `useNuxtApp()` but deliberately absent from `useI18n()`.
+ *
+ * Declared so they are documented from the same source as everything else — the reference
+ * page is generated from these interfaces, and a helper that lives only in an inline
+ * `provide` gets described by hand and then drifts.
+ */
+export interface NuxtAppOnlyInjections {
+  /**
+   * Register per-page locale configuration and translations from inside a component.
+   * Merges into the active locale and re-applies when the locale changes.
+   */
+  $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig) => Promise<void>
+  /** Drop every cached chunk, on the client and in the active dictionary. */
+  $clearCache: () => void
 }

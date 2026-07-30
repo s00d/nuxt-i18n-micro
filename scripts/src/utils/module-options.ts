@@ -59,11 +59,15 @@ function readJsDoc(member: ts.PropertySignature): JsDocInfo {
 
   // Every block, not just the last: a declaration preceded by two JSDoc comments would
   // otherwise lose all but the final one.
+  //
+  // Line breaks are kept: many of these descriptions carry a Markdown list, and flattening
+  // it here would turn it into one run-on sentence wherever it is rendered outside a table.
+  // Callers that need a single line pass it through `cell`.
   const docs = (member as unknown as { jsDoc?: ts.JSDoc[] }).jsDoc ?? []
   const parts = docs
     .map((doc) => (typeof doc.comment === 'string' ? doc.comment : Array.isArray(doc.comment) ? doc.comment.map((part) => part.text).join('') : ''))
     .filter(Boolean)
-  info.description = flat(parts.join(' '))
+  info.description = parts.join('\n\n').trim()
 
   return info
 }

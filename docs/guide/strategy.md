@@ -16,8 +16,18 @@ The Nuxt module selects the correct strategy class at build time and aliases it 
 
 ## 🚦 Available Strategies
 
-**Type**: `string`
-**Default**: `'prefix_except_default'`
+<!-- generated:option:strategy — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `Strategies` · **Default** `'prefix_except_default'`
+
+URL routing strategy for locale prefixes.
+
+- `'no_prefix'` — no locale in URL; locale stored in cookie.
+- `'prefix_except_default'` — prefix all locales except the default.
+- `'prefix'` — always prefix, including the default locale.
+- `'prefix_and_default'` — like `prefix`, but the default locale is also accessible without prefix.
+
+<!-- /generated:option:strategy -->
 
 ### Strategy Comparison
 
@@ -209,17 +219,35 @@ i18n: {
 
 ### `autoDetectLanguage`
 
-When `true`, the server middleware checks the `Accept-Language` header to detect the user's preferred locale. This is used as a fallback when no cookie or state is available.
+<!-- generated:option:autoDetectLanguage — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `boolean` · **Default** `true`
+
+Automatically detect the user's preferred language from the `Accept-Language` HTTP header.
+Used in combination with `autoDetectPath` to decide when detection occurs.
+
+<!-- /generated:option:autoDetectLanguage -->
+
+The check runs in the server middleware and is a fallback: a cookie or existing state wins.
 
 ```typescript
 i18n: {
-  autoDetectLanguage: true // Default: true
+  autoDetectLanguage: true
 }
 ```
 
 ### `autoDetectPath`
 
-Controls which paths trigger locale detection and redirect:
+<!-- generated:option:autoDetectPath — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `string` · **Default** `'/'`
+
+URL path on which automatic language detection and redirect occur.
+
+- `'/'` — detect only on the root path.
+- `'*'` — detect and redirect on every path (including locale-prefixed ones).
+
+<!-- /generated:option:autoDetectPath -->
 
 - `"/"` (default) — only the root path triggers detection/redirect
 - `"*"` — **all paths** trigger detection/redirect (use with caution)

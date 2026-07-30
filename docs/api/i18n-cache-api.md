@@ -248,7 +248,7 @@ export default defineNuxtConfig({
 | Aspect           | v2                            | v3                                                                       |
 | ---------------- | ----------------------------- | ------------------------------------------------------------------------ |
 | Client cache     | `useStorage('cache')`         | `TranslationStorage` singleton (Symbol.for on globalThis)                |
-| SSR transfer     | Runtime config                | Render set via `payload.data` (v3.0 used `useState` with whole chunks)   |
+| SSR transfer     | Runtime config                | Full chunks via `payload.data` (v3.0 used `useState`)                    |
 | Server cache     | Nitro cache storage           | Process-global `Map` via `Symbol.for`                                    |
 | Merge logic      | Client-side                   | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
 | Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}`                                                   |

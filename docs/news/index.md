@@ -6,85 +6,15 @@ outline: 'deep'
 
 # News
 
-## Unreleased — Translation Memory API
+## Nuxt I18n Micro v3.22.0 — Formats, Cache & Translation Memory
 
 **Date**: 2026-07-30
 
-Runtime helpers to read and replace the active translation dictionary in memory.
+**Version**: `v3.22.0`
 
-### What's New?
+![v3.22.0 release](/3.22.0.png)
 
-#### `resolveTranslations()` and `setTranslation(key, value)`
-
-- **`resolveTranslations()`** returns the full tree that `$t()` reads from for the active locale and route — useful for DevTools, tests, and runtime editors.
-- **`setTranslation(key, value)`** replaces the value at a key (top-level, dotted path, object, string, or scalar). This is a **replace**, not a merge; use `$mergeTranslations` when siblings should survive.
-- Available on `useI18n()`, `useNuxtApp()`, and framework i18n instances inherited from `@i18n-micro/core`.
-- `@i18n-micro/test-utils` adds matching `resolveTranslations` / `setTranslation` helpers for unit tests.
-
-#### `getAllTranslations()` removed from Vue package
-
-Use `resolveTranslations()` for the active lookup tree. For a full storage dump in Vue, use `getStorage()` or `getRouteCache()`.
-
-## Unreleased — Render-Set SSR Payload
-
-**Date**: 2026-07-26
-
-The SSR payload no longer carries whole translation chunks, and translation payload URLs are now keyed by content instead of build time.
-
-### What's New?
-
-#### Render-set SSR payload
-
-Previously the full `(locale, route)` chunk was mirrored into the payload — but only on the *first* render of each pair after a cold start, because the process-global cache short-circuited the loader afterwards. The first visitor got the whole dictionary inlined in the HTML; everyone else got nothing and had to download the chunk before the app could mount.
-
-Now the payload carries only the keys the server actually resolved for that page, written to `nuxtApp.payload.data` (Nuxt externalizes `data` into `_payload.json` on prerendered routes; `state` never leaves the HTML). The rest of the chunk loads in the background after hydration, so it is off the critical path.
-
-On the playground, bytes before the app mounts drop from 7 030 434 to 678 934, and on SSG the dictionary leaves the HTML entirely — 24 of 24 prerendered pages carried it before, none do now. The full measurement, including the cold and warm cases, is in [Performance → Server-Side Payload Transfer](/guide/performance#server-side-payload-transfer).
-
-No configuration — this is how payload transfer works now. See [Performance](/guide/performance#server-side-payload-transfer).
-
-#### `dateBuild` defaults to a content fingerprint
-
-`?v=` on `/_locales` requests used to default to `Date.now()`, while responses are served `immutable` for a year. Every rebuild therefore invalidated every client's dictionary, even when no translation had changed.
-
-The default is now a SHA-256 fingerprint of the translation sources, in layer order. Rebuilds with untouched translations keep the same URL. Setting `dateBuild` explicitly still wins. See [Configuration — `dateBuild`](/guide/configuration#datebuild).
-
-#### Compressed public payloads
-
-`nitro.compressPublicAssets` now reaches the translation payloads copied into the public directory
-(`.gz` + `.br`). Nitro compresses public assets before the copy happens, so previously the payloads
-were the one uncompressed part of a static build — 6.65 MB raw versus 1.01 MB gzip on the playground
-index. The module still never enables compression on its own. See
-[Performance](/guide/performance#compressed-public-payloads).
-
-### Breaking Changes
-
-Nothing in the public config surface changes, and no app code needs editing. These matter only if
-you reach into the runtime internals:
-
-- **The SSR payload moved from `useState('i18n-ssr-chunks')` to `nuxtApp.payload.data['i18n-ssr-chunks']`.**
-  It still carries **full translation chunks** for every `(locale, route)` loaded during SSR — not a
-  partial render set. `useState('i18n-ssr-chunks')` now returns nothing. Reading translations that way
-  was never supported, but it was described in the cache API docs, so it is called out here.
-- **`NuxtTranslationLoaderOptions` again exposes `setSsrChunk`.** The loader writes each merged
-  chunk into `payload.data` on the server as it loads. `getSsrChunks` is not used.
-- **`nitro.compressPublicAssets` now emits `.gz` / `.br` next to the copied payloads.** Expect more
-  files in public output if you had it enabled. Deploy tooling that enumerates the translation
-  directory may need to account for them.
-- **Payload URLs change once on upgrade**, because `?v=` switches from a build timestamp to a content
-  fingerprint. Clients re-download the dictionary on the first request after the upgrade and then keep
-  it across subsequent deploys — which is the point.
-
-### Bug Fixes
-
-- **Dev HMR** — a write that leaves file content unchanged (editor save-on-blur, formatter rewrite) no longer triggers a re-merge. Root-locale changes rebuild every page for that locale, so this was expensive to spend on a no-op.
-- **Dev HMR** — pages are re-merged concurrently on a root-locale change instead of one after another.
-
-## Unreleased — Formats, Cache & Switcher DX
-
-**Date**: 2026-07-22
-
-Batch of DX and runtime improvements toward the next release: Vue I18n-style number/date formats, CDN-friendly translation payload caching, and locale-switcher fixes.
+We're announcing **v3.22.0**: Vue I18n-style named number/date formats with a formatter cache, CDN-friendly translation payload caching (content fingerprint + `httpCacheDuration`), and a Translation Memory API to read and replace the active dictionary at runtime.
 
 ### What's New?
 
@@ -98,6 +28,12 @@ Vue I18n-compatible named formats and faster Intl formatting:
 
 See [Methods — `$tn` / `$td`](/api/methods#tn) and [Configuration](/guide/configuration#numberformats).
 
+#### `dateBuild` defaults to a content fingerprint
+
+`?v=` on `/_locales` requests used to default to `Date.now()`, while responses are served `immutable` for a year. Every rebuild therefore invalidated every client's dictionary, even when no translation had changed.
+
+The default is now a SHA-256 fingerprint of the translation sources, in layer order. Rebuilds with untouched translations keep the same URL. Setting `dateBuild` explicitly still wins. See [Configuration — `dateBuild`](/guide/configuration#datebuild).
+
 #### `httpCacheDuration` for `/_locales` payloads
 
 The built-in `/{apiBaseUrl}/:page/:locale/data.json` route now sends HTTP `Cache-Control` for browsers and CDN:
@@ -108,10 +44,46 @@ The built-in `/{apiBaseUrl}/:page/:locale/data.json` route now sends HTTP `Cache
 
 Analog of `@nuxtjs/i18n` v10.2.0 `experimental.httpCacheDuration`, as an explicit response header.
 
+#### Compressed public payloads
+
+`nitro.compressPublicAssets` now reaches the translation payloads copied into the public directory (`.gz` + `.br`). Nitro compresses public assets before the copy happens, so previously the payloads were the one uncompressed part of a static build — 6.65 MB raw versus 1.01 MB gzip on the playground index. The module still never enables compression on its own. See [Performance](/guide/performance#compressed-public-payloads).
+
+#### `resolveTranslations()` and `setTranslation(key, value)`
+
+Runtime helpers to read and replace the active translation dictionary in memory:
+
+- **`resolveTranslations()`** returns the full tree that `$t()` reads from for the active locale and route — useful for DevTools, tests, and runtime editors. When a second layer is live (fallback locale or Nuxt page-transition hot-reload), the dump keeps nested shape via `mergeTranslationLayers` and only uses flat dotted keys for scalar-vs-object collisions that a single tree cannot otherwise express.
+- **`setTranslation(key, value)`** replaces the value at a key (top-level, dotted path, object, string, or scalar). This is a **replace**, not a merge; use `$mergeTranslations` when siblings should survive.
+- Available on `useI18n()`, `useNuxtApp()`, and framework i18n instances inherited from `@i18n-micro/core`.
+- `@i18n-micro/test-utils` adds matching `resolveTranslations` / `setTranslation` helpers for unit tests.
+
+#### `getAllTranslations()` removed from Vue package
+
+Use `resolveTranslations()` for the active lookup tree. For a full storage dump in Vue, use `getStorage()` or `getRouteCache()`.
+
+### Breaking Changes
+
+Nothing in the public config surface requires app code edits for typical usage. These matter if you reached into runtime internals:
+
+- **The SSR payload moved from `useState('i18n-ssr-chunks')` to `nuxtApp.payload.data['i18n-ssr-chunks']`.** It still carries **full translation chunks** for every `(locale, route)` loaded during SSR — the same dictionaries as before, in a slot Nuxt can externalize to `_payload.json` on prerender. `useState('i18n-ssr-chunks')` now returns nothing. Reading translations that way was never supported, but it was described in the cache API docs, so it is called out here.
+- **`NuxtTranslationLoaderOptions` exposes `setSsrChunk`.** The loader writes each merged chunk into `payload.data` on the server as it loads. `getSsrChunks` is not used.
+- **`nitro.compressPublicAssets` now emits `.gz` / `.br` next to the copied payloads.** Expect more files in public output if you had it enabled. Deploy tooling that enumerates the translation directory may need to account for them.
+- **Payload URLs change once on upgrade**, because `?v=` switches from a build timestamp to a content fingerprint. Clients re-download the dictionary on the first request after the upgrade and then keep it across subsequent deploys — which is the point.
+- **`getAllTranslations()` removed from `@i18n-micro/vue`.** Use `resolveTranslations()` / `getStorage()` / `getRouteCache()` instead.
+
 ### Bug Fixes
 
 - **`<i18n-switcher>`** — omits locales with `disabled: true` from the dropdown. `$getLocales()` still returns the full list for your own code, while built-in SEO/meta output excludes disabled locales.
-- **Switcher styles** — `cursor: not-allowed` applies to the **current** locale via `activeLinkStyle` / `customActiveLinkStyle`; restored `customDisabledLinkStyle` for backward compatibility and apply it to the switcher button when the current locale is `disabled: true`
+- **Switcher styles** — `cursor: not-allowed` applies to the **current** locale via `activeLinkStyle` / `customActiveLinkStyle`; restored `customDisabledLinkStyle` for backward compatibility and apply it to the switcher button when the current locale is `disabled: true`.
+- **Dev HMR** — a write that leaves file content unchanged (editor save-on-blur, formatter rewrite) no longer triggers a re-merge. Root-locale changes rebuild every page for that locale, so this was expensive to spend on a no-op.
+- **Dev HMR** — pages are re-merged concurrently on a root-locale change instead of one after another.
+- **Page transitions** — same-locale navigation keeps the outgoing chunk as a fallthrough layer until `page:transition:finish`, instead of an expensive deep merge on every nav.
+
+### Why It Matters
+
+- Vue I18n-style formatting without pulling in a heavier stack.
+- CDN-friendly translation URLs that stay stable across rebuilds when the dictionary did not change.
+- A supported runtime API for inspecting and patching the live dictionary — DevTools, tests, and editors no longer need private helpers.
 
 Full changelog will be published with the release on [GitHub](https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md).
 

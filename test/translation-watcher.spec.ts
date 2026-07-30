@@ -90,8 +90,14 @@ describe('translation watcher dev HMR (premerged)', () => {
   })
 
   test('updates German page translations after a locale file change', async ({ page, goto, baseURL }) => {
-    await goto('/de/about', { waitUntil: 'hydration' })
-    await expect(page.locator('#about-title')).toHaveText('About DE')
+    // The preceding test leaves an HMR update in flight, and it can land on this page while
+    // it is loading — the document reloads and the locator resolves against a detached
+    // frame. Same retry as the client-navigation test above, for the same reason: retry from
+    // a known starting point instead of assuming the first load survives.
+    await expect(async () => {
+      await goto('/de/about', { waitUntil: 'hydration' })
+      await expect(page.locator('#about-title')).toHaveText('About DE', { timeout: 5_000 })
+    }).toPass({ timeout: 90_000 })
 
     files.patchFile('pages/about/de.json', (current) => ({
       ...current,

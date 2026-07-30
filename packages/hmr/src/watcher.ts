@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import type { Locale } from '@i18n-micro/types'
 import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
@@ -50,6 +50,22 @@ export interface HandleTranslationWatchChangeInput {
 function buildTranslationWatchCacheEntry(data: Record<string, unknown>): TranslationWatchCacheEntry {
   const json = JSON.stringify(data).replace(/</g, '\\u003c')
   return { data, json }
+}
+
+/**
+ * One translation file, or `{}` when it does not exist.
+ *
+ * Throws when the file exists but cannot be read or parsed, and that is the point: a
+ * `change` event can arrive while the write is still in flight, and treating the
+ * half-written file as an empty one merges a chunk that is missing every key the file
+ * holds — then caches it as the truth. The cached chunk stays wrong until the file changes
+ * again, so the page serves raw keys indefinitely. Failing here leaves the last good entry
+ * in place instead.
+ */
+export function readTranslationFile(filePath: string): Record<string, unknown> {
+  if (!existsSync(filePath)) return {}
+  const contents = readFileSync(filePath, 'utf-8')
+  return JSON.parse(contents) as Record<string, unknown>
 }
 
 export function parseTranslationWatchRelativePath(relativePath: string): ParsedTranslationWatchPath {

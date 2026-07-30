@@ -1,9 +1,9 @@
 // src/runtime/server/plugins/watcher.dev.ts
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { SERVER_CC_KEY, STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
-import { handleTranslationWatchChange, parseTranslationWatchRelativePath, TranslationContentTracker } from '@i18n-micro/hmr/watcher'
+import { handleTranslationWatchChange, parseTranslationWatchRelativePath, readTranslationFile, TranslationContentTracker } from '@i18n-micro/hmr/watcher'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
 import { type FSWatcher, watch } from 'chokidar'
@@ -47,17 +47,6 @@ function getOrCreateServerCache(): CacheLike {
 
 function getStorageCache(): CacheLike | null {
   return getCacheByKey(STORAGE_CC_KEY)
-}
-
-function readJsonSafe(filePath: string): Record<string, unknown> {
-  try {
-    if (existsSync(filePath)) {
-      return JSON.parse(readFileSync(filePath, 'utf-8'))
-    }
-  } catch {
-    /* skip */
-  }
-  return {}
 }
 
 let watcherInstance: FSWatcher | null = null
@@ -120,7 +109,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
           locales: runtimeConfig.locales,
           fallbackLocale: runtimeConfig.fallbackLocale,
           disablePageLocales: runtimeConfig.disablePageLocales,
-          readLocaleFile: (relativeFilePath) => readJsonSafe(path.join(translationsRoot, relativeFilePath)),
+          readLocaleFile: (relativeFilePath) => readTranslationFile(path.join(translationsRoot, relativeFilePath)),
         },
       })
 
@@ -138,11 +127,24 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         }
       }
     } catch (e) {
+      // The cache still holds the last good merge, and the hash is dropped so the next
+      // event for this file is processed even if its contents are unchanged by then —
+      // otherwise a single failed read would freeze the page on its stale chunk.
+      contentTracker.forget(filePath)
       warn('Failed to refresh server cache for', filePath, e)
     }
   }
 
-  const watcher = watch(translationsRoot, { persistent: true, ignoreInitial: true, depth: 5 })
+  // `awaitWriteFinish`: a bare `change` event fires as soon as the first bytes land, and
+  // reading a half-written locale file is how a chunk loses keys. Waiting for the size to
+  // settle costs a few milliseconds of HMR latency and removes the race for both the
+  // content hash and the merge.
+  const watcher = watch(translationsRoot, {
+    persistent: true,
+    ignoreInitial: true,
+    depth: 5,
+    awaitWriteFinish: { stabilityThreshold: 50, pollInterval: 10 },
+  })
   watcher.on('add', (filePath) => invalidateAndRefresh(filePath, 'add'))
   watcher.on('change', (filePath) => invalidateAndRefresh(filePath, 'change'))
   watcher.on('unlink', (filePath) => invalidateAndRefresh(filePath, 'unlink'))

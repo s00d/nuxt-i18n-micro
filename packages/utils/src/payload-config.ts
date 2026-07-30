@@ -62,17 +62,17 @@ export function resolveTranslationPayloadOptions(options: ModuleOptions): Resolv
 export function resolveTranslationPayloadPublicRel(options: ModuleOptions, apiBaseUrl?: string): string {
   const explicit = options.translationPayloads?.publicDir
   if (explicit !== undefined && explicit !== null && String(explicit).length > 0) {
-    return String(explicit).replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/') || '_locales'
+    return (
+      String(explicit)
+        .replace(/^\/+|\/+$/g, '')
+        .replace(/\/{2,}/g, '/') || '_locales'
+    )
   }
   const base = (apiBaseUrl ?? options.apiBaseUrl ?? '_locales').replace(/^\/+|\/+$/g, '').replace(/\/{2,}/g, '/')
   return base || '_locales'
 }
 
-export function resolveTranslationPayloadPublicDir(
-  outputPublicDir: string | undefined,
-  options: ModuleOptions,
-  apiBaseUrl?: string,
-): string {
+export function resolveTranslationPayloadPublicDir(outputPublicDir: string | undefined, options: ModuleOptions, apiBaseUrl?: string): string {
   return join(outputPublicDir ?? './dist', resolveTranslationPayloadPublicRel(options, apiBaseUrl))
 }
 
@@ -82,19 +82,13 @@ export function resolveTranslationPayloadPublicDir(
  * - On Node, `serverAssets: true` also forces a copy — SSR reads `public/` via fs (no Rollup `raw:`).
  * - On Edge, `serverAssets` means Nitro `serverAssets` embed only — do not force a public tree.
  */
-export function shouldCopyTranslationPayloadsToPublic(
-  translationPayloads: ResolvedTranslationPayloadOptions,
-  isNode: boolean,
-): boolean {
+export function shouldCopyTranslationPayloadsToPublic(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean): boolean {
   if (translationPayloads.publicAssets) return true
   return isNode && translationPayloads.serverAssets
 }
 
 /** Edge-only: register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled. */
-export function shouldRegisterNitroServerAssets(
-  translationPayloads: ResolvedTranslationPayloadOptions,
-  isNode: boolean,
-): boolean {
+export function shouldRegisterNitroServerAssets(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean): boolean {
   return !isNode && translationPayloads.serverAssets
 }
 
@@ -106,7 +100,9 @@ export function resolveTranslationPayloadWarningThresholds(options?: Translation
 }
 
 export function hasLocalTranslationPayloadOutput(translationPayloads: ResolvedTranslationPayloadOptions): boolean {
-  return translationPayloads.serverAssets || translationPayloads.serverHandler || translationPayloads.publicAssets || translationPayloads.prerenderRoutes
+  return (
+    translationPayloads.serverAssets || translationPayloads.serverHandler || translationPayloads.publicAssets || translationPayloads.prerenderRoutes
+  )
 }
 
 export function getTranslationPayloadMisconfigurationWarnings(input: TranslationPayloadMisconfigurationInput): string[] {

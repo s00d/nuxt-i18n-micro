@@ -102,8 +102,7 @@ describe('extractDefineI18nRouteData', () => {
       // Unextractable $defineI18nRoute configs warn once; successful parses stay quiet.
       if (result === null && /\$?defineI18nRoute\s*\(/.test(content)) {
         expect(warn).toHaveBeenCalled()
-      }
-      else {
+      } else {
         expect(warn).not.toHaveBeenCalled()
       }
       warn.mockRestore()

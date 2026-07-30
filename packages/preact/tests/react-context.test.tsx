@@ -63,8 +63,7 @@ describe('I18nProvider and useI18n', () => {
       expect(() => {
         render(h(ErrorComponent, null))
       }).toThrow(/I18nContext not found/)
-    }
-    finally {
+    } finally {
       stderr.write = stderrWrite
       consoleSpy.mockRestore()
     }

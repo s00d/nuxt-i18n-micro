@@ -67,8 +67,7 @@ describe('I18nProvider and useI18n', () => {
         // @ts-expect-error - React Testing Library type issue
         render(<ErrorComponent />)
       }).toThrow(/I18nContext not found/)
-    }
-    finally {
+    } finally {
       stderr.write = stderrWrite
       consoleSpy.mockRestore()
     }

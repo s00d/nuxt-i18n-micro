@@ -1,4 +1,11 @@
-import { buildFallbackLocaleChain, buildSourcePagePath, buildSourceRootPath, mergeSourceTranslations, toPremergedStorageKey, toSourceStorageKey } from '../src/merge-source'
+import {
+  buildFallbackLocaleChain,
+  buildSourcePagePath,
+  buildSourceRootPath,
+  mergeSourceTranslations,
+  toPremergedStorageKey,
+  toSourceStorageKey,
+} from '../src/merge-source'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('buildFallbackLocaleChain', () => {

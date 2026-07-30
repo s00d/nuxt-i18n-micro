@@ -51,13 +51,7 @@ describe('i18n public payload ignores process.cwd()', () => {
     await rm(join(FIXTURE, '.output'), { recursive: true, force: true })
 
     originalConfig = readFileSync(CONFIG, 'utf8')
-    writeFileSync(
-      CONFIG,
-      originalConfig.replace(
-        /i18n: \{/,
-        `i18n: {\n    translationPayloads: { prerenderRoutes: false },`,
-      ),
-    )
+    writeFileSync(CONFIG, originalConfig.replace(/i18n: \{/, `i18n: {\n    translationPayloads: { prerenderRoutes: false },`))
 
     try {
       await runCommand('npx', ['nuxi', 'build'], { cwd: FIXTURE, timeoutMs: 300_000 })

@@ -20,8 +20,7 @@ export async function readPayload(relPath: string): Promise<Record<string, unkno
   const path = join(baseDir(), relPath.replace(/^\/+/, '').replace(/\\/g, '/'))
   try {
     return JSON.parse(await readFile(path, 'utf8')) as Record<string, unknown>
-  }
-  catch (error) {
+  } catch (error) {
     const err = error as NodeJS.ErrnoException
     if (err.code !== 'ENOENT') {
       console.error(`[nuxt-i18n-micro] cannot read ${relPath} from ${baseDir()}:`, error)

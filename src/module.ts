@@ -382,13 +382,13 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     if (
-      !translationPayloads.serverAssets
-      && !translationPayloads.publicAssets
-      && !(process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost)
+      !translationPayloads.serverAssets &&
+      !translationPayloads.publicAssets &&
+      !(process.env.NUXT_I18N_APP_BASE_SERVER_HOST ?? options.apiBaseServerHost)
     ) {
       throw new Error(
-        'nuxt-i18n-micro: local SSR payloads are disabled (serverAssets/publicAssets false) and apiBaseServerHost is not set. '
-        + 'SSR would load empty translations.',
+        'nuxt-i18n-micro: local SSR payloads are disabled (serverAssets/publicAssets false) and apiBaseServerHost is not set. ' +
+          'SSR would load empty translations.',
       )
     }
 
@@ -409,7 +409,7 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
     const localeInfos: PreMergeLocaleInfo[] = [...localeInfosByCode.values()]
-      .filter(locale => !locale.disabled)
+      .filter((locale) => !locale.disabled)
       .map(({ code, fallbackLocale }) => ({ code, fallbackLocale }))
 
     nuxt.hook('build:before', async () => {
@@ -513,14 +513,7 @@ export default defineNuxtModule<ModuleOptions>({
       translationsHash,
     })
 
-    const privateConfig = buildPrivateConfig(
-      options,
-      nuxt,
-      apiConfig,
-      routeGenerator.locales ?? [],
-      publicAssetsDir,
-      payloadPublicRel,
-    )
+    const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
     const templates = registerI18nTemplates(options, resolvedStrategyPath, fullConfig, privateConfig)
 
     if (typeof options.customRegexMatcher !== 'undefined') {
@@ -731,8 +724,8 @@ declare module '#i18n-internal/payload-source' {
         })
         if (translationPayloads.mode === 'premerged') {
           logger.warn(
-            'Edge target with translationPayloads.mode:"premerged" embeds the full page/locale matrix via Nitro serverAssets (Rollup raw:). '
-            + "Prefer mode:'source' for large catalogs.",
+            'Edge target with translationPayloads.mode:"premerged" embeds the full page/locale matrix via Nitro serverAssets (Rollup raw:). ' +
+              "Prefer mode:'source' for large catalogs.",
           )
         }
       }

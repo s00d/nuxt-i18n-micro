@@ -1,4 +1,10 @@
 {
   "extends": "./.nuxt/tsconfig.json",
-  "exclude": ["dist", "node_modules", "playground"]
+  "exclude": ["dist", "node_modules", "playground"],
+  // Nuxt 4.5+ injects vue-router/volar/* into .nuxt/tsconfig; those exports exist
+  // only on vue-router@5. This repo peers vue-router@4 — clear plugins so vue-tsc
+  // does not warn/fail on the missing subpath.
+  "vueCompilerOptions": {
+    "plugins": []
+  }
 }

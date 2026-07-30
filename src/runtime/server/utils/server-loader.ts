@@ -19,7 +19,7 @@ import { readPayload } from '#i18n-internal/payload-source'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getI18nConfig } from '#i18n-internal/strategy'
 
-type CacheEntry = { data: Translations, json: string }
+type CacheEntry = { data: Translations; json: string }
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
 function getServerCacheControl(): CacheControl<CacheEntry> {
@@ -31,7 +31,7 @@ function getServerCacheControl(): CacheControl<CacheEntry> {
   return g[SERVER_CC_KEY] as CacheControl<CacheEntry>
 }
 
-export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<{ data: Translations, json: string }> {
+export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<{ data: Translations; json: string }> {
   const cc = getServerCacheControl()
   const cacheKey = `${locale}:${routeName}`
 
@@ -78,8 +78,7 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
         disablePageLocales: config.disablePageLocales,
       },
     )
-  }
-  else {
+  } else {
     data = toTranslations(await readPayload(toPremergedStorageKey(resolvedPage, locale)))
   }
 

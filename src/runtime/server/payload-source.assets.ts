@@ -10,8 +10,7 @@ export async function readPayload(relPath: string): Promise<Record<string, unkno
   if (typeof value === 'string') {
     try {
       return JSON.parse(value) as Record<string, unknown>
-    }
-    catch {
+    } catch {
       return {}
     }
   }

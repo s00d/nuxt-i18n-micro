@@ -8,76 +8,73 @@ on:
     branches:
       - main
 
+# One job: install/build/prepare once, then run everything sequentially.
+# Avoids paying for duplicated setup across parallel jobs.
 jobs:
-  lint:
-    runs-on: self-hosted
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.14.2
-          run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install Vite globally
-        run: npm install -g vite
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Lint (Oxlint)
-        run: pnpm run lint
-
-  test:
+  ci:
     runs-on: ubuntu-latest
-
+    env:
+      # Build shared fixtures in parallel. The runner has 4 vCPU / 15 GiB with
+      # ~14 GiB free (the earlier ERR_IPC_CHANNEL_CLOSED crashes were caused by
+      # tests killing processes by port, not by memory pressure).
+      FIXTURE_BUILD_CONCURRENCY: 4
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          # Full history: check:versions diffs against the PR merge-base / last tag.
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 9.14.2
           run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: 22
+          cache: pnpm
+      - uses: actions/cache@v4
+        with:
+          path: |
+            test/.fixture-builds
+          # Source-only globs: broad test/fixtures/** also matches .output-shared
+          # after e2e and hashFiles fails when saving the cache at job end.
+          key: e2e-shared-${{ runner.os }}-${{ hashFiles('test/setup/manifest.ts', 'test/setup/shared-fixtures-core.ts', 'test/setup/build-fixture-worker.mjs', 'test/fixtures/**/nuxt.config.ts', 'test/fixtures/**/package.json', 'test/fixtures/**/app.vue', 'test/fixtures/**/app/**', 'test/fixtures/**/pages/**', 'test/fixtures/**/components/**', 'test/fixtures/**/locales/**', 'test/fixtures/**/server/**', 'test/fixtures/**/modules/**', 'test/fixtures/**/content.config.ts', 'test/fixtures/**/content/**', 'test/fixtures/**/layers/**', 'test/fixtures/**/middleware/**', 'test/fixtures/**/plugins/**', 'test/fixtures/**/layouts/**', 'test/fixtures/**/composables/**', 'test/fixtures/**/public/**', 'test/fixtures/**/data/**', 'src/**', 'packages/**/src/**', 'packages/**/package.json', 'pnpm-lock.yaml', 'package.json') }}
+          restore-keys: |
+            e2e-shared-${{ runner.os }}-
 
-      - name: Install Vite globally
-        run: npm install -g vite
+      - run: pnpm install
+      # Packages in packages/* are versioned by hand and `pnpm publish -r` silently
+      # skips a version that already exists on npm — so a forgotten bump ships a
+      # stale package. Fail here instead. Cheap (git only), so it runs early.
+      - run: pnpm run check:versions
+      # Memory headroom on the runner, for the record: ubuntu-latest gives
+      # 4 vCPU / 15 GiB with ~14 GiB free and ~4 GiB of swap already configured.
+      # The previous ERR_IPC_CHANNEL_CLOSED crashes were tests killing processes
+      # by port (lsof + SIGKILL), not memory — so no extra swap is provisioned.
+      # If a step ever does run out of memory, print `free -h` here first to
+      # confirm it before adding any.
+      - run: pnpm run lint
+      # Three steps, in this order, because the dependency runs both ways:
+      # `dev:prepare` loads src/module.ts, which imports the packages from their
+      # `dist`, so the packages have to be built first — while the demo apps
+      # under packages/*/playground are bundled by tools that walk up to the
+      # repo-root tsconfig.json, which `extends` the `.nuxt/tsconfig.json` that
+      # only `dev:prepare` generates. Astro 7 (vite 8 / rolldown) hard-errors on
+      # that missing file instead of ignoring it, so the demos build last.
+      - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
+      - run: pnpm run dev:prepare
+      - run: pnpm --filter "./packages/*/playground" run build
+      - run: pnpm run typecheck
+      # integration + e2e both drive a real browser (chromium.launch / createPage)
+      - run: pnpm exec playwright install chromium
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm run test:packages
+      - run: pnpm run test:unit
+      - run: pnpm run test:integration
+      - run: pnpm run test:e2e
 
-      - name: Install playwright
-        run: pnpm exec playwright install chromium
-
-      - name: Run
-        run: |
-          pnpm --filter "./packages/**" run build
-          pnpm run dev:prepare
-
-      - name: Verify packages
-        run: |
-          pnpm verify:packages
-          pnpm verify:packages:publint
-          pnpm compare:published
-
-      - name: Dist publish smoke tests
-        run: |
-          pnpm --filter "@i18n-micro/core" --filter "@i18n-micro/vue" --filter "@i18n-micro/path-strategy" --filter "@i18n-micro/route-strategy" --filter "@i18n-micro/devtools-ui" --filter "@i18n-micro/astro" run test:dist
-
-      - name: Test
-        run: |
-          pnpm run test:workspaces
-          pnpm run clean:test
-          pnpm run test
+      - run: pnpm verify:packages && pnpm verify:packages:publint
+      - run: pnpm run test:dist:packages
+      # --local-only keeps both packaging gates (hashed chunks, astro client CJS),
+      # which are computed from the local pack, and skips the npm reference
+      # download that only feeds informational diffs. Full comparison runs on release.
+      - run: pnpm run compare:published -- --local-only --changed-only

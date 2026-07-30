@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`snapshots (documentation: how switchLocaleRoute works) switchLocaleRoute with i18nRouteParams: full result object 1`] = `
+exports[`snapshots (documentation: how switchLocaleRoute works) > switchLocaleRoute with i18nRouteParams: full result object 1`] = `
 {
   "fullPath": "/",
   "hash": "",
@@ -14,7 +14,7 @@ exports[`snapshots (documentation: how switchLocaleRoute works) switchLocaleRout
 }
 `;
 
-exports[`snapshots (documentation: how switchLocaleRoute works) switchLocaleRoute: result per strategy en→de 1`] = `
+exports[`snapshots (documentation: how switchLocaleRoute works) > switchLocaleRoute: result per strategy en→de 1`] = `
 {
   "no_prefix": {
     "hash": "",
@@ -47,7 +47,7 @@ exports[`snapshots (documentation: how switchLocaleRoute works) switchLocaleRout
 }
 `;
 
-exports[`switchLocaleRoute - no_prefix returns route with localized name when router has it 1`] = `
+exports[`switchLocaleRoute - no_prefix > returns route with localized name when router has it 1`] = `
 {
   "hash": "",
   "name": "localized-about-de",
@@ -56,7 +56,7 @@ exports[`switchLocaleRoute - no_prefix returns route with localized name when ro
 }
 `;
 
-exports[`switchLocaleRoute - no_prefix when router does not have localized name, falls back to base name if present 1`] = `
+exports[`switchLocaleRoute - no_prefix > when router does not have localized name, falls back to base name if present 1`] = `
 {
   "hash": "",
   "name": "localized-about-de",
@@ -65,7 +65,7 @@ exports[`switchLocaleRoute - no_prefix when router does not have localized name,
 }
 `;
 
-exports[`switchLocaleRoute - prefix returns route with localized-{base}-{locale} when router has it 1`] = `
+exports[`switchLocaleRoute - prefix > returns route with localized-{base}-{locale} when router has it 1`] = `
 {
   "hash": "",
   "name": "localized-about-de",
@@ -74,7 +74,7 @@ exports[`switchLocaleRoute - prefix returns route with localized-{base}-{locale}
 }
 `;
 
-exports[`switchLocaleRoute - prefix when router does not have target name, returns object with target name (fallback) 1`] = `
+exports[`switchLocaleRoute - prefix > when router does not have target name, returns object with target name (fallback) 1`] = `
 {
   "fullPath": "/en/about",
   "hash": "",
@@ -87,7 +87,7 @@ exports[`switchLocaleRoute - prefix when router does not have target name, retur
 }
 `;
 
-exports[`switchLocaleRoute - prefix_and_default returns route with localized-{base}-{locale} 1`] = `
+exports[`switchLocaleRoute - prefix_and_default > returns route with localized-{base}-{locale} 1`] = `
 {
   "hash": "",
   "name": "localized-about-de",
@@ -96,7 +96,7 @@ exports[`switchLocaleRoute - prefix_and_default returns route with localized-{ba
 }
 `;
 
-exports[`switchLocaleRoute - prefix_and_default when router does not have target name, returns object with target name 1`] = `
+exports[`switchLocaleRoute - prefix_and_default > when router does not have target name, returns object with target name 1`] = `
 {
   "fullPath": "/en/about",
   "hash": "",
@@ -109,7 +109,7 @@ exports[`switchLocaleRoute - prefix_and_default when router does not have target
 }
 `;
 
-exports[`switchLocaleRoute - via createPathStrategy no_prefix 1`] = `
+exports[`switchLocaleRoute - via createPathStrategy > no_prefix 1`] = `
 {
   "hash": "",
   "name": "localized-about-de",
@@ -118,7 +118,7 @@ exports[`switchLocaleRoute - via createPathStrategy no_prefix 1`] = `
 }
 `;
 
-exports[`switchLocaleRoute - via createPathStrategy prefix 1`] = `
+exports[`switchLocaleRoute - via createPathStrategy > prefix 1`] = `
 {
   "hash": "",
   "name": "localized-about-de",
@@ -127,7 +127,7 @@ exports[`switchLocaleRoute - via createPathStrategy prefix 1`] = `
 }
 `;
 
-exports[`switchLocaleRoute - via createPathStrategy prefix_and_default 1`] = `
+exports[`switchLocaleRoute - via createPathStrategy > prefix_and_default 1`] = `
 {
   "hash": "",
   "name": "localized-about-de",
@@ -136,7 +136,7 @@ exports[`switchLocaleRoute - via createPathStrategy prefix_and_default 1`] = `
 }
 `;
 
-exports[`switchLocaleRoute - via createPathStrategy prefix_except_default 1`] = `
+exports[`switchLocaleRoute - via createPathStrategy > prefix_except_default 1`] = `
 {
   "fullPath": "/",
   "hash": "",

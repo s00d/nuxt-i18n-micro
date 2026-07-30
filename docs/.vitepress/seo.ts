@@ -9,8 +9,7 @@ export const SITE = {
   author: 's00d',
   github: 'https://github.com/s00d/nuxt-i18n-micro',
   npm: 'https://www.npmjs.com/package/nuxt-i18n-micro',
-  defaultDescription:
-    'Fast, simple, and lightweight internationalization for Nuxt.js with strategy-based routing and minimal bundle impact.',
+  defaultDescription: 'Fast, simple, and lightweight internationalization for Nuxt.js with strategy-based routing and minimal bundle impact.',
   ogImage: '/og-image.png',
   themeColor: '#32ba8c',
   version: pkg.version,

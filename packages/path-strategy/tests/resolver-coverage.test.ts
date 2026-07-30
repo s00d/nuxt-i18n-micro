@@ -6,6 +6,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike } from '../src'
 import { getAllowedLocalesForRoute, getParentPathForNested, getPathForUnlocalizedRoute, getPathForUnlocalizedRouteByName } from '../src/resolver'
 import { makePathStrategyContext } from './test-utils'
+import { describe, expect, test } from 'vitest'
 
 const baseConfig: ModuleOptionsExtend = {
   defaultLocale: 'en',

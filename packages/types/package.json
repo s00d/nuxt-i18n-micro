@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/types",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "TypeScript definitions for the Nuxt I18n Micro ecosystem.",
   "keywords": [
     "i18n",
@@ -52,12 +52,14 @@
   "scripts": {
     "build": "vite build",
     "check:package": "publint",
+    "test": "vitest run --typecheck",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "devDependencies": {
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=18"

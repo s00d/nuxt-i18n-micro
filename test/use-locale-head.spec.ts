@@ -1,13 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/use-locale-head', import.meta.url)),
-  },
-})
+await setupE2E({ shared: 'use-locale-head' })
 
-test.describe('useLocaleHead manual usage', () => {
+describe('useLocaleHead manual usage', () => {
   test('populates metaObject without explicit updateMeta()', async ({ page, goto, baseURL }) => {
     await goto('/en', { waitUntil: 'domcontentloaded' })
 

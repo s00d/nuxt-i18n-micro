@@ -1,7 +1,7 @@
 ---
-title: "Per-Component Translations"
-description: "Per-component translations with $defineI18nRoute."
-outline: "deep"
+title: 'Per-Component Translations'
+description: 'Per-component translations with $defineI18nRoute.'
+outline: 'deep'
 ---
 
 # 📖 Per-Component Translations
@@ -34,7 +34,7 @@ $defineI18nRoute({
     en: { greeting: 'Hello', farewell: 'Goodbye' },
     fr: { greeting: 'Bonjour', farewell: 'Au revoir' },
     de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
-  }
+  },
 })
 </script>
 ```
@@ -45,9 +45,9 @@ $defineI18nRoute({
 Always get it from `useNuxtApp()` before calling it.
 
 ```ts
-import { useNuxtApp } from "#imports";
+import { useNuxtApp } from '#imports'
 
-const { $defineI18nRoute } = useNuxtApp();
+const { $defineI18nRoute } = useNuxtApp()
 ```
 
 ## 🏗️ Build-Time Route Meta
@@ -64,7 +64,7 @@ You normally only call `$defineI18nRoute` in pages — the module handles build-
 The `$defineI18nRoute` function configures route behavior based on the current locale, offering a versatile solution to:
 
 - Control access to specific routes based on available locales
-- Provide translations for specific locales  
+- Provide translations for specific locales
 - Set custom routes for different locales
 - Control meta tag generation
 
@@ -73,20 +73,20 @@ The `$defineI18nRoute` function configures route behavior based on the current l
 ```mermaid
 flowchart TB
     A["$defineI18nRoute({...})"] --> B{locales type?}
-    
+
     B -->|Array| C["['en', 'fr', 'de']"]
     B -->|Object| D["{en: {...}, fr: {...}}"]
-    
+
     C --> E{Locale allowed?}
     D --> F[Merge translations]
     F --> E
-    
+
     E -->|No| G["❌ 404 / Redirect"]
     E -->|Yes| H{Has localeRoutes?}
-    
+
     H -->|Yes| I[Apply custom path]
     H -->|No| J[Use default path]
-    
+
     I --> K["✅ Route ready"]
     J --> K
     K --> L["$t() available"]
@@ -101,11 +101,11 @@ $defineI18nRoute(routeDefinition: DefineI18nRouteConfig);
 
 ### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `locales` | `string[] \| Record<string, Translations>` | Available locales for the route |
-| `localeRoutes` | `Record<string, string>` | Custom routes for specific locales |
-| `disableMeta` | `boolean \| string[]` | Control i18n meta tag generation |
+| Parameter      | Type                                       | Description                        |
+| -------------- | ------------------------------------------ | ---------------------------------- |
+| `locales`      | `string[] \| Record<string, Translations>` | Available locales for the route    |
+| `localeRoutes` | `Record<string, string>`                   | Custom routes for specific locales |
+| `disableMeta`  | `boolean \| string[]`                      | Control i18n meta tag generation   |
 
 ### Detailed Parameter Descriptions
 
@@ -117,7 +117,7 @@ Defines which locales are available for the route:
 
 ```typescript [Array Format]
 $defineI18nRoute({
-  locales: ['en', 'fr', 'de'] // Simple array of locale codes
+  locales: ['en', 'fr', 'de'], // Simple array of locale codes
 })
 ```
 
@@ -127,8 +127,8 @@ $defineI18nRoute({
     en: { greeting: 'Hello', farewell: 'Goodbye' },
     fr: { greeting: 'Bonjour', farewell: 'Au revoir' },
     de: { greeting: 'Hallo', farewell: 'Auf Wiedersehen' },
-    ru: {} // Russian locale allowed but no translations provided
-  }
+    ru: {}, // Russian locale allowed but no translations provided
+  },
 })
 ```
 
@@ -142,10 +142,10 @@ Allows custom routes for specific locales:
 $defineI18nRoute({
   localeRoutes: {
     en: '/welcome',
-    fr: '/bienvenue', 
+    fr: '/bienvenue',
     de: '/willkommen',
-    ru: '/privet' // Custom route path for Russian locale
-  }
+    ru: '/privet', // Custom route path for Russian locale
+  },
 })
 ```
 
@@ -158,14 +158,14 @@ Controls i18n meta tag generation:
 ```typescript [Disable All Meta]
 $defineI18nRoute({
   locales: ['en', 'fr', 'de'],
-  disableMeta: true // Disables all i18n meta tags
+  disableMeta: true, // Disables all i18n meta tags
 })
 ```
 
 ```typescript [Disable Specific Locales]
 $defineI18nRoute({
   locales: ['en', 'fr', 'de'],
-  disableMeta: ['en', 'fr'] // Only English and French won't have meta tags
+  disableMeta: ['en', 'fr'], // Only English and French won't have meta tags
 })
 ```
 
@@ -179,7 +179,7 @@ Define which locales are allowed for specific routes:
 
 ```typescript
 $defineI18nRoute({
-  locales: ['en', 'fr', 'de'] // Only these locales are allowed for this route
+  locales: ['en', 'fr', 'de'], // Only these locales are allowed for this route
 })
 ```
 
@@ -190,22 +190,22 @@ Use the `locales` object to provide specific translations for each route:
 ```typescript
 $defineI18nRoute({
   locales: {
-    en: { 
-      greeting: 'Hello', 
+    en: {
+      greeting: 'Hello',
       farewell: 'Goodbye',
-      description: 'Welcome to our application'
+      description: 'Welcome to our application',
     },
-    fr: { 
-      greeting: 'Bonjour', 
+    fr: {
+      greeting: 'Bonjour',
       farewell: 'Au revoir',
-      description: 'Bienvenue dans notre application'
+      description: 'Bienvenue dans notre application',
     },
-    de: { 
-      greeting: 'Hallo', 
+    de: {
+      greeting: 'Hallo',
       farewell: 'Auf Wiedersehen',
-      description: 'Willkommen in unserer Anwendung'
-    }
-  }
+      description: 'Willkommen in unserer Anwendung',
+    },
+  },
 })
 ```
 
@@ -219,8 +219,8 @@ $defineI18nRoute({
   localeRoutes: {
     en: '/welcome',
     fr: '/bienvenue',
-    de: '/willkommen'
-  }
+    de: '/willkommen',
+  },
 })
 ```
 
@@ -232,13 +232,13 @@ Control SEO meta tag generation for specific routes or locales:
 // Disable meta tags for all locales
 $defineI18nRoute({
   locales: ['en', 'fr', 'de'],
-  disableMeta: true
+  disableMeta: true,
 })
 
 // Disable meta tags only for specific locales
 $defineI18nRoute({
   locales: ['en', 'fr', 'de'],
-  disableMeta: ['en', 'fr']
+  disableMeta: ['en', 'fr'],
 })
 ```
 
@@ -252,7 +252,7 @@ The `$defineI18nRoute` parser supports various JavaScript configurations:
 
 ```typescript [Static Arrays]
 $defineI18nRoute({
-  locales: ['en', 'de', 'fr']
+  locales: ['en', 'de', 'fr'],
 })
 ```
 
@@ -260,12 +260,12 @@ $defineI18nRoute({
 $defineI18nRoute({
   locales: {
     en: { greeting: 'Hello' },
-    de: { greeting: 'Hallo' }
+    de: { greeting: 'Hallo' },
   },
   localeRoutes: {
     en: '/welcome',
-    de: '/willkommen'
-  }
+    de: '/willkommen',
+  },
 })
 ```
 
@@ -281,7 +281,7 @@ const routes = { en: '/welcome', de: '/willkommen' }
 
 $defineI18nRoute({
   locales: locales,
-  localeRoutes: routes
+  localeRoutes: routes,
 })
 ```
 
@@ -292,8 +292,8 @@ $defineI18nRoute({
   locales: [`${prefix}-en`, `${prefix}-de`],
   localeRoutes: {
     [`${prefix}-en`]: `/api/welcome`,
-    [`${prefix}-de`]: `/api/willkommen`
-  }
+    [`${prefix}-de`]: `/api/willkommen`,
+  },
 })
 ```
 
@@ -308,7 +308,7 @@ const baseLocales = ['en', 'de']
 const additionalLocales = ['fr', 'es']
 
 $defineI18nRoute({
-  locales: [...baseLocales, ...additionalLocales]
+  locales: [...baseLocales, ...additionalLocales],
 })
 ```
 
@@ -316,8 +316,8 @@ $defineI18nRoute({
 $defineI18nRoute({
   locales: [
     { code: 'en', name: 'English' },
-    { code: 'de', name: 'German' }
-  ]
+    { code: 'de', name: 'German' },
+  ],
 })
 ```
 
@@ -327,9 +327,7 @@ $defineI18nRoute({
 
 ```typescript
 $defineI18nRoute({
-  locales: process.env.NODE_ENV === 'production' 
-    ? ['en', 'de'] 
-    : ['en', 'de', 'fr', 'es']
+  locales: process.env.NODE_ENV === 'production' ? ['en', 'de'] : ['en', 'de', 'fr', 'es'],
 })
 ```
 
@@ -338,23 +336,23 @@ $defineI18nRoute({
 ```typescript
 $defineI18nRoute({
   locales: {
-    'en-us': { 
+    'en-us': {
       region: 'US',
       currency: 'USD',
       format: {
         date: 'MM/DD/YYYY',
-        time: '12h'
-      }
+        time: '12h',
+      },
     },
-    'de-de': { 
+    'de-de': {
       region: 'DE',
       currency: 'EUR',
       format: {
         date: 'DD.MM.YYYY',
-        time: '24h'
-      }
-    }
-  }
+        time: '24h',
+      },
+    },
+  },
 })
 ```
 
@@ -366,14 +364,14 @@ $defineI18nRoute({
   locales: [
     'en', // English
     'de', // German
-    'fr'  // French
+    'fr', // French
   ],
   // Custom routes for each locale
   localeRoutes: {
     en: '/welcome',
     de: '/willkommen',
-    fr: '/bienvenue'
-  }
+    fr: '/bienvenue',
+  },
 })
 ```
 
@@ -399,7 +397,7 @@ Here's a comprehensive example showing all features:
       <h1>{{ $t('title') }}</h1>
       <p>{{ $t('subtitle') }}</p>
     </header>
-    
+
     <main>
       <section>
         <h2>{{ $t('features.title') }}</h2>
@@ -409,14 +407,14 @@ Here's a comprehensive example showing all features:
           </li>
         </ul>
       </section>
-      
+
       <section>
         <h2>{{ $t('contact.title') }}</h2>
         <p>{{ $t('contact.description') }}</p>
         <a :href="$t('contact.email')">{{ $t('contact.email') }}</a>
       </section>
     </main>
-    
+
     <footer>
       <p>{{ $t('footer.copyright') }}</p>
     </footer>
@@ -436,68 +434,56 @@ $defineI18nRoute({
       subtitle: 'The best solution for your needs',
       features: {
         title: 'Key Features',
-        list: [
-          'High Performance',
-          'Easy to Use',
-          'Scalable Architecture'
-        ]
+        list: ['High Performance', 'Easy to Use', 'Scalable Architecture'],
       },
       contact: {
         title: 'Get in Touch',
-        description: 'We\'d love to hear from you',
-        email: 'mailto:contact@example.com'
+        description: "We'd love to hear from you",
+        email: 'mailto:contact@example.com',
       },
       footer: {
-        copyright: '© 2024 Example Company. All rights reserved.'
-      }
+        copyright: '© 2024 Example Company. All rights reserved.',
+      },
     },
     fr: {
       title: 'Bienvenue sur Notre Plateforme',
       subtitle: 'La meilleure solution pour vos besoins',
       features: {
         title: 'Fonctionnalités Clés',
-        list: [
-          'Haute Performance',
-          'Facile à Utiliser',
-          'Architecture Évolutive'
-        ]
+        list: ['Haute Performance', 'Facile à Utiliser', 'Architecture Évolutive'],
       },
       contact: {
         title: 'Contactez-Nous',
         description: 'Nous aimerions avoir de vos nouvelles',
-        email: 'mailto:contact@example.com'
+        email: 'mailto:contact@example.com',
       },
       footer: {
-        copyright: '© 2024 Example Company. Tous droits réservés.'
-      }
+        copyright: '© 2024 Example Company. Tous droits réservés.',
+      },
     },
     de: {
       title: 'Willkommen auf Unserer Plattform',
       subtitle: 'Die beste Lösung für Ihre Bedürfnisse',
       features: {
         title: 'Hauptfunktionen',
-        list: [
-          'Hohe Leistung',
-          'Einfach zu Verwenden',
-          'Skalierbare Architektur'
-        ]
+        list: ['Hohe Leistung', 'Einfach zu Verwenden', 'Skalierbare Architektur'],
       },
       contact: {
         title: 'Kontaktieren Sie Uns',
         description: 'Wir würden gerne von Ihnen hören',
-        email: 'mailto:contact@example.com'
+        email: 'mailto:contact@example.com',
       },
       footer: {
-        copyright: '© 2024 Example Company. Alle Rechte vorbehalten.'
-      }
-    }
+        copyright: '© 2024 Example Company. Alle Rechte vorbehalten.',
+      },
+    },
   },
   localeRoutes: {
     en: '/welcome',
     fr: '/bienvenue',
-    de: '/willkommen'
+    de: '/willkommen',
   },
-  disableMeta: false // Enable SEO meta tags
+  disableMeta: false, // Enable SEO meta tags
 })
 </script>
 
@@ -555,21 +541,21 @@ flowchart TB
         P["📄 Page-Specific<br/>⭐⭐⭐⭐ Performance<br/>⭐⭐⭐⭐ Modularity"]
         C["🧩 Component-Level<br/>⭐⭐ Performance<br/>⭐⭐⭐⭐⭐ Modularity"]
     end
-    
+
     G -->|Best for| G1[Most applications]
     P -->|Best for| P1[Large applications]
     C -->|Best for| C1[Reusable npm packages]
-    
+
     style G fill:#2ed573
     style P fill:#ffa502
     style C fill:#ff6b6b
 ```
 
-| Approach | Performance | Modularity | Use Case |
-|----------|-------------|------------|----------|
-| **Root-Level Files** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Most applications |
-| **Page-Specific** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Large applications |
-| **Component-Level** | ⭐⭐ | ⭐⭐⭐⭐⭐ | Reusable components |
+| Approach             | Performance | Modularity | Use Case            |
+| -------------------- | ----------- | ---------- | ------------------- |
+| **Root-Level Files** | ⭐⭐⭐⭐⭐  | ⭐⭐⭐     | Most applications   |
+| **Page-Specific**    | ⭐⭐⭐⭐    | ⭐⭐⭐⭐   | Large applications  |
+| **Component-Level**  | ⭐⭐        | ⭐⭐⭐⭐⭐ | Reusable components |
 
 ## 🎯 Best Practices
 
@@ -610,10 +596,10 @@ $defineI18nRoute({
       subtitle: 'Subtitle',
       features: {
         title: 'Features',
-        list: ['Feature 1', 'Feature 2']
-      }
-    } as ComponentTranslations
-  }
+        list: ['Feature 1', 'Feature 2'],
+      },
+    } as ComponentTranslations,
+  },
 })
 ```
 

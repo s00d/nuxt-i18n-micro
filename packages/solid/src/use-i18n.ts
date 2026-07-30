@@ -71,6 +71,8 @@ export function useI18n(options?: UseI18nOptions) {
     // Translation management
     addTranslations: i18n.addTranslations.bind(i18n),
     addRouteTranslations: i18n.addRouteTranslations.bind(i18n),
+    resolveTranslations: i18n.resolveTranslations.bind(i18n),
+    setTranslation: i18n.setTranslation.bind(i18n),
     clearCache: i18n.clearCache.bind(i18n),
   }
 }

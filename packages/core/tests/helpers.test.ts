@@ -8,9 +8,12 @@ import {
   isPrefixStrategy,
   mergeTranslationChunk,
   resolveTranslation,
+  setTranslationAtKey,
+  collectTranslationPaths,
   translationCacheKey,
   withPrefixStrategy,
 } from '../src/helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('Helpers', () => {
   describe('interpolate', () => {
@@ -181,6 +184,112 @@ describe('Helpers', () => {
 
     test('preserves existing keys when preserveExisting is true', () => {
       expect(mergeTranslationChunk({ a: 1, b: 1 }, { b: 2, c: 3 }, { preserveExisting: true })).toEqual({ a: 1, b: 1, c: 3 })
+    })
+
+    // Flat objects pass under a plain `Object.assign` too, so the assertions that matter are
+    // the nested ones: this is the shape a locale file actually has.
+    test('keeps siblings at every depth', () => {
+      expect(mergeTranslationChunk({ page: { index: { title: 'T', sub: 'S' } } }, { page: { index: { extra: 'E' }, about: 'A' } })).toEqual({
+        page: { index: { title: 'T', sub: 'S', extra: 'E' }, about: 'A' },
+      })
+    })
+
+    test('keeps nested existing values when preserveExisting is true', () => {
+      expect(mergeTranslationChunk({ nav: { about: 'Overridden' } }, { nav: { about: 'About', home: 'Home' } }, { preserveExisting: true })).toEqual({
+        nav: { about: 'Overridden', home: 'Home' },
+      })
+    })
+
+    test('replaces arrays and type changes rather than merging them', () => {
+      expect(mergeTranslationChunk({ items: ['a', 'b'] }, { items: ['c'] })).toEqual({ items: ['c'] })
+      expect(mergeTranslationChunk({ a: { b: '1' } }, { a: 'flat' })).toEqual({ a: 'flat' })
+    })
+
+    test('merges a key named constructor like any other', () => {
+      expect(mergeTranslationChunk({ a: '1' }, { constructor: 'Konstruktor' })).toEqual({ a: '1', constructor: 'Konstruktor' })
+    })
+
+    test('ignores a key that would reach the prototype chain', () => {
+      const merged = mergeTranslationChunk({ a: '1' }, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
+      expect(merged).toEqual({ a: '1', b: '2' })
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    })
+
+    test('ignores inherited members of the incoming object', () => {
+      const inherited = Object.create({ leaked: 'no' }) as Record<string, unknown>
+      inherited.own = 'yes'
+      expect(mergeTranslationChunk({ a: '1' }, inherited)).toEqual({ a: '1', own: 'yes' })
+    })
+  })
+
+  describe('setTranslationAtKey', () => {
+    test('replaces top-level object, string, and number', () => {
+      const tree = { aaa: { bbb: 'ccc' }, ddd: 1111 }
+      expect(setTranslationAtKey(tree, 'aaa', { fff: 'ggg' })).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
+      expect(setTranslationAtKey(tree, 'aaa', 'text')).toEqual({ aaa: 'text', ddd: 1111 })
+      expect(setTranslationAtKey(tree, 'ddd', 2222)).toEqual({ aaa: { bbb: 'ccc' }, ddd: 2222 })
+    })
+
+    test('creates and replaces nested values by dotted path', () => {
+      const tree = { nested: { deep: 'old' } }
+      expect(setTranslationAtKey(tree, 'nested.deep', 'new')).toEqual({ nested: { deep: 'new' } })
+      expect(setTranslationAtKey({}, 'new.branch', 'value')).toEqual({ new: { branch: 'value' } })
+    })
+
+    test('prefers literal dotted key over nested traversal', () => {
+      const tree = { 'dotted.key': 'literal', dotted: { key: 'nested' } }
+      expect(setTranslationAtKey(tree, 'dotted.key', 'updated')).toEqual({
+        'dotted.key': 'updated',
+        dotted: { key: 'nested' },
+      })
+    })
+
+    test('replaces a string parent with an object when setting a nested path', () => {
+      const tree = { a: 'flat' }
+      expect(setTranslationAtKey(tree, 'a.b', 1)).toEqual({ a: { b: 1 } })
+    })
+
+    test('does not mutate the original tree', () => {
+      const tree = { aaa: { bbb: 'ccc' } }
+      const next = setTranslationAtKey(tree, 'aaa.bbb', 'updated')
+      expect(tree.aaa).toEqual({ bbb: 'ccc' })
+      expect(next).toEqual({ aaa: { bbb: 'updated' } })
+    })
+
+    test('ignores unsafe or invalid paths', () => {
+      const tree = { a: '1' }
+      expect(setTranslationAtKey(tree, '__proto__', 'x')).toBe(tree)
+      expect(setTranslationAtKey(tree, '', 'x')).toBe(tree)
+    })
+
+    test('updates a flat dotted key when the path contains empty segments', () => {
+      const tree = { 'a..b': 'old' }
+      expect(setTranslationAtKey(tree, 'a..b', 'new')).toEqual({ 'a..b': 'new' })
+    })
+  })
+
+  describe('collectTranslationPaths', () => {
+    test('collects flat and nested paths', () => {
+      const paths = new Set<string>()
+      collectTranslationPaths({ greeting: 'Hi', nested: { deep: 'x' } }, paths)
+      expect(paths).toEqual(new Set(['greeting', 'nested', 'nested.deep']))
+    })
+
+    test('keeps flat dotted keys as a single path', () => {
+      const paths = new Set<string>()
+      collectTranslationPaths({ 'a.b': 'flat', a: { c: 1 } }, paths)
+      expect(paths).toEqual(new Set(['a.b', 'a', 'a.c']))
+    })
+
+    test('skips __proto__ and does not recurse into arrays or primitives', () => {
+      const paths = new Set<string>()
+      const obj = Object.create(null) as Record<string, unknown>
+      obj.ok = 'yes'
+      obj.list = ['a', 'b']
+      obj.num = 1
+      Object.defineProperty(obj, '__proto__', { value: { polluted: true }, enumerable: true })
+      collectTranslationPaths(obj, paths)
+      expect(paths).toEqual(new Set(['ok', 'list', 'num']))
     })
   })
 })

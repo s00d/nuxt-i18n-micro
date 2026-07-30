@@ -1,32 +1,30 @@
-import { expect, test } from '@nuxt/test-utils/playwright'
 import {
-  patchTranslationWatcherFile,
+  createTranslationWatcherFiles,
   refreshTranslationWatcherPage,
-  restoreTranslationWatcherFiles,
   translationWatcherSourceFixtureRoot,
   waitForTranslationPayloadValue,
 } from './helpers/translation-watcher-hmr'
+import { afterAll, describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.describe.configure({ mode: 'serial', timeout: 120_000 })
-
-test.use({
-  nuxt: {
-    rootDir: translationWatcherSourceFixtureRoot,
-    dev: true,
-    setupTimeout: 180_000,
-  },
+await setupE2E({
+  rootDir: translationWatcherSourceFixtureRoot,
+  dev: true,
+  setupTimeout: 180_000,
 })
 
-test.afterAll(() => {
-  restoreTranslationWatcherFiles()
+// Each spec mutates ITS OWN fixture's locale files (they run in parallel).
+const files = createTranslationWatcherFiles(translationWatcherSourceFixtureRoot)
+
+afterAll(() => {
+  files.restoreAll()
 })
 
-test.describe('translation watcher dev HMR (source mode)', () => {
+describe('translation watcher dev HMR (source mode)', () => {
   test('merges updated page translations at runtime through the API route', async ({ page, goto, baseURL }) => {
     await goto('/en/about', { waitUntil: 'hydration' })
     await expect(page.locator('#about-title')).toHaveText('About EN')
 
-    patchTranslationWatcherFile('pages/about/en.json', (current) => ({
+    files.patchFile('pages/about/en.json', (current) => ({
       ...current,
       aboutTitle: 'About EN Source HMR',
     }))
@@ -37,7 +35,7 @@ test.describe('translation watcher dev HMR (source mode)', () => {
   })
 
   test('applies fallback chain when refreshing German payloads after a root locale change', async ({ baseURL }) => {
-    patchTranslationWatcherFile('de.json', (current) => ({
+    files.patchFile('de.json', (current) => ({
       ...current,
       hello: 'Hallo DE Source HMR',
     }))

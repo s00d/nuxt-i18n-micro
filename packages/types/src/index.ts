@@ -454,6 +454,50 @@ export interface ModuleOptions {
   cacheTtl?: number
 
   /**
+   * Named number formats per locale (Vue I18n-compatible).
+   * Enables `$tn(1000, 'currency')` style calls.
+   *
+   * @example
+   * numberFormats: {
+   *   en: { currency: { style: 'currency', currency: 'USD' } },
+   *   de: { currency: { style: 'currency', currency: 'EUR' } },
+   * }
+   */
+  numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>>
+
+  /**
+   * Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`).
+   * Enables `$td(date, 'short')` style calls.
+   *
+   * @example
+   * datetimeFormats: {
+   *   en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+   *   de: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+   * }
+   */
+  datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>>
+
+  /**
+   * HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`.
+   *
+   * Applies in full only while `dateBuild` busts the URL (`?v=...`), which is the default:
+   * the response is then `public, max-age=…, immutable` and safe for browsers and CDNs.
+   *
+   * - `dateBuild: 0`/`''` — the URL is stable, so this duration is *not* honoured; the
+   *   response becomes `public, max-age=0, must-revalidate` instead. A long `max-age` on an
+   *   unchanging URL pins the first payload a browser ever saw.
+   * - `0` — do not set `Cache-Control` at all (useful in local debugging)
+   * - Not applied in development (`import.meta.dev`) so HMR is not fought by the browser cache
+   * - Reaches only responses served through Nitro. Payloads copied into `public/` and served
+   *   by the hosting platform take that platform's headers — see the Performance guide.
+   *
+   * Analogous to `@nuxtjs/i18n` experimental `httpCacheDuration` (v10.2.0), but as an
+   * explicit response header rather than Nitro `defineCachedEventHandler` maxAge.
+   * @default 31536000
+   */
+  httpCacheDuration?: number
+
+  /**
    * Value used for cache-busting translation requests (`?v=...`).
    *
    * When not provided, the module falls back to `Date.now()` (non-deterministic).
@@ -501,7 +545,7 @@ export interface TranslationPayloadOptions {
   /**
    * Copy translation payload files into Nitro public assets during production builds.
    * In `source` mode this copies the compact source directory, not a pre-merged matrix.
-   * @default true in `premerged` mode, `false` in `source` mode
+   * @default true in premerged mode, false in source mode
    */
   publicAssets?: boolean
 
@@ -509,7 +553,7 @@ export interface TranslationPayloadOptions {
    * Add translation data routes to Nuxt/Nitro prerender output.
    * Disable this when `_locales` payloads are served from an external host/CDN or should not be
    * materialized into public output.
-   * @default true in `premerged` mode, `false` in `source` mode
+   * @default true in premerged mode, false in source mode
    */
   prerenderRoutes?: boolean
 

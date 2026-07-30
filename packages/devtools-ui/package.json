@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/devtools-ui",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "DevTools UI and Vite plugin for Nuxt I18n Micro.",
   "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/devtools-ui#readme",
   "bugs": {
@@ -56,25 +56,26 @@
   "scripts": {
     "build": "vite build && vite build --mode umd && vite build --mode plugin",
     "check:package": "publint",
+    "test": "vitest run",
     "test:dist": "vitest run --config vitest.dist.config.ts",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
     "@i18n-micro/types": "workspace:*",
-    "@i18n-micro/utils": "workspace:*",
-    "vue": "catalog:"
+    "@i18n-micro/utils": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
     "autoprefixer": "catalog:",
     "postcss": "catalog:",
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vue": "catalog:"
   },
   "engines": {
     "node": ">=18"

@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
 import type { Page } from '@playwright/test'
 import availableLanguages from './fixtures/n3/app/locales/availableLanguages'
 import { pollUntil, runSequential } from './helpers/sequential'
+
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({ shared: 'n3' })
 
 export function loadJsonFile<T>(relativePath: string): T {
   const fullPath = join(process.cwd(), relativePath)
@@ -107,17 +109,11 @@ function buildNestedRouteCases(): Array<{ path: string }> {
   )
 }
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/n3', import.meta.url)),
-  },
-})
-
-test.describe('n3', () => {
-  test.describe('Page tests', async () => {
+describe('n3', () => {
+  // 27 languages × many routes — the heaviest suite; grant a generous timeout.
+  describe('Page tests', { timeout: process.env.CI ? 300_000 : 180_000 }, async () => {
     // 27 languages * 5 routes = 135 page navigations — needs generous timeout
     test('static pages should work in all languages', async ({ page }) => {
-      test.setTimeout(process.env.CI ? 300_000 : 180_000)
       await page.goto('/', { waitUntil: 'domcontentloaded' })
       await runSequential(buildStaticRouteCases(), async ({ path }) => {
         console.log(`Testing static route: ${path}`)
@@ -127,7 +123,6 @@ test.describe('n3', () => {
     })
 
     test('pages with dynamic parameters should work in all languages', async ({ page }) => {
-      test.setTimeout(180000)
       await runSequential(buildDynamicRouteCases(), async ({ path }) => {
         console.log(`Testing dynamic route: ${path}`)
         await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 15000 })
@@ -136,7 +131,6 @@ test.describe('n3', () => {
     })
 
     test('nested pages should work in all languages', async ({ page }) => {
-      test.setTimeout(180000)
       await runSequential(buildNestedRouteCases(), async ({ path }) => {
         console.log(`Testing nested route: ${path}`)
         await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 15000 })
@@ -145,7 +139,6 @@ test.describe('n3', () => {
     })
 
     test('should handle invalid routes properly', async ({ page }) => {
-      test.setTimeout(60000)
       const firstLang = availableLanguages[0]
       if (!firstLang) return
       const invalidRoutes = [
@@ -164,7 +157,6 @@ test.describe('n3', () => {
     })
 
     test('pages should have correct metadata in all languages', async ({ page }) => {
-      test.setTimeout(120000)
       await runSequential(availableLanguages, async (lang) => {
         const homePath = `/${lang.code}`
         console.log(`Testing metadata for: ${homePath}`)

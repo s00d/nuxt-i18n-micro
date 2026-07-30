@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`getLocaleFromPath returns first segment when it is a locale code 1`] = `
+exports[`getLocaleFromPath > returns first segment when it is a locale code 1`] = `
 {
   "/de/ueber-uns": "de",
   "/en/about": "en",
@@ -8,42 +8,42 @@ exports[`getLocaleFromPath returns first segment when it is a locale code 1`] = 
 }
 `;
 
-exports[`getLocaleFromPath returns null for root or path without locale prefix 1`] = `
+exports[`getLocaleFromPath > returns null for root or path without locale prefix 1`] = `
 {
   "/": null,
   "/about": null,
 }
 `;
 
-exports[`getLocaleFromPath strips query and hash before parsing 1`] = `
+exports[`getLocaleFromPath > strips query and hash before parsing 1`] = `
 {
   "withHash": "de",
   "withQuery": "en",
 }
 `;
 
-exports[`getRedirect no circular redirect: prefix strategy 1`] = `
+exports[`getRedirect > no circular redirect: prefix strategy 1`] = `
 {
   "redirect1": "/en/about",
   "redirect2": null,
 }
 `;
 
-exports[`getRedirect no circular redirect: second getRedirect on result returns null (idempotent) 1`] = `
+exports[`getRedirect > no circular redirect: second getRedirect on result returns null (idempotent) 1`] = `
 {
   "redirect1": "/de/about",
   "redirect2": null,
 }
 `;
 
-exports[`getRedirect no_prefix: no redirect when noPrefixRedirect is false 1`] = `
+exports[`getRedirect > no_prefix: no redirect when noPrefixRedirect is false 1`] = `
 {
   "aboutEn": null,
   "enAboutEn": null,
 }
 `;
 
-exports[`getRedirect no_prefix: strips locale prefix when noPrefixRedirect is true (default) 1`] = `
+exports[`getRedirect > no_prefix: strips locale prefix when noPrefixRedirect is true (default) 1`] = `
 {
   "deUeberDe": "/ueber-uns",
   "enAboutEn": "/about",
@@ -51,7 +51,7 @@ exports[`getRedirect no_prefix: strips locale prefix when noPrefixRedirect is tr
 }
 `;
 
-exports[`getRedirect prefix: root redirects to /locale 1`] = `
+exports[`getRedirect > prefix: root redirects to /locale 1`] = `
 {
   "aboutEn": "/en/about",
   "deAboutDe": null,
@@ -61,14 +61,14 @@ exports[`getRedirect prefix: root redirects to /locale 1`] = `
 }
 `;
 
-exports[`getRedirect prefix_and_default: root redirects to /locale 1`] = `
+exports[`getRedirect > prefix_and_default: root redirects to /locale 1`] = `
 {
   "aboutDe": "/de/about",
   "rootEn": "/en",
 }
 `;
 
-exports[`getRedirect prefix_except_default: default locale no prefix 1`] = `
+exports[`getRedirect > prefix_except_default: default locale no prefix 1`] = `
 {
   "aboutDe": "/de/about",
   "aboutEn": null,
@@ -78,7 +78,7 @@ exports[`getRedirect prefix_except_default: default locale no prefix 1`] = `
 }
 `;
 
-exports[`getRedirect prefix_except_default: no redirect when path matches and only query/hash differs (hash preservation) 1`] = `
+exports[`getRedirect > prefix_except_default: no redirect when path matches and only query/hash differs (hash preservation) 1`] = `
 {
   "pathOnly": null,
   "withHash": null,
@@ -87,14 +87,14 @@ exports[`getRedirect prefix_except_default: no redirect when path matches and on
 }
 `;
 
-exports[`resolveLocaleFromPath no_prefix: cannot determine from path 1`] = `
+exports[`resolveLocaleFromPath > no_prefix: cannot determine from path 1`] = `
 {
   "/about": null,
   "/en/about": null,
 }
 `;
 
-exports[`resolveLocaleFromPath prefix: first segment is locale 1`] = `
+exports[`resolveLocaleFromPath > prefix: first segment is locale 1`] = `
 {
   "/": null,
   "/about": null,
@@ -104,14 +104,14 @@ exports[`resolveLocaleFromPath prefix: first segment is locale 1`] = `
 }
 `;
 
-exports[`resolveLocaleFromPath prefix_and_default: first segment is locale 1`] = `
+exports[`resolveLocaleFromPath > prefix_and_default: first segment is locale 1`] = `
 {
   "/about": null,
   "/en/about": "en",
 }
 `;
 
-exports[`resolveLocaleFromPath prefix_except_default: first segment or default 1`] = `
+exports[`resolveLocaleFromPath > prefix_except_default: first segment or default 1`] = `
 {
   "/": "en",
   "/about": "en",
@@ -120,7 +120,7 @@ exports[`resolveLocaleFromPath prefix_except_default: first segment or default 1
 }
 `;
 
-exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect work) getRedirect: path and target locale → where to redirect (null = no redirect) 1`] = `
+exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect work) > getRedirect: path and target locale → where to redirect (null = no redirect) 1`] = `
 [
   {
     "path": "/",
@@ -161,7 +161,7 @@ exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect work) 
 ]
 `;
 
-exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect work) resolveLocaleFromPath: result per strategy for set of paths 1`] = `
+exports[`snapshots (documentation: how resolveLocaleFromPath, getRedirect work) > resolveLocaleFromPath: result per strategy for set of paths 1`] = `
 {
   "no_prefix": {
     "/": null,

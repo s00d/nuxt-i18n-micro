@@ -1,12 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/layer', import.meta.url)),
-  },
-})
-test.describe('layer', () => {
+await setupE2E({ shared: 'layer' })
+
+describe('layer', () => {
   test('test layer', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
     await expect(page.locator('#replace')).toHaveText('replaced text in en')

@@ -1,0 +1,30 @@
+config:
+  target: 'http://127.0.0.1:10000' # Target URL under test
+  phases:
+    - duration: 6
+      arrivalRate: 6 # 6 new virtual users per second during warm-up
+    - duration: 60
+      arrivalRate: 60 # 60 new virtual users per second during the main phase
+scenarios:
+  - name: test_scenario
+    flow:
+      - get:
+          url: '/' # Uses target from the config section
+      - get:
+          url: '/ru'
+      - get:
+          url: '/de'
+      - get:
+          url: '/page'
+      - get:
+          url: '/ru/page'
+      - get:
+          url: '/de/page'
+    parallel-requests: 6 # Fire all requests concurrently
+modules:
+  console: # Enables console output during the test
+    disable: false
+reporting:
+  - module: final-stats
+  - module: json
+    filename: results.json # Write test results as JSON

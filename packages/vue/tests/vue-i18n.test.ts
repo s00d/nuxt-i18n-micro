@@ -1,17 +1,17 @@
 import type { Locale } from '@i18n-micro/types'
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { createApp } from 'vue'
 import { createI18n, I18nDefaultLocaleKey, I18nLocalesKey, useI18n, VueI18n } from '../src'
 
 // Suppress expected Vue warnings about router injection in tests
 // These warnings are expected when router is not installed (e.g., in unit tests)
-let warnSpy: ReturnType<typeof jest.spyOn> | undefined
+let warnSpy: ReturnType<typeof vi.spyOn> | undefined
 const originalWarn = console.warn
 
 beforeEach(() => {
   // Suppress Vue warnings about missing router injection
   // These are expected in tests where router is not set up
-  warnSpy = jest.spyOn(console, 'warn').mockImplementation((message: string) => {
+  warnSpy = vi.spyOn(console, 'warn').mockImplementation((message: string) => {
     // Only suppress router-related warnings
     if (
       typeof message === 'string' &&
@@ -144,6 +144,38 @@ describe('VueI18n', () => {
 
     expect(i18n.t('greeting')).toBe('Hello')
   })
+
+  test('resolveTranslations returns the active translation tree', () => {
+    const i18n = new VueI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+          nested: { deep: 'value' },
+        },
+      },
+    })
+
+    expect(i18n.resolveTranslations()).toEqual({
+      greeting: 'Hello',
+      nested: { deep: 'value' },
+    })
+  })
+
+  test('setTranslation replaces values and notifies reactivity', () => {
+    const i18n = new VueI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    i18n.setTranslation('greeting', 'Hi')
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hi' })
+    expect(i18n.t('greeting')).toBe('Hi')
+  })
 })
 
 describe('createI18n plugin', () => {
@@ -226,13 +258,15 @@ describe('useI18n composable', () => {
     const app = createApp({
       template: '<div></div>',
       setup() {
-        const { t, tc, tn, td, tdr, has } = useI18n()
+        const { t, tc, tn, td, tdr, has, resolveTranslations, setTranslation } = useI18n()
         expect(typeof t).toBe('function')
         expect(typeof tc).toBe('function')
         expect(typeof tn).toBe('function')
         expect(typeof td).toBe('function')
         expect(typeof tdr).toBe('function')
         expect(typeof has).toBe('function')
+        expect(typeof resolveTranslations).toBe('function')
+        expect(typeof setTranslation).toBe('function')
         return {}
       },
     })

@@ -6,14 +6,14 @@
  *  – проверка тех же страниц и функциональности
  */
 
-import { type ChildProcess, exec as execCb, spawn } from 'node:child_process'
-import net from 'node:net'
+import type { ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
-import { promisify } from 'node:util'
 import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { getFreePort } from './helpers/port'
+import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
 
 /* ──────────────── settings ──────────────── */
 
@@ -39,59 +39,6 @@ const SPA_ROUTES = [
 
 /* ──────────────── helpers ──────────────── */
 
-const exec = promisify(execCb)
-
-/** Поиск свободного порта через временный net.Server */
-export async function getFreePort(base = 20011, max = 20): Promise<number> {
-  async function tryPort(index: number): Promise<number> {
-    if (index >= max) throw new Error(`No free port in range ${base}-${base + max}`)
-
-    const port = base + index
-    try {
-      await new Promise<void>((resolve, reject) => {
-        const srv = net.createServer()
-
-        srv.once('error', reject)
-
-        srv.once('listening', () => {
-          srv.close((err) => (err ? reject(err) : resolve()))
-        })
-
-        srv.listen(port, '127.0.0.1')
-      })
-      return port
-    } catch {
-      return tryPort(index + 1)
-    }
-  }
-
-  return tryPort(0)
-}
-
-/** Завершает процесс, удерживающий порт */
-async function freePort(port: number) {
-  if (process.platform === 'win32') {
-    try {
-      const { stdout } = await exec(`netstat -ano | findstr :${port}`)
-      const pids = stdout
-        .trim()
-        .split('\n')
-        .map((l) => l.trim().split(/\s+/).pop())
-        .filter(Boolean)
-      await Promise.all(pids.map((pid) => exec(`taskkill /PID ${pid} /F`)))
-    } catch {
-      /* empty */
-    }
-  } else {
-    try {
-      const { stdout } = await exec(`lsof -ti tcp:${port}`)
-      for (const pid of stdout.trim().split('\n').filter(Boolean)) process.kill(Number(pid), 'SIGKILL')
-    } catch {
-      /* empty */
-    }
-  }
-}
-
 /** Ожидаем появления текста на странице */
 async function waitForText(url: string, text: string, tries = 40, ms = 500) {
   async function attempt(index: number): Promise<void> {
@@ -111,57 +58,22 @@ async function waitForText(url: string, text: string, tries = 40, ms = 500) {
   await attempt(0)
 }
 
-/** npm run generate / npm run build через spawn */
+/** npm run generate / npm run build */
 function runNuxt(script: 'generate' | 'build'): Promise<void> {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
-
   const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
-
-  return new Promise((resolve, reject) => {
-    const child = spawn(npmCmd, ['run', script], {
-      cwd: FIXTURES,
-      stdio: 'inherit',
-      detached: true,
-      env,
-    })
-    child.unref()
-    child.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`npm run ${script} exited with code ${code}`))))
-  })
+  return runCommand(npmCmd, ['run', script], { cwd: FIXTURES })
 }
 
-/** Запуск статического или SSR-сервера */
+/** Start static or SSR server */
 function serve(cmd: string[], port: number): ChildProcess {
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    PORT: String(port),
-    NODE_ENV: 'production',
-  }
-  delete env.VITEST
-  delete env.VITE_TEST_BUILD
-  delete env.TEST
-  delete env.JEST
-
   const command = cmd[0]
   if (!command) {
     throw new Error('Command is required')
   }
-  const child = spawn(command, cmd.slice(1), {
+  return spawnServer(command, cmd.slice(1), {
     cwd: FIXTURES,
-    stdio: 'inherit',
-    detached: true,
-    env,
-  }) as import('child_process').ChildProcess
-  if (child && typeof child.unref === 'function') {
-    child.unref()
-  }
-  return child
+    env: { PORT: String(port) },
+  })
 }
 
 async function htmlIncludes(port: number, path: string, text: string) {
@@ -190,9 +102,9 @@ describe('Async Components Production Tests', () => {
   let server: ChildProcess | null = null
 
   const stop = async () => {
-    if (server && !server.killed) server.kill()
+    // stopChild kills the whole process group, so the port is released with it.
+    await stopChild(server)
     server = null
-    if (port) await freePort(port)
   }
 
   /* ---------- STATIC GENERATE ---------- */

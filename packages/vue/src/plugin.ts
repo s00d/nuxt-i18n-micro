@@ -84,15 +84,9 @@ export function createI18n(options: CreateI18nOptions): I18nPlugin {
       app.config.globalProperties.$tc = (key: TranslationKey, count: number | Record<string, string | number | boolean>, defaultValue?: string) => {
         return i18n.tc(key, count, defaultValue)
       }
-      app.config.globalProperties.$tn = (value: number, options?: Intl.NumberFormatOptions) => {
-        return i18n.tn(value, options)
-      }
-      app.config.globalProperties.$td = (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => {
-        return i18n.td(value, options)
-      }
-      app.config.globalProperties.$tdr = (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => {
-        return i18n.tdr(value, options)
-      }
+      app.config.globalProperties.$tn = i18n.tn.bind(i18n)
+      app.config.globalProperties.$td = i18n.td.bind(i18n)
+      app.config.globalProperties.$tdr = i18n.tdr.bind(i18n)
       app.config.globalProperties.$has = (key: TranslationKey, routeName?: string) => {
         return i18n.has(key, routeName)
       }

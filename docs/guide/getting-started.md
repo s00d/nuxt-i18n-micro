@@ -1,13 +1,12 @@
 ---
-title: "Getting Started with Nuxt I18n Micro"
-description: "Install and configure Nuxt I18n Micro."
-outline: "deep"
+title: 'Getting Started with Nuxt I18n Micro'
+description: 'Install and configure Nuxt I18n Micro.'
+outline: 'deep'
 ---
 
 # 🌐 Getting Started with Nuxt I18n Micro
 
 Welcome to Nuxt I18n Micro! This guide will help you get up and running with our high-performance internationalization module for Nuxt.js.
-
 
 ## 📖 Overview
 
@@ -23,24 +22,24 @@ flowchart LR
         S[SEO]
         D[DevTools]
     end
-    
+
     T --> T1[Global]
     T --> T2[Page-specific]
     T --> T3[Component]
     T --> T4[Fallback]
-    
+
     R --> R1[prefix]
     R --> R2[no_prefix]
     R --> R3[prefix_except_default]
-    
+
     P --> P1[Lazy loading]
     P --> P2[Caching]
     P --> P3[SSR optimized]
-    
+
     S --> S1[hreflang]
     S --> S2[Canonical]
     S --> S3[Open Graph]
-    
+
     D --> D1[HMR]
     D --> D2[TypeScript]
     D --> D3[CLI]
@@ -89,9 +88,7 @@ Add the module to your `nuxt.config.ts`:
 
 ```typescript
 export default defineNuxtConfig({
-  modules: [
-    'nuxt-i18n-micro',
-  ],
+  modules: ['nuxt-i18n-micro'],
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', dir: 'ltr' },
@@ -234,13 +231,9 @@ Use translations in your components:
   <div>
     <h1>{{ $t('welcome') }}</h1>
     <p>{{ $t('description', { name: 'World' }) }}</p>
-    
+
     <div>
-      <button
-        v-for="locale in $getLocales()"
-        :key="locale.code"
-        @click="$switchLocale(locale.code)"
-      >
+      <button v-for="locale in $getLocales()" :key="locale.code" @click="$switchLocale(locale.code)">
         {{ locale.code }}
       </button>
     </div>
@@ -275,13 +268,13 @@ export default defineNuxtConfig({
 
 For every option, default, and example, see the dedicated [Configuration Reference](./configuration.md).
 
-| Area | Key options |
-|------|-------------|
-| Locales & routing | `locales`, `defaultLocale`, `strategy`, `globalLocaleRoutes` |
-| Translations | `translationDir`, `fallbackLocale`, `disablePageLocales`, `translationPayloads` |
-| SEO | `meta`, `metaBaseUrl`, `canonicalQueryWhitelist` |
-| Runtime / CDN | `apiBaseUrl`, `apiBaseClientHost`, `apiBaseServerHost`, `cacheMaxSize`, `cacheTtl` |
-| Plugins | `plugin`, `define`, `redirects`, `hooks`, `components` |
+| Area              | Key options                                                                                                          |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Locales & routing | `locales`, `defaultLocale`, `strategy`, `globalLocaleRoutes`                                                         |
+| Translations      | `translationDir`, `fallbackLocale`, `disablePageLocales`, `translationPayloads`                                      |
+| SEO               | `meta`, `metaBaseUrl`, `canonicalQueryWhitelist`                                                                     |
+| Runtime / CDN     | `apiBaseUrl`, `apiBaseClientHost`, `apiBaseServerHost`, `cacheMaxSize`, `cacheTtl`, `httpCacheDuration`, `dateBuild` |
+| Plugins           | `plugin`, `define`, `redirects`, `hooks`, `components`                                                               |
 
 :::
 
@@ -294,7 +287,7 @@ Nuxt I18n Micro v3 uses a multi-layer caching architecture built around `Transla
 ```mermaid
 flowchart TB
     subgraph Client["🖥️ Client Side"]
-        A[Page Request] --> B{useState i18n-ssr-chunks?}
+        A[Page Request] --> B{payload.data chunks?}
         B -->|Found| C[seedFromSsrChunks]
         B -->|Not Found| D{TranslationStorage cache?}
         D -->|Hit| E[Return Cached]
@@ -312,7 +305,7 @@ flowchart TB
         L --> M["Load payload (premerged file or source + runtime merge)"]
         M --> N[Cache in process-global Map]
         N --> K
-        K --> O["Store in useState i18n-ssr-chunks"]
+        K --> O["Chunks -> payload.data (setSsrChunk)"]
     end
 
     A -.->|First Load| I
@@ -322,7 +315,7 @@ flowchart TB
 
 ### Key Characteristics
 
-- 🚀 **Zero extra requests on first load**: SSR chunks in `useState('i18n-ssr-chunks')` are seeded into `TranslationStorage` synchronously on hydration
+- 🚀 **No blocking request on first load**: chunks loaded during SSR are seeded into `TranslationStorage` synchronously on hydration via `payload.data['i18n-ssr-chunks']`. See [Performance](./performance.md#server-side-payload-transfer).
 - 💾 **Process-global server cache**: `loadTranslationsFromServer()` caches merged results via `Symbol.for` — loaded once per locale/page, served from memory for all subsequent requests
 - ⚡ **Single request per page**: With `mode: 'premerged'` (default), the API returns a pre-built file (root + page-specific + fallback merged at build time). With `mode: 'source'`, the same route merges compact source files at runtime — see [translationPayloads](./configuration.md#translationpayloads).
 - 🔄 **HMR in development**: When `hmr: true`, translation file changes invalidate the server cache automatically
@@ -358,4 +351,3 @@ Now that you have the basics set up, explore these advanced topics:
 - **[Cache & Storage](../api/i18n-cache-api.md)** - Translation cache architecture
 - **[Examples](../examples.md)** - Real-world usage examples
 - **[Migration Guide](./migration.md)** - Migrating from other i18n solutions or v2
-

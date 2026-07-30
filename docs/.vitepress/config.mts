@@ -1,3 +1,4 @@
+import llmstxt from 'vitepress-plugin-llms'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { withChartjs } from 'vitepress-plugin-chartjs'
 import { withFolderTree } from 'vitepress-plugin-folder-tree'
@@ -7,277 +8,332 @@ import { SITE, transformHead } from './seo'
 const docsBase = process.env.NODE_ENV === 'production' ? '/nuxt-i18n-micro/' : '/'
 
 // https://vitepress.dev/reference/site-config
-export default withFolderTree(withChartjs(withMermaid({
-  vite: {
-    build: {
-      chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('chart.js')) return 'chartjs'
-            if (id.includes('mermaid')) return 'mermaid'
-            if (id.includes('vitepress-plugin-folder-tree')) return 'folder-tree'
-            if (id.includes('vitepress-plugin-chartjs')) return 'vp-chartjs'
+export default withFolderTree(
+  withChartjs(
+    withMermaid({
+      vite: {
+        plugins: [
+          // Publishes the docs in the form an LLM can actually read: `/llms.txt` as an
+          // index, `/llms-full.txt` as one bundle, and a `.md` twin of every page — so an
+          // assistant answering about this module quotes the docs instead of guessing
+          // from the HTML it scraped.
+          llmstxt({
+            // Origin only: the plugin prepends VitePress's own `base`, so a domain that
+            // already contains it produces `/nuxt-i18n-micro/nuxt-i18n-micro/…`.
+            domain: new URL(SITE.url).origin,
+            title: 'Nuxt I18n Micro',
+            description: SITE.defaultDescription,
+            // Only the landing page: it is a marketing hero with no prose an assistant
+            // could answer from. Every section index carries real documentation — the
+            // news entries, the integration overview, the API overview — and excluding
+            // them cost the bundle several hundred lines of exactly the content it is for.
+            ignoreFiles: ['index.md'],
+          }),
+        ],
+        build: {
+          chunkSizeWarningLimit: 1000,
+          rollupOptions: {
+            output: {
+              manualChunks(id) {
+                if (id.includes('chart.js')) return 'chartjs'
+                if (id.includes('mermaid')) return 'mermaid'
+                if (id.includes('vitepress-plugin-folder-tree')) return 'folder-tree'
+                if (id.includes('vitepress-plugin-chartjs')) return 'vp-chartjs'
+              },
+            },
           },
         },
       },
-    },
-  },
-  lang: 'en-US',
-  title: 'Nuxt I18n Micro',
-  description: SITE.defaultDescription,
-  titleTemplate: ':title | Nuxt I18n Micro',
-  lastUpdated: true,
-  cleanUrls: true,
-  base: docsBase,
+      lang: 'en-US',
+      title: 'Nuxt I18n Micro',
+      description: SITE.defaultDescription,
+      titleTemplate: ':title | Nuxt I18n Micro',
+      lastUpdated: true,
+      cleanUrls: true,
+      base: docsBase,
 
-  transformHead,
+      transformHead,
 
-  sitemap: {
-    hostname: 'https://s00d.github.io',
-    transformItems(items) {
-      const prefix = '/nuxt-i18n-micro'
-      return items.map((item) => {
-        const path = item.url === '/' ? '/' : item.url.startsWith('/') ? item.url : `/${item.url}`
-        return { ...item, url: `${prefix}${path}` }
-      })
-    },
-  },
+      sitemap: {
+        hostname: 'https://s00d.github.io',
+        transformItems(items) {
+          const prefix = '/nuxt-i18n-micro'
+          return items.map((item) => {
+            const path = item.url === '/' ? '/' : item.url.startsWith('/') ? item.url : `/${item.url}`
+            return { ...item, url: `${prefix}${path}` }
+          })
+        },
+      },
 
-  head: [
-    ['link', { rel: 'icon', href: `${docsBase}favicon.ico`, sizes: 'any' }],
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${docsBase}favicon.svg` }],
-    ['link', { rel: 'apple-touch-icon', href: `${docsBase}apple-touch-icon.png` }],
-    ['meta', { name: 'application-name', content: SITE.name }],
-    ['meta', { name: 'keywords', content: 'nuxt,i18n,internationalization,nuxt-module,localization,vue,ssr,seo' }],
-    ['link', { rel: 'dns-prefetch', href: 'https://github.com' }],
-  ],
+      head: [
+        ['link', { rel: 'icon', href: `${docsBase}favicon.ico`, sizes: 'any' }],
+        ['link', { rel: 'icon', type: 'image/svg+xml', href: `${docsBase}favicon.svg` }],
+        ['link', { rel: 'apple-touch-icon', href: `${docsBase}apple-touch-icon.png` }],
+        ['meta', { name: 'application-name', content: SITE.name }],
+        ['meta', { name: 'keywords', content: 'nuxt,i18n,internationalization,nuxt-module,localization,vue,ssr,seo' }],
+        ['link', { rel: 'dns-prefetch', href: 'https://github.com' }],
+      ],
 
-  themeConfig: {
-    search: {
-      provider: 'local',
-    },
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: 'Home', link: '/' },
-      { text: 'News', link: '/news' },
-      {
-        text: 'Guide',
-        items: [
-          { text: 'Getting Started', link: '/guide/getting-started' },
-          { text: 'Configuration', link: '/guide/configuration' },
-          { text: 'Using', link: '/guide/using' },
-          { text: 'Firebase Deployment', link: '/guide/firebase' },
-          { text: 'Performance', link: '/guide/performance' },
-          { text: 'Performance Test Results', link: '/guide/performance-results' },
-          { text: 'Folder Structure', link: '/guide/folder-structure' },
-          { text: 'Layers', link: '/guide/layers' },
-          { text: 'SEO', link: '/guide/seo' },
-          { text: 'Migration from nuxt-i18n', link: '/guide/migration' },
-          { text: 'Upgrade to v3', link: '/guide/v3-upgrade' },
-          { text: 'Contribution', link: '/guide/contribution' },
-          { text: 'Multi Domain Locales', link: '/guide/multi-domain-locales' },
-          { text: 'Custom Localized Routes', link: '/guide/custom-locale-routes' },
-          { text: 'Per Component Translations', link: '/guide/per-component-translations' },
-          { text: 'Crowdin Integration', link: '/guide/crowdin' },
-          { text: 'FAQ', link: '/guide/faq' },
-          { text: 'Server Side Translations', link: '/guide/server-side-translations' },
-          { text: 'Strategy', link: '/guide/strategy' },
-          { text: 'DevTools', link: '/guide/devtools' },
-          { text: 'Testing', link: '/guide/testing' },
-          { text: 'Storybook', link: '/guide/storybook' },
-          { text: 'Custom Auto Detect', link: '/guide/custom-auto-detect' },
-          { text: 'Runtime Overrides', link: '/guide/runtime-overrides' },
-          { text: 'Excluding Static Files', link: '/guide/excluding-static-files' },
-          { text: 'CLI Tool', link: '/guide/cli' },
-        ],
-      },
-      {
-        text: 'Integrations',
-        items: [
-          { text: 'Overview', link: '/integrations/' },
-          { text: 'Vue Package', link: '/integrations/vue-package' },
-          { text: 'React Package', link: '/integrations/react-package' },
-          { text: 'Preact Package', link: '/integrations/preact-package' },
-          { text: 'Solid Package', link: '/integrations/solid-package' },
-          { text: 'Astro Package', link: '/integrations/astro-package' },
-          { text: 'Node.js Package', link: '/integrations/nodejs-package' },
-          { text: 'Types Generator', link: '/integrations/types-generator' },
-          { text: 'Devtools Package', link: '/integrations/devtools-ui-package' },
-        ],
-      },
-      {
-        text: 'API',
-        items: [
-          { text: 'Overview', link: '/api/' },
-          { text: 'Methods', link: '/api/methods' },
-          { text: 'Events', link: '/api/events' },
-          { text: 'Translations and Cache', link: '/api/i18n-cache-api' },
-        ],
-      },
-      { text: 'Examples', link: '/examples' },
-      {
-        text: 'Components',
-        items: [
-          { text: 'Overview', link: '/components/' },
-          { text: 'i18n-t', link: '/components/i18n-t' },
-          { text: 'i18n-switcher', link: '/components/i18n-switcher' },
-          { text: 'i18n-link', link: '/components/i18n-link' },
-          { text: 'i18n-group', link: '/components/i18n-group' },
-        ],
-      },
-      {
-        text: 'Composables',
-        items: [
-          { text: 'Overview', link: '/composables/' },
-          { text: 'useI18n', link: '/composables/useI18n' },
-          { text: 'useLocaleHead', link: '/composables/useLocaleHead' },
-          { text: 'useI18nHead', link: '/composables/useI18nHead' },
-          { text: 'useI18nLocale', link: '/composables/useI18nLocale' },
-        ],
-      },
-      {
-        text: pkg.version,
-        items: [
+      themeConfig: {
+        search: {
+          provider: 'local',
+        },
+        // https://vitepress.dev/reference/default-theme-config
+        nav: [
+          { text: 'Home', link: '/' },
+          { text: 'News', link: '/news' },
           {
-            text: 'Changelog',
-            link: 'https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md',
+            text: 'Guide',
+            items: [
+              { text: 'Getting Started', link: '/guide/getting-started' },
+              { text: 'Configuration', link: '/guide/configuration' },
+              { text: 'Using', link: '/guide/using' },
+              { text: 'Firebase Deployment', link: '/guide/firebase' },
+              { text: 'Performance', link: '/guide/performance' },
+              { text: 'Performance Test Results', link: '/guide/performance-results' },
+              { text: 'Folder Structure', link: '/guide/folder-structure' },
+              { text: 'Layers', link: '/guide/layers' },
+              { text: 'SEO', link: '/guide/seo' },
+              { text: 'Migration from nuxt-i18n', link: '/guide/migration' },
+              { text: 'Upgrade to v3', link: '/guide/v3-upgrade' },
+              { text: 'Contribution', link: '/guide/contribution' },
+              { text: 'Multi Domain Locales', link: '/guide/multi-domain-locales' },
+              { text: 'Custom Localized Routes', link: '/guide/custom-locale-routes' },
+              { text: 'Per Component Translations', link: '/guide/per-component-translations' },
+              { text: 'Crowdin Integration', link: '/guide/crowdin' },
+              { text: 'FAQ', link: '/guide/faq' },
+              { text: 'Server Side Translations', link: '/guide/server-side-translations' },
+              { text: 'Strategy', link: '/guide/strategy' },
+              { text: 'DevTools', link: '/guide/devtools' },
+              { text: 'Testing', link: '/guide/testing' },
+              { text: 'Storybook', link: '/guide/storybook' },
+              { text: 'Custom Auto Detect', link: '/guide/custom-auto-detect' },
+              { text: 'Runtime Overrides', link: '/guide/runtime-overrides' },
+              { text: 'Excluding Static Files', link: '/guide/excluding-static-files' },
+              { text: 'CLI Tool', link: '/guide/cli' },
+            ],
+          },
+          {
+            text: 'Integrations',
+            items: [
+              { text: 'Overview', link: '/integrations/' },
+              { text: 'Vue Package', link: '/integrations/vue-package' },
+              { text: 'React Package', link: '/integrations/react-package' },
+              { text: 'Preact Package', link: '/integrations/preact-package' },
+              { text: 'Solid Package', link: '/integrations/solid-package' },
+              { text: 'Astro Package', link: '/integrations/astro-package' },
+              { text: 'Node.js Package', link: '/integrations/nodejs-package' },
+              { text: 'Types Generator', link: '/integrations/types-generator' },
+              { text: 'Devtools Package', link: '/integrations/devtools-ui-package' },
+            ],
+          },
+          {
+            text: 'API',
+            items: [
+              { text: 'Overview', link: '/api/' },
+              { text: 'Methods', link: '/api/methods' },
+              { text: 'Events', link: '/api/events' },
+              { text: 'Translations and Cache', link: '/api/i18n-cache-api' },
+            ],
+          },
+          { text: 'Examples', link: '/examples' },
+          {
+            text: 'Components',
+            items: [
+              { text: 'Overview', link: '/components/' },
+              { text: 'i18n-t', link: '/components/i18n-t' },
+              { text: 'i18n-switcher', link: '/components/i18n-switcher' },
+              { text: 'i18n-link', link: '/components/i18n-link' },
+              { text: 'i18n-group', link: '/components/i18n-group' },
+            ],
+          },
+          {
+            text: 'Composables',
+            items: [
+              { text: 'Overview', link: '/composables/' },
+              { text: 'useI18n', link: '/composables/useI18n' },
+              { text: 'useLocaleHead', link: '/composables/useLocaleHead' },
+              { text: 'useI18nHead', link: '/composables/useI18nHead' },
+              { text: 'useI18nLocale', link: '/composables/useI18nLocale' },
+            ],
+          },
+          {
+            text: pkg.version,
+            items: [
+              {
+                text: 'Changelog',
+                link: 'https://github.com/s00d/nuxt-i18n-micro/blob/main/CHANGELOG.md',
+              },
+            ],
           },
         ],
+
+        editLink: {
+          pattern: 'https://github.com/s00d/nuxt-i18n-micro/edit/main/docs/:path',
+          text: 'Edit this page on GitHub',
+        },
+
+        footer: {
+          message: 'Released under the MIT License.',
+        },
+
+        sidebar: {
+          '/integrations/': [
+            {
+              text: 'Integrations',
+              base: '/integrations',
+              items: [
+                { text: 'Overview', link: '/' },
+                { text: 'Vue Package', link: '/vue-package' },
+                { text: 'React Package', link: '/react-package' },
+                { text: 'Preact Package', link: '/preact-package' },
+                { text: 'Solid Package', link: '/solid-package' },
+                { text: 'Astro Package', link: '/astro-package' },
+                { text: 'Node.js Package', link: '/nodejs-package' },
+                { text: 'Types Generator', link: '/types-generator' },
+                { text: 'Devtools Package', link: '/devtools-ui-package' },
+              ],
+            },
+          ],
+          '/guide/': [
+            {
+              text: 'Guide',
+              base: '/guide',
+              items: [
+                { text: 'Getting Started', link: '/getting-started' },
+                { text: 'Configuration', link: '/configuration' },
+                { text: 'Folder Structure', link: '/folder-structure' },
+                { text: 'Routing Strategy', link: '/strategy' },
+                {
+                  text: 'Usage',
+                  collapsed: true,
+                  items: [
+                    { text: 'Translating Content', link: '/using' },
+                    { text: 'Per Component Translations', link: '/per-component-translations' },
+                    { text: 'Custom Localized Routes', link: '/custom-locale-routes' },
+                    { text: 'Custom Auto Detect', link: '/custom-auto-detect' },
+                    { text: 'Runtime Overrides', link: '/runtime-overrides' },
+                    { text: 'Layers', link: '/layers' },
+                  ],
+                },
+                {
+                  text: 'SEO & URLs',
+                  collapsed: true,
+                  items: [
+                    { text: 'SEO', link: '/seo' },
+                    { text: 'Multi Domain Locales', link: '/multi-domain-locales' },
+                    { text: 'Excluding Static Files', link: '/excluding-static-files' },
+                  ],
+                },
+                {
+                  text: 'Performance & Deployment',
+                  collapsed: true,
+                  items: [
+                    { text: 'Performance', link: '/performance' },
+                    { text: 'Benchmark Results', link: '/performance-results' },
+                    { text: 'Server Side Translations', link: '/server-side-translations' },
+                    { text: 'Firebase Deployment', link: '/firebase' },
+                    { text: 'Release Smoke Checks', link: '/release-smoke' },
+                    { text: 'Maintenance Commands', link: '/maintenance-commands' },
+                  ],
+                },
+                {
+                  text: 'Tooling',
+                  collapsed: true,
+                  items: [
+                    { text: 'CLI Tool', link: '/cli' },
+                    { text: 'DevTools', link: '/devtools' },
+                    { text: 'Testing Your App', link: '/testing' },
+                    { text: 'Storybook', link: '/storybook' },
+                    { text: 'Crowdin Integration', link: '/crowdin' },
+                  ],
+                },
+                {
+                  text: 'Migration & Help',
+                  collapsed: true,
+                  items: [
+                    { text: 'Migration from nuxt-i18n', link: '/migration' },
+                    { text: 'Upgrade to v3', link: '/v3-upgrade' },
+                    { text: 'FAQ', link: '/faq' },
+                    { text: 'Contribution', link: '/contribution' },
+                    { text: 'Testing the Module', link: '/testing-strategies' },
+                  ],
+                },
+              ],
+            },
+          ],
+          '/api/': [
+            {
+              text: 'API',
+              base: '/api',
+              items: [
+                { text: 'Overview', link: '/' },
+                { text: 'Methods', link: '/methods' },
+                { text: 'Events', link: '/events' },
+                { text: 'Translations and Cache', link: '/i18n-cache-api' },
+                { text: 'Module Options', link: '/module-options' },
+                { text: 'Package APIs', link: '/packages' },
+              ],
+            },
+          ],
+          '/components/': [
+            {
+              text: 'Components',
+              base: '/components',
+              items: [
+                { text: 'Overview', link: '/' },
+                { text: 'i18n-t Component', link: '/i18n-t' },
+                { text: 'i18n-switcher Component', link: '/i18n-switcher' },
+                { text: 'i18n-link Component', link: '/i18n-link' },
+                { text: 'i18n-group Component', link: '/i18n-group' },
+              ],
+            },
+          ],
+          '/composables/': [
+            {
+              text: 'Composables',
+              base: '/composables',
+              items: [
+                { text: 'Overview', link: '/' },
+                { text: 'useI18n', link: '/useI18n' },
+                { text: 'useLocaleHead', link: '/useLocaleHead' },
+                { text: 'useI18nHead', link: '/useI18nHead' },
+                { text: 'useI18nLocale', link: '/useI18nLocale' },
+              ],
+            },
+          ],
+          '/news/': [
+            {
+              text: 'News',
+              base: '/news',
+              items: [{ text: 'Release notes', link: '/' }],
+            },
+          ],
+        },
+
+        socialLinks: [{ icon: 'github', link: 'https://github.com/s00d/nuxt-i18n-micro' }],
       },
-    ],
 
-    editLink: {
-      pattern: 'https://github.com/s00d/nuxt-i18n-micro/edit/main/docs/:path',
-      text: 'Edit this page on GitHub',
-    },
+      // Mermaid configuration
+      mermaid: {
+        theme: 'default',
+      },
+      mermaidPlugin: {
+        class: 'mermaid-chart',
+      },
 
-    footer: {
-      message: 'Released under the MIT License.',
-    },
-
-    sidebar: {
-      '/integrations/': [
-        {
-          text: 'Integrations',
-          base: '/integrations',
-          items: [
-            { text: 'Overview', link: '/' },
-            { text: 'Vue Package', link: '/vue-package' },
-            { text: 'React Package', link: '/react-package' },
-            { text: 'Preact Package', link: '/preact-package' },
-            { text: 'Solid Package', link: '/solid-package' },
-            { text: 'Astro Package', link: '/astro-package' },
-            { text: 'Node.js Package', link: '/nodejs-package' },
-            { text: 'Types Generator', link: '/types-generator' },
-            { text: 'Devtools Package', link: '/devtools-ui-package' },
-          ],
-        },
-      ],
-      '/guide/': [
-        {
-          text: 'Guide',
-          base: '/guide',
-          items: [
-            { text: 'Getting Started', link: '/getting-started' },
-            { text: 'Configuration', link: '/configuration' },
-            { text: 'Using', link: '/using' },
-            { text: 'Firebase Deployment', link: '/firebase' },
-            { text: 'Performance', link: '/performance' },
-            { text: 'Performance Test Results', link: '/performance-results' },
-            { text: 'Folder Structure', link: '/folder-structure' },
-            { text: 'Layers', link: '/layers' },
-            { text: 'Seo', link: '/seo' },
-            { text: 'Migration from nuxt-i18n', link: '/migration' },
-            { text: 'Upgrade to v3', link: '/v3-upgrade' },
-            { text: 'Contribution', link: '/contribution' },
-            { text: 'Multi Domain Locales', link: '/multi-domain-locales' },
-            { text: 'Custom Localized Routes', link: '/custom-locale-routes' },
-            { text: 'Per Component Translations', link: '/per-component-translations' },
-            { text: 'Crowdin Integration', link: '/crowdin' },
-            { text: 'FAQ', link: '/faq' },
-            { text: 'Server Side Translations', link: '/server-side-translations' },
-            { text: 'Strategy', link: '/strategy' },
-            { text: 'DevTools', link: '/devtools' },
-            { text: 'Testing', link: '/testing' },
-            { text: 'Storybook', link: '/storybook' },
-            { text: 'Custom Auto Detect', link: '/custom-auto-detect' },
-            { text: 'Runtime Overrides', link: '/runtime-overrides' },
-            { text: 'Excluding Static Files', link: '/excluding-static-files' },
-            { text: 'CLI Tool', link: '/cli' },
-          ],
-        },
-      ],
-      '/api/': [
-        {
-          text: 'API',
-          base: '/api',
-          items: [
-            { text: 'Overview', link: '/' },
-            { text: 'Methods', link: '/methods' },
-            { text: 'Events', link: '/events' },
-            { text: 'Translations and Cache', link: '/i18n-cache-api' },
-          ],
-        },
-      ],
-      '/components/': [
-        {
-          text: 'Components',
-          base: '/components',
-          items: [
-            { text: 'Overview', link: '/' },
-            { text: 'i18n-t Component', link: '/i18n-t' },
-            { text: 'i18n-switcher Component', link: '/i18n-switcher' },
-            { text: 'i18n-link Component', link: '/i18n-link' },
-            { text: 'i18n-group Component', link: '/i18n-group' },
-          ],
-        },
-      ],
-      '/composables/': [
-        {
-          text: 'Composables',
-          base: '/composables',
-          items: [
-            { text: 'Overview', link: '/' },
-            { text: 'useI18n', link: '/useI18n' },
-            { text: 'useLocaleHead', link: '/useLocaleHead' },
-            { text: 'useI18nHead', link: '/useI18nHead' },
-            { text: 'useI18nLocale', link: '/useI18nLocale' },
-          ],
-        },
-      ],
-      '/news/': [
-        {
-          text: 'News',
-          base: '/news',
-          items: [{ text: 'Release notes', link: '/' }],
-        },
-      ],
-    },
-
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/s00d/nuxt-i18n-micro' },
-    ],
-  },
-
-  // Mermaid configuration
-  mermaid: {
-    theme: 'default',
-  },
-  mermaidPlugin: {
-    class: 'mermaid-chart',
-  },
-
-  // Chart.js configuration
-  chartjs: {
-    defaultHeight: '400px',
-    root: new URL('../', import.meta.url).pathname,
-    colorPalette: [
-      'rgba(75, 192, 192, 0.8)',
-      'rgba(255, 99, 132, 0.8)',
-      'rgba(46, 204, 113, 0.8)',
-      'rgba(255, 159, 64, 0.8)',
-      'rgba(153, 102, 255, 0.8)',
-    ],
-  },
-})))
+      // Chart.js configuration
+      chartjs: {
+        defaultHeight: '400px',
+        root: new URL('../', import.meta.url).pathname,
+        colorPalette: [
+          'rgba(75, 192, 192, 0.8)',
+          'rgba(255, 99, 132, 0.8)',
+          'rgba(46, 204, 113, 0.8)',
+          'rgba(255, 159, 64, 0.8)',
+          'rgba(153, 102, 255, 0.8)',
+        ],
+      },
+    }),
+  ),
+)

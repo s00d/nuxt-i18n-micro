@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`extractLocalizedPaths (core) dynamic segments in path: normalized key [id] -> :id 1`] = `
+exports[`extractLocalizedPaths (core) > dynamic segments in path: normalized key [id] -> :id 1`] = `
 {
   "users/[id]": {
     "de": "/benutzer/:id",
@@ -9,9 +9,9 @@ exports[`extractLocalizedPaths (core) dynamic segments in path: normalized key [
 }
 `;
 
-exports[`extractLocalizedPaths (core) empty pages array returns empty object 1`] = `{}`;
+exports[`extractLocalizedPaths (core) > empty pages array returns empty object 1`] = `{}`;
 
-exports[`extractLocalizedPaths (core) filesLocaleRoutes only: returns paths by page name and path 1`] = `
+exports[`extractLocalizedPaths (core) > filesLocaleRoutes only: returns paths by page name and path 1`] = `
 {
   "about": {
     "de": "/ueber-uns",
@@ -24,7 +24,7 @@ exports[`extractLocalizedPaths (core) filesLocaleRoutes only: returns paths by p
 }
 `;
 
-exports[`extractLocalizedPaths (core) globalLocaleRoutes only: returns paths by normalized key 1`] = `
+exports[`extractLocalizedPaths (core) > globalLocaleRoutes only: returns paths by normalized key 1`] = `
 {
   "about": {
     "de": "/ueber-uns",
@@ -37,7 +37,7 @@ exports[`extractLocalizedPaths (core) globalLocaleRoutes only: returns paths by 
 }
 `;
 
-exports[`extractLocalizedPaths (core) globalLocaleRoutes with false value: key not in result for that path 1`] = `
+exports[`extractLocalizedPaths (core) > globalLocaleRoutes with false value: key not in result for that path 1`] = `
 {
   "about": {
     "de": "/ueber",
@@ -46,7 +46,7 @@ exports[`extractLocalizedPaths (core) globalLocaleRoutes with false value: key n
 }
 `;
 
-exports[`extractLocalizedPaths (core) lookup by pageName when path differs 1`] = `
+exports[`extractLocalizedPaths (core) > lookup by pageName when path differs 1`] = `
 {
   "about": {
     "de": "/ueber-uns",
@@ -55,7 +55,7 @@ exports[`extractLocalizedPaths (core) lookup by pageName when path differs 1`] =
 }
 `;
 
-exports[`extractLocalizedPaths (core) multiple levels of nesting with mixed global and files 1`] = `
+exports[`extractLocalizedPaths (core) > multiple levels of nesting with mixed global and files 1`] = `
 {
   "level1": {
     "de": "/ebene1",
@@ -68,7 +68,7 @@ exports[`extractLocalizedPaths (core) multiple levels of nesting with mixed glob
 }
 `;
 
-exports[`extractLocalizedPaths (core) nested pages: extracts with parentPath 1`] = `
+exports[`extractLocalizedPaths (core) > nested pages: extracts with parentPath 1`] = `
 {
   "parent": {
     "de": "/eltern",
@@ -81,4 +81,4 @@ exports[`extractLocalizedPaths (core) nested pages: extracts with parentPath 1`]
 }
 `;
 
-exports[`extractLocalizedPaths (core) pages with no globalLocaleRoutes or filesLocaleRoutes returns empty 1`] = `{}`;
+exports[`extractLocalizedPaths (core) > pages with no globalLocaleRoutes or filesLocaleRoutes returns empty 1`] = `{}`;

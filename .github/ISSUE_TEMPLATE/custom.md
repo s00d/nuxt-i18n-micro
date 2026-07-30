@@ -6,7 +6,7 @@ labels: 'question'
 assignees: ''
 ---
 
-<!-- 
+<!--
 💡 Before asking:
 - 📚 Check [Documentation](https://s00d.github.io/nuxt-i18n-micro/)
 - ❓ Read [FAQ](https://s00d.github.io/nuxt-i18n-micro/guide/faq)
@@ -17,18 +17,15 @@ assignees: ''
 
 <!-- What would you like to know? -->
 
-
 ## 📝 Context
 
 <!-- What are you trying to achieve? -->
-
 
 ## 🔍 What I've Tried
 
 - [ ] Read documentation
 - [ ] Searched existing issues
-- [ ] Tried: 
-
+- [ ] Tried:
 
 ## 💻 Code Example (optional)
 

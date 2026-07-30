@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RouteGenerator - Basic Functionality Basic Functionality should correctly extend pages with localized routes 1`] = `
+exports[`RouteGenerator - Basic Functionality > Basic Functionality > should correctly extend pages with localized routes 1`] = `
 [
   {
     "children": [
@@ -113,7 +113,7 @@ exports[`RouteGenerator - Basic Functionality Basic Functionality should correct
 ]
 `;
 
-exports[`RouteGenerator - Basic Functionality Basic Functionality should handle default locale routes correctly in extendPages 1`] = `
+exports[`RouteGenerator - Basic Functionality > Basic Functionality > should handle default locale routes correctly in extendPages 1`] = `
 [
   {
     "children": [
@@ -144,7 +144,7 @@ exports[`RouteGenerator - Basic Functionality Basic Functionality should handle 
 ]
 `;
 
-exports[`RouteGenerator - Basic Functionality Basic Functionality should include default locale routes when strategy is prefix 1`] = `
+exports[`RouteGenerator - Basic Functionality > Basic Functionality > should include default locale routes when strategy is prefix 1`] = `
 [
   {
     "alias": [],
@@ -164,7 +164,7 @@ exports[`RouteGenerator - Basic Functionality Basic Functionality should include
 ]
 `;
 
-exports[`RouteGenerator - Basic Functionality extractLocalizedPaths should extract localized paths correctly 1`] = `
+exports[`RouteGenerator - Basic Functionality > extractLocalizedPaths should extract localized paths correctly 1`] = `
 {
   "about": {
     "de": "/a-propos",
@@ -177,7 +177,7 @@ exports[`RouteGenerator - Basic Functionality extractLocalizedPaths should extra
 }
 `;
 
-exports[`RouteGenerator - Basic Functionality should handle no_prefix strategy correctly 1`] = `
+exports[`RouteGenerator - Basic Functionality > should handle no_prefix strategy correctly 1`] = `
 [
   {
     "children": [
@@ -237,7 +237,7 @@ exports[`RouteGenerator - Basic Functionality should handle no_prefix strategy c
 ]
 `;
 
-exports[`RouteGenerator - Basic Functionality should handle prefix_and_default strategy correctly 1`] = `
+exports[`RouteGenerator - Basic Functionality > should handle prefix_and_default strategy correctly 1`] = `
 [
   {
     "children": [
@@ -267,7 +267,7 @@ exports[`RouteGenerator - Basic Functionality should handle prefix_and_default s
 ]
 `;
 
-exports[`RouteGenerator - Basic Functionality should handle prefix_except_default strategy correctly 1`] = `
+exports[`RouteGenerator - Basic Functionality > should handle prefix_except_default strategy correctly 1`] = `
 [
   {
     "children": [

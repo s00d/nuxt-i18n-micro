@@ -2,6 +2,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
 import { NoPrefixPathStrategy, PrefixAndDefaultPathStrategy, PrefixExceptDefaultPathStrategy, PrefixPathStrategy } from '../src'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
+import { describe, expect, test, vi } from 'vitest'
 
 const baseConfig: ModuleOptionsExtend = {
   defaultLocale: 'en',
@@ -67,7 +68,7 @@ describe('RouterAdapter fallback: hasRoute returns false', () => {
 
 describe('RouterAdapter: resolve used for localeRoute with object', () => {
   test('localeRoute with object: resolve is called with route', () => {
-    const resolveSpy = jest.fn((to: RouteLike | string) => {
+    const resolveSpy = vi.fn((to: RouteLike | string) => {
       if (typeof to === 'string') return { name: to, path: to, fullPath: to, params: {}, query: {}, hash: '' }
       const r = to as RouteLike
       return {

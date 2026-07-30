@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Critical: Alias handling alias routes are separate entries with localized path (prefix strategy) 1`] = `
+exports[`Critical: Alias handling > alias routes are separate entries with localized path (prefix strategy) 1`] = `
 [
   {
     "alias": [],
@@ -30,7 +30,7 @@ exports[`Critical: Alias handling alias routes are separate entries with localiz
 ]
 `;
 
-exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 1`] = `
+exports[`Critical: Alias handling > all strategies with alias: no_prefix, prefix, prefix_and_default 1`] = `
 [
   {
     "alias": [
@@ -50,7 +50,7 @@ exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, 
 ]
 `;
 
-exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 2`] = `
+exports[`Critical: Alias handling > all strategies with alias: no_prefix, prefix, prefix_and_default 2`] = `
 [
   {
     "alias": [],
@@ -72,7 +72,7 @@ exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, 
 ]
 `;
 
-exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, prefix_and_default 3`] = `
+exports[`Critical: Alias handling > all strategies with alias: no_prefix, prefix, prefix_and_default 3`] = `
 [
   {
     "alias": [
@@ -101,7 +101,7 @@ exports[`Critical: Alias handling all strategies with alias: no_prefix, prefix, 
 ]
 `;
 
-exports[`Critical: Alias handling main localized route has alias undefined when alias routes are generated as separate 1`] = `
+exports[`Critical: Alias handling > main localized route has alias undefined when alias routes are generated as separate 1`] = `
 [
   {
     "alias": [
@@ -131,7 +131,7 @@ exports[`Critical: Alias handling main localized route has alias undefined when 
 ]
 `;
 
-exports[`Critical: Alias handling nested page with alias — alias routes exist and are prefixed 1`] = `
+exports[`Critical: Alias handling > nested page with alias — alias routes exist and are prefixed 1`] = `
 [
   {
     "alias": [
@@ -179,7 +179,7 @@ exports[`Critical: Alias handling nested page with alias — alias routes exist 
 ]
 `;
 
-exports[`Critical: Meta, file preserved in generated routes generated route preserves meta and file from original page 1`] = `
+exports[`Critical: Meta, file preserved in generated routes > generated route preserves meta and file from original page 1`] = `
 [
   {
     "children": [],
@@ -206,7 +206,7 @@ exports[`Critical: Meta, file preserved in generated routes generated route pres
 ]
 `;
 
-exports[`Critical: Original path lookup (parentOriginalPath) child with absolute custom path — path is standalone, not joined with parent 1`] = `
+exports[`Critical: Original path lookup (parentOriginalPath) > child with absolute custom path — path is standalone, not joined with parent 1`] = `
 [
   {
     "children": [
@@ -252,7 +252,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) child with absolute
 ]
 `;
 
-exports[`Critical: Original path lookup (parentOriginalPath) nested: parent and child both have custom paths — lookup by original full path /parent/child 1`] = `
+exports[`Critical: Original path lookup (parentOriginalPath) > nested: parent and child both have custom paths — lookup by original full path /parent/child 1`] = `
 [
   {
     "children": [
@@ -298,7 +298,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) nested: parent and 
 ]
 `;
 
-exports[`Critical: Original path lookup (parentOriginalPath) nested: parent has custom path, child has no custom path — child path joins to parent localized path 1`] = `
+exports[`Critical: Original path lookup (parentOriginalPath) > nested: parent has custom path, child has no custom path — child path joins to parent localized path 1`] = `
 [
   {
     "children": [
@@ -362,7 +362,7 @@ exports[`Critical: Original path lookup (parentOriginalPath) nested: parent has 
 ]
 `;
 
-exports[`Critical: Path joining (resolveChildPath) empty parent path segment + child — normalized correctly 1`] = `
+exports[`Critical: Path joining (resolveChildPath) > empty parent path segment + child — normalized correctly 1`] = `
 [
   {
     "children": [
@@ -393,7 +393,7 @@ exports[`Critical: Path joining (resolveChildPath) empty parent path segment + c
 ]
 `;
 
-exports[`Critical: Path joining (resolveChildPath) parent custom path + child relative segment — child path is join(parentLocalizedPath, child.path) 1`] = `
+exports[`Critical: Path joining (resolveChildPath) > parent custom path + child relative segment — child path is join(parentLocalizedPath, child.path) 1`] = `
 [
   {
     "children": [
@@ -439,7 +439,7 @@ exports[`Critical: Path joining (resolveChildPath) parent custom path + child re
 ]
 `;
 
-exports[`Critical: extractLocalizedPaths keys are full original paths nested structure: keys in extractLocalizedPaths use full path (e.g. /parent/child) 1`] = `
+exports[`Critical: extractLocalizedPaths keys are full original paths > nested structure: keys in extractLocalizedPaths use full path (e.g. /parent/child) 1`] = `
 {
   "parent": {
     "de": "/eltern",

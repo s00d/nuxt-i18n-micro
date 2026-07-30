@@ -75,8 +75,8 @@ export function collectDefineI18nRouteMetaFromFiles(pageFiles: string[], rootDir
         routePath: pageFilePathToRoutePath(pageFile, rootDir),
         config,
       })
-    } catch {
-      // ignore unreadable files
+    } catch (error) {
+      console.debug('[nuxt-i18n-micro] Failed to read defineI18nRoute from page file:', pageFile, error)
     }
   }
 

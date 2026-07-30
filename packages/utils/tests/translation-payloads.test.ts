@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { resolveTranslationPayloadOptions, resolveTranslationPayloadPublicDir } from '../src/payload-config'
+import { describe, expect, it } from 'vitest'
 
 describe('translationPayloads build options', () => {
   it('keeps all local payload outputs enabled by default', () => {

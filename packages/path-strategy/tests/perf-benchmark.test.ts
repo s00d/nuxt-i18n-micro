@@ -26,6 +26,7 @@ import {
 } from '../src/path'
 import { createPathStrategy } from '../src/strategies/factory'
 import type { PathStrategyContext, ResolvedRouteLike } from '../src/types'
+import { afterAll, describe, expect, test } from 'vitest'
 
 // ---------------------------------------------------------------------------
 // Config

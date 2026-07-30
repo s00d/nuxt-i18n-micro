@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/preact",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "Preact bindings for i18n-micro — hooks, context, and UI components.",
   "keywords": [
     "i18n",
@@ -48,7 +48,7 @@
     "build": "vite build",
     "check:package": "publint",
     "dev": "cd playground && vite",
-    "test": "jest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
@@ -57,19 +57,14 @@
     "@i18n-micro/types": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "catalog:",
-    "@babel/preset-env": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/preact": "catalog:",
-    "@types/jest": "catalog:",
-    "babel-jest": "catalog:",
-    "jest": "catalog:",
-    "jest-environment-jsdom": "catalog:",
+    "jsdom": "catalog:",
     "preact": "catalog:",
-    "publint": "^0.3.17",
-    "ts-jest": "catalog:",
+    "publint": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "preact": "catalog:"

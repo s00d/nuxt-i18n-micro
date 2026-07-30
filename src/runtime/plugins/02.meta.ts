@@ -19,7 +19,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   )
 
   // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
-  // @ts-expect-error
   const currentLocale = nuxtApp.$getLocale?.()
 
   if (isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, currentLocale)) {
@@ -57,7 +56,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     })
   })
 
-  useHead(mergedHead)
+  // unhead's UseHeadInput does not model our merged i18n head shape; the runtime
+  // accepts a ComputedRef of it just fine.
+  useHead(mergedHead as unknown as Parameters<typeof useHead>[0])
 
   const refreshMeta = () => updateMeta()
 

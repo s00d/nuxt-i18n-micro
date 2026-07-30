@@ -1,17 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/async-components', import.meta.url)),
-  },
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down execution steps (in milliseconds) for better visibility
-  // },
-})
+await setupE2E({ shared: 'async-components' })
 
-test.describe('async-components', () => {
+describe('async-components', () => {
   test('renders async components test page', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 

@@ -1,7 +1,7 @@
 ---
-title: "`<i18n-t>` Component"
-description: "Translation component with slot-based interpolation."
-outline: "deep"
+title: '`<i18n-t>` Component'
+description: 'Translation component with slot-based interpolation.'
+outline: 'deep'
 ---
 
 # 🌍 `<i18n-t>` Component
@@ -10,158 +10,57 @@ The `<i18n-t>` component in `Nuxt I18n Micro` is a flexible translation componen
 
 ## ⚙️ Props
 
-### `keypath`
+<!-- generated:component:i18n-t — do not edit; run `pnpm run docs:generate` -->
 
-- **Type**: `string`
-- **Required**: Yes
-- **Description**: Defines the key path to the translation string in your localization files.
-- **Example**:
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `keypath` **\*** | `string` | — | Translation key to render. |
+| `plural` | `number \| string` | — | Count selecting the plural form. Set it to use `$tc` instead of `$t`. |
+| `tag` | `string` | `'span'` | Element to render. |
+| `params` | `Record<string, string \| number \| boolean>` | `() => ({})` | Interpolation values substituted into the translation. |
+| `defaultValue` | `string` | `''` | Rendered instead of the component when `hideIfEmpty` suppresses an empty translation. |
+| `html` | `boolean` | `false` | Render the translation as HTML rather than text. Only for content you control. |
+| `hideIfEmpty` | `boolean` | `false` | Render nothing when the translation resolves to an empty string. |
+| `customPluralRule` | `PluralFunc` | `null` | Plural rule for this element only, overriding the configured one. |
+| `number` | `number \| string` | — | Formats the value with `$tn` and passes it to the translation as `{number}`. |
+| `date` | `Date \| string \| number` | — | Formats the value with `$td` and passes it to the translation as `{date}`. |
+| `relativeDate` | `Date \| string \| number` | — | Formats the value with `$tdr` and passes it to the translation as `{relativeDate}`. |
+
+**\*** required.
+
+<!-- /generated:component:i18n-t -->
+
+Only one of `plural`, `number`, `date` and `relativeDate` applies at a time; when several
+are set, the first in that list wins.
+
+### Examples per prop
+
 ```vue
+<!-- keypath: the translation to render -->
 <i18n-t keypath="feedback.text" />
-```
 
-### `plural`
-
-- **Type**: `number | string`
-- **Optional**: Yes
-- **Description**: Specifies a number for pluralization rules.
-- **Example**:
-```vue
+<!-- plural: selects the plural form -->
 <i18n-t keypath="items" :plural="10" />
+
+<!-- params: interpolated into the translation -->
+<i18n-t keypath="greeting" :params="{ name: 'Ada' }" />
+
+<!-- tag: the element to render -->
+<i18n-t keypath="feedback.text" tag="p" />
+
+<!-- number / date / relativeDate: formatted, then interpolated -->
+<i18n-t keypath="cart.total" :number="1234.5" />
+<i18n-t keypath="post.published" :date="post.createdAt" />
+<i18n-t keypath="post.ago" :relative-date="post.createdAt" />
+
+<!-- hideIfEmpty with a fallback -->
+<i18n-t keypath="promo.banner" hide-if-empty default-value="Nothing to show" />
 ```
 
 ```json
 {
   "items": "Nothing|You have {count} item|You have {count} items"
 }
-```
-
-
-### `number`
-
-- **Type**: `number | string`
-- **Optional**: Yes
-- **Description**: This prop is used for number formatting. It can be passed as a number or string to render a localized number.
-- **Example**:
-```vue
-<i18n-t keypath="data.item" :number="1234567.89" />
-```
-
-```json
-{
-  "data": {
-    "item": "The number is: {number}"
-  }
-}
-```
-
-### `date`
-
-- **Type**: `Date | string | number`
-- **Optional**: Yes
-- **Description**: This prop is used for date formatting. It can be passed as a `Date`, string, or number to render a localized date.
-- **Example**:
-```vue
-<i18n-t keypath="data.item" :date="'2023-12-31'" />
-```
-
-```json
-{
-  "data": {
-    "item": "The date is: {date}"
-  }
-}
-```
-
-### `relativeDate`
-
-- **Type**: `Date | string | number`
-- **Optional**: Yes
-- **Description**: This prop is used for formatting relative dates. It can be passed as a `Date`, string, or number to render a localized relative date.
-- **Example**:
-```vue
-<i18n-t keypath="data.item" :relative-date="'2023-12-31'" />
-```
-
-```json
-{
-  "data": {
-    "item": "The relative date is: {relativeDate}"
-  }
-}
-```
-
-### `tag`
-
-- **Type**: `string`
-- **Optional**: Yes
-- **Default**: `'span'`
-- **Description**: Specifies the HTML tag to wrap the translated content.
-- **Example**:
-```vue
-<i18n-t keypath="feedback.text" tag="div" />
-```
-
-### `params`
-
-- **Type**: `Record<string, string | number | boolean>`
-- **Optional**: Yes
-- **Description**: Provides parameters for interpolating dynamic values in the translation.
-- **Example**:
-```vue
-<i18n-t keypath="user.greeting" :params="{ name: userName }" />
-```
-
-### `defaultValue`
-
-- **Type**: `string`
-- **Optional**: Yes
-- **Description**: The default value to use if the translation key is not found.
-- **Example**:
-```vue
-<i18n-t keypath="nonExistentKey" defaultValue="Fallback text"></i18n-t>
-```
-
-### `html`
-
-- **Type**: `boolean`
-- **Optional**: Yes
-- **Default**: `false`
-- **Description**: Enables the rendering of the translation as raw HTML. 
-- **Example**:
-```vue
-<i18n-t keypath="feedback.text" html />
-```
-
-### `hideIfEmpty`
-
-- **Type**: `boolean`
-- **Optional**: Yes
-- **Default**: `false`
-- **Description**: If `true`, the component will not render anything if the translation is empty.
-- **Example**:
-```vue
-<i18n-t keypath="optionalMessage" :hideIfEmpty="true"></i18n-t>
-```
-  
-### `customPluralRule`
-
-- **Type**: `PluralFunc` — `(key: string, count: number, params: Params, locale: string, getter: Getter) => string | null`
-- **Optional**: Yes
-- **Description**: Overrides the module-level `plural` option for this component instance. The fifth argument (`getter`) is the route-bound `$t` helper used to fetch raw plural forms.
-- **Example**:
-```vue
-<i18n-t
-  keypath="items"
-  :plural="itemCount"
-  :customPluralRule="(key, count, params, locale, t) => {
-    const translation = t(key, params)
-    if (!translation) return null
-    const forms = String(translation).split('|').map((s) => s.trim())
-    const idx = count === 1 ? 1 : 2
-    return (forms[idx] ?? forms[forms.length - 1] ?? '').replace('{count}', String(count))
-  }"
-/>
 ```
 
 ## 🛠️ Example Usages
@@ -228,11 +127,13 @@ Use a custom function to handle pluralization.
 <i18n-t
   keypath="items"
   :plural="itemCount"
-  :customPluralRule="(key, count, params, locale, t) => {
-    const raw = t(key, params)
-    if (!raw) return null
-    return count === 1 ? 'One item' : `${count} items`
-  }"
+  :customPluralRule="
+    (key, count, params, locale, t) => {
+      const raw = t(key, params)
+      if (!raw) return null
+      return count === 1 ? 'One item' : `${count} items`
+    }
+  "
 />
 ```
 

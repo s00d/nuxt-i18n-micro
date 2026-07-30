@@ -1,6 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { extractLocalizedPaths } from '../src/core/localized-paths'
 import { createNestedPages } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('extractLocalizedPaths (core)', () => {
   test('empty pages array returns empty object', () => {

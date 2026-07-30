@@ -1,7 +1,7 @@
 ---
-title: "`<i18n-link>` Component"
-description: "Locale-aware NuxtLink wrapper for localized routes."
-outline: "deep"
+title: '`<i18n-link>` Component'
+description: 'Locale-aware NuxtLink wrapper for localized routes.'
+outline: 'deep'
 ---
 
 # 🌍 `<i18n-link>` Component
@@ -10,26 +10,26 @@ The `<i18n-link>` component in `Nuxt I18n Micro` is a versatile link component t
 
 ## ⚙️ Props
 
-### `to`
+<!-- generated:component:i18n-link — do not edit; run `pnpm run docs:generate` -->
 
-- **Type**: `NuxtLinkProps | string`
-- **Required**: Yes
-- **Description**: Defines the target route or path for the link. It can be a string (for simple paths) or an object containing route information.
-- **Example**:
-  ```vue
-  <i18n-link to="/about">About Us</i18n-link>
-  <i18n-link :to="{ name: 'index' }">Home</i18n-link>
-  ```
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `to` **\*** | `RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string` | — | Target route. Localized automatically; an external URL is passed through unchanged. |
+| `activeStyle` | `Partial<CSSStyleValue>` | — | Inline style applied while the link points at the current route. |
 
-### `activeStyle`
+**\*** required.
 
-- **Type**: `Partial<CSSStyleDeclaration>`
-- **Optional**: Yes
-- **Description**: Allows you to customize the inline styles applied to the link when it matches the current route. This can be useful for highlighting the active link in navigation menus without relying on CSS classes.
-- **Example**:
-  ```vue
-  <i18n-link to="/about" :activeStyle="{ fontWeight: 'bold', color: 'red' }">About Us</i18n-link>
-  ```
+### Slots
+
+| Slot | Bindings | Description |
+| --- | --- | --- |
+| `default` | — | Link content. |
+
+<!-- /generated:component:i18n-link -->
+
+`to` accepts anything `NuxtLink` does — a path, a named route, or a resolved route object.
+An absolute URL is detected and rendered as a plain `<a target="_blank" rel="noopener noreferrer">`
+rather than being localized.
 
 ## 🛠️ Example Usages
 

@@ -1,0 +1,188 @@
+name: release smoke
+
+# Builds a real Nuxt app against the module and checks it actually works, either
+# from this checkout (pre-release) or from npm (post-release).
+#
+# npm needs a few minutes to serve a freshly published version, and a release can
+# land at any time — hence the manual trigger and the delayed re-check, rather than
+# relying on the publish job alone.
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Which build of the module to verify
+        type: choice
+        options: [both, git, npm]
+        default: both
+      version:
+        description: 'npm version to test (default: latest)'
+        type: string
+        default: latest
+      deploy:
+        description: Deploy to Cloudflare Pages and Vercel and verify the live URLs
+        type: boolean
+        default: false
+  release:
+    types: [published]
+  schedule:
+    # Catches a release whose packages reached npm after the publish job finished.
+    - cron: '0 6 * * *'
+
+concurrency:
+  group: release-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_DIR: test/deploy-smoke
+
+jobs:
+  smoke:
+    name: ${{ matrix.source }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # `git` proves the code about to be published works; `npm` proves what was
+        # actually published works. They fail for different reasons and both matter.
+        source: ${{ github.event_name == 'workflow_dispatch' && inputs.source != 'both' && fromJSON(format('["{0}"]', inputs.source)) || fromJSON('["git","npm"]') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # The scripts CLI runs from the root workspace, so this is needed for both
+      # matrix values — not just the branch that packs.
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the module and pack it
+        if: matrix.source == 'git'
+        run: |
+          pnpm run prepack
+          pnpm -C scripts cli smoke-pack --app "$APP_DIR" --out "$RUNNER_TEMP/tarballs"
+
+      - name: Point the app at the published version
+        if: matrix.source == 'npm'
+        run: |
+          VERSION="${{ inputs.version || 'latest' }}"
+          node -e "
+            const fs = require('node:fs')
+            const file = process.env.APP_DIR + '/package.json'
+            const pkg = JSON.parse(fs.readFileSync(file, 'utf8'))
+            pkg.dependencies['nuxt-i18n-micro'] = process.argv[1]
+            fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + '\n')
+          " "$VERSION"
+          echo "Testing nuxt-i18n-micro@$VERSION"
+
+      - name: Install the app
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          printf 'packages:\n  - .\n' > pnpm-workspace.yaml
+          pnpm install --no-frozen-lockfile
+
+      - name: Report the resolved module version
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          node -p "'resolved: ' + require('nuxt-i18n-micro/package.json').version"
+
+      - name: Build
+        working-directory: ${{ env.APP_DIR }}
+        run: pnpm exec nuxt build
+
+      - name: Start and verify
+        run: |
+          node "$APP_DIR/.output/server/index.mjs" &
+          echo $! > /tmp/server.pid
+          for _ in $(seq 1 60); do
+            curl -sf -o /dev/null http://127.0.0.1:3000/ && break
+            sleep 1
+          done
+          pnpm -C scripts cli smoke-verify --url http://127.0.0.1:3000
+        env:
+          PORT: 3000
+
+      - name: Browser checks
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm -C scripts cli smoke-browser --url http://127.0.0.1:3000
+
+      - name: Stop the server
+        if: always()
+        run: kill "$(cat /tmp/server.pid)" 2>/dev/null || true
+
+  deploy:
+    name: deploy (${{ matrix.target }})
+    needs: smoke
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [cloudflare, vercel]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install root dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Deploys always use the published package: the point is to check what a user
+      # would get, and a local tarball would not survive the platform's own install.
+      - name: Install and build for static hosting
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          printf 'packages:\n  - .\n' > pnpm-workspace.yaml
+          pnpm install --no-frozen-lockfile
+          pnpm exec nuxt build --preset ${{ matrix.target == 'cloudflare' && 'cloudflare_pages' || 'vercel' }}
+
+      - name: Deploy to Cloudflare Pages
+        id: cf
+        if: matrix.target == 'cloudflare'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ${{ env.APP_DIR }}/dist --project-name=${{ vars.CLOUDFLARE_PROJECT_NAME }}
+
+      - name: Deploy to Vercel
+        id: vercel
+        if: matrix.target == 'vercel'
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          pnpm dlx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@latest build --prod --token="$VERCEL_TOKEN"
+          URL=$(pnpm dlx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Wait for the deployment to answer
+        id: url
+        run: |
+          URL="${{ matrix.target == 'cloudflare' && steps.cf.outputs.deployment-url || steps.vercel.outputs.url }}"
+          echo "Waiting for $URL"
+          for _ in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$URL" || true)
+            [ "$code" != "000" ] && [ "$code" -lt 500 ] && break
+            sleep 5
+          done
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the live deployment
+        run: |
+          pnpm -C scripts cli smoke-verify --url "${{ steps.url.outputs.url }}"
+          pnpm exec playwright install --with-deps chromium
+          pnpm -C scripts cli smoke-browser --url "${{ steps.url.outputs.url }}"

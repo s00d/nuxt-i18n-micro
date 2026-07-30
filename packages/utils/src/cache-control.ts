@@ -49,8 +49,13 @@ export class CacheControl<T> {
       this.expiry.set(key, Date.now() + this.ttlMs)
     }
 
-    this.cache.delete(key)
-    this.cache.set(key, entry)
+    // Recency only decides who gets evicted. Without a size limit nothing is ever
+    // evicted, so re-inserting on every read is pure overhead — and unlimited is
+    // the default.
+    if (this.maxSize > 0) {
+      this.cache.delete(key)
+      this.cache.set(key, entry)
+    }
 
     return entry
   }

@@ -1,12 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
 import type { Page } from '@playwright/test'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/seo-auto', import.meta.url)),
-  },
-})
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({ shared: 'seo-auto' })
 
 /**
  * Proxy all requests from `emulatedOrigin` to the real test server.
@@ -35,7 +31,7 @@ async function emulateDomain(page: Page, emulatedOrigin: string, realBaseURL: st
   })
 }
 
-test.describe('SEO with dynamic metaBaseUrl (undefined)', () => {
+describe('SEO with dynamic metaBaseUrl (undefined)', () => {
   // ── SSR: raw HTTP responses (no browser) ──
 
   test('SSR: canonical and og:url use domain from X-Forwarded-Host', async ({ request }) => {

@@ -1,0 +1,182 @@
+# . (src/index.ts)
+type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
+function createI18n: (options: SolidI18nOptions) => SolidI18n
+function createSolidRouterAdapter: (locales: Locale[], defaultLocale: string, navigate: NavigateFunction, location: Location) => I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string>; }
+const defaultPlural: PluralFunc
+class FormatService
+member FormatService.clearCache: () => void
+member FormatService.dateCache: private any
+member FormatService.datetimeFormats: private any
+member FormatService.formatDate: (value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions) => string
+member FormatService.formatNumber: (value: number, locale: string, options?: Intl.NumberFormatOptions) => string
+member FormatService.formatRelativeTime: (value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions) => string
+member FormatService.getDateTimeFormats: () => DateTimeFormatsConfig
+member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateTimeFormatOptions) => Intl.DateTimeFormat
+member FormatService.getNumberFormats: () => NumberFormatsConfig
+member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
+member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.numberCache: private any
+member FormatService.numberFormats: private any
+member FormatService.relativeCache: private any
+member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Intl.DateTimeFormatOptions | undefined
+member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
+member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
+member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
+type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+const I18nContext: import("solid-js/types/index").Context<SolidI18n | undefined>
+const I18nDefaultLocaleContext: import("solid-js/types/index").Context<string | undefined>
+const I18nGroup: Component<I18nGroupProps>
+const I18nLink: Component<I18nLinkProps>
+const I18nLocalesContext: import("solid-js/types/index").Context<Locale[] | undefined>
+const I18nProvider: ParentComponent<I18nProviderProps>
+interface I18nProviderProps
+member I18nProviderProps.defaultLocale?: string | undefined
+member I18nProviderProps.i18n: SolidI18n
+member I18nProviderProps.locales?: Locale[] | undefined
+member I18nProviderProps.routingStrategy?: I18nRoutingStrategy | undefined
+const I18nRouterContext: import("solid-js/types/index").Context<I18nRoutingStrategy | undefined>
+interface I18nRoutingStrategy
+member I18nRoutingStrategy.getCurrentPath: () => string
+member I18nRoutingStrategy.getCurrentPathAccessor?: (() => Accessor<string>) | undefined
+member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
+member I18nRoutingStrategy.linkComponent?: string | Component<{ [key: string]: unknown; href: string; children?: JSX.Element; style?: JSX.CSSProperties; class?: string; }> | undefined
+member I18nRoutingStrategy.push: (target: { path: string; }) => void
+member I18nRoutingStrategy.replace: (target: { path: string; }) => void
+member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined
+const I18nSwitcher: Component<I18nSwitcherProps>
+const I18nT: Component<I18nTProps>
+function interpolate: (template: string, params: Params) => string
+interface Locale
+member Locale.baseDefault?: boolean | undefined
+member Locale.baseUrl?: string | undefined
+member Locale.code: string
+member Locale.dir?: "ltr" | "rtl" | "auto" | undefined
+member Locale.disabled?: boolean | undefined
+member Locale.displayName?: string | undefined
+member Locale.fallbackLocale?: string | undefined
+member Locale.iso?: string | undefined
+member Locale.og?: string | undefined
+member Locale.seo?: boolean | undefined
+member Locale.[string]: unknown
+type LocaleCode: string
+interface ModuleOptions
+member ModuleOptions.apiBaseClientHost?: string | undefined
+member ModuleOptions.apiBaseServerHost?: string | undefined
+member ModuleOptions.apiBaseUrl?: string | undefined
+member ModuleOptions.autoDetectLanguage?: boolean | undefined
+member ModuleOptions.autoDetectPath?: string | undefined
+member ModuleOptions.cacheMaxSize?: number | undefined
+member ModuleOptions.cacheTtl?: number | undefined
+member ModuleOptions.canonicalQueryWhitelist?: string[] | undefined
+member ModuleOptions.components?: boolean | undefined
+member ModuleOptions.customRegexMatcher?: string | RegExp | undefined
+member ModuleOptions.dateBuild?: string | number | undefined
+member ModuleOptions.datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>> | undefined
+member ModuleOptions.debug?: boolean | undefined
+member ModuleOptions.defaultLocale?: string | undefined
+member ModuleOptions.define?: boolean | undefined
+member ModuleOptions.disablePageLocales?: boolean | undefined
+member ModuleOptions.disableWatcher?: boolean | undefined
+member ModuleOptions.excludePatterns?: (string | RegExp)[] | undefined
+member ModuleOptions.experimental?: Record<string, unknown> | undefined
+member ModuleOptions.fallbackLocale?: string | undefined
+member ModuleOptions.globalLocaleRoutes?: GlobalLocaleRoutes
+member ModuleOptions.hmr?: boolean | undefined
+member ModuleOptions.hooks?: boolean | undefined
+member ModuleOptions.httpCacheDuration?: number | undefined
+member ModuleOptions.localeCookie?: string | null | undefined
+member ModuleOptions.locales?: Locale[] | undefined
+member ModuleOptions.localizedRouteNamePrefix?: string | undefined
+member ModuleOptions.meta?: boolean | undefined
+member ModuleOptions.metaBaseUrl?: string | undefined
+member ModuleOptions.metaTrustForwardedHost?: boolean | undefined
+member ModuleOptions.metaTrustForwardedProto?: boolean | undefined
+member ModuleOptions.missingWarn?: boolean | undefined
+member ModuleOptions.noPrefixRedirect?: boolean | undefined
+member ModuleOptions.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
+member ModuleOptions.plugin?: boolean | undefined
+member ModuleOptions.plural?: string | PluralFunc | undefined
+member ModuleOptions.redirects?: boolean | undefined
+member ModuleOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
+member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
+member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
+member ModuleOptions.serverTranslationPreload?: boolean | undefined
+member ModuleOptions.strategy?: Strategies | undefined
+member ModuleOptions.translationDir?: string | undefined
+member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
+member ModuleOptions.types?: boolean | undefined
+type Params: Record<string, string | number | boolean>
+type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+class SolidI18n
+member SolidI18n._fallbackSignal: private Accessor<string>
+member SolidI18n._localeSignal: private Accessor<string>
+member SolidI18n._routeSignal: private Accessor<string>
+member SolidI18n._setLocaleSignal: private (v: string) => void
+member SolidI18n._setRouteSignal: private (v: string) => void
+member SolidI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
+member SolidI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member SolidI18n.clearCache: () => void
+member SolidI18n.currentRoute: string
+member SolidI18n.fallbackLocale: string
+member SolidI18n.formatter: FormatService
+member SolidI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
+member SolidI18n.getFallbackLocale: () => string
+member SolidI18n.getLocale: () => string
+member SolidI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
+member SolidI18n.getRoute: () => string
+member SolidI18n.getSnapshot: () => string
+member SolidI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
+member SolidI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member SolidI18n.listeners: private Set<() => void>
+member SolidI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
+member SolidI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
+member SolidI18n.locale: string
+member SolidI18n.localeAccessor: Accessor<string>
+member SolidI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member SolidI18n.missingWarn: boolean
+member SolidI18n.notifyListeners: private () => void
+member SolidI18n.onTranslationsChanged: protected () => void
+member SolidI18n.pluralFunc: PluralFunc
+member SolidI18n.resolveDateTimeFormatArgs: private any
+member SolidI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
+member SolidI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
+member SolidI18n.resolveNumberFormatArgs: private any
+member SolidI18n.resolveRouteName: protected (routeContext?: unknown) => string
+member SolidI18n.resolveTranslations: (routeContext?: unknown) => Translations
+member SolidI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
+member SolidI18n.routeAccessor: Accessor<string>
+member SolidI18n.setRoute: (val: string) => void
+member SolidI18n.setTranslation: (key: TranslationKey, value: unknown) => void
+member SolidI18n.storage: TranslationStorage
+member SolidI18n.store: private ReactiveI18nStore
+member SolidI18n.subscribe: (cb: () => void) => () => void
+member SolidI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
+member SolidI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member SolidI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
+member SolidI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
+member SolidI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
+member SolidI18n.touch: protected () => void
+member SolidI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string
+member SolidI18n.warnDev: protected (message: string) => void
+member SolidI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
+member SolidI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member SolidI18n.new: (options: SolidI18nOptions): SolidI18n
+interface SolidI18nOptions
+member SolidI18nOptions.fallbackLocale?: string | undefined
+member SolidI18nOptions.locale: string
+member SolidI18nOptions.messages?: Record<string, Translations> | undefined
+member SolidI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member SolidI18nOptions.missingWarn?: boolean | undefined
+member SolidI18nOptions.plural?: PluralFunc | undefined
+type TranslationKey: keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
+interface Translations
+member Translations.[string]: unknown
+function useI18n: (options?: UseI18nOptions) => { instance: import("packages/solid/src/i18n").SolidI18n; locale: import("solid-js/types/index").Accessor<string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string | null; localeRoute: (to: string | { path?: string; }, localeCode?: string) => string | { path?: string; }; localePath: (to: string | { path?: string; }, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string | null, routeContext?: unknown) => import("packages/types/dist/index").CleanTranslation; ts: (key: import("packages/types/dist/index").TranslationKey, params?: import("packages/types/dist/index").Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: import("packages/types/dist/index").TranslationKey, count: number | import("packages/types/dist/index").Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: import("packages/types/dist/index").TranslationKey, routeContext?: unknown) => boolean; setRoute: (val: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: import("packages/types/dist/index").Translations, merge?: boolean) => void; resolveTranslations: (routeContext?: unknown) => import("packages/types/dist/index").Translations; setTranslation: (key: import("packages/types/dist/index").TranslationKey, value: unknown) => void; clearCache: () => void; }
+const useI18nContext: () => SolidI18n
+const useI18nDefaultLocale: () => string
+const useI18nLocales: () => Locale[]
+interface UseI18nOptions
+member UseI18nOptions.defaultLocale?: string | undefined
+member UseI18nOptions.locales?: Locale[] | undefined
+const useI18nRouter: () => I18nRoutingStrategy | undefined

@@ -2,6 +2,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext } from '../src'
 import { createPathStrategy } from '../src'
 import { makePathStrategyContext } from './test-utils'
+import { describe, expect, test } from 'vitest'
 
 const baseConfig: ModuleOptionsExtend = {
   defaultLocale: 'en',

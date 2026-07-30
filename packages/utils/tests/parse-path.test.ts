@@ -6,6 +6,7 @@ import {
   storeLoadedTranslationFile,
   type TranslationFileBuckets,
 } from '../src/parse-path'
+import { describe, expect, it } from 'vitest'
 
 describe('parseTranslationRelativePath', () => {
   it('parses root locale files', () => {

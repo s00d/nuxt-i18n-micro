@@ -1,13 +1,9 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
 import type { Page } from '@playwright/test'
 import { assertI18nHeadScenario, i18nHeadScenarios, i18nHeadStaticPages } from './helpers/i18n-head-seo'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/use-i18n-head', import.meta.url)),
-  },
-})
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({ shared: 'use-i18n-head' })
 
 async function emulateDomain(page: Page, emulatedOrigin: string, realBaseURL: string) {
   const realBase = realBaseURL.replace(/\/$/, '')
@@ -44,7 +40,7 @@ function expectAlternate(html: string, hreflang: string, href: string) {
   expect(html).toMatch(new RegExp(`<link[^>]*rel="alternate"[^>]*hreflang="${hreflang}"[^>]*href="${escapedHref}"`))
 }
 
-test.describe('useI18nHead — article with per-locale slugs', () => {
+describe('useI18nHead — article with per-locale slugs', () => {
   test('SSR: custom hreflang from API locales', async ({ request }) => {
     const html = await (await request.get('/post/hello-en')).text()
     expectAlternate(html, 'en', 'https://example.com/hello-en')
@@ -69,7 +65,7 @@ test.describe('useI18nHead — article with per-locale slugs', () => {
   })
 })
 
-test.describe('useI18nHead — canonical and og:url override', () => {
+describe('useI18nHead — canonical and og:url override', () => {
   test('SSR: replaces canonical and og:url from CMS', async ({ request }) => {
     const html = await (await request.get('/canonical/cms-canonical')).text()
     expect(html).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/www\.example\.com\/en\/blog\/cms-canonical"/)
@@ -79,7 +75,7 @@ test.describe('useI18nHead — canonical and og:url override', () => {
   })
 })
 
-test.describe('useI18nHead — partial alternates only', () => {
+describe('useI18nHead — partial alternates only', () => {
   test('SSR: keeps module canonical, replaces hreflang', async ({ request }) => {
     const html = await (await request.get('/partial/partial-only')).text()
     expect(html).toMatch(/<link[^>]*rel="canonical"[^>]*href="[^"]*\/partial\/partial-only"/)
@@ -98,7 +94,7 @@ test.describe('useI18nHead — partial alternates only', () => {
   })
 })
 
-test.describe('useI18nHead — custom x-default', () => {
+describe('useI18nHead — custom x-default', () => {
   test('SSR: x-default points to default translation URL', async ({ request }) => {
     const html = await (await request.get('/x-default/with-xdefault')).text()
     expectAlternate(html, 'x-default', 'https://example.com/articles/default-en')
@@ -107,7 +103,7 @@ test.describe('useI18nHead — custom x-default', () => {
   })
 })
 
-test.describe('useI18nHead — full meta bundle', () => {
+describe('useI18nHead — full meta bundle', () => {
   test('SSR: og, twitter and description meta', async ({ request }) => {
     const html = await (await request.get('/full/full-meta')).text()
     expectMeta(html, 'og:title', 'Full meta article')
@@ -119,7 +115,7 @@ test.describe('useI18nHead — full meta bundle', () => {
   })
 })
 
-test.describe('useI18nHead — shared buildArticleHead helper', () => {
+describe('useI18nHead — shared buildArticleHead helper', () => {
   test('SSR: blog page uses shared helper', async ({ request }) => {
     const html = await (await request.get('/blog/shared-blog')).text()
     expectMeta(html, 'og:title', 'Shared helper blog post')
@@ -135,7 +131,7 @@ test.describe('useI18nHead — shared buildArticleHead helper', () => {
   })
 })
 
-test.describe('useI18nHead — disable + custom alternates', () => {
+describe('useI18nHead — disable + custom alternates', () => {
   test('SSR: only custom hreflang links, rebuilt og alternates', async ({ request }) => {
     const html = await (await request.get('/custom-alternates')).text()
     expectAlternate(html, 'en', 'https://example.com/custom/en')
@@ -147,7 +143,7 @@ test.describe('useI18nHead — disable + custom alternates', () => {
   })
 })
 
-test.describe('useI18nHead — landing OG only', () => {
+describe('useI18nHead — landing OG only', () => {
   test('SSR: appends og tags, keeps module hreflang', async ({ request }) => {
     const html = await (await request.get('/landing')).text()
     expectMeta(html, 'og:title', 'Landing OG title')
@@ -158,7 +154,7 @@ test.describe('useI18nHead — landing OG only', () => {
   })
 })
 
-test.describe('useI18nHead — disable hreflang', () => {
+describe('useI18nHead — disable hreflang', () => {
   test('SSR: no alternate links, canonical remains', async ({ request }) => {
     const html = await (await request.get('/no-hreflang')).text()
     expect(html).not.toMatch(/hreflang="en"/)
@@ -169,7 +165,7 @@ test.describe('useI18nHead — disable hreflang', () => {
   })
 })
 
-test.describe('useI18nHead — reactive client load', () => {
+describe('useI18nHead — reactive client load', () => {
   test('SPA: head updates after client fetch', async ({ page, goto }) => {
     await goto('/reactive', { waitUntil: 'hydration' })
     await expect(page.getByTestId('article-title')).toHaveText('Client-loaded article', { timeout: 10000 })
@@ -179,14 +175,14 @@ test.describe('useI18nHead — reactive client load', () => {
   })
 })
 
-test.describe('useI18nHead — index page', () => {
+describe('useI18nHead — index page', () => {
   test('SSR: index appends og:title', async ({ request }) => {
     const html = await (await request.get('/')).text()
     expectMeta(html, 'og:title', 'Index page')
   })
 })
 
-test.describe('useI18nHead — navigation and reload (dev server)', () => {
+describe('useI18nHead — navigation and reload (dev server)', () => {
   test('visits every scenario via index links and survives reload', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'domcontentloaded' })
 

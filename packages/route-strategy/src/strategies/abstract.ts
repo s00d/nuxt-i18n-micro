@@ -2,16 +2,8 @@ import type { NuxtPage } from '@nuxt/schema'
 import { createRoute, resolveChildPath } from '../core/builder'
 import type { GeneratorContext } from '../core/context'
 import { pathKeyForLocalizedPaths } from '../core/localized-paths'
-import {
-  buildFullPath,
-  buildRouteNameFromRoute,
-  cloneArray,
-  isInternalPath,
-  isPageRedirectOnly,
-  normalizePath,
-  normalizeRouteKey,
-  removeLeadingSlash,
-} from '../utils'
+import { isLocalizationDisabledForPage } from '../core/localization-disabled'
+import { buildFullPath, buildRouteNameFromRoute, cloneArray, isInternalPath, isPageRedirectOnly, normalizePath, removeLeadingSlash } from '../utils'
 import type { RouteStrategy } from './types'
 
 export abstract class BaseStrategy implements RouteStrategy {
@@ -27,9 +19,7 @@ export abstract class BaseStrategy implements RouteStrategy {
     }
     const originalPath = page.path ?? ''
     const pageName = buildRouteNameFromRoute(page.name, page.path)
-    const normalizedOriginalPath = normalizeRouteKey(originalPath)
-    const isLocalizationDisabled = context.globalLocaleRoutes[pageName] === false || context.globalLocaleRoutes[normalizedOriginalPath] === false
-    if (isLocalizationDisabled) {
+    if (isLocalizationDisabledForPage(context.globalLocaleRoutes, originalPath, pageName)) {
       return [page]
     }
     return this.generateVariants(page, context)
@@ -80,6 +70,10 @@ export abstract class BaseStrategy implements RouteStrategy {
     context: GeneratorContext,
   ): NuxtPage[] {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+    const childName = buildRouteNameFromRoute(child.name, child.path)
+    if (isLocalizationDisabledForPage(context.globalLocaleRoutes, childOriginalPath, childName)) {
+      return [child]
+    }
     const fullPath = resolveChildPath(parentPath, child.path ?? '')
     const lookupKey = pathKeyForLocalizedPaths(fullPath)
     const customLocalePaths = context.localizedPaths[lookupKey]
@@ -114,6 +108,10 @@ export abstract class BaseStrategy implements RouteStrategy {
     addPrefix: boolean,
   ): NuxtPage[] {
     const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+    const childName = buildRouteNameFromRoute(child.name, child.path)
+    if (isLocalizationDisabledForPage(context.globalLocaleRoutes, childOriginalPath, childName)) {
+      return [child]
+    }
     const customPath = context.getCustomPath(childOriginalPath, locale)
     const finalPathForRoute = customPath ? removeLeadingSlash(normalizePath(customPath)) : removeLeadingSlash(normalizePath(child.path ?? ''))
 

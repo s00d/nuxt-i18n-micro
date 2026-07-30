@@ -49,9 +49,25 @@ class TranslationStorage {
   // HELPERS
   // ==========================================================================
 
-  /** Plain clone before freeze — SSR payload chunks may be Vue reactive proxies. */
-  private freezePlainClone(data: Record<string, unknown>): Record<string, unknown> {
-    return Object.freeze(JSON.parse(JSON.stringify(data)) as Record<string, unknown>)
+  /**
+   * Detach from Vue reactivity before freezing. Only the SSR payload needs this:
+   * its chunks come back as reactive proxies, and freezing a proxy would freeze
+   * the reactive object the app is still using.
+   */
+  /**
+   * Freeze a chunk before it enters the cache, so a consumer cannot mutate what other
+   * callers will read.
+   *
+   * The freeze is applied to a copy, never to the caller's object: the SSR seed arrives as
+   * `nuxtApp.payload.data['i18n-ssr-chunks']`, which Nuxt still owns, and freezing that in
+   * place would make the payload immutable for everything else on the page.
+   *
+   * A shallow copy, though — the nested values are shared, which is what makes this cheap.
+   * Deep-cloning meant serialising and re-parsing the largest object on the page during
+   * hydration, and it protected nothing: no caller mutates a chunk in place.
+   */
+  private freezeChunk(data: Record<string, unknown>): Record<string, unknown> {
+    return Object.freeze({ ...data })
   }
 
   private getCacheKey(locale: string, routeName?: string): string {
@@ -86,12 +102,12 @@ class TranslationStorage {
   // ==========================================================================
 
   /**
-   * Seed translation cache from SSR payload (`useState('i18n-ssr-chunks')`).
-   * Called on client before the first fetch.
+   * Seed translation cache from the SSR payload (`payload.data['i18n-ssr-chunks']`).
+   * Called on the client before the first fetch.
    */
   seedFromSsrChunks(chunks: Record<string, Record<string, unknown>>): void {
     for (const [cacheKey, data] of Object.entries(chunks)) {
-      this.cc.set(cacheKey, this.freezePlainClone(data))
+      this.cc.set(cacheKey, this.freezeChunk(data))
     }
   }
 
@@ -116,17 +132,15 @@ class TranslationStorage {
    * Returns data, cache key, and JSON for injection (server only).
    */
   async load(locale: string, routeName: string | undefined, options: LoadOptions): Promise<LoadResult> {
-    // Fast path — synchronous from cache
     const cached = this.getFromCache(locale, routeName)
     if (cached) return cached
 
     const cacheKey = this.getCacheKey(locale, routeName)
-
-    // Load via fetch
     const data = await this.fetchTranslations(locale, routeName, options)
 
-    // Store in cache
-    this.cc.set(cacheKey, this.freezePlainClone(data))
+    // Already a plain object — freezing is enough, and it guards the loader's own
+    // cached copy against in-place mutation now that we may be sharing it.
+    this.cc.set(cacheKey, this.freezeChunk(data))
 
     return { data: this.cc.get(cacheKey)!, cacheKey }
   }

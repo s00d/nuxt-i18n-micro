@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RouteGenerator - Deep nesting (4 levels) extractLocalizedPaths on deep nested pages with globalLocaleRoutes 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > extractLocalizedPaths on deep nested pages with globalLocaleRoutes 1`] = `
 {
   "section": {
     "de": "/bereich",
@@ -13,7 +13,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) extractLocalizedPaths on deep 
 }
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) filesLocaleRoutes at every level 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > filesLocaleRoutes at every level 1`] = `
 [
   {
     "children": [
@@ -107,7 +107,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) filesLocaleRoutes at every lev
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes + filesLocaleRoutes: root from global, children from files 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes + filesLocaleRoutes: root from global, children from files 1`] = `
 [
   {
     "children": [
@@ -201,7 +201,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes + filesLoca
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes + routeLocales: custom paths and restrictions at each level 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes + routeLocales: custom paths and restrictions at each level 1`] = `
 [
   {
     "children": [
@@ -264,7 +264,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes + routeLoca
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at every level 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes at every level 1`] = `
 [
   {
     "children": [
@@ -358,7 +358,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at every le
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at leaf level only (detail) 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes at leaf level only (detail) 1`] = `
 [
   {
     "children": [
@@ -427,7 +427,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at leaf lev
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at middle level only (category) 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes at middle level only (category) 1`] = `
 [
   {
     "children": [
@@ -510,7 +510,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at middle l
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at root level only (section) 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes at root level only (section) 1`] = `
 [
   {
     "children": [
@@ -604,7 +604,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes at root lev
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes: root disabled (false), children have custom paths 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes: root disabled (false), children have custom paths 1`] = `
 [
   {
     "children": [
@@ -635,7 +635,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) globalLocaleRoutes: root disab
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) no_prefix: deep nested with custom paths at every level 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > no_prefix: deep nested with custom paths at every level 1`] = `
 [
   {
     "children": [
@@ -697,7 +697,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) no_prefix: deep nested with cu
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) no_prefix: deep nested without custom paths 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > no_prefix: deep nested without custom paths 1`] = `
 [
   {
     "children": [
@@ -728,7 +728,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) no_prefix: deep nested without
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custom paths, default routes removed 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > prefix: deep nested with custom paths, default routes removed 1`] = `
 [
   {
     "alias": undefined,
@@ -836,7 +836,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested with custo
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested without custom paths 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > prefix: deep nested without custom paths 1`] = `
 [
   {
     "alias": [],
@@ -872,7 +872,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix: deep nested without cu
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) prefix_and_default: deep nested with custom paths at root and leaf 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > prefix_and_default: deep nested with custom paths at root and leaf 1`] = `
 [
   {
     "children": [
@@ -1027,7 +1027,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix_and_default: deep neste
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) prefix_and_default: deep nested without custom paths 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > prefix_and_default: deep nested without custom paths 1`] = `
 [
   {
     "children": [
@@ -1089,7 +1089,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix_and_default: deep neste
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) prefix_except_default: deep nested without custom paths 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > prefix_except_default: deep nested without custom paths 1`] = `
 [
   {
     "children": [
@@ -1152,7 +1152,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) prefix_except_default: deep ne
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) routeLocales at each level: different restrictions 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > routeLocales at each level: different restrictions 1`] = `
 [
   {
     "children": [
@@ -1215,7 +1215,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) routeLocales at each level: di
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting (4 levels) routeLocales at root only: section restricted to en, de 1`] = `
+exports[`RouteGenerator - Deep nesting (4 levels) > routeLocales at root only: section restricted to en, de 1`] = `
 [
   {
     "children": [
@@ -1278,7 +1278,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) routeLocales at root only: sec
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting with multiple branches deep branch with routeLocales on each level of branch 1`] = `
+exports[`RouteGenerator - Deep nesting with multiple branches > deep branch with routeLocales on each level of branch 1`] = `
 [
   {
     "children": [
@@ -1345,7 +1345,7 @@ exports[`RouteGenerator - Deep nesting with multiple branches deep branch with r
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting with multiple branches deep nesting with globalLocaleRoutes + filesLocaleRoutes + routeLocales combined 1`] = `
+exports[`RouteGenerator - Deep nesting with multiple branches > deep nesting with globalLocaleRoutes + filesLocaleRoutes + routeLocales combined 1`] = `
 [
   {
     "children": [
@@ -1439,7 +1439,7 @@ exports[`RouteGenerator - Deep nesting with multiple branches deep nesting with 
 ]
 `;
 
-exports[`RouteGenerator - Deep nesting with multiple branches two deep branches from same root 1`] = `
+exports[`RouteGenerator - Deep nesting with multiple branches > two deep branches from same root 1`] = `
 [
   {
     "children": [
@@ -1593,7 +1593,7 @@ exports[`RouteGenerator - Deep nesting with multiple branches two deep branches 
 ]
 `;
 
-exports[`RouteGenerator - Very deep nesting (6 levels) extractLocalizedPaths on 6-level nested pages 1`] = `
+exports[`RouteGenerator - Very deep nesting (6 levels) > extractLocalizedPaths on 6-level nested pages 1`] = `
 {
   "a": {
     "de": "/a-de",
@@ -1610,7 +1610,7 @@ exports[`RouteGenerator - Very deep nesting (6 levels) extractLocalizedPaths on 
 }
 `;
 
-exports[`RouteGenerator - Very deep nesting (6 levels) globalLocaleRoutes at every level (6 levels) 1`] = `
+exports[`RouteGenerator - Very deep nesting (6 levels) > globalLocaleRoutes at every level (6 levels) 1`] = `
 [
   {
     "children": [
@@ -1746,7 +1746,7 @@ exports[`RouteGenerator - Very deep nesting (6 levels) globalLocaleRoutes at eve
 ]
 `;
 
-exports[`RouteGenerator - Very deep nesting (6 levels) globalLocaleRoutes at root (a) and leaf (f) only 1`] = `
+exports[`RouteGenerator - Very deep nesting (6 levels) > globalLocaleRoutes at root (a) and leaf (f) only 1`] = `
 [
   {
     "children": [
@@ -1882,7 +1882,7 @@ exports[`RouteGenerator - Very deep nesting (6 levels) globalLocaleRoutes at roo
 ]
 `;
 
-exports[`RouteGenerator - Very deep nesting (6 levels) prefix: 6 levels without custom paths 1`] = `
+exports[`RouteGenerator - Very deep nesting (6 levels) > prefix: 6 levels without custom paths 1`] = `
 [
   {
     "alias": [],
@@ -1932,7 +1932,7 @@ exports[`RouteGenerator - Very deep nesting (6 levels) prefix: 6 levels without 
 ]
 `;
 
-exports[`RouteGenerator - Very deep nesting (6 levels) prefix_and_default: 6 levels with custom path at root 1`] = `
+exports[`RouteGenerator - Very deep nesting (6 levels) > prefix_and_default: 6 levels with custom path at root 1`] = `
 [
   {
     "children": [
@@ -2157,7 +2157,7 @@ exports[`RouteGenerator - Very deep nesting (6 levels) prefix_and_default: 6 lev
 ]
 `;
 
-exports[`RouteGenerator - Very deep nesting (6 levels) prefix_except_default: 6 levels without custom paths 1`] = `
+exports[`RouteGenerator - Very deep nesting (6 levels) > prefix_except_default: 6 levels without custom paths 1`] = `
 [
   {
     "children": [
@@ -2248,7 +2248,7 @@ exports[`RouteGenerator - Very deep nesting (6 levels) prefix_except_default: 6 
 ]
 `;
 
-exports[`RouteGenerator - Very deep nesting (6 levels) routeLocales at alternating levels 1`] = `
+exports[`RouteGenerator - Very deep nesting (6 levels) > routeLocales at alternating levels 1`] = `
 [
   {
     "children": [

@@ -1,11 +1,22 @@
 ---
-title: "useI18nLocale"
-description: "Centralized locale state, cookies, and sync."
+title: 'useI18nLocale'
+description: 'Centralized locale state, cookies, and sync.'
 ---
 
 # useI18nLocale
 
-Centralized composable for i18n locale management. Combines `useState('i18n-locale')`, locale cookies, and sync utilities.
+## Signature
+
+<!-- generated:symbol:useI18nLocale — do not edit; run `pnpm run docs:generate` -->
+
+```ts
+useI18nLocale(): { getEffectiveLocale: (route: unknown, getLocaleFromRoute: GetLocaleFromRoute) => string; getLocale: () => string | null; getLocaleWithServerFallback: (serverLocale?: string | null) => string | null; getPreferredLocale: () => string | null; hashCookie: any; isValidLocale: (locale: string | null | undefined) => locale is string; locale: any; localeCookie: any; resolveInitialLocale: (options: ResolveInitialLocaleOptions) => string; setLocale: (locale: string | null) => void; syncLocale: (locale: string | null) => void; validLocales: string[] }
+```
+
+Centralized entry point for i18n locale management.
+Combines useState('i18n-locale'), locale cookie, and sync utilities.
+
+<!-- /generated:symbol:useI18nLocale -->
 
 ## Usage
 
@@ -39,20 +50,20 @@ const preferred = getPreferredLocale()
 
 ## API
 
-| Property/Method | Type | Description |
-|-----------------|------|-------------|
-| `locale` | `Ref<string \| null>` | Reactive locale state (`useState('i18n-locale')`) |
-| `localeCookie` | `Ref` | Locale cookie (when `localeCookie` option is enabled) |
-| `hashCookie` | `Ref` | Cookie used when `hashMode` is active |
-| `validLocales` | `string[]` | Enabled locale codes from module config (excludes `disabled`) |
-| `getLocale()` | `() => string \| null` | Current locale: state → cookie (or hash cookie in hash mode) |
-| `getPreferredLocale()` | `() => string \| null` | Locale from state/cookie **validated** against `validLocales`, or `null` |
-| `getLocaleWithServerFallback(serverLocale?)` | `(serverLocale?) => string \| null` | State → cookie → optional server context (used during `no_prefix` init) |
-| `getEffectiveLocale(route, getLocaleFromRoute)` | `(route, fn) => string` | Locale for loading translations: hash mode prefers state; otherwise reads from route |
-| `resolveInitialLocale(options)` | `(options) => string` | Resolves locale: state → `serverLocale` → route; syncs state when needed |
-| `setLocale(locale)` | `(locale: string \| null) => void` | Set locale and sync to cookies |
-| `syncLocale(locale)` | `(locale: string \| null) => void` | Sync cookies only (no state update) |
-| `isValidLocale(locale)` | `(locale) => boolean` | Check if string is in `validLocales` |
+| Property/Method                                 | Type                                | Description                                                                          |
+| ----------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------ |
+| `locale`                                        | `Ref<string \| null>`               | Reactive locale state (`useState('i18n-locale')`)                                    |
+| `localeCookie`                                  | `Ref`                               | Locale cookie (when `localeCookie` option is enabled)                                |
+| `hashCookie`                                    | `Ref`                               | Cookie used when `hashMode` is active                                                |
+| `validLocales`                                  | `string[]`                          | Enabled locale codes from module config (excludes `disabled`)                        |
+| `getLocale()`                                   | `() => string \| null`              | Current locale: state → cookie (or hash cookie in hash mode)                         |
+| `getPreferredLocale()`                          | `() => string \| null`              | Locale from state/cookie **validated** against `validLocales`, or `null`             |
+| `getLocaleWithServerFallback(serverLocale?)`    | `(serverLocale?) => string \| null` | State → cookie → optional server context (used during `no_prefix` init)              |
+| `getEffectiveLocale(route, getLocaleFromRoute)` | `(route, fn) => string`             | Locale for loading translations: hash mode prefers state; otherwise reads from route |
+| `resolveInitialLocale(options)`                 | `(options) => string`               | Resolves locale: state → `serverLocale` → route; syncs state when needed             |
+| `setLocale(locale)`                             | `(locale: string \| null) => void`  | Set locale and sync to cookies                                                       |
+| `syncLocale(locale)`                            | `(locale: string \| null) => void`  | Sync cookies only (no state update)                                                  |
+| `isValidLocale(locale)`                         | `(locale) => boolean`               | Check if string is in `validLocales`                                                 |
 
 ### `resolveInitialLocale` options
 
@@ -94,7 +105,7 @@ export default defineNuxtPlugin({
     const { setLocale } = useI18nLocale()
     const detectedLocale = 'ja' // Your detection logic here
     setLocale(detectedLocale)
-  }
+  },
 })
 ```
 

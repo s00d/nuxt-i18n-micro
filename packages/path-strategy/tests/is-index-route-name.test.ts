@@ -1,4 +1,5 @@
 import { isIndexRouteName } from '../src/resolver'
+import { describe, expect, test } from 'vitest'
 
 const localeCodes = ['en', 'de', 'ru', 'en-US']
 

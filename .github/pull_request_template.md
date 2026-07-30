@@ -4,7 +4,6 @@
 
 <!-- What does this PR do? -->
 
-
 ## 🔗 Related Issue
 
 Closes #
@@ -24,9 +23,9 @@ Relates to #
 
 ### Environment
 
-- **OS**: 
-- **Node**: 
-- **Nuxt**: 
+- **OS**:
+- **Node**:
+- **Nuxt**:
 
 ### Tested
 
@@ -57,7 +56,6 @@ Relates to #
 ## 💡 Notes
 
 <!-- Any additional context for reviewers -->
-
 
 ---
 

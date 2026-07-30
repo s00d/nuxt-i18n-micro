@@ -1,3 +1,4 @@
+import { cpus } from 'node:os'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -6,10 +7,6 @@ export default defineConfig({
     exclude: ['test/fixtures/**'],
     testTimeout: 1_600_000, // ~27 min for performance test
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 1,
-      },
-    },
+    maxWorkers: Math.max(1, Math.floor(cpus().length / 2)),
   },
 })

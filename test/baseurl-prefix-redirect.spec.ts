@@ -1,13 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/baseurl-prefix', import.meta.url)),
-  },
-})
+await setupE2E({ shared: 'baseurl-prefix' })
 
-test.describe('baseURL + prefix strategy redirect (#234)', () => {
+describe('baseURL + prefix strategy redirect (#234)', () => {
   test('GET /examples redirects once to /examples/ja without loop', async ({ page, goto }) => {
     const responses: { url: string; status: number }[] = []
     page.on('response', (response) => {

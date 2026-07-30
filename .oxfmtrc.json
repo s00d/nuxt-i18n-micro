@@ -10,15 +10,22 @@
     "**/dist/**",
     "**/.nuxt/**",
     "**/.output/**",
+    "**/.output-shared/**",
+    "**/.nuxt-test/**",
     "**/coverage/**",
     "**/test-results/**",
     "**/.cache/**",
     "**/.git/**",
-    "**/.astro/**"
+    "**/.astro/**",
+    "**/.fixture-builds/**"
   ],
   "overrides": [
     {
-      "files": ["*.json", "*.jsonc", "*.json5"],
+      "files": [
+        "*.json",
+        "*.jsonc",
+        "*.json5"
+      ],
       "options": {
         "trailingComma": "none"
       }

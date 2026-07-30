@@ -1,6 +1,6 @@
 ---
-title: "Excluding Static Files from i18n Routing"
-description: "Exclude static files from i18n routing."
+title: 'Excluding Static Files from i18n Routing'
+description: 'Exclude static files from i18n routing.'
 ---
 
 # Excluding Static Files from i18n Routing
@@ -27,29 +27,29 @@ You can define custom exclusion patterns using the `excludePatterns` option:
 // nuxt.config.ts
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
-  
+
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US' },
-      { code: 'it', iso: 'it-IT' }
+      { code: 'it', iso: 'it-IT' },
     ],
     defaultLocale: 'en',
-    
+
     // Custom exclusion patterns
     excludePatterns: [
       // String patterns (exact match or prefix)
       '/api/health',
       '/admin',
-      
+
       // String patterns with wildcards
       '/api/*',
       '/admin/**',
-      
+
       // Regular expressions
       /^\/api\/v\d+\//,
       /\.(pdf|doc|docx)$/,
-    ]
-  }
+    ],
+  },
 })
 ```
 
@@ -68,50 +68,37 @@ Use RegExp objects for complex pattern matching:
 
 ```typescript
 excludePatterns: [
-  /^\/api\/v\d+\//,        // API versioned routes
-  /\.(pdf|doc|docx)$/,     // Document files
-  /^\/static\//,           // Static directory
-  /^\/[a-z]{2}\/api\//,    // Localized API routes
+  /^\/api\/v\d+\//, // API versioned routes
+  /\.(pdf|doc|docx)$/, // Document files
+  /^\/static\//, // Static directory
+  /^\/[a-z]{2}\/api\//, // Localized API routes
 ]
 ```
 
 ## Use Cases
 
 ### SEO Files
+
 ```typescript
-excludePatterns: [
-  '/sitemap.xml',
-  '/sitemap-*.xml',
-  '/robots.txt',
-  '/favicon.ico'
-]
+excludePatterns: ['/sitemap.xml', '/sitemap-*.xml', '/robots.txt', '/favicon.ico']
 ```
 
 ### API Routes
+
 ```typescript
-excludePatterns: [
-  '/api/**',
-  '/graphql',
-  '/webhook/**'
-]
+excludePatterns: ['/api/**', '/graphql', '/webhook/**']
 ```
 
 ### Admin Panels
+
 ```typescript
-excludePatterns: [
-  '/admin',
-  '/admin/**',
-  '/dashboard'
-]
+excludePatterns: ['/admin', '/admin/**', '/dashboard']
 ```
 
 ### Static Assets
+
 ```typescript
-excludePatterns: [
-  '/assets/**',
-  '/static/**',
-  '/uploads/**'
-]
+excludePatterns: ['/assets/**', '/static/**', '/uploads/**']
 ```
 
 ## How It Works
@@ -171,15 +158,15 @@ If you were using workarounds like route rules or middleware, you can now replac
 // ❌ Old workaround
 export default defineNuxtConfig({
   routeRules: {
-    '/sitemap*.xml': { headers: { 'content-type': 'application/xml' } }
-  }
+    '/sitemap*.xml': { headers: { 'content-type': 'application/xml' } },
+  },
 })
 
 // ✅ New approach
 export default defineNuxtConfig({
   i18n: {
-    excludePatterns: ['/sitemap*.xml']
-  }
+    excludePatterns: ['/sitemap*.xml'],
+  },
 })
 ```
 

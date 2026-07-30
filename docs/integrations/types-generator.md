@@ -1,7 +1,7 @@
 ---
-title: "Types Generator (`@i18n-micro/types-generator`)"
-description: "Generate TypeScript types from locale JSON."
-outline: "deep"
+title: 'Types Generator (`@i18n-micro/types-generator`)'
+description: 'Generate TypeScript types from locale JSON.'
+outline: 'deep'
 ---
 
 # 🔧 Types Generator (`@i18n-micro/types-generator`)
@@ -68,6 +68,7 @@ export default defineNuxtConfig({
 ```
 
 The generator will automatically:
+
 - Scan all JSON files in your `locales` directory
 - Generate types in `.nuxt/i18n-micro.d.ts`
 - Watch for changes and regenerate types automatically
@@ -97,10 +98,7 @@ Make sure to include the generated file in your `tsconfig.json`:
 
 ```json
 {
-  "include": [
-    "src/**/*",
-    "src/i18n-types.d.ts"
-  ]
+  "include": ["src/**/*", "src/i18n-types.d.ts"]
 }
 ```
 
@@ -144,12 +142,12 @@ The generator will create types for all keys, including nested ones:
 // Generated types
 declare module '@i18n-micro/types' {
   export interface DefineLocaleMessage {
-    'greeting': string;
-    'header.title': string;
-    'header.subtitle': string;
-    'errors.404': string;
-    'errors.500': string;
-    'apples': string;
+    greeting: string
+    'header.title': string
+    'header.subtitle': string
+    'errors.404': string
+    'errors.500': string
+    apples: string
   }
 }
 ```
@@ -367,4 +365,3 @@ The generated file uses TypeScript's module augmentation to extend `DefineLocale
 - [Vue Package](./vue-package.md) - Vue integration
 - [Astro Package](./astro-package.md) - Astro integration
 - [Getting Started](../guide/getting-started.md) - Nuxt setup
-

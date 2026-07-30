@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RouteGenerator - Edge cases activeLocaleCodes for each strategy 1`] = `
+exports[`RouteGenerator - Edge cases > activeLocaleCodes for each strategy 1`] = `
 {
   "no_prefix": [
     "de",
@@ -23,7 +23,7 @@ exports[`RouteGenerator - Edge cases activeLocaleCodes for each strategy 1`] = `
 }
 `;
 
-exports[`RouteGenerator - Edge cases constructor with undefined filesLocaleRoutes 1`] = `
+exports[`RouteGenerator - Edge cases > constructor with undefined filesLocaleRoutes 1`] = `
 [
   {
     "children": [],
@@ -42,7 +42,7 @@ exports[`RouteGenerator - Edge cases constructor with undefined filesLocaleRoute
 ]
 `;
 
-exports[`RouteGenerator - Edge cases constructor with undefined globalLocaleRoutes 1`] = `
+exports[`RouteGenerator - Edge cases > constructor with undefined globalLocaleRoutes 1`] = `
 [
   {
     "children": [],
@@ -111,15 +111,15 @@ exports[`RouteGenerator - Edge cases constructor with undefined globalLocaleRout
 ]
 `;
 
-exports[`RouteGenerator - Edge cases defaultLocale when code not in locales list 1`] = `
+exports[`RouteGenerator - Edge cases > defaultLocale when code not in locales list 1`] = `
 {
   "code": "en",
 }
 `;
 
-exports[`RouteGenerator - Edge cases empty pages array: extendPages does nothing 1`] = `[]`;
+exports[`RouteGenerator - Edge cases > empty pages array: extendPages does nothing 1`] = `[]`;
 
-exports[`RouteGenerator - Edge cases excludePatterns: string and RegExp together 1`] = `
+exports[`RouteGenerator - Edge cases > excludePatterns: string and RegExp together 1`] = `
 [
   {
     "children": [],
@@ -146,7 +146,7 @@ exports[`RouteGenerator - Edge cases excludePatterns: string and RegExp together
 ]
 `;
 
-exports[`RouteGenerator - Edge cases extendPages with customRegex string pattern 1`] = `
+exports[`RouteGenerator - Edge cases > extendPages with customRegex string pattern 1`] = `
 [
   {
     "children": [],
@@ -165,7 +165,7 @@ exports[`RouteGenerator - Edge cases extendPages with customRegex string pattern
 ]
 `;
 
-exports[`RouteGenerator - Edge cases globalLocaleRoutes with Nuxt-style [id] key normalizes to :id 1`] = `
+exports[`RouteGenerator - Edge cases > globalLocaleRoutes with Nuxt-style [id] key normalizes to :id 1`] = `
 [
   {
     "children": [],
@@ -193,7 +193,7 @@ exports[`RouteGenerator - Edge cases globalLocaleRoutes with Nuxt-style [id] key
 ]
 `;
 
-exports[`RouteGenerator - Edge cases localizedPaths populated after extendPages 1`] = `
+exports[`RouteGenerator - Edge cases > localizedPaths populated after extendPages 1`] = `
 {
   "about": {
     "de": "/ueber-uns",
@@ -202,7 +202,7 @@ exports[`RouteGenerator - Edge cases localizedPaths populated after extendPages 
 }
 `;
 
-exports[`RouteGenerator - Edge cases multiple redirect-only pages 1`] = `
+exports[`RouteGenerator - Edge cases > multiple redirect-only pages 1`] = `
 [
   {
     "path": "/r1",
@@ -215,7 +215,7 @@ exports[`RouteGenerator - Edge cases multiple redirect-only pages 1`] = `
 ]
 `;
 
-exports[`RouteGenerator - Edge cases page with empty path (root) 1`] = `
+exports[`RouteGenerator - Edge cases > page with empty path (root) 1`] = `
 [
   {
     "children": [],
@@ -234,7 +234,7 @@ exports[`RouteGenerator - Edge cases page with empty path (root) 1`] = `
 ]
 `;
 
-exports[`RouteGenerator - Edge cases single locale in config 1`] = `
+exports[`RouteGenerator - Edge cases > single locale in config 1`] = `
 [
   {
     "children": [],
@@ -244,19 +244,19 @@ exports[`RouteGenerator - Edge cases single locale in config 1`] = `
 ]
 `;
 
-exports[`RouteGenerator - Exported utils buildFullPath array of locales 1`] = `"/:locale(en|de)/about"`;
+exports[`RouteGenerator - Exported utils > buildFullPath > array of locales 1`] = `"/:locale(en|de)/about"`;
 
-exports[`RouteGenerator - Exported utils buildFullPath single locale 1`] = `"/:locale(en)/about"`;
+exports[`RouteGenerator - Exported utils > buildFullPath > single locale 1`] = `"/:locale(en)/about"`;
 
-exports[`RouteGenerator - Exported utils buildFullPath with custom regex 1`] = `"/:locale(^[a-z]{2}$)/about"`;
+exports[`RouteGenerator - Exported utils > buildFullPath > with custom regex 1`] = `"/:locale(^[a-z]{2}$)/about"`;
 
-exports[`RouteGenerator - Exported utils buildFullPathNoPrefix returns normalized path 1`] = `"/about"`;
+exports[`RouteGenerator - Exported utils > buildFullPathNoPrefix > returns normalized path 1`] = `"/about"`;
 
-exports[`RouteGenerator - Exported utils buildRouteName custom path adds locale suffix 1`] = `"localized-about-de"`;
+exports[`RouteGenerator - Exported utils > buildRouteName > custom path adds locale suffix 1`] = `"localized-about-de"`;
 
-exports[`RouteGenerator - Exported utils buildRouteName non-custom no locale suffix 1`] = `"localized-about"`;
+exports[`RouteGenerator - Exported utils > buildRouteName > non-custom no locale suffix 1`] = `"localized-about"`;
 
-exports[`RouteGenerator - Exported utils cloneArray shallow clone objects 1`] = `
+exports[`RouteGenerator - Exported utils > cloneArray > shallow clone objects 1`] = `
 [
   {
     "a": 1,
@@ -267,46 +267,46 @@ exports[`RouteGenerator - Exported utils cloneArray shallow clone objects 1`] = 
 ]
 `;
 
-exports[`RouteGenerator - Exported utils isInternalPath __nuxt internal path 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isInternalPath > __nuxt internal path 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isInternalPath custom excludePatterns regex 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isInternalPath > custom excludePatterns regex 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isInternalPath custom excludePatterns string 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isInternalPath > custom excludePatterns string 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isInternalPath normal path not excluded 1`] = `false`;
+exports[`RouteGenerator - Exported utils > isInternalPath > normal path not excluded 1`] = `false`;
 
-exports[`RouteGenerator - Exported utils isInternalPath robots.txt 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isInternalPath > robots.txt 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isInternalPath sitemap.xml 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isInternalPath > sitemap.xml 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isLocaleDefault object locale 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isLocaleDefault > object locale 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isLocaleDefault string locale, default -> true 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isLocaleDefault > string locale, default -> true 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils isPageRedirectOnly page with file is not redirect-only 1`] = `false`;
+exports[`RouteGenerator - Exported utils > isPageRedirectOnly > page with file is not redirect-only 1`] = `false`;
 
-exports[`RouteGenerator - Exported utils isPageRedirectOnly redirect without file is redirect-only 1`] = `true`;
+exports[`RouteGenerator - Exported utils > isPageRedirectOnly > redirect without file is redirect-only 1`] = `true`;
 
-exports[`RouteGenerator - Exported utils normalizePath . becomes empty 1`] = `""`;
+exports[`RouteGenerator - Exported utils > normalizePath > . becomes empty 1`] = `""`;
 
-exports[`RouteGenerator - Exported utils normalizePath double slash normalized 1`] = `"/about/contact"`;
+exports[`RouteGenerator - Exported utils > normalizePath > double slash normalized 1`] = `"/about/contact"`;
 
-exports[`RouteGenerator - Exported utils normalizePath empty string 1`] = `""`;
+exports[`RouteGenerator - Exported utils > normalizePath > empty string 1`] = `""`;
 
-exports[`RouteGenerator - Exported utils normalizePath trailing slash removed 1`] = `"/about"`;
+exports[`RouteGenerator - Exported utils > normalizePath > trailing slash removed 1`] = `"/about"`;
 
-exports[`RouteGenerator - Exported utils normalizeRouteKey [...slug] -> :slug(.*)* 1`] = `"/:slug(.*)*"`;
+exports[`RouteGenerator - Exported utils > normalizeRouteKey > [...slug] -> :slug(.*)* 1`] = `"/:slug(.*)*"`;
 
-exports[`RouteGenerator - Exported utils normalizeRouteKey [id] -> :id 1`] = `"/users/:id"`;
+exports[`RouteGenerator - Exported utils > normalizeRouteKey > [id] -> :id 1`] = `"/users/:id"`;
 
-exports[`RouteGenerator - Exported utils normalizeRouteKey mixed path 1`] = `"/posts/:id/:rest(.*)*"`;
+exports[`RouteGenerator - Exported utils > normalizeRouteKey > mixed path 1`] = `"/posts/:id/:rest(.*)*"`;
 
-exports[`RouteGenerator - Exported utils normalizeRouteKey static path unchanged 1`] = `"/about"`;
+exports[`RouteGenerator - Exported utils > normalizeRouteKey > static path unchanged 1`] = `"/about"`;
 
-exports[`RouteGenerator - Exported utils removeLeadingSlash no slash unchanged 1`] = `"about"`;
+exports[`RouteGenerator - Exported utils > removeLeadingSlash > no slash unchanged 1`] = `"about"`;
 
-exports[`RouteGenerator - Exported utils removeLeadingSlash removes leading slash 1`] = `"about"`;
+exports[`RouteGenerator - Exported utils > removeLeadingSlash > removes leading slash 1`] = `"about"`;
 
-exports[`RouteGenerator - Exported utils shouldAddLocalePrefix addLocalePrefix true, default locale -> false 1`] = `false`;
+exports[`RouteGenerator - Exported utils > shouldAddLocalePrefix > addLocalePrefix true, default locale -> false 1`] = `false`;
 
-exports[`RouteGenerator - Exported utils shouldAddLocalePrefix addLocalePrefix true, non-default -> true 1`] = `true`;
+exports[`RouteGenerator - Exported utils > shouldAddLocalePrefix > addLocalePrefix true, non-default -> true 1`] = `true`;

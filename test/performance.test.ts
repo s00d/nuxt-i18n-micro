@@ -1548,6 +1548,8 @@ function pause(duration: number): Promise<void> {
 describe('performance', () => {
   it(
     'compare build performance and stress test',
+    // Vitest 4 takes the options object as the second argument.
+    { timeout: 1800000 }, // 30 minutes
     async () => {
       initializeMarkdown()
       addDependencyVersions()
@@ -1626,7 +1628,7 @@ height: 400px
 
 `)
 
-      const artilleryConfigPath = './artillery-config.yml'
+      const artilleryConfigPath = './benchmark/artillery-config.yml'
 
       // 2. Stress tests
       const plainNuxtStressResults = await stressTestServerWithArtillery('./test/fixtures/plain-nuxt', 'plain-nuxt', artilleryConfigPath)
@@ -1674,6 +1676,5 @@ ${comparisonCharts}
 
       addTestLogicExplanation()
     },
-    { timeout: 1800000 },
-  ) // 30 minutes timeout
+  )
 })

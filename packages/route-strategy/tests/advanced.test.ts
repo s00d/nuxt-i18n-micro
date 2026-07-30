@@ -1,6 +1,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
 import { createBasicPages, createManager, createNestedPages, defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - Advanced Scenarios', () => {
   test('33. should not create route when globalLocaleRoutes defines custom path for locale forbidden in routeLocales', () => {

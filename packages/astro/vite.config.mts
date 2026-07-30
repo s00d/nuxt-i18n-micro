@@ -38,6 +38,7 @@ export default defineConfig({
         'node:path',
         'node:url',
         'node:module',
+        'node:async_hooks',
         'astro',
         'svelte/store',
         'react',

@@ -1,4 +1,4 @@
-import { interpolate, useTranslationHelper } from '@i18n-micro/core'
+import { collectTranslationPaths, interpolate, setTranslationAtKey, useTranslationHelper } from '@i18n-micro/core'
 import type { Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
 
 type LocaleCode = string
@@ -50,9 +50,12 @@ function formatDate(value: Date | number | string, locale: string, options?: Int
 
 // Example utilities for testing
 export function t(key: TranslationKey, params?: Params, defaultValue?: string): Translation {
-  const value = i18nHelper.getTranslation(locale, routeName, key)
+  let value = i18nHelper.getTranslation(locale, routeName, key)
+  if (value === null && defLocale && locale !== defLocale) {
+    value = i18nHelper.getTranslation(defLocale, routeName, key)
+  }
 
-  if (!value) {
+  if (value === null || value === undefined) {
     console.warn(`Missing translation key: ${key}`)
     return defaultValue || key
   }
@@ -68,7 +71,7 @@ export function tc(key: TranslationKey, params: number | Params, defaultValue?: 
 }
 
 export async function setTranslationsFromJson(locale: string, translations: Record<string, unknown>) {
-  await i18nHelper.loadTranslations(locale, translations, routeName)
+  i18nHelper.setTranslations(locale, { ...translations } as Translations, routeName)
 }
 
 export const getLocale = () => locale
@@ -98,6 +101,29 @@ export const td = (value: Date | number | string, options?: Intl.DateTimeFormatO
 export const has = (key: TranslationKey): boolean => i18nHelper.hasTranslation(locale, key)
 
 export const mergeTranslations = (newTranslations: Translations): void => i18nHelper.mergeTranslation(locale, routeName, newTranslations, true)
+
+export const resolveTranslations = (): Record<string, unknown> => {
+  const active = (i18nHelper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
+  const fallback = defLocale
+  if (!fallback || locale === fallback) return active
+  const fb = (i18nHelper.getCache(fallback, routeName) ?? {}) as Record<string, unknown>
+  const paths = new Set<string>()
+  collectTranslationPaths(fb, paths)
+  collectTranslationPaths(active, paths)
+
+  const tree: Record<string, unknown> = {}
+  for (const path of paths) {
+    let value = i18nHelper.getTranslation(locale, routeName, path)
+    if (value === null) value = i18nHelper.getTranslation(fallback, routeName, path)
+    if (value !== null && value !== undefined) tree[path] = value
+  }
+  return tree
+}
+
+export const setTranslation = (key: TranslationKey, value: unknown): void => {
+  const current = (i18nHelper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
+  i18nHelper.setTranslations(locale, setTranslationAtKey(current, String(key), value), routeName)
+}
 
 export const switchLocaleRoute = (val: string) => (locale = val)
 
@@ -134,6 +160,8 @@ export const i18nUtils = {
   td,
   has,
   mergeTranslations,
+  resolveTranslations,
+  setTranslation,
   switchLocaleRoute,
   switchLocalePath,
   switchLocale,

@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'  # ограничиваем только изменениями в папке docs
+      - 'docs/**' # ограничиваем только изменениями в папке docs
   # trigger deployment when a new release is published
   release:
     types: [published]
@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           # choose node.js version to use
-          node-version: 20
+          node-version: 22
           # cache deps for pnpm
           cache: 'pnpm'
 

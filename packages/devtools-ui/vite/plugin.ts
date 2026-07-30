@@ -2,26 +2,13 @@ import * as fs from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as path from 'node:path'
+import { safeResolvePath } from '../src/safe-path'
 import type { IndexHtmlTransformResult, PluginOption, ViteDevServer } from 'vite'
 
 export interface DevToolsPluginOptions {
   base?: string
   translationDir?: string
   injectButton?: boolean
-}
-
-// Helper function for safe path resolution
-function safeResolvePath(projectRoot: string, filePath: string): string {
-  const normalizedFile = filePath.replace(/^\/+/, '').replace(/\/+/g, '/')
-  const resolvedPath = path.resolve(projectRoot, normalizedFile)
-  const normalizedRoot = path.resolve(projectRoot)
-  const normalizedFilePath = path.resolve(resolvedPath)
-
-  if (!normalizedFilePath.startsWith(normalizedRoot)) {
-    throw new Error(`Access denied: Path ${resolvedPath} is outside project root`)
-  }
-
-  return resolvedPath
 }
 
 // Recursive directory scanning to find JSON files

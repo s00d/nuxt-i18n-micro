@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { createI18n, I18n } from '../src'
+import { describe, expect, test, vi } from 'vitest'
 
 describe('I18n (Simple API)', () => {
   const translations = {
@@ -115,7 +116,7 @@ describe('I18n (Simple API)', () => {
   describe('addRouteTranslations', () => {
     test('adds route-specific translations', () => {
       // Suppress expected warning for mergeTranslation without pre-loading
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const i18n = createI18n({
         locale: 'en',
@@ -148,7 +149,7 @@ describe('I18n (Simple API)', () => {
 
     test('t() uses currentRoute by default', () => {
       // Suppress expected warning for mergeTranslation without pre-loading
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const i18n = createI18n({
         locale: 'en',
@@ -209,6 +210,22 @@ describe('I18n (Simple API)', () => {
 
       // Reload should clear and attempt to reload (even if directory doesn't exist)
       await expect(i18n.reload()).resolves.not.toThrow()
+    })
+  })
+
+  describe('resolveTranslations / setTranslation', () => {
+    test('resolveTranslations returns the active translation tree', () => {
+      const i18n = createI18n({ locale: 'en' })
+      i18n.addTranslations('en', translations.en)
+      expect(i18n.resolveTranslations()).toEqual(translations.en)
+    })
+
+    test('setTranslation replaces values and t() sees the change', () => {
+      const i18n = createI18n({ locale: 'en' })
+      i18n.addTranslations('en', translations.en)
+      i18n.setTranslation('welcome', 'Hi')
+      expect(i18n.resolveTranslations().welcome).toBe('Hi')
+      expect(i18n.t('welcome')).toBe('Hi')
     })
   })
 })

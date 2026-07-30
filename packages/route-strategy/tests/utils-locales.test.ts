@@ -1,5 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
 import { resolveLocales } from '../src/utils/locales'
+import { describe, expect, test } from 'vitest'
 
 describe('resolveLocales (utils/locales)', () => {
   test('returns merged locales and defaultLocale for defaultLocaleCode present in list', () => {

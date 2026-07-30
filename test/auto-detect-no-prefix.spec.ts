@@ -1,18 +1,11 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+
+await setupE2E({ shared: 'auto-detect-no-prefix' })
 
 // Test: autoDetectLanguage with no_prefix strategy
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/auto-detect-no-prefix', import.meta.url)),
-  },
-})
 
-test.describe('autoDetectLanguage with no_prefix strategy', () => {
-  test.beforeEach(async ({ page }) => {
-    // Clear cookies before each test
-    await page.context().clearCookies()
-  })
+describe('autoDetectLanguage with no_prefix strategy', () => {
+  // Fresh browser context per test — cookies start clean.
 
   test('detects German from Accept-Language header and sets locale', async ({ request }) => {
     const res = await request.get('/', {

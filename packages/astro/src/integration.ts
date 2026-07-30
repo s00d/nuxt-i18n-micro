@@ -1,6 +1,7 @@
 import type { Locale, ModuleOptions, PluralFunc } from '@i18n-micro/types'
 import type { AstroIntegration, HookParameters } from 'astro'
 import { AstroI18n, type AstroI18nOptions } from './composer'
+import { setGlobalRoutingStrategy } from './routing-context'
 import type { I18nRoutingStrategy } from './router/types'
 
 export interface I18nIntegrationOptions extends Omit<ModuleOptions, 'plural'> {
@@ -18,15 +19,7 @@ export interface I18nIntegrationOptions extends Omit<ModuleOptions, 'plural'> {
   routingStrategy?: I18nRoutingStrategy
 }
 
-let globalRoutingStrategy: I18nRoutingStrategy | null = null
-
-export function getGlobalRoutingStrategy(): I18nRoutingStrategy | null {
-  return globalRoutingStrategy
-}
-
-export function setGlobalRoutingStrategy(strategy: I18nRoutingStrategy | null): void {
-  globalRoutingStrategy = strategy
-}
+export { getGlobalRoutingStrategy, runWithRoutingStrategy, setGlobalRoutingStrategy } from './routing-context'
 
 /**
  * Astro Integration for i18n-micro
@@ -34,7 +27,7 @@ export function setGlobalRoutingStrategy(strategy: I18nRoutingStrategy | null): 
 export function i18nIntegration(options: I18nIntegrationOptions): AstroIntegration {
   const { locale: defaultLocale, fallbackLocale, translationDir, routingStrategy } = options
 
-  globalRoutingStrategy = routingStrategy || null
+  setGlobalRoutingStrategy(routingStrategy || null)
 
   return {
     name: '@i18n-micro/astro',

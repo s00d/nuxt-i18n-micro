@@ -11,6 +11,7 @@ import {
   parentKeyFromSlashKey,
   transformNameKeyToPath,
 } from '../src/path'
+import { describe, expect, test } from 'vitest'
 
 describe('parentKeyFromSlashKey', () => {
   test('activity-locale/hiking -> activity-locale', () => {

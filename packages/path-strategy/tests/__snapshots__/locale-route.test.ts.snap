@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`localeRoute - no_prefix { name: "index" } returns root path / 1`] = `
+exports[`localeRoute - no_prefix > { name: "index" } returns root path / 1`] = `
 {
   "de": {
     "fullPath": "/",
@@ -13,7 +13,7 @@ exports[`localeRoute - no_prefix { name: "index" } returns root path / 1`] = `
 }
 `;
 
-exports[`localeRoute - no_prefix object with name: returns route with localized name when router has it 1`] = `
+exports[`localeRoute - no_prefix > object with name: returns route with localized name when router has it 1`] = `
 {
   "fullPath": "/",
   "hash": "",
@@ -24,7 +24,7 @@ exports[`localeRoute - no_prefix object with name: returns route with localized 
 }
 `;
 
-exports[`localeRoute - no_prefix string path: returns path as-is (no prefix) 1`] = `
+exports[`localeRoute - no_prefix > string path: returns path as-is (no prefix) 1`] = `
 {
   "de": {
     "fullPath": "/about",
@@ -37,7 +37,7 @@ exports[`localeRoute - no_prefix string path: returns path as-is (no prefix) 1`]
 }
 `;
 
-exports[`localeRoute - prefix { name: "index" } returns localized root path 1`] = `
+exports[`localeRoute - prefix > { name: "index" } returns localized root path 1`] = `
 {
   "fullPath": "/de",
   "hash": "",
@@ -48,7 +48,7 @@ exports[`localeRoute - prefix { name: "index" } returns localized root path 1`] 
 }
 `;
 
-exports[`localeRoute - prefix object with name: returns route with correct name 1`] = `
+exports[`localeRoute - prefix > object with name: returns route with correct name 1`] = `
 {
   "de": {
     "fullPath": "/",
@@ -69,7 +69,7 @@ exports[`localeRoute - prefix object with name: returns route with correct name 
 }
 `;
 
-exports[`localeRoute - prefix string path: adds locale prefix 1`] = `
+exports[`localeRoute - prefix > string path: adds locale prefix 1`] = `
 {
   "de": {
     "fullPath": "/de/about",
@@ -82,7 +82,7 @@ exports[`localeRoute - prefix string path: adds locale prefix 1`] = `
 }
 `;
 
-exports[`localeRoute - prefix with globalLocaleRoutes: uses custom path for locale 1`] = `
+exports[`localeRoute - prefix > with globalLocaleRoutes: uses custom path for locale 1`] = `
 {
   "de": {
     "fullPath": "/de/ueber-uns",
@@ -95,7 +95,7 @@ exports[`localeRoute - prefix with globalLocaleRoutes: uses custom path for loca
 }
 `;
 
-exports[`localeRoute - prefix_and_default { name: "index" } returns localized root path for each locale 1`] = `
+exports[`localeRoute - prefix_and_default > { name: "index" } returns localized root path for each locale 1`] = `
 {
   "de": {
     "fullPath": "/de",
@@ -116,7 +116,7 @@ exports[`localeRoute - prefix_and_default { name: "index" } returns localized ro
 }
 `;
 
-exports[`localeRoute - prefix_and_default object with name: returns route with correct name 1`] = `
+exports[`localeRoute - prefix_and_default > object with name: returns route with correct name 1`] = `
 {
   "de": {
     "fullPath": "/de",
@@ -137,7 +137,7 @@ exports[`localeRoute - prefix_and_default object with name: returns route with c
 }
 `;
 
-exports[`localeRoute - prefix_and_default string path: all locales get prefix 1`] = `
+exports[`localeRoute - prefix_and_default > string path: all locales get prefix 1`] = `
 {
   "de": {
     "fullPath": "/de/about",
@@ -150,7 +150,7 @@ exports[`localeRoute - prefix_and_default string path: all locales get prefix 1`
 }
 `;
 
-exports[`localeRoute - prefix_and_default with globalLocaleRoutes unlocalized: false returns path without locale prefix 1`] = `
+exports[`localeRoute - prefix_and_default > with globalLocaleRoutes unlocalized: false returns path without locale prefix 1`] = `
 {
   "de": {
     "fullPath": "/unlocalized",
@@ -163,14 +163,14 @@ exports[`localeRoute - prefix_and_default with globalLocaleRoutes unlocalized: f
 }
 `;
 
-exports[`localeRoute - prefix_and_default with globalLocaleRoutes: custom path with prefix 1`] = `
+exports[`localeRoute - prefix_and_default > with globalLocaleRoutes: custom path with prefix 1`] = `
 {
   "fullPath": "/de/ueber-uns",
   "path": "/de/ueber-uns",
 }
 `;
 
-exports[`localeRoute - prefix_except_default { name: "index" } default locale returns / (no prefix) 1`] = `
+exports[`localeRoute - prefix_except_default > { name: "index" } default locale returns / (no prefix) 1`] = `
 {
   "fullPath": "/",
   "hash": "",
@@ -181,7 +181,7 @@ exports[`localeRoute - prefix_except_default { name: "index" } default locale re
 }
 `;
 
-exports[`localeRoute - prefix_except_default { name: "index" } returns root path for target locale (not current page path) 1`] = `
+exports[`localeRoute - prefix_except_default > { name: "index" } returns root path for target locale (not current page path) 1`] = `
 {
   "fullPath": "/de",
   "hash": "",
@@ -192,7 +192,7 @@ exports[`localeRoute - prefix_except_default { name: "index" } returns root path
 }
 `;
 
-exports[`localeRoute - prefix_except_default object with name: returns route with correct name 1`] = `
+exports[`localeRoute - prefix_except_default > object with name: returns route with correct name 1`] = `
 {
   "de": {
     "fullPath": "/de/about",
@@ -213,7 +213,7 @@ exports[`localeRoute - prefix_except_default object with name: returns route wit
 }
 `;
 
-exports[`localeRoute - prefix_except_default string path: default locale no prefix, others have prefix 1`] = `
+exports[`localeRoute - prefix_except_default > string path: default locale no prefix, others have prefix 1`] = `
 {
   "de": {
     "fullPath": "/de/about",
@@ -226,7 +226,7 @@ exports[`localeRoute - prefix_except_default string path: default locale no pref
 }
 `;
 
-exports[`localeRoute - prefix_except_default with globalLocaleRoutes: custom paths per locale 1`] = `
+exports[`localeRoute - prefix_except_default > with globalLocaleRoutes: custom paths per locale 1`] = `
 {
   "de": {
     "fullPath": "/de/ueber-uns",
@@ -239,7 +239,7 @@ exports[`localeRoute - prefix_except_default with globalLocaleRoutes: custom pat
 }
 `;
 
-exports[`snapshots (documentation: how localeRoute works per strategy) localeRoute with globalLocaleRoutes: custom paths per locale 1`] = `
+exports[`snapshots (documentation: how localeRoute works per strategy) > localeRoute with globalLocaleRoutes: custom paths per locale 1`] = `
 {
   "de": {
     "fullPath": "/de/ueber-uns",
@@ -256,7 +256,7 @@ exports[`snapshots (documentation: how localeRoute works per strategy) localeRou
 }
 `;
 
-exports[`snapshots (documentation: how localeRoute works per strategy) localeRoute: object with name and path returns RouteLike with path/fullPath 1`] = `
+exports[`snapshots (documentation: how localeRoute works per strategy) > localeRoute: object with name and path returns RouteLike with path/fullPath 1`] = `
 {
   "resultDe": {
     "fullPath": "/de/about",
@@ -277,7 +277,7 @@ exports[`snapshots (documentation: how localeRoute works per strategy) localeRou
 }
 `;
 
-exports[`snapshots (documentation: how localeRoute works per strategy) localeRoute: path /about per strategy and locale en/de 1`] = `
+exports[`snapshots (documentation: how localeRoute works per strategy) > localeRoute: path /about per strategy and locale en/de 1`] = `
 {
   "no_prefix": {
     "de": {

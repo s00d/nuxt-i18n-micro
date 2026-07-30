@@ -1,6 +1,6 @@
 ---
-title: "Translation Cache & Storage Architecture"
-description: "Translation cache layers and payload modes in v3."
+title: 'Translation Cache & Storage Architecture'
+description: 'Translation cache layers and payload modes in v3.'
 ---
 
 # 🗄️ Translation Cache & Storage Architecture
@@ -41,7 +41,7 @@ flowchart TB
 
     subgraph Client["Client Runtime"]
         API -->|$fetch| TS["TranslationStorage<br/>(singleton via Symbol.for)"]
-        SSR["useState i18n-ssr-chunks<br/>(Nuxt payload)"] -->|seedFromSsrChunks| TS
+        SSR["full chunks<br/>payload.data i18n-ssr-chunks"] -->|seedFromSsrChunks| TS
         TS -->|getFromCache / load| NI["NuxtI18n<br/>active view layer"]
         NI --> PL["01.plugin.ts"]
     end
@@ -57,12 +57,12 @@ A singleton class that provides unified translation storage for both client and 
 
 **Key methods:**
 
-| Method | Description |
-|--------|-------------|
-| `getFromCache(locale, routeName?)` | Synchronous check: returns cached in-memory data, or `null` |
-| `seedFromSsrChunks(chunks)` | Seeds cache from `useState('i18n-ssr-chunks')` on client hydration |
+| Method                              | Description                                                            |
+| ----------------------------------- | ---------------------------------------------------------------------- |
+| `getFromCache(locale, routeName?)`  | Synchronous check: returns cached in-memory data, or `null`            |
+| `seedFromSsrChunks(chunks)`         | Seeds cache from the SSR payload (`payload.data['i18n-ssr-chunks']`) |
 | `load(locale, routeName?, options)` | Async load with caching: checks cache first, then fetches via `$fetch` |
-| `clear()` | Clears the entire cache |
+| `clear()`                           | Clears the entire cache                                                |
 
 **Cache key format**: `{locale}:{routeName}` (e.g., `en:index`, `fr:about`)
 
@@ -76,13 +76,14 @@ const cached = translationStorage.getFromCache('en', 'index')
 const result = await translationStorage.load('en', 'index', {
   apiBaseUrl: '_locales',
   baseURL: '/',
-  dateBuild: '2024-01-01'
+  dateBuild: '2024-01-01',
 })
 // result.data — merged translations
 // result.cacheKey — cache key used
 ```
 
 ### ⚙️ Deterministic Cache Busting (`i18n.dateBuild`)
+
 By default, this module generates `dateBuild` during build time using `Date.now()`. It is then embedded into the generated `#build/i18n.strategy.mjs` and used as a query parameter (`?v=...`) to invalidate translation fetch caches after rebuilds.
 
 If you need reproducible builds (for example, to improve chunk cache hit rates in rolling deployments), set a stable value in `nuxt.config`:
@@ -91,8 +92,8 @@ If you need reproducible builds (for example, to improve chunk cache hit rates i
 export default defineNuxtConfig({
   i18n: {
     // Any stable string/number (git SHA, CI build number, release tag, etc.)
-    dateBuild: process.env.GIT_SHA ?? 'local-dev'
-  }
+    dateBuild: process.env.GIT_SHA ?? 'local-dev',
+  },
 })
 ```
 
@@ -104,10 +105,10 @@ Loads translations for a locale/page and caches the merged result in a process-g
 
 Behavior depends on `translationPayloads.mode`:
 
-| Mode | Server behavior |
-|------|-----------------|
+| Mode                      | Server behavior                                                                                                                                                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`premerged`** (default) | Reads a single pre-built file from Nitro storage (`assets:i18n`). Merging (root + page + fallback chains + layers) was done at build time by `preMergeLocales` in `@i18n-micro/utils/build` (invoked from `src/module.ts`). |
-| **`source`** | Reads compact source files from Nitro storage and merges root/page/fallback at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`. |
+| **`source`**              | Reads compact source files from Nitro storage and merges root/page/fallback at runtime via `@i18n-micro/utils/source-loader` and `@i18n-micro/utils/merge-source`.                                                          |
 
 ```typescript
 import { loadTranslationsFromServer } from '../server/utils/server-loader'
@@ -116,11 +117,16 @@ import { loadTranslationsFromServer } from '../server/utils/server-loader'
 const { data, json } = await loadTranslationsFromServer('en', 'index')
 ```
 
-### 3. SSR Payload Transfer (`useState('i18n-ssr-chunks')`)
+### 3. SSR Payload Transfer
 
-During server-side rendering, the main plugin (`01.plugin.ts`) collects loaded translation chunks into `useState('i18n-ssr-chunks')`. Nuxt serializes this state into the HTML payload.
+Each `(locale, route)` chunk loaded during SSR is stored in `nuxtApp.payload.data['i18n-ssr-chunks']`
+when `NuxtTranslationLoader` merges it on the server (`setSsrChunk`).
 
-On the client, before the first fetch, the plugin calls `translationStorage.seedFromSsrChunks()` to populate `TranslationStorage`. This ensures **zero additional HTTP requests** on first page load.
+`payload.data` rather than `useState`: Nuxt externalizes `data` into `_payload.json` on prerendered
+routes, while `state` always stays inline in the HTML.
+
+On the client the plugin seeds `TranslationStorage` and `NuxtI18n` from it before the first fetch, so
+hydration needs **no network round-trip** for chunks the server already loaded.
 
 `NuxtI18n` holds the active view-layer dictionary used by `$t()` and `$has()`. `NuxtTranslationLoader` switches locale/route context and merges chunks into that layer.
 
@@ -130,7 +136,15 @@ On the client, before the first fetch, the plugin calls `translationStorage.seed
 
 **File**: `src/runtime/server/routes/i18n.ts`
 
-This Nitro route serves merged translations for the active payload mode. It calls `loadTranslationsFromServer()` and returns the result as JSON. Cache headers are controlled by `dateBuild` version parameter.
+This Nitro route serves merged translations for the active payload mode. It calls `loadTranslationsFromServer()` and returns the result as JSON.
+
+In production it also sets:
+
+```http
+Cache-Control: public, max-age={httpCacheDuration}, immutable
+```
+
+Default `httpCacheDuration` is `31536000` (1 year). This is safe because clients request payloads with `?v={dateBuild}` cache-busting. Set `httpCacheDuration: 0` to omit the header. The header is not applied in development.
 
 ## 📥 Extending: Custom Translation Loading
 
@@ -203,6 +217,7 @@ $clearCache()
 ### Server cache behavior
 
 The server-side cache (`loadTranslationsFromServer`) is process-global and persists until:
+
 - The server process restarts
 - A new deployment is detected (different `dateBuild` value)
 
@@ -221,22 +236,22 @@ export default defineNuxtConfig({
       // Only needed if default file-system storage is unavailable
       'assets:server': {
         driver: 'cloudflare-kv-binding',
-        binding: 'MY_KV_NAMESPACE'
-      }
-    }
-  }
+        binding: 'MY_KV_NAMESPACE',
+      },
+    },
+  },
 })
 ```
 
 ## 💡 Key Differences from v2
 
-| Aspect | v2 | v3 |
-|--------|----|----|
-| Client cache | `useStorage('cache')` | `TranslationStorage` singleton (Symbol.for on globalThis) |
-| SSR transfer | Runtime config | `useState('i18n-ssr-chunks')` via Nuxt payload |
-| Server cache | Nitro cache storage | Process-global `Map` via `Symbol.for` |
-| Merge logic | Client-side | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
-| Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}` |
+| Aspect           | v2                            | v3                                                                       |
+| ---------------- | ----------------------------- | ------------------------------------------------------------------------ |
+| Client cache     | `useStorage('cache')`         | `TranslationStorage` singleton (Symbol.for on globalThis)                |
+| SSR transfer     | Runtime config                | Render set via `payload.data` (v3.0 used `useState` with whole chunks)   |
+| Server cache     | Nitro cache storage           | Process-global `Map` via `Symbol.for`                                    |
+| Merge logic      | Client-side                   | Build-time (`premerged`) or runtime (`source`) via `@i18n-micro/utils/*` |
+| Cache key format | `i18n:merged:{page}:{locale}` | `{locale}:{routeName}`                                                   |
 
 ## 📚 Related
 

@@ -1,0 +1,242 @@
+# . (src/index.ts)
+class AstroI18n
+member AstroI18n._currentRoute: private string
+member AstroI18n._fallbackLocale: private string
+member AstroI18n._locale: private string
+member AstroI18n.addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void
+member AstroI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
+member AstroI18n.clearCache: () => void
+member AstroI18n.clone: (newLocale?: string) => AstroI18n
+member AstroI18n.cloneStorage: private (source: TranslationStorage) => TranslationStorage
+member AstroI18n.fallbackLocale: string
+member AstroI18n.formatter: FormatService
+member AstroI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
+member AstroI18n.getFallbackLocale: () => string
+member AstroI18n.getLocale: () => string
+member AstroI18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
+member AstroI18n.getRoute: () => string
+member AstroI18n.getRouteTranslations: (locale: string, routeName: string) => Translations | null
+member AstroI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
+member AstroI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member AstroI18n.initialMessages: private Record<string, Translations>
+member AstroI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
+member AstroI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
+member AstroI18n.locale: string
+member AstroI18n.mergeTranslations: (locale: string, routeName: string, translations: Translations) => void
+member AstroI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member AstroI18n.missingWarn: boolean
+member AstroI18n.onTranslationsChanged: protected () => void
+member AstroI18n.pluralFunc: PluralFunc
+member AstroI18n.resolveDateTimeFormatArgs: private any
+member AstroI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
+member AstroI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
+member AstroI18n.resolveNumberFormatArgs: private any
+member AstroI18n.resolveRouteName: protected (routeContext?: unknown) => string
+member AstroI18n.resolveTranslations: (routeContext?: unknown) => Translations
+member AstroI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
+member AstroI18n.setRoute: (routeName: string) => void
+member AstroI18n.setTranslation: (key: TranslationKey, value: unknown) => void
+member AstroI18n.storage: TranslationStorage
+member AstroI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
+member AstroI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
+member AstroI18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
+member AstroI18n.tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
+member AstroI18n.tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }
+member AstroI18n.touch: protected () => void
+member AstroI18n.ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string
+member AstroI18n.warnDev: protected (message: string) => void
+member AstroI18n.warnMissing: protected (key: TranslationKey, routeContext?: unknown) => void
+member AstroI18n.warnMissingFormat: protected (kind: "number" | "datetime", key: string, locale: string) => void
+member AstroI18n.new: (options: AstroI18nOptions): AstroI18n
+interface AstroI18nOptions
+member AstroI18nOptions._storage?: TranslationStorage | undefined
+member AstroI18nOptions.datetimeFormats?: DateTimeFormatsConfig | undefined
+member AstroI18nOptions.fallbackLocale?: string | undefined
+member AstroI18nOptions.locale: string
+member AstroI18nOptions.messages?: Record<string, Translations> | undefined
+member AstroI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member AstroI18nOptions.missingWarn?: boolean | undefined
+member AstroI18nOptions.numberFormats?: NumberFormatsConfig | undefined
+member AstroI18nOptions.plural?: PluralFunc | undefined
+type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
+function createAstroRouterAdapter: (locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy
+function createI18n: (options: AstroI18nOptions) => AstroI18n
+function createI18nMiddleware: (options: I18nMiddlewareOptions) => MiddlewareHandler
+const defaultPlural: PluralFunc
+function detectLocale: (pathname: string, cookies: { get: (name: string) => { value: string; } | undefined; }, headers: Headers, defaultLocale: string, locales: string[], localeCookie?: string | null, routingStrategy?: I18nRoutingStrategy | null) => string
+class FormatService
+member FormatService.clearCache: () => void
+member FormatService.dateCache: private any
+member FormatService.datetimeFormats: private any
+member FormatService.formatDate: (value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions) => string
+member FormatService.formatNumber: (value: number, locale: string, options?: Intl.NumberFormatOptions) => string
+member FormatService.formatRelativeTime: (value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions) => string
+member FormatService.getDateTimeFormats: () => DateTimeFormatsConfig
+member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateTimeFormatOptions) => Intl.DateTimeFormat
+member FormatService.getNumberFormats: () => NumberFormatsConfig
+member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
+member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.numberCache: private any
+member FormatService.numberFormats: private any
+member FormatService.relativeCache: private any
+member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Intl.DateTimeFormatOptions | undefined
+member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
+member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
+member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
+function getDefaultLocale: (astro: AstroGlobal) => string
+function getGlobalRoutingStrategy: () => I18nRoutingStrategy | null
+function getI18n: (astro: AstroGlobal) => AstroI18n
+function getI18nProps: (astro: AstroGlobal, keys?: string[]) => I18nClientProps
+function getLocale: (astro: AstroGlobal) => string
+function getLocales: (astro: AstroGlobal) => Locale[]
+type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+interface I18nClientProps
+member I18nClientProps.currentRoute: string
+member I18nClientProps.fallbackLocale: string
+member I18nClientProps.locale: string
+member I18nClientProps.translations: Record<string, Translations>
+function i18nIntegration: (options: I18nIntegrationOptions) => AstroIntegration
+interface I18nIntegrationOptions
+member I18nIntegrationOptions.apiBaseClientHost?: string | undefined
+member I18nIntegrationOptions.apiBaseServerHost?: string | undefined
+member I18nIntegrationOptions.apiBaseUrl?: string | undefined
+member I18nIntegrationOptions.autoDetect?: boolean | undefined
+member I18nIntegrationOptions.autoDetectLanguage?: boolean | undefined
+member I18nIntegrationOptions.autoDetectPath?: string | undefined
+member I18nIntegrationOptions.cacheMaxSize?: number | undefined
+member I18nIntegrationOptions.cacheTtl?: number | undefined
+member I18nIntegrationOptions.canonicalQueryWhitelist?: string[] | undefined
+member I18nIntegrationOptions.components?: boolean | undefined
+member I18nIntegrationOptions.customRegexMatcher?: string | RegExp | undefined
+member I18nIntegrationOptions.dateBuild?: string | number | undefined
+member I18nIntegrationOptions.datetimeFormats?: Record<string, Record<string, Intl.DateTimeFormatOptions>> | undefined
+member I18nIntegrationOptions.debug?: boolean | undefined
+member I18nIntegrationOptions.defaultLocale?: string | undefined
+member I18nIntegrationOptions.define?: boolean | undefined
+member I18nIntegrationOptions.disablePageLocales?: boolean | undefined
+member I18nIntegrationOptions.disableWatcher?: boolean | undefined
+member I18nIntegrationOptions.excludePatterns?: (string | RegExp)[] | undefined
+member I18nIntegrationOptions.experimental?: Record<string, unknown> | undefined
+member I18nIntegrationOptions.fallbackLocale?: string | undefined
+member I18nIntegrationOptions.globalLocaleRoutes?: GlobalLocaleRoutes
+member I18nIntegrationOptions.hmr?: boolean | undefined
+member I18nIntegrationOptions.hooks?: boolean | undefined
+member I18nIntegrationOptions.httpCacheDuration?: number | undefined
+member I18nIntegrationOptions.locale: string
+member I18nIntegrationOptions.localeCookie?: string | null | undefined
+member I18nIntegrationOptions.locales?: Locale[] | undefined
+member I18nIntegrationOptions.localizedRouteNamePrefix?: string | undefined
+member I18nIntegrationOptions.messages?: Record<string, Record<string, unknown>> | undefined
+member I18nIntegrationOptions.meta?: boolean | undefined
+member I18nIntegrationOptions.metaBaseUrl?: string | undefined
+member I18nIntegrationOptions.metaTrustForwardedHost?: boolean | undefined
+member I18nIntegrationOptions.metaTrustForwardedProto?: boolean | undefined
+member I18nIntegrationOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member I18nIntegrationOptions.missingWarn?: boolean | undefined
+member I18nIntegrationOptions.noPrefixRedirect?: boolean | undefined
+member I18nIntegrationOptions.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
+member I18nIntegrationOptions.plugin?: boolean | undefined
+member I18nIntegrationOptions.plural?: PluralFunc | undefined
+member I18nIntegrationOptions.redirects?: boolean | undefined
+member I18nIntegrationOptions.redirectToDefault?: boolean | undefined
+member I18nIntegrationOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
+member I18nIntegrationOptions.routeLocales?: Record<string, string[]> | undefined
+member I18nIntegrationOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
+member I18nIntegrationOptions.routingStrategy?: I18nRoutingStrategy | undefined
+member I18nIntegrationOptions.serverTranslationPreload?: boolean | undefined
+member I18nIntegrationOptions.strategy?: Strategies | undefined
+member I18nIntegrationOptions.translationDir?: string | undefined
+member I18nIntegrationOptions.translationPayloads?: TranslationPayloadOptions | undefined
+member I18nIntegrationOptions.types?: boolean | undefined
+interface I18nMiddlewareOptions
+member I18nMiddlewareOptions.autoDetect?: boolean | undefined
+member I18nMiddlewareOptions.defaultLocale: string
+member I18nMiddlewareOptions.i18n: AstroI18n
+member I18nMiddlewareOptions.localeObjects?: Locale[] | undefined
+member I18nMiddlewareOptions.locales: string[]
+member I18nMiddlewareOptions.redirectToDefault?: boolean | undefined
+member I18nMiddlewareOptions.routingStrategy?: I18nRoutingStrategy | undefined
+interface I18nRoutingStrategy
+member I18nRoutingStrategy.getCurrentPath: () => string
+member I18nRoutingStrategy.getLocaleFromPath?: ((path: string, defaultLocale: string, locales: string[]) => string) | undefined
+member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
+member I18nRoutingStrategy.getRouteName?: ((path: string, locales: string[]) => string) | undefined
+member I18nRoutingStrategy.localizePath?: ((path: string, locale: string, locales: string[], defaultLocale?: string) => string) | undefined
+member I18nRoutingStrategy.push?: ((target: { path: string; }) => void) | undefined
+member I18nRoutingStrategy.removeLocaleFromPath?: ((path: string, locales: string[]) => string) | undefined
+member I18nRoutingStrategy.replace?: ((target: { path: string; }) => void) | undefined
+member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined
+member I18nRoutingStrategy.switchLocalePath?: ((path: string, newLocale: string, locales: string[], defaultLocale?: string) => string) | undefined
+function interpolate: (template: string, params: Params) => string
+interface LoadedTranslations
+member LoadedTranslations.root: Record<string, import("packages/types/dist/index").Translations>
+member LoadedTranslations.routes: Record<string, Record<string, import("packages/types/dist/index").Translations>>
+function loadTranslationsFromDir: (options: LoadTranslationsOptions) => LoadedTranslations
+function loadTranslationsIntoI18n: (i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; }, options: LoadTranslationsOptions) => void
+interface LoadTranslationsOptions
+member LoadTranslationsOptions.disablePageLocales?: boolean | undefined
+member LoadTranslationsOptions.rootDir?: string | undefined
+member LoadTranslationsOptions.translationDir: string
+interface Locale
+member Locale.baseDefault?: boolean | undefined
+member Locale.baseUrl?: string | undefined
+member Locale.code: string
+member Locale.dir?: "ltr" | "rtl" | "auto" | undefined
+member Locale.disabled?: boolean | undefined
+member Locale.displayName?: string | undefined
+member Locale.fallbackLocale?: string | undefined
+member Locale.iso?: string | undefined
+member Locale.og?: string | undefined
+member Locale.seo?: boolean | undefined
+member Locale.[string]: unknown
+type LocaleCode: string
+interface LocaleHeadOptions
+member LocaleHeadOptions.addDirAttribute?: boolean | undefined
+member LocaleHeadOptions.addSeoAttributes?: boolean | undefined
+member LocaleHeadOptions.baseUrl?: string | undefined
+interface LocaleHeadResult
+member LocaleHeadResult.htmlAttrs: { lang?: string; dir?: "ltr" | "rtl" | "auto"; }
+member LocaleHeadResult.link: { rel: string; href: string; hreflang?: string; }[]
+member LocaleHeadResult.meta: { property: string; content: string; }[]
+type Params: Record<string, string | number | boolean>
+type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+function runWithRoutingStrategy: <T>(strategy: I18nRoutingStrategy | null, fn: () => T) => T
+function setGlobalRoutingStrategy: (strategy: I18nRoutingStrategy | null) => void
+interface Translations
+member Translations.[string]: unknown
+function useI18n: (astro: AstroGlobal) => { locale: string; defaultLocale: string; locales: Locale[]; t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; getRoute: () => string; getRouteName: (path?: string) => string; getLocaleFromPath: (path?: string) => string; switchLocalePath: (newLocale: string) => string; localizePath: (path: string, targetLocale?: string) => string; getI18n: () => AstroI18n; getBasePath: (url?: URL) => string; addTranslations: (locale: string, translations: Record<string, unknown>, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Record<string, unknown>, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Record<string, unknown>) => void; clearCache: () => void; }
+function useLocaleHead: (astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult
+
+# ./client (src/client/index.ts)
+function createI18nStore: (props: I18nClientProps) => Writable<I18nState>
+function hasTranslation: (state: I18nState, key: string, routeName?: string) => boolean
+function I18nProvider: ({ children, value }: { children: React.ReactNode; value: I18nClientProps; }) => React.ReactElement
+const I18nProviderPreact: ({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact/src/index").VNode<{ value: I18nState | null; children?: ComponentChildren; }>
+interface I18nState
+member I18nState.currentRoute: string
+member I18nState.fallbackLocale: string
+member I18nState.locale: string
+member I18nState.translations: Record<string, Translations>
+function provideI18n: (props: I18nClientProps) => Ref<I18nState>
+function translate: (state: I18nState, key: string, params?: Params, defaultValue?: string | null, routeName?: string) => string | number | boolean | Translations | null
+function useAstroI18nPreact: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }
+function useAstroI18nReact: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }
+function useAstroI18nSvelte: (store: Writable<I18nState>) => { store: Writable<I18nState>; t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; readonly locale: string; readonly fallbackLocale: string; readonly currentRoute: string; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }
+function useAstroI18nVue: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue/dist/vue").WritableComputedRef<string, string>; fallbackLocale: import("vue/dist/vue").ComputedRef<string>; currentRoute: import("vue/dist/vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }
+
+# ./client/preact (src/client/preact.tsx)
+const I18nProvider: ({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact/src/index").VNode<{ value: I18nState | null; children?: ComponentChildren; }>
+function useAstroI18n: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }
+
+# ./client/react (src/client/react.tsx)
+function I18nProvider: ({ children, value }: { children: React.ReactNode; value: I18nClientProps; }) => React.ReactElement
+function useAstroI18n: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }
+
+# ./client/svelte (src/client/svelte.ts)
+function createI18nStore: (props: I18nClientProps) => Writable<I18nState>
+function useAstroI18n: (store: Writable<I18nState>) => { store: Writable<I18nState>; t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; readonly locale: string; readonly fallbackLocale: string; readonly currentRoute: string; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }
+
+# ./client/vue (src/client/vue.ts)
+function provideI18n: (props: I18nClientProps) => Ref<I18nState>
+function useAstroI18n: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue/dist/vue").WritableComputedRef<string, string>; fallbackLocale: import("vue/dist/vue").ComputedRef<string>; currentRoute: import("vue/dist/vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }

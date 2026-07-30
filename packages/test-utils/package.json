@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/test-utils",
-  "version": "1.2.2",
+  "version": "1.2.5",
   "description": "Testing helpers for Nuxt I18n Micro (translations, locales, formatting mocks).",
   "keywords": [
     "i18n",
@@ -61,16 +61,17 @@
   "scripts": {
     "build": "vite build",
     "check:package": "publint",
-    "test": "jest",
+    "test": "vitest run",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:*"
   },
   "devDependencies": {
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=18"

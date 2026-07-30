@@ -10,6 +10,7 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '../src/index'
 import { createManager, defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('Critical: Original path lookup (parentOriginalPath)', () => {
   test('nested: parent has custom path, child has no custom path — child path joins to parent localized path', () => {

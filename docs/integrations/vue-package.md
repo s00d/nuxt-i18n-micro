@@ -1,7 +1,7 @@
 ---
-title: "Vue Package (`@i18n-micro/vue`)"
-description: "i18n for Vue 3 with @i18n-micro/vue."
-outline: "deep"
+title: 'Vue Package (`@i18n-micro/vue`)'
+description: 'i18n for Vue 3 with @i18n-micro/vue.'
+outline: 'deep'
 ---
 
 # Vue Package (`@i18n-micro/vue`)
@@ -223,7 +223,7 @@ app.mount('#app')
 
 ### Providing Locales Configuration
 
-The `useI18n` composable requires locales configuration to be provided via Vue's dependency injection system. 
+The `useI18n` composable requires locales configuration to be provided via Vue's dependency injection system.
 
 **Recommended approach**: Pass `locales` and `defaultLocale` directly to `createI18n` - they will be automatically provided:
 
@@ -242,7 +242,9 @@ const i18n = createI18n({
   fallbackLocale: 'en',
   locales, // Automatically provided
   defaultLocale: 'en', // Automatically provided
-  messages: { /* ... */ },
+  messages: {
+    /* ... */
+  },
 })
 
 app.use(i18n)
@@ -310,18 +312,14 @@ import { RouterLink, type Router } from 'vue-router'
 import type { I18nRoutingStrategy } from '@i18n-micro/vue'
 import type { Locale } from '@i18n-micro/types'
 
-export function createVueRouterAdapter(
-  router: Router,
-  locales: Locale[],
-  defaultLocale: string,
-): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+export function createVueRouterAdapter(router: Router, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
+  const localeCodes = locales.map((loc) => loc.code)
 
   /**
    * Path resolution logic (add prefix or not)
    */
   const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
 
     // If path already starts with a locale, remove it
@@ -404,7 +402,7 @@ function createCustomRouterAdapter(customRouter: CustomRouter): I18nRoutingStrat
     push: (target) => customRouter.navigate(target.path),
     replace: (target) => customRouter.replace(target.path),
     resolvePath: (to, locale) => {
-      const path = typeof to === 'string' ? to : (to.path || '/')
+      const path = typeof to === 'string' ? to : to.path || '/'
       return locale === 'en' ? path : `/${locale}${path}`
     },
   }
@@ -419,19 +417,20 @@ Creates and installs the i18n plugin for your Vue application.
 
 **Parameters:**
 
-| Property | Type | Required | Default | Description |
-|----------|------|----------|---------|-------------|
-| `locale` | `string` | ✅ | - | Current locale code (e.g., `'en'`) |
-| `fallbackLocale` | `string` | ❌ | Same as `locale` | Fallback locale when translation is missing |
-| `messages` | `Record<string, Translations>` | ❌ | `{}` | Initial translation messages |
-| `plural` | `PluralFunc` | ❌ | `defaultPlural` | Custom pluralization function |
-| `missingWarn` | `boolean` | ❌ | `false` | Show console warnings for missing translations |
-| `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌ | - | Custom handler for missing translations |
-| `routingStrategy` | `I18nRoutingStrategy` | ❌ | - | Router adapter for routing features |
+| Property          | Type                                                       | Required | Default          | Description                                    |
+| ----------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------- |
+| `locale`          | `string`                                                   | ✅       | -                | Current locale code (e.g., `'en'`)             |
+| `fallbackLocale`  | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
+| `messages`        | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                   |
+| `plural`          | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
+| `missingWarn`     | `boolean`                                                  | ❌       | `false`          | Show console warnings for missing translations |
+| `missingHandler`  | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
+| `routingStrategy` | `I18nRoutingStrategy`                                      | ❌       | -                | Router adapter for routing features            |
 
 **Returns:** `I18nPlugin`
 
 The returned object contains:
+
 - `global`: The `VueI18n` instance for direct access
 - `install`: Vue plugin install function
 - `setRoutingStrategy`: Method to set routing strategy after creation
@@ -483,7 +482,9 @@ The core i18n instance class that handles all translation logic.
 Translates a key with optional parameters and fallback value.
 
 ```typescript
-const i18n = createI18n({ /* ... */ })
+const i18n = createI18n({
+  /* ... */
+})
 
 // Basic translation
 i18n.global.t('welcome') // "Welcome"
@@ -565,9 +566,13 @@ i18n.global.addTranslations('en', {
 })
 
 // Replace existing (merge = false)
-i18n.global.addTranslations('en', {
-  welcome: 'New Welcome',
-}, false)
+i18n.global.addTranslations(
+  'en',
+  {
+    welcome: 'New Welcome',
+  },
+  false,
+)
 ```
 
 ##### `addRouteTranslations(locale: string, routeName: string, translations: Translations, merge?: boolean): void`
@@ -584,6 +589,16 @@ i18n.global.addRouteTranslations('en', 'home', {
 ##### `mergeTranslations(locale: string, routeName: string, translations: Translations): void`
 
 Merges translations into existing route translations.
+
+##### `resolveTranslations(): Translations`
+
+Returns the full translation tree for the active locale and route — the same dictionary `t()` reads from.
+
+##### `setTranslation(key: TranslationKey, value: unknown): void`
+
+Replaces the value at `key` in the active dictionary. This is a replace, not a merge; use `mergeTranslations` when siblings should survive.
+
+For a dump of every loaded chunk, use `getStorage()` or `getRouteCache()` instead.
 
 ##### `clearCache(): void`
 
@@ -640,6 +655,8 @@ interface UseI18nOptions {
   td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
   tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
   has: (key: TranslationKey, routeName?: string) => boolean
+  resolveTranslations: () => Translations
+  setTranslation: (key: TranslationKey, value: unknown) => void
 
   // Route management
   setRoute: (routeName: string) => void
@@ -711,19 +728,8 @@ interface UseLocaleHeadOptions {
   <div>
     <Head>
       <Html :lang="metaObject.htmlAttrs.lang" :dir="metaObject.htmlAttrs.dir" />
-      <Link
-        v-for="link in metaObject.link"
-        :key="link.rel"
-        :rel="link.rel"
-        :href="link.href"
-        :hreflang="link.hreflang"
-      />
-      <Meta
-        v-for="meta in metaObject.meta"
-        :key="meta.property"
-        :property="meta.property"
-        :content="meta.content"
-      />
+      <Link v-for="link in metaObject.link" :key="link.rel" :rel="link.rel" :href="link.href" :hreflang="link.hreflang" />
+      <Meta v-for="meta in metaObject.meta" :key="meta.property" :property="meta.property" :content="meta.content" />
     </Head>
   </div>
 </template>
@@ -740,9 +746,12 @@ const { metaObject, updateMeta } = useLocaleHead({
 const route = useRoute()
 
 // Update meta when route changes
-watch(() => route.path, () => {
-  updateMeta()
-})
+watch(
+  () => route.path,
+  () => {
+    updateMeta()
+  },
+)
 
 onMounted(() => {
   updateMeta()
@@ -758,19 +767,19 @@ Translation component for rendering translated text.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `keypath` | `TranslationKey` | ✅ | - | Translation key |
-| `plural` | `number \| string` | ❌ | - | Count for pluralization |
-| `tag` | `string` | ❌ | `'span'` | HTML tag to render |
-| `params` | `Record<string, string \| number \| boolean>` | ❌ | `{}` | Parameters for interpolation |
-| `defaultValue` | `string` | ❌ | `''` | Default value if translation is missing |
-| `html` | `boolean` | ❌ | `false` | Render as HTML |
-| `hideIfEmpty` | `boolean` | ❌ | `false` | Hide component if translation is empty |
-| `customPluralRule` | `PluralFunc` | ❌ | - | Custom pluralization function |
-| `number` | `number \| string` | ❌ | - | Number to format and interpolate |
-| `date` | `Date \| string \| number` | ❌ | - | Date to format and interpolate |
-| `relativeDate` | `Date \| string \| number` | ❌ | - | Date for relative time formatting |
+| Prop               | Type                                          | Required | Default  | Description                             |
+| ------------------ | --------------------------------------------- | -------- | -------- | --------------------------------------- |
+| `keypath`          | `TranslationKey`                              | ✅       | -        | Translation key                         |
+| `plural`           | `number \| string`                            | ❌       | -        | Count for pluralization                 |
+| `tag`              | `string`                                      | ❌       | `'span'` | HTML tag to render                      |
+| `params`           | `Record<string, string \| number \| boolean>` | ❌       | `{}`     | Parameters for interpolation            |
+| `defaultValue`     | `string`                                      | ❌       | `''`     | Default value if translation is missing |
+| `html`             | `boolean`                                     | ❌       | `false`  | Render as HTML                          |
+| `hideIfEmpty`      | `boolean`                                     | ❌       | `false`  | Hide component if translation is empty  |
+| `customPluralRule` | `PluralFunc`                                  | ❌       | -        | Custom pluralization function           |
+| `number`           | `number \| string`                            | ❌       | -        | Number to format and interpolate        |
+| `date`             | `Date \| string \| number`                    | ❌       | -        | Date to format and interpolate          |
+| `relativeDate`     | `Date \| string \| number`                    | ❌       | -        | Date for relative time formatting       |
 
 **Slots:**
 
@@ -784,10 +793,7 @@ Translation component for rendering translated text.
   <I18nT keypath="welcome" />
 
   <!-- With parameters -->
-  <I18nT
-    keypath="greeting"
-    :params="{ name: 'Vue' }"
-  />
+  <I18nT keypath="greeting" :params="{ name: 'Vue' }" />
 
   <!-- Pluralization -->
   <I18nT keypath="apples" :plural="0" />
@@ -795,35 +801,19 @@ Translation component for rendering translated text.
   <I18nT keypath="apples" :plural="5" />
 
   <!-- Number formatting -->
-  <I18nT
-    keypath="number"
-    :number="1234.56"
-  />
+  <I18nT keypath="number" :number="1234.56" />
 
   <!-- Date formatting -->
-  <I18nT
-    keypath="date"
-    :date="new Date()"
-  />
+  <I18nT keypath="date" :date="new Date()" />
 
   <!-- Relative date formatting -->
-  <I18nT
-    keypath="relativeDate"
-    :relative-date="oneHourAgo"
-  />
+  <I18nT keypath="relativeDate" :relative-date="oneHourAgo" />
 
   <!-- HTML rendering -->
-  <I18nT
-    keypath="htmlContent"
-    html
-    tag="div"
-  />
+  <I18nT keypath="htmlContent" html tag="div" />
 
   <!-- Custom tag -->
-  <I18nT
-    keypath="title"
-    tag="h1"
-  />
+  <I18nT keypath="title" tag="h1" />
 
   <!-- With slot -->
   <I18nT keypath="message">
@@ -847,11 +837,11 @@ Localized link component that works with or without a router adapter.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `to` | `string \| { path?: string }` | ✅ | - | Target path or route object |
-| `activeStyle` | `CSSProperties` | ❌ | `{}` | Styles to apply when link is active |
-| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌ | - | Custom locale route resolver |
+| Prop          | Type                                                                                | Required | Default | Description                         |
+| ------------- | ----------------------------------------------------------------------------------- | -------- | ------- | ----------------------------------- |
+| `to`          | `string \| { path?: string }`                                                       | ✅       | -       | Target path or route object         |
+| `activeStyle` | `CSSProperties`                                                                     | ❌       | `{}`    | Styles to apply when link is active |
+| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Custom locale route resolver        |
 
 **Slots:**
 
@@ -862,30 +852,16 @@ Localized link component that works with or without a router adapter.
 ```vue
 <template>
   <!-- Basic link -->
-  <I18nLink to="/">
-    Home
-  </I18nLink>
+  <I18nLink to="/"> Home </I18nLink>
 
   <!-- With active style -->
-  <I18nLink
-    to="/about"
-    :active-style="{ color: 'red', fontWeight: 'bold' }"
-  >
-    About
-  </I18nLink>
+  <I18nLink to="/about" :active-style="{ color: 'red', fontWeight: 'bold' }"> About </I18nLink>
 
   <!-- External link (automatically detected) -->
-  <I18nLink to="https://example.com">
-    External Link
-  </I18nLink>
+  <I18nLink to="https://example.com"> External Link </I18nLink>
 
   <!-- With custom locale route -->
-  <I18nLink
-    to="/products"
-    :locale-route="(to) => localeRoute(to, locale)"
-  >
-    Products
-  </I18nLink>
+  <I18nLink to="/products" :locale-route="(to) => localeRoute(to, locale)"> Products </I18nLink>
 </template>
 
 <script setup lang="ts">
@@ -902,22 +878,21 @@ Locale switcher component with dropdown interface.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `locales` | `Locale[]` | ❌ | - | Locales list (uses injected if not provided) |
-| `currentLocale` | `string \| (() => string)` | ❌ | - | Current locale (uses i18n instance if not provided) |
-| `getLocaleName` | `() => string \| null` | ❌ | - | Function to get current locale name |
-| `switchLocale` | `(locale: string) => void` | ❌ | - | Function to switch locale |
-| `localeRoute` | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌ | - | Function to resolve locale route |
-| `customLabels` | `Record<string, string>` | ❌ | `{}` | Custom labels for locales |
-| `customWrapperStyle` | `CSSProperties` | ❌ | `{}` | Custom wrapper styles |
-| `customButtonStyle` | `CSSProperties` | ❌ | `{}` | Custom button styles |
-| `customDropdownStyle` | `CSSProperties` | ❌ | `{}` | Custom dropdown styles |
-| `customItemStyle` | `CSSProperties` | ❌ | `{}` | Custom item styles |
-| `customLinkStyle` | `CSSProperties` | ❌ | `{}` | Custom link styles |
-| `customActiveLinkStyle` | `CSSProperties` | ❌ | `{}` | Custom active link styles |
-| `customDisabledLinkStyle` | `CSSProperties` | ❌ | `{}` | Custom disabled link styles |
-| `customIconStyle` | `CSSProperties` | ❌ | `{}` | Custom icon styles |
+| Prop                    | Type                                                                                | Required | Default | Description                                         |
+| ----------------------- | ----------------------------------------------------------------------------------- | -------- | ------- | --------------------------------------------------- |
+| `locales`               | `Locale[]`                                                                          | ❌       | -       | Locales list (uses injected if not provided)        |
+| `currentLocale`         | `string \| (() => string)`                                                          | ❌       | -       | Current locale (uses i18n instance if not provided) |
+| `getLocaleName`         | `() => string \| null`                                                              | ❌       | -       | Function to get current locale name                 |
+| `switchLocale`          | `(locale: string) => void`                                                          | ❌       | -       | Function to switch locale                           |
+| `localeRoute`           | `(to: string \| { path?: string }, locale?: string) => string \| { path?: string }` | ❌       | -       | Function to resolve locale route                    |
+| `customLabels`          | `Record<string, string>`                                                            | ❌       | `{}`    | Custom labels for locales                           |
+| `customWrapperStyle`    | `CSSProperties`                                                                     | ❌       | `{}`    | Custom wrapper styles                               |
+| `customButtonStyle`     | `CSSProperties`                                                                     | ❌       | `{}`    | Custom button styles                                |
+| `customDropdownStyle`   | `CSSProperties`                                                                     | ❌       | `{}`    | Custom dropdown styles                              |
+| `customItemStyle`       | `CSSProperties`                                                                     | ❌       | `{}`    | Custom item styles                                  |
+| `customLinkStyle`       | `CSSProperties`                                                                     | ❌       | `{}`    | Custom link styles                                  |
+| `customActiveLinkStyle` | `CSSProperties`                                                                     | ❌       | `{}`    | Custom styles for the current locale link           |
+| `customIconStyle`       | `CSSProperties`                                                                     | ❌       | `{}`    | Custom icon styles                                  |
 
 **Slots:**
 
@@ -950,15 +925,10 @@ Locale switcher component with dropdown interface.
   />
 
   <!-- With custom styling -->
-  <I18nSwitcher
-    :custom-button-style="{ backgroundColor: '#007bff', color: 'white' }"
-    :custom-dropdown-style="{ borderRadius: '8px' }"
-  />
+  <I18nSwitcher :custom-button-style="{ backgroundColor: '#007bff', color: 'white' }" :custom-dropdown-style="{ borderRadius: '8px' }" />
 
   <!-- With custom labels -->
-  <I18nSwitcher
-    :custom-labels="{ en: 'English', fr: 'Français', de: 'Deutsch' }"
-  />
+  <I18nSwitcher :custom-labels="{ en: 'English', fr: 'Français', de: 'Deutsch' }" />
 
   <!-- With slots -->
   <I18nSwitcher>
@@ -985,10 +955,10 @@ Component for grouping translations with a common prefix.
 
 **Props:**
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `prefix` | `string` | ✅ | - | Translation key prefix |
-| `groupClass` | `string` | ❌ | `''` | CSS class for the wrapper div |
+| Prop         | Type     | Required | Default | Description                   |
+| ------------ | -------- | -------- | ------- | ----------------------------- |
+| `prefix`     | `string` | ✅       | -       | Translation key prefix        |
+| `groupClass` | `string` | ❌       | `''`    | CSS class for the wrapper div |
 
 **Slots:**
 
@@ -1059,10 +1029,7 @@ async function loadLocaleTranslations(locale: string) {
 await loadLocaleTranslations('fr')
 
 // Preload in background
-Promise.all([
-  loadLocaleTranslations('de'),
-  loadLocaleTranslations('es'),
-]).catch(() => {
+Promise.all([loadLocaleTranslations('de'), loadLocaleTranslations('es')]).catch(() => {
   // Handle errors
 })
 ```
@@ -1203,17 +1170,11 @@ export async function render(url: string) {
   // Determine current locale from URL
   const route = router.currentRoute.value
   const localeParam = route.params.locale as string | undefined
-  const localeCodes = localesConfig.map(locale => locale.code)
-  const currentLocale = localeParam && localeCodes.includes(localeParam) 
-    ? localeParam 
-    : defaultLocale
+  const localeCodes = localesConfig.map((locale) => locale.code)
+  const currentLocale = localeParam && localeCodes.includes(localeParam) ? localeParam : defaultLocale
 
   // Create router adapter
-  const routingStrategy = createVueRouterAdapter(
-    router,
-    localesConfig,
-    defaultLocale,
-  )
+  const routingStrategy = createVueRouterAdapter(router, localesConfig, defaultLocale)
 
   // Create i18n instance
   const i18n = createI18n({
@@ -1268,16 +1229,10 @@ const router = createRouter({
 async function initApp() {
   // Get initial state from SSR
   const initialState = (window as { __INITIAL_STATE__?: { locale?: string } }).__INITIAL_STATE__
-  const initialLocale = typeof initialState?.locale === 'string'
-    ? initialState.locale
-    : defaultLocale
+  const initialLocale = typeof initialState?.locale === 'string' ? initialState.locale : defaultLocale
 
   // Create router adapter
-  const routingStrategy = createVueRouterAdapter(
-    router,
-    localesConfig,
-    defaultLocale,
-  )
+  const routingStrategy = createVueRouterAdapter(router, localesConfig, defaultLocale)
 
   // Create i18n instance
   const i18n = createI18n({
@@ -1316,16 +1271,16 @@ In your server template:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>My App</title>
-</head>
-<body>
-  <div id="app"><!--ssr-outlet--></div>
-  <script>
-    window.__INITIAL_STATE__ = <!--ssr-state-->;
-  </script>
-  <script type="module" src="/src/entry-client.ts"></script>
-</body>
+  <head>
+    <title>My App</title>
+  </head>
+  <body>
+    <div id="app"><!--ssr-outlet--></div>
+    <script>
+      window.__INITIAL_STATE__ = <!--ssr-state-->;
+    </script>
+    <script type="module" src="/src/entry-client.ts"></script>
+  </body>
 </html>
 ```
 
@@ -1383,15 +1338,11 @@ import { RouterLink, type Router } from 'vue-router'
 import type { I18nRoutingStrategy } from '@i18n-micro/vue'
 import type { Locale } from '@i18n-micro/types'
 
-export function createVueRouterAdapter(
-  router: Router,
-  locales: Locale[],
-  defaultLocale: string,
-): I18nRoutingStrategy {
-  const localeCodes = locales.map(loc => loc.code)
+export function createVueRouterAdapter(router: Router, locales: Locale[], defaultLocale: string): I18nRoutingStrategy {
+  const localeCodes = locales.map((loc) => loc.code)
 
   const resolvePath = (to: string | { path?: string }, locale: string): string => {
-    const path = typeof to === 'string' ? to : (to.path || '/')
+    const path = typeof to === 'string' ? to : to.path || '/'
     const pathSegments = path.split('/').filter(Boolean)
 
     if (pathSegments.length > 0 && localeCodes.includes(pathSegments[0])) {

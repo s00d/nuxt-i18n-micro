@@ -1,0 +1,15 @@
+# . (src/index.ts)
+function flattenKeys: (obj: Record<string, unknown>, prefix?: string) => string[]
+function generateTypes: (options: GeneratorOptions) => Promise<string>
+interface GeneratorOptions
+member GeneratorOptions.outputFile?: string | undefined
+member GeneratorOptions.srcDir: string
+member GeneratorOptions.translationDir: string
+function getTypesString: (options: GeneratorOptions) => Promise<string>
+const I18nTypesPlugin: import("unplugin/dist/index").UnpluginInstance<GeneratorOptions, boolean>
+
+# ./nuxt (src/nuxt.ts)
+value default: import("@nuxt/schema/dist/index").NuxtModule<I18nTypesGeneratorOptions, I18nTypesGeneratorOptions, false>
+interface I18nTypesGeneratorOptions
+member I18nTypesGeneratorOptions.outputFile?: string | undefined
+member I18nTypesGeneratorOptions.translationDir?: string | undefined

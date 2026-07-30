@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`strategies deep snapshots (large configs, full state) no_prefix: full state 1`] = `
+exports[`strategies deep snapshots (large configs, full state) > no_prefix: full state 1`] = `
 {
   "getCanonical": {
     "de": "/ueber-uns",
@@ -219,7 +219,7 @@ exports[`strategies deep snapshots (large configs, full state) no_prefix: full s
 }
 `;
 
-exports[`strategies deep snapshots (large configs, full state) prefix: full state 1`] = `
+exports[`strategies deep snapshots (large configs, full state) > prefix: full state 1`] = `
 {
   "getCanonical": {
     "de": "/de/ueber-uns",
@@ -438,7 +438,7 @@ exports[`strategies deep snapshots (large configs, full state) prefix: full stat
 }
 `;
 
-exports[`strategies deep snapshots (large configs, full state) prefix_and_default: full state 1`] = `
+exports[`strategies deep snapshots (large configs, full state) > prefix_and_default: full state 1`] = `
 {
   "getCanonical": {
     "de": "/de/ueber-uns",
@@ -653,7 +653,7 @@ exports[`strategies deep snapshots (large configs, full state) prefix_and_defaul
 }
 `;
 
-exports[`strategies deep snapshots (large configs, full state) prefix_except_default: full state 1`] = `
+exports[`strategies deep snapshots (large configs, full state) > prefix_except_default: full state 1`] = `
 {
   "getCanonical": {
     "de": "/de/ueber-uns",
@@ -868,7 +868,7 @@ exports[`strategies deep snapshots (large configs, full state) prefix_except_def
 }
 `;
 
-exports[`strategies deep snapshots — defaultLocale and two locales only prefix_except_default with two locales: state 1`] = `
+exports[`strategies deep snapshots — defaultLocale and two locales only > prefix_except_default with two locales: state 1`] = `
 {
   "canonicalResult": {
     "de": "/de/ueber-uns",
@@ -927,7 +927,7 @@ exports[`strategies deep snapshots — defaultLocale and two locales only prefix
 }
 `;
 
-exports[`strategies deep snapshots — no_prefix with noPrefixRedirect: false no_prefix noPrefixRedirect false: getRedirect and localeRoute 1`] = `
+exports[`strategies deep snapshots — no_prefix with noPrefixRedirect: false > no_prefix noPrefixRedirect false: getRedirect and localeRoute 1`] = `
 {
   "localeRoutes": {
     "de": {

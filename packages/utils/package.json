@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/utils",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "i18n",
@@ -354,7 +354,7 @@
   "scripts": {
     "build": "vite build",
     "check:package": "publint",
-    "test": "jest",
+    "test": "vitest run",
     "test:dist": "vitest run --config vitest.dist.config.ts",
     "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
   },
@@ -364,7 +364,7 @@
   },
   "devDependencies": {
     "@i18n-micro/test-utils": "workspace:*",
-    "publint": "^0.3.17",
+    "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"

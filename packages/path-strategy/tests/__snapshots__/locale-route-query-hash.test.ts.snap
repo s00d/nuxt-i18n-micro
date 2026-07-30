@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`localeRoute: preserve query and hash from input no_prefix returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+exports[`localeRoute: preserve query and hash from input > no_prefix > returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
 {
   "fullPath": "/news/2?a=b#tada",
   "hash": "#tada",
@@ -14,7 +14,7 @@ exports[`localeRoute: preserve query and hash from input no_prefix returned stru
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input no_prefix when input has query and hash, result must include both 1`] = `
+exports[`localeRoute: preserve query and hash from input > no_prefix > when input has query and hash, result must include both 1`] = `
 {
   "fullPath": "/news/2?a=b#tada",
   "hash": "#tada",
@@ -28,7 +28,7 @@ exports[`localeRoute: preserve query and hash from input no_prefix when input ha
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input no_prefix when input has query, result must include query (object or fullPath with query) 1`] = `
+exports[`localeRoute: preserve query and hash from input > no_prefix > when input has query, result must include query (object or fullPath with query) 1`] = `
 {
   "fullPath": "/news/2?a=b",
   "hash": "",
@@ -43,7 +43,7 @@ exports[`localeRoute: preserve query and hash from input no_prefix when input ha
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix > returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
 {
   "fullPath": "/en/news/2?a=b#tada",
   "hash": "#tada",
@@ -57,7 +57,7 @@ exports[`localeRoute: preserve query and hash from input prefix returned structu
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix when input has query and hash, result must include both 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix > when input has query and hash, result must include both 1`] = `
 {
   "fullPath": "/en/news/2?a=b#tada",
   "hash": "#tada",
@@ -71,7 +71,7 @@ exports[`localeRoute: preserve query and hash from input prefix when input has q
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix when input has query, result must include query (object or fullPath with query) 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix > when input has query, result must include query (object or fullPath with query) 1`] = `
 {
   "fullPath": "/news/2?a=b",
   "hash": "",
@@ -86,7 +86,7 @@ exports[`localeRoute: preserve query and hash from input prefix when input has q
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix_and_default returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix_and_default > returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
 {
   "fullPath": "/en/news/2?a=b#tada",
   "hash": "#tada",
@@ -97,7 +97,7 @@ exports[`localeRoute: preserve query and hash from input prefix_and_default retu
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix_and_default when input has query and hash, result must include both 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix_and_default > when input has query and hash, result must include both 1`] = `
 {
   "fullPath": "/en/news/2?a=b#tada",
   "hash": "#tada",
@@ -108,7 +108,7 @@ exports[`localeRoute: preserve query and hash from input prefix_and_default when
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix_and_default when input has query, result must include query (object or fullPath with query) 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix_and_default > when input has query, result must include query (object or fullPath with query) 1`] = `
 {
   "fullPath": "/en/news/2?a=b",
   "hash": "",
@@ -123,7 +123,7 @@ exports[`localeRoute: preserve query and hash from input prefix_and_default when
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix_except_default returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix_except_default > returned structure: object has path, fullPath, query, hash when input has query/hash 1`] = `
 {
   "fullPath": "/news/2?a=b#tada",
   "hash": "#tada",
@@ -136,7 +136,7 @@ exports[`localeRoute: preserve query and hash from input prefix_except_default r
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix_except_default when input has query and hash, result must include both 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix_except_default > when input has query and hash, result must include both 1`] = `
 {
   "fullPath": "/news/2?a=b#tada",
   "hash": "#tada",
@@ -151,7 +151,7 @@ exports[`localeRoute: preserve query and hash from input prefix_except_default w
 }
 `;
 
-exports[`localeRoute: preserve query and hash from input prefix_except_default when input has query, result must include query (object or fullPath with query) 1`] = `
+exports[`localeRoute: preserve query and hash from input > prefix_except_default > when input has query, result must include query (object or fullPath with query) 1`] = `
 {
   "fullPath": "/news/2?a=b",
   "hash": "",

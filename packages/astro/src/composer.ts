@@ -1,4 +1,4 @@
-import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
+import { BaseI18n, type DateTimeFormatsConfig, type NumberFormatsConfig, type TranslationStorage } from '@i18n-micro/core'
 import type { PluralFunc, Translations } from '@i18n-micro/types'
 
 export interface AstroI18nOptions {
@@ -8,6 +8,8 @@ export interface AstroI18nOptions {
   plural?: PluralFunc
   missingWarn?: boolean
   missingHandler?: (locale: string, key: string, routeName: string) => void
+  numberFormats?: NumberFormatsConfig
+  datetimeFormats?: DateTimeFormatsConfig
   _storage?: TranslationStorage
 }
 
@@ -30,6 +32,8 @@ export class AstroI18n extends BaseI18n {
       plural: options.plural,
       missingWarn: options.missingWarn,
       missingHandler: options.missingHandler,
+      numberFormats: options.numberFormats,
+      datetimeFormats: options.datetimeFormats,
     })
 
     this.storage = storage
@@ -62,6 +66,8 @@ export class AstroI18n extends BaseI18n {
       plural: this.pluralFunc,
       missingWarn: this.missingWarn,
       missingHandler: this.missingHandler,
+      numberFormats: this.formatter.getNumberFormats(),
+      datetimeFormats: this.formatter.getDateTimeFormats(),
       _storage: isolatedStorage,
     })
   }

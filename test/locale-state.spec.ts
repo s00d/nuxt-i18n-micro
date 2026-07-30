@@ -1,22 +1,10 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.describe.configure({ mode: 'serial', timeout: 60_000 })
+await setupE2E({ shared: 'locale-state-no-prefix' })
 
 // Test: no_prefix strategy (default for this fixture)
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/locale-state', import.meta.url)),
-    setupTimeout: 180_000,
-    nuxtConfig: {
-      i18n: {
-        strategy: 'no_prefix',
-      },
-    },
-  },
-})
 
-test.describe('useState locale override - no_prefix', () => {
+describe('useState locale override - no_prefix', () => {
   test('server plugin sets locale via useState before i18n init', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RouteGenerator - Strategy: no_prefix 17. should not create any prefixed routes by default 1`] = `
+exports[`RouteGenerator - Strategy: no_prefix > 17. should not create any prefixed routes by default 1`] = `
 [
   {
     "file": "/pages/index.vue",
@@ -25,7 +25,7 @@ exports[`RouteGenerator - Strategy: no_prefix 17. should not create any prefixed
 ]
 `;
 
-exports[`RouteGenerator - Strategy: no_prefix 18. should create additional, separate routes for custom paths 1`] = `
+exports[`RouteGenerator - Strategy: no_prefix > 18. should create additional, separate routes for custom paths 1`] = `
 [
   {
     "file": "/pages/index.vue",
@@ -70,7 +70,7 @@ exports[`RouteGenerator - Strategy: no_prefix 18. should create additional, sepa
 ]
 `;
 
-exports[`RouteGenerator - Strategy: no_prefix 19. should add a redirect to the original page if \`noPrefixRedirect\` is true 1`] = `
+exports[`RouteGenerator - Strategy: no_prefix > 19. should add a redirect to the original page if \`noPrefixRedirect\` is true 1`] = `
 [
   {
     "file": "/pages/index.vue",
@@ -106,7 +106,7 @@ exports[`RouteGenerator - Strategy: no_prefix 19. should add a redirect to the o
 ]
 `;
 
-exports[`RouteGenerator - Strategy: no_prefix 20. should not add a redirect if custom path is for a non-default locale 1`] = `
+exports[`RouteGenerator - Strategy: no_prefix > 20. should not add a redirect if custom path is for a non-default locale 1`] = `
 [
   {
     "file": "/pages/index.vue",
@@ -141,7 +141,7 @@ exports[`RouteGenerator - Strategy: no_prefix 20. should not add a redirect if c
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix 9. should prefix all locales including the default one 1`] = `
+exports[`RouteGenerator - Strategy: prefix > 9. should prefix all locales including the default one 1`] = `
 [
   {
     "alias": [],
@@ -186,7 +186,7 @@ exports[`RouteGenerator - Strategy: prefix 9. should prefix all locales includin
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix 10. should handle the root route by prefixing all locales 1`] = `
+exports[`RouteGenerator - Strategy: prefix > 10. should handle the root route by prefixing all locales 1`] = `
 [
   {
     "alias": [],
@@ -200,7 +200,7 @@ exports[`RouteGenerator - Strategy: prefix 10. should handle the root route by p
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix 11. should remove original non-prefixed routes 1`] = `
+exports[`RouteGenerator - Strategy: prefix > 11. should remove original non-prefixed routes 1`] = `
 [
   {
     "alias": [],
@@ -245,7 +245,7 @@ exports[`RouteGenerator - Strategy: prefix 11. should remove original non-prefix
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix 12. should apply custom paths to all prefixed routes 1`] = `
+exports[`RouteGenerator - Strategy: prefix > 12. should apply custom paths to all prefixed routes 1`] = `
 [
   {
     "alias": [],
@@ -315,7 +315,7 @@ exports[`RouteGenerator - Strategy: prefix 12. should apply custom paths to all 
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_and_default 13. should create both prefixed and non-prefixed routes for the default locale 1`] = `
+exports[`RouteGenerator - Strategy: prefix_and_default > 13. should create both prefixed and non-prefixed routes for the default locale 1`] = `
 [
   {
     "file": "/pages/index.vue",
@@ -380,7 +380,7 @@ exports[`RouteGenerator - Strategy: prefix_and_default 13. should create both pr
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_and_default 14. should create only prefixed routes for non-default locales 1`] = `
+exports[`RouteGenerator - Strategy: prefix_and_default > 14. should create only prefixed routes for non-default locales 1`] = `
 [
   {
     "file": "/pages/index.vue",
@@ -445,7 +445,7 @@ exports[`RouteGenerator - Strategy: prefix_and_default 14. should create only pr
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_and_default 15. should handle the root route correctly 1`] = `
+exports[`RouteGenerator - Strategy: prefix_and_default > 15. should handle the root route correctly 1`] = `
 [
   {
     "name": "index",
@@ -463,7 +463,7 @@ exports[`RouteGenerator - Strategy: prefix_and_default 15. should handle the roo
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_and_default 16. should apply a custom path to both default locale routes 1`] = `
+exports[`RouteGenerator - Strategy: prefix_and_default > 16. should apply a custom path to both default locale routes 1`] = `
 [
   {
     "file": "/pages/index.vue",
@@ -558,7 +558,7 @@ exports[`RouteGenerator - Strategy: prefix_and_default 16. should apply a custom
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 1. should not prefix default locale for static routes 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 1. should not prefix default locale for static routes 1`] = `
 [
   {
     "children": [],
@@ -627,7 +627,7 @@ exports[`RouteGenerator - Strategy: prefix_except_default 1. should not prefix d
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 2. should prefix non-default locales 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 2. should prefix non-default locales 1`] = `
 [
   {
     "children": [],
@@ -696,7 +696,7 @@ exports[`RouteGenerator - Strategy: prefix_except_default 2. should prefix non-d
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 3. should handle the root route correctly 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 3. should handle the root route correctly 1`] = `
 [
   {
     "children": [],
@@ -715,7 +715,7 @@ exports[`RouteGenerator - Strategy: prefix_except_default 3. should handle the r
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 4. should handle dynamic routes correctly 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 4. should handle dynamic routes correctly 1`] = `
 [
   {
     "children": [],
@@ -784,7 +784,7 @@ exports[`RouteGenerator - Strategy: prefix_except_default 4. should handle dynam
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 5. should handle nested routes correctly 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 5. should handle nested routes correctly 1`] = `
 [
   {
     "children": [
@@ -833,7 +833,7 @@ exports[`RouteGenerator - Strategy: prefix_except_default 5. should handle neste
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 6. should apply custom paths from \`globalLocaleRoutes\` 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 6. should apply custom paths from \`globalLocaleRoutes\` 1`] = `
 [
   {
     "children": [],
@@ -912,7 +912,7 @@ exports[`RouteGenerator - Strategy: prefix_except_default 6. should apply custom
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 7. should respect \`routeLocales\` to limit available languages for a page 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 7. should respect \`routeLocales\` to limit available languages for a page 1`] = `
 [
   {
     "children": [],
@@ -981,7 +981,7 @@ exports[`RouteGenerator - Strategy: prefix_except_default 7. should respect \`ro
 ]
 `;
 
-exports[`RouteGenerator - Strategy: prefix_except_default 8. should disable localization for a route when set to \`false\` 1`] = `
+exports[`RouteGenerator - Strategy: prefix_except_default > 8. should disable localization for a route when set to \`false\` 1`] = `
 [
   {
     "children": [],

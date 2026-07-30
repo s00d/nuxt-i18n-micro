@@ -1,6 +1,6 @@
 ---
-title: "`<i18n-group>` Component"
-description: "Group translations under a shared key prefix."
+title: '`<i18n-group>` Component'
+description: 'Group translations under a shared key prefix.'
 ---
 
 # 🌍 `<i18n-group>` Component
@@ -9,35 +9,35 @@ The `<i18n-group>` component in Nuxt I18n Micro provides a convenient way to gro
 
 ## ⚙️ Props
 
-### `prefix`
+<!-- generated:component:i18n-group — do not edit; run `pnpm run docs:generate` -->
 
-- **Type**: `String`
-- **Required**: Yes
-- **Description**: The translation key prefix that will be automatically prepended to all translations within the group.
-- **Example**: `"product.details"`, `"user.profile"`
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `prefix` **\*** | `string` | — | Key prefix every lookup inside the slot is resolved against. |
+| `groupClass` | `string` | `''` | Extra class on the wrapper element. |
 
-### `groupClass`
+**\*** required.
 
-- **Type**: `String`
-- **Required**: No
-- **Default**: `""`
-- **Description**: Additional CSS class(es) to be applied to the wrapper div element.
+### Slots
+
+| Slot | Bindings | Description |
+| --- | --- | --- |
+| `default` | `prefix`, `t` | Receives `prefix` and a `t` function scoped to it. |
+
+<!-- /generated:component:i18n-group -->
 
 ## 🎯 Slots
 
-### Default Slot
-
-The default slot provides access to two important properties:
-
-- **prefix**: The current prefix string
-- **t**: A translation function that automatically prepends the prefix
-
-The slot exposes these properties through scoped slots:
+The default slot receives `prefix` and a `t` function scoped to it, so keys inside are
+written relative to the prefix:
 
 ```vue
-<template #default="{ prefix, t }">
-  <!-- Your content here -->
-</template>
+<i18n-group prefix="checkout">
+  <template #default="{ t }">
+    <h2>{{ t('title') }}</h2>
+    <p>{{ t('summary', { count: 3 }) }}</p>
+  </template>
+</i18n-group>
 ```
 
 ## 🛠️ Example Usage
@@ -57,6 +57,7 @@ The slot exposes these properties through scoped slots:
 ```
 
 Translation file:
+
 ```json
 {
   "product": {
@@ -73,10 +74,7 @@ Translation file:
 
 ```vue
 <template>
-  <i18n-group 
-    prefix="user.profile" 
-    group-class="profile-section"
-  >
+  <i18n-group prefix="user.profile" group-class="profile-section">
     <template #default="{ t }">
       <div class="user-info">
         <h2>{{ t('title') }}</h2>
@@ -92,6 +90,7 @@ Translation file:
 ```
 
 Translation file:
+
 ```json
 {
   "user": {
@@ -152,18 +151,21 @@ The component wraps its content in a div with the class `i18n-group` and any add
 ## 🚀 Best Practices
 
 1. **Consistent Prefixes**: Use consistent and logical prefixes that reflect your application's structure
+
 ```vue
 <i18n-group prefix="features.pricing">
 <i18n-group prefix="features.security">
 ```
 
 2. **Modular Organization**: Group related translations together under meaningful prefixes
+
 ```vue
 <i18n-group prefix="checkout.payment">
 <i18n-group prefix="checkout.shipping">
 ```
 
 3. **Reusable Components**: Create reusable components with their own translation groups
+
 ```vue
 <!-- UserProfile.vue -->
 <i18n-group prefix="user.profile">
@@ -173,6 +175,7 @@ The component wraps its content in a div with the class `i18n-group` and any add
 ```
 
 4. **Nested Groups**: Avoid deeply nesting groups to maintain clarity
+
 ```vue
 <!-- Good -->
 <i18n-group prefix="shop.product">

@@ -16,7 +16,7 @@
     "paths": {
       "*": ["node_modules/*"]
     },
-    "types": ["jest", "node"]
+    "types": ["node"]
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]

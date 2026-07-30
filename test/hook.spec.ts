@@ -1,17 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/hook', import.meta.url)),
-  },
-  // launchOptions: {
-  //   headless: false, // Show browser
-  //   slowMo: 500, // Slow down step execution (in milliseconds) for better visibility
-  // },
-})
+await setupE2E({ shared: 'hook' })
 
-test.describe('hook', () => {
+describe('hook', () => {
   test('navigate to test-page, check URL and text, switch language to de and recheck text', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })

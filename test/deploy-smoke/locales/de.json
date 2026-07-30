@@ -1,0 +1,7 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "about": "Über uns"
+  },
+  "items": "ein Eintrag|{count} Einträge"
+}

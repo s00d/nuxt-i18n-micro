@@ -9,6 +9,6 @@
     "typecheck": "nuxt typecheck --no-emit"
   },
   "dependencies": {
-    "nuxt": "catalog:nuxt3"
+    "nuxt": "catalog:"
   }
 }

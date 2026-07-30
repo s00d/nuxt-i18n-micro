@@ -1,104 +1,51 @@
 ---
-title: "`<i18n-switcher>` Component"
-description: "Dropdown component for switching app locales."
-outline: "deep"
+title: '`<i18n-switcher>` Component'
+description: 'Dropdown component for switching app locales.'
+outline: 'deep'
 ---
 
 # 🌍 `<i18n-switcher>` Component
 
 The `<i18n-switcher>` component in `Nuxt I18n Micro` provides a user-friendly dropdown interface for switching between different locales in your application. This component is highly customizable, allowing seamless integration with your application's design and layout.
 
+Locales with `disabled: true` are **omitted** from the dropdown (they remain available via `$getLocales()` for SEO / head tags). Only switchable locales get `NuxtLink` + `hreflang`.
+
 ## ⚙️ Props
 
-### `customLabels`
+<!-- generated:component:i18n-switcher — do not edit; run `pnpm run docs:generate` -->
 
-- **Type**: `Record<string, string>`
-- **Default**: `{}`
-- **Description**: Allows you to define custom labels for each locale, which will be displayed instead of the locale codes.
-- **Example**:
-  ```vue
-  <i18n-switcher :customLabels="{ en: 'English', fr: 'Français' }"></i18n-switcher>
-  ```
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `customLabels` | `Record<string, string>` | `() => ({})` | Display name per locale code, overriding the `displayName` from the locale config. |
+| `customWrapperStyle` | `CSSProperties` | `() => ({})` | Inline style for the outer wrapper. |
+| `customButtonStyle` | `CSSProperties` | `() => ({})` | Inline style for the button that opens the dropdown. |
+| `customDropdownStyle` | `CSSProperties` | `() => ({})` | Inline style for the dropdown panel. |
+| `customItemStyle` | `CSSProperties` | `() => ({})` | Inline style for each item in the dropdown. |
+| `customLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link inside an item. |
+| `customActiveLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link of the currently active locale. |
+| `customDisabledLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the *current* locale button when it is `disabled: true` in config. |
+| `customIconStyle` | `CSSProperties` | `() => ({})` | Inline style for the caret icon on the button. |
 
-### `customWrapperStyle`
+### Slots
 
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Allows you to override the default styles applied to the wrapper `<div>` that contains the locale switcher.
-- **Example**:
-  ```vue
-  <i18n-switcher :customWrapperStyle="{ backgroundColor: '#f8f9fa', padding: '10px' }"></i18n-switcher>
-  ```
+| Slot | Bindings | Description |
+| --- | --- | --- |
+| `before-button` | — | Content before the button that opens the dropdown. |
+| `before-selected-locale` | — | Content before the active locale label inside the button. |
+| `after-selected-locale` | — | Content after the active locale label inside the button. |
+| `before-dropdown` | — | Content between the button and the dropdown panel. |
+| `before-dropdown-items` | — | Content at the top of the dropdown, above the locale list. |
+| `before-item` | `locale` | Content before each locale entry. |
+| `before-link-content` | `locale` | Content before a locale's label inside its link. |
+| `after-link-content` | `locale` | Content after a locale's label inside its link. |
+| `after-item` | `locale` | Content after each locale entry. |
+| `after-dropdown-items` | — | Content at the bottom of the dropdown, below the locale list. |
+| `after-dropdown` | — | Content after the dropdown panel. |
 
-### `customButtonStyle`
+<!-- /generated:component:i18n-switcher -->
 
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Allows you to customize the styles applied to the button element that toggles the dropdown menu.
-- **Example**:
-  ```vue
-  <i18n-switcher :customButtonStyle="{ backgroundColor: '#007bff', color: '#fff', borderRadius: '4px' }"></i18n-switcher>
-  ```
-
-### `customDropdownStyle`
-
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Sets the custom styles for the `<ul>` element that contains the list of locales.
-- **Example**:
-  ```vue
-  <i18n-switcher :customDropdownStyle="{ border: '1px solid #007bff', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }"></i18n-switcher>
-  ```
-
-### `customItemStyle`
-
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Applies custom styles to each `<li>` element representing a locale option.
-- **Example**:
-  ```vue
-  <i18n-switcher :customItemStyle="{ margin: '5px 0', padding: '5px' }"></i18n-switcher>
-  ```
-
-### `customLinkStyle`
-
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Allows you to customize the styles applied to the `<NuxtLink>` elements used to switch between locales.
-- **Example**:
-  ```vue
-  <i18n-switcher :customLinkStyle="{ padding: '8px 16px', color: '#333', textDecoration: 'none' }"></i18n-switcher>
-  ```
-
-### `customActiveLinkStyle`
-
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Sets the custom styles for the currently active locale, usually to highlight or indicate the selected option.
-- **Example**:
-  ```vue
-  <i18n-switcher :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"></i18n-switcher>
-  ```
-
-### `customDisabledLinkStyle`
-
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Applies custom styles to disable the link for the current locale, preventing users from selecting it.
-- **Example**:
-  ```vue
-  <i18n-switcher :customDisabledLinkStyle="{ color: 'gray', cursor: 'not-allowed' }"></i18n-switcher>
-  ```
-
-### `customIconStyle`
-
-- **Type**: `CSSProperties`
-- **Default**: `{}`
-- **Description**: Defines custom styles for the icon that indicates the dropdown state, such as rotating the icon when the dropdown is opened or closed.
-- **Example**:
-  ```vue
-  <i18n-switcher :customIconStyle="{ fontSize: '20px', color: '#007bff' }"></i18n-switcher>
-  ```
+Every part is unstyled by default: the `custom*Style` props take inline style objects, and
+the slots below replace the markup entirely when styling is not enough.
 
 ## 🛠️ Example Usages
 
@@ -124,7 +71,6 @@ This renders a locale switcher with default styling and behavior.
     :customItemStyle="{ margin: '5px 0', padding: '5px' }"
     :customLinkStyle="{ padding: '8px 16px', color: '#333', textDecoration: 'none' }"
     :customActiveLinkStyle="{ color: 'green', fontWeight: 'bold', backgroundColor: '#f0f0f0' }"
-    :customDisabledLinkStyle="{ color: 'gray', cursor: 'not-allowed' }"
     :customIconStyle="{ fontSize: '20px', color: '#007bff' }"
   />
 </template>
@@ -134,160 +80,27 @@ This example demonstrates a fully customized locale switcher with custom labels 
 
 ## 🔌 Slots
 
-The `<i18n-switcher>` component provides several slots that allow you to insert custom content at various points within the component. These slots enhance the flexibility and customization of the switcher, enabling you to tailor it to your application's specific needs.
+Every visual part of the switcher can be replaced. The slots are listed with the props
+table above; each one takes template content:
 
-### `before-button`
+```vue
+<i18n-switcher>
+  <template #before-button>
+    <span>🌐</span>
+  </template>
 
-- **Description**: Inserts content immediately before the language switcher button.
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #before-button>
-      <span>🌐</span>
-    </template>
-  </i18n-switcher>
-  ```
+  <template #before-item="{ locale }">
+    <img :src="`/flags/${locale.code}.svg`" :alt="locale.code">
+  </template>
 
-### `before-selected-locale`
+  <template #after-dropdown-items>
+    <a href="/help/languages">Missing a language?</a>
+  </template>
+</i18n-switcher>
+```
 
-- **Description**: Inserts content before the currently selected locale label within the button.
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #before-selected-locale>
-      <i class="icon-flag"></i>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `after-selected-locale`
-
-- **Description**: Inserts content after the currently selected locale label within the button.
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #after-selected-locale>
-      <i class="icon-caret"></i>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `before-dropdown`
-
-- **Description**: Inserts content immediately before the dropdown menu.
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #before-dropdown>
-      <li class="dropdown-header">Select Language</li>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `after-dropdown`
-
-- **Description**: Inserts content immediately after the dropdown menu.
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #after-dropdown>
-      <li class="dropdown-footer">Powered by Nuxt</li>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `before-dropdown-items`
-
-- **Description**: Inserts content before the list of locale items within the dropdown.
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #before-dropdown-items>
-      <li class="divider"></li>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `after-dropdown-items`
-
-- **Description**: Inserts content after the list of locale items within the dropdown.
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #after-dropdown-items>
-      <li class="divider"></li>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `before-item`
-
-- **Description**: Inserts content before each locale item. Receives the locale as a slot prop.
-- **Props**: `locale` (Locale object)
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #before-item="{ locale }">
-      <i :class="`flag-${locale.code}`"></i>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `after-item`
-
-- **Description**: Inserts content after each locale item. Receives the locale as a slot prop.
-- **Props**: `locale` (Locale object)
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #after-item="{ locale }">
-      <span>{{ locale.code }}</span>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `before-link-content`
-
-- **Description**: Inserts content before the locale label inside each link. Receives the locale as a slot prop.
-- **Props**: `locale` (Locale object)
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #before-link-content="{ locale }">
-      <i :class="`icon-${locale.code}`"></i>
-    </template>
-  </i18n-switcher>
-  ```
-
-### `after-link-content`
-
-- **Description**: Inserts content after the locale label inside each link. Receives the locale as a slot prop.
-- **Props**: `locale` (Locale object)
-- **Usage Example**:
-  ```vue
-  <i18n-switcher>
-    <template #after-link-content="{ locale }">
-      <span>({{ locale.code }})</span>
-    </template>
-  </i18n-switcher>
-  ```
-
-### Summary of Slots
-
-| Slot Name                | Description                                                 | Props    |
-|--------------------------|-------------------------------------------------------------|----------|
-| `before-button`          | Content before the language switcher button                 | None     |
-| `before-selected-locale` | Content before the selected locale label within the button  | None     |
-| `after-selected-locale`  | Content after the selected locale label within the button   | None     |
-| `before-dropdown`        | Content before the dropdown menu                            | None     |
-| `after-dropdown`         | Content after the dropdown menu                             | None     |
-| `before-dropdown-items`  | Content before the list of locale items within the dropdown | None     |
-| `after-dropdown-items`   | Content after the list of locale items within the dropdown  | None     |
-| `before-item`            | Content before each locale item                             | `locale` |
-| `after-item`             | Content after each locale item                              | `locale` |
-| `before-link-content`    | Content before the locale label inside each link            | `locale` |
-| `after-link-content`     | Content after the locale label inside each link             | `locale` |
-
+Slots whose name ends in `-item`, `-link-content` or starts with `before-item` receive the
+`locale` object they belong to.
 
 ## 🎨 Styles Overview
 

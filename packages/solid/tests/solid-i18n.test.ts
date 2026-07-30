@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { describe, expect, test } from 'vitest'
 import { createI18n, SolidI18n } from '../src/i18n'
 
 describe('SolidI18n', () => {
@@ -227,6 +227,43 @@ describe('SolidI18n', () => {
 
     expect(i18n.t('greeting')).toBe('Hi')
     expect(i18n.has('farewell')).toBe(false)
+  })
+
+  test('should expose resolveTranslations and setTranslation', () => {
+    const i18n = new SolidI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
+    i18n.setTranslation('greeting', 'Hi')
+    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hi' })
+    expect(i18n.t('greeting')).toBe('Hi')
+  })
+
+  test('should notify subscribers on setTranslation', () => {
+    const i18n = new SolidI18n({
+      locale: 'en',
+      messages: {
+        en: {
+          greeting: 'Hello',
+        },
+      },
+    })
+
+    let notified = false
+    const unsubscribe = i18n.subscribe(() => {
+      notified = true
+    })
+
+    i18n.setTranslation('greeting', 'Hi')
+    expect(notified).toBe(true)
+
+    unsubscribe()
   })
 })
 

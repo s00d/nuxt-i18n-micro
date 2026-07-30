@@ -1,0 +1,17 @@
+{
+  "name": "nuxt-i18n-micro-deploy-smoke",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "node .output/server/index.mjs",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "nuxt": "^4.5.0",
+    "nuxt-i18n-micro": "latest",
+    "vue": "^3.5.25",
+    "vue-router": "^4.6.3"
+  }
+}

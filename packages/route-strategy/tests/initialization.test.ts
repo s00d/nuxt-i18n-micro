@@ -1,5 +1,6 @@
 import { RouteGenerator } from '../src/index'
 import { defaultLocaleCode, locales } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator', () => {
   describe('Initialization', () => {

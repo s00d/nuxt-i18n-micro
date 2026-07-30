@@ -1,4 +1,5 @@
 import { extractLocalizedPaths, type LocalizedPathsMap } from './core/localized-paths'
+import { isLocalizationDisabledForPage } from './core/localization-disabled'
 import { isLocaleAllowedForUnlocalizedRoute } from './locale-route-access'
 import { RouteGenerator, type RouteGeneratorOptions } from './route-generator'
 import {
@@ -22,6 +23,7 @@ export {
   isLocaleAllowedForUnlocalizedRoute,
   extractLocalizedPaths,
   type LocalizedPathsMap,
+  isLocalizationDisabledForPage,
   isInternalPath,
   normalizeRouteKey,
   normalizePath,

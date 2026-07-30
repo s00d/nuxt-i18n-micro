@@ -1,4 +1,8 @@
-import { handleTranslationWatchChange, parseTranslationWatchRelativePath } from '../src/watcher'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { handleTranslationWatchChange, parseTranslationWatchRelativePath, readTranslationFile } from '../src/watcher'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 describe('parseTranslationWatchRelativePath', () => {
   it('parses page locale files', () => {
@@ -70,5 +74,33 @@ describe('handleTranslationWatchChange', () => {
     expect(result).toBe('root')
     expect(cache.has('en:contact')).toBe(true)
     expect(cache.has('en:index')).toBe(true)
+  })
+})
+
+describe('readTranslationFile', () => {
+  let dir: string
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'i18n-hmr-'))
+  })
+
+  afterEach(() => rmSync(dir, { recursive: true, force: true }))
+
+  it('reads a locale file', () => {
+    const file = join(dir, 'en.json')
+    writeFileSync(file, JSON.stringify({ hello: 'Hello' }))
+    expect(readTranslationFile(file)).toEqual({ hello: 'Hello' })
+  })
+
+  it('treats an absent file as empty — a page without its own locale file is normal', () => {
+    expect(readTranslationFile(join(dir, 'nope.json'))).toEqual({})
+  })
+
+  it('throws on a file that exists but does not parse', () => {
+    // The half-written file a `change` event can arrive for. Returning `{}` here merged a
+    // chunk with every key of this file missing and cached it as current.
+    const file = join(dir, 'partial.json')
+    writeFileSync(file, '{ "hello": "Hel')
+    expect(() => readTranslationFile(file)).toThrow()
   })
 })

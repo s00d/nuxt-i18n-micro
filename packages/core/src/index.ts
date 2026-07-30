@@ -1,5 +1,5 @@
 import { BaseI18n, type BaseI18nOptions } from './base'
-import { FormatService } from './format-service'
+import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
 import {
   defaultPlural,
   getByPath,
@@ -9,21 +9,26 @@ import {
   isPrefixAndDefaultStrategy,
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
+  collectTranslationPaths,
   mergeTranslationChunk,
   resolveTranslation,
+  setTranslationAtKey,
   translationCacheKey,
   withPrefixStrategy,
   type MergeTranslationChunkOptions,
 } from './helpers'
 import { type TranslationStorage, useTranslationHelper } from './translation'
+import { createReactiveI18nStore, type ReactiveI18nStore } from './reactive-store'
 
 export {
   useTranslationHelper,
   interpolate,
   getByPath,
   hasTranslationValue,
+  collectTranslationPaths,
   mergeTranslationChunk,
   resolveTranslation,
+  setTranslationAtKey,
   translationCacheKey,
   withPrefixStrategy,
   isNoPrefixStrategy,
@@ -33,7 +38,12 @@ export {
   defaultPlural,
   FormatService,
   BaseI18n,
+  createReactiveI18nStore,
   type MergeTranslationChunkOptions,
   type TranslationStorage,
   type BaseI18nOptions,
+  type ReactiveI18nStore,
+  type NumberFormatsConfig,
+  type DateTimeFormatsConfig,
+  type FormatServiceOptions,
 }

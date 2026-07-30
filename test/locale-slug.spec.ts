@@ -1,19 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
-  },
-})
-test.describe('locale-slug', () => {
-  test.beforeEach(({ page }) => {
-    page.on('console', (msg) => {
-      const text = msg.text()
-      if (text.includes('[path-strategy]') || text.includes('[i18n')) console.log('[browser]', msg.type(), text)
-    })
-  })
+await setupE2E({ shared: 'basic' })
 
+describe('locale-slug', () => {
   test('Test Locale Path', async ({ page, goto }) => {
     // Test main activity page
     await goto('/activity', { waitUntil: 'hydration' })

@@ -1,5 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
 import { RouteGenerator } from '../src/index'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator – resolved locales from raw options', () => {
   test('resolves locales: merges duplicates by code', () => {

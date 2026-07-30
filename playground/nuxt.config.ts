@@ -1,6 +1,4 @@
 import { resolve } from 'node:path'
-import { startSubprocess } from '@nuxt/devtools-kit'
-import { defineNuxtModule } from '@nuxt/kit'
 import { defineNuxtConfig } from 'nuxt/config'
 
 const routesLocaleLinks: Record<string, string> = {
@@ -10,27 +8,7 @@ const routesLocaleLinks: Record<string, string> = {
 }
 
 export default defineNuxtConfig({
-  modules: [
-    '../src/module',
-    '../packages/types-generator/src/nuxt',
-    defineNuxtModule({
-      setup(_, nuxt) {
-        if (!nuxt.options.dev) return
-
-        startSubprocess(
-          {
-            command: 'npx',
-            args: ['nuxi', 'dev', '--port', '3030'],
-            cwd: resolve(__dirname, '../client'),
-          },
-          {
-            id: 'nuxt:i18n:micro',
-            name: 'i18n Micro',
-          },
-        )
-      },
-    }),
-  ],
+  modules: ['../src/module', '../packages/types-generator/src/nuxt'],
   devtools: {
     enabled: true,
   },

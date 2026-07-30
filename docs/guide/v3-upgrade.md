@@ -1,7 +1,7 @@
 ---
-title: "Upgrading from v2.x to v3.x"
-description: "Upgrade from v2.x to v3.x."
-outline: "deep"
+title: 'Upgrading from v2.x to v3.x'
+description: 'Upgrade from v2.x to v3.x.'
+outline: 'deep'
 ---
 
 # 📦 Upgrading from v2.x to v3.x
@@ -28,7 +28,7 @@ flowchart LR
 - **`experimental.hmr`** — Under `experimental` → Root-level option
 - **`previousPageFallback`** — Removed entirely (cumulative merge strategy handles this automatically)
 - **Caching** — `useStorage('cache')` → `TranslationStorage` singleton (`Symbol.for` on `globalThis`)
-- **SSR transfer** — Runtime config → `useState('i18n-ssr-chunks')` via Nuxt payload
+- **SSR transfer** — Runtime config → Nuxt payload (v3 used `useState`; chunks now live in `payload.data`, see [Performance](./performance.md#server-side-payload-transfer))
 - **Strategy classes** — Internal → Separate packages (`@i18n-micro/route-strategy`, `@i18n-micro/path-strategy`)
 
 ## Removed: `fallbackRedirectComponentPath`
@@ -58,7 +58,7 @@ export default defineNuxtPlugin({
     const { setLocale } = useI18nLocale()
     // Your custom detection logic
     setLocale(detectedLocale)
-  }
+  },
 })
 ```
 
@@ -124,6 +124,7 @@ Redirects are now handled automatically by two components:
 2. **Client-side** (`i18n-redirect.global.ts`): Global route middleware on SPA navigation; preserves query string and hash
 
 Locale priority for redirects:
+
 1. `useState('i18n-locale')` — set via `useI18nLocale().setLocale()`
 2. Cookie — if `localeCookie` is configured
 3. `Accept-Language` header — if `autoDetectLanguage: true`

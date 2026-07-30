@@ -1,7 +1,7 @@
 ---
-title: "Contribution Guide"
-description: "How to contribute to Nuxt I18n Micro."
-outline: "deep"
+title: 'Contribution Guide'
+description: 'How to contribute to Nuxt I18n Micro.'
+outline: 'deep'
 ---
 
 # 🤝 Contribution Guide
@@ -127,11 +127,10 @@ pnpm run lint:fix
 To run the test suite, use the following command:
 
 ```bash
-pnpm run test:workspaces
 pnpm run test
 ```
 
-This will run all the Playwright tests to ensure everything is functioning as expected.
+This runs the full Vitest suite — fast unit tests, build-heavy integration suites, every workspace package, and the browser e2e specs. While developing, `pnpm run test:unit` gives a ~1 s feedback loop; the slower projects are `pnpm run test:integration` and `pnpm run test:e2e`.
 
 ### 7. 🔍 Type Checking
 
@@ -171,16 +170,40 @@ You can access the playground app at `http://localhost:3000`.
 - **`pnpm run dev`**: Start the development server using the playground.
 - **`pnpm run dev:prepare`**: Prepare the module stub and generate playground types (run after install or when module types change).
 - **`pnpm run prepack`**: Build the module and prepare it for publishing.
-- **`pnpm --filter "./packages/**" run build`**: Build the packages.
+- **`pnpm --filter "./packages/**" run build`\*\*: Build the packages.
 - **`pnpm run lint`**: Run the linter to check for code quality issues.
 - **`pnpm run lint:fix`**: Automatically fix linter issues.
-- **`pnpm run test`**: Run the test suite.
-- **`pnpm run test:workspaces`**: Run the test suite for packages.
+- **`pnpm run test`**: Run the full Vitest suite (unit + integration + packages + browser e2e).
+- **`pnpm run test:unit`**: Fast unit tests only, no builds (~1 s).
+- **`pnpm run test:integration`**: Suites that spawn real Nuxt builds.
+- **`pnpm run test:e2e`**: Browser specs against real servers.
 - **`pnpm run typecheck`**: Check TypeScript types.
+- **`pnpm run check:versions`**: Verify every changed package in `packages/*` also got a version bump (see below).
 - **`pnpm run docs:dev`**: Start the documentation site in development mode.
 - **`pnpm run docs:build`**: Build the documentation site.
 - **`pnpm run docs:serve`**: Serve the built documentation site locally.
 - **`pnpm run dev:build`**: Build the playground environment.
+
+## 📦 Changing a package under `packages/*`
+
+Packages are versioned independently and **by hand** — `changelogen` only bumps the root package. Since `pnpm publish -r` silently _skips_ any package whose version already exists on npm, a forgotten bump does not fail the release: it just leaves that package stale on npm while everything else moves on.
+
+So: **if you change a package, bump its `version` in the same PR.**
+
+CI enforces this via `pnpm run check:versions`, which compares each package against the PR's merge-base (or the last release tag outside a PR):
+
+```bash
+# what CI runs
+pnpm run check:versions
+
+# against an explicit baseline
+pnpm -C scripts cli check-versions --base v3.21.4
+
+# also reject versions already published on npm (part of `release:check`)
+pnpm -C scripts cli check-versions --npm
+```
+
+Changes to tests, docs, playgrounds and test configs are ignored — they cannot affect the published artifact. Everything else counts, so the check fails closed.
 
 # 🚧 Making Changes
 
@@ -207,7 +230,6 @@ Make sure your changes work and do not break any existing functionality:
 - Run all tests to ensure there are no errors:
 
 ```bash
-pnpm run test:workspaces
 pnpm run test
 ```
 

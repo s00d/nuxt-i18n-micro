@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/node",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Node.js utilities for loading translations and locale data in Nuxt I18n Micro.",
   "keywords": [
     "i18n",
@@ -48,7 +48,7 @@
     "build": "vite build",
     "check:package": "publint",
     "dev": "cd playground && npm run dev",
-    "test": "jest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
@@ -58,13 +58,11 @@
     "@i18n-micro/utils": "workspace:*"
   },
   "devDependencies": {
-    "@types/jest": "catalog:",
     "@types/node": "catalog:",
-    "jest": "catalog:",
-    "publint": "^0.3.17",
-    "ts-jest": "catalog:",
+    "publint": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=20.0.0"

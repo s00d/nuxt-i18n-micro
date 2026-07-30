@@ -1,7 +1,7 @@
 ---
-title: "Performance Guide"
-description: "Performance tips and optimizations."
-outline: "deep"
+title: 'Performance Guide'
+description: 'Performance tips and optimizations.'
+outline: 'deep'
 ---
 
 # 🚀 Performance Guide
@@ -21,20 +21,22 @@ We conducted a series of tests to demonstrate the performance improvements that 
 ### ⏱️ Build Time and Resource Consumption
 
 ::: details **Nuxt I18n v10**
+
 - **Code Bundle**: 19.24 MB
 - **Translations**: 38.05 MB (compiled into JS)
 - **Max CPU Usage**: 419%
 - **Max Memory Usage**: 9,117 MB
 - **Elapsed Time**: 82.26s
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Code Bundle**: 1.48 MB — **92% smaller than i18n v10**
 - **Translations**: 55.76 MB (lazy-loaded JSON)
 - **Max CPU Usage**: 243% — **42% lower than i18n v10**
 - **Max Memory Usage**: 1,175 MB — **87% less memory than i18n v10**
 - **Elapsed Time**: 14.95s — **82% faster than i18n v10**
-:::
+  :::
 
 See the [full benchmark report](/guide/performance-results) for charts, Autocannon results, and fixture details.
 
@@ -43,16 +45,18 @@ See the [full benchmark report](/guide/performance-results) for charts, Autocann
 We also tested server performance using Artillery and Autocannon stress tests.
 
 ::: details **Nuxt I18n v10**
+
 - **Requests per Second (Artillery)**: 51 [#/sec]
 - **Average Response Time**: 1,363 ms
 - **Max Memory Usage**: 1,243 MB
-:::
+  :::
 
 ::: tip **Nuxt I18n Micro**
+
 - **Requests per Second (Artillery)**: 278 [#/sec] — **445% more requests per second than i18n v10**
 - **Average Response Time**: 437 ms — **63% faster than i18n v10**
 - **Max Memory Usage**: 275 MB — **75% less memory usage than i18n v10**
-:::
+  :::
 
 ### 📈 Visual Comparison
 
@@ -106,14 +110,14 @@ options:
       type: logarithmic
 ```
 
-| Metric | nuxt-i18n v10 | i18n-micro | Improvement |
-|--------|---------------|------------|-------------|
-| Build Time | 82.26s | 14.95s | **82% faster** |
-| Memory (build) | 9,117 MB | 1,175 MB | **87% less** |
-| Code Bundle | 19.24 MB | 1.48 MB | **92% smaller** |
-| CPU Usage | 419% | 243% | **42% lower** |
-| Response Time | 1,177 ms | 437 ms | **63% faster** |
-| RPS (Artillery) | 51 | 278 | **445% more** |
+| Metric          | nuxt-i18n v10 | i18n-micro | Improvement     |
+| --------------- | ------------- | ---------- | --------------- |
+| Build Time      | 82.26s        | 14.95s     | **82% faster**  |
+| Memory (build)  | 9,117 MB      | 1,175 MB   | **87% less**    |
+| Code Bundle     | 19.24 MB      | 1.48 MB    | **92% smaller** |
+| CPU Usage       | 419%          | 243%       | **42% lower**   |
+| Response Time   | 1,177 ms      | 437 ms     | **63% faster**  |
+| RPS (Artillery) | 51            | 278        | **445% more**   |
 
 ### 🔍 Interpretation of Results
 
@@ -156,20 +160,20 @@ Starting from v3.0.0, the module uses a `globalThis` singleton pattern with `Sym
 flowchart LR
     subgraph Process["Node.js Process"]
         G["globalThis[Symbol.for('CACHE')]"]
-        
+
         subgraph R1["SSR Request 1"]
             P1[Plugin Instance] --> G
         end
-        
+
         subgraph R2["SSR Request 2"]
             P2[Plugin Instance] --> G
         end
-        
+
         subgraph R3["SSR Request 3"]
             P3[Plugin Instance] --> G
         end
     end
-    
+
     G --> Cache["Single Map Instance"]
     Cache --> D1["en:index → translations"]
     Cache --> D2["en:about → translations"
@@ -204,7 +208,7 @@ flowchart TB
     F -->|Yes| R
     F -->|No| J[Return Key / Default]
     D -->|No| J
-    
+
     style R fill:#2ed573
     style J fill:#ff9f43
 ```
@@ -219,22 +223,89 @@ if (val === undefined && key.includes('.')) {
 
 ### 💉 Server-Side Payload Transfer
 
-During SSR, loaded translation chunks are stored in `useState('i18n-ssr-chunks')` and serialized through the Nuxt payload. On the client, `01.plugin.ts` calls `translationStorage.seedFromSsrChunks()` before any `$fetch`, completely avoiding duplicate requests on first load.
+The SSR payload carries **full translation chunks** for every `(locale, route)` loaded during SSR.
+`NuxtTranslationLoader` writes each merged chunk into `nuxtApp.payload.data['i18n-ssr-chunks']` via
+`setSsrChunk`. `payload.data` and not `useState` on purpose — Nuxt externalizes `data` into
+`_payload.json` on prerendered routes, while `state` always stays inline in the HTML.
 
-`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`. Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys.
+On the client, `01.plugin.ts` seeds `translationStorage` and `NuxtI18n` from it before any `$fetch`, so
+hydration needs no network round-trip for chunks the server already loaded.
 
-This approach:
+`NuxtI18n` maintains the active merged dictionary (`cachedTranslations`) used by `$t()` and `$has()`.
+Same-locale navigations deep-merge page chunks until `page:transition:finish` cleans up stale keys.
 
-- Eliminates waterfall requests on page load
-- Reduces Time to Interactive (TTI)
-- Works seamlessly with pre-rendering and SSG
+#### Where it stands today
+
+The numbers below are read from the budget file `pnpm run budget:payload` measures and enforces.
+
+<!-- generated:payload-budget — do not edit; run `pnpm run docs:generate` -->
+
+Measured on `playground` across `/`, `/de`:
+
+| Measurement | Size |
+| --- | --- |
+| Translation sources on disk | 15.2 MB |
+| Served as separate payload files | 76.3 MB |
+| Largest inline `__NUXT_DATA__` | 6.9 MB |
+| Client assets | 449.5 KB |
+
+The playground carries a deliberately oversized dictionary, so these are not figures to expect from a real
+application — they are a fixed point to measure against. The budget fails when they grow unexpectedly,
+which is how an accidental change to what the payload carries gets noticed.
+
+<!-- /generated:payload-budget -->
 
 ### 💾 Caching and Pre-rendering
 
-To optimize performance, `Nuxt I18n Micro` implements caching and supports pre-rendering of translation files:
+Translations pass through several caches, and knowing which one answered a request is the
+difference between a five-minute and a five-hour debugging session. There are four, in the
+order a request meets them:
 
-- 🗄️ **Caching**: Translations are cached after the initial load, reducing the need for subsequent requests and improving response times.
-- 🏁 **Pre-rendering**: During the build process, translation files for all configured locales and routes can be pre-rendered. This eliminates the need for runtime requests, ensuring that translations are served quickly and efficiently.
+| Layer | Where | Lifetime | Cleared by |
+| --- | --- | --- | --- |
+| Browser / CDN | `Cache-Control` on `/{apiBaseUrl}/**` | `httpCacheDuration`, `immutable` | a new `?v=` — i.e. a deploy that changed translations |
+| Nitro route cache | `routeRules['/{apiBaseUrl}/**'].cache` | 60 s, stale-while-revalidate | server restart |
+| Server loader | in-process `CacheControl`, keyed `locale:routeName` | process lifetime, or `cacheTtl` | server restart, HMR in dev |
+| Client store | `translationStorage` + the active chunk in `NuxtI18n` | page lifetime | reload |
+
+Two rules keep them from contradicting each other:
+
+- **The Nitro route cache exists only when `?v=` does.** With a cache-buster each URL is
+  unique to its content, so caching it server-side is free of staleness. Set
+  `dateBuild: 0` and that layer is switched off, because the URL is then stable and the
+  response says `must-revalidate` — a server-side cache would answer from a stale entry
+  for up to a minute and quietly defeat it.
+- **`immutable` also requires `?v=`.** Without a buster the header is
+  `public, max-age=0, must-revalidate`, whatever `httpCacheDuration` says: a long
+  `max-age` on a URL that never changes pins the first response a browser ever saw.
+
+::: warning Static hosting bypasses the first two layers
+With `translationPayloads.publicAssets` the payloads are copied into `public/`, and a
+platform that serves that directory itself (Cloudflare Pages, Vercel static) applies its
+own headers — the `routeRules` header only reaches responses that go through Nitro. Set
+the cache policy for those files in the platform's own configuration.
+:::
+
+🏁 **Pre-rendering**: during the build, translation files for all configured locales and
+routes can be pre-rendered, removing the runtime request entirely.
+
+### 🗜️ Compressed Public Payloads
+
+When `nitro.compressPublicAssets` is enabled, the translation payloads copied into the public
+directory get `.gz` and `.br` siblings too:
+
+```ts
+export default defineNuxtConfig({
+  nitro: { compressPublicAssets: true },
+})
+```
+
+Nitro compresses public assets before the hook that copies the payloads, so without this they would
+be the one uncompressed part of a static build. The module does not turn compression on by itself —
+it only applies the setting you chose. Per-encoding selection (`{ gzip: true, brotli: false }`) is
+respected.
+
+Playground index payload: 6 651 984 B raw, 1 012 831 B gzip, 821 617 B brotli.
 
 ### ☁️ Serverless Payload Output
 
@@ -259,7 +330,7 @@ With `mode: 'source'`, `publicAssets` and `prerenderRoutes` default to `false`. 
 :::
 
 ::: warning External CDN hosts
-When `apiBaseServerHost` or `apiBaseClientHost` is set, the module fetches already merged JSON from that origin. External hosts must serve the same `/{apiBaseUrl}/:page/:locale/data.json` responses as the built-in route. `mode: 'source'` applies only to locally bundled Nitro assets, not to an external CDN unless that CDN also serves runtime-merged payloads.
+Setting `apiBaseServerHost` or `apiBaseClientHost` moves payload serving to that origin, which comes with its own requirements — see [Configuration → External CDN hosts](/guide/configuration#external-cdn-hosts).
 :::
 
 Or disable individual outputs manually and host payloads externally:

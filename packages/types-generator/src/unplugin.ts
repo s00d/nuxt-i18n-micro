@@ -1,9 +1,9 @@
 import { resolve } from 'node:path'
-import chokidar from 'chokidar'
+import { type FSWatcher, watch } from 'chokidar'
 import { createUnplugin } from 'unplugin'
 import { type GeneratorOptions, generateTypes } from './core/generator'
 
-let watcher: chokidar.FSWatcher | null = null
+let watcher: FSWatcher | null = null
 let generateTimeout: NodeJS.Timeout | null = null
 
 function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number): (...args: Parameters<T>) => void {
@@ -43,9 +43,10 @@ export const I18nTypesPlugin = createUnplugin((options: GeneratorOptions) => {
           }
         }, 300)
 
-        watcher = chokidar.watch(localesDir, {
+        // chokidar 4 dropped glob support in `ignored` — use a matcher instead.
+        watcher = watch(localesDir, {
           ignoreInitial: true,
-          ignored: ['node_modules/**', 'dist/**', '.nuxt/**'],
+          ignored: (path: string) => /(?:^|[/\\])(?:node_modules|dist|\.nuxt)(?:[/\\]|$)/.test(path),
         })
 
         watcher.on('all', async (_event, path) => {

@@ -1,7 +1,7 @@
 ---
-title: "Events"
-description: "Register translations at runtime with the i18n:register event."
-outline: "deep"
+title: 'Events'
+description: 'Register translations at runtime with the i18n:register event.'
+outline: 'deep'
 ---
 
 # 📢 Events
@@ -43,11 +43,14 @@ The following example demonstrates how to use the `i18n:register` event to dynam
 
 ```typescript
 nuxt.hook('i18n:register', async (register: (translations: unknown, locale?: string) => void, locale: string) => {
-  register({
-    "greeting": "Hello",
-    "farewell": "Goodbye"
-  }, locale);
-});
+  register(
+    {
+      greeting: 'Hello',
+      farewell: 'Goodbye',
+    },
+    locale,
+  )
+})
 ```
 
 ### 🛠️ Explanation
@@ -140,13 +143,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 ### 📝 Detailed Explanation
 
 1. **Loading Translations**:
-  - The `loadTranslations` function dynamically imports translation files based on the locale. The files are expected to be in the `locales` directory and named according to locale codes (e.g., `en.json`, `de.json`).
-  - On successful loading, translations are returned; otherwise, an error is logged.
+
+- The `loadTranslations` function dynamically imports translation files based on the locale. The files are expected to be in the `locales` directory and named according to locale codes (e.g., `en.json`, `de.json`).
+- On successful loading, translations are returned; otherwise, an error is logged.
 
 2. **Registering Translations**:
-  - The plugin hooks into the `i18n:register` event using `nuxtApp.hook`.
-  - When the event is triggered, the `register` function is called with the loaded translations and the corresponding locale.
-  - This merges the new translations into the i18n context for the specified locale, updating the available translations throughout the application.
+
+- The plugin hooks into the `i18n:register` event using `nuxtApp.hook`.
+- When the event is triggered, the `register` function is called with the loaded translations and the corresponding locale.
+- This merges the new translations into the i18n context for the specified locale, updating the available translations throughout the application.
 
 ### 🔗 Benefits of Using Plugins for Translation Modifications
 

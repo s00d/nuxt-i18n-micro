@@ -1,0 +1,23 @@
+# ./cache-keys (src/cache-keys.ts)
+const SERVER_CC_KEY: typeof SERVER_CC_KEY
+const STORAGE_CC_KEY: typeof STORAGE_CC_KEY
+
+# ./generate-plugin (src/generate-plugin.ts)
+function generateHmrPlugin: (files: string[]) => string
+
+# ./watcher (src/watcher.ts)
+function handleTranslationWatchChange: (input: HandleTranslationWatchChangeInput) => Promise<"page" | "root" | "ignored">
+interface HandleTranslationWatchChangeInput
+member HandleTranslationWatchChangeInput.configuredLocales: Set<string>
+member HandleTranslationWatchChangeInput.listPageNames: () => string[]
+member HandleTranslationWatchChangeInput.mergeInput: Omit<DevTranslationMergeInput, "locale" | "pageName">
+member HandleTranslationWatchChangeInput.relativePath: string
+member HandleTranslationWatchChangeInput.routesLocaleLinks?: Record<string, string> | undefined
+member HandleTranslationWatchChangeInput.serverCache: TranslationWatchCache
+member HandleTranslationWatchChangeInput.storageCache?: TranslationWatchCache | null | undefined
+function parseTranslationWatchRelativePath: (relativePath: string) => ParsedTranslationWatchPath
+function readTranslationFile: (filePath: string) => Record<string, unknown>
+class TranslationContentTracker
+member TranslationContentTracker.forget: (filePath: string) => void
+member TranslationContentTracker.hashes: private Map<string, string>
+member TranslationContentTracker.shouldProcess: (filePath: string) => boolean

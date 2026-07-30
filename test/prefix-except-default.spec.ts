@@ -1,18 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/strategy', import.meta.url)),
-    nuxtConfig: {
-      i18n: {
-        strategy: 'prefix_except_default',
-      },
-    },
-  },
-})
+await setupE2E({ shared: 'strategy-prefix-except-default' })
 
-test.describe('prefix_except_default', () => {
+describe('prefix_except_default', () => {
   test('navigate to test-page, check URL and text, switch language and verify text and URL changes', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })

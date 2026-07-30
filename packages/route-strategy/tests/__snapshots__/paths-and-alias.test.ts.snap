@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RouteGenerator - Paths, alias, edge cases prefix strategy: filtered pages when no fallback redirect path 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > prefix strategy: filtered pages when no fallback redirect path 1`] = `
 [
   {
     "alias": [],
@@ -14,7 +14,7 @@ exports[`RouteGenerator - Paths, alias, edge cases prefix strategy: filtered pag
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should create route for default locale when localeRoutes is defined by path (like $defineI18nRoute) 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should create route for default locale when localeRoutes is defined by path (like $defineI18nRoute) 1`] = `
 [
   {
     "children": [],
@@ -42,7 +42,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should create route for defau
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle alias routes correctly 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle alias routes correctly 1`] = `
 [
   {
     "alias": [
@@ -81,7 +81,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle alias routes co
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle alias routes with locale restrictions 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle alias routes with locale restrictions 1`] = `
 [
   {
     "alias": [
@@ -120,7 +120,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle alias routes wi
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle alias with custom path (globalLocaleRoutes): alias routes get prefixed path 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle alias with custom path (globalLocaleRoutes): alias routes get prefixed path 1`] = `
 [
   {
     "alias": [
@@ -159,7 +159,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle alias with cust
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle complex nested routes with multiple levels 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle complex nested routes with multiple levels 1`] = `
 [
   {
     "children": [
@@ -223,7 +223,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle complex nested 
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle complex scenario with mixed restrictions and custom paths 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle complex scenario with mixed restrictions and custom paths 1`] = `
 [
   {
     "children": [],
@@ -265,7 +265,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle complex scenari
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle custom regex in buildFullPath 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle custom regex in buildFullPath 1`] = `
 [
   {
     "children": [],
@@ -284,7 +284,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle custom regex in
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle edge case with empty locale codes array 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle edge case with empty locale codes array 1`] = `
 [
   {
     "children": [],
@@ -303,7 +303,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle edge case with 
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle filesLocaleRoutes fallback 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle filesLocaleRoutes fallback 1`] = `
 [
   {
     "children": [],
@@ -331,7 +331,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle filesLocaleRout
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle internal paths correctly 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle internal paths correctly 1`] = `
 [
   {
     "children": [],
@@ -358,7 +358,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle internal paths 
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle no_prefix strategy with noPrefixRedirect 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle no_prefix strategy with noPrefixRedirect 1`] = `
 [
   {
     "name": "test",
@@ -387,7 +387,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle no_prefix strat
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle prefix strategy with default locale removal 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle prefix strategy with default locale removal 1`] = `
 [
   {
     "alias": [],
@@ -401,7 +401,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle prefix strategy
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle prefix_and_default strategy with custom paths 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle prefix_and_default strategy with custom paths 1`] = `
 [
   {
     "name": "test",
@@ -446,7 +446,7 @@ exports[`RouteGenerator - Paths, alias, edge cases should handle prefix_and_defa
 ]
 `;
 
-exports[`RouteGenerator - Paths, alias, edge cases should handle redirect-only pages correctly 1`] = `
+exports[`RouteGenerator - Paths, alias, edge cases > should handle redirect-only pages correctly 1`] = `
 [
   {
     "name": "redirect",

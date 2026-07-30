@@ -1,20 +1,17 @@
 import { defineConfig } from 'vitest/config'
 
+/**
+ * Root Vitest config. One runner for everything — fast unit tests, build-heavy
+ * integration suites, browser e2e specs and every workspace package — via
+ * projects. `vitest run` runs them all; target one with
+ * `--project unit|integration|e2e` (or a package name).
+ *
+ * The performance suite (test/performance.test.ts, ~27 min) is intentionally
+ * NOT a default project — it stays in vitest.performance.config.ts and is run
+ * on demand via `pnpm test:performance`.
+ */
 export default defineConfig({
   test: {
-    include: ['test/**/*.test.ts'],
-    exclude: [
-      'test/performance.test.ts',
-      'test/fixtures/**',
-    ],
-    testTimeout: 300_000, // 5 min per suite
-    // Single worker: tests do not run in parallel by file, so fixtures
-    // (strategy, async-components) don't overwrite each other's .nuxt/.output during full runs.
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 1,
-      },
-    },
+    projects: ['./vitest.unit.config.ts', './vitest.integration.config.ts', './vitest.e2e.config.ts', 'packages/*/vitest.config.ts'],
   },
 })

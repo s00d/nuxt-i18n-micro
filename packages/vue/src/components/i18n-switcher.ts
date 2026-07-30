@@ -35,6 +35,13 @@ export const I18nSwitcher = defineComponent({
       type: Object as PropType<CSSProperties>,
       default: () => ({}),
     },
+    /**
+     * Inline style applied to the switcher button when the *current* locale is
+     * marked as `disabled: true` in the locale config.
+     *
+     * Note: disabled locales are omitted from the dropdown list, but the current
+     * locale label is still shown on the button.
+     */
     customDisabledLinkStyle: {
       type: Object as PropType<CSSProperties>,
       default: () => ({}),
@@ -79,18 +86,22 @@ export const I18nSwitcher = defineComponent({
       )
     }
 
-    const locales = computed(() => props.locales || injectedLocales || [])
+    const allLocales = computed(() => props.locales || injectedLocales || [])
+    const locales = computed(() => allLocales.value.filter((locale) => !locale.disabled))
     const currentLocale = computed(() => {
       if (props.currentLocale !== undefined) {
         return typeof props.currentLocale === 'function' ? props.currentLocale() : props.currentLocale
       }
       return i18n.locale.value
     })
+    const currentLocaleDisabled = computed(() => allLocales.value.some((l) => l.code === currentLocale.value && l.disabled))
     const currentLocaleName = computed(() => {
       if (props.getLocaleName) {
         return props.getLocaleName() || null
       }
-      const current = locales.value.find((l) => l.code === i18n.locale.value)
+      // Use `allLocales` (not dropdown-only `locales`) so disabled locales still resolve
+      // displayName/customLabels for the currently active button.
+      const current = allLocales.value.find((l) => l.code === i18n.locale.value)
       return current?.displayName || null
     })
 
@@ -111,7 +122,7 @@ export const I18nSwitcher = defineComponent({
     }
 
     const currentLocaleLabel = computed(() => {
-      const current = locales.value.find((l) => l.code === currentLocale.value)
+      const current = allLocales.value.find((l) => l.code === currentLocale.value)
       return current ? localeLabel(current) : currentLocaleName.value || currentLocale.value
     })
 
@@ -196,6 +207,8 @@ export const I18nSwitcher = defineComponent({
     const activeLinkStyle: CSSProperties = {
       fontWeight: 'bold',
       color: '#007bff',
+      // Current locale is not a meaningful switch target
+      cursor: 'not-allowed',
     }
 
     const iconStyle: CSSProperties = {
@@ -278,7 +291,11 @@ export const I18nSwitcher = defineComponent({
           'button',
           {
             class: 'i18n-switcher-button',
-            style: { ...buttonStyle, ...props.customButtonStyle },
+            style: {
+              ...buttonStyle,
+              ...props.customButtonStyle,
+              ...(currentLocaleDisabled.value ? props.customDisabledLinkStyle : {}),
+            },
             onClick: (e: MouseEvent) => {
               e.preventDefault()
               e.stopPropagation()
@@ -339,6 +356,9 @@ export const I18nSwitcher = defineComponent({
                   ...linkStyle,
                   ...(isActive ? activeLinkStyle : {}),
                   ...props.customLinkStyle,
+                  // active-specific customization wins over the generic link style
+                  // (matches the React/Preact/Solid switchers)
+                  ...(isActive ? props.customActiveLinkStyle : {}),
                 },
                 // Prevent default navigation, use only handleSwitchLocale
                 onClick: (e: MouseEvent) => {

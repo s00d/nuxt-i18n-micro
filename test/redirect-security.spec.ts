@@ -1,13 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/redirect-security', import.meta.url)),
-  },
-})
+await setupE2E({ shared: 'redirect-security' })
 
-test.describe('redirect with render:response hook', () => {
+describe('redirect with render:response hook', () => {
   test('GET / redirects to /en without server header mutation error', async ({ page, goto }) => {
     const responses: { url: string; status: number }[] = []
     page.on('response', (response) => {

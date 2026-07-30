@@ -1,13 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/basic', import.meta.url)),
-  },
-})
+await setupE2E({ shared: 'basic' })
 
-test.describe('locale server middleware', () => {
+describe('locale server middleware', () => {
   test('should return locale information for English locale', async ({ request }) => {
     const response = await request.get('/api/locale-info?locale=en')
     expect(response.status()).toBe(200)

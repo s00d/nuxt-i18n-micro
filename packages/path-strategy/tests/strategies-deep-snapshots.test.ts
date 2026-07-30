@@ -6,6 +6,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategyContext, ResolvedRouteLike, RouteLike } from '../src'
 import { createPathStrategy } from '../src'
 import { makePathStrategyContext, makeRouterAdapter } from './test-utils'
+import { describe, expect, test } from 'vitest'
 
 type StrategyName = 'no_prefix' | 'prefix' | 'prefix_except_default' | 'prefix_and_default'
 

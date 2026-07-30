@@ -3,6 +3,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useI18n } from '../context'
 import { useI18nContext, useI18nLocales, useI18nRouter } from '../injection'
 
+function resolveCurrentLocale(prop: string | (() => string) | undefined, fallback: string): string {
+  if (typeof prop === 'function') return prop()
+  if (typeof prop === 'string') return prop
+  return fallback
+}
+
 export interface I18nSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
   locales?: Locale[]
   currentLocale?: string | (() => string)
@@ -16,6 +22,14 @@ export interface I18nSwitcherProps extends React.HTMLAttributes<HTMLDivElement> 
   customItemStyle?: React.CSSProperties
   customLinkStyle?: React.CSSProperties
   customActiveLinkStyle?: React.CSSProperties
+  /**
+   * Inline style applied to the main switcher button when the current locale is
+   * marked as `disabled: true` in the locale config.
+   *
+   * Disabled locales are omitted from the dropdown items, but still shown as the
+   * active button label.
+   */
+  customDisabledLinkStyle?: React.CSSProperties
   customIconStyle?: React.CSSProperties
 }
 
@@ -33,6 +47,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
     customItemStyle,
     customLinkStyle,
     customActiveLinkStyle,
+    customDisabledLinkStyle = {},
     customIconStyle,
     ...restProps
   } = props
@@ -44,21 +59,13 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  // Use props if provided, otherwise fallback to injected or useI18n
-  const locales = localesProp || injectedLocales || i18n.getLocales() || []
+  // Use props if provided, otherwise fallback to injected or useI18n.
+  // Exclude `disabled: true` locales from the UI switcher (keep them available via getLocales for SEO).
+  const allLocales = localesProp || injectedLocales || i18n.getLocales() || []
+  const locales = allLocales.filter((locale) => !locale.disabled)
 
-  // Get current locale value (handle both string and function)
-  const getCurrentLocale = (): string => {
-    if (typeof currentLocaleProp === 'function') {
-      return currentLocaleProp()
-    }
-    if (typeof currentLocaleProp === 'string') {
-      return currentLocaleProp
-    }
-    return i18n.locale
-  }
-
-  const currentLocale = getCurrentLocale()
+  const currentLocale = resolveCurrentLocale(currentLocaleProp, i18n.locale)
+  const currentLocaleDisabled = allLocales.some((l) => l.code === currentLocale && l.disabled)
   const currentLocaleName = getLocaleNameProp ? getLocaleNameProp() : i18n.getLocaleName()
 
   const toggleDropdown = (event?: React.MouseEvent<HTMLButtonElement>) => {
@@ -158,6 +165,7 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
   const activeLinkStyle: React.CSSProperties = {
     fontWeight: 'bold',
     color: '#007bff',
+    cursor: 'not-allowed',
   }
 
   const iconStyle: React.CSSProperties = {
@@ -192,7 +200,11 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
   }, [dropdownOpen])
 
   const mergedWrapperStyle = { ...wrapperStyle, ...customWrapperStyle }
-  const mergedButtonStyle = { ...buttonStyle, ...customButtonStyle }
+  const mergedButtonStyle = {
+    ...buttonStyle,
+    ...customButtonStyle,
+    ...(currentLocaleDisabled ? customDisabledLinkStyle : {}),
+  }
   const mergedDropdownStyle = { ...dropdownStyle, ...customDropdownStyle }
   const mergedItemStyle = { ...itemStyle, ...customItemStyle }
   const mergedIconStyle = {

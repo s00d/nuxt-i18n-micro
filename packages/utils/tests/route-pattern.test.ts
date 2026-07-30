@@ -1,4 +1,5 @@
 import { extractBaseRoutePattern, stripLocalizedRouteNamePrefix } from '../src/route-pattern'
+import { describe, expect, it } from 'vitest'
 
 describe('route-pattern', () => {
   it('extracts file-based route patterns from vue-router paths', () => {

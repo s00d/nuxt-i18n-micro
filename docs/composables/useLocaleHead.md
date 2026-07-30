@@ -1,7 +1,7 @@
 ---
-title: "`useLocaleHead` Composable"
-description: "SEO meta tags and head attrs for localized routes."
-outline: "deep"
+title: '`useLocaleHead` Composable'
+description: 'SEO meta tags and head attrs for localized routes.'
+outline: 'deep'
 ---
 
 # 🌍 `useLocaleHead` Composable
@@ -10,56 +10,41 @@ The `useLocaleHead` composable is a utility in `Nuxt I18n Micro` that helps you 
 
 ## ⚙️ Options
 
-The `useLocaleHead` composable accepts an options object to customize its behavior:
+<!-- generated:symbol:useLocaleHead — do not edit; run `pnpm run docs:generate` -->
 
-### `addDirAttribute`
+```ts
+useLocaleHead(options: UseLocaleHeadOptions): { metaObject: Ref<{ htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }, MetaObject | { htmlAttrs: { dir?: "ltr" | "rtl" | "auto"; lang?: string }; link: { href: string; hreflang?: string; rel: string; [key: string]: string | undefined }[]; meta: { content: string; property: string; [key: string]: string }[] }>; updateMeta: () => void }
+```
 
-- **Type**: `boolean`
-- **Default**: `true`
-- **Description**: If `true`, adds the `dir` attribute to the HTML document based on the current locale's direction (`ltr` or `rtl`).
-- **Example**:
-  ```js
-  const head = useLocaleHead({ addDirAttribute: false })
-  ```
+The SEO head tags for the current route: `hreflang` alternates for every locale plus
+`x-default`, a canonical link, `og:locale`, and `lang`/`dir` on `<html>`.
 
-### `identifierAttribute`
+Only needed when `meta` is disabled or the defaults need adjusting — with `meta: true`
+the module registers the same tags itself.
 
-- **Type**: `string`
-- **Default**: `'id'`
-- **Description**: Specifies the attribute used to identify the generated meta and link tags. This is useful for differentiating tags when inspecting the document head.
-- **Example**:
-  ```js
-  const head = useLocaleHead({ identifierAttribute: 'data-i18n' })
-  ```
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `options` | `UseLocaleHeadOptions` |  |
 
-### `addSeoAttributes`
+**Returns** — a ref holding the head object, ready to pass to `useHead`
 
-- **Type**: `boolean`
-- **Default**: `true`
-- **Description**: If `true`, includes SEO-related meta and link tags, such as `og:locale`, `og:url`, and `hreflang` attributes for alternate languages.
-- **Example**:
-  ```js
-  const head = useLocaleHead({ addSeoAttributes: false })
-  ```
+```ts
+const head = useLocaleHead({ addSeoAttributes: true })
+useHead(head)
+```
 
-### `baseUrl`
-
-- **Type**: `string`
-- **Default**: `'/'`
-- **Description**: The base URL of your application, used to generate canonical and alternate URLs for SEO purposes.
-- **Example**:
-  ```js
-  const head = useLocaleHead({ baseUrl: 'https://example.com' })
-  ```
+<!-- /generated:symbol:useLocaleHead -->
 
 ## 🛠️ Return Values
 
-The `useLocaleHead` composable returns a reactive object and an updater function you should call when source data changes.
+The `useLocaleHead` composable returns a reactive object and an updater function you should
+call when source data changes. Both shapes are in the signature above, generated from the
+source.
 
 ### `metaObject`
 
-- **Type**: `{ htmlAttrs: Record<string,string>; meta: Array<Record<string,string>>; link: Array<Record<string,string>> }` (as a ref)
-- **Description**: Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)`.
+Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)`.
+
 - **Example**:
   ```js
   const { metaObject } = useLocaleHead()
@@ -68,13 +53,18 @@ The `useLocaleHead` composable returns a reactive object and an updater function
 
 ### `updateMeta`
 
-- **Type**: `() => void`
-- **Description**: Recomputes `metaObject` based on current route/locale/config. Call it when inputs change (e.g. on route change).
+Recomputes `metaObject` based on current route, locale and config. Call it when inputs
+change — on a route change, for example.
+
 - **Example**:
   ```js
   const { metaObject, updateMeta } = useLocaleHead()
   useHead(metaObject)
-  watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+  watch(
+    () => route.fullPath,
+    () => updateMeta(),
+    { immediate: true },
+  )
   ```
 
 ### Accessing `link` and `meta`
@@ -130,6 +120,7 @@ const head = useLocaleHead({ baseUrl: 'https://mywebsite.com' })
 ### SEO Meta and Link Tags
 
 When `addSeoAttributes` is enabled, the composable automatically generates the following tags:
+
 - `og:locale` for the current locale (`language_TERRITORY`, underscore). Derived from `locale.og` or converted from `locale.iso` when possible.
 - `og:url` for the canonical URL of the page.
 - `og:locale:alternate` for alternate language versions.
@@ -146,7 +137,6 @@ If your routes are prefixed with locale codes (e.g., `/en/about`), the composabl
 
 This composable simplifies the process of optimizing your Nuxt application for international audiences, ensuring that your site is well-prepared for global search engines and users.
 
-
 ## 🛠️ Example Usage
 
 The following example demonstrates how to use the `useLocaleHead` composable within a Vue component with default settings:
@@ -161,7 +151,11 @@ const { metaObject, updateMeta } = useLocaleHead({
   addSeoAttributes: true,
 })
 useHead(metaObject)
-watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+watch(
+  () => route.fullPath,
+  () => updateMeta(),
+  { immediate: true },
+)
 </script>
 ```
 
@@ -199,7 +193,12 @@ export default defineNuxtPlugin(() => {
   const { metaObject, updateMeta } = useLocaleHead({ baseUrl: 'https://example.com' })
   useHead(metaObject)
   if (import.meta.server) updateMeta()
-  else watch(() => route.fullPath, () => updateMeta(), { immediate: true })
+  else
+    watch(
+      () => route.fullPath,
+      () => updateMeta(),
+      { immediate: true },
+    )
 })
 ```
 

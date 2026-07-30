@@ -9,7 +9,7 @@
     "preview": "nuxi preview"
   },
   "dependencies": {
-    "nuxt": "catalog:nuxt3",
+    "nuxt": "catalog:",
     "vue-final-modal": "catalog:"
   },
   "devDependencies": {

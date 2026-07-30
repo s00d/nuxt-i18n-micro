@@ -1,13 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/undefault', import.meta.url)),
-  },
-})
+await setupE2E({ shared: 'undefault' })
 
-test.describe('locale-slug-undefault', () => {
+describe('locale-slug-undefault', () => {
   test('Test Locale Path', async ({ page, goto }) => {
     // Test main activity page
     await goto('/activity', { waitUntil: 'hydration' })

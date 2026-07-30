@@ -1,13 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/seo', import.meta.url)),
-  },
-})
+await setupE2E({ shared: 'seo' })
 
-test.describe('SEO with strategy: prefix', () => {
+describe('SEO with strategy: prefix', () => {
   test('should include only whitelisted query params in canonical and og:url', async ({ page, goto }) => {
     await goto('/en/contact?q=hello&page=2&foo=ignore', { waitUntil: 'domcontentloaded' })
 

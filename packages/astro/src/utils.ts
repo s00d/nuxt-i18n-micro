@@ -73,15 +73,9 @@ export function useI18n(astro: AstroGlobal) {
     tc: (key: TranslationKey, count: number | Params, defaultValue?: string): string => {
       return i18n.tc(key, count, defaultValue)
     },
-    tn: (value: number, options?: Intl.NumberFormatOptions): string => {
-      return i18n.tn(value, options)
-    },
-    td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string => {
-      return i18n.td(value, options)
-    },
-    tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string => {
-      return i18n.tdr(value, options)
-    },
+    tn: i18n.tn.bind(i18n),
+    td: i18n.td.bind(i18n),
+    tdr: i18n.tdr.bind(i18n),
     has: (key: TranslationKey, routeName?: string): boolean => {
       return i18n.has(key, routeName)
     },

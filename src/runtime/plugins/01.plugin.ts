@@ -1,6 +1,15 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
-import type { CleanTranslation, I18nRouteParams, Locale, MissingHandler, ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
+import type {
+  CleanTranslation,
+  DefineI18nRouteConfig,
+  I18nRouteParams,
+  Locale,
+  MissingHandler,
+  ModuleOptionsExtend,
+  Params,
+  Translations,
+} from '@i18n-micro/types'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import type {
   RouteLocationNamedRaw,
@@ -39,12 +48,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
   const { resetPageHead } = useI18nHead()
   const customMissingHandler = useState<MissingHandler | null>('i18n-missing-handler', () => null)
-  const ssrChunks = useState<Record<string, Record<string, unknown>>>('i18n-ssr-chunks', () => ({}))
+  // Deliberately `payload.data` and not `useState`: Nuxt externalizes `data` into
+  // `_payload.json` on prerendered routes but always leaves `state` inline in the
+  // HTML. Chunks are read once at hydration and never mutated, so they have no
+  // business being reactive state anyway.
+  const SSR_CHUNKS_KEY = 'i18n-ssr-chunks'
+  const readSsrChunks = (): Record<string, Record<string, unknown>> =>
+    (nuxtApp.payload.data?.[SSR_CHUNKS_KEY] as Record<string, Record<string, unknown>> | undefined) ?? {}
+
+  if (import.meta.server) {
+    nuxtApp.payload.data[SSR_CHUNKS_KEY] ??= {}
+  }
 
   const i18n = new NuxtI18n({
     plural,
     missingWarn: i18nConfig.missingWarn ?? true,
     getCustomMissingHandler: () => customMissingHandler.value,
+    numberFormats: i18nConfig.numberFormats,
+    datetimeFormats: i18nConfig.datetimeFormats,
   })
 
   const getCurrentLocale = (route?: ResolvedRouteLike): string => {
@@ -77,17 +98,24 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     routesLocaleLinks: i18nConfig.routesLocaleLinks,
   }
 
-  if (import.meta.client && Object.keys(ssrChunks.value).length > 0) {
-    translationStorage.seedFromSsrChunks(ssrChunks.value)
+  if (import.meta.client) {
+    const seeded = readSsrChunks()
+    if (Object.keys(seeded).length > 0) {
+      translationStorage.seedFromSsrChunks(seeded)
+      i18n.seedChunks(seeded)
+    }
+  }
+
+  const setSsrChunk = (cacheKey: string, data: Record<string, unknown>) => {
+    if (!import.meta.server) return
+    const chunks = (nuxtApp.payload.data[SSR_CHUNKS_KEY] ??= {}) as Record<string, Record<string, unknown>>
+    chunks[cacheKey] = data
   }
 
   const loader = new NuxtTranslationLoader({
     i18n,
     loadOptions,
-    getSsrChunks: () => ssrChunks.value,
-    setSsrChunk: (cacheKey, data) => {
-      ssrChunks.value = { ...ssrChunks.value, [cacheKey]: data }
-    },
+    setSsrChunk,
     isDev,
   })
 
@@ -184,30 +212,115 @@ export default defineNuxtPlugin(async (nuxtApp) => {
 })
 
 export interface PluginsInjections {
+  /** The active routing strategy, resolving locales to and from paths. */
   $i18nStrategy: PathStrategy
+  /** The resolved module configuration, as the runtime sees it. */
   $getI18nConfig: () => ModuleOptionsExtend
+  /** Code of the active locale. Pass a route to read the locale that route belongs to. */
   $getLocale: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric) => string
+  /** The active locale's `displayName` from the config, or `null` when it has none. */
   $getLocaleName: () => string | null
+  /** Code of the configured default locale. */
   $defaultLocale: () => string | undefined
+  /** Every configured locale, with its metadata. */
   $getLocales: () => Locale[]
+  /** Route name with the locale prefix stripped — the name translations are keyed by. */
   $getRouteName: (route?: RouteLocationNamedRaw | RouteLocationResolvedGeneric, locale?: string) => string
+  /**
+   * Translate a key, interpolating `params` into it. Returns `defaultValue` when the key is
+   * missing, or the key itself when no default is given.
+   */
   $t: (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+  /**
+   * Bind `$t` to a specific route, for translating outside the current page — a layout rendering
+   * a link to another route, for example.
+   */
   $_t: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+  /**
+   * Like `$t`, but always returns a string: an object or array value is stringified rather than
+   * returned as-is.
+   */
   $ts: (key: string, params?: Params, defaultValue?: string) => string
+  /** Bind `$ts` to a specific route. See `$_t`. */
   $_ts: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => string
+  /**
+   * Translate with pluralization. `params` may be the count itself, or an object containing
+   * `count`.
+   */
   $tc: (key: string, params: number | Params, defaultValue?: string) => string
-  $tn: (value: number, options?: Intl.NumberFormatOptions) => string
-  $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
+  /**
+   * Format a number with `Intl.NumberFormat` in the active locale. A key selects a named format
+   * from the config.
+   */
+  $tn: {
+    (value: number, options?: Intl.NumberFormatOptions): string
+    (value: number, key: string, overrides?: Intl.NumberFormatOptions): string
+    (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string
+  }
+  /**
+   * Format a date with `Intl.DateTimeFormat` in the active locale. A key selects a named format
+   * from the config.
+   */
+  $td: {
+    (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string
+    (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string
+    (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string
+  }
+  /** Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`. */
   $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
+  /**
+   * Whether a key resolves in the active locale. Use it to branch on optional copy instead of
+   * rendering a raw key.
+   */
   $has: (key: string) => boolean
+  /**
+   * Every translation currently in memory for the active locale and route, as a tree.
+   * Read-only view of what `$t()` can resolve right now.
+   */
+  $resolveTranslations: () => Translations
+  /**
+   * Replace the value at `key` in the active dictionary. This is a replace, not a merge —
+   * use `$mergeTranslations` when existing siblings should survive.
+   */
+  $setTranslation: (key: string, value: unknown) => void
+  /** Merge translations into the active locale at runtime, overriding what is loaded. */
   $mergeTranslations: (newTranslations: Translations) => void
+  /** The route object for the current page in another locale, without navigating. */
   $switchLocaleRoute: (locale: string) => RouteLocationRaw
+  /** The path of the current page in another locale, without navigating. */
   $switchLocalePath: (locale: string) => string
+  /** Navigate to the current page in another locale. */
   $switchLocale: (locale: string) => void
+  /** Navigate to another route, keeping the active locale or switching to `toLocale`. */
   $switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => void
+  /** Resolve a route in the given locale, or the active one. */
   $localeRoute: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => RouteLocationResolved
+  /** Resolve a path in the given locale, or the active one. */
   $localePath: (to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string) => string
+  /**
+   * Set per-locale params for the current route, so a dynamic segment can differ per language.
+   * Call it during SSR, before the head is rendered.
+   */
   $setI18nRouteParams: (value: I18nRouteParams) => I18nRouteParams
+  /** Load translations for a page at runtime, for content whose keys are not known at build time. */
   $loadPageTranslations: (locale: string, routeName: string, translations: Translations) => Promise<void>
+  /** Install a callback invoked for every unresolved key. Pass `null` to remove it. */
   $setMissingHandler: (handler: MissingHandler | null) => void
+}
+
+/**
+ * Helpers reachable through `useNuxtApp()` but deliberately absent from `useI18n()`.
+ *
+ * Declared so they are documented from the same source as everything else — the reference
+ * page is generated from these interfaces, and a helper that lives only in an inline
+ * `provide` gets described by hand and then drifts.
+ */
+export interface NuxtAppOnlyInjections {
+  /**
+   * Register per-page locale configuration and translations from inside a component.
+   * Merges into the active locale and re-applies when the locale changes.
+   */
+  $defineI18nRoute: (routeDefinition: DefineI18nRouteConfig) => Promise<void>
+  /** Drop every cached chunk, on the client and in the active dictionary. */
+  $clearCache: () => void
 }

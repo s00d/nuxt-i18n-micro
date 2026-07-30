@@ -1,4 +1,5 @@
 import { toTranslationRecord, toTranslations } from '../src/normalize'
+import { describe, expect, it } from 'vitest'
 
 describe('toTranslations', () => {
   it('returns empty object for falsy input', () => {

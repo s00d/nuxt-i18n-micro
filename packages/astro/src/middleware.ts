@@ -2,7 +2,7 @@ import type { Locale } from '@i18n-micro/types'
 import { detectLocaleFromAcceptLanguage } from '@i18n-micro/utils/accept-language'
 import type { MiddlewareHandler } from 'astro'
 import type { AstroI18n } from './composer'
-import { getGlobalRoutingStrategy } from './integration'
+import { getGlobalRoutingStrategy, runWithRoutingStrategy } from './routing-context'
 import type { I18nRoutingStrategy } from './router/types'
 // Import shim to ensure App.Locals is available
 import './env.d'
@@ -106,7 +106,7 @@ export function createI18nMiddleware(options: I18nMiddlewareOptions): Middleware
     context.locals.currentUrl = url
     context.locals.routingStrategy = contextStrategy
 
-    return next()
+    return runWithRoutingStrategy(contextStrategy, () => next())
   }
 }
 
@@ -120,9 +120,9 @@ export function detectLocale(
   defaultLocale: string,
   locales: string[],
   localeCookie: string | null = 'i18n-locale',
+  routingStrategy?: I18nRoutingStrategy | null,
 ): string {
-  // Get routing strategy
-  const strategy = getGlobalRoutingStrategy()
+  const strategy = routingStrategy ?? getGlobalRoutingStrategy()
 
   // 1. Try path
   let locale = defaultLocale

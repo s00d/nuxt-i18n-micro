@@ -1,4 +1,7 @@
+import { join } from 'node:path'
 import MyModule from '../../../src/module'
+
+const testBuildDir = process.env.NUXT_TEST_BUILD_DIR
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -6,6 +9,10 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   sourcemap: false,
   modules: [MyModule],
+  ...(testBuildDir ? { buildDir: testBuildDir } : {}),
+  nitro: {
+    ...(testBuildDir ? { output: { dir: join(testBuildDir, 'output') } } : {}),
+  },
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', name: 'English' },
@@ -18,7 +25,6 @@ export default defineNuxtConfig({
     translationDir: 'locales',
     localeCookie: 'user_i18n_redirected',
   },
-  // When using routeRules, running `pnpm run build` results in a 404 error.
   routeRules: {
     '/': { prerender: true },
     '/about': { prerender: true },

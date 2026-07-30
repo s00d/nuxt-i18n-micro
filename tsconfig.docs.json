@@ -1,0 +1,13 @@
+{
+  "//": "Entry points for the API documentation. Separate from the build tsconfig: typedoc needs runtime sources reachable without Nuxt's virtual `#imports`, which type checking does not.",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": []
+  },
+  "include": ["src/runtime/composables/*.ts", "src/runtime/plugins/01.plugin.ts"]
+}

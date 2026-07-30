@@ -1,7 +1,7 @@
 ---
-title: "DevTools UI Package (`@i18n-micro/devtools-ui`)"
-description: "Standalone DevTools UI and Vite plugin."
-outline: "deep"
+title: 'DevTools UI Package (`@i18n-micro/devtools-ui`)'
+description: 'Standalone DevTools UI and Vite plugin.'
+outline: 'deep'
 ---
 
 # DevTools UI Package (`@i18n-micro/devtools-ui`)
@@ -93,6 +93,7 @@ The plugin provides the following API endpoints:
 Get list of all translation files and directory structure.
 
 **Response:**
+
 ```json
 {
   "files": ["en.json", "fr.json", "pages/home/en.json"],
@@ -113,9 +114,11 @@ Get list of all translation files and directory structure.
 Load a specific translation file.
 
 **Query Parameters:**
+
 - `path` - Relative path to the translation file (e.g., `en.json` or `pages/home/en.json`)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -132,6 +135,7 @@ Load a specific translation file.
 Save translation content to a file.
 
 **Request Body:**
+
 ```json
 {
   "file": "en.json",
@@ -143,6 +147,7 @@ Save translation content to a file.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true
@@ -154,13 +159,12 @@ Save translation content to a file.
 Get i18n configuration.
 
 **Response:**
+
 ```json
 {
   "defaultLocale": "en",
   "fallbackLocale": "en",
-  "locales": [
-    { "code": "en", "displayName": "English", "iso": "en-US" }
-  ],
+  "locales": [{ "code": "en", "displayName": "English", "iso": "en-US" }],
   "translationDir": "src/locales"
 }
 ```
@@ -321,13 +325,7 @@ The plugin includes security measures:
 The package provides full TypeScript support:
 
 ```typescript
-import type { 
-  I18nDevToolsBridge,
-  BridgeAdapter,
-  CreateBridgeOptions,
-  TranslationContent,
-  LocaleData
-} from '@i18n-micro/devtools-ui'
+import type { I18nDevToolsBridge, BridgeAdapter, CreateBridgeOptions, TranslationContent, LocaleData } from '@i18n-micro/devtools-ui'
 ```
 
 ## Examples

@@ -1,13 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import { expect, test } from '@nuxt/test-utils/playwright'
+import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
 
-test.use({
-  nuxt: {
-    rootDir: fileURLToPath(new URL('./fixtures/named', import.meta.url)),
-  },
-})
+await setupE2E({ shared: 'named' })
 
-test.describe('named-params', () => {
+describe('named-params', () => {
   test('test navigation links and buttons', async ({ page, goto }) => {
     // Go to the main page - should redirect to /de (defaultLocale)
     await goto('/', { waitUntil: 'hydration' })

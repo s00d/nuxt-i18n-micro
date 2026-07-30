@@ -8,7 +8,7 @@ assignees: ''
 
 ## 🔗 Reproduction
 
-<!-- 
+<!--
 ⚠️ REQUIRED: Provide a minimal reproduction repository
 Issues without reproduction may be closed.
 
@@ -18,26 +18,26 @@ Create one using:
 - CodeSandbox: https://codesandbox.io/s/nuxt
 -->
 
-**Repository URL:**  
-<!-- Replace with your link -->
+**Repository URL:**
 
+<!-- Replace with your link -->
 
 ## 📝 Description
 
 ### What's happening?
+
 <!-- Describe the bug clearly -->
 
-
 ### What should happen?
-<!-- Describe expected behavior -->
 
+<!-- Describe expected behavior -->
 
 ## 🔄 Steps to Reproduce
 
-1. 
-2. 
-3. 
-4. 
+1.
+2.
+3.
+4.
 
 ## 💻 Environment
 
@@ -62,7 +62,7 @@ export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
   i18n: {
     // Your config here
-  }
+  },
 })
 ```
 
@@ -90,5 +90,6 @@ Paste errors here
 ---
 
 💡 **Common issues:**
+
 - **Translations not working after deploy?** → See [Firebase Guide](https://s00d.github.io/nuxt-i18n-micro/guide/firebase)
 - **Build errors?** → Run `pnpm dev:prepare`

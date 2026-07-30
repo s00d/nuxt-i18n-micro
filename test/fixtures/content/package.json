@@ -10,7 +10,7 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
-    "nuxt": "catalog:nuxt3"
+    "nuxt": "catalog:"
   },
   "devDependencies": {
     "@nuxt/content": "catalog:"

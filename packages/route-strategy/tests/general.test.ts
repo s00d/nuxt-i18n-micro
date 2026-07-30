@@ -1,5 +1,6 @@
 import type { NuxtPage } from '@nuxt/schema'
 import { createBasicPages, createManager, createNestedPages } from './helpers'
+import { describe, expect, test } from 'vitest'
 
 describe('RouteGenerator - General Functionality (Cross-Strategy)', () => {
   test('21. should exclude routes based on `excludePatterns`', () => {

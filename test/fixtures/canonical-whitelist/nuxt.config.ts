@@ -17,5 +17,6 @@ export default defineNuxtConfig({
     strategy: 'prefix',
     autoDetectLanguage: false,
     translationDir: 'locales',
+    canonicalQueryWhitelist: ['page'],
   },
 })

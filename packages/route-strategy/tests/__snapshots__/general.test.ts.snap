@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 21. should exclude routes based on \`excludePatterns\` 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 21. should exclude routes based on \`excludePatterns\` 1`] = `
 [
   {
     "children": [],
@@ -77,7 +77,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 21. should excl
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 22. should correctly localize aliases 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 22. should correctly localize aliases 1`] = `
 [
   {
     "alias": [
@@ -116,7 +116,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 22. should corr
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 23. should handle deep nesting with custom paths at different levels 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should handle deep nesting with custom paths at different levels 1`] = `
 [
   {
     "alias": undefined,
@@ -193,7 +193,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 23. should hand
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 24. should handle catch-all routes correctly 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 24. should handle catch-all routes correctly 1`] = `
 [
   {
     "alias": [],
@@ -207,7 +207,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 24. should hand
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 25. should combine \`routeLocales\` and \`globalLocaleRoutes\` correctly 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 25. should combine \`routeLocales\` and \`globalLocaleRoutes\` correctly 1`] = `
 [
   {
     "children": [],
@@ -276,7 +276,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 25. should comb
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 27. should not localize redirect-only pages 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 27. should not localize redirect-only pages 1`] = `
 [
   {
     "path": "/old",
@@ -285,7 +285,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 27. should not 
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 28. should correctly generate names for nested localized routes 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 28. should correctly generate names for nested localized routes 1`] = `
 [
   {
     "alias": [],
@@ -314,7 +314,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 28. should corr
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 29. should correctly handle custom path for a child but not for the parent 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 29. should correctly handle custom path for a child but not for the parent 1`] = `
 [
   {
     "children": [
@@ -376,7 +376,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 29. should corr
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 30. should handle custom path for parent and child 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 30. should handle custom path for parent and child 1`] = `
 [
   {
     "children": [
@@ -449,7 +449,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 30. should hand
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 31. should handle custom path for parent but not for child 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 31. should handle custom path for parent but not for child 1`] = `
 [
   {
     "children": [
@@ -522,7 +522,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) 31. should hand
 ]
 `;
 
-exports[`RouteGenerator - General Functionality (Cross-Strategy) 32. should handle a page with multiple dynamic segments 1`] = `
+exports[`RouteGenerator - General Functionality (Cross-Strategy) > 32. should handle a page with multiple dynamic segments 1`] = `
 [
   {
     "alias": [],

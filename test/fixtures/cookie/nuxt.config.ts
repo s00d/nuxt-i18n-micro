@@ -15,8 +15,11 @@ export default defineNuxtConfig({
       { code: 'de', iso: 'de_DE', displayName: 'German' },
     ],
     defaultLocale: 'en',
-    localeCookie: 'user-locale',
+    localeCookie: process.env.LOCALE_COOKIE ?? 'user-locale',
     disablePageLocales: true,
     strategy: 'prefix_except_default',
+    // Both cookie specs drive detection through the cookie only.
+    autoDetectPath: '*',
+    autoDetectLanguage: false,
   },
 })

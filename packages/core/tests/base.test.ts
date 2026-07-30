@@ -1,5 +1,6 @@
 import type { PluralFunc, Translations } from '@i18n-micro/types'
 import { BaseI18n, type BaseI18nOptions } from '../src/base'
+import { describe, expect, test, vi } from 'vitest'
 
 // Test implementation of BaseI18n
 class TestI18n extends BaseI18n {
@@ -62,7 +63,7 @@ describe('BaseI18n', () => {
     })
 
     test('should initialize with missingHandler', () => {
-      const handler = jest.fn()
+      const handler = vi.fn()
       const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
       expect(i18n).toBeDefined()
     })
@@ -119,7 +120,7 @@ describe('BaseI18n', () => {
     })
 
     test('should call missingHandler when translation is missing', () => {
-      const handler = jest.fn()
+      const handler = vi.fn()
       const i18n = new TestI18n('en', 'en', 'index', { missingHandler: handler })
 
       i18n.t('missing.key')
@@ -128,7 +129,7 @@ describe('BaseI18n', () => {
     })
 
     test('should call customMissingHandler when set (Nuxt runtime)', () => {
-      const customHandler = jest.fn()
+      const customHandler = vi.fn()
       const i18n = new TestI18n('en', 'en', 'index', {
         getCustomMissingHandler: () => customHandler,
       })
@@ -139,7 +140,7 @@ describe('BaseI18n', () => {
     })
 
     test('should not warn when missingWarn is false', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
 
       i18n.t('missing.key')
@@ -241,6 +242,68 @@ describe('BaseI18n', () => {
       // Russian locale uses different number formatting
       expect(result).toBeDefined()
     })
+
+    test('should format number with named format key', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+      const result = i18n.tn(1000, 'currency')
+      expect(result).toMatch(/\$1,000\.00|USD/)
+    })
+
+    test('should allow locale override with named format', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+          de: { currency: { style: 'currency', currency: 'EUR' } },
+        },
+      })
+      const result = i18n.tn(1000, 'currency', 'de')
+      expect(result).toMatch(/€|EUR/)
+    })
+
+    test('should merge overrides onto named format', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+      const withGrouping = i18n.tn(1000, 'currency')
+      const withoutGrouping = i18n.tn(1000, 'currency', { useGrouping: false })
+      expect(withGrouping).not.toBe(withoutGrouping)
+      expect(withoutGrouping).toMatch(/\$1000\.00|USD\s*1000/)
+    })
+
+    test('should warn in dev when named number format is missing', () => {
+      vi.stubGlobal('window', {})
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const i18n = new TestI18n('en', 'en', 'index', {
+        numberFormats: {
+          en: { currency: { style: 'currency', currency: 'USD' } },
+        },
+      })
+
+      const result = i18n.tn(1000, 'nonexistent')
+
+      expect(result).toBeDefined()
+      expect(consoleSpy).toHaveBeenCalledWith("Not found 'nonexistent' number format in 'en' locale. Falling back to default Intl options.")
+      consoleSpy.mockRestore()
+      vi.unstubAllGlobals()
+    })
+
+    test('should not warn for missing named number format when missingWarn is false', () => {
+      vi.stubGlobal('window', {})
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+
+      i18n.tn(1000, 'nonexistent')
+
+      expect(consoleSpy).not.toHaveBeenCalled()
+      consoleSpy.mockRestore()
+      vi.unstubAllGlobals()
+    })
   })
 
   describe('td() method', () => {
@@ -273,6 +336,40 @@ describe('BaseI18n', () => {
       const result = i18n.td('2024-01-15')
       expect(result).toBeDefined()
       expect(result).not.toBe('Invalid Date')
+    })
+
+    test('should format date with named format key', () => {
+      const i18n = new TestI18n('en', 'en', 'index', {
+        datetimeFormats: {
+          en: {
+            short: { year: 'numeric', month: 'short', day: 'numeric' },
+            long: { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' },
+          },
+        },
+      })
+      const date = new Date('2024-01-15T12:00:00Z')
+      const short = i18n.td(date, 'short')
+      const long = i18n.td(date, 'long')
+      expect(short).toContain('2024')
+      expect(long).toMatch(/January|Monday|2024/)
+      expect(long.length).toBeGreaterThan(short.length)
+    })
+
+    test('should warn in dev when named datetime format is missing', () => {
+      vi.stubGlobal('window', {})
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const i18n = new TestI18n('en', 'en', 'index', {
+        datetimeFormats: {
+          en: { short: { year: 'numeric', month: 'short', day: 'numeric' } },
+        },
+      })
+
+      const result = i18n.td(new Date('2024-01-15'), 'nonexistent')
+
+      expect(result).toBeDefined()
+      expect(consoleSpy).toHaveBeenCalledWith("Not found 'nonexistent' datetime format in 'en' locale. Falling back to default Intl options.")
+      consoleSpy.mockRestore()
+      vi.unstubAllGlobals()
     })
   })
 
@@ -467,6 +564,102 @@ describe('BaseI18n', () => {
       i18n.setRoute('about')
       expect(i18n.t('title')).toBe('About Page')
       expect(i18n.t('greeting')).toBe('Hello')
+    })
+  })
+
+  describe('resolveTranslations / setTranslation', () => {
+    test('resolveTranslations returns the loaded tree for the active locale and route', async () => {
+      const i18n = new TestI18n('en', 'en', 'index')
+      const translations: Translations = { aaa: { bbb: 'ccc' }, ddd: 1111 }
+      await i18n['helper'].loadTranslations('en', translations)
+
+      expect(i18n.resolveTranslations()).toEqual({ aaa: { bbb: 'ccc' }, ddd: 1111 })
+    })
+
+    test('resolveTranslations merges fallback keys like t() does', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
+
+      expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
+      expect(i18n.has('greeting')).toBe(false)
+      expect(i18n.t('greeting')).toBe('Hello')
+    })
+
+    test('resolveTranslations falls through nullish active leaves to fallback', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
+      await i18n['helper'].loadTranslations('de', { greeting: null })
+
+      expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
+      expect(i18n.t('greeting')).toBe('Hello')
+    })
+
+    test('resolveTranslations keeps flat dotted keys when a nested prefix also exists', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { 'a.b': 'flat', a: { x: 1 } })
+      await i18n['helper'].loadTranslations('de', { a: { c: 2 } })
+
+      expect(i18n.t('a.b')).toBe('flat')
+      expect(i18n.t('a.c')).toBe(2)
+      const tree = i18n.resolveTranslations() as Record<string, unknown>
+      expect(tree['a.b']).toBe('flat')
+      expect(tree['a.c']).toBe(2)
+    })
+
+    test('resolveTranslations keeps parent scalar and descendant keys as own entries', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { a: { b: 'nested' } })
+      await i18n['helper'].loadTranslations('de', { a: 'scalar' })
+
+      expect(i18n.t('a')).toBe('scalar')
+      expect(i18n.t('a.b')).toBe('nested')
+      const tree = i18n.resolveTranslations() as Record<string, unknown>
+      expect(tree.a).toBe('scalar')
+      expect(tree['a.b']).toBe('nested')
+    })
+
+    test('resolveTranslations preserves nested siblings from fallback under a shared namespace', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { common: { fromEn: 'EN', shared: 'fallback' } })
+      await i18n['helper'].loadTranslations('de', { common: { fromDe: 'DE', shared: 'active' } })
+
+      expect(i18n.t('common.fromEn')).toBe('EN')
+      expect(i18n.t('common.shared')).toBe('active')
+      const tree = i18n.resolveTranslations() as Record<string, unknown>
+      expect(tree['common.fromEn']).toBe('EN')
+      expect(tree['common.fromDe']).toBe('DE')
+      expect(tree['common.shared']).toBe('active')
+    })
+
+    test('setTranslation replaces values and t() sees the change immediately', async () => {
+      const i18n = new TestI18n('en', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { aaa: { bbb: 'ccc', keep: 'yes' }, ddd: 1111 })
+
+      i18n.setTranslation('aaa', { fff: 'ggg' })
+      expect(i18n.resolveTranslations()).toEqual({ aaa: { fff: 'ggg' }, ddd: 1111 })
+      expect(i18n.t('aaa.fff')).toBe('ggg')
+      expect(i18n.has('aaa.keep')).toBe(false)
+
+      i18n.setTranslation('aaa', 'text')
+      expect(i18n.t('aaa')).toBe('text')
+
+      i18n.setTranslation('ddd', 2222)
+      expect(i18n.ts('ddd')).toBe('2222')
+    })
+
+    test('setTranslation calls onTranslationsChanged', async () => {
+      const onChanged = vi.fn()
+      class ReactiveTestI18n extends TestI18n {
+        protected override onTranslationsChanged(): void {
+          onChanged()
+        }
+      }
+
+      const i18n = new ReactiveTestI18n('en', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { greeting: 'Hello' })
+
+      i18n.setTranslation('greeting', 'Hi')
+      expect(onChanged).toHaveBeenCalledTimes(1)
     })
   })
 })

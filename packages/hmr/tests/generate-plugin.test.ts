@@ -1,4 +1,5 @@
 import { generateHmrPlugin } from '../src/generate-plugin'
+import { describe, expect, it } from 'vitest'
 
 describe('generateHmrPlugin', () => {
   it('uses $loadPageTranslations for root and page json files', () => {

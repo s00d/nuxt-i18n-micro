@@ -1,4 +1,5 @@
 import { resolveOgLocale, warnUnresolvedOgLocale } from '../src/resolve-og-locale'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 describe('resolveOgLocale', () => {
   it('returns explicit og when set', () => {
@@ -33,12 +34,12 @@ describe('warnUnresolvedOgLocale', () => {
 
   afterEach(() => {
     process.env.NODE_ENV = originalEnv
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('warns in development when og locale cannot be resolved', () => {
     process.env.NODE_ENV = 'development'
-    const warn = jest.spyOn(console, 'warn').mockImplementation()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     warnUnresolvedOgLocale({ code: 'zh', iso: 'zh-Hans' })
 
@@ -49,7 +50,7 @@ describe('warnUnresolvedOgLocale', () => {
 
   it('does not warn when og locale resolves', () => {
     process.env.NODE_ENV = 'development'
-    const warn = jest.spyOn(console, 'warn').mockImplementation()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     warnUnresolvedOgLocale({ code: 'en', iso: 'en-US' })
 
@@ -58,7 +59,7 @@ describe('warnUnresolvedOgLocale', () => {
 
   it('does not warn in production', () => {
     process.env.NODE_ENV = 'production'
-    const warn = jest.spyOn(console, 'warn').mockImplementation()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     warnUnresolvedOgLocale({ code: 'en', iso: 'en' })
 
@@ -67,7 +68,7 @@ describe('warnUnresolvedOgLocale', () => {
 
   it('respects missingWarn: false', () => {
     process.env.NODE_ENV = 'development'
-    const warn = jest.spyOn(console, 'warn').mockImplementation()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
     warnUnresolvedOgLocale({ code: 'en', iso: 'en' }, { missingWarn: false })
 

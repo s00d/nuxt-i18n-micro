@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/types-generator",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "Type generator for i18n-micro translation keys",
   "keywords": [
     "i18n",
@@ -64,7 +64,7 @@
   "scripts": {
     "build": "vite build",
     "check:package": "publint",
-    "test": "jest",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
@@ -74,14 +74,12 @@
     "unplugin": "catalog:"
   },
   "devDependencies": {
-    "@types/jest": "catalog:",
     "@types/node": "catalog:",
-    "jest": "catalog:",
-    "publint": "^0.3.17",
-    "ts-jest": "catalog:",
+    "publint": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "@nuxt/kit": "catalog:"

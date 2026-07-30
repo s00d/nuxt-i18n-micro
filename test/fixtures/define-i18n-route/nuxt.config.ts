@@ -2,7 +2,7 @@ import MyModule from '../../../src/module'
 
 export default defineNuxtConfig({
   modules: [MyModule],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   i18n: {
     locales: [
       { code: 'en', iso: 'en_EN', displayName: 'English' },

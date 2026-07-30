@@ -22,7 +22,7 @@ The `Nuxt I18n Micro` module was created to address critical performance issues 
 
 ### Performance Comparison
 
-To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identical conditions. Both modules were tested with a 10MB translation file on the same hardware. We also include a **plain-nuxt** baseline (no i18n module) to measure the real overhead.
+To showcase the efficiency of `Nuxt I18n Micro`, we ran the same fixture suite (`test/performance.test.ts`) against **`@nuxtjs/i18n@10.6.0`** on the same hardware. We also include a **plain-nuxt** baseline (no i18n module) to measure the real overhead.
 
 #### Build Time and Resource Consumption
 

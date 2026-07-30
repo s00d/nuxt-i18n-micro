@@ -35,6 +35,12 @@ function beforeWriteDeclaration(filePath: string, content: string) {
 export default defineConfig({
   plugins: [
     dts({
+      afterDiagnostic(diagnostics) {
+        const errors = diagnostics.filter((d) => d.category === 1)
+        if (errors.length > 0) {
+          throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
+        }
+      },
       tsconfigPath: resolve(rootDir, 'tsconfig.build.json'),
       entryRoot: resolve(rootDir, 'src'),
       outDir: resolve(rootDir, 'dist'),

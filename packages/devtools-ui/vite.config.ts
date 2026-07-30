@@ -34,6 +34,12 @@ const libEs: UserConfig = {
     ...(Array.isArray(tailwindPlugins) ? tailwindPlugins : [tailwindPlugins]),
     vue({ features: { customElement: true } }),
     dts({
+      afterDiagnostic(diagnostics) {
+        const errors = diagnostics.filter((d) => d.category === 1)
+        if (errors.length > 0) {
+          throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
+        }
+      },
       rollupTypes: false,
       include: ['src/**/*.ts', 'src/**/*.vue'],
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
@@ -122,6 +128,12 @@ function removeStrayPluginTypeArtifacts() {
 const vitePlugin: UserConfig = {
   plugins: [
     dts({
+      afterDiagnostic(diagnostics) {
+        const errors = diagnostics.filter((d) => d.category === 1)
+        if (errors.length > 0) {
+          throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
+        }
+      },
       rollupTypes: false,
       strictOutput: false,
       include: ['vite/plugin.ts'],

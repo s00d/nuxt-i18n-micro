@@ -3,6 +3,7 @@
 import { describe, expect, test, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/preact'
 import { h } from 'preact'
+import { stderr } from 'node:process'
 import React from 'react'
 import { createI18n, I18nProvider, useI18n } from '../src'
 
@@ -50,8 +51,8 @@ describe('I18nProvider and useI18n', () => {
   test('should throw error when used outside provider', () => {
     // Preact/React logs via console.error; jsdom also dumps the same Error to stderr.
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const stderrWrite = process.stderr.write.bind(process.stderr)
-    process.stderr.write = (() => true) as typeof process.stderr.write
+    const stderrWrite = stderr.write.bind(stderr)
+    stderr.write = (() => true) as typeof stderr.write
 
     const ErrorComponent = () => {
       useI18n()
@@ -64,7 +65,7 @@ describe('I18nProvider and useI18n', () => {
       }).toThrow(/I18nContext not found/)
     }
     finally {
-      process.stderr.write = stderrWrite
+      stderr.write = stderrWrite
       consoleSpy.mockRestore()
     }
   })

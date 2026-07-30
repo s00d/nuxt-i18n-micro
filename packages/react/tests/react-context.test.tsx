@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { act, render, screen, waitFor } from '@testing-library/react'
+import { stderr } from 'node:process'
 import React from 'react'
 import { createI18n, I18nProvider, useI18n } from '../src'
 
@@ -53,23 +54,21 @@ describe('I18nProvider and useI18n', () => {
   test('should throw error when used outside provider', () => {
     // React logs via console.error; jsdom also dumps the same Error to stderr (bypassing console).
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const stderrWrite = process.stderr.write.bind(process.stderr)
-    process.stderr.write = (() => true) as typeof process.stderr.write
+    const stderrWrite = stderr.write.bind(stderr)
+    stderr.write = (() => true) as typeof stderr.write
 
-    // @ts-expect-error - React.FC type compatibility
-    const ErrorComponent: React.FC<{}> = () => {
+    const ErrorComponent = () => {
       useI18n()
       return <div>Should not render</div>
     }
 
     try {
       expect(() => {
-        // @ts-expect-error - Testing error case
         render(<ErrorComponent />)
       }).toThrow(/I18nContext not found/)
     }
     finally {
-      process.stderr.write = stderrWrite
+      stderr.write = stderrWrite
       consoleSpy.mockRestore()
     }
   })

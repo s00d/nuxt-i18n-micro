@@ -68,7 +68,7 @@
     "./internals": "./internals.d.mts"
   },
   "scripts": {
-    "prepack": "pnpm --filter \"./packages/**\" run build && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
+    "prepack": "pnpm --filter \"./packages/*\" run build && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -177,7 +177,7 @@
     }
   },
   "stackblitz": {
-    "startCommand": "pnpm install && pnpm --filter \"./packages/**\" run build && pnpm run dev:prepare && pnpm run dev",
+    "startCommand": "pnpm install && pnpm --filter \"./packages/*\" run build && pnpm run dev:prepare && pnpm run dev",
     "env": {
       "PORT": "3000"
     }

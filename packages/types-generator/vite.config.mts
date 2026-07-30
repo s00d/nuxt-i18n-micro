@@ -35,6 +35,12 @@ export default defineConfig({
   },
   plugins: [
     dts({
+      afterDiagnostic(diagnostics) {
+        const errors = diagnostics.filter((d) => d.category === 1)
+        if (errors.length > 0) {
+          throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
+        }
+      },
       rollupTypes: false,
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts'],

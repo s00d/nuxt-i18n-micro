@@ -18,10 +18,18 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
+      afterDiagnostic(diagnostics) {
+        const errors = diagnostics.filter((d) => d.category === 1)
+        if (errors.length > 0) {
+          throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
+        }
+      },
       rollupTypes: true,
       entryRoot: 'src',
       outDir: 'dist/react',
-      tsconfigPath: resolve(__dirname, 'tsconfig.json'),
+      tsconfigPath: resolve(__dirname, 'tsconfig.build.json'),
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      exclude: ['tests/**/*'],
       beforeWriteFile: dualPackageBeforeWriteFile,
     }) as unknown as import('vite').Plugin,
   ],

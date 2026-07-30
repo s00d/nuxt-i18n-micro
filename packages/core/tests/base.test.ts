@@ -594,6 +594,43 @@ describe('BaseI18n', () => {
       expect(i18n.t('greeting')).toBe('Hello')
     })
 
+    test('resolveTranslations keeps flat dotted keys when a nested prefix also exists', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { 'a.b': 'flat', a: { x: 1 } })
+      await i18n['helper'].loadTranslations('de', { a: { c: 2 } })
+
+      expect(i18n.t('a.b')).toBe('flat')
+      expect(i18n.t('a.c')).toBe(2)
+      const tree = i18n.resolveTranslations() as Record<string, unknown>
+      expect(tree['a.b']).toBe('flat')
+      expect(tree['a.c']).toBe(2)
+    })
+
+    test('resolveTranslations keeps parent scalar and descendant keys as own entries', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { a: { b: 'nested' } })
+      await i18n['helper'].loadTranslations('de', { a: 'scalar' })
+
+      expect(i18n.t('a')).toBe('scalar')
+      expect(i18n.t('a.b')).toBe('nested')
+      const tree = i18n.resolveTranslations() as Record<string, unknown>
+      expect(tree.a).toBe('scalar')
+      expect(tree['a.b']).toBe('nested')
+    })
+
+    test('resolveTranslations preserves nested siblings from fallback under a shared namespace', async () => {
+      const i18n = new TestI18n('de', 'en', 'index')
+      await i18n['helper'].loadTranslations('en', { common: { fromEn: 'EN', shared: 'fallback' } })
+      await i18n['helper'].loadTranslations('de', { common: { fromDe: 'DE', shared: 'active' } })
+
+      expect(i18n.t('common.fromEn')).toBe('EN')
+      expect(i18n.t('common.shared')).toBe('active')
+      const tree = i18n.resolveTranslations() as Record<string, unknown>
+      expect(tree['common.fromEn']).toBe('EN')
+      expect(tree['common.fromDe']).toBe('DE')
+      expect(tree['common.shared']).toBe('active')
+    })
+
     test('setTranslation replaces values and t() sees the change immediately', async () => {
       const i18n = new TestI18n('en', 'en', 'index')
       await i18n['helper'].loadTranslations('en', { aaa: { bbb: 'ccc', keep: 'yes' }, ddd: 1111 })

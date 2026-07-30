@@ -9,6 +9,7 @@ import {
   mergeTranslationChunk,
   resolveTranslation,
   setTranslationAtKey,
+  collectTranslationPaths,
   translationCacheKey,
   withPrefixStrategy,
 } from '../src/helpers'
@@ -264,6 +265,31 @@ describe('Helpers', () => {
     test('updates a flat dotted key when the path contains empty segments', () => {
       const tree = { 'a..b': 'old' }
       expect(setTranslationAtKey(tree, 'a..b', 'new')).toEqual({ 'a..b': 'new' })
+    })
+  })
+
+  describe('collectTranslationPaths', () => {
+    test('collects flat and nested paths', () => {
+      const paths = new Set<string>()
+      collectTranslationPaths({ greeting: 'Hi', nested: { deep: 'x' } }, paths)
+      expect(paths).toEqual(new Set(['greeting', 'nested', 'nested.deep']))
+    })
+
+    test('keeps flat dotted keys as a single path', () => {
+      const paths = new Set<string>()
+      collectTranslationPaths({ 'a.b': 'flat', a: { c: 1 } }, paths)
+      expect(paths).toEqual(new Set(['a.b', 'a', 'a.c']))
+    })
+
+    test('skips __proto__ and does not recurse into arrays or primitives', () => {
+      const paths = new Set<string>()
+      const obj = Object.create(null) as Record<string, unknown>
+      obj.ok = 'yes'
+      obj.list = ['a', 'b']
+      obj.num = 1
+      Object.defineProperty(obj, '__proto__', { value: { polluted: true }, enumerable: true })
+      collectTranslationPaths(obj, paths)
+      expect(paths).toEqual(new Set(['ok', 'list', 'num']))
     })
   })
 })

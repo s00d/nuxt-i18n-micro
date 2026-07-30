@@ -113,6 +113,12 @@ export abstract class BaseI18n {
    * Used when the hot path keeps two objects (fallback locale, or Nuxt page-transition
    * hot-reload) instead of merging them — the dump has to walk the same fallthrough `t()`
    * uses, or it lies about what is loaded.
+   *
+   * Values are stored as own keys at each path string (`{ 'a.b': x }`, not nested
+   * `{ a: { b: x } }`). Nesting via {@link setTranslationAtKey} would wipe siblings when a
+   * parent path is a scalar in one layer and an object in the other, or when a flat dotted
+   * key shares a prefix with a nested object — and `getByPath` / `t()` already prefer own
+   * keys, so the dump stays faithful.
    */
   protected resolveTranslationTree(
     lower: Record<string, unknown>,
@@ -123,10 +129,10 @@ export abstract class BaseI18n {
     collectTranslationPaths(lower, paths)
     collectTranslationPaths(upper, paths)
 
-    let tree: Record<string, unknown> = {}
+    const tree: Record<string, unknown> = {}
     for (const path of paths) {
       const value = this.resolveLookup(path as TranslationKey, routeContext)
-      if (value !== null && value !== undefined) tree = setTranslationAtKey(tree, path, value)
+      if (value !== null && value !== undefined) tree[path] = value
     }
     return tree as Translations
   }

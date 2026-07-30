@@ -50,9 +50,12 @@ function formatDate(value: Date | number | string, locale: string, options?: Int
 
 // Example utilities for testing
 export function t(key: TranslationKey, params?: Params, defaultValue?: string): Translation {
-  const value = i18nHelper.getTranslation(locale, routeName, key)
+  let value = i18nHelper.getTranslation(locale, routeName, key)
+  if (value === null && defLocale && locale !== defLocale) {
+    value = i18nHelper.getTranslation(defLocale, routeName, key)
+  }
 
-  if (!value) {
+  if (value === null || value === undefined) {
     console.warn(`Missing translation key: ${key}`)
     return defaultValue || key
   }
@@ -108,11 +111,11 @@ export const resolveTranslations = (): Record<string, unknown> => {
   collectTranslationPaths(fb, paths)
   collectTranslationPaths(active, paths)
 
-  let tree: Record<string, unknown> = {}
+  const tree: Record<string, unknown> = {}
   for (const path of paths) {
     let value = i18nHelper.getTranslation(locale, routeName, path)
     if (value === null) value = i18nHelper.getTranslation(fallback, routeName, path)
-    if (value !== null && value !== undefined) tree = setTranslationAtKey(tree, path, value)
+    if (value !== null && value !== undefined) tree[path] = value
   }
   return tree
 }

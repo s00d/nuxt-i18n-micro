@@ -261,6 +261,7 @@ export class NuxtI18n extends BaseI18n {
    * is in flight. Outside that window this is just `cachedTranslations`.
    */
   public override resolveTranslations(routeContext?: unknown): Translations {
+    this.touch()
     if (routeContext && this.resolveRouteContext) {
       const { locale, routeName } = this.resolveRouteContext(routeContext)
       return this.getChunk(locale, routeName) as Translations

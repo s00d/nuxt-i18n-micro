@@ -12,6 +12,14 @@ describe('runtime i18n overrides (Nuxt runtimeConfig)', async () => {
           failOnError: false,
         },
       },
+      // Build-time disabled: no public/_locales/.../fr/data.json (static would bypass the handler).
+      i18n: {
+        locales: [
+          { code: 'en', iso: 'en_EN' },
+          { code: 'de', iso: 'de_DE' },
+          { code: 'fr', iso: 'fr_FR', disabled: true },
+        ],
+      },
       runtimeConfig: {
         public: {
           i18nRuntime: {
@@ -37,13 +45,9 @@ describe('runtime i18n overrides (Nuxt runtimeConfig)', async () => {
     expect(dePayload.hello).toBe('Hallo Welt')
     expect(dePayload.pageTitle).toBe('Startseite')
 
-    try {
-      await $fetch('/_locales/index/fr/data.json')
-      expect.fail('Disabled locale must return 404')
-    } catch (error: unknown) {
-      const e = error as { statusCode?: number; statusMessage?: string }
-      expect(e.statusCode).toBe(404)
-      expect(e.statusMessage).toContain('Locale not found')
-    }
+    await expect($fetch('/_locales/index/fr/data.json')).rejects.toMatchObject({
+      statusCode: 404,
+      statusMessage: expect.stringContaining('Locale not found'),
+    })
   })
 })

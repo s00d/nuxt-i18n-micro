@@ -392,9 +392,25 @@ export default defineNuxtModule<ModuleOptions>({
       )
     }
 
-    const localeInfos: PreMergeLocaleInfo[] = (options.locales ?? []).map((l) =>
-      typeof l === 'string' ? { code: l } : { code: l.code, fallbackLocale: l.fallbackLocale },
-    )
+    // Skip build-time disabled locales — do not emit public/{apiBaseUrl}/…/data.json for them.
+    // Nuxt/defu concatenates `locales` arrays, so dedupe by code (disabled if any entry says so).
+    // Runtime disabledLocales cannot un-publish files already copied to public/.
+    const localeInfosByCode = new Map<string, PreMergeLocaleInfo & { disabled?: boolean }>()
+    for (const locale of options.locales ?? []) {
+      if (typeof locale === 'string') {
+        if (!localeInfosByCode.has(locale)) localeInfosByCode.set(locale, { code: locale })
+        continue
+      }
+      const prev = localeInfosByCode.get(locale.code)
+      localeInfosByCode.set(locale.code, {
+        code: locale.code,
+        fallbackLocale: locale.fallbackLocale ?? prev?.fallbackLocale,
+        disabled: !!(prev?.disabled || locale.disabled),
+      })
+    }
+    const localeInfos: PreMergeLocaleInfo[] = [...localeInfosByCode.values()]
+      .filter(locale => !locale.disabled)
+      .map(({ code, fallbackLocale }) => ({ code, fallbackLocale }))
 
     nuxt.hook('build:before', async () => {
       // Compact source: needed for mode=source public, and for Edge serverAssets embed.

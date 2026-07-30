@@ -54,6 +54,10 @@ See [Configuration — `translationPayloads`](/guide/configuration#translationpa
 3. For Cloudflare / other Edge: set `translationPayloads: { mode: 'source' }` on large catalogs; add `publicAssets: true` only if you need a static/CDN copy.
 4. If you depended on payloads under `public/<translationDir>`, set `translationPayloads.publicDir` or point tooling at `public/<apiBaseUrl>`.
 
+### Fix: skip disabled locales in premerged public payloads
+
+`preMergeLocales` now writes `{page}/{locale}/data.json` only for locales passed into the merge (build-time `locale.disabled: true` is omitted). Previously every JSON locale on disk was copied to `public/`, so Nitro static served disabled locales with 200 and bypassed the handler. Runtime `disabledLocales` still cannot un-publish files already built — use `locale.disabled` at build when `publicAssets` / Node public SSR copy is on.
+
 ### Why It Matters
 
 - Node builds stay lean: no multi‑GB Rollup `raw:` spike from translation catalogs.

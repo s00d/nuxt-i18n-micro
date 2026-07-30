@@ -105,6 +105,7 @@ export async function preMergeLocales(
     // Source dirs are `pages/{page}`; emit client URL layout `{page}/{locale}/data.json`.
     const page = context.replace(/^pages\/?/, '') || 'index'
     for (const [locale, data] of localeMap) {
+      if (!knownCodes.has(locale)) continue
       const targetPath = join(outputDir, page, locale, 'data.json')
       mkdirSync(dirname(targetPath), { recursive: true })
       writeFileSync(targetPath, JSON.stringify(data))

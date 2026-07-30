@@ -70,3 +70,9 @@ If an override is invalid, the module keeps a safe value and logs a warning.
 This runtime feature is designed for per-instance locale activation and defaults without rebuilding.
 
 If instances require different URL strategies (`no_prefix` vs `prefix`), use separate builds for each strategy.
+
+## Disabled locales and static payloads
+
+`runtimeConfig.public.i18nRuntime.disabledLocales` updates routing, switcher, and the Nitro payload **handler** — but Nitro serves files under `public/` **before** that handler.
+
+If `translationPayloads.publicAssets` (or Node SSR’s forced public copy) already wrote `/_locales/{page}/{locale}/data.json`, a runtime disable cannot hide that file. Prefer `locale.disabled: true` at build so premerge does not emit that locale’s static payloads.

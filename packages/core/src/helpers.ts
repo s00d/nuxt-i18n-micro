@@ -22,16 +22,43 @@ export interface MergeTranslationChunkOptions {
   preserveExisting?: boolean
 }
 
+/**
+ * Merge two translation chunks, descending into nested objects.
+ *
+ * `Object.assign` is wrong here, and quietly so: chunks are trees, so a shallow merge of
+ * `{ nav: { about, home } }` with `{ nav: { extra } }` replaces the whole `nav` subtree
+ * and loses `about` and `home`. Nothing throws — the keys simply resolve to themselves
+ * later, which is the raw-key render the loader exists to prevent.
+ *
+ * Written here rather than reusing `@i18n-micro/utils/deep-merge`: that package carries
+ * build-time dependencies, and `core` is installed by every consumer at runtime.
+ */
 export function mergeTranslationChunk(
   existing: Record<string, unknown>,
   incoming: Record<string, unknown>,
   options?: MergeTranslationChunkOptions,
 ): Record<string, unknown> {
   if (Object.keys(existing).length === 0) return incoming
-  if (options?.preserveExisting) {
-    return Object.assign({}, incoming, existing)
+  return options?.preserveExisting ? mergeTranslationTrees(incoming, existing) : mergeTranslationTrees(existing, incoming)
+}
+
+const isPlainTranslationObject = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+
+/** `source` wins, at every depth. Arrays and primitives replace rather than merge. */
+function mergeTranslationTrees(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target }
+
+  for (const key in source) {
+    // Assigning either would walk up the prototype chain of the merged object.
+    if (key === '__proto__' || key === 'constructor') continue
+
+    const incoming = source[key]
+    const existing = result[key]
+    result[key] = isPlainTranslationObject(incoming) && isPlainTranslationObject(existing) ? mergeTranslationTrees(existing, incoming) : incoming
   }
-  return Object.assign({}, existing, incoming)
+
+  return result
 }
 
 export function interpolate(template: string, params: Params): string {

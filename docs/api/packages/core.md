@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 33 members |
+| `BaseI18n` | class | 30 members |
 | `BaseI18nOptions` | interface | 7 members |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
@@ -43,7 +43,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 33 members</summary>
+<summary><code>BaseI18n</code> — 30 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -56,20 +56,17 @@ import { /* … */ } from '@i18n-micro/core'
 | `getRoute` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `keyRecorder` | `private ((cacheKey: string, key: string, value: unknown) => void) \| null` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
 | `pluralFunc` | `PluralFunc` |
-| `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `resolveDateTimeFormatArgs` | `private (keyOrOptions?: string \| Intl.DateTimeFormatOptions, localeOrOverrides?: string \| Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions \| undefined; }` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveNumberFormatArgs` | `private (keyOrOptions?: string \| Intl.NumberFormatOptions, localeOrOverrides?: string \| Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions \| undefined; }` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |

@@ -32,4 +32,3 @@ describe('I18nSwitcher — customDisabledLinkStyle', () => {
     expect(button.text()).toContain('German')
   })
 })
-

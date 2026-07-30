@@ -3,7 +3,11 @@
     <!-- @slot Content before the button that opens the dropdown. -->
     <slot name="before-button" />
 
-    <button class="language-switcher" :style="[buttonStyle, customButtonStyle, currentLocaleDisabled ? customDisabledLinkStyle : {}]" @click="toggleDropdown">
+    <button
+      class="language-switcher"
+      :style="[buttonStyle, customButtonStyle, currentLocaleDisabled ? customDisabledLinkStyle : {}]"
+      @click="toggleDropdown"
+    >
       <!-- @slot Content before the active locale label inside the button. -->
       <slot name="before-selected-locale" />
       {{ currentLocaleLabel }}
@@ -133,10 +137,14 @@ const switchLocaleRoute = (code: string) => {
 
 const localeLabel = (locale: Locale) => {
   const current = props.customLabels[locale.code] || locale.displayName
-  if (!current) {
-    console.warn('[i18n-switcher] Either define a custom label for the locale or provide a displayName in the nuxt.config.i18n')
+  if (!current && import.meta.dev) {
+    console.warn(
+      `[i18n-switcher] No label for "${locale.code}" — set a customLabels entry or a displayName in nuxt.config.i18n. Falling back to the code.`,
+    )
   }
-  return current
+  // The code, not nothing: an unlabelled locale used to render an empty button, and the
+  // framework packages already fall back this way.
+  return current || locale.code
 }
 
 const currentLocaleLabel = computed(() =>

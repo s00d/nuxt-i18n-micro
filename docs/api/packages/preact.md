@@ -37,7 +37,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `I18nRouterContext` | const | `import("preact/src/index").Context<I18nRoutingStrategy \| null>` |
 | `I18nRoutingStrategy` | interface | 6 members |
 | `I18nSwitcher` | const | `(props: I18nSwitcherProps) => JSX.Element` |
-| `I18nSwitcherProps` | interface | 313 members |
+| `I18nSwitcherProps` | interface | 314 members |
 | `I18nT` | const | `(props: I18nTProps) => JSX.Element \| null` |
 | `I18nTProps` | interface | 311 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
@@ -46,7 +46,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `ModuleOptions` | interface | 45 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 43 members |
+| `PreactI18n` | class | 40 members |
 | `PreactI18nOptions` | interface | 6 members |
 | `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |
 | `Translations` | interface | 1 members |
@@ -714,7 +714,7 @@ import { /* … */ } from '@i18n-micro/preact'
 
 </details>
 <details>
-<summary><code>I18nSwitcherProps</code> — 313 members</summary>
+<summary><code>I18nSwitcherProps</code> — 314 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -788,6 +788,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `currentLocale?` | `string \| (() => string) \| undefined` |
 | `customActiveLinkStyle?` | `Record<string, string \| number> \| undefined` |
 | `customButtonStyle?` | `Record<string, string \| number> \| undefined` |
+| `customDisabledLinkStyle?` | `Record<string, string \| number> \| undefined` |
 | `customDropdownStyle?` | `Record<string, string \| number> \| undefined` |
 | `customIconStyle?` | `Record<string, string \| number> \| undefined` |
 | `customItemStyle?` | `Record<string, string \| number> \| undefined` |
@@ -1371,7 +1372,7 @@ import { /* … */ } from '@i18n-micro/preact'
 </details>
 <code>ModuleOptions</code> — 45 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
-<summary><code>PreactI18n</code> — 43 members</summary>
+<summary><code>PreactI18n</code> — 40 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1389,7 +1390,6 @@ import { /* … */ } from '@i18n-micro/preact'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `keyRecorder` | `private any` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
@@ -1397,13 +1397,11 @@ import { /* … */ } from '@i18n-micro/preact'
 | `missingWarn` | `boolean` |
 | `new` | `(options: PreactI18nOptions): PreactI18n` |
 | `pluralFunc` | `PluralFunc` |
-| `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `storage` | `TranslationStorage` |
 | `store` | `private ReactiveI18nStore` |

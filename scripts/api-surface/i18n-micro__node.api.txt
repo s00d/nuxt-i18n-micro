@@ -39,7 +39,6 @@ member I18n.getRoute: () => string
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
 member I18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
-member I18n.keyRecorder: private any
 member I18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member I18n.loadTranslations: (dir?: string) => Promise<void>
 member I18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
@@ -47,14 +46,12 @@ member I18n.locale: string
 member I18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18n.missingWarn: boolean
 member I18n.pluralFunc: PluralFunc
-member I18n.recordResolvedKey: protected (cacheKey: string, key: string, value: unknown) => void
 member I18n.reload: () => Promise<void>
 member I18n.resolveDateTimeFormatArgs: private any
 member I18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member I18n.resolveNumberFormatArgs: private any
 member I18n.resolveRouteName: protected (routeContext?: unknown) => string
-member I18n.setKeyRecorder: (recorder: ((cacheKey: string, key: string, value: unknown) => void) | null) => void
 member I18n.setRoute: (routeName: string) => void
 member I18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member I18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string

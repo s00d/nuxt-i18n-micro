@@ -102,10 +102,9 @@ component props included.
 
 ## payload-budget
 
-The module keeps the dictionary out of the HTML: only the keys a page actually rendered
-go into `__NUXT_DATA__`, and the full dictionary is fetched separately as a cacheable
-file. Break that and nothing complains — the page renders correctly, hydrates correctly
-and passes every test. It is simply megabytes heavier.
+The SSR payload carries the translation chunks a page loaded, so its size follows what the
+app asks for. Nothing else notices when that changes: a payload that doubled renders
+correctly and passes every test, it is just heavier.
 
 ```bash
 pnpm run budget:payload                 # build the playground and compare
@@ -113,24 +112,24 @@ pnpm -C scripts cli payload-budget --skip-build   # reuse an existing .output
 pnpm run budget:payload:update          # record the current numbers as the budget
 ```
 
-The budget lives in `scripts/payload-budget.json` and is committed, so a change to it is
-a change a reviewer sees:
+The budget lives in `scripts/payload-budget.json` and is committed, so a change to it is a
+change a reviewer sees:
 
 ```json
 {
   "app": "playground",
   "routes": ["/", "/de"],
-  "limits": { "maxNuxtData": 330882, "totalNuxtData": 661075, "clientAssets": 507227 }
+  "limits": { "maxNuxtData": 7996113, "totalNuxtData": 15984808, "clientAssets": 506360 }
 }
 ```
 
-The playground is the default target because its dictionary is deliberately enormous
-(~15 MB on disk). That makes an inlining regression unmissable rather than marginal —
-reintroducing it takes `__NUXT_DATA__` from ~294 KB to ~7.1 MB per page.
+The playground is the default target because its dictionary is deliberately huge — around
+15 MB on disk — so a change in what the payload carries is unmissable rather than
+marginal. Those numbers are a fixed point to compare against, **not** what a real
+application should expect; no real dictionary is that size.
 
 `--update` writes the measured numbers plus `--tolerance` percent of headroom (10% by
-default), so ordinary growth does not trip the check while a regression of that size
-cannot hide.
+default), so ordinary growth does not trip the check while a step change cannot hide.
 
 ## docs-audit
 

@@ -23,6 +23,7 @@ Locales with `disabled: true` are **omitted** from the dropdown (they remain ava
 | `customItemStyle` | `CSSProperties` | `() => ({})` | Inline style for each item in the dropdown. |
 | `customLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link inside an item. |
 | `customActiveLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the link of the currently active locale. |
+| `customDisabledLinkStyle` | `CSSProperties` | `() => ({})` | Inline style for the *current* locale button when it is `disabled: true` in config. |
 | `customIconStyle` | `CSSProperties` | `() => ({})` | Inline style for the caret icon on the button. |
 
 ### Slots

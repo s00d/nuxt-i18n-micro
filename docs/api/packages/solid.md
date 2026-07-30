@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `ModuleOptions` | interface | 45 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `SolidI18n` | class | 52 members |
+| `SolidI18n` | class | 49 members |
 | `SolidI18nOptions` | interface | 6 members |
 | `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |
 | `Translations` | interface | 1 members |
@@ -81,7 +81,7 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
 <code>ModuleOptions</code> — 45 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
-<summary><code>SolidI18n</code> — 52 members</summary>
+<summary><code>SolidI18n</code> — 49 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -104,7 +104,6 @@ import { /* … */ } from '@i18n-micro/solid'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `keyRecorder` | `private any` |
 | `listeners` | `private Set<() => void>` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
@@ -115,14 +114,12 @@ import { /* … */ } from '@i18n-micro/solid'
 | `new` | `(options: SolidI18nOptions): SolidI18n` |
 | `notifyListeners` | `private () => void` |
 | `pluralFunc` | `PluralFunc` |
-| `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `routeAccessor` | `Accessor<string>` |
-| `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
 | `setRoute` | `(val: string) => void` |
 | `storage` | `TranslationStorage` |
 | `store` | `private ReactiveI18nStore` |

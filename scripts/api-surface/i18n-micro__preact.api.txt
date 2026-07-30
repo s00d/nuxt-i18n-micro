@@ -734,6 +734,7 @@ member I18nSwitcherProps.contentEditable?: Signalish<"" | Booleanish | "plaintex
 member I18nSwitcherProps.currentLocale?: string | (() => string) | undefined
 member I18nSwitcherProps.customActiveLinkStyle?: Record<string, string | number> | undefined
 member I18nSwitcherProps.customButtonStyle?: Record<string, string | number> | undefined
+member I18nSwitcherProps.customDisabledLinkStyle?: Record<string, string | number> | undefined
 member I18nSwitcherProps.customDropdownStyle?: Record<string, string | number> | undefined
 member I18nSwitcherProps.customIconStyle?: Record<string, string | number> | undefined
 member I18nSwitcherProps.customItemStyle?: Record<string, string | number> | undefined
@@ -1367,20 +1368,17 @@ member PreactI18n.getRoute: () => string
 member PreactI18n.getSnapshot: () => string
 member PreactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
-member PreactI18n.keyRecorder: private any
 member PreactI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member PreactI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member PreactI18n.locale: string
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.pluralFunc: PluralFunc
-member PreactI18n.recordResolvedKey: protected (cacheKey: string, key: string, value: unknown) => void
 member PreactI18n.resolveDateTimeFormatArgs: private any
 member PreactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member PreactI18n.resolveNumberFormatArgs: private any
 member PreactI18n.resolveRouteName: protected (routeContext?: unknown) => string
-member PreactI18n.setKeyRecorder: (recorder: ((cacheKey: string, key: string, value: unknown) => void) | null) => void
 member PreactI18n.setRoute: (routeName: string) => void
 member PreactI18n.storage: TranslationStorage
 member PreactI18n.store: private ReactiveI18nStore

@@ -54,8 +54,17 @@ class TranslationStorage {
    * its chunks come back as reactive proxies, and freezing a proxy would freeze
    * the reactive object the app is still using.
    */
-  private freezePlainClone(data: Record<string, unknown>): Record<string, unknown> {
-    return Object.freeze(JSON.parse(JSON.stringify(data)) as Record<string, unknown>)
+  /**
+   * Freeze a chunk before it enters the cache, so a consumer cannot mutate what other
+   * callers will read.
+   *
+   * No clone: every caller hands over an object it just parsed from JSON — the SSR payload
+   * or a fetch response — and keeps no reference to it. Cloning it meant serialising and
+   * re-parsing the whole chunk during hydration, which with full chunks is the largest
+   * object on the page.
+   */
+  private freezeChunk(data: Record<string, unknown>): Record<string, unknown> {
+    return Object.freeze(data)
   }
 
   private getCacheKey(locale: string, routeName?: string): string {
@@ -95,7 +104,7 @@ class TranslationStorage {
    */
   seedFromSsrChunks(chunks: Record<string, Record<string, unknown>>): void {
     for (const [cacheKey, data] of Object.entries(chunks)) {
-      this.cc.set(cacheKey, this.freezePlainClone(data))
+      this.cc.set(cacheKey, this.freezeChunk(data))
     }
   }
 
@@ -128,7 +137,7 @@ class TranslationStorage {
 
     // Already a plain object — freezing is enough, and it guards the loader's own
     // cached copy against in-place mutation now that we may be sharing it.
-    this.cc.set(cacheKey, Object.freeze(data))
+    this.cc.set(cacheKey, this.freezeChunk(data))
 
     return { data: this.cc.get(cacheKey)!, cacheKey }
   }

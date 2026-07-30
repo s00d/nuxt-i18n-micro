@@ -9,7 +9,9 @@ import {
 } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
 import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsExtend, Params, TranslationKey, Translations } from '@i18n-micro/types'
-import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
+// The recursive variant: the non-recursive `deepMergeTranslations` merges one level and
+// then replaces, so a page chunk touching `page.index` would drop every sibling under it.
+import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { type ShallowRef, shallowRef, triggerRef, unref } from 'vue'
 import type {
   RouteLocationNamedRaw,
@@ -156,7 +158,7 @@ export class NuxtI18n extends BaseI18n {
     const sameLocale = this.currentLocale === locale
 
     if (sameLocale) {
-      this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, data)
+      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, data)
       this.pendingCleanState = data
     } else {
       this.cachedTranslations = data
@@ -177,7 +179,7 @@ export class NuxtI18n extends BaseI18n {
 
   mergeTranslations(newTranslations: Translations): void {
     const merged = this.mergeChunk(this.currentLocale, this.currentRouteName, newTranslations as Record<string, unknown>)
-    this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, merged)
+    this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, merged)
     if (this.pendingCleanState) this.pendingCleanState = merged
     triggerRef(this.contextSignal)
   }
@@ -185,7 +187,7 @@ export class NuxtI18n extends BaseI18n {
   async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
     const mergedChunk = this.mergeChunk(locale, routeName, translations as Record<string, unknown>)
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
-      this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, mergedChunk)
+      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, mergedChunk)
       if (this.pendingCleanState) this.pendingCleanState = mergedChunk
       triggerRef(this.contextSignal)
     }
@@ -199,7 +201,7 @@ export class NuxtI18n extends BaseI18n {
 
     const mergedChunk = this.mergeChunk(locale, routeName, newTranslations as Record<string, unknown>)
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
-      this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, mergedChunk)
+      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, mergedChunk)
       if (this.pendingCleanState) this.pendingCleanState = mergedChunk
       triggerRef(this.contextSignal)
     }

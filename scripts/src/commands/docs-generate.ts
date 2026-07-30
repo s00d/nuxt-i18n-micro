@@ -357,14 +357,14 @@ function budgetTable(): string {
     .filter((entry): entry is [string, number] => typeof entry[1] === 'number')
     .map(([label, bytes]) => [label, formatSize(bytes)])
 
-  const ratio = observed.sourceDictionary && observed.maxNuxtData ? Math.round(observed.sourceDictionary / observed.maxNuxtData) : null
-
   return [
     `Measured on \`${budget.app}\` across ${budget.routes.map((route) => `\`${route}\``).join(', ')}:`,
     '',
     table(['Measurement', 'Size'], rows),
     '',
-    ratio ? `The dictionary is **${ratio}×** larger than the payload any single page inlines. That ratio is what the budget enforces.` : '',
+    'The playground carries a deliberately oversized dictionary, so these are not figures to expect from a real',
+    'application — they are a fixed point to measure against. The budget fails when they grow unexpectedly,',
+    'which is how an accidental change to what the payload carries gets noticed.',
   ]
     .join('\n')
     .trim()

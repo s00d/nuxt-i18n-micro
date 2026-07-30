@@ -19,7 +19,6 @@ member AstroI18n.getRouteTranslations: (locale: string, routeName: string) => Tr
 member AstroI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member AstroI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
 member AstroI18n.initialMessages: private Record<string, Translations>
-member AstroI18n.keyRecorder: private any
 member AstroI18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member AstroI18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
 member AstroI18n.locale: string
@@ -27,13 +26,11 @@ member AstroI18n.mergeTranslations: (locale: string, routeName: string, translat
 member AstroI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member AstroI18n.missingWarn: boolean
 member AstroI18n.pluralFunc: PluralFunc
-member AstroI18n.recordResolvedKey: protected (cacheKey: string, key: string, value: unknown) => void
 member AstroI18n.resolveDateTimeFormatArgs: private any
 member AstroI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean
 member AstroI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unknown) => unknown | null
 member AstroI18n.resolveNumberFormatArgs: private any
 member AstroI18n.resolveRouteName: protected (routeContext?: unknown) => string
-member AstroI18n.setKeyRecorder: (recorder: ((cacheKey: string, key: string, value: unknown) => void) | null) => void
 member AstroI18n.setRoute: (routeName: string) => void
 member AstroI18n.storage: TranslationStorage
 member AstroI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation

@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 45 members |
+| `I18n` | class | 42 members |
 | `I18nOptions` | interface | 7 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
@@ -36,7 +36,7 @@ import { /* … */ } from '@i18n-micro/node'
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
 <details>
-<summary><code>I18n</code> — 45 members</summary>
+<summary><code>I18n</code> — 42 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -56,7 +56,6 @@ import { /* … */ } from '@i18n-micro/node'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `keyRecorder` | `private any` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslations` | `(dir?: string) => Promise<void>` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
@@ -65,14 +64,12 @@ import { /* … */ } from '@i18n-micro/node'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `pluralFunc` | `PluralFunc` |
-| `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `reload` | `() => Promise<void>` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |

@@ -246,10 +246,12 @@ Measured on `playground` across `/`, `/de`:
 | --- | --- |
 | Translation sources on disk | 15.2 MB |
 | Served as separate payload files | 76.3 MB |
-| Largest inline `__NUXT_DATA__` | 293.8 KB |
-| Client assets | 450.3 KB |
+| Largest inline `__NUXT_DATA__` | 6.9 MB |
+| Client assets | 449.5 KB |
 
-The dictionary is **53×** larger than the payload any single page inlines. That ratio is what the budget enforces.
+The playground carries a deliberately oversized dictionary, so these are not figures to expect from a real
+application — they are a fixed point to measure against. The budget fails when they grow unexpectedly,
+which is how an accidental change to what the payload carries gets noticed.
 
 <!-- /generated:payload-budget -->
 

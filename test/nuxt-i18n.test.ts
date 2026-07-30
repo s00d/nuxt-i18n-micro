@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { mergeTranslationChunk } from '@i18n-micro/core'
 import { NuxtI18n, NuxtTranslationLoader } from '../src/runtime/utils/nuxt-i18n'
 import { translationStorage } from '../src/runtime/utils/storage'
 
@@ -153,5 +154,73 @@ describe('seeding SSR chunks', () => {
     i18n.seedChunks({ 'en:index': { a: 'from-payload' } })
 
     expect(i18n.getChunk('en', 'index')).toEqual({ a: 'full', extra: 'kept' })
+  })
+})
+
+describe('merging translations into a loaded chunk', () => {
+  /**
+   * A shallow merge here loses siblings silently: nothing throws, the keys simply resolve
+   * to themselves on the next transition, which is the raw-key render the transition
+   * machinery exists to prevent.
+   */
+  it('keeps sibling keys under a nested object', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.setChunk('en', 'index', { nav: { about: 'About', home: 'Home' } })
+    i18n.applySwitchContext('en', 'index', i18n.getChunk('en', 'index'))
+
+    i18n.mergeTranslations({ nav: { extra: 'Extra' } })
+
+    expect(i18n.getChunk('en', 'index')).toEqual({ nav: { about: 'About', home: 'Home', extra: 'Extra' } })
+    expect(i18n.t('nav.about')).toBe('About')
+    expect(i18n.t('nav.extra')).toBe('Extra')
+  })
+
+  it('keeps them once a pending transition finishes', () => {
+    // `finishTransition` promotes the stored chunk into the live dictionary, so a lossy
+    // merge only surfaces here — after the navigation, on a page that rendered fine.
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { nav: { about: 'About' } })
+    i18n.applySwitchContext('en', 'page-b', { nav: { about: 'About' } })
+
+    i18n.mergeTranslations({ nav: { extra: 'Extra' } })
+    i18n.finishTransition()
+
+    expect(i18n.t('nav.about')).toBe('About')
+    expect(i18n.t('nav.extra')).toBe('Extra')
+  })
+
+  it('merges at any depth, not just the first level', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.setChunk('en', 'index', { page: { index: { title: 'Title', sub: 'Sub' } } })
+    i18n.applySwitchContext('en', 'index', i18n.getChunk('en', 'index'))
+
+    i18n.mergeTranslations({ page: { index: { extra: 'Extra' } } })
+
+    expect(i18n.t('page.index.title')).toBe('Title')
+    expect(i18n.t('page.index.sub')).toBe('Sub')
+    expect(i18n.t('page.index.extra')).toBe('Extra')
+  })
+
+  it('keeps them when a page loads its translations at runtime', async () => {
+    // `$loadPageTranslations` takes whole page translations, which in a real locale file
+    // are nested — the most likely way to hit this.
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.setChunk('en', 'index', { nav: { about: 'About' }, title: 'T' })
+    i18n.applySwitchContext('en', 'index', i18n.getChunk('en', 'index'))
+
+    await i18n.loadPageTranslations('en', 'index', { nav: { contact: 'Contact' } })
+
+    expect(i18n.getChunk('en', 'index')).toEqual({ nav: { about: 'About', contact: 'Contact' }, title: 'T' })
+  })
+
+  it('lets a runtime override survive a later fetch of the same chunk', () => {
+    // The loader merges with `preserveExisting`, which must not flatten the fetched tree.
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.setChunk('en', 'index', { nav: { about: 'Overridden' } })
+
+    const fetched = { nav: { about: 'About', home: 'Home' } }
+    expect(mergeTranslationChunk(i18n.getChunk('en', 'index'), fetched, { preserveExisting: true })).toEqual({
+      nav: { about: 'Overridden', home: 'Home' },
+    })
   })
 })

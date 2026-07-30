@@ -1,6 +1,6 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
-import { defaultPlural, interpolate, translationCacheKey } from './helpers'
+import { defaultPlural, interpolate } from './helpers'
 import { type TranslationStorage, useTranslationHelper } from './translation'
 
 export interface BaseI18nOptions {
@@ -35,21 +35,6 @@ export abstract class BaseI18n {
    * actually used. `null` on the client and in `chunk` mode, so the lookup path
    * stays a plain property read.
    */
-  private keyRecorder: ((cacheKey: string, key: string, value: unknown) => void) | null = null
-
-  /** @internal — used by the Nuxt plugin to collect the render set during SSR. */
-  public setKeyRecorder(recorder: ((cacheKey: string, key: string, value: unknown) => void) | null): void {
-    this.keyRecorder = recorder
-  }
-
-  /**
-   * Report a key that resolved to a value, so SSR can ship only these.
-   * Adapters that override `resolveLookup` must call this themselves — the base
-   * implementation is bypassed entirely when they do.
-   */
-  protected recordResolvedKey(cacheKey: string, key: string, value: unknown): void {
-    this.keyRecorder?.(cacheKey, key, value)
-  }
 
   constructor(options: BaseI18nOptions = {}) {
     this.helper = useTranslationHelper(options.storage)
@@ -103,20 +88,11 @@ export abstract class BaseI18n {
     const routeName = this.resolveRouteName(routeContext)
 
     const value = this.helper.getTranslation(locale, routeName, String(key))
-    if (value !== null) {
-      this.recordResolvedKey(translationCacheKey(locale, routeName), String(key), value)
-      return value
-    }
+    if (value !== null) return value
 
     const fallbackLocale = this.getFallbackLocale()
     if (locale !== fallbackLocale) {
-      const fallbackValue = this.helper.getTranslation(fallbackLocale, routeName, String(key))
-      if (fallbackValue !== null) {
-        // Record against the locale that actually supplied the value: replaying this
-        // key under the current locale on the client would resolve to nothing.
-        this.recordResolvedKey(translationCacheKey(fallbackLocale, routeName), String(key), fallbackValue)
-      }
-      return fallbackValue
+      return this.helper.getTranslation(fallbackLocale, routeName, String(key))
     }
 
     return null

@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 47 members |
+| `AstroI18n` | class | 44 members |
 | `AstroI18nOptions` | interface | 9 members |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -57,7 +57,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 47 members</summary>
+<summary><code>AstroI18n</code> — 44 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -80,7 +80,6 @@ import { /* … */ } from '@i18n-micro/astro'
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
 | `initialMessages` | `private Record<string, Translations>` |
-| `keyRecorder` | `private any` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
@@ -89,13 +88,11 @@ import { /* … */ } from '@i18n-micro/astro'
 | `missingWarn` | `boolean` |
 | `new` | `(options: AstroI18nOptions): AstroI18n` |
 | `pluralFunc` | `PluralFunc` |
-| `recordResolvedKey` | `protected (cacheKey: string, key: string, value: unknown) => void` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
 | `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
-| `setKeyRecorder` | `(recorder: ((cacheKey: string, key: string, value: unknown) => void) \| null) => void` |
 | `setRoute` | `(routeName: string) => void` |
 | `storage` | `TranslationStorage` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |

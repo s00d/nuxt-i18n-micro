@@ -655,6 +655,8 @@ declare module '#i18n-internal/plural' {
       // Must match `buildFullConfig`: `options.dateBuild` wins even when it is `0`/''.
       const dateBuild = options.dateBuild ?? translationsHash ?? Date.now()
       const hasCacheBuster = Boolean(dateBuild)
+      // `null` already means "do not set a header", so the helper's own answer is the
+      // condition — repeating it here is how the two drift apart.
       const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, hasCacheBuster)
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),
@@ -666,13 +668,7 @@ declare module '#i18n-internal/plural' {
                 maxAge: 60,
                 swr: true,
               },
-              ...(Number.isSafeInteger(httpCacheDuration) && httpCacheDuration > 0
-                ? {
-                    headers: {
-                      'Cache-Control': cacheControl!,
-                    },
-                  }
-                : {}),
+              ...(cacheControl ? { headers: { 'Cache-Control': cacheControl } } : {}),
             }),
       }
 

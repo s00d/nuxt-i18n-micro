@@ -5,14 +5,14 @@
     "/de"
   ],
   "limits": {
-    "maxNuxtData": 330882,
-    "totalNuxtData": 661075,
-    "clientAssets": 507227
+    "maxNuxtData": 7996113,
+    "totalNuxtData": 15984808,
+    "clientAssets": 506360
   },
   "observed": {
-    "maxNuxtData": 300801,
-    "totalNuxtData": 600977,
-    "clientAssets": 461115,
+    "maxNuxtData": 7269193,
+    "totalNuxtData": 14531643,
+    "clientAssets": 460327,
     "payloadFiles": 80023515,
     "sourceDictionary": 15960520
   }

@@ -44,9 +44,9 @@ jobs:
         run: pnpm install
 
       - name: Prepack
-        run: |
-          pnpm --filter "./packages/**" run build
-          pnpm run prepack
+        # `./packages/**` also matches `packages/*/playground` (astro build fails without
+        # root `.nuxt/tsconfig.json`). `prepack` already builds `./packages/*` only.
+        run: pnpm run prepack
 
       # run build script
       - name: Build VitePress site

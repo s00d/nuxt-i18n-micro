@@ -64,6 +64,7 @@ describe('I18nProvider and useI18n', () => {
 
     try {
       expect(() => {
+        // @ts-expect-error - React Testing Library type issue
         render(<ErrorComponent />)
       }).toThrow(/I18nContext not found/)
     }

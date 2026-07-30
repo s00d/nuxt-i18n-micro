@@ -15,7 +15,7 @@ outline: 'deep'
 
 ## Why Migrate?
 
-- **Improved performance**: ~82% faster builds and ~87% less memory vs `@nuxtjs/i18n` v10 in our [benchmark fixtures](/guide/performance-results)
+- **Improved performance**: ~51% faster builds and ~54% less build memory vs `@nuxtjs/i18n` **v10.6** in our [benchmark fixtures](/guide/performance-results)
 - **Simplified configuration**: Streamlined setup with sensible defaults
 - **Better resource management**: Optimized handling of large translation files
 

@@ -15,7 +15,7 @@ outline: "deep"
 
 
 ### Description:
-This performance test compares **plain Nuxt** (baseline without i18n), **i18n-micro**, and **i18n** (nuxtjs/i18n v10).
+This performance test compares **plain Nuxt** (baseline without i18n), **i18n-micro**, and **i18n** (`@nuxtjs/i18n` **v10.6**).
 The **plain-nuxt** fixture serves as a baseline: it loads data directly from JSON files and displays the same content as i18n fixtures, but without any internationalization module.
 The main focus is to evaluate build times, memory usage, CPU usage, and server performance under stress.
 Results show the overhead introduced by each i18n solution compared to the baseline.
@@ -32,7 +32,7 @@ The **i18n-micro** example simplifies the translation structure by consolidating
 | node                       | v22.22.1 |
 | nuxt                       | N/A |
 | nuxt-i18n-micro                       | 3.22.2 |
-| @nuxtjs/i18n                       | catalog: |
+| @nuxtjs/i18n                       | 10.6.0 |
   
 ## Build Performance for ./test/fixtures/plain-nuxt
 
@@ -78,11 +78,11 @@ The **i18n-micro** example simplifies the translation structure by consolidating
 | Project | Build Time | Code Bundle | Translations | Total |
 |---------|------------|-------------|--------------|-------|
 | **plain-nuxt** (baseline) | 11.30s | 1.19 MB | 595.42 KB | 1.77 MB |
-| **i18n v10** | 15.75s | 15.26 MB | 0 B | 15.26 MB |
+| **i18n v10.6** | 15.75s | 15.26 MB | 0 B | 15.26 MB |
 | **i18n-micro** | 7.72s | 1.4 MB | 12.69 MB | 14.09 MB |
 
 > **Note**: "Code Bundle" = JavaScript/CSS code. "Translations" = JSON translation files in locales directories.
-> i18n-micro stores translations as lazy-loaded JSON files, while i18n v10 compiles them into JS bundles.
+> i18n-micro stores translations as lazy-loaded JSON files, while i18n v10.6 compiles them into JS bundles.
 
 ### Build Time Comparison
 
@@ -99,9 +99,9 @@ height: 400px
 ```
 
 **Code Bundle Comparison** (lower is better):
-- **i18n v10 vs baseline**: 14.07 MB larger
+- **i18n v10.6 vs baseline**: 14.07 MB larger
 - **i18n-micro vs baseline**: 212.47 KB larger
-- **i18n-micro vs i18n v10**: 13.86 MB smaller
+- **i18n-micro vs i18n v10.6**: 13.86 MB smaller
 
 
 ## Stress Test Results for plain-nuxt
@@ -347,14 +347,14 @@ height: 300px
 | Project | Avg Response | P95 | P99 | RPS | Error Rate |
 |---------|--------------|-----|-----|-----|------------|
 | **plain-nuxt** | 430.40 ms | 2725.00 ms | 2893.50 ms | 273.00 | 0.00% |
-| **i18n v10** | 708.90 ms | 4231.10 ms | 5272.40 ms | 195.00 | 0.00% |
+| **i18n v10.6** | 708.90 ms | 4231.10 ms | 5272.40 ms | 195.00 | 0.00% |
 | **i18n-micro** | 381.30 ms | 2465.60 ms | 2780.00 ms | 290.00 | 0.00% |
 
 ### Autocannon Results (10 connections, 10s)
 | Project | Avg Latency | P50 | P95 | P99 | Max | RPS |
 |---------|-------------|-----|-----|-----|-----|-----|
 | **plain-nuxt** | 60.48 ms | 58.00 ms | 80.00 ms | 83.00 ms | 217.00 ms | 163.50 |
-| **i18n v10** | 112.74 ms | 100.00 ms | 212.00 ms | 238.00 ms | 483.00 ms | 87.50 |
+| **i18n v10.6** | 112.74 ms | 100.00 ms | 212.00 ms | 238.00 ms | 483.00 ms | 87.50 |
 | **i18n-micro** | 53.99 ms | 47.00 ms | 98.00 ms | 104.00 ms | 265.00 ms | 182.80 |
 
 
@@ -394,9 +394,9 @@ height: 350px
 
 
 
-## Comparison: plain-nuxt (baseline) vs i18n v10
+## Comparison: plain-nuxt (baseline) vs i18n v10.6
 
-| Metric | plain-nuxt (baseline) | i18n v10 | Difference |
+| Metric | plain-nuxt (baseline) | i18n v10.6 | Difference |
 |--------|----------|----------|------------|
 | Max Memory | 369.09 MB | 520.95 MB | +151.86 MB |
 | Avg Memory | 280.56 MB | 374.22 MB | +93.66 MB |
@@ -422,9 +422,9 @@ height: 350px
 | Latency avg (Autocannon) | 60.48 ms | 53.99 ms | -6.49 ms |
 
 
-## Comparison: i18n v10 vs i18n-micro
+## Comparison: i18n v10.6 vs i18n-micro
 
-| Metric | i18n v10 | i18n-micro | Difference |
+| Metric | i18n v10.6 | i18n-micro | Difference |
 |--------|----------|----------|------------|
 | Max Memory | 520.95 MB | 638.17 MB | +117.22 MB |
 | Avg Memory | 374.22 MB | 507.27 MB | +133.05 MB |

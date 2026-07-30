@@ -1,8 +1,8 @@
-import { mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { handleTranslationWatchChange, parseTranslationWatchRelativePath, readTranslationFile } from '../src/watcher'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 describe('parseTranslationWatchRelativePath', () => {
   it('parses page locale files', () => {
@@ -78,7 +78,13 @@ describe('handleTranslationWatchChange', () => {
 })
 
 describe('readTranslationFile', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'i18n-hmr-'))
+  let dir: string
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'i18n-hmr-'))
+  })
+
+  afterEach(() => rmSync(dir, { recursive: true, force: true }))
 
   it('reads a locale file', () => {
     const file = join(dir, 'en.json')

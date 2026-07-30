@@ -29,8 +29,10 @@ export const PAYLOAD_ROUTE_CACHE_MAX_AGE = 60
  * - **Nitro caches only when `?v=` makes each URL unique to its content.** On a stable URL
  *   it would answer from a stale entry for up to a minute, which is exactly what the
  *   `must-revalidate` such a URL sends is there to prevent.
- * - **The header comes from `cacheControl`**, whose `null` already means "set none" — so
- *   the caller does not re-derive that condition.
+ * - **The header is the conservative policy.** A route rule matches by path, and `?v=` is a
+ *   query — so this same rule answers a request that omits the cache-buster, on a URL that
+ *   then never changes. The payload handler upgrades the answer to `immutable` when the
+ *   request really is versioned; here we cannot know, so we must not promise it.
  */
 export function buildTranslationPayloadRouteRule(input: {
   dev: boolean

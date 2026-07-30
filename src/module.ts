@@ -667,7 +667,9 @@ declare module '#i18n-internal/plural' {
       const hasCacheBuster = Boolean(resolveDateBuild(options, translationsHash))
       // `null` already means "do not set a header", so the helper's own answer is the
       // condition — repeating it here is how the two drift apart.
-      const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, hasCacheBuster)
+      // `false`, deliberately: a route rule matches by path, so it also answers requests
+      // that omit `?v=`. The payload handler sees the query and upgrades those that carry it.
+      const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, false)
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),
         ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, hasCacheBuster, cacheControl }),

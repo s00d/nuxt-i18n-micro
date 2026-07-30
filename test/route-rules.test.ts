@@ -30,10 +30,19 @@ describe('translation payload route rule', () => {
   })
 
   test('caches server-side only while ?v= makes each URL unique to its content', () => {
-    expect(buildTranslationPayloadRouteRule({ dev: false, hasCacheBuster: true, cacheControl: immutable })).toEqual({
+    // The header the module passes here is the conservative one — see the next test.
+    expect(buildTranslationPayloadRouteRule({ dev: false, hasCacheBuster: true, cacheControl: revalidate })).toEqual({
       cors: true,
       cache: { maxAge: PAYLOAD_ROUTE_CACHE_MAX_AGE, swr: true },
-      headers: { 'Cache-Control': immutable },
+      headers: { 'Cache-Control': revalidate },
+    })
+  })
+
+  test('passes through whatever policy it is given, including an immutable one', () => {
+    // The rule itself takes no view; the caller decides, because only the handler can see
+    // whether the request carried `?v=`.
+    expect(buildTranslationPayloadRouteRule({ dev: false, hasCacheBuster: true, cacheControl: immutable }).headers).toEqual({
+      'Cache-Control': immutable,
     })
   })
 

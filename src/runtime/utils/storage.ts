@@ -58,13 +58,16 @@ class TranslationStorage {
    * Freeze a chunk before it enters the cache, so a consumer cannot mutate what other
    * callers will read.
    *
-   * No clone: every caller hands over an object it just parsed from JSON — the SSR payload
-   * or a fetch response — and keeps no reference to it. Cloning it meant serialising and
-   * re-parsing the whole chunk during hydration, which with full chunks is the largest
-   * object on the page.
+   * The freeze is applied to a copy, never to the caller's object: the SSR seed arrives as
+   * `nuxtApp.payload.data['i18n-ssr-chunks']`, which Nuxt still owns, and freezing that in
+   * place would make the payload immutable for everything else on the page.
+   *
+   * A shallow copy, though — the nested values are shared, which is what makes this cheap.
+   * Deep-cloning meant serialising and re-parsing the largest object on the page during
+   * hydration, and it protected nothing: no caller mutates a chunk in place.
    */
   private freezeChunk(data: Record<string, unknown>): Record<string, unknown> {
-    return Object.freeze(data)
+    return Object.freeze({ ...data })
   }
 
   private getCacheKey(locale: string, routeName?: string): string {

@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.24.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.24.0...v3.24.1)
+
+### 🩹 Fixes
+
+- **packages:** Publishable caret workspace pins ([971a93d9](https://github.com/s00d/nuxt-i18n-micro/commit/971a93d9))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.24.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.22.0...v3.24.0)

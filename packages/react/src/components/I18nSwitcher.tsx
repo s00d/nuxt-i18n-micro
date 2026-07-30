@@ -268,8 +268,8 @@ export const I18nSwitcher = (props: I18nSwitcherProps): React.ReactElement => {
           e.stopPropagation()
           toggleDropdown(e)
         },
-        ariaHaspopup: 'true',
-        ariaExpanded: dropdownOpen,
+        'aria-haspopup': 'true',
+        'aria-expanded': dropdownOpen,
       },
       React.createElement('span', null, currentLocaleLabel()),
       React.createElement('span', { style: mergedIconStyle }, '▼'),

@@ -270,8 +270,8 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
           e.stopPropagation()
           toggleDropdown(e)
         },
-        ariaHaspopup: 'true',
-        ariaExpanded: dropdownOpen,
+        'aria-haspopup': 'true',
+        'aria-expanded': dropdownOpen,
       },
       h('span', null, currentLocaleLabel()),
       h('span', { style: mergedIconStyle }, '▼'),

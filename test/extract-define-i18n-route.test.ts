@@ -92,12 +92,21 @@ const TEST_FILES = [
 describe('extractDefineI18nRouteData', () => {
   TEST_FILES.forEach((file) => {
     it(`should parse ${file} correctly`, () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const filePath = join(EXAMPLES_DIR, file)
       const content = readFileSync(filePath, 'utf-8')
 
       const result = extractDefineI18nRouteData(content, filePath)
 
       expect(result).toMatchSnapshot()
+      // Unextractable $defineI18nRoute configs warn once; successful parses stay quiet.
+      if (result === null && /\$?defineI18nRoute\s*\(/.test(content)) {
+        expect(warn).toHaveBeenCalled()
+      }
+      else {
+        expect(warn).not.toHaveBeenCalled()
+      }
+      warn.mockRestore()
     })
   })
 

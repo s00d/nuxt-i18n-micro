@@ -51,22 +51,27 @@ describe('I18nProvider and useI18n', () => {
   })
 
   test('should throw error when used outside provider', () => {
-    // Suppress console.error for this test
+    // React logs via console.error; jsdom also dumps the same Error to stderr (bypassing console).
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const stderrWrite = process.stderr.write.bind(process.stderr)
+    process.stderr.write = (() => true) as typeof process.stderr.write
 
-    // React Testing Library will catch the error, so we need to check it differently
     // @ts-expect-error - React.FC type compatibility
     const ErrorComponent: React.FC<{}> = () => {
       useI18n()
       return <div>Should not render</div>
     }
 
-    expect(() => {
-      // @ts-expect-error - Testing error case
-      render(<ErrorComponent />)
-    }).toThrow()
-
-    consoleSpy.mockRestore()
+    try {
+      expect(() => {
+        // @ts-expect-error - Testing error case
+        render(<ErrorComponent />)
+      }).toThrow(/I18nContext not found/)
+    }
+    finally {
+      process.stderr.write = stderrWrite
+      consoleSpy.mockRestore()
+    }
   })
 
   test('should handle pluralization in component', () => {

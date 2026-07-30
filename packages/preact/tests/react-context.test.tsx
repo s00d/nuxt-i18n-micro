@@ -48,20 +48,25 @@ describe('I18nProvider and useI18n', () => {
   })
 
   test('should throw error when used outside provider', () => {
-    // Suppress console.error for this test
+    // Preact/React logs via console.error; jsdom also dumps the same Error to stderr.
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const stderrWrite = process.stderr.write.bind(process.stderr)
+    process.stderr.write = (() => true) as typeof process.stderr.write
 
-    // React Testing Library will catch the error, so we need to check it differently
     const ErrorComponent = () => {
       useI18n()
       return React.createElement('div', null, 'Should not render')
     }
 
-    expect(() => {
-      render(h(ErrorComponent, null))
-    }).toThrow()
-
-    consoleSpy.mockRestore()
+    try {
+      expect(() => {
+        render(h(ErrorComponent, null))
+      }).toThrow(/I18nContext not found/)
+    }
+    finally {
+      process.stderr.write = stderrWrite
+      consoleSpy.mockRestore()
+    }
   })
 
   test('should handle pluralization in component', () => {

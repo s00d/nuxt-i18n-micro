@@ -6,11 +6,11 @@ outline: 'deep'
 
 # News
 
-## Nuxt I18n Micro v3.23.0 — Node SSR from `public/`, no Rollup `raw:`
+## Nuxt I18n Micro v3.24.0 — Node SSR from `public/`, no Rollup `raw:`
 
 **Date**: 2026-07-30
 
-**Version**: `v3.23.0`
+**Version**: `v3.24.0`
 
 Node production builds no longer embed translation payloads as Nitro `serverAssets` / Rollup `raw:` (multi‑GB build RSS on large catalogs). SSR reads the same `/{apiBaseUrl}/{page}/{locale}/data.json` tree the client fetches — from `public/` via `readFile`. Edge keeps a Nitro embed and should prefer `mode: 'source'`.
 

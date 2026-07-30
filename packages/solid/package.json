@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/solid",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "SolidJS bindings for i18n-micro — primitives, context, and UI components.",
   "keywords": [
     "i18n",
@@ -54,8 +54,8 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
+    "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
     "jsdom": "catalog:",

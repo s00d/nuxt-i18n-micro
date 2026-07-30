@@ -12,6 +12,6 @@
     "nuxt": "catalog:"
   },
   "devDependencies": {
-    "nuxt-i18n-micro": "workspace:*"
+    "nuxt-i18n-micro": "workspace:^"
   }
 }

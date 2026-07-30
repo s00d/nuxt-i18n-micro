@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/node",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Node.js utilities for loading translations and locale data in Nuxt I18n Micro.",
   "keywords": [
     "i18n",
@@ -53,9 +53,9 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*",
-    "@i18n-micro/utils": "workspace:*"
+    "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/types": "workspace:^",
+    "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",

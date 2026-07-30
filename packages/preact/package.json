@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/preact",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Preact bindings for i18n-micro — hooks, context, and UI components.",
   "keywords": [
     "i18n",
@@ -53,8 +53,8 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
+    "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",

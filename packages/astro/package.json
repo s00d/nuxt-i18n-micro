@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/astro",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "description": "Astro integration for i18n-micro — translations, routing, and islands.",
   "keywords": [
     "astro",
@@ -86,10 +86,10 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/core": "workspace:*",
-    "@i18n-micro/node": "workspace:*",
-    "@i18n-micro/types": "workspace:*",
-    "@i18n-micro/utils": "workspace:*"
+    "@i18n-micro/core": "workspace:^",
+    "@i18n-micro/node": "workspace:^",
+    "@i18n-micro/types": "workspace:^",
+    "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
     "astro": "catalog:",

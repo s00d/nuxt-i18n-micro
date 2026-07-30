@@ -6,8 +6,8 @@
     "build": "nuxi build"
   },
   "dependencies": {
-    "@i18n-micro/devtools-ui": "workspace:*",
-    "@i18n-micro/types": "workspace:*"
+    "@i18n-micro/devtools-ui": "workspace:^",
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
     "json-editor-vue": "catalog:"

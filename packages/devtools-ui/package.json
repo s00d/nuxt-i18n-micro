@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/devtools-ui",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "DevTools UI and Vite plugin for Nuxt I18n Micro.",
   "homepage": "https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/devtools-ui#readme",
   "bugs": {
@@ -62,8 +62,8 @@
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/types": "workspace:*",
-    "@i18n-micro/utils": "workspace:*"
+    "@i18n-micro/types": "workspace:^",
+    "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
     "@tailwindcss/vite": "catalog:",

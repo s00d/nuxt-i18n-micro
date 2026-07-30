@@ -35,6 +35,42 @@ function comparePrerelease(a: string, b: string): number {
   return 0
 }
 
+/**
+ * Does `version` satisfy a tiny subset of npm ranges used in published workspace pins:
+ * exact `1.2.3`, caret `^1.2.3`, tilde `~1.2.3`.
+ */
+export function versionSatisfiesRange(version: string, range: string): boolean {
+  const pin = String(range).trim()
+  if (!pin || pin === '*' || pin === 'x' || pin === 'X') return true
+
+  if (/^\d/.test(pin)) return compareVersions(version, pin) === 0
+
+  const caret = /^\^(\d+\.\d+\.\d+(?:-[\w.-]+)?)/.exec(pin)
+  if (caret) {
+    const base = caret[1]!
+    if (compareVersions(version, base) < 0) return false
+    const [maj = 0, min = 0] = base.split('.').map((n) => Number.parseInt(n, 10) || 0)
+    const [vMaj = 0, vMin = 0] = String(version)
+      .split('.')
+      .map((n) => Number.parseInt(n, 10) || 0)
+    if (maj === 0) return vMaj === 0 && vMin === min
+    return vMaj === maj
+  }
+
+  const tilde = /^~(\d+\.\d+\.\d+(?:-[\w.-]+)?)/.exec(pin)
+  if (tilde) {
+    const base = tilde[1]!
+    if (compareVersions(version, base) < 0) return false
+    const [maj = 0, min = 0] = base.split('.').map((n) => Number.parseInt(n, 10) || 0)
+    const [vMaj = 0, vMin = 0] = String(version)
+      .split('.')
+      .map((n) => Number.parseInt(n, 10) || 0)
+    return vMaj === maj && vMin === min
+  }
+
+  return false
+}
+
 /** >0 when `a` is newer, <0 when older, 0 when equal. */
 export function compareVersions(a: string, b: string): number {
   const parse = (version: string) => {

@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "nuxt": "catalog:",
-    "nuxt-i18n-micro": "workspace:*",
+    "nuxt-i18n-micro": "workspace:^",
     "vue": "catalog:",
     "vue-router": "catalog:"
   },
   "devDependencies": {
-    "@i18n-micro/test-utils": "workspace:*",
+    "@i18n-micro/test-utils": "workspace:^",
     "@nuxt/test-utils": "catalog:",
     "@testing-library/vue": "catalog:",
     "@vue/test-utils": "catalog:",

@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/hmr",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Translation HMR utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "hmr",
@@ -89,11 +89,11 @@
     "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/types": "workspace:*",
-    "@i18n-micro/utils": "workspace:*"
+    "@i18n-micro/types": "workspace:^",
+    "@i18n-micro/utils": "workspace:^"
   },
   "devDependencies": {
-    "@i18n-micro/test-utils": "workspace:*",
+    "@i18n-micro/test-utils": "workspace:^",
     "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",

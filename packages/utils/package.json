@@ -359,11 +359,11 @@
     "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/types": "workspace:*",
+    "@i18n-micro/types": "workspace:^",
     "globby": "catalog:"
   },
   "devDependencies": {
-    "@i18n-micro/test-utils": "workspace:*",
+    "@i18n-micro/test-utils": "workspace:^",
     "publint": "catalog:",
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",

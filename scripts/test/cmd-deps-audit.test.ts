@@ -45,10 +45,11 @@ describe('aliasTarget', () => {
 describe('spec protocols', () => {
   it('recognises the workspace protocol', () => {
     expect(isWorkspaceProtocol('workspace:*')).toBe(true)
+    expect(isWorkspaceProtocol('workspace:^')).toBe(true)
     expect(isWorkspaceProtocol('^1.0.0')).toBe(false)
   })
 
-  it.each(['catalog:', 'workspace:*', 'file:../x.tgz', 'link:../x', 'git+https://e.dev/x.git', 'https://e.dev/x.tgz', 'github:user/repo', 'gitlab:org/repo', 'user/repo#main'])(
+  it.each(['catalog:', 'workspace:*', 'workspace:^', 'file:../x.tgz', 'link:../x', 'git+https://e.dev/x.git', 'https://e.dev/x.tgz', 'github:user/repo', 'gitlab:org/repo', 'user/repo#main'])(
     'treats %s as naming no registry version',
     (spec) => {
       expect(isNonRegistrySpec(spec)).toBe(true)

@@ -133,7 +133,7 @@ export const depsAuditCommand = defineCommand({
         // A workspace package resolved through the catalog installs the published copy,
         // not the local one — the whole point of `workspace:` is that it does not.
         if (workspaceNames.has(dep)) {
-          add('errors', pkgName, 'workspace-protocol', `${field}.${dep} is a workspace package but resolves through the catalog — use workspace:*`)
+          add('errors', pkgName, 'workspace-protocol', `${field}.${dep} is a workspace package but resolves through the catalog — use workspace:^`)
           return
         }
         const entries = catalogName === null ? catalog.entries : (catalog.named.get(catalogName) ?? new Map())
@@ -149,7 +149,7 @@ export const depsAuditCommand = defineCommand({
       }
 
       if (workspaceNames.has(dep) && !isWorkspaceProtocol(spec)) {
-        add('errors', pkgName, 'workspace-protocol', `${field}.${dep} is a workspace package but is pinned to "${spec}" — use workspace:*`)
+        add('errors', pkgName, 'workspace-protocol', `${field}.${dep} is a workspace package but is pinned to "${spec}" — use workspace:^`)
         return
       }
 

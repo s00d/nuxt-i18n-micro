@@ -224,3 +224,42 @@ describe('merging translations into a loaded chunk', () => {
     })
   })
 })
+
+describe('merge cost', () => {
+  /**
+   * Both paths merge, and which merge they use is a performance decision, not a taste one:
+   * a full walk of a large chunk on navigation cost ~3.8 ms, and applying a patch by
+   * re-merging the whole chunk into the view cost ~6.9 ms. Neither showed up in any
+   * assertion, so a budget stands in for one. The threshold is loose on purpose — this
+   * catches an algorithmic regression, not a slow machine.
+   */
+  const buildChunk = (breadth: number, depth: number): Record<string, unknown> => {
+    const leaf = (): Record<string, unknown> => Object.fromEntries(Array.from({ length: breadth }, (_, i) => [`k${i}`, `v${i}`]))
+    let node = leaf()
+    for (let level = 0; level < depth; level++) {
+      node = Object.fromEntries(Array.from({ length: breadth }, (_, i) => [`n${i}`, level === 0 ? leaf() : node]))
+    }
+    return node
+  }
+
+  const averageMs = (runs: number, fn: (run: number) => void): number => {
+    fn(0)
+    const start = process.hrtime.bigint()
+    for (let run = 0; run < runs; run++) fn(run)
+    return Number(process.hrtime.bigint() - start) / 1e6 / runs
+  }
+
+  it('does not walk the whole chunk on navigation or on a patch', () => {
+    const chunk = buildChunk(24, 3)
+    const other = buildChunk(24, 3)
+
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'first', other)
+
+    const navigation = averageMs(20, (run) => i18n.applySwitchContext('en', `route-${run}`, chunk))
+    const patch = averageMs(20, (run) => i18n.mergeTranslations({ n0: { [`added${run}`]: 'v' } }))
+
+    expect(navigation, `navigation took ${navigation.toFixed(2)} ms`).toBeLessThan(1)
+    expect(patch, `patch took ${patch.toFixed(2)} ms`).toBeLessThan(1)
+  })
+})

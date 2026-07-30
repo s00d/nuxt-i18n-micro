@@ -45,7 +45,7 @@ import {
 import type { HookResult, Nuxt, NuxtPage } from '@nuxt/schema'
 import { globby } from 'globby'
 import { setupDevToolsUI } from './devtools'
-import { shouldLocalizeRouteRulePath } from './route-rules'
+import { shouldLocalizeRouteRulePath, buildTranslationPayloadRouteRule } from './route-rules'
 import type { PluginsInjections } from './runtime/plugins/01.plugin'
 import { collectDefineI18nRouteMetaFromFiles, createDefineI18nRoutePlugin } from './unplugin-define-i18n-route'
 
@@ -101,6 +101,20 @@ interface NormalizedApiConfig {
   apiBaseServerHost: string | undefined
 }
 
+/**
+ * The cache-buster appended to payload URLs as `?v=`.
+ *
+ * Prefer a fingerprint of the translations themselves: a timestamp moves on every build and
+ * makes clients re-download a dictionary that never changed. `options.dateBuild` wins even
+ * when it is `0`/`''`, which is how an app opts out of busting entirely.
+ *
+ * Derived here and nowhere else — the runtime config and the Nitro route rules both need it,
+ * and computing it twice is an invariant somebody has to remember.
+ */
+function resolveDateBuild(options: ModuleOptions, translationsHash: string | null | undefined): string | number {
+  return options.dateBuild ?? translationsHash ?? Date.now()
+}
+
 function buildFullConfig(params: {
   options: ModuleOptions
   nuxt: Nuxt
@@ -127,9 +141,7 @@ function buildFullConfig(params: {
     locales,
     translationsHash,
   } = params
-  // Prefer a fingerprint of the translations themselves: a timestamp would move on
-  // every build and make clients re-download a dictionary that never changed.
-  const dateBuild = options.dateBuild ?? translationsHash ?? Date.now()
+  const dateBuild = resolveDateBuild(options, translationsHash)
 
   return {
     locales: locales ?? [],
@@ -652,24 +664,13 @@ declare module '#i18n-internal/plural' {
 
       nitroConfig.routeRules = nitroConfig.routeRules || {}
       const httpCacheDuration = Math.floor(options.httpCacheDuration ?? 0)
-      // Must match `buildFullConfig`: `options.dateBuild` wins even when it is `0`/''.
-      const dateBuild = options.dateBuild ?? translationsHash ?? Date.now()
-      const hasCacheBuster = Boolean(dateBuild)
+      const hasCacheBuster = Boolean(resolveDateBuild(options, translationsHash))
       // `null` already means "do not set a header", so the helper's own answer is the
       // condition — repeating it here is how the two drift apart.
       const cacheControl = buildTranslationPayloadCacheControl(httpCacheDuration, hasCacheBuster)
       nitroConfig.routeRules[`/${apiBaseUrl}/**`] = {
         ...(nitroConfig.routeRules[`/${apiBaseUrl}/**`] || {}),
-        cors: true,
-        ...(nuxt.options.dev
-          ? {}
-          : {
-              cache: {
-                maxAge: 60,
-                swr: true,
-              },
-              ...(cacheControl ? { headers: { 'Cache-Control': cacheControl } } : {}),
-            }),
+        ...buildTranslationPayloadRouteRule({ dev: nuxt.options.dev, hasCacheBuster, cacheControl }),
       }
 
       const routeRules = nuxt.options.routeRules || {}

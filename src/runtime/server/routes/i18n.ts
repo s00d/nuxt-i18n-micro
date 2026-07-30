@@ -33,9 +33,16 @@ export default defineEventHandler(async (event) => {
   // Send pre-serialized JSON directly (no repeated serialization)
   setResponseHeader(event, 'Content-Type', 'application/json; charset=utf-8')
 
-  // Skip long-lived Cache-Control in dev so HMR / live edits are not stuck in the browser cache.
-  // Production: `immutable` is only safe when dateBuild (`?v=...`) busts the URL on deploy;
-  // without it we emit a plain max-age that revalidates instead of pinning stale payloads.
+  // Skipped in dev so HMR and live edits are not stuck in the browser cache.
+  //
+  // Also set by the `routeRules` entry the module registers, from the same
+  // `buildTranslationPayloadCacheControl` and the same build-time `dateBuild`, so the two
+  // cannot disagree. Both exist because they cover different surfaces: the route rule also
+  // reaches the payloads copied into `public/`, while this runs whatever a consumer's own
+  // `routeRules` merge ends up doing.
+  //
+  // `immutable` needs `?v=` to bust the URL on deploy; without it the response revalidates
+  // instead, or the first payload a browser saw is pinned for the whole duration.
   if (!import.meta.dev) {
     const cacheControl = buildTranslationPayloadCacheControl(config.httpCacheDuration, Boolean(config.dateBuild))
     if (cacheControl) {

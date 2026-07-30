@@ -480,11 +480,16 @@ export interface ModuleOptions {
   /**
    * HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`.
    *
-   * Translation fetches already use `dateBuild` cache-busting (`?v=...`), so long-lived
-   * `public, max-age=…, immutable` responses are safe for browsers and CDN.
+   * Applies in full only while `dateBuild` busts the URL (`?v=...`), which is the default:
+   * the response is then `public, max-age=…, immutable` and safe for browsers and CDNs.
    *
-   * - `0` — do not set `Cache-Control` (useful in local debugging)
+   * - `dateBuild: 0`/`''` — the URL is stable, so this duration is *not* honoured; the
+   *   response becomes `public, max-age=0, must-revalidate` instead. A long `max-age` on an
+   *   unchanging URL pins the first payload a browser ever saw.
+   * - `0` — do not set `Cache-Control` at all (useful in local debugging)
    * - Not applied in development (`import.meta.dev`) so HMR is not fought by the browser cache
+   * - Reaches only responses served through Nitro. Payloads copied into `public/` and served
+   *   by the hosting platform take that platform's headers — see the Performance guide.
    *
    * Analogous to `@nuxtjs/i18n` experimental `httpCacheDuration` (v10.2.0), but as an
    * explicit response header rather than Nitro `defineCachedEventHandler` maxAge.

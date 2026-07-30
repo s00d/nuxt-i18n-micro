@@ -9,9 +9,20 @@ import {
 } from '@i18n-micro/core'
 import type { PathStrategy, ResolvedRouteLike, RouteLike } from '@i18n-micro/path-strategy'
 import type { CleanTranslation, I18nRouteParams, MissingHandler, ModuleOptionsExtend, Params, TranslationKey, Translations } from '@i18n-micro/types'
-// The recursive variant: the non-recursive `deepMergeTranslations` merges one level and
-// then replaces, so a page chunk touching `page.index` would drop every sibling under it.
-import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+/**
+ * Two merges, chosen by what is being merged in — not by which is "safer".
+ *
+ * `deepMergeTranslations` walks only the top level and then replaces subtrees. That is
+ * correct for a *complete* chunk, because the incoming tree is authoritative for every
+ * path it contains, and it is the only affordable option on the navigation path: on the
+ * playground's 103k-key chunk the one-level merge is unmeasurable while a full walk costs
+ * ~3.8 ms per navigation.
+ *
+ * `deepMergeTranslationsRecursive` is for *patches* — `$mergeTranslations`,
+ * `$loadPageTranslations` — where the input is a fragment of a tree and everything it does
+ * not mention has to survive. Patches are small, so the walk costs nothing.
+ */
+import { deepMergeTranslations, deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { type ShallowRef, shallowRef, triggerRef, unref } from 'vue'
 import type {
   RouteLocationNamedRaw,
@@ -158,7 +169,9 @@ export class NuxtI18n extends BaseI18n {
     const sameLocale = this.currentLocale === locale
 
     if (sameLocale) {
-      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, data)
+      // `data` is the complete chunk for the incoming route, so a one-level merge keeps the
+      // outgoing page's keys visible for the transition without walking the whole tree.
+      this.cachedTranslations = deepMergeTranslations(this.cachedTranslations, data)
       this.pendingCleanState = data
     } else {
       this.cachedTranslations = data
@@ -179,7 +192,9 @@ export class NuxtI18n extends BaseI18n {
 
   mergeTranslations(newTranslations: Translations): void {
     const merged = this.mergeChunk(this.currentLocale, this.currentRouteName, newTranslations as Record<string, unknown>)
-    this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, merged)
+    // The patch, not `merged`: the active dictionary already holds this chunk, so walking
+    // the whole thing again costs the size of the chunk for the sake of a few new keys.
+    this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, newTranslations as Record<string, unknown>)
     if (this.pendingCleanState) this.pendingCleanState = merged
     triggerRef(this.contextSignal)
   }
@@ -187,7 +202,7 @@ export class NuxtI18n extends BaseI18n {
   async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
     const mergedChunk = this.mergeChunk(locale, routeName, translations as Record<string, unknown>)
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
-      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, mergedChunk)
+      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, translations as Record<string, unknown>)
       if (this.pendingCleanState) this.pendingCleanState = mergedChunk
       triggerRef(this.contextSignal)
     }
@@ -201,7 +216,7 @@ export class NuxtI18n extends BaseI18n {
 
     const mergedChunk = this.mergeChunk(locale, routeName, newTranslations as Record<string, unknown>)
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
-      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, mergedChunk)
+      this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, newTranslations as Record<string, unknown>)
       if (this.pendingCleanState) this.pendingCleanState = mergedChunk
       triggerRef(this.contextSignal)
     }

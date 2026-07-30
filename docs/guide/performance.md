@@ -257,10 +257,37 @@ which is how an accidental change to what the payload carries gets noticed.
 
 ### 💾 Caching and Pre-rendering
 
-To optimize performance, `Nuxt I18n Micro` implements caching and supports pre-rendering of translation files:
+Translations pass through several caches, and knowing which one answered a request is the
+difference between a five-minute and a five-hour debugging session. There are four, in the
+order a request meets them:
 
-- 🗄️ **Caching**: Translations are cached after the initial load, reducing the need for subsequent requests and improving response times.
-- 🏁 **Pre-rendering**: During the build process, translation files for all configured locales and routes can be pre-rendered. This eliminates the need for runtime requests, ensuring that translations are served quickly and efficiently.
+| Layer | Where | Lifetime | Cleared by |
+| --- | --- | --- | --- |
+| Browser / CDN | `Cache-Control` on `/{apiBaseUrl}/**` | `httpCacheDuration`, `immutable` | a new `?v=` — i.e. a deploy that changed translations |
+| Nitro route cache | `routeRules['/{apiBaseUrl}/**'].cache` | 60 s, stale-while-revalidate | server restart |
+| Server loader | in-process `CacheControl`, keyed `locale:routeName` | process lifetime, or `cacheTtl` | server restart, HMR in dev |
+| Client store | `translationStorage` + the active chunk in `NuxtI18n` | page lifetime | reload |
+
+Two rules keep them from contradicting each other:
+
+- **The Nitro route cache exists only when `?v=` does.** With a cache-buster each URL is
+  unique to its content, so caching it server-side is free of staleness. Set
+  `dateBuild: 0` and that layer is switched off, because the URL is then stable and the
+  response says `must-revalidate` — a server-side cache would answer from a stale entry
+  for up to a minute and quietly defeat it.
+- **`immutable` also requires `?v=`.** Without a buster the header is
+  `public, max-age=0, must-revalidate`, whatever `httpCacheDuration` says: a long
+  `max-age` on a URL that never changes pins the first response a browser ever saw.
+
+::: warning Static hosting bypasses the first two layers
+With `translationPayloads.publicAssets` the payloads are copied into `public/`, and a
+platform that serves that directory itself (Cloudflare Pages, Vercel static) applies its
+own headers — the `routeRules` header only reaches responses that go through Nitro. Set
+the cache policy for those files in the platform's own configuration.
+:::
+
+🏁 **Pre-rendering**: during the build, translation files for all configured locales and
+routes can be pre-rendered, removing the runtime request entirely.
 
 ### 🗜️ Compressed Public Payloads
 

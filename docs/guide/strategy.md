@@ -249,9 +249,6 @@ URL path on which automatic language detection and redirect occur.
 
 <!-- /generated:option:autoDetectPath -->
 
-- `"/"` (default) — only the root path triggers detection/redirect
-- `"*"` — **all paths** trigger detection/redirect (use with caution)
-
 ```typescript
 i18n: {
   autoDetectPath: '/' // Default: only root

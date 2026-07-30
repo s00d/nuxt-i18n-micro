@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { collectLinks, markdownLinks, pageCandidatesForLink, pageLinks } from '../src/commands/docs-audit'
+import { collectLinks, markdownLinks, optionRegionIds, pageCandidatesForLink, pageLinks } from '../src/commands/docs-audit'
 
 describe('collectLinks', () => {
   it('flattens nav items and their children', () => {
@@ -92,5 +92,21 @@ describe('markdownLinks', () => {
     // Docs are full of example snippets; a link in one is not a link.
     expect(markdownLinks('```md\n[x](./ghost.md)\n```\ntext')).toEqual([])
     expect(markdownLinks('use `[x](./ghost.md)` here')).toEqual([])
+  })
+})
+
+describe('optionRegionIds', () => {
+  const paths = ['strategy', 'translationPayloads', 'translationPayloads.ssrMode']
+
+  it('accepts the full path for a section headed by the leaf name', () => {
+    expect(optionRegionIds('ssrMode', paths)).toEqual(['ssrMode', 'translationPayloads.ssrMode'])
+  })
+
+  it('accepts a top-level option under its own name', () => {
+    expect(optionRegionIds('strategy', paths)).toEqual(['strategy'])
+  })
+
+  it('reports nothing for a heading that names no option', () => {
+    expect(optionRegionIds('meta', paths)).toEqual([])
   })
 })

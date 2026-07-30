@@ -1112,14 +1112,6 @@ explicit response header rather than Nitro `defineCachedEventHandler` maxAge.
 
 <!-- /generated:option:httpCacheDuration -->
 
-`/{apiBaseUrl}/:page/:locale/data.json`.
-
-Because fetches already append `?v={dateBuild}`, responses are safe to cache aggressively:
-
-```http
-Cache-Control: public, max-age=31536000, immutable
-```
-
 ```ts
 export default defineNuxtConfig({
   i18n: {
@@ -1131,10 +1123,6 @@ export default defineNuxtConfig({
 })
 ```
 
-
-- `0` — do not set `Cache-Control`
-- Not applied in development (`import.meta.dev`) so browser cache does not fight HMR
-- Analog of `@nuxtjs/i18n` v10.2.0 `experimental.httpCacheDuration`, as an explicit response header
 #### `numberFormats`
 
 <!-- generated:option:numberFormats — do not edit; run `pnpm run docs:generate` -->

@@ -28,6 +28,11 @@ export interface PayloadMeasurement {
 
 export interface Budget {
   app: string
+  /**
+   * Free text explaining why the limits are what they are — a large number here is
+   * otherwise indistinguishable from an unnoticed regression. Carried through `--update`.
+   */
+  note?: string
   routes: string[]
   limits: {
     maxNuxtData: number
@@ -209,6 +214,7 @@ export const payloadBudgetCommand = defineCommand({
       const headroom = 1 + tolerance / 100
       const budget: Budget = {
         app,
+        ...(existing?.note ? { note: existing.note } : {}),
         routes,
         limits: {
           maxNuxtData: Math.ceil(measurement.maxNuxtData * headroom),

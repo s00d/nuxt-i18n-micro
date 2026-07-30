@@ -1,5 +1,6 @@
 {
   "app": "playground",
+  "note": "The playground SSRs its whole dictionary on purpose: it carries ~16 MB of generated locale sources to exercise the large-dictionary paths, and per-page key subsetting was deliberately dropped (it saved ~20 kB and made the set of keys a page may render a build-time guess). So maxNuxtData is ~7 MB, ~24x the 300 kB recorded while subsetting was in place — that jump is the revert, not a regression. These limits guard against growth from here; real apps ship a fraction of this.",
   "routes": [
     "/",
     "/de"

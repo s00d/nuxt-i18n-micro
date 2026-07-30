@@ -140,6 +140,18 @@ export function markdownLinks(source: string): string[] {
   return [...withoutCode.matchAll(/\]\(\s*(?:<([^>]+)>|([^)\s]+))(?:\s+["'(][^)]*)?\)/g)].map((match) => (match[1] ?? match[2])!)
 }
 
+/**
+ * Region ids that a heading named `name` may legitimately use, empty when it names no option.
+ *
+ * A nested option is usually headed by its leaf name (`### \`ssrMode\``) while its generated
+ * region carries the full path (`generated:option:translationPayloads.ssrMode`), so both
+ * forms count — matching only the heading text reported a generated section as hand-written.
+ */
+export function optionRegionIds(name: string, optionPaths: string[]): string[] {
+  const paths = optionPaths.filter((path) => path === name || path.endsWith(`.${name}`))
+  return paths.length === 0 ? [] : [...new Set([name, ...paths])]
+}
+
 export const docsAuditCommand = defineCommand({
   meta: {
     name: 'docs-audit',
@@ -206,9 +218,13 @@ export const docsAuditCommand = defineCommand({
     for (const [page, body] of [...bodies].filter(([name]) => OPTION_PAGES.has(name))) {
       for (const match of body.matchAll(/^#{3,4}\s+`([a-zA-Z][\w.]*)`\s*$/gm)) {
         const name = match[1]!
-        if (!options.some((option) => option.path === name || option.path.endsWith(`.${name}`))) continue
+        const ids = optionRegionIds(
+          name,
+          options.map((option) => option.path),
+        )
+        if (ids.length === 0) continue
         const after = body.slice(match.index + match[0].length, match.index + match[0].length + 400)
-        if (!after.includes(`<!-- generated:option:${name}`)) {
+        if (!ids.some((id) => after.includes(`<!-- generated:option:${id}`))) {
           add(
             'errors',
             'handwritten-option',

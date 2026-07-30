@@ -9,6 +9,7 @@ export {
   isPrefixStrategy,
   collectTranslationPaths,
   mergeTranslationChunk,
+  mergeTranslationLayers,
   resolveTranslation,
   setTranslationAtKey,
   translationCacheKey,

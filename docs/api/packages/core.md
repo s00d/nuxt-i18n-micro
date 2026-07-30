@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-40 exports across 2 entry points.
+42 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -35,6 +35,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `isPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix"` |
 | `mergeTranslationChunk` | function | `(existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
+| `mergeTranslationLayers` | function | `(lower: Record<string, unknown>, upper: Record<string, unknown>) => Record<string, unknown>` |
 | `NumberFormatsConfig` | type | `Record<string, Record<string, Intl.NumberFormatOptions>>` |
 | `ReactiveI18nStore` | interface | 9 members |
 | `resolveTranslation` | function | `(obj: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null` |
@@ -71,7 +72,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `resolveNumberFormatArgs` | `private (keyOrOptions?: string \| Intl.NumberFormatOptions, localeOrOverrides?: string \| Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions \| undefined; }` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
-| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations` |
+| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
@@ -185,6 +186,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `isPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix"` |
 | `mergeTranslationChunk` | function | `(existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
+| `mergeTranslationLayers` | function | `(lower: Record<string, unknown>, upper: Record<string, unknown>) => Record<string, unknown>` |
 | `resolveTranslation` | function | `(obj: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null` |
 | `setTranslationAtKey` | function | `(tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |

@@ -1,4 +1,4 @@
-import { collectTranslationPaths, interpolate, setTranslationAtKey, useTranslationHelper } from '@i18n-micro/core'
+import { interpolate, mergeTranslationLayers, setTranslationAtKey, useTranslationHelper } from '@i18n-micro/core'
 import type { Params, Translation, TranslationKey, Translations } from '@i18n-micro/types'
 
 type LocaleCode = string
@@ -106,18 +106,9 @@ export const resolveTranslations = (): Record<string, unknown> => {
   const active = (i18nHelper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
   const fallback = defLocale
   if (!fallback || locale === fallback) return active
-  const fb = (i18nHelper.getCache(fallback, routeName) ?? {}) as Record<string, unknown>
-  const paths = new Set<string>()
-  collectTranslationPaths(fb, paths)
-  collectTranslationPaths(active, paths)
 
-  const tree: Record<string, unknown> = {}
-  for (const path of paths) {
-    let value = i18nHelper.getTranslation(locale, routeName, path)
-    if (value === null) value = i18nHelper.getTranslation(fallback, routeName, path)
-    if (value !== null && value !== undefined) tree[path] = value
-  }
-  return tree
+  const fb = (i18nHelper.getCache(fallback, routeName) ?? {}) as Record<string, unknown>
+  return mergeTranslationLayers(fb, active)
 }
 
 export const setTranslation = (key: TranslationKey, value: unknown): void => {

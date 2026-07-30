@@ -151,13 +151,21 @@ describe('NuxtI18n', () => {
     i18n.applySwitchContext('en', 'page-a', { common: { fromA: 'From A' } })
     i18n.applySwitchContext('en', 'page-b', { common: { fromB: 'From B' }, pageB: 'B' })
 
-    const tree = i18n.resolveTranslations() as Record<string, unknown>
-    expect(tree.common).toEqual({ fromB: 'From B' })
-    expect(tree['common.fromA']).toBe('From A')
-    expect(tree['common.fromB']).toBe('From B')
-    expect(tree.pageB).toBe('B')
+    // One shape, layer or no layer: the dump nests, and a caller reading `tree.common.fromA`
+    // cannot have it turn into a flat `'common.fromA'` key because a transition is pending.
+    expect(i18n.resolveTranslations()).toEqual({ common: { fromA: 'From A', fromB: 'From B' }, pageB: 'B' })
     expect(i18n.t('common.fromA')).toBe('From A')
     expect(i18n.t('pageB')).toBe('B')
+  })
+
+  it('resolveTranslations reports the same shape before and after a transition ends', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.applySwitchContext('en', 'page-a', { aaa: { bbb: 'ccc' }, ddd: 1111 })
+
+    const settled = i18n.resolveTranslations()
+    i18n.applySwitchContext('en', 'page-b', { zzz: 'z' })
+
+    expect(i18n.resolveTranslations()).toEqual({ ...settled, zzz: 'z' })
   })
 
   it('resolveTranslations keeps outgoing descendant keys when incoming replaces a namespace with a scalar', () => {

@@ -134,6 +134,73 @@ export function setTranslationAtKey(tree: Record<string, unknown>, key: string, 
   return root
 }
 
+/**
+ * Two live lookup layers as one tree, shaped the way a single layer already is.
+ *
+ * `upper` wins, exactly as a per-key fallthrough does, so the result answers every key the
+ * two layers together can answer — with one exception that a tree cannot express: where
+ * `upper` holds a scalar and `lower` holds an object at the same path, `t('a')` reads the
+ * scalar while `t('a.b')` still reaches into `lower`. Those descendants come back as flat
+ * dotted keys, which is what `getByPath` looks at first anyway.
+ *
+ * The alternative — resolving every collected path one at a time — returned a different
+ * shape depending on whether a second layer happened to be live, and repeated each nested
+ * leaf as a flat key beside the object holding it.
+ */
+export function mergeTranslationLayers(lower: Record<string, unknown>, upper: Record<string, unknown>): Record<string, unknown> {
+  const merged = mergeLayerTrees(lower, upper)
+  const shadowed: Record<string, unknown> = {}
+  collectShadowedLeaves(lower, upper, '', shadowed)
+  return Object.keys(shadowed).length === 0 ? merged : { ...merged, ...shadowed }
+}
+
+/**
+ * `upper` wins per key, except where it holds nothing.
+ *
+ * Not `mergeTranslationChunk`: a `null` leaf is a value to a merge and a miss to
+ * `resolveTranslation`, so a dump built by merging reported `null` where `t()` reads the
+ * fallback locale's string.
+ */
+function mergeLayerTrees(lower: Record<string, unknown>, upper: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...lower }
+  for (const key of Object.keys(upper)) {
+    if (key === '__proto__') continue
+    const above = upper[key]
+    if (above === null || above === undefined) continue
+    const below = result[key]
+    result[key] = isPlainTranslationObject(above) && isPlainTranslationObject(below) ? mergeLayerTrees(below, above) : above
+  }
+  return result
+}
+
+/** Leaves of `lower` that `upper` hides behind a scalar, keyed by their dotted path. */
+function collectShadowedLeaves(lower: Record<string, unknown>, upper: Record<string, unknown>, prefix: string, out: Record<string, unknown>): void {
+  for (const key of Object.keys(lower)) {
+    if (key === '__proto__') continue
+    const value = lower[key]
+    if (!isPlainTranslationObject(value)) continue
+
+    const path = prefix ? `${prefix}.${key}` : key
+    const above = upper[key]
+    if (isPlainTranslationObject(above)) {
+      collectShadowedLeaves(value, above, path, out)
+    } else if (above !== undefined && above !== null) {
+      // `upper` decided this path is a scalar, so nothing below it survives the merge.
+      flattenLeaves(value, path, out)
+    }
+  }
+}
+
+function flattenLeaves(node: Record<string, unknown>, prefix: string, out: Record<string, unknown>): void {
+  for (const key of Object.keys(node)) {
+    if (key === '__proto__') continue
+    const value = node[key]
+    const path = `${prefix}.${key}`
+    if (isPlainTranslationObject(value)) flattenLeaves(value, path, out)
+    else out[path] = value
+  }
+}
+
 export function collectTranslationPaths(obj: Record<string, unknown>, paths: Set<string>, prefix = ''): void {
   for (const key of Object.keys(obj)) {
     if (key === '__proto__') continue

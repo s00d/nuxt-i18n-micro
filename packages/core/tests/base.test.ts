@@ -594,16 +594,15 @@ describe('BaseI18n', () => {
       expect(i18n.t('greeting')).toBe('Hello')
     })
 
-    test('resolveTranslations keeps flat dotted keys when a nested prefix also exists', async () => {
+    test('resolveTranslations keeps a flat dotted key beside the nested prefix it shares', async () => {
       const i18n = new TestI18n('de', 'en', 'index')
       await i18n['helper'].loadTranslations('en', { 'a.b': 'flat', a: { x: 1 } })
       await i18n['helper'].loadTranslations('de', { a: { c: 2 } })
 
       expect(i18n.t('a.b')).toBe('flat')
       expect(i18n.t('a.c')).toBe(2)
-      const tree = i18n.resolveTranslations() as Record<string, unknown>
-      expect(tree['a.b']).toBe('flat')
-      expect(tree['a.c']).toBe(2)
+      // The flat key is a key like any other, so it survives as written; `a` stays a tree.
+      expect(i18n.resolveTranslations()).toEqual({ 'a.b': 'flat', a: { x: 1, c: 2 } })
     })
 
     test('resolveTranslations keeps parent scalar and descendant keys as own entries', async () => {
@@ -625,10 +624,8 @@ describe('BaseI18n', () => {
 
       expect(i18n.t('common.fromEn')).toBe('EN')
       expect(i18n.t('common.shared')).toBe('active')
-      const tree = i18n.resolveTranslations() as Record<string, unknown>
-      expect(tree['common.fromEn']).toBe('EN')
-      expect(tree['common.fromDe']).toBe('DE')
-      expect(tree['common.shared']).toBe('active')
+      // One shape whether or not a second layer is live: nested, active locale winning.
+      expect(i18n.resolveTranslations()).toEqual({ common: { fromEn: 'EN', fromDe: 'DE', shared: 'active' } })
     })
 
     test('setTranslation replaces values and t() sees the change immediately', async () => {

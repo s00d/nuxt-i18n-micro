@@ -103,7 +103,7 @@ member VueI18n.resolveLookup: protected (key: TranslationKey, routeContext?: unk
 member VueI18n.resolveNumberFormatArgs: private any
 member VueI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member VueI18n.resolveTranslations: (routeContext?: unknown) => Translations
-member VueI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
+member VueI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member VueI18n.setRoute: (routeName: string) => void
 member VueI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member VueI18n.storage: TranslationStorage

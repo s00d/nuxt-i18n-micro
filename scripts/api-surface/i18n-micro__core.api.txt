@@ -21,7 +21,7 @@ member BaseI18n.resolveLookup: protected (key: TranslationKey, routeContext?: un
 member BaseI18n.resolveNumberFormatArgs: private (keyOrOptions?: string | Intl.NumberFormatOptions, localeOrOverrides?: string | Intl.NumberFormatOptions, overrides?: Intl.NumberFormatOptions) => { locale: string; options: Intl.NumberFormatOptions | undefined; }
 member BaseI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member BaseI18n.resolveTranslations: (routeContext?: unknown) => Translations
-member BaseI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
+member BaseI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member BaseI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member BaseI18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member BaseI18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
@@ -79,6 +79,7 @@ function isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
 function mergeTranslationChunk: (existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
+function mergeTranslationLayers: (lower: Record<string, unknown>, upper: Record<string, unknown>) => Record<string, unknown>
 type NumberFormatsConfig: Record<string, Record<string, Intl.NumberFormatOptions>>
 interface ReactiveI18nStore
 member ReactiveI18nStore.getFallbackLocale: () => string
@@ -111,6 +112,7 @@ function isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
 function mergeTranslationChunk: (existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
+function mergeTranslationLayers: (lower: Record<string, unknown>, upper: Record<string, unknown>) => Record<string, unknown>
 function resolveTranslation: (obj: Record<string, unknown> | null | undefined, key: string) => unknown | null
 function setTranslationAtKey: (tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>
 function translationCacheKey: (locale: string, routeName?: string) => string

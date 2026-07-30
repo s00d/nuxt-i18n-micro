@@ -1381,7 +1381,7 @@ member PreactI18n.resolveLookup: protected (key: TranslationKey, routeContext?: 
 member PreactI18n.resolveNumberFormatArgs: private any
 member PreactI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member PreactI18n.resolveTranslations: (routeContext?: unknown) => Translations
-member PreactI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
+member PreactI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member PreactI18n.setRoute: (routeName: string) => void
 member PreactI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member PreactI18n.storage: TranslationStorage

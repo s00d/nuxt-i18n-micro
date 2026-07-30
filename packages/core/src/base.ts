@@ -1,6 +1,6 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
-import { defaultPlural, interpolate, collectTranslationPaths, setTranslationAtKey } from './helpers'
+import { defaultPlural, interpolate, mergeTranslationLayers, setTranslationAtKey } from './helpers'
 import { type TranslationStorage, useTranslationHelper } from './translation'
 
 export interface BaseI18nOptions {
@@ -108,33 +108,13 @@ export abstract class BaseI18n {
   }
 
   /**
-   * Snapshot two live layers into one tree via {@link resolveLookup}.
+   * Two live layers as one tree, via {@link mergeTranslationLayers}.
    *
-   * Used when the hot path keeps two objects (fallback locale, or Nuxt page-transition
-   * hot-reload) instead of merging them — the dump has to walk the same fallthrough `t()`
-   * uses, or it lies about what is loaded.
-   *
-   * Values are stored as own keys at each path string (`{ 'a.b': x }`, not nested
-   * `{ a: { b: x } }`). Nesting via {@link setTranslationAtKey} would wipe siblings when a
-   * parent path is a scalar in one layer and an object in the other, or when a flat dotted
-   * key shares a prefix with a nested object — and `getByPath` / `t()` already prefer own
-   * keys, so the dump stays faithful.
+   * Used when the hot path keeps two objects instead of merging them — the fallback locale,
+   * or the Nuxt page-transition layer — so the dump answers what `t()` answers.
    */
-  protected resolveTranslationTree(
-    lower: Record<string, unknown>,
-    upper: Record<string, unknown>,
-    routeContext?: unknown,
-  ): Translations {
-    const paths = new Set<string>()
-    collectTranslationPaths(lower, paths)
-    collectTranslationPaths(upper, paths)
-
-    const tree: Record<string, unknown> = {}
-    for (const path of paths) {
-      const value = this.resolveLookup(path as TranslationKey, routeContext)
-      if (value !== null && value !== undefined) tree[path] = value
-    }
-    return tree as Translations
+  protected resolveTranslationTree(lower: Record<string, unknown>, upper: Record<string, unknown>): Translations {
+    return mergeTranslationLayers(lower, upper) as Translations
   }
 
   /**
@@ -156,7 +136,7 @@ export abstract class BaseI18n {
     const fallback = this.helper.getCache(fallbackLocale, routeName) as Record<string, unknown> | undefined
     if (!fallback) return active
 
-    return this.resolveTranslationTree(fallback, active, routeContext)
+    return this.resolveTranslationTree(fallback, active)
   }
 
   /**

@@ -95,7 +95,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
-| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations` |
+| `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |

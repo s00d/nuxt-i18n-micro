@@ -7,6 +7,7 @@ import {
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
   mergeTranslationChunk,
+  mergeTranslationLayers,
   resolveTranslation,
   setTranslationAtKey,
   collectTranslationPaths,
@@ -170,6 +171,37 @@ describe('Helpers', () => {
     test('checks presence via resolveTranslation', () => {
       expect(hasTranslationValue({ key: 'x' }, 'key')).toBe(true)
       expect(hasTranslationValue({ key: 'x' }, 'missing')).toBe(false)
+    })
+  })
+
+  describe('mergeTranslationLayers', () => {
+    // Two live layers (a fallback locale, or the Nuxt page-transition layer) have to dump as
+    // one tree shaped like a single layer — a caller reading `tree.aaa.bbb` cannot have the
+    // shape change under it because a second layer happens to be live.
+    test('nests, with the upper layer winning', () => {
+      expect(mergeTranslationLayers({ common: { fromEn: 'EN', shared: 'fallback' } }, { common: { fromDe: 'DE', shared: 'active' } })).toEqual({
+        common: { fromEn: 'EN', fromDe: 'DE', shared: 'active' },
+      })
+    })
+
+    test('lets a null in the upper layer fall through, as t() does', () => {
+      expect(mergeTranslationLayers({ greeting: 'Hello' }, { greeting: null })).toEqual({ greeting: 'Hello' })
+    })
+
+    test('reports a leaf the upper layer hides behind a scalar as a flat key', () => {
+      // `t('a')` reads the scalar and `t('a.b')` still reaches the lower layer, which no
+      // nested tree can express — so that descendant comes back as `'a.b'`.
+      expect(mergeTranslationLayers({ a: { b: 'nested' } }, { a: 'scalar' })).toEqual({ a: 'scalar', 'a.b': 'nested' })
+    })
+
+    test('keeps a flat dotted key as written', () => {
+      expect(mergeTranslationLayers({ 'a.b': 'flat', a: { x: 1 } }, { a: { c: 2 } })).toEqual({ 'a.b': 'flat', a: { x: 1, c: 2 } })
+    })
+
+    test('ignores keys that would reach the prototype chain', () => {
+      const merged = mergeTranslationLayers({ a: '1' }, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
+      expect(merged).toEqual({ a: '1', b: '2' })
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
     })
   })
 

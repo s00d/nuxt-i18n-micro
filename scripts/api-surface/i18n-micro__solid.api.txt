@@ -144,7 +144,7 @@ member SolidI18n.resolveLookup: protected (key: TranslationKey, routeContext?: u
 member SolidI18n.resolveNumberFormatArgs: private any
 member SolidI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member SolidI18n.resolveTranslations: (routeContext?: unknown) => Translations
-member SolidI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
+member SolidI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member SolidI18n.routeAccessor: Accessor<string>
 member SolidI18n.setRoute: (val: string) => void
 member SolidI18n.setTranslation: (key: TranslationKey, value: unknown) => void

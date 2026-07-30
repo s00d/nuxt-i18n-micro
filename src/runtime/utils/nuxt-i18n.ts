@@ -268,7 +268,7 @@ export class NuxtI18n extends BaseI18n {
     }
 
     if (this.outgoingTranslations === null) return this.cachedTranslations as Translations
-    return this.resolveTranslationTree(this.outgoingTranslations, this.cachedTranslations, routeContext)
+    return this.resolveTranslationTree(this.outgoingTranslations, this.cachedTranslations)
   }
 
   /**

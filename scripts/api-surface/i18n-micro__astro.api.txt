@@ -33,7 +33,7 @@ member AstroI18n.resolveLookup: protected (key: TranslationKey, routeContext?: u
 member AstroI18n.resolveNumberFormatArgs: private any
 member AstroI18n.resolveRouteName: protected (routeContext?: unknown) => string
 member AstroI18n.resolveTranslations: (routeContext?: unknown) => Translations
-member AstroI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>, routeContext?: unknown) => Translations
+member AstroI18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member AstroI18n.setRoute: (routeName: string) => void
 member AstroI18n.setTranslation: (key: TranslationKey, value: unknown) => void
 member AstroI18n.storage: TranslationStorage

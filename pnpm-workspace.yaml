@@ -22,7 +22,7 @@ catalog:
   '@vitejs/plugin-vue': ^6.0.3
   '@tailwindcss/vite': ^4.1.17
   # Nuxt
-  nuxt: ^4.5.0
+  nuxt: ^4.5.1
   '@nuxt/kit': ^3.18.1 || ^4.0.0
   '@nuxt/schema': ^3.18.1 || ^4.0.0
   '@nuxt/devtools': ^3.3.1
@@ -59,7 +59,7 @@ catalog:
   solid-js: ^1.9.10
   '@solidjs/router': ^0.15.4
   # Astro & Svelte
-  astro: ^7.1.3
+  astro: "^5.0.0 || ^6.0.0 || ^7.0.0"
   '@astrojs/node': ^11.0.2
   '@astrojs/vue': ^7.0.1
   '@astrojs/react': ^6.0.1
@@ -78,8 +78,13 @@ catalog:
   '@types/node': ^20.19.26
   tsx: ^4.0.0
   # Docs & lint
-  vitepress-plugin-llms: ^1.13.3
   vitepress: ^2.0.0-alpha.18
+  vitepress-plugin-llms: ^1.13.3
+  vitepress-plugin-mermaid: ^2.0.17
+  vitepress-plugin-folder-tree: ^1.2.1
+  vitepress-plugin-chartjs: ^1.2.1
+  mermaid: ^11.12.2
+  chart.js: ^4.5.1
   oxfmt: ^0.43.0
   oxlint: ^1.58.0
   changelogen: ^0.5.7

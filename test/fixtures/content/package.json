@@ -16,6 +16,6 @@
     "@nuxt/content": "catalog:"
   },
   "overrides": {
-    "nitropack": "2.9.6"
+    "nitropack": "catalog:"
   }
 }

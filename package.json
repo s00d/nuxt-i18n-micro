@@ -150,21 +150,21 @@
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "changelogen": "catalog:",
-    "chart.js": "^4.5.1",
-    "mermaid": "^11.12.2",
+    "chart.js": "catalog:",
+    "mermaid": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
     "vitepress": "catalog:",
-    "vitepress-plugin-chartjs": "^1.2.1",
-    "vitepress-plugin-folder-tree": "^1.2.1",
+    "vitepress-plugin-chartjs": "catalog:",
+    "vitepress-plugin-folder-tree": "catalog:",
     "vitepress-plugin-llms": "catalog:",
-    "vitepress-plugin-mermaid": "^2.0.17",
+    "vitepress-plugin-mermaid": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
   "peerDependencies": {
-    "vue-router": ">=4.4.0"
+    "vue-router": "catalog:"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "catalog:",
@@ -173,7 +173,7 @@
   "packageManager": "pnpm@9.14.2",
   "pnpm": {
     "overrides": {
-      "@nuxtjs/sitemap": "^8.2.2"
+      "@nuxtjs/sitemap": "catalog:"
     }
   },
   "stackblitz": {

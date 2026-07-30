@@ -9,9 +9,9 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^4.5.0",
+    "nuxt": "catalog:",
     "nuxt-i18n-micro": "latest",
-    "vue": "^3.5.25",
-    "vue-router": "^4.6.3"
+    "vue": "catalog:",
+    "vue-router": "catalog:"
   }
 }

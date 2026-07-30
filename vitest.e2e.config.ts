@@ -34,5 +34,8 @@ export default defineConfig({
     maxWorkers: maxForks,
     // Fresh worker per file so Playwright/Nuxt memory is released between specs.
     isolate: true,
+    // Root `vitest.config.ts` also loads package projects with the default maxWorkers.
+    // Vitest 4 forbids mixing different maxWorkers in the same sequence group.
+    sequence: { groupOrder: 2 },
   },
 })

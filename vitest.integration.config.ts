@@ -27,5 +27,8 @@ export default defineConfig({
     maxWorkers: Math.max(2, parallelism),
     // Fresh worker per file so build/server memory is released between suites.
     isolate: true,
+    // Separate from package/unit projects (default maxWorkers) and from e2e
+    // (different maxWorkers formula). Vitest 4 requires unique groupOrder then.
+    sequence: { groupOrder: 1 },
   },
 })

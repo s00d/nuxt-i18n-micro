@@ -7,22 +7,39 @@
 
 ### 🚀 Enhancements
 
-- **react, preact:** Update aria attributes for accessibility ([882390c2](https://github.com/s00d/nuxt-i18n-micro/commit/882390c2))
-- **vite.config:** Add afterDiagnostic handler for TypeScript errors ([eae3fc6e](https://github.com/s00d/nuxt-i18n-micro/commit/eae3fc6e))
+- **core:** Named `numberFormats` / `datetimeFormats`, Intl formatter cache, reactive store ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **nuxt:** `httpCacheDuration` Cache-Control on `/_locales` payloads; `dateBuild` defaults to content fingerprint ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **nuxt:** Compressed public translation payloads when `nitro.compressPublicAssets` is enabled ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **core:** Translation Memory API — `resolveTranslations()` / `setTranslation(key, value)` (+ framework adapters, test-utils) ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235), [25fc2de8](https://github.com/s00d/nuxt-i18n-micro/commit/25fc2de8))
+- **astro:** Routing-context isolation; wire `numberFormats` / `datetimeFormats` ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **react, preact:** Correct ARIA attrs on `I18nSwitcher` (`aria-haspopup` / `aria-expanded`) ([882390c2](https://github.com/s00d/nuxt-i18n-micro/commit/882390c2))
+- **build:** Fail package builds on TypeScript declaration errors (`afterDiagnostic`) ([eae3fc6e](https://github.com/s00d/nuxt-i18n-micro/commit/eae3fc6e))
 
 ### 🩹 Fixes
 
 - **i18n:** Merge translation layers without flattening dumps ([25fc2de8](https://github.com/s00d/nuxt-i18n-micro/commit/25fc2de8))
+- **switcher:** Hide `disabled` locales; restore `customDisabledLinkStyle` / active style precedence ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **hmr:** Skip no-op file writes; concurrent re-merge on root-locale change ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **runtime:** Keep outgoing chunk as fallthrough during page transitions (same locale) ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **devtools-ui:** Harden path resolution with `safeResolvePath` ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+
+### ⚠️ Breaking Changes
+
+- SSR chunks moved from `useState('i18n-ssr-chunks')` to `nuxtApp.payload.data['i18n-ssr-chunks']` ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- `getAllTranslations()` removed from `@i18n-micro/vue` — use `resolveTranslations()` / `getStorage()` / `getRouteCache()` ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- Default `dateBuild` is a content fingerprint (payload `?v=` changes once on upgrade) ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
 
 ### 📖 Documentation
 
-- **news:** Update release notes for v3.22.0 with new features and fixes ([cfa409c6](https://github.com/s00d/nuxt-i18n-micro/commit/cfa409c6))
+- **news:** Release notes for v3.22.0 — formats, cache, Translation Memory ([cfa409c6](https://github.com/s00d/nuxt-i18n-micro/commit/cfa409c6))
+- Document formats, cache, and switcher DX ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
 
 ### 🏡 Chore
 
-- Restore root package version to 3.21.4 ([ec299229](https://github.com/s00d/nuxt-i18n-micro/commit/ec299229))
-- **github-actions:** Update runner to use `ubuntu-latest` instead of `self-hosted` ([a1c6d4d6](https://github.com/s00d/nuxt-i18n-micro/commit/a1c6d4d6))
-- **workflows:** Update GitHub Actions runner to `ubuntu-latest` ([acd48120](https://github.com/s00d/nuxt-i18n-micro/commit/acd48120))
+- Vitest migration, shared Playwright fixtures, consolidated test configs ([#235](https://github.com/s00d/nuxt-i18n-micro/pull/235))
+- **deps:** Prefer `catalog:` across workspace package.json files ([1df9e31d](https://github.com/s00d/nuxt-i18n-micro/commit/1df9e31d))
+- **workflows:** Use `ubuntu-latest` instead of self-hosted ([a1c6d4d6](https://github.com/s00d/nuxt-i18n-micro/commit/a1c6d4d6), [acd48120](https://github.com/s00d/nuxt-i18n-micro/commit/acd48120))
+- Restore root package version to 3.21.4 before release ([ec299229](https://github.com/s00d/nuxt-i18n-micro/commit/ec299229))
 
 ### ❤️ Contributors
 

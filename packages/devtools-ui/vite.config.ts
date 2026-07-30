@@ -90,7 +90,11 @@ const libUmd: UserConfig = {
       external: ['@i18n-micro/types', '@i18n-micro/utils/merge-source', '@i18n-micro/utils/parse-path'],
       output: {
         exports: 'named',
-        globals: { '@i18n-micro/types': 'I18nMicroTypes' },
+        globals: {
+          '@i18n-micro/types': 'I18nMicroTypes',
+          '@i18n-micro/utils/merge-source': 'I18nMicroUtilsMergeSource',
+          '@i18n-micro/utils/parse-path': 'I18nMicroUtilsParsePath',
+        },
       },
       onwarn: suppressTailwindSourcemapWarn,
     },

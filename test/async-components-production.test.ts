@@ -10,7 +10,7 @@ import type { ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
-import { rimraf } from 'rimraf'
+import { rm } from 'node:fs/promises'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { getFreePort } from './helpers/port'
 import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
@@ -112,8 +112,8 @@ describe('Async Components Production Tests', () => {
     beforeAll(async () => {
       port = await getFreePort()
       await stop()
-      await rimraf(join(FIXTURES, '.nuxt'))
-      await rimraf(join(FIXTURES, '.output'))
+      await rm(join(FIXTURES, '.nuxt'), { recursive: true, force: true })
+      await rm(join(FIXTURES, '.output'), { recursive: true, force: true })
       await runNuxt('generate')
 
       server = serve(['npx', 'serve', '.output/public', '-p', String(port)], port)
@@ -177,8 +177,8 @@ describe('Async Components Production Tests', () => {
     beforeAll(async () => {
       port = await getFreePort()
       await stop()
-      await rimraf(join(FIXTURES, '.nuxt'))
-      await rimraf(join(FIXTURES, '.output'))
+      await rm(join(FIXTURES, '.nuxt'), { recursive: true, force: true })
+      await rm(join(FIXTURES, '.output'), { recursive: true, force: true })
       await runNuxt('build')
 
       server = serve(['node', '.output/server/index.mjs'], port)

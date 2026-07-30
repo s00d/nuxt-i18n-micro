@@ -2,7 +2,7 @@ import { exec as execCb } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
-import { rimraf } from 'rimraf'
+import { rm } from 'node:fs/promises'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { isolatedBuild } from './isolated-build'
 
@@ -174,14 +174,14 @@ export function registerStrategyGenerateTests() {
     let combinedOutput = ''
 
     beforeAll(async () => {
-      await rimraf(build.buildDir)
+      await rm(build.buildDir, { recursive: true, force: true })
       const result = await runGenerate(build.fixtureDir, build.env, strategy)
       combinedOutput = result.combinedOutput
       expect(result.exitOk, `nuxi generate failed:\n${combinedOutput.slice(-2000)}`).toBe(true)
     }, 120_000)
 
     afterAll(async () => {
-      await rimraf(build.buildDir).catch(() => {})
+      await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
     })
 
     it('completes without prerender errors', () => {

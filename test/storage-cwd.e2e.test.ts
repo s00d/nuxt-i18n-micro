@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
-import { rimraf } from 'rimraf'
+import { rm } from 'node:fs/promises'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { getFreePort } from './helpers/port'
 import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
@@ -47,8 +47,8 @@ describe('i18n public payload ignores process.cwd()', () => {
   beforeAll(async () => {
     port = await getFreePort()
     await stop()
-    await rimraf(join(FIXTURE, '.nuxt'))
-    await rimraf(join(FIXTURE, '.output'))
+    await rm(join(FIXTURE, '.nuxt'), { recursive: true, force: true })
+    await rm(join(FIXTURE, '.output'), { recursive: true, force: true })
 
     originalConfig = readFileSync(CONFIG, 'utf8')
     writeFileSync(

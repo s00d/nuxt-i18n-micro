@@ -1,7 +1,7 @@
 import { exec as execCb } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { promisify } from 'node:util'
-import { rimraf } from 'rimraf'
+import { rm } from 'node:fs/promises'
 import { afterAll, describe, expect, it } from 'vitest'
 import { isolatedBuild } from './helpers/isolated-build'
 
@@ -10,12 +10,12 @@ const exec = promisify(execCb)
 const build = isolatedBuild('nuxt-7cnbrdte', 'generate-issue-218')
 
 afterAll(async () => {
-  await rimraf(build.buildDir).catch(() => {})
+  await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
 })
 
 describe('issue #218 - routeRules prerender should not double-localize routes', () => {
   it('builds without /fr/fr prerender errors', async () => {
-    await rimraf(build.buildDir)
+    await rm(build.buildDir, { recursive: true, force: true })
 
     let exitOk = false
     let combinedOutput = ''

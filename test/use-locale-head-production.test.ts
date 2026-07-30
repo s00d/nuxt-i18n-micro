@@ -7,7 +7,7 @@ import type { ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
-import { rimraf } from 'rimraf'
+import { rm } from 'node:fs/promises'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { getFreePort } from './helpers/port'
 import { runCommand, spawnServer, stopChild } from './helpers/subprocess'
@@ -57,8 +57,8 @@ describe('useLocaleHead production SSR (#233)', () => {
   beforeAll(async () => {
     port = await getFreePort()
     await stop()
-    await rimraf(join(FIXTURE, '.nuxt'))
-    await rimraf(join(FIXTURE, '.output'))
+    await rm(join(FIXTURE, '.nuxt'), { recursive: true, force: true })
+    await rm(join(FIXTURE, '.output'), { recursive: true, force: true })
     await runNuxiBuild()
 
     server = serveProduction(port)

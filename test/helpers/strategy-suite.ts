@@ -13,7 +13,7 @@
  */
 import type { ChildProcess } from 'node:child_process'
 import { setTimeout as delay } from 'node:timers/promises'
-import { rimraf } from 'rimraf'
+import { rm } from 'node:fs/promises'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { isolatedBuild } from './isolated-build'
 import { getFreePort } from './port'
@@ -114,7 +114,7 @@ export function registerStrategySuite(strategy: StrategyName): void {
       }
 
       beforeAll(async () => {
-        await rimraf(build.buildDir)
+        await rm(build.buildDir, { recursive: true, force: true })
         await runNuxt(script, build)
 
         port = await getFreePort()

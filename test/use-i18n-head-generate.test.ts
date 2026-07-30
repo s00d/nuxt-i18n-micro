@@ -10,8 +10,8 @@ import type { ChildProcess } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { rm } from 'node:fs/promises'
 import { chromium, expect as playwrightExpect } from '@playwright/test'
-import { rimraf } from 'rimraf'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { assertI18nHeadScenario, expectHtmlScenario, i18nHeadScenarios, i18nHeadStaticPages, staticHtmlPath } from './helpers/i18n-head-seo'
 import { isolatedBuild } from './helpers/isolated-build'
@@ -61,7 +61,7 @@ describe('useI18nHead after nuxi generate', () => {
   }
 
   beforeAll(async () => {
-    await rimraf(build.buildDir).catch(() => {})
+    await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
     await runGenerate()
     port = await getFreePort()
     server = serveStatic(port)
@@ -70,7 +70,7 @@ describe('useI18nHead after nuxi generate', () => {
 
   afterAll(async () => {
     await stopServer()
-    await rimraf(build.buildDir).catch(() => {})
+    await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
   })
 
   describe('prerendered HTML files', () => {
@@ -153,7 +153,7 @@ describe('useI18nHead after nuxi generate', () => {
 
     beforeAll(async () => {
       await stopServer()
-      await rimraf(build.buildDir).catch(() => {})
+      await rm(build.buildDir, { recursive: true, force: true }).catch(() => {})
 
       await runCommand('npx', ['nuxi', 'build'], {
         cwd: FIXTURES,

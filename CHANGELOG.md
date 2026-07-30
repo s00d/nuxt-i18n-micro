@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v3.24.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.22.0...v3.24.0)
+
+### 🚀 Enhancements
+
+- **tests:** Add type error handling in React context test ([22652468](https://github.com/s00d/nuxt-i18n-micro/commit/22652468))
+- Node SSR from public payloads (no Rollup raw:) ([d58c7f53](https://github.com/s00d/nuxt-i18n-micro/commit/d58c7f53))
+
+### 🩹 Fixes
+
+- **ci:** Drop undeclared rimraf from tests ([93d0766b](https://github.com/s00d/nuxt-i18n-micro/commit/93d0766b))
+- **utils:** Omit disabled locales from premerged public payloads ([98f9b362](https://github.com/s00d/nuxt-i18n-micro/commit/98f9b362))
+
+### 🏡 Chore
+
+- **devtools-ui:** Update Vite config to include additional globals for utils ([9b8d43ff](https://github.com/s00d/nuxt-i18n-micro/commit/9b8d43ff))
+- **devtools-ui:** Bump version to 1.2.5 ([94b768c8](https://github.com/s00d/nuxt-i18n-micro/commit/94b768c8))
+- Silence vue-router volar plugin under vue-router@4 ([513d92db](https://github.com/s00d/nuxt-i18n-micro/commit/513d92db))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.22.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.21.4...v3.22.0)

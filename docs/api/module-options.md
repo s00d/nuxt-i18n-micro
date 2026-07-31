@@ -104,7 +104,7 @@ Choosing a locale for a visitor who has not picked one.
 | --- | --- | --- | --- |
 | `redirects` | `boolean` | `true` | Enable automatic locale-based redirects. When `true`, visitors are redirected to their preferred locale (detected from cookie, `Accept-Language` header, or the default) on the first visit. |
 | `autoDetectLanguage` | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header. Used in combination with `autoDetectPath` to decide when detection occurs. |
-| `autoDetectPath` | `string` | `'/'` | URL path on which automatic language detection and redirect occur. - `'/'` — detect only on the root path. - `'*'` — detect and redirect on every path (including locale-prefixed ones). |
+| `autoDetectPath` | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — exact path match (e.g. `'/welcome'`) Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated. |
 
 ## Registration
 

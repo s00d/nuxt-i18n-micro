@@ -153,7 +153,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `noPrefixRedirect?` | `boolean \| undefined` |
 | `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
 | `plugin?` | `boolean \| undefined` |
-| `plural?` | `string \| PluralFunc \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
 | `redirects?` | `boolean \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
@@ -208,7 +208,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `noPrefixRedirect?` | `boolean \| undefined` |
 | `numberFormats?` | `Record<string, Record<string, Intl.NumberFormatOptions>> \| undefined` |
 | `plugin?` | `boolean \| undefined` |
-| `plural?` | `string \| PluralFunc \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
 | `redirects?` | `boolean \| undefined` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
@@ -264,7 +264,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `payloadFsDir` | `string` |
 | `payloadPublicRel` | `string` |
 | `plugin?` | `boolean \| undefined` |
-| `plural?` | `string \| PluralFunc \| undefined` |
+| `plural?` | `PluralFunc \| undefined` |
 | `redirects?` | `boolean \| undefined` |
 | `rootDir` | `string` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |

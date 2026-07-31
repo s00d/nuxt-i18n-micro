@@ -15,6 +15,7 @@ const subpaths = [
   { subpath: './route', exportName: 'findAllowedLocalesForRoute' },
   { subpath: './parse-path', exportName: 'parseTranslationRelativePath' },
   { subpath: './accept-language', exportName: 'detectLocaleFromAcceptLanguage' },
+  { subpath: './auto-detect-path', exportName: 'shouldAttemptLocaleRedirect' },
   { subpath: './runtime-config', exportName: 'resolveI18nConfigWithRuntimeOverrides' },
 ] as const
 

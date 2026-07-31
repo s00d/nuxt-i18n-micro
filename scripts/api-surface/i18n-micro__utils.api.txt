@@ -11,6 +11,9 @@ function isEnabledLocale: (locales: Locale[] | null | undefined, code: string) =
 # ./app-path (src/app-path.ts)
 function withoutAppBaseURL: (pathname: string, baseURL?: string | null) => string
 
+# ./auto-detect-path (src/auto-detect-path.ts)
+function shouldAttemptLocaleRedirect: (path: string, options?: { autoDetectPath?: string; hasLocalePrefix?: boolean; }) => boolean
+
 # ./build (src/build.ts)
 function buildTranslationSourceLayers: (rootDirs: string[], translationDirName: string, outputDir: string) => Promise<void>
 interface PreMergeLocaleInfo

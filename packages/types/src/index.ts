@@ -308,9 +308,14 @@ export interface ModuleOptions {
   autoDetectLanguage?: boolean
 
   /**
-   * URL path on which automatic language detection and redirect occur.
-   * - `'/'` — detect only on the root path.
-   * - `'*'` — detect and redirect on every path (including locale-prefixed ones).
+   * Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled).
+   * - `'/'` — only `/` (deep links in the default locale stay reachable; default)
+   * - `'no_prefix'` — only paths without a locale prefix
+   * - `'*'` — every path, including rewriting an explicit locale prefix
+   *   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
+   * - any other string — exact path match (e.g. `'/welcome'`)
+   *
+   * Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
    * @default '/'
    */
   autoDetectPath?: string

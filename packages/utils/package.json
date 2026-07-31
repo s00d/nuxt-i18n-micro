@@ -165,6 +165,21 @@
       },
       "default": "./dist/resolve-locale.mjs"
     },
+    "./auto-detect-path": {
+      "production": {
+        "types": "./dist/auto-detect-path.d.ts",
+        "default": "./dist/auto-detect-path.mjs"
+      },
+      "import": {
+        "types": "./dist/auto-detect-path.d.ts",
+        "default": "./dist/auto-detect-path.mjs"
+      },
+      "require": {
+        "types": "./dist/auto-detect-path.d.cts",
+        "default": "./dist/auto-detect-path.cjs"
+      },
+      "default": "./dist/auto-detect-path.mjs"
+    },
     "./resolve-og-locale": {
       "production": {
         "types": "./dist/resolve-og-locale.d.ts",

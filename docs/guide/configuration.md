@@ -46,7 +46,7 @@ The sections below explain how they work together; the
 | [`translationPayloads.warnFileCount`](/api/module-options) | `number` | `500` | Warn during build when generated payload file count exceeds this threshold. |
 | [`translationPayloads.warnSizeBytes`](/api/module-options) | `number` | `10485760 (10 MB)` | Warn during build when generated payload total size exceeds this threshold in bytes. |
 | [`autoDetectLanguage`](/api/module-options) | `boolean` | `true` | Automatically detect the user's preferred language from the `Accept-Language` HTTP header. |
-| [`autoDetectPath`](/api/module-options) | `string` | `'/'` | URL path on which automatic language detection and redirect occur. - `'/'` — detect only on the root path. - `'*'` — detect and redirect on every path (including locale-prefixed ones). |
+| [`autoDetectPath`](/api/module-options) | `string` | `'/'` | Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled). - `'/'` — only `/` (deep links in the default locale stay reachable; default) - `'no_prefix'` — only paths without a locale prefix - `'*'` — every path, including rewriting an explicit locale prefix   (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`) - any other string — exact path match (e.g. `'/welcome'`) Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated. |
 | [`disableWatcher`](/api/module-options) | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode. |
 | [`types`](/api/module-options) | `boolean` | `true` | Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers based on the translation keys in your default locale files. |
 | [`routesLocaleLinks`](/api/module-options) | `{ [key: string]: string }` | `{}` | Map route names to other route names to share the same translation files. |
@@ -623,10 +623,16 @@ autoDetectLanguage: false
 
 **Type** `string` · **Default** `'/'`
 
-URL path on which automatic language detection and redirect occur.
+Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled).
 
-- `'/'` — detect only on the root path.
-- `'*'` — detect and redirect on every path (including locale-prefixed ones).
+- `'/'` — only `/` (deep links in the default locale stay reachable; default)
+- `'no_prefix'` — only paths without a locale prefix
+- `'*'` — every path, including rewriting an explicit locale prefix
+  (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
+
+- any other string — exact path match (e.g. `'/welcome'`)
+
+Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
 
 <!-- /generated:option:autoDetectPath -->
 

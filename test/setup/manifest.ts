@@ -26,6 +26,7 @@ export const FIXTURE_VARIANTS: Record<string, FixtureVariant> = {
   'locale-state-prefix-and-default': { dir: 'locale-state', env: { STRATEGY: 'prefix_and_default' } },
   'cookie-default': { dir: 'cookie', env: {} },
   'cookie-custom-name': { dir: 'cookie', env: { LOCALE_COOKIE: 'user-change-cookie' } },
+  'cookie-auto-detect-root': { dir: 'cookie', env: { AUTO_DETECT_PATH: '/' } },
   'basic-no-ssr': { dir: 'basic', env: { NUXT_TEST_NO_SSR: '1' } },
 }
 
@@ -77,6 +78,7 @@ export const SHARED_FIXTURES: Record<string, string[]> = {
   'locale-state-prefix-and-default': ['locale-state-prefix-and-default.spec.ts'],
   'cookie-default': ['cookie.spec.ts'],
   'cookie-custom-name': ['cookie-replace.spec.ts'],
+  'cookie-auto-detect-root': ['auto-detect-path.spec.ts'],
   'basic-no-ssr': ['no-ssr.spec.ts'],
 }
 

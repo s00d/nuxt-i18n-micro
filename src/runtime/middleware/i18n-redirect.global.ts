@@ -6,6 +6,7 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import type { RouteLocationNormalized } from 'vue-router'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp } from '#imports'
 import { useI18nLocale } from '../composables/useI18nLocale'
@@ -40,6 +41,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const pathSegments = path.replace(/^\//, '').split('/').filter(Boolean)
   const firstSegment = pathSegments[0]
   const hasLocalePrefix = Boolean(firstSegment && validLocales.includes(firstSegment))
+  const allowPreferenceRedirect = shouldAttemptLocaleRedirect(path, { autoDetectPath, hasLocalePrefix })
+
+  // Preference redirects on unprefixed paths are gated by autoDetectPath.
+  // Prefixed strategy cleanup (e.g. /en → /) always runs.
+  if (!hasLocalePrefix && !allowPreferenceRedirect) return
 
   if (autoDetectPath === '*' && !hasLocalePrefix) {
     preferredLocale = defaultLocale

@@ -242,10 +242,16 @@ i18n: {
 
 **Type** `string` · **Default** `'/'`
 
-URL path on which automatic language detection and redirect occur.
+Where cookie / Accept-Language preference redirects may run (when `redirects` is enabled).
 
-- `'/'` — detect only on the root path.
-- `'*'` — detect and redirect on every path (including locale-prefixed ones).
+- `'/'` — only `/` (deep links in the default locale stay reachable; default)
+- `'no_prefix'` — only paths without a locale prefix
+- `'*'` — every path, including rewriting an explicit locale prefix
+  (e.g. `/fr/about` → `/de/about` when the cookie prefers `de`)
+
+- any other string — exact path match (e.g. `'/welcome'`)
+
+Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated.
 
 <!-- /generated:option:autoDetectPath -->
 
@@ -259,6 +265,24 @@ i18n: {
 ::: warning `autoDetectPath: '*'`
 With `autoDetectPath: '*'`, even URLs with an explicit locale prefix (e.g., `/fr/about`) will be redirected if the user's preferred locale differs. This can be useful for domain-based setups but may confuse users who share URLs.
 :::
+
+With the default `autoDetectPath: '/'` and a locale cookie:
+
+| request | cookie | result |
+| --- | --- | --- |
+| `/` | `de` | 302 → `/de` |
+| `/about` | `de` | 200, default locale (no rewrite) |
+
+```typescript
+i18n: {
+  localeCookie: 'user-locale',
+  strategy: 'prefix_except_default',
+  // Default — remember language on entry, keep deep links stable
+  autoDetectPath: '/',
+  // Or redirect on every unprefixed path (but not /de/… → /fr/…):
+  // autoDetectPath: 'no_prefix',
+}
+```
 
 ## ⚠️ Known Issues and Best Practices
 

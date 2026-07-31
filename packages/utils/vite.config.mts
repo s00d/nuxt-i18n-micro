@@ -16,6 +16,7 @@ const libEntries = {
   'payload-stats': resolve(rootDir, 'src/payload-stats.ts'),
   'accept-language': resolve(rootDir, 'src/accept-language.ts'),
   'resolve-locale': resolve(rootDir, 'src/resolve-locale.ts'),
+  'auto-detect-path': resolve(rootDir, 'src/auto-detect-path.ts'),
   'resolve-og-locale': resolve(rootDir, 'src/resolve-og-locale.ts'),
   'resolve-hreflang': resolve(rootDir, 'src/resolve-hreflang.ts'),
   'merge-i18n-head': resolve(rootDir, 'src/merge-i18n-head.ts'),

@@ -18,8 +18,9 @@ export default defineNuxtConfig({
     localeCookie: process.env.LOCALE_COOKIE ?? 'user-locale',
     disablePageLocales: true,
     strategy: 'prefix_except_default',
-    // Both cookie specs drive detection through the cookie only.
-    autoDetectPath: '*',
+    // Default `*` keeps strategy cleanup (/de → /) for cookie.spec.
+    // auto-detect-root variant uses AUTO_DETECT_PATH=/ (#242).
+    autoDetectPath: process.env.AUTO_DETECT_PATH ?? '*',
     autoDetectLanguage: false,
   },
 })

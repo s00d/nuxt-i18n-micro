@@ -9,6 +9,7 @@ import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
+import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import { getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
 import { resolvePreferredLocale } from '@i18n-micro/utils/resolve-locale'
 import { getCookie, getHeader, getRequestURL, setCookie } from 'h3'
@@ -87,13 +88,11 @@ export default defineNuxtPlugin({
       }
 
       if (i18nConfig.redirects !== false) {
-        const prerenderHeader = getHeader(event, 'x-nitro-prerender')
-        const userAgent = getHeader(event, 'user-agent') || ''
-        const isRootPath = path === '/' || path === ''
-        const isPrerenderOrBot = !!(prerenderHeader || userAgent.includes('Nitro') || !userAgent)
-        const skipRedirect = !isRootPath && autoDetectPath !== '*' && isPrerenderOrBot
+        const allowPreferenceRedirect = shouldAttemptLocaleRedirect(path, { autoDetectPath, hasLocalePrefix })
 
-        if (!skipRedirect) {
+        // Preference redirects on unprefixed paths are gated by autoDetectPath.
+        // Prefixed strategy cleanup (e.g. /en → /) always runs.
+        if (hasLocalePrefix || allowPreferenceRedirect) {
           const localeState = autoDetectPath !== '*' ? useState<string | null>('i18n-locale', () => null) : null
           let preferredLocale = resolvePreferredLocale({
             defaultLocale,

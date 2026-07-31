@@ -6,20 +6,6 @@ outline: 'deep'
 
 # News
 
-## Unreleased — custom `plural` falls back to default (#241)
-
-**Date**: 2026-07-31
-
-A custom `plural` that returns `null`/`undefined` now chains to the built-in `defaultPlural`, so you can override only some locales (e.g. Slavic) without reimplementing English-style rules. File-path `plural: '~/…'` is **not** supported — the function must stay self-contained in `nuxt.config` (serialized via `.toString()`).
-
-## Unreleased — hreflang from `iso`, not routing `code` (#243)
-
-**Date**: 2026-07-31
-
-When a locale has `iso`, SEO alternates now emit **one** `hreflang` per locale (`iso || code`). Routing `code` is no longer duplicated alongside `iso`, so market keys like `mx` no longer produce invalid `hreflang="mx"`.
-
-Optional `hreflangBaseLanguage: true` also emits a bare-language tag derived from `iso` (e.g. `es-ES` → `es`), claimed by the first regional locale in `locales`.
-
 ## Nuxt I18n Micro v3.24.0 — Node SSR from `public/`, no Rollup `raw:`
 
 **Date**: 2026-07-30

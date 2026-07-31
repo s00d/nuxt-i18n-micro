@@ -48,7 +48,7 @@ describe('preflight', () => {
   it('runs every gate and publishes nothing', async () => {
     const { report, exitCode } = await run()
 
-    expect(report.gates.map((gate) => gate.name)).toEqual(['deps-audit', 'verify-packages', 'api-surface', 'docs-audit', 'docs-generate', 'fixtures-audit', 'check-versions', 'ensure-npm-auth'])
+    expect(report.gates.map((gate) => gate.name)).toEqual(['deps-audit', 'verify-packages', 'api-surface', 'docs-audit', 'docs-generate', 'fixtures-audit', 'check-versions', 'ensure-release-source', 'ensure-npm-auth'])
     expect(exitCode).toBeNull()
     expect(report.wouldPublish).toEqual([{ name: '@i18n-micro/core', version: '1.0.0' }])
   })

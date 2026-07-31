@@ -41,6 +41,7 @@ function gatesFor(options: { npm: boolean; offline: boolean; budget: boolean }):
     // `check-versions` resolves its baseline with `git fetch` under GITHUB_BASE_REF, so
     // it is a network gate even without --npm.
     { name: 'check-versions', args: options.npm ? ['check-versions', '--npm'] : ['check-versions'], skip: registryOnly },
+    { name: 'ensure-release-source', args: ['ensure-release-source'] },
     { name: 'ensure-npm-auth', args: ['ensure-npm-auth'], skip: options.npm ? registryOnly : () => 'needs --npm' },
     // Last on purpose: it builds an application, and discovering a packaging failure
     // after a ten-minute build defeats the point of ordering the gates at all.

@@ -25,6 +25,7 @@ after publishing. They are the checks with no other owner.
 | [`api-surface`](#api-surface) | an export removed or retyped without anyone noticing |
 | [`deps-audit`](#deps-audit) | versions escaping the catalog, packages imported but never declared |
 | [`fixtures-audit`](#fixtures-audit) | test fixtures nothing references |
+| [`ensure-release-source`](#ensure-release-source) | root version / CHANGELOG edited outside `cli release` |
 | [`preflight`](#preflight) | the rest of them, before a release |
 
 Two of them do double duty: the artifacts `api-surface` and `payload-budget` produce are
@@ -242,6 +243,27 @@ does not, so remove that one by hand.
 and expected after running the suites, and an unreferenced fixture is a candidate to check
 rather than a defect — which is why the command never deletes either.
 
+## ensure-release-source
+
+Root `package.json` **version** and `CHANGELOG.md` must only move through
+`pnpm -C scripts cli release` (changelogen). Hand-bumps and hand-edited changelogs
+look fine until the next release rewrites them or publishes the wrong version.
+
+```bash
+pnpm run release:source
+pnpm -C scripts cli ensure-release-source
+pnpm -C scripts cli ensure-release-source --base v3.24.0
+```
+
+Checks:
+
+- uncommitted edits to `CHANGELOG.md` or a dirty root `package.json`
+- commits since the previous release tag that change `CHANGELOG.md` without a
+  `chore(release): vX.Y.Z` subject
+- commits that bump the root version the same way
+
+Wired after `release:auth` in `release:patch` / `minor` / `major`, and into `release:check` / `preflight`.
+
 ## preflight
 
 The release scripts chain the gates with `&&`, which stops at the first failure: a run
@@ -267,6 +289,7 @@ Release preflight
   ok api-surface
   ok docs-audit
   ok check-versions
+  ok ensure-release-source
   -  ensure-npm-auth   skipped (needs --npm)
 
 Would publish 15 package(s) (changelog from v3.21.4):

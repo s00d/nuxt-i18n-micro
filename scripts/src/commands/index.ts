@@ -6,6 +6,7 @@ import { depsAuditCommand } from './deps-audit'
 import { docsAuditCommand } from './docs-audit'
 import { docsGenerateCommand } from './docs-generate'
 import { ensureNpmAuthCommand } from './ensure-npm-auth'
+import { ensureReleaseSourceCommand } from './ensure-release-source'
 import { fixturesAuditCommand } from './fixtures-audit'
 import { payloadBudgetCommand } from './payload-budget'
 import { preflightCommand } from './preflight'
@@ -24,6 +25,7 @@ export const commands = {
   'docs-audit': docsAuditCommand,
   'docs-generate': docsGenerateCommand,
   'ensure-npm-auth': ensureNpmAuthCommand,
+  'ensure-release-source': ensureReleaseSourceCommand,
   'fixtures-audit': fixturesAuditCommand,
   'payload-budget': payloadBudgetCommand,
   preflight: preflightCommand,

@@ -43,7 +43,15 @@ export abstract class BaseI18n {
       datetimeFormats: options.datetimeFormats,
     }
     this.formatter = new FormatService(formatOptions)
-    this.pluralFunc = options.plural || defaultPlural
+    // Custom plural returning null/undefined chains to defaultPlural (#241).
+    // Skip the wrapper when the caller already passed the built-in (module default).
+    this.pluralFunc =
+      options.plural && options.plural !== defaultPlural
+        ? (key, count, params, locale, getter) => {
+            const custom = options.plural!(key, count, params, locale, getter)
+            return custom ?? defaultPlural(key, count, params, locale, getter)
+          }
+        : defaultPlural
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
     this.getCustomMissingHandler = options.getCustomMissingHandler

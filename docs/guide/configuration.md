@@ -50,7 +50,7 @@ The sections below explain how they work together; the
 | [`disableWatcher`](/api/module-options) | `boolean` | `false` | Disable the file watcher that auto-creates missing translation files in development mode. |
 | [`types`](/api/module-options) | `boolean` | `true` | Generate TypeScript type declarations for `useI18n`, `$t`, and related helpers based on the translation keys in your default locale files. |
 | [`routesLocaleLinks`](/api/module-options) | `{ [key: string]: string }` | `{}` | Map route names to other route names to share the same translation files. |
-| [`plural`](/api/module-options) | `string \| PluralFunc` | `built-in pluralization (singular/plural by count)` | Custom pluralization function or a path to a file exporting one. |
+| [`plural`](/api/module-options) | `PluralFunc` | `built-in pluralization (form index by count)` | Custom pluralization function. |
 | [`disablePageLocales`](/api/module-options) | `boolean` | `false` | Disable per-page translation files. |
 | [`fallbackLocale`](/api/module-options) | `string` | `undefined (no fallback; returns the raw key)` | Global fallback locale code. |
 | [`localeCookie`](/api/module-options) | `string \| null` | `null` | Cookie name for persisting the user's locale preference across sessions. |
@@ -640,12 +640,16 @@ autoDetectPath: '*' // On all routes (use with caution)
 
 <!-- generated:option:plural — do not edit; run `pnpm run docs:generate` -->
 
-**Type** `string \| PluralFunc` · **Default** `built-in pluralization (singular/plural by count)`
+**Type** `PluralFunc` · **Default** `built-in pluralization (form index by count)`
 
-Custom pluralization function or a path to a file exporting one.
-When a string path is provided, the file is imported at build time.
-The function receives `(key, count, params, locale, getter)` and should return
-the correct plural form as a string, or `null` to fall back to the built-in logic.
+Custom pluralization function.
+Receives `(key, count, params, locale, getter)` and should return the selected
+plural form as a string, or `null`/`undefined` to fall back to the built-in
+`defaultPlural` logic (so you can override only some locales).
+
+For the Nuxt module the function is serialized with `.toString()` into
+`.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope).
+A file path string is **not** supported.
 
 <!-- /generated:option:plural -->
 
@@ -678,8 +682,9 @@ For languages with complex pluralization rules (e.g., Russian, Arabic, Polish), 
 The function is serialized via `.toString()` and injected into a virtual module at build time. This means:
 
 - **Must use `function` keyword** — NOT shorthand method syntax, NOT arrow functions with external references
-- **No imports or external references** — the function must be fully self-contained
+- **No imports or external references** — the function must be fully self-contained (a file path like `plural: '~/i18n/plural.ts'` is **not** supported)
 - **No TypeScript-only syntax** that doesn't survive `.toString()` (type annotations are fine in `nuxt.config.ts` because Nuxt strips them)
+- Returning `null` / `undefined` falls back to the built-in `defaultPlural` (useful for per-locale overrides)
   :::
 
 **Example: Russian pluralization** (4 forms: zero, one, few, many):
@@ -755,36 +760,39 @@ plural: function (key, count, params, _locale, t) {
 
 ##### Per-locale pluralization
 
-If different locales need different plural rules, use the `locale` parameter:
+If different locales need different plural rules, branch on `locale` and return `null`
+for locales you do not customize — the built-in `defaultPlural` handles the rest:
 
 ```typescript
 plural: function (key, count, _params, locale, t) {
+  // Only override Slavic locales; en/de/… keep the built-in rules
+  if (locale !== 'ru' && locale !== 'uk') return null
+
   const translation = t(key)
-  if (!translation) return key
+  if (!translation) return null
 
   const forms = translation.toString().split('|').map(function (s) { return s.trim() })
-
-  // Russian/Ukrainian plural rules
-  if (locale === 'ru' || locale === 'uk') {
-    let idx
-    if (count === 0) {
-      idx = 0
-    } else {
-      const mod10 = count % 10
-      const mod100 = count % 100
-      if (mod10 === 1 && mod100 !== 11) idx = 1
-      else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) idx = 2
-      else idx = 3
-    }
-    if (idx >= forms.length) idx = forms.length - 1
-    return (forms[idx] || '').replace('{count}', String(count))
+  let idx
+  if (count === 0) {
+    idx = 0
+  } else {
+    const mod10 = count % 10
+    const mod100 = count % 100
+    if (mod10 === 1 && mod100 !== 11) idx = 1
+    else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) idx = 2
+    else idx = 3
   }
-
-  // Default: English-like (index-based)
-  const idx = count < forms.length ? count : forms.length - 1
+  if (idx >= forms.length) idx = forms.length - 1
   return (forms[idx] || '').replace('{count}', String(count))
 }
 ```
+
+::: warning No module-path `plural`
+`plural: '~/i18n/plural.ts'` (or any string path) is **not** supported. The Nuxt module
+serializes the function with `.toString()` into a virtual file; external imports and
+helpers from another module are stripped and will be `undefined` at runtime. Keep the
+function fully inlined in `nuxt.config.ts` (see the danger note above).
+:::
 #### `localeCookie`
 
 <!-- generated:option:localeCookie — do not edit; run `pnpm run docs:generate` -->

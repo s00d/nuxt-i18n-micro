@@ -337,13 +337,17 @@ export interface ModuleOptions {
   routesLocaleLinks?: { [key: string]: string }
 
   /**
-   * Custom pluralization function or a path to a file exporting one.
-   * When a string path is provided, the file is imported at build time.
-   * The function receives `(key, count, params, locale, getter)` and should return
-   * the correct plural form as a string, or `null` to fall back to the built-in logic.
-   * @default built-in pluralization (singular/plural by count)
+   * Custom pluralization function.
+   * Receives `(key, count, params, locale, getter)` and should return the selected
+   * plural form as a string, or `null`/`undefined` to fall back to the built-in
+   * `defaultPlural` logic (so you can override only some locales).
+   *
+   * For the Nuxt module the function is serialized with `.toString()` into
+   * `.nuxt/i18n.plural.mjs` — it must be self-contained (no imports / outer scope).
+   * A file path string is **not** supported.
+   * @default built-in pluralization (form index by count)
    */
-  plural?: string | PluralFunc
+  plural?: PluralFunc
 
   /**
    * Disable per-page translation files.

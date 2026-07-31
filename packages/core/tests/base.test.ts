@@ -221,6 +221,36 @@ describe('BaseI18n', () => {
       // This happens when translation exists but is empty or invalid.
       expect(i18n.tc('missing.key', 1, 'Default')).toBe('missing.key')
     })
+
+    test('#241: custom plural null should fall back to defaultPlural', () => {
+      // Override only for ru; return null elsewhere — should use built-in form selection for en
+      const customPlural: PluralFunc = (key, count, params, locale, getter) => {
+        if (locale !== 'ru') return null
+        const translation = getter(key, params)
+        if (typeof translation !== 'string') return null
+        return `ru:${translation.split('|')[0]}`
+      }
+
+      const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural })
+      // key ≠ forms, so falling back to `key` cannot accidentally pass
+      // defaultPlural indexes by count: 0→form0, 1→form1, 2+→last
+      i18n['helper'].loadTranslations('en', { items: 'none|one|many' })
+
+      expect(i18n.tc('items', 0)).toBe('none')
+      expect(i18n.tc('items', 1)).toBe('one')
+      expect(i18n.tc('items', 5)).toBe('many')
+
+      i18n.setLocale('ru')
+      i18n['helper'].loadTranslations('ru', { items: 'нет|один|мало|много' })
+      expect(i18n.tc('items', 1)).toBe('ru:нет')
+    })
+
+    test('#241: custom plural can still return an explicit string (no accidental default)', () => {
+      const customPlural: PluralFunc = () => 'forced'
+      const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural })
+      i18n['helper'].loadTranslations('en', { items: 'none|one|many' })
+      expect(i18n.tc('items', 1)).toBe('forced')
+    })
   })
 
   describe('tn() method', () => {

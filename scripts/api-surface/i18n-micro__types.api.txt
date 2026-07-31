@@ -75,7 +75,7 @@ member ModuleOptions.missingWarn?: boolean | undefined
 member ModuleOptions.noPrefixRedirect?: boolean | undefined
 member ModuleOptions.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
 member ModuleOptions.plugin?: boolean | undefined
-member ModuleOptions.plural?: string | PluralFunc | undefined
+member ModuleOptions.plural?: PluralFunc | undefined
 member ModuleOptions.redirects?: boolean | undefined
 member ModuleOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
@@ -124,7 +124,7 @@ member ModuleOptionsExtend.missingWarn?: boolean | undefined
 member ModuleOptionsExtend.noPrefixRedirect?: boolean | undefined
 member ModuleOptionsExtend.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
 member ModuleOptionsExtend.plugin?: boolean | undefined
-member ModuleOptionsExtend.plural?: string | PluralFunc | undefined
+member ModuleOptionsExtend.plural?: PluralFunc | undefined
 member ModuleOptionsExtend.redirects?: boolean | undefined
 member ModuleOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptionsExtend.routeLocales?: Record<string, string[]> | undefined
@@ -174,7 +174,7 @@ member ModulePrivateOptionsExtend.numberFormats?: Record<string, Record<string, 
 member ModulePrivateOptionsExtend.payloadFsDir: string
 member ModulePrivateOptionsExtend.payloadPublicRel: string
 member ModulePrivateOptionsExtend.plugin?: boolean | undefined
-member ModulePrivateOptionsExtend.plural?: string | PluralFunc | undefined
+member ModulePrivateOptionsExtend.plural?: PluralFunc | undefined
 member ModulePrivateOptionsExtend.redirects?: boolean | undefined
 member ModulePrivateOptionsExtend.rootDir: string
 member ModulePrivateOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined

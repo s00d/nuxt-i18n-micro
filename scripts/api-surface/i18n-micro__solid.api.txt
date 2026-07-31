@@ -97,7 +97,7 @@ member ModuleOptions.missingWarn?: boolean | undefined
 member ModuleOptions.noPrefixRedirect?: boolean | undefined
 member ModuleOptions.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
 member ModuleOptions.plugin?: boolean | undefined
-member ModuleOptions.plural?: string | PluralFunc | undefined
+member ModuleOptions.plural?: PluralFunc | undefined
 member ModuleOptions.redirects?: boolean | undefined
 member ModuleOptions.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModuleOptions.routeLocales?: Record<string, string[]> | undefined

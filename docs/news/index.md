@@ -6,6 +6,12 @@ outline: 'deep'
 
 # News
 
+## Unreleased — custom `plural` falls back to default (#241)
+
+**Date**: 2026-07-31
+
+A custom `plural` that returns `null`/`undefined` now chains to the built-in `defaultPlural`, so you can override only some locales (e.g. Slavic) without reimplementing English-style rules. File-path `plural: '~/…'` is **not** supported — the function must stay self-contained in `nuxt.config` (serialized via `.toString()`).
+
 ## Unreleased — hreflang from `iso`, not routing `code` (#243)
 
 **Date**: 2026-07-31

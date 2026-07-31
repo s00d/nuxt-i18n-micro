@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v3.26.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.25.0...v3.26.0)
+
+### 🚀 Enhancements
+
+- **perf:** Move benchmarks to citty CLI ([45859766](https://github.com/s00d/nuxt-i18n-micro/commit/45859766))
+
+### 🩹 Fixes
+
+- **module:** Bridge unplugin Vite 8 Plugin types for Nuxt kit ([ad4c2162](https://github.com/s00d/nuxt-i18n-micro/commit/ad4c2162))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.25.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.24.3...v3.25.0)

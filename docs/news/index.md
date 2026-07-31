@@ -6,6 +6,14 @@ outline: 'deep'
 
 # News
 
+## Unreleased — no_prefix locale switch history (#238)
+
+**Date**: 2026-07-31
+
+Switching locale under `strategy: 'no_prefix'` no longer pushes a duplicate identical history entry. `switchLocalePath` / locale switch now uses `router.replace` when the URL path is unchanged; prefix strategies still use `router.push`.
+
+---
+
 ## Nuxt I18n Micro v3.24.0 — Node SSR from `public/`, no Rollup `raw:`
 
 **Date**: 2026-07-30

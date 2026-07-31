@@ -433,7 +433,9 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     }
 
     if (isNoPrefix) {
+      // URL stays the same under no_prefix — push would append a duplicate history entry (#238).
       ;(switchedRoute as RouteLocationRaw & { force?: boolean }).force = true
+      return router.replace(switchedRoute as RouteLocationRaw)
     }
 
     return router.push(switchedRoute as RouteLocationRaw)

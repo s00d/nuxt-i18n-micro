@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v3.24.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.24.1...v3.24.3)
+
+### 🩹 Fixes
+
+- **runtime:** Replace history on no_prefix locale switch ([eaac57bd](https://github.com/s00d/nuxt-i18n-micro/commit/eaac57bd))
+
+### 📖 Documentation
+
+- Sync perf numbers with @nuxtjs/i18n 10.6 ([c4be6b02](https://github.com/s00d/nuxt-i18n-micro/commit/c4be6b02))
+- **readme:** Drop outdated 10MB fixture wording ([a59c72e9](https://github.com/s00d/nuxt-i18n-micro/commit/a59c72e9))
+- **news:** Drop unreleased #238 note ([#238](https://github.com/s00d/nuxt-i18n-micro/issues/238))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.24.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.24.0...v3.24.1)

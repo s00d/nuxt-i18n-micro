@@ -179,10 +179,10 @@ export interface ModuleOptions {
 
   /**
    * Base URL for SEO meta tags (canonical, og:url, hreflang).
-   * - `undefined` — dynamically resolved from the current request URL
+   * - A concrete URL string (e.g. `'https://example.com'`) — used as-is (highest priority).
+   * - `undefined` — falls back to `site.url` from `nuxt-site-config` when that module is
+   *   present, otherwise the current request origin
    *   (`useRequestURL().origin` on server, `window.location.origin` on client).
-   *   Best for multi-domain deployments.
-   * - A concrete URL string (e.g. `'https://example.com'`) — used as-is.
    * @default undefined
    */
   metaBaseUrl?: string

@@ -9,6 +9,18 @@ import { useI18nHead } from '../composables/useI18nHead'
 import { useLocaleHead } from '../composables/useLocaleHead'
 import type { PluginsInjections } from './01.plugin'
 
+function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } }): string | undefined {
+  // Soft probe: only present when nuxt-site-config (via @nuxtjs/seo etc.) is installed.
+  const stack = nuxtApp.$nuxtSiteConfig
+  if (!stack || typeof stack.get !== 'function') return undefined
+  try {
+    const url = stack.get({ resolveRefs: true })?.url
+    return typeof url === 'string' && url.trim() ? url : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
@@ -25,8 +37,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     return
   }
 
-  // Resolve base URL for SEO meta tags.
-  // undefined → dynamically resolve from the current request (supports multi-domain).
+  // Resolve base URL for SEO meta tags (#240):
+  //   metaBaseUrl (explicit) → site.url (nuxt-site-config) → request origin
   // Proxy-header options so the origin is correct behind nginx / Cloudflare / ALB / etc.:
   //   X-Forwarded-Host  → real hostname  (controlled by metaTrustForwardedHost)
   //   X-Forwarded-Proto → real protocol  (controlled by metaTrustForwardedProto)
@@ -34,7 +46,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     xForwardedHost: i18nConfig.metaTrustForwardedHost !== false,
     xForwardedProto: i18nConfig.metaTrustForwardedProto !== false,
   })
-  const baseUrl = i18nConfig.metaBaseUrl || url.origin
+  const siteUrl = readSiteConfigUrl(nuxtApp as { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } })
+  const baseUrl = (i18nConfig.metaBaseUrl || siteUrl || url.origin).replace(/\/+$/, '')
 
   const { metaObject, updateMeta } = useLocaleHead({
     addDirAttribute: true,

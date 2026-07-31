@@ -103,6 +103,17 @@ describe('@nuxtjs/seo integration (#133)', () => {
     expect(deHtml).toMatch(/<meta[^>]*name="description"[^>]*content="Deutsche Seitenbeschreibung"/)
   })
 
+  test('SSR: canonical and og:url use site.url when metaBaseUrl is unset (#240)', async ({ request }) => {
+    const html = await (await request.get('/en/about')).text()
+
+    expect(html).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/example\.com\/en\/about"/)
+    expect(html).toMatch(/<meta[^>]*property="og:url"[^>]*content="https:\/\/example\.com\/en\/about"/)
+
+    const alternates = extractHreflangLinks(html)
+    expect(alternates.some((link) => link.hreflang === 'en-US' && link.href.startsWith('https://example.com/'))).toBe(true)
+    expect(alternates.some((link) => link.hreflang === 'de-DE' && link.href.startsWith('https://example.com/'))).toBe(true)
+  })
+
   test('SSR: canonical and og:url tags are present on localized pages', async ({ request }) => {
     const html = await (await request.get('/en/about')).text()
 

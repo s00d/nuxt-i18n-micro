@@ -100,11 +100,28 @@ export default defineNuxtConfig({
 
 ### 🌍 Dynamic `metaBaseUrl` for Multi-Domain Deployments
 
-By default (`metaBaseUrl` is `undefined`), canonical URLs, `og:url`, and `hreflang` links are generated using the hostname from the current request. This is resolved via `useRequestURL()` on the server and `window.location.origin` on the client.
+When `metaBaseUrl` is unset, absolute SEO URLs resolve in this order (#240):
 
-The module respects reverse-proxy headers (`X-Forwarded-Host`, `X-Forwarded-Proto`), so it works correctly behind nginx, Cloudflare, AWS ALB, and similar proxies.
+1. `site.url` from [`nuxt-site-config`](https://nuxtseo.com/docs/site-config) (if that module is present — e.g. via `@nuxtjs/seo`)
+2. Otherwise the hostname from the current request (`useRequestURL()` / `window.location.origin`)
 
-This means a single application instance can serve **multiple domains** with correct SEO tags for each:
+The request-origin fallback respects reverse-proxy headers (`X-Forwarded-Host`, `X-Forwarded-Proto`), so it works correctly behind nginx, Cloudflare, AWS ALB, and similar proxies.
+
+That means apps already setting `site.url` for sitemap / robots / schema.org do **not** need a second `metaBaseUrl` declaration:
+
+```typescript
+export default defineNuxtConfig({
+  site: {
+    url: process.env.NUXT_SITE_URL, // also used by micro for canonical / og:url / hreflang
+  },
+  i18n: {
+    meta: true,
+    // metaBaseUrl omitted — picks up site.url, then request origin
+  },
+})
+```
+
+Without `site.url`, a single application instance can still serve **multiple domains** with correct SEO tags for each via the request origin:
 
 ```typescript
 export default defineNuxtConfig({
@@ -127,7 +144,7 @@ While the same app serving `https://site-b.com/en/about` will produce:
 <link rel="canonical" href="https://site-b.com/en/about" /> <meta property="og:url" content="https://site-b.com/en/about" />
 ```
 
-If you need a fixed base URL instead, pass a static string:
+If you need a fixed base URL that always wins over `site.url`, pass a static string:
 
 ```typescript
 metaBaseUrl: 'https://example.com'

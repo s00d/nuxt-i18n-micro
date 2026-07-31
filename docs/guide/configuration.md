@@ -21,7 +21,7 @@ The sections below explain how they work together; the
 | [`locales`](/api/module-options) | `Locale[]` | `[]` | List of supported locales. |
 | [`meta`](/api/module-options) | `boolean` | `true` | Generate SEO meta tags (`hreflang`, `canonical`, `og:url`, `og:locale`) automatically. |
 | [`strategy`](/api/module-options) | `Strategies` | `'prefix_except_default'` | URL routing strategy for locale prefixes. - `'no_prefix'` — no locale in URL; locale stored in cookie. - `'prefix_except_default'` — prefix all locales except the default. - `'prefix'` — always prefix, including the default locale. - `'prefix_and_default'` — like `prefix`, but the default locale is also accessible without prefix. |
-| [`metaBaseUrl`](/api/module-options) | `string` | `undefined` | Base URL for SEO meta tags (canonical, og:url, hreflang). - `undefined` — dynamically resolved from the current request URL   (`useRequestURL().origin` on server, `window.location.origin` on client). |
+| [`metaBaseUrl`](/api/module-options) | `string` | `undefined` | Base URL for SEO meta tags (canonical, og:url, hreflang). - A concrete URL string (e.g. `'https://example.com'`) — used as-is (highest priority). - `undefined` — falls back to `site.url` from `nuxt-site-config` when that module is   present, otherwise the current request origin   (`useRequestURL().origin` on server, `window.location.origin` on client). |
 | [`metaTrustForwardedHost`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Host` header when resolving the base URL for meta tags. |
 | [`metaTrustForwardedProto`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Proto` header when resolving the protocol for meta tags. |
 | [`hreflangBaseLanguage`](/api/module-options) | `boolean` | `false` | Also emit a bare-language `hreflang` derived from each locale's `iso` (e.g. `es-ES` → also `es`). |
@@ -366,22 +366,25 @@ meta: true // Generate alternate links, canonical URLs, etc.
 
 Base URL for SEO meta tags (canonical, og:url, hreflang).
 
-- `undefined` — dynamically resolved from the current request URL
+- A concrete URL string (e.g. `'https://example.com'`) — used as-is (highest priority).
+- `undefined` — falls back to `site.url` from `nuxt-site-config` when that module is
+  present, otherwise the current request origin
   (`useRequestURL().origin` on server, `window.location.origin` on client).
-  Best for multi-domain deployments.
-
-- A concrete URL string (e.g. `'https://example.com'`) — used as-is.
 
 <!-- /generated:option:metaBaseUrl -->
 
-- `undefined` (or omitted) — the base URL is resolved dynamically from the incoming request on the server (`useRequestURL().origin`, respects `X-Forwarded-Host` / `X-Forwarded-Proto` proxy headers) and from `window.location.origin` on the client. Ideal for **multi-domain** deployments where the same application serves multiple hostnames.
-- Any other string — used as a static base URL.
+Priority when unset: `site.url` from `nuxt-site-config` (if installed) → request origin
+(`useRequestURL().origin` on the server with `X-Forwarded-Host` / `X-Forwarded-Proto`,
+`window.location.origin` on the client). Ideal for **SEO stacks** that already set `site.url`,
+and for **multi-domain** deployments when `site.url` is omitted.
+
+- Any other string — used as a static base URL (wins over `site.url`).
 
 ```typescript
-// Dynamic — automatically uses the current request hostname (recommended for multi-domain)
-// Simply omit metaBaseUrl or set it to undefined
+// Prefer sharing the SEO stack origin — omit metaBaseUrl when site.url is set
+site: { url: 'https://example.com' }
 
-// Static — always uses the specified URL
+// Or pin an explicit override
 metaBaseUrl: 'https://example.com'
 ```
 #### `canonicalQueryWhitelist`

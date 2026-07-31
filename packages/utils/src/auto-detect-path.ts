@@ -1,5 +1,5 @@
 /**
- * Whether preference-based locale redirects may run for an unprefixed path (#242).
+ * Whether cookie / Accept-Language preference may steer locale redirects (#242).
  *
  * Modes (`ModuleOptions.autoDetectPath`):
  * - `'/'` (default) — only `/`
@@ -7,7 +7,8 @@
  * - `'*'` — every path (also enables aggressive prefixed-URL rewrites in the plugin)
  * - any other string — exact path match
  *
- * Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated here.
+ * Does not gate strategy / `localeRoutes` canonicalization: when preference is denied on an
+ * unprefixed path, the plugin still runs `getClientRedirect` with the default locale.
  */
 export function shouldAttemptLocaleRedirect(path: string, options: { autoDetectPath?: string; hasLocalePrefix?: boolean } = {}): boolean {
   const mode = options.autoDetectPath ?? '/'

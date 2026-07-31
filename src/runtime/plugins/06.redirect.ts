@@ -90,45 +90,48 @@ export default defineNuxtPlugin({
       if (i18nConfig.redirects !== false) {
         const allowPreferenceRedirect = shouldAttemptLocaleRedirect(path, { autoDetectPath, hasLocalePrefix })
 
-        // Preference redirects on unprefixed paths are gated by autoDetectPath.
-        // Prefixed strategy cleanup (e.g. /en → /) always runs.
-        if (hasLocalePrefix || allowPreferenceRedirect) {
-          const localeState = autoDetectPath !== '*' ? useState<string | null>('i18n-locale', () => null) : null
-          let preferredLocale = resolvePreferredLocale({
-            defaultLocale,
-            validLocales,
-            autoDetectLanguage: i18nConfig.autoDetectLanguage,
-            stateLocale: localeState?.value ?? null,
-            cookieLocale: cookieName ? getCookie(event, cookieName) : null,
-            acceptLanguageHeader: getHeader(event, 'accept-language'),
-            ignoreStateLocale: autoDetectPath === '*',
-          })
+        const localeState = autoDetectPath !== '*' ? useState<string | null>('i18n-locale', () => null) : null
+        let preferredLocale = resolvePreferredLocale({
+          defaultLocale,
+          validLocales,
+          autoDetectLanguage: i18nConfig.autoDetectLanguage,
+          stateLocale: localeState?.value ?? null,
+          cookieLocale: cookieName ? getCookie(event, cookieName) : null,
+          acceptLanguageHeader: getHeader(event, 'accept-language'),
+          ignoreStateLocale: autoDetectPath === '*',
+        })
 
-          if (autoDetectPath === '*' && !hasLocalePrefix) {
-            preferredLocale = defaultLocale
-          }
+        // Cookie / Accept-Language preference is gated by autoDetectPath (#242).
+        // Unprefixed deep links still run getClientRedirect with the default locale so
+        // custom localeRoutes aliases (e.g. /product → /our-products) keep working.
+        if (!hasLocalePrefix && !allowPreferenceRedirect) {
+          preferredLocale = defaultLocale
+        }
 
-          if (autoDetectPath === '*' && hasLocalePrefix && firstSegment !== preferredLocale) {
-            const rest = pathSegments.slice(1).join('/')
-            let targetPath: string
-            if (preferredLocale === defaultLocale && i18nConfig.strategy === 'prefix_except_default') {
-              targetPath = rest ? `/${rest}` : '/'
-            } else {
-              targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
-            }
-            if (cookieName) {
-              const { watch: _w2, ...cookieOpts2 } = getLocaleCookieOptions()
-              setCookie(event, cookieName, preferredLocale, cookieOpts2)
-            }
-            if (DEBUG) console.error('[i18n-redirect] REDIRECT autoDetectPath *', { path, targetPath, preferredLocale })
-            return performRedirect(targetPath + (url.search || '') + (url.hash || ''))
-          }
+        if (autoDetectPath === '*' && !hasLocalePrefix) {
+          preferredLocale = defaultLocale
+        }
 
-          const redirectPath = i18nStrategy.getClientRedirect(path, preferredLocale)
-          if (redirectPath) {
-            if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, redirectPath, preferredLocale })
-            return performRedirect(redirectPath + (url.search || '') + (url.hash || ''))
+        if (autoDetectPath === '*' && hasLocalePrefix && firstSegment !== preferredLocale) {
+          const rest = pathSegments.slice(1).join('/')
+          let targetPath: string
+          if (preferredLocale === defaultLocale && i18nConfig.strategy === 'prefix_except_default') {
+            targetPath = rest ? `/${rest}` : '/'
+          } else {
+            targetPath = rest ? `/${preferredLocale}/${rest}` : `/${preferredLocale}`
           }
+          if (cookieName) {
+            const { watch: _w2, ...cookieOpts2 } = getLocaleCookieOptions()
+            setCookie(event, cookieName, preferredLocale, cookieOpts2)
+          }
+          if (DEBUG) console.error('[i18n-redirect] REDIRECT autoDetectPath *', { path, targetPath, preferredLocale })
+          return performRedirect(targetPath + (url.search || '') + (url.hash || ''))
+        }
+
+        const redirectPath = i18nStrategy.getClientRedirect(path, preferredLocale)
+        if (redirectPath) {
+          if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, redirectPath, preferredLocale })
+          return performRedirect(redirectPath + (url.search || '') + (url.hash || ''))
         }
       }
     }

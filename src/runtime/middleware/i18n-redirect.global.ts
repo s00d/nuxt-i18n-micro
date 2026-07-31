@@ -43,9 +43,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const hasLocalePrefix = Boolean(firstSegment && validLocales.includes(firstSegment))
   const allowPreferenceRedirect = shouldAttemptLocaleRedirect(path, { autoDetectPath, hasLocalePrefix })
 
-  // Preference redirects on unprefixed paths are gated by autoDetectPath.
-  // Prefixed strategy cleanup (e.g. /en → /) always runs.
-  if (!hasLocalePrefix && !allowPreferenceRedirect) return
+  // Cookie / Accept-Language preference is gated by autoDetectPath (#242).
+  // Unprefixed deep links still canonicalize with the default locale (localeRoutes aliases).
+  if (!hasLocalePrefix && !allowPreferenceRedirect) {
+    preferredLocale = defaultLocale
+  }
 
   if (autoDetectPath === '*' && !hasLocalePrefix) {
     preferredLocale = defaultLocale

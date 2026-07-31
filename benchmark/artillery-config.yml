@@ -8,19 +8,25 @@ config:
 scenarios:
   - name: test_scenario
     flow:
+      # Default locale — pages in the default CLI profile (index + page)
       - get:
-          url: '/' # Uses target from the config section
+          url: '/'
+      - get:
+          url: '/page'
+      # Sample of non-default locales × pages (bounded; fixtures may have fewer locales)
       - get:
           url: '/ru'
       - get:
           url: '/de'
       - get:
-          url: '/page'
+          url: '/fr'
       - get:
           url: '/ru/page'
       - get:
           url: '/de/page'
-    parallel-requests: 6 # Fire all requests concurrently
+      - get:
+          url: '/fr/page'
+    parallel-requests: 8
 modules:
   console: # Enables console output during the test
     disable: false

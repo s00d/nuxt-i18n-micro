@@ -1,115 +1,68 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import {
+  PERF_LEAF_KEYS,
+  PERF_LOCALE_CODES,
+  PERF_PAGE_NAMES,
+  PERF_SECONDARY_LEAF_KEYS,
+  generateTranslationsForPage,
+} from '../../perf-shared/config.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const dataDir = path.resolve(__dirname)
+const publicDir = path.resolve(__dirname, '../public/translations')
 
-const LOCALES = ['en', 'de', 'ru']
-
-const KEY1_BY_LOCALE = {
-  en: 'en en en',
-  de: 'de de de',
-  ru: 'ru ru ru',
-}
-
-const PAGE_KEY1_BY_LOCALE = {
-  en: 'page en',
-  de: 'page de',
-  ru: 'page ru',
-}
-
-const WELCOME_BY_LOCALE = {
-  en: 'Welcome, {username}! You have {unreadCount} unread messages.',
-  de: 'Willkommen, {username}! Sie haben {unreadCount} ungelesene Nachrichten.',
-  ru: 'Добро пожаловать, {username}! У вас {unreadCount} непрочитанных сообщений.',
-}
-
-// Deterministic text generation for reproducible builds
-function generateText(seed) {
-  const loremIpsum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-  const words = loremIpsum.split(' ')
-  const length = (seed % 10) + 5
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    result += `${words[(seed + i) % words.length]} `
-  }
-  return result.trim()
-}
-
-// Generate translations structure matching generateKeys(4) - key0..key4 at 5 levels
-function generateIndexTranslations(locale, level = 5, seed = 0) {
-  const translations = {}
-  const keys = ['key0', 'key1', 'key2', 'key3', 'key4']
-  const localeSeed = LOCALES.indexOf(locale) * 1000
-
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    if (level > 1) {
-      translations[key] = generateIndexTranslations(locale, level - 1, seed + i * 100 + localeSeed)
-    } else {
-      translations[key] = generateText(seed + i + localeSeed)
+function cleanJsonDir(dir) {
+  if (!fs.existsSync(dir)) return
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      cleanJsonDir(full)
+      // remove empty dirs later
+    } else if (entry.name.endsWith('.json')) {
+      fs.unlinkSync(full)
     }
   }
-
-  return translations
 }
 
-// Add key1.key1.key1.key1.key1 for compatibility
-function addKey1Structure(translations, locale) {
-  return {
-    key1: {
-      key1: {
-        key1: {
-          key1: {
-            key1: KEY1_BY_LOCALE[locale] || 'en en en',
-          },
-        },
-      },
-    },
-    ...translations,
+// Source + public copies (public is what gets deployed / measured)
+for (const root of [dataDir, publicDir]) {
+  fs.mkdirSync(root, { recursive: true })
+}
+
+for (const entry of fs.readdirSync(dataDir, { withFileTypes: true })) {
+  if (entry.isDirectory() && PERF_PAGE_NAMES.includes(entry.name)) {
+    cleanJsonDir(path.join(dataDir, entry.name))
+  } else if (entry.name.endsWith('.json')) {
+    fs.unlinkSync(path.join(dataDir, entry.name))
+  }
+}
+if (fs.existsSync(publicDir)) {
+  fs.rmSync(publicDir, { recursive: true, force: true })
+}
+fs.mkdirSync(publicDir, { recursive: true })
+
+for (const pageName of PERF_PAGE_NAMES) {
+  fs.mkdirSync(path.join(dataDir, pageName), { recursive: true })
+  fs.mkdirSync(path.join(publicDir, pageName), { recursive: true })
+}
+
+for (const locale of PERF_LOCALE_CODES) {
+  for (const pageName of PERF_PAGE_NAMES) {
+    const json = JSON.stringify(generateTranslationsForPage(pageName, locale))
+    fs.writeFileSync(path.join(dataDir, pageName, `${locale}.json`), json)
+    fs.writeFileSync(path.join(publicDir, pageName, `${locale}.json`), json)
   }
 }
 
-function generatePageData(locale) {
-  return {
-    welcome: WELCOME_BY_LOCALE[locale] || WELCOME_BY_LOCALE.en,
-    apples: 'no apples | one apple | {count} apples',
-    feedback: {
-      text: 'test link: {link}',
-      link: 'click',
-    },
-    key1: {
-      key1: {
-        key1: {
-          key1: {
-            key1: PAGE_KEY1_BY_LOCALE[locale] || PAGE_KEY1_BY_LOCALE.en,
-          },
-        },
-      },
-    },
-  }
-}
+fs.writeFileSync(path.join(dataDir, 'index.json'), fs.readFileSync(path.join(dataDir, 'index', 'en.json')))
+fs.writeFileSync(path.join(dataDir, 'page.json'), fs.readFileSync(path.join(dataDir, 'page', 'en.json')))
 
-const dataDir = path.resolve(__dirname)
-const indexDir = path.join(dataDir, 'index')
-const pageDir = path.join(dataDir, 'page')
+const legacyMap = path.resolve(__dirname, '../server/utils/generated-translations.ts')
+if (fs.existsSync(legacyMap)) fs.unlinkSync(legacyMap)
 
-for (const dir of [dataDir, indexDir, pageDir]) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-}
-
-for (const locale of LOCALES) {
-  const indexData = addKey1Structure(generateIndexTranslations(locale), locale)
-  fs.writeFileSync(path.join(indexDir, `${locale}.json`), JSON.stringify(indexData, null, 2), 'utf8')
-
-  const pageData = generatePageData(locale)
-  fs.writeFileSync(path.join(pageDir, `${locale}.json`), JSON.stringify(pageData, null, 2), 'utf8')
-}
-
-// Keep root index.json and page.json for backward compat (en)
-fs.writeFileSync(path.join(dataDir, 'index.json'), fs.readFileSync(path.join(indexDir, 'en.json'), 'utf8'))
-fs.writeFileSync(path.join(dataDir, 'page.json'), fs.readFileSync(path.join(pageDir, 'en.json'), 'utf8'))
-
-console.log('Data files generated successfully!')
+console.log(
+  `[plain-nuxt] generated ${PERF_LOCALE_CODES.length} locales × ${PERF_PAGE_NAMES.length} pages ` +
+    `(index ${PERF_LEAF_KEYS.toLocaleString('en-US')} leaves, secondary ${PERF_SECONDARY_LEAF_KEYS.toLocaleString('en-US')} each; public/translations)`,
+)

@@ -11,20 +11,22 @@ export default function() {
       "40s",
       "50s",
       "60s",
-      "70s"
+      "70s",
+      "80s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
-          63,
-          258,
-          281,
-          298,
-          313,
-          302,
-          305,
-          276
+          100,
+          129,
+          123,
+          124,
+          122,
+          121,
+          109,
+          65,
+          95
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -37,14 +39,15 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          9,
-          837,
-          3012,
-          2894,
-          2618,
-          2725,
-          2780,
-          2671
+          728,
+          4771,
+          6440,
+          6703,
+          6570,
+          6570,
+          5945,
+          6703,
+          608
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -57,14 +60,15 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          15,
-          432,
+          203,
           600,
           600,
           600,
           600,
           600,
-          189
+          433,
+          0,
+          0
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -77,12 +81,13 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
+          166,
+          319,
+          27,
+          24,
+          5,
           0,
-          88,
-          162,
-          10,
           0,
-          25,
           0,
           0
         ],
@@ -98,13 +103,14 @@ export default function() {
         "label": "vusers.failed",
         "data": [
           0,
-          0,
-          0,
-          118,
-          121,
-          93,
-          129,
-          55
+          171,
+          498,
+          487,
+          509,
+          518,
+          526,
+          217,
+          0
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

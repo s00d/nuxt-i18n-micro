@@ -1,15 +1,21 @@
-import { defineEventHandler, getRouterParam } from 'h3'
-import pageDe from '../../../../data/page/de.json'
-import pageEn from '../../../../data/page/en.json'
-import pageRu from '../../../../data/page/ru.json'
+import { createError, defineEventHandler, getRouterParam } from 'h3'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 
-const translations: Record<string, Record<string, unknown>> = {
-  en: pageEn,
-  de: pageDe,
-  ru: pageRu,
-}
-
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const locale = getRouterParam(event, 'locale') || 'en'
-  return translations[locale] || translations.en
+  const candidates = [
+    join(process.cwd(), 'public', 'translations', 'page', `${locale}.json`),
+    join(process.cwd(), 'public', 'translations', 'page', 'en.json'),
+    join(process.cwd(), 'data', 'page', `${locale}.json`),
+    join(process.cwd(), 'data', 'page', 'en.json'),
+  ]
+  for (const file of candidates) {
+    try {
+      return JSON.parse(await readFile(file, 'utf8'))
+    } catch {
+      // try next
+    }
+  }
+  throw createError({ statusCode: 404, statusMessage: `Missing translations page/${locale}` })
 })

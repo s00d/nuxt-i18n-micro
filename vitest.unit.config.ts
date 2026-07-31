@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config'
-import { INTEGRATION_TESTS, OPT_IN_TESTS } from './test/setup/heavy-tests'
+import { INTEGRATION_TESTS } from './test/setup/heavy-tests'
 
 /**
  * Unit tests in `test/` — no Nuxt build, no browser, no servers. The tests themselves run
@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     name: 'unit',
     include: ['test/**/*.test.ts'],
-    exclude: [...INTEGRATION_TESTS, ...OPT_IN_TESTS, 'test/fixtures/**'],
+    exclude: [...INTEGRATION_TESTS, 'test/fixtures/**'],
     // `expectTypeOf` compiles to nothing, so a type test only asserts anything when a
     // program that contains it is built. Without this the default `**/*.test-d.ts` matched
     // no file here and every type assertion in `test/` passed vacuously under `vitest`.

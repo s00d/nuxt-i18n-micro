@@ -21,6 +21,3 @@ export const INTEGRATION_TESTS = [
   'test/serverless-cache.test.ts',
   'test/**/*.e2e.test.ts',
 ] as const
-
-/** Suites excluded from both projects (opt-in only). */
-export const OPT_IN_TESTS = ['test/performance.test.ts'] as const

@@ -11,20 +11,22 @@ export default function() {
       "40s",
       "50s",
       "60s",
-      "70s"
+      "70s",
+      "80s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
-          153,
-          214,
-          216,
-          209,
-          198,
-          218,
-          195,
-          159
+          94,
+          168,
+          146,
+          125,
+          156,
+          168,
+          174,
+          125,
+          164
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -37,14 +39,15 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          1176,
-          4317,
-          4231,
-          4231,
-          5598,
-          4147,
-          4231,
-          4231
+          279,
+          2060,
+          6976,
+          5945,
+          6838,
+          6440,
+          6838,
+          7117,
+          6703
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -57,13 +60,14 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          287,
+          30,
+          554,
           601,
-          599,
           600,
+          596,
+          604,
           600,
-          600,
-          349,
+          51,
           0
         ],
         "borderColor": "rgb(153, 102, 255)",
@@ -77,11 +81,12 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          133,
-          249,
+          4,
+          483,
+          36,
           0,
-          25,
-          0,
+          16,
+          2,
           0,
           0,
           0
@@ -98,13 +103,14 @@ export default function() {
         "label": "vusers.failed",
         "data": [
           0,
-          48,
-          289,
-          286,
-          333,
-          299,
-          271,
-          10
+          0,
+          503,
+          576,
+          511,
+          521,
+          526,
+          408,
+          4
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

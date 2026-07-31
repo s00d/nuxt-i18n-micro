@@ -6,9 +6,8 @@ import { defineConfig } from 'vitest/config'
  * projects. `vitest run` runs them all; target one with
  * `--project unit|integration|e2e` (or a package name).
  *
- * The performance suite (test/performance.test.ts, ~27 min) is intentionally
- * NOT a default project — it stays in vitest.performance.config.ts and is run
- * on demand via `pnpm test:performance`.
+ * Performance benchmarks are a citty CLI (`pnpm test:performance` →
+ * `pnpm -C scripts cli performance`), not a Vitest project.
  */
 export default defineConfig({
   test: {

@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Requests per Second",
         "data": [
-          273,
-          195,
-          290
+          109,
+          145,
+          281
         ],
         "backgroundColor": [
           "rgb(75, 192, 192)",

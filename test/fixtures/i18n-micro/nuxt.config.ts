@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import { locales } from './perf-locales.mjs'
 
 export default defineNuxtConfig({
   modules: ['nuxt-i18n-micro'],
@@ -11,11 +12,7 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2024-08-14',
   i18n: {
-    locales: [
-      { code: 'en', iso: 'en_EN' },
-      { code: 'de', iso: 'de_DE' },
-      { code: 'ru', iso: 'ru_RU' },
-    ],
+    locales,
     meta: true,
     defaultLocale: 'en',
     translationDir: 'locales',

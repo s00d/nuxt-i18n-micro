@@ -18,7 +18,6 @@ const VITEST_CONFIGS = [
   'vitest.integration.config.ts',
   'vitest.e2e.config.ts',
   'vitest.packages.config.ts',
-  'vitest.performance.config.ts',
 ]
 
 export interface FixtureEntry {

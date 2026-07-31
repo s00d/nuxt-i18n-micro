@@ -53,7 +53,7 @@ The package requires Vue 3 and optionally Vue Router:
 {
   "peerDependencies": {
     "vue": "^3.3.0",
-    "vue-router": "^4.0.0"
+    "vue-router": "^4.6.3 || ^5.0.0"
   }
 }
 ```

@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Code Bundle (MB)",
         "data": [
-          1.2,
-          15.3,
-          1.4
+          1.5,
+          2.2,
+          1.7
         ],
         "backgroundColor": "rgba(75, 192, 192, 0.8)",
         "borderColor": "rgb(75, 192, 192)",
@@ -23,9 +23,9 @@ export default function() {
       {
         "label": "Translations (MB)",
         "data": [
-          0.6,
-          0,
-          12.7
+          6.8,
+          7.2,
+          6.8
         ],
         "backgroundColor": "rgba(255, 206, 86, 0.8)",
         "borderColor": "rgb(255, 206, 86)",

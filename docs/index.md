@@ -49,57 +49,55 @@ The `Nuxt I18n Micro` module was created to address critical performance issues 
 
 ### 🏁 Performance Comparison
 
-To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identical conditions on the fixtures in [`test/performance.test.ts`](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/performance.test.ts). See the [full benchmark report](/guide/performance-results) for methodology, charts, and raw numbers.
+To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identical conditions with [`pnpm test:performance`](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/src/commands/performance.ts). See the [full benchmark report](/guide/performance-results) for methodology, charts, and raw numbers.
 
 #### ⏱️ Build Time and Resource Consumption
 
-> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage.
+> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Numbers below are means of 3 consecutive runs (default CLI profile).
 
 ::: details **plain-nuxt** (baseline)
 
-- **Build Time**: 11.30 seconds
-- **Max CPU Usage**: 101.10%
-- **Max Memory Usage**: 1,097.86 MB
+- **Build Time**: 5.32 seconds
+- **Max Memory Usage**: 810 MB
+- **Code Bundle**: 1.53 MB
   :::
 
 ::: details **@nuxtjs/i18n v10.6**
 
-- **Build Time**: 15.75 seconds
-- **Max CPU Usage**: 195.10%
-- **Max Memory Usage**: 2,138.45 MB
+- **Build Time**: 8.34 seconds
+- **Max Memory Usage**: 1,821 MB
+- **Code Bundle**: 2.16 MB
   :::
 
 ::: tip **Nuxt I18n Micro**
 
-- **Build Time**: 7.72 seconds — **~51% faster than `@nuxtjs/i18n` v10.6**
-- **Max CPU Usage**: 209.60%
-- **Max Memory Usage**: 975.25 MB — **~54% less memory than `@nuxtjs/i18n` v10.6**
+- **Build Time**: 5.34 seconds — **~36% faster than `@nuxtjs/i18n` v10.6**
+- **Max Memory Usage**: 1,065 MB — **~41% less memory than `@nuxtjs/i18n` v10.6**
+- **Code Bundle**: 1.74 MB
   :::
 
 #### 🌐 Server Performance (Stress Test)
 
 ::: details **plain-nuxt** (baseline)
 
-- **Requests per Second**: 273 RPS (Artillery)
-- **Average Response Time**: 430.40 ms
-- **Max Memory Usage**: 369.09 MB
+- **Requests per Second**: 109 RPS (Artillery) / 65 RPS (Autocannon)
+- **Average Response Time**: 1,194 ms (Artillery)
   :::
 
 ::: details **@nuxtjs/i18n v10.6**
 
-- **Requests per Second**: 195 RPS (Artillery)
-- **Average Response Time**: 708.90 ms
-- **Max Memory Usage**: 520.95 MB
+- **Requests per Second**: 143 RPS (Artillery) / 72 RPS (Autocannon)
+- **Average Response Time**: 956 ms (Artillery)
   :::
 
 ::: tip **Nuxt I18n Micro**
 
-- **Requests per Second**: 290 RPS (Artillery) — **~49% more than `@nuxtjs/i18n` v10.6**
-- **Average Response Time**: 381.30 ms — **~46% faster than `@nuxtjs/i18n` v10.6**
-- **Max Memory Usage**: 638.17 MB
+- **Requests per Second**: 275 RPS (Artillery) — **~93% more than `@nuxtjs/i18n` v10.6**
+- **Average Response Time**: 483 ms — **~49% faster than `@nuxtjs/i18n` v10.6**
+- **Autocannon**: 162 RPS / 62 ms avg latency
   :::
 
-Numbers are from the latest fixture run against `@nuxtjs/i18n@10.6.0`. Micro stays ahead on build time, build RSS, code-bundle size, and Artillery RPS/latency; see the [full report](/guide/performance-results) for Autocannon and methodology.
+Numbers are from the latest fixture run against `@nuxtjs/i18n@10.6.0` (fair code/translations split). Micro stays ahead on build time, build RSS, and especially Artillery/Autocannon throughput; see the [full report](/guide/performance-results) for methodology.
 
 ## 🔑 Key Features
 

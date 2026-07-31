@@ -93,7 +93,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "test:packages": "vitest run --config vitest.packages.config.ts",
-    "test:performance": "vitest run --config vitest.performance.config.ts",
+    "test:performance": "pnpm -C scripts cli performance",
     "test:strategies": "vitest run --config vitest.integration.config.ts test/strategies-",
     "test:watch": "vitest watch --config vitest.unit.config.ts",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",

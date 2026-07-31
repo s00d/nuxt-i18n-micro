@@ -22,41 +22,40 @@ The `Nuxt I18n Micro` module was created to address critical performance issues 
 
 ### Performance Comparison
 
-To showcase the efficiency of `Nuxt I18n Micro`, we ran the same fixture suite (`test/performance.test.ts`) against **`@nuxtjs/i18n@10.6.0`** on the same hardware. We also include a **plain-nuxt** baseline (no i18n module) to measure the real overhead.
+To showcase the efficiency of `Nuxt I18n Micro`, we ran the same fixture suite via `pnpm test:performance` (`pnpm -C scripts cli performance`) against **`@nuxtjs/i18n@10.6.0`** on the same hardware. We also include a **plain-nuxt** baseline (no i18n module) to measure the real overhead.
 
 #### Build Time and Resource Consumption
 
-> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Real-world applications will have more complexity and higher resource usage. Latest run uses `@nuxtjs/i18n@10.6.0`.
+> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Latest run: `@nuxtjs/i18n@10.6.0`, mean of 3 consecutive runs per fixture, default CLI profile (~16.8k index leaves).
 
 | Project | Build Time | Code Bundle | Max Memory | Max CPU |
 |---------|------------|-------------|------------|---------|
-| **plain-nuxt** (baseline) | 11.30s | 1.19 MB | 1,098 MB | 101% |
-| **i18n-micro** | 7.72s | 1.4 MB | 975 MB | 210% |
-| **@nuxtjs/i18n v10.6** | 15.75s | 15.26 MB | 2,138 MB | 195% |
+| **plain-nuxt** (baseline) | 5.32s | 1.53 MB | 810 MB | 207% |
+| **i18n-micro** | 5.34s | 1.74 MB | 1,065 MB | 204% |
+| **@nuxtjs/i18n v10.6** | 8.34s | 2.16 MB | 1,821 MB | 204% |
 
-> **Code Bundle** = JavaScript/CSS code only (excludes translation JSON files).
-> i18n-micro stores translations as lazy-loaded JSON files, keeping the code bundle minimal.
+> **Code Bundle** = JS/CSS only (excludes classified translation payloads, including `@nuxtjs/i18n` `chunks/raw/*`). Older tables that showed ~15 MB “code” for v10.6 were counting message chunks as app code.
 
-- **i18n-micro vs baseline**: −3.58s build, +0.21 MB code, −123 MB memory
-- **@nuxtjs/i18n v10.6 vs baseline**: +4.45s build, +14.07 MB code, +1,040 MB memory
+- **i18n-micro vs baseline**: ≈ same build time, +0.21 MB code, +255 MB peak RSS
+- **@nuxtjs/i18n v10.6 vs baseline**: +3.02s build, +0.63 MB code, +1,011 MB peak RSS
 
 #### Stress Test Results (Requests per Second)
 
-| Project | Avg Response | RPS (Artillery) | Max Memory |
-|---------|--------------|-----------------|------------|
-| **plain-nuxt** | 430 ms | 273 | 369 MB |
-| **i18n-micro** | 381 ms | 290 | 638 MB |
-| **@nuxtjs/i18n v10.6** | 709 ms | 195 | 521 MB |
+| Project | Avg Response (Artillery) | RPS (Artillery) | RPS (Autocannon) | Avg Latency (AC) |
+|---------|--------------------------|-----------------|------------------|------------------|
+| **plain-nuxt** | 1,194 ms | 109 | 65 | 152 ms |
+| **i18n-micro** | 483 ms | 275 | 162 | 62 ms |
+| **@nuxtjs/i18n v10.6** | 956 ms | 143 | 72 | 139 ms |
 
 #### Comparison: `@nuxtjs/i18n` v10.6 vs i18n-micro
 
-- **Code Bundle**: 13.86 MB smaller (i18n-micro: 1.4 MB vs v10.6: 15.26 MB)
-- **Build Time**: 8.03s faster (i18n-micro: 7.72s vs v10.6: 15.75s)
-- **Max Memory (build)**: 1,163 MB less (i18n-micro: 975 MB vs v10.6: 2,138 MB)
-- **Average Response Time**: 328 ms faster (i18n-micro: 381 ms vs v10.6: 709 ms)
-- **Requests Per Second**: 95 more (i18n-micro: 290 vs v10.6: 195)
+- **Code Bundle**: 0.42 MB smaller (1.74 MB vs 2.16 MB)
+- **Build Time**: 3.00s faster (5.34s vs 8.34s)
+- **Max Memory (build)**: 756 MB less (1,065 MB vs 1,821 MB)
+- **Average Response Time (Artillery)**: 473 ms faster (483 ms vs 956 ms)
+- **Requests Per Second (Artillery)**: 132 more (275 vs 143)
 
-`@nuxtjs/i18n` v10.6 is much closer than older 10.1-era numbers; micro still leads on build time, build RSS, code size, and Artillery RPS/latency on these fixtures. See the [full benchmark report](https://s00d.github.io/nuxt-i18n-micro/guide/performance-results) for methodology and charts.
+Micro leads on build cost and especially under load. See the [full benchmark report](https://s00d.github.io/nuxt-i18n-micro/guide/performance-results) for methodology and charts.
 
 ## Key Features
 

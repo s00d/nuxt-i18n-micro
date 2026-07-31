@@ -9,6 +9,7 @@ import { ensureNpmAuthCommand } from './ensure-npm-auth'
 import { ensureReleaseSourceCommand } from './ensure-release-source'
 import { fixturesAuditCommand } from './fixtures-audit'
 import { payloadBudgetCommand } from './payload-budget'
+import { performanceCommand } from './performance'
 import { preflightCommand } from './preflight'
 import { releaseCommand } from './release'
 import { smokeBrowserCommand } from './smoke-browser'
@@ -28,6 +29,7 @@ export const commands = {
   'ensure-release-source': ensureReleaseSourceCommand,
   'fixtures-audit': fixturesAuditCommand,
   'payload-budget': payloadBudgetCommand,
+  performance: performanceCommand,
   preflight: preflightCommand,
   release: releaseCommand,
   'smoke-pack': smokePackCommand,

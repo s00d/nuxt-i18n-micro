@@ -9,24 +9,6 @@ const routesLocaleLinks: Record<string, string> = {
 
 export default defineNuxtConfig({
   modules: ['../src/module', '../packages/types-generator/src/nuxt'],
-  hooks: {
-    // Nuxt pages later does `plugins ||= []` then `.push('vue-router/volar/…')`.
-    // Those exports need vue-router@5; this workspace peers @4 — swallow the push.
-    'prepare:types'({ tsConfig }) {
-      tsConfig.vueCompilerOptions ||= {}
-      const plugins: unknown[] = []
-      const push = Array.prototype.push.bind(plugins) as (...items: unknown[]) => number
-      plugins.push = (...items: unknown[]) =>
-        push(
-          ...items.filter((plugin) => {
-            const name = typeof plugin === 'string' ? plugin : (plugin as { name?: string } | null)?.name
-            return !String(name ?? '').startsWith('vue-router/volar/')
-          }),
-        )
-      // Nuxt types this as string[], but also pushes `{ name, options }` for typedPages.
-      tsConfig.vueCompilerOptions.plugins = plugins as string[]
-    },
-  },
   devtools: {
     enabled: true,
   },

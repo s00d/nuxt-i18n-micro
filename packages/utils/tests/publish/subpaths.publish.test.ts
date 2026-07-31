@@ -11,6 +11,7 @@ const subpaths = [
   { subpath: './merge-source', exportName: 'mergeSourceTranslations' },
   { subpath: './payload-config', exportName: 'resolveTranslationPayloadOptions' },
   { subpath: './resolve-og-locale', exportName: 'resolveOgLocale' },
+  { subpath: './resolve-hreflang', exportName: 'resolveHreflangAlternates' },
   { subpath: './route', exportName: 'findAllowedLocalesForRoute' },
   { subpath: './parse-path', exportName: 'parseTranslationRelativePath' },
   { subpath: './accept-language', exportName: 'detectLocaleFromAcceptLanguage' },

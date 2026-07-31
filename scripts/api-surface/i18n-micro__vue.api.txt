@@ -66,6 +66,7 @@ interface UseLocaleHeadOptions
 member UseLocaleHeadOptions.addDirAttribute?: boolean | undefined
 member UseLocaleHeadOptions.addSeoAttributes?: boolean | undefined
 member UseLocaleHeadOptions.baseUrl?: string | (() => string) | undefined
+member UseLocaleHeadOptions.hreflangBaseLanguage?: boolean | undefined
 member UseLocaleHeadOptions.identifierAttribute?: string | undefined
 class VueI18n
 member VueI18n._currentRoute: private Ref<string, string>

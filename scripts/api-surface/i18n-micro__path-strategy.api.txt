@@ -252,6 +252,7 @@ member ResolvedRouteLike.name: string | null
 member ResolvedRouteLike.params?: Record<string, unknown> | undefined
 member ResolvedRouteLike.path: string
 member ResolvedRouteLike.query?: Record<string, unknown> | undefined
+function resolvePathWithParams: (path: string, params?: Record<string, unknown>) => string
 interface RouteAnalysis
 member RouteAnalysis.baseRouteName: string | null
 member RouteAnalysis.pathWithoutLocale: string

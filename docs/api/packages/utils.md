@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-93 exports across 21 entry points.
+97 exports across 22 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -368,6 +368,36 @@ import { /* … */ } from '@i18n-micro/utils/payload-url'
 | `locale` | `string` |
 | `routeName?` | `string \| undefined` |
 | `routesLocaleLinks?` | `Record<string, string> \| undefined` |
+
+</details>
+## `@i18n-micro/utils/resolve-hreflang`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/resolve-hreflang'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `HreflangAlternate` | interface | 2 members |
+| `HreflangLocaleInput` | type | ``Pick<Locale, 'code' \| 'iso'> & { /** When true and `hreflangBaseLanguage` is on, this locale claims the bare language tag even if another locale already did. */ isCatchallLocale?: boolean }`` |
+| `resolveHreflangAlternates` | function | `(locales: HreflangLocaleInput[], options?: ResolveHreflangAlternatesOptions) => HreflangAlternate[]` |
+| `ResolveHreflangAlternatesOptions` | interface | 1 members |
+
+<details>
+<summary><code>HreflangAlternate</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `hreflang` | `string` |
+| `localeCode` | `string` |
+
+</details>
+<details>
+<summary><code>ResolveHreflangAlternatesOptions</code> — 1 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
 
 </details>
 ## `@i18n-micro/utils/resolve-locale`

@@ -159,6 +159,8 @@ export async function assertI18nHeadScenario(page: Page, scenario: I18nHeadScena
   }
 
   if (scenario.noHreflang) {
+    await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveCount(0)
+    await expect(page.locator('link[rel="alternate"][hreflang="fr-FR"]')).toHaveCount(0)
     await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(0)
     await expect(page.locator('link[rel="alternate"][hreflang="fr"]')).toHaveCount(0)
     await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(0)
@@ -179,8 +181,8 @@ export async function assertI18nHeadScenario(page: Page, scenario: I18nHeadScena
   }
 
   if (scenario.keepModuleHreflang) {
-    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(1)
-    await expect(page.locator('link[rel="alternate"][hreflang="fr"]')).toHaveCount(1)
+    await expect(page.locator('link[rel="alternate"][hreflang="en-US"]')).toHaveCount(1)
+    await expect(page.locator('link[rel="alternate"][hreflang="fr-FR"]')).toHaveCount(1)
     await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(1)
   }
 }
@@ -210,8 +212,8 @@ export function expectHtmlScenario(html: string, scenario: I18nHeadScenario) {
   }
 
   if (scenario.noHreflang) {
-    expect(html).not.toMatch(/hreflang="en"/)
-    expect(html).not.toMatch(/hreflang="fr"/)
+    expect(html).not.toMatch(/hreflang="en-US"/)
+    expect(html).not.toMatch(/hreflang="fr-FR"/)
     expect(html).not.toMatch(/hreflang="x-default"/)
     expect(html).toMatch(/<link[^>]*rel="canonical"/)
     return
@@ -229,9 +231,10 @@ export function expectHtmlScenario(html: string, scenario: I18nHeadScenario) {
   }
 
   if (scenario.keepModuleHreflang) {
-    expect(html).toMatch(/hreflang="en"/)
-    expect(html).toMatch(/hreflang="fr"/)
-    expect(html).toMatch(/hreflang="x-default"/)
+    const hreflangs = [...html.matchAll(/hreflang="([^"]+)"/g)].map((m) => m[1])
+    expect(hreflangs).toEqual(expect.arrayContaining(['en-US', 'fr-FR', 'x-default']))
+    expect(hreflangs).not.toContain('en')
+    expect(hreflangs).not.toContain('fr')
   }
 }
 

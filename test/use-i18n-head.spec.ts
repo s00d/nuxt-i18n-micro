@@ -148,15 +148,18 @@ describe('useI18nHead — landing OG only', () => {
     const html = await (await request.get('/landing')).text()
     expectMeta(html, 'og:title', 'Landing OG title')
     expectMeta(html, 'og:description', 'Landing OG description')
-    expect(html).toMatch(/hreflang="en"/)
-    expect(html).toMatch(/hreflang="fr"/)
-    expect(html).toMatch(/hreflang="x-default"/)
+    const hreflangs = [...html.matchAll(/hreflang="([^"]+)"/g)].map((m) => m[1])
+    expect(hreflangs).toEqual(expect.arrayContaining(['en-US', 'fr-FR', 'x-default']))
+    expect(hreflangs).not.toContain('en')
+    expect(hreflangs).not.toContain('fr')
   })
 })
 
 describe('useI18nHead — disable hreflang', () => {
   test('SSR: no alternate links, canonical remains', async ({ request }) => {
     const html = await (await request.get('/no-hreflang')).text()
+    expect(html).not.toMatch(/hreflang="en-US"/)
+    expect(html).not.toMatch(/hreflang="fr-FR"/)
     expect(html).not.toMatch(/hreflang="en"/)
     expect(html).not.toMatch(/hreflang="fr"/)
     expect(html).not.toMatch(/hreflang="x-default"/)

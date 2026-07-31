@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
 import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import { inject, ref } from 'vue'
 import { I18nDefaultLocaleKey, I18nRouterKey } from '../injection'
@@ -32,10 +33,21 @@ export interface UseLocaleHeadOptions {
   identifierAttribute?: string
   addSeoAttributes?: boolean
   baseUrl?: string | (() => string)
+  /**
+   * Also emit bare-language `hreflang` tags derived from `iso` (never from routing `code`).
+   * @default false
+   */
+  hreflangBaseLanguage?: boolean
 }
 
 export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
-  const { addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/' } = options
+  const {
+    addDirAttribute = true,
+    identifierAttribute = 'id',
+    addSeoAttributes = true,
+    baseUrl = '/',
+    hreflangBaseLanguage = false,
+  } = options
 
   const { getLocale, getLocales, localeRoute: i18nLocaleRoute } = useI18n()
   const routerStrategy = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)
@@ -153,47 +165,42 @@ export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
       href: ogUrl,
     }
 
-    const alternateLinks: MetaLink[] = alternateLocales.flatMap((loc: Locale) => {
+    const alternateLinks: MetaLink[] = (() => {
       if (!i18nLocaleRoute || !routerStrategy) {
         return []
       }
 
+      const hrefByCode = new Map<string, string>()
       const currentPath = routerStrategy.getCurrentPath()
-      // Use i18n's localeRoute which delegates to router strategy
-      const switchedPathResult = i18nLocaleRoute(currentPath, loc.code)
-      const switchedPath = typeof switchedPathResult === 'string' ? switchedPathResult : switchedPathResult?.path || '/'
-      if (!switchedPath) {
-        return []
+
+      for (const loc of alternateLocales) {
+        const switchedPathResult = i18nLocaleRoute(currentPath, loc.code)
+        const switchedPath = typeof switchedPathResult === 'string' ? switchedPathResult : switchedPathResult?.path || '/'
+        if (!switchedPath) continue
+
+        let href: string
+        if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
+          href = switchedPath
+        } else {
+          const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
+          href = `${baseUrlValue}${switchedPath.startsWith('/') ? '' : '/'}${switchedPath}`
+        }
+        hrefByCode.set(String(loc.code), href)
       }
 
-      let href: string
-      if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
-        href = switchedPath
-      } else {
-        const baseUrlValue = typeof baseUrl === 'function' ? baseUrl() : baseUrl
-        href = `${baseUrlValue}${switchedPath.startsWith('/') ? '' : '/'}${switchedPath}`
-      }
-
-      const links: MetaLink[] = [
-        {
-          [identifierAttribute]: `i18n-alternate-${loc.code}`,
-          rel: 'alternate',
-          href,
-          hreflang: loc.code,
-        },
-      ]
-
-      if (loc.iso && loc.iso !== loc.code) {
-        links.push({
-          [identifierAttribute]: `i18n-alternate-${loc.iso}`,
-          rel: 'alternate',
-          href,
-          hreflang: loc.iso,
-        })
-      }
-
-      return links
-    })
+      return resolveHreflangAlternates(alternateLocales, { hreflangBaseLanguage }).flatMap(({ hreflang, localeCode }) => {
+        const href = hrefByCode.get(localeCode)
+        if (!href) return []
+        return [
+          {
+            [identifierAttribute]: `i18n-alternate-${hreflang}`,
+            rel: 'alternate',
+            href,
+            hreflang,
+          } satisfies MetaLink,
+        ]
+      })
+    })()
 
     // Generate x-default hreflang link pointing to the default locale's URL.
     // x-default tells search engines which URL to show when none of the

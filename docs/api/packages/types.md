@@ -29,12 +29,12 @@ import { /* … */ } from '@i18n-micro/types'
 | `I18nHeadMeta` | interface | 1 members |
 | `I18nRouteParams` | type | `Record<LocaleCode, Record<string, string>> \| null` |
 | `init` | const | `() => void` |
-| `Locale` | interface | 11 members |
+| `Locale` | interface | 12 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 45 members |
-| `ModuleOptionsExtend` | interface | 48 members |
-| `ModulePrivateOptionsExtend` | interface | 48 members |
+| `ModuleOptions` | interface | 46 members |
+| `ModuleOptionsExtend` | interface | 49 members |
+| `ModulePrivateOptionsExtend` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -95,7 +95,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>Locale</code> — 11 members</summary>
+<summary><code>Locale</code> — 12 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -107,13 +107,14 @@ import { /* … */ } from '@i18n-micro/types'
 | `disabled?` | `boolean \| undefined` |
 | `displayName?` | `string \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
+| `isCatchallLocale?` | `boolean \| undefined` |
 | `iso?` | `string \| undefined` |
 | `og?` | `string \| undefined` |
 | `seo?` | `boolean \| undefined` |
 
 </details>
 <details>
-<summary><code>ModuleOptions</code> — 45 members</summary>
+<summary><code>ModuleOptions</code> — 46 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -140,6 +141,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |
@@ -165,7 +167,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModuleOptionsExtend</code> — 48 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 49 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -193,6 +195,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `hashMode` | `boolean` |
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `isSSG` | `boolean` |
 | `localeCookie?` | `string \| null \| undefined` |
@@ -220,7 +223,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 48 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 49 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -247,6 +250,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `localeCookie?` | `string \| null \| undefined` |
 | `locales?` | `Locale[] \| undefined` |

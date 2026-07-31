@@ -24,6 +24,7 @@ The sections below explain how they work together; the
 | [`metaBaseUrl`](/api/module-options) | `string` | `undefined` | Base URL for SEO meta tags (canonical, og:url, hreflang). - `undefined` — dynamically resolved from the current request URL   (`useRequestURL().origin` on server, `window.location.origin` on client). |
 | [`metaTrustForwardedHost`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Host` header when resolving the base URL for meta tags. |
 | [`metaTrustForwardedProto`](/api/module-options) | `boolean` | `true` | Trust the `X-Forwarded-Proto` header when resolving the protocol for meta tags. |
+| [`hreflangBaseLanguage`](/api/module-options) | `boolean` | `false` | Also emit a bare-language `hreflang` derived from each locale's `iso` (e.g. `es-ES` → also `es`). |
 | [`define`](/api/module-options) | `boolean` | `true` | Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRoute()` calls. |
 | [`redirects`](/api/module-options) | `boolean` | `true` | Enable automatic locale-based redirects. |
 | [`plugin`](/api/module-options) | `boolean` | `true` | Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`, `$switchLocale()`, and other runtime helpers. |
@@ -1018,6 +1019,22 @@ canonical URLs use `https://` even though the app itself listens on HTTP.
 
 ```typescript
 metaTrustForwardedProto: false // Ignore X-Forwarded-Proto header
+```
+
+#### `hreflangBaseLanguage`
+
+<!-- generated:option:hreflangBaseLanguage — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `boolean` · **Default** `false`
+
+Also emit a bare-language `hreflang` derived from each locale's `iso`
+(e.g. `es-ES` → also `es`). The first regional locale in `locales` claims
+the bare tag for that language. Routing `code` is never used — only `iso || code`.
+
+<!-- /generated:option:hreflangBaseLanguage -->
+
+```typescript
+hreflangBaseLanguage: true
 ```
 
 ### 🔄 Additional Features

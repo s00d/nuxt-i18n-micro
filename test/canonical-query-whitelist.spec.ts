@@ -8,8 +8,8 @@ describe('canonicalQueryWhitelist override', () => {
 
     const canonicalHref = await page.locator('link[rel="canonical"]').getAttribute('href')
     const ogUrlContent = await page.locator('meta[property="og:url"]').getAttribute('content')
-    const alternateEnHref = await page.locator('link#i18n-alternate-en').getAttribute('href')
-    const alternateDeHref = await page.locator('link#i18n-alternate-de').getAttribute('href')
+    const alternateEnHref = await page.locator('link#i18n-alternate-en_EN').getAttribute('href')
+    const alternateDeHref = await page.locator('link#i18n-alternate-de_DE').getAttribute('href')
     const xDefaultHref = await page.locator('link#i18n-xd').getAttribute('href')
 
     const canonicalURL = new URL(canonicalHref!)

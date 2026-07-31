@@ -59,8 +59,10 @@ describe('SEO with strategy: prefix', () => {
     expect(count).toBeGreaterThan(0)
 
     const hreflangs = await Promise.all(Array.from({ length: count }).map((_, i) => links.nth(i).getAttribute('hreflang')))
-    expect(hreflangs).toContain('en')
-    expect(hreflangs).toContain('de')
+    expect(hreflangs).toContain('en_EN')
+    expect(hreflangs).toContain('de_DE')
+    expect(hreflangs).not.toContain('en')
+    expect(hreflangs).not.toContain('de')
     expect(hreflangs).not.toContain('ru')
     expect(hreflangs).not.toContain('ru_RU')
   })

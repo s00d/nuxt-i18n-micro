@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/path-strategy`
 
-37 exports across 6 entry points.
+38 exports across 6 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -35,6 +35,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `PrefixExceptDefaultPathStrategy` | class | 44 members |
 | `PrefixPathStrategy` | class | 36 members |
 | `ResolvedRouteLike` | interface | 6 members |
+| `resolvePathWithParams` | function | `(path: string, params?: Record<string, unknown>) => string` |
 | `RouteAnalysis` | interface | 2 members |
 | `RouteLike` | interface | 6 members |
 | `RouterAdapter` | interface | 3 members |

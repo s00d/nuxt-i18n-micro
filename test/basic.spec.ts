@@ -125,11 +125,8 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og-alt-ru_RU')).toHaveAttribute('content', 'ru_RU')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}`)
     await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
     await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
@@ -144,11 +141,8 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og-alt-ru_RU')).toHaveAttribute('content', 'ru_RU')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}`)
     await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
     await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
@@ -163,11 +157,8 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og-alt-de_DE')).toHaveAttribute('content', 'de_DE')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
-    await expect(page.locator('link#i18n-alternate-en')).toHaveAttribute('href', `${normalizedBaseURL}`)
     await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de`)
-    await expect(page.locator('link#i18n-alternate-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru`)
     await expect(page.locator('link#i18n-xd')).toHaveAttribute('hreflang', 'x-default')
     await expect(page.locator('link#i18n-xd')).toHaveAttribute('href', `${normalizedBaseURL}`)
@@ -667,9 +658,9 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og')).not.toBeAttached()
     await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
     await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en_EN')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de_DE')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru_RU')).not.toBeAttached()
     await expect(page.locator('link#i18n-xd')).not.toBeAttached()
 
     // Test German locale - meta tags should also be disabled
@@ -679,9 +670,9 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og')).not.toBeAttached()
     await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
     await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en_EN')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de_DE')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru_RU')).not.toBeAttached()
     await expect(page.locator('link#i18n-xd')).not.toBeAttached()
 
     // Test French locale - meta tags should also be disabled
@@ -691,9 +682,9 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og')).not.toBeAttached()
     await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
     await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en_EN')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de_DE')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru_RU')).not.toBeAttached()
     await expect(page.locator('link#i18n-xd')).not.toBeAttached()
   })
 
@@ -707,9 +698,9 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og')).not.toBeAttached()
     await expect(page.locator('meta#i18n-og-url')).not.toBeAttached()
     await expect(page.locator('link#i18n-can')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en_EN')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de_DE')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru_RU')).not.toBeAttached()
     await expect(page.locator('link#i18n-xd')).not.toBeAttached()
 
     // Test German locale - meta tags should be present
@@ -719,9 +710,9 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'de_DE')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/de/disable-meta-locale`)
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
+    await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
     // French locale has baseUrl, so alternate link uses full URL
-    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
+    await expect(page.locator('link#i18n-alternate-fr_FR')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
 
     // Test French locale - meta tags should be present
     await goto('/fr/disable-meta-locale', { waitUntil: 'hydration' })
@@ -730,8 +721,8 @@ describe('basic', () => {
     await expect(page.locator('meta#i18n-og')).toHaveAttribute('content', 'fr_FR')
     await expect(page.locator('meta#i18n-og-url')).toHaveAttribute('content', `${normalizedBaseURL}/fr/disable-meta-locale`)
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/fr/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-de')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
-    await expect(page.locator('link#i18n-alternate-fr')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
+    await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de/disable-meta-locale`)
+    await expect(page.locator('link#i18n-alternate-fr_FR')).toHaveAttribute('href', 'https://fr.example.com/disable-meta-locale')
   })
 
   test('test missing handler functionality', async ({ page, goto }) => {

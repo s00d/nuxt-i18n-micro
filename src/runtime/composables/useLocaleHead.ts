@@ -1,5 +1,6 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
 import { findAllowedLocalesForRoute } from '@i18n-micro/utils/route'
 import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import { joinURL, parseURL, withQuery } from 'ufo'
@@ -212,43 +213,40 @@ export const useLocaleHead = ({
 
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []
-      : localesForSeo.flatMap((loc: Locale) => {
-          const switchedPath = switchLocalePath(loc.code)
-          if (!switchedPath) {
-            return []
+      : (() => {
+          const hrefByCode = new Map<string, string>()
+          for (const loc of localesForSeo) {
+            const switchedPath = switchLocalePath(loc.code)
+            if (!switchedPath) continue
+
+            // $switchLocalePath returns a full URL (with baseUrl) if locale has baseUrl, otherwise just a path
+            let href: string
+            if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
+              // It's already a full URL, preserve origin but filter query params.
+              href = filterLocalizedHref(switchedPath, whitelist)
+            } else {
+              // It's just a path, prepend baseUrl
+              const filteredPath = filterLocalizedHref(switchedPath, whitelist)
+              href = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
+            }
+            hrefByCode.set(String(loc.code), href)
           }
 
-          // $switchLocalePath returns a full URL (with baseUrl) if locale has baseUrl, otherwise just a path
-          let href: string
-          if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
-            // It's already a full URL, preserve origin but filter query params.
-            href = filterLocalizedHref(switchedPath, whitelist)
-          } else {
-            // It's just a path, prepend baseUrl
-            const filteredPath = filterLocalizedHref(switchedPath, whitelist)
-            href = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
-          }
-
-          const links: MetaLink[] = [
-            {
-              [identifierAttribute]: `i18n-alternate-${loc.code}`,
-              rel: 'alternate',
-              href,
-              hreflang: unref(loc.code),
-            },
-          ]
-
-          if (loc.iso && loc.iso !== loc.code) {
-            links.push({
-              [identifierAttribute]: `i18n-alternate-${loc.iso}`,
-              rel: 'alternate',
-              href,
-              hreflang: unref(loc.iso),
-            })
-          }
-
-          return links
-        })
+          return resolveHreflangAlternates(localesForSeo, {
+            hreflangBaseLanguage: i18nConfig.hreflangBaseLanguage ?? false,
+          }).flatMap(({ hreflang, localeCode }) => {
+            const href = hrefByCode.get(localeCode)
+            if (!href) return []
+            return [
+              {
+                [identifierAttribute]: `i18n-alternate-${hreflang}`,
+                rel: 'alternate',
+                href,
+                hreflang,
+              } satisfies MetaLink,
+            ]
+          })
+        })()
 
     // Generate x-default hreflang link pointing to the default locale's URL.
     // x-default tells search engines which URL to show when none of the

@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/utils",
-  "version": "1.0.11",
+  "version": "1.0.13",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "i18n",
@@ -179,6 +179,21 @@
         "default": "./dist/resolve-og-locale.cjs"
       },
       "default": "./dist/resolve-og-locale.mjs"
+    },
+    "./resolve-hreflang": {
+      "production": {
+        "types": "./dist/resolve-hreflang.d.ts",
+        "default": "./dist/resolve-hreflang.mjs"
+      },
+      "import": {
+        "types": "./dist/resolve-hreflang.d.ts",
+        "default": "./dist/resolve-hreflang.mjs"
+      },
+      "require": {
+        "types": "./dist/resolve-hreflang.d.cts",
+        "default": "./dist/resolve-hreflang.cjs"
+      },
+      "default": "./dist/resolve-hreflang.mjs"
     },
     "./merge-i18n-head": {
       "production": {

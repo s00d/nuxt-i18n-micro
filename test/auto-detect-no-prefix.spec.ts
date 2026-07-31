@@ -69,9 +69,9 @@ describe('autoDetectLanguage with no_prefix strategy', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en_EN')
 
     // hreflang alternate links should NOT be present (no_prefix has no locale-specific URLs)
-    await expect(page.locator('link#i18n-alternate-en')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-de')).not.toBeAttached()
-    await expect(page.locator('link#i18n-alternate-ru')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-en_EN')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-de_DE')).not.toBeAttached()
+    await expect(page.locator('link#i18n-alternate-ru_RU')).not.toBeAttached()
 
     // x-default should NOT be present
     await expect(page.locator('link#i18n-xd')).not.toBeAttached()

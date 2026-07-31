@@ -84,6 +84,7 @@ member ModuleOptions.fallbackLocale?: string | undefined
 member ModuleOptions.globalLocaleRoutes?: GlobalLocaleRoutes
 member ModuleOptions.hmr?: boolean | undefined
 member ModuleOptions.hooks?: boolean | undefined
+member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
 member ModuleOptions.locales?: Locale[] | undefined

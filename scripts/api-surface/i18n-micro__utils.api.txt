@@ -163,6 +163,15 @@ member TranslationPayloadFetchRequestInput.locale: string
 member TranslationPayloadFetchRequestInput.routeName?: string | undefined
 member TranslationPayloadFetchRequestInput.routesLocaleLinks?: Record<string, string> | undefined
 
+# ./resolve-hreflang (src/resolve-hreflang.ts)
+interface HreflangAlternate
+member HreflangAlternate.hreflang: string
+member HreflangAlternate.localeCode: string
+type HreflangLocaleInput: Pick<Locale, 'code' | 'iso'>
+function resolveHreflangAlternates: (locales: HreflangLocaleInput[], options?: ResolveHreflangAlternatesOptions) => HreflangAlternate[]
+interface ResolveHreflangAlternatesOptions
+member ResolveHreflangAlternatesOptions.hreflangBaseLanguage?: boolean | undefined
+
 # ./resolve-locale (src/resolve-locale.ts)
 function resolvePreferredLocale: (input: ResolvePreferredLocaleInput) => string
 interface ResolvePreferredLocaleInput

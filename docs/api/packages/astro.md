@@ -36,7 +36,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nClientProps` | interface | 4 members |
 | `i18nIntegration` | function | `(options: I18nIntegrationOptions) => AstroIntegration` |
-| `I18nIntegrationOptions` | interface | 51 members |
+| `I18nIntegrationOptions` | interface | 52 members |
 | `I18nMiddlewareOptions` | interface | 7 members |
 | `I18nRoutingStrategy` | interface | 10 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
@@ -44,9 +44,9 @@ import { /* … */ } from '@i18n-micro/astro'
 | `loadTranslationsFromDir` | function | `(options: LoadTranslationsOptions) => LoadedTranslations` |
 | `loadTranslationsIntoI18n` | function | `(i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; }, options: LoadTranslationsOptions) => void` |
 | `LoadTranslationsOptions` | interface | 3 members |
-| `Locale` | interface | 11 members |
+| `Locale` | interface | 12 members |
 | `LocaleCode` | type | `string` |
-| `LocaleHeadOptions` | interface | 3 members |
+| `LocaleHeadOptions` | interface | 4 members |
 | `LocaleHeadResult` | interface | 3 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
@@ -165,7 +165,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 </details>
 <details>
-<summary><code>I18nIntegrationOptions</code> — 51 members</summary>
+<summary><code>I18nIntegrationOptions</code> — 52 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -193,6 +193,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `globalLocaleRoutes?` | `GlobalLocaleRoutes` |
 | `hmr?` | `boolean \| undefined` |
 | `hooks?` | `boolean \| undefined` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
 | `httpCacheDuration?` | `number \| undefined` |
 | `locale` | `string` |
 | `localeCookie?` | `string \| null \| undefined` |
@@ -272,15 +273,16 @@ import { /* … */ } from '@i18n-micro/astro'
 | `translationDir` | `string` |
 
 </details>
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+<code>Locale</code> — 12 members, identical to [`Locale`](/api/packages/types).
 <details>
-<summary><code>LocaleHeadOptions</code> — 3 members</summary>
+<summary><code>LocaleHeadOptions</code> — 4 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `addDirAttribute?` | `boolean \| undefined` |
 | `addSeoAttributes?` | `boolean \| undefined` |
 | `baseUrl?` | `string \| undefined` |
+| `hreflangBaseLanguage?` | `boolean \| undefined` |
 
 </details>
 <details>

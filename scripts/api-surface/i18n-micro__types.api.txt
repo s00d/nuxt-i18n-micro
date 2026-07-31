@@ -62,6 +62,7 @@ member ModuleOptions.fallbackLocale?: string | undefined
 member ModuleOptions.globalLocaleRoutes?: GlobalLocaleRoutes
 member ModuleOptions.hmr?: boolean | undefined
 member ModuleOptions.hooks?: boolean | undefined
+member ModuleOptions.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptions.httpCacheDuration?: number | undefined
 member ModuleOptions.localeCookie?: string | null | undefined
 member ModuleOptions.locales?: Locale[] | undefined
@@ -109,6 +110,7 @@ member ModuleOptionsExtend.globalLocaleRoutes?: GlobalLocaleRoutes
 member ModuleOptionsExtend.hashMode: boolean
 member ModuleOptionsExtend.hmr?: boolean | undefined
 member ModuleOptionsExtend.hooks?: boolean | undefined
+member ModuleOptionsExtend.hreflangBaseLanguage?: boolean | undefined
 member ModuleOptionsExtend.httpCacheDuration?: number | undefined
 member ModuleOptionsExtend.isSSG: boolean
 member ModuleOptionsExtend.localeCookie?: string | null | undefined
@@ -157,6 +159,7 @@ member ModulePrivateOptionsExtend.fallbackLocale: string
 member ModulePrivateOptionsExtend.globalLocaleRoutes?: GlobalLocaleRoutes
 member ModulePrivateOptionsExtend.hmr?: boolean | undefined
 member ModulePrivateOptionsExtend.hooks?: boolean | undefined
+member ModulePrivateOptionsExtend.hreflangBaseLanguage?: boolean | undefined
 member ModulePrivateOptionsExtend.httpCacheDuration?: number | undefined
 member ModulePrivateOptionsExtend.localeCookie?: string | null | undefined
 member ModulePrivateOptionsExtend.locales?: Locale[] | undefined
@@ -168,6 +171,8 @@ member ModulePrivateOptionsExtend.metaTrustForwardedProto?: boolean | undefined
 member ModulePrivateOptionsExtend.missingWarn?: boolean | undefined
 member ModulePrivateOptionsExtend.noPrefixRedirect?: boolean | undefined
 member ModulePrivateOptionsExtend.numberFormats?: Record<string, Record<string, Intl.NumberFormatOptions>> | undefined
+member ModulePrivateOptionsExtend.payloadFsDir: string
+member ModulePrivateOptionsExtend.payloadPublicRel: string
 member ModulePrivateOptionsExtend.plugin?: boolean | undefined
 member ModulePrivateOptionsExtend.plural?: string | PluralFunc | undefined
 member ModulePrivateOptionsExtend.redirects?: boolean | undefined
@@ -175,8 +180,6 @@ member ModulePrivateOptionsExtend.rootDir: string
 member ModulePrivateOptionsExtend.routeDisableMeta?: Record<string, boolean | string[]> | undefined
 member ModulePrivateOptionsExtend.routeLocales?: Record<string, string[]> | undefined
 member ModulePrivateOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
-member ModulePrivateOptionsExtend.payloadFsDir: string
-member ModulePrivateOptionsExtend.payloadPublicRel: string
 member ModulePrivateOptionsExtend.serverTranslationPreload?: boolean | undefined
 member ModulePrivateOptionsExtend.strategy?: Strategies | undefined
 member ModulePrivateOptionsExtend.translationDir: string
@@ -193,10 +196,10 @@ type Translation: CleanTranslation | unknown
 type TranslationKey: keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
 interface TranslationPayloadOptions
 member TranslationPayloadOptions.mode?: "premerged" | "source" | undefined
-member TranslationPayloadOptions.serverAssets?: boolean | undefined
 member TranslationPayloadOptions.prerenderRoutes?: boolean | undefined
 member TranslationPayloadOptions.publicAssets?: boolean | undefined
 member TranslationPayloadOptions.publicDir?: string | undefined
+member TranslationPayloadOptions.serverAssets?: boolean | undefined
 member TranslationPayloadOptions.serverHandler?: boolean | undefined
 member TranslationPayloadOptions.warnFileCount?: number | undefined
 member TranslationPayloadOptions.warnSizeBytes?: number | undefined

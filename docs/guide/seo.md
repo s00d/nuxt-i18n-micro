@@ -69,6 +69,8 @@ When the `meta` option is enabled in `Nuxt I18n Micro`, the module automatically
 
 3. **🌐 Alternate Language Links (`hreflang`)**:
    - The module automatically generates `<link rel="alternate" hreflang="">` tags for all available locales. This helps search engines understand which language versions of your content are available, improving the user experience for global audiences.
+   - Each locale emits **one** tag: `hreflang = iso || code`. When `iso` is set, routing `code` is never used as `hreflang` (so market keys like `mx` do not become invalid language tags).
+   - Optional `hreflangBaseLanguage: true` also emits a bare-language tag derived from `iso` (e.g. `es-ES` → `es`), claimed by the first regional locale in `locales`.
 
 4. **🌏 `x-default` Hreflang**:
    - The module automatically generates a `<link rel="alternate" hreflang="x-default">` tag pointing to the default locale's URL. This tells search engines which URL to show users whose language doesn't match any of the defined locales. No additional configuration is required — it works automatically when `meta: true` is set.

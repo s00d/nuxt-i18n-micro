@@ -34,11 +34,8 @@ describe('custom-regex', () => {
     await expect(page.locator('meta#i18n-og-alt-ru_RU')).toHaveAttribute('content', 'ru_RU')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-en-us')).toHaveAttribute('href', `${normalizedBaseURL}`)
     await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de-de')).toHaveAttribute('href', `${normalizedBaseURL}/de-de`)
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de-de`)
-    await expect(page.locator('link#i18n-alternate-ru-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru-ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru-ru`)
 
     // Test for German locale
@@ -51,11 +48,8 @@ describe('custom-regex', () => {
     await expect(page.locator('meta#i18n-og-alt-ru_RU')).toHaveAttribute('content', 'ru_RU')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/de-de`)
-    await expect(page.locator('link#i18n-alternate-en-us')).toHaveAttribute('href', `${normalizedBaseURL}`)
     await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de-de')).toHaveAttribute('href', `${normalizedBaseURL}/de-de`)
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de-de`)
-    await expect(page.locator('link#i18n-alternate-ru-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru-ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru-ru`)
 
     // Test for Russian locale
@@ -68,11 +62,8 @@ describe('custom-regex', () => {
     await expect(page.locator('meta#i18n-og-alt-de_DE')).toHaveAttribute('content', 'de_DE')
 
     await expect(page.locator('link#i18n-can')).toHaveAttribute('href', `${normalizedBaseURL}/ru-ru`)
-    await expect(page.locator('link#i18n-alternate-en-us')).toHaveAttribute('href', `${normalizedBaseURL}`)
     await expect(page.locator('link#i18n-alternate-en_EN')).toHaveAttribute('href', `${normalizedBaseURL}`)
-    await expect(page.locator('link#i18n-alternate-de-de')).toHaveAttribute('href', `${normalizedBaseURL}/de-de`)
     await expect(page.locator('link#i18n-alternate-de_DE')).toHaveAttribute('href', `${normalizedBaseURL}/de-de`)
-    await expect(page.locator('link#i18n-alternate-ru-ru')).toHaveAttribute('href', `${normalizedBaseURL}/ru-ru`)
     await expect(page.locator('link#i18n-alternate-ru_RU')).toHaveAttribute('href', `${normalizedBaseURL}/ru-ru`)
   })
 

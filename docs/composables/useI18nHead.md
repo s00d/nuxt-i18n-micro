@@ -488,7 +488,7 @@ You can replace that with `useI18nHead` on each content page and module defaults
 | Custom “public origin” for absolute URLs              | `metaBaseUrl` + forwarded headers (see Example 12)   |
 | Short `og:locale` (`en` instead of `en_US`)           | Set `locale.og` or use `iso` → `en_US` (OG protocol) |
 
-**Regional `hreflang` duplicates:** the module may emit both `en` and `en-US` when `iso` differs from `code`. For article pages that need only language codes, use `replace.hreflang` with your own list.
+**`hreflang` from `iso`:** each locale emits one alternate with `hreflang = iso || code`. Routing `code` is never used when `iso` is set (avoids invalid tags like `hreflang="mx"`). Opt into bare-language fallbacks (`es-ES` → also `es`) with `hreflangBaseLanguage: true` — derived from `iso`, not `code`. For fully custom lists, use `replace.hreflang`.
 
 **JSON-LD:** `useI18nHead` does not generate structured data. Keep `useHead({ script: [...] })` or a dedicated JSON-LD helper alongside it.
 

@@ -1,4 +1,5 @@
 import type { CleanTranslation, Locale, Params, TranslationKey, Translations } from '@i18n-micro/types'
+import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
 import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import type { AstroGlobal } from 'astro'
 import type { AstroI18n } from './composer'
@@ -187,6 +188,11 @@ export interface LocaleHeadOptions {
   baseUrl?: string
   addDirAttribute?: boolean
   addSeoAttributes?: boolean
+  /**
+   * Also emit bare-language `hreflang` tags derived from `iso` (never from routing `code`).
+   * @default false
+   */
+  hreflangBaseLanguage?: boolean
 }
 
 export interface LocaleHeadResult {
@@ -206,7 +212,7 @@ export interface LocaleHeadResult {
 }
 
 export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {}): LocaleHeadResult {
-  const { baseUrl = '/', addDirAttribute = true, addSeoAttributes = true } = options
+  const { baseUrl = '/', addDirAttribute = true, addSeoAttributes = true, hreflangBaseLanguage = false } = options
 
   const locale = getLocale(astro)
   const defaultLocale = getDefaultLocale(astro)
@@ -248,6 +254,7 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
   const allLocaleCodes = locales.map((l) => l.code)
 
   // Alternate languages (includes current locale for self-referencing hreflang, per Google guidelines)
+  const hrefByCode = new Map<string, string>()
   for (const loc of localesForSeo) {
     let alternatePath = astro.url.pathname
     if (routingStrategy?.switchLocalePath) {
@@ -264,21 +271,17 @@ export function useLocaleHead(astro: AstroGlobal, options: LocaleHeadOptions = {
       }
       alternatePath = `/${segments.join('/')}`
     }
-    const alternateUrl = `${baseUrl}${alternatePath}`
+    hrefByCode.set(String(loc.code), `${baseUrl}${alternatePath}`)
+  }
 
+  for (const { hreflang, localeCode } of resolveHreflangAlternates(localesForSeo, { hreflangBaseLanguage })) {
+    const alternateUrl = hrefByCode.get(localeCode)
+    if (!alternateUrl) continue
     result.link.push({
       rel: 'alternate',
       href: alternateUrl,
-      hreflang: loc.code,
+      hreflang,
     })
-
-    if (loc.iso && loc.iso !== loc.code) {
-      result.link.push({
-        rel: 'alternate',
-        href: alternateUrl,
-        hreflang: loc.iso,
-      })
-    }
   }
 
   // x-default hreflang — points to the default locale's URL.

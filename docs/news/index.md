@@ -6,6 +6,14 @@ outline: 'deep'
 
 # News
 
+## Unreleased — hreflang from `iso`, not routing `code` (#243)
+
+**Date**: 2026-07-31
+
+When a locale has `iso`, SEO alternates now emit **one** `hreflang` per locale (`iso || code`). Routing `code` is no longer duplicated alongside `iso`, so market keys like `mx` no longer produce invalid `hreflang="mx"`.
+
+Optional `hreflangBaseLanguage: true` also emits a bare-language tag derived from `iso` (e.g. `es-ES` → `es`), claimed by the first regional locale in `locales`.
+
 ## Nuxt I18n Micro v3.24.0 — Node SSR from `public/`, no Rollup `raw:`
 
 **Date**: 2026-07-30

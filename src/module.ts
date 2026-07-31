@@ -158,6 +158,7 @@ function buildFullConfig(params: {
     metaBaseUrl: options.metaBaseUrl || undefined,
     metaTrustForwardedHost: options.metaTrustForwardedHost ?? true,
     metaTrustForwardedProto: options.metaTrustForwardedProto ?? true,
+    hreflangBaseLanguage: options.hreflangBaseLanguage ?? false,
     defaultLocale,
     fallbackLocale: options.fallbackLocale ?? undefined,
     localeCookie: options.localeCookie ?? null,
@@ -343,6 +344,7 @@ export default defineNuxtModule<ModuleOptions>({
     missingWarn: true,
     metaTrustForwardedHost: true,
     metaTrustForwardedProto: true,
+    hreflangBaseLanguage: false,
     httpCacheDuration: 31536000,
   },
   async setup(options, nuxt) {

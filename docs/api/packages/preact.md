@@ -41,9 +41,9 @@ import { /* … */ } from '@i18n-micro/preact'
 | `I18nT` | const | `(props: I18nTProps) => JSX.Element \| null` |
 | `I18nTProps` | interface | 311 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `Locale` | interface | 11 members |
+| `Locale` | interface | 12 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 45 members |
+| `ModuleOptions` | interface | 46 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PreactI18n` | class | 44 members |
@@ -1353,7 +1353,7 @@ import { /* … */ } from '@i18n-micro/preact'
 
 </details>
 <details>
-<summary><code>Locale</code> — 11 members</summary>
+<summary><code>Locale</code> — 12 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1365,12 +1365,13 @@ import { /* … */ } from '@i18n-micro/preact'
 | `disabled?` | `boolean \| undefined` |
 | `displayName?` | `string \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
+| `isCatchallLocale?` | `boolean \| undefined` |
 | `iso?` | `string \| undefined` |
 | `og?` | `string \| undefined` |
 | `seo?` | `boolean \| undefined` |
 
 </details>
-<code>ModuleOptions</code> — 45 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 46 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
 <summary><code>PreactI18n</code> — 44 members</summary>
 

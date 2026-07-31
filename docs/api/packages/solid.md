@@ -36,9 +36,9 @@ import { /* … */ } from '@i18n-micro/solid'
 | `I18nSwitcher` | const | `Component<I18nSwitcherProps>` |
 | `I18nT` | const | `Component<I18nTProps>` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `Locale` | interface | 11 members |
+| `Locale` | interface | 12 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 45 members |
+| `ModuleOptions` | interface | 46 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `SolidI18n` | class | 53 members |
@@ -78,8 +78,8 @@ import { /* … */ } from '@i18n-micro/solid'
 | `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
 
 </details>
-<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
-<code>ModuleOptions</code> — 45 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>Locale</code> — 12 members, identical to [`Locale`](/api/packages/types).
+<code>ModuleOptions</code> — 46 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
 <summary><code>SolidI18n</code> — 53 members</summary>
 

@@ -151,7 +151,8 @@ export function defaultResolveLocaleRoute(
       const isNested = isNestedFirst || isNestedLast
       const keyWithSlash = isNestedLast ? keyLastSlash : keyFirstSlash
       let pathWithoutLocale: string
-      if (isNested) {
+      if (isNested && customSegment.charCodeAt(0) !== 47) {
+        // Relative nested segment — join under parent. Absolute custom paths are complete (#239).
         const nameSegments = getPathSegments(keyWithSlash)
         const parentKey = nameSegments.length > 1 ? nameSegments.slice(0, -1).join('-') : ''
         const parentRules =
@@ -159,8 +160,7 @@ export function defaultResolveLocaleRoute(
             ? (gr[parentKey] as Record<string, string>)
             : null
         const parentPath = parentRules?.[targetLocale] ? normalizePath(parentRules[targetLocale]) : joinUrl('/', ...nameSegments.slice(0, -1))
-        const segment = customSegment.charCodeAt(0) === 47 ? customSegment.slice(1) : customSegment
-        pathWithoutLocale = joinUrl(parentPath, segment)
+        pathWithoutLocale = joinUrl(parentPath, customSegment)
       } else {
         pathWithoutLocale = normalizePath(customSegment)
       }

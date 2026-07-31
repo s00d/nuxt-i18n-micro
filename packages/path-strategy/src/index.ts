@@ -5,6 +5,7 @@ export {
   getRouteBaseName,
   type IsIndexRouteNameOptions,
   isIndexRouteName,
+  resolvePathWithParams,
   type RouteAnalysis,
 } from './resolver'
 export * from './strategies'

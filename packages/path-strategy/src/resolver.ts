@@ -16,22 +16,26 @@ import {
 import type { PathStrategyContext, ResolvedRouteLike } from './types'
 
 /**
- * Single pre-compiled regex that matches all Nuxt route param patterns in one pass:
- *   :key()       — optional param  (group 1)
- *   :key         — required param  (group 2, not followed by word char)
- *   [...key]     — catch-all param (group 3)
+ * Single pre-compiled regex that matches all Nuxt / Vue Router param patterns in one pass:
+ *   :key()            — optional empty constraint (group 1)
+ *   :key(constraint)  — required param with matcher, e.g. :year(2024|2025) (group 2)
+ *   :key              — bare required param (group 3, not followed by word char)
+ *   [...key]          — catch-all param (group 4)
+ *
+ * Constraint groups must be matched before bare `:key`, otherwise `:year(2024|2025)`
+ * leaves `(2024|2025)` in the URL (#239).
  */
-const PARAM_PATTERN = /:(\w+)\(\)|:(\w+)(?!\w)|\[\.\.\.(\w+)\]/g
+const PARAM_PATTERN = /:(\w+)\(\)|:(\w+)\([^)]*\)|:(\w+)(?!\w)|\[\.\.\.(\w+)\]/g
 
 /**
- * Substitutes params into path template (:key, :key(), [...key]).
- * Uses a single pre-compiled regex for all keys in one pass.
+ * Substitutes params into path template (`:key`, `:key()`, `:key(matcher)`, `[...key]`).
+ * Uses a single pre-compiled regex for all keys in one pass. Matcher groups are stripped.
  */
 export function resolvePathWithParams(path: string, params: Record<string, unknown> = {}): string {
   if (!params || !hasKeys(params)) return path
 
-  return path.replace(PARAM_PATTERN, (match, optKey?: string, reqKey?: string, catchAllKey?: string) => {
-    const key = optKey || reqKey || catchAllKey
+  return path.replace(PARAM_PATTERN, (match, emptyOpt?: string, constrained?: string, reqKey?: string, catchAllKey?: string) => {
+    const key = emptyOpt || constrained || reqKey || catchAllKey
     if (!key) return match
 
     const value = params[key]

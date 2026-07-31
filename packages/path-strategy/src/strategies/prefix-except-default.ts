@@ -427,14 +427,21 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     sourceRoute: RouteLike,
     currentRoute?: ResolvedRouteLike,
   ): RouteLike | string {
-    const nestedInfo = this.getNestedRouteInfo(routeName)
+    // Absolute custom paths already include the full locale path (e.g. `/blog-es/:slug`).
+    // Prepending a parent segment duplicates it when Nuxt's dashed name (`blog-slug`) is
+    // mistaken for nesting under `blog` (#239 Case A).
+    const isAbsoluteCustom = customPath.charCodeAt(0) === 47
     let pathNorm: string
-    if (nestedInfo) {
-      const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
-      const segment = customPath.charCodeAt(0) === 47 ? customPath.slice(1) : customPath
-      pathNorm = parentPath ? joinUrl(parentPath, segment) : normalizePath(customPath)
-    } else {
+    if (isAbsoluteCustom) {
       pathNorm = normalizePath(customPath)
+    } else {
+      const nestedInfo = this.getNestedRouteInfo(routeName)
+      if (nestedInfo) {
+        const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
+        pathNorm = parentPath ? joinUrl(parentPath, customPath) : normalizePath(customPath)
+      } else {
+        pathNorm = normalizePath(customPath)
+      }
     }
     if (!needsPrefix) return preserveQueryAndHash(this.applyBaseUrl(targetLocale, pathNorm), sourceRoute)
     return preserveQueryAndHash(this.applyBaseUrl(targetLocale, joinUrl(targetLocale, pathNorm)), sourceRoute)

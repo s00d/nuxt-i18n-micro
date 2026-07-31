@@ -180,6 +180,21 @@
       },
       "default": "./dist/auto-detect-path.mjs"
     },
+    "./split-locale-routes": {
+      "production": {
+        "types": "./dist/split-locale-routes.d.ts",
+        "default": "./dist/split-locale-routes.mjs"
+      },
+      "import": {
+        "types": "./dist/split-locale-routes.d.ts",
+        "default": "./dist/split-locale-routes.mjs"
+      },
+      "require": {
+        "types": "./dist/split-locale-routes.d.cts",
+        "default": "./dist/split-locale-routes.cjs"
+      },
+      "default": "./dist/split-locale-routes.mjs"
+    },
     "./resolve-og-locale": {
       "production": {
         "types": "./dist/resolve-og-locale.d.ts",

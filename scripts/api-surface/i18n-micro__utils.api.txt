@@ -229,3 +229,18 @@ member RuntimeI18nOverrides.strategy?: string | undefined
 function loadSourceTranslationsFromStorage: (storage: TranslationStorageReader, input: Omit<MergeSourceTranslationsInput, "readLocaleFile">) => Promise<Translations>
 interface TranslationStorageReader
 member TranslationStorageReader.getItem: (key: string) => Promise<unknown>
+
+# ./split-locale-routes (src/split-locale-routes.ts)
+interface SplitLocaleRouteEntry
+member SplitLocaleRouteEntry.file: string
+member SplitLocaleRouteEntry.name: string
+member SplitLocaleRouteEntry.path: string
+member SplitLocaleRouteEntry.paths?: false | Record<string, string> | undefined
+interface SplitLocaleRoutePage
+member SplitLocaleRoutePage.file: string
+member SplitLocaleRoutePage.name: string
+member SplitLocaleRoutePage.path: string
+function splitLocaleRoutes: (entries: readonly SplitLocaleRouteEntry[]) => SplitLocaleRoutesResult
+interface SplitLocaleRoutesResult
+member SplitLocaleRoutesResult.globalLocaleRoutes: Record<string, boolean | Record<string, string>>
+member SplitLocaleRoutesResult.pages: SplitLocaleRoutePage[]

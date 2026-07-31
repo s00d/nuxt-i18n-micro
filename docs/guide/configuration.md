@@ -428,6 +428,11 @@ globalLocaleRoutes: {
   'unlocalized': false // Disable localization entirely
 }
 ```
+
+::: tip Programmatic routes
+For routes added in `pages:extend` (especially many sharing one wrapper SFC), build both `pages` and `globalLocaleRoutes` from one list with [`splitLocaleRoutes`](/guide/custom-locale-routes#programmatic-routes-pagesextend--244) — keyed by route **name**, not file path.
+:::
+
 #### `routesLocaleLinks`
 
 <!-- generated:option:routesLocaleLinks — do not edit; run `pnpm run docs:generate` -->

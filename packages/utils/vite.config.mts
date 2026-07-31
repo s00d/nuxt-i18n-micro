@@ -17,6 +17,7 @@ const libEntries = {
   'accept-language': resolve(rootDir, 'src/accept-language.ts'),
   'resolve-locale': resolve(rootDir, 'src/resolve-locale.ts'),
   'auto-detect-path': resolve(rootDir, 'src/auto-detect-path.ts'),
+  'split-locale-routes': resolve(rootDir, 'src/split-locale-routes.ts'),
   'resolve-og-locale': resolve(rootDir, 'src/resolve-og-locale.ts'),
   'resolve-hreflang': resolve(rootDir, 'src/resolve-hreflang.ts'),
   'merge-i18n-head': resolve(rootDir, 'src/merge-i18n-head.ts'),

@@ -373,6 +373,51 @@ $defineI18nRoute({
 
 - **Catch-all Routes**: For catch-all routes (`[...slug]`), the slug parameter should be an array or a string that will be converted to an array.
 
+## 🧩 Programmatic routes (`pages:extend`) — #244
+
+Routes created in `pages:extend` have no place for `defineI18nRoute()`, and several routes often share one wrapper SFC. File-keyed scanning then collapses them onto a single entry.
+
+Do **not** put localized paths in `route.meta` (they would ship in the client route table). Keep one registry and project it twice:
+
+1. into `pages:extend` (creates the Nuxt routes)
+2. into `i18n.globalLocaleRoutes` keyed by route **name** (not file path)
+
+Use `splitLocaleRoutes` from `@i18n-micro/utils/split-locale-routes`:
+
+```typescript
+import { splitLocaleRoutes } from '@i18n-micro/utils/split-locale-routes'
+
+const dynamic = splitLocaleRoutes([
+  {
+    name: 'products_tag',
+    path: '/products/:tag',
+    file: '~/pages/_dynamic.vue',
+    paths: { fr: '/produits/:tag', de: '/produkte/:tag' },
+  },
+  {
+    name: 'products_category',
+    path: '/products/category/:category',
+    file: '~/pages/_dynamic.vue',
+    paths: { fr: '/produits/categorie/:category' },
+  },
+  // Disable localization for a programmatic route:
+  // { name: 'internal', path: '/internal', file: '~/pages/_dynamic.vue', paths: false },
+])
+
+export default defineNuxtConfig({
+  hooks: {
+    'pages:extend'(pages) {
+      pages.push(...dynamic.pages)
+    },
+  },
+  i18n: {
+    globalLocaleRoutes: dynamic.globalLocaleRoutes,
+  },
+})
+```
+
+Both halves stay in sync; shared wrappers no longer overwrite each other. `globalLocaleRoutes` alone is not enough — it only customizes paths for routes that already exist in the Nuxt page table.
+
 ## 📝 Best Practices for Using `localeRoutes`
 
 - **🚀 Use for Relevant Locales**: Apply `localeRoutes` primarily where the URL structure significantly impacts the user experience or SEO. Avoid overuse for minor differences.

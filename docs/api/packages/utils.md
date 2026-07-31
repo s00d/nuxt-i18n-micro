@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-98 exports across 23 entry points.
+102 exports across 24 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -547,6 +547,49 @@ import { /* … */ } from '@i18n-micro/utils/source-loader'
 | Member | Type |
 | --- | --- |
 | `getItem` | `(key: string) => Promise<unknown>` |
+
+</details>
+## `@i18n-micro/utils/split-locale-routes`
+
+```ts
+import { /* … */ } from '@i18n-micro/utils/split-locale-routes'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `SplitLocaleRouteEntry` | interface | 4 members |
+| `SplitLocaleRoutePage` | interface | 3 members |
+| `splitLocaleRoutes` | function | `(entries: readonly SplitLocaleRouteEntry[]) => SplitLocaleRoutesResult` |
+| `SplitLocaleRoutesResult` | interface | 2 members |
+
+<details>
+<summary><code>SplitLocaleRouteEntry</code> — 4 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `file` | `string` |
+| `name` | `string` |
+| `path` | `string` |
+| `paths?` | `false \| Record<string, string> \| undefined` |
+
+</details>
+<details>
+<summary><code>SplitLocaleRoutePage</code> — 3 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `file` | `string` |
+| `name` | `string` |
+| `path` | `string` |
+
+</details>
+<details>
+<summary><code>SplitLocaleRoutesResult</code> — 2 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `globalLocaleRoutes` | `Record<string, boolean \| Record<string, string>>` |
+| `pages` | `SplitLocaleRoutePage[]` |
 
 </details>
 

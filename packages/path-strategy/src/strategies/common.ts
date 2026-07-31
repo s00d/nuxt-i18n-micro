@@ -6,7 +6,7 @@
  */
 
 import { findLocalizedRouteName, preserveQueryAndHash, tryResolveByLocalizedName, tryResolveByLocalizedNameWithParams } from '../helpers'
-import { getPathSegments, hasKeys, joinUrl, nameKeyFirstSlash, nameKeyLastSlash, normalizePath, transformNameKeyToPath } from '../path'
+import { getPathSegments, hasKeys, joinNestedCustomPath, joinUrl, nameKeyFirstSlash, nameKeyLastSlash, normalizePath, transformNameKeyToPath } from '../path'
 import {
   analyzeRoute,
   getPathForUnlocalizedRoute,
@@ -151,8 +151,7 @@ export function defaultResolveLocaleRoute(
       const isNested = isNestedFirst || isNestedLast
       const keyWithSlash = isNestedLast ? keyLastSlash : keyFirstSlash
       let pathWithoutLocale: string
-      if (isNested && customSegment.charCodeAt(0) !== 47) {
-        // Relative nested segment — join under parent. Absolute custom paths are complete (#239).
+      if (isNested) {
         const nameSegments = getPathSegments(keyWithSlash)
         const parentKey = nameSegments.length > 1 ? nameSegments.slice(0, -1).join('-') : ''
         const parentRules =
@@ -160,7 +159,7 @@ export function defaultResolveLocaleRoute(
             ? (gr[parentKey] as Record<string, string>)
             : null
         const parentPath = parentRules?.[targetLocale] ? normalizePath(parentRules[targetLocale]) : joinUrl('/', ...nameSegments.slice(0, -1))
-        pathWithoutLocale = joinUrl(parentPath, customSegment)
+        pathWithoutLocale = joinNestedCustomPath(parentPath, customSegment)
       } else {
         pathWithoutLocale = normalizePath(customSegment)
       }

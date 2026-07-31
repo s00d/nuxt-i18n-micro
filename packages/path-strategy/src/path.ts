@@ -255,6 +255,22 @@ export const normalizePath = (p: string): string => {
   return withLeadingSlash(withoutTrailingSlash(cleanDoubleSlashes(p))) || '/'
 }
 
+/**
+ * Join a nested child custom path under its parent.
+ * If the child is already absolute and starts with the parent (e.g. parent `/blog-es`,
+ * child `/blog-es/:slug` → `/blog-es/hello`), return the child as-is to avoid
+ * duplicating the parent segment (#239 Case A). Otherwise prepend the parent
+ * (e.g. parent `/change-activity`, child `/book-activity/skiing`).
+ */
+export function joinNestedCustomPath(parentPath: string, customPath: string): string {
+  const child = normalizePath(customPath)
+  if (!parentPath) return child
+  const parent = normalizePath(parentPath)
+  if (child === parent || child.startsWith(`${parent}/`)) return child
+  const segment = child.charCodeAt(0) === 47 ? child.slice(1) : child
+  return joinUrl(parent, segment)
+}
+
 export function normalizePathForCompare(p: string): string {
   return withoutTrailingSlash(cleanDoubleSlashes(p || '/')) || '/'
 }

@@ -1,6 +1,49 @@
 # Changelog
 
 
+## v3.25.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.24.3...v3.25.0)
+
+### 🚀 Enhancements
+
+- **meta:** Fall back to site.url for SEO base ([d2996b1f](https://github.com/s00d/nuxt-i18n-micro/commit/d2996b1f))
+- **utils:** Add splitLocaleRoutes for programmatic pages ([084df974](https://github.com/s00d/nuxt-i18n-micro/commit/084df974))
+
+### 🩹 Fixes
+
+- **path-strategy:** LocalePath dash nest and param matchers ([d151f7cc](https://github.com/s00d/nuxt-i18n-micro/commit/d151f7cc))
+- **path-strategy:** Keep nested parent when child is absolute ([08dd21e3](https://github.com/s00d/nuxt-i18n-micro/commit/08dd21e3))
+- **seo:** Emit hreflang from iso, not routing code ([cd932e89](https://github.com/s00d/nuxt-i18n-micro/commit/cd932e89))
+- **core:** Chain custom plural null to defaultPlural ([65d72d18](https://github.com/s00d/nuxt-i18n-micro/commit/65d72d18))
+- Honor autoDetectPath for preference redirects ([d182a92f](https://github.com/s00d/nuxt-i18n-micro/commit/d182a92f))
+- **redirect:** Keep localeRoutes aliases under autoDetectPath / ([bfda069e](https://github.com/s00d/nuxt-i18n-micro/commit/bfda069e))
+
+### 📖 Documentation
+
+- Drop stale isCatchallLocale from package API pages ([a2eac5ee](https://github.com/s00d/nuxt-i18n-micro/commit/a2eac5ee))
+- Drop unreleased news stubs ([c9ddebf2](https://github.com/s00d/nuxt-i18n-micro/commit/c9ddebf2))
+
+### 🏡 Chore
+
+- Cascade bump packages after types/utils release pins ([030834e5](https://github.com/s00d/nuxt-i18n-micro/commit/030834e5))
+
+### ✅ Tests
+
+- Expect hreflang from iso in og-locale fixture ([268a9a49](https://github.com/s00d/nuxt-i18n-micro/commit/268a9a49))
+
+### 🎨 Styles
+
+- Apply oxfmt after checks pipeline ([d2b6ed77](https://github.com/s00d/nuxt-i18n-micro/commit/d2b6ed77))
+
+### 🤖 CI
+
+- **scripts:** Gate root version and CHANGELOG edits ([951492f7](https://github.com/s00d/nuxt-i18n-micro/commit/951492f7))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.24.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.24.1...v3.24.3)

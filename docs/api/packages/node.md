@@ -28,7 +28,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
 | `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
-| `Locale` | interface | 12 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
@@ -103,7 +103,7 @@ import { /* … */ } from '@i18n-micro/node'
 
 </details>
 <code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
-<code>Locale</code> — 12 members, identical to [`Locale`](/api/packages/types).
+<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

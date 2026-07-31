@@ -29,7 +29,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `I18nHeadMeta` | interface | 1 members |
 | `I18nRouteParams` | type | `Record<LocaleCode, Record<string, string>> \| null` |
 | `init` | const | `() => void` |
-| `Locale` | interface | 12 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
 | `ModuleOptions` | interface | 46 members |
@@ -95,7 +95,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>Locale</code> — 12 members</summary>
+<summary><code>Locale</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -107,7 +107,6 @@ import { /* … */ } from '@i18n-micro/types'
 | `disabled?` | `boolean \| undefined` |
 | `displayName?` | `string \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
-| `isCatchallLocale?` | `boolean \| undefined` |
 | `iso?` | `string \| undefined` |
 | `og?` | `string \| undefined` |
 | `seo?` | `boolean \| undefined` |

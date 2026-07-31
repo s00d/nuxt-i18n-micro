@@ -379,7 +379,7 @@ import { /* … */ } from '@i18n-micro/utils/resolve-hreflang'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `HreflangAlternate` | interface | 2 members |
-| `HreflangLocaleInput` | type | ``Pick<Locale, 'code' \| 'iso'> & { /** When true and `hreflangBaseLanguage` is on, this locale claims the bare language tag even if another locale already did. */ isCatchallLocale?: boolean }`` |
+| `HreflangLocaleInput` | type | `Pick<Locale, 'code' \| 'iso'>` |
 | `resolveHreflangAlternates` | function | `(locales: HreflangLocaleInput[], options?: ResolveHreflangAlternatesOptions) => HreflangAlternate[]` |
 | `ResolveHreflangAlternatesOptions` | interface | 1 members |
 

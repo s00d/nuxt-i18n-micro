@@ -44,7 +44,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `loadTranslationsFromDir` | function | `(options: LoadTranslationsOptions) => LoadedTranslations` |
 | `loadTranslationsIntoI18n` | function | `(i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; }, options: LoadTranslationsOptions) => void` |
 | `LoadTranslationsOptions` | interface | 3 members |
-| `Locale` | interface | 12 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `LocaleHeadOptions` | interface | 4 members |
 | `LocaleHeadResult` | interface | 3 members |
@@ -273,7 +273,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `translationDir` | `string` |
 
 </details>
-<code>Locale</code> — 12 members, identical to [`Locale`](/api/packages/types).
+<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
 <details>
 <summary><code>LocaleHeadOptions</code> — 4 members</summary>
 

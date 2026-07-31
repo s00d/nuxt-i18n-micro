@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `I18nT` | const | `(props: I18nTProps) => JSX.Element \| null` |
 | `I18nTProps` | interface | 311 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `Locale` | interface | 12 members |
+| `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 46 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
@@ -1353,7 +1353,7 @@ import { /* … */ } from '@i18n-micro/preact'
 
 </details>
 <details>
-<summary><code>Locale</code> — 12 members</summary>
+<summary><code>Locale</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1365,7 +1365,6 @@ import { /* … */ } from '@i18n-micro/preact'
 | `disabled?` | `boolean \| undefined` |
 | `displayName?` | `string \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
-| `isCatchallLocale?` | `boolean \| undefined` |
 | `iso?` | `string \| undefined` |
 | `og?` | `string \| undefined` |
 | `seo?` | `boolean \| undefined` |

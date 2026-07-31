@@ -15,7 +15,10 @@ export function isTranslationFile(filePath: string): boolean {
   const fileName = path.basename(filePath)
 
   // JSON locale payloads (i18n-micro: `locales/`, `/_locales/`, custom apiBaseUrl folders)
-  if (filePath.endsWith('.json') && (relativePath.includes('/locales/') || relativePath.includes('/_locales/') || relativePath.includes('/translations/'))) {
+  if (
+    filePath.endsWith('.json') &&
+    (relativePath.includes('/locales/') || relativePath.includes('/_locales/') || relativePath.includes('/translations/'))
+  ) {
     return true
   }
 

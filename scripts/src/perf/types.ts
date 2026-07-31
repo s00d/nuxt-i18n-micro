@@ -93,7 +93,6 @@ export type FixtureAlias = 'plain' | 'i18n' | 'micro'
 export type FixtureOnly = FixtureAlias | 'all'
 export type FixtureId = 'plain-nuxt' | 'i18n' | 'i18n-micro'
 
-
 export interface LocaleDef {
   code: string
   iso: string

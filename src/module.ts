@@ -696,11 +696,12 @@ declare module '#i18n-internal/payload-source' {
       nuxt.hook('build:before', () => addDataRoutes([] as NuxtPage[]))
     }
 
+    // unplugin@3 types `.vite()` against Vite 8; Nuxt kit still expects Vite 7 Plugin — runtime-compatible.
     addVitePlugin(
       createDefineI18nRoutePlugin({
         buildDir: nuxt.options.buildDir,
         rootDirs,
-      }).vite(),
+      }).vite() as Parameters<typeof addVitePlugin>[0],
     )
 
     const { pluralTemplate, strategyTemplate, configTemplate } = templates

@@ -94,7 +94,7 @@ catalog:
   globby: ^14.1.0
   glob: ^11.0.1
   ufo: ^1.5.4
-  unplugin: ^3.3.0
+  unplugin: ^1.16.1 || ^2.0.0 || ^3.3.0
   serve: ^14.2.0
   wrangler: ^3.109.1
   vue-final-modal: ^4.5.5

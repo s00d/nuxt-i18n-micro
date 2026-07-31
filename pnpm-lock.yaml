@@ -205,7 +205,7 @@ catalogs:
       specifier: ^1.5.4
       version: 1.6.1
     unplugin:
-      specifier: ^3.3.0
+      specifier: ^1.16.1 || ^2.0.0 || ^3.3.0
       version: 3.3.0
     use-sync-external-store:
       specifier: ^1.6.0

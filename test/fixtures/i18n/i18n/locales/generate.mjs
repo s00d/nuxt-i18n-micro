@@ -1,4 +1,10 @@
-import { PERF_LEAF_KEYS, PERF_LOCALE_CODES, PERF_PAGE_NAMES, PERF_SECONDARY_LEAF_KEYS, generateMergedLocaleFile } from '../../../perf-shared/config.mjs'
+import {
+  PERF_LEAF_KEYS,
+  PERF_LOCALE_CODES,
+  PERF_PAGE_NAMES,
+  PERF_SECONDARY_LEAF_KEYS,
+  generateMergedLocaleFile,
+} from '../../../perf-shared/config.mjs'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

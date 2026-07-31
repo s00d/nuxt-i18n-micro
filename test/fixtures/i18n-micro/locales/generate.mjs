@@ -41,10 +41,7 @@ for (const pageName of PERF_PAGE_NAMES) {
 for (const locale of PERF_LOCALE_CODES) {
   fs.writeFileSync(path.join(localesRoot, `${locale}.json`), JSON.stringify(generateRootTranslations(locale)))
   for (const pageName of PERF_PAGE_NAMES) {
-    fs.writeFileSync(
-      path.join(pagesRoot, pageName, `${locale}.json`),
-      JSON.stringify(generateTranslationsForPage(pageName, locale)),
-    )
+    fs.writeFileSync(path.join(pagesRoot, pageName, `${locale}.json`), JSON.stringify(generateTranslationsForPage(pageName, locale)))
   }
 }
 

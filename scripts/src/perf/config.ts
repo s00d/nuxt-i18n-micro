@@ -58,13 +58,7 @@ export function buildProfile(locales: number, keys: number): PerfRuntimeProfile 
   }
 }
 
-export function resolvePerfArgs(input: {
-  locales: string
-  keys: string
-  only: string
-  runs: string
-  skipStress: boolean
-}): ResolvedPerfArgs {
+export function resolvePerfArgs(input: { locales: string; keys: string; only: string; runs: string; skipStress: boolean }): ResolvedPerfArgs {
   const locales = Number(input.locales)
   const keys = Number(input.keys)
   const runs = Number(input.runs)

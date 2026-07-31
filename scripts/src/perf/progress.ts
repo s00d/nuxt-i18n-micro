@@ -12,11 +12,7 @@ export function formatEta(seconds: number): string {
   return s > 0 ? `~${m}m ${s}s` : `~${m}m`
 }
 
-export function estimateWallSeconds(opts: {
-  runs: number
-  fixtures: number
-  skipStress: boolean
-}): number {
+export function estimateWallSeconds(opts: { runs: number; fixtures: number; skipStress: boolean }): number {
   const perFixture = BUILD_HINT_SECONDS + (opts.skipStress ? 0 : AUTOCANNON_SECONDS + ARTILLERY_SECONDS + COOLDOWN_SECONDS)
   return opts.runs * opts.fixtures * perFixture + 30 // generate + report
 }
@@ -42,7 +38,9 @@ export class PerfProgress {
     console.log(`\n── Performance plan ──`)
     console.log(`  order: each fixture × ${opts.runs} consecutive run(s) (not interleaved)`)
     console.log(`  fixtures: ${opts.labels.join(' → ')}`)
-    console.log(`  stress: ${opts.skipStress ? 'skipped' : `autocannon ${AUTOCANNON_SECONDS}s + artillery ${ARTILLERY_SECONDS}s (6s warm-up + 60s main)`}`)
+    console.log(
+      `  stress: ${opts.skipStress ? 'skipped' : `autocannon ${AUTOCANNON_SECONDS}s + artillery ${ARTILLERY_SECONDS}s (6s warm-up + 60s main)`}`,
+    )
     console.log(`  steps: ${total} · rough wall ETA ${formatEta(eta)}`)
     console.log(`──────────────────────\n`)
     return new PerfProgress(total)

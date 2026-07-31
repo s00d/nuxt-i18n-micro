@@ -35,9 +35,7 @@ const pages = ['index', 'page', 'catalog', 'about', 'dashboard']
 const locale = props.locale
 const pageName = props.pageName
 
-const { data: translations } = await useAsyncData(`translations-${pageName}-${locale}`, () =>
-  $fetch(`/translations/${pageName}/${locale}.json`),
-)
+const { data: translations } = await useAsyncData(`translations-${pageName}-${locale}`, () => $fetch(`/translations/${pageName}/${locale}.json`))
 
 function t(path) {
   if (!translations.value) return path

@@ -42,7 +42,12 @@ async function waitForServer(port: number, timeout = 30000): Promise<void> {
   })
 }
 
-export async function runAutocannonTest(port: number, progress?: PerfProgress, duration = AUTOCANNON_SECONDS, connections = 10): Promise<AutocannonResult> {
+export async function runAutocannonTest(
+  port: number,
+  progress?: PerfProgress,
+  duration = AUTOCANNON_SECONDS,
+  connections = 10,
+): Promise<AutocannonResult> {
   ensureTempDir()
   progress?.note(`Autocannon: ${connections} connections × ${duration}s → http://localhost:${port}`)
   const stopBeat = progress?.heartbeat('autocannon', duration)

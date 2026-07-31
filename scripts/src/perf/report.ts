@@ -165,7 +165,9 @@ export function printConsoleReport(results: FixtureRunResult[], args: ResolvedPe
   const s = result.stress
   console.log(`### Stress detail — ${result.label}`)
   console.log(`- Artillery RPS: ${s.requestsPerSecond?.toFixed(2) ?? 'N/A'}`)
-  console.log(`- Artillery latency avg/p95/p99: ${s.responseTimeAvg?.toFixed(2)} / ${s.responseTimeP95?.toFixed(2)} / ${s.responseTimeP99?.toFixed(2)} ms`)
+  console.log(
+    `- Artillery latency avg/p95/p99: ${s.responseTimeAvg?.toFixed(2)} / ${s.responseTimeP95?.toFixed(2)} / ${s.responseTimeP99?.toFixed(2)} ms`,
+  )
   console.log(`- Autocannon RPS: ${s.autocannon?.requests.average.toFixed(2) ?? 'N/A'}`)
   console.log(
     `- Autocannon latency avg/p50/p95/p99: ${s.autocannon?.latency.average.toFixed(2)} / ${s.autocannon?.latency.p50.toFixed(2)} / ${s.autocannon?.latency.p97_5.toFixed(2)} / ${s.autocannon?.latency.p99.toFixed(2)} ms`,
@@ -227,7 +229,12 @@ function displayLabel(id: FixtureId, label: string): string {
 }
 
 /** Write charts + full markdown from already-averaged results. */
-export async function writeDocsReport(write: (c: string) => void, results: FixtureRunResult[], runs: number, profile: PerfRuntimeProfile): Promise<void> {
+export async function writeDocsReport(
+  write: (c: string) => void,
+  results: FixtureRunResult[],
+  runs: number,
+  profile: PerfRuntimeProfile,
+): Promise<void> {
   const note = meanNote(runs)
   const byId = Object.fromEntries(results.map((r) => [r.id, r])) as Record<FixtureId, FixtureRunResult>
 

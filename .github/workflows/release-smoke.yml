@@ -3,9 +3,7 @@ name: release smoke
 # Builds a real Nuxt app against the module and checks it actually works, either
 # from this checkout (pre-release) or from npm (post-release).
 #
-# npm needs a few minutes to serve a freshly published version, and a release can
-# land at any time — hence the manual trigger and the delayed re-check, rather than
-# relying on the publish job alone.
+# Manual only — run after a publish lands on npm (give the registry a few minutes).
 
 on:
   workflow_dispatch:
@@ -23,11 +21,6 @@ on:
         description: Deploy to Cloudflare Pages and Vercel and verify the live URLs
         type: boolean
         default: false
-  release:
-    types: [published]
-  schedule:
-    # Catches a release whose packages reached npm after the publish job finished.
-    - cron: '0 6 * * *'
 
 concurrency:
   group: release-smoke-${{ github.ref }}
@@ -83,7 +76,14 @@ jobs:
       - name: Install the app
         working-directory: ${{ env.APP_DIR }}
         run: |
-          printf 'packages:\n  - .\n' > pnpm-workspace.yaml
+          # Isolated mini-workspace still needs the root catalog (`nuxt`/`vue`/`vue-router` use catalog:).
+          node -e "
+            const fs = require('node:fs')
+            const root = fs.readFileSync('../../pnpm-workspace.yaml', 'utf8')
+            const i = root.indexOf('\ncatalog:')
+            if (i < 0) throw new Error('catalog: missing in root pnpm-workspace.yaml')
+            fs.writeFileSync('pnpm-workspace.yaml', 'packages:\\n  - .\\n' + root.slice(i + 1))
+          "
           pnpm install --no-frozen-lockfile
 
       - name: Report the resolved module version
@@ -142,7 +142,13 @@ jobs:
       - name: Install and build for static hosting
         working-directory: ${{ env.APP_DIR }}
         run: |
-          printf 'packages:\n  - .\n' > pnpm-workspace.yaml
+          node -e "
+            const fs = require('node:fs')
+            const root = fs.readFileSync('../../pnpm-workspace.yaml', 'utf8')
+            const i = root.indexOf('\ncatalog:')
+            if (i < 0) throw new Error('catalog: missing in root pnpm-workspace.yaml')
+            fs.writeFileSync('pnpm-workspace.yaml', 'packages:\\n  - .\\n' + root.slice(i + 1))
+          "
           pnpm install --no-frozen-lockfile
           pnpm exec nuxt build --preset ${{ matrix.target == 'cloudflare' && 'cloudflare_pages' || 'vercel' }}
 

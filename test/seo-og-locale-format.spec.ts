@@ -57,7 +57,9 @@ describe('og:locale SSR and unresolved locales (#230)', () => {
     const html = await res.text()
 
     expect(html).not.toMatch(/property="og:locale"/)
-    expect(html).toContain('hreflang="zh"')
+    // hreflang uses iso || code (#243) — zh-Hans stays even when og:locale cannot be derived
+    expect(html).toContain('hreflang="zh-Hans"')
+    expect(html).not.toContain('hreflang="zh"')
   })
 
   test('client: og:locale is omitted for unmapped iso', async ({ page, goto }) => {

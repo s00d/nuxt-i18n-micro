@@ -41,13 +41,7 @@ export interface UseLocaleHeadOptions {
 }
 
 export function useLocaleHead(options: UseLocaleHeadOptions = {}) {
-  const {
-    addDirAttribute = true,
-    identifierAttribute = 'id',
-    addSeoAttributes = true,
-    baseUrl = '/',
-    hreflangBaseLanguage = false,
-  } = options
+  const { addDirAttribute = true, identifierAttribute = 'id', addSeoAttributes = true, baseUrl = '/', hreflangBaseLanguage = false } = options
 
   const { getLocale, getLocales, localeRoute: i18nLocaleRoute } = useI18n()
   const routerStrategy = inject<I18nRoutingStrategy | undefined>(I18nRouterKey, undefined)

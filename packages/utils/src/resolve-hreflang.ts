@@ -24,7 +24,7 @@ function languageTag(locale: HreflangLocaleInput): string {
   return iso || String(locale.code)
 }
 
-function splitLanguageRegion(tag: string): { language: string, region?: string } {
+function splitLanguageRegion(tag: string): { language: string; region?: string } {
   const match = tag.match(/^([A-Za-z]{2,3})(?:[-_](.+))?$/)
   if (!match) return { language: tag }
   return { language: match[1]!, region: match[2] }
@@ -34,10 +34,7 @@ function splitLanguageRegion(tag: string): { language: string, region?: string }
  * Resolve `hreflang` values for SEO alternate links.
  * Uses `iso || code` — never emits routing `code` when `iso` is set (#243).
  */
-export function resolveHreflangAlternates(
-  locales: HreflangLocaleInput[],
-  options: ResolveHreflangAlternatesOptions = {},
-): HreflangAlternate[] {
+export function resolveHreflangAlternates(locales: HreflangLocaleInput[], options: ResolveHreflangAlternatesOptions = {}): HreflangAlternate[] {
   const { hreflangBaseLanguage = false } = options
 
   if (!hreflangBaseLanguage) {

@@ -6,7 +6,16 @@
  */
 
 import { findLocalizedRouteName, preserveQueryAndHash, tryResolveByLocalizedName, tryResolveByLocalizedNameWithParams } from '../helpers'
-import { getPathSegments, hasKeys, joinNestedCustomPath, joinUrl, nameKeyFirstSlash, nameKeyLastSlash, normalizePath, transformNameKeyToPath } from '../path'
+import {
+  getPathSegments,
+  hasKeys,
+  joinNestedCustomPath,
+  joinUrl,
+  nameKeyFirstSlash,
+  nameKeyLastSlash,
+  normalizePath,
+  transformNameKeyToPath,
+} from '../path'
 import {
   analyzeRoute,
   getPathForUnlocalizedRoute,

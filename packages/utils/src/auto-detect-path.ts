@@ -9,10 +9,7 @@
  *
  * Prefixed strategy cleanup (e.g. `/en` → `/` under `prefix_except_default`) is not gated here.
  */
-export function shouldAttemptLocaleRedirect(
-  path: string,
-  options: { autoDetectPath?: string; hasLocalePrefix?: boolean } = {},
-): boolean {
+export function shouldAttemptLocaleRedirect(path: string, options: { autoDetectPath?: string; hasLocalePrefix?: boolean } = {}): boolean {
   const mode = options.autoDetectPath ?? '/'
   const normalized = !path || path === '' ? '/' : path
 

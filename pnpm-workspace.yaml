@@ -79,7 +79,7 @@ catalog:
   '@types/node': ^20.19.26
   tsx: ^4.0.0
   # Docs & lint
-  vitepress: ^2.0.0-alpha.18
+  vitepress: ^2.0.0-alpha.19
   vitepress-plugin-llms: ^1.13.3
   vitepress-plugin-mermaid: ^2.0.17
   vitepress-plugin-folder-tree: ^1.2.1

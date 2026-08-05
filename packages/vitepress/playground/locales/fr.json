@@ -1,0 +1,13 @@
+{
+  "greeting": "Bonjour, {name}!",
+  "cta": {
+    "readMore": "Lire la suite"
+  },
+  "section": {
+    "title": "Traductions dans la page"
+  },
+  "apples": "pas de pommes | une pomme | {count} pommes",
+  "demo": {
+    "intro": "Cette chaîne vient de locales/fr.json via $t / I18nT."
+  }
+}

@@ -6,6 +6,19 @@ outline: 'deep'
 
 # News
 
+## `@i18n-micro/vitepress` — runtime i18n for VitePress
+
+**Date**: 2026-08-05
+
+**Package**: `@i18n-micro/vitepress@1.0.1`
+
+New workspace package for VitePress docs sites: JSON dictionaries, `$t` / `<I18nT>` in markdown, path sync with VitePress `locales`, and optional `<I18nSwitcher>`. Complements (does not replace) built-in multi-locale markdown and `vitepress-i18n` theme chrome helpers.
+
+- `withI18nMicro` (`/config`) + `defineI18nTheme(DefaultTheme)` — dictionaries from `translationDir` (root + `pages/**`), no theme glob boilerplate
+- Per-file virtual JSON imports, page-scoped routes, path-aware initial locale, `I18nLink` via `router.go`
+- `createVitePressRouterAdapter` / `createI18nRoutingFromAdapter` (serializable for VitePress site data)
+- Docs: [VitePress Package](/integrations/vitepress-package)
+
 ## Nuxt I18n Micro v3.26.1 — Vue DevTools live inspector
 
 **Date**: 2026-08-05

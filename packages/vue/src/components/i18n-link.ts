@@ -57,8 +57,8 @@ export const I18nLink = defineComponent({
         return false
       }
 
-      const currentPath = routerStrategy.getCurrentPath().replace(/\/$/, '')
-      const linkPath = targetPath.value.replace(/\/$/, '')
+      const currentPath = routerStrategy.getCurrentPath().replace(/#.*$/, '').replace(/\/$/, '')
+      const linkPath = targetPath.value.replace(/#.*$/, '').replace(/\/$/, '')
 
       return currentPath === linkPath
     })

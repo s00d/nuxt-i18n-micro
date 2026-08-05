@@ -1,14 +1,21 @@
 import type { Translations } from '@i18n-micro/types'
 
+/**
+ * Vite `import.meta.glob(..., { eager: true })` modules look like
+ * `{ default: { …json } }` or `{ default: { … }, __esModule: true }`.
+ * Do not treat a real dictionary that only has a `default` string key as a namespace.
+ */
 function isModuleNamespace(mod: object): mod is { default: Translations } {
+  if (!('default' in mod)) return false
   const keys = Object.keys(mod)
-  return keys.length > 0 && keys.every((key) => key === 'default' || key === '__esModule')
+  if (!keys.every((key) => key === 'default' || key === '__esModule')) return false
+  const value = (mod as { default: unknown }).default
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 /**
  * Tiny helper if you still prefer `import.meta.glob` instead of `defineI18nTheme`.
- * Only unwraps `{ default: … }` Vite module namespaces — a dictionary that happens
- * to contain a `default` key is kept intact.
+ * Only unwraps Vite module namespaces — dictionaries with a `default` key stay intact.
  */
 export function messagesFromGlob(
   modules: Record<string, { default: Translations } | Translations>,

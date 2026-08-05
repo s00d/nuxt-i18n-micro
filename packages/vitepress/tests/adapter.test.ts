@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createVitePressRouterAdapter } from '../src/router/adapter'
+import { createVitePressRouterAdapter, routeNameFromPath } from '../src/router/adapter'
 import { createI18nRoutingFromAdapter } from '../src/router/i18n-routing'
 
 const locales = [
@@ -68,6 +68,20 @@ describe('createVitePressRouterAdapter', () => {
     expect(mapped.getLocaleFromPath('/fr/guide')).toBe('fr-FR')
     expect(mapped.switchLocalePath('/guide', 'fr-FR')).toBe('/fr/guide')
     expect(mapped.switchLocalePath('/fr/guide', 'en-US')).toBe('/guide')
+  })
+})
+
+describe('routeNameFromPath', () => {
+  it('strips locale codes without guessing default from localeCodes[0]', () => {
+    // Codes listed default-last — must still strip /fr/
+    expect(routeNameFromPath('/fr/guide', ['fr', 'en'])).toBe('guide')
+    expect(routeNameFromPath('/guide', ['fr', 'en'])).toBe('guide')
+  })
+
+  it('uses defaultLocale + localeKeyToCode when provided', () => {
+    expect(
+      routeNameFromPath('/fr/guide', ['en-US', 'fr-FR'], 'en-US', { root: 'en-US', fr: 'fr-FR' }),
+    ).toBe('guide')
   })
 })
 

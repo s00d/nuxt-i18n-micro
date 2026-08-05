@@ -143,8 +143,11 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
   let inlineRoot = options.messages ?? {}
   let inlineRoutes = options.routeMessages ?? {}
   let debounceTimer: ReturnType<typeof setTimeout> | undefined
+  const needsDiskReload = () => !options.messages || !options.routeMessages
 
   const reloadInlineFromDisk = () => {
+    // Fully inline config: skip disk I/O (and avoid spurious JSON parse errors).
+    if (!needsDiskReload()) return
     const loaded = loadTranslationBuckets({
       rootDir,
       translationDir,
@@ -168,7 +171,7 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
       if (useInline) {
         if (options.messages) inlineRoot = options.messages
         if (options.routeMessages) inlineRoutes = options.routeMessages
-        if (!options.messages || !options.routeMessages) {
+        if (needsDiskReload()) {
           reloadInlineFromDisk()
         }
         if (options.messages) inlineRoot = options.messages
@@ -176,6 +179,9 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
       }
     },
     configureServer(server) {
+      // Both maps provided inline — nothing to watch on disk.
+      if (useInline && !needsDiskReload()) return
+
       const dir = resolve(rootDir, translationDir)
       if (!existsSync(dir)) return
 
@@ -194,14 +200,14 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
       }
 
       // add/unlink need virtual module regen; change is usually handled by JSON import HMR,
-      // but we still invalidate when using inline payload.
+      // but we still invalidate when using inline payload that still reads disk.
       server.watcher.on('add', (file) => {
         if (file.startsWith(dir) && file.endsWith('.json')) invalidate()
       })
       server.watcher.on('unlink', (file) => {
         if (file.startsWith(dir) && file.endsWith('.json')) invalidate()
       })
-      if (useInline) {
+      if (useInline && needsDiskReload()) {
         server.watcher.on('change', (file) => {
           if (file.startsWith(dir) && file.endsWith('.json')) invalidate()
         })

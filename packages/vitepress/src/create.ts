@@ -92,10 +92,13 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
 
   applyRouteMessages(plugin, options.messages, options.routeMessages)
 
-  let adapter: VitePressRouterAdapter | null = null
-  let installed = false
-  let boundSyncHandler: ((to: string) => unknown) | null = null
-  let chainedPrevious: ((to: string) => unknown) | undefined
+  // Per Vue app (SSR / multiple VitePress apps sharing one createVitePressI18n result).
+  const byApp = new WeakMap<object, {
+    adapter: VitePressRouterAdapter
+    boundSyncHandler: ((to: string) => unknown) | null
+    chainedPrevious: ((to: string) => unknown) | undefined
+  }>()
+  let lastAdapter: VitePressRouterAdapter | null = null
 
   const enhanceApp = (ctx: {
     app: App
@@ -104,8 +107,9 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
   }) => {
     const { app, router } = ctx
 
-    if (!installed) {
-      adapter = createVitePressRouterAdapter({
+    let state = byApp.get(app)
+    if (!state) {
+      const adapter = createVitePressRouterAdapter({
         locales,
         defaultLocale,
         localeKeyToCode: options.localeKeyToCode,
@@ -116,15 +120,21 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
         go: (href, navOptions) => router.go(href, navOptions),
       })
 
-      plugin.setRoutingStrategy(adapter)
+      // Install first so `setRoutingStrategy` provides into this app (not a previous one).
       app.use(plugin)
-      installed = true
+      plugin.setRoutingStrategy(adapter)
+      state = { adapter, boundSyncHandler: null, chainedPrevious: undefined }
+      byApp.set(app, state)
     }
+    else {
+      plugin.setRoutingStrategy(state.adapter)
+    }
+    lastAdapter = state.adapter
 
-    if (!syncWithVitePress || !adapter) return
+    if (!syncWithVitePress) return
 
+    const { adapter } = state
     const sync = (path = router.route.path) => {
-      if (!adapter) return
       const nextLocale = adapter.getLocaleFromPath(path)
       if (plugin.global.getLocale() !== nextLocale) {
         plugin.global.locale = nextLocale
@@ -138,12 +148,12 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
 
     // Stay outermost: if base/user enhanceApp overwrote the hook, re-wrap on a later call.
     const current = router.onAfterRouteChange
-    if (current !== boundSyncHandler) {
-      chainedPrevious = typeof current === 'function' ? current : undefined
+    if (current !== state.boundSyncHandler) {
+      state.chainedPrevious = typeof current === 'function' ? current : undefined
     }
-    boundSyncHandler = async (to: string) => {
-      if (typeof chainedPrevious === 'function') {
-        await chainedPrevious(to)
+    state.boundSyncHandler = async (to: string) => {
+      if (typeof state.chainedPrevious === 'function') {
+        await state.chainedPrevious(to)
       }
       const path = to.startsWith('http')
         ? (() => {
@@ -153,14 +163,14 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
         : to
       sync(path)
     }
-    router.onAfterRouteChange = boundSyncHandler
+    router.onAfterRouteChange = state.boundSyncHandler
   }
 
   return {
     i18n: plugin.global,
     plugin,
     get adapter() {
-      return adapter
+      return lastAdapter
     },
     enhanceApp,
   }

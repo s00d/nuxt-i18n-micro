@@ -104,6 +104,9 @@ export function getLocaleFromPath(
 /**
  * Route name for page-scoped dictionaries (`/guide/demo` → `guide-demo`).
  * Strips VitePress URL prefixes (keys), not only raw i18n codes.
+ *
+ * When `defaultLocale` is omitted (legacy 2-arg call), any segment that matches a
+ * listed locale code is stripped — callers must not rely on `localeCodes[0]` as default.
  */
 export function routeNameFromPath(
   path: string,
@@ -114,13 +117,14 @@ export function routeNameFromPath(
   const { pathname } = splitPathAndExtras(path)
   const segments = pathname.split('/').filter(Boolean)
   const first = segments[0]
-  const prefixToCode = buildUrlPrefixToCode(
-    localeCodes,
-    defaultLocale ?? localeCodes[0] ?? 'en',
-    localeKeyToCode,
-  )
-  if (first !== undefined && prefixToCode.has(first)) {
-    segments.shift()
+  if (first !== undefined) {
+    if (defaultLocale !== undefined) {
+      const prefixToCode = buildUrlPrefixToCode(localeCodes, defaultLocale, localeKeyToCode)
+      if (prefixToCode.has(first)) segments.shift()
+    }
+    else if (localeCodes.includes(first)) {
+      segments.shift()
+    }
   }
   if (segments.length === 0) return 'index'
   return segments.join('-').replace(/\.html$/, '')

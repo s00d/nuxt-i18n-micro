@@ -24,6 +24,12 @@ The `@i18n-micro/preact` package provides a lightweight, high-performance intern
 
 **Note:** The built-in router adapter (`createPreactRouterAdapter` / `createBrowserHistoryAdapter`) uses the native History API and works with any router that listens to `popstate` events (e.g., `wouter-preact`, `preact-router`). For custom routing needs, you can create your own adapter.
 
+::: tip Playground
+Pure Preact demo with history adapter, pages, and components:
+
+[`packages/preact/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact/playground) — `pnpm -C packages/preact dev`
+:::
+
 ## Installation
 
 Install the package using your preferred package manager:
@@ -1948,6 +1954,7 @@ export function Home() {
 
 ## Resources
 
+- **Playground**: [`packages/preact/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact/playground)
 - **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 - **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
 

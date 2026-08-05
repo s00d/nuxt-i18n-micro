@@ -23,6 +23,12 @@ VitePress i18n is three separate problems. This package only solves **runtime UI
 @i18n-micro/vitepress ≠ markdown copier
 ```
 
+::: tip Playground
+Tiny VitePress site with `withI18nMicro`, theme `$t`, and FR locale pages:
+
+[`packages/vitepress/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vitepress/playground) — `pnpm -C packages/vitepress/playground dev`
+:::
+
 ### Compose with other helpers
 
 `withI18n` is already used by [`vitepress-i18n`](https://www.npmjs.com/package/vitepress-i18n). Our helper is intentionally named **`withI18nMicro`**:
@@ -244,6 +250,11 @@ Putting `<I18nSwitcher>` in `nav-bar-content-*` duplicates the control. Prefer p
 | `messagesFromGlob` | Optional glob → messages map |
 | `I18nT` / `I18nLink` / `I18nGroup` / `I18nSwitcher` / `useI18n` | Re-exported from `@i18n-micro/vue` |
 | `/node` → `loadMessages` / `loadTranslationBuckets` | Node FS loaders (scripts; prefer `/config` for site config) |
+
+## Resources
+
+- **Playground**: [`packages/vitepress/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vitepress/playground)
+- **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 
 ## License
 

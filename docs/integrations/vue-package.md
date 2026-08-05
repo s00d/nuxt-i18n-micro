@@ -21,6 +21,12 @@ The `@i18n-micro/vue` package provides a lightweight, high-performance internati
 - **Router-agnostic** - Works with any router or without a router
 - **DevTools Integration** - Built-in Vue DevTools support for managing translations
 
+::: tip Playground
+Runnable SPA (+ optional SSR) with Vue Router, `I18nLink` / `I18nSwitcher`, and page dictionaries:
+
+[`packages/vue/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue/playground) — `pnpm -C packages/vue dev`
+:::
+
 ## Installation
 
 Install the package using your preferred package manager:
@@ -1328,7 +1334,7 @@ i18n.t('greeting', { invalid: 'value' }) // ⚠️ Type error
 
 ### Complete SPA Example
 
-See the playground implementation in `packages/vue/playground/src/` for a complete working example.
+See the [Vue playground](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue/playground) for a complete working example (`src/` pages, router adapter, SSR entry).
 
 ### Router Integration Example
 
@@ -1432,6 +1438,7 @@ watch(
 
 ## Resources
 
+- **Playground**: [`packages/vue/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue/playground)
 - **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 - **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
 

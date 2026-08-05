@@ -21,6 +21,12 @@ The `@i18n-micro/react` package provides a lightweight, high-performance interna
 - **Router-agnostic** - Works with any router or without a router
 - **DevTools Integration** - Vite plugin for managing translations during development
 
+::: tip Playground
+Mini React app with React Router, provider setup, pages, and locale switcher:
+
+[`packages/react/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/react/playground) — `pnpm -C packages/react dev`
+:::
+
 ## Installation
 
 Install the package using your preferred package manager:
@@ -1931,6 +1937,7 @@ See the "Full Application Setup" example above for a complete router integration
 
 ## Resources
 
+- **Playground**: [`packages/react/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/react/playground)
 - **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 - **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
 

@@ -41,6 +41,20 @@ Unlike the full Nuxt module, these packages:
 - **[Types Generator](./types-generator.md)** (`@i18n-micro/types-generator`) - For generating TypeScript types from translation files
 - **[DevTools UI Package](./devtools-ui-package.md)** (`@i18n-micro/devtools-ui`) - Development tools for managing translations
 
+## Playgrounds
+
+Each integration ships a small app under `packages/<name>/playground` so you can see wiring end-to-end (createI18n / provider, router adapter, components, locale switch) without building a project from scratch. Clone the monorepo, `pnpm install`, then run the package’s `dev` script.
+
+| Package | Playground | Run from monorepo root |
+| ------- | ---------- | ---------------------- |
+| Vue | [`packages/vue/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue/playground) | `pnpm -C packages/vue dev` |
+| React | [`packages/react/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/react/playground) | `pnpm -C packages/react dev` |
+| Preact | [`packages/preact/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact/playground) | `pnpm -C packages/preact dev` |
+| Solid | [`packages/solid/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid/playground) | `pnpm -C packages/solid dev` |
+| Astro | [`packages/astro/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/astro/playground) | `pnpm -C packages/astro dev` |
+| VitePress | [`packages/vitepress/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vitepress/playground) | `pnpm -C packages/vitepress/playground dev` |
+| Node.js | [`packages/node/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node/playground) | `pnpm -C packages/node dev` |
+
 ## Core Components
 
 All framework packages include the following essential components:
@@ -275,18 +289,21 @@ All packages provide:
 
 ## Getting Started
 
-1. **Choose your package** - Select the package for your framework
-2. **Install the package** - Use your preferred package manager
-3. **Read the documentation** - Each package has detailed setup instructions
-4. **Implement router adapter** - If you need routing features, implement the adapter
-5. **Start translating** - Use components and methods to add translations
+1. **Skim a playground** - Open the [table above](#playgrounds) for your stack to see a full setup
+2. **Choose your package** - Select the package for your framework
+3. **Install the package** - Use your preferred package manager
+4. **Read the documentation** - Each package has detailed setup instructions
+5. **Implement router adapter** - If you need routing features, implement the adapter
+6. **Start translating** - Use components and methods to add translations
 
 For detailed setup instructions, see the documentation for your specific package:
 
 - [Vue Package Documentation](./vue-package.md)
 - [React Package Documentation](./react-package.md)
+- [Preact Package Documentation](./preact-package.md)
 - [Solid Package Documentation](./solid-package.md)
 - [Astro Package Documentation](./astro-package.md)
+- [VitePress Package Documentation](./vitepress-package.md)
 - [VitePress Package Documentation](./vitepress-package.md)
 
 ## Comparison with Nuxt Module

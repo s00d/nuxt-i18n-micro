@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v3.28.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.27.0...v3.28.0)
+
+### 🚀 Enhancements
+
+- **vitepress:** Add @i18n-micro/vitepress package ([#247](https://github.com/s00d/nuxt-i18n-micro/pull/247))
+
+### 🩹 Fixes
+
+- **i18n:** Apply cacheMaxSize to client chunk Map ([#248](https://github.com/s00d/nuxt-i18n-micro/pull/248))
+
+### 📖 Documentation
+
+- **integrations:** Link package playgrounds ([bbcbc5a5](https://github.com/s00d/nuxt-i18n-micro/commit/bbcbc5a5))
+
+### ❤️ Contributors
+
+- Cursor Agent ([@cursoragent](http://github.com/cursoragent))
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.27.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.26.0...v3.27.0)

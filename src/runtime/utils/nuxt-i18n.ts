@@ -171,7 +171,10 @@ export class NuxtI18n extends BaseI18n {
 
   /**
    * FIFO eviction for `storage.translations` when `cacheMaxSize` is set.
-   * Keeps the just-written key and the active page chunk so `$t` stays valid.
+   * Prefers keeping the just-written key and the active page chunk. When those
+   * two differ and `max` cannot hold both (e.g. `cacheMaxSize: 1`), the just-written
+   * key wins so the configured bound is always enforced. Active `$t` still resolves
+   * via `cachedTranslations` / `outgoingTranslations` even if the Map drops the old key.
    */
   private evictChunks(keep: string): void {
     const max = this.cacheMaxSize
@@ -181,6 +184,15 @@ export class NuxtI18n extends BaseI18n {
     for (const key of this.storage.translations.keys()) {
       if (this.storage.translations.size <= max) break
       if (key === keep || key === current) continue
+      this.storage.translations.delete(key)
+    }
+
+    // Protected set can exceed max when keep !== current (prefetch / seed while another
+    // page is active). Drop everything except `keep` until the bound holds.
+    if (this.storage.translations.size <= max) return
+    for (const key of this.storage.translations.keys()) {
+      if (this.storage.translations.size <= max) break
+      if (key === keep) continue
       this.storage.translations.delete(key)
     }
   }
@@ -238,13 +250,14 @@ export class NuxtI18n extends BaseI18n {
    * and correct for the short hot-reload window.
    */
   applySwitchContext(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
-    this.setChunk(locale, routeName, data)
-
+    // Stash / swap the view layer before setChunk so eviction sees keep === current
+    // (otherwise cacheMaxSize: 1 would protect both the old and new route keys).
     this.outgoingTranslations = this.currentLocale === locale ? this.cachedTranslations : null
     this.cachedTranslations = data
 
     this.currentLocale = locale
     this.currentRouteName = routeName || ''
+    this.setChunk(locale, routeName, data)
     triggerRef(this.contextSignal)
     this.notifyContextChange('load')
   }

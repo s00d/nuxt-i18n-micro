@@ -1,6 +1,6 @@
 {
   "name": "nuxt-i18n-micro",
-  "version": "3.27.0",
+  "version": "3.27.1",
   "description": "Fast, lightweight i18n for Nuxt with strategy-based routing and minimal overhead.",
   "keywords": [
     "i18n",

@@ -1297,7 +1297,7 @@ For most projects the default (unlimited, no expiration) is fine — route names
 `cacheMaxSize` caps:
 
 1. **Fetch / server `CacheControl`** (HTTP payload and server loader caches)
-2. **Client chunk Map** (`NuxtI18n.storage.translations`) — oldest unused `(locale, route)` chunks are evicted; the active page chunk is kept
+2. **Client chunk Map** (`NuxtI18n.storage.translations`) — oldest unused `(locale, route)` chunks are evicted; the just-written and active page keys are preferred. If the limit cannot hold both (e.g. `cacheMaxSize: 1`), the just-written key wins so the bound is enforced — active `$t` still uses the view layer
 
 - **`cacheMaxSize`** — caps entries in those caches. Useful for bounding memory.
 - **`cacheTtl`** — expires fetch/server cache entries (not the live view layer). Useful for serverless or runtime-updated translations.

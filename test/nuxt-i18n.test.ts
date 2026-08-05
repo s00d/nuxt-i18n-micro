@@ -173,6 +173,26 @@ describe('NuxtI18n', () => {
     expect(i18n.storage.translations.size).toBe(20)
   })
 
+  it('cacheMaxSize 1 enforces a single Map entry across navigations', () => {
+    const i18n = new NuxtI18n({ missingWarn: false, cacheMaxSize: 1 })
+
+    i18n.applySwitchContext('en', 'page-a', { title: 'A' })
+    expect(i18n.storage.translations.size).toBe(1)
+    expect(i18n.t('title')).toBe('A')
+
+    i18n.applySwitchContext('en', 'page-b', { title: 'B' })
+    expect(i18n.storage.translations.size).toBe(1)
+    expect(i18n.storage.translations.has(i18n.getCacheKey('en', 'page-b'))).toBe(true)
+    expect(i18n.t('title')).toBe('B')
+
+    // Prefetch of another route while still on page-b: just-written wins, bound stays 1.
+    i18n.setChunk('en', 'page-c', { title: 'C' })
+    expect(i18n.storage.translations.size).toBe(1)
+    expect(i18n.storage.translations.has(i18n.getCacheKey('en', 'page-c'))).toBe(true)
+    // View layer is independent of the Map eviction.
+    expect(i18n.t('title')).toBe('B')
+  })
+
   it('onContextChange reports load vs refresh reasons', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     const reasons: string[] = []

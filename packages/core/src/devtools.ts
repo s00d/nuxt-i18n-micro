@@ -225,7 +225,7 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
     const routeName = parsed.routeName || 'index'
     const chunk = options.storage.translations.get(`${locale}:${routeName}`) as Record<string, unknown> | undefined
     const segments = parsed.segments ?? []
-    const isActiveContext = options.activeLocale === locale && options.activeRouteName === routeName
+    const isActiveContext = options.activeLocale === locale && (options.activeRouteName || 'index') === routeName
     const source = isActiveContext ? (options.activeTranslations ?? chunk ?? {}) : (chunk ?? {})
 
     return flattenTranslationNode(source, segments).map((node) => withKeyPrefix(locale, routeName, node))

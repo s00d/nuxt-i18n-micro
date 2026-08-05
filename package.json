@@ -112,7 +112,7 @@
     "typecheck:nuxt": "nuxt typecheck --no-emit",
     "docs:dev": "pnpm --filter @i18n-micro/docs dev",
     "docs:build": "pnpm --filter @i18n-micro/docs build",
-    "docs:serve": "pnpm --filter @i18n-micro/docs serve",
+    "docs:serve": "pnpm --filter @i18n-micro/docs preview",
     "docs:clean-dev": "pnpm --filter @i18n-micro/docs clean-dev",
     "docs:preview": "pnpm --filter @i18n-micro/docs preview",
     "smoke:pack": "pnpm -C scripts cli smoke-pack",

@@ -146,6 +146,38 @@ describe('NuxtI18n', () => {
     expect(i18n.getChunk('en', 'index')).toEqual({})
   })
 
+  it('onContextChange reports load vs refresh reasons', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const reasons: string[] = []
+    i18n.onContextChange((reason) => {
+      reasons.push(reason)
+    })
+
+    i18n.applySwitchContext('en', 'index', { title: 'Hello' })
+    i18n.setTranslation('title', 'Updated')
+    i18n.applySwitchContext('en', 'about', { title: 'About' })
+    i18n.finishTransition()
+    i18n.clearCache()
+
+    expect(reasons).toEqual(['load', 'refresh', 'load', 'refresh', 'refresh'])
+  })
+
+  it('missing-key listener uses route context from tForRoute lookups', () => {
+    const i18n = new NuxtI18n({ missingWarn: false })
+    i18n.setRouteContextResolver((route) => route as { locale: string; routeName: string })
+    i18n.setChunk('en', 'page-a', { title: 'A' })
+    i18n.applySwitchContext('en', 'page-b', { title: 'B' })
+
+    const missing: Array<{ locale: string; key: string; routeName: string }> = []
+    i18n.onMissingKey((locale, key, routeName) => {
+      missing.push({ locale, key, routeName })
+    })
+
+    const tForA = i18n.tForRoute({ locale: 'en', routeName: 'page-a' })
+    expect(tForA('missing-on-a')).toBe('missing-on-a')
+    expect(missing).toEqual([{ locale: 'en', key: 'missing-on-a', routeName: 'page-a' }])
+  })
+
   it('resolveTranslations exposes the hot-reload view during a transition', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     i18n.applySwitchContext('en', 'page-a', { common: { fromA: 'From A' } })

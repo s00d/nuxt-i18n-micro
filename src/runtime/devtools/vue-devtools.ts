@@ -120,7 +120,7 @@ function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId:
         { key: 'keys', value: countTranslationKeys(chunk) },
         {
           key: 'isActive',
-          value: i18n.getCurrentLocale() === parsed.locale && i18n.getCurrentRouteName() === routeName,
+          value: i18n.getCurrentLocale() === parsed.locale && (i18n.getCurrentRouteName() || 'index') === routeName,
         },
       ],
       Translations: entries.length ? entries : [{ key: '—', value: 'Chunk is loaded but empty' }],
@@ -131,7 +131,7 @@ function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId:
     const routeName = parsed.routeName || 'index'
     const segments = parsed.segments ?? []
     const chunk = i18n.storage.translations.get(`${parsed.locale}:${routeName}`) as Record<string, unknown> | undefined
-    const isActive = i18n.getCurrentLocale() === parsed.locale && i18n.getCurrentRouteName() === routeName
+    const isActive = i18n.getCurrentLocale() === parsed.locale && (i18n.getCurrentRouteName() || 'index') === routeName
     const source = isActive ? (i18n.resolveTranslations() as Record<string, unknown>) : (chunk ?? {})
     const value = segments.length ? getByInspectorPath(source, segments) : source
 

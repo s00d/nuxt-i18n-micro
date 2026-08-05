@@ -8,7 +8,6 @@
     "generate": "pnpm -C ../scripts cli docs-generate",
     "dev": "pnpm run generate && vitepress dev .",
     "build": "pnpm run generate && vitepress build .",
-    "serve": "vitepress preview .",
     "clean-dev": "pnpm run generate && vitepress dev . --clean-cache",
     "preview": "vitepress preview ."
   },

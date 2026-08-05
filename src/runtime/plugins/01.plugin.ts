@@ -53,6 +53,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   const i18n = new NuxtI18n({
     plural,
     missingWarn: i18nConfig.missingWarn ?? true,
+    cacheMaxSize: i18nConfig.cacheMaxSize ?? 0,
     getCustomMissingHandler: () => customMissingHandler.value,
     numberFormats: i18nConfig.numberFormats,
     datetimeFormats: i18nConfig.datetimeFormats,

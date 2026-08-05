@@ -53,6 +53,7 @@ export default defineConfig({
     sourcemap: true,
   },
   plugins: [
+    // Cast: root typecheck can see duplicate Vite copies (@types/node 20 vs 26).
     dts({
       afterDiagnostic(diagnostics) {
         const errors = diagnostics.filter((d) => d.category === 1)
@@ -65,6 +66,6 @@ export default defineConfig({
       outDir: 'dist',
       tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       beforeWriteFile: dualPackageBeforeWriteFile,
-    }),
+    }) as never,
   ],
 })

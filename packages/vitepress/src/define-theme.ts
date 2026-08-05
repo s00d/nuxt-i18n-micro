@@ -51,9 +51,10 @@ export function defineI18nTheme<T extends Theme>(base: T, options: DefineI18nThe
     async enhanceApp(ctx: EnhanceAppContext) {
       let installed = byApp.get(ctx.app)
       if (!installed) {
+        // Cast via `unknown`: root typecheck also sees Astro's ambient `virtual:i18n-micro/config`.
         const [{ config }, messagesMod] = await Promise.all([
-          import('virtual:i18n-micro/config') as Promise<{ config: VirtualI18nConfig }>,
-          import('virtual:i18n-micro/messages') as Promise<VirtualMessagesModule>,
+          import('virtual:i18n-micro/config') as unknown as Promise<{ config: VirtualI18nConfig }>,
+          import('virtual:i18n-micro/messages') as unknown as Promise<VirtualMessagesModule>,
         ])
 
         const localeCodes = config.localeCodes.length

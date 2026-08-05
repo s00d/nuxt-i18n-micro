@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { withI18nMicro, warnLocaleMismatch } from '../src/with-i18n-micro'
+import { withI18nMicro, warnLocaleMismatch, type VitePressUserConfigLike } from '../src/with-i18n-micro'
 import { messagesFromGlob } from '../src/messages-from-glob'
 import { createVitePressI18n } from '../src/create'
 
@@ -38,7 +38,7 @@ describe('withI18nMicro', () => {
 
   it('virtual plugin resolves config module', () => {
     const result = withI18nMicro(
-      {},
+      {} as VitePressUserConfigLike,
       {
         locale: 'en',
         locales: [{ code: 'en', iso: 'en-US' }],
@@ -136,7 +136,7 @@ describe('createVitePressI18n', () => {
     const router = {
       route: { path: '/fr/guide/demo' },
       go: vi.fn(),
-      set onAfterRouteChange(fn: (to: string) => unknown) {
+      set onAfterRouteChange(fn: ((to: string) => unknown) | undefined) {
         after = fn
       },
       get onAfterRouteChange() {
@@ -178,7 +178,7 @@ describe('createVitePressI18n', () => {
     const router = {
       route: { path: '/' },
       go: vi.fn(),
-      set onAfterRouteChange(fn: (to: string) => unknown) {
+      set onAfterRouteChange(fn: ((to: string) => unknown) | undefined) {
         after = fn
       },
       get onAfterRouteChange() {

@@ -3,6 +3,7 @@ packages:
   - 'packages/*/playground'
   - 'packages/*/playground-*'
   - 'client'
+  - 'docs'
   - 'scripts'
   - 'playground'
   - 'test/fixtures/**/*'
@@ -41,7 +42,7 @@ catalog:
   vue-router: ^4.6.3 || ^5.0.0
   vue-tsc: ^2.0.21
   '@vue/test-utils': ^2.4.6
-  '@vue/devtools-api': ^7.0.0
+  '@vue/devtools-api': ^8.1.5
   '@vue/server-renderer': ^3.3.0
   # React (один диапазон для deps и peer)
   react: "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"

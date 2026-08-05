@@ -1,0 +1,24 @@
+{
+  "name": "@i18n-micro/docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "VitePress documentation site for nuxt-i18n-micro.",
+  "scripts": {
+    "generate": "pnpm -C ../scripts cli docs-generate",
+    "dev": "pnpm run generate && vitepress dev .",
+    "build": "pnpm run generate && vitepress build .",
+    "serve": "vitepress serve .",
+    "clean-dev": "pnpm run generate && vitepress dev . --clean-cache",
+    "preview": "vitepress preview ."
+  },
+  "devDependencies": {
+    "chart.js": "catalog:",
+    "mermaid": "catalog:",
+    "vitepress": "catalog:",
+    "vitepress-plugin-chartjs": "catalog:",
+    "vitepress-plugin-folder-tree": "catalog:",
+    "vitepress-plugin-llms": "catalog:",
+    "vitepress-plugin-mermaid": "catalog:"
+  }
+}

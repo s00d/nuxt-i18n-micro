@@ -1,7 +1,7 @@
 {
   "name": "nuxt-i18n-micro",
   "version": "3.26.0",
-  "description": "Nuxt I18n Micro is a lightweight, high-performance internationalization module for Nuxt, designed to handle multi-language support with minimal overhead, fast build times, and efficient runtime performance.",
+  "description": "Fast, lightweight i18n for Nuxt with strategy-based routing and minimal overhead.",
   "keywords": [
     "i18n",
     "internationalization",
@@ -14,7 +14,7 @@
     "seo",
     "translation"
   ],
-  "homepage": "https://github.com/s00d/nuxt-i18n-micro",
+  "homepage": "https://s00d.github.io/nuxt-i18n-micro/",
   "bugs": {
     "url": "https://github.com/s00d/nuxt-i18n-micro/issues"
   },
@@ -27,6 +27,7 @@
   "repository": "s00d/nuxt-i18n-micro",
   "workspaces": [
     "client",
+    "docs",
     "packages/**",
     "test/fixtures/**/*"
   ],
@@ -109,11 +110,11 @@
     "test:dist:packages": "pnpm --filter \"@i18n-micro/core\" --filter \"@i18n-micro/utils\" --filter \"@i18n-micro/hmr\" --filter \"@i18n-micro/vue\" --filter \"@i18n-micro/path-strategy\" --filter \"@i18n-micro/route-strategy\" --filter \"@i18n-micro/devtools-ui\" --filter \"@i18n-micro/astro\" run test:dist",
     "typecheck": "tsc --noEmit",
     "typecheck:nuxt": "nuxt typecheck --no-emit",
-    "docs:dev": "pnpm run docs:generate && vitepress dev docs",
-    "docs:build": "pnpm run docs:generate && vitepress build docs",
-    "docs:serve": "vitepress serve docs",
-    "docs:clean-dev": "pnpm run docs:generate && vitepress dev docs --clean-cache",
-    "docs:preview": "vitepress preview docs",
+    "docs:dev": "pnpm --filter @i18n-micro/docs dev",
+    "docs:build": "pnpm --filter @i18n-micro/docs build",
+    "docs:serve": "pnpm --filter @i18n-micro/docs preview",
+    "docs:clean-dev": "pnpm --filter @i18n-micro/docs clean-dev",
+    "docs:preview": "pnpm --filter @i18n-micro/docs preview",
     "smoke:pack": "pnpm -C scripts cli smoke-pack",
     "smoke:verify": "pnpm -C scripts cli smoke-verify",
     "smoke:browser": "pnpm -C scripts cli smoke-browser",
@@ -149,27 +150,27 @@
   "devDependencies": {
     "@nuxt/devtools": "catalog:",
     "@nuxt/devtools-ui-kit": "catalog:",
+    "@vue/devtools-api": "catalog:",
     "@nuxt/module-builder": "catalog:",
     "@nuxt/schema": "catalog:",
     "@nuxt/test-utils": "catalog:",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
     "changelogen": "catalog:",
-    "chart.js": "catalog:",
-    "mermaid": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
-    "vitepress": "catalog:",
-    "vitepress-plugin-chartjs": "catalog:",
-    "vitepress-plugin-folder-tree": "catalog:",
-    "vitepress-plugin-llms": "catalog:",
-    "vitepress-plugin-mermaid": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
   "peerDependencies": {
-    "vue-router": "catalog:"
+    "vue-router": "catalog:",
+    "@vue/devtools-api": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@vue/devtools-api": {
+      "optional": true
+    }
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "catalog:",

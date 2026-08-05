@@ -6,6 +6,19 @@ outline: 'deep'
 
 # News
 
+## Nuxt I18n Micro v3.26.1 — Vue DevTools live inspector
+
+**Date**: 2026-08-05
+
+**Version**: `v3.26.1`
+
+Adds optional **Vue DevTools** integration for live runtime debugging: custom inspector (locale, route chunks, active dictionary), timeline events (locale switch, load, missing keys), and optional `$t` tracing when `debug: true`. The existing **Nuxt DevTools** custom tab (JSON editor on disk) is unchanged.
+
+- New option: `i18n.vueDevtools` (default `true` in dev)
+- Optional peer: `@vue/devtools-api` ^8.1.5
+- `@i18n-micro/core` exports devtools helpers from `@i18n-micro/core/devtools` (not in main entry)
+- Inspector key paths use encoded segments (`encodeInspectorPath`) so literal dotted keys stay distinct from nested paths
+
 ## Nuxt I18n Micro v3.24.0 — Node SSR from `public/`, no Rollup `raw:`
 
 **Date**: 2026-07-30

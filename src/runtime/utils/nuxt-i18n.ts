@@ -76,6 +76,9 @@ export type GetRouteTranslationContext = (route?: unknown) => RouteTranslationCo
 
 export type LoadTranslationsChunk = (locale: string, routeName?: string) => Promise<Record<string, unknown>>
 
+/** Why the active translation context changed — used by Vue DevTools timeline. */
+export type I18nContextChangeReason = 'load' | 'refresh'
+
 export interface NuxtI18nOptions extends BaseI18nOptions {}
 
 export class NuxtI18n extends BaseI18n {
@@ -92,6 +95,8 @@ export class NuxtI18n extends BaseI18n {
   private currentLocale = ''
   private currentRouteName = ''
   private resolveRouteContext?: GetRouteTranslationContext
+  private readonly contextListeners = new Set<(reason: I18nContextChangeReason) => void>()
+  private missingKeyListener?: (locale: string, key: string, routeName: string) => void
 
   constructor(options: NuxtI18nOptions = {}) {
     const storage: TranslationStorage = {
@@ -168,6 +173,28 @@ export class NuxtI18n extends BaseI18n {
     return this.currentRouteName
   }
 
+  onContextChange(listener: (reason: I18nContextChangeReason) => void): () => void {
+    this.contextListeners.add(listener)
+    return () => {
+      this.contextListeners.delete(listener)
+    }
+  }
+
+  onMissingKey(listener: (locale: string, key: string, routeName: string) => void): () => void {
+    this.missingKeyListener = listener
+    return () => {
+      if (this.missingKeyListener === listener) {
+        this.missingKeyListener = undefined
+      }
+    }
+  }
+
+  private notifyContextChange(reason: I18nContextChangeReason): void {
+    for (const listener of this.contextListeners) {
+      listener(reason)
+    }
+  }
+
   /**
    * Hot-reload the active dictionary for the next route — replace, don't merge.
    *
@@ -187,6 +214,7 @@ export class NuxtI18n extends BaseI18n {
     this.currentLocale = locale
     this.currentRouteName = routeName || ''
     triggerRef(this.contextSignal)
+    this.notifyContextChange('load')
   }
 
   /** The outgoing page has unmounted, so its keys must stop resolving. */
@@ -194,6 +222,7 @@ export class NuxtI18n extends BaseI18n {
     if (this.outgoingTranslations === null) return
     this.outgoingTranslations = null
     triggerRef(this.contextSignal)
+    this.notifyContextChange('refresh')
   }
 
   mergeTranslations(newTranslations: Translations): void {
@@ -202,6 +231,7 @@ export class NuxtI18n extends BaseI18n {
     // walking the whole thing again costs its size for the sake of a few new keys.
     this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, newTranslations as Record<string, unknown>)
     triggerRef(this.contextSignal)
+    this.notifyContextChange('load')
   }
 
   async loadPageTranslations(locale: string, routeName: string, translations: Translations): Promise<void> {
@@ -209,6 +239,7 @@ export class NuxtI18n extends BaseI18n {
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
       this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, translations as Record<string, unknown>)
       triggerRef(this.contextSignal)
+      this.notifyContextChange('load')
     }
   }
 
@@ -222,6 +253,7 @@ export class NuxtI18n extends BaseI18n {
     if (locale === this.currentLocale && routeName === this.currentRouteName) {
       this.cachedTranslations = deepMergeTranslationsRecursive(this.cachedTranslations, newTranslations as Record<string, unknown>)
       triggerRef(this.contextSignal)
+      this.notifyContextChange('load')
     }
   }
 
@@ -286,20 +318,26 @@ export class NuxtI18n extends BaseI18n {
       setTranslationAtKey(this.getChunk(this.currentLocale, this.currentRouteName), String(key), value),
     )
     triggerRef(this.contextSignal)
+    this.notifyContextChange('refresh')
   }
 
-  protected override getMissingContext(_routeContext?: unknown): { locale: string; routeName: string } {
+  protected override getMissingContext(routeContext?: unknown): { locale: string; routeName: string } {
+    if (routeContext && this.resolveRouteContext) {
+      return this.resolveRouteContext(routeContext)
+    }
     return { locale: this.currentLocale, routeName: this.currentRouteName }
   }
 
-  protected override warnMissing(key: TranslationKey): void {
+  protected override warnMissing(key: TranslationKey, routeContext?: unknown): void {
+    const { locale, routeName } = this.getMissingContext(routeContext)
+    this.missingKeyListener?.(locale, String(key), routeName)
     const customHandler = this.getCustomMissingHandler?.()
     if (customHandler) {
-      customHandler(this.currentLocale, String(key), this.currentRouteName)
+      customHandler(locale, String(key), routeName)
       return
     }
     if (this.missingWarn && process.env.NODE_ENV !== 'production' && import.meta.client) {
-      console.warn(`[i18n] Missing key '${key}' in '${this.currentLocale}' for route '${this.currentRouteName}'`)
+      console.warn(`[i18n] Missing key '${key}' in '${locale}' for route '${routeName}'`)
     }
   }
 
@@ -308,6 +346,7 @@ export class NuxtI18n extends BaseI18n {
     this.cachedTranslations = {}
     this.outgoingTranslations = null
     triggerRef(this.contextSignal)
+    this.notifyContextChange('refresh')
   }
 }
 

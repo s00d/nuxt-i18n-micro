@@ -565,6 +565,15 @@ export default defineNuxtModule<ModuleOptions>({
       })
     }
 
+    if (nuxt.options.dev && options.plugin !== false && options.vueDevtools !== false) {
+      addPlugin({
+        src: resolver.resolve('./runtime/plugins/04.vue-devtools'),
+        name: 'i18n-vue-devtools',
+        mode: 'client',
+        order: 5,
+      })
+    }
+
     addPlugin({
       src: resolver.resolve('./runtime/plugins/06.redirect'),
       mode: 'server',

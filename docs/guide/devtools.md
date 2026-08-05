@@ -6,6 +6,31 @@ outline: 'deep'
 
 # 🛠️ DevTools in `nuxt-i18n-micro`
 
+## Vue DevTools (browser extension)
+
+In development, the module can register a **Vue DevTools** custom inspector and timeline via `@vue/devtools-api`. This is separate from the Nuxt DevTools tab below.
+
+| Tool | Best for |
+|------|----------|
+| **Vue DevTools** | Live locale, in-memory translation cache, `$t` timeline (`debug: true`), missing-key events |
+| **Nuxt DevTools tab** | Editing JSON files on disk, config overview, import/export |
+
+The vue-devtools plugin is registered only during `nuxt dev` (not in production builds). Dev-only bridge state in the main plugin is stripped by `import.meta.dev` dead-code elimination.
+
+Disable the browser integration while keeping the Nuxt tab:
+
+```ts
+export default defineNuxtConfig({
+  i18n: {
+    vueDevtools: false,
+  },
+})
+```
+
+Verbose `$t` timeline events require `debug: true`.
+
+---
+
 ## 📖 What Is Nuxt DevTools?
 
 DevTools is a powerful development assistant seamlessly integrated into the `nuxt-i18n-micro` module. It provides an intuitive interface for managing localization and translation tasks, making your workflow faster and more efficient. Designed for developers who value convenience, Nuxt DevTools bridges the gap between coding and runtime management.

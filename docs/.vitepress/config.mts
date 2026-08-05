@@ -72,6 +72,61 @@ export default withFolderTree(
         ['meta', { name: 'application-name', content: SITE.name }],
         ['meta', { name: 'keywords', content: 'nuxt,i18n,internationalization,nuxt-module,localization,vue,ssr,seo' }],
         ['link', { rel: 'dns-prefetch', href: 'https://github.com' }],
+        ['link', { rel: 'dns-prefetch', href: 'https://widget.mintlify.com' }],
+        ['script', { type: 'module', src: 'https://widget.mintlify.com/v1/embed.js' }],
+        [
+          'script',
+          { type: 'module' },
+          `const isDark = () => document.documentElement.classList.contains('dark')
+const theme = () => (isDark() ? 'dark' : 'light')
+
+const trigger = document.createElement('button')
+trigger.type = 'button'
+trigger.className = 'ni18n-ask-ai'
+trigger.setAttribute('aria-label', 'Ask AI')
+trigger.innerHTML = '<span class="ni18n-ask-ai__icon" aria-hidden="true">✦</span><span>Ask AI</span>'
+document.body.appendChild(trigger)
+
+await window.MintlifyAssistant.init({
+  id: "mint_widget_fe4a84f3-0f6c-4dc0-94d6-3941d70125c2",
+  appearance: {
+    variant: "widget",
+    theme: theme(),
+    accent: "#32ba8c",
+    radius: "16px",
+    side: "bottom",
+    align: "end",
+    logo: "${SITE.url}/favicon.svg",
+    zIndex: 40,
+  },
+  labels: {
+    title: "Ask AI",
+    trigger: "Ask AI",
+    placeholder: "Ask about Nuxt I18n Micro…",
+    suggestions: "Try asking",
+  },
+  starterQuestions: [
+    "How do I install nuxt-i18n-micro?",
+    "Which routing strategy should I use?",
+    "How do page-level translations work?",
+  ],
+})
+
+// Keep our trigger mounted over the closed Shadow DOM vendor button (z-index 50 > 40).
+// Mintlify does not expose a supported way to hide the built-in trigger.
+trigger.addEventListener('click', () => {
+  void window.MintlifyAssistant.open({ source: 'custom-trigger', focus: true })
+})
+
+new MutationObserver(() => {
+  void window.MintlifyAssistant.update({
+    appearance: { theme: theme() },
+  })
+}).observe(document.documentElement, {
+  attributes: true,
+  attributeFilter: ["class"],
+})`,
+        ],
       ],
 
       themeConfig: {

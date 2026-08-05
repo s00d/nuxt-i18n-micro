@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-42 exports across 2 entry points.
+50 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -165,6 +165,64 @@ import { /* … */ } from '@i18n-micro/core'
 | Member | Type |
 | --- | --- |
 | `translations` | `Map<string, Translations>` |
+
+</details>
+## `@i18n-micro/core/devtools`
+
+```ts
+import { /* … */ } from '@i18n-micro/core/devtools'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `buildInspectorState` | function | `(snapshot: I18nDevtoolsStateSnapshot) => Record<string, Array<{ key: string; value: unknown; editable?: boolean; }>>` |
+| `buildInspectorTree` | function | `(options: BuildInspectorTreeOptions) => I18nDevtoolsInspectorNode[]` |
+| `BuildInspectorTreeOptions` | interface | 6 members |
+| `countTranslationKeys` | function | `(translations: Translations \| Record<string, unknown> \| undefined) => number` |
+| `decodeInspectorPath` | function | `(encoded: string) => string[]` |
+| `encodeInspectorPath` | function | `(segments: string[]) => string` |
+| `flattenTranslationNode` | function | `(obj: Record<string, unknown>, parentSegments?: string[]) => I18nDevtoolsInspectorNode[]` |
+| `getByInspectorPath` | function | `(obj: Record<string, unknown>, segments: string[]) => unknown` |
+| `I18nDevtoolsInspectorNode` | interface | 4 members |
+| `I18nDevtoolsStateSnapshot` | interface | 7 members |
+| `parseInspectorNodeId` | function | `(nodeId: string) => { kind: "root" \| "active" \| "locale" \| "chunk" \| "key"; locale?: string; routeName?: string; path?: string; segments?: string[]; }` |
+
+<details>
+<summary><code>BuildInspectorTreeOptions</code> — 6 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `activeLocale` | `string` |
+| `activeRouteName` | `string` |
+| `activeTranslations?` | `Record<string, unknown> \| undefined` |
+| `configuredLocales` | `Locale[]` |
+| `nodeId` | `string` |
+| `storage` | `TranslationStorage` |
+
+</details>
+<details>
+<summary><code>I18nDevtoolsInspectorNode</code> — 4 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `children?` | `I18nDevtoolsInspectorNode[] \| undefined` |
+| `id` | `string` |
+| `label` | `string` |
+| `tags?` | `{ label: string; textColor: number; backgroundColor: number; tooltip?: string; }[] \| undefined` |
+
+</details>
+<details>
+<summary><code>I18nDevtoolsStateSnapshot</code> — 7 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `cachedChunks` | `number` |
+| `defaultLocale?` | `string \| undefined` |
+| `fallbackLocale?` | `string \| undefined` |
+| `locale` | `string` |
+| `locales` | `{ code: string; displayName?: string; disabled?: boolean; }[]` |
+| `routeName` | `string` |
+| `strategy?` | `string \| undefined` |
 
 </details>
 ## `@i18n-micro/core/helpers`

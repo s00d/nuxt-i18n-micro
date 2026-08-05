@@ -85,6 +85,7 @@ member ModuleOptions.strategy?: Strategies | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.types?: boolean | undefined
+member ModuleOptions.vueDevtools?: boolean | undefined
 interface ModuleOptionsExtend
 member ModuleOptionsExtend.apiBaseClientHost?: string | undefined
 member ModuleOptionsExtend.apiBaseServerHost?: string | undefined
@@ -135,6 +136,7 @@ member ModuleOptionsExtend.translationDir?: string | undefined
 member ModuleOptionsExtend.translationPayloadMode?: "premerged" | "source" | undefined
 member ModuleOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptionsExtend.types?: boolean | undefined
+member ModuleOptionsExtend.vueDevtools?: boolean | undefined
 interface ModulePrivateOptionsExtend
 member ModulePrivateOptionsExtend.apiBaseClientHost?: string | undefined
 member ModulePrivateOptionsExtend.apiBaseServerHost?: string | undefined
@@ -185,6 +187,7 @@ member ModulePrivateOptionsExtend.strategy?: Strategies | undefined
 member ModulePrivateOptionsExtend.translationDir: string
 member ModulePrivateOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
 member ModulePrivateOptionsExtend.types?: boolean | undefined
+member ModulePrivateOptionsExtend.vueDevtools?: boolean | undefined
 type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 interface PluralTranslations

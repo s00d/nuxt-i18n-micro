@@ -25,6 +25,7 @@ import { createError, defineNuxtPlugin, navigateTo, useRouter, useRuntimeConfig 
 import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
 import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader } from '../utils/nuxt-i18n'
+import { setI18nDevtoolsBridge } from '../devtools/bridge'
 import { translationStorage } from '../utils/storage'
 
 const isDev = process.env.NODE_ENV !== 'production'
@@ -138,6 +139,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       customMissingHandler.value = handler
     },
   })
+
+  if (import.meta.dev && import.meta.client) {
+    setI18nDevtoolsBridge({
+      i18n,
+      i18nConfig,
+      localeState,
+    })
+  }
 
   router.beforeEach(async (to, from) => {
     if (to.name !== from.name) {

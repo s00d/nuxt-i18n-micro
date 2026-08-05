@@ -1352,6 +1352,7 @@ member ModuleOptions.strategy?: Strategies | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.types?: boolean | undefined
+member ModuleOptions.vueDevtools?: boolean | undefined
 type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
 class PreactI18n

@@ -249,7 +249,9 @@ export const checkVersionsCommand = defineCommand({
         if (!bumpedOrNeedsBump.has(dep)) continue
         const depPkg = byName.get(dep)!
         const baseVersion = entry.baseVersion
-        if (baseVersion && compareVersions(entry.version, baseVersion) > 0) continue
+        // New package (no baseline): first publish already rewrites workspace:^ to current pins.
+        if (baseVersion === null) continue
+        if (compareVersions(entry.version, baseVersion) > 0) continue
         if (entry.errors.some((e) => e.includes(`depends on ${dep}`))) continue
         const hadErrors = entry.errors.length > 0
         entry.status = 'NEEDS BUMP'

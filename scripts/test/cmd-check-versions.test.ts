@@ -156,6 +156,25 @@ describe('check-versions', () => {
     expect(exitCode).toBe(1)
   })
 
+  it('does not cascade bumps onto brand-new dependents', async () => {
+    listWorkspacePackages.mockReturnValue([
+      pkg('@i18n-micro/vue', '1.3.11'),
+      pkg('@i18n-micro/vitepress', '1.0.0', { dependencies: { '@i18n-micro/vue': 'workspace:^' } }),
+    ])
+    changedFiles.mockImplementation((_ref, relDir) =>
+      relDir === 'packages/vue'
+        ? ['packages/vue/src/components/i18n-link.ts']
+        : ['packages/vitepress/src/index.ts'],
+    )
+    baselineVersions({ vue: '1.3.10' })
+
+    const { report, exitCode } = await run()
+    expect(entry(report.results, '@i18n-micro/vue').status).toBe('bumped 1.3.10 → 1.3.11')
+    expect(entry(report.results, '@i18n-micro/vitepress').status).toBe('new package')
+    expect(entry(report.results, '@i18n-micro/vitepress').errors).toEqual([])
+    expect(exitCode).toBeNull()
+  })
+
   describe('--npm', () => {
     it('rejects a bump onto a version npm already has', async () => {
       listWorkspacePackages.mockReturnValue([pkg('core', '1.1.0')])

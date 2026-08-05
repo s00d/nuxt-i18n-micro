@@ -6,6 +6,14 @@ outline: 'deep'
 
 # News
 
+## `cacheMaxSize` also caps client chunk Map
+
+**Date**: 2026-08-05
+
+**Version**: unreleased
+
+`i18n.cacheMaxSize` already limited fetch/server `CacheControl` caches. It now also FIFO-evicts entries in the client `NuxtI18n.storage.translations` Map (`locale:route` chunks), preferring the active and just-written keys. When the limit cannot hold both (e.g. `1`), the just-written key wins so the bound is enforced. Default `0` remains unlimited — route names from Vue Router are finite, so this is an optional bound for long SPA sessions with many page dictionaries.
+
 ## Nuxt I18n Micro v3.26.1 — Vue DevTools live inspector
 
 **Date**: 2026-08-05

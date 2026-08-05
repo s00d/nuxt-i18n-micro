@@ -146,6 +146,33 @@ describe('NuxtI18n', () => {
     expect(i18n.getChunk('en', 'index')).toEqual({})
   })
 
+  it('cacheMaxSize evicts oldest chunks but keeps the active page', () => {
+    const i18n = new NuxtI18n({ missingWarn: false, cacheMaxSize: 3 })
+
+    for (let n = 0; n < 20; n++) {
+      i18n.setChunk('en', `page-${n}`, { title: `Page ${n}` })
+    }
+    expect(i18n.storage.translations.size).toBeLessThanOrEqual(3)
+
+    i18n.applySwitchContext('en', 'page-19', i18n.getChunk('en', 'page-19'))
+    expect(i18n.t('title')).toBe('Page 19')
+
+    for (let n = 0; n < 10; n++) {
+      i18n.setChunk('en', `extra-${n}`, { title: `Extra ${n}` })
+    }
+    expect(i18n.storage.translations.size).toBeLessThanOrEqual(3)
+    expect(i18n.storage.translations.has(i18n.getCacheKey('en', 'page-19'))).toBe(true)
+    expect(i18n.t('title')).toBe('Page 19')
+  })
+
+  it('cacheMaxSize 0 leaves the chunk map unlimited', () => {
+    const i18n = new NuxtI18n({ missingWarn: false, cacheMaxSize: 0 })
+    for (let n = 0; n < 20; n++) {
+      i18n.setChunk('en', `page-${n}`, { title: `Page ${n}` })
+    }
+    expect(i18n.storage.translations.size).toBe(20)
+  })
+
   it('onContextChange reports load vs refresh reasons', () => {
     const i18n = new NuxtI18n({ missingWarn: false })
     const reasons: string[] = []

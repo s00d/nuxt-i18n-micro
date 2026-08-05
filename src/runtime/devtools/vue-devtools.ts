@@ -136,7 +136,7 @@ function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId:
     const value = segments.length ? getByInspectorPath(source, segments) : source
 
     if (isPlainObject(value)) {
-      return { [(segments.join('.') || 'root')]: objectToStateEntries(value) }
+      return { [segments.join('.') || 'root']: objectToStateEntries(value) }
     }
 
     return {

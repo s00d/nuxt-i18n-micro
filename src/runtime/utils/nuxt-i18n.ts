@@ -79,10 +79,18 @@ export type LoadTranslationsChunk = (locale: string, routeName?: string) => Prom
 /** Why the active translation context changed — used by Vue DevTools timeline. */
 export type I18nContextChangeReason = 'load' | 'refresh'
 
-export interface NuxtI18nOptions extends BaseI18nOptions {}
+export interface NuxtI18nOptions extends BaseI18nOptions {
+  /**
+   * Cap for `storage.translations` chunk entries (`locale:route`).
+   * `0` means no limit. Same module option as the fetch/server `CacheControl` layers.
+   * @default 0
+   */
+  cacheMaxSize?: number
+}
 
 export class NuxtI18n extends BaseI18n {
   readonly storage: TranslationStorage
+  private readonly cacheMaxSize: number
   private readonly contextSignal: ShallowRef<number>
   private cachedTranslations: Record<string, unknown> = {}
   /**
@@ -99,12 +107,14 @@ export class NuxtI18n extends BaseI18n {
   private missingKeyListener?: (locale: string, key: string, routeName: string) => void
 
   constructor(options: NuxtI18nOptions = {}) {
+    const { cacheMaxSize = 0, ...baseOptions } = options
     const storage: TranslationStorage = {
       translations: new Map<string, Translations>(),
     }
 
-    super({ ...options, storage })
+    super({ ...baseOptions, storage })
     this.storage = storage
+    this.cacheMaxSize = cacheMaxSize
     this.contextSignal = shallowRef(0)
   }
 
@@ -121,7 +131,9 @@ export class NuxtI18n extends BaseI18n {
   }
 
   setChunk(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
-    this.storage.translations.set(this.getCacheKey(locale, routeName), data as Translations)
+    const key = this.getCacheKey(locale, routeName)
+    this.storage.translations.set(key, data as Translations)
+    this.evictChunks(key)
   }
 
   /**
@@ -134,11 +146,14 @@ export class NuxtI18n extends BaseI18n {
    * Existing entries win: anything already loaded is kept as-is.
    */
   seedChunks(chunks: Record<string, Record<string, unknown>>): void {
+    let lastKey = ''
     for (const [cacheKey, data] of Object.entries(chunks)) {
       if (!this.storage.translations.has(cacheKey)) {
         this.storage.translations.set(cacheKey, data as Translations)
+        lastKey = cacheKey
       }
     }
+    if (lastKey) this.evictChunks(lastKey)
   }
 
   hasChunk(locale: string, routeName?: string): boolean {
@@ -150,7 +165,24 @@ export class NuxtI18n extends BaseI18n {
     const existing = (this.storage.translations.get(cacheKey) ?? {}) as Record<string, unknown>
     const merged = mergeTranslationChunk(existing, data)
     this.storage.translations.set(cacheKey, merged as Translations)
+    this.evictChunks(cacheKey)
     return merged
+  }
+
+  /**
+   * FIFO eviction for `storage.translations` when `cacheMaxSize` is set.
+   * Keeps the just-written key and the active page chunk so `$t` stays valid.
+   */
+  private evictChunks(keep: string): void {
+    const max = this.cacheMaxSize
+    if (max <= 0 || this.storage.translations.size <= max) return
+
+    const current = this.getCacheKey(this.currentLocale, this.currentRouteName)
+    for (const key of this.storage.translations.keys()) {
+      if (this.storage.translations.size <= max) break
+      if (key === keep || key === current) continue
+      this.storage.translations.delete(key)
+    }
   }
 
   getLocale(): string {

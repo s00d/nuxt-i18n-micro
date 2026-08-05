@@ -1292,10 +1292,15 @@ export default defineNuxtConfig({
 ```
 
 ::: tip When to use
-For most projects the default (unlimited, no expiration) is fine — translations are small and finite. However, if your project has **thousands of pages** with `disablePageLocales: false` and **many locales**, the server cache can grow significantly. In long-running Node.js servers this may lead to excessive memory usage.
+For most projects the default (unlimited, no expiration) is fine — route names are finite (`product-id`, not `product-123`), so the client chunk Map stays bounded by pages × locales. Set a limit when you have **many locales × many page dictionaries** and long-lived Node or SPA sessions.
 
-- **`cacheMaxSize`** — caps the number of cached entries. Useful for bounding memory.
-- **`cacheTtl`** — ensures stale translations are eventually reloaded from storage. Useful for serverless environments or when translations change at runtime.
+`cacheMaxSize` caps:
+
+1. **Fetch / server `CacheControl`** (HTTP payload and server loader caches)
+2. **Client chunk Map** (`NuxtI18n.storage.translations`) — oldest unused `(locale, route)` chunks are evicted; the active page chunk is kept
+
+- **`cacheMaxSize`** — caps entries in those caches. Useful for bounding memory.
+- **`cacheTtl`** — expires fetch/server cache entries (not the live view layer). Useful for serverless or runtime-updated translations.
 
 **Formula for estimating max entries**: `number_of_locales × (number_of_pages + 1)`. For example, 10 locales × 500 pages = ~5010 entries.
 :::

@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v3.27.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.26.0...v3.27.0)
+
+### 🚀 Enhancements
+
+- Vue DevTools inspector + docs workspace ([#246](https://github.com/s00d/nuxt-i18n-micro/pull/246))
+
+### 🤖 CI
+
+- **release-smoke:** Manual-only and keep catalog in mini workspace ([876cbd3a](https://github.com/s00d/nuxt-i18n-micro/commit/876cbd3a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.26.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.25.0...v3.26.0)

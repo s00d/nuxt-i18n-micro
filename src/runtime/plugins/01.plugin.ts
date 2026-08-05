@@ -139,6 +139,14 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
   })
 
+  if (import.meta.dev && import.meta.client) {
+    useState('i18n-micro-devtools-bridge', () => ({
+      i18n,
+      i18nConfig,
+      localeState,
+    }))
+  }
+
   router.beforeEach(async (to, from) => {
     if (to.name !== from.name) {
       i18nRouteParams.value = {}

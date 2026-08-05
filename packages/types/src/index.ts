@@ -385,6 +385,13 @@ export interface ModuleOptions {
   debug?: boolean
 
   /**
+   * Register Vue DevTools inspector and timeline in dev (browser extension).
+   * Separate from the Nuxt DevTools custom tab.
+   * @default true
+   */
+  vueDevtools?: boolean
+
+  /**
    * Global route-level locale configuration.
    * Allows restricting or customizing locale routes for specific pages without
    * modifying their components.

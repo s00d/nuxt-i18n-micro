@@ -1,5 +1,4 @@
 import type { Locale, Translations } from '@i18n-micro/types'
-import { getByPath } from './helpers'
 import type { TranslationStorage } from './translation'
 
 export interface I18nDevtoolsInspectorNode {
@@ -83,11 +82,33 @@ function collectLocaleCodes(storage: TranslationStorage, configuredLocales: Loca
   return [...codes].sort()
 }
 
+/**
+ * Encode path segments so a literal key `"a.b"` and nested path `a → b` get distinct node IDs.
+ */
+export function encodeInspectorPath(segments: string[]): string {
+  return segments.map((segment) => encodeURIComponent(segment)).join('/')
+}
+
+export function decodeInspectorPath(encoded: string): string[] {
+  if (!encoded) return []
+  return encoded.split('/').map((segment) => decodeURIComponent(segment))
+}
+
+export function getByInspectorPath(obj: Record<string, unknown>, segments: string[]): unknown {
+  let current: unknown = obj
+  for (const segment of segments) {
+    if (!isPlainObject(current) || !Object.prototype.hasOwnProperty.call(current, segment)) return undefined
+    current = current[segment]
+  }
+  return current
+}
+
 export function parseInspectorNodeId(nodeId: string): {
   kind: 'root' | 'active' | 'locale' | 'chunk' | 'key'
   locale?: string
   routeName?: string
   path?: string
+  segments?: string[]
 } {
   if (!nodeId || nodeId === NODE_ROOT) return { kind: 'root' }
   if (nodeId === NODE_ACTIVE) return { kind: 'active' }
@@ -106,25 +127,32 @@ export function parseInspectorNodeId(nodeId: string): {
     const locale = parts[0] ?? ''
     const routeName = parts[1] ?? 'index'
     const path = parts.slice(2).join('|')
-    return { kind: 'key', locale, routeName, path }
+    return { kind: 'key', locale, routeName, path, segments: decodeInspectorPath(path) }
   }
 
   return { kind: 'root' }
 }
 
-export function flattenTranslationNode(obj: Record<string, unknown>, path = ''): I18nDevtoolsInspectorNode[] {
-  const target = path ? (getByPath(obj, path) as Record<string, unknown> | undefined) : obj
+function withKeyPrefix(locale: string, routeName: string, node: I18nDevtoolsInspectorNode): I18nDevtoolsInspectorNode {
+  return {
+    ...node,
+    id: `${PREFIX_KEY}${locale}|${routeName}|${node.id.slice(PREFIX_KEY.length)}`,
+  }
+}
+
+export function flattenTranslationNode(obj: Record<string, unknown>, parentSegments: string[] = []): I18nDevtoolsInspectorNode[] {
+  const target = parentSegments.length === 0 ? obj : getByInspectorPath(obj, parentSegments)
   if (!isPlainObject(target)) return []
 
   return Object.keys(target)
     .filter((key) => key !== '__proto__')
     .map((key) => {
-      const childPath = path ? `${path}.${key}` : key
+      const segments = [...parentSegments, key]
       const value = target[key]
       const nested = isPlainObject(value)
 
       return {
-        id: `${PREFIX_KEY}${childPath}`,
+        id: `${PREFIX_KEY}${encodeInspectorPath(segments)}`,
         label: nested ? key : `${key}: ${formatInspectorValue(value)}`,
         children: nested ? [] : undefined,
       }
@@ -170,10 +198,9 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
   }
 
   if (parsed.kind === 'active') {
-    return flattenTranslationNode(options.activeTranslations ?? {}).map((node) => ({
-      ...node,
-      id: `${PREFIX_KEY}${options.activeLocale}|${options.activeRouteName || 'index'}|${node.id.slice(PREFIX_KEY.length)}`,
-    }))
+    const locale = options.activeLocale
+    const routeName = options.activeRouteName || 'index'
+    return flattenTranslationNode(options.activeTranslations ?? {}).map((node) => withKeyPrefix(locale, routeName, node))
   }
 
   if (parsed.kind === 'locale' && parsed.locale) {
@@ -190,32 +217,18 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
     const locale = parsed.locale
     const routeName = parsed.routeName || 'index'
     const chunk = options.storage.translations.get(`${locale}:${routeName}`) as Record<string, unknown> | undefined
-    return flattenTranslationNode(chunk ?? {}).map((node) => ({
-      ...node,
-      id: `${PREFIX_KEY}${locale}|${routeName}|${node.id.slice(PREFIX_KEY.length)}`,
-    }))
+    return flattenTranslationNode(chunk ?? {}).map((node) => withKeyPrefix(locale, routeName, node))
   }
 
   if (parsed.kind === 'key' && parsed.locale) {
     const locale = parsed.locale
     const routeName = parsed.routeName || 'index'
     const chunk = options.storage.translations.get(`${locale}:${routeName}`) as Record<string, unknown> | undefined
-    const path = parsed.path ?? ''
+    const segments = parsed.segments ?? []
+    const isActiveContext = options.activeLocale === locale && options.activeRouteName === routeName
+    const source = isActiveContext ? (options.activeTranslations ?? chunk ?? {}) : (chunk ?? {})
 
-    if (path && options.activeLocale === locale && options.activeRouteName === routeName) {
-      const activeValue = getByPath(options.activeTranslations ?? {}, path)
-      if (isPlainObject(activeValue)) {
-        return flattenTranslationNode(activeValue, '').map((node) => ({
-          ...node,
-          id: `${PREFIX_KEY}${locale}|${routeName}|${path}.${node.id.slice(PREFIX_KEY.length)}`,
-        }))
-      }
-    }
-
-    return flattenTranslationNode(chunk ?? {}, path).map((node) => ({
-      ...node,
-      id: `${PREFIX_KEY}${locale}|${routeName}|${path ? `${path}.${node.id.slice(PREFIX_KEY.length)}` : node.id.slice(PREFIX_KEY.length)}`,
-    }))
+    return flattenTranslationNode(source, segments).map((node) => withKeyPrefix(locale, routeName, node))
   }
 
   return []

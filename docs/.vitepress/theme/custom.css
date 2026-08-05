@@ -12,7 +12,7 @@
   box-shadow: none;
 }
 
-/* Custom Ask AI trigger — Mintlify built-in button stays white (closed Shadow DOM) */
+/* Custom Ask AI trigger — covers Mintlify built-in button (closed Shadow DOM, no hide API) */
 .ni18n-ask-ai {
   position: fixed;
   right: 24px;
@@ -54,6 +54,10 @@
 .ni18n-ask-ai:focus-visible {
   outline: 2px solid #1a5051;
   outline-offset: 3px;
+}
+
+.dark .ni18n-ask-ai:focus-visible {
+  outline-color: #5fe0ae;
 }
 
 .ni18n-ask-ai__icon {

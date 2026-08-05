@@ -9,3 +9,14 @@ export interface I18nDevtoolsBridge {
   i18nConfig: ModuleOptionsExtend
   localeState: Ref<string | null>
 }
+
+/** Dev-only bridge — not serializable, so keep it off `useState`. */
+let bridge: I18nDevtoolsBridge | null = null
+
+export function setI18nDevtoolsBridge(value: I18nDevtoolsBridge | null): void {
+  bridge = value
+}
+
+export function getI18nDevtoolsBridge(): I18nDevtoolsBridge | null {
+  return bridge
+}

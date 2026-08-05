@@ -179,10 +179,13 @@ import { /* … */ } from '@i18n-micro/core/devtools'
 | `buildInspectorTree` | function | `(options: BuildInspectorTreeOptions) => I18nDevtoolsInspectorNode[]` |
 | `BuildInspectorTreeOptions` | interface | 6 members |
 | `countTranslationKeys` | function | `(translations: Translations \| Record<string, unknown> \| undefined) => number` |
-| `flattenTranslationNode` | function | `(obj: Record<string, unknown>, path?: string) => I18nDevtoolsInspectorNode[]` |
+| `decodeInspectorPath` | function | `(encoded: string) => string[]` |
+| `encodeInspectorPath` | function | `(segments: string[]) => string` |
+| `flattenTranslationNode` | function | `(obj: Record<string, unknown>, parentSegments?: string[]) => I18nDevtoolsInspectorNode[]` |
+| `getByInspectorPath` | function | `(obj: Record<string, unknown>, segments: string[]) => unknown` |
 | `I18nDevtoolsInspectorNode` | interface | 4 members |
 | `I18nDevtoolsStateSnapshot` | interface | 7 members |
-| `parseInspectorNodeId` | function | `(nodeId: string) => { kind: "root" \| "active" \| "locale" \| "chunk" \| "key"; locale?: string; routeName?: string; path?: string; }` |
+| `parseInspectorNodeId` | function | `(nodeId: string) => { kind: "root" \| "active" \| "locale" \| "chunk" \| "key"; locale?: string; routeName?: string; path?: string; segments?: string[]; }` |
 
 <details>
 <summary><code>BuildInspectorTreeOptions</code> — 6 members</summary>

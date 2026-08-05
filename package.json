@@ -165,7 +165,7 @@
   },
   "peerDependencies": {
     "vue-router": "catalog:",
-    "@vue/devtools-api": "^8.1.5"
+    "@vue/devtools-api": "catalog:"
   },
   "peerDependenciesMeta": {
     "@vue/devtools-api": {

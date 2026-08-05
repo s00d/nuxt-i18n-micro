@@ -2,13 +2,13 @@ import {
   buildInspectorState,
   buildInspectorTree,
   countTranslationKeys,
+  getByInspectorPath,
   parseInspectorNodeId,
   type I18nDevtoolsStateSnapshot,
 } from '@i18n-micro/core/devtools'
-import { getByPath } from '@i18n-micro/core/helpers'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { App } from 'vue'
-import type { NuxtI18n } from '../utils/nuxt-i18n'
+import type { I18nContextChangeReason, NuxtI18n } from '../utils/nuxt-i18n'
 
 const INSPECTOR_ID = 'i18n-micro-inspector'
 const PLUGIN_ID = 'nuxt-i18n-micro'
@@ -18,14 +18,13 @@ export interface VueI18nDevtoolsContext {
   app: App
   i18n: NuxtI18n
   i18nConfig: ModuleOptionsExtend
-  onContextChange: (listener: () => void) => () => void
+  onContextChange: (listener: (reason: I18nContextChangeReason) => void) => () => void
   onMissingKey: (listener: (locale: string, key: string, routeName: string) => void) => () => void
 }
 
 export interface VueI18nDevtoolsNotifier {
   notifyLocaleSwitch: (from: string, to: string, routeName: string) => void
   notifyLoad: (locale: string, routeName: string, keyCount: number) => void
-  notifyMissing: (locale: string, key: string, routeName: string) => void
   notifyTranslate: (key: string, result: unknown) => void
   refreshInspector: () => void
 }
@@ -130,16 +129,18 @@ function buildNodeState(i18n: NuxtI18n, i18nConfig: ModuleOptionsExtend, nodeId:
 
   if (parsed.kind === 'key' && parsed.locale) {
     const routeName = parsed.routeName || 'index'
-    const path = parsed.path ?? ''
+    const segments = parsed.segments ?? []
     const chunk = i18n.storage.translations.get(`${parsed.locale}:${routeName}`) as Record<string, unknown> | undefined
-    const value = path ? getByPath(chunk ?? {}, path) : chunk
+    const isActive = i18n.getCurrentLocale() === parsed.locale && i18n.getCurrentRouteName() === routeName
+    const source = isActive ? (i18n.resolveTranslations() as Record<string, unknown>) : (chunk ?? {})
+    const value = segments.length ? getByInspectorPath(source, segments) : source
 
     if (isPlainObject(value)) {
-      return { [path || 'root']: objectToStateEntries(value) }
+      return { [(segments.join('.') || 'root')]: objectToStateEntries(value) }
     }
 
     return {
-      Value: [{ key: path || 'value', value }],
+      Value: [{ key: segments.join('.') || 'value', value }],
     }
   }
 
@@ -258,7 +259,9 @@ export async function setupVueI18nDevtools(ctx: VueI18nDevtoolsContext): Promise
           ) as never
         })
 
-        ctx.onContextChange(refreshInspector)
+        ctx.onContextChange(() => {
+          refreshInspector()
+        })
         ctx.onMissingKey((locale, key, routeName) => {
           api.addTimelineEvent({
             layerId: TIMELINE_LAYER_ID,
@@ -295,17 +298,6 @@ export async function setupVueI18nDevtools(ctx: VueI18nDevtoolsContext): Promise
               },
             })
             refreshInspector()
-          },
-          notifyMissing(locale, key, routeName) {
-            api.addTimelineEvent({
-              layerId: TIMELINE_LAYER_ID,
-              event: {
-                time: api.now(),
-                title: 'Missing translation',
-                subtitle: key,
-                data: { locale, key, routeName },
-              },
-            })
           },
           notifyTranslate(key, result) {
             api.addTimelineEvent({

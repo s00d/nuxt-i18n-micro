@@ -110,7 +110,10 @@ member BuildInspectorTreeOptions.configuredLocales: Locale[]
 member BuildInspectorTreeOptions.nodeId: string
 member BuildInspectorTreeOptions.storage: TranslationStorage
 function countTranslationKeys: (translations: Translations | Record<string, unknown> | undefined) => number
-function flattenTranslationNode: (obj: Record<string, unknown>, path?: string) => I18nDevtoolsInspectorNode[]
+function decodeInspectorPath: (encoded: string) => string[]
+function encodeInspectorPath: (segments: string[]) => string
+function flattenTranslationNode: (obj: Record<string, unknown>, parentSegments?: string[]) => I18nDevtoolsInspectorNode[]
+function getByInspectorPath: (obj: Record<string, unknown>, segments: string[]) => unknown
 interface I18nDevtoolsInspectorNode
 member I18nDevtoolsInspectorNode.children?: I18nDevtoolsInspectorNode[] | undefined
 member I18nDevtoolsInspectorNode.id: string
@@ -124,7 +127,7 @@ member I18nDevtoolsStateSnapshot.locale: string
 member I18nDevtoolsStateSnapshot.locales: { code: string; displayName?: string; disabled?: boolean; }[]
 member I18nDevtoolsStateSnapshot.routeName: string
 member I18nDevtoolsStateSnapshot.strategy?: string | undefined
-function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "locale" | "chunk" | "key"; locale?: string; routeName?: string; path?: string; }
+function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "locale" | "chunk" | "key"; locale?: string; routeName?: string; path?: string; segments?: string[]; }
 
 # ./helpers (src/helpers.ts)
 function collectTranslationPaths: (obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void

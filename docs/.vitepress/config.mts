@@ -85,12 +85,7 @@ trigger.type = 'button'
 trigger.className = 'ni18n-ask-ai'
 trigger.setAttribute('aria-label', 'Ask AI')
 trigger.innerHTML = '<span class="ni18n-ask-ai__icon" aria-hidden="true">✦</span><span>Ask AI</span>'
-trigger.hidden = true
 document.body.appendChild(trigger)
-
-const setTriggerVisible = (visible) => {
-  trigger.hidden = !visible
-}
 
 await window.MintlifyAssistant.init({
   id: "mint_widget_fe4a84f3-0f6c-4dc0-94d6-3941d70125c2",
@@ -115,36 +110,13 @@ await window.MintlifyAssistant.init({
     "Which routing strategy should I use?",
     "How do page-level translations work?",
   ],
-  hooks: {
-    event(event) {
-      if (event.type === 'open') setTriggerVisible(false)
-      if (event.type === 'close' || event.type === 'init') setTriggerVisible(true)
-    },
-  },
 })
 
-setTriggerVisible(true)
-
+// Keep our trigger mounted over the closed Shadow DOM vendor button (z-index 50 > 40).
+// Mintlify does not expose a supported way to hide the built-in trigger.
 trigger.addEventListener('click', () => {
   void window.MintlifyAssistant.open({ source: 'custom-trigger', focus: true })
 })
-
-// Built-in trigger is closed Shadow DOM and stays white — cover it with our button.
-const hideBuiltInTrigger = () => {
-  const host = document.querySelector('mintlify-assistant')
-  if (!host) return
-  const root = host.shadowRoot
-  if (!root) return
-  for (const el of root.querySelectorAll('button, [role="button"]')) {
-    const text = (el.textContent || '').trim()
-    if (text.includes('Ask AI') || el.getAttribute('aria-label')?.includes('Ask')) {
-      el.style.setProperty('visibility', 'hidden', 'important')
-      el.style.setProperty('pointer-events', 'none', 'important')
-    }
-  }
-}
-hideBuiltInTrigger()
-new MutationObserver(hideBuiltInTrigger).observe(document.body, { childList: true, subtree: true })
 
 new MutationObserver(() => {
   void window.MintlifyAssistant.update({

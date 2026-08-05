@@ -1,8 +1,7 @@
-import { useState } from '#app'
 import { defineNuxtPlugin, useNuxtApp } from '#imports'
 import type { Params } from '@i18n-micro/types'
 import { watch } from 'vue'
-import { I18N_DEVTOOLS_BRIDGE_KEY, type I18nDevtoolsBridge } from '../devtools/bridge'
+import { getI18nDevtoolsBridge } from '../devtools/bridge'
 import { countLoadedTranslationKeys, setupVueI18nDevtools } from '../devtools/vue-devtools'
 
 export default defineNuxtPlugin({
@@ -14,7 +13,7 @@ export default defineNuxtPlugin({
     }
 
     const nuxtApp = useNuxtApp()
-    const bridge = useState<I18nDevtoolsBridge | null>(I18N_DEVTOOLS_BRIDGE_KEY, () => null).value
+    const bridge = getI18nDevtoolsBridge()
     if (!bridge) {
       return
     }
@@ -48,8 +47,12 @@ export default defineNuxtPlugin({
       },
     )
 
-    bridge.i18n.onContextChange(() => {
-      notifyCurrentLoad()
+    bridge.i18n.onContextChange((reason) => {
+      if (reason === 'load') {
+        notifyCurrentLoad()
+        return
+      }
+      notifier.refreshInspector()
     })
 
     if (bridge.i18nConfig.debug) {

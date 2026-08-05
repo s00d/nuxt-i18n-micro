@@ -49,13 +49,13 @@ export default defineConfig(
           link: '/fr/',
           themeConfig: {
             nav: [
-              { text: 'Accueil', link: '/fr/' },
-              { text: 'Démo', link: '/fr/guide/demo' },
+              { text: 'Accueil', link: '/' },
+              { text: 'Démo', link: '/guide/demo' },
             ],
             sidebar: [
               {
                 text: 'Guide',
-                items: [{ text: 'Démo in-page', link: '/fr/guide/demo' }],
+                items: [{ text: 'Démo in-page', link: '/guide/demo' }],
               },
             ],
           },

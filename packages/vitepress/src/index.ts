@@ -25,8 +25,6 @@ export { createI18nRoutingFromAdapter } from './router/i18n-routing'
 /** Types only — runtime `withI18nMicro` lives in `@i18n-micro/vitepress/config` (Node). */
 export type { VirtualI18nConfig, VitePressUserConfigLike, WithI18nMicroOptions } from './with-i18n-micro'
 
-/// <reference path="./virtual.d.ts" />
-
 // Re-export Vue surface for a single import path in VitePress themes / MD pages
 export {
   createI18n,

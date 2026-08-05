@@ -13,7 +13,7 @@ Runtime UI strings (not a replacement for duplicated markdown prose).
 </p>
 
 <p>
-  <a href="/guide/demo">{{ $t('cta.readMore') }}</a>
+  <I18nLink to="/guide/demo">{{ $t('cta.readMore') }}</I18nLink>
 </p>
 
 Use the **built-in** language menu (globe icon) to switch locale.

@@ -29,8 +29,8 @@ Current locale: **{{ locale }}**
 
 ## Group
 
-<I18nGroup prefix="cta">
-  <I18nT keypath="readMore" />
+<I18nGroup prefix="cta" v-slot="{ t: tg }">
+  {{ tg('readMore') }}
 </I18nGroup>
 
 ## Optional `<I18nSwitcher>` (custom themes)

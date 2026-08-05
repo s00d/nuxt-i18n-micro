@@ -1,9 +1,10 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
 import type { Translations } from '@i18n-micro/types'
+import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
 import {
+  classifyTranslationRelativePath,
   mergeRouteTranslationsWithRoot,
-  storeLoadedTranslationFile,
   type TranslationFileBuckets,
 } from '@i18n-micro/utils/parse-path'
 
@@ -24,6 +25,10 @@ export interface TranslationFileRef {
   /** Path relative to `translationDir` using `/` separators. */
   relativePath: string
   absolutePath: string
+}
+
+function isTranslationsObject(value: unknown): value is Translations {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 function walkTranslationFiles(dir: string, onFile: (fullPath: string) => void): void {
@@ -68,6 +73,7 @@ export function loadTranslationBuckets(options: LoadMessagesOptions): LoadedTran
   const rootDir = options.rootDir ?? process.cwd()
   const dir = resolve(rootDir, options.translationDir)
   const buckets: LoadedTranslations = { root: {}, routes: {} }
+  const disablePageLocales = options.disablePageLocales === true
 
   if (!existsSync(dir)) {
     return buckets
@@ -76,8 +82,29 @@ export function loadTranslationBuckets(options: LoadMessagesOptions): LoadedTran
   walkTranslationFiles(dir, (fullPath) => {
     const relativePath = relative(dir, fullPath).split(sep).join('/')
     try {
-      const translations = JSON.parse(readFileSync(fullPath, 'utf-8')) as Translations
-      storeLoadedTranslationFile(buckets, relativePath, translations, options.disablePageLocales === true)
+      const parsed: unknown = JSON.parse(readFileSync(fullPath, 'utf-8'))
+      if (!isTranslationsObject(parsed)) {
+        console.error(
+          `[i18n-micro/vitepress] Skipping ${relativePath}: expected a JSON object, got ${Array.isArray(parsed) ? 'array' : typeof parsed}`,
+        )
+        return
+      }
+      const translations = parsed
+      const classified = classifyTranslationRelativePath(relativePath, disablePageLocales)
+
+      if (classified.type === 'page') {
+        const routeBucket = buckets.routes[classified.pageName]
+          ?? (buckets.routes[classified.pageName] = {})
+        routeBucket[classified.locale] = translations
+        return
+      }
+
+      if (classified.type === 'root') {
+        const existing = buckets.root[classified.locale]
+        buckets.root[classified.locale] = existing
+          ? deepMergeTranslations(existing as Record<string, unknown>, translations as Record<string, unknown>) as Translations
+          : translations
+      }
     }
     catch (error) {
       console.error(`[i18n-micro/vitepress] Failed to load ${relativePath}:`, error)

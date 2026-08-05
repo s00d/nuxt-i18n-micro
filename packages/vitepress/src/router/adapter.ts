@@ -1,7 +1,6 @@
 import type { Locale } from '@i18n-micro/types'
-import type { Component } from 'vue'
-import { defineComponent, h, type PropType } from 'vue'
 import type { I18nRoutingStrategy } from '@i18n-micro/vue'
+import { defineComponent, h, type Component, type PropType } from 'vue'
 
 export interface VitePressRouterLike {
   route: {
@@ -21,6 +20,7 @@ export interface VitePressRouterAdapterOptions {
   /**
    * Map VitePress locale keys (`root`, `fr`) to i18n locale codes.
    * Defaults: `root` → `defaultLocale`, other keys → same string as the key.
+   * URL prefixes always use VitePress keys; i18n uses codes.
    */
   localeKeyToCode?: Record<string, string>
   getPath?: () => string
@@ -40,6 +40,8 @@ export interface VitePressRouterAdapter extends I18nRoutingStrategy {
   defaultLocale: string
   /** Snapshot of mapping used when building the adapter (for `i18nRouting` serialization). */
   localeKeyToCode: Record<string, string>
+  /** URL path prefixes (VitePress locale keys except `root`). */
+  urlPrefixes: string[]
 }
 
 function splitPathAndExtras(path: string): { pathname: string, extras: string } {
@@ -55,29 +57,69 @@ function splitPathAndExtras(path: string): { pathname: string, extras: string } 
 }
 
 /**
+ * Build URL prefix → i18n code map.
+ * Prefixes are VitePress locale keys (and codes when they differ), never `root`.
+ */
+export function buildUrlPrefixToCode(
+  localeCodes: string[],
+  defaultLocale: string,
+  localeKeyToCode: Record<string, string> = {},
+): Map<string, string> {
+  const keyFromCode = (code: string): string => {
+    for (const [key, mapped] of Object.entries(localeKeyToCode)) {
+      if (mapped === code) return key
+    }
+    if (code === defaultLocale) return 'root'
+    return code
+  }
+
+  const prefixToCode = new Map<string, string>()
+  for (const code of localeCodes) {
+    if (code === defaultLocale) continue
+    const key = keyFromCode(code)
+    const urlKey = key === 'root' ? code : key
+    prefixToCode.set(urlKey, code)
+    if (urlKey !== code) prefixToCode.set(code, code)
+  }
+  return prefixToCode
+}
+
+/**
  * Detect i18n locale code from a URL path (prefix_except_default).
+ * Path prefixes are VitePress locale keys; return value is the i18n code.
  */
 export function getLocaleFromPath(
   path: string,
   localeCodes: string[],
   defaultLocale: string,
+  localeKeyToCode: Record<string, string> = {},
 ): string {
   const { pathname } = splitPathAndExtras(path)
   const first = pathname.split('/').filter(Boolean)[0]
-  if (first !== undefined && localeCodes.includes(first)) {
-    return first
-  }
-  return defaultLocale
+  if (first === undefined) return defaultLocale
+  const prefixToCode = buildUrlPrefixToCode(localeCodes, defaultLocale, localeKeyToCode)
+  return prefixToCode.get(first) ?? defaultLocale
 }
 
 /**
  * Route name for page-scoped dictionaries (`/guide/demo` → `guide-demo`).
+ * Strips VitePress URL prefixes (keys), not only raw i18n codes.
  */
-export function routeNameFromPath(path: string, localeCodes: string[]): string {
+export function routeNameFromPath(
+  path: string,
+  localeCodes: string[],
+  defaultLocale?: string,
+  localeKeyToCode: Record<string, string> = {},
+): string {
   const { pathname } = splitPathAndExtras(path)
   const segments = pathname.split('/').filter(Boolean)
   const first = segments[0]
-  if (first !== undefined && localeCodes.includes(first)) {
+  const prefixToCode = buildUrlPrefixToCode(
+    localeCodes,
+    defaultLocale ?? localeCodes[0] ?? 'en',
+    localeKeyToCode,
+  )
+  if (first !== undefined && prefixToCode.has(first)) {
     segments.shift()
   }
   if (segments.length === 0) return 'index'
@@ -119,12 +161,15 @@ function createVitePressLinkComponent(go?: VitePressGo): Component {
 
 /**
  * VitePress path adapter (prefix_except_default semantics):
- * default locale has no URL prefix; other locales use `/{code}/…`.
+ * default locale has no URL prefix; other locales use `/{vitepressKey}/…`.
+ * i18n locale values remain `locale.code` (via `localeKeyToCode`).
  */
 export function createVitePressRouterAdapter(options: VitePressRouterAdapterOptions): VitePressRouterAdapter {
   const { locales, defaultLocale, localeKeyToCode = {}, getPath, go } = options
   const localeCodes = locales.map((loc) => loc.code)
   const localeKeyToCodeSnapshot = { ...localeKeyToCode }
+  const prefixToCode = buildUrlPrefixToCode(localeCodes, defaultLocale, localeKeyToCodeSnapshot)
+  const urlPrefixes = [...prefixToCode.keys()]
 
   const codeFromLocaleKey = (localeKey: string): string => {
     if (localeKeyToCodeSnapshot[localeKey]) return localeKeyToCodeSnapshot[localeKey]!
@@ -140,14 +185,25 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
     return code
   }
 
-  const removeLocaleFromPath = (path: string): string => {
-    const { pathname, extras } = splitPathAndExtras(path)
+  const urlPrefixForCode = (code: string): string | null => {
+    if (code === defaultLocale) return null
+    const key = localeKeyFromCode(code)
+    return key === 'root' ? code : key
+  }
+
+  const stripPrefix = (pathname: string): { segments: string[], hadTrailingSlash: boolean } => {
     const hadTrailingSlash = pathname === '/' || pathname.endsWith('/')
     const segments = pathname.split('/').filter(Boolean)
     const first = segments[0]
-    if (first !== undefined && localeCodes.includes(first)) {
+    if (first !== undefined && prefixToCode.has(first)) {
       segments.shift()
     }
+    return { segments, hadTrailingSlash }
+  }
+
+  const removeLocaleFromPath = (path: string): string => {
+    const { pathname, extras } = splitPathAndExtras(path)
+    const { segments, hadTrailingSlash } = stripPrefix(pathname)
     let clean = segments.length === 0 ? '/' : `/${segments.join('/')}`
     if (clean !== '/' && hadTrailingSlash) clean += '/'
     return `${clean}${extras}`
@@ -155,15 +211,9 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
 
   const localizePath = (path: string, locale: string): string => {
     const { pathname, extras } = splitPathAndExtras(path)
-    const hadTrailingSlash = pathname === '/' || pathname.endsWith('/')
-    const segments = pathname.split('/').filter(Boolean)
-    const first = segments[0]
-    if (first !== undefined && localeCodes.includes(first)) {
-      segments.shift()
-    }
-    if (locale !== defaultLocale) {
-      segments.unshift(locale)
-    }
+    const { segments, hadTrailingSlash } = stripPrefix(pathname)
+    const prefix = urlPrefixForCode(locale)
+    if (prefix) segments.unshift(prefix)
     let localized = segments.length === 0 ? '/' : `/${segments.join('/')}`
     if (localized !== '/' && hadTrailingSlash) localized += '/'
     return `${localized}${extras}`
@@ -197,16 +247,20 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
     localeCodes,
     defaultLocale,
     localeKeyToCode: localeKeyToCodeSnapshot,
+    urlPrefixes,
     codeFromLocaleKey,
     localeKeyFromCode,
-    getLocaleFromPath: (path: string) => getLocaleFromPath(path, localeCodes, defaultLocale),
+    getLocaleFromPath: (path: string) =>
+      getLocaleFromPath(path, localeCodes, defaultLocale, localeKeyToCodeSnapshot),
     switchLocalePath,
     localizePath,
     removeLocaleFromPath,
     linkComponent: createVitePressLinkComponent(go),
     getCurrentPath: () => {
       if (getPath) return getPath()
-      if (typeof window !== 'undefined') return window.location.pathname
+      if (typeof window !== 'undefined') {
+        return window.location.pathname + window.location.search + window.location.hash
+      }
       return '/'
     },
     push: (target: { path: string }) => {
@@ -219,12 +273,14 @@ export function createVitePressRouterAdapter(options: VitePressRouterAdapterOpti
     getRoute: () => {
       const path = getPath
         ? getPath()
-        : (typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/')
+        : (typeof window !== 'undefined'
+          ? window.location.pathname + window.location.search + window.location.hash
+          : '/')
       const url = typeof window !== 'undefined'
         ? new URL(path, window.location.origin)
         : new URL(path, 'http://localhost')
       return {
-        fullPath: url.pathname + url.search,
+        fullPath: url.pathname + url.search + url.hash,
         query: Object.fromEntries(url.searchParams),
       }
     },

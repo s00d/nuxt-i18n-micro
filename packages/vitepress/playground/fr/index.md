@@ -13,7 +13,7 @@ Chaînes UI runtime (pas un remplacement du markdown dupliqué).
 </p>
 
 <p>
-  <a href="/fr/guide/demo">{{ $t('cta.readMore') }}</a>
+  <I18nLink to="/guide/demo">{{ $t('cta.readMore') }}</I18nLink>
 </p>
 
 Utilisez le menu de langue **intégré** (icône globe) pour changer de locale.

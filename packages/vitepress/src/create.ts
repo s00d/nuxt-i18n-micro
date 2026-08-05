@@ -93,6 +93,9 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
   applyRouteMessages(plugin, options.messages, options.routeMessages)
 
   let adapter: VitePressRouterAdapter | null = null
+  let installed = false
+  let boundSyncHandler: ((to: string) => unknown) | null = null
+  let chainedPrevious: ((to: string) => unknown) | undefined
 
   const enhanceApp = (ctx: {
     app: App
@@ -101,18 +104,24 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
   }) => {
     const { app, router } = ctx
 
-    adapter = createVitePressRouterAdapter({
-      locales,
-      defaultLocale,
-      localeKeyToCode: options.localeKeyToCode,
-      getPath: () => router.route.path,
-      go: (href, navOptions) => router.go(href, navOptions),
-    })
+    if (!installed) {
+      adapter = createVitePressRouterAdapter({
+        locales,
+        defaultLocale,
+        localeKeyToCode: options.localeKeyToCode,
+        getPath: () => {
+          const route = router.route
+          return `${route.path}${route.query || ''}${route.hash || ''}`
+        },
+        go: (href, navOptions) => router.go(href, navOptions),
+      })
 
-    plugin.setRoutingStrategy(adapter)
-    app.use(plugin)
+      plugin.setRoutingStrategy(adapter)
+      app.use(plugin)
+      installed = true
+    }
 
-    if (!syncWithVitePress) return
+    if (!syncWithVitePress || !adapter) return
 
     const sync = (path = router.route.path) => {
       if (!adapter) return
@@ -120,21 +129,31 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
       if (plugin.global.getLocale() !== nextLocale) {
         plugin.global.locale = nextLocale
       }
-      plugin.global.setRoute(routeNameFromPath(path, adapter.localeCodes))
+      plugin.global.setRoute(
+        routeNameFromPath(path, adapter.localeCodes, defaultLocale, options.localeKeyToCode),
+      )
     }
 
     sync()
 
-    const previous = router.onAfterRouteChange
-    router.onAfterRouteChange = async (to: string) => {
-      if (typeof previous === 'function') {
-        await previous(to)
+    // Stay outermost: if base/user enhanceApp overwrote the hook, re-wrap on a later call.
+    const current = router.onAfterRouteChange
+    if (current !== boundSyncHandler) {
+      chainedPrevious = typeof current === 'function' ? current : undefined
+    }
+    boundSyncHandler = async (to: string) => {
+      if (typeof chainedPrevious === 'function') {
+        await chainedPrevious(to)
       }
       const path = to.startsWith('http')
-        ? new URL(to).pathname
-        : to.split(/[?#]/)[0] || '/'
+        ? (() => {
+          const url = new URL(to)
+          return url.pathname + url.search + url.hash
+        })()
+        : to
       sync(path)
     }
+    router.onAfterRouteChange = boundSyncHandler
   }
 
   return {

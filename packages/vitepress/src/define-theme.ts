@@ -49,7 +49,8 @@ export function defineI18nTheme<T extends Theme>(base: T, options: DefineI18nThe
   return {
     ...base,
     async enhanceApp(ctx: EnhanceAppContext) {
-      if (!byApp.has(ctx.app)) {
+      let installed = byApp.get(ctx.app)
+      if (!installed) {
         const [{ config }, messagesMod] = await Promise.all([
           import('virtual:i18n-micro/config') as Promise<{ config: VirtualI18nConfig }>,
           import('virtual:i18n-micro/messages') as Promise<VirtualMessagesModule>,
@@ -58,13 +59,15 @@ export function defineI18nTheme<T extends Theme>(base: T, options: DefineI18nThe
         const localeCodes = config.localeCodes.length
           ? config.localeCodes
           : config.locales.map((l) => l.code)
+        const localeKeyToCode = options.localeKeyToCode ?? config.localeKeyToCode
         const initialLocale = getLocaleFromPath(
           ctx.router.route.path,
           localeCodes,
           config.defaultLocale,
+          localeKeyToCode,
         )
 
-        const installed = createVitePressI18n({
+        installed = createVitePressI18n({
           locale: initialLocale,
           defaultLocale: config.defaultLocale,
           fallbackLocale: config.fallbackLocale,
@@ -73,17 +76,19 @@ export function defineI18nTheme<T extends Theme>(base: T, options: DefineI18nThe
           routeMessages: messagesMod.routeMessages,
           missingWarn: config.missingWarn,
           syncWithVitePress: config.syncWithVitePress,
-          localeKeyToCode: options.localeKeyToCode ?? config.localeKeyToCode,
+          localeKeyToCode,
           plural: options.plural,
           missingHandler: options.missingHandler,
         })
-        // Vue peer version may differ between vitepress and @i18n-micro/vue — ctx shape is compatible at runtime.
-        installed.enhanceApp(ctx as unknown as Parameters<typeof installed.enhanceApp>[0])
         byApp.set(ctx.app, installed)
       }
 
+      // Install plugin first so base/user enhanceApp can use $t / components.
+      installed.enhanceApp(ctx as unknown as Parameters<typeof installed.enhanceApp>[0])
       if (baseEnhance) await baseEnhance(ctx)
       if (userEnhance) await userEnhance(ctx)
+      // Re-run so route sync wraps any onAfterRouteChange set by base/user.
+      installed.enhanceApp(ctx as unknown as Parameters<typeof installed.enhanceApp>[0])
     },
   }
 }

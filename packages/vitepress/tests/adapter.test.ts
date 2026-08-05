@@ -55,6 +55,20 @@ describe('createVitePressRouterAdapter', () => {
   it('exposes linkComponent', () => {
     expect(adapter.linkComponent).toBeTruthy()
   })
+
+  it('uses VitePress keys in URLs when codes differ', () => {
+    const mapped = createVitePressRouterAdapter({
+      locales: [
+        { code: 'en-US', iso: 'en-US' },
+        { code: 'fr-FR', iso: 'fr-FR' },
+      ],
+      defaultLocale: 'en-US',
+      localeKeyToCode: { root: 'en-US', fr: 'fr-FR' },
+    })
+    expect(mapped.getLocaleFromPath('/fr/guide')).toBe('fr-FR')
+    expect(mapped.switchLocalePath('/guide', 'fr-FR')).toBe('/fr/guide')
+    expect(mapped.switchLocalePath('/fr/guide', 'en-US')).toBe('/guide')
+  })
 })
 
 describe('createI18nRoutingFromAdapter', () => {
@@ -82,7 +96,7 @@ describe('createI18nRoutingFromAdapter', () => {
     expect(revived({}, { path: '/guide/' }, 'fr')).toBe('/fr/guide/')
   })
 
-  it('preserves localeKeyToCode when built from adapter', () => {
+  it('preserves localeKeyToCode and uses VP keys in URLs', () => {
     const adapter = createVitePressRouterAdapter({
       locales: [
         { code: 'en-US', iso: 'en-US' },
@@ -93,7 +107,7 @@ describe('createI18nRoutingFromAdapter', () => {
     })
     const routing = createI18nRoutingFromAdapter(adapter)
     expect(routing.toString()).toContain('"fr-FR"')
-    expect(routing({}, { path: '/about' }, 'fr')).toBe('/fr-FR/about')
-    expect(routing({}, { path: '/fr-FR/about' }, 'root')).toBe('/about')
+    expect(routing({}, { path: '/about' }, 'fr')).toBe('/fr/about')
+    expect(routing({}, { path: '/fr/about' }, 'root')).toBe('/about')
   })
 })

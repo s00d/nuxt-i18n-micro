@@ -145,25 +145,34 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
   let debounceTimer: ReturnType<typeof setTimeout> | undefined
 
   const reloadInlineFromDisk = () => {
-    if (options.messages || options.routeMessages) return
     const loaded = loadTranslationBuckets({
       rootDir,
       translationDir,
       disablePageLocales,
     })
-    inlineRoot = loaded.root
-    inlineRoutes = loaded.routes
+    if (!options.messages) {
+      inlineRoot = loaded.root
+    }
+    if (!options.routeMessages) {
+      inlineRoutes = loaded.routes
+    }
   }
 
   return {
     name: 'vite-plugin-i18n-micro-vitepress',
     configResolved(config) {
       rootDir = config.root
-      // Prefer Vite JSON imports (code-split + HMR). Inline only when caller passed messages.
+      // Inline when caller passed messages and/or routeMessages.
+      // routeMessages alone still loads root dictionaries from translationDir.
       useInline = Boolean(options.messages || options.routeMessages)
-      if (useInline && !options.messages && options.routeMessages) {
-        reloadInlineFromDisk()
-        inlineRoutes = options.routeMessages
+      if (useInline) {
+        if (options.messages) inlineRoot = options.messages
+        if (options.routeMessages) inlineRoutes = options.routeMessages
+        if (!options.messages || !options.routeMessages) {
+          reloadInlineFromDisk()
+        }
+        if (options.messages) inlineRoot = options.messages
+        if (options.routeMessages) inlineRoutes = options.routeMessages
       }
     },
     configureServer(server) {

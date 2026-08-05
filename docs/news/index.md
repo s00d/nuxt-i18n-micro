@@ -10,7 +10,7 @@ outline: 'deep'
 
 **Date**: 2026-08-05
 
-**Package**: `@i18n-micro/vitepress@1.0.1`
+**Package**: `@i18n-micro/vitepress@1.0.0`
 
 New workspace package for VitePress docs sites: JSON dictionaries, `$t` / `<I18nT>` in markdown, path sync with VitePress `locales`, and optional `<I18nSwitcher>`. Complements (does not replace) built-in multi-locale markdown and `vitepress-i18n` theme chrome helpers.
 

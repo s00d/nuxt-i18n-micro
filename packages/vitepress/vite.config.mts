@@ -37,6 +37,7 @@ export default defineConfig({
         '@i18n-micro/types',
         '@i18n-micro/utils',
         '@i18n-micro/utils/parse-path',
+        '@i18n-micro/utils/deep-merge',
         '@i18n-micro/vue',
         'vue',
         'vitepress',

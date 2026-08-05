@@ -1,0 +1,15 @@
+{
+  "name": "@i18n-micro/vitepress-playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev .",
+    "build": "vitepress build .",
+    "preview": "vitepress preview ."
+  },
+  "devDependencies": {
+    "@i18n-micro/vitepress": "workspace:*",
+    "vitepress": "catalog:",
+    "vue": "catalog:"
+  }
+}

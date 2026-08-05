@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationDir": "./dist",
+    "sourceMap": true,
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "types": ["node"],
+    "jsx": "preserve",
+    "paths": {
+      "virtual:i18n-micro/config": ["./src/virtual-stubs/config.ts"],
+      "virtual:i18n-micro/messages": ["./src/virtual-stubs/messages.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "playground", "tests"]
+}

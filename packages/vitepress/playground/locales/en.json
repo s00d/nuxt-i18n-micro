@@ -1,0 +1,13 @@
+{
+  "greeting": "Hello, {name}!",
+  "cta": {
+    "readMore": "Read more"
+  },
+  "section": {
+    "title": "In-page translations"
+  },
+  "apples": "no apples | one apple | {count} apples",
+  "demo": {
+    "intro": "This string comes from locales/en.json via $t / I18nT."
+  }
+}

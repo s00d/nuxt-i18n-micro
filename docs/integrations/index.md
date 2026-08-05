@@ -33,6 +33,7 @@ Unlike the full Nuxt module, these packages:
 - **[Preact Package](./preact-package.md)** (`@i18n-micro/preact`) - For Preact applications
 - **[Solid Package](./solid-package.md)** (`@i18n-micro/solid`) - For SolidJS applications
 - **[Astro Package](./astro-package.md)** (`@i18n-micro/astro`) - For Astro applications with SSR support
+- **[VitePress Package](./vitepress-package.md)** (`@i18n-micro/vitepress`) - For VitePress docs (runtime `$t` / components / switcher)
 
 ### Utility Packages
 
@@ -286,6 +287,7 @@ For detailed setup instructions, see the documentation for your specific package
 - [React Package Documentation](./react-package.md)
 - [Solid Package Documentation](./solid-package.md)
 - [Astro Package Documentation](./astro-package.md)
+- [VitePress Package Documentation](./vitepress-package.md)
 
 ## Comparison with Nuxt Module
 
@@ -294,11 +296,11 @@ For detailed setup instructions, see the documentation for your specific package
 | Translation methods    | ✅             | ✅                   |
 | Components             | ✅             | ✅ (subset)          |
 | Router integration     | ✅ (automatic) | ✅ (via adapter)     |
-| SSR support            | ✅             | ✅ (Astro only)      |
+| SSR support            | ✅             | ✅ (Astro / VitePress prerender) |
 | DevTools               | ✅             | ✅                   |
-| Auto locale detection  | ✅             | ✅ (Astro only)      |
-| SEO meta tags          | ✅             | ✅ (Astro only)      |
-| File-based routing     | ✅             | ❌                   |
+| Auto locale detection  | ✅             | ✅ (Astro primarily) |
+| SEO meta tags          | ✅             | ✅ (Astro primarily) |
+| File-based routing     | ✅             | ❌ (VitePress uses its own `locales`) |
 | Nuxt-specific features | ✅             | ❌                   |
 
 ## License

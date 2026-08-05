@@ -22,6 +22,12 @@ The `@i18n-micro/astro` package provides a lightweight, high-performance interna
 - **DevTools Integration** - Optional development tools via Vite plugin
 - **SEO Optimized** - Automatic meta tags and hreflang generation
 
+::: tip Playground
+Astro SSR app with middleware, islands (Vue/React/Svelte), and DevTools UI:
+
+[`packages/astro/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/astro/playground) — `pnpm -C packages/astro dev`
+:::
+
 ## Installation
 
 Install the package using your preferred package manager:
@@ -3016,6 +3022,7 @@ const { t } = useI18n(Astro)
 
 ## Resources
 
+- **Playground**: [`packages/astro/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/astro/playground)
 - **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 - **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
 

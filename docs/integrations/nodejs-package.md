@@ -8,6 +8,12 @@ outline: 'deep'
 
 Use `@i18n-micro/node` to add i18n translations to any Node.js application, CLI tool, or backend service. This package provides the same translation logic as the Nuxt module, but for pure Node.js environments.
 
+::: tip Playground
+CLI script that loads a locales folder and exercises `t` / `tc` / routes / reload:
+
+[`packages/node/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node/playground) — `pnpm -C packages/node dev`
+:::
+
 ## 📦 Installation
 
 ```bash
@@ -540,6 +546,7 @@ export default defineEventHandler(async (event) => {
 
 ## 📚 Related Documentation
 
+- **[Playground](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node/playground)** - Runnable Node demo in the monorepo
 - **[Folder Structure](../guide/folder-structure.md)** - Learn about translation file organization
 - **[Server Side Translations](../guide/server-side-translations.md)** - Nuxt server-side usage
 - **[API Reference](../api/methods.md)** - Complete method documentation

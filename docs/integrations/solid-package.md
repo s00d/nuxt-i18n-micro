@@ -21,6 +21,12 @@ The `@i18n-micro/solid` package provides a lightweight, high-performance interna
 - **Router-agnostic** - Works with any router or without a router via `I18nRoutingStrategy` interface
 - **DevTools Integration** - Built-in DevTools support for managing translations
 
+::: tip Playground
+SolidJS demo with router adapter, pages, and `I18n*` components:
+
+[`packages/solid/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid/playground) — `pnpm -C packages/solid dev`
+:::
+
 ## Installation
 
 Install the package using your preferred package manager:
@@ -1337,7 +1343,7 @@ i18n.t('greeting', { invalid: 'value' }) // ⚠️ Type error
 
 ### Complete SPA Example
 
-See the playground implementation in `packages/solid/playground/src/` for a complete working example.
+See the [Solid playground](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid/playground) for a complete working example.
 
 ### Router Integration Example
 
@@ -1455,6 +1461,7 @@ const LocaleHandler: Component<{ params: { locale?: string }; children?: unknown
 
 ## Resources
 
+- **Playground**: [`packages/solid/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid/playground)
 - **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)
 - **Documentation**: [https://s00d.github.io/nuxt-i18n-micro/](https://s00d.github.io/nuxt-i18n-micro/)
 

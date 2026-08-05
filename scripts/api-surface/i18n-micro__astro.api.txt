@@ -150,6 +150,7 @@ member I18nIntegrationOptions.strategy?: Strategies | undefined
 member I18nIntegrationOptions.translationDir?: string | undefined
 member I18nIntegrationOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member I18nIntegrationOptions.types?: boolean | undefined
+member I18nIntegrationOptions.vueDevtools?: boolean | undefined
 interface I18nMiddlewareOptions
 member I18nMiddlewareOptions.autoDetect?: boolean | undefined
 member I18nMiddlewareOptions.defaultLocale: string

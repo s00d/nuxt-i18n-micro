@@ -124,6 +124,7 @@ Parts of the module you can switch off.
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `hreflangBaseLanguage` | `boolean` | `false` | Also emit a bare-language `hreflang` derived from each locale's `iso` (e.g. `es-ES` → also `es`). The first regional locale in `locales` claims the bare tag for that language. Routing `code` is never used — only `iso \|\| code`. |
+| `vueDevtools` | `boolean` | `true` | Register Vue DevTools inspector and timeline in dev (browser extension). Separate from the Nuxt DevTools custom tab. |
 | `localizedRouteNamePrefix` | `string` | `'localized-'` | Prefix prepended to localized route names (e.g. `'localized-index'`). Used internally to distinguish original routes from generated locale variants. |
 | `routeDisableMeta` | `Record<string, boolean \| string[]>` | — | Per-route meta tag disabling, extracted from `defineI18nRoute()` calls. Maps a route path to `true` (disable all meta) or an array of locale codes for which meta should be disabled. |
 | `missingWarn` | `boolean` | `true` | Show console warnings when a translation key is missing. |

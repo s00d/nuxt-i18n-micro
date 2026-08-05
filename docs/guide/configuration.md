@@ -55,6 +55,7 @@ The sections below explain how they work together; the
 | [`fallbackLocale`](/api/module-options) | `string` | `undefined (no fallback; returns the raw key)` | Global fallback locale code. |
 | [`localeCookie`](/api/module-options) | `string \| null` | `null` | Cookie name for persisting the user's locale preference across sessions. |
 | [`debug`](/api/module-options) | `boolean` | `false` | Enable verbose debug logging for locale detection, route generation, and translation loading. |
+| [`vueDevtools`](/api/module-options) | `boolean` | `true` | Register Vue DevTools inspector and timeline in dev (browser extension). |
 | [`globalLocaleRoutes`](/api/module-options) | `GlobalLocaleRoutes` | `{}` | Global route-level locale configuration. |
 | [`customRegexMatcher`](/api/module-options) | `string \| RegExp` | `undefined (uses built-in pattern based on locale codes)` | Custom regular expression (or its string source) for matching locale codes in URL segments. |
 | [`noPrefixRedirect`](/api/module-options) | `boolean` | `false` | For `no_prefix` strategy: enable redirect from a locale-prefixed URL (e.g. `/en/about`) to the unprefixed version (`/about`). |

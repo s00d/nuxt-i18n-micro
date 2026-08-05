@@ -99,6 +99,33 @@ member TranslationStorage.translations: Map<string, Translations>
 function useTranslationHelper: (storage?: TranslationStorage) => { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
 function withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
+# ./devtools (src/devtools.ts)
+function buildInspectorState: (snapshot: I18nDevtoolsStateSnapshot) => Record<string, Array<{ key: string; value: unknown; editable?: boolean; }>>
+function buildInspectorTree: (options: BuildInspectorTreeOptions) => I18nDevtoolsInspectorNode[]
+interface BuildInspectorTreeOptions
+member BuildInspectorTreeOptions.activeLocale: string
+member BuildInspectorTreeOptions.activeRouteName: string
+member BuildInspectorTreeOptions.activeTranslations?: Record<string, unknown> | undefined
+member BuildInspectorTreeOptions.configuredLocales: Locale[]
+member BuildInspectorTreeOptions.nodeId: string
+member BuildInspectorTreeOptions.storage: TranslationStorage
+function countTranslationKeys: (translations: Translations | Record<string, unknown> | undefined) => number
+function flattenTranslationNode: (obj: Record<string, unknown>, path?: string) => I18nDevtoolsInspectorNode[]
+interface I18nDevtoolsInspectorNode
+member I18nDevtoolsInspectorNode.children?: I18nDevtoolsInspectorNode[] | undefined
+member I18nDevtoolsInspectorNode.id: string
+member I18nDevtoolsInspectorNode.label: string
+member I18nDevtoolsInspectorNode.tags?: { label: string; textColor: number; backgroundColor: number; tooltip?: string; }[] | undefined
+interface I18nDevtoolsStateSnapshot
+member I18nDevtoolsStateSnapshot.cachedChunks: number
+member I18nDevtoolsStateSnapshot.defaultLocale?: string | undefined
+member I18nDevtoolsStateSnapshot.fallbackLocale?: string | undefined
+member I18nDevtoolsStateSnapshot.locale: string
+member I18nDevtoolsStateSnapshot.locales: { code: string; displayName?: string; disabled?: boolean; }[]
+member I18nDevtoolsStateSnapshot.routeName: string
+member I18nDevtoolsStateSnapshot.strategy?: string | undefined
+function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "locale" | "chunk" | "key"; locale?: string; routeName?: string; path?: string; }
+
 # ./helpers (src/helpers.ts)
 function collectTranslationPaths: (obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void
 const defaultPlural: PluralFunc

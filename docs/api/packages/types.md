@@ -32,9 +32,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 46 members |
-| `ModuleOptionsExtend` | interface | 49 members |
-| `ModulePrivateOptionsExtend` | interface | 49 members |
+| `ModuleOptions` | interface | 47 members |
+| `ModuleOptionsExtend` | interface | 50 members |
+| `ModulePrivateOptionsExtend` | interface | 50 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -113,7 +113,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModuleOptions</code> — 46 members</summary>
+<summary><code>ModuleOptions</code> — 47 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -163,10 +163,11 @@ import { /* … */ } from '@i18n-micro/types'
 | `translationDir?` | `string \| undefined` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
 | `types?` | `boolean \| undefined` |
+| `vueDevtools?` | `boolean \| undefined` |
 
 </details>
 <details>
-<summary><code>ModuleOptionsExtend</code> — 49 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 50 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -219,10 +220,11 @@ import { /* … */ } from '@i18n-micro/types'
 | `translationPayloadMode?` | `"premerged" \| "source" \| undefined` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
 | `types?` | `boolean \| undefined` |
+| `vueDevtools?` | `boolean \| undefined` |
 
 </details>
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 49 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 50 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -275,6 +277,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `translationDir` | `string` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
 | `types?` | `boolean \| undefined` |
+| `vueDevtools?` | `boolean \| undefined` |
 
 </details>
 <details>

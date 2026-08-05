@@ -310,4 +310,37 @@ describe('createVitePressI18n', () => {
     expect(app1.use).toHaveBeenCalledTimes(1)
     expect(app2.use).toHaveBeenCalledTimes(1)
   })
+
+  it('does not re-set routing strategy on re-enhance (avoids clobbering other apps)', () => {
+    const { enhanceApp, plugin } = createVitePressI18n({
+      locale: 'en',
+      defaultLocale: 'en',
+      locales: [{ code: 'en' }, { code: 'fr' }],
+      messages: { en: { hi: 'Hi' }, fr: { hi: 'Salut' } },
+      syncWithVitePress: false,
+    })
+    const setSpy = vi.spyOn(plugin, 'setRoutingStrategy')
+
+    const makeApp = () => ({
+      use: vi.fn(),
+      provide: vi.fn(),
+      config: { globalProperties: {} as Record<string, unknown> },
+      component: vi.fn(),
+    })
+    const makeRouter = (path: string) => ({
+      route: { path },
+      go: vi.fn(),
+      onAfterRouteChange: undefined as ((to: string) => unknown) | undefined,
+    })
+
+    const app1 = makeApp()
+    const app2 = makeApp()
+    enhanceApp({ app: app1 as never, router: makeRouter('/') as never })
+    enhanceApp({ app: app2 as never, router: makeRouter('/fr/') as never })
+    const afterTwo = setSpy.mock.calls.length
+    expect(afterTwo).toBe(2)
+
+    enhanceApp({ app: app1 as never, router: makeRouter('/') as never })
+    expect(setSpy.mock.calls.length).toBe(afterTwo)
+  })
 })

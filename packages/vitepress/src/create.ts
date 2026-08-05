@@ -126,9 +126,8 @@ export function createVitePressI18n(options: VitePressI18nOptions): CreateVitePr
       state = { adapter, boundSyncHandler: null, chainedPrevious: undefined }
       byApp.set(app, state)
     }
-    else {
-      plugin.setRoutingStrategy(state.adapter)
-    }
+    // Re-enhance: do not call setRoutingStrategy — vue's setter targets last-installed
+    // currentApp and would overwrite another app's router injection.
     lastAdapter = state.adapter
 
     if (!syncWithVitePress) return

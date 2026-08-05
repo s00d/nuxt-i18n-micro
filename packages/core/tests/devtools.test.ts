@@ -148,4 +148,21 @@ describe('devtools helpers', () => {
       }),
     ).toBe(4)
   })
+
+  test('buildInspectorTree tags index chunk when activeRouteName is empty', () => {
+    const storage = createStorage({
+      'en:index': { hello: 'Hello' },
+    })
+
+    const root = buildInspectorTree({
+      nodeId: 'root',
+      storage,
+      configuredLocales: [{ code: 'en' }],
+      activeLocale: 'en',
+      activeRouteName: '',
+    })
+
+    expect(root.find((node) => node.id === 'active')?.label).toBe('Active (en:index)')
+    expect(root.find((node) => node.id === 'chunk|en|index')?.tags?.[0]?.label).toBe('Active')
+  })
 })

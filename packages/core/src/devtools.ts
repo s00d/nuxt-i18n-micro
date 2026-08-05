@@ -162,13 +162,15 @@ export function flattenTranslationNode(obj: Record<string, unknown>, parentSegme
 
 export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevtoolsInspectorNode[] {
   const parsed = parseInspectorNodeId(options.nodeId)
+  const activeLocale = options.activeLocale
+  const activeRoute = options.activeRouteName || 'index'
 
   if (parsed.kind === 'root') {
     const locales = collectLocaleCodes(options.storage, options.configuredLocales)
     const nodes: I18nDevtoolsInspectorNode[] = [
       {
         id: NODE_ACTIVE,
-        label: `Active (${options.activeLocale}:${options.activeRouteName || 'index'})`,
+        label: `Active (${activeLocale}:${activeRoute})`,
         tags: [ACTIVE_TAG],
       },
     ]
@@ -180,7 +182,7 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
       nodes.push({
         id: `${PREFIX_LOCALE}${code}`,
         label: configured?.displayName ? `${code} (${configured.displayName})` : code,
-        tags: code === options.activeLocale ? [{ ...ACTIVE_TAG, tooltip: 'Active locale' }] : undefined,
+        tags: code === activeLocale ? [{ ...ACTIVE_TAG, tooltip: 'Active locale' }] : undefined,
       })
 
       // Flat chunk nodes (not nested): Vue DevTools selection is unreliable for nested
@@ -189,7 +191,7 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
         nodes.push({
           id: `${PREFIX_CHUNK}${code}|${routeName}`,
           label: `${code}:${routeName}`,
-          tags: activeChunkTag(code, routeName, options.activeLocale, options.activeRouteName),
+          tags: activeChunkTag(code, routeName, activeLocale, activeRoute),
         })
       }
     }
@@ -198,9 +200,7 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
   }
 
   if (parsed.kind === 'active') {
-    const locale = options.activeLocale
-    const routeName = options.activeRouteName || 'index'
-    return flattenTranslationNode(options.activeTranslations ?? {}).map((node) => withKeyPrefix(locale, routeName, node))
+    return flattenTranslationNode(options.activeTranslations ?? {}).map((node) => withKeyPrefix(activeLocale, activeRoute, node))
   }
 
   if (parsed.kind === 'locale' && parsed.locale) {
@@ -209,7 +209,7 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
       id: `${PREFIX_CHUNK}${locale}|${routeName}`,
       label: routeName,
       children: [],
-      tags: activeChunkTag(locale, routeName, options.activeLocale, options.activeRouteName),
+      tags: activeChunkTag(locale, routeName, activeLocale, activeRoute),
     }))
   }
 
@@ -225,7 +225,7 @@ export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevt
     const routeName = parsed.routeName || 'index'
     const chunk = options.storage.translations.get(`${locale}:${routeName}`) as Record<string, unknown> | undefined
     const segments = parsed.segments ?? []
-    const isActiveContext = options.activeLocale === locale && (options.activeRouteName || 'index') === routeName
+    const isActiveContext = activeLocale === locale && activeRoute === routeName
     const source = isActiveContext ? (options.activeTranslations ?? chunk ?? {}) : (chunk ?? {})
 
     return flattenTranslationNode(source, segments).map((node) => withKeyPrefix(locale, routeName, node))

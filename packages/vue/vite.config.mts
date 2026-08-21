@@ -4,7 +4,13 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
 function dualPackageBeforeWriteFile(filePath: string, content: string) {
-  if (!filePath.endsWith('index.d.ts')) {
+  // Only top-level entry declarations in dist/ (index.d.ts, router.d.ts).
+  const parent = dirname(filePath)
+  const file = filePath.split(/[/\\]/).pop() ?? ''
+  if (!parent.endsWith('dist')) {
+    return { filePath, content }
+  }
+  if (file !== 'index.d.ts' && file !== 'router.d.ts') {
     return { filePath, content }
   }
   const ctsPath = filePath.replace(/\.d\.ts$/, '.d.cts')
@@ -16,13 +22,15 @@ function dualPackageBeforeWriteFile(filePath: string, content: string) {
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(import.meta.dirname, 'src/index.ts'),
-      name: '@i18n-micro/vue',
+      entry: {
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        router: resolve(import.meta.dirname, 'src/router/index.ts'),
+      },
       formats: ['cjs', 'es'],
-      fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
+      fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: ['@i18n-micro/core', '@i18n-micro/types', 'vue', 'vue-router'],
+      external: ['@i18n-micro/core', '@i18n-micro/types', '@i18n-micro/utils', 'vue', 'vue-router'],
       output: {
         exports: 'named',
       },

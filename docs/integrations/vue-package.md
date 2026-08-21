@@ -197,7 +197,7 @@ For applications with routing:
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createI18n } from '@i18n-micro/vue'
-import { createVueRouterAdapter } from '@i18n-micro/vue'
+import { createVueRouterAdapter } from '@i18n-micro/vue/router'
 import App from './App.vue'
 import { routes, localesConfig, defaultLocale } from './app-config'
 
@@ -1159,7 +1159,7 @@ import { renderToString } from 'vue/server-renderer'
 import { createSSRApp } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { createI18n } from '@i18n-micro/vue'
-import { createVueRouterAdapter } from '@i18n-micro/vue'
+import { createVueRouterAdapter } from '@i18n-micro/vue/router'
 import App from './App.vue'
 import { routes, localesConfig, defaultLocale } from './app-config'
 
@@ -1223,7 +1223,7 @@ export async function render(url: string) {
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { createI18n, I18nLocalesKey, I18nDefaultLocaleKey } from '@i18n-micro/vue'
-import { createVueRouterAdapter } from '@i18n-micro/vue'
+import { createVueRouterAdapter } from '@i18n-micro/vue/router'
 import App from './App.vue'
 import { routes, localesConfig, defaultLocale } from './app-config'
 

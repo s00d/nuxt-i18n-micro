@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/vitepress",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "VitePress bindings for i18n-micro — runtime dictionaries, MD components, and locale switcher.",
   "keywords": [
     "documentation",

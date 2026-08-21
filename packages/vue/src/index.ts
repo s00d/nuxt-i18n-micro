@@ -13,12 +13,9 @@ export type { I18nPlugin } from './plugin'
 export { createI18n } from './plugin'
 export { type UseI18nOptions, useI18n } from './use-i18n'
 
-// Router integration - should be implemented in playground
-
 // Re-export utilities from core
 export { defaultPlural, FormatService, interpolate } from '@i18n-micro/core'
 // Re-export types from @i18n-micro/types
 export type { CleanTranslation, Getter, Locale, LocaleCode, Params, PluralFunc, Translations } from '@i18n-micro/types'
-export { createVueRouterAdapter } from './router/adapter'
-// Router abstraction
+// Router abstraction (vue-router adapter lives in `@i18n-micro/vue/router`)
 export type { I18nRoutingStrategy } from './router/types'

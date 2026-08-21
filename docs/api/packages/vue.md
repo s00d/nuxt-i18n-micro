@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/vue`
 
-27 exports across 1 entry point.
+28 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -20,7 +20,6 @@ import { /* … */ } from '@i18n-micro/vue'
 | --- | --- | --- |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createI18n` | function | `(options: CreateI18nOptions) => I18nPlugin` |
-| `createVueRouterAdapter` | function | `(router: Router, locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
@@ -43,23 +42,11 @@ import { /* … */ } from '@i18n-micro/vue'
 | `UseI18nOptions` | interface | 2 members |
 | `useLocaleHead` | function | `(options?: UseLocaleHeadOptions) => { metaObject: import("vue/dist/vue").Ref<{ htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }, MetaObject \| { htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }>; updateMeta: (canonicalQueryWhitelist?: string[]) => void; }` |
 | `UseLocaleHeadOptions` | interface | 5 members |
-| `VueI18n` | class | 51 members |
+| `VueI18n` | class | 52 members |
 | `VueI18nOptions` | interface | 6 members |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
-<details>
-<summary><code>I18nRoutingStrategy</code> — 6 members</summary>
-
-| Member | Type |
-| --- | --- |
-| `getCurrentPath` | `() => string` |
-| `getRoute?` | `(() => { fullPath: string; query: Record<string, unknown>; }) \| undefined` |
-| `linkComponent?` | `string \| Component \| undefined` |
-| `push` | `(target: { path: string; }) => void` |
-| `replace` | `(target: { path: string; }) => void` |
-| `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
-
-</details>
+<code>I18nRoutingStrategy</code> — 6 members, identical to [`I18nRoutingStrategy`](/api/packages/vitepress).
 <details>
 <summary><code>Locale</code> — 11 members</summary>
 
@@ -93,7 +80,7 @@ import { /* … */ } from '@i18n-micro/vue'
 
 </details>
 <details>
-<summary><code>VueI18n</code> — 51 members</summary>
+<summary><code>VueI18n</code> — 52 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -105,6 +92,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `Ref<string, string>` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("packages/vue/src/composer").VueI18n & M>) => import("packages/vue/src/composer").VueI18n & M` |
 | `fallbackLocale` | `Ref<string, string>` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -151,5 +139,17 @@ import { /* … */ } from '@i18n-micro/vue'
 
 </details>
 <code>VueI18nOptions</code> — 6 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+## `@i18n-micro/vue/router`
+
+```ts
+import { /* … */ } from '@i18n-micro/vue/router'
+```
+
+| Export | Kind | Signature |
+| --- | --- | --- |
+| `createVueRouterAdapter` | function | `(router: Router, locales: Locale[], defaultLocale: string) => I18nRoutingStrategy` |
+| `I18nRoutingStrategy` | interface | 6 members |
+
+<code>I18nRoutingStrategy</code> — 6 members, identical to [`I18nRoutingStrategy`](/api/packages/vitepress).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

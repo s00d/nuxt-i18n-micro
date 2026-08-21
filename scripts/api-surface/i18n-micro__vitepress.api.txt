@@ -1,0 +1,244 @@
+# . (src/index.ts)
+type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
+function createI18n: (options: CreateI18nOptions) => CreateI18nResult
+interface CreateI18nOptions
+member CreateI18nOptions.base?: string | undefined
+member CreateI18nOptions.defaultLocale?: string | undefined
+member CreateI18nOptions.fallbackLocale?: string | undefined
+member CreateI18nOptions.locale: string
+member CreateI18nOptions.localeKeyToCode?: Record<string, string> | undefined
+member CreateI18nOptions.locales?: Locale[] | undefined
+member CreateI18nOptions.messages?: Record<string, Translations> | undefined
+member CreateI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member CreateI18nOptions.missingWarn?: boolean | undefined
+member CreateI18nOptions.plural?: PluralFunc | undefined
+member CreateI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member CreateI18nOptions.syncWithVitePress?: boolean | undefined
+type CreateI18nResult: I18nPlugin & PathMethods & { /** Same as `.global` (VueI18n + path methods). */ i18n: I18nPlugin['global'] & PathMethods enhanceApp: (ctx: { app: App; router: VitePressRouterLike; siteData?: Ref<VitePressSiteDataLike> | VitePressSiteDataLike }) => void }
+const defaultPlural: PluralFunc
+class FormatService
+member FormatService.clearCache: () => void
+member FormatService.dateCache: private any
+member FormatService.datetimeFormats: private any
+member FormatService.formatDate: (value: Date | number | string, locale: string, options?: Intl.DateTimeFormatOptions) => string
+member FormatService.formatNumber: (value: number, locale: string, options?: Intl.NumberFormatOptions) => string
+member FormatService.formatRelativeTime: (value: Date | number | string, locale: string, options?: Intl.RelativeTimeFormatOptions) => string
+member FormatService.getDateTimeFormats: () => DateTimeFormatsConfig
+member FormatService.getDateTimeFormatter: (locale: string, options?: Intl.DateTimeFormatOptions) => Intl.DateTimeFormat
+member FormatService.getNumberFormats: () => NumberFormatsConfig
+member FormatService.getNumberFormatter: (locale: string, options?: Intl.NumberFormatOptions) => Intl.NumberFormat
+member FormatService.getRelativeTimeFormatter: (locale: string, options?: Intl.RelativeTimeFormatOptions) => Intl.RelativeTimeFormat
+member FormatService.numberCache: private any
+member FormatService.numberFormats: private any
+member FormatService.relativeCache: private any
+member FormatService.resolveDateTimeFormat: (locale: string, key: string) => Intl.DateTimeFormatOptions | undefined
+member FormatService.resolveNumberFormat: (locale: string, key: string) => Intl.NumberFormatOptions | undefined
+member FormatService.setDateTimeFormats: (formats: DateTimeFormatsConfig) => void
+member FormatService.setNumberFormats: (formats: NumberFormatsConfig) => void
+member FormatService.new: (options?: FormatServiceOptions | undefined): FormatService
+function getLocaleFromPath: (path: string, localeCodes: string[], defaultLocale: string, localeKeyToCode?: Record<string, string>, base?: string) => string
+type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
+const I18nGroup: DefineComponent<I18nGroupProps, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<I18nGroupProps> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, false, {}, any>
+const I18nLink: DefineComponent<ExtractPropTypes<{ to: { type: PropType<string | { path?: string; }>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: string | { path?: string; }, locale?: string) => string | { path?: string; }>; default: undefined; }; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ to: { type: PropType<string | { path?: string; }>; required: true; }; activeStyle: { type: PropType<CSSProperties>; default: () => {}; }; localeRoute: { type: PropType<(to: string | { path?: string; }, locale?: string) => string | { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { activeStyle: CSSProperties; localeRoute: (to: string | { path?: string; }, locale?: string) => string | { path?: string; }; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+type I18nPlugin: Plugin_2 & { global: VueI18n; setRoutingStrategy: (strategy: I18nRoutingStrategy) => void; }
+interface I18nRoutingStrategy
+member I18nRoutingStrategy.getCurrentPath: () => string
+member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
+member I18nRoutingStrategy.linkComponent?: string | Component | undefined
+member I18nRoutingStrategy.push: (target: { path: string; }) => void
+member I18nRoutingStrategy.replace: (target: { path: string; }) => void
+member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined
+const I18nSwitcher: DefineComponent<ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDisabledLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string | (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string | null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string | { path?: string; }, locale?: string) => string | { path?: string; }>; default: undefined; }; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ customLabels: { type: PropType<Record<string, string>>; default: () => {}; }; customWrapperStyle: { type: PropType<CSSProperties>; default: () => {}; }; customButtonStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDropdownStyle: { type: PropType<CSSProperties>; default: () => {}; }; customItemStyle: { type: PropType<CSSProperties>; default: () => {}; }; customLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customActiveLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customDisabledLinkStyle: { type: PropType<CSSProperties>; default: () => {}; }; customIconStyle: { type: PropType<CSSProperties>; default: () => {}; }; locales: { type: PropType<Locale[]>; default: undefined; }; currentLocale: { type: PropType<string | (() => string)>; default: undefined; }; getLocaleName: { type: PropType<() => string | null>; default: undefined; }; switchLocale: { type: PropType<(locale: string) => void>; default: undefined; }; localeRoute: { type: PropType<(to: string | { path?: string; }, locale?: string) => string | { path?: string; }>; default: undefined; }; }>> & Readonly<{}>, { localeRoute: (to: string | { path?: string; }, locale?: string) => string | { path?: string; }; customLabels: Record<string, string>; customWrapperStyle: CSSProperties; customButtonStyle: CSSProperties; customDropdownStyle: CSSProperties; customItemStyle: CSSProperties; customLinkStyle: CSSProperties; customActiveLinkStyle: CSSProperties; customDisabledLinkStyle: CSSProperties; customIconStyle: CSSProperties; locales: Locale[]; currentLocale: string | (() => string); getLocaleName: () => string | null; switchLocale: (locale: string) => void; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const I18nT: DefineComponent<ExtractPropTypes<{ keypath: { type: PropType<TranslationKey>; required: true; }; plural: { type: PropType<number | string>; }; tag: { type: PropType<string>; default: string; }; params: { type: PropType<Record<string, string | number | boolean>>; default: () => {}; }; defaultValue: { type: PropType<string>; default: string; }; html: { type: PropType<boolean>; default: boolean; }; hideIfEmpty: { type: PropType<boolean>; default: boolean; }; customPluralRule: { type: PropType<PluralFunc>; default: null; }; number: { type: PropType<number | string>; }; date: { type: PropType<Date | string | number>; }; relativeDate: { type: PropType<Date | string | number>; }; }>, () => string | VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ keypath: { type: PropType<TranslationKey>; required: true; }; plural: { type: PropType<number | string>; }; tag: { type: PropType<string>; default: string; }; params: { type: PropType<Record<string, string | number | boolean>>; default: () => {}; }; defaultValue: { type: PropType<string>; default: string; }; html: { type: PropType<boolean>; default: boolean; }; hideIfEmpty: { type: PropType<boolean>; default: boolean; }; customPluralRule: { type: PropType<PluralFunc>; default: null; }; number: { type: PropType<number | string>; }; date: { type: PropType<Date | string | number>; }; relativeDate: { type: PropType<Date | string | number>; }; }>> & Readonly<{}>, { html: boolean; tag: string; params: Record<string, string | number | boolean>; defaultValue: string; hideIfEmpty: boolean; customPluralRule: PluralFunc; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+function interpolate: (template: string, params: Params) => string
+interface Locale
+member Locale.baseDefault?: boolean | undefined
+member Locale.baseUrl?: string | undefined
+member Locale.code: string
+member Locale.dir?: "ltr" | "rtl" | "auto" | undefined
+member Locale.disabled?: boolean | undefined
+member Locale.displayName?: string | undefined
+member Locale.fallbackLocale?: string | undefined
+member Locale.iso?: string | undefined
+member Locale.og?: string | undefined
+member Locale.seo?: boolean | undefined
+member Locale.[string]: unknown
+type LocaleCode: string
+function messagesFromGlob: (modules: Record<string, { default: Translations; } | Translations>) => Record<string, Translations>
+type Params: Record<string, string | number | boolean>
+type PathMethods: Pick< VitePressRouterAdapter, 'localizePath' | 'switchLocalePath' | 'getLocaleFromPath' | 'removeLocaleFromPath' | 'routeNameFromPath' >
+type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+function routeNameFromPath: (path: string, localeCodes: string[], defaultLocale?: string, localeKeyToCode?: Record<string, string>, base?: string) => string
+function stripSiteBase: (path: string, base?: string) => string
+interface Translations
+member Translations.[string]: unknown
+function useI18n: (options?: UseI18nOptions) => { instance: VueI18n; locale: WritableComputedRef<string, string>; getLocales: () => Locale[]; defaultLocale: () => string; getLocaleName: () => string | null; localeRoute: (to: string | { path?: string; }, localeCode?: string) => string | { path?: string; }; localePath: (to: string | { path?: string; }, locale?: string) => string; switchLocale: (newLocale: string) => void; t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: { (value: number, options?: Intl.NumberFormatOptions): string; (value: number, key: string, overrides?: Intl.NumberFormatOptions): string; (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string; }; td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeContext?: unknown) => boolean; resolveTranslations: (routeContext?: unknown) => Translations; setTranslation: (key: TranslationKey, value: unknown) => void; setRoute: (routeName: string) => void; getRoute: () => string; getLocale: () => string; addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; mergeTranslations: (locale: string, routeName: string, translations: Translations) => void; clearCache: () => void; }
+interface UseI18nOptions
+member UseI18nOptions.defaultLocale?: string | undefined
+member UseI18nOptions.locales?: Locale[] | undefined
+interface VirtualI18nConfig
+member VirtualI18nConfig.base?: string | undefined
+member VirtualI18nConfig.defaultLocale: string
+member VirtualI18nConfig.disablePageLocales: boolean
+member VirtualI18nConfig.fallbackLocale: string
+member VirtualI18nConfig.localeCodes: string[]
+member VirtualI18nConfig.localeKeyToCode: Record<string, string>
+member VirtualI18nConfig.locales: Locale[]
+member VirtualI18nConfig.missingWarn: boolean
+member VirtualI18nConfig.syncWithVitePress: boolean
+member VirtualI18nConfig.translationDir: string
+interface VitePressSiteDataLike
+member VitePressSiteDataLike.locales?: Record<string, { lang?: string; link?: string; label?: string; }> | undefined
+interface VitePressUserConfigLike
+member VitePressUserConfigLike.base?: string | undefined
+member VitePressUserConfigLike.locales?: Record<string, unknown> | undefined
+member VitePressUserConfigLike.themeConfig?: Record<string, unknown> | null | undefined
+member VitePressUserConfigLike.transformHead?: ((...args: any[]) => any) | undefined
+member VitePressUserConfigLike.transformPageData?: ((...args: any[]) => any) | undefined
+member VitePressUserConfigLike.vite?: { [key: string]: unknown; plugins?: Plugin[] | Plugin[][]; ssr?: { noExternal?: string | true | Array<string | RegExp>; [key: string]: unknown; }; } | undefined
+member VitePressUserConfigLike.[string]: unknown
+interface VueI18nOptions
+member VueI18nOptions.fallbackLocale?: string | undefined
+member VueI18nOptions.locale: string
+member VueI18nOptions.messages?: Record<string, Translations> | undefined
+member VueI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member VueI18nOptions.missingWarn?: boolean | undefined
+member VueI18nOptions.plural?: PluralFunc | undefined
+interface WithI18nOptions
+member WithI18nOptions.base?: string | undefined
+member WithI18nOptions.canonicalQueryWhitelist?: string[] | undefined
+member WithI18nOptions.defaultLocale?: string | undefined
+member WithI18nOptions.disablePageLocales?: boolean | undefined
+member WithI18nOptions.fallbackLocale?: string | undefined
+member WithI18nOptions.hreflangBaseLanguage?: boolean | undefined
+member WithI18nOptions.i18nRouting?: boolean | undefined
+member WithI18nOptions.locale: string
+member WithI18nOptions.localeKeyToCode?: Record<string, string> | undefined
+member WithI18nOptions.locales?: Locale[] | undefined
+member WithI18nOptions.messages?: Record<string, Translations> | undefined
+member WithI18nOptions.meta?: boolean | undefined
+member WithI18nOptions.metaBaseUrl?: string | undefined
+member WithI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member WithI18nOptions.missingWarn?: boolean | undefined
+member WithI18nOptions.plural?: PluralFunc | undefined
+member WithI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member WithI18nOptions.syncWithVitePress?: boolean | undefined
+member WithI18nOptions.translationDir?: string | undefined
+member WithI18nOptions.warnOnLocaleMismatch?: boolean | undefined
+
+# ./config (src/config.ts)
+function buildVitePressLocaleHead: (options: BuildVitePressLocaleHeadOptions) => VitePressLocaleHeadObject
+interface BuildVitePressLocaleHeadOptions
+member BuildVitePressLocaleHeadOptions.addDirAttribute?: boolean | undefined
+member BuildVitePressLocaleHeadOptions.addSeoAttributes?: boolean | undefined
+member BuildVitePressLocaleHeadOptions.base?: string | undefined
+member BuildVitePressLocaleHeadOptions.canonicalQueryWhitelist?: string[] | undefined
+member BuildVitePressLocaleHeadOptions.defaultLocale: string
+member BuildVitePressLocaleHeadOptions.hreflangBaseLanguage?: boolean | undefined
+member BuildVitePressLocaleHeadOptions.identifierAttribute?: string | undefined
+member BuildVitePressLocaleHeadOptions.localeKeyToCode?: Record<string, string> | undefined
+member BuildVitePressLocaleHeadOptions.locales: Locale[]
+member BuildVitePressLocaleHeadOptions.metaBaseUrl?: string | undefined
+member BuildVitePressLocaleHeadOptions.missingWarn?: boolean | undefined
+member BuildVitePressLocaleHeadOptions.path: string
+function buildVitePressLocales: (locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>
+interface BuildVitePressLocalesOptions
+member BuildVitePressLocalesOptions.localeKeyToCode?: Record<string, string> | undefined
+function relativePathToRoutePath: (relativePath: string) => string
+interface VirtualI18nConfig
+member VirtualI18nConfig.base?: string | undefined
+member VirtualI18nConfig.defaultLocale: string
+member VirtualI18nConfig.disablePageLocales: boolean
+member VirtualI18nConfig.fallbackLocale: string
+member VirtualI18nConfig.localeCodes: string[]
+member VirtualI18nConfig.localeKeyToCode: Record<string, string>
+member VirtualI18nConfig.locales: Locale[]
+member VirtualI18nConfig.missingWarn: boolean
+member VirtualI18nConfig.syncWithVitePress: boolean
+member VirtualI18nConfig.translationDir: string
+type VitePressHeadTuple: [string, Record<string, string>]
+interface VitePressLocaleEntry
+member VitePressLocaleEntry.label: string
+member VitePressLocaleEntry.lang: string
+member VitePressLocaleEntry.link?: string | undefined
+interface VitePressLocaleHeadObject
+member VitePressLocaleHeadObject.head: VitePressHeadTuple[]
+member VitePressLocaleHeadObject.htmlAttrs: { lang?: string; dir?: "ltr" | "rtl" | "auto"; }
+interface VitePressUserConfigLike
+member VitePressUserConfigLike.base?: string | undefined
+member VitePressUserConfigLike.locales?: Record<string, unknown> | undefined
+member VitePressUserConfigLike.themeConfig?: Record<string, unknown> | null | undefined
+member VitePressUserConfigLike.transformHead?: ((...args: any[]) => any) | undefined
+member VitePressUserConfigLike.transformPageData?: ((...args: any[]) => any) | undefined
+member VitePressUserConfigLike.vite?: { [key: string]: unknown; plugins?: Plugin[] | Plugin[][]; ssr?: { noExternal?: string | true | Array<string | RegExp>; [key: string]: unknown; }; } | undefined
+member VitePressUserConfigLike.[string]: unknown
+function warnLocaleMismatch: (config: VitePressUserConfigLike, options: WithI18nOptions) => void
+function withI18n: <T extends VitePressUserConfigLike>(config: T, options: WithI18nOptions) => T
+interface WithI18nOptions
+member WithI18nOptions.base?: string | undefined
+member WithI18nOptions.canonicalQueryWhitelist?: string[] | undefined
+member WithI18nOptions.defaultLocale?: string | undefined
+member WithI18nOptions.disablePageLocales?: boolean | undefined
+member WithI18nOptions.fallbackLocale?: string | undefined
+member WithI18nOptions.hreflangBaseLanguage?: boolean | undefined
+member WithI18nOptions.i18nRouting?: boolean | undefined
+member WithI18nOptions.locale: string
+member WithI18nOptions.localeKeyToCode?: Record<string, string> | undefined
+member WithI18nOptions.locales?: Locale[] | undefined
+member WithI18nOptions.messages?: Record<string, Translations> | undefined
+member WithI18nOptions.meta?: boolean | undefined
+member WithI18nOptions.metaBaseUrl?: string | undefined
+member WithI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member WithI18nOptions.missingWarn?: boolean | undefined
+member WithI18nOptions.plural?: PluralFunc | undefined
+member WithI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
+member WithI18nOptions.syncWithVitePress?: boolean | undefined
+member WithI18nOptions.translationDir?: string | undefined
+member WithI18nOptions.warnOnLocaleMismatch?: boolean | undefined
+
+# ./node (src/node.ts)
+function buildVitePressLocales: (locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>
+interface BuildVitePressLocalesOptions
+member BuildVitePressLocalesOptions.localeKeyToCode?: Record<string, string> | undefined
+function createI18n: (options: CreateI18nOptions) => NodeI18n
+interface CreateI18nOptions
+member CreateI18nOptions.base?: string | undefined
+member CreateI18nOptions.defaultLocale?: string | undefined
+member CreateI18nOptions.disablePageLocales?: boolean | undefined
+member CreateI18nOptions.fallbackLocale?: string | undefined
+member CreateI18nOptions.locale: string
+member CreateI18nOptions.localeKeyToCode?: Record<string, string> | undefined
+member CreateI18nOptions.locales?: Locale[] | string[] | undefined
+member CreateI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member CreateI18nOptions.missingWarn?: boolean | undefined
+member CreateI18nOptions.plural?: PluralFunc | undefined
+member CreateI18nOptions.translationDir?: string | undefined
+interface I18nOptions
+member I18nOptions.disablePageLocales?: boolean | undefined
+member I18nOptions.fallbackLocale?: string | undefined
+member I18nOptions.locale: string
+member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member I18nOptions.missingWarn?: boolean | undefined
+member I18nOptions.plural?: PluralFunc | undefined
+member I18nOptions.translationDir?: string | undefined
+interface LoadedTranslations
+member LoadedTranslations.root: Record<string, import("packages/types/dist/index").Translations>
+member LoadedTranslations.routes: Record<string, Record<string, import("packages/types/dist/index").Translations>>
+function loadRootTranslations: (dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>
+function loadTranslations: (dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>
+type NodeI18n: I18n & PathMethods
+interface VitePressLocaleEntry
+member VitePressLocaleEntry.label: string
+member VitePressLocaleEntry.lang: string
+member VitePressLocaleEntry.link?: string | undefined
+
+# ./theme (src/theme.ts)
+function defineI18nTheme: <T extends Theme>(base: T, options?: DefineI18nThemeOptions) => T
+interface DefineI18nThemeOptions
+member DefineI18nThemeOptions.config?: VirtualI18nConfig | undefined
+member DefineI18nThemeOptions.enhanceApp?: ((ctx: import("vitepress/types/index").EnhanceAppContext) => import("vitepress/types/shared").Awaitable<void>) | undefined
+member DefineI18nThemeOptions.localeKeyToCode?: Record<string, string> | undefined
+member DefineI18nThemeOptions.messages?: Record<string, Translations> | undefined
+member DefineI18nThemeOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
+member DefineI18nThemeOptions.plural?: PluralFunc | undefined
+member DefineI18nThemeOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined

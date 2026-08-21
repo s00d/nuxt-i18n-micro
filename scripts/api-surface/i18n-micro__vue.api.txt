@@ -1,7 +1,6 @@
 # . (src/index.ts)
 type CleanTranslation: string | number | boolean | Translations | PluralTranslations | null
 function createI18n: (options: CreateI18nOptions) => I18nPlugin
-function createVueRouterAdapter: (router: Router, locales: Locale[], defaultLocale: string) => I18nRoutingStrategy
 const defaultPlural: PluralFunc
 class FormatService
 member FormatService.clearCache: () => void
@@ -77,6 +76,7 @@ member VueI18n.addRouteTranslations: (locale: string, routeName: string, transla
 member VueI18n.addTranslations: (locale: string, translations: Translations, merge?: boolean) => void
 member VueI18n.clearCache: () => void
 member VueI18n.currentRoute: Ref<string, string>
+member VueI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("packages/vue/src/composer").VueI18n & M>) => import("packages/vue/src/composer").VueI18n & M
 member VueI18n.fallbackLocale: Ref<string, string>
 member VueI18n.formatter: FormatService
 member VueI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -127,3 +127,13 @@ member VueI18nOptions.messages?: Record<string, Translations> | undefined
 member VueI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member VueI18nOptions.missingWarn?: boolean | undefined
 member VueI18nOptions.plural?: PluralFunc | undefined
+
+# ./router (src/router/index.ts)
+function createVueRouterAdapter: (router: Router, locales: Locale[], defaultLocale: string) => I18nRoutingStrategy
+interface I18nRoutingStrategy
+member I18nRoutingStrategy.getCurrentPath: () => string
+member I18nRoutingStrategy.getRoute?: (() => { fullPath: string; query: Record<string, unknown>; }) | undefined
+member I18nRoutingStrategy.linkComponent?: string | Component | undefined
+member I18nRoutingStrategy.push: (target: { path: string; }) => void
+member I18nRoutingStrategy.replace: (target: { path: string; }) => void
+member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined

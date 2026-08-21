@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v3.28.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.0...v3.28.1)
+
+### 🚀 Enhancements
+
+- **core:** Add BaseI18n.extend for custom methods ([50d606be](https://github.com/s00d/nuxt-i18n-micro/commit/50d606be))
+- **vitepress:** Unify createI18n and restructure package ([6ad31663](https://github.com/s00d/nuxt-i18n-micro/commit/6ad31663))
+
+### 🩹 Fixes
+
+- **vitepress:** Move SSG expect out of beforeAll ([ce8607bf](https://github.com/s00d/nuxt-i18n-micro/commit/ce8607bf))
+
+### 📖 Documentation
+
+- Add AGENTS.md with Cursor Cloud build/test setup ([add2fa67](https://github.com/s00d/nuxt-i18n-micro/commit/add2fa67))
+- **integrations:** Refresh VitePress package guide ([6dd2b6c6](https://github.com/s00d/nuxt-i18n-micro/commit/6dd2b6c6))
+
+### 🏡 Chore
+
+- Cascade patch bumps for core 1.3.14 ([0899a63c](https://github.com/s00d/nuxt-i18n-micro/commit/0899a63c))
+
+### ✅ Tests
+
+- **vitepress:** Expand playground and lock SSG/OpenAPI flows ([3b28ba88](https://github.com/s00d/nuxt-i18n-micro/commit/3b28ba88))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.28.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.27.0...v3.28.0)

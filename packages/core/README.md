@@ -16,6 +16,18 @@ or
 yarn add @i18n-micro/core
 ```
 
+### `BaseI18n.extend`
+
+Attach framework-specific helpers onto any i18n instance (used by `@i18n-micro/vitepress` for path methods):
+
+```ts
+i18n.extend({
+  localizePath(path: string, locale: string) {
+    /* … */
+  },
+})
+```
+
 ## Usage
 
 This package provides several utilities for managing translations, formatting, and routing:

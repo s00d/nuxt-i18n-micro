@@ -689,4 +689,17 @@ describe('BaseI18n', () => {
       expect(onChanged).toHaveBeenCalledTimes(1)
     })
   })
+
+  describe('extend', () => {
+    test('attaches custom methods onto the instance', async () => {
+      const i18n = new TestI18n('en', 'en', 'index').extend({
+        shout(key: string) {
+          return String(this.t(key)).toUpperCase()
+        },
+      })
+      await i18n.helper.loadTranslations('en', { hi: 'hello' })
+      expect(i18n.shout('hi')).toBe('HELLO')
+      expect(i18n.t('hi')).toBe('hello')
+    })
+  })
 })

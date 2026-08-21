@@ -410,4 +410,12 @@ export abstract class BaseI18n {
       this.helper.loadPageTranslations(locale, routeName, translations)
     }
   }
+
+  /**
+   * Attach framework-specific helpers onto this instance (`localizePath`, …).
+   * Mutates `this` and returns it typed with the extra methods.
+   */
+  public extend<M extends Record<string, unknown>>(methods: M & ThisType<this & M>): this & M {
+    return Object.assign(this, methods) as this & M
+  }
 }

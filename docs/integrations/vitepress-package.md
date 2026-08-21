@@ -10,41 +10,15 @@ Runtime dictionaries, `$t` / `<I18nT>` inside markdown, and an optional `<I18nSw
 
 ## Positioning
 
-VitePress i18n is three separate problems. This package only solves **runtime UI strings**.
-
-| Layer | Need | Solution |
-|-------|------|----------|
-| A. Site structure | Duplicate `.md`, URL prefixes, `locales` | **VitePress built-in** |
-| B. Default theme chrome | `docFooter`, search UI, outline labels | **`vitepress-i18n`**, hand-written `themeConfig`, or tools like **ai-i18n-tools** |
-| C. Runtime UI in MD / custom theme | `t` / plural / components / custom dropdown | **`@i18n-micro/vitepress`** |
-
-```
-@i18n-micro/vitepress ≠ theme chrome translator
-@i18n-micro/vitepress ≠ markdown copier
-```
+| Need | Solution |
+|------|----------|
+| Duplicate `.md`, URL prefixes | VitePress `locales` |
+| Runtime `$t` / components / path sync / SEO head | **`@i18n-micro/vitepress`** |
+| Default theme chrome labels (`docFooter`, search UI) | Your own `themeConfig` per locale |
 
 ::: tip Playground
-Tiny VitePress site with `withI18nMicro`, theme `$t`, and FR locale pages:
-
 [`packages/vitepress/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vitepress/playground) — `pnpm -C packages/vitepress/playground dev`
 :::
-
-### Compose with other helpers
-
-`withI18n` is already used by [`vitepress-i18n`](https://www.npmjs.com/package/vitepress-i18n). Our helper is intentionally named **`withI18nMicro`**:
-
-```ts
-import { defineConfig } from 'vitepress'
-import { withI18n } from 'vitepress-i18n' // optional: chrome labels
-import { withI18nMicro } from '@i18n-micro/vitepress/config'
-
-export default defineConfig(
-  withI18n(
-    withI18nMicro(vitePressConfig, i18nMicroOptions),
-    vitePressI18nOptions,
-  ),
-)
-```
 
 ## Install
 
@@ -64,11 +38,9 @@ yarn add @i18n-micro/vitepress
 
 :::
 
-Peers: `vitepress`, `vue`.
+Peers: `vitepress`, `vue`. Node scripts also use the workspace dependency **`@i18n-micro/node`** (re-exported through `/node`).
 
 ## Setup
-
-Put dictionaries under the site root, e.g.:
 
 ```
 locales/en.json
@@ -77,92 +49,97 @@ locales/pages/guide/demo/en.json   # optional page-scoped
 locales/pages/guide/demo/fr.json
 ```
 
-Page files map to route names the same way as Nuxt/Astro (`guide/demo` → `guide-demo`). On `/guide/demo` / `/fr/guide/demo`, `setRoute('guide-demo')` loads them.
+Page files map to route names the same way as Nuxt/Astro (`guide/demo` → `guide-demo`).
 
 ### 1. Config — `@i18n-micro/vitepress/config`
 
 ```ts
 // .vitepress/config.mts
 import { defineConfig } from 'vitepress'
-import {
-  withI18nMicro,
-  createI18nRoutingFromAdapter,
-} from '@i18n-micro/vitepress/config'
+import { withI18n, buildVitePressLocales } from '@i18n-micro/vitepress/config'
 
 const locales = [
-  { code: 'en', iso: 'en-US', displayName: 'English' },
-  { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
+  { code: 'en', iso: 'en-US', displayName: 'English', og: 'en_US' },
+  { code: 'fr', iso: 'fr-FR', displayName: 'Français', og: 'fr_FR' },
 ]
+const defaultLocale = 'en'
 
 export default defineConfig(
-  withI18nMicro(
+  withI18n(
     {
-      locales: {
-        root: { label: 'English', lang: 'en-US' },
-        fr: { label: 'Français', lang: 'fr-FR', link: '/fr/' },
-      },
-      themeConfig: {
-        // Self-contained function (safe for VitePress site-data serialization)
-        i18nRouting: createI18nRoutingFromAdapter({
-          defaultLocale: 'en',
-          localeCodes: locales.map((l) => l.code),
-        }),
-      },
+      locales: buildVitePressLocales(locales, defaultLocale),
+      // themeConfig.i18nRouting is injected automatically
     },
     {
-      locale: 'en',
-      defaultLocale: 'en',
+      locale: defaultLocale,
+      defaultLocale,
       locales,
       translationDir: 'locales',
+      metaBaseUrl: 'https://example.com', // optional SEO head
     },
   ),
 )
 ```
 
-`withI18nMicro` injects Vite virtual modules:
-
-- `virtual:i18n-micro/config` — locales / defaults / `localeKeyToCode`
-- `virtual:i18n-micro/messages` — per-file JSON imports from `translationDir` (+ `routeMessages`)
-
-Import the helper from **`/config`** (Node + `fs`). Do not import it from the client theme.
-
-### 2. Theme — `defineI18nTheme` (recommended)
+### 2. Theme — `@i18n-micro/vitepress/theme`
 
 ```ts
 // .vitepress/theme/index.ts
 import DefaultTheme from 'vitepress/theme'
-import { defineI18nTheme } from '@i18n-micro/vitepress'
+import { defineI18nTheme } from '@i18n-micro/vitepress/theme'
 
 export default defineI18nTheme(DefaultTheme)
 ```
 
 Initial locale is taken from the current path before install (no default-locale flash on `/fr/…`).
 
-#### Advanced: own messages / `createVitePressI18n`
+### Advanced: manual `createI18n`
+
+One factory for the client: Vue plugin + path methods + `enhanceApp` (no separate router helper exports).
 
 ```ts
-import { createVitePressI18n, messagesFromGlob } from '@i18n-micro/vitepress'
+import { createI18n, messagesFromGlob } from '@i18n-micro/vitepress'
 
-const messages = messagesFromGlob(
-  import.meta.glob('../../locales/*.json', { eager: true }),
-)
-const { enhanceApp } = createVitePressI18n({ /* … */, messages })
+const i18n = createI18n({
+  locale: 'en',
+  defaultLocale: 'en',
+  locales: [{ code: 'en' }, { code: 'fr' }],
+  messages: messagesFromGlob(import.meta.glob('../../locales/*.json', { eager: true })),
+})
+
+i18n.localizePath('/guide', 'fr')
+// in theme enhanceApp:
+i18n.enhanceApp({ app, router })
 ```
 
-Node FS helpers (scripts / config tooling):
+### Node scripts — `@i18n-micro/vitepress/node`
+
+Uses **`@i18n-micro/node`** `createI18n` / `loadTranslations` (same as Astro & CLI), then attaches VitePress path methods with `BaseI18n.extend`:
 
 ```ts
-import { loadMessages, loadTranslationBuckets } from '@i18n-micro/vitepress/node'
-// or from '@i18n-micro/vitepress/config'
+import { createI18n } from '@i18n-micro/vitepress/node'
+
+const i18n = createI18n({
+  locale: 'en',
+  fallbackLocale: 'en',
+  translationDir: './locales',
+  locales: ['en', 'fr'],
+  defaultLocale: 'en',
+})
+await i18n.loadTranslations()
+i18n.t('cta.readMore')
+i18n.localizePath('/guide', 'fr')
 ```
+
+Plain Node without paths: `import { createI18n } from '@i18n-micro/node'`.
 
 ## In-page translations
 
-Each VitePress markdown file is a Vue SFC. Three patterns:
+Each VitePress markdown file is a Vue SFC.
 
 ### Global components + `$t` (recommended in MD)
 
-`createVitePressI18n` installs `@i18n-micro/vue`, which registers `I18nT` / `I18nLink` / `I18nGroup` / `I18nSwitcher` and `$t` / `$tc` / `$ts`.
+`createI18n` / `defineI18nTheme` install `@i18n-micro/vue`, which registers `I18nT` / `I18nLink` / `I18nGroup` / `I18nSwitcher` and `$t` / `$tc` / `$ts`.
 
 ```md
 {{ $t('cta.readMore') }}
@@ -172,84 +149,56 @@ Each VitePress markdown file is a Vue SFC. Three patterns:
 <I18nLink to="/guide/demo">Demo</I18nLink>
 ```
 
-Component names must be PascalCase or contain a hyphen (VitePress hydration rule).
-
 ### `useI18n` in `<script setup>`
 
 ```md
 <script setup>
 import { useI18n } from '@i18n-micro/vitepress'
-const { t, tc, locale } = useI18n()
+const { t, tc, locale, localePath, switchLocale } = useI18n()
 </script>
 
 # {{ t('section.title') }}
 ```
 
-### Prose vs JSON keys
-
-| Content | How to localize |
-|---------|-----------------|
-| Long guides / articles | Duplicate `.md` per locale (VitePress) |
-| Shared UI phrases, CTA, plurals | JSON + `$t` / `<I18nT>` |
-| Page-only UI keys | `locales/pages/<path>/<locale>.json` |
-| Tip/warning container titles | VitePress `locales.*.markdown.container` |
-
 ## Language dropdown
 
-### Built-in (default theme)
+When `locales` has more than one entry, VitePress shows **`VPNavBarTranslations`**. `withI18n` wires `themeConfig.i18nRouting` so the globe matches `<I18nSwitcher>` / path helpers.
 
-When `locales` has more than one entry, VitePress shows **`VPNavBarTranslations`** (globe flyout). Wire `themeConfig.i18nRouting` (boolean or function) so corresponding pages resolve correctly. Use `createI18nRoutingFromAdapter` so the built-in menu matches `<I18nSwitcher>` paths.
-
-### `<I18nSwitcher>` (custom themes only)
-
-Use in custom layouts / page content — **not** in the default navbar next to the globe.
-
-```ts
-import { h } from 'vue'
-import DefaultTheme from 'vitepress/theme'
-import { defineI18nTheme, I18nSwitcher } from '@i18n-micro/vitepress'
-
-export default defineI18nTheme({
-  ...DefaultTheme,
-  Layout: () =>
-    h(DefaultTheme.Layout, null, {
-      // custom theme example — avoid with default VPNavBarTranslations
-      'doc-footer-before': () => h(I18nSwitcher),
-    }),
-})
-```
-
-Navigation always changes the URL via the VitePress router (`router.go`). Client-only locale without a path change is not supported (against VitePress’ model).
-
-::: warning Do not mount both in the navbar
-With the default theme, the globe menu (`VPNavBarTranslations`) is enough.
-Putting `<I18nSwitcher>` in `nav-bar-content-*` duplicates the control. Prefer page/footer slots or a fully custom theme.
-:::
-
-| Scenario | Use |
-|----------|-----|
-| Default theme docs | Built-in language menu |
-| Custom theme / hero / footer | `<I18nSwitcher>` |
-| Both in navbar | Avoid — pick one |
+Use `<I18nSwitcher>` only in custom layouts — **not** next to the default globe.
 
 ## SSR notes
 
-- Locale on prerender comes from the URL path (adapter), not cookies.
+- Locale on prerender comes from the URL path, not cookies.
 - Theme code must not touch `window` at import time.
-- `$t` / components used in MD become dynamic Vue nodes (static prose stays static).
+- Import `defineI18nTheme` from `/theme` so Node config evaluation never loads `virtual:i18n-micro/*`.
 
 ## API surface
 
 | Export | Role |
 |--------|------|
-| `@i18n-micro/vitepress/config` → `withI18nMicro` | Config helper + virtual modules (Node) |
-| `defineI18nTheme` | Zero-boilerplate theme (`enhanceApp`) |
-| `createVitePressI18n` | Manual `enhanceApp` installer + path sync |
-| `createVitePressRouterAdapter` | Path ↔ locale (prefix except default) |
-| `createI18nRoutingFromAdapter` | Serializable `themeConfig.i18nRouting` |
-| `messagesFromGlob` | Optional glob → messages map |
-| `I18nT` / `I18nLink` / `I18nGroup` / `I18nSwitcher` / `useI18n` | Re-exported from `@i18n-micro/vue` |
-| `/node` → `loadMessages` / `loadTranslationBuckets` | Node FS loaders (scripts; prefer `/config` for site config) |
+| `createI18n` (`.`) | Client: Vue plugin + path methods + `enhanceApp` |
+| `getLocaleFromPath` / `stripSiteBase` / `routeNameFromPath` (`.`) | Manual locale sync when `syncWithVitePress: false` |
+| `createI18n` (`/node`) | Node: `@i18n-micro/node` + path methods |
+| `defineI18nTheme` (`/theme`) | Zero-boilerplate theme |
+| `withI18n` (`/config`) | Config + virtual modules + optional SEO |
+| `buildVitePressLocales` (`/config`) | Build VitePress `locales` from `Locale[]` |
+| `buildVitePressLocaleHead` (`/config`) | Manual SEO head (also used by `metaBaseUrl`) |
+| `messagesFromGlob` | Optional glob → messages map for `createI18n` |
+| `useI18n` / `I18nT` / … | Re-exported from `@i18n-micro/vue` |
+| `BaseI18n.extend` (`@i18n-micro/core`) | Attach custom methods on any i18n instance |
+
+## OpenAPI-style sites (integration locks)
+
+Regression suite: `packages/vitepress/tests/integration-openapi.test.ts` (deep paths, `base=/openapi_docs/`, sync off + manual locale, Node generators, SEO).
+
+| Pattern | Do this |
+|---------|---------|
+| Deep `/…/{spec}/{op}` pages, only root UI JSON | Prefer default `syncWithVitePress: true` (keeps `setRoute('index')` when no page dict) **or** `syncWithVitePress: false` + `getLocaleFromPath` |
+| Never call `setRoute(deepName)` without page dictionaries | Root UI keys disappear until `setRoute('index')` |
+| Generators / `getTranslation` | `createI18n` from `/node` + `await loadTranslations()` + `i18n.t(key)` (set `i18n.locale`) |
+| Custom canonical in `transformPageData` | Pass `meta: false` to `withI18n` (avoid double tags) |
+| Package SEO with site base | `metaBaseUrl` + VitePress `base` → absolute URLs include base |
+| Rename from older package builds | `withI18nMicro` → `withI18n`, `createVitePressI18n` → `createI18n`, `loadMessages` → node `createI18n` |
 
 ## Resources
 

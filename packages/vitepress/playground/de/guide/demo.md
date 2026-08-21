@@ -1,5 +1,5 @@
 ---
-title: In-page demo
+title: In-page Demo
 ---
 
 <script setup>
@@ -12,13 +12,13 @@ const count = ref(3)
 
 # {{ t('section.title') }}
 
-Current locale: **{{ locale }}**
+Aktuelle Locale: **{{ locale }}**
 
-## Global `$t`
+## Globales `$t`
 
 {{ $t('demo.intro') }}
 
-## Component
+## Komponente
 
 <I18nT keypath="greeting" :params="{ name: 'Docs' }" />
 
@@ -27,7 +27,7 @@ Current locale: **{{ locale }}**
 <button @click="count++">+1</button>
 <span> {{ tc('apples', count) }}</span>
 
-## Group
+## Gruppe
 
 <I18nGroup prefix="cta" v-slot="{ t: tg }">
   {{ tg('readMore') }}
@@ -37,7 +37,7 @@ Current locale: **{{ locale }}**
 
 <PathHelpersDemo />
 
-## Page-scoped key
+## Page-scoped Schlüssel
 
 {{ $t('pageNote') }}
 
@@ -48,5 +48,5 @@ Current locale: **{{ locale }}**
 
 ## SEO
 
-With `metaBaseUrl` on `withI18n`, build injects canonical / hreflang / `og:locale` (view page source).
-See [/guide/no-seo](/guide/no-seo) for `i18n.disableMeta: true`.
+Mit `metaBaseUrl` auf `withI18n` injiziert der Build canonical / hreflang / `og:locale`.
+Siehe [/de/guide/no-seo](/de/guide/no-seo) für `i18n.disableMeta: true`.

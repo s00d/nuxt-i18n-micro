@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "skipLibCheck": true,
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@i18n-micro/vitepress": ["../src/index.ts"],
+      "@i18n-micro/vitepress/theme": ["../src/theme.ts"],
+      "@i18n-micro/vitepress/config": ["../src/config.ts"],
+      "@i18n-micro/vitepress/node": ["../src/node.ts"]
+    }
+  },
+  "include": ["./**/*", "./env.d.ts"],
+  "exclude": ["node_modules", ".vitepress/dist", ".vitepress/cache"]
+}

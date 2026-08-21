@@ -1,0 +1,18 @@
+{
+  "greeting": "Hallo, {name}!",
+  "cta": {
+    "readMore": "Weiterlesen"
+  },
+  "section": {
+    "title": "Übersetzungen in der Seite"
+  },
+  "apples": "keine Äpfel | ein Apfel | {count} Äpfel",
+  "demo": {
+    "intro": "Dieser String kommt aus locales/de.json über $t / I18nT."
+  },
+  "nav": {
+    "home": "Start",
+    "demo": "Demo",
+    "noSeo": "Ohne SEO-Meta"
+  }
+}

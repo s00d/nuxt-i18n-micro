@@ -1,6 +1,10 @@
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
-import { defineI18nTheme } from '@i18n-micro/vitepress'
+import { defineI18nTheme } from '@i18n-micro/vitepress/theme'
+import PathHelpersDemo from './PathHelpersDemo.vue'
 
-// Messages + locales come from withI18nMicro (virtual:i18n-micro/*) — no glob boilerplate.
-export default defineI18nTheme(DefaultTheme) satisfies Theme
+export default defineI18nTheme(DefaultTheme, {
+  enhanceApp({ app }) {
+    app.component('PathHelpersDemo', PathHelpersDemo)
+  },
+}) satisfies Theme

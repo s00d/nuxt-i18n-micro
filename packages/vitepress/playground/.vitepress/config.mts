@@ -1,75 +1,88 @@
 import { defineConfig } from 'vitepress'
-import {
-  createI18nRoutingFromAdapter,
-  withI18nMicro,
-} from '@i18n-micro/vitepress/config'
+import { buildVitePressLocales, withI18n } from '@i18n-micro/vitepress/config'
 
 const locales = [
-  { code: 'en', iso: 'en-US', displayName: 'English' },
-  { code: 'fr', iso: 'fr-FR', displayName: 'Français' },
+  { code: 'en', iso: 'en-US', displayName: 'English', og: 'en_US' },
+  { code: 'fr', iso: 'fr-FR', displayName: 'Français', og: 'fr_FR' },
+  { code: 'de', iso: 'de-DE', displayName: 'Deutsch', og: 'de_DE' },
 ]
 
 const defaultLocale = 'en'
+const vpLocales = buildVitePressLocales(locales, defaultLocale)
 
-const i18nMicroOptions = {
-  locale: defaultLocale,
-  defaultLocale,
-  fallbackLocale: defaultLocale,
-  locales,
-  translationDir: 'locales',
-  missingWarn: true,
+function localeTheme(nav: { text: string; link: string }[], demoLabel: string, noSeoLabel: string) {
+  return {
+    nav,
+    sidebar: [
+      {
+        text: 'Guide',
+        items: [
+          { text: demoLabel, link: '/guide/demo' },
+          { text: noSeoLabel, link: '/guide/no-seo' },
+        ],
+      },
+    ],
+  }
 }
 
 export default defineConfig(
-  withI18nMicro(
+  withI18n(
     {
       title: 'i18n-micro VitePress Playground',
-      description: 'Runtime dictionaries + switcher demo',
+      description: 'Runtime dictionaries, routing helpers, SEO head',
       cleanUrls: true,
       locales: {
         root: {
-          label: 'English',
-          lang: 'en-US',
-          themeConfig: {
-            nav: [
+          ...vpLocales.root,
+          themeConfig: localeTheme(
+            [
               { text: 'Home', link: '/' },
               { text: 'Demo', link: '/guide/demo' },
+              { text: 'No SEO', link: '/guide/no-seo' },
             ],
-            sidebar: [
-              {
-                text: 'Guide',
-                items: [{ text: 'In-page demo', link: '/guide/demo' }],
-              },
-            ],
-          },
+            'In-page demo',
+            'No SEO meta',
+          ),
         },
         fr: {
-          label: 'Français',
-          lang: 'fr-FR',
-          link: '/fr/',
-          themeConfig: {
-            nav: [
+          ...vpLocales.fr!,
+          themeConfig: localeTheme(
+            [
               { text: 'Accueil', link: '/' },
               { text: 'Démo', link: '/guide/demo' },
+              { text: 'Sans SEO', link: '/guide/no-seo' },
             ],
-            sidebar: [
-              {
-                text: 'Guide',
-                items: [{ text: 'Démo in-page', link: '/guide/demo' }],
-              },
+            'Démo in-page',
+            'Sans meta SEO',
+          ),
+        },
+        de: {
+          ...vpLocales.de!,
+          themeConfig: localeTheme(
+            [
+              { text: 'Start', link: '/' },
+              { text: 'Demo', link: '/guide/demo' },
+              { text: 'Ohne SEO', link: '/guide/no-seo' },
             ],
-          },
+            'In-page Demo',
+            'Ohne SEO-Meta',
+          ),
         },
       },
       themeConfig: {
         langMenuLabel: 'Change language',
-        i18nRouting: createI18nRoutingFromAdapter({
-          defaultLocale,
-          localeCodes: locales.map((l) => l.code),
-        }),
         socialLinks: [],
       },
     },
-    i18nMicroOptions,
+    {
+      locale: defaultLocale,
+      defaultLocale,
+      fallbackLocale: defaultLocale,
+      locales,
+      translationDir: 'locales',
+      missingWarn: true,
+      metaBaseUrl: 'https://example.com',
+      hreflangBaseLanguage: false,
+    },
   ),
 )

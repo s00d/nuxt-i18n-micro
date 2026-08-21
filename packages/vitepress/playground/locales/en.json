@@ -9,5 +9,10 @@
   "apples": "no apples | one apple | {count} apples",
   "demo": {
     "intro": "This string comes from locales/en.json via $t / I18nT."
+  },
+  "nav": {
+    "home": "Home",
+    "demo": "Demo",
+    "noSeo": "No SEO meta"
   }
 }

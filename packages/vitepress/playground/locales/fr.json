@@ -9,5 +9,10 @@
   "apples": "pas de pommes | une pomme | {count} pommes",
   "demo": {
     "intro": "Cette chaîne vient de locales/fr.json via $t / I18nT."
+  },
+  "nav": {
+    "home": "Accueil",
+    "demo": "Démo",
+    "noSeo": "Sans meta SEO"
   }
 }

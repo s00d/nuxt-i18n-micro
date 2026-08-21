@@ -33,14 +33,9 @@ Locale actuelle : **{{ locale }}**
   {{ tg('readMore') }}
 </I18nGroup>
 
-## `<I18nSwitcher>` optionnel (thèmes custom)
+## Routing (`localePath` / `switchLocale`)
 
-Avec le thème par défaut, utilisez le menu globe dans la barre de navigation.
-Montez `<I18nSwitcher>` seulement hors de ce chrome (hero, layout custom) — pas à côté du globe.
-
-<div style="max-width: 12rem; margin-top: 0.5rem">
-  <I18nSwitcher />
-</div>
+<PathHelpersDemo />
 
 ## Clé page-scoped
 
@@ -49,3 +44,9 @@ Montez `<I18nSwitcher>` seulement hors de ce chrome (hero, layout custom) — pa
 ## `<I18nLink>`
 
 <I18nLink to="/">{{ $t('cta.readMore') }}</I18nLink>
+<I18nLink to="/guide/no-seo">{{ $t('nav.noSeo') }}</I18nLink>
+
+## SEO
+
+Avec `metaBaseUrl` sur `withI18n`, le build injecte canonical / hreflang / `og:locale`.
+Voir [/fr/guide/no-seo](/fr/guide/no-seo) pour `i18n.disableMeta: true`.

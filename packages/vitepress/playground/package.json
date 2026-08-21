@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vitepress dev .",
     "build": "vitepress build .",
-    "preview": "vitepress preview ."
+    "preview": "vitepress preview .",
+    "node-helpers": "node ./scripts/node-helpers.mjs"
   },
   "devDependencies": {
     "@i18n-micro/vitepress": "workspace:*",

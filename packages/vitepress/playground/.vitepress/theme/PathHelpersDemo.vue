@@ -22,7 +22,10 @@ function href(path: string, locale: string) {
 <template>
   <div class="path-helpers-demo">
     <p>
-      <code>useI18n().localePath</code> — locale <strong>{{ current }}</strong>, page
+      <code>useI18n().localePath</code>
+      — locale
+      <strong>{{ current }}</strong>
+      , page
       <code>{{ page.relativePath }}</code>
     </p>
     <ul>

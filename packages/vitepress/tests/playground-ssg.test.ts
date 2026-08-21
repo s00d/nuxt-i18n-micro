@@ -20,10 +20,13 @@ beforeAll(() => {
     stdio: 'pipe',
     timeout: 120_000,
   })
-  expect(existsSync(join(dist, 'guide/demo.html'))).toBe(true)
 }, 120_000)
 
 describe('playground SSG stack', () => {
+  it('builds playground dist', () => {
+    expect(existsSync(join(dist, 'guide/demo.html'))).toBe(true)
+  })
+
   it('injects root UI translations per locale', () => {
     expect(html('guide/demo.html')).toContain('This string comes from locales/en.json')
     expect(html('guide/demo.html')).toContain('Hello, Docs!')

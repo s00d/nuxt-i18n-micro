@@ -16,8 +16,8 @@
     "types": ["node"],
     "jsx": "preserve",
     "paths": {
-      "virtual:i18n-micro/config": ["./src/virtual-stubs/config.ts"],
-      "virtual:i18n-micro/messages": ["./src/virtual-stubs/messages.ts"]
+      "virtual:i18n-micro/config": ["./src/plugin/virtual-stubs/config.ts"],
+      "virtual:i18n-micro/messages": ["./src/plugin/virtual-stubs/messages.ts"]
     }
   },
   "include": ["src/**/*"],

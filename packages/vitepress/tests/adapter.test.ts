@@ -56,18 +56,32 @@ describe('createVitePressRouterAdapter', () => {
     expect(adapter.linkComponent).toBeTruthy()
   })
 
-  it('uses VitePress keys in URLs when codes differ', () => {
-    const mapped = createVitePressRouterAdapter({
-      locales: [
-        { code: 'en-US', iso: 'en-US' },
-        { code: 'fr-FR', iso: 'fr-FR' },
-      ],
-      defaultLocale: 'en-US',
-      localeKeyToCode: { root: 'en-US', fr: 'fr-FR' },
+  it('strips site base before locale / path rewrite', () => {
+    const withBase = createVitePressRouterAdapter({
+      locales,
+      defaultLocale: 'en',
+      base: '/docs/',
     })
-    expect(mapped.getLocaleFromPath('/fr/guide')).toBe('fr-FR')
-    expect(mapped.switchLocalePath('/guide', 'fr-FR')).toBe('/fr/guide')
-    expect(mapped.switchLocalePath('/fr/guide', 'en-US')).toBe('/guide')
+    expect(withBase.getLocaleFromPath('/docs/fr/guide')).toBe('fr')
+    expect(withBase.getLocaleFromPath('/docs/guide')).toBe('en')
+    expect(withBase.localizePath('/guide', 'fr')).toBe('/fr/guide')
+    expect(withBase.switchLocalePath('/docs/fr/guide', 'en')).toBe('/guide')
+    expect(withBase.switchLocalePath('/docs/guide', 'fr')).toBe('/fr/guide')
+    expect(withBase.removeLocaleFromPath('/docs/fr/guide/demo')).toBe('/guide/demo')
+  })
+
+  it('accepts string-like locale codes via Locale[]', () => {
+    const codes = createVitePressRouterAdapter({
+      locales: [{ code: 'en' }, { code: 'de' }],
+      defaultLocale: 'en',
+    })
+    expect(codes.switchLocalePath('/about', 'de')).toBe('/de/about')
+    expect(codes.getLocaleFromPath('/de/about')).toBe('de')
+  })
+
+  it('exposes routeNameFromPath on the adapter', () => {
+    expect(adapter.routeNameFromPath('/fr/guide/demo')).toBe('guide-demo')
+    expect(adapter.routeNameFromPath('/')).toBe('index')
   })
 })
 
@@ -79,9 +93,11 @@ describe('routeNameFromPath', () => {
   })
 
   it('uses defaultLocale + localeKeyToCode when provided', () => {
-    expect(
-      routeNameFromPath('/fr/guide', ['en-US', 'fr-FR'], 'en-US', { root: 'en-US', fr: 'fr-FR' }),
-    ).toBe('guide')
+    expect(routeNameFromPath('/fr/guide', ['en-US', 'fr-FR'], 'en-US', { root: 'en-US', fr: 'fr-FR' })).toBe('guide')
+  })
+
+  it('strips site base before deriving the route name', () => {
+    expect(routeNameFromPath('/docs/fr/guide/demo', ['en', 'fr'], 'en', {}, '/docs/')).toBe('guide-demo')
   })
 })
 
@@ -99,6 +115,17 @@ describe('createI18nRoutingFromAdapter', () => {
   it('handles index paths', () => {
     expect(i18nRouting({}, { path: '/' }, 'fr')).toBe('/fr/')
     expect(i18nRouting({}, { path: '/fr/' }, 'root')).toBe('/')
+  })
+
+  it('strips site base from route.path (SSG withBase)', () => {
+    const withBase = createI18nRoutingFromAdapter({
+      defaultLocale: 'en',
+      localeCodes: ['en', 'fr', 'de'],
+      base: '/docs/',
+    })
+    expect(withBase({}, { path: '/docs/de/guide' }, 'fr')).toBe('/fr/guide')
+    expect(withBase({}, { path: '/docs/fr/guide/' }, 'root')).toBe('/guide/')
+    expect(withBase({}, { path: '/docs/' }, 'fr')).toBe('/fr/')
   })
 
   it('is serializable for VitePress site data', () => {

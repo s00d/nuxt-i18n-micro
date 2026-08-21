@@ -8,6 +8,7 @@ export default defineConfig({
       { find: '@i18n-micro/core', replacement: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)) },
       { find: '@i18n-micro/types', replacement: fileURLToPath(new URL('../types/src/index.ts', import.meta.url)) },
       { find: '@i18n-micro/vue', replacement: fileURLToPath(new URL('../vue/src/index.ts', import.meta.url)) },
+      { find: '@i18n-micro/node', replacement: fileURLToPath(new URL('../node/src/index.ts', import.meta.url)) },
     ],
   },
   test: {

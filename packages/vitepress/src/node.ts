@@ -1,19 +1,9 @@
 /**
- * Node helpers (`node:fs`).
- *
- * Prefer `@i18n-micro/vitepress/config` for VitePress `config.mts`
- * (`withI18nMicro` + `createI18nRoutingFromAdapter`).
- * This entry remains for scripts / BC.
+ * Node scripts / generators — one `createI18n` (load + `t` + path methods).
+ * Built on `@i18n-micro/node` + `BaseI18n.extend`.
  */
-export {
-  applyLoadedTranslations,
-  listTranslationFiles,
-  loadMessages,
-  loadTranslationBuckets,
-} from './load-messages'
-export type { LoadMessagesOptions, LoadedTranslations, TranslationFileRef } from './load-messages'
+export type { CreateI18nOptions, NodeI18n, I18nOptions, LoadedTranslations } from './runtime/node-create'
+export { createI18n, loadTranslations, loadRootTranslations } from './runtime/node-create'
 
-/** @deprecated Prefer `@i18n-micro/vitepress/config`. */
-export { withI18nMicro, warnLocaleMismatch } from './with-i18n-micro'
-/** @deprecated Prefer `@i18n-micro/vitepress/config`. */
-export type { VirtualI18nConfig, VitePressUserConfigLike, WithI18nMicroOptions } from './with-i18n-micro'
+export { buildVitePressLocales } from './plugin/vitepress-locales'
+export type { BuildVitePressLocalesOptions, VitePressLocaleEntry } from './plugin/vitepress-locales'

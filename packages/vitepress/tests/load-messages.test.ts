@@ -1,65 +1,66 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { loadMessages, loadTranslationBuckets } from '../src/load-messages'
+import { loadTranslationBuckets } from '../src/plugin/load-messages'
 
-let tmp = ''
+const dirs: string[] = []
 
 afterEach(() => {
-  if (tmp) {
-    rmSync(tmp, { recursive: true, force: true })
-    tmp = ''
+  for (const dir of dirs.splice(0)) {
+    rmSync(dir, { recursive: true, force: true })
   }
 })
 
-describe('loadMessages', () => {
-  it('loads root locale JSON files', () => {
-    tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-'))
-    writeFileSync(join(tmp, 'en.json'), JSON.stringify({ hello: 'Hello' }))
-    writeFileSync(join(tmp, 'fr.json'), JSON.stringify({ hello: 'Bonjour' }))
-
-    const messages = loadMessages({ translationDir: tmp })
-    expect(messages.en).toEqual({ hello: 'Hello' })
-    expect(messages.fr).toEqual({ hello: 'Bonjour' })
-  })
-
-  it('returns empty object for missing dir', () => {
-    expect(loadMessages({ translationDir: join(tmpdir(), 'i18n-vp-missing-' + Date.now()) })).toEqual({})
-  })
-
-  it('skips non-object JSON values', () => {
-    tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-'))
-    writeFileSync(join(tmp, 'en.json'), JSON.stringify({ hello: 'Hello' }))
-    writeFileSync(join(tmp, 'fr.json'), JSON.stringify(['not', 'an', 'object']))
-    const messages = loadMessages({ translationDir: tmp })
-    expect(messages.en).toEqual({ hello: 'Hello' })
-    expect(messages.fr).toBeUndefined()
-  })
-})
-
-describe('loadTranslationBuckets', () => {
-  it('loads page-scoped dictionaries', () => {
-    tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-'))
-    mkdirSync(join(tmp, 'pages', 'guide', 'demo'), { recursive: true })
-    writeFileSync(join(tmp, 'en.json'), JSON.stringify({ root: 'R' }))
-    writeFileSync(join(tmp, 'pages', 'guide', 'demo', 'en.json'), JSON.stringify({ page: 'P' }))
+describe('loadTranslationBuckets (plugin-internal)', () => {
+  it('loads root locale files', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-load-'))
+    dirs.push(tmp)
+    writeFileSync(join(tmp, 'en.json'), JSON.stringify({ a: 1 }))
+    writeFileSync(join(tmp, 'fr.json'), JSON.stringify({ a: 2 }))
 
     const buckets = loadTranslationBuckets({ translationDir: tmp })
-    expect(buckets.root.en).toEqual({ root: 'R' })
-    expect(buckets.routes['guide-demo']?.en).toEqual({ page: 'P' })
+    expect(buckets.root).toEqual({ en: { a: 1 }, fr: { a: 2 } })
+    expect(buckets.routes).toEqual({})
   })
 
-  it('merges page files into root when disablePageLocales', () => {
-    tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-'))
-    mkdirSync(join(tmp, 'pages', 'a'), { recursive: true })
-    mkdirSync(join(tmp, 'pages', 'b'), { recursive: true })
-    writeFileSync(join(tmp, 'en.json'), JSON.stringify({ root: 'R' }))
-    writeFileSync(join(tmp, 'pages', 'a', 'en.json'), JSON.stringify({ a: 'A' }))
-    writeFileSync(join(tmp, 'pages', 'b', 'en.json'), JSON.stringify({ b: 'B' }))
+  it('returns empty for missing dir', () => {
+    expect(loadTranslationBuckets({ translationDir: join(tmpdir(), 'i18n-vp-missing-' + Date.now()) })).toEqual({
+      root: {},
+      routes: {},
+    })
+  })
+
+  it('skips invalid JSON objects', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-bad-'))
+    dirs.push(tmp)
+    writeFileSync(join(tmp, 'en.json'), JSON.stringify(['nope']))
+    writeFileSync(join(tmp, 'fr.json'), JSON.stringify({ ok: true }))
+
+    const buckets = loadTranslationBuckets({ translationDir: tmp })
+    expect(buckets.root).toEqual({ fr: { ok: true } })
+  })
+
+  it('loads page-scoped routes', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-pages-'))
+    dirs.push(tmp)
+    writeFileSync(join(tmp, 'en.json'), JSON.stringify({ root: true }))
+    mkdirSync(join(tmp, 'pages/guide/demo'), { recursive: true })
+    writeFileSync(join(tmp, 'pages/guide/demo/en.json'), JSON.stringify({ page: true }))
+
+    const buckets = loadTranslationBuckets({ translationDir: tmp })
+    expect(buckets.root.en).toEqual({ root: true })
+    expect(buckets.routes['guide-demo']?.en).toEqual({ page: true })
+  })
+
+  it('disablePageLocales folds pages into root', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-flat-'))
+    dirs.push(tmp)
+    mkdirSync(join(tmp, 'pages/x'), { recursive: true })
+    writeFileSync(join(tmp, 'pages/x/en.json'), JSON.stringify({ fromPage: 1 }))
 
     const buckets = loadTranslationBuckets({ translationDir: tmp, disablePageLocales: true })
-    expect(buckets.root.en).toEqual({ root: 'R', a: 'A', b: 'B' })
+    expect(buckets.root.en).toEqual({ fromPage: 1 })
     expect(buckets.routes).toEqual({})
   })
 })

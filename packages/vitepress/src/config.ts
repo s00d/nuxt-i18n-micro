@@ -1,22 +1,11 @@
 /**
- * Node / VitePress-config entry — safe to import from `.vitepress/config.*`.
- * Do not import this from the client theme (uses `node:fs`).
+ * VitePress config entry (`node:fs`). Theme/runtime: `/theme` or `.`.
  */
-export type { VirtualI18nConfig, VitePressUserConfigLike, WithI18nMicroOptions } from './with-i18n-micro'
-export { withI18nMicro, warnLocaleMismatch } from './with-i18n-micro'
+export type { VirtualI18nConfig, VitePressUserConfigLike, WithI18nOptions } from './plugin/with-i18n'
+export { withI18n, warnLocaleMismatch } from './plugin/with-i18n'
 
-export type {
-  I18nRoutingFromAdapterOptions,
-  VitePressI18nRoutingData,
-  VitePressI18nRoutingFn,
-  VitePressI18nRoutingRoute,
-} from './router/i18n-routing'
-export { createI18nRoutingFromAdapter } from './router/i18n-routing'
+export { buildVitePressLocales } from './plugin/vitepress-locales'
+export type { BuildVitePressLocalesOptions, VitePressLocaleEntry } from './plugin/vitepress-locales'
 
-export {
-  applyLoadedTranslations,
-  listTranslationFiles,
-  loadMessages,
-  loadTranslationBuckets,
-} from './load-messages'
-export type { LoadMessagesOptions, LoadedTranslations, TranslationFileRef } from './load-messages'
+export { buildVitePressLocaleHead, relativePathToRoutePath } from './seo/locale-head'
+export type { BuildVitePressLocaleHeadOptions, VitePressHeadTuple, VitePressLocaleHeadObject } from './seo/locale-head'

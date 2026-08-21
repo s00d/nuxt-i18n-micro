@@ -9,6 +9,7 @@ declare module 'virtual:i18n-micro/config' {
     translationDir: string
     disablePageLocales: boolean
     localeKeyToCode: Record<string, string>
+    base?: string
   }
 }
 

@@ -7,7 +7,7 @@ import type { VitePressRouterAdapter } from './adapter'
 export interface VitePressI18nRoutingData {
   site?: {
     value?: {
-      locales?: Record<string, { link?: string, lang?: string }>
+      locales?: Record<string, { link?: string; lang?: string }>
     }
   }
   localeIndex?: { value?: string }
@@ -22,16 +22,17 @@ export interface VitePressI18nRoutingRoute {
   }
 }
 
-export type VitePressI18nRoutingFn = (
-  data: VitePressI18nRoutingData,
-  route: VitePressI18nRoutingRoute,
-  targetLocale: string,
-) => string
+export type VitePressI18nRoutingFn = (data: VitePressI18nRoutingData, route: VitePressI18nRoutingRoute, targetLocale: string) => string
 
 export interface I18nRoutingFromAdapterOptions {
   defaultLocale: string
   localeCodes: string[]
   localeKeyToCode?: Record<string, string>
+  /**
+   * VitePress `site.base`. Stripped from `route.path` before rewriting locale;
+   * result is base-relative (VitePress applies `withBase`).
+   */
+  base?: string
 }
 
 function isAdapter(value: VitePressRouterAdapter | I18nRoutingFromAdapterOptions): value is VitePressRouterAdapter {
@@ -48,20 +49,20 @@ function isAdapter(value: VitePressRouterAdapter | I18nRoutingFromAdapterOptions
  * Returns a **self-contained** function (no closures) so VitePress can serialize it
  * into site data via `Function#toString()` + `new Function`.
  */
-export function createI18nRoutingFromAdapter(
-  adapterOrOptions: VitePressRouterAdapter | I18nRoutingFromAdapterOptions,
-): VitePressI18nRoutingFn {
+export function createI18nRoutingFromAdapter(adapterOrOptions: VitePressRouterAdapter | I18nRoutingFromAdapterOptions): VitePressI18nRoutingFn {
   const options: I18nRoutingFromAdapterOptions = isAdapter(adapterOrOptions)
     ? {
         defaultLocale: adapterOrOptions.defaultLocale,
         localeCodes: adapterOrOptions.localeCodes,
         localeKeyToCode: adapterOrOptions.localeKeyToCode ?? {},
+        base: adapterOrOptions.base,
       }
     : adapterOrOptions
 
   const defaultLocale = options.defaultLocale
   const localeCodes = options.localeCodes
   const localeKeyToCode = options.localeKeyToCode ?? {}
+  const base = options.base && options.base !== '/' ? options.base : ''
 
   // Inlined constants — required for VitePress themeConfig function serialization.
   // oxlint-disable-next-line typescript/no-implied-eval -- intentional for VP serializeFunctions
@@ -73,6 +74,7 @@ export function createI18nRoutingFromAdapter(
       const defaultLocale = ${JSON.stringify(defaultLocale)};
       const localeCodes = ${JSON.stringify(localeCodes)};
       const localeKeyToCode = ${JSON.stringify(localeKeyToCode)};
+      const siteBase = ${JSON.stringify(base)};
       const keyFromCode = (code) => {
         for (const key of Object.keys(localeKeyToCode)) {
           if (localeKeyToCode[key] === code) return key;
@@ -98,8 +100,13 @@ export function createI18nRoutingFromAdapter(
       let cut = path.length;
       if (hashIndex >= 0) cut = Math.min(cut, hashIndex);
       if (queryIndex >= 0) cut = Math.min(cut, queryIndex);
-      const pathname = path.slice(0, cut) || '/';
+      let pathname = path.slice(0, cut) || '/';
       const extras = path.slice(cut);
+      if (siteBase) {
+        const b = siteBase.endsWith('/') ? siteBase.slice(0, -1) : siteBase;
+        if (pathname === b) pathname = '/';
+        else if (pathname.indexOf(b + '/') === 0) pathname = pathname.slice(b.length) || '/';
+      }
       const hadTrailingSlash = pathname === '/' || pathname.endsWith('/');
       const segments = pathname.split('/').filter(Boolean);
       if (segments[0] && prefixes.indexOf(segments[0]) >= 0) segments.shift();

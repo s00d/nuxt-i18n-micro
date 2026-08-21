@@ -3,10 +3,12 @@ import { resolve } from 'node:path'
 import type { Locale, Translations } from '@i18n-micro/types'
 import { classifyTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import type { Plugin } from 'vite'
-import type { VitePressI18nOptions } from './create'
+import type { CreateI18nOptions } from '../runtime/create'
+import { buildVitePressLocaleHead, relativePathToRoutePath } from '../seo/locale-head'
 import { listTranslationFiles, loadTranslationBuckets } from './load-messages'
+import { createI18nRoutingFromAdapter } from '../router/i18n-routing'
 
-export interface WithI18nMicroOptions extends VitePressI18nOptions {
+export interface WithI18nOptions extends CreateI18nOptions {
   /**
    * Directory with locale JSON (`en.json`, `pages/guide/demo/en.json`, …), relative to Vite root
    * (VitePress content / docs root). Used by `virtual:i18n-micro/messages`.
@@ -24,6 +26,28 @@ export interface WithI18nMicroOptions extends VitePressI18nOptions {
    * @default true
    */
   warnOnLocaleMismatch?: boolean
+  /**
+   * Inject `themeConfig.i18nRouting` from adapter options + `config.base`.
+   * Set `false` to skip. Skipped automatically when `themeConfig.i18nRouting` is already set.
+   * @default true
+   */
+  i18nRouting?: boolean
+  /**
+   * Emit i18n SEO tags via `transformHead` (canonical, hreflang, og:locale…) —
+   * Nuxt `meta` / plugin `02.meta` analogue.
+   * Absolute link tags require `metaBaseUrl`.
+   * @default true when `metaBaseUrl` is set, otherwise false
+   */
+  meta?: boolean
+  /**
+   * Public origin without trailing slash (`https://example.com`).
+   * Same role as Nuxt `metaBaseUrl`.
+   */
+  metaBaseUrl?: string
+  /** Also emit bare-language hreflang from `iso` (Nuxt `hreflangBaseLanguage`). @default false */
+  hreflangBaseLanguage?: boolean
+  /** Query keys kept on canonical / alternate URLs. @default [] */
+  canonicalQueryWhitelist?: string[]
 }
 
 /**
@@ -31,9 +55,17 @@ export interface WithI18nMicroOptions extends VitePressI18nOptions {
  * Avoid importing `vitepress` types so the package stays usable as a pure library dep.
  */
 export interface VitePressUserConfigLike {
+  base?: string
   locales?: Record<string, unknown>
+  themeConfig?: Record<string, unknown> | null
+  transformHead?: (...args: any[]) => any
+  transformPageData?: (...args: any[]) => any
   vite?: {
     plugins?: Plugin[] | Plugin[][]
+    ssr?: {
+      noExternal?: string | true | Array<string | RegExp>
+      [key: string]: unknown
+    }
     [key: string]: unknown
   }
   [key: string]: unknown
@@ -49,6 +81,8 @@ export interface VirtualI18nConfig {
   translationDir: string
   disablePageLocales: boolean
   localeKeyToCode: Record<string, string>
+  /** VitePress `site.base` (normalized, trailing slash preserved from config). */
+  base?: string
 }
 
 const VIRTUAL_CONFIG_ID = 'virtual:i18n-micro/config'
@@ -60,11 +94,7 @@ function toPosix(path: string): string {
   return path.replace(/\\/g, '/')
 }
 
-function generateImportMessagesModule(
-  rootDir: string,
-  translationDir: string,
-  disablePageLocales: boolean,
-): string {
+function generateImportMessagesModule(rootDir: string, translationDir: string, disablePageLocales: boolean): string {
   const files = listTranslationFiles({ rootDir, translationDir })
   if (files.length === 0) {
     return 'export const messages = {}\nexport const routeMessages = {}\n'
@@ -97,9 +127,7 @@ function generateImportMessagesModule(
 
   const routeEntries: string[] = []
   for (const [routeName, byLocale] of routeVarNames) {
-    const localeEntries = [...byLocale.entries()]
-      .map(([locale, varName]) => `    ${JSON.stringify(locale)}: ${varName}`)
-      .join(',\n')
+    const localeEntries = [...byLocale.entries()].map(([locale, varName]) => `    ${JSON.stringify(locale)}: ${varName}`).join(',\n')
     routeEntries.push(`  ${JSON.stringify(routeName)}: {\n${localeEntries}\n  }`)
   }
 
@@ -111,18 +139,11 @@ function generateImportMessagesModule(
   ].join('\n')
 }
 
-function generateInlineMessagesModule(
-  messages: Record<string, Translations>,
-  routeMessages: Record<string, Record<string, Translations>>,
-): string {
-  return [
-    `export const messages = ${JSON.stringify(messages)}`,
-    `export const routeMessages = ${JSON.stringify(routeMessages)}`,
-    '',
-  ].join('\n')
+function generateInlineMessagesModule(messages: Record<string, Translations>, routeMessages: Record<string, Record<string, Translations>>): string {
+  return [`export const messages = ${JSON.stringify(messages)}`, `export const routeMessages = ${JSON.stringify(routeMessages)}`, ''].join('\n')
 }
 
-function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
+function createI18nVitePlugin(options: WithI18nOptions, siteBase?: string): Plugin {
   const defaultLocale = options.defaultLocale || options.locale
   const translationDir = options.translationDir ?? 'locales'
   const disablePageLocales = options.disablePageLocales === true
@@ -136,6 +157,7 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
     translationDir,
     disablePageLocales,
     localeKeyToCode: options.localeKeyToCode ?? {},
+    base: siteBase && siteBase !== '/' ? siteBase : undefined,
   }
 
   let rootDir = process.cwd()
@@ -162,7 +184,7 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
   }
 
   return {
-    name: 'vite-plugin-i18n-micro-vitepress',
+    name: 'vite-plugin-i18n-vitepress',
     configResolved(config) {
       rootDir = config.root
       // Inline when caller passed messages and/or routeMessages.
@@ -231,7 +253,7 @@ function createI18nMicroVitePlugin(options: WithI18nMicroOptions): Plugin {
   }
 }
 
-export function warnLocaleMismatch(config: VitePressUserConfigLike, options: WithI18nMicroOptions): void {
+export function warnLocaleMismatch(config: VitePressUserConfigLike, options: WithI18nOptions): void {
   if (options.warnOnLocaleMismatch === false) return
   const vpLocales = config.locales
   if (!vpLocales || !options.locales?.length) return
@@ -244,42 +266,140 @@ export function warnLocaleMismatch(config: VitePressUserConfigLike, options: Wit
     const expectedCode = key === 'root' ? defaultLocale : (options.localeKeyToCode?.[key] ?? key)
     if (!codes.has(expectedCode)) {
       console.warn(
-        `[i18n-micro/vitepress] VitePress locale key "${key}" maps to "${expectedCode}", `
-        + `which is not in i18n locales (${[...codes].join(', ')}).`,
+        `[i18n-micro/vitepress] VitePress locale key "${key}" maps to "${expectedCode}", ` +
+          `which is not in i18n locales (${[...codes].join(', ')}).`,
       )
     }
   }
 }
 
 /**
- * Config helper (like `withMermaid`). Name is `withI18nMicro` on purpose —
- * `withI18n` is already used by the unrelated `vitepress-i18n` package.
+ * VitePress config helper: virtual modules + optional `i18nRouting` / SEO head.
  *
- * Registers virtual modules:
+ * Registers:
  * - `virtual:i18n-micro/config`
  * - `virtual:i18n-micro/messages` (from `translationDir`, default `locales/`)
  *
- * Pair with `defineI18nTheme(DefaultTheme)` — no manual `import.meta.glob` in the theme.
- *
+ * By default also sets `themeConfig.i18nRouting` (pass `i18nRouting: false` to skip).
+ * Pair with `defineI18nTheme(DefaultTheme)` from `@i18n-micro/vitepress/theme`.
  * Import from `@i18n-micro/vitepress/config` (Node / config files only).
  */
-export function withI18nMicro<T extends VitePressUserConfigLike>(
-  config: T,
-  options: WithI18nMicroOptions,
-): T {
+export function withI18n<T extends VitePressUserConfigLike>(config: T, options: WithI18nOptions): T {
   warnLocaleMismatch(config, options)
 
+  const siteBase = typeof config.base === 'string' ? config.base : undefined
   const existingPlugins = config.vite?.plugins
-  const plugins = [
-    ...(Array.isArray(existingPlugins) ? existingPlugins.flat() : []),
-    createI18nMicroVitePlugin(options),
+  const plugins = [...(Array.isArray(existingPlugins) ? existingPlugins.flat() : []), createI18nVitePlugin(options, siteBase)]
+
+  const prevSsr = config.vite?.ssr
+  const prevNoExternal = prevSsr?.noExternal
+  const noExternalList = [
+    '@i18n-micro/vitepress',
+    ...(Array.isArray(prevNoExternal) ? prevNoExternal : prevNoExternal && prevNoExternal !== true ? [prevNoExternal] : []),
   ]
+
+  const defaultLocale = options.defaultLocale || options.locale
+  const localeCodes = (options.locales || []).map((l) => l.code)
+  const prevTheme = (config.themeConfig && typeof config.themeConfig === 'object' ? config.themeConfig : {}) as Record<string, unknown>
+  const shouldInjectRouting = options.i18nRouting !== false && prevTheme.i18nRouting === undefined && localeCodes.length > 0
+
+  const metaEnabled = options.meta ?? Boolean(options.metaBaseUrl)
+  const locales = options.locales || []
+  const prevTransformHead = config.transformHead
+  const prevTransformPageData = config.transformPageData
+
+  const transformHead = metaEnabled
+    ? async (ctx: {
+        pageData?: { relativePath?: string; frontmatter?: { i18n?: { disableMeta?: boolean } } }
+        siteConfig?: { site?: { base?: string } }
+        siteData?: { base?: string }
+      }) => {
+        const prev = typeof prevTransformHead === 'function' ? await prevTransformHead(ctx) : []
+        const prevHead = Array.isArray(prev) ? prev : []
+        if (ctx.pageData?.frontmatter?.i18n?.disableMeta === true) return prevHead
+
+        const relativePath = ctx.pageData?.relativePath || 'index.md'
+        const siteBase = (typeof config.base === 'string' ? config.base : undefined) ?? ctx.siteData?.base ?? ctx.siteConfig?.site?.base
+        const built = buildVitePressLocaleHead({
+          path: relativePathToRoutePath(relativePath),
+          locales,
+          defaultLocale,
+          localeKeyToCode: options.localeKeyToCode,
+          base: siteBase,
+          metaBaseUrl: options.metaBaseUrl,
+          hreflangBaseLanguage: options.hreflangBaseLanguage,
+          canonicalQueryWhitelist: options.canonicalQueryWhitelist,
+          missingWarn: options.missingWarn,
+        })
+        return [...prevHead, ...built.head]
+      }
+    : prevTransformHead
+
+  const transformPageData = metaEnabled
+    ? async (
+        pageData: {
+          relativePath?: string
+          frontmatter?: Record<string, unknown> & { i18n?: { disableMeta?: boolean } }
+        },
+        ctx?: unknown,
+      ) => {
+        if (typeof prevTransformPageData === 'function') {
+          await prevTransformPageData(pageData, ctx)
+        }
+        if (pageData.frontmatter?.i18n?.disableMeta === true) return
+
+        const built = buildVitePressLocaleHead({
+          path: relativePathToRoutePath(pageData.relativePath || 'index.md'),
+          locales,
+          defaultLocale,
+          localeKeyToCode: options.localeKeyToCode,
+          base: typeof config.base === 'string' ? config.base : undefined,
+          metaBaseUrl: options.metaBaseUrl,
+          hreflangBaseLanguage: options.hreflangBaseLanguage,
+          canonicalQueryWhitelist: options.canonicalQueryWhitelist,
+          missingWarn: options.missingWarn,
+          addSeoAttributes: false,
+        })
+        if (built.htmlAttrs.lang) {
+          pageData.frontmatter ??= {}
+          // VitePress uses frontmatter for per-page lang when set
+          if (!pageData.frontmatter.lang) {
+            pageData.frontmatter.lang = built.htmlAttrs.lang
+          }
+        }
+      }
+    : prevTransformPageData
 
   return {
     ...config,
+    ...(shouldInjectRouting
+      ? {
+          themeConfig: {
+            ...prevTheme,
+            i18nRouting: createI18nRoutingFromAdapter({
+              defaultLocale,
+              localeCodes,
+              localeKeyToCode: options.localeKeyToCode,
+              base: siteBase,
+            }),
+          },
+        }
+      : {}),
+    ...(metaEnabled
+      ? {
+          transformHead,
+          transformPageData,
+        }
+      : {}),
     vite: {
       ...config.vite,
       plugins,
+      // Theme entry statically imports `virtual:i18n-micro/*`; Vite must bundle
+      // the package during SSG so those IDs resolve (not left as bare Node imports).
+      ssr: {
+        ...prevSsr,
+        noExternal: prevNoExternal === true ? true : noExternalList,
+      },
     },
   }
 }

@@ -17,9 +17,7 @@ function isModuleNamespace(mod: object): mod is { default: Translations } {
  * Tiny helper if you still prefer `import.meta.glob` instead of `defineI18nTheme`.
  * Only unwraps Vite module namespaces — dictionaries with a `default` key stay intact.
  */
-export function messagesFromGlob(
-  modules: Record<string, { default: Translations } | Translations>,
-): Record<string, Translations> {
+export function messagesFromGlob(modules: Record<string, { default: Translations } | Translations>): Record<string, Translations> {
   const messages: Record<string, Translations> = {}
   for (const [path, mod] of Object.entries(modules)) {
     const file = path.split('/').pop() || ''
@@ -27,8 +25,7 @@ export function messagesFromGlob(
     if (!code) continue
     if (mod && typeof mod === 'object' && isModuleNamespace(mod)) {
       messages[code] = mod.default
-    }
-    else {
+    } else {
       messages[code] = mod as Translations
     }
   }

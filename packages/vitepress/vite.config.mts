@@ -8,7 +8,7 @@ function dualPackageBeforeWriteFile(filePath: string, content: string) {
     return { filePath, content }
   }
   let next = content
-  if (filePath.endsWith('index.d.ts') || filePath.endsWith('node.d.ts') || filePath.endsWith('config.d.ts')) {
+  if (filePath.endsWith('index.d.ts') || filePath.endsWith('node.d.ts') || filePath.endsWith('config.d.ts') || filePath.endsWith('theme.d.ts')) {
     if (filePath.endsWith('index.d.ts') && !next.includes('@i18n-micro/vitepress/client')) {
       next = `/// <reference types="@i18n-micro/vitepress/client" />\n${next}`
     }
@@ -26,6 +26,7 @@ export default defineConfig({
         index: resolve(import.meta.dirname, 'src/index.ts'),
         config: resolve(import.meta.dirname, 'src/config.ts'),
         node: resolve(import.meta.dirname, 'src/node.ts'),
+        theme: resolve(import.meta.dirname, 'src/theme.ts'),
       },
       name: '@i18n-micro/vitepress',
       formats: ['cjs', 'es'],
@@ -38,7 +39,11 @@ export default defineConfig({
         '@i18n-micro/utils',
         '@i18n-micro/utils/parse-path',
         '@i18n-micro/utils/deep-merge',
+        '@i18n-micro/utils/resolve-hreflang',
+        '@i18n-micro/utils/resolve-og-locale',
+        '@i18n-micro/utils/merge-i18n-head',
         '@i18n-micro/vue',
+        '@i18n-micro/node',
         'vue',
         'vitepress',
         'vite',

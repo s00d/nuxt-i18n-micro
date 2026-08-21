@@ -2,18 +2,112 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { withI18nMicro, warnLocaleMismatch, type VitePressUserConfigLike } from '../src/with-i18n-micro'
-import { messagesFromGlob } from '../src/messages-from-glob'
-import { createVitePressI18n } from '../src/create'
+import { withI18n, warnLocaleMismatch, type VitePressUserConfigLike } from '../src/plugin/with-i18n'
+import { messagesFromGlob } from '../src/runtime/messages-from-glob'
+import { createI18n } from '../src/runtime/create'
 
 afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('withI18nMicro', () => {
+describe('withI18n', () => {
+  it('injects themeConfig.i18nRouting by default', () => {
+    const result = withI18n(
+      {
+        base: '/docs/',
+        themeConfig: { langMenuLabel: 'Lang' },
+      } as VitePressUserConfigLike,
+      {
+        locale: 'en',
+        defaultLocale: 'en',
+        locales: [{ code: 'en' }, { code: 'fr' }],
+        warnOnLocaleMismatch: false,
+      },
+    )
+
+    const theme = result.themeConfig as { langMenuLabel: string; i18nRouting: (d: unknown, r: { path: string }, t: string) => string }
+    expect(theme.langMenuLabel).toBe('Lang')
+    expect(typeof theme.i18nRouting).toBe('function')
+    expect(theme.i18nRouting({}, { path: '/docs/guide' }, 'fr')).toBe('/fr/guide')
+  })
+
+  it('skips i18nRouting when disabled or already set', () => {
+    const custom = () => '/custom'
+    const disabled = withI18n({} as VitePressUserConfigLike, {
+      locale: 'en',
+      locales: [{ code: 'en' }],
+      i18nRouting: false,
+      warnOnLocaleMismatch: false,
+    })
+    expect((disabled.themeConfig as { i18nRouting?: unknown } | undefined)?.i18nRouting).toBeUndefined()
+
+    const kept = withI18n({ themeConfig: { i18nRouting: custom } } as VitePressUserConfigLike, {
+      locale: 'en',
+      locales: [{ code: 'en' }, { code: 'fr' }],
+      warnOnLocaleMismatch: false,
+    })
+    expect((kept.themeConfig as { i18nRouting: unknown }).i18nRouting).toBe(custom)
+  })
+
+  it('injects transformHead SEO when metaBaseUrl is set', async () => {
+    const result = withI18n(
+      {
+        base: '/docs/',
+      } as VitePressUserConfigLike,
+      {
+        locale: 'en',
+        defaultLocale: 'en',
+        locales: [
+          { code: 'en', iso: 'en-US', og: 'en_US' },
+          { code: 'fr', iso: 'fr-FR', og: 'fr_FR' },
+        ],
+        metaBaseUrl: 'https://example.com',
+        warnOnLocaleMismatch: false,
+      },
+    )
+
+    expect(typeof result.transformHead).toBe('function')
+    const head = await result.transformHead!({
+      pageData: { relativePath: 'fr/guide.md' },
+    })
+    expect(Array.isArray(head)).toBe(true)
+    const canonical = head.find((t: [string, Record<string, string>]) => t[0] === 'link' && t[1].rel === 'canonical')
+    expect(canonical?.[1].href).toBe('https://example.com/docs/fr/guide')
+    const alt = head.filter((t: [string, Record<string, string>]) => t[0] === 'link' && t[1].rel === 'alternate')
+    expect(alt.some((t: [string, Record<string, string>]) => t[1].hreflang === 'x-default')).toBe(true)
+  })
+
+  it('skips meta transformHead when meta is false', () => {
+    const result = withI18n({} as VitePressUserConfigLike, {
+      locale: 'en',
+      locales: [{ code: 'en' }],
+      metaBaseUrl: 'https://example.com',
+      meta: false,
+      warnOnLocaleMismatch: false,
+    })
+    expect(result.transformHead).toBeUndefined()
+  })
+
+  it('respects frontmatter i18n.disableMeta', async () => {
+    const result = withI18n({} as VitePressUserConfigLike, {
+      locale: 'en',
+      defaultLocale: 'en',
+      locales: [{ code: 'en', iso: 'en-US', og: 'en_US' }],
+      metaBaseUrl: 'https://example.com',
+      warnOnLocaleMismatch: false,
+    })
+    const head = await result.transformHead!({
+      pageData: {
+        relativePath: 'index.md',
+        frontmatter: { i18n: { disableMeta: true } },
+      },
+    })
+    expect(head).toEqual([])
+  })
+
   it('merges vite plugin without dropping existing plugins', () => {
     const existing = { name: 'existing-plugin' }
-    const result = withI18nMicro(
+    const result = withI18n(
       {
         locales: {
           root: { label: 'English', lang: 'en' },
@@ -36,26 +130,23 @@ describe('withI18nMicro', () => {
 
     const plugins = (result.vite?.plugins ?? []) as Array<{ name: string }>
     expect(plugins.some((p) => p.name === 'existing-plugin')).toBe(true)
-    expect(plugins.some((p) => p.name === 'vite-plugin-i18n-micro-vitepress')).toBe(true)
+    expect(plugins.some((p) => p.name === 'vite-plugin-i18n-vitepress')).toBe(true)
   })
 
   it('virtual plugin resolves config module', () => {
-    const result = withI18nMicro(
-      {} as VitePressUserConfigLike,
-      {
-        locale: 'en',
-        locales: [{ code: 'en', iso: 'en-US' }],
-        warnOnLocaleMismatch: false,
-        localeKeyToCode: { root: 'en' },
-      },
-    )
+    const result = withI18n({} as VitePressUserConfigLike, {
+      locale: 'en',
+      locales: [{ code: 'en', iso: 'en-US' }],
+      warnOnLocaleMismatch: false,
+      localeKeyToCode: { root: 'en' },
+    })
     const plugins = (result.vite?.plugins ?? []) as Array<{
       name: string
       resolveId?: (id: string) => string | undefined
       load?: (id: string) => string | undefined
       configResolved?: (config: { root: string }) => void
     }>
-    const plugin = plugins.find((p) => p.name === 'vite-plugin-i18n-micro-vitepress')
+    const plugin = plugins.find((p) => p.name === 'vite-plugin-i18n-vitepress')
 
     expect(plugin).toBeTruthy()
     plugin!.configResolved?.({ root: process.cwd() })
@@ -92,16 +183,13 @@ describe('withI18nMicro', () => {
     const dir = mkdtempSync(join(tmpdir(), 'i18n-vp-inline-'))
     try {
       writeFileSync(join(dir, 'en.json'), JSON.stringify({ fromDisk: true }))
-      const result = withI18nMicro(
-        {} as VitePressUserConfigLike,
-        {
-          locale: 'en',
-          locales: [{ code: 'en' }],
-          translationDir: dir,
-          routeMessages: { home: { en: { page: 'inline' } } },
-          warnOnLocaleMismatch: false,
-        },
-      )
+      const result = withI18n({} as VitePressUserConfigLike, {
+        locale: 'en',
+        locales: [{ code: 'en' }],
+        translationDir: dir,
+        routeMessages: { home: { en: { page: 'inline' } } },
+        warnOnLocaleMismatch: false,
+      })
       const plugins = (result.vite?.plugins ?? []) as Array<{
         name: string
         configResolved?: (c: { root: string }) => void
@@ -109,7 +197,7 @@ describe('withI18nMicro', () => {
         resolveId?: (id: string) => string | undefined
         configureServer?: (server: unknown) => void
       }>
-      const plugin = plugins.find((p) => p.name === 'vite-plugin-i18n-micro-vitepress')!
+      const plugin = plugins.find((p) => p.name === 'vite-plugin-i18n-vitepress')!
       plugin.configResolved?.({ root: dir })
       const id = plugin.resolveId!('virtual:i18n-micro/messages')!
       const src = plugin.load!(id)!
@@ -120,23 +208,19 @@ describe('withI18nMicro', () => {
         moduleGraph: { getModuleById: () => undefined },
         ws: { send: vi.fn() },
       })
-    }
-    finally {
+    } finally {
       rmSync(dir, { recursive: true, force: true })
     }
   })
 
   it('skips disk watchers when messages and routeMessages are both inline', () => {
-    const result = withI18nMicro(
-      {} as VitePressUserConfigLike,
-      {
-        locale: 'en',
-        locales: [{ code: 'en' }],
-        messages: { en: { a: '1' } },
-        routeMessages: { home: { en: { b: '2' } } },
-        warnOnLocaleMismatch: false,
-      },
-    )
+    const result = withI18n({} as VitePressUserConfigLike, {
+      locale: 'en',
+      locales: [{ code: 'en' }],
+      messages: { en: { a: '1' } },
+      routeMessages: { home: { en: { b: '2' } } },
+      warnOnLocaleMismatch: false,
+    })
     const plugins = (result.vite?.plugins ?? []) as Array<{
       name: string
       configResolved?: (c: { root: string }) => void
@@ -144,7 +228,7 @@ describe('withI18nMicro', () => {
       load?: (id: string) => string | undefined
       resolveId?: (id: string) => string | undefined
     }>
-    const plugin = plugins.find((p) => p.name === 'vite-plugin-i18n-micro-vitepress')!
+    const plugin = plugins.find((p) => p.name === 'vite-plugin-i18n-vitepress')!
     plugin.configResolved?.({ root: process.cwd() })
     const add = vi.fn()
     plugin.configureServer?.({ watcher: { add } })
@@ -188,9 +272,23 @@ describe('messagesFromGlob', () => {
   })
 })
 
-describe('createVitePressI18n', () => {
+describe('createI18n', () => {
+  it('exposes path methods on the instance', () => {
+    const i18n = createI18n({
+      locale: 'en',
+      defaultLocale: 'en',
+      locales: [
+        { code: 'en', iso: 'en-US' },
+        { code: 'fr', iso: 'fr-FR' },
+      ],
+    })
+    expect(i18n.localizePath('/guide', 'fr')).toBe('/fr/guide')
+    expect(i18n.i18n.switchLocalePath('/fr/guide', 'en')).toBe('/guide')
+    expect(i18n.getLocaleFromPath('/fr/x')).toBe('fr')
+  })
+
   it('syncs locale and route from path', async () => {
-    const { enhanceApp, i18n } = createVitePressI18n({
+    const { enhanceApp, i18n } = createI18n({
       locale: 'en',
       defaultLocale: 'en',
       locales: [
@@ -240,14 +338,54 @@ describe('createVitePressI18n', () => {
     expect(i18n.getRoute()).toBe('guide-demo')
   })
 
-  it('re-chains onAfterRouteChange after later enhanceApp overwrites', async () => {
-    const { enhanceApp, i18n } = createVitePressI18n({
+  it('keeps root index route when path has no page dictionary', async () => {
+    const { enhanceApp, i18n } = createI18n({
       locale: 'en',
       defaultLocale: 'en',
-      locales: [
-        { code: 'en' },
-        { code: 'fr' },
-      ],
+      locales: [{ code: 'en' }, { code: 'fr' }],
+      messages: {
+        en: { hi: 'Hi' },
+        fr: { hi: 'Salut' },
+      },
+      base: '/docs/',
+    })
+
+    const app = {
+      use: vi.fn(),
+      provide: vi.fn(),
+      config: { globalProperties: {} as Record<string, unknown> },
+      component: vi.fn(),
+    }
+
+    let after: ((to: string) => unknown) | undefined
+    const router = {
+      route: { path: '/docs/fr/api/users' },
+      go: vi.fn(),
+      set onAfterRouteChange(fn: ((to: string) => unknown) | undefined) {
+        after = fn
+      },
+      get onAfterRouteChange() {
+        return after
+      },
+    }
+
+    enhanceApp({ app: app as never, router })
+
+    expect(i18n.getLocale()).toBe('fr')
+    expect(i18n.getRoute()).toBe('index')
+    expect(i18n.ts('hi')).toBe('Salut')
+
+    await after?.('/docs/api/users')
+    expect(i18n.getLocale()).toBe('en')
+    expect(i18n.getRoute()).toBe('index')
+    expect(i18n.ts('hi')).toBe('Hi')
+  })
+
+  it('re-chains onAfterRouteChange after later enhanceApp overwrites', async () => {
+    const { enhanceApp, i18n } = createI18n({
+      locale: 'en',
+      defaultLocale: 'en',
+      locales: [{ code: 'en' }, { code: 'fr' }],
       messages: { en: { hi: 'Hi' }, fr: { hi: 'Salut' } },
     })
 
@@ -281,7 +419,7 @@ describe('createVitePressI18n', () => {
   })
 
   it('installs the plugin on every Vue app', () => {
-    const { enhanceApp } = createVitePressI18n({
+    const { enhanceApp } = createI18n({
       locale: 'en',
       defaultLocale: 'en',
       locales: [{ code: 'en' }, { code: 'fr' }],
@@ -312,14 +450,15 @@ describe('createVitePressI18n', () => {
   })
 
   it('does not re-set routing strategy on re-enhance (avoids clobbering other apps)', () => {
-    const { enhanceApp, plugin } = createVitePressI18n({
+    const i18n = createI18n({
       locale: 'en',
       defaultLocale: 'en',
       locales: [{ code: 'en' }, { code: 'fr' }],
       messages: { en: { hi: 'Hi' }, fr: { hi: 'Salut' } },
       syncWithVitePress: false,
     })
-    const setSpy = vi.spyOn(plugin, 'setRoutingStrategy')
+    const setSpy = vi.spyOn(i18n, 'setRoutingStrategy')
+    const { enhanceApp } = i18n
 
     const makeApp = () => ({
       use: vi.fn(),

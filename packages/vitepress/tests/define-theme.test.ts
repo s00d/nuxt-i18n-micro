@@ -12,6 +12,7 @@ vi.mock('virtual:i18n-micro/config', () => ({
     translationDir: 'locales',
     disablePageLocales: false,
     localeKeyToCode: { root: 'en', fr: 'fr-FR' },
+    base: undefined,
   },
 }))
 
@@ -56,7 +57,7 @@ function makeRouter(path: string) {
 
 describe('defineI18nTheme', () => {
   it('maps VitePress locale key to i18n code on first enhanceApp', async () => {
-    const { defineI18nTheme } = await import('../src/define-theme')
+    const { defineI18nTheme } = await import('../src/runtime/define-theme')
 
     const theme = defineI18nTheme({
       Layout: {} as never,
@@ -75,7 +76,7 @@ describe('defineI18nTheme', () => {
   })
 
   it('re-chains onAfterRouteChange after base theme overwrites it', async () => {
-    const { defineI18nTheme } = await import('../src/define-theme')
+    const { defineI18nTheme } = await import('../src/runtime/define-theme')
     const baseHook = vi.fn()
 
     const theme = defineI18nTheme({

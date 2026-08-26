@@ -12,6 +12,17 @@ describe('autoDetectPath: `/` (#242)', () => {
     await expect(page).toHaveURL('/de')
   })
 
+  test('cookie redirects `/` when a query value contains a dot', async ({ page, goto, baseURL }) => {
+    await page.context().clearCookies()
+    await page.context().addCookies([{ name: 'user-locale', value: 'de', url: baseURL! }])
+
+    // The dot in the query value must not be mistaken for a static-asset
+    // extension by the server middleware
+    await goto('/?utm_source=news.example.com', { waitUntil: 'hydration' })
+
+    await expect(page).toHaveURL('/de?utm_source=news.example.com')
+  })
+
   test('deep unprefixed links are not rewritten by the cookie', async ({ page, goto, baseURL }) => {
     await page.context().clearCookies()
     await page.context().addCookies([{ name: 'user-locale', value: 'de', url: baseURL! }])

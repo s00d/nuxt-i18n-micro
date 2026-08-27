@@ -6,6 +6,16 @@ outline: 'deep'
 
 # News
 
+## localeRoute keeps query and hash from string inputs
+
+**Date**: 2026-08-27
+
+**Status**: unreleased (ships with the next `pnpm -C scripts cli release`)
+
+`$localeRoute('/products?sort=price')` now returns `query` (and `hash`) as separate fields instead of leaving them embedded in `path`, where vue-router ignores them — so `<NuxtLink :to="$localeRoute(...)">` no longer drops the params. API surface: the `path` variant of `NormalizedRouteInput` gains optional `query`/`hash` fields (additive; object inputs are unchanged).
+
+---
+
 ## Meta refresh on locale-only switches
 
 **Date**: 2026-08-27

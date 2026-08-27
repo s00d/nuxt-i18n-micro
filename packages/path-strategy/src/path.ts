@@ -181,8 +181,10 @@ export function buildUrl(path: string, query?: Record<string, any>, hash?: strin
 
       if (value === undefined || value === null) continue
 
+      const encodedKey = UNSAFE_CHARS_RE.test(key) ? encodeURIComponent(key) : key
+
       if (Array.isArray(value)) {
-        const keyPrefix = `${key}=`
+        const keyPrefix = `${encodedKey}=`
         for (let i = 0, len = value.length; i < len; i++) {
           const val = value[i]
           if (val === undefined || val === null) continue
@@ -225,7 +227,7 @@ export function buildUrl(path: string, query?: Record<string, any>, hash?: strin
           separator = '&'
         }
 
-        url += `${separator + key}=${encodedVal}`
+        url += `${separator + encodedKey}=${encodedVal}`
       }
     }
   }
@@ -235,6 +237,26 @@ export function buildUrl(path: string, query?: Record<string, any>, hash?: strin
   }
 
   return url
+}
+
+/**
+ * Parse a query string into an object — the counterpart of buildUrl.
+ * URLSearchParams does the decoding; repeated keys collect into an array.
+ */
+export function parseQuery(search: string): Record<string, string | string[]> {
+  const query: Record<string, string | string[]> = Object.create(null)
+  if (!search || search === '?') return query
+  for (const [key, value] of new URLSearchParams(search)) {
+    const existing = query[key]
+    if (existing === undefined) {
+      query[key] = value
+    } else if (Array.isArray(existing)) {
+      existing.push(value)
+    } else {
+      query[key] = [existing, value]
+    }
+  }
+  return query
 }
 
 // ---------------------------------------------------------------------------

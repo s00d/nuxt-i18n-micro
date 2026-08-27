@@ -2,6 +2,7 @@
  * Unit tests for path utils: parentKeyFromSlashKey, lastPathSegment, nameKeyFirstSlash, nameKeyLastSlash.
  */
 import {
+  buildUrl,
   getParentPath,
   joinUrl,
   lastPathSegment,
@@ -9,6 +10,7 @@ import {
   nameKeyLastSlash,
   normalizePath,
   parentKeyFromSlashKey,
+  parseQuery,
   transformNameKeyToPath,
 } from '../src/path'
 import { describe, expect, test } from 'vitest'
@@ -119,5 +121,53 @@ describe('transformNameKeyToPath', () => {
 
   test('a-b-c-d -> a/b/c/d', () => {
     expect(transformNameKeyToPath('a-b-c-d')).toBe('a/b/c/d')
+  })
+})
+
+describe('parseQuery / buildUrl round-trip', () => {
+  test('basic pairs', () => {
+    expect(parseQuery('a=1&b=2')).toEqual({ a: '1', b: '2' })
+    expect(buildUrl('/p', parseQuery('a=1&b=2'))).toBe('/p?a=1&b=2')
+  })
+
+  test('leading ? is tolerated', () => {
+    expect(parseQuery('?a=1')).toEqual({ a: '1' })
+  })
+
+  test('repeated keys collect into an array and round-trip', () => {
+    expect(parseQuery('tag=a&tag=b')).toEqual({ tag: ['a', 'b'] })
+    expect(buildUrl('/p', parseQuery('tag=a&tag=b'))).toBe('/p?tag=a&tag=b')
+  })
+
+  test('a key without = maps to an empty string', () => {
+    expect(parseQuery('flag')).toEqual({ flag: '' })
+    expect(buildUrl('/p', parseQuery('flag'))).toBe('/p?flag=')
+    expect(buildUrl('/p', parseQuery('flag&a=1'))).toBe('/p?flag=&a=1')
+    expect(parseQuery('flag&flag=x')).toEqual({ flag: ['', 'x'] })
+  })
+
+  test('+ means space, encoded values are decoded', () => {
+    expect(parseQuery('q=hello+world')).toEqual({ q: 'hello world' })
+    expect(parseQuery('redirect=%2Fdash%3Ftab%3D1')).toEqual({ redirect: '/dash?tab=1' })
+  })
+
+  // parseQuery stores keys on a null-prototype object. On a plain object,
+  // a key like 'toString' reads the inherited function as a prior value,
+  // and '__proto__' does not create an own property.
+  test('prototype names land as own properties', () => {
+    expect(parseQuery('toString=x')).toEqual({ toString: 'x' })
+    expect(parseQuery('constructor=y')).toEqual({ constructor: 'y' })
+    // A literal { __proto__: 'z' } would set the prototype, so assert by access.
+    expect(parseQuery('__proto__=z')['__proto__']).toBe('z')
+  })
+
+  test('encoded delimiters in keys stay unambiguous through buildUrl', () => {
+    expect(parseQuery('a%3Db=1')).toEqual({ 'a=b': '1' })
+    expect(buildUrl('/p', parseQuery('a%3Db=1'))).toBe('/p?a%3Db=1')
+  })
+
+  test('empty and ?-only inputs give an empty object', () => {
+    expect(parseQuery('')).toEqual({})
+    expect(parseQuery('?')).toEqual({})
   })
 })

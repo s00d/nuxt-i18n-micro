@@ -19,6 +19,8 @@ import {
   normalizePath,
   getLocaleFromPath as normalizerGetLocaleFromPath,
   getPathWithoutLocale as normalizerGetPathWithoutLocale,
+  parsePath,
+  parseQuery,
   withoutTrailingSlash,
 } from '../path'
 import {
@@ -173,7 +175,13 @@ export abstract class BasePathStrategy implements PathStrategy {
   localeRoute(targetLocale: string, routeOrPath: RouteLike | string, currentRoute?: ResolvedRouteLike): RouteLike {
     const normalized = this._normalizeRouteInput(routeOrPath, currentRoute)
     const raw = this.resolveLocaleRoute(targetLocale, normalized, currentRoute)
-    return this._ensureRouteLike(raw, normalized.kind === 'route' ? normalized.sourceRoute : undefined)
+    const source =
+      normalized.kind === 'route'
+        ? normalized.sourceRoute
+        : normalized.query || normalized.hash
+          ? { query: normalized.query, hash: normalized.hash }
+          : undefined
+    return this._ensureRouteLike(raw, source)
   }
 
   _ensureRouteLike(value: RouteLike | string, source?: RouteLike | null): RouteLike {
@@ -207,7 +215,16 @@ export abstract class BasePathStrategy implements PathStrategy {
   }
 
   _normalizeRouteInput(routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): NormalizedRouteInput {
-    if (typeof routeOrPath === 'string') return { kind: 'path', path: routeOrPath }
+    if (typeof routeOrPath === 'string') {
+      // vue-router ignores a query string inside an object location's `path`,
+      // so split it off and carry query/hash as separate fields.
+      if (routeOrPath.indexOf('?') === -1 && routeOrPath.indexOf('#') === -1) return { kind: 'path', path: routeOrPath }
+      const { pathname, search, hash } = parsePath(routeOrPath)
+      const input: NormalizedRouteInput = { kind: 'path', path: pathname }
+      if (search && search !== '?') input.query = parseQuery(search)
+      if (hash && hash !== '#') input.hash = hash
+      return input
+    }
     const sourceRoute = routeOrPath
     const inputName = sourceRoute.name?.toString() ?? null
     let resolved: ResolvedRouteLike

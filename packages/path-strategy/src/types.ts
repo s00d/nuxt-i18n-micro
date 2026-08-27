@@ -25,7 +25,7 @@ export interface ResolvedRouteLike extends RouteLike {
 
 /** Normalized input for resolveLocaleRoute (template method). */
 export type NormalizedRouteInput =
-  | { kind: 'path'; path: string }
+  | { kind: 'path'; path: string; query?: Record<string, unknown>; hash?: string }
   | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
 
 export interface RouterAdapter {

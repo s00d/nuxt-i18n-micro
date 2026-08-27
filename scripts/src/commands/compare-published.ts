@@ -31,9 +31,7 @@ export interface NpmLatestMeta {
   tarball: string
 }
 
-export type NpmLatestLookup =
-  | { ok: true; meta: NpmLatestMeta | null }
-  | { ok: false; error: string }
+export type NpmLatestLookup = { ok: true; meta: NpmLatestMeta | null } | { ok: false; error: string }
 
 export type NpmLatestLookupMap = Map<string, NpmLatestLookup>
 

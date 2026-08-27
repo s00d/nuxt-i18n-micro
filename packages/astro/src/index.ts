@@ -20,5 +20,15 @@ export { createAstroRouterAdapter } from './router/adapter'
 export type { I18nRoutingStrategy } from './router/types'
 export type { I18nClientProps, LocaleHeadOptions, LocaleHeadResult } from './utils'
 // Utilities
-export { getDefaultLocale, getI18n, getI18nProps, getLocale, getLocaleRewritePath, getLocales, prepareLocaleRewrite, useI18n, useLocaleHead } from './utils'
+export {
+  getDefaultLocale,
+  getI18n,
+  getI18nProps,
+  getLocale,
+  getLocaleRewritePath,
+  getLocales,
+  prepareLocaleRewrite,
+  useI18n,
+  useLocaleHead,
+} from './utils'
 // It's loaded directly by Astro via entrypoint in integration config

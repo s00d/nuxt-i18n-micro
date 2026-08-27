@@ -17,6 +17,7 @@
       "
       >news-2</NuxtLink
     >
+    <NuxtLink class="link-news-3-string" :to="$localeRoute('/news/3?sort=date')"> news-3-string </NuxtLink>
 
     <div class="news-link-path">
       <pre>{{ newsLink.fullPath }}</pre>

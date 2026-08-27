@@ -535,6 +535,10 @@ describe('basic', () => {
     // Check that localeRoute works correctly with query and hash
     await page.click('.link-news-2')
     await expect(page).toHaveURL('/news/2?a=b')
+
+    // Check that a string path with an embedded query keeps the query
+    await page.click('.link-news-3-string')
+    await expect(page).toHaveURL('/news/3?sort=date')
   })
 
   test('test navigation and locale switching on articles page', async ({ page, goto }) => {

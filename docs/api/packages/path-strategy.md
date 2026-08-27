@@ -28,7 +28,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `isIndexRouteName` | function | `(name: string \| null \| undefined, options?: IsIndexRouteNameOptions) => boolean` |
 | `IsIndexRouteNameOptions` | interface | 2 members |
 | `NoPrefixPathStrategy` | class | 36 members |
-| `NormalizedRouteInput` | type | `\| { kind: 'path'; path: string } \| { kind: 'route'; inputName: string \| null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }` |
+| `NormalizedRouteInput` | type | `\| { kind: 'path'; path: string; query?: Record<string, unknown>; hash?: string } \| { kind: 'route'; inputName: string \| null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }` |
 | `PathStrategy` | interface | 22 members |
 | `PathStrategyContext` | interface | 15 members |
 | `PrefixAndDefaultPathStrategy` | class | 37 members |
@@ -448,7 +448,7 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `GlobalLocaleRoutes` | type | `Record<string, Record<string, string> \| false \| boolean>` |
-| `NormalizedRouteInput` | type | `\| { kind: 'path'; path: string } \| { kind: 'route'; inputName: string \| null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }` |
+| `NormalizedRouteInput` | type | `\| { kind: 'path'; path: string; query?: Record<string, unknown>; hash?: string } \| { kind: 'route'; inputName: string \| null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }` |
 | `PathStrategy` | interface | 22 members |
 | `PathStrategyContext` | interface | 15 members |
 | `ResolvedRouteLike` | interface | 6 members |

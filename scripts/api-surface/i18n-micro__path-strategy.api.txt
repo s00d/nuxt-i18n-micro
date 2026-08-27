@@ -85,7 +85,7 @@ member NoPrefixPathStrategy.setRouter: (router: RouterAdapter) => void
 member NoPrefixPathStrategy.shouldReturn404: (_currentPath: string) => string | null
 member NoPrefixPathStrategy.switchLocaleRoute: (fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions) => RouteLike | string
 member NoPrefixPathStrategy.new: (ctx: PathStrategyContext): NoPrefixPathStrategy
-type NormalizedRouteInput: | { kind: 'path'; path: string } | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
+type NormalizedRouteInput: | { kind: 'path'; path: string; query?: Record<string, unknown>; hash?: string } | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
 interface PathStrategy
 member PathStrategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
 member PathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null
@@ -594,7 +594,7 @@ member Strategy.new: (ctx: PathStrategyContext): PrefixExceptDefaultPathStrategy
 
 # ./types (src/types.ts)
 type GlobalLocaleRoutes: Record<string, Record<string, string> | false | boolean>
-type NormalizedRouteInput: | { kind: 'path'; path: string } | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
+type NormalizedRouteInput: | { kind: 'path'; path: string; query?: Record<string, unknown>; hash?: string } | { kind: 'route'; inputName: string | null; sourceRoute: RouteLike; resolved: ResolvedRouteLike }
 interface PathStrategy
 member PathStrategy.formatPathForResolve: (path: string, fromLocale: string, toLocale: string) => string
 member PathStrategy.getCanonicalPath: (route: ResolvedRouteLike, targetLocale: string) => string | null

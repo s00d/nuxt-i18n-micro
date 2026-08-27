@@ -315,13 +315,13 @@ export const comparePublishedCommand = defineCommand({
       }
     }
 
-    const refContents = new Map<string, { paths: string[]; manifest: PackageManifest }>()
-    for (const [name, tarball] of refTarballs) {
-      refContents.set(name, {
-        paths: await listTarballPaths(tarball),
-        manifest: await readPackedManifest(tarball),
-      })
-    }
+    const refEntries = await Promise.all(
+      [...refTarballs.entries()].map(async ([name, tarball]) => {
+        const [paths, manifest] = await Promise.all([listTarballPaths(tarball), readPackedManifest(tarball)])
+        return [name, { paths, manifest }] as const
+      }),
+    )
+    const refContents = new Map<string, { paths: string[]; manifest: PackageManifest }>(refEntries)
 
     const results: ComparisonEntry[] = []
     for (const { name, dir, localVersion, pkg } of packages) {

@@ -5,7 +5,7 @@ import { findAllowedLocalesForRoute } from '@i18n-micro/utils/route'
 import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import { joinURL, parseURL, withQuery } from 'ufo'
 import { ref, unref, watch } from 'vue'
-import { useNuxtApp, useRoute } from '#app'
+import { useNuxtApp, useRoute, useState } from '#app'
 
 interface MetaLink {
   [key: string]: string | undefined
@@ -281,8 +281,10 @@ export const useLocaleHead = ({
   if (autoUpdate) {
     // Keep head payload in sync automatically for manual usage
     // (e.g. when 02.meta plugin is disabled with `meta: false`).
+    // Locale is included: no_prefix / hashMode / setLocale can change locale without a route change.
+    const localeState = useState<string | null>('i18n-locale', () => null)
     watch(
-      () => [route.fullPath, route.name, route.matched.length],
+      () => [route.fullPath, route.name, route.matched.length, localeState.value] as const,
       () => updateMeta(),
       { immediate: true },
     )

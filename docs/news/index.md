@@ -6,6 +6,16 @@ outline: 'deep'
 
 # News
 
+## Meta refresh on locale-only switches
+
+**Date**: 2026-08-27
+
+**Version**: `v3.28.3`
+
+`02.meta` and `useLocaleHead` (`autoUpdate`) now watch `i18n-locale` alongside the route, so `og:locale` / `html lang` update under `no_prefix` and `hashMode`. `useI18nHead` re-runs getters when the locale changes — prefer `useI18nHead(() => …)` with `t()` inside (not a plain object at setup).
+
+---
+
 **Date**: 2026-08-05
 
 **Version**: `v3.26.1`

@@ -8,10 +8,10 @@
 <script setup lang="ts">
 import { useI18nHead } from '#imports'
 
-useI18nHead({
+useI18nHead(() => ({
   meta: [
     { property: 'og:title', content: 'Landing OG title' },
     { property: 'og:description', content: 'Landing OG description' },
   ],
-})
+}))
 </script>

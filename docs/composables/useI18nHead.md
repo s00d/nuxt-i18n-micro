@@ -45,7 +45,7 @@ flowchart LR
     E --> F[useHead in 02.meta]
 ```
 
-You call `useI18nHead` in a page component. The `02.meta` plugin applies overrides after each `updateMeta()` (route change, `$setI18nRouteParams`, `page:finish` on client).
+You call `useI18nHead` in a page component. The `02.meta` plugin applies overrides after each `updateMeta()` (route change, locale change, `$setI18nRouteParams`, `page:finish` on client).
 
 ---
 
@@ -341,16 +341,18 @@ Or prefer `replace.hreflang` without `disable` — it replaces all `rel="alterna
 
 ## Example 9 — Landing page: only extra OG, keep all i18n tags
 
+Use a **getter** (same pattern as Example 11). A plain `{ meta: [{ content: t('…') }] }` snapshots strings at setup and will not update after a client locale switch.
+
 ```vue
 <script setup lang="ts">
 const { t } = useI18n()
 
-useI18nHead({
+useI18nHead(() => ({
   meta: [
     { property: 'og:title', content: t('landing.ogTitle') },
     { property: 'og:description', content: t('landing.ogDescription') },
   ],
-})
+}))
 </script>
 ```
 
@@ -395,7 +397,7 @@ useI18nHead(() => {
 </script>
 ```
 
-Head refreshes on `page:finish` and when `pageHead` state changes.
+Head refreshes on `page:finish`, when `pageHead` state changes, and when the active locale changes (including locale-only switches under `no_prefix` / `hashMode`).
 
 ---
 

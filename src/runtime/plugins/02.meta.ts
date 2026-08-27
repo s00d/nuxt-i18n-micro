@@ -24,6 +24,7 @@ function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
+  const localeState = useState<string | null>('i18n-locale', () => null)
   const { pageHead } = useI18nHead()
   const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
   const i18nConfig = resolveI18nConfigWithRuntimeOverrides(
@@ -84,7 +85,10 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   watch(() => i18nRouteParams.value, refreshMeta, { deep: true, flush: 'post' })
 
-  watch(() => [route.fullPath, route.name, route.matched.length] as const, refreshMeta, { flush: 'post' })
+  // Locale is included: no_prefix / hashMode / setLocale can change locale without a route change.
+  watch(() => [route.fullPath, route.name, route.matched.length, localeState.value] as const, refreshMeta, {
+    flush: 'post',
+  })
 
   watch(pageHead, refreshMeta, { deep: true, flush: 'post' })
 })

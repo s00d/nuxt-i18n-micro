@@ -53,8 +53,10 @@ Reactive head payload (html attrs, meta, link) suitable for `useHead(metaObject)
 
 ### `updateMeta`
 
-Recomputes `metaObject` based on current route, locale and config. Call it when inputs
-change — on a route change, for example.
+Recomputes `metaObject` based on current route, locale and config. With
+`autoUpdate: true` (default for manual usage) this runs on route **and** locale
+changes. With `autoUpdate: false` (used by `02.meta`), call it yourself when
+inputs change.
 
 - **Example**:
   ```js
@@ -183,19 +185,20 @@ This example demonstrates how easy it is to integrate `useLocaleHead` into your 
 
 ## 🧩 Customization & Lifecycle
 
-- `useLocaleHead` does not subscribe to changes by itself. It returns `metaObject` and `updateMeta`.
-- You should call `updateMeta()` when inputs change (typically on route change), for example from a plugin:
+- With `autoUpdate: true` (default), `useLocaleHead` watches the route and `i18n-locale` state and refreshes `metaObject`.
+- With `autoUpdate: false` (what `02.meta` uses), call `updateMeta()` yourself when inputs change:
 
 ```ts
 // plugins/02.meta.ts
 export default defineNuxtPlugin(() => {
   const route = useRoute()
-  const { metaObject, updateMeta } = useLocaleHead({ baseUrl: 'https://example.com' })
+  const localeState = useState<string | null>('i18n-locale', () => null)
+  const { metaObject, updateMeta } = useLocaleHead({ baseUrl: 'https://example.com', autoUpdate: false })
   useHead(metaObject)
   if (import.meta.server) updateMeta()
   else
     watch(
-      () => route.fullPath,
+      () => [route.fullPath, localeState.value] as const,
       () => updateMeta(),
       { immediate: true },
     )

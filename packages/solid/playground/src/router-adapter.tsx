@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import type { I18nRoutingStrategy } from '@i18n-micro/solid'
 import type { Locale } from '@i18n-micro/types'
 import { A, type Location, type useNavigate } from '@solidjs/router'
@@ -12,7 +10,7 @@ export function createSolidRouterAdapter(
   defaultLocale: string,
   navigate: NavigateFunction,
   location: Location,
-): I18nRoutingStrategy & { getCurrentPathAccessor: Accessor<string> } {
+): I18nRoutingStrategy {
   const localeCodes = locales.map((loc) => loc.code)
 
   // Создаем сигнал для отслеживания изменений pathname
@@ -37,7 +35,7 @@ export function createSolidRouterAdapter(
 
   return {
     getCurrentPath: () => pathname(), // Returns current value for compatibility
-    getCurrentPathAccessor: pathname, // Returns accessor for reactivity
+    getCurrentPathAccessor: () => pathname,
 
     push: (target: { path: string }) => {
       // Используем navigate из @solidjs/router

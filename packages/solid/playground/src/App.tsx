@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { I18nLink, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/solid'
 import type { Component, JSX } from 'solid-js'
 

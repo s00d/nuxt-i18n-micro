@@ -1,4 +1,3 @@
-// @ts-nocheck
 /* @refresh reload */
 
 import { createI18n, I18nProvider } from '@i18n-micro/solid'

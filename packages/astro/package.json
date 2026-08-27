@@ -85,7 +85,7 @@
     "dev": "cd playground && astro dev",
     "test": "vitest run",
     "test:dist": "vitest run --config vitest.dist.config.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && pnpm --dir playground typecheck",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {

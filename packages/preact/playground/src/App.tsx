@@ -1,8 +1,6 @@
-// @ts-nocheck
-
 import { createI18n, I18nLink, I18nProvider, I18nSwitcher, useI18n } from '@i18n-micro/preact'
 import type { Locale } from '@i18n-micro/types'
-import { Fragment, h } from 'preact'
+import { Fragment, h, type ComponentChildren } from 'preact'
 import { useEffect } from 'preact/hooks'
 import { Route, Router, Switch, useLocation, useRoute } from 'wouter-preact'
 import { About } from './pages/About'
@@ -16,7 +14,6 @@ const localesConfig: Locale[] = [
   { code: 'de', displayName: 'Deutsch', iso: 'de-DE' },
 ]
 
-// Async load translations
 async function loadTranslations(locale: string) {
   try {
     const messages = await import(`./locales/${locale}.json`)
@@ -27,7 +24,6 @@ async function loadTranslations(locale: string) {
   }
 }
 
-// Create i18n instance
 const i18n = createI18n({
   locale: 'en',
   fallbackLocale: 'en',
@@ -36,7 +32,6 @@ const i18n = createI18n({
   },
 })
 
-// Initialize app
 async function initApp() {
   const path = window.location.pathname
   const firstSegment = path.split('/')[1]
@@ -60,8 +55,11 @@ async function initApp() {
 
 initApp()
 
-// Component to handle locale synchronization from URL
-const LocaleHandler = ({ children }) => {
+interface ChildrenProps {
+  children?: ComponentChildren
+}
+
+const LocaleHandler = ({ children }: ChildrenProps) => {
   const [_match, params] = useRoute('/:locale')
   const { setLocale, locale: currentLocale } = useI18n({ locales: localesConfig, defaultLocale: 'en' })
   const localeParam = params?.locale
@@ -76,16 +74,15 @@ const LocaleHandler = ({ children }) => {
   return h(Fragment, null, children)
 }
 
-// Navigation component
 const Navigation = () => {
   const { t, getLocales, locale, getLocaleName, switchLocale, localeRoute } = useI18n({ locales: localesConfig, defaultLocale: 'en' })
 
   return h(
     'nav',
     { style: { marginBottom: '20px', display: 'flex', gap: '15px', alignItems: 'center' } },
-    h(I18nLink, { to: '/', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.home')),
-    h(I18nLink, { to: '/about', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.about')),
-    h(I18nLink, { to: '/components', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, t('nav.components')),
+    h(I18nLink, { to: '/', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, String(t('nav.home'))),
+    h(I18nLink, { to: '/about', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, String(t('nav.about'))),
+    h(I18nLink, { to: '/components', localeRoute, activeStyle: { fontWeight: 'bold', backgroundColor: '#e8f5e9' } }, String(t('nav.components'))),
     h(
       'div',
       { style: { marginLeft: 'auto' } },
@@ -100,17 +97,16 @@ const Navigation = () => {
   )
 }
 
-const Layout = ({ children }) => {
+const Layout = ({ children }: ChildrenProps) => {
   return h(
     'div',
     { style: { padding: '20px', fontFamily: 'Arial, sans-serif' } },
-    h(Navigation),
+    h(Navigation, null),
     h('div', { style: { padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' } }, children),
   )
 }
 
-// Router root component with router adapter setup
-const RouterRoot = ({ children }) => {
+const RouterRoot = ({ children }: ChildrenProps) => {
   const [location, navigate] = useLocation()
   const routingStrategy = createWouterAdapter(localesConfig, 'en', location, navigate)
 
@@ -139,22 +135,20 @@ export default function App() {
         h(
           Switch,
           null,
-          // Default locale routes
           h(Route, { path: '/', component: Home }),
           h(Route, { path: '/about', component: About }),
           h(Route, { path: '/components', component: Components }),
-          // Localized routes - wrap with LocaleHandler
           h(Route, {
             path: '/:locale',
-            component: () => h(LocaleHandler, null, h(Home)),
+            component: () => h(LocaleHandler, null, h(Home, null)),
           }),
           h(Route, {
             path: '/:locale/about',
-            component: () => h(LocaleHandler, null, h(About)),
+            component: () => h(LocaleHandler, null, h(About, null)),
           }),
           h(Route, {
             path: '/:locale/components',
-            component: () => h(LocaleHandler, null, h(Components)),
+            component: () => h(LocaleHandler, null, h(Components, null)),
           }),
         ),
       ),

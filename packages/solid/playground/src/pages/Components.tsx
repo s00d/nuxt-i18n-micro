@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { I18nGroup, I18nLink, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/solid'
 import { type Component, createMemo } from 'solid-js'
 
@@ -94,13 +92,17 @@ const Components: Component = () => {
       <section style={{ margin: '30px 0', padding: '20px', 'background-color': 'white', 'border-radius': '8px', border: '1px solid #e0e0e0' }}>
         <h2 style={{ 'margin-top': 0, color: '#42b983' }}>I18nGroup Component</h2>
         <I18nGroup prefix="group">
-          {({ t: groupT }: { t: (key: string, params?: Record<string, string | number | boolean>) => string }) => (
-            <div>
-              <p>{groupT('title')}</p>
-              <p>{groupT('description')}</p>
-              <p>{groupT('item', { count: 5 })}</p>
-            </div>
-          )}
+          <div>
+            <p>
+              <I18nT keypath="group.title" />
+            </p>
+            <p>
+              <I18nT keypath="group.description" />
+            </p>
+            <p>
+              <I18nT keypath="group.item" params={{ count: 5 }} />
+            </p>
+          </div>
         </I18nGroup>
       </section>
 

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { useI18n } from '@i18n-micro/solid'
 import type { Component } from 'solid-js'
 
@@ -8,9 +6,9 @@ const About: Component = () => {
 
   return (
     <div>
-      <h1>{t('about.title')}</h1>
-      <p>{t('about.description')}</p>
-      <p>{t('welcome')}</p>
+      <h1>{String(t('about.title'))}</h1>
+      <p>{String(t('about.description'))}</p>
+      <p>{String(t('welcome'))}</p>
     </div>
   )
 }

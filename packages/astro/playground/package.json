@@ -9,7 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "astro check"
   },
   "dependencies": {
     "@astrojs/node": "catalog:",
@@ -26,6 +26,7 @@
     "vue": "catalog:"
   },
   "devDependencies": {
+    "@astrojs/check": "catalog:",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   }

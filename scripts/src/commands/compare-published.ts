@@ -21,6 +21,24 @@ export interface ComparePublishedReport {
   errorCount: number
 }
 
+export interface NpmPackEntry {
+  filename: string
+  files?: { path: string }[]
+}
+
+/**
+ * Normalize `npm pack --json` output across npm versions.
+ *
+ * npm ≤11 returned an array of entries; npm ≥12 returns an object keyed by
+ * package name (npm/cli#9247). Callers only need the first packed entry.
+ */
+export function firstNpmPackEntry(parsed: unknown, label: string): NpmPackEntry {
+  const entries = Array.isArray(parsed) ? parsed : parsed && typeof parsed === 'object' ? Object.values(parsed as Record<string, unknown>) : []
+  const first = entries[0] as NpmPackEntry | undefined
+  if (!first?.filename) throw new Error(`npm pack returned no tarball (${label})`)
+  return first
+}
+
 export const comparePublishedCommand = defineCommand({
   meta: {
     name: 'compare-published',
@@ -64,12 +82,10 @@ export const comparePublishedCommand = defineCommand({
       const packArgs = ['pack', '--json', '--pack-destination', dest]
       if (spec) packArgs.push(spec)
       const output = run('npm', packArgs, { cwd: spec ? repoRoot : cwd })
-      const parsed = JSON.parse(output)
-      const first = parsed[0]
-      if (!first?.filename) throw new Error(`npm pack returned no tarball (${spec ?? cwd})`)
+      const first = firstNpmPackEntry(JSON.parse(output), spec ?? cwd)
       return {
         tarball: join(dest, first.filename),
-        files: ((first.files ?? []) as { path: string }[]).map((f) => f.path.replace(/\\/g, '/')),
+        files: (first.files ?? []).map((f) => f.path.replace(/\\/g, '/')),
       }
     }
 

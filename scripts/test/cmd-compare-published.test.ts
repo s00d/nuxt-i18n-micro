@@ -13,7 +13,7 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
   assertBaseResolvable: () => {},
 }))
 
-const { comparePublishedCommand } = await import('../src/commands/compare-published')
+const { comparePublishedCommand, firstNpmPackEntry } = await import('../src/commands/compare-published')
 type ComparePublishedReport = import('../src/commands/compare-published').ComparePublishedReport
 
 const pkg = (name: string): WorkspacePackage =>
@@ -24,6 +24,32 @@ const pkg = (name: string): WorkspacePackage =>
  * which is what makes these assertions cheap: no npm, no tarballs, no filesystem.
  */
 const run = (args: Partial<{ package: string }> = {}) => runCli(comparePublishedCommand, { json: true, changedOnly: true, ...args })
+
+describe('firstNpmPackEntry', () => {
+  it('reads the legacy npm ≤11 array shape', () => {
+    expect(firstNpmPackEntry([{ filename: 'pkg-1.0.0.tgz', files: [{ path: 'package.json' }] }], 'pkg')).toEqual({
+      filename: 'pkg-1.0.0.tgz',
+      files: [{ path: 'package.json' }],
+    })
+  })
+
+  it('reads the npm ≥12 object-keyed shape', () => {
+    expect(
+      firstNpmPackEntry(
+        { '@scope/pkg': { filename: 'scope-pkg-1.0.0.tgz', files: [{ path: 'dist/index.mjs' }] } },
+        '@scope/pkg',
+      ),
+    ).toEqual({
+      filename: 'scope-pkg-1.0.0.tgz',
+      files: [{ path: 'dist/index.mjs' }],
+    })
+  })
+
+  it('throws when neither shape yields a filename', () => {
+    expect(() => firstNpmPackEntry({}, 'pkg')).toThrow('npm pack returned no tarball (pkg)')
+    expect(() => firstNpmPackEntry([], 'pkg')).toThrow('npm pack returned no tarball (pkg)')
+  })
+})
 
 describe('compare-published', () => {
   it('passes --package through to the package listing', async () => {

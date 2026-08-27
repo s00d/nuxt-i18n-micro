@@ -6,11 +6,14 @@
     "dev": "vitepress dev .",
     "build": "vitepress build .",
     "preview": "vitepress preview .",
-    "node-helpers": "node ./scripts/node-helpers.mjs"
+    "node-helpers": "node ./scripts/node-helpers.mjs",
+    "typecheck": "vue-tsc --noEmit"
   },
   "devDependencies": {
     "@i18n-micro/vitepress": "workspace:*",
+    "typescript": "catalog:",
     "vitepress": "catalog:",
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "vue-tsc": "catalog:"
   }
 }

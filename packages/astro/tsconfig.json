@@ -20,6 +20,6 @@
       "@i18n-micro/astro/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "src/astro-shim.d.ts"],
-  "exclude": ["node_modules", "dist", "**/dist/**", "**/*.d.ts"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/dist/**"]
 }

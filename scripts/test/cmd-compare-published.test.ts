@@ -43,10 +43,13 @@ describe('fetchNpmLatestBulk', () => {
 
     const lookup = await fetchNpmLatestBulk(['@i18n-micro/core', '@i18n-micro/missing'])
     expect(lookup.get('@i18n-micro/core')).toEqual({
-      version: '1.2.3',
-      tarball: 'https://registry.npmjs.org/@i18n-micro/core/-/pkg-1.2.3.tgz',
+      ok: true,
+      meta: {
+        version: '1.2.3',
+        tarball: 'https://registry.npmjs.org/@i18n-micro/core/-/pkg-1.2.3.tgz',
+      },
     })
-    expect(lookup.get('@i18n-micro/missing')).toBeNull()
+    expect(lookup.get('@i18n-micro/missing')).toEqual({ ok: true, meta: null })
 
     fetchMock.mockRestore()
   })

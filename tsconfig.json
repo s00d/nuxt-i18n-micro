@@ -8,6 +8,14 @@
     // from a tarball or npm, so it is not part of this repo's TS project.
     "test/deploy-smoke",
     "scripts",
+    // Package sources and demos have their own tsconfigs / CI build+test steps.
+    // Without this, root `tsc`/`vue-tsc` walks the whole monorepo via `.nuxt`'s `../**/*`.
+    "packages/**",
+    "client",
+    "docs"
   ],
-
+  // Nuxt 4.5+ injects vue-router/volar/* into .nuxt/tsconfig; this repo peers vue-router@4.
+  "vueCompilerOptions": {
+    "plugins": []
+  }
 }

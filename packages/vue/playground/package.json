@@ -12,7 +12,7 @@
     "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
     "preview": "vite preview",
     "preview:ssr": "NODE_ENV=production node server.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@i18n-micro/core": "workspace:^",
@@ -30,6 +30,7 @@
     "@vue/devtools-api": "catalog:",
     "@vue/server-renderer": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-vue-devtools": "catalog:"
+    "vite-plugin-vue-devtools": "catalog:",
+    "vue-tsc": "catalog:"
   }
 }

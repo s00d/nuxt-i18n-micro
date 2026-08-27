@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/test-utils",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "Testing helpers for Nuxt I18n Micro (translations, locales, formatting mocks).",
   "keywords": [
     "i18n",
@@ -62,6 +62,7 @@
     "build": "vite build",
     "check:package": "publint",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {

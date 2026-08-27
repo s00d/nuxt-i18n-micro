@@ -1,14 +1,12 @@
 import { useI18n } from '@i18n-micro/preact'
-import type React from 'react'
 
-// @ts-expect-error - Preact/React type incompatibility
-export const About: React.FC = () => {
+export function About() {
   const { t } = useI18n()
 
   return (
     <div>
-      <h1>{t('about.title')}</h1>
-      <p>{t('about.description')}</p>
+      <h1>{String(t('about.title'))}</h1>
+      <p>{String(t('about.description'))}</p>
     </div>
   )
 }

@@ -1,10 +1,6 @@
-// @ts-nocheck
-
 import { I18nGroup, I18nLink, I18nSwitcher, I18nT, useI18n } from '@i18n-micro/preact'
-import type React from 'react'
 
-// @ts-expect-error - Preact/React type incompatibility
-export const Components: React.FC = () => {
+export function Components() {
   const localesConfig = [
     { code: 'en', displayName: 'English', iso: 'en-US' },
     { code: 'fr', displayName: 'Français', iso: 'fr-FR' },
@@ -15,8 +11,8 @@ export const Components: React.FC = () => {
 
   return (
     <div>
-      <h1>{t('components.title')}</h1>
-      <p>{t('components.description')}</p>
+      <h1>{String(t('components.title'))}</h1>
+      <p>{String(t('components.description'))}</p>
 
       <section style={{ margin: '30px 0', padding: '20px', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
         <h2 style={{ marginTop: 0, color: '#42b983' }}>I18nT Component</h2>
@@ -56,13 +52,13 @@ export const Components: React.FC = () => {
         <h2 style={{ marginTop: 0, color: '#42b983' }}>I18nLink Component</h2>
         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
           <I18nLink to="/" localeRoute={localeRoute} activeStyle={{ fontWeight: 'bold', color: '#42b983' }}>
-            {t('nav.home')}
+            {String(t('nav.home'))}
           </I18nLink>
           <I18nLink to="/about" localeRoute={localeRoute} activeStyle={{ fontWeight: 'bold', color: '#42b983' }}>
-            {t('nav.about')}
+            {String(t('nav.about'))}
           </I18nLink>
           <I18nLink to="/components" localeRoute={localeRoute} activeStyle={{ fontWeight: 'bold', color: '#42b983' }}>
-            {t('nav.components')}
+            {String(t('nav.components'))}
           </I18nLink>
           <I18nLink to="https://example.com" target="_blank">
             External Link
@@ -109,9 +105,9 @@ export const Components: React.FC = () => {
         <I18nGroup prefix="group">
           {({ t: groupT }) => (
             <div>
-              <p>{groupT('title')}</p>
-              <p>{groupT('description')}</p>
-              <p>{groupT('item', { count: 5 })}</p>
+              <p>{String(groupT('title'))}</p>
+              <p>{String(groupT('description'))}</p>
+              <p>{String(groupT('item', { count: 5 }))}</p>
             </div>
           )}
         </I18nGroup>

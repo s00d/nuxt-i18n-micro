@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/route-strategy",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "description": "Locale-aware route generator for Nuxt i18n micro",
   "keywords": [
     "i18n",
@@ -65,6 +65,7 @@
     "build": "vite build",
     "check:package": "publint",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.build.json",
     "test:dist": "vitest run --config vitest.dist.config.ts",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },

@@ -31,7 +31,11 @@ export interface NpmLatestMeta {
   tarball: string
 }
 
-export type NpmLatestLookup = Map<string, NpmLatestMeta | null | { error: string }>
+export type NpmLatestLookup =
+  | { ok: true; meta: NpmLatestMeta | null }
+  | { ok: false; error: string }
+
+export type NpmLatestLookupMap = Map<string, NpmLatestLookup>
 
 async function runAsync(cmd: string, args: string[], options: { cwd?: string } = {}): Promise<string> {
   const { stdout } = await execFileAsync(cmd, args, {
@@ -97,13 +101,13 @@ async function fetchNpmLatest(name: string): Promise<NpmLatestMeta | null> {
 }
 
 /** One registry round-trip phase for every package name (npm has no multi-package latest API). */
-export async function fetchNpmLatestBulk(names: readonly string[]): Promise<NpmLatestLookup> {
+export async function fetchNpmLatestBulk(names: readonly string[]): Promise<NpmLatestLookupMap> {
   const entries = await Promise.all(
-    names.map(async (name) => {
+    names.map(async (name): Promise<[string, NpmLatestLookup]> => {
       try {
-        return [name, await fetchNpmLatest(name)] as const
+        return [name, { ok: true, meta: await fetchNpmLatest(name) }]
       } catch (error) {
-        return [name, { error: error instanceof Error ? error.message : String(error) }] as const
+        return [name, { ok: false, error: error instanceof Error ? error.message : String(error) }]
       }
     }),
   )
@@ -290,28 +294,29 @@ export const comparePublishedCommand = defineCommand({
     }
 
     const packages = listWorkspacePackages(packageFilter).filter(({ name }) => !changedNames || changedNames.has(name))
-    const npmLatest = args.localOnly ? new Map<string, NpmLatestMeta | null>() : await fetchNpmLatestBulk(packages.map((p) => p.name))
+    const npmLatest: NpmLatestLookupMap = args.localOnly ? new Map() : await fetchNpmLatestBulk(packages.map((p) => p.name))
 
     const refTarballs = new Map<string, string>()
+    const refTarballErrors = new Map<string, string>()
     if (!args.localOnly) {
       mkdirSync(cacheRoot, { recursive: true })
       const downloads = packages.flatMap((pkg) => {
         const lookup = npmLatest.get(pkg.name)
-        if (!lookup || lookup === null || 'error' in lookup) return []
-        return [{ name: pkg.name, meta: lookup }]
+        if (!lookup?.ok || !lookup.meta) return []
+        return [{ name: pkg.name, meta: lookup.meta }]
       })
       const resolved = await Promise.all(
         downloads.map(async ({ name, meta }) => {
           try {
-            return [name, await resolveRefTarball(name, meta, cacheRoot, args.skipDownload)] as const
+            return { name, ok: true as const, tarball: await resolveRefTarball(name, meta, cacheRoot, args.skipDownload) }
           } catch (error) {
-            return [name, { error: error instanceof Error ? error.message : String(error) }] as const
+            return { name, ok: false as const, error: error instanceof Error ? error.message : String(error) }
           }
         }),
       )
-      for (const [name, value] of resolved) {
-        if (typeof value === 'string') refTarballs.set(name, value)
-        else npmLatest.set(name, value)
+      for (const result of resolved) {
+        if (result.ok) refTarballs.set(result.name, result.tarball)
+        else refTarballErrors.set(result.name, result.error)
       }
     }
 
@@ -344,13 +349,25 @@ export const comparePublishedCommand = defineCommand({
       }
 
       const lookup = npmLatest.get(name)
-      if (lookup && 'error' in lookup) {
+      if (!lookup) {
+        entry.info.push('not published on npm yet — skipping ref download')
+        results.push(entry)
+        continue
+      }
+      if (!lookup.ok) {
         entry.errors.push(lookup.error)
         results.push(entry)
         continue
       }
-      if (!lookup) {
+      if (!lookup.meta) {
         entry.info.push('not published on npm yet — skipping ref download')
+        results.push(entry)
+        continue
+      }
+
+      const downloadError = refTarballErrors.get(name)
+      if (downloadError) {
+        entry.errors.push(downloadError)
         results.push(entry)
         continue
       }
@@ -362,7 +379,7 @@ export const comparePublishedCommand = defineCommand({
         continue
       }
 
-      compareAgainstPublished(entry, localPaths, pkg, localVersion, lookup, ref.paths, ref.manifest)
+      compareAgainstPublished(entry, localPaths, pkg, localVersion, lookup.meta, ref.paths, ref.manifest)
       results.push(entry)
     }
 

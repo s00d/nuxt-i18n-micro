@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/react",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "description": "React bindings for i18n-micro — hooks, context, and UI components.",
   "keywords": [
     "i18n",
@@ -49,7 +49,7 @@
     "check:package": "publint",
     "dev": "cd playground && vite",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit -p tsconfig.build.json",
     "prepublishOnly": "pnpm run build && pnpm run check:package"
   },
   "dependencies": {

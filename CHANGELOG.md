@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v3.28.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.3...v3.28.4)
+
+### 🩹 Fixes
+
+- **path-strategy:** Keep query and hash from string inputs to localeRoute ([#253](https://github.com/s00d/nuxt-i18n-micro/pull/253))
+- **scripts:** Compare export types by exact path ([563dc5dd](https://github.com/s00d/nuxt-i18n-micro/commit/563dc5dd))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Miguel Ferreira <mferreira.oeiras@gmail.com>
+
 ## v3.28.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.2...v3.28.3)

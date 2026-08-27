@@ -400,6 +400,56 @@ export const onRequest = createI18nMiddleware({
 })
 ```
 
+## Locale-prefixed routes (`/[locale]/*`)
+
+With `createAstroRouterAdapter`, localized URLs look like `/fr/about` while your page files stay at `src/pages/about.astro`. Add thin rewrite stubs under `src/pages/[locale]/` that delegate to the default-locale pages:
+
+```
+src/pages/
+  about.astro              # default content
+  [locale]/
+    about.astro            # rewrite stub
+    index.astro
+    components.astro
+```
+
+Each stub validates `:locale`, syncs `Astro.locals.i18n` / `Astro.locals.locale`, and rewrites to the base path:
+
+```astro
+---
+import { prepareLocaleRewrite } from '@i18n-micro/astro'
+
+const rewriteTarget = prepareLocaleRewrite(Astro)
+if (rewriteTarget instanceof Response) return rewriteTarget
+
+return Astro.rewrite(rewriteTarget)
+---
+```
+
+### `prepareLocaleRewrite(astro: AstroGlobal)`
+
+Returns:
+
+- `Response` with status `404` when `:locale` is missing or not configured
+- otherwise the base path string for `Astro.rewrite()` (locale prefix stripped from `Astro.locals.currentUrl`)
+
+Use this helper in every `src/pages/[locale]/*.astro` rewrite route. See [`packages/astro/playground/src/pages/[locale]/`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/astro/playground/src/pages/%5Blocale%5D) for a working setup.
+
+### `getLocaleRewritePath(astro: AstroGlobal): string`
+
+Lower-level helper when you already validated/synced locale yourself. Equivalent to `useI18n(astro).getBasePath(astro.locals.currentUrl ?? astro.url)`.
+
+```typescript
+import { getLocaleRewritePath } from '@i18n-micro/astro'
+
+const path = getLocaleRewritePath(Astro)
+return Astro.rewrite(path)
+```
+
+### Typecheck
+
+Run `astro check --minimumFailingSeverity hint` in your Astro project (the playground uses this in `typecheck`) so unused-import hints in rewrite frontmatter fail CI instead of being silently ignored.
+
 ## Router Integration
 
 ### I18nRoutingStrategy Interface
@@ -1742,6 +1792,14 @@ Gets the default locale from Astro context.
 #### `getLocales(astro: AstroGlobal): Locale[]`
 
 Gets all available locales from Astro context.
+
+#### `getLocaleRewritePath(astro: AstroGlobal): string`
+
+Returns the path without locale prefix for `Astro.rewrite()` on `/[locale]/*` routes. Uses `Astro.locals.currentUrl` when set by i18n middleware.
+
+#### `prepareLocaleRewrite(astro: AstroGlobal): Response | string`
+
+Validates `:locale`, syncs i18n/locals, and returns the rewrite target path (or `404 Response`). Preferred entry point for `[locale]` rewrite stub pages — see [Locale-prefixed routes](#locale-prefixed-routes-locale).
 
 ## Components
 

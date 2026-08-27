@@ -8,6 +8,7 @@ member AstroI18n.addTranslations: (locale: string, translations: Translations, m
 member AstroI18n.clearCache: () => void
 member AstroI18n.clone: (newLocale?: string) => AstroI18n
 member AstroI18n.cloneStorage: private (source: TranslationStorage) => TranslationStorage
+member AstroI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("packages/astro/src/composer").AstroI18n & M>) => import("packages/astro/src/composer").AstroI18n & M
 member AstroI18n.fallbackLocale: string
 member AstroI18n.formatter: FormatService
 member AstroI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -89,6 +90,7 @@ function getGlobalRoutingStrategy: () => I18nRoutingStrategy | null
 function getI18n: (astro: AstroGlobal) => AstroI18n
 function getI18nProps: (astro: AstroGlobal, keys?: string[]) => I18nClientProps
 function getLocale: (astro: AstroGlobal) => string
+function getLocaleRewritePath: (astro: AstroGlobal) => string
 function getLocales: (astro: AstroGlobal) => Locale[]
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 interface I18nClientProps
@@ -204,6 +206,7 @@ member LocaleHeadResult.link: { rel: string; href: string; hreflang?: string; }[
 member LocaleHeadResult.meta: { property: string; content: string; }[]
 type Params: Record<string, string | number | boolean>
 type PluralFunc: (key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string | null
+function prepareLocaleRewrite: (astro: AstroGlobal) => Response | string
 function runWithRoutingStrategy: <T>(strategy: I18nRoutingStrategy | null, fn: () => T) => T
 function setGlobalRoutingStrategy: (strategy: I18nRoutingStrategy | null) => void
 interface Translations

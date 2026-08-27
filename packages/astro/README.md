@@ -58,6 +58,23 @@ const { t, locale } = useI18n(Astro)
 </html>
 ```
 
+### 3. Locale-prefixed URLs (`/[locale]/*`)
+
+When using `createAstroRouterAdapter`, add rewrite stubs under `src/pages/[locale]/`:
+
+```astro
+---
+import { prepareLocaleRewrite } from '@i18n-micro/astro'
+
+const rewriteTarget = prepareLocaleRewrite(Astro)
+if (rewriteTarget instanceof Response) return rewriteTarget
+
+return Astro.rewrite(rewriteTarget)
+---
+```
+
+See the [full Astro integration guide](https://s00d.github.io/nuxt-i18n-micro/integrations/astro-package.html#locale-prefixed-routes-locale) for routing layout and typecheck notes.
+
 ## Resources
 
 - **Repository**: [https://github.com/s00d/nuxt-i18n-micro](https://github.com/s00d/nuxt-i18n-micro)

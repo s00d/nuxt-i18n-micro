@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/astro`
 
-56 exports across 6 entry points.
+58 exports across 6 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/astro'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `AstroI18n` | class | 48 members |
+| `AstroI18n` | class | 49 members |
 | `AstroI18nOptions` | interface | 9 members |
 | `CleanTranslation` | type | `string \| number \| boolean \| Translations \| PluralTranslations \| null` |
 | `createAstroRouterAdapter` | function | `(locales: Locale[], defaultLocale: string, getCurrentUrl?: () => URL) => I18nRoutingStrategy` |
@@ -32,6 +32,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `getI18n` | function | `(astro: AstroGlobal) => AstroI18n` |
 | `getI18nProps` | function | `(astro: AstroGlobal, keys?: string[]) => I18nClientProps` |
 | `getLocale` | function | `(astro: AstroGlobal) => string` |
+| `getLocaleRewritePath` | function | `(astro: AstroGlobal) => string` |
 | `getLocales` | function | `(astro: AstroGlobal) => Locale[]` |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nClientProps` | interface | 4 members |
@@ -50,6 +51,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `LocaleHeadResult` | interface | 3 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
+| `prepareLocaleRewrite` | function | `(astro: AstroGlobal) => Response \| string` |
 | `runWithRoutingStrategy` | function | `<T>(strategy: I18nRoutingStrategy \| null, fn: () => T) => T` |
 | `setGlobalRoutingStrategy` | function | `(strategy: I18nRoutingStrategy \| null) => void` |
 | `Translations` | interface | 1 members |
@@ -57,7 +59,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `useLocaleHead` | function | `(astro: AstroGlobal, options?: LocaleHeadOptions) => LocaleHeadResult` |
 
 <details>
-<summary><code>AstroI18n</code> — 48 members</summary>
+<summary><code>AstroI18n</code> — 49 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -69,6 +71,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `clearCache` | `() => void` |
 | `clone` | `(newLocale?: string) => AstroI18n` |
 | `cloneStorage` | `private (source: TranslationStorage) => TranslationStorage` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("packages/astro/src/composer").AstroI18n & M>) => import("packages/astro/src/composer").AstroI18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |

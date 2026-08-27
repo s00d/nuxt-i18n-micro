@@ -17,7 +17,7 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
   assertBaseResolvable: () => {},
 }))
 
-const { comparePublishedCommand, fetchNpmLatestBulk, listLocalPackPaths } = await import('../src/commands/compare-published')
+const { comparePublishedCommand, fetchNpmLatestBulk, listLocalPackPaths, diffExportTypePaths } = await import('../src/commands/compare-published')
 type ComparePublishedReport = import('../src/commands/compare-published').ComparePublishedReport
 
 const pkg = (name: string): WorkspacePackage =>
@@ -65,6 +65,38 @@ describe('listLocalPackPaths', () => {
     expect(paths).toContain('LICENSE')
     expect(paths.some((p) => p.startsWith('dist/'))).toBe(true)
     expect(paths.some((p) => p.includes('node_modules'))).toBe(false)
+  })
+})
+
+describe('diffExportTypePaths', () => {
+  const astroExports = {
+    '.': { import: { types: './dist/index.d.ts', default: './dist/index.mjs' } },
+    './client': { types: './dist/client/index.d.ts', import: './dist/client/index.js' },
+  }
+
+  it('does not treat dist/index.d.ts and dist/client/index.d.ts as a rename', () => {
+    // Same exports on both sides — basename collision must not warn.
+    const diff = diffExportTypePaths(astroExports, astroExports)
+    expect(diff.warnings).toEqual([])
+    expect(diff.info).toEqual([])
+  })
+
+  it('reports a truly new types path as info', () => {
+    const local = {
+      ...astroExports,
+      './env': { types: './dist/env.d.ts' },
+    }
+    const diff = diffExportTypePaths(astroExports, local)
+    expect(diff.warnings).toEqual([])
+    expect(diff.info).toContain('new types export path: dist/env.d.ts')
+  })
+
+  it('reports a removed types path as a warning', () => {
+    const local = {
+      '.': { import: { types: './dist/index.d.ts', default: './dist/index.mjs' } },
+    }
+    const diff = diffExportTypePaths(astroExports, local)
+    expect(diff.warnings).toContain('types path removed from exports: dist/client/index.d.ts')
   })
 })
 

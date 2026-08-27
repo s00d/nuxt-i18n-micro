@@ -129,6 +129,22 @@ describe('localeRoute: string input with embedded query/hash', () => {
     expect(result.fullPath).toBe('/de/katalog?sort=price')
   })
 
+  // applyBaseUrl returns an absolute URL string for path-kind inputs; query/hash
+  // must still be merged in _ensureRouteLike (same footgun as relative paths).
+  test('string query and hash survive when the target locale has baseUrl', () => {
+    const s = makeStrategy('prefix_except_default', {
+      locales: [
+        { code: 'en', iso: 'en-US' },
+        { code: 'de', iso: 'de-DE', baseUrl: 'https://de.example.com' },
+      ],
+    })
+    const result = s.localeRoute('de', '/products?sort=price#frag')
+    expect(result.path).toBe('https://de.example.com/de/products')
+    expect(result.query).toEqual({ sort: 'price' })
+    expect(result.hash).toBe('#frag')
+    expect(result.fullPath).toBe('https://de.example.com/de/products?sort=price#frag')
+  })
+
   test('encoded query values are decoded like vue-router does', () => {
     const s = makeStrategy('prefix_except_default')
     const result = s.localeRoute('en', '/products?redirect=%2Fdashboard%3Ftab%3D1')

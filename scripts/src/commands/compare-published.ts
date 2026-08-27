@@ -172,6 +172,34 @@ function collectExportTypePaths(value: ExportEntry | undefined, out: string[] = 
   return out
 }
 
+/**
+ * Diff `exports` type targets by exact path.
+ * Basename fuzzy-matching is wrong: `dist/index.d.ts` and `dist/client/index.d.ts`
+ * share a filename but are different entry points (astro false positive).
+ */
+export function diffExportTypePaths(
+  refExports: ExportEntry | undefined,
+  localExports: ExportEntry | undefined,
+  localPackPaths: string[] = [],
+): { warnings: string[]; info: string[] } {
+  const warnings: string[] = []
+  const info: string[] = []
+  const refTypes = new Set(collectExportTypePaths(refExports))
+  const localTypes = new Set(collectExportTypePaths(localExports))
+
+  for (const t of localTypes) {
+    if (!refTypes.has(t) && refTypes.size > 0) {
+      info.push(`new types export path: ${t}`)
+    }
+  }
+  for (const t of refTypes) {
+    if (!localTypes.has(t) && !localPackPaths.includes(t)) {
+      warnings.push(`types path removed from exports: ${t}`)
+    }
+  }
+  return { warnings, info }
+}
+
 const HASHED_CHUNK_RE = /^(?:base-strategy|common)-[A-Za-z0-9_-]{6,}\.(?:js|cjs|mjs)$/
 const DIST_RUNTIME_RE = /^dist\/[^/]+\.(?:mjs|cjs|js)$/
 
@@ -215,22 +243,9 @@ function compareAgainstPublished(
     entry.warnings.push(`added dist runtime: ${f}`)
   }
 
-  const refTypes = new Set(collectExportTypePaths(refPkg.exports))
-  const localTypes = new Set(collectExportTypePaths(localPkg.exports))
-  for (const t of localTypes) {
-    const baseName = t.split('/').pop() ?? t
-    const refMatch = [...refTypes].find((r) => r === t || r.endsWith(`/${baseName}`) || r.endsWith(baseName))
-    if (!refMatch && refTypes.size > 0) {
-      entry.info.push(`new types export path: ${t}`)
-    } else if (refMatch && refMatch !== t) {
-      entry.warnings.push(`types path changed: ${refMatch} → ${t}`)
-    }
-  }
-  for (const t of refTypes) {
-    if (!localTypes.has(t) && !localPaths.includes(t)) {
-      entry.warnings.push(`types path removed from exports: ${t}`)
-    }
-  }
+  const typesDiff = diffExportTypePaths(refPkg.exports, localPkg.exports, localPaths)
+  entry.warnings.push(...typesDiff.warnings)
+  entry.info.push(...typesDiff.info)
 
   if (localVersion !== meta.version) {
     entry.info.push(`version bump ${meta.version} → ${localVersion}`)

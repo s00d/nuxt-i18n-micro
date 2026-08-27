@@ -1,24 +1,8 @@
 ---
-import { getLocaleRewritePath } from '../../lib/locale-rewrite-path'
+import { prepareLocaleRewrite } from '@i18n-micro/astro'
 
-const { locale } = Astro.params
-const { locales } = Astro.locals
-const validLocales = locales?.map((l) => l.code) || ['en', 'fr', 'de']
+const rewriteTarget = prepareLocaleRewrite(Astro)
+if (rewriteTarget instanceof Response) return rewriteTarget
 
-if (!locale || !validLocales.includes(locale)) {
-  return new Response(null, { status: 404 })
-}
-
-const i18n = Astro.locals.i18n
-if (i18n && locale) {
-  i18n.locale = locale
-  Astro.locals.locale = locale
-}
-
-const rewritePath = getLocaleRewritePath(Astro)
-if (typeof rewritePath !== 'string') {
-  return new Response(null, { status: 500 })
-}
-
-return Astro.rewrite(rewritePath)
+return Astro.rewrite(rewriteTarget)
 ---

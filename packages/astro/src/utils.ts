@@ -182,6 +182,35 @@ export function useI18n(astro: AstroGlobal) {
 }
 
 /**
+ * Strip locale prefix from the current URL for `Astro.rewrite()` on `/[locale]/*` routes.
+ */
+export function getLocaleRewritePath(astro: AstroGlobal): string {
+  const url = astro.locals.currentUrl ?? astro.url
+  return useI18n(astro).getBasePath(url)
+}
+
+/**
+ * Validate `:locale`, sync i18n/locals, and return the base path for `Astro.rewrite()`.
+ * Returns a `Response` when the locale param is invalid.
+ */
+export function prepareLocaleRewrite(astro: AstroGlobal): Response | string {
+  const { locale } = astro.params
+  const localeCodes = getLocales(astro).map((entry) => entry.code)
+
+  if (!locale || !localeCodes.includes(locale)) {
+    return new Response(null, { status: 404 })
+  }
+
+  const i18n = astro.locals.i18n
+  if (i18n) {
+    i18n.locale = locale
+    astro.locals.locale = locale
+  }
+
+  return getLocaleRewritePath(astro)
+}
+
+/**
  * Generate locale head meta tags for SEO
  */
 export interface LocaleHeadOptions {

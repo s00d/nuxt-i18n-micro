@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v3.28.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.2...v3.28.3)
+
+### 🩹 Fixes
+
+- **path-strategy:** Parse npm 12 pack --json output in publish test ([377ed861](https://github.com/s00d/nuxt-i18n-micro/commit/377ed861))
+- **meta:** Refresh SEO head on locale-only switches ([c8801dff](https://github.com/s00d/nuxt-i18n-micro/commit/c8801dff))
+- **scripts:** Judge release source by net HEAD vs tag ([8a5747e3](https://github.com/s00d/nuxt-i18n-micro/commit/8a5747e3))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.28.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.1...v3.28.2)

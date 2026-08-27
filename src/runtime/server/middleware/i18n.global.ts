@@ -17,7 +17,7 @@ import { loadTranslationsFromServer } from '../utils/server-loader'
 
 export default defineEventHandler(async (event) => {
   const appBaseURL = useRuntimeConfig(event).app.baseURL
-  const rawPath = event.path || getRequestURL(event).pathname
+  const rawPath = getRequestURL(event).pathname
   const path = withoutAppBaseURL(rawPath, appBaseURL)
 
   if (path.startsWith('/api') || path.startsWith('/_nuxt') || path.startsWith('/_locales') || path.startsWith('/__')) return

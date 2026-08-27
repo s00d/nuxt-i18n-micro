@@ -62,10 +62,36 @@ function short(sha: string): string {
   return sha.slice(0, 8)
 }
 
+function releaseVersionFromSubject(subject: string): string | null {
+  return subject.match(/v?(\d+\.\d+\.\d+)/)?.[1] ?? null
+}
+
+/** True when `path` differs between baseline and HEAD (net tree change). */
+function pathChangedSince(from: string, path: string): boolean {
+  // Empty stdout + exit 0 ⇒ identical; non-zero exit from `git diff --quiet` ⇒ changed.
+  // tryRun returns null on non-zero, so null means "changed or missing".
+  const identical = tryRun('git', ['diff', '--quiet', from, 'HEAD', '--', path])
+  return identical === null
+}
+
+/**
+ * A changelogen release commit between baseline and HEAD that left `package.json`
+ * at `expectedVersion`.
+ */
+function findMatchingReleaseCommit(from: string, expectedVersion: string): string | null {
+  for (const sha of commitsTouching(from, 'package.json')) {
+    const subject = commitSubject(sha)
+    if (!RELEASE_COMMIT_SUBJECT.test(subject)) continue
+    if (releaseVersionFromSubject(subject) !== expectedVersion) continue
+    if (versionAt(sha) === expectedVersion) return sha
+  }
+  return null
+}
+
 /**
  * Root `package.json` version and `CHANGELOG.md` must only move through changelogen
- * (`pnpm -C scripts cli release`). Catches hand-edits in the working tree and in git
- * history since the previous release tag.
+ * (`pnpm -C scripts cli release`). Checks the working tree and the **net** tree
+ * since the previous release tag (intermediate hand-bumps that were reverted are OK).
  */
 export function checkReleaseSource(from?: string): ReleaseSourceReport {
   const baseline = from ?? resolveFromTag('ensure-release-source')
@@ -99,37 +125,36 @@ export function checkReleaseSource(from?: string): ReleaseSourceReport {
     }
   }
 
-  // --- git: CHANGELOG.md ---
-  for (const sha of commitsTouching(baseline, 'CHANGELOG.md')) {
-    const subject = commitSubject(sha)
-    if (!RELEASE_COMMIT_SUBJECT.test(subject)) {
+  const baseVersion = versionAt(baseline)
+  const headVersion = versionAt('HEAD')
+
+  // --- net version: only HEAD vs baseline matters ---
+  if (baseVersion && headVersion && baseVersion !== headVersion) {
+    const releaseSha = findMatchingReleaseCommit(baseline, headVersion)
+    if (!releaseSha) {
       violations.push({
-        kind: 'manual-changelog',
-        message: `${short(sha)} changed CHANGELOG.md outside the release CLI (${subject}).`,
+        kind: 'manual-version',
+        message: `HEAD version is ${headVersion} (was ${baseVersion} at ${baseline}) without a matching \`chore(release)\` commit. Use \`pnpm -C scripts cli release\`.`,
       })
+    } else {
+      const subject = commitSubject(releaseSha)
+      const expected = releaseVersionFromSubject(subject)
+      if (expected && expected !== headVersion) {
+        violations.push({
+          kind: 'release-mismatch',
+          message: `${short(releaseSha)} subject is "${subject}" but package.json version is ${headVersion}.`,
+        })
+      }
     }
   }
 
-  // --- git: package.json version field ---
-  for (const sha of commitsTouching(baseline, 'package.json')) {
-    const before = versionAt(`${sha}^`)
-    const after = versionAt(sha)
-    if (!before || !after || before === after) continue
-
-    const subject = commitSubject(sha)
-    if (!RELEASE_COMMIT_SUBJECT.test(subject)) {
+  // --- net CHANGELOG: only a real tree diff vs baseline matters ---
+  if (pathChangedSince(baseline, 'CHANGELOG.md')) {
+    const releaseTouchedChangelog = commitsTouching(baseline, 'CHANGELOG.md').some((sha) => RELEASE_COMMIT_SUBJECT.test(commitSubject(sha)))
+    if (!releaseTouchedChangelog) {
       violations.push({
-        kind: 'manual-version',
-        message: `${short(sha)} bumped root version ${before} → ${after} by hand (${subject}). Use \`pnpm -C scripts cli release\`.`,
-      })
-      continue
-    }
-
-    const expected = subject.match(/v?(\d+\.\d+\.\d+)/)?.[1]
-    if (expected && expected !== after) {
-      violations.push({
-        kind: 'release-mismatch',
-        message: `${short(sha)} subject is "${subject}" but package.json version is ${after}.`,
+        kind: 'manual-changelog',
+        message: `CHANGELOG.md differs from ${baseline} without a \`chore(release)\` commit. Use \`pnpm -C scripts cli release\`.`,
       })
     }
   }
@@ -145,7 +170,7 @@ export const ensureReleaseSourceCommand = defineCommand({
       '',
       'Root `package.json` version and `CHANGELOG.md` must only move through',
       '`pnpm -C scripts cli release` (changelogen). This checks the working tree and',
-      'every commit since the previous release tag.',
+      'the net tree since the previous release tag (reverted hand-bumps are ignored).',
       '',
       'Examples:',
       '  pnpm -C scripts cli ensure-release-source',

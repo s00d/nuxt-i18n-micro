@@ -45,7 +45,10 @@ describe('ensure-release-source', () => {
   it('passes when nothing touched version or CHANGELOG since the tag', async () => {
     state.tryRun = (cmd, args) => {
       if (cmd === 'git' && args[0] === 'status') return ''
+      if (cmd === 'git' && args[0] === 'diff' && args.includes('--quiet')) return ''
       if (cmd === 'git' && args[0] === 'log' && args.includes('--format=%H')) return ''
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'v3.24.0:package.json') return pkg('3.24.0')
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'HEAD:package.json') return pkg('3.24.0')
       if (cmd === 'git' && args[0] === 'rev-parse') return 'ok'
       return null
     }
@@ -67,13 +70,15 @@ describe('ensure-release-source', () => {
     expect(stderr).toContain('pnpm -C scripts cli release')
   })
 
-  it('fails when a non-release commit bumped the root version', () => {
+  it('fails when HEAD version differs from the tag without a release commit', () => {
     const sha = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     state.tryRun = (cmd, args) => {
       if (cmd === 'git' && args[0] === 'status') return ''
+      if (cmd === 'git' && args[0] === 'diff' && args.includes('--quiet')) return ''
       if (cmd === 'git' && args[0] === 'log' && args.includes('package.json') && args.includes('--format=%H')) return sha
       if (cmd === 'git' && args[0] === 'log' && args.includes('CHANGELOG.md')) return ''
-      if (cmd === 'git' && args[0] === 'show' && args[1] === `${sha}^:package.json`) return pkg('3.24.0')
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'v3.24.0:package.json') return pkg('3.24.0')
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'HEAD:package.json') return pkg('3.24.1')
       if (cmd === 'git' && args[0] === 'show' && args[1] === `${sha}:package.json`) return pkg('3.24.1')
       return null
     }
@@ -85,15 +90,48 @@ describe('ensure-release-source', () => {
     const report = checkReleaseSource('v3.24.0')
     expect(report.ok).toBe(false)
     expect(report.violations.some((v) => v.kind === 'manual-version')).toBe(true)
-    expect(report.violations[0]?.message).toContain('3.24.0 → 3.24.1')
+    expect(report.violations[0]?.message).toContain('3.24.1')
+    expect(report.violations[0]?.message).toContain('3.24.0')
   })
 
-  it('fails when CHANGELOG.md changed outside chore(release)', () => {
-    const sha = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+  it('passes when a hand bump was reverted so HEAD matches the tag', () => {
+    const bump = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    const revert = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
     state.tryRun = (cmd, args) => {
       if (cmd === 'git' && args[0] === 'status') return ''
-      if (cmd === 'git' && args[0] === 'log' && args.includes('CHANGELOG.md') && args.includes('--format=%H')) return sha
+      if (cmd === 'git' && args[0] === 'diff' && args.includes('--quiet')) return ''
+      if (cmd === 'git' && args[0] === 'log' && args.includes('package.json') && args.includes('--format=%H')) {
+        return `${revert}\n${bump}`
+      }
+      if (cmd === 'git' && args[0] === 'log' && args.includes('CHANGELOG.md')) return ''
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'v3.24.0:package.json') return pkg('3.24.0')
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'HEAD:package.json') return pkg('3.24.0')
+      return null
+    }
+    state.run = (cmd, args) => {
+      if (cmd === 'git' && args[0] === 'log' && args[args.length - 1] === bump) {
+        return 'fix(meta): hand bump by mistake'
+      }
+      if (cmd === 'git' && args[0] === 'log' && args[args.length - 1] === revert) {
+        return 'chore: revert hand-bumped root version'
+      }
+      return ''
+    }
+
+    expect(checkReleaseSource('v3.24.0').ok).toBe(true)
+  })
+
+  it('fails when CHANGELOG.md differs from the tag outside chore(release)', () => {
+    state.tryRun = (cmd, args) => {
+      if (cmd === 'git' && args[0] === 'status') return ''
+      if (cmd === 'git' && args[0] === 'diff' && args.includes('CHANGELOG.md') && args.includes('--quiet')) return null
+      if (cmd === 'git' && args[0] === 'diff' && args.includes('--quiet')) return ''
+      if (cmd === 'git' && args[0] === 'log' && args.includes('CHANGELOG.md') && args.includes('--format=%H')) {
+        return 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+      }
       if (cmd === 'git' && args[0] === 'log' && args.includes('package.json')) return ''
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'v3.24.0:package.json') return pkg('3.24.0')
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'HEAD:package.json') return pkg('3.24.0')
       return null
     }
     state.run = (cmd, args) => {
@@ -110,9 +148,12 @@ describe('ensure-release-source', () => {
     const sha = 'cccccccccccccccccccccccccccccccccccccccc'
     state.tryRun = (cmd, args) => {
       if (cmd === 'git' && args[0] === 'status') return ''
+      if (cmd === 'git' && args[0] === 'diff' && args.includes('CHANGELOG.md') && args.includes('--quiet')) return null
+      if (cmd === 'git' && args[0] === 'diff' && args.includes('--quiet')) return ''
       if (cmd === 'git' && args[0] === 'log' && args.includes('--format=%H') && args.includes('package.json')) return sha
       if (cmd === 'git' && args[0] === 'log' && args.includes('CHANGELOG.md')) return sha
-      if (cmd === 'git' && args[0] === 'show' && args[1] === `${sha}^:package.json`) return pkg('3.24.0')
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'v3.24.0:package.json') return pkg('3.24.0')
+      if (cmd === 'git' && args[0] === 'show' && args[1] === 'HEAD:package.json') return pkg('3.24.1')
       if (cmd === 'git' && args[0] === 'show' && args[1] === `${sha}:package.json`) return pkg('3.24.1')
       return null
     }

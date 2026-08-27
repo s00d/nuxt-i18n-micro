@@ -1,5 +1,13 @@
 # @i18n-micro/react
 
+## 1.3.8
+
+_2026-08-27_ · [`a50963da`](https://github.com/s00d/nuxt-i18n-micro/commit/a50963da346970c3f51c10e920d4dfbafd4c1baf)
+
+### Chore
+
+- add package `typecheck` script (src-only via `tsconfig.build.json`) ([`a50963d`](https://github.com/s00d/nuxt-i18n-micro/commit/a50963da346970c3f51c10e920d4dfbafd4c1baf))
+
 ## 1.3.7
 
 _2026-08-21_ · [`0899a63c`](https://github.com/s00d/nuxt-i18n-micro/commit/0899a63ca75e3614b5cda887227b4adf925e13d7)

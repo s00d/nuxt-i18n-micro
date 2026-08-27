@@ -1,5 +1,13 @@
 # @i18n-micro/core
 
+## 1.3.15
+
+_2026-08-27_ · [`a50963da`](https://github.com/s00d/nuxt-i18n-micro/commit/a50963da346970c3f51c10e920d4dfbafd4c1baf)
+
+### Chore
+
+- add package `typecheck` script ([`a50963d`](https://github.com/s00d/nuxt-i18n-micro/commit/a50963da346970c3f51c10e920d4dfbafd4c1baf))
+
 ## 1.3.14
 
 _2026-08-21_ · [`50d606be`](https://github.com/s00d/nuxt-i18n-micro/commit/50d606bea2fc695475c11e27927b91efafcff111)

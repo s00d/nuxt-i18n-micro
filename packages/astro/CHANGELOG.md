@@ -1,6 +1,6 @@
 # @i18n-micro/astro
 
-## 1.3.14
+## 1.3.13
 
 _2026-08-27_ · [`711cbe09`](https://github.com/s00d/nuxt-i18n-micro/commit/711cbe09)
 
@@ -8,18 +8,14 @@ _2026-08-27_ · [`711cbe09`](https://github.com/s00d/nuxt-i18n-micro/commit/711c
 
 - add `prepareLocaleRewrite()` and `getLocaleRewritePath()` for `/[locale]/*` rewrite stub pages ([`711cbe0`](https://github.com/s00d/nuxt-i18n-micro/commit/711cbe09))
 
-### Documentation
-
-- document locale-prefixed rewrite routes and new helpers ([`92abe2a`](https://github.com/s00d/nuxt-i18n-micro/commit/92abe2ae))
-
-## 1.3.13
-
-_2026-08-27_ · [`a50963da`](https://github.com/s00d/nuxt-i18n-micro/commit/a50963da346970c3f51c10e920d4dfbafd4c1baf)
-
 ### Fixes
 
 - restore `astro-shim.d.ts`, fix tsconfig so `env.d.ts` is typechecked; export `./astro-shim` ([`a50963d`](https://github.com/s00d/nuxt-i18n-micro/commit/a50963da346970c3f51c10e920d4dfbafd4c1baf))
 - run `astro check` (with `--minimumFailingSeverity hint`) in package/playground typecheck ([`c1b9263`](https://github.com/s00d/nuxt-i18n-micro/commit/c1b92633), [`448544d`](https://github.com/s00d/nuxt-i18n-micro/commit/448544dd))
+
+### Documentation
+
+- document locale-prefixed rewrite routes and new helpers ([`92abe2a`](https://github.com/s00d/nuxt-i18n-micro/commit/92abe2ae))
 
 ## 1.3.12
 

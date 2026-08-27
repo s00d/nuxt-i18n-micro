@@ -1,6 +1,48 @@
 # Changelog
 
 
+## v3.28.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.1...v3.28.2)
+
+### 🚀 Enhancements
+
+- **vue:** Split router adapter to /router ([86b70346](https://github.com/s00d/nuxt-i18n-micro/commit/86b70346))
+- **astro:** Add prepareLocaleRewrite for [locale] rewrite routes ([711cbe09](https://github.com/s00d/nuxt-i18n-micro/commit/711cbe09))
+
+### 🔥 Performance
+
+- **scripts:** Rewrite compare-published for speed ([147aa6fd](https://github.com/s00d/nuxt-i18n-micro/commit/147aa6fd))
+
+### 🩹 Fixes
+
+- **runtime:** Keep locale detection when a query value contains a dot ([#252](https://github.com/s00d/nuxt-i18n-micro/pull/252))
+- **scripts:** Parse npm 12 pack --json object shape ([2bef0a87](https://github.com/s00d/nuxt-i18n-micro/commit/2bef0a87))
+- **scripts:** Parallelize compare-published tarball reads ([91bb7c9a](https://github.com/s00d/nuxt-i18n-micro/commit/91bb7c9a))
+- **typecheck:** Add astro check and remove playground ts-nocheck ([c1b92633](https://github.com/s00d/nuxt-i18n-micro/commit/c1b92633))
+- **astro:** Clear astro check hints and fail on future hints ([448544dd](https://github.com/s00d/nuxt-i18n-micro/commit/448544dd))
+- **astro:** Replace triple-slash shim reference with import ([af1b20b9](https://github.com/s00d/nuxt-i18n-micro/commit/af1b20b9))
+
+### 📖 Documentation
+
+- **astro:** Document prepareLocaleRewrite and locale rewrite routes ([92abe2ae](https://github.com/s00d/nuxt-i18n-micro/commit/92abe2ae))
+- **astro:** Add CHANGELOG entries for 1.3.13 and 1.3.14 ([9eac97b9](https://github.com/s00d/nuxt-i18n-micro/commit/9eac97b9))
+- **changelog:** Sync unreleased package versions with npm ([db984e29](https://github.com/s00d/nuxt-i18n-micro/commit/db984e29))
+
+### 🏡 Chore
+
+- **typecheck:** Scope checks per package and fix playground typing ([a50963da](https://github.com/s00d/nuxt-i18n-micro/commit/a50963da))
+- **node,preact,solid:** Cascade bump for updated workspace deps ([330e7b99](https://github.com/s00d/nuxt-i18n-micro/commit/330e7b99))
+
+### 🎨 Styles
+
+- Apply oxfmt to astro exports and compare-published types ([1e87c75c](https://github.com/s00d/nuxt-i18n-micro/commit/1e87c75c))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+- Miguel Ferreira <mferreira.oeiras@gmail.com>
+
 ## v3.28.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.0...v3.28.1)

@@ -1,10 +1,15 @@
-import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { execFile } from 'node:child_process'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { promisify } from 'node:util'
 import { defineCommand } from 'citty'
-import { assertBaseResolvable, changedPackageNames, listWorkspacePackages, resolveBase, run } from '../utils/git-baseline'
+import { assertBaseResolvable, changedPackageNames, listWorkspacePackages, resolveBase } from '../utils/git-baseline'
+import { walkFiles } from '../utils/fs-walk'
 import { type ExportEntry, type PackageManifest, isExportMap, parseManifest } from '../utils/manifest'
 import { repoRoot } from '../utils/workspace'
+
+const execFileAsync = promisify(execFile)
 
 /** One package's line in the report. Exported: it is the `--json` contract. */
 export interface ComparisonEntry {
@@ -21,29 +26,237 @@ export interface ComparePublishedReport {
   errorCount: number
 }
 
-export interface NpmPackEntry {
-  filename: string
-  files?: { path: string }[]
+export interface NpmLatestMeta {
+  version: string
+  tarball: string
+}
+
+export type NpmLatestLookup = Map<string, NpmLatestMeta | null | { error: string }>
+
+async function runAsync(cmd: string, args: string[], options: { cwd?: string } = {}): Promise<string> {
+  const { stdout } = await execFileAsync(cmd, args, {
+    cwd: options.cwd ?? repoRoot,
+    encoding: 'utf8',
+    maxBuffer: 32 * 1024 * 1024,
+  })
+  return stdout.toString().trim()
 }
 
 /**
- * Normalize `npm pack --json` output across npm versions.
+ * Paths that would land in the published tarball, without calling `npm pack`.
  *
- * npm ≤11 returned an array of entries; npm ≥12 returns an object keyed by
- * package name (npm/cli#9247). Callers only need the first packed entry.
+ * `npm pack` was ~6s/package here; walking `files` + npm's always-included root
+ * docs is sub-millisecond and matches this workspace (no `.npmignore`).
  */
-export function firstNpmPackEntry(parsed: unknown, label: string): NpmPackEntry {
-  const entries = Array.isArray(parsed) ? parsed : parsed && typeof parsed === 'object' ? Object.values(parsed as Record<string, unknown>) : []
-  const first = entries[0] as NpmPackEntry | undefined
-  if (!first?.filename) throw new Error(`npm pack returned no tarball (${label})`)
-  return first
+export function listLocalPackPaths(dir: string, pkg: PackageManifest): string[] {
+  const out = new Set<string>(['package.json'])
+
+  for (const name of readdirSync(dir)) {
+    if (!/^(readme|licen[cs]e)(\.|$)/i.test(name)) continue
+    try {
+      if (statSync(join(dir, name)).isFile()) out.add(name)
+    } catch {
+      // vanished between readdir and stat
+    }
+  }
+
+  for (const entry of pkg.files ?? []) {
+    if (typeof entry !== 'string' || entry.startsWith('!')) continue
+    const rel = entry.replace(/^\.\//, '').replace(/\/$/, '')
+    if (!rel) continue
+    const abs = join(dir, rel)
+    if (!existsSync(abs)) continue
+    const st = statSync(abs)
+    if (st.isFile()) {
+      out.add(rel)
+      continue
+    }
+    if (!st.isDirectory()) continue
+    for (const file of walkFiles(abs, { skipDirs: new Set(['node_modules', '.git']) })) {
+      out.add(`${rel}/${file}`)
+    }
+  }
+
+  return [...out].sort()
+}
+
+function registryLatestUrl(name: string): string {
+  const scoped = name.startsWith('@') ? `${name.slice(0, name.indexOf('/'))}%2F${name.slice(name.indexOf('/') + 1)}` : encodeURIComponent(name)
+  return `https://registry.npmjs.org/${scoped}/latest`
+}
+
+async function fetchNpmLatest(name: string): Promise<NpmLatestMeta | null> {
+  const res = await fetch(registryLatestUrl(name), {
+    headers: { accept: 'application/json' },
+  })
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error(`registry ${name}: HTTP ${res.status}`)
+  const body = (await res.json()) as { version?: string; dist?: { tarball?: string } }
+  if (!body.version || !body.dist?.tarball) return null
+  return { version: body.version, tarball: body.dist.tarball }
+}
+
+/** One registry round-trip phase for every package name (npm has no multi-package latest API). */
+export async function fetchNpmLatestBulk(names: readonly string[]): Promise<NpmLatestLookup> {
+  const entries = await Promise.all(
+    names.map(async (name) => {
+      try {
+        return [name, await fetchNpmLatest(name)] as const
+      } catch (error) {
+        return [name, { error: error instanceof Error ? error.message : String(error) }] as const
+      }
+    }),
+  )
+  return new Map(entries)
+}
+
+async function listTarballPaths(tarball: string): Promise<string[]> {
+  const listing = await runAsync('tar', ['-tzf', tarball])
+  return listing
+    .split('\n')
+    .filter(Boolean)
+    .map((p) => p.replace(/\\/g, '/'))
+    .map((p) => (p.startsWith('package/') ? p.slice('package/'.length) : p))
+    .filter((p) => p && p !== 'package')
+}
+
+async function readPackedManifest(tarball: string): Promise<PackageManifest> {
+  const extractDir = mkdtempSync(join(tmpdir(), 'i18n-compare-manifest-'))
+  try {
+    await runAsync('tar', ['-xzf', tarball, '-C', extractDir, 'package/package.json'])
+    return parseManifest(readFileSync(join(extractDir, 'package/package.json'), 'utf8'))
+  } finally {
+    rmSync(extractDir, { recursive: true, force: true })
+  }
+}
+
+async function downloadTarball(url: string, destFile: string): Promise<void> {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`download ${url}: HTTP ${res.status}`)
+  writeFileSync(destFile, Buffer.from(await res.arrayBuffer()))
+}
+
+function cacheKey(name: string): string {
+  return name.replace('@', '').replace('/', '__')
+}
+
+async function resolveRefTarball(name: string, meta: NpmLatestMeta, cacheRoot: string, skipDownload: boolean): Promise<string> {
+  const key = cacheKey(name)
+  const refDir = join(cacheRoot, key, `npm-${meta.version}`)
+  if (skipDownload && existsSync(join(refDir, '.done'))) {
+    const cached = readdirSync(refDir).filter((f: string) => f.endsWith('.tgz'))
+    return join(refDir, cached[0]!)
+  }
+  rmSync(refDir, { recursive: true, force: true })
+  mkdirSync(refDir, { recursive: true })
+  const refTarball = join(refDir, `${key}-${meta.version}.tgz`)
+  await downloadTarball(meta.tarball, refTarball)
+  writeFileSync(join(refDir, '.done'), refTarball)
+  return refTarball
+}
+
+function collectExportTypePaths(value: ExportEntry | undefined, out: string[] = []): string[] {
+  if (typeof value === 'string') {
+    if (/\.d\.(?:ts|cts|mts)$/.test(value)) out.push(value.replace(/^\.\//, ''))
+    return out
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) collectExportTypePaths(item, out)
+    return out
+  }
+  if (!isExportMap(value)) return out
+  if (typeof value.types === 'string') out.push(value.types.replace(/^\.\//, ''))
+  for (const child of Object.values(value)) collectExportTypePaths(child, out)
+  return out
+}
+
+const HASHED_CHUNK_RE = /^(?:base-strategy|common)-[A-Za-z0-9_-]{6,}\.(?:js|cjs|mjs)$/
+const DIST_RUNTIME_RE = /^dist\/[^/]+\.(?:mjs|cjs|js)$/
+
+function checkLocalPackaging(entry: ComparisonEntry, name: string, localPaths: string[]): void {
+  const hashedInLocal = localPaths
+    .filter((p) => p.startsWith('dist/'))
+    .map((p) => p.replace(/^dist\//, ''))
+    .filter((n) => HASHED_CHUNK_RE.test(n))
+  if (hashedInLocal.length) {
+    entry.errors.push(`hashed chunks in local dist: ${hashedInLocal.join(', ')}`)
+  }
+
+  if (name === '@i18n-micro/astro') {
+    const clientCjs = localPaths.filter((p) => /^dist\/client\/.*\.cjs$/.test(p))
+    if (clientCjs.length) {
+      entry.errors.push(`astro client CJS artifacts in pack: ${clientCjs.join(', ')}`)
+    }
+  }
+}
+
+function compareAgainstPublished(
+  entry: ComparisonEntry,
+  localPaths: string[],
+  localPkg: PackageManifest,
+  localVersion: string,
+  meta: NpmLatestMeta,
+  refPaths: string[],
+  refPkg: PackageManifest,
+): void {
+  entry.npmVersion = meta.version
+
+  const refSet = new Set(refPaths)
+  const localSet = new Set(localPaths)
+  const onlyRef = [...refSet].filter((p) => !localSet.has(p))
+  const onlyLocal = [...localSet].filter((p) => !refSet.has(p))
+
+  for (const f of onlyRef.filter((p) => DIST_RUNTIME_RE.test(p))) {
+    entry.warnings.push(`removed dist runtime: ${f}`)
+  }
+  for (const f of onlyLocal.filter((p) => DIST_RUNTIME_RE.test(p))) {
+    entry.warnings.push(`added dist runtime: ${f}`)
+  }
+
+  const refTypes = new Set(collectExportTypePaths(refPkg.exports))
+  const localTypes = new Set(collectExportTypePaths(localPkg.exports))
+  for (const t of localTypes) {
+    const baseName = t.split('/').pop() ?? t
+    const refMatch = [...refTypes].find((r) => r === t || r.endsWith(`/${baseName}`) || r.endsWith(baseName))
+    if (!refMatch && refTypes.size > 0) {
+      entry.info.push(`new types export path: ${t}`)
+    } else if (refMatch && refMatch !== t) {
+      entry.warnings.push(`types path changed: ${refMatch} → ${t}`)
+    }
+  }
+  for (const t of refTypes) {
+    if (!localTypes.has(t) && !localPaths.includes(t)) {
+      entry.warnings.push(`types path removed from exports: ${t}`)
+    }
+  }
+
+  if (localVersion !== meta.version) {
+    entry.info.push(`version bump ${meta.version} → ${localVersion}`)
+  }
+
+  if (localPkg.exports && !refPkg.exports) {
+    entry.info.push('local package.json adds exports field')
+  }
+
+  const refDcts = refPaths.filter((p) => p.endsWith('.d.cts'))
+  const localDcts = localPaths.filter((p) => p.endsWith('.d.cts'))
+  if (localDcts.length > refDcts.length) {
+    entry.info.push(`added ${localDcts.length - refDcts.length} .d.cts file(s) for require types`)
+  }
+
+  if (onlyRef.length > 0 || onlyLocal.length > 0) {
+    entry.info.push(`tarball diff: +${onlyLocal.length} / -${onlyRef.length} paths`)
+  }
 }
 
 export const comparePublishedCommand = defineCommand({
   meta: {
     name: 'compare-published',
     description: [
-      'Compare locally packed tarballs with the latest published version on npm.',
+      'Compare local publishable files with the latest published version on npm.',
+      '',
+      'Local side walks package `files` (no `npm pack`). Remote side bulk-fetches',
+      'registry metadata, then downloads reference tarballs in parallel.',
       '',
       'Only local-pack problems fail the run (hashed chunks in dist, astro client CJS);',
       'differences against the published version are reported as warnings. Hence',
@@ -64,232 +277,108 @@ export const comparePublishedCommand = defineCommand({
     base: { type: 'string', description: 'Baseline ref for --changed-only' },
     package: { type: 'string', description: 'Inspect a single package by directory name' },
   },
-  setup({ args }) {
-    const packagesRoot = join(repoRoot, 'packages')
+  async setup({ args }) {
     const cacheRoot = join(repoRoot, '.compare-published')
     const packageFilter = args.package ?? null
 
-    function npmVersion(name: string): string | null {
-      try {
-        return run('npm', ['view', name, 'version'])
-      } catch {
-        return null
-      }
-    }
-
-    function npmPack(cwd: string, dest: string, spec?: string): { tarball: string; files: string[] } {
-      mkdirSync(dest, { recursive: true })
-      const packArgs = ['pack', '--json', '--pack-destination', dest]
-      if (spec) packArgs.push(spec)
-      const output = run('npm', packArgs, { cwd: spec ? repoRoot : cwd })
-      const first = firstNpmPackEntry(JSON.parse(output), spec ?? cwd)
-      return {
-        tarball: join(dest, first.filename),
-        files: (first.files ?? []).map((f) => f.path.replace(/\\/g, '/')),
-      }
-    }
-
-    function listTarballPaths(tarball: string): string[] {
-      const listing = run('tar', ['-tzf', tarball])
-      return listing
-        .split('\n')
-        .filter(Boolean)
-        .map((p) => p.replace(/\\/g, '/'))
-        .map((p) => (p.startsWith('package/') ? p.slice('package/'.length) : p))
-        .filter((p) => p && p !== 'package')
-    }
-
-    function readPackedManifest(tarball: string): PackageManifest {
-      const extractDir = join(cacheRoot, '_manifest-extract')
-      rmSync(extractDir, { recursive: true, force: true })
-      mkdirSync(extractDir, { recursive: true })
-      run('tar', ['-xzf', tarball, '-C', extractDir, 'package/package.json'])
-      return parseManifest(readFileSync(join(extractDir, 'package/package.json'), 'utf8'))
-    }
-
-    function collectExportTypePaths(value: ExportEntry | undefined, out: string[] = []): string[] {
-      // The string branch used to sit after the object guard, so it never ran and a
-      // plain `"./x.d.ts"` export was silently skipped. TypeScript surfaced it as an
-      // unreachable `never`; checking strings first is what was meant all along.
-      if (typeof value === 'string') {
-        if (/\.d\.(?:ts|cts|mts)$/.test(value)) out.push(value.replace(/^\.\//, ''))
-        return out
-      }
-      if (Array.isArray(value)) {
-        for (const item of value) collectExportTypePaths(item, out)
-        return out
-      }
-      if (!isExportMap(value)) return out
-      if (typeof value.types === 'string') out.push(value.types.replace(/^\.\//, ''))
-      for (const child of Object.values(value)) collectExportTypePaths(child, out)
-      return out
-    }
-
-    const HASHED_CHUNK_RE = /^(?:base-strategy|common)-[A-Za-z0-9_-]{6,}\.(?:js|cjs|mjs)$/
-    const DIST_RUNTIME_RE = /^dist\/[^/]+\.(?:mjs|cjs|js)$/
-
-    const results: ComparisonEntry[] = []
-    let errorCount = 0
-
-    function checkLocalPackaging(entry: ComparisonEntry, name: string, localPaths: string[]): number {
-      let added = 0
-      const errors = entry.errors
-
-      const hashedInLocal = localPaths
-        .filter((p) => p.startsWith('dist/'))
-        .map((p) => p.replace(/^dist\//, ''))
-        .filter((n) => HASHED_CHUNK_RE.test(n))
-      if (hashedInLocal.length) {
-        errors.push(`hashed chunks in local dist: ${hashedInLocal.join(', ')}`)
-        added++
-      }
-
-      if (name === '@i18n-micro/astro') {
-        const clientCjs = localPaths.filter((p) => /^dist\/client\/.*\.cjs$/.test(p))
-        if (clientCjs.length) {
-          errors.push(`astro client CJS artifacts in pack: ${clientCjs.join(', ')}`)
-          added++
-        }
-      }
-
-      return added
-    }
-
-    let changedNames = null
+    let changedNames: Set<string> | null = null
     if (args.changedOnly) {
       const base = resolveBase(args.base)
       assertBaseResolvable(base)
       changedNames = changedPackageNames(base)
-      // Not under --json: it would sit in front of the document and make stdout unparseable.
       if (!args.json) console.log(`Only checking packages changed since ${base}: ${changedNames.size ? [...changedNames].join(', ') : '(none)'}\n`)
     }
 
-    for (const { name, dir, localVersion } of listWorkspacePackages(packageFilter)) {
-      if (changedNames && !changedNames.has(name)) continue
-      const npmVer = args.localOnly ? null : npmVersion(name)
+    const packages = listWorkspacePackages(packageFilter).filter(({ name }) => !changedNames || changedNames.has(name))
+    const npmLatest = args.localOnly ? new Map<string, NpmLatestMeta | null>() : await fetchNpmLatestBulk(packages.map((p) => p.name))
 
+    const refTarballs = new Map<string, string>()
+    if (!args.localOnly) {
+      mkdirSync(cacheRoot, { recursive: true })
+      const downloads = packages.flatMap((pkg) => {
+        const lookup = npmLatest.get(pkg.name)
+        if (!lookup || lookup === null || 'error' in lookup) return []
+        return [{ name: pkg.name, meta: lookup }]
+      })
+      const resolved = await Promise.all(
+        downloads.map(async ({ name, meta }) => {
+          try {
+            return [name, await resolveRefTarball(name, meta, cacheRoot, args.skipDownload)] as const
+          } catch (error) {
+            return [name, { error: error instanceof Error ? error.message : String(error) }] as const
+          }
+        }),
+      )
+      for (const [name, value] of resolved) {
+        if (typeof value === 'string') refTarballs.set(name, value)
+        else npmLatest.set(name, value)
+      }
+    }
+
+    const refContents = new Map<string, { paths: string[]; manifest: PackageManifest }>()
+    for (const [name, tarball] of refTarballs) {
+      refContents.set(name, {
+        paths: await listTarballPaths(tarball),
+        manifest: await readPackedManifest(tarball),
+      })
+    }
+
+    const results: ComparisonEntry[] = []
+    for (const { name, dir, localVersion, pkg } of packages) {
+      const localPaths = listLocalPackPaths(dir, pkg)
       const entry: ComparisonEntry = {
         name,
         localVersion,
-        npmVersion: npmVer,
+        npmVersion: null,
         warnings: [],
         info: [],
         errors: [],
       }
 
-      // No reference to compare against (either --local-only, or not published yet):
-      // still pack locally so the gating checks run.
-      if (!npmVer) {
-        entry.info.push(args.localOnly ? 'local-only mode — skipped npm reference comparison' : 'not published on npm yet — skipping ref download')
-        const localDir = join(cacheRoot, name.replace('@', '').replace('/', '__'), `local-${localVersion}`)
-        try {
-          mkdirSync(cacheRoot, { recursive: true })
-          rmSync(localDir, { recursive: true, force: true })
-          mkdirSync(localDir, { recursive: true })
-          const local = npmPack(dir, localDir)
-          errorCount += checkLocalPackaging(entry, name, listTarballPaths(local.tarball))
-        } catch (error) {
-          entry.errors.push(error instanceof Error ? error.message : String(error))
-          errorCount++
-        }
+      checkLocalPackaging(entry, name, localPaths)
+
+      if (args.localOnly) {
+        entry.info.push('local-only mode — skipped npm reference comparison')
         results.push(entry)
         continue
       }
 
-      const cacheKey = name.replace('@', '').replace('/', '__')
-      const refDir = join(cacheRoot, cacheKey, `npm-${npmVer}`)
-      const localDir = join(cacheRoot, cacheKey, `local-${localVersion}`)
-      mkdirSync(cacheRoot, { recursive: true })
-
-      try {
-        let refTarball: string
-        if (args.skipDownload && existsSync(join(refDir, '.done'))) {
-          const cached = readdirSync(refDir).filter((f: string) => f.endsWith('.tgz'))
-          refTarball = join(refDir, cached[0]!)
-        } else {
-          rmSync(refDir, { recursive: true, force: true })
-          mkdirSync(refDir, { recursive: true })
-          const ref = npmPack(dir, refDir, `${name}@${npmVer}`)
-          refTarball = ref.tarball
-          writeFileSync(join(refDir, '.done'), refTarball)
-        }
-
-        rmSync(localDir, { recursive: true, force: true })
-        mkdirSync(localDir, { recursive: true })
-        const local = npmPack(dir, localDir)
-        const refPaths = listTarballPaths(refTarball)
-        const localPaths = listTarballPaths(local.tarball)
-        const refPkg = readPackedManifest(refTarball)
-        const localPkg = readPackedManifest(local.tarball)
-
-        const refSet = new Set(refPaths)
-        const localSet = new Set(localPaths)
-        const onlyRef = [...refSet].filter((p) => !localSet.has(p))
-        const onlyLocal = [...localSet].filter((p) => !refSet.has(p))
-
-        for (const f of onlyRef.filter((p) => DIST_RUNTIME_RE.test(p))) {
-          entry.warnings.push(`removed dist runtime: ${f}`)
-        }
-        for (const f of onlyLocal.filter((p) => DIST_RUNTIME_RE.test(p))) {
-          entry.warnings.push(`added dist runtime: ${f}`)
-        }
-
-        const refTypes = new Set(collectExportTypePaths(refPkg.exports))
-        const localTypes = new Set(collectExportTypePaths(localPkg.exports))
-        for (const t of localTypes) {
-          const base = t.split('/').pop() ?? t
-          const refMatch = [...refTypes].find((r) => r === t || r.endsWith(`/${base}`) || r.endsWith(base))
-          if (!refMatch && refTypes.size > 0) {
-            entry.info.push(`new types export path: ${t}`)
-          } else if (refMatch && refMatch !== t) {
-            entry.warnings.push(`types path changed: ${refMatch} → ${t}`)
-          }
-        }
-        for (const t of refTypes) {
-          if (!localTypes.has(t) && !localPaths.includes(t)) {
-            entry.warnings.push(`types path removed from exports: ${t}`)
-          }
-        }
-
-        errorCount += checkLocalPackaging(entry, name, localPaths)
-
-        if (localVersion !== npmVer) {
-          entry.info.push(`version bump ${npmVer} → ${localVersion}`)
-        }
-
-        if (localPkg.exports && !refPkg.exports) {
-          entry.info.push('local package.json adds exports field')
-        }
-
-        const refDcts = refPaths.filter((p) => p.endsWith('.d.cts'))
-        const localDcts = localPaths.filter((p) => p.endsWith('.d.cts'))
-        if (localDcts.length > refDcts.length) {
-          entry.info.push(`added ${localDcts.length - refDcts.length} .d.cts file(s) for require types`)
-        }
-
-        if (onlyRef.length > 0 || onlyLocal.length > 0) {
-          entry.info.push(`tarball diff: +${onlyLocal.length} / -${onlyRef.length} paths`)
-        }
-      } catch (error) {
-        entry.errors.push(error instanceof Error ? error.message : String(error))
-        errorCount++
+      const lookup = npmLatest.get(name)
+      if (lookup && 'error' in lookup) {
+        entry.errors.push(lookup.error)
+        results.push(entry)
+        continue
+      }
+      if (!lookup) {
+        entry.info.push('not published on npm yet — skipping ref download')
+        results.push(entry)
+        continue
       }
 
+      const ref = refContents.get(name)
+      if (!ref) {
+        entry.errors.push('failed to load npm reference tarball')
+        results.push(entry)
+        continue
+      }
+
+      compareAgainstPublished(entry, localPaths, pkg, localVersion, lookup, ref.paths, ref.manifest)
       results.push(entry)
     }
+
+    const errorCount = results.reduce((sum, entry) => sum + entry.errors.length, 0)
 
     if (args.json) {
       const report: ComparePublishedReport = { results, errorCount }
       console.log(JSON.stringify(report, null, 2))
     } else {
-      console.log(`Compared ${results.length} package(s) (local npm pack vs npm latest)\n`)
+      console.log(`Compared ${results.length} package(s) (local files vs npm latest)\n`)
       for (const entry of results) {
-        const label = entry.name
         const errs = entry.errors
         const warns = entry.warnings
         const info = entry.info
         const status = errs.length ? '✖' : warns.length ? '⚠' : '✓'
-        console.log(`${status} ${label} (npm ${entry.npmVersion ?? '—'} → local ${entry.localVersion})`)
+        console.log(`${status} ${entry.name} (npm ${entry.npmVersion ?? '—'} → local ${entry.localVersion})`)
         for (const m of errs) console.log(`    error: ${m}`)
         for (const m of warns) console.log(`    warn: ${m}`)
         for (const m of info) console.log(`    info: ${m}`)

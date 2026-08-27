@@ -183,7 +183,6 @@ _2026-01-29_ · [`9be2aa59`](https://github.com/s00d/nuxt-i18n-micro/commit/9be2
 
 ### Breaking Changes
 
-
 ### Refactors
 
 - complete rewrite of route generator mechanism ([`9be2aa5`](https://github.com/s00d/nuxt-i18n-micro/commit/9be2aa592e62310543075e111cc68ec8a781f7b7))

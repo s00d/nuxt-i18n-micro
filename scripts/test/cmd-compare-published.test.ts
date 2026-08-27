@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
+import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
 import type { WorkspacePackage } from '../src/utils/git-baseline'
+import { parseManifest } from '../src/utils/manifest'
+import { repoRoot } from '../src/utils/workspace'
 import { runCli } from './helpers'
 
 const listWorkspacePackages = vi.hoisted(() => vi.fn<(filter?: string | null) => WorkspacePackage[]>())
@@ -13,7 +17,7 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
   assertBaseResolvable: () => {},
 }))
 
-const { comparePublishedCommand, firstNpmPackEntry } = await import('../src/commands/compare-published')
+const { comparePublishedCommand, fetchNpmLatestBulk, listLocalPackPaths } = await import('../src/commands/compare-published')
 type ComparePublishedReport = import('../src/commands/compare-published').ComparePublishedReport
 
 const pkg = (name: string): WorkspacePackage =>
@@ -25,29 +29,39 @@ const pkg = (name: string): WorkspacePackage =>
  */
 const run = (args: Partial<{ package: string }> = {}) => runCli(comparePublishedCommand, { json: true, changedOnly: true, ...args })
 
-describe('firstNpmPackEntry', () => {
-  it('reads the legacy npm ≤11 array shape', () => {
-    expect(firstNpmPackEntry([{ filename: 'pkg-1.0.0.tgz', files: [{ path: 'package.json' }] }], 'pkg')).toEqual({
-      filename: 'pkg-1.0.0.tgz',
-      files: [{ path: 'package.json' }],
+describe('fetchNpmLatestBulk', () => {
+  it('returns latest metadata keyed by package name', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input)
+      const name = url.includes('%2Fcore') ? '@i18n-micro/core' : '@i18n-micro/missing'
+      if (name === '@i18n-micro/missing') return new Response('', { status: 404 })
+      return Response.json({
+        version: '1.2.3',
+        dist: { tarball: `https://registry.npmjs.org/${name}/-/pkg-1.2.3.tgz` },
+      })
     })
-  })
 
-  it('reads the npm ≥12 object-keyed shape', () => {
-    expect(
-      firstNpmPackEntry(
-        { '@scope/pkg': { filename: 'scope-pkg-1.0.0.tgz', files: [{ path: 'dist/index.mjs' }] } },
-        '@scope/pkg',
-      ),
-    ).toEqual({
-      filename: 'scope-pkg-1.0.0.tgz',
-      files: [{ path: 'dist/index.mjs' }],
+    const lookup = await fetchNpmLatestBulk(['@i18n-micro/core', '@i18n-micro/missing'])
+    expect(lookup.get('@i18n-micro/core')).toEqual({
+      version: '1.2.3',
+      tarball: 'https://registry.npmjs.org/@i18n-micro/core/-/pkg-1.2.3.tgz',
     })
-  })
+    expect(lookup.get('@i18n-micro/missing')).toBeNull()
 
-  it('throws when neither shape yields a filename', () => {
-    expect(() => firstNpmPackEntry({}, 'pkg')).toThrow('npm pack returned no tarball (pkg)')
-    expect(() => firstNpmPackEntry([], 'pkg')).toThrow('npm pack returned no tarball (pkg)')
+    fetchMock.mockRestore()
+  })
+})
+
+describe('listLocalPackPaths', () => {
+  it('lists publishable files for @i18n-micro/core without npm pack', () => {
+    const dir = join(repoRoot, 'packages/core')
+    const manifest = parseManifest(readFileSync(join(dir, 'package.json'), 'utf8'))
+    const paths = listLocalPackPaths(dir, manifest)
+    expect(paths).toContain('package.json')
+    expect(paths).toContain('README.md')
+    expect(paths).toContain('LICENSE')
+    expect(paths.some((p) => p.startsWith('dist/'))).toBe(true)
+    expect(paths.some((p) => p.includes('node_modules'))).toBe(false)
   })
 })
 

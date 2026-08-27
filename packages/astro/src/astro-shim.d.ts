@@ -1,1 +1,1 @@
-/// <reference path="./env.d.ts" />
+import './env'

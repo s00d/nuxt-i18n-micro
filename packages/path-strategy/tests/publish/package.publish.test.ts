@@ -8,6 +8,32 @@ import { describe, expect, it } from 'vitest'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 
+interface NpmPackEntry {
+  filename: string
+  files: Array<{ path: string }>
+}
+
+function isNpmPackEntry(value: unknown): value is NpmPackEntry {
+  return Boolean(value && typeof value === 'object' && 'filename' in value && 'files' in value)
+}
+
+/** npm 11-: array; npm 12+: `{ "@scope/pkg": { filename, files } }`; older 12 betas: flat object. */
+function parseNpmPackJson(output: string): NpmPackEntry {
+  const parsed = JSON.parse(output.trim()) as unknown
+  if (Array.isArray(parsed)) {
+    const first = parsed[0]
+    if (!isNpmPackEntry(first)) throw new Error('npm pack returned empty or invalid array')
+    return first
+  }
+  if (isNpmPackEntry(parsed)) return parsed
+  if (parsed && typeof parsed === 'object') {
+    for (const value of Object.values(parsed)) {
+      if (isNpmPackEntry(value)) return value
+    }
+  }
+  throw new Error('Unexpected npm pack --json shape')
+}
+
 describe('package publish checks', () => {
   it('passes publint', () => {
     execSync('publint', { cwd: packageRoot, stdio: 'pipe', encoding: 'utf8' })
@@ -19,13 +45,7 @@ describe('package publish checks', () => {
       cwd: packageRoot,
       encoding: 'utf8',
     })
-    const packed = JSON.parse(output) as Array<{
-      filename: string
-      files: Array<{ path: string }>
-    }>
-    const first = packed[0]
-    expect(first).toBeDefined()
-    const { filename, files } = first!
+    const { filename, files } = parseNpmPackJson(output)
     const tarballPath = join(packDir, filename)
     expect(existsSync(tarballPath)).toBe(true)
 

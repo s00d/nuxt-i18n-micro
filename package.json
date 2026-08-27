@@ -73,7 +73,7 @@
     "./internals": "./internals.d.mts"
   },
   "scripts": {
-    "prepack": "pnpm --filter \"./packages/*\" run build && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
+    "prepack": "pnpm run build:packages && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -104,6 +104,7 @@
     "typecheck:packages": "pnpm --filter \"./packages/**\" --filter \"!./packages/*/playground\" run typecheck",
     "typecheck:package-playgrounds": "pnpm --filter \"./packages/*/playground\" run typecheck",
     "typecheck": "pnpm run typecheck:root && pnpm run typecheck:playground && pnpm run typecheck:scripts && pnpm run typecheck:packages && pnpm run typecheck:package-playgrounds",
+    "build:packages": "pnpm --filter \"./packages/*\" run build",
     "client:build": "nuxi generate client",
     "client:prepare": "nuxi client:prepare client",
     "client:dev": "nuxi dev client --port 3300",

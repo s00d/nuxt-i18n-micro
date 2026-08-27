@@ -1,9 +1,8 @@
 ---
-import { useI18n } from '@i18n-micro/astro'
+import { getLocaleRewritePath } from '../../lib/locale-rewrite-path'
 
 const { locale } = Astro.params
 
-// Типы теперь подтягиваются автоматически
 const { locales } = Astro.locals
 const validLocales = locales?.map((l) => l.code) || ['en', 'fr', 'de']
 
@@ -17,9 +16,10 @@ if (i18n && locale) {
   Astro.locals.locale = locale
 }
 
-const { getBasePath } = useI18n(Astro)
-const currentUrl = Astro.locals.currentUrl
-const basePath = getBasePath(currentUrl)
+const rewritePath = getLocaleRewritePath(Astro)
+if (typeof rewritePath !== 'string') {
+  return new Response(null, { status: 500 })
+}
 
-return Astro.rewrite(basePath)
+return Astro.rewrite(rewritePath)
 ---

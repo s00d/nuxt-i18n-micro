@@ -9,7 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "typecheck": "astro check"
+    "typecheck": "astro check --minimumFailingSeverity hint"
   },
   "dependencies": {
     "@astrojs/node": "catalog:",

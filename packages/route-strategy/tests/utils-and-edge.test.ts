@@ -32,6 +32,9 @@ describe('RouteGenerator - Exported utils', () => {
     test('mixed path', () => {
       expect(normalizeRouteKey('/posts/[id]/[...rest]')).toMatchSnapshot()
     })
+    test(':param() empty regex stripped', () => {
+      expect(normalizeRouteKey('/events/:slug()/:id()')).toMatchSnapshot()
+    })
   })
 
   describe('normalizePath', () => {

@@ -12,7 +12,8 @@ export function normalizeRouteKey(key: string): string {
         const paramName = segment.substring(1, segment.length - 1)
         return `:${paramName}`
       }
-      return segment
+      // Nuxt/vue-router empty custom regex: :slug() → :slug (keep :locale(de|en), :id(\\d+))
+      return segment.replace(/:([^()/]+)\(\)/g, ':$1')
     })
     .join('/')
 }

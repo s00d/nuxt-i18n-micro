@@ -39,8 +39,11 @@ export function extractLocalizedPaths(
     const normalizedFullPath = normalizePath(joinPath(parentPath, page.path ?? ''))
     const pathKey = pathKeyForLocalizedPaths(normalizedFullPath)
     const normalizedKey = normalizeRouteKey(normalizedFullPath)
+    // File keys from $defineI18nRoute have no leading slash; Nuxt page.path often does.
+    const canonicalKey = removeLeadingSlash(normalizedKey) || '/'
 
-    const globalLocalePath = globalLocaleRoutes[pathKey] || globalLocaleRoutes[normalizedKey] || globalLocaleRoutes[pageName]
+    const globalLocalePath =
+      globalLocaleRoutes[pathKey] || globalLocaleRoutes[normalizedKey] || globalLocaleRoutes[canonicalKey] || globalLocaleRoutes[pageName]
 
     if (!globalLocalePath) {
       const filesLocalePath = filesLocaleRoutes[pageName]

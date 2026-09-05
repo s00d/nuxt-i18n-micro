@@ -295,6 +295,8 @@ exports[`RouteGenerator - Exported utils > normalizePath > empty string 1`] = `"
 
 exports[`RouteGenerator - Exported utils > normalizePath > trailing slash removed 1`] = `"/about"`;
 
+exports[`RouteGenerator - Exported utils > normalizeRouteKey > :param() empty regex stripped 1`] = `"/events/:slug/:id"`;
+
 exports[`RouteGenerator - Exported utils > normalizeRouteKey > [...slug] -> :slug(.*)* 1`] = `"/:slug(.*)*"`;
 
 exports[`RouteGenerator - Exported utils > normalizeRouteKey > [id] -> :id 1`] = `"/users/:id"`;

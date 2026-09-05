@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.28.5
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.4...v3.28.5)
+
+### 🩹 Fixes
+
+- **route-strategy:** Match Nuxt :param() for localeRoutes ([857124b4](https://github.com/s00d/nuxt-i18n-micro/commit/857124b4))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](http://github.com/s00d))
+
 ## v3.28.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.3...v3.28.4)

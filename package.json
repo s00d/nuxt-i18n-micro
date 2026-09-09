@@ -189,7 +189,9 @@
       "@nuxt/kit": "4.5.2",
       "@nuxt/schema": "4.5.2",
       "vite": "8.2.2",
-      "typescript": "6.0.3"
+      "typescript": "6.0.3",
+      "@unhead/vue": "3.4.0",
+      "unhead": "3.4.0"
     },
     "peerDependencyRules": {
       "allowedVersions": {

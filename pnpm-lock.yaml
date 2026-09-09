@@ -262,6 +262,8 @@ overrides:
   '@nuxt/schema': 4.5.2
   vite: 8.2.2
   typescript: 6.0.3
+  '@unhead/vue': 3.4.0
+  unhead: 3.4.0
 
 importers:
 
@@ -5894,7 +5896,7 @@ packages:
       lightningcss: '>=1.20.0'
       oxc-parser: '>=0.98.0'
       rolldown: '>=1.0.0'
-      unhead: ^3.4.0
+      unhead: 3.4.0
       vite: 8.2.2
       webpack: '>=5.0.0'
     peerDependenciesMeta:
@@ -9688,7 +9690,7 @@ packages:
       '@resvg/resvg-wasm': ^2.6.0
       '@takumi-rs/core': ^1.0.0-beta.3 || ^2.0.0
       '@takumi-rs/wasm': ^1.0.0-beta.3 || ^2.0.0
-      '@unhead/vue': ^2.0.5 || ^3.0.0
+      '@unhead/vue': 3.4.0
       '@unocss/config': ^66.7.5
       '@unocss/core': ^66.7.5
       fontless: ^0.2.0
@@ -9733,8 +9735,8 @@ packages:
   nuxt-schema-org@6.3.1:
     resolution: {integrity: sha512-pZQyLERx8iho4QDCDNK0WxfdHwmZWXk8Nrp9DUfR79aKkwivm83SEvwWp0D9/YuBfaXhm+9YxVBpCDA2kr8B+g==}
     peerDependencies:
-      '@unhead/vue': ^2.0.7 || ^3.0.0
-      unhead: ^2.0.7 || ^3.0.0
+      '@unhead/vue': 3.4.0
+      unhead: 3.4.0
       zod: '>=3'
     peerDependenciesMeta:
       '@unhead/vue':
@@ -9748,12 +9750,12 @@ packages:
     resolution: {integrity: sha512-vq5rP7xBLEYGUBskzllqg0tmRTt8EyhzX1tuvWEGRt4JKAhw2HN75GUP1RpAM4n6QYqHyh6U8YkJZjEuot0wpQ==}
     hasBin: true
     peerDependencies:
-      '@unhead/vue': ^2.0.7 || ^3.0.0
+      '@unhead/vue': 3.4.0
       esbuild: '>=0.17.0'
       lightningcss: '>=1.20.0'
       nuxt: ^3.0.0 || ^4.0.0 || ^5.0.0
       rolldown: '>=1.0.0-beta.0'
-      unhead: ^2.0.7 || ^3.0.0
+      unhead: 3.4.0
     peerDependenciesMeta:
       '@unhead/vue':
         optional: true
@@ -11774,14 +11776,6 @@ packages:
 
   unenv@2.0.0-rc.24:
     resolution: {integrity: sha512-i7qRCmY42zmCwnYlh9H2SvLEypEFGye5iRmEMKjcGi7zk9UquigRjFtTLz0TYqr0ZGLZhaMHl/foy1bZR+Cwlw==}
-
-  unhead@3.2.3:
-    resolution: {integrity: sha512-BBkKvthUOufEJzG4C4u5NCdxnGMNaQdb//oPDI8lkv/6qj0faEqnPIvIPejt3FnSE501LX25Gbe2MVgKDuFnyQ==}
-    peerDependencies:
-      vite: 8.2.2
-    peerDependenciesMeta:
-      vite:
-        optional: true
 
   unhead@3.4.0:
     resolution: {integrity: sha512-OlgpyYjY+NkFyQCaMihg2uTFbbvyr5lZr6TokS68VdFTXJ5jo4JwFtGR8PwKy/wRpjbQYgKF7ZYO+pbRgxtSmw==}
@@ -16620,7 +16614,7 @@ snapshots:
       oxc-walker: 0.7.0(oxc-parser@0.141.0)
       pathe: 2.0.3
       ufo: 1.6.4
-      unhead: 3.2.3(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.63.1)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0))(webpack@5.98.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28))
+      unhead: 3.4.0(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.63.1)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0))(webpack@5.98.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28))
       unplugin: 3.3.0(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.63.1)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0))(webpack@5.98.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28))
       unrouting: 0.2.2
       unstorage: 1.17.5(@netlify/blobs@9.1.2)(db0@0.3.4(better-sqlite3@12.2.0))(ioredis@5.11.1)
@@ -27225,22 +27219,6 @@ snapshots:
   unenv@2.0.0-rc.24:
     dependencies:
       pathe: 2.0.3
-
-  unhead@3.2.3(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.63.1)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0))(webpack@5.98.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)):
-    dependencies:
-      hookable: 6.1.1
-      unplugin: 3.3.0(esbuild@0.28.2)(rolldown@1.2.8)(rollup@4.63.1)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0))(webpack@5.98.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28))
-    optionalDependencies:
-      vite: 8.2.2(@types/node@26.5.0)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0)
-    transitivePeerDependencies:
-      - '@farmfe/core'
-      - '@rspack/core'
-      - bun-types-no-globals
-      - esbuild
-      - rolldown
-      - rollup
-      - unloader
-      - webpack
 
   unhead@3.4.0(esbuild@0.17.19)(rolldown@1.0.0-beta.57(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(rollup@4.63.1)(vite@8.2.2(@types/node@26.5.0)(esbuild@0.17.19)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.13)(yaml@2.9.0))(webpack@5.98.0(esbuild@0.17.19)(lightningcss@1.33.0)(postcss@8.5.28)):
     dependencies:

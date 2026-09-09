@@ -95,13 +95,15 @@ Standard scripts also live in root `package.json` and `.github/CONTRIBUTING.md`.
 
 ## Versioning (before push, not every commit)
 
-When `packages/<name>/` or `src/` changes ship:
+When `packages/<name>/` changes ship:
 
-1. Bump **one patch** per affected publishable package (and root `package.json` if `src/` changed).
+1. Bump **one patch** per affected publishable workspace package.
 2. Rebuild that package so `dist/` matches source: `pnpm --filter @i18n-micro/<name> build`.
 3. Commit source + version + `dist/` together.
 
-Do **not** bump on every intermediate commit in the same PR. Do **not** hand-edit root `CHANGELOG.md` unless doing a formal `pnpm run release:*`.
+**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:*` / `pnpm -C scripts cli release`. Unreleased `src/` changes stay on the last released root version; use `docs/news/index.md` for user-facing notes.
+
+Do **not** bump workspace versions on every intermediate commit in the same PR.
 
 Minor bumps only when explicitly agreed. Details: `.cursor/rules/package-versioning.mdc`.
 

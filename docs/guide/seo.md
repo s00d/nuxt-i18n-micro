@@ -105,7 +105,7 @@ When `metaBaseUrl` is unset, absolute SEO URLs resolve in this order (#240):
 1. `site.url` from [`nuxt-site-config`](https://nuxtseo.com/docs/site-config) (if that module is present — e.g. via `@nuxtjs/seo`)
 2. Otherwise the hostname from the current request (`useRequestURL()` / `window.location.origin`)
 
-The request-origin fallback respects reverse-proxy headers (`X-Forwarded-Host`, `X-Forwarded-Proto`), so it works correctly behind nginx, Cloudflare, AWS ALB, and similar proxies.
+The request-origin fallback is the only path that reads `X-Forwarded-Host` / `X-Forwarded-Proto` (`metaTrustForwardedHost` / `metaTrustForwardedProto`, both default `true` for proxy compatibility). Prefer `metaBaseUrl` or `site.url` so SEO URLs never depend on those headers. If the app is reachable without a trusted proxy that overwrites them, set the flags to `false` — otherwise a client can spoof the host used in canonical / `og:url` / `hreflang`.
 
 That means apps already setting `site.url` for sitemap / robots / schema.org do **not** need a second `metaBaseUrl` declaration:
 
@@ -283,13 +283,20 @@ useI18nHead({
 
 ### HTTPS origin behind a proxy
 
-For correct absolute URLs on SSR without a custom origin composable:
+Prefer pinning the public origin so forwarded headers are never consulted:
+
+```ts
+site: { url: 'https://example.com' }
+// or: i18n: { metaBaseUrl: 'https://example.com' }
+```
+
+If you must derive the origin from the request (multi-domain, no `site.url`), the published defaults trust proxy headers. That is the insecure fallback — keep it only behind a proxy that overwrites `X-Forwarded-*`, or opt out:
 
 ```ts
 i18n: {
   meta: true,
-  metaBaseUrl: undefined,
-  metaTrustForwardedHost: true,
+  // request-origin fallback (only when metaBaseUrl and site.url are unset)
+  metaTrustForwardedHost: true, // set false if the app is reachable without a trusted proxy
   metaTrustForwardedProto: true,
 }
 ```

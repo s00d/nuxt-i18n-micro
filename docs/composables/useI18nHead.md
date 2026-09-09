@@ -418,7 +418,7 @@ export default defineNuxtConfig({
 })
 ```
 
-Then pass **paths or full URLs** in `replace.hreflang` / `replace.canonical`. The module uses `useRequestURL` with `X-Forwarded-Host` / `X-Forwarded-Proto` on SSR.
+Then pass **paths or full URLs** in `replace.hreflang` / `replace.canonical`. Those headers are read only when `metaBaseUrl` and `site.url` are both unset. Prefer pinning an origin; set the trust flags to `false` if the app is reachable without a proxy that overwrites `X-Forwarded-*`.
 
 ---
 

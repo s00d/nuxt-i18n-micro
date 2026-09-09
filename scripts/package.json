@@ -2,8 +2,8 @@
   "name": "@i18n-micro/scripts",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "Release and verification tooling for nuxt-i18n-micro.",
+  "type": "module",
   "scripts": {
     "cli": "pnpm exec tsx ./src/run.ts",
     "typecheck": "tsc --noEmit",

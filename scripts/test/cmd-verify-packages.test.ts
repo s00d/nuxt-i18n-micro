@@ -87,7 +87,13 @@ describe('verify-packages', () => {
   })
 
   it('warns about the publishing metadata a library should carry', async () => {
-    const pkg: PackageManifest = { name: '@i18n-micro/core', version: '1.0.0', type: 'module', exports: { '.': './dist/index.mjs' }, module: './dist/index.mjs' }
+    const pkg: PackageManifest = {
+      name: '@i18n-micro/core',
+      version: '1.0.0',
+      type: 'module',
+      exports: { '.': './dist/index.mjs' },
+      module: './dist/index.mjs',
+    }
     const result = await report(pkg, ['dist', 'dist/index.mjs'])
     expect(result.warnings).toEqual(expect.arrayContaining(['missing-license', 'missing-sideEffects', 'missing-engines', 'redundant-module']))
   })

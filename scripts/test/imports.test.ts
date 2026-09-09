@@ -29,7 +29,7 @@ describe('stripComments', () => {
   it('reads division after a closing brace as division, not as a regex', () => {
     // Guessing regex there runs to the end of the line and takes every later import with
     // it; guessing division only leaves harmless text behind.
-    expect(stripComments("const r = {a: 1}\nconst h = obj.n / 2 // gone")).toBe('const r = {a: 1}\nconst h = obj.n / 2 ')
+    expect(stripComments('const r = {a: 1}\nconst h = obj.n / 2 // gone')).toBe('const r = {a: 1}\nconst h = obj.n / 2 ')
   })
 })
 
@@ -68,7 +68,7 @@ describe('fileImports', () => {
 
   it('does not treat an interpolated string as code', () => {
     // The interpolation is rescanned as source, so a string inside it must stay a string.
-    expect(fileImports("const s = `${'import \"ghost\"'}`").value).toEqual([])
+    expect(fileImports('const s = `${\'import "ghost"\'}`').value).toEqual([])
   })
 
   it('survives a regex literal inside an interpolation', () => {

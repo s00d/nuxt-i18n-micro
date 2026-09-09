@@ -20,8 +20,13 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
 const { comparePublishedCommand, fetchNpmLatestBulk, listLocalPackPaths, diffExportTypePaths } = await import('../src/commands/compare-published')
 type ComparePublishedReport = import('../src/commands/compare-published').ComparePublishedReport
 
-const pkg = (name: string): WorkspacePackage =>
-  ({ name, dir: `/repo/packages/${name}`, relDir: `packages/${name}`, localVersion: '1.0.0', pkg: { name, version: '1.0.0' } })
+const pkg = (name: string): WorkspacePackage => ({
+  name,
+  dir: `/repo/packages/${name}`,
+  relDir: `packages/${name}`,
+  localVersion: '1.0.0',
+  pkg: { name, version: '1.0.0' },
+})
 
 /**
  * `--changed-only` with nothing changed skips every package before it packs anything,

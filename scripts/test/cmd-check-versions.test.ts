@@ -21,11 +21,7 @@ vi.mock('../src/utils/git-baseline', async (importOriginal) => ({
 
 const { checkVersionsCommand } = await import('../src/commands/check-versions')
 
-const pkg = (
-  name: string,
-  version: string,
-  extra: Partial<WorkspacePackage['pkg']> = {},
-): WorkspacePackage => {
+const pkg = (name: string, version: string, extra: Partial<WorkspacePackage['pkg']> = {}): WorkspacePackage => {
   const dirName = name.includes('/') ? name.split('/').pop()! : name
   return {
     name,
@@ -162,9 +158,7 @@ describe('check-versions', () => {
       pkg('@i18n-micro/vitepress', '1.0.0', { dependencies: { '@i18n-micro/vue': 'workspace:^' } }),
     ])
     changedFiles.mockImplementation((_ref, relDir) =>
-      relDir === 'packages/vue'
-        ? ['packages/vue/src/components/i18n-link.ts']
-        : ['packages/vitepress/src/index.ts'],
+      relDir === 'packages/vue' ? ['packages/vue/src/components/i18n-link.ts'] : ['packages/vitepress/src/index.ts'],
     )
     baselineVersions({ vue: '1.3.10' })
 
@@ -224,10 +218,7 @@ describe('check-versions', () => {
         pkg('@i18n-micro/hmr', '1.0.4', { dependencies: { '@i18n-micro/utils': 'workspace:^' } }),
       ])
       baselineVersions({ utils: '1.0.11', hmr: '1.0.4' })
-      npmHas(
-        { '@i18n-micro/utils': ['1.0.11'], '@i18n-micro/hmr': ['1.0.4'] },
-        { '@i18n-micro/hmr': { '@i18n-micro/utils': '1.0.8' } },
-      )
+      npmHas({ '@i18n-micro/utils': ['1.0.11'], '@i18n-micro/hmr': ['1.0.4'] }, { '@i18n-micro/hmr': { '@i18n-micro/utils': '1.0.8' } })
 
       const { report, exitCode } = await run({ npm: true })
       expect(entry(report.results, '@i18n-micro/hmr').status).toBe('STALE DEP PIN')
@@ -240,10 +231,7 @@ describe('check-versions', () => {
         pkg('@i18n-micro/hmr', '1.0.5', { dependencies: { '@i18n-micro/utils': 'workspace:^' } }),
       ])
       baselineVersions({ utils: '1.0.11', hmr: '1.0.5' })
-      npmHas(
-        { '@i18n-micro/utils': ['1.0.11'], '@i18n-micro/hmr': ['1.0.5'] },
-        { '@i18n-micro/hmr': { '@i18n-micro/utils': '^1.0.8' } },
-      )
+      npmHas({ '@i18n-micro/utils': ['1.0.11'], '@i18n-micro/hmr': ['1.0.5'] }, { '@i18n-micro/hmr': { '@i18n-micro/utils': '^1.0.8' } })
 
       const { report, exitCode } = await run({ npm: true })
       expect(entry(report.results, '@i18n-micro/hmr').errors).toEqual([])

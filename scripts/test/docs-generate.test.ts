@@ -60,7 +60,6 @@ describe('dynamic routes', () => {
   })
 })
 
-
 describe('deprecation reporting', () => {
   it('reports the @deprecated reason rather than the symbol summary', async () => {
     const { mkdtempSync, writeFileSync, rmSync } = await import('node:fs')

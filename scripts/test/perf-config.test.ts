@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { averageFixtureRuns, averagePerformanceResults } from '../src/perf/average'
-import {
-  DEFAULT_KEYS,
-  DEFAULT_LOCALES,
-  buildProfile,
-  keysToBranch,
-  leafKeysFor,
-  parseOnly,
-  resolvePerfArgs,
-} from '../src/perf/config'
+import { DEFAULT_KEYS, DEFAULT_LOCALES, buildProfile, keysToBranch, leafKeysFor, parseOnly, resolvePerfArgs } from '../src/perf/config'
 import { PERF_FIXTURES, resolveFixtureSelection } from '../src/perf/fixtures'
 import type { FixtureRunResult, PerformanceResult } from '../src/perf/types'
 

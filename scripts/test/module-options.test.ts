@@ -29,7 +29,14 @@ describe('readModuleOptions', () => {
         meta?: boolean
       }
     `)
-    expect(option).toEqual({ path: 'meta', type: 'boolean', default: 'true', description: 'Generate SEO meta tags automatically.', optional: true, deprecated: null })
+    expect(option).toEqual({
+      path: 'meta',
+      type: 'boolean',
+      default: 'true',
+      description: 'Generate SEO meta tags automatically.',
+      optional: true,
+      deprecated: null,
+    })
   })
 
   it('descends one level into an inline object type', () => {

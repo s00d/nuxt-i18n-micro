@@ -3,7 +3,12 @@ import { collectLinks, markdownLinks, optionRegionIds, pageCandidatesForLink, pa
 
 describe('collectLinks', () => {
   it('flattens nav items and their children', () => {
-    const links = collectLinks({ nav: [{ text: 'Home', link: '/' }, { text: 'Guide', items: [{ text: 'A', link: '/guide/a' }] }] })
+    const links = collectLinks({
+      nav: [
+        { text: 'Home', link: '/' },
+        { text: 'Guide', items: [{ text: 'A', link: '/guide/a' }] },
+      ],
+    })
     expect(links).toEqual(['/', '/guide/a'])
   })
 
@@ -48,9 +53,12 @@ describe('pageCandidatesForLink', () => {
     expect(pageCandidatesForLink('/guide/seo#meta')).toEqual(['guide/seo.md', 'guide/seo/index.md'])
   })
 
-  it.each(['https://example.dev', 'mailto:a@b.dev', './relative', '#anchor', '//example.dev/x'])('returns nothing for %s, which leaves the docs', (link) => {
-    expect(pageCandidatesForLink(link)).toEqual([])
-  })
+  it.each(['https://example.dev', 'mailto:a@b.dev', './relative', '#anchor', '//example.dev/x'])(
+    'returns nothing for %s, which leaves the docs',
+    (link) => {
+      expect(pageCandidatesForLink(link)).toEqual([])
+    },
+  )
 })
 
 describe('pageLinks', () => {

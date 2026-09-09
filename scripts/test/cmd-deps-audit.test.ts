@@ -49,12 +49,20 @@ describe('spec protocols', () => {
     expect(isWorkspaceProtocol('^1.0.0')).toBe(false)
   })
 
-  it.each(['catalog:', 'workspace:*', 'workspace:^', 'file:../x.tgz', 'link:../x', 'git+https://e.dev/x.git', 'https://e.dev/x.tgz', 'github:user/repo', 'gitlab:org/repo', 'user/repo#main'])(
-    'treats %s as naming no registry version',
-    (spec) => {
-      expect(isNonRegistrySpec(spec)).toBe(true)
-    },
-  )
+  it.each([
+    'catalog:',
+    'workspace:*',
+    'workspace:^',
+    'file:../x.tgz',
+    'link:../x',
+    'git+https://e.dev/x.git',
+    'https://e.dev/x.tgz',
+    'github:user/repo',
+    'gitlab:org/repo',
+    'user/repo#main',
+  ])('treats %s as naming no registry version', (spec) => {
+    expect(isNonRegistrySpec(spec)).toBe(true)
+  })
 
   // `npm:other@1.0.0` does name a registry version, just under another package name —
   // skipping it let a pin drift from the catalog.

@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { type EntryPointSurface, entryPoints, indexSnapshot, indexSurface, readSurface, renderSurface, sourceForTarget } from '../src/utils/api-surface'
+import {
+  type EntryPointSurface,
+  entryPoints,
+  indexSnapshot,
+  indexSurface,
+  readSurface,
+  renderSurface,
+  sourceForTarget,
+} from '../src/utils/api-surface'
 import type { PackageManifest } from '../src/utils/manifest'
 import { repoRoot } from '../src/utils/workspace'
 import { join } from 'node:path'
@@ -81,7 +89,6 @@ describe('snapshot round-trip', () => {
   })
 })
 
-
 /** A throwaway package, so these assertions do not chase the real sources. */
 function surfaceOf(source: string, file = 'index.ts') {
   const dir = mkdtempSync(join(tmpdir(), 'surface-'))
@@ -152,7 +159,10 @@ describe('readSurface', () => {
     const dir = mkdtempSync(join(tmpdir(), 'surface-'))
     try {
       mkdirSync(join(dir, 'src'), { recursive: true })
-      writeFileSync(join(dir, 'src', 'index.ts'), 'export class Box<T> { constructor(readonly v: T) {} }\nexport interface Bag { [k: string]: number }\n')
+      writeFileSync(
+        join(dir, 'src', 'index.ts'),
+        'export class Box<T> { constructor(readonly v: T) {} }\nexport interface Bag { [k: string]: number }\n',
+      )
       const surface = readSurface(dir, { exports: './dist/index.mjs' })
       expect(indexSnapshot(renderSurface(surface))).toEqual(indexSurface(surface))
     } finally {

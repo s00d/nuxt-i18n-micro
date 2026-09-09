@@ -23,7 +23,7 @@ catalog:
   '@vitejs/plugin-vue': ^6.0.3
   '@tailwindcss/vite': ^4.1.17
   # Nuxt
-  nuxt: ^4.5.1
+  nuxt: ^4.5.2
   '@nuxt/kit': ^3.18.1 || ^4.0.0
   '@nuxt/schema': ^3.18.1 || ^4.0.0
   '@nuxt/devtools': ^3.3.1

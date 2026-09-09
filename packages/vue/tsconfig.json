@@ -12,16 +12,9 @@
     "declarationDir": "./dist",
     "sourceMap": true,
     "rootDir": "./src",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "jsx": "preserve"
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

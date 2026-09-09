@@ -12,18 +12,10 @@
     "declarationDir": "./dist",
     "sourceMap": true,
     "rootDir": "./src",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "jsx": "preserve",
     "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*",
-    "src/env.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*", "src/env.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }

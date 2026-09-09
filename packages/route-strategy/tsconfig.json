@@ -14,21 +14,11 @@
     "rootDir": "./src",
     "baseUrl": "./",
     "paths": {
-      "*": [
-        "node_modules/*"
-      ]
+      "*": ["node_modules/*"]
     },
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "ignoreDeprecations": "6.0"
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

@@ -73,10 +73,7 @@ const libEs: UserConfig = {
 }
 
 const libUmd: UserConfig = {
-  plugins: [
-    ...(Array.isArray(tailwindPlugins) ? tailwindPlugins : [tailwindPlugins]),
-    vue({ features: { customElement: true } }),
-  ],
+  plugins: [...(Array.isArray(tailwindPlugins) ? tailwindPlugins : [tailwindPlugins]), vue({ features: { customElement: true } })],
   define: { 'process.env': {} },
   css: { postcss: {} },
   build: {

@@ -24,26 +24,26 @@ catalog:
   '@tailwindcss/vite': ^4.1.17
   # Nuxt
   nuxt: ^4.5.2
-  '@nuxt/kit': ^3.18.1 || ^4.0.0
-  '@nuxt/schema': ^3.18.1 || ^4.0.0
-  '@nuxt/devtools': ^3.3.1
-  '@nuxt/devtools-kit': ^3.3.1
-  '@nuxt/devtools-ui-kit': ^3.3.1
-  '@nuxt/module-builder': ^1.0.0
-  '@nuxt/test-utils': ^4.0.3
+  '@nuxt/kit': ^3.18.1 || ^4.5.2
+  '@nuxt/schema': ^3.18.1 || ^4.5.2
+  '@nuxt/devtools': ^3.4.2
+  '@nuxt/devtools-kit': ^3.4.2
+  '@nuxt/devtools-ui-kit': ^3.4.2
+  '@nuxt/module-builder': ^1.0.3
+  '@nuxt/test-utils': ^4.3.2
   '@nuxt/content': 3.6.3
-  '@nuxtjs/sitemap': ^8.2.2
-  '@nuxtjs/seo': ^5.3.2
+  '@nuxtjs/sitemap': ^8.5.0
+  '@nuxtjs/seo': ^5.3.14
   '@nuxtjs/i18n': ^10.6.0
-  '@nuxthub/core': ^0.8.17
+  '@nuxthub/core': ^0.10.8
   # Vue
-  vue: ^3.5.25
-  '@vue/compiler-sfc': ^3.5.25
+  vue: ^3.5.42
+  '@vue/compiler-sfc': ^3.5.42
   vue-router: ^4.6.3 || ^5.0.0
   vue-tsc: ^2.0.21
   '@vue/test-utils': ^2.4.6
   '@vue/devtools-api': ^8.1.5
-  '@vue/server-renderer': ^3.3.0
+  '@vue/server-renderer': ^3.5.42
   # React (один диапазон для deps и peer)
   react: "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   react-dom: ^18.3.1

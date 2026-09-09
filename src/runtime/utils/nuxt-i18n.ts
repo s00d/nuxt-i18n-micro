@@ -403,6 +403,11 @@ export interface NuxtTranslationLoaderOptions {
 
 export class NuxtTranslationLoader {
   private readonly pendingLoads = new Map<string, Promise<Record<string, unknown>>>()
+  /**
+   * Monotonic token so a slower in-flight `switchContext` cannot overwrite a newer one.
+   * Vue Router aborts a superseded navigation but does not cancel the guard's await.
+   */
+  private switchGeneration = 0
 
   constructor(private readonly options: NuxtTranslationLoaderOptions) {}
 
@@ -449,11 +454,14 @@ export class NuxtTranslationLoader {
   }
 
   async switchContext(locale: string, routeName?: string): Promise<void> {
+    const generation = ++this.switchGeneration
     let data = this.loadFromCacheSync(locale, routeName)
 
     if (data === null) {
       data = await this.loadAsync(locale, routeName)
     }
+
+    if (generation !== this.switchGeneration) return
 
     this.options.i18n.applySwitchContext(locale, routeName, data)
   }

@@ -307,6 +307,42 @@ describe('NuxtTranslationLoader cache hits', () => {
     const loader = new NuxtTranslationLoader({ i18n, loadOptions })
     expect(loader.loadFromCacheSync('en', 'missing')).toBeNull()
   })
+
+  it('does not apply a stale switchContext after a newer navigation wins', async () => {
+    translationStorage.clear()
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
+    i18n.setChunk('fr', 'about', { title: 'FR' })
+
+    let resolveDe!: (value: Record<string, unknown>) => void
+    const dePromise = new Promise<Record<string, unknown>>((resolve) => {
+      resolveDe = resolve
+    })
+
+    const loadSpy = vi.spyOn(translationStorage, 'load').mockImplementation(async (locale) => {
+      if (locale === 'de') {
+        const data = await dePromise
+        return { data, cacheKey: 'de:about' }
+      }
+      return { data: { title: 'other' }, cacheKey: `${locale}:about` }
+    })
+
+    try {
+      const stale = loader.switchContext('de', 'about')
+      await loader.switchContext('fr', 'about')
+
+      expect(i18n.getCurrentLocale()).toBe('fr')
+      expect(i18n.t('title')).toBe('FR')
+
+      resolveDe({ title: 'DE' })
+      await stale
+
+      expect(i18n.getCurrentLocale()).toBe('fr')
+      expect(i18n.t('title')).toBe('FR')
+    } finally {
+      loadSpy.mockRestore()
+    }
+  })
 })
 
 describe('seeding chunks', () => {

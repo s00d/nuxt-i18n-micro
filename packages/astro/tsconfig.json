@@ -13,6 +13,7 @@
     "sourceMap": true,
     "rootDir": "./src",
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     "types": ["node", "astro/client"],
     "jsx": "react-jsx",
     "paths": {

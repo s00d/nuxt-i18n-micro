@@ -40,7 +40,7 @@ catalog:
   vue: ^3.5.42
   '@vue/compiler-sfc': ^3.5.42
   vue-router: ^4.6.3 || ^5.0.0
-  vue-tsc: ^2.0.21
+  vue-tsc: ^3.3.11
   '@vue/test-utils': ^2.4.6
   '@vue/devtools-api': ^8.1.5
   '@vue/server-renderer': ^3.5.42
@@ -76,7 +76,7 @@ catalog:
   '@testing-library/vue': ^8.1.0
   happy-dom: ^15.11.7
   # TypeScript & types
-  typescript: ^5.9.3
+  typescript: ^6.0.3
   '@types/node': ^20.19.26
   tsx: ^4.0.0
   # Docs & lint

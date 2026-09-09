@@ -73,12 +73,17 @@ const libEs: UserConfig = {
 }
 
 const libUmd: UserConfig = {
-  plugins: [vue({ features: { customElement: true } })],
+  plugins: [
+    ...(Array.isArray(tailwindPlugins) ? tailwindPlugins : [tailwindPlugins]),
+    vue({ features: { customElement: true } }),
+  ],
   define: { 'process.env': {} },
+  css: { postcss: {} },
   build: {
     emptyOutDir: false,
     outDir: 'dist',
     sourcemap: true,
+    cssCodeSplit: false,
     lib: {
       entry: resolve(rootDir, 'src/index.ts'),
       name: 'I18nDevToolsUI',

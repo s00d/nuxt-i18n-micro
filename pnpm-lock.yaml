@@ -187,8 +187,8 @@ catalogs:
       specifier: ^4.0.0 || ^5.0.0
       version: 5.20.1
     tailwindcss:
-      specifier: ^4.1.17
-      version: 4.1.17
+      specifier: ^4.3.3
+      version: 4.3.3
     tsx:
       specifier: ^4.23.13
       version: 4.23.13
@@ -545,7 +545,7 @@ importers:
         version: 0.3.24
       tailwindcss:
         specifier: 'catalog:'
-        version: 4.1.17
+        version: 4.3.3
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -1328,7 +1328,7 @@ importers:
         version: 11.0.1
       tailwindcss:
         specifier: 'catalog:'
-        version: 4.1.17
+        version: 4.3.3
 
   test/fixtures/named:
     dependencies:
@@ -11432,9 +11432,6 @@ packages:
   tagged-tag@1.0.0:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
-
-  tailwindcss@4.1.17:
-    resolution: {integrity: sha512-j9Ee2YjuQqYT9bbRTfTZht9W/ytp5H+jJpZKiYdP/bpnXARAuELt9ofP0lPnmHjbga7SNQIxdTAXCmtKVYjN+Q==}
 
   tailwindcss@4.3.3:
     resolution: {integrity: sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==}
@@ -26814,8 +26811,6 @@ snapshots:
   tabbable@6.5.0: {}
 
   tagged-tag@1.0.0: {}
-
-  tailwindcss@4.1.17: {}
 
   tailwindcss@4.3.3: {}
 

@@ -268,7 +268,7 @@ export const docsAuditCommand = defineCommand({
       // index links its per-package pages, and listing all fifteen in the sidebar would
       // bury everything else in it.
       const reachable = new Set(linked)
-      for (let added = true; added; ) {
+      for (let added = true; added;) {
         added = false
         for (const page of reachable) {
           const body = bodies.get(page)

@@ -1,4 +1,4 @@
-import { i18nUtils } from '../src'
+import { createFakeI18n, i18nUtils, resetI18n } from '../src'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 describe('i18nUtils', () => {
@@ -13,7 +13,7 @@ describe('i18nUtils', () => {
   beforeEach(async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    i18nUtils.setLocale('en')
+    resetI18n()
     await i18nUtils.setTranslationsFromJson('en', mockTranslations)
   })
 
@@ -73,7 +73,7 @@ describe('i18nUtils', () => {
     const date = new Date('2023-12-01T00:00:00Z')
     const formatted = i18nUtils.td(date, { year: 'numeric', month: 'long', day: 'numeric' })
 
-    expect(formatted).toBe('December 1, 2023') // Depends on locale
+    expect(formatted).toBe('December 1, 2023')
   })
 
   test('setLocale changes the current locale', () => {
@@ -95,8 +95,63 @@ describe('i18nUtils', () => {
     expect(i18nUtils.getLocale()).toBe('fr')
   })
 
-  test('localePath and localeRoute return empty strings by default', () => {
-    expect(i18nUtils.localePath('someRoute')).toBe('')
-    expect(i18nUtils.localeRoute('someRoute')).toBeUndefined()
+  test('resetI18n clears translations and restores defaults', async () => {
+    i18nUtils.setLocale('fr')
+    i18nUtils.setRouteName('about')
+    i18nUtils.mergeTranslations({ leaked: 'yes' })
+
+    resetI18n()
+
+    expect(i18nUtils.getLocale()).toBe('en')
+    expect(i18nUtils.getRouteName()).toBe('test')
+    expect(i18nUtils.resolveTranslations()).toEqual({})
+    expect(i18nUtils.t('greeting')).toBe('greeting')
+  })
+
+  test('setRouteName aliases settRouteName', () => {
+    i18nUtils.setRouteName('contact')
+    expect(i18nUtils.getRouteName()).toBe('contact')
+    i18nUtils.settRouteName('about')
+    expect(i18nUtils.getRouteName()).toBe('about')
+  })
+
+  test('localePath and switchLocalePath use locale prefixes', () => {
+    expect(i18nUtils.localePath('/about')).toBe('/en/about')
+    expect(i18nUtils.localePath('products', 'de')).toBe('/de/products')
+    expect(i18nUtils.switchLocalePath('fr')).toBe('/fr/products')
+    expect(i18nUtils.getLocale()).toBe('fr')
+  })
+
+  test('localeRoute returns a path object', () => {
+    expect(i18nUtils.localeRoute({ name: 'about' })).toEqual({ path: '/en/about', name: 'about' })
+    expect(i18nUtils.switchLocaleRoute('de')).toEqual({ path: '/de/about', name: 'test' })
+  })
+
+  test('setMissingHandler is called for missing keys', () => {
+    const handler = vi.fn()
+    i18nUtils.setMissingHandler(handler)
+    i18nUtils.t('missing.key')
+    expect(handler).toHaveBeenCalledWith('en', 'missing.key', 'test')
+  })
+
+  test('_t binds translations to a route name', async () => {
+    i18nUtils.setRouteName('home')
+    await i18nUtils.setTranslationsFromJson('en', { title: 'Home' })
+    await i18nUtils.loadPageTranslations('en', 'about', { title: 'About page' })
+
+    const aboutT = i18nUtils._t({ name: 'about' })
+    expect(aboutT('title')).toBe('About page')
+    expect(i18nUtils.t('title')).toBe('Home')
+  })
+
+  test('createFakeI18n exposes $ and bare aliases', async () => {
+    const i18n = createFakeI18n({ spy: vi.fn })
+    await i18n.$setTranslationsFromJson('en', { hello: 'Hi' })
+
+    expect(i18n.$t('hello')).toBe('Hi')
+    expect(i18n.t('hello')).toBe('Hi')
+    expect(i18n.$localePath('/x')).toBe('/en/x')
+    expect(i18n.$getI18nConfig().strategy).toBe('prefix')
+    expect(vi.isMockFunction(i18n.$t)).toBe(true)
   })
 })

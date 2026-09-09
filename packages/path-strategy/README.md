@@ -96,9 +96,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const context: PathStrategyContext = {
     strategy: useRuntimeConfig().public.i18n.strategy,
     defaultLocale: 'en',
-    locales: [
-      /* ... */
-    ],
+    locales: [/* ... */],
     localizedRouteNamePrefix: 'localized-',
     router: { hasRoute, resolve },
     // optional: globalLocaleRoutes, routeLocales, routesLocaleLinks, noPrefixRedirect

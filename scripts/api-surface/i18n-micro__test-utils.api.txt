@@ -1,33 +1,60 @@
 # . (src/index.ts)
+function _t: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation
+function _ts: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => string
+function createFakeI18n: (options?: CreateFakeI18nOptions) => { $i18nStrategy: { localizePath(path: string, loc?: string): string; }; $getI18nConfig: () => { locales: Locale[]; defaultLocale: string | undefined; strategy: "prefix"; }; $getLocale: (_route?: unknown) => string; $setLocale: (val: string) => void; $getLocaleName: () => string | null; $setLocaleName: (val: string | null) => void; $getLocales: () => Locale[]; $setLocales: (val: Locale[]) => void; $defaultLocale: () => string | undefined; $setDefaultLocale: (val: string | undefined) => void; $getRouteName: (_route?: unknown, _locale?: string) => string; $settRouteName: (val: string) => void; $setRouteName: (val: string) => void; $t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation; $_t: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation; $ts: (key: TranslationKey, params?: Params, defaultValue?: string | null) => string; $_ts: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => string; $tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string; $tn: (value: number, options?: Intl.NumberFormatOptions) => string; $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; $has: (key: TranslationKey) => boolean; $resolveTranslations: () => Record<string, unknown>; $setTranslation: (key: TranslationKey, value: unknown) => void; $mergeTranslations: (newTranslations: Translations) => void; $switchLocaleRoute: (loc: string) => { path: string; name: string; }; $switchLocalePath: (loc: string) => string; $switchLocale: (val: string) => void; $switchRoute: (route: unknown, toLocale?: string) => void; $localeRoute: (to: unknown, loc?: string) => { name?: string | symbol | undefined; path: string; }; $localePath: (to: unknown, loc?: string) => string; $setI18nRouteParams: (value: unknown) => unknown; $loadPageTranslations: (loc: string, page: string, translations: Translations) => Promise<void>; $setMissingHandler: (handler: MissingHandler | null) => void; $setTranslationsFromJson: (loc: string, translations: Record<string, unknown>) => Promise<void>; }
+interface CreateFakeI18nOptions
+member CreateFakeI18nOptions.spy?: SpyFn | undefined
 const defaultLocale: () => string | undefined
-const getLocale: () => string
+function getI18nConfig: () => { locales: Locale[]; defaultLocale: string | undefined; strategy: "prefix"; }
+const getLocale: (_route?: unknown) => string
 const getLocaleName: () => string | null
 const getLocales: () => Locale[]
 const getRouteName: (_route?: unknown, _locale?: string) => string
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 const has: (key: TranslationKey) => boolean
-const i18nUtils: { t: (key: TranslationKey, params?: Params, defaultValue?: string) => Translation; tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string; setTranslationsFromJson: (locale: string, translations: Record<string, unknown>) => Promise<void>; getLocale: () => string; setLocale: (val: string) => string; getLocaleName: () => string | null; setLocaleName: (val: string | null) => string | null; getLocales: () => Locale[]; setLocales: (val: Locale[]) => Locale[]; defaultLocale: () => string | undefined; setDefaultLocale: (val: string | undefined) => string | undefined; getRouteName: (_route?: unknown, _locale?: string) => string; settRouteName: (val: string) => string; ts: (key: TranslationKey, params?: Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; has: (key: TranslationKey) => boolean; mergeTranslations: (newTranslations: Translations) => void; resolveTranslations: () => Record<string, unknown>; setTranslation: (key: TranslationKey, value: unknown) => void; switchLocaleRoute: (val: string) => string; switchLocalePath: (val: string) => string; switchLocale: (val: string) => string; switchRoute: (_route: unknown, _toLocale?: string) => void; localeRoute: (_to: unknown, _locale?: string) => void; localePath: (_to: unknown, _locale?: string) => string; setI18nRouteParams: (_value: unknown) => void; }
-const localePath: (_to: unknown, _locale?: string) => string
-const localeRoute: (_to: unknown, _locale?: string) => void
+const i18nStrategy: { localizePath(path: string, loc?: string): string; }
+const i18nUtils: { t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation; tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string; ts: (key: TranslationKey, params?: Params, defaultValue?: string | null) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey) => boolean; resetI18n: (options?: ResetI18nOptions) => void; createFakeI18n: (options?: CreateFakeI18nOptions) => { $i18nStrategy: { localizePath(path: string, loc?: string): string; }; $getI18nConfig: () => { locales: Locale[]; defaultLocale: string | undefined; strategy: "prefix"; }; $getLocale: (_route?: unknown) => string; $setLocale: (val: string) => void; $getLocaleName: () => string | null; $setLocaleName: (val: string | null) => void; $getLocales: () => Locale[]; $setLocales: (val: Locale[]) => void; $defaultLocale: () => string | undefined; $setDefaultLocale: (val: string | undefined) => void; $getRouteName: (_route?: unknown, _locale?: string) => string; $settRouteName: (val: string) => void; $setRouteName: (val: string) => void; $t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation; $_t: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation; $ts: (key: TranslationKey, params?: Params, defaultValue?: string | null) => string; $_ts: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => string; $tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string; $tn: (value: number, options?: Intl.NumberFormatOptions) => string; $td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; $tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; $has: (key: TranslationKey) => boolean; $resolveTranslations: () => Record<string, unknown>; $setTranslation: (key: TranslationKey, value: unknown) => void; $mergeTranslations: (newTranslations: Translations) => void; $switchLocaleRoute: (loc: string) => { path: string; name: string; }; $switchLocalePath: (loc: string) => string; $switchLocale: (val: string) => void; $switchRoute: (route: unknown, toLocale?: string) => void; $localeRoute: (to: unknown, loc?: string) => { name?: string | symbol | undefined; path: string; }; $localePath: (to: unknown, loc?: string) => string; $setI18nRouteParams: (value: unknown) => unknown; $loadPageTranslations: (loc: string, page: string, translations: Translations) => Promise<void>; $setMissingHandler: (handler: MissingHandler | null) => void; $setTranslationsFromJson: (loc: string, translations: Record<string, unknown>) => Promise<void>; }; setTranslationsFromJson: (loc: string, translations: Record<string, unknown>) => Promise<void>; loadPageTranslations: (loc: string, page: string, translations: Translations) => Promise<void>; setMissingHandler: (handler: MissingHandler | null) => void; getI18nConfig: () => { locales: Locale[]; defaultLocale: string | undefined; strategy: "prefix"; }; i18nStrategy: { localizePath(path: string, loc?: string): string; }; getLocale: (_route?: unknown) => string; setLocale: (val: string) => void; getLocaleName: () => string | null; setLocaleName: (val: string | null) => void; getLocales: () => Locale[]; setLocales: (val: Locale[]) => void; defaultLocale: () => string | undefined; setDefaultLocale: (val: string | undefined) => void; getRouteName: (_route?: unknown, _locale?: string) => string; settRouteName: (val: string) => void; setRouteName: (val: string) => void; _t: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation; _ts: (route: unknown) => (key: TranslationKey, params?: Params, defaultValue?: string | null) => string; mergeTranslations: (newTranslations: Translations) => void; resolveTranslations: () => Record<string, unknown>; setTranslation: (key: TranslationKey, value: unknown) => void; switchLocaleRoute: (loc: string) => { path: string; name: string; }; switchLocalePath: (loc: string) => string; switchLocale: (val: string) => void; switchRoute: (route: unknown, toLocale?: string) => void; localeRoute: (to: unknown, loc?: string) => { name?: string | symbol | undefined; path: string; }; localePath: (to: unknown, loc?: string) => string; setI18nRouteParams: (value: unknown) => unknown; }
+function loadPageTranslations: (loc: string, page: string, translations: Translations) => Promise<void>
+interface Locale
+member Locale.baseDefault?: boolean | undefined
+member Locale.baseUrl?: string | undefined
+member Locale.code: string
+member Locale.dir?: "ltr" | "rtl" | "auto" | undefined
+member Locale.disabled?: boolean | undefined
+member Locale.displayName?: string | undefined
+member Locale.iso?: string | undefined
+function localePath: (to: unknown, loc?: string) => string
+function localeRoute: (to: unknown, loc?: string) => { name?: string | symbol | undefined; path: string; }
 const mergeTranslations: (newTranslations: Translations) => void
+function resetI18n: (options?: ResetI18nOptions) => void
+interface ResetI18nOptions
+member ResetI18nOptions.defaultLocale?: string | undefined
+member ResetI18nOptions.locale?: string | undefined
+member ResetI18nOptions.localeName?: string | null | undefined
+member ResetI18nOptions.locales?: Locale[] | undefined
+member ResetI18nOptions.routeName?: string | undefined
 const resolveTranslations: () => Record<string, unknown>
-const setDefaultLocale: (val: string | undefined) => string | undefined
-const setI18nRouteParams: (_value: unknown) => void
-const setLocale: (val: string) => string
-const setLocaleName: (val: string | null) => string | null
-const setLocales: (val: Locale[]) => Locale[]
+const setDefaultLocale: (val: string | undefined) => void
+function setI18nRouteParams: (value: unknown) => unknown
+const setLocale: (val: string) => void
+const setLocaleName: (val: string | null) => void
+const setLocales: (val: Locale[]) => void
+function setMissingHandler: (handler: MissingHandler | null) => void
+const setRouteName: (val: string) => void
 const setTranslation: (key: TranslationKey, value: unknown) => void
-function setTranslationsFromJson: (locale: string, translations: Record<string, unknown>) => Promise<void>
-const settRouteName: (val: string) => string
-const switchLocale: (val: string) => string
-const switchLocalePath: (val: string) => string
-const switchLocaleRoute: (val: string) => string
-const switchRoute: (_route: unknown, _toLocale?: string) => void
-function t: (key: TranslationKey, params?: Params, defaultValue?: string) => Translation
+function setTranslationsFromJson: (loc: string, translations: Record<string, unknown>) => Promise<void>
+const settRouteName: (val: string) => void
+type SpyFn: <T>(fn: T) => T
+function switchLocale: (val: string) => void
+function switchLocalePath: (loc: string) => string
+function switchLocaleRoute: (loc: string) => { path: string; name: string; }
+function switchRoute: (route: unknown, toLocale?: string) => void
+function t: (key: TranslationKey, params?: Params, defaultValue?: string | null) => Translation
 function tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string
 const td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string
+function tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string
 const tn: (value: number, options?: Intl.NumberFormatOptions) => string
-const ts: (key: TranslationKey, params?: Params, defaultValue?: string) => string
+const ts: (key: TranslationKey, params?: Params, defaultValue?: string | null) => string
 
 # ./publish-smoke (src/publish-smoke.ts)
 interface ExportTarget

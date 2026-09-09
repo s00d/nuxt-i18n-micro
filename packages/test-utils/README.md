@@ -1,119 +1,50 @@
 # Nuxt I18n Micro Test Utils
 
-This is a utility library designed to facilitate testing for Nuxt.js applications that use the `@i18n-micro/core` package. It provides helper functions to handle translations, formatting, and locale switching, simplifying the process of testing internationalization (i18n) functionality.
+Nuxt unit-test mocks for `useI18n()` — translations, locale state, and lightweight path stubs. Pair with `@nuxt/test-utils` + Vitest.
 
 ## Features
 
-- **Translation Helper Functions**: Easily retrieve and interpolate translations with the `t` and `tc` functions.
-- **Pluralization**: Handle plural forms of translations with the `tc` function.
-- **Locale Management**: Set and get the current locale and locale-specific data (e.g., route name, locale list).
-- **Number and Date Formatting**: Format numbers and dates according to the current locale.
-- **Translation Merging**: Merge new translations into the existing cache with the `mergeTranslations` function.
-- **Translation Memory**: Read and replace the active dictionary with `resolveTranslations` and `setTranslation`.
-- **Locale Switching**: Switch between locales dynamically and update route and path accordingly.
+- **`createFakeI18n`** — `useI18n()`-shaped object (`$t` / `t` aliases, optional `vi.fn` spies)
+- **`resetI18n`** — clear dictionary cache and locale state between tests
+- **Translation helpers** — `t`, `tc`, `ts`, `mergeTranslations`, `resolveTranslations`, `setTranslation`
+- **Page chunks** — `loadPageTranslations`, `$_t` / `_t` route-bound translators
+- **Formatting** — `tn`, `td`, `tdr` via `Intl`
+- **Path stubs** — `localePath` / `switchLocalePath` with a simple locale prefix (no vue-router)
 
 ## Installation
 
-You can install the package via npm or yarn:
-
 ```bash
-npm install @i18n-micro/test-utils
+npm install @i18n-micro/test-utils --save-dev
 ```
 
-or
-
-```bash
-yarn add @i18n-micro/test-utils
-```
-
-## Usage
-
-### Importing the helper functions
-
-To use the utility functions, import them as follows:
+## Quick setup
 
 ```typescript
-import { i18nUtils } from '@i18n-micro/test-utils'
+// tests/unit-setup.ts
+import { createFakeI18n, resetI18n, setTranslationsFromJson } from '@i18n-micro/test-utils'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { beforeEach, vi } from 'vitest'
+
+const i18n = createFakeI18n({ spy: vi.fn })
+
+mockNuxtImport<() => typeof i18n>('useI18n', () => vi.fn(() => i18n))
+
+beforeEach(() => {
+  resetI18n()
+})
+
+export { i18n, setTranslationsFromJson }
 ```
 
-### Example Usage
-
-#### Getting a translation
-
-To retrieve a translation, you can use the `t` function:
+Load dictionaries in a test:
 
 ```typescript
-const translatedValue = i18nUtils.t('welcome_message', { name: 'John' })
-console.log(translatedValue) // Output: translated string with the injected name
+await setTranslationsFromJson('en', { welcome: 'Welcome' })
+expect(i18n.$t('welcome')).toBe('Welcome')
+expect(i18n.$localePath('/about')).toBe('/en/about')
 ```
 
-#### Formatting numbers
-
-Use the `tn` function to format numbers based on the current locale:
-
-```typescript
-const formattedNumber = i18nUtils.tn(12345.6789)
-console.log(formattedNumber) // Output: formatted number
-```
-
-#### Formatting dates
-
-Use the `td` function to format dates:
-
-```typescript
-const formattedDate = i18nUtils.td(new Date())
-console.log(formattedDate) // Output: formatted date
-```
-
-#### Pluralization
-
-Handle plural translations with `tc`:
-
-```typescript
-const pluralValue = i18nUtils.tc('item_count', 3)
-console.log(pluralValue) // Output: appropriate plural form
-```
-
-#### Merging Translations
-
-To add new translations, use the `mergeTranslations` function:
-
-```typescript
-i18nUtils.mergeTranslations({ welcome_message: 'Hello, {name}!' })
-```
-
-#### Reading and replacing translations
-
-Read the active dictionary:
-
-```typescript
-const tree = i18nUtils.resolveTranslations()
-```
-
-Replace a value by key (replace, not merge):
-
-```typescript
-i18nUtils.setTranslation('welcome_message', 'Hi, {name}!')
-i18nUtils.setTranslation('nested', { child: 'value' })
-```
-
-### Locale Management
-
-You can manage the current locale with the following functions:
-
-```typescript
-i18nUtils.setLocale('en') // Set current locale to English
-const currentLocale = i18nUtils.getLocale() // Get the current locale
-```
-
-### Setting Translations from JSON
-
-Load translations dynamically using the `setTranslationsFromJson` function:
-
-```typescript
-const newTranslations = { welcome_message: 'Welcome!' }
-i18nUtils.setTranslationsFromJson('en', newTranslations)
-```
+See the [testing guide](https://s00d.github.io/nuxt-i18n-micro/guide/testing) and the [`example/`](./example) Nuxt app.
 
 ## License
 

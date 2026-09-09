@@ -21,6 +21,8 @@ export const isLocaleDefault = (locale: string | Locale, defaultLocale: Locale):
 
 const INTERNAL_PREFIXES = ['/api', '/_nuxt', '/_locales'] as const
 
+const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i
+
 const DEFAULT_STATIC_PATTERNS = [
   /^\/sitemap.*\.xml$/,
   /^\/sitemap\.xml$/,
@@ -30,20 +32,31 @@ const DEFAULT_STATIC_PATTERNS = [
   /^\/manifest\.json$/,
   /^\/sw\.js$/,
   /^\/workbox-.*\.js$/,
-  /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i,
 ]
+
+function isStaticAssetPath(path: string): boolean {
+  // Last non-empty segment — trailing slashes must not defeat the extension check.
+  const last = path.split('/').filter(Boolean).pop() ?? ''
+  if (!last || last.endsWith('.html') || last.endsWith('.htm')) return false
+  return STATIC_ASSET_EXT.test(last)
+}
 
 export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[]): boolean {
   for (const prefix of INTERNAL_PREFIXES) {
     if (path === prefix || path.startsWith(`${prefix}/`)) return true
   }
-  if (/(?:^|\/)__[^/]+/.test(path)) {
+  // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
+  if (/(?:^|\/)__/.test(path)) {
     return true
   }
+  const pathForMatch = path.length > 1 ? path.replace(/\/+$/, '') : path
   for (const pattern of DEFAULT_STATIC_PATTERNS) {
-    if (pattern.test(path)) {
+    if (pattern.test(pathForMatch)) {
       return true
     }
+  }
+  if (isStaticAssetPath(path)) {
+    return true
   }
   if (excludePatterns) {
     for (const pattern of excludePatterns) {

@@ -29,8 +29,61 @@ const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|a
 
 export function isStaticAssetPathname(pathname: string): boolean {
   if (!pathname || pathname.endsWith('.html') || pathname.endsWith('.htm')) return false
+  // Last non-empty segment — trailing slashes must not defeat the extension check.
   const last = pathname.split('/').filter(Boolean).pop() ?? ''
   return STATIC_ASSET_EXT.test(last)
+}
+
+const INTERNAL_PREFIXES = ['/api', '/_nuxt', '/_locales'] as const
+
+const DEFAULT_STATIC_PATTERNS = [
+  /^\/sitemap.*\.xml$/,
+  /^\/sitemap\.xml$/,
+  /^\/robots\.txt$/,
+  /^\/favicon\.ico$/,
+  /^\/apple-touch-icon.*\.png$/,
+  /^\/manifest\.json$/,
+  /^\/sw\.js$/,
+  /^\/workbox-.*\.js$/,
+]
+
+/**
+ * True for Nuxt/i18n internals, Content `__` routes, and static assets that must
+ * skip locale detection / redirects. Lives in utils (not route-strategy) so client
+ * middleware can import it without pulling `@nuxt/schema` into the browser bundle.
+ */
+export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[]): boolean {
+  for (const prefix of INTERNAL_PREFIXES) {
+    if (path === prefix || path.startsWith(`${prefix}/`)) return true
+  }
+  // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
+  if (/(?:^|\/)__/.test(path)) {
+    return true
+  }
+  const pathForMatch = path.length > 1 ? path.replace(/\/+$/, '') : path
+  for (const pattern of DEFAULT_STATIC_PATTERNS) {
+    if (pattern.test(pathForMatch)) {
+      return true
+    }
+  }
+  if (isStaticAssetPathname(path)) {
+    return true
+  }
+  if (excludePatterns) {
+    for (const pattern of excludePatterns) {
+      if (typeof pattern === 'string') {
+        if (pattern.includes('*') || pattern.includes('?')) {
+          const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\?/g, '.'))
+          if (regex.test(path)) return true
+        } else if (path === pattern || path.startsWith(pattern)) {
+          return true
+        }
+      } else if (pattern instanceof RegExp) {
+        if (pattern.test(path)) return true
+      }
+    }
+  }
+  return false
 }
 
 /**

@@ -171,6 +171,14 @@ describe('RouteGenerator - Exported utils', () => {
       expect(isInternalPath('/__nuxt_content')).toBe(true)
       expect(isInternalPath('/en/__nuxt_content')).toBe(true)
       expect(isInternalPath('/en/__nuxt_content/query')).toBe(true)
+      expect(isInternalPath('/__')).toBe(true)
+      expect(isInternalPath('/__/')).toBe(true)
+    })
+
+    test('matches static assets with a trailing slash', () => {
+      expect(isInternalPath('/static/app.css/')).toBe(true)
+      expect(isInternalPath('/assets/logo.png/')).toBe(true)
+      expect(isInternalPath('/logo.webp/')).toBe(true)
     })
   })
 })

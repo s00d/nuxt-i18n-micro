@@ -4,11 +4,10 @@
  * Client SPA redirects are handled by i18n-redirect route middleware.
  */
 
-import { isInternalPath } from '@i18n-micro/route-strategy'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
-import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
+import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import { getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
 import { resolvePreferredLocale } from '@i18n-micro/utils/resolve-locale'

@@ -5,8 +5,8 @@
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
-import { isInternalPath } from '@i18n-micro/route-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import type { RouteLocationNormalized } from 'vue-router'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp } from '#imports'

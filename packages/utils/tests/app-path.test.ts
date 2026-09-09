@@ -1,4 +1,4 @@
-import { isStaticAssetPathname, resolveContainedRelPath, withoutAppBaseURL } from '../src/app-path'
+import { isInternalPath, isStaticAssetPathname, resolveContainedRelPath, withoutAppBaseURL } from '../src/app-path'
 import { describe, expect, it } from 'vitest'
 
 describe('withoutAppBaseURL', () => {
@@ -48,6 +48,27 @@ describe('isStaticAssetPathname', () => {
     expect(isStaticAssetPathname('/track.mp3')).toBe(true)
     expect(isStaticAssetPathname('/archive.zip')).toBe(true)
     expect(isStaticAssetPathname('/data.json.gz')).toBe(true)
+    expect(isStaticAssetPathname('/static/app.css/')).toBe(true)
+    expect(isStaticAssetPathname('/assets/logo.png/')).toBe(true)
+  })
+})
+
+describe('isInternalPath', () => {
+  it('skips well-known prefixes and __ internals', () => {
+    expect(isInternalPath('/api')).toBe(true)
+    expect(isInternalPath('/_nuxt/entry.js')).toBe(true)
+    expect(isInternalPath('/_locales/index/en/data.json')).toBe(true)
+    expect(isInternalPath('/__')).toBe(true)
+    expect(isInternalPath('/__/')).toBe(true)
+    expect(isInternalPath('/__nuxt_content')).toBe(true)
+    expect(isInternalPath('/en/__nuxt_content/query')).toBe(true)
+    expect(isInternalPath('/apiculture')).toBe(false)
+  })
+
+  it('skips static assets including trailing-slash paths', () => {
+    expect(isInternalPath('/static/app.css/')).toBe(true)
+    expect(isInternalPath('/assets/logo.png/')).toBe(true)
+    expect(isInternalPath('/en/user/john.doe')).toBe(false)
   })
 })
 

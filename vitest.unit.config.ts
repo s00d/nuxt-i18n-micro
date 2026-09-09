@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config'
-import { INTEGRATION_TESTS } from './test/setup/heavy-tests'
+import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
 
 /**
  * Unit tests in `test/` — no Nuxt build, no browser, no servers. The tests themselves run

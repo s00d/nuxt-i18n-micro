@@ -187,7 +187,8 @@
     "overrides": {
       "@nuxtjs/sitemap": "catalog:",
       "@nuxt/kit": "4.5.2",
-      "@nuxt/schema": "4.5.2"
+      "@nuxt/schema": "4.5.2",
+      "vite": "8.2.2"
     }
   },
   "stackblitz": {

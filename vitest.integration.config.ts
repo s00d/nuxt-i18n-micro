@@ -1,6 +1,6 @@
 import os from 'node:os'
 import { defineConfig } from 'vitest/config'
-import { INTEGRATION_TESTS } from './test/setup/heavy-tests'
+import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
 
 const parallelism = typeof os.availableParallelism === 'function' ? os.availableParallelism() : os.cpus().length
 

@@ -61,7 +61,6 @@ export const I18nT = defineComponent({
       // Drop fallthrough HTML attrs so `html=false` cannot be bypassed via attrs.
       const safeAttrs = { ...(attrs as Record<string, unknown>) }
       delete safeAttrs.innerHTML
-      delete safeAttrs.outerHTML
       const renderText = (translation: string) =>
         props.html ? h(props.tag, { ...safeAttrs, innerHTML: translation }) : h(props.tag, safeAttrs, translation)
 

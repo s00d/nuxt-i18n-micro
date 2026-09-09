@@ -18,18 +18,13 @@ export function withoutAppBaseURL(pathname: string, baseURL?: string | null): st
 }
 
 /**
- * Last-segment static-asset check used by the server middleware and redirect plugin.
- *
- * A path may contain dots in a slug (`/en/user/john.doe`, `/docs/v1.2`) and still be a
- * real page. Only the final segment is considered, and `.html` / `.htm` stay as pages.
- * The extension list covers common static assets (including formats the old
- * `path.includes('.')` guard used to skip wholesale: webp, avif, pdf, wasm, …).
+ * Last-segment static-asset check. Dotted slugs (`/en/user/john.doe`) stay as pages;
+ * only the final segment is considered. `.html` / `.htm` stay as pages.
  */
-const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i
+const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/i
 
 export function isStaticAssetPathname(pathname: string): boolean {
   if (!pathname || pathname.endsWith('.html') || pathname.endsWith('.htm')) return false
-  // Last non-empty segment — trailing slashes must not defeat the extension check.
   const last = pathname.split('/').filter(Boolean).pop() ?? ''
   return STATIC_ASSET_EXT.test(last)
 }
@@ -49,8 +44,8 @@ const DEFAULT_STATIC_PATTERNS = [
 
 /**
  * True for Nuxt/i18n internals, Content `__` routes, and static assets that must
- * skip locale detection / redirects. Lives in utils (not route-strategy) so client
- * middleware can import it without pulling `@nuxt/schema` into the browser bundle.
+ * skip locale detection / redirects. Lives in utils so client middleware can import
+ * it without pulling `@nuxt/schema` (via route-strategy) into the browser bundle.
  */
 export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[]): boolean {
   for (const prefix of INTERNAL_PREFIXES) {
@@ -73,8 +68,6 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
     for (const pattern of excludePatterns) {
       if (typeof pattern === 'string') {
         if (pattern.includes('*') || pattern.includes('?')) {
-          // Escape regex metacharacters first so `[`, `(`, etc. match literally;
-          // only `*` / `?` remain as wildcards.
           const regex = new RegExp(
             pattern
               .replace(/[.+^${}()|[\]\\]/g, '\\$&')
@@ -86,8 +79,6 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
           return true
         }
       } else if (pattern instanceof RegExp) {
-        // Global/sticky regexes keep lastIndex across calls — reset so each path
-        // is tested from the start (otherwise matches alternate true/false).
         pattern.lastIndex = 0
         const matches = pattern.test(path)
         pattern.lastIndex = 0
@@ -100,9 +91,7 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
 
 /**
  * Normalize a payload-relative path and reject any walk out of the payload root.
- *
- * `join(baseDir, rel)` would honour `..`. Callers must use the returned string (or skip
- * the read when this returns `null`) rather than the raw request param.
+ * Callers must use the returned string (or skip the read when this returns `null`).
  */
 export function resolveContainedRelPath(relPath: string): string | null {
   const cleaned = relPath.replace(/\\/g, '/').replace(/^\/+/, '')

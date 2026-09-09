@@ -81,7 +81,6 @@ export default defineComponent({
       // Drop fallthrough HTML attrs so `html=false` cannot be bypassed via attrs.
       const safeAttrs = { ...(attrs as Record<string, unknown>) }
       delete safeAttrs.innerHTML
-      delete safeAttrs.outerHTML
       const renderText = (translation: string) =>
         props.html ? hyperscript(props.tag, { ...safeAttrs, innerHTML: translation }) : hyperscript(props.tag, safeAttrs, translation)
 

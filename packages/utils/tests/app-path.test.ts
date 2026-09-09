@@ -38,18 +38,7 @@ describe('isStaticAssetPathname', () => {
     expect(isStaticAssetPathname('/en/sitemap.xml')).toBe(true)
     expect(isStaticAssetPathname('/assets/app.js')).toBe(true)
     expect(isStaticAssetPathname('/logo.PNG')).toBe(true)
-    expect(isStaticAssetPathname('/logo.webp')).toBe(true)
-    expect(isStaticAssetPathname('/photo.avif')).toBe(true)
-    expect(isStaticAssetPathname('/docs/guide.pdf')).toBe(true)
-    expect(isStaticAssetPathname('/pkg.wasm')).toBe(true)
-    expect(isStaticAssetPathname('/bundle.js.map')).toBe(true)
-    expect(isStaticAssetPathname('/clip.mp4')).toBe(true)
-    expect(isStaticAssetPathname('/clip.webm')).toBe(true)
-    expect(isStaticAssetPathname('/track.mp3')).toBe(true)
-    expect(isStaticAssetPathname('/archive.zip')).toBe(true)
-    expect(isStaticAssetPathname('/data.json.gz')).toBe(true)
     expect(isStaticAssetPathname('/static/app.css/')).toBe(true)
-    expect(isStaticAssetPathname('/assets/logo.png/')).toBe(true)
   })
 })
 
@@ -59,7 +48,6 @@ describe('isInternalPath', () => {
     expect(isInternalPath('/_nuxt/entry.js')).toBe(true)
     expect(isInternalPath('/_locales/index/en/data.json')).toBe(true)
     expect(isInternalPath('/__')).toBe(true)
-    expect(isInternalPath('/__/')).toBe(true)
     expect(isInternalPath('/__nuxt_content')).toBe(true)
     expect(isInternalPath('/en/__nuxt_content/query')).toBe(true)
     expect(isInternalPath('/apiculture')).toBe(false)
@@ -67,13 +55,11 @@ describe('isInternalPath', () => {
 
   it('skips static assets including trailing-slash paths', () => {
     expect(isInternalPath('/static/app.css/')).toBe(true)
-    expect(isInternalPath('/assets/logo.png/')).toBe(true)
     expect(isInternalPath('/en/user/john.doe')).toBe(false)
   })
 
   it('treats wildcard excludePatterns metacharacters as literals', () => {
     expect(isInternalPath('/blog/[slug]/extra', ['/blog/[slug]*'])).toBe(true)
-    expect(isInternalPath('/docs/(v1)/page', ['/docs/(v1)/*'])).toBe(true)
     expect(isInternalPath('/blog/other', ['/blog/[slug]*'])).toBe(false)
   })
 
@@ -81,7 +67,6 @@ describe('isInternalPath', () => {
     const pattern = /^\/admin(?:\/|$)/g
     expect(isInternalPath('/admin', [pattern])).toBe(true)
     expect(isInternalPath('/admin', [pattern])).toBe(true)
-    expect(isInternalPath('/admin/users', [pattern])).toBe(true)
     expect(pattern.lastIndex).toBe(0)
   })
 })

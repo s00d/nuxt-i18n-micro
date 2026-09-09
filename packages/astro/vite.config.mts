@@ -18,12 +18,12 @@ export default defineConfig({
     lib: {
       // Точки входа
       entry: {
-        index: resolve(__dirname, 'src/index.ts'),
-        'client/index': resolve(__dirname, 'src/client/index.ts'),
-        'client/vue': resolve(__dirname, 'src/client/vue.ts'),
-        'client/react': resolve(__dirname, 'src/client/react.tsx'),
-        'client/preact': resolve(__dirname, 'src/client/preact.tsx'),
-        'client/svelte': resolve(__dirname, 'src/client/svelte.ts'),
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        'client/index': resolve(import.meta.dirname, 'src/client/index.ts'),
+        'client/vue': resolve(import.meta.dirname, 'src/client/vue.ts'),
+        'client/react': resolve(import.meta.dirname, 'src/client/react.tsx'),
+        'client/preact': resolve(import.meta.dirname, 'src/client/preact.tsx'),
+        'client/svelte': resolve(import.meta.dirname, 'src/client/svelte.ts'),
       },
       // УДАЛЕНО: formats: ['es', 'cjs'] — вызывает предупреждение, так как перекрывается rollupOptions
     },
@@ -83,7 +83,7 @@ export default defineConfig({
       insertTypesEntry: true,
       copyDtsFiles: true,
       outDir: 'dist',
-      tsconfigPath: resolve(__dirname, 'tsconfig.json'),
+      tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'tests/**/*'],
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),

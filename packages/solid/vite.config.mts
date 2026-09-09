@@ -27,13 +27,13 @@ export default defineConfig({
       bundleTypes: true,
       entryRoot: 'src',
       outDir: 'dist',
-      tsconfigPath: resolve(__dirname, 'tsconfig.json'),
+      tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       beforeWriteFile: dualPackageBeforeWriteFile,
     }) as unknown as import('vite').Plugin,
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
       name: 'I18nMicroSolid',
       formats: ['es', 'cjs'],
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,

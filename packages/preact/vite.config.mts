@@ -31,7 +31,7 @@ export default defineConfig({
       bundleTypes: true,
       entryRoot: 'src',
       outDir: 'dist',
-      tsconfigPath: resolve(__dirname, 'tsconfig.json'),
+      tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       compilerOptions: {
         // Убеждаемся, что типы генерируются с учетом preact
         jsx: 4 as const, // JsxEmit.ReactJSX
@@ -43,7 +43,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
       name: 'I18nMicroPreact',
       formats: ['es', 'cjs'],
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,

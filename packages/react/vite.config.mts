@@ -27,7 +27,7 @@ export default defineConfig({
       bundleTypes: true,
       entryRoot: 'src',
       outDir: 'dist/react',
-      tsconfigPath: resolve(__dirname, 'tsconfig.build.json'),
+      tsconfigPath: resolve(import.meta.dirname, 'tsconfig.build.json'),
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['tests/**/*'],
       beforeWriteFile: dualPackageBeforeWriteFile,
@@ -35,7 +35,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
       name: 'I18nMicroReact',
       formats: ['es', 'cjs'],
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`,

@@ -2,10 +2,10 @@ import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  root: resolve(__dirname),
+  root: resolve(import.meta.dirname),
   resolve: {
     alias: {
-      '@i18n-micro/types': resolve(__dirname, '../../types/src/index.ts'),
+      '@i18n-micro/types': resolve(import.meta.dirname, '../../types/src/index.ts'),
     },
   },
   server: {

@@ -1,6 +1,5 @@
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import type { RollupLog } from 'rollup'
@@ -9,7 +8,7 @@ import dts from 'vite-plugin-dts'
 
 const tailwindPlugins = tailwindcss() as Plugin | Plugin[]
 
-const rootDir = fileURLToPath(new URL('.', import.meta.url))
+const rootDir = import.meta.dirname
 
 function writeIndexRequireTypes(filePath: string, content: string) {
   const normalized = filePath.replace(/\\/g, '/')

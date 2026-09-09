@@ -22,9 +22,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        index: resolve(__dirname, 'src/index.ts'),
-        helpers: resolve(__dirname, 'src/helpers-entry.ts'),
-        devtools: resolve(__dirname, 'src/devtools-entry.ts'),
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        helpers: resolve(import.meta.dirname, 'src/helpers-entry.ts'),
+        devtools: resolve(import.meta.dirname, 'src/devtools-entry.ts'),
       },
       formats: ['cjs', 'es'],
       fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'mjs'}`,

@@ -18,8 +18,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: {
-        index: resolve(__dirname, 'src/index.ts'),
-        nuxt: resolve(__dirname, 'src/nuxt.ts'),
+        index: resolve(import.meta.dirname, 'src/index.ts'),
+        nuxt: resolve(import.meta.dirname, 'src/nuxt.ts'),
       },
       name: '@i18n-micro/types-generator',
       formats: ['cjs', 'es'],
@@ -47,7 +47,7 @@ export default defineConfig({
       insertTypesEntry: true,
       copyDtsFiles: true,
       outDir: 'dist',
-      tsconfigPath: resolve(__dirname, 'tsconfig.json'),
+      tsconfigPath: resolve(import.meta.dirname, 'tsconfig.json'),
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),
   ],

@@ -17,7 +17,7 @@ function dualPackageBeforeWriteFile(filePath, content) {
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
       name: '@i18n-micro/route-strategy',
       formats: ['cjs', 'es'],
       fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,

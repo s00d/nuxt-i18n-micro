@@ -1,10 +1,9 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
-const rootDir = fileURLToPath(new URL('.', import.meta.url))
+const rootDir = import.meta.dirname
 
 const libEntries = {
   'deep-merge': resolve(rootDir, 'src/deep-merge.ts'),

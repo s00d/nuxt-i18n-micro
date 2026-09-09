@@ -1,6 +1,5 @@
 import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
-import { isMetaDisabledForRoute } from '@i18n-micro/utils/route'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { computed, watch } from 'vue'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
@@ -32,11 +31,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   )
 
   // Locale is already set by 01.plugin (from Middleware -> event.context on server, or hydration on client)
-  const currentLocale = nuxtApp.$getLocale?.()
-
-  if (isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, currentLocale)) {
-    return
-  }
+  // routeDisableMeta is evaluated in useLocaleHead.updateMeta so client navigations
+  // can enable/disable tags per page — a one-shot check here would freeze the first route.
 
   // Resolve base URL for SEO meta tags (#240):
   //   metaBaseUrl (explicit) → site.url (nuxt-site-config) → request origin

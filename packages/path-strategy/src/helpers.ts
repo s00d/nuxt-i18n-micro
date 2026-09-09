@@ -163,7 +163,11 @@ export function getCurrentLocale(ctx: PathStrategyContext, route: ResolvedRouteL
     if (defaultLocaleOverride) return defaultLocaleOverride
   }
 
-  if (route.params?.locale) return String(route.params.locale)
+  if (route.params?.locale) {
+    const fromParams = Array.isArray(route.params.locale) ? String(route.params.locale[0] ?? '') : String(route.params.locale)
+    const codes = ctx.localeCodes ?? ctx.locales.map((l) => l.code)
+    if (fromParams && codes.includes(fromParams)) return fromParams
+  }
 
   const localeFromPath = extractLocaleFromPath(path, ctx.locales)
   if (localeFromPath) return localeFromPath

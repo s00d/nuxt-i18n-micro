@@ -22,12 +22,15 @@ export interface DetectCurrentLocaleConfig {
 export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleConfig, defaultLocale?: string): string => {
   const { fallbackLocale, defaultLocale: configDefaultLocale, locales, localeCookie, autoDetectLanguage } = config
 
-  if (event.context.params?.locale) {
-    return event.context.params.locale.toString()
-  }
-
   const resolvedDefault = defaultLocale || configDefaultLocale || 'en'
   const validLocales = getEnabledLocaleCodes(locales ?? [])
+
+  if (event.context.params?.locale) {
+    const fromParams = event.context.params.locale.toString()
+    if (validLocales.includes(fromParams)) {
+      return fromParams
+    }
+  }
   const url = getRequestURL(event)
   const rawPath = url.pathname.split('?')[0]?.split('#')[0] ?? url.pathname
   const cleanPath = withoutAppBaseURL(rawPath, useRuntimeConfig(event).app.baseURL)

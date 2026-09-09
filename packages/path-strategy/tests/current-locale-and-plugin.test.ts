@@ -82,6 +82,13 @@ describe('getCurrentLocale', () => {
 
       expect(strategy.getCurrentLocale(route)).toBe('de')
     })
+
+    test('ignores params.locale when it is not a configured locale', () => {
+      const strategy = createPathStrategy(makeCtx('prefix'))
+      const route: ResolvedRouteLike = { name: 'page', path: '/ru/about', fullPath: '/ru/about', params: { locale: 'not-a-locale' } }
+
+      expect(strategy.getCurrentLocale(route)).toBe('ru')
+    })
   })
 
   describe('locale from path extraction', () => {

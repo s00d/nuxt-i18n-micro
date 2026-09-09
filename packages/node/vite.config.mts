@@ -38,7 +38,7 @@ export default defineConfig({
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
-      rollupTypes: true,
+      bundleTypes: true,
       tsconfigPath: 'tsconfig.json',
       beforeWriteFile: dualPackageBeforeWriteFile,
     }),

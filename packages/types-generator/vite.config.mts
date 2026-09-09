@@ -41,7 +41,7 @@ export default defineConfig({
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
-      rollupTypes: false,
+      bundleTypes: false,
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
       insertTypesEntry: true,

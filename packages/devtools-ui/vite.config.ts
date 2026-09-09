@@ -40,7 +40,7 @@ const libEs: UserConfig = {
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
-      rollupTypes: false,
+      bundleTypes: false,
       include: ['src/**/*.ts', 'src/**/*.vue'],
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
       insertTypesEntry: true,
@@ -138,7 +138,7 @@ const vitePlugin: UserConfig = {
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
-      rollupTypes: false,
+      bundleTypes: false,
       strictOutput: false,
       include: ['vite/plugin.ts'],
       entryRoot: resolve(rootDir, 'vite'),

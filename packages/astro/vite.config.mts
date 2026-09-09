@@ -79,7 +79,7 @@ export default defineConfig({
           throw new Error(`[vite:dts] ${errors.length} TypeScript error(s) — build aborted`)
         }
       },
-      rollupTypes: false,
+      bundleTypes: false,
       insertTypesEntry: true,
       copyDtsFiles: true,
       outDir: 'dist',

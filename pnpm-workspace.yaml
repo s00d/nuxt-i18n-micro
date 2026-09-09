@@ -16,7 +16,7 @@ catalog:
   vite: ^8.2.2
   vue-docgen-api: ^4.79.2
   yaml: ^2.8.2
-  vite-plugin-dts: ^4.5.4
+  vite-plugin-dts: ^5.1.0
   vite-plugin-solid: ^2.11.14
   vite-plugin-vue-devtools: ^8.2.1
   '@vitejs/plugin-react': ^5.2.0
@@ -78,7 +78,7 @@ catalog:
   # TypeScript & types
   typescript: ^6.0.3
   '@types/node': ^20.19.26
-  tsx: ^4.0.0
+  tsx: ^4.23.13
   # Docs & lint
   vitepress: ^2.0.0-alpha.20
   vitepress-plugin-llms: ^1.13.3
@@ -95,7 +95,7 @@ catalog:
   citty: ^0.2.2
   globby: ^14.1.0
   glob: ^11.0.1
-  ufo: ^1.5.4
+  ufo: ^1.6.4
   unplugin: ^1.16.1 || ^2.0.0 || ^3.3.0
   serve: ^14.2.0
   wrangler: ^3.109.1

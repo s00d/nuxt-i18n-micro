@@ -200,7 +200,8 @@ describe('custom-regex', () => {
     await goto('/locale-test', { waitUntil: 'hydration' })
     await expect(page.locator('#username')).toHaveText('Hello, John!')
     await page.click('#link-de')
-    await expect(page.locator('#username')).toHaveText('Hello, John!')
+    await expect(page).toHaveURL('/de-de/locale-page-modify')
+    await expect(page.locator('#username')).toHaveText('Hallo, John!')
   })
 
   test('test handling of missing locale data', async ({ page, goto }) => {

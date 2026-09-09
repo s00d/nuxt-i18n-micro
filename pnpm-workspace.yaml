@@ -70,7 +70,7 @@ catalog:
   # Testing
   vitest: ^4.1.11
   jsdom: ^29.1.1
-  '@playwright/test': ^1.55.0
+  '@playwright/test': ^1.63.0
   '@testing-library/jest-dom': ^6.9.1
   '@testing-library/react': ^14.3.1
   '@testing-library/vue': ^8.1.0

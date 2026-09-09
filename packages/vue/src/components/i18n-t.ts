@@ -5,6 +5,7 @@ import { I18nInjectionKey } from '../injection'
 
 export const I18nT = defineComponent({
   name: 'I18nT',
+  inheritAttrs: false,
   props: {
     keypath: {
       type: String as PropType<TranslationKey>,
@@ -57,7 +58,11 @@ export const I18nT = defineComponent({
     return () => {
       const options: Record<string, string | number | boolean> = {}
       const route = i18n.getRoute()
-      const renderText = (translation: string) => (props.html ? h(props.tag, { ...attrs, innerHTML: translation }) : h(props.tag, attrs, translation))
+      // Drop fallthrough `innerHTML` so `html=false` cannot be bypassed via attrs.
+      const safeAttrs = { ...(attrs as Record<string, unknown>) }
+      delete safeAttrs.innerHTML
+      const renderText = (translation: string) =>
+        props.html ? h(props.tag, { ...safeAttrs, innerHTML: translation }) : h(props.tag, safeAttrs, translation)
 
       // Handle number formatting
       if (props.number !== undefined) {
@@ -107,12 +112,12 @@ export const I18nT = defineComponent({
       }
 
       if (props.html) {
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return h(props.tag, { ...safeAttrs, innerHTML: translation })
       }
 
       // Handle slots
       if (slots.default) {
-        return h(props.tag, attrs, slots.default({ translation }))
+        return h(props.tag, safeAttrs, slots.default({ translation }))
       }
 
       // Handle named slots for interpolation
@@ -143,14 +148,14 @@ export const I18nT = defineComponent({
       }
 
       if (slots.default) {
-        return h(props.tag, attrs, slots.default({ children }))
+        return h(props.tag, safeAttrs, slots.default({ children }))
       }
 
       if (children.length > 0) {
-        return h(props.tag, attrs, children)
+        return h(props.tag, safeAttrs, children)
       }
 
-      return h(props.tag, attrs, translation)
+      return h(props.tag, safeAttrs, translation)
     }
   },
 })

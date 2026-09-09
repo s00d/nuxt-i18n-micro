@@ -329,16 +329,48 @@ describe('NuxtTranslationLoader cache hits', () => {
 
     try {
       const stale = loader.switchContext('de', 'about')
-      await loader.switchContext('fr', 'about')
+      const applied = await loader.switchContext('fr', 'about')
 
+      expect(applied).toBe(true)
       expect(i18n.getCurrentLocale()).toBe('fr')
       expect(i18n.t('title')).toBe('FR')
 
       resolveDe({ title: 'DE' })
-      await stale
+      expect(await stale).toBe(false)
 
       expect(i18n.getCurrentLocale()).toBe('fr')
       expect(i18n.t('title')).toBe('FR')
+    } finally {
+      loadSpy.mockRestore()
+    }
+  })
+
+  it('invalidates a pending switch even when the next navigation keeps the same context', async () => {
+    translationStorage.clear()
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
+    i18n.setChunk('en', 'index', { title: 'EN' })
+    i18n.applySwitchContext('en', 'index', { title: 'EN' })
+
+    let resolveDe!: (value: Record<string, unknown>) => void
+    const dePromise = new Promise<Record<string, unknown>>((resolve) => {
+      resolveDe = resolve
+    })
+
+    const loadSpy = vi.spyOn(translationStorage, 'load').mockImplementation(async () => {
+      const data = await dePromise
+      return { data, cacheKey: 'de:about' }
+    })
+
+    try {
+      const pending = loader.switchContext('de', 'about')
+      // Caller skipped switchContext because applied context is still en/index — must still cancel.
+      loader.invalidatePendingSwitches()
+
+      resolveDe({ title: 'DE' })
+      expect(await pending).toBe(false)
+      expect(i18n.getCurrentLocale()).toBe('en')
+      expect(i18n.t('title')).toBe('EN')
     } finally {
       loadSpy.mockRestore()
     }

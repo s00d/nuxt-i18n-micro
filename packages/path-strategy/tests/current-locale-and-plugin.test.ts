@@ -89,6 +89,18 @@ describe('getCurrentLocale', () => {
 
       expect(strategy.getCurrentLocale(route)).toBe('ru')
     })
+
+    test('ignores params.locale when the locale is disabled', () => {
+      const strategy = createPathStrategy(
+        makeCtx('prefix', {
+          locales: [{ code: 'en', disabled: false }, { code: 'de', disabled: true }, { code: 'ru' }],
+          localeCodes: ['en', 'de', 'ru'],
+        }),
+      )
+      const route: ResolvedRouteLike = { name: 'page', path: '/ru/about', fullPath: '/ru/about', params: { locale: 'de' } }
+
+      expect(strategy.getCurrentLocale(route)).toBe('ru')
+    })
   })
 
   describe('locale from path extraction', () => {

@@ -22,9 +22,10 @@ export function withoutAppBaseURL(pathname: string, baseURL?: string | null): st
  *
  * A path may contain dots in a slug (`/en/user/john.doe`, `/docs/v1.2`) and still be a
  * real page. Only the final segment is considered, and `.html` / `.htm` stay as pages.
- * The extension list matches `isInternalPath` in `@i18n-micro/route-strategy`.
+ * The extension list covers common static assets (including formats the old
+ * `path.includes('.')` guard used to skip wholesale: webp, avif, pdf, wasm, …).
  */
-const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/i
+const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i
 
 export function isStaticAssetPathname(pathname: string): boolean {
   if (!pathname || pathname.endsWith('.html') || pathname.endsWith('.htm')) return false

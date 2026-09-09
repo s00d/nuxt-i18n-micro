@@ -1,5 +1,6 @@
 import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
+import { isMetaDisabledForRoute } from '@i18n-micro/utils/route'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { computed, watch } from 'vue'
 import { getI18nConfig } from '#build/i18n.strategy.mjs'
@@ -58,6 +59,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     const { $getLocales, $getLocale } = nuxtApp as typeof nuxtApp & Pick<PluginsInjections, '$getLocales' | '$getLocale'>
     const allLocales = $getLocales?.() ?? i18nConfig.locales ?? []
     const locale = $getLocale?.() || i18nConfig.defaultLocale || 'en'
+
+    // Keep page-defined i18n head out when the route disables meta — matching the
+    // previous plugin short-circuit that suppressed all head output for that route.
+    if (isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, locale, i18nConfig.localizedRouteNamePrefix || 'localized-')) {
+      return { htmlAttrs: {}, link: [], meta: [] }
+    }
 
     return mergeI18nHead(metaObject.value, pageHead.value, {
       identifierAttribute: 'id',

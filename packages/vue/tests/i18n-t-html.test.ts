@@ -45,4 +45,22 @@ describe('I18nT html prop', () => {
     expect(wrapper.html()).not.toMatch(/innerHTML/i)
     expect(wrapper.text()).toContain('Price:')
   })
+
+  test('strips fallthrough innerHTML when html is false', () => {
+    const wrapper = mount(I18nT, {
+      props: { keypath: 'rich', plural: 5 },
+      attrs: { innerHTML: '<img src=x onerror=alert(1)>' },
+      global: {
+        provide: {
+          [I18nInjectionKey as never]: new VueI18n({
+            locale: 'en',
+            missingWarn: false,
+            messages: { en: { rich: '<b>{count}</b> apples' } },
+          }),
+        },
+      },
+    })
+    expect(wrapper.html()).not.toContain('<img')
+    expect(wrapper.text()).toBe('<b>5</b> apples')
+  })
 })

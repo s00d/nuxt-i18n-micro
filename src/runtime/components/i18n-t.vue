@@ -17,6 +17,7 @@ import type { PluginsInjections } from '../../runtime/plugins/01.plugin'
  */
 export default defineComponent({
   name: 'I18nT',
+  inheritAttrs: false,
   props: {
     /** Translation key to render. */
     keypath: {
@@ -77,8 +78,11 @@ export default defineComponent({
       const { $getLocale, $_t, $tc, $tn, $td, $tdr } = useNuxtApp() as unknown as PluginsInjections
       const route = useRoute()
       const $t = $_t(route)
+      // Drop fallthrough `innerHTML` so `html=false` cannot be bypassed via attrs.
+      const safeAttrs = { ...(attrs as Record<string, unknown>) }
+      delete safeAttrs.innerHTML
       const renderText = (translation: string) =>
-        props.html ? hyperscript(props.tag, { ...attrs, innerHTML: translation }) : hyperscript(props.tag, attrs, translation)
+        props.html ? hyperscript(props.tag, { ...safeAttrs, innerHTML: translation }) : hyperscript(props.tag, safeAttrs, translation)
 
       if (props.number !== undefined) {
         const numberValue = Number(props.number)
@@ -109,11 +113,11 @@ export default defineComponent({
       }
 
       if (props.html) {
-        return hyperscript(props.tag, { ...attrs, innerHTML: translation })
+        return hyperscript(props.tag, { ...safeAttrs, innerHTML: translation })
       }
 
       if (slots.default) {
-        return hyperscript(props.tag, attrs, slots.default({ translation }))
+        return hyperscript(props.tag, safeAttrs, slots.default({ translation }))
       }
 
       const children: (string | VNode)[] = []
@@ -139,10 +143,10 @@ export default defineComponent({
       }
 
       if (slots.default) {
-        return hyperscript(props.tag, attrs, slots.default({ children }))
+        return hyperscript(props.tag, safeAttrs, slots.default({ children }))
       }
 
-      return hyperscript(props.tag, attrs, children)
+      return hyperscript(props.tag, safeAttrs, children)
     }
   },
 })

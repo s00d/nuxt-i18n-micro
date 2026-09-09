@@ -165,11 +165,16 @@ export default defineNuxtPlugin(async (nuxtApp) => {
       const targetLocale = getEffectiveLocale(to, (r) => getCurrentLocale(r as unknown as ResolvedRouteLike))
       const targetRouteName = getPluginRouteName(to as unknown as ResolvedRouteLike, targetLocale)
 
+      let applied = true
       if (targetLocale !== i18n.getCurrentLocale() || targetRouteName !== i18n.getCurrentRouteName()) {
-        await switchContext(targetLocale, targetRouteName)
+        applied = await switchContext(targetLocale, targetRouteName)
+      } else {
+        // Same applied context — still cancel any in-flight load from a prior navigation
+        // that had not yet called applySwitchContext (generation would otherwise stay valid).
+        loader.invalidatePendingSwitches()
       }
 
-      if (targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
+      if (applied && targetLocale && isValidLocale(targetLocale) && localeState.value !== targetLocale) {
         setLocale(targetLocale)
       }
     } catch (e) {

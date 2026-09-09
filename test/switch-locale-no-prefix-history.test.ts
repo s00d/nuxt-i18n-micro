@@ -35,7 +35,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy']) {
     i18n,
     loadOptions: { apiBaseUrl: '_locales', baseURL: '/' },
   })
-  vi.spyOn(loader, 'switchContext').mockResolvedValue(undefined)
+  vi.spyOn(loader, 'switchContext').mockResolvedValue(true)
 
   const i18nStrategy = {
     switchLocaleRoute: () => ({ path: '/', name: 'index', force: undefined }),

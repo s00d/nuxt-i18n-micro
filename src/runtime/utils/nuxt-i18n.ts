@@ -411,6 +411,15 @@ export class NuxtTranslationLoader {
 
   constructor(private readonly options: NuxtTranslationLoaderOptions) {}
 
+  /**
+   * Bump the switch generation so any in-flight `switchContext` becomes a no-op.
+   * Call on every navigation that may supersede a pending load — including when the
+   * target `(locale, routeName)` already matches the applied context (caller skips switch).
+   */
+  invalidatePendingSwitches(): void {
+    this.switchGeneration++
+  }
+
   loadFromCacheSync(locale: string, routeName?: string): Record<string, unknown> | null {
     const { i18n } = this.options
 
@@ -453,7 +462,12 @@ export class NuxtTranslationLoader {
     return promise
   }
 
-  async switchContext(locale: string, routeName?: string): Promise<void> {
+  /**
+   * Load and apply translations for a locale/route. Returns `false` when a newer
+   * navigation superseded this switch — callers must skip post-await side effects
+   * (e.g. `setLocale`) for the abandoned navigation.
+   */
+  async switchContext(locale: string, routeName?: string): Promise<boolean> {
     const generation = ++this.switchGeneration
     let data = this.loadFromCacheSync(locale, routeName)
 
@@ -461,9 +475,10 @@ export class NuxtTranslationLoader {
       data = await this.loadAsync(locale, routeName)
     }
 
-    if (generation !== this.switchGeneration) return
+    if (generation !== this.switchGeneration) return false
 
     this.options.i18n.applySwitchContext(locale, routeName, data)
+    return true
   }
 }
 

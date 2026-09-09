@@ -5,6 +5,7 @@
 import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { resolveContainedRelPath } from '@i18n-micro/utils/app-path'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 
 function baseDir(): string {
@@ -17,7 +18,9 @@ function baseDir(): string {
 }
 
 export async function readPayload(relPath: string): Promise<Record<string, unknown>> {
-  const path = join(baseDir(), relPath.replace(/^\/+/, '').replace(/\\/g, '/'))
+  const safeRel = resolveContainedRelPath(relPath)
+  if (!safeRel) return {}
+  const path = join(baseDir(), safeRel)
   try {
     return JSON.parse(await readFile(path, 'utf8')) as Record<string, unknown>
   } catch (error) {

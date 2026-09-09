@@ -1,4 +1,4 @@
-import { withoutAppBaseURL } from '../src/app-path'
+import { isStaticAssetPathname, resolveContainedRelPath, withoutAppBaseURL } from '../src/app-path'
 import { describe, expect, it } from 'vitest'
 
 describe('withoutAppBaseURL', () => {
@@ -22,5 +22,40 @@ describe('withoutAppBaseURL', () => {
   it('leaves paths outside baseURL unchanged', () => {
     expect(withoutAppBaseURL('/api/health', '/examples')).toBe('/api/health')
     expect(withoutAppBaseURL('/_nuxt/entry.js', '/examples')).toBe('/_nuxt/entry.js')
+  })
+})
+
+describe('isStaticAssetPathname', () => {
+  it('does not treat dotted slugs as static files', () => {
+    expect(isStaticAssetPathname('/en/user/john.doe')).toBe(false)
+    expect(isStaticAssetPathname('/docs/v1.2')).toBe(false)
+    expect(isStaticAssetPathname('/releases/1.0.0')).toBe(false)
+    expect(isStaticAssetPathname('/en/about.html')).toBe(false)
+  })
+
+  it('recognizes last-segment static extensions', () => {
+    expect(isStaticAssetPathname('/favicon.ico')).toBe(true)
+    expect(isStaticAssetPathname('/en/sitemap.xml')).toBe(true)
+    expect(isStaticAssetPathname('/assets/app.js')).toBe(true)
+    expect(isStaticAssetPathname('/logo.PNG')).toBe(true)
+  })
+})
+
+describe('resolveContainedRelPath', () => {
+  it('keeps normal payload keys', () => {
+    expect(resolveContainedRelPath('index/en/data.json')).toBe('index/en/data.json')
+    expect(resolveContainedRelPath('/pages/about/de.json')).toBe('pages/about/de.json')
+  })
+
+  it('rejects traversal out of the payload root', () => {
+    expect(resolveContainedRelPath('../en/data.json')).toBeNull()
+    expect(resolveContainedRelPath('../../server/chunks/index.mjs')).toBeNull()
+    expect(resolveContainedRelPath('foo/../../secret.json')).toBeNull()
+    expect(resolveContainedRelPath('..')).toBeNull()
+    expect(resolveContainedRelPath('foo/bar/../..')).toBeNull()
+  })
+
+  it('normalizes inner dots without escaping', () => {
+    expect(resolveContainedRelPath('foo/./bar/../baz.json')).toBe('foo/baz.json')
   })
 })

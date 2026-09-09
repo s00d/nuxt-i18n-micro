@@ -1,6 +1,44 @@
 # Changelog
 
 
+## v3.29.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.5...v3.29.0)
+
+### 🚀 Enhancements
+
+- **test-utils:** Nuxt useI18n mocks; bump oxlint tooling ([98b57485](https://github.com/s00d/nuxt-i18n-micro/commit/98b57485))
+
+### 🩹 Fixes
+
+- Runtime races, dotted-path skip, I18nT XSS, payload confinement ([#255](https://github.com/s00d/nuxt-i18n-micro/pull/255))
+- **ci:** Stub .nuxt/tsconfig before Vite 8 package builds ([39b4e4f2](https://github.com/s00d/nuxt-i18n-micro/commit/39b4e4f2))
+- Use monorepo tsconfig layout like pinia/devtools ([294385ea](https://github.com/s00d/nuxt-i18n-micro/commit/294385ea))
+- **test:** Point unit typecheck at tsconfig.nuxt.json ([4f3110de](https://github.com/s00d/nuxt-i18n-micro/commit/4f3110de))
+- **ci:** Pin unhead/@unhead/vue to 3.4.0 for Nuxt 4.5 SSR ([13369381](https://github.com/s00d/nuxt-i18n-micro/commit/13369381))
+- **devtools-ui:** Process Tailwind in UMD and bump to 4.3.3 ([834f916f](https://github.com/s00d/nuxt-i18n-micro/commit/834f916f))
+- Restore root version 3.28.5; stop advising root bumps ([ddbf635f](https://github.com/s00d/nuxt-i18n-micro/commit/ddbf635f))
+
+### 🏡 Chore
+
+- **scripts:** Apply oxfmt after tooling bump ([d1f5bf86](https://github.com/s00d/nuxt-i18n-micro/commit/d1f5bf86))
+- Bump Nuxt catalog to ^4.5.2 ([660f1614](https://github.com/s00d/nuxt-i18n-micro/commit/660f1614))
+- Align Nuxt ecosystem deps with 4.5.2 ([c6ab5349](https://github.com/s00d/nuxt-i18n-micro/commit/c6ab5349))
+- Align Vite stack with Nuxt 8.2.2 ([41525fb1](https://github.com/s00d/nuxt-i18n-micro/commit/41525fb1))
+- Bump TypeScript to 6.0.3 ([3797f149](https://github.com/s00d/nuxt-i18n-micro/commit/3797f149))
+- Bump tsx/ufo and vite-plugin-dts for TS6 ([2081bae2](https://github.com/s00d/nuxt-i18n-micro/commit/2081bae2))
+- Bump package versions after TS6/tsconfig changes ([3a264a3b](https://github.com/s00d/nuxt-i18n-micro/commit/3a264a3b))
+- Bump @playwright/test to 1.63.0 ([4417673a](https://github.com/s00d/nuxt-i18n-micro/commit/4417673a))
+- Replace __dirname with import.meta.dirname in Vite configs ([146a5c0e](https://github.com/s00d/nuxt-i18n-micro/commit/146a5c0e))
+
+### 🎨 Styles
+
+- Oxfmt package tsconfigs and devtools-ui vite config ([6d2ed30d](https://github.com/s00d/nuxt-i18n-micro/commit/6d2ed30d))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.28.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.4...v3.28.5)

@@ -77,26 +77,28 @@ export default defineComponent({
       const { $getLocale, $_t, $tc, $tn, $td, $tdr } = useNuxtApp() as unknown as PluginsInjections
       const route = useRoute()
       const $t = $_t(route)
+      const renderText = (translation: string) =>
+        props.html ? hyperscript(props.tag, { ...attrs, innerHTML: translation }) : hyperscript(props.tag, attrs, translation)
 
       if (props.number !== undefined) {
         const numberValue = Number(props.number)
-        return hyperscript(props.tag, { ...attrs, innerHTML: $t(props.keypath, { number: $tn(numberValue) }) })
+        return renderText(String($t(props.keypath, { number: $tn(numberValue) }) ?? ''))
       }
 
       if (props.date !== undefined) {
-        return hyperscript(props.tag, { ...attrs, innerHTML: $t(props.keypath, { date: $td(props.date) }) })
+        return renderText(String($t(props.keypath, { date: $td(props.date) }) ?? ''))
       }
 
       if (props.relativeDate !== undefined) {
-        return hyperscript(props.tag, { ...attrs, innerHTML: $t(props.keypath, { relativeDate: $tdr(props.relativeDate) }) })
+        return renderText(String($t(props.keypath, { relativeDate: $tdr(props.relativeDate) }) ?? ''))
       }
 
       if (props.plural !== undefined) {
         const count = Number.parseInt(props.plural.toString(), 10)
         if (props.customPluralRule) {
-          return hyperscript(props.tag, { ...attrs, innerHTML: props.customPluralRule(props.keypath, count, props.params, $getLocale(), $t) })
+          return renderText(String(props.customPluralRule(props.keypath, count, props.params, $getLocale(), $t) ?? ''))
         } else {
-          return hyperscript(props.tag, { ...attrs, innerHTML: $tc(props.keypath, { count, ...props.params }) })
+          return renderText($tc(props.keypath, { count, ...props.params }))
         }
       }
 

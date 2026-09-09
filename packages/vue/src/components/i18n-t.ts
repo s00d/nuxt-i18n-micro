@@ -57,27 +57,28 @@ export const I18nT = defineComponent({
     return () => {
       const options: Record<string, string | number | boolean> = {}
       const route = i18n.getRoute()
+      const renderText = (translation: string) => (props.html ? h(props.tag, { ...attrs, innerHTML: translation }) : h(props.tag, attrs, translation))
 
       // Handle number formatting
       if (props.number !== undefined) {
         const numberValue = Number(props.number)
         const formattedNumber = i18n.tn(numberValue)
         const translation = i18n.t(props.keypath, { number: formattedNumber, ...props.params }, undefined, route)
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return renderText(String(translation ?? ''))
       }
 
       // Handle date formatting
       if (props.date !== undefined) {
         const formattedDate = i18n.td(props.date)
         const translation = i18n.t(props.keypath, { date: formattedDate, ...props.params }, undefined, route)
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return renderText(String(translation ?? ''))
       }
 
       // Handle relative date formatting
       if (props.relativeDate !== undefined) {
         const formattedRelativeDate = i18n.tdr(props.relativeDate)
         const translation = i18n.t(props.keypath, { relativeDate: formattedRelativeDate, ...props.params }, undefined, route)
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return renderText(String(translation ?? ''))
       }
 
       // Handle pluralization
@@ -91,10 +92,10 @@ export const I18nT = defineComponent({
             i18n.locale.value,
             (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => i18n.t(k, p, dv, route),
           )
-          return h(props.tag, { ...attrs, innerHTML: translation || '' })
+          return renderText(translation || '')
         } else {
           const translation = i18n.tc(props.keypath, { count, ...props.params })
-          return h(props.tag, { ...attrs, innerHTML: translation })
+          return renderText(translation)
         }
       }
 

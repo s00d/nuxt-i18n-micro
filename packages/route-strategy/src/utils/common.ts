@@ -62,13 +62,25 @@ export function isInternalPath(path: string, excludePatterns?: (string | RegExp 
     for (const pattern of excludePatterns) {
       if (typeof pattern === 'string') {
         if (pattern.includes('*') || pattern.includes('?')) {
-          const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\?/g, '.'))
+          // Escape regex metacharacters first so `[`, `(`, etc. match literally;
+          // only `*` / `?` remain as wildcards.
+          const regex = new RegExp(
+            pattern
+              .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+              .replace(/\*/g, '.*')
+              .replace(/\?/g, '.'),
+          )
           if (regex.test(path)) return true
         } else if (path === pattern || path.startsWith(pattern)) {
           return true
         }
       } else if (pattern instanceof RegExp) {
-        if (pattern.test(path)) return true
+        // Global/sticky regexes keep lastIndex across calls — reset so each path
+        // is tested from the start (otherwise matches alternate true/false).
+        pattern.lastIndex = 0
+        const matches = pattern.test(path)
+        pattern.lastIndex = 0
+        if (matches) return true
       }
     }
   }

@@ -70,6 +70,20 @@ describe('isInternalPath', () => {
     expect(isInternalPath('/assets/logo.png/')).toBe(true)
     expect(isInternalPath('/en/user/john.doe')).toBe(false)
   })
+
+  it('treats wildcard excludePatterns metacharacters as literals', () => {
+    expect(isInternalPath('/blog/[slug]/extra', ['/blog/[slug]*'])).toBe(true)
+    expect(isInternalPath('/docs/(v1)/page', ['/docs/(v1)/*'])).toBe(true)
+    expect(isInternalPath('/blog/other', ['/blog/[slug]*'])).toBe(false)
+  })
+
+  it('resets lastIndex on global excludePatterns regexes', () => {
+    const pattern = /^\/admin(?:\/|$)/g
+    expect(isInternalPath('/admin', [pattern])).toBe(true)
+    expect(isInternalPath('/admin', [pattern])).toBe(true)
+    expect(isInternalPath('/admin/users', [pattern])).toBe(true)
+    expect(pattern.lastIndex).toBe(0)
+  })
 })
 
 describe('resolveContainedRelPath', () => {

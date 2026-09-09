@@ -17,13 +17,14 @@ export default defineConfig({
     // `expectTypeOf` compiles to nothing, so a type test only asserts anything when a
     // program that contains it is built. Without this the default `**/*.test-d.ts` matched
     // no file here and every type assertion in `test/` passed vacuously under `vitest`.
-    // The root project, not a narrowed one: it extends `.nuxt/tsconfig.json`, and a custom
-    // `include` drops the generated augmentations with it — `NuxtConfig.i18n` and
-    // `NuxtConfig.nitro` then stop existing and every fixture config fails to compile.
+    // Nuxt-aware project (`tsconfig.nuxt.json` extends `.nuxt/tsconfig.json`). A custom
+    // `include` on a bare root config drops generated augmentations — `NuxtConfig.i18n`
+    // and `NuxtConfig.nitro` then stop existing and every fixture config fails to compile.
+    // Root `tsconfig.json` stays self-contained for monorepo package builds (pinia-style).
     typecheck: {
       enabled: true,
       include: ['test/**/*.test.ts'],
-      tsconfig: './tsconfig.json',
+      tsconfig: './tsconfig.nuxt.json',
     },
     testTimeout: 30_000,
     pool: 'forks',

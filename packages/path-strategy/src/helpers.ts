@@ -166,8 +166,7 @@ export function getCurrentLocale(ctx: PathStrategyContext, route: ResolvedRouteL
   if (route.params?.locale) {
     const fromParams = Array.isArray(route.params.locale) ? String(route.params.locale[0] ?? '') : String(route.params.locale)
     // Match server detector: only enabled (non-disabled) locale codes count.
-    const codes = ctx.locales.filter((l) => !l.disabled).map((l) => l.code)
-    if (fromParams && codes.includes(fromParams)) return fromParams
+    if (fromParams && ctx.locales.some((l) => !l.disabled && l.code === fromParams)) return fromParams
   }
 
   const localeFromPath = extractLocaleFromPath(path, ctx.locales)

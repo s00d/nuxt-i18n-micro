@@ -600,12 +600,15 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
         return
       }
 
-      setLocale(toLocale)
       if (isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode) {
         const route = router.currentRoute.value as unknown as ResolvedRouteLike
         const routeName = getPluginRouteName(route, toLocale)
-        await loader.switchContext(toLocale, routeName)
+        const applied = await loader.switchContext(toLocale, routeName)
+        // A newer switchLocale / navigation won — do not setLocale or navigate for this call.
+        if (!applied) return
       }
+
+      setLocale(toLocale)
       return switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },
     switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

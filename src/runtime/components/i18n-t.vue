@@ -78,9 +78,10 @@ export default defineComponent({
       const { $getLocale, $_t, $tc, $tn, $td, $tdr } = useNuxtApp() as unknown as PluginsInjections
       const route = useRoute()
       const $t = $_t(route)
-      // Drop fallthrough `innerHTML` so `html=false` cannot be bypassed via attrs.
+      // Drop fallthrough HTML attrs so `html=false` cannot be bypassed via attrs.
       const safeAttrs = { ...(attrs as Record<string, unknown>) }
       delete safeAttrs.innerHTML
+      delete safeAttrs.outerHTML
       const renderText = (translation: string) =>
         props.html ? hyperscript(props.tag, { ...safeAttrs, innerHTML: translation }) : hyperscript(props.tag, safeAttrs, translation)
 

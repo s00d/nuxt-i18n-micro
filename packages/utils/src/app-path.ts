@@ -21,7 +21,7 @@ export function withoutAppBaseURL(pathname: string, baseURL?: string | null): st
  * Last-segment static-asset check. Dotted slugs (`/en/user/john.doe`) stay as pages;
  * only the final segment is considered. `.html` / `.htm` stay as pages.
  */
-const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/i
+const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i
 
 export function isStaticAssetPathname(pathname: string): boolean {
   if (!pathname || pathname.endsWith('.html') || pathname.endsWith('.htm')) return false

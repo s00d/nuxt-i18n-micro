@@ -178,6 +178,7 @@ describe('RouteGenerator - Exported utils', () => {
     test('matches static assets with a trailing slash', () => {
       expect(isInternalPath('/static/app.css/')).toBe(true)
       expect(isInternalPath('/assets/logo.png/')).toBe(true)
+      expect(isInternalPath('/logo.webp/')).toBe(true)
     })
   })
 })

@@ -53,15 +53,11 @@ jobs:
       # If a step ever does run out of memory, print `free -h` here first to
       # confirm it before adding any.
       - run: pnpm run lint
-      # Three steps, in this order, because the dependency runs both ways:
-      # `dev:prepare` loads src/module.ts, which imports the packages from their
-      # `dist`, so the packages have to be built first — while the demo apps
-      # under packages/*/playground are bundled by tools that walk up to the
-      # repo-root tsconfig.json, which `extends` the `.nuxt/tsconfig.json` that
-      # only `dev:prepare` generates. Vite 8 / rolldown hard-errors on that
-      # missing extends (devtools-ui SFC transform, Astro playgrounds), so we
-      # stub `.nuxt/tsconfig.json` before package builds; prepare overwrites it.
-      - run: pnpm run ensure:nuxt-tsconfig
+      # Monorepo (pinia / nuxt-devtools style): packages build before root
+      # `dev:prepare` because prepare loads @i18n-micro/* from package dist.
+      # Root `tsconfig.json` is self-contained; Nuxt-aware module typecheck uses
+      # `tsconfig.nuxt.json` after prepare (single-package modules instead put
+      # `"extends": "./.nuxt/tsconfig.json"` at root and run prepare first).
       - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
       - run: pnpm run dev:prepare
       - run: pnpm --filter "./packages/*/playground" run build

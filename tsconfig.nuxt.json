@@ -1,0 +1,24 @@
+{
+  // Same role as module-starter / @nuxtjs/i18n root tsconfig, but kept separate
+  // so monorepo package builds do not inherit a generated `.nuxt` extends.
+  // Run after `dev:prepare` (creates ./.nuxt/tsconfig.json).
+  "extends": "./.nuxt/tsconfig.json",
+  "exclude": [
+    "dist",
+    "node_modules",
+    "playground",
+    // Standalone app: its types come from its own .nuxt once the module is installed
+    // from a tarball or npm, so it is not part of this repo's TS project.
+    "test/deploy-smoke",
+    "scripts",
+    // Package sources and demos have their own tsconfigs / CI build+test steps.
+    // Without this, vue-tsc walks the whole monorepo via `.nuxt`'s `../**/*`.
+    "packages/**",
+    "client",
+    "docs"
+  ],
+  // Nuxt 4.5+ injects vue-router/volar/* into .nuxt/tsconfig; this repo peers vue-router@4.
+  "vueCompilerOptions": {
+    "plugins": []
+  }
+}

@@ -31,7 +31,6 @@ On a fresh checkout, run steps in this **exact** order before tests, typecheck, 
 
 ```bash
 pnpm install
-pnpm run ensure:nuxt-tsconfig
 pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
 pnpm run dev:prepare
 pnpm --filter "./packages/*/playground" run build
@@ -39,8 +38,8 @@ pnpm --filter "./packages/*/playground" run build
 
 Why:
 
-- Vite 8 / rolldown hard-fails if root `tsconfig.json` extends a missing `.nuxt/tsconfig.json`. That file normally comes from `dev:prepare`, but packages must be built *before* prepare (they ship `dist/` that the module imports). `ensure:nuxt-tsconfig` writes a minimal stub; prepare overwrites it.
-- `dev:prepare` loads `src/module.ts`, which imports `@i18n-micro/*` from their `dist/`, so packages must be built first. It also generates `.nuxt/tsconfig.json`, which the root `tsconfig.json` extends.
+- `dev:prepare` loads `src/module.ts`, which imports `@i18n-micro/*` from their `dist/`, so packages must be built first. It also generates `.nuxt/tsconfig.json`.
+- This repo is a **monorepo** (like pinia / nuxt-devtools): root `tsconfig.json` stays self-contained. Single-package module starters use `"extends": "./.nuxt/tsconfig.json"` at root and always run `dev:prepare` first — that pattern breaks sibling Vite package builds here. Nuxt-aware module checking is `tsconfig.nuxt.json` after prepare (`pnpm run typecheck:root`).
 - Building package playgrounds is easy to forget but **required** for `pnpm run test:unit` / `pnpm run typecheck`: the Astro playground build generates the `virtual:i18n-micro/config` declaration used by `packages/astro/playground/src/middleware.ts`. Skip it and unit tests fail with `Cannot find module 'virtual:i18n-micro/config'` even when runtime tests pass.
 
 Then start the Nuxt playground:
@@ -87,7 +86,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Packages / e2e | `pnpm run test:packages` · `pnpm run test:e2e` |
 | E2E browser | `pnpm exec playwright install chromium` (once, before e2e) |
 | Build one package | `pnpm --filter @i18n-micro/<name> build` |
-| Build packages (no playgrounds) | `pnpm run ensure:nuxt-tsconfig && pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build` |
+| Build packages (no playgrounds) | `pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build` |
 | Full module pack | `pnpm run prepack` |
 | Regenerate API docs | `pnpm run docs:generate` |
 | Release gate helpers | `pnpm run preflight` · see `docs/guide/maintenance-commands.md` |

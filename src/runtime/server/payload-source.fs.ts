@@ -18,9 +18,9 @@ function baseDir(): string {
 }
 
 export async function readPayload(relPath: string): Promise<Record<string, unknown>> {
-  const safeRel = resolveContainedRelPath(relPath)
-  if (!safeRel) return {}
-  const path = join(baseDir(), safeRel)
+  const rel = resolveContainedRelPath(relPath)
+  if (!rel) return {}
+  const path = join(baseDir(), rel)
   try {
     return JSON.parse(await readFile(path, 'utf8')) as Record<string, unknown>
   } catch (error) {

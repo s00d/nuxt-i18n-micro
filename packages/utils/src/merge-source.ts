@@ -1,4 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
+import { resolveContainedRelPath } from './app-path'
 import { deepMergeTranslations } from './deep-merge'
 
 export interface SourceLocaleInfo {
@@ -64,7 +65,7 @@ export function buildSourcePagePath(pageName: string, localeCode: string): strin
  * Storage key relative to the Nitro unstorage mount (fs-friendly `/` paths).
  */
 export function toSourceStorageKey(relativePath: string): string {
-  return relativePath.replace(/^\/+/, '').replace(/\\/g, '/')
+  return resolveContainedRelPath(relativePath) ?? ''
 }
 
 /**

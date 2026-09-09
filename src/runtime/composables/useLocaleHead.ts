@@ -97,12 +97,14 @@ export const useLocaleHead = ({
     return filteredPath
   }
 
+  function clearMeta() {
+    metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
+  }
+
   function updateMeta() {
-    // On 404 pages, route.matched will be empty.
-    // We should not generate SEO tags for pages that don't exist.
+    // 404 / fallback routes must not emit SEO tags.
     if (route.matched.length === 0 || route.matched.some((record) => record.name === 'custom-fallback-route')) {
-      // Clear metaObject to ensure no tags are generated for 404 pages
-      metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
+      clearMeta()
       return
     }
 
@@ -115,14 +117,13 @@ export const useLocaleHead = ({
     const firstSegment = route.path.replace(/^\//, '').split('/').filter(Boolean)[0]
     const fallbackLocale = allLocales.find((loc: Locale) => loc.code === firstSegment)?.code || i18nConfig.defaultLocale || 'en'
     const locale = ($getLocale ? unref($getLocale()) : fallbackLocale) || fallbackLocale
-    if (isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, locale, localizedRouteNamePrefixResolved)) {
-      metaObject.value = { htmlAttrs: {}, link: [], meta: [] }
+    const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
+    if (!currentLocale || isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, locale, localizedRouteNamePrefixResolved)) {
+      clearMeta()
       return
     }
     const switchLocalePath = $switchLocalePath || (() => '')
     const routeName = (route.name ?? '').toString()
-    const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
-    if (!currentLocale) return
 
     // Find allowed locales for this route using the utility function
     const currentRouteLocales = findAllowedLocalesForRoute(route, routeLocales, localizedRouteNamePrefixResolved)

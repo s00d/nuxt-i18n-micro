@@ -25,6 +25,15 @@ describe('source translation paths', () => {
     expect(toPremergedStorageKey('index', 'en')).toBe('index/en/data.json')
     expect(toPremergedStorageKey('blog/post', 'de')).toBe('blog/post/de/data.json')
   })
+
+  it('rejects path-traversal segments so payload reads stay inside the mount', () => {
+    expect(toSourceStorageKey('../en/data.json')).toBe('')
+    expect(toSourceStorageKey('../../server/chunks/index.mjs')).toBe('')
+    expect(toSourceStorageKey('foo/../../secret.json')).toBe('')
+    expect(toSourceStorageKey('..')).toBe('')
+    expect(toSourceStorageKey('foo/bar/../baz.json')).toBe('foo/baz.json')
+    expect(toSourceStorageKey('/pages/about/de.json')).toBe('pages/about/de.json')
+  })
 })
 
 describe('mergeSourceTranslations', () => {

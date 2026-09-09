@@ -19,6 +19,8 @@ export const isLocaleDefault = (locale: string | Locale, defaultLocale: Locale):
   return localeCode === defaultLocale.code
 }
 
+const INTERNAL_PREFIXES = ['/api', '/_nuxt', '/_locales'] as const
+
 const DEFAULT_STATIC_PATTERNS = [
   /^\/sitemap.*\.xml$/,
   /^\/sitemap\.xml$/,
@@ -28,10 +30,13 @@ const DEFAULT_STATIC_PATTERNS = [
   /^\/manifest\.json$/,
   /^\/sw\.js$/,
   /^\/workbox-.*\.js$/,
-  /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/,
+  /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i,
 ]
 
 export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[]): boolean {
+  for (const prefix of INTERNAL_PREFIXES) {
+    if (path === prefix || path.startsWith(`${prefix}/`)) return true
+  }
   if (/(?:^|\/)__[^/]+/.test(path)) {
     return true
   }

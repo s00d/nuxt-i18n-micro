@@ -113,7 +113,7 @@ export default defineComponent({
       }
 
       if (props.html) {
-        return hyperscript(props.tag, { ...safeAttrs, innerHTML: translation })
+        return renderText(translation)
       }
 
       if (slots.default) {

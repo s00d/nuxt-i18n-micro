@@ -155,6 +155,23 @@ describe('RouteGenerator - Exported utils', () => {
     test('normal path not excluded', () => {
       expect(isInternalPath('/about', [])).toMatchSnapshot()
     })
+    test('does not treat dotted slugs as static files', () => {
+      expect(isInternalPath('/en/user/john.doe')).toBe(false)
+      expect(isInternalPath('/docs/v1.2')).toBe(false)
+      expect(isInternalPath('/releases/1.0.0')).toBe(false)
+    })
+    test('matches well-known prefixes without excludePatterns', () => {
+      expect(isInternalPath('/api')).toBe(true)
+      expect(isInternalPath('/api/users')).toBe(true)
+      expect(isInternalPath('/_nuxt/entry.js')).toBe(true)
+      expect(isInternalPath('/_locales/index/en/data.json')).toBe(true)
+      expect(isInternalPath('/apiculture')).toBe(false)
+    })
+    test('matches Nuxt Content and other __ internals in any segment', () => {
+      expect(isInternalPath('/__nuxt_content')).toBe(true)
+      expect(isInternalPath('/en/__nuxt_content')).toBe(true)
+      expect(isInternalPath('/en/__nuxt_content/query')).toBe(true)
+    })
   })
 })
 

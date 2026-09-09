@@ -112,7 +112,7 @@ export const I18nT = defineComponent({
       }
 
       if (props.html) {
-        return h(props.tag, { ...safeAttrs, innerHTML: translation })
+        return renderText(translation)
       }
 
       // Handle slots

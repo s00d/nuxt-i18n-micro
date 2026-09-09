@@ -21,6 +21,23 @@ function readSiteConfigUrl(nuxtApp: { $nuxtSiteConfig?: { get?: (opts?: object) 
   }
 }
 
+/**
+ * SEO origin: explicit `metaBaseUrl` → `site.url` → request origin.
+ * `useRequestURL` (and X-Forwarded-*) is only used when both configured origins
+ * are missing — that fallback trusts proxy headers when the corresponding
+ * `metaTrustForwarded*` flags are true (the published default).
+ */
+function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | undefined): string {
+  const configured = i18nConfig.metaBaseUrl || siteUrl
+  if (configured) return configured.replace(/\/+$/, '')
+
+  const url = useRequestURL({
+    xForwardedHost: i18nConfig.metaTrustForwardedHost !== false,
+    xForwardedProto: i18nConfig.metaTrustForwardedProto !== false,
+  })
+  return url.origin.replace(/\/+$/, '')
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
   const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
@@ -35,17 +52,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   // routeDisableMeta is evaluated in useLocaleHead.updateMeta so client navigations
   // can enable/disable tags per page — a one-shot check here would freeze the first route.
 
-  // Resolve base URL for SEO meta tags (#240):
-  //   metaBaseUrl (explicit) → site.url (nuxt-site-config) → request origin
-  // Proxy-header options so the origin is correct behind nginx / Cloudflare / ALB / etc.:
-  //   X-Forwarded-Host  → real hostname  (controlled by metaTrustForwardedHost)
-  //   X-Forwarded-Proto → real protocol  (controlled by metaTrustForwardedProto)
-  const url = useRequestURL({
-    xForwardedHost: i18nConfig.metaTrustForwardedHost !== false,
-    xForwardedProto: i18nConfig.metaTrustForwardedProto !== false,
-  })
   const siteUrl = readSiteConfigUrl(nuxtApp as { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } })
-  const baseUrl = (i18nConfig.metaBaseUrl || siteUrl || url.origin).replace(/\/+$/, '')
+  const baseUrl = resolveSeoBaseUrl(i18nConfig, siteUrl)
 
   const { metaObject, updateMeta } = useLocaleHead({
     addDirAttribute: true,

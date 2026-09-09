@@ -25,18 +25,13 @@ export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleC
   const resolvedDefault = defaultLocale || configDefaultLocale || 'en'
   const validLocales = getEnabledLocaleCodes(locales ?? [])
 
-  if (event.context.params?.locale) {
-    const fromParams = event.context.params.locale.toString()
-    if (validLocales.includes(fromParams)) {
-      return fromParams
-    }
-  }
   const url = getRequestURL(event)
   const rawPath = url.pathname.split('?')[0]?.split('#')[0] ?? url.pathname
   const cleanPath = withoutAppBaseURL(rawPath, useRuntimeConfig(event).app.baseURL)
-  const pathSegments = cleanPath.split('/').filter(Boolean)
-  const firstSegment = pathSegments[0] ?? ''
-  const hasLocaleInUrl = Boolean(firstSegment && validLocales.includes(firstSegment))
+  const firstSegment = cleanPath.split('/').filter(Boolean)[0] ?? ''
+  const fromParams = event.context.params?.locale?.toString()
+  const urlLocale = (fromParams && validLocales.includes(fromParams) ? fromParams : firstSegment) || null
+  const hasLocaleInUrl = Boolean(urlLocale && validLocales.includes(urlLocale))
   const queryLocale = getQuery(event)?.locale ? String(getQuery(event).locale) : null
   const cookieName = getLocaleCookieName({ localeCookie } as ModuleOptionsExtend)
   const cookieLocale = cookieName ? getCookie(event, cookieName) : null
@@ -46,7 +41,7 @@ export const detectCurrentLocale = (event: H3Event, config: DetectCurrentLocaleC
     validLocales,
     autoDetectLanguage,
     hasLocaleInUrl,
-    urlLocale: firstSegment || null,
+    urlLocale,
     queryLocale,
     cookieLocale,
     acceptLanguageHeader: event.headers.get('accept-language'),

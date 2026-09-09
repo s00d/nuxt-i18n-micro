@@ -42,6 +42,9 @@ import { /* … */ } from '@i18n-micro/utils/app-path'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `isStaticAssetPathname` | function | `(pathname: string) => boolean` |
+| `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[]) => boolean` |
+| `resolveContainedRelPath` | function | `(relPath: string) => string \| null` |
 | `withoutAppBaseURL` | function | `(pathname: string, baseURL?: string \| null) => string` |
 
 ## `@i18n-micro/utils/auto-detect-path`

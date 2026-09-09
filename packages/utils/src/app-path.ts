@@ -16,3 +16,97 @@ export function withoutAppBaseURL(pathname: string, baseURL?: string | null): st
 
   return pathname
 }
+
+/**
+ * Last-segment static-asset check. Dotted slugs (`/en/user/john.doe`) stay as pages;
+ * only the final segment is considered. `.html` / `.htm` stay as pages.
+ */
+const STATIC_ASSET_EXT = /\.(xml|txt|ico|json|js|css|png|jpg|jpeg|gif|svg|webp|avif|pdf|wasm|map|mp4|webm|mp3|zip|gz|woff|woff2|ttf|eot)$/i
+
+export function isStaticAssetPathname(pathname: string): boolean {
+  if (!pathname || pathname.endsWith('.html') || pathname.endsWith('.htm')) return false
+  const last = pathname.split('/').filter(Boolean).pop() ?? ''
+  return STATIC_ASSET_EXT.test(last)
+}
+
+const INTERNAL_PREFIXES = ['/api', '/_nuxt', '/_locales'] as const
+
+const DEFAULT_STATIC_PATTERNS = [
+  /^\/sitemap.*\.xml$/,
+  /^\/sitemap\.xml$/,
+  /^\/robots\.txt$/,
+  /^\/favicon\.ico$/,
+  /^\/apple-touch-icon.*\.png$/,
+  /^\/manifest\.json$/,
+  /^\/sw\.js$/,
+  /^\/workbox-.*\.js$/,
+]
+
+/**
+ * True for Nuxt/i18n internals, Content `__` routes, and static assets that must
+ * skip locale detection / redirects. Lives in utils so client middleware can import
+ * it without pulling `@nuxt/schema` (via route-strategy) into the browser bundle.
+ */
+export function isInternalPath(path: string, excludePatterns?: (string | RegExp | object)[]): boolean {
+  for (const prefix of INTERNAL_PREFIXES) {
+    if (path === prefix || path.startsWith(`${prefix}/`)) return true
+  }
+  // `/__`, `/__/…`, `/__nuxt…`, and nested `/en/__nuxt_content`
+  if (/(?:^|\/)__/.test(path)) {
+    return true
+  }
+  const pathForMatch = path.length > 1 ? path.replace(/\/+$/, '') : path
+  for (const pattern of DEFAULT_STATIC_PATTERNS) {
+    if (pattern.test(pathForMatch)) {
+      return true
+    }
+  }
+  if (isStaticAssetPathname(path)) {
+    return true
+  }
+  if (excludePatterns) {
+    for (const pattern of excludePatterns) {
+      if (typeof pattern === 'string') {
+        if (pattern.includes('*') || pattern.includes('?')) {
+          const regex = new RegExp(
+            pattern
+              .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+              .replace(/\*/g, '.*')
+              .replace(/\?/g, '.'),
+          )
+          if (regex.test(path)) return true
+        } else if (path === pattern || path.startsWith(pattern)) {
+          return true
+        }
+      } else if (pattern instanceof RegExp) {
+        pattern.lastIndex = 0
+        const matches = pattern.test(path)
+        pattern.lastIndex = 0
+        if (matches) return true
+      }
+    }
+  }
+  return false
+}
+
+/**
+ * Normalize a payload-relative path and reject any walk out of the payload root.
+ * Callers must use the returned string (or skip the read when this returns `null`).
+ */
+export function resolveContainedRelPath(relPath: string): string | null {
+  const cleaned = relPath.replace(/\\/g, '/').replace(/^\/+/, '')
+  if (!cleaned || cleaned.includes('\0')) return null
+
+  const parts: string[] = []
+  for (const part of cleaned.split('/')) {
+    if (!part || part === '.') continue
+    if (part === '..') {
+      if (parts.length === 0) return null
+      parts.pop()
+      continue
+    }
+    parts.push(part)
+  }
+
+  return parts.length === 0 ? null : parts.join('/')
+}

@@ -4,11 +4,10 @@
  * Client SPA redirects are handled by i18n-redirect route middleware.
  */
 
-import { isInternalPath } from '@i18n-micro/route-strategy'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
-import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
+import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import { getLocaleCookieName, getLocaleCookieOptions } from '@i18n-micro/utils/cookie'
 import { resolvePreferredLocale } from '@i18n-micro/utils/resolve-locale'
@@ -51,13 +50,8 @@ export default defineNuxtPlugin({
         return navigateTo(targetUrl, { redirectCode: code }) as Promise<void>
       }
 
-      if (path.startsWith('/api') || path.startsWith('/_nuxt') || path.startsWith('/_locales') || path.startsWith('/__')) return
-      if (path.includes('.') && !path.endsWith('.html')) return
-
-      if (isInternalPath(path, i18nConfig.excludePatterns)) {
-        if (DEBUG) console.error('[i18n-redirect] 404: isInternalPath', path)
-        throw createError({ statusCode: 404, statusMessage: 'Static file - should not be processed by i18n' })
-      }
+      // Skip internals / static assets / Content (`/__nuxt_content`) — do not 404 them.
+      if (isInternalPath(path, i18nConfig.excludePatterns)) return
 
       const pathSegments = path.replace(/^\//, '').split('/').filter(Boolean)
       const firstSegment = pathSegments[0]

@@ -1025,6 +1025,8 @@ that sets this header to the real client-facing hostname.
 
 <!-- /generated:option:metaTrustForwardedHost -->
 
+Only applies when `metaBaseUrl` and `site.url` are both unset. Default `true` is the proxy-friendly (and spoofable) path — set `false` if the app is reachable without a trusted reverse proxy.
+
 ```typescript
 metaTrustForwardedHost: false // Ignore X-Forwarded-Host header
 ```
@@ -1039,6 +1041,8 @@ Enable when the app runs behind a TLS-terminating proxy so that
 canonical URLs use `https://` even though the app itself listens on HTTP.
 
 <!-- /generated:option:metaTrustForwardedProto -->
+
+Same scope as `metaTrustForwardedHost`: request-origin fallback only.
 
 ```typescript
 metaTrustForwardedProto: false // Ignore X-Forwarded-Proto header

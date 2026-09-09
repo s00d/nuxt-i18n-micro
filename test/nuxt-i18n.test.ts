@@ -307,6 +307,74 @@ describe('NuxtTranslationLoader cache hits', () => {
     const loader = new NuxtTranslationLoader({ i18n, loadOptions })
     expect(loader.loadFromCacheSync('en', 'missing')).toBeNull()
   })
+
+  it('does not apply a stale switchContext after a newer navigation wins', async () => {
+    translationStorage.clear()
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
+    i18n.setChunk('fr', 'about', { title: 'FR' })
+
+    let resolveDe!: (value: Record<string, unknown>) => void
+    const dePromise = new Promise<Record<string, unknown>>((resolve) => {
+      resolveDe = resolve
+    })
+
+    const loadSpy = vi.spyOn(translationStorage, 'load').mockImplementation(async (locale) => {
+      if (locale === 'de') {
+        const data = await dePromise
+        return { data, cacheKey: 'de:about' }
+      }
+      return { data: { title: 'other' }, cacheKey: `${locale}:about` }
+    })
+
+    try {
+      const stale = loader.switchContext('de', 'about')
+      const applied = await loader.switchContext('fr', 'about')
+
+      expect(applied).toBe(true)
+      expect(i18n.getCurrentLocale()).toBe('fr')
+      expect(i18n.t('title')).toBe('FR')
+
+      resolveDe({ title: 'DE' })
+      expect(await stale).toBe(false)
+
+      expect(i18n.getCurrentLocale()).toBe('fr')
+      expect(i18n.t('title')).toBe('FR')
+    } finally {
+      loadSpy.mockRestore()
+    }
+  })
+
+  it('invalidates a pending switch even when the next navigation keeps the same context', async () => {
+    translationStorage.clear()
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const loader = new NuxtTranslationLoader({ i18n, loadOptions })
+    i18n.setChunk('en', 'index', { title: 'EN' })
+    i18n.applySwitchContext('en', 'index', { title: 'EN' })
+
+    let resolveDe!: (value: Record<string, unknown>) => void
+    const dePromise = new Promise<Record<string, unknown>>((resolve) => {
+      resolveDe = resolve
+    })
+
+    const loadSpy = vi.spyOn(translationStorage, 'load').mockImplementation(async () => {
+      const data = await dePromise
+      return { data, cacheKey: 'de:about' }
+    })
+
+    try {
+      const pending = loader.switchContext('de', 'about')
+      // Caller skipped switchContext because applied context is still en/index — must still cancel.
+      loader.invalidatePendingSwitches()
+
+      resolveDe({ title: 'DE' })
+      expect(await pending).toBe(false)
+      expect(i18n.getCurrentLocale()).toBe('en')
+      expect(i18n.t('title')).toBe('EN')
+    } finally {
+      loadSpy.mockRestore()
+    }
+  })
 })
 
 describe('seeding chunks', () => {

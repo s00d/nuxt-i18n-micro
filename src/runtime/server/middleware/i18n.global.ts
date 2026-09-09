@@ -5,7 +5,7 @@
 
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
-import { withoutAppBaseURL } from '@i18n-micro/utils/app-path'
+import { isInternalPath, withoutAppBaseURL } from '@i18n-micro/utils/app-path'
 import { getLocaleCookieName } from '@i18n-micro/utils/cookie'
 import { resolveServerLocale } from '@i18n-micro/utils/resolve-locale'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
@@ -20,8 +20,7 @@ export default defineEventHandler(async (event) => {
   const rawPath = getRequestURL(event).pathname
   const path = withoutAppBaseURL(rawPath, appBaseURL)
 
-  if (path.startsWith('/api') || path.startsWith('/_nuxt') || path.startsWith('/_locales') || path.startsWith('/__')) return
-  if (path.includes('.') && !path.endsWith('.html')) return
+  if (isInternalPath(path)) return
 
   const config = resolveI18nConfigWithRuntimeOverrides(
     getI18nConfig() as ModuleOptionsExtend,

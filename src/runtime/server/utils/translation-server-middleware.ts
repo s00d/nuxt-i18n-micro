@@ -1,4 +1,4 @@
-import { interpolate } from '@i18n-micro/core'
+import { interpolate, resolveTranslation } from '@i18n-micro/core'
 import type { ModuleOptionsExtend, Params, Translations } from '@i18n-micro/types'
 import { getEnabledLocales } from '@i18n-micro/utils/active-locales'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
@@ -47,25 +47,9 @@ export const useTranslationServerMiddleware = async (event: H3Event, defaultLoca
   const translations: Translations = event.context[I18N_CONTEXT_KEY]
 
   function t(key: string, params?: Params, defaultValue?: string): string {
-    // Direct key lookup
-    let value: unknown = translations[key]
+    const value = resolveTranslation(translations, key)
 
-    // Dot-path lookup
-    if (value === undefined && key.includes('.')) {
-      const parts = key.split('.')
-      let current: unknown = translations
-      for (const part of parts) {
-        if (current && typeof current === 'object' && part in (current as object)) {
-          current = (current as Translations)[part]
-        } else {
-          current = undefined
-          break
-        }
-      }
-      value = current
-    }
-
-    if (value === undefined || value === null) {
+    if (value === null) {
       return defaultValue || key
     }
 

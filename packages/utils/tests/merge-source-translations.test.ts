@@ -22,6 +22,7 @@ describe('source translation paths', () => {
     expect(buildSourceRootPath('en')).toBe('en.json')
     expect(buildSourcePagePath('contact', 'de')).toBe('pages/contact/de.json')
     expect(toSourceStorageKey('pages/contact/de.json')).toBe('pages/contact/de.json')
+    expect(toSourceStorageKey('/pages/about/de.json')).toBe('pages/about/de.json')
     expect(toPremergedStorageKey('index', 'en')).toBe('index/en/data.json')
     expect(toPremergedStorageKey('blog/post', 'de')).toBe('blog/post/de/data.json')
   })

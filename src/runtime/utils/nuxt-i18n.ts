@@ -403,8 +403,22 @@ export interface NuxtTranslationLoaderOptions {
 
 export class NuxtTranslationLoader {
   private readonly pendingLoads = new Map<string, Promise<Record<string, unknown>>>()
+  /**
+   * Monotonic token so a slower in-flight `switchContext` cannot overwrite a newer one.
+   * Vue Router aborts a superseded navigation but does not cancel the guard's await.
+   */
+  private switchGeneration = 0
 
   constructor(private readonly options: NuxtTranslationLoaderOptions) {}
+
+  /**
+   * Bump the switch generation so any in-flight `switchContext` becomes a no-op.
+   * Call on every navigation that may supersede a pending load — including when the
+   * target `(locale, routeName)` already matches the applied context (caller skips switch).
+   */
+  invalidatePendingSwitches(): void {
+    this.switchGeneration++
+  }
 
   loadFromCacheSync(locale: string, routeName?: string): Record<string, unknown> | null {
     const { i18n } = this.options
@@ -448,14 +462,23 @@ export class NuxtTranslationLoader {
     return promise
   }
 
-  async switchContext(locale: string, routeName?: string): Promise<void> {
+  /**
+   * Load and apply translations for a locale/route. Returns `false` when a newer
+   * navigation superseded this switch — callers must skip post-await side effects
+   * (e.g. `setLocale`) for the abandoned navigation.
+   */
+  async switchContext(locale: string, routeName?: string): Promise<boolean> {
+    const generation = ++this.switchGeneration
     let data = this.loadFromCacheSync(locale, routeName)
 
     if (data === null) {
       data = await this.loadAsync(locale, routeName)
     }
 
+    if (generation !== this.switchGeneration) return false
+
     this.options.i18n.applySwitchContext(locale, routeName, data)
+    return true
   }
 }
 
@@ -577,12 +600,15 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
         return
       }
 
-      setLocale(toLocale)
       if (isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode) {
         const route = router.currentRoute.value as unknown as ResolvedRouteLike
         const routeName = getPluginRouteName(route, toLocale)
-        await loader.switchContext(toLocale, routeName)
+        const applied = await loader.switchContext(toLocale, routeName)
+        // A newer switchLocale / navigation won — do not setLocale or navigate for this call.
+        if (!applied) return
       }
+
+      setLocale(toLocale)
       return switchLocaleLogic(toLocale, unref(i18nRouteParams.value))
     },
     switchRoute: (route: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, toLocale?: string) => {

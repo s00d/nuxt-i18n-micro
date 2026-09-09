@@ -23,7 +23,7 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'cjs' ? 'cjs' : 'mjs'}`,
     },
     rollupOptions: {
-      external: ['@i18n-micro/core', '@i18n-micro/types', '@nuxt/schema', 'node:path', 'path', 'node:fs', 'fs'],
+      external: ['@i18n-micro/core', '@i18n-micro/types', '@i18n-micro/utils/app-path', '@nuxt/schema', 'node:path', 'path', 'node:fs', 'fs'],
       output: {
         exports: 'named',
       },

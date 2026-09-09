@@ -9,6 +9,8 @@ function getEnabledLocales: (locales?: Locale[] | null) => Locale[]
 function isEnabledLocale: (locales: Locale[] | null | undefined, code: string) => boolean
 
 # ./app-path (src/app-path.ts)
+function isStaticAssetPathname: (pathname: string) => boolean
+function resolveContainedRelPath: (relPath: string) => string | null
 function withoutAppBaseURL: (pathname: string, baseURL?: string | null) => string
 
 # ./auto-detect-path (src/auto-detect-path.ts)

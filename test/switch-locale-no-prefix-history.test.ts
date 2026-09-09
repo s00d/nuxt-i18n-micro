@@ -35,7 +35,7 @@ function makeApi(strategy: ModuleOptionsExtend['strategy']) {
     i18n,
     loadOptions: { apiBaseUrl: '_locales', baseURL: '/' },
   })
-  vi.spyOn(loader, 'switchContext').mockResolvedValue(undefined)
+  vi.spyOn(loader, 'switchContext').mockResolvedValue(true)
 
   const i18nStrategy = {
     switchLocaleRoute: () => ({ path: '/', name: 'index', force: undefined }),
@@ -88,5 +88,68 @@ describe('switchLocale history (#238)', () => {
 
     expect(push).toHaveBeenCalledTimes(1)
     expect(replace).not.toHaveBeenCalled()
+  })
+
+  it('skips navigation when a newer switchContext supersedes this switchLocale', async () => {
+    const push = vi.fn<(to?: unknown) => Promise<undefined>>(async () => undefined)
+    const replace = vi.fn<(to?: unknown) => Promise<undefined>>(async () => undefined)
+    const currentRoute = {
+      path: '/',
+      fullPath: '/',
+      name: 'index',
+      params: {},
+      query: {},
+      hash: '',
+      matched: [],
+      meta: {},
+      redirectedFrom: undefined,
+    }
+    const router = {
+      push,
+      replace,
+      currentRoute: { value: currentRoute },
+      resolve: (to: unknown) => (typeof to === 'object' && to !== null ? { ...currentRoute, ...to } : currentRoute),
+    } as unknown as Router
+
+    const i18n = new NuxtI18n({ missingWarn: false })
+    const loader = new NuxtTranslationLoader({
+      i18n,
+      loadOptions: { apiBaseUrl: '_locales', baseURL: '/' },
+    })
+    vi.spyOn(loader, 'switchContext').mockResolvedValue(false)
+    const setLocale = vi.fn()
+
+    const { provide } = createNuxtI18nPluginApi({
+      i18n,
+      loader,
+      i18nStrategy: {
+        switchLocaleRoute: () => ({ path: '/', name: 'index', force: undefined }),
+        formatPathForResolve: (path: string) => path,
+      } as unknown as PathStrategy,
+      i18nConfig: {
+        strategy: 'no_prefix',
+        defaultLocale: 'en',
+        locales: [
+          { code: 'en', iso: 'en' },
+          { code: 'es', iso: 'es' },
+        ],
+      } as ModuleOptionsExtend,
+      router,
+      getCurrentLocale: () => 'en',
+      getEffectiveLocale: () => 'en',
+      getPluginRouteName: () => 'index',
+      getRouteName: () => 'index',
+      i18nRouteParams: { value: {} },
+      setLocale,
+      isValidLocale: () => true,
+      navigateTo: vi.fn(),
+      setMissingHandler: vi.fn(),
+    })
+
+    await provide.switchLocale('es')
+
+    expect(setLocale).not.toHaveBeenCalled()
+    expect(replace).not.toHaveBeenCalled()
+    expect(push).not.toHaveBeenCalled()
   })
 })

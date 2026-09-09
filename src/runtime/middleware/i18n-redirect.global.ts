@@ -6,6 +6,7 @@
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
+import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
 import type { RouteLocationNormalized } from 'vue-router'
 import { defineNuxtRouteMiddleware, navigateTo, useNuxtApp } from '#imports'
@@ -26,8 +27,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
   const i18nConfig = getRuntimeConfig()
   if (i18nConfig.redirects === false) return
-
   if (to.path === from.path) return
+  if (isInternalPath(to.path, i18nConfig.excludePatterns)) return
 
   const validLocales = getEnabledLocaleCodes(i18nConfig.locales)
   const defaultLocale = i18nConfig.defaultLocale || 'en'

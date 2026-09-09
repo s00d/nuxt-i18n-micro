@@ -5,6 +5,7 @@ import { I18nInjectionKey } from '../injection'
 
 export const I18nT = defineComponent({
   name: 'I18nT',
+  inheritAttrs: false,
   props: {
     keypath: {
       type: String as PropType<TranslationKey>,
@@ -57,27 +58,32 @@ export const I18nT = defineComponent({
     return () => {
       const options: Record<string, string | number | boolean> = {}
       const route = i18n.getRoute()
+      // Drop fallthrough HTML attrs so `html=false` cannot be bypassed via attrs.
+      const safeAttrs = { ...(attrs as Record<string, unknown>) }
+      delete safeAttrs.innerHTML
+      const renderText = (translation: string) =>
+        props.html ? h(props.tag, { ...safeAttrs, innerHTML: translation }) : h(props.tag, safeAttrs, translation)
 
       // Handle number formatting
       if (props.number !== undefined) {
         const numberValue = Number(props.number)
         const formattedNumber = i18n.tn(numberValue)
         const translation = i18n.t(props.keypath, { number: formattedNumber, ...props.params }, undefined, route)
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return renderText(String(translation ?? ''))
       }
 
       // Handle date formatting
       if (props.date !== undefined) {
         const formattedDate = i18n.td(props.date)
         const translation = i18n.t(props.keypath, { date: formattedDate, ...props.params }, undefined, route)
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return renderText(String(translation ?? ''))
       }
 
       // Handle relative date formatting
       if (props.relativeDate !== undefined) {
         const formattedRelativeDate = i18n.tdr(props.relativeDate)
         const translation = i18n.t(props.keypath, { relativeDate: formattedRelativeDate, ...props.params }, undefined, route)
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return renderText(String(translation ?? ''))
       }
 
       // Handle pluralization
@@ -91,10 +97,10 @@ export const I18nT = defineComponent({
             i18n.locale.value,
             (k: TranslationKey, p?: Record<string, string | number | boolean>, dv?: string) => i18n.t(k, p, dv, route),
           )
-          return h(props.tag, { ...attrs, innerHTML: translation || '' })
+          return renderText(translation || '')
         } else {
           const translation = i18n.tc(props.keypath, { count, ...props.params })
-          return h(props.tag, { ...attrs, innerHTML: translation })
+          return renderText(translation)
         }
       }
 
@@ -106,12 +112,12 @@ export const I18nT = defineComponent({
       }
 
       if (props.html) {
-        return h(props.tag, { ...attrs, innerHTML: translation })
+        return renderText(translation)
       }
 
       // Handle slots
       if (slots.default) {
-        return h(props.tag, attrs, slots.default({ translation }))
+        return h(props.tag, safeAttrs, slots.default({ translation }))
       }
 
       // Handle named slots for interpolation
@@ -142,14 +148,14 @@ export const I18nT = defineComponent({
       }
 
       if (slots.default) {
-        return h(props.tag, attrs, slots.default({ children }))
+        return h(props.tag, safeAttrs, slots.default({ children }))
       }
 
       if (children.length > 0) {
-        return h(props.tag, attrs, children)
+        return h(props.tag, safeAttrs, children)
       }
 
-      return h(props.tag, attrs, translation)
+      return h(props.tag, safeAttrs, translation)
     }
   },
 })

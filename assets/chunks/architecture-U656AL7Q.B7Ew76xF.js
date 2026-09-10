@@ -1,0 +1,1 @@
+import"./chunk-FPAJGGOC.CfTWx_XP.js";import{h as e}from"./mermaid-parser.core.DK1heoDP.js";export{e as createArchitectureServices};

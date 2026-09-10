@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.29.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.1...v3.29.2)
+
+### 🩹 Fixes
+
+- **module:** Hoist @i18n-micro/types for pnpm module augmentation ([f3d5afd4](https://github.com/s00d/nuxt-i18n-micro/commit/f3d5afd4))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.29.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.0...v3.29.1)

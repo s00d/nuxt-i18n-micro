@@ -9,6 +9,7 @@ import type {
   ModuleOptionsExtend,
   Params,
   Translations,
+  TranslationKey,
 } from '@i18n-micro/types'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import type {
@@ -202,6 +203,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   }
 })
 
+export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params, defaultValue?: string | null) => T
+
 export interface PluginsInjections {
   /** The active routing strategy, resolving locales to and from paths. */
   $i18nStrategy: PathStrategy
@@ -221,24 +224,24 @@ export interface PluginsInjections {
    * Translate a key, interpolating `params` into it. Returns `defaultValue` when the key is
    * missing, or the key itself when no default is given.
    */
-  $t: (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+  $t: TranslationFn<CleanTranslation>
   /**
    * Bind `$t` to a specific route, for translating outside the current page — a layout rendering
    * a link to another route, for example.
    */
-  $_t: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+  $_t: (route: RouteLocationNormalizedLoaded) => TranslationFn<CleanTranslation>
   /**
    * Like `$t`, but always returns a string: an object or array value is stringified rather than
    * returned as-is.
    */
-  $ts: (key: string, params?: Params, defaultValue?: string) => string
+  $ts: TranslationFn<CleanTranslation>
   /** Bind `$ts` to a specific route. See `$_t`. */
-  $_ts: (route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => string
+  $_ts: (route: RouteLocationNormalizedLoaded) => TranslationFn<string>
   /**
    * Translate with pluralization. `params` may be the count itself, or an object containing
    * `count`.
    */
-  $tc: (key: string, params: number | Params, defaultValue?: string) => string
+  $tc: (key: TranslationKey, params: number | Params, defaultValue?: string) => string
   /**
    * Format a number with `Intl.NumberFormat` in the active locale. A key selects a named format
    * from the config.

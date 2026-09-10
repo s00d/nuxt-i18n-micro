@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.29.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.0...v3.29.1)
+
+### 🩹 Fixes
+
+- **types:** Harden TranslationKey typing and cascade package bumps ([5a0d7ae8](https://github.com/s00d/nuxt-i18n-micro/commit/5a0d7ae8))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.29.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.28.5...v3.29.0)

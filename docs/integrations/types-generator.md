@@ -70,7 +70,7 @@ export default defineNuxtConfig({
 The generator will automatically:
 
 - Scan all JSON files in your `locales` directory
-- Generate types in `.nuxt/i18n-micro.d.ts`
+- Generate types in `.nuxt/types/i18n-micro.d.ts` (via Nuxt `addTypeTemplate`)
 - Watch for changes and regenerate types automatically
 
 ### For Vue/Vite Projects
@@ -252,13 +252,14 @@ function getErrorTextWrong(code: string) {
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['@i18n-micro/types-generator/nuxt'],
+  modules: ['nuxt-i18n-micro', '@i18n-micro/types-generator/nuxt'],
   i18nTypes: {
-    translationDir: 'locales', // Custom translation directory
-    outputFile: '.nuxt/custom-types.d.ts', // Custom output path
+    translationDir: 'locales', // defaults to `i18n.translationDir` or `'locales'`
   },
 })
 ```
+
+Generated output is always `.nuxt/types/i18n-micro.d.ts` (Nuxt `addTypeTemplate`). For a custom path, use the Vite plugin or `generateTypes({ outputFile })` — there is no `outputFile` option on the Nuxt module.
 
 ### Vite Plugin Options
 

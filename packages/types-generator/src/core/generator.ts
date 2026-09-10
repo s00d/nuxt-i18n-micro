@@ -1,12 +1,28 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { globby } from 'globby'
-import { flattenKeys } from './parser'
+import { flattenKeys, isPlainTranslationObject } from './parser'
 
 export interface GeneratorOptions {
   srcDir: string
   translationDir: string
   outputFile?: string // Where to put the d.ts file
+}
+
+/** Strip UTF-8 BOM so editors that save with BOM still parse. */
+function stripBom(text: string): string {
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text
+}
+
+/**
+ * Emit a TS property name from a translation key.
+ * JSON.stringify covers quotes/newlines/null bytes; U+2028/U+2029 need an extra escape
+ * so the .d.ts stays safe when embedded in older JS tooling.
+ */
+export function formatKeyProperty(key: string): string {
+  return JSON.stringify(key)
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
 }
 
 /**
@@ -30,7 +46,11 @@ export async function getTypesString(options: GeneratorOptions): Promise<string>
 
   for (const file of files) {
     try {
-      const content = JSON.parse(readFileSync(file, 'utf-8'))
+      const content = JSON.parse(stripBom(readFileSync(file, 'utf-8')))
+      if (!isPlainTranslationObject(content)) {
+        console.warn(`[i18n-types] Skipping ${file}: root value must be a plain JSON object`)
+        continue
+      }
       const keys = flattenKeys(content)
       for (const k of keys) {
         allKeys.add(k)
@@ -44,7 +64,7 @@ export async function getTypesString(options: GeneratorOptions): Promise<string>
   // Important: we extend the '@i18n-micro/types' module
   const keysContent = Array.from(allKeys)
     .sort()
-    .map((key) => `    '${key}': string;`)
+    .map((key) => `    ${formatKeyProperty(key)}: string;`)
     .join('\n')
 
   return `/* prettier-ignore */

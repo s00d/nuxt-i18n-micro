@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { flattenKeys } from '../src/core/parser'
+import { flattenKeys, isPlainTranslationObject } from '../src/core/parser'
 
 describe('flattenKeys', () => {
   test('should flatten simple object', () => {
@@ -74,5 +74,27 @@ describe('flattenKeys', () => {
     }
     const keys = flattenKeys(obj)
     expect(keys.sort()).toEqual(['string', 'number', 'boolean', 'null', 'nested.key', 'array'].sort())
+  })
+
+  test('does not treat strings or arrays as key maps', () => {
+    expect(flattenKeys('ab' as unknown as Record<string, unknown>)).toEqual([])
+    expect(flattenKeys(['a', 'b'] as unknown as Record<string, unknown>)).toEqual([])
+    expect(flattenKeys(null as unknown as Record<string, unknown>)).toEqual([])
+  })
+
+  test('keeps special own keys from JSON.parse including __proto__', () => {
+    const obj = JSON.parse('{"__proto__":"x","constructor":"y","a":{"b":"z"}}') as Record<string, unknown>
+    expect(flattenKeys(obj).sort()).toEqual(['__proto__', 'a.b', 'constructor'])
+  })
+})
+
+describe('isPlainTranslationObject', () => {
+  test('accepts plain objects only', () => {
+    expect(isPlainTranslationObject({})).toBe(true)
+    expect(isPlainTranslationObject({ a: 1 })).toBe(true)
+    expect(isPlainTranslationObject([])).toBe(false)
+    expect(isPlainTranslationObject(null)).toBe(false)
+    expect(isPlainTranslationObject('x')).toBe(false)
+    expect(isPlainTranslationObject(1)).toBe(false)
   })
 })

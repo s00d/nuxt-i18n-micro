@@ -39,7 +39,7 @@ pnpm --filter "./packages/*/playground" run build
 Why:
 
 - `dev:prepare` loads `src/module.ts`, which imports `@i18n-micro/*` from their `dist/`, so packages must be built first. It also generates `.nuxt/tsconfig.json`.
-- This repo is a **monorepo** (like pinia / nuxt-devtools): root `tsconfig.json` stays self-contained. Single-package module starters use `"extends": "./.nuxt/tsconfig.json"` at root and always run `dev:prepare` first — that pattern breaks sibling Vite package builds here. Nuxt-aware module checking is `tsconfig.nuxt.json` after prepare (`pnpm run typecheck:root`).
+- Root `tsconfig.json` extends `./.nuxt/tsconfig.json` (after prepare) with monorepo excludes (`packages/**`, playgrounds, …) so the IDE and `typecheck:root` see Nuxt/nitro augmentations without typechecking sibling Vite packages. Packages keep their own `tsconfig.json` / `tsconfig.build.json`.
 - Building package playgrounds is easy to forget but **required** for `pnpm run test:unit` / `pnpm run typecheck`: the Astro playground build generates the `virtual:i18n-micro/config` declaration used by `packages/astro/playground/src/middleware.ts`. Skip it and unit tests fail with `Cannot find module 'virtual:i18n-micro/config'` even when runtime tests pass.
 
 Then start the Nuxt playground:

@@ -2,8 +2,8 @@ import { addTypeTemplate, defineNuxtModule } from '@nuxt/kit'
 import { getTypesString } from './core/generator'
 
 export interface I18nTypesGeneratorOptions {
+  /** Translation directory relative to the project root. Defaults to `i18n.translationDir` or `'locales'`. */
   translationDir?: string
-  outputFile?: string
 }
 
 export default defineNuxtModule<I18nTypesGeneratorOptions>({
@@ -18,6 +18,18 @@ export default defineNuxtModule<I18nTypesGeneratorOptions>({
     // translationDir from module options or from nuxt-i18n-micro options (i18n config in #build/i18n.config.mjs and i18n.strategy.mjs)
     const mainModuleI18n = (nuxt.options as { i18n?: { translationDir?: string } }).i18n
     const translationDir = options.translationDir || mainModuleI18n?.translationDir || 'locales'
+
+    // Legacy key from older docs — not part of the public Nuxt options type.
+    const legacyOutputFile = (options as Record<string, unknown>).outputFile
+    if (typeof legacyOutputFile === 'string' && legacyOutputFile.length > 0) {
+      console.warn('[i18n-types] `i18nTypes.outputFile` is ignored in Nuxt; generated types are written to `.nuxt/types/i18n-micro.d.ts`.')
+    }
+
+    // Keep augmentation resolving under pnpm even if this module loads before nuxt-i18n-micro.
+    nuxt.options.typescript.hoist ||= []
+    if (!nuxt.options.typescript.hoist.includes('@i18n-micro/types')) {
+      nuxt.options.typescript.hoist.push('@i18n-micro/types')
+    }
 
     const filename = 'types/i18n-micro.d.ts'
 

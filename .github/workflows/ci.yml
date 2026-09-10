@@ -55,9 +55,8 @@ jobs:
       - run: pnpm run lint
       # Monorepo (pinia / nuxt-devtools style): packages build before root
       # `dev:prepare` because prepare loads @i18n-micro/* from package dist.
-      # Root `tsconfig.json` is self-contained; Nuxt-aware module typecheck uses
-      # `tsconfig.nuxt.json` after prepare (single-package modules instead put
-      # `"extends": "./.nuxt/tsconfig.json"` at root and run prepare first).
+      # Root `tsconfig.json` extends `.nuxt/tsconfig.json` (after prepare) with monorepo
+      # excludes. `typecheck:root` uses `tsconfig.nuxt.json` (thin alias of root).
       - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
       - run: pnpm run dev:prepare
       - run: pnpm --filter "./packages/*/playground" run build

@@ -1,36 +1,24 @@
 {
-  // Monorepo root (like pinia / nuxt-devtools): self-contained, no `extends` to
-  // generated `.nuxt`. Single-package module starters can use
-  // `"extends": "./.nuxt/tsconfig.json"` because CI always runs `dev:prepare`
-  // first and they have no sibling Vite package builds under this tree.
-  // Nuxt-aware module check after prepare: `tsconfig.nuxt.json` (typecheck:root).
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "strict": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve",
-    "types": ["node"]
-  },
-  "include": ["src/**/*", "build.config.ts", "internals.d.mts"],
+  // Nuxt-aware module types (after `pnpm run dev:prepare`). Same role as single-package
+  // module starters' root `"extends": "./.nuxt/tsconfig.json"`, with monorepo excludes so
+  // sibling Vite packages / playgrounds are not pulled into this program.
+  // Without this, the IDE uses a bare config and `nitro:*` hooks / `#app` look broken.
+  "extends": "./.nuxt/tsconfig.json",
   "exclude": [
     "dist",
     "node_modules",
     "playground",
+    // Standalone app: its types come from its own .nuxt once the module is installed
+    // from a tarball or npm, so it is not part of this repo's TS project.
     "test/deploy-smoke",
     "scripts",
+    // Package sources and demos have their own tsconfigs / CI build+test steps.
+    // Without this, vue-tsc walks the whole monorepo via `.nuxt`'s `../**/*`.
     "packages/**",
     "client",
     "docs"
   ],
+  // Nuxt 4.5+ injects vue-router/volar/* into .nuxt/tsconfig; this repo peers vue-router@4.
   "vueCompilerOptions": {
     "plugins": []
   }

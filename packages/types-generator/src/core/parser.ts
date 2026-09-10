@@ -1,4 +1,11 @@
 /**
+ * True for plain objects suitable as translation maps (not arrays, Date, null, etc.).
+ */
+export function isPlainTranslationObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype
+}
+
+/**
  * Recursively traverses a JSON object and creates a flat list of dot-separated keys.
  *
  * @param obj - JSON object with translations
@@ -18,6 +25,10 @@
  * ```
  */
 export function flattenKeys(obj: Record<string, unknown>, prefix = ''): string[] {
+  if (!isPlainTranslationObject(obj)) {
+    return []
+  }
+
   const keys: string[] = []
 
   for (const key in obj) {
@@ -27,12 +38,11 @@ export function flattenKeys(obj: Record<string, unknown>, prefix = ''): string[]
     const value = obj[key]
     const newKey = prefix ? `${prefix}.${key}` : key
 
-    // If value is an object and not an array, go deeper
-    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      keys.push(...flattenKeys(value as Record<string, unknown>, newKey))
+    // Nested plain objects go deeper; arrays / scalars / null are leaf keys
+    if (isPlainTranslationObject(value)) {
+      keys.push(...flattenKeys(value, newKey))
     } else {
-      // Otherwise it's a leaf key (string, number, or array for pluralization)
-      // Pluralization is treated as a single key ("no | one | many" format is not split)
+      // Leaf: string, number, boolean, null, or array (e.g. plural forms)
       keys.push(newKey)
     }
   }

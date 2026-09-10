@@ -4,6 +4,8 @@ import type { DefineLocaleMessage, ScopedKey, TranslationKey } from '../src/inde
 /** `[T] extends [never]` — the un-distributed form, or the check collapses on `never`. */
 type IsNever<T> = [T] extends [never] ? true : false
 
+type Equals<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false
+
 /**
  * These types have two shapes: one before the types generator augments
  * `DefineLocaleMessage`, and one after. Both ship, so both are pinned here — and the
@@ -12,11 +14,10 @@ type IsNever<T> = [T] extends [never] ? true : false
  */
 describe('TranslationKey', () => {
   it('is plain `string` before the generator augments anything', () => {
-    // Not through the `extends never` branch, which never fires: the interface carries
-    // the `__augmentation` marker, so `keyof` is that literal and the union
-    // `'__augmentation' | string` collapses to `string`. Worth pinning, because dropping
-    // the `| string` from the augmented branch would break this in a non-obvious way.
+    // `keyof` still includes the `__augmentation` marker, but `TranslationKey` excludes it
+    // so the empty branch stays documented `string` (and the sentinel is not a completion).
     expectTypeOf<keyof DefineLocaleMessage>().toEqualTypeOf<'__augmentation'>()
+    expectTypeOf<Exclude<keyof DefineLocaleMessage, '__augmentation'>>().toEqualTypeOf<never>()
     expectTypeOf<TranslationKey>().toEqualTypeOf<string>()
     expectTypeOf<IsNever<TranslationKey>>().toEqualTypeOf<false>()
   })
@@ -24,6 +25,19 @@ describe('TranslationKey', () => {
   it('accepts a dynamic key', () => {
     const key: TranslationKey = `page.${'index'}.title`
     expectTypeOf(key).toEqualTypeOf<TranslationKey>()
+  })
+
+  it('keeps literal keys when using `(string & {})` instead of `| string`', () => {
+    // Simulated generator output: this is what `TranslationKey` reduces to once
+    // `DefineLocaleMessage` carries real keys (after excluding `__augmentation`).
+    type Generated = 'home.title' | 'nav.home'
+    type Fixed = Generated | (string & {})
+    type Broken = Generated | string
+
+    expectTypeOf<Equals<Broken, string>>().toEqualTypeOf<true>()
+    expectTypeOf<Equals<Fixed, string>>().toEqualTypeOf<false>()
+    expectTypeOf<'home.title'>().toMatchTypeOf<Fixed>()
+    expectTypeOf<string>().toMatchTypeOf<Fixed>()
   })
 })
 

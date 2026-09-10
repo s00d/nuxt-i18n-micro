@@ -4,12 +4,12 @@ Nuxt unit-test mocks for `useI18n()` — translations, locale state, and lightwe
 
 ## Features
 
-- **`createFakeI18n`** — `useI18n()`-shaped object (`$t` / `t` aliases, optional `vi.fn` spies)
-- **`resetI18n`** — clear dictionary cache and locale state between tests
+- **`setupNuxtI18nMock`** — one-call isolated harness + `beforeEach` reseed (keep `mockNuxtImport` in your setup file)
+- **`createFakeI18n` / `createIsolatedFakeI18n`** — `useI18n()`-shaped object (`$t` / `t`, `helper`, optional `vi.fn` spies)
+- **Factory options** — `locales`, `translations`, `messages`, `strategy`, …
+- **`resetI18n`** — clear the shared dictionary cache between tests
 - **Translation helpers** — `t`, `tc`, `ts`, `mergeTranslations`, `resolveTranslations`, `setTranslation`
-- **Page chunks** — `loadPageTranslations`, `$_t` / `_t` route-bound translators
-- **Formatting** — `tn`, `td`, `tdr` via `Intl`
-- **Path stubs** — `localePath` / `switchLocalePath` with a simple locale prefix (no vue-router)
+- **Path stubs** — `localePath` / `switchLocalePath` (prefix strategies; does not mutate locale)
 
 ## Installation
 
@@ -21,17 +21,16 @@ npm install @i18n-micro/test-utils --save-dev
 
 ```typescript
 // tests/unit-setup.ts
-import { createFakeI18n, resetI18n, setTranslationsFromJson } from '@i18n-micro/test-utils'
+import { setupNuxtI18nMock } from '@i18n-micro/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, vi } from 'vitest'
 
-const i18n = createFakeI18n({ spy: vi.fn })
-
-mockNuxtImport<() => typeof i18n>('useI18n', () => vi.fn(() => i18n))
-
-beforeEach(() => {
-  resetI18n()
+const { i18n, useI18n, setTranslationsFromJson } = setupNuxtI18nMock({
+  spy: vi.fn,
+  beforeEach,
 })
+
+mockNuxtImport('useI18n', () => useI18n)
 
 export { i18n, setTranslationsFromJson }
 ```
@@ -42,6 +41,8 @@ Load dictionaries in a test:
 await setTranslationsFromJson('en', { welcome: 'Welcome' })
 expect(i18n.$t('welcome')).toBe('Welcome')
 expect(i18n.$localePath('/about')).toBe('/en/about')
+expect(i18n.$switchLocalePath('de')).toBe('/de/about')
+expect(i18n.$getLocale()).toBe('en') // switchLocalePath does not change locale
 ```
 
 See the [testing guide](https://s00d.github.io/nuxt-i18n-micro/guide/testing) and the [`example/`](./example) Nuxt app.

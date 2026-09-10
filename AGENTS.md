@@ -67,7 +67,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Locale route generation | `packages/route-strategy/` |
 | Runtime path strategies | `packages/path-strategy/` |
 | Vue SPA bindings | `packages/vue/` (`/` and `/router` entries) |
-| User docs / news | `docs/` · unreleased notes → `docs/news/index.md` |
+| User docs | `docs/` (guide, API). **Do not** edit `docs/news/` unless the user explicitly asks |
 | E2E / fixtures | `test/` · `test/fixtures/` |
 | Package unit / dist tests | `packages/*/tests/` |
 
@@ -101,7 +101,7 @@ When `packages/<name>/` changes ship:
 2. Rebuild that package so `dist/` matches source: `pnpm --filter @i18n-micro/<name> build`.
 3. Commit source + version + `dist/` together.
 
-**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:*` / `pnpm -C scripts cli release`. Unreleased `src/` changes stay on the last released root version; use `docs/news/index.md` for user-facing notes.
+**Root** `package.json` `version` and `CHANGELOG.md`: **never** hand-edit. Only `pnpm run release:*` / `pnpm -C scripts cli release`. Unreleased `src/` changes stay on the last released root version. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
 
 Do **not** bump workspace versions on every intermediate commit in the same PR.
 

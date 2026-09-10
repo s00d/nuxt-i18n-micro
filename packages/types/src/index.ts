@@ -14,8 +14,9 @@ export interface DefineLocaleMessage {
 /**
  * Resolved translation key type.
  * - When `DefineLocaleMessage` is empty (generator not connected) — resolves to `string`.
- * - When `DefineLocaleMessage` has keys — resolves to a union of those keys **and** `string`,
- *   providing autocompletion while still allowing dynamic keys.
+ * - When `DefineLocaleMessage` has keys — resolves to a union of those keys **and**
+ *   `(string & {})`, providing autocompletion while still allowing dynamic keys
+ *   (plain `| string` would collapse the union to `string`).
  */
 export type TranslationKey =
   Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})

@@ -25,7 +25,7 @@ Any edit under `packages/<name>/` (source, tests that change public API, `packag
 
 - **Do not** change root `package.json` `version` or `CHANGELOG.md` by hand.
 - Those files move **only** through `pnpm run release:*` / `pnpm -C scripts cli release` (`ensure-release-source` fails otherwise).
-- Unreleased `src/` work: leave root version at the last release tag; document in `docs/news/index.md` if user-facing.
+- Unreleased `src/` work: leave root version at the last release tag. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
 
 ## Do not
 
@@ -36,4 +36,4 @@ Any edit under `packages/<name>/` (source, tests that change public API, `packag
 ## Release vs day-to-day
 
 - **Day-to-day**: patch bump only in affected `packages/*/package.json`, rebuild, push.
-- **Formal release**: root version/changelog via `pnpm run release:*` / changelogen; news in `docs/news/index.md`.
+- **Formal release**: root version/changelog via `pnpm run release:*` / changelogen. News in `docs/news/index.md` only when the user asks.

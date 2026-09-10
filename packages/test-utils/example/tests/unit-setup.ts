@@ -1,13 +1,13 @@
-import { createFakeI18n, resetI18n, setTranslationsFromJson } from '@i18n-micro/test-utils'
+import { setupNuxtI18nMock } from '@i18n-micro/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, vi } from 'vitest'
 
-const i18n = createFakeI18n({ spy: vi.fn })
-
-mockNuxtImport<() => typeof i18n>('useI18n', () => vi.fn(() => i18n))
-
-beforeEach(() => {
-  resetI18n()
+const { i18n, useI18n, setTranslationsFromJson } = setupNuxtI18nMock({
+  spy: vi.fn,
+  beforeEach,
 })
+
+// Keep this call in the setup file so `@nuxt/test-utils` can transform it.
+mockNuxtImport('useI18n', () => useI18n)
 
 export { i18n, setTranslationsFromJson }

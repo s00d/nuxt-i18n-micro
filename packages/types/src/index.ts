@@ -17,7 +17,8 @@ export interface DefineLocaleMessage {
  * - When `DefineLocaleMessage` has keys — resolves to a union of those keys **and** `string`,
  *   providing autocompletion while still allowing dynamic keys.
  */
-export type TranslationKey = keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
+export type TranslationKey =
+  Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 
 /**
  * Helper for creating typed prefixes.

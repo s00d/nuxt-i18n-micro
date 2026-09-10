@@ -352,6 +352,16 @@ export default defineNuxtModule<ModuleOptions>({
     const isSSG = Boolean(nuxt.options.nitro?.static)
     const logger = useLogger('nuxt-i18n-micro')
 
+    // pnpm (shamefully-hoist=false) nests `@i18n-micro/types` under this package, so
+    // `declare module '@i18n-micro/types'` from the app would not merge with the same
+    // package `$t` resolves. Nuxt's typescript.hoist adds compilerOptions.paths aliases.
+    nuxt.options.typescript.hoist ||= []
+    for (const pkg of ['@i18n-micro/types', '@i18n-micro/path-strategy'] as const) {
+      if (!nuxt.options.typescript.hoist.includes(pkg)) {
+        nuxt.options.typescript.hoist.push(pkg)
+      }
+    }
+
     if (options.strategy === 'no_prefix' && !options.localeCookie) {
       options.localeCookie = 'user-locale'
       logger.info("Strategy 'no_prefix': localeCookie automatically set to 'user-locale' for locale persistence.")

@@ -174,6 +174,8 @@ locales[0].currency // string | undefined ✅
 
 ::: tip
 Module augmentation works because `Locale` is an `interface` (not a `type`), so TypeScript merges your declarations with the original definition. This applies everywhere — `$getLocales()`, `useI18n()`, server middleware, etc.
+
+Under **pnpm** (`shamefully-hoist=false`), `nuxt-i18n-micro` registers `@i18n-micro/types` in Nuxt `typescript.hoist` so `declare module '@i18n-micro/types'` resolves to the same package the runtime types use — you do **not** need a separate `pnpm add @i18n-micro/types` just for augmentation.
 :::
 #### `defaultLocale`
 

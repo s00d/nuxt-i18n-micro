@@ -311,6 +311,7 @@ If you use `disablePageLocales: true` in your i18n config, the generator will tr
 1. **Verify file inclusion** - Check that the generated `.d.ts` file is in your `tsconfig.json` include
 2. **Check module augmentation** - Ensure the generated file uses `declare module '@i18n-micro/types'`
 3. **TypeScript version** - Requires TypeScript 4.1+ for template literal types
+4. **pnpm** - With `nuxt-i18n-micro` installed, `@i18n-micro/types` is hoisted into Nuxt `typescript.hoist` so augmentation merges correctly without a separate direct dependency. Run `nuxi prepare` after upgrading the module if paths look stale.
 
 ## 📚 API Reference
 

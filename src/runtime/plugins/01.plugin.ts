@@ -234,7 +234,7 @@ export interface PluginsInjections {
    * Like `$t`, but always returns a string: an object or array value is stringified rather than
    * returned as-is.
    */
-  $ts: TranslationFn<CleanTranslation>
+  $ts: TranslationFn<string>
   /** Bind `$ts` to a specific route. See `$_t`. */
   $_ts: (route: RouteLocationNormalizedLoaded) => TranslationFn<string>
   /**

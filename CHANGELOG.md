@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v3.29.3
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.2...v3.29.3)
+
+### 🩹 Fixes
+
+- **types-generator:** Harden key emit and Nuxt IDE types ([ab82ed40](https://github.com/s00d/nuxt-i18n-micro/commit/ab82ed40))
+- **types:** Accept useRoute() in $getRouteName ([a2789b30](https://github.com/s00d/nuxt-i18n-micro/commit/a2789b30))
+
+### 🏡 Chore
+
+- **types-generator:** Bump to 1.1.8 ([46312c6a](https://github.com/s00d/nuxt-i18n-micro/commit/46312c6a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.29.2
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.1...v3.29.2)

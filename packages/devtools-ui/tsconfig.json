@@ -11,11 +11,14 @@
     "declaration": true,
     "declarationDir": "./dist",
     "sourceMap": true,
-    "rootDir": "./src",
     "types": ["node"],
     "jsx": "preserve",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "src/env.d.ts"],
+  // Vite 8 / oxc: (1) `.vue` is not matched by `src/**/*` — list it; (2) every
+  // transformed file needs a *local* project match, or oxc walks to the repo root
+  // tsconfig (extends `.nuxt/tsconfig.json`) and fails before `dev:prepare`.
+  // Include `vite/` (plugin entry) and omit `rootDir` so `vite` + `src` share one project.
+  "include": ["src/**/*.ts", "src/**/*.vue", "src/**/*.d.ts", "src/env.d.ts", "vite/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

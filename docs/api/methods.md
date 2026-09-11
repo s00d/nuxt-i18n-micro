@@ -17,14 +17,14 @@ list cannot drift from what is actually available.
 
 | Helper | Signature | Purpose |
 | --- | --- | --- |
-| [`$_t`](#_t) | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => CleanTranslation` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example. |
-| [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string \| null) => string` | Bind `$ts` to a specific route. |
+| [`$_t`](#_t) | `(route: RouteLocationNormalizedLoaded) => TranslationFn<CleanTranslation>` | Bind `$t` to a specific route, for translating outside the current page — a layout rendering a link to another route, for example. |
+| [`$_ts`](#_ts) | `(route: RouteLocationNormalizedLoaded) => TranslationFn<string>` | Bind `$ts` to a specific route. |
 | [`$defaultLocale`](#defaultlocale) | `() => string \| undefined` | Code of the configured default locale. |
 | [`$getI18nConfig`](#geti18nconfig) | `() => ModuleOptionsExtend` | The resolved module configuration, as the runtime sees it. |
 | [`$getLocale`](#getlocale) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric) => string` | Code of the active locale. |
 | [`$getLocaleName`](#getlocalename) | `() => string \| null` | The active locale's `displayName` from the config, or `null` when it has none. |
 | [`$getLocales`](#getlocales) | `() => Locale[]` | Every configured locale, with its metadata. |
-| [`$getRouteName`](#getroutename) | `(route?: RouteLocationNamedRaw \| RouteLocationResolvedGeneric, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by. |
+| [`$getRouteName`](#getroutename) | `(route?: RouteLocationNormalizedLoaded \| RouteLocationResolvedGeneric, locale?: string) => string` | Route name with the locale prefix stripped — the name translations are keyed by. |
 | [`$has`](#has) | `(key: string) => boolean` | Whether a key resolves in the active locale. |
 | `$i18nStrategy` | `PathStrategy` | The active routing strategy, resolving locales to and from paths. |
 | [`$loadPageTranslations`](#loadpagetranslations) | `(locale: string, routeName: string, translations: Translations) => Promise<void>` | Load translations for a page at runtime, for content whose keys are not known at build time. |
@@ -39,12 +39,12 @@ list cannot drift from what is actually available.
 | [`$switchLocalePath`](#switchlocalepath) | `(locale: string) => string` | The path of the current page in another locale, without navigating. |
 | [`$switchLocaleRoute`](#switchlocaleroute) | `(locale: string) => RouteLocationRaw` | The route object for the current page in another locale, without navigating. |
 | [`$switchRoute`](#switchroute) | `(route: RouteLocationNamedRaw \| RouteLocationResolvedGeneric \| string, toLocale?: string) => void` | Navigate to another route, keeping the active locale or switching to `toLocale`. |
-| [`$t`](#t) | `(key: string, params?: Params, defaultValue?: string \| null) => CleanTranslation` | Translate a key, interpolating `params` into it. |
-| [`$tc`](#tc) | `(key: string, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
+| [`$t`](#t) | `TranslationFn<CleanTranslation>` | Translate a key, interpolating `params` into it. |
+| [`$tc`](#tc) | `(key: TranslationKey, params: number \| Params, defaultValue?: string) => string` | Translate with pluralization. |
 | [`$td`](#td) | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string }` | Format a date with `Intl.DateTimeFormat` in the active locale. |
 | [`$tdr`](#tdr) | `(value: Date \| number \| string, options?: Intl.RelativeTimeFormatOptions) => string` | Format a date as relative time ("3 days ago") with `Intl.RelativeTimeFormat`. |
 | [`$tn`](#tn) | `{ (value: number, options?: Intl.NumberFormatOptions): string (value: number, key: string, overrides?: Intl.NumberFormatOptions): string (value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string }` | Format a number with `Intl.NumberFormat` in the active locale. |
-| [`$ts`](#ts) | `(key: string, params?: Params, defaultValue?: string) => string` | Like `$t`, but always returns a string: an object or array value is stringified rather than returned as-is. |
+| [`$ts`](#ts) | `TranslationFn<string>` | Like `$t`, but always returns a string: an object or array value is stringified rather than returned as-is. |
 
 <!-- /generated:methods-index -->
 
@@ -159,7 +159,7 @@ Core methods for retrieving and managing translations.
 <!-- generated:method:$t — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+TranslationFn<CleanTranslation>
 ```
 
 Translate a key, interpolating `params` into it. Returns `defaultValue` when the key is
@@ -187,7 +187,7 @@ const welcomeMessage = $t('welcome', { username: 'Alice', unreadCount: 5 })
 <!-- generated:method:$ts — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(key: string, params?: Params, defaultValue?: string) => string
+TranslationFn<string>
 ```
 
 Like `$t`, but always returns a string: an object or array value is stringified rather than
@@ -205,7 +205,7 @@ const welcomeMessage = $ts('welcome', { username: 'Alice', unreadCount: 5 })
 <!-- generated:method:$_t — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation
+(route: RouteLocationNormalizedLoaded) => TranslationFn<CleanTranslation>
 ```
 
 Bind `$t` to a specific route, for translating outside the current page — a layout rendering
@@ -216,7 +216,7 @@ a link to another route, for example.
 <!-- generated:method:$_ts — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(route: RouteLocationNormalizedLoaded) => (key: string, params?: Params, defaultValue?: string | null) => string
+(route: RouteLocationNormalizedLoaded) => TranslationFn<string>
 ```
 
 Bind `$ts` to a specific route. See `$_t`.
@@ -252,7 +252,7 @@ Prefer `$t` / `$ts` in most components. Reach for `$_t` / `$_ts` when you alread
 <!-- generated:method:$tc — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(key: string, params: number | Params, defaultValue?: string) => string
+(key: TranslationKey, params: number | Params, defaultValue?: string) => string
 ```
 
 Translate with pluralization. `params` may be the count itself, or an object containing
@@ -646,7 +646,7 @@ Methods for getting route information and names.
 <!-- generated:method:$getRouteName — do not edit; run `pnpm run docs:generate` -->
 
 ```ts
-(route?: RouteLocationNamedRaw | RouteLocationResolvedGeneric, locale?: string) => string
+(route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
 ```
 
 Route name with the locale prefix stripped — the name translations are keyed by.

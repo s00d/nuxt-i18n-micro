@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-50 exports across 3 entry points.
+53 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 

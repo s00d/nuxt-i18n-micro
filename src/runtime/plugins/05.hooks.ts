@@ -32,7 +32,7 @@ export default defineNuxtPlugin({
 
     const callRegister = async (route?: RouteLocationResolvedGeneric) => {
       const locale = $getLocale(route)
-      const routeName = $getRouteName(route as RouteLocationResolvedGeneric)
+      const routeName = $getRouteName(route)
       const mergeTasks: Promise<void>[] = []
 
       await nuxtApp.callHook(

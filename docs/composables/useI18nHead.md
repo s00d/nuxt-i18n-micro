@@ -28,6 +28,9 @@ useI18nHead(input?: MaybeRefOrGetter<I18nHeadInput | null>): { pageHead: any; re
 Register page-level overrides for i18n SEO head tags.
 Merged on top of `useLocaleHead` output by the `02.meta` plugin.
 
+Prefer a getter (`() => ({ … })`) when values come from `$t` / `t` so they
+re-resolve on locale change. A plain object is evaluated once and stays frozen.
+
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `input` *(optional)* | `MaybeRefOrGetter<I18nHeadInput \| null>` |  |

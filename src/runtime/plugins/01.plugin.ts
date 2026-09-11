@@ -219,7 +219,7 @@ export interface PluginsInjections {
   /** Every configured locale, with its metadata. */
   $getLocales: () => Locale[]
   /** Route name with the locale prefix stripped — the name translations are keyed by. */
-  $getRouteName: (route?: RouteLocationNamedRaw | RouteLocationResolvedGeneric, locale?: string) => string
+  $getRouteName: (route?: RouteLocationNormalizedLoaded | RouteLocationResolvedGeneric, locale?: string) => string
   /**
    * Translate a key, interpolating `params` into it. Returns `defaultValue` when the key is
    * missing, or the key itself when no default is given.

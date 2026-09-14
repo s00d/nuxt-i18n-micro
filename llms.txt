@@ -1,0 +1,75 @@
+# Nuxt I18n Micro
+
+> Fast, simple, and lightweight internationalization for Nuxt.js with strategy-based routing and minimal bundle impact.
+
+Optimize your Nuxt app with a powerful and efficient i18n solution.
+
+## Table of Contents
+
+### Integrations
+
+- [Integrations](https://s00d.github.io/nuxt-i18n-micro/integrations.md): Vue, React, Preact, Solid, Astro, and Node packages.
+- [Vue Package (`@i18n-micro/vue`)](https://s00d.github.io/nuxt-i18n-micro/integrations/vue-package.md): i18n for Vue 3 with @i18n-micro/vue.
+- [React Package (`@i18n-micro/react`)](https://s00d.github.io/nuxt-i18n-micro/integrations/react-package.md): i18n for React with @i18n-micro/react.
+- [Preact Package (`@i18n-micro/preact`)](https://s00d.github.io/nuxt-i18n-micro/integrations/preact-package.md): i18n for Preact with @i18n-micro/preact.
+- [Solid Package (`@i18n-micro/solid`)](https://s00d.github.io/nuxt-i18n-micro/integrations/solid-package.md): i18n for SolidJS with @i18n-micro/solid.
+- [Astro Package (`@i18n-micro/astro`)](https://s00d.github.io/nuxt-i18n-micro/integrations/astro-package.md): i18n for Astro with @i18n-micro/astro.
+- [VitePress Package (`@i18n-micro/vitepress`)](https://s00d.github.io/nuxt-i18n-micro/integrations/vitepress-package.md): Runtime i18n for VitePress themes and markdown pages.
+- [Node.js Runtime](https://s00d.github.io/nuxt-i18n-micro/integrations/nodejs-package.md): i18n for Node.js with @i18n-micro/node.
+- [Types Generator (`@i18n-micro/types-generator`)](https://s00d.github.io/nuxt-i18n-micro/integrations/types-generator.md): Generate TypeScript types from locale JSON.
+- [DevTools UI Package (`@i18n-micro/devtools-ui`)](https://s00d.github.io/nuxt-i18n-micro/integrations/devtools-ui-package.md): Standalone DevTools UI and Vite plugin.
+
+### Guide
+
+- [Getting Started with Nuxt I18n Micro](https://s00d.github.io/nuxt-i18n-micro/guide/getting-started.md): Install and configure Nuxt I18n Micro.
+- [Configuration Reference](https://s00d.github.io/nuxt-i18n-micro/guide/configuration.md): All nuxt-i18n-micro module options, defaults, and examples.
+- [Folder Structure Guide](https://s00d.github.io/nuxt-i18n-micro/guide/folder-structure.md): Recommended locales folder layout.
+- [Routing Strategies in Nuxt I18n Micro](https://s00d.github.io/nuxt-i18n-micro/guide/strategy.md): URL prefix strategies for locale routing.
+
+### API
+
+- [API Reference](https://s00d.github.io/nuxt-i18n-micro/api.md): Runtime methods, events, translation cache, and server middleware.
+- [Methods](https://s00d.github.io/nuxt-i18n-micro/api/methods.md): All nuxt-i18n-micro runtime methods.
+- [Events](https://s00d.github.io/nuxt-i18n-micro/api/events.md): Register translations at runtime with the i18n:register event.
+- [Translation Cache & Storage Architecture](https://s00d.github.io/nuxt-i18n-micro/api/i18n-cache-api.md): Translation cache layers and payload modes in v3.
+- [Module Options Reference](https://s00d.github.io/nuxt-i18n-micro/api/module-options.md): Every option the module accepts, with its type, default and purpose — read at build time from the type definition.
+- [Package APIs](https://s00d.github.io/nuxt-i18n-micro/api/packages.md): The exported API of every workspace package, read at build time from the snapshots CI checks against the source.
+
+### Components
+
+- [Components](https://s00d.github.io/nuxt-i18n-micro/components.md): i18n-t, i18n-link, i18n-switcher, and i18n-group components.
+- [`<i18n-t>` Component](https://s00d.github.io/nuxt-i18n-micro/components/i18n-t.md): Translation component with slot-based interpolation.
+- [`<i18n-switcher>` Component](https://s00d.github.io/nuxt-i18n-micro/components/i18n-switcher.md): Dropdown component for switching app locales.
+- [`<i18n-link>` Component](https://s00d.github.io/nuxt-i18n-micro/components/i18n-link.md): Locale-aware NuxtLink wrapper for localized routes.
+- [`<i18n-group>` Component](https://s00d.github.io/nuxt-i18n-micro/components/i18n-group.md): Group translations under a shared key prefix.
+
+### Composables
+
+- [Composables](https://s00d.github.io/nuxt-i18n-micro/composables.md): useI18n, useLocaleHead, useI18nHead, and useI18nLocale composables.
+- [`useI18n` Composable](https://s00d.github.io/nuxt-i18n-micro/composables/useI18n.md): Access i18n features in components and scripts.
+- [`useLocaleHead` Composable](https://s00d.github.io/nuxt-i18n-micro/composables/useLocaleHead.md): SEO meta tags and head attrs for localized routes.
+- [`useI18nHead` Composable](https://s00d.github.io/nuxt-i18n-micro/composables/useI18nHead.md): Page-level overrides for i18n SEO meta and link tags.
+- [useI18nLocale](https://s00d.github.io/nuxt-i18n-micro/composables/useI18nLocale.md): Centralized locale state, cookies, and sync.
+
+### News
+
+- [News & Releases](https://s00d.github.io/nuxt-i18n-micro/news.md): Release notes and project updates.
+
+### Other
+
+- [@i18n-micro/astro](https://s00d.github.io/nuxt-i18n-micro/api/packages/astro.md): Exported API of @i18n-micro/astro, generated from the source.
+- [@i18n-micro/core](https://s00d.github.io/nuxt-i18n-micro/api/packages/core.md): Exported API of @i18n-micro/core, generated from the source.
+- [@i18n-micro/devtools-ui](https://s00d.github.io/nuxt-i18n-micro/api/packages/devtools-ui.md): Exported API of @i18n-micro/devtools-ui, generated from the source.
+- [@i18n-micro/hmr](https://s00d.github.io/nuxt-i18n-micro/api/packages/hmr.md): Exported API of @i18n-micro/hmr, generated from the source.
+- [@i18n-micro/node](https://s00d.github.io/nuxt-i18n-micro/api/packages/node.md): Exported API of @i18n-micro/node, generated from the source.
+- [@i18n-micro/path-strategy](https://s00d.github.io/nuxt-i18n-micro/api/packages/path-strategy.md): Exported API of @i18n-micro/path-strategy, generated from the source.
+- [@i18n-micro/preact](https://s00d.github.io/nuxt-i18n-micro/api/packages/preact.md): Exported API of @i18n-micro/preact, generated from the source.
+- [@i18n-micro/route-strategy](https://s00d.github.io/nuxt-i18n-micro/api/packages/route-strategy.md): Exported API of @i18n-micro/route-strategy, generated from the source.
+- [@i18n-micro/solid](https://s00d.github.io/nuxt-i18n-micro/api/packages/solid.md): Exported API of @i18n-micro/solid, generated from the source.
+- [@i18n-micro/test-utils](https://s00d.github.io/nuxt-i18n-micro/api/packages/test-utils.md): Exported API of @i18n-micro/test-utils, generated from the source.
+- [@i18n-micro/types](https://s00d.github.io/nuxt-i18n-micro/api/packages/types.md): Exported API of @i18n-micro/types, generated from the source.
+- [@i18n-micro/types-generator](https://s00d.github.io/nuxt-i18n-micro/api/packages/types-generator.md): Exported API of @i18n-micro/types-generator, generated from the source.
+- [@i18n-micro/utils](https://s00d.github.io/nuxt-i18n-micro/api/packages/utils.md): Exported API of @i18n-micro/utils, generated from the source.
+- [@i18n-micro/vitepress](https://s00d.github.io/nuxt-i18n-micro/api/packages/vitepress.md): Exported API of @i18n-micro/vitepress, generated from the source.
+- [@i18n-micro/vue](https://s00d.github.io/nuxt-i18n-micro/api/packages/vue.md): Exported API of @i18n-micro/vue, generated from the source.
+- [Nuxt I18n Micro Examples and Usage](https://s00d.github.io/nuxt-i18n-micro/examples.md): Examples of locale switching and i18n components.

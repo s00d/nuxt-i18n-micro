@@ -30,6 +30,7 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
+import type { TranslationFn } from '../plugins/01.plugin'
 import type { GetLocaleFromRoute } from '../composables/useI18nLocale'
 import { type LoadOptions, translationStorage } from './storage'
 import { applyTrailingSlash } from './trailing-slash'
@@ -303,12 +304,12 @@ export class NuxtI18n extends BaseI18n {
     }
   }
 
-  tForRoute(route: unknown): (key: string, params?: Params, defaultValue?: string | null) => CleanTranslation {
+  tForRoute(route: unknown): TranslationFn<CleanTranslation> {
     return (key, params, defaultValue) => this.t(key, params, defaultValue, route)
   }
 
-  tsForRoute(route: unknown): (key: string, params?: Params, defaultValue?: string) => string {
-    return (key, params, defaultValue) => this.ts(key, params, defaultValue, route)
+  tsForRoute(route: unknown): TranslationFn<string> {
+    return (key, params, defaultValue) => this.ts(key, params, defaultValue ?? undefined, route)
   }
 
   protected override touch(): void {
@@ -566,7 +567,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     getLocales: () => i18nConfig.locales || [],
     getRouteName,
     t: i18n.t.bind(i18n),
-    ts: (key: string, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
+    ts: (key: TranslationKey, params?: Params, defaultValue?: string, route?: RouteLocationNormalizedLoaded): string => {
       const value = route ? i18n.t(key, params, defaultValue, route) : i18n.ts(key, params, defaultValue)
       return value?.toString() ?? defaultValue ?? key
     },

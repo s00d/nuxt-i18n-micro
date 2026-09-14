@@ -32,6 +32,7 @@ import type {
 } from 'vue-router'
 import type { GetLocaleFromRoute } from '../composables/useI18nLocale'
 import { type LoadOptions, translationStorage } from './storage'
+import { applyNuxtTrailingSlash } from './trailing-slash'
 
 interface LocaleRouteResult {
   name?: string | null
@@ -592,7 +593,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike
       const fromLocale = getCurrentLocale(route)
       const switched = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
-      return extractSwitchLocalePath(switched as RouteLocationRaw, router)
+      return applyNuxtTrailingSlash(extractSwitchLocalePath(switched as RouteLocationRaw, router))
     },
     switchLocale: async (toLocale: string) => {
       if (!isValidLocale(toLocale)) {
@@ -622,7 +623,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     localePath(to: RouteLocationNamedRaw | RouteLocationResolvedGeneric | string, locale?: string): string {
       const targetLocale = locale !== undefined && locale !== '' ? String(locale) : getCurrentLocale()
       const result = i18nStrategy.localeRoute(targetLocale, to as string | RouteLike, router.currentRoute.value as unknown as ResolvedRouteLike)
-      return (result.fullPath ?? result.path ?? '') as string
+      return applyNuxtTrailingSlash((result.fullPath ?? result.path ?? '') as string)
     },
     setI18nRouteParams: (value: I18nRouteParams) => {
       i18nRouteParams.value = value

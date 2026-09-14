@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v3.29.4
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.3...v3.29.4)
+
+### 🩹 Fixes
+
+- **ci:** Stub .nuxt/tsconfig before package builds ([b70720d7](https://github.com/s00d/nuxt-i18n-micro/commit/b70720d7))
+- **devtools-ui:** Isolate package tsconfig from root .nuxt ([d50b51ab](https://github.com/s00d/nuxt-i18n-micro/commit/d50b51ab))
+- **seo:** Align locale paths with NuxtLink trailingSlash ([#258](https://github.com/s00d/nuxt-i18n-micro/pull/258))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.29.3
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.2...v3.29.3)

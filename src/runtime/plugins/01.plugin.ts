@@ -25,7 +25,9 @@ import { createI18nStrategy, getI18nConfig } from '#build/i18n.strategy.mjs'
 import { createError, defineNuxtPlugin, navigateTo, useRouter, useRuntimeConfig } from '#imports'
 import { useI18nHead } from '../composables/useI18nHead'
 import { useI18nLocale } from '../composables/useI18nLocale'
-import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader } from '../utils/nuxt-i18n'
+import { createNuxtI18nPluginApi, NuxtI18n, NuxtTranslationLoader, type TranslationFn } from '../utils/nuxt-i18n'
+
+export type { TranslationFn }
 import { setI18nDevtoolsBridge } from '../devtools/bridge'
 import { translationStorage } from '../utils/storage'
 
@@ -202,8 +204,6 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     },
   }
 })
-
-export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params, defaultValue?: string | null) => T
 
 export interface PluginsInjections {
   /** The active routing strategy, resolving locales to and from paths. */

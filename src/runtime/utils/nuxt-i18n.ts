@@ -30,10 +30,11 @@ import type {
   RouteLocationResolvedGeneric,
   Router,
 } from 'vue-router'
-import type { TranslationFn } from '../plugins/01.plugin'
 import type { GetLocaleFromRoute } from '../composables/useI18nLocale'
 import { type LoadOptions, translationStorage } from './storage'
 import { applyTrailingSlash } from './trailing-slash'
+
+export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params, defaultValue?: string | null) => T
 
 interface LocaleRouteResult {
   name?: string | null

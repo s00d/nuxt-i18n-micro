@@ -425,6 +425,14 @@ export interface ModuleOptions {
   canonicalQueryWhitelist?: string[]
 
   /**
+   * Trailing slash for `$localePath` / `$switchLocalePath` (NuxtLink parity).
+   * Defaults to `experimental.defaults.nuxtLink.trailingSlash` when unset.
+   * Set explicitly to override Nuxt's link default for i18n path helpers.
+   * @default undefined (inherit from Nuxt)
+   */
+  trailingSlash?: 'append' | 'remove'
+
+  /**
    * URL patterns (strings or RegExp) to exclude from i18n processing entirely.
    * Matching routes won't get locale prefixes, redirects, or translation loading.
    * Internal Nuxt paths (`/__nuxt_error`, etc.) are always excluded automatically.

@@ -142,21 +142,30 @@ export const useLocaleHead = ({
       fullPath = `/${fullPath}`
     }
 
-    // Sort locales by code length (longest first) to avoid
-    // partial matching (e.g. 'en' matching inside '/enGB')
-    const matchedLocale = [...locales].sort((a, b) => b.code.length - a.code.length).find((locale) => fullPath.startsWith(`/${locale.code}`))
+    const whitelist = canonicalQueryWhitelist ?? []
 
-    let localizedPath = fullPath
+    // Canonical / og:url share `$switchLocalePath` with hreflang (incl. NuxtLink trailingSlash).
+    const currentSwitchedPath = switchLocalePath(locale)
     let ogUrl: string
-    let canonicalPath: string
-
-    if (routeName.startsWith(localizedRouteNamePrefixResolved) && matchedLocale) {
-      localizedPath = fullPath.slice(matchedLocale.code.length + 1)
-      canonicalPath = filterQuery(localizedPath, canonicalQueryWhitelist ?? [])
-      ogUrl = joinURL(unref(baseUrl), locale, canonicalPath)
+    if (currentSwitchedPath) {
+      if (currentSwitchedPath.startsWith('http://') || currentSwitchedPath.startsWith('https://')) {
+        ogUrl = filterLocalizedHref(currentSwitchedPath, whitelist)
+      } else {
+        const filteredPath = filterLocalizedHref(currentSwitchedPath, whitelist)
+        ogUrl = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
+      }
     } else {
-      canonicalPath = filterQuery(fullPath, canonicalQueryWhitelist ?? [])
-      ogUrl = joinURL(unref(baseUrl), canonicalPath)
+      // Fallback when switchLocalePath is unavailable (tests / meta:false manual use).
+      const matchedLocale = [...locales]
+        .sort((a, b) => b.code.length - a.code.length)
+        .find((localeItem) => fullPath.startsWith(`/${localeItem.code}`))
+      let localizedPath = fullPath
+      if (routeName.startsWith(localizedRouteNamePrefixResolved) && matchedLocale) {
+        localizedPath = fullPath.slice(matchedLocale.code.length + 1)
+        ogUrl = joinURL(unref(baseUrl), locale, filterQuery(localizedPath, whitelist))
+      } else {
+        ogUrl = joinURL(unref(baseUrl), filterQuery(fullPath, whitelist))
+      }
     }
 
     const htmlAttrs = {
@@ -214,7 +223,6 @@ export const useLocaleHead = ({
 
     const defaultLocale = i18nConfig.defaultLocale || 'en'
     const defaultLocaleObj = allLocales.find((loc: Locale) => loc.code === defaultLocale)
-    const whitelist = canonicalQueryWhitelist ?? []
 
     const alternateLinks = isNoPrefixStrategy(strategy!)
       ? []

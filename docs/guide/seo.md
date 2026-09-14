@@ -305,7 +305,30 @@ More examples (canonical override, `x-default`, reactive fetch, shared helpers):
 
 ### ⚠️ Trailing Slash
 
-The module generates canonical and `hreflang` URLs based on the actual path from `useRoute().fullPath`. If your application uses trailing slashes (e.g., via Nuxt's `router.options`), the generated URLs will reflect this. However, `$switchLocalePath` may normalize paths and remove trailing slashes. If trailing slash consistency is critical for your SEO, verify the generated URLs match your application's URL structure.
+`$localePath` / `$switchLocalePath` (and therefore canonical / `hreflang`) follow the same
+slash rule as NuxtLink. By default the module inherits
+`experimental.defaults.nuxtLink.trailingSlash`. Override with `i18n.trailingSlash` when i18n
+paths should diverge from global NuxtLink defaults.
+
+```ts
+export default defineNuxtConfig({
+  // Inherited automatically when unset on i18n:
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        trailingSlash: 'append', // or 'remove'
+      },
+    },
+  },
+  i18n: {
+    meta: true,
+    // Optional override (wins over experimental.defaults.nuxtLink.trailingSlash):
+    // trailingSlash: 'append',
+  },
+})
+```
+
+`$localePath` and `$switchLocalePath` stay aligned with `<i18n-link>` / SEO tags.
 
 ### 🎯 Benefits
 

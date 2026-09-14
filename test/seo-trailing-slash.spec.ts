@@ -32,4 +32,18 @@ describe('SEO trailing slash (i18n.trailingSlash: append)', () => {
     await expect(page.locator('#contact')).toHaveAttribute('href', '/en/contact/')
     await expect(page.locator('#about')).toHaveAttribute('href', '/en/about/')
   })
+
+  test('locale home canonical/og:url keep trailing slash after absolute join', async ({ page, goto }) => {
+    await goto('/en', { waitUntil: 'domcontentloaded' })
+
+    const canonicalHref = await page.locator('link[rel="canonical"]').getAttribute('href')
+    const ogUrlContent = await page.locator('meta[property="og:url"]').getAttribute('content')
+    const alternateEn = await page.locator('link[rel="alternate"][hreflang="en_EN"]').getAttribute('href')
+    const xDefault = await page.locator('link[rel="alternate"][hreflang="x-default"]').getAttribute('href')
+
+    expect(new URL(canonicalHref!).pathname).toBe('/en/')
+    expect(new URL(ogUrlContent!).pathname).toBe('/en/')
+    expect(new URL(alternateEn!).pathname).toBe('/en/')
+    expect(new URL(xDefault!).pathname).toBe('/en/')
+  })
 })

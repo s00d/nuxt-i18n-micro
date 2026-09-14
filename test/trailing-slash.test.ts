@@ -1,3 +1,4 @@
+import { joinURL } from 'ufo'
 import { describe, expect, it } from 'vitest'
 import { applyTrailingSlash } from '../src/runtime/utils/trailing-slash'
 
@@ -24,5 +25,11 @@ describe('applyTrailingSlash (NuxtLink parity)', () => {
   it('skips non-http protocols like NuxtLink', () => {
     expect(applyTrailingSlash('mailto:hi@example.com', 'append')).toBe('mailto:hi@example.com')
     expect(applyTrailingSlash('tel:+123', 'remove')).toBe('tel:+123')
+  })
+
+  it('restores root slash dropped by joinURL on a slashless absolute base', () => {
+    expect(joinURL('https://example.com', '/')).toBe('https://example.com')
+    expect(applyTrailingSlash(joinURL('https://example.com', '/'), 'append')).toBe('https://example.com/')
+    expect(applyTrailingSlash(joinURL('https://example.com', '/en/'), 'append')).toBe('https://example.com/en/')
   })
 })

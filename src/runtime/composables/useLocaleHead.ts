@@ -6,6 +6,7 @@ import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resol
 import { joinURL, parseURL, withQuery } from 'ufo'
 import { ref, unref, watch } from 'vue'
 import { useNuxtApp, useRoute, useState } from '#app'
+import { applyTrailingSlash } from '../utils/trailing-slash'
 
 interface MetaLink {
   [key: string]: string | undefined
@@ -143,17 +144,30 @@ export const useLocaleHead = ({
     }
 
     const whitelist = canonicalQueryWhitelist ?? []
+    const trailingSlash = i18nConfig.trailingSlash
+
+    /**
+     * Absolute SEO href from `$switchLocalePath` (path or locale `baseUrl` URL).
+     * Re-apply `trailingSlash` after `joinURL`: ufo drops a lone `/` on a slashless base
+     * (`joinURL('https://x.com', '/')` → `https://x.com`), which would break `append`.
+     */
+    const toSeoHref = (pathOrUrl: string): string => {
+      if (!pathOrUrl) return ''
+      let href: string
+      if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {
+        href = filterLocalizedHref(pathOrUrl, whitelist)
+      } else {
+        const filteredPath = filterLocalizedHref(pathOrUrl, whitelist)
+        href = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
+      }
+      return applyTrailingSlash(href, trailingSlash)
+    }
 
     // Canonical / og:url share `$switchLocalePath` with hreflang (incl. NuxtLink trailingSlash).
     const currentSwitchedPath = switchLocalePath(locale)
     let ogUrl: string
     if (currentSwitchedPath) {
-      if (currentSwitchedPath.startsWith('http://') || currentSwitchedPath.startsWith('https://')) {
-        ogUrl = filterLocalizedHref(currentSwitchedPath, whitelist)
-      } else {
-        const filteredPath = filterLocalizedHref(currentSwitchedPath, whitelist)
-        ogUrl = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
-      }
+      ogUrl = toSeoHref(currentSwitchedPath)
     } else {
       // Fallback when switchLocalePath is unavailable (tests / meta:false manual use).
       const matchedLocale = [...locales]
@@ -162,9 +176,9 @@ export const useLocaleHead = ({
       let localizedPath = fullPath
       if (routeName.startsWith(localizedRouteNamePrefixResolved) && matchedLocale) {
         localizedPath = fullPath.slice(matchedLocale.code.length + 1)
-        ogUrl = joinURL(unref(baseUrl), locale, filterQuery(localizedPath, whitelist))
+        ogUrl = applyTrailingSlash(joinURL(unref(baseUrl), locale, filterQuery(localizedPath, whitelist)), trailingSlash)
       } else {
-        ogUrl = joinURL(unref(baseUrl), filterQuery(fullPath, whitelist))
+        ogUrl = applyTrailingSlash(joinURL(unref(baseUrl), filterQuery(fullPath, whitelist)), trailingSlash)
       }
     }
 
@@ -231,18 +245,7 @@ export const useLocaleHead = ({
           for (const loc of localesForSeo) {
             const switchedPath = switchLocalePath(loc.code)
             if (!switchedPath) continue
-
-            // $switchLocalePath returns a full URL (with baseUrl) if locale has baseUrl, otherwise just a path
-            let href: string
-            if (switchedPath.startsWith('http://') || switchedPath.startsWith('https://')) {
-              // It's already a full URL, preserve origin but filter query params.
-              href = filterLocalizedHref(switchedPath, whitelist)
-            } else {
-              // It's just a path, prepend baseUrl
-              const filteredPath = filterLocalizedHref(switchedPath, whitelist)
-              href = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
-            }
-            hrefByCode.set(String(loc.code), href)
+            hrefByCode.set(String(loc.code), toSeoHref(switchedPath))
           }
 
           return resolveHreflangAlternates(localesForSeo, {
@@ -268,17 +271,10 @@ export const useLocaleHead = ({
     if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false) {
       const defaultSwitchedPath = switchLocalePath(defaultLocale)
       if (defaultSwitchedPath) {
-        let xDefaultHref: string
-        if (defaultSwitchedPath.startsWith('http://') || defaultSwitchedPath.startsWith('https://')) {
-          xDefaultHref = filterLocalizedHref(defaultSwitchedPath, whitelist)
-        } else {
-          const filteredPath = filterLocalizedHref(defaultSwitchedPath, whitelist)
-          xDefaultHref = joinURL(unref(baseUrl), filteredPath.startsWith('/') ? filteredPath : `/${filteredPath}`)
-        }
         xDefaultLink = {
           [identifierAttribute]: 'i18n-xd',
           rel: 'alternate',
-          href: xDefaultHref,
+          href: toSeoHref(defaultSwitchedPath),
           hreflang: 'x-default',
         }
       }

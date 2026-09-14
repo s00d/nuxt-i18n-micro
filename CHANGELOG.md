@@ -1,6 +1,21 @@
 # Changelog
 
 
+## v3.29.5
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.4...v3.29.5)
+
+### 🩹 Fixes
+
+- Unify plugin types ([#257](https://github.com/s00d/nuxt-i18n-micro/pull/257))
+- **types:** Break TranslationFn circular import ([0c000761](https://github.com/s00d/nuxt-i18n-micro/commit/0c000761))
+- **seo:** Re-apply trailingSlash after absolute joinURL ([9e53da5a](https://github.com/s00d/nuxt-i18n-micro/commit/9e53da5a))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+- Kevin Sandiho <kevin.sandi@citis.kompasgramedia.com>
+
 ## v3.29.4
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.3...v3.29.4)

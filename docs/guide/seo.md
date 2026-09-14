@@ -305,12 +305,14 @@ More examples (canonical override, `x-default`, reactive fetch, shared helpers):
 
 ### ⚠️ Trailing Slash
 
-Canonical and `hreflang` come from `$switchLocalePath`, which follows Nuxt's own link rule —
-`experimental.defaults.nuxtLink.trailingSlash` (`append` | `remove`) — the same source
-`NuxtLink` uses via `ufo`'s `withTrailingSlash` / `withoutTrailingSlash`.
+`$localePath` / `$switchLocalePath` (and therefore canonical / `hreflang`) follow the same
+slash rule as NuxtLink. By default the module inherits
+`experimental.defaults.nuxtLink.trailingSlash`. Override with `i18n.trailingSlash` when i18n
+paths should diverge from global NuxtLink defaults.
 
 ```ts
 export default defineNuxtConfig({
+  // Inherited automatically when unset on i18n:
   experimental: {
     defaults: {
       nuxtLink: {
@@ -320,13 +322,13 @@ export default defineNuxtConfig({
   },
   i18n: {
     meta: true,
-    // …
+    // Optional override (wins over experimental.defaults.nuxtLink.trailingSlash):
+    // trailingSlash: 'append',
   },
 })
 ```
 
-Set that once in `nuxt.config`; do not add a separate i18n trailing-slash option. `$localePath`
-and `$switchLocalePath` stay aligned with `NuxtLink` / `<i18n-link>`.
+`$localePath` and `$switchLocalePath` stay aligned with `<i18n-link>` / SEO tags.
 
 ### 🎯 Benefits
 

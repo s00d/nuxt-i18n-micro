@@ -60,6 +60,7 @@ The sections below explain how they work together; the
 | [`customRegexMatcher`](/api/module-options) | `string \| RegExp` | `undefined (uses built-in pattern based on locale codes)` | Custom regular expression (or its string source) for matching locale codes in URL segments. |
 | [`noPrefixRedirect`](/api/module-options) | `boolean` | `false` | For `no_prefix` strategy: enable redirect from a locale-prefixed URL (e.g. `/en/about`) to the unprefixed version (`/about`). |
 | [`canonicalQueryWhitelist`](/api/module-options) | `string[]` | `['page', 'sort', 'filter', 'search', 'q', 'query', 'tag']` | List of query parameter names preserved in canonical and `og:url` meta tags. |
+| [`trailingSlash`](/api/module-options) | `'append' \| 'remove'` | `undefined (inherit from Nuxt)` | Trailing slash for `$localePath` / `$switchLocalePath` (NuxtLink parity). |
 | [`excludePatterns`](/api/module-options) | `(string \| RegExp)[]` | `undefined` | URL patterns (strings or RegExp) to exclude from i18n processing entirely. |
 | [`localizedRouteNamePrefix`](/api/module-options) | `string` | `'localized-'` | Prefix prepended to localized route names (e.g. `'localized-index'`). |
 | [`routeLocales`](/api/module-options) | `Record<string, string[]>` | — | Per-route locale restrictions, extracted from `defineI18nRoute()` calls. |

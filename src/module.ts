@@ -167,6 +167,9 @@ function buildFullConfig(params: {
     strategy: options.strategy ?? 'prefix_except_default',
     dateBuild,
     hashMode: nuxt.options?.router?.options?.hashMode ?? false,
+    trailingSlash:
+      options.trailingSlash ??
+      (nuxt.options.experimental as { defaults?: { nuxtLink?: { trailingSlash?: 'append' | 'remove' } } })?.defaults?.nuxtLink?.trailingSlash,
     apiBaseUrl: apiConfig.apiBaseUrl,
     apiBaseClientHost: apiConfig.apiBaseClientHost,
     isSSG,

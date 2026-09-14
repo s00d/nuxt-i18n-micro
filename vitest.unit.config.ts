@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
 
@@ -11,12 +10,6 @@ import { INTEGRATION_TESTS } from './test/setup/heavy-tests.ts'
  * test/setup/heavy-tests.ts for the shared list).
  */
 export default defineConfig({
-  resolve: {
-    alias: {
-      // Runtime helpers may import Nuxt virtuals; unit tests stub them.
-      '#build/nuxt.config.mjs': fileURLToPath(new URL('./test/stubs/nuxt-config.ts', import.meta.url)),
-    },
-  },
   test: {
     name: 'unit',
     include: ['test/**/*.test.ts'],

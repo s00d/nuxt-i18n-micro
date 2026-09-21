@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'async-components' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('async-components', () => {
+  test.override({ harness: 'async-components' })
   test('renders async components test page', async ({ page, goto }) => {
     await goto('/async-components-test', { waitUntil: 'hydration' })
 

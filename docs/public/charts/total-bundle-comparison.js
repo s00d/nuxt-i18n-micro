@@ -4,7 +4,7 @@ export default function() {
   "type": "bar",
   "data": {
     "labels": [
-      "plain-nuxt",
+      "plain-nuxt (baseline)",
       "i18n-v10",
       "i18n-micro"
     ],
@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Total Bundle (MB)",
         "data": [
-          8.3,
-          9.4,
-          8.5
+          8,
+          9.1,
+          8.2
         ],
         "backgroundColor": [
           "rgb(75, 192, 192)",

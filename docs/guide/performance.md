@@ -48,24 +48,22 @@ pnpm -C scripts cli performance --locales 12 --keys 100000 --runs 3
 
 > Older docs that showed `@nuxtjs/i18n` “code ≈ 15 MB / translations 0 B” counted `chunks/raw` message files as app code. The current classifier separates them; the gap on **code** is smaller, and micro still leads on build time, peak RSS, and load tests.
 
-See the [full benchmark report](/guide/performance-results) for charts, Autocannon results, and fixture details.
+See the [full benchmark report](/guide/performance-results) for charts, load results, and fixture details.
 
 ### 🌐 Server Performance Under Load
 
-Artillery (6s@6 + 60s@60) and Autocannon (10c / 10s), mean of 3 consecutive runs per fixture.
+Programmatic Artillery knobs from `scripts/src/perf/load.ts` (warm 2s + main 10s @ arrival 40 / maxVU 40, paths from runtime profile; no YAML). Regenerate docs with `pnpm test:performance`.
 
 ::: details **@nuxtjs/i18n v10.6**
 
 - **Requests per Second (Artillery)**: 143 [#/sec]
 - **Average Response Time**: 956 ms
-- **Autocannon RPS / avg latency**: 72 / 139 ms
   :::
 
 ::: tip **Nuxt I18n Micro**
 
 - **Requests per Second (Artillery)**: 275 [#/sec] — **~93% more than `@nuxtjs/i18n` v10.6**
 - **Average Response Time**: 483 ms — **~49% faster than `@nuxtjs/i18n` v10.6**
-- **Autocannon RPS / avg latency**: 162 / 62 ms
   :::
 
 ### 📈 Visual Comparison
@@ -134,7 +132,7 @@ Against current `@nuxtjs/i18n` **v10.6** (default CLI profile, mean of 3):
 - 🗜️ **Smaller code graph**: ~1.74 MB vs ~2.16 MB once message chunks are not mis-labeled as “code”.
 - 🧠 **Lower build RSS**: ~1.1 GB peak vs ~1.8 GB.
 - 🕒 **Faster builds**: ~5.3s vs ~8.3s (micro matches the plain-Nuxt baseline on this profile).
-- ⚡ **Much better under load**: ~275 vs ~143 Artillery RPS, ~162 vs ~72 Autocannon RPS, lower average latency.
+- ⚡ **Much better under load**: ~275 vs ~143 Artillery RPS, lower average latency.
 
 Absolute numbers differ from older published tables (smaller dictionaries, older Nuxt, and an unfair “0 B translations” split for `@nuxtjs/i18n`). Directionally the same: micro stays ahead on build cost and request throughput.
 

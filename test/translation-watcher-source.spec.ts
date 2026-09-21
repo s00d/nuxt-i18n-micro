@@ -4,13 +4,7 @@ import {
   translationWatcherSourceFixtureRoot,
   waitForTranslationPayloadValue,
 } from './helpers/translation-watcher-hmr'
-import { afterAll, describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({
-  rootDir: translationWatcherSourceFixtureRoot,
-  dev: true,
-  setupTimeout: 180_000,
-})
+import { afterAll, describe, expect, test } from 'untestutils/vitest'
 
 // Each spec mutates ITS OWN fixture's locale files (they run in parallel).
 const files = createTranslationWatcherFiles(translationWatcherSourceFixtureRoot)
@@ -20,6 +14,8 @@ afterAll(() => {
 })
 
 describe('translation watcher dev HMR (source mode)', () => {
+  test.override({ harness: 'translation-watcher-source' })
+
   test('merges updated page translations at runtime through the API route', async ({ page, goto, baseURL }) => {
     await goto('/en/about', { waitUntil: 'hydration' })
     await expect(page.locator('#about-title')).toHaveText('About EN')

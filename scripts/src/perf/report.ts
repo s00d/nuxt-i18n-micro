@@ -1,18 +1,19 @@
 import { appendFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
+import { formatBytes, type LoadMetrics, type PerfReporter, type PerfTargetResult } from 'untestutils/perf'
 import { repoRoot } from '../utils/workspace'
 import {
   generateAndSaveChart,
   generateBuildComparisonCharts,
   generateComparisonCharts,
   generateComparisonMarkdown,
+  logChartsSaved,
   saveChartJsConfig,
 } from './charts'
 import { fixtureProfileMarkdown, leafKeysFor } from './config'
-import { formatBytes } from './format'
-import { fixtureById, fixtureSourceAbsDir, type PerfFixtureDef } from './fixtures'
-import type { FixtureId, FixtureRunResult, PerfRuntimeProfile, PerformanceResult, ResolvedPerfArgs } from './types'
+import { fixtureById, fixtureSourceAbsDir, resolveFixtureSelection, type PerfFixtureDef } from './fixtures'
+import type { FixtureId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const require = createRequire(import.meta.url)
 export const resultsFilePath = join(repoRoot, 'docs/guide/performance-results.md')
@@ -56,6 +57,10 @@ function meanNote(runs: number): string {
   return ` (mean of ${runs} run${runs === 1 ? '' : 's'})`
 }
 
+function mb(bytes: number): number {
+  return Math.round((bytes / 1024 / 1024) * 10) / 10
+}
+
 export function createMarkdownWriter(enabled: boolean): {
   init: (profile: PerfRuntimeProfile, runs: number) => void
   write: (content: string) => void
@@ -63,7 +68,9 @@ export function createMarkdownWriter(enabled: boolean): {
   return {
     init(profile, runs) {
       if (!enabled) return
-      const header = `---
+      writeFileSync(
+        resultsFilePath,
+        `---
 title: "Performance Test Results"
 description: "Benchmarks vs nuxt-i18n on real fixtures."
 outline: "deep"
@@ -76,27 +83,27 @@ outline: "deep"
 - **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/plain-nuxt)**: ./test/fixtures/plain-nuxt
 - **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
 - **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
-- **[CLI](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/src/commands/performance.ts)**: \`pnpm -C scripts cli performance\` / \`pnpm test:performance\`
+- **CLI**: \`pnpm test:performance\`
 
 ### Description
 
-Compares **plain Nuxt** (baseline without an i18n module), **i18n-micro**, and **\`@nuxtjs/i18n\` v10.6** under one shared dictionary profile.
+Compares **plain Nuxt**, **i18n-micro**, and **\`@nuxtjs/i18n\`** under one shared dictionary profile via \`untestutils/perf\`.
 
-Focus: build time, peak RSS, deployable **code vs translations vs total**, and server behaviour under Artillery + Autocannon.
+Focus: build time, peak RSS, deployable **code vs translations (asset) vs total**, and load (Artillery).
 
 ### Methodology notes
 
-- Metrics are **means of ${runs} consecutive runs per fixture** (fixture A ×${runs}, then B ×${runs}, then C ×${runs} — not interleaved).
-- **Translations** include locale JSON under \`locales/\` / \`_locales/\` / \`translations/\`, everything under \`chunks/raw/\`, and matching locale chunks. Older reports that showed \`@nuxtjs/i18n\` “translations: 0 B” and a huge “code” column were counting message chunks as app code.
-- **plain-nuxt** serves the same leaf volume as static \`public/translations\` JSON (not static JS imports). Under Artillery that baseline is I/O-heavy; it is not “i18n overhead”, it is the cost of fetching large JSON per request.
+- Metrics are **means of ${runs} consecutive runs per fixture** (not interleaved).
+- **Translations** = \`bundle.asset\` (locale JSON, \`chunks/raw/\`, matching locale chunks via \`isTranslationFile\`).
+- **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
 
 ### Runs
 
 All metrics below are **means across ${runs} runs**.
 
 ---
-`
-      writeFileSync(resultsFilePath, header)
+`,
+      )
       appendFileSync(resultsFilePath, `\n${fixtureProfileMarkdown(profile)}\n`)
 
       const i18nFixtureDir = join(repoRoot, 'test/fixtures/i18n')
@@ -129,63 +136,21 @@ ${Object.entries(dependencies)
   }
 }
 
-export function printConsoleReport(results: FixtureRunResult[], args: ResolvedPerfArgs): void {
-  console.log(`\n========== Performance summary${meanNote(args.runs)} ==========`)
-  console.log(
-    `Profile: ${args.profile.locales.length} locales, index branch ${args.profile.branch} (~${leafKeysFor(args.profile.branch).toLocaleString('en-US')} leaves), pages: ${args.profile.pages.map((p) => p.name).join(', ')}`,
-  )
-
-  for (const r of results) {
-    const b = r.build
-    console.log(
-      `${r.label}: build ${b.buildTime.toFixed(2)}s, mem peak ${b.maxMemoryUsed.toFixed(0)} MB, bundle ${formatBytes(b.bundleSize?.total || 0)} (code ${formatBytes(b.bundleSize?.codeTotal || 0)} / tr ${formatBytes(b.bundleSize?.translationsTotal || 0)})`,
-    )
-    if (r.stress) {
-      console.log(
-        `  stress: artillery ${r.stress.requestsPerSecond?.toFixed(1) ?? 'N/A'} RPS / ${r.stress.responseTimeAvg?.toFixed(1) ?? 'N/A'} ms avg; autocannon ${r.stress.autocannon?.requests.average.toFixed(1) ?? 'N/A'} RPS / ${r.stress.autocannon?.latency.average.toFixed(1) ?? 'N/A'} ms`,
-      )
-    }
+/** Markdown + Chart.js reporter for \`--only all\`. */
+export function createDocsReporter(args: ResolvedPerfArgs): PerfReporter {
+  const md = createMarkdownWriter(true)
+  return {
+    name: 'i18n-docs',
+    onStart() {
+      const fixtures = resolveFixtureSelection(args.only)
+      md.init(args.profile, args.runs)
+      writeSourceDictionaries(md.write, measureSourceDictionaries(fixtures), args.profile)
+    },
+    async onEnd({ results }) {
+      await writeDocsReport(md.write, results, args.runs, args.profile)
+      console.log('Wrote docs report: docs/guide/performance-results.md')
+    },
   }
-  console.log('==================================================\n')
-
-  // Detailed console when a single fixture was selected
-  if (results.length !== 1 || args.writeDocs) return
-  const result = results[0]!
-  const b = result.build
-  console.log(`### Build detail — ${result.label}`)
-  console.log(`- Build time: ${b.buildTime.toFixed(2)}s`)
-  console.log(`- CPU max/avg: ${b.maxCpuUsage.toFixed(1)}% / ${b.avgCpuUsage.toFixed(1)}%`)
-  console.log(`- Memory max/avg: ${b.maxMemoryUsed.toFixed(1)} MB / ${b.avgMemoryUsed.toFixed(1)} MB`)
-  if (b.bundleSize) {
-    console.log(`- Code: ${formatBytes(b.bundleSize.codeTotal)}`)
-    console.log(`- Translations: ${formatBytes(b.bundleSize.translationsTotal)}`)
-    console.log(`- Total: ${formatBytes(b.bundleSize.total)}`)
-  }
-  if (!result.stress) return
-  const s = result.stress
-  console.log(`### Stress detail — ${result.label}`)
-  console.log(`- Artillery RPS: ${s.requestsPerSecond?.toFixed(2) ?? 'N/A'}`)
-  console.log(
-    `- Artillery latency avg/p95/p99: ${s.responseTimeAvg?.toFixed(2)} / ${s.responseTimeP95?.toFixed(2)} / ${s.responseTimeP99?.toFixed(2)} ms`,
-  )
-  console.log(`- Autocannon RPS: ${s.autocannon?.requests.average.toFixed(2) ?? 'N/A'}`)
-  console.log(
-    `- Autocannon latency avg/p50/p95/p99: ${s.autocannon?.latency.average.toFixed(2)} / ${s.autocannon?.latency.p50.toFixed(2)} / ${s.autocannon?.latency.p97_5.toFixed(2)} / ${s.autocannon?.latency.p99.toFixed(2)} ms`,
-  )
-  console.log(`- Errors: ${s.autocannon?.errors ?? 0}, error rate: ${s.errorRate?.toFixed(2) ?? 'N/A'}%`)
-}
-
-function writeBuildSection(write: (c: string) => void, id: FixtureId, build: PerformanceResult): void {
-  write(`
-## Build Performance for test/fixtures/${id}
-
-- **Build Time**: ${build.buildTime.toFixed(2)} seconds
-- **Bundle Size**: ${formatBytes(build.bundleSize?.total || 0)} (code: ${formatBytes(build.bundleSize?.codeTotal || 0)}, translations: ${formatBytes(build.bundleSize?.translationsTotal || 0)})
-- **Code Bundle**: client: ${formatBytes(build.bundleSize?.clientCode || 0)}, server: ${formatBytes(build.bundleSize?.serverCode || 0)}
-- **Max / Avg CPU**: ${build.maxCpuUsage.toFixed(2)}% / ${build.avgCpuUsage.toFixed(2)}%
-- **Max / Avg Memory**: ${build.maxMemoryUsed.toFixed(2)} MB / ${build.avgMemoryUsed.toFixed(2)} MB
-
-`)
 }
 
 export function writeSourceDictionaries(write: (c: string) => void, sizes: Record<FixtureId, number>, profile: PerfRuntimeProfile): void {
@@ -204,7 +169,22 @@ ${rows}
 `)
 }
 
-function writeComparisonPair(write: (c: string) => void, name1: string, name2: string, a: PerformanceResult, b: PerformanceResult): void {
+function writeBuildSection(write: (c: string) => void, result: PerfTargetResult): void {
+  const b = result.build
+  const bundle = b.bundle
+  write(`
+## Build Performance for test/fixtures/${result.id}
+
+- **Build Time**: ${b.buildTimeSec.toFixed(2)} seconds
+- **Bundle Size**: ${formatBytes(bundle?.total || 0)} (code: ${formatBytes(bundle?.code || 0)}, translations: ${formatBytes(bundle?.asset || 0)})
+- **Output dirs**: public: ${formatBytes(bundle?.byDir.public || 0)}, server: ${formatBytes(bundle?.byDir.server || 0)}
+- **Max / Avg CPU**: ${b.maxCpuPct.toFixed(2)}% / ${b.avgCpuPct.toFixed(2)}%
+- **Max / Avg Memory**: ${b.maxMemoryMb.toFixed(2)} MB / ${b.avgMemoryMb.toFixed(2)} MB
+
+`)
+}
+
+function writeComparisonPair(write: (c: string) => void, name1: string, name2: string, a: LoadMetrics, b: LoadMetrics): void {
   const d = (x: number, y: number) => y - x
   const fmt = (n: number, unit: string) => `${n > 0 ? '+' : ''}${n.toFixed(2)} ${unit}`
 
@@ -213,44 +193,44 @@ function writeComparisonPair(write: (c: string) => void, name1: string, name2: s
 
 | Metric | ${name1} | ${name2} | Difference |
 |--------|----------|----------|------------|
-| Max Memory | ${a.maxMemoryUsed.toFixed(2)} MB | ${b.maxMemoryUsed.toFixed(2)} MB | ${fmt(d(a.maxMemoryUsed, b.maxMemoryUsed), 'MB')} |
-| Avg Memory | ${a.avgMemoryUsed.toFixed(2)} MB | ${b.avgMemoryUsed.toFixed(2)} MB | ${fmt(d(a.avgMemoryUsed, b.avgMemoryUsed), 'MB')} |
+| Max Memory | ${a.maxMemoryMb.toFixed(2)} MB | ${b.maxMemoryMb.toFixed(2)} MB | ${fmt(d(a.maxMemoryMb, b.maxMemoryMb), 'MB')} |
+| Avg Memory | ${a.avgMemoryMb.toFixed(2)} MB | ${b.avgMemoryMb.toFixed(2)} MB | ${fmt(d(a.avgMemoryMb, b.avgMemoryMb), 'MB')} |
 | Response Avg | ${a.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms | ${b.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms | ${fmt(d(a.responseTimeAvg || 0, b.responseTimeAvg || 0), 'ms')} |
 | Response P95 | ${a.responseTimeP95?.toFixed(2) ?? 'N/A'} ms | ${b.responseTimeP95?.toFixed(2) ?? 'N/A'} ms | ${fmt(d(a.responseTimeP95 || 0, b.responseTimeP95 || 0), 'ms')} |
 | RPS (Artillery) | ${a.requestsPerSecond?.toFixed(2) ?? 'N/A'} | ${b.requestsPerSecond?.toFixed(2) ?? 'N/A'} | ${fmt(d(a.requestsPerSecond || 0, b.requestsPerSecond || 0), '')} |
-| RPS (Autocannon) | ${a.autocannon?.requests.average.toFixed(2) ?? 'N/A'} | ${b.autocannon?.requests.average.toFixed(2) ?? 'N/A'} | ${fmt(d(a.autocannon?.requests.average || 0, b.autocannon?.requests.average || 0), '')} |
-| Latency avg (AC) | ${a.autocannon?.latency.average.toFixed(2) ?? 'N/A'} ms | ${b.autocannon?.latency.average.toFixed(2) ?? 'N/A'} ms | ${fmt(d(a.autocannon?.latency.average || 0, b.autocannon?.latency.average || 0), 'ms')} |
+| Error rate | ${a.errorRate?.toFixed(2) ?? 'N/A'}% | ${b.errorRate?.toFixed(2) ?? 'N/A'}% | ${fmt(d(a.errorRate || 0, b.errorRate || 0), '%')} |
 
 `)
 }
 
-function displayLabel(id: FixtureId, label: string): string {
+function displayLabel(id: string, label: string): string {
   return id === 'plain-nuxt' ? `${label} (baseline)` : label
 }
 
-/** Write charts + full markdown from already-averaged results. */
+/** Write charts + full markdown from averaged \`PerfTargetResult\`s. */
 export async function writeDocsReport(
   write: (c: string) => void,
-  results: FixtureRunResult[],
+  results: PerfTargetResult[],
   runs: number,
   profile: PerfRuntimeProfile,
 ): Promise<void> {
   const note = meanNote(runs)
-  const byId = Object.fromEntries(results.map((r) => [r.id, r])) as Record<FixtureId, FixtureRunResult>
+  const byId = Object.fromEntries(results.map((r) => [r.id, r])) as Record<string, PerfTargetResult>
 
-  for (const r of results) writeBuildSection(write, r.id, r.build)
+  for (const r of results) writeBuildSection(write, r)
 
   const labels = results.map((r) => displayLabel(r.id, r.label))
-  const buildTimes = results.map((r) => Math.round(r.build.buildTime * 10) / 10)
-  const codeMB = results.map((r) => Math.round(((r.build.bundleSize?.codeTotal || 0) / 1024 / 1024) * 10) / 10)
-  const trMB = results.map((r) => Math.round(((r.build.bundleSize?.translationsTotal || 0) / 1024 / 1024) * 10) / 10)
-  const totalMB = results.map((r) => Math.round(((r.build.bundleSize?.total || 0) / 1024 / 1024) * 10) / 10)
+  const buildTimes = results.map((r) => Math.round(r.build.buildTimeSec * 10) / 10)
+  const codeMB = results.map((r) => mb(r.build.bundle?.code || 0))
+  const trMB = results.map((r) => mb(r.build.bundle?.asset || 0))
+  const totalMB = results.map((r) => mb(r.build.bundle?.total || 0))
 
   const charts = generateBuildComparisonCharts(labels, buildTimes, codeMB, trMB, totalMB)
   saveChartJsConfig('build-time-comparison.js', charts.buildTimeConfig)
   saveChartJsConfig('bundle-size-comparison.js', charts.bundleSizeConfig)
   saveChartJsConfig('translations-size-comparison.js', charts.translationsConfig)
   saveChartJsConfig('total-bundle-comparison.js', charts.totalBundleConfig)
+  let chartCount = 4
 
   write(`
 ## Build Performance Summary${note}
@@ -260,11 +240,11 @@ export async function writeDocsReport(
 ${results
   .map(
     (r) =>
-      `| **${displayLabel(r.id, r.label)}** | ${r.build.buildTime.toFixed(2)}s | ${formatBytes(r.build.bundleSize?.codeTotal || 0)} | ${formatBytes(r.build.bundleSize?.translationsTotal || 0)} | ${formatBytes(r.build.bundleSize?.total || 0)} |`,
+      `| **${displayLabel(r.id, r.label)}** | ${r.build.buildTimeSec.toFixed(2)}s | ${formatBytes(r.build.bundle?.code || 0)} | ${formatBytes(r.build.bundle?.asset || 0)} | ${formatBytes(r.build.bundle?.total || 0)} |`,
   )
   .join('\n')}
 
-> “Total” = what gets deployed (code + translations). Micro keeps translations as lazy JSON; \`@nuxtjs/i18n\` still ships a larger code graph even after message chunks are classified correctly. Translations include \`locales/\`, \`_locales/\`, \`chunks/raw/\`, and matching locale chunks.
+> “Total” = code + translations (\`bundle.asset\`). Translations include \`locales/\`, \`_locales/\`, \`chunks/raw/\`, and matching locale chunks.
 
 \`\`\`chart
 url: /charts/build-time-comparison.js
@@ -287,31 +267,23 @@ height: 350px
 \`\`\`
 `)
 
-  const withStress = results.filter((r) => r.stress)
-  if (withStress.length === 0) {
+  const withLoad = results.filter((r) => r.load)
+  if (withLoad.length === 0) {
+    logChartsSaved(chartCount)
     writeAnalysisFooter(write, profile)
     return
   }
 
-  for (const r of withStress) {
-    const s = r.stress!
+  for (const r of withLoad) {
+    const l = r.load!
     // oxlint-disable-next-line no-await-in-loop -- sequential chart writes share filenames
-    if (s.artillery) await generateAndSaveChart(r.label, s.artillery)
+    if (l.artillery) {
+      await generateAndSaveChart(r.label, l.artillery)
+      chartCount += 2
+    }
     const safeName = r.label.replace(/[^a-z0-9-]/gi, '-')
-    write(`
-## Stress Test Results for ${r.label}
-
-### Resource Usage
-- **Max / Avg CPU**: ${s.maxCpuUsage.toFixed(2)}% / ${s.avgCpuUsage.toFixed(2)}%
-- **Max / Avg Memory**: ${s.maxMemoryUsed.toFixed(2)} MB / ${s.avgMemoryUsed.toFixed(2)} MB
-
-### Artillery
-- **Duration**: ${(s.stressTestTime ?? 0).toFixed(2)}s · **RPS**: ${s.requestsPerSecond?.toFixed(2) ?? 'N/A'} · **Error rate**: ${s.errorRate?.toFixed(2) ?? 'N/A'}%
-- **Latency avg / p50 / p95 / p99**: ${s.responseTimeAvg?.toFixed(2) ?? 'N/A'} / ${s.responseTimeP50?.toFixed(2) ?? 'N/A'} / ${s.responseTimeP95?.toFixed(2) ?? 'N/A'} / ${s.responseTimeP99?.toFixed(2) ?? 'N/A'} ms
-
-### Autocannon (10c / 10s)
-- **RPS**: ${s.autocannon?.requests.average.toFixed(2) ?? 'N/A'} · **Latency avg / p50 / p95 / p99**: ${s.autocannon?.latency.average.toFixed(2) ?? 'N/A'} / ${s.autocannon?.latency.p50.toFixed(2) ?? 'N/A'} / ${s.autocannon?.latency.p97_5.toFixed(2) ?? 'N/A'} / ${s.autocannon?.latency.p99.toFixed(2) ?? 'N/A'} ms · **Errors**: ${s.autocannon?.errors ?? 0}
-
+    const chartsBlock = l.artillery
+      ? `
 \`\`\`chart
 url: /charts/${safeName}-traffic.js
 height: 400px
@@ -321,48 +293,50 @@ height: 400px
 url: /charts/${safeName}-latency.js
 height: 300px
 \`\`\`
-`)
-  }
+`
+      : ''
+    write(`
+## Load Results for ${r.label}
 
-  const comparisonResults = withStress.map((r) => ({
-    name: r.label,
-    autocannon: r.stress?.autocannon,
-    artillery: r.stress?.artillery,
-  }))
-  const cmp = generateComparisonCharts(comparisonResults)
-  saveChartJsConfig('comparison-rps-autocannon.js', cmp.rpsConfig)
-  saveChartJsConfig('comparison-rps-artillery.js', cmp.artilleryRpsConfig)
-  saveChartJsConfig('comparison-latency.js', cmp.latencyConfig)
-
-  write(`
-## Stress Test Summary${note}
+### Resource Usage
+- **Max / Avg CPU**: ${l.maxCpuPct.toFixed(2)}% / ${l.avgCpuPct.toFixed(2)}%
+- **Max / Avg Memory**: ${l.maxMemoryMb.toFixed(2)} MB / ${l.avgMemoryMb.toFixed(2)} MB
 
 ### Artillery
-| Project | Avg Response | P95 | P99 | RPS | Error Rate |
-|---------|--------------|-----|-----|-----|------------|
-${withStress
-  .map(
-    (r) =>
-      `| **${r.label}** | ${r.stress?.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms | ${r.stress?.responseTimeP95?.toFixed(2) ?? 'N/A'} ms | ${r.stress?.responseTimeP99?.toFixed(2) ?? 'N/A'} ms | ${r.stress?.requestsPerSecond?.toFixed(2) ?? 'N/A'} | ${r.stress?.errorRate?.toFixed(2) ?? 'N/A'}% |`,
-  )
-  .join('\n')}
+- **Duration**: ${(l.durationSec ?? 0).toFixed(2)}s · **RPS**: ${l.requestsPerSecond?.toFixed(2) ?? 'N/A'} · **Error rate**: ${l.errorRate?.toFixed(2) ?? 'N/A'}%
+- **Latency avg / p50 / p95 / p99**: ${l.responseTimeAvg?.toFixed(2) ?? 'N/A'} / ${l.responseTimeP50?.toFixed(2) ?? 'N/A'} / ${l.responseTimeP95?.toFixed(2) ?? 'N/A'} / ${l.responseTimeP99?.toFixed(2) ?? 'N/A'} ms
+${chartsBlock}`)
+  }
 
-### Autocannon
-| Project | Avg Latency | P50 | P95 | P99 | RPS |
-|---------|-------------|-----|-----|-----|-----|
-${withStress
+  const comparisonResults = withLoad.map((r) => ({
+    name: r.label,
+    load: r.load,
+  }))
+  const cmp = generateComparisonCharts(comparisonResults)
+  saveChartJsConfig('comparison-rps-artillery.js', cmp.rpsConfig)
+  saveChartJsConfig('comparison-latency.js', cmp.latencyConfig)
+  chartCount += 2
+  logChartsSaved(chartCount)
+
+  write(`
+## Load Summary${note}
+
+### Artillery
+| Project | Avg Response | P50 | P95 | P99 | RPS | Error Rate |
+|---------|--------------|-----|-----|-----|-----|------------|
+${withLoad
   .map(
     (r) =>
-      `| **${r.label}** | ${r.stress?.autocannon?.latency.average.toFixed(2) ?? 'N/A'} ms | ${r.stress?.autocannon?.latency.p50.toFixed(2) ?? 'N/A'} ms | ${r.stress?.autocannon?.latency.p97_5.toFixed(2) ?? 'N/A'} ms | ${r.stress?.autocannon?.latency.p99.toFixed(2) ?? 'N/A'} ms | ${r.stress?.autocannon?.requests.average.toFixed(2) ?? 'N/A'} |`,
+      `| **${r.label}** | ${r.load?.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms | ${r.load?.responseTimeP50?.toFixed(2) ?? 'N/A'} ms | ${r.load?.responseTimeP95?.toFixed(2) ?? 'N/A'} ms | ${r.load?.responseTimeP99?.toFixed(2) ?? 'N/A'} ms | ${r.load?.requestsPerSecond?.toFixed(2) ?? 'N/A'} | ${r.load?.errorRate?.toFixed(2) ?? 'N/A'}% |`,
   )
   .join('\n')}
 
 ${generateComparisonMarkdown(comparisonResults)}
 `)
 
-  const plain = byId['plain-nuxt']?.stress
-  const i18n = byId.i18n?.stress
-  const micro = byId['i18n-micro']?.stress
+  const plain = byId['plain-nuxt']?.load
+  const i18n = byId.i18n?.load
+  const micro = byId['i18n-micro']?.load
   if (plain && i18n) writeComparisonPair(write, 'plain-nuxt (baseline)', 'i18n v10', plain, i18n)
   if (plain && micro) writeComparisonPair(write, 'plain-nuxt (baseline)', 'i18n-micro', plain, micro)
   if (i18n && micro) writeComparisonPair(write, 'i18n v10', 'i18n-micro', i18n, micro)
@@ -376,7 +350,7 @@ function writeAnalysisFooter(write: (c: string) => void, profile: PerfRuntimePro
 ## Notes
 
 - Shared profile: ${profile.locales.length} locales × ${profile.pages.length} pages × ~${(indexLeaves / 1000).toFixed(1)}k index leaves.
-- Artillery: 6s warm-up @6 VU/s + 60s main @60 VU/s. Autocannon: 10 connections × 10s.
-- Re-run: \`pnpm test:performance\` or \`pnpm -C scripts cli performance --locales N --keys K --only all|micro|i18n|plain --runs N\`.
+- Load: Autocannon (10c×5s) + programmatic Artillery (paths from runtime profile; see \`scripts/src/perf/load.ts\`).
+- Re-run: \`pnpm test:performance\` or \`pnpm -C scripts cli performance --locales N --keys K --only all|micro|i18n|plain --runs N --skip-load\`.
 `)
 }

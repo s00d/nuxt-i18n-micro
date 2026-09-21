@@ -1,7 +1,7 @@
+import type { ArtilleryResult, LoadMetrics } from 'untestutils/perf'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { repoRoot } from '../utils/workspace'
-import type { ArtilleryResult, AutocannonResult } from './types'
 
 export const chartsDir = join(repoRoot, 'docs/public/charts')
 
@@ -29,7 +29,11 @@ export default function() {
 `
   const filePath = join(chartsDir, filename)
   writeFileSync(filePath, jsContent)
-  console.log(`Chart config saved to: ${filePath}`)
+}
+
+/** One summary line after a batch of chart writes. */
+export function logChartsSaved(count: number): void {
+  console.log(`Chart configs saved: ${count} → ${chartsDir}`)
 }
 
 function extractChartData(artillery: ArtilleryResult) {
@@ -253,10 +257,9 @@ export async function generateAndSaveChart(name: string, artillery: ArtilleryRes
   return generateChartMarkdown(name, artillery)
 }
 
-export function generateComparisonCharts(results: { name: string; autocannon?: AutocannonResult; artillery?: ArtilleryResult }[]): {
+export function generateComparisonCharts(results: { name: string; load?: LoadMetrics }[]): {
   rpsConfig: object
   latencyConfig: object
-  artilleryRpsConfig: object
 } {
   const labels = results.map((r) => r.name)
   const colors = results.map((_, i) => [chartColors.plainNuxt, chartColors.i18nV10, chartColors.i18nMicro][i % 3])
@@ -268,35 +271,7 @@ export function generateComparisonCharts(results: { name: string; autocannon?: A
       datasets: [
         {
           label: 'Requests per Second',
-          data: results.map((r) => Math.round(r.autocannon?.requests.average || 0)),
-          backgroundColor: colors,
-          borderColor: colors,
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Requests per Second - Autocannon (higher is better)', font: { size: 16, weight: 'bold' } },
-        legend: { display: false },
-      },
-      scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'RPS' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-      },
-    },
-  }
-
-  const artilleryRpsConfig = {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Requests per Second',
-          data: results.map((r) => Math.round(r.artillery?.aggregate.rates['http.request_rate'] || 0)),
+          data: results.map((r) => Math.round(r.load?.requestsPerSecond || 0)),
           backgroundColor: colors,
           borderColor: colors,
           borderWidth: 2,
@@ -324,28 +299,28 @@ export function generateComparisonCharts(results: { name: string; autocannon?: A
       datasets: [
         {
           label: 'Avg',
-          data: results.map((r) => Math.round(r.autocannon?.latency.average || 0)),
+          data: results.map((r) => Math.round(r.load?.responseTimeAvg || 0)),
           backgroundColor: 'rgba(75, 192, 192, 0.8)',
           borderColor: 'rgb(75, 192, 192)',
           borderWidth: 1,
         },
         {
           label: 'P50',
-          data: results.map((r) => Math.round(r.autocannon?.latency.p50 || 0)),
+          data: results.map((r) => Math.round(r.load?.responseTimeP50 || 0)),
           backgroundColor: 'rgba(255, 206, 86, 0.8)',
           borderColor: 'rgb(255, 206, 86)',
           borderWidth: 1,
         },
         {
           label: 'P95',
-          data: results.map((r) => Math.round(r.autocannon?.latency.p97_5 || 0)),
+          data: results.map((r) => Math.round(r.load?.responseTimeP95 || 0)),
           backgroundColor: 'rgba(255, 159, 64, 0.8)',
           borderColor: 'rgb(255, 159, 64)',
           borderWidth: 1,
         },
         {
           label: 'P99',
-          data: results.map((r) => Math.round(r.autocannon?.latency.p99 || 0)),
+          data: results.map((r) => Math.round(r.load?.responseTimeP99 || 0)),
           backgroundColor: 'rgba(255, 99, 132, 0.8)',
           borderColor: 'rgb(255, 99, 132)',
           borderWidth: 1,
@@ -366,7 +341,7 @@ export function generateComparisonCharts(results: { name: string; autocannon?: A
     },
   }
 
-  return { rpsConfig, latencyConfig, artilleryRpsConfig }
+  return { rpsConfig, latencyConfig }
 }
 
 export function generateBuildComparisonCharts(
@@ -476,15 +451,13 @@ export function generateBuildComparisonCharts(
   return { buildTimeConfig, bundleSizeConfig, translationsConfig, totalBundleConfig }
 }
 
-export function generateComparisonMarkdown(results: { name: string; autocannon?: AutocannonResult; artillery?: ArtilleryResult }[]): string {
-  const rpsWinner = results.reduce((best, curr) =>
-    (curr.autocannon?.requests.average || 0) > (best.autocannon?.requests.average || 0) ? curr : best,
-  )
+export function generateComparisonMarkdown(results: { name: string; load?: LoadMetrics }[]): string {
+  const rpsWinner = results.reduce((best, curr) => ((curr.load?.requestsPerSecond || 0) > (best.load?.requestsPerSecond || 0) ? curr : best))
   const latencyWinner = results.reduce((best, curr) =>
-    (curr.autocannon?.latency.average || Infinity) < (best.autocannon?.latency.average || Infinity) ? curr : best,
+    (curr.load?.responseTimeAvg || Infinity) < (best.load?.responseTimeAvg || Infinity) ? curr : best,
   )
   const p99Winner = results.reduce((best, curr) =>
-    (curr.autocannon?.latency.p99 || Infinity) < (best.autocannon?.latency.p99 || Infinity) ? curr : best,
+    (curr.load?.responseTimeP99 || Infinity) < (best.load?.responseTimeP99 || Infinity) ? curr : best,
   )
 
   return `
@@ -492,12 +465,7 @@ export function generateComparisonMarkdown(results: { name: string; autocannon?:
 
 ### Throughput (Requests per Second)
 
-> **Winner: ${rpsWinner.name}** with ${rpsWinner.autocannon?.requests.average.toFixed(0)} RPS
-
-\`\`\`chart
-url: /charts/comparison-rps-autocannon.js
-height: 350px
-\`\`\`
+> **Winner: ${rpsWinner.name}** with ${rpsWinner.load?.requestsPerSecond?.toFixed(0) ?? 'N/A'} RPS
 
 \`\`\`chart
 url: /charts/comparison-rps-artillery.js
@@ -506,7 +474,7 @@ height: 350px
 
 ### Latency Distribution
 
-> **Winner: ${latencyWinner.name}** with ${latencyWinner.autocannon?.latency.average.toFixed(2)} ms avg latency
+> **Winner: ${latencyWinner.name}** with ${latencyWinner.load?.responseTimeAvg?.toFixed(2) ?? 'N/A'} ms avg latency
 
 \`\`\`chart
 url: /charts/comparison-latency.js
@@ -517,10 +485,10 @@ height: 350px
 
 | Metric | ${results.map((r) => `**${r.name}**`).join(' | ')} | Best |
 |--------|${results.map(() => '---').join('|')}|------|
-| RPS (Autocannon) | ${results.map((r) => `${r.autocannon?.requests.average.toFixed(0) || 'N/A'}`).join(' | ')} | ${rpsWinner.name} |
-| Avg Latency | ${results.map((r) => `${r.autocannon?.latency.average.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${latencyWinner.name} |
-| P99 Latency | ${results.map((r) => `${r.autocannon?.latency.p99.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${p99Winner.name} |
-| Errors | ${results.map((r) => `${r.autocannon?.errors || 0}`).join(' | ')} | - |
+| RPS (Artillery) | ${results.map((r) => `${r.load?.requestsPerSecond?.toFixed(0) || 'N/A'}`).join(' | ')} | ${rpsWinner.name} |
+| Avg Latency | ${results.map((r) => `${r.load?.responseTimeAvg?.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${latencyWinner.name} |
+| P99 Latency | ${results.map((r) => `${r.load?.responseTimeP99?.toFixed(2) || 'N/A'} ms`).join(' | ')} | ${p99Winner.name} |
+| Error rate | ${results.map((r) => `${r.load?.errorRate?.toFixed(2) ?? 'N/A'}%`).join(' | ')} | - |
 
 `
 }

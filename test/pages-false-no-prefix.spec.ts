@@ -1,10 +1,11 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+import { describe, expect, test } from 'untestutils/vitest'
 
 // Test: pages: false with no_prefix strategy.
 // This is the recommended approach for pages: false.
-await setupE2E({ shared: 'pages-false-no-prefix' })
 
 describe('pages: false with i18n (no_prefix)', () => {
+  test.override({ harness: 'pages-false-no-prefix' })
+
   // Fresh browser context per test — cookies start clean.
 
   test('no_prefix: renders default locale content on root path', async ({ page, goto }) => {

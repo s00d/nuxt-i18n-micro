@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'named' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('named-params', () => {
+  test.override({ harness: 'named' })
   test('test navigation links and buttons', async ({ page, goto }) => {
     // Go to the main page - should redirect to /de (defaultLocale)
     await goto('/', { waitUntil: 'hydration' })

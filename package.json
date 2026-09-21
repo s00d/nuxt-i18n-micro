@@ -109,7 +109,7 @@
     "client:prepare": "nuxi client:prepare client",
     "client:dev": "nuxi dev client --port 3300",
     "clean": "find . \\( -name 'node_modules' -o -name '.nuxt' -o -name '.output' -o -name 'dist' \\) -type d -prune -exec rm -rf '{}' + && find . \\( -name 'pnpm-lock.yaml' -o -name 'package-lock.json' \\) -type f -exec rm -f '{}' +",
-    "clean:test": "rm -rf test/.fixture-builds && find test/fixtures -type d \\( -name '.nuxt' -o -name '.output-shared' -o -name '.nuxt-test' -o -name 'test-results' \\) -prune -exec rm -rf '{}' + 2>/dev/null || true",
+    "clean:test": "rm -rf test/.fixture-builds test/.untestutils && find test/fixtures -type d \\( -name '.nuxt' -o -name '.output-shared' -o -name '.nuxt-test' -o -name 'test-results' \\) -prune -exec rm -rf '{}' + 2>/dev/null || true",
     "check:versions": "pnpm -C scripts cli check-versions",
     "verify:packages": "pnpm -C scripts cli verify-packages",
     "verify:packages:publint": "pnpm -C scripts cli verify-packages --publint",
@@ -156,22 +156,26 @@
   "devDependencies": {
     "@nuxt/devtools": "catalog:",
     "@nuxt/devtools-ui-kit": "catalog:",
-    "@vue/devtools-api": "catalog:",
     "@nuxt/module-builder": "catalog:",
     "@nuxt/schema": "catalog:",
     "@nuxt/test-utils": "catalog:",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
+    "@untestutils/nuxt": "^0.6.8",
+    "@untestutils/perf": "^0.6.8",
+    "@vue/devtools-api": "catalog:",
+    "artillery": "2.0.34",
     "changelogen": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
+    "untestutils": "^0.6.8",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
   "peerDependencies": {
-    "vue-router": "catalog:",
-    "@vue/devtools-api": "catalog:"
+    "@vue/devtools-api": "catalog:",
+    "vue-router": "catalog:"
   },
   "peerDependenciesMeta": {
     "@vue/devtools-api": {

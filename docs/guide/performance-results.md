@@ -11,23 +11,23 @@ outline: "deep"
 - **[plain-nuxt](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/plain-nuxt)**: ./test/fixtures/plain-nuxt
 - **[i18n-micro](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n-micro)**: ./test/fixtures/i18n-micro
 - **[i18n](https://github.com/s00d/nuxt-i18n-micro/tree/main/test/fixtures/i18n)**: ./test/fixtures/i18n
-- **[CLI](https://github.com/s00d/nuxt-i18n-micro/tree/main/scripts/src/commands/performance.ts)**: `pnpm -C scripts cli performance` / `pnpm test:performance`
+- **CLI**: `pnpm test:performance`
 
 ### Description
 
-Compares **plain Nuxt** (baseline without an i18n module), **i18n-micro**, and **`@nuxtjs/i18n` v10.6** under one shared dictionary profile.
+Compares **plain Nuxt**, **i18n-micro**, and **`@nuxtjs/i18n`** under one shared dictionary profile via `untestutils/perf`.
 
-Focus: build time, peak RSS, deployable **code vs translations vs total**, and server behaviour under Artillery + Autocannon.
+Focus: build time, peak RSS, deployable **code vs translations (asset) vs total**, and load (Artillery).
 
 ### Methodology notes
 
-- Metrics are **means of 3 consecutive runs per fixture** (fixture A ×3, then B ×3, then C ×3 — not interleaved).
-- **Translations** include locale JSON under `locales/` / `_locales/` / `translations/`, everything under `chunks/raw/`, and matching locale chunks. Older reports that showed `@nuxtjs/i18n` “translations: 0 B” and a huge “code” column were counting message chunks as app code.
-- **plain-nuxt** serves the same leaf volume as static `public/translations` JSON (not static JS imports). Under Artillery that baseline is I/O-heavy; it is not “i18n overhead”, it is the cost of fetching large JSON per request.
+- Metrics are **means of 1 consecutive runs per fixture** (not interleaved).
+- **Translations** = `bundle.asset` (locale JSON, `chunks/raw/`, matching locale chunks via `isTranslationFile`).
+- **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
 
 ### Runs
 
-All metrics below are **means across 3 runs**.
+All metrics below are **means across 1 runs**.
 
 ---
 
@@ -48,16 +48,16 @@ Dictionaries come from `test/fixtures/perf-shared/runtime.json` (written by the 
 
 | Dependency | Version |
 |------------|---------|
-| node | v22.22.1 |
-| nuxt | 4.5.1 |
-| nuxt-i18n-micro | 3.25.0 |
+| node | v22.23.2 |
+| nuxt | 4.5.2 |
+| nuxt-i18n-micro | 3.29.5 |
 | @nuxtjs/i18n | 10.6.0 |
 
 ## Source dictionaries (pre-build)
 
 | Fixture | On-disk locale data |
 |---------|---------------------|
-| **plain-nuxt** | 98.42 MB |
+| **plain-nuxt** | 114.88 MB |
 | **i18n-v10** | 6.8 MB |
 | **i18n-micro** | 6.8 MB |
 
@@ -65,40 +65,40 @@ Dictionaries come from `test/fixtures/perf-shared/runtime.json` (written by the 
 
 ## Build Performance for test/fixtures/plain-nuxt
 
-- **Build Time**: 5.32 seconds
-- **Bundle Size**: 8.33 MB (code: 1.53 MB, translations: 6.8 MB)
-- **Code Bundle**: client: 201.88 KB, server: 1.33 MB
-- **Max / Avg CPU**: 207.10% / 166.29%
-- **Max / Avg Memory**: 810.26 MB / 585.14 MB
+- **Build Time**: 0.00 seconds
+- **Bundle Size**: 8.03 MB (code: 1.23 MB, translations: 6.8 MB)
+- **Output dirs**: public: 7 MB, server: 1.03 MB
+- **Max / Avg CPU**: 0.00% / 0.00%
+- **Max / Avg Memory**: 0.00 MB / 0.00 MB
 
 
 ## Build Performance for test/fixtures/i18n
 
-- **Build Time**: 8.34 seconds
-- **Bundle Size**: 9.37 MB (code: 2.16 MB, translations: 7.21 MB)
-- **Code Bundle**: client: 315.17 KB, server: 1.86 MB
-- **Max / Avg CPU**: 203.97% / 164.39%
-- **Max / Avg Memory**: 1820.57 MB / 1177.11 MB
+- **Build Time**: 0.00 seconds
+- **Bundle Size**: 9.11 MB (code: 1.9 MB, translations: 7.21 MB)
+- **Output dirs**: public: 321.25 KB, server: 8.79 MB
+- **Max / Avg CPU**: 0.00% / 0.00%
+- **Max / Avg Memory**: 0.00 MB / 0.00 MB
 
 
 ## Build Performance for test/fixtures/i18n-micro
 
-- **Build Time**: 5.34 seconds
-- **Bundle Size**: 8.54 MB (code: 1.74 MB, translations: 6.8 MB)
-- **Code Bundle**: client: 272.93 KB, server: 1.48 MB
-- **Max / Avg CPU**: 203.60% / 177.27%
-- **Max / Avg Memory**: 1065.16 MB / 667.77 MB
+- **Build Time**: 6.11 seconds
+- **Bundle Size**: 8.23 MB (code: 1.44 MB, translations: 6.8 MB)
+- **Output dirs**: public: 7.07 MB, server: 1.16 MB
+- **Max / Avg CPU**: 0.00% / 0.00%
+- **Max / Avg Memory**: 0.03 MB / 0.03 MB
 
 
-## Build Performance Summary (mean of 3 runs)
+## Build Performance Summary (mean of 1 run)
 
 | Project | Build Time | Code Bundle | Translations | Total |
 |---------|------------|-------------|--------------|-------|
-| **plain-nuxt** (baseline) | 5.32s | 1.53 MB | 6.8 MB | 8.33 MB |
-| **i18n-v10** | 8.34s | 2.16 MB | 7.21 MB | 9.37 MB |
-| **i18n-micro** | 5.34s | 1.74 MB | 6.8 MB | 8.54 MB |
+| **plain-nuxt (baseline)** | 0.00s | 1.23 MB | 6.8 MB | 8.03 MB |
+| **i18n-v10** | 0.00s | 1.9 MB | 7.21 MB | 9.11 MB |
+| **i18n-micro** | 6.11s | 1.44 MB | 6.8 MB | 8.23 MB |
 
-> “Total” = what gets deployed (code + translations). Micro keeps translations as lazy JSON; `@nuxtjs/i18n` still ships a larger code graph even after message chunks are classified correctly.
+> “Total” = code + translations (`bundle.asset`). Translations include `locales/`, `_locales/`, `chunks/raw/`, and matching locale chunks.
 
 ```chart
 url: /charts/build-time-comparison.js
@@ -120,18 +120,15 @@ url: /charts/total-bundle-comparison.js
 height: 350px
 ```
 
-## Stress Test Results for plain-nuxt
+## Load Results for plain-nuxt
 
 ### Resource Usage
-- **Max / Avg CPU**: 132.80% / 86.34%
-- **Max / Avg Memory**: 506.66 MB / 332.97 MB
+- **Max / Avg CPU**: 110.21% / 110.21%
+- **Max / Avg Memory**: 340.81 MB / 212.04 MB
 
 ### Artillery
-- **Duration**: 79.64s · **RPS**: 109.00 · **Error rate**: 0.00%
-- **Latency avg / p50 / p95 / p99**: 1193.80 / 604.00 / 6440.57 / 7658.90 ms
-
-### Autocannon (10c / 10s)
-- **RPS**: 65.30 · **Latency avg / p50 / p95 / p99**: 151.64 / 150.00 / 178.67 / 191.33 ms · **Errors**: 0
+- **Duration**: 13.91s · **RPS**: 82.00 · **Error rate**: 0.00%
+- **Latency avg / p50 / p95 / p99**: 392.10 / 407.50 / 620.30 / 804.50 ms
 
 ```chart
 url: /charts/plain-nuxt-traffic.js
@@ -143,18 +140,15 @@ url: /charts/plain-nuxt-latency.js
 height: 300px
 ```
 
-## Stress Test Results for i18n-v10
+## Load Results for i18n-v10
 
 ### Resource Usage
-- **Max / Avg CPU**: 128.90% / 81.95%
-- **Max / Avg Memory**: 462.53 MB / 335.30 MB
+- **Max / Avg CPU**: 110.58% / 110.58%
+- **Max / Avg Memory**: 529.20 MB / 324.30 MB
 
 ### Artillery
-- **Duration**: 79.28s · **RPS**: 142.67 · **Error rate**: 0.00%
-- **Latency avg / p50 / p95 / p99**: 955.83 / 125.20 / 7709.80 / 7865.60 ms
-
-### Autocannon (10c / 10s)
-- **RPS**: 71.60 · **Latency avg / p50 / p95 / p99**: 138.80 / 117.33 / 291.67 / 332.33 ms · **Errors**: 0
+- **Duration**: 13.61s · **RPS**: 113.00 · **Error rate**: 0.00%
+- **Latency avg / p50 / p95 / p99**: 214.30 / 96.60 / 1525.70 / 1556.50 ms
 
 ```chart
 url: /charts/i18n-v10-traffic.js
@@ -166,18 +160,15 @@ url: /charts/i18n-v10-latency.js
 height: 300px
 ```
 
-## Stress Test Results for i18n-micro
+## Load Results for i18n-micro
 
 ### Resource Usage
-- **Max / Avg CPU**: 126.17% / 78.28%
-- **Max / Avg Memory**: 302.30 MB / 229.25 MB
+- **Max / Avg CPU**: 101.07% / 101.07%
+- **Max / Avg Memory**: 308.70 MB / 197.16 MB
 
 ### Artillery
-- **Duration**: 73.10s · **RPS**: 275.33 · **Error rate**: 0.00%
-- **Latency avg / p50 / p95 / p99**: 483.43 / 53.37 / 3777.97 / 4203.20 ms
-
-### Autocannon (10c / 10s)
-- **RPS**: 161.67 · **Latency avg / p50 / p95 / p99**: 62.04 / 49.67 / 131.00 / 217.67 ms · **Errors**: 0
+- **Duration**: 13.19s · **RPS**: 257.00 · **Error rate**: 0.00%
+- **Latency avg / p50 / p95 / p99**: 85.30 / 40.00 / 528.60 / 757.60 ms
 
 ```chart
 url: /charts/i18n-micro-traffic.js
@@ -189,33 +180,21 @@ url: /charts/i18n-micro-latency.js
 height: 300px
 ```
 
-## Stress Test Summary (mean of 3 runs)
+## Load Summary (mean of 1 run)
 
 ### Artillery
-| Project | Avg Response | P95 | P99 | RPS | Error Rate |
-|---------|--------------|-----|-----|-----|------------|
-| **plain-nuxt** | 1193.80 ms | 6440.57 ms | 7658.90 ms | 109.00 | 0.00% |
-| **i18n-v10** | 955.83 ms | 7709.80 ms | 7865.60 ms | 142.67 | 0.00% |
-| **i18n-micro** | 483.43 ms | 3777.97 ms | 4203.20 ms | 275.33 | 0.00% |
-
-### Autocannon
-| Project | Avg Latency | P50 | P95 | P99 | RPS |
-|---------|-------------|-----|-----|-----|-----|
-| **plain-nuxt** | 151.64 ms | 150.00 ms | 178.67 ms | 191.33 ms | 65.30 |
-| **i18n-v10** | 138.80 ms | 117.33 ms | 291.67 ms | 332.33 ms | 71.60 |
-| **i18n-micro** | 62.04 ms | 49.67 ms | 131.00 ms | 217.67 ms | 161.67 |
+| Project | Avg Response | P50 | P95 | P99 | RPS | Error Rate |
+|---------|--------------|-----|-----|-----|-----|------------|
+| **plain-nuxt** | 392.10 ms | 407.50 ms | 620.30 ms | 804.50 ms | 82.00 | 0.00% |
+| **i18n-v10** | 214.30 ms | 96.60 ms | 1525.70 ms | 1556.50 ms | 113.00 | 0.00% |
+| **i18n-micro** | 85.30 ms | 40.00 ms | 528.60 ms | 757.60 ms | 257.00 | 0.00% |
 
 
 ## Performance Comparison
 
 ### Throughput (Requests per Second)
 
-> **Winner: i18n-micro** with 162 RPS
-
-```chart
-url: /charts/comparison-rps-autocannon.js
-height: 350px
-```
+> **Winner: i18n-micro** with 257 RPS
 
 ```chart
 url: /charts/comparison-rps-artillery.js
@@ -224,7 +203,7 @@ height: 350px
 
 ### Latency Distribution
 
-> **Winner: i18n-micro** with 62.04 ms avg latency
+> **Winner: i18n-micro** with 85.30 ms avg latency
 
 ```chart
 url: /charts/comparison-latency.js
@@ -235,10 +214,10 @@ height: 350px
 
 | Metric | **plain-nuxt** | **i18n-v10** | **i18n-micro** | Best |
 |--------|---|---|---|------|
-| RPS (Autocannon) | 65 | 72 | 162 | i18n-micro |
-| Avg Latency | 151.64 ms | 138.80 ms | 62.04 ms | i18n-micro |
-| P99 Latency | 191.33 ms | 332.33 ms | 217.67 ms | plain-nuxt |
-| Errors | 0 | 0 | 0 | - |
+| RPS (Artillery) | 82 | 113 | 257 | i18n-micro |
+| Avg Latency | 392.10 ms | 214.30 ms | 85.30 ms | i18n-micro |
+| P99 Latency | 804.50 ms | 1556.50 ms | 757.60 ms | i18n-micro |
+| Error rate | 0.00% | 0.00% | 0.00% | - |
 
 
 
@@ -246,43 +225,40 @@ height: 350px
 
 | Metric | plain-nuxt (baseline) | i18n v10 | Difference |
 |--------|----------|----------|------------|
-| Max Memory | 506.66 MB | 462.53 MB | -44.13 MB |
-| Avg Memory | 332.97 MB | 335.30 MB | +2.33 MB |
-| Response Avg | 1193.80 ms | 955.83 ms | -237.97 ms |
-| Response P95 | 6440.57 ms | 7709.80 ms | +1269.23 ms |
-| RPS (Artillery) | 109.00 | 142.67 | +33.67  |
-| RPS (Autocannon) | 65.30 | 71.60 | +6.30  |
-| Latency avg (AC) | 151.64 ms | 138.80 ms | -12.84 ms |
+| Max Memory | 340.81 MB | 529.20 MB | +188.39 MB |
+| Avg Memory | 212.04 MB | 324.30 MB | +112.26 MB |
+| Response Avg | 392.10 ms | 214.30 ms | -177.80 ms |
+| Response P95 | 620.30 ms | 1525.70 ms | +905.40 ms |
+| RPS (Artillery) | 82.00 | 113.00 | +31.00  |
+| Error rate | 0.00% | 0.00% | 0.00 % |
 
 
 ## Comparison: plain-nuxt (baseline) vs i18n-micro
 
 | Metric | plain-nuxt (baseline) | i18n-micro | Difference |
 |--------|----------|----------|------------|
-| Max Memory | 506.66 MB | 302.30 MB | -204.36 MB |
-| Avg Memory | 332.97 MB | 229.25 MB | -103.72 MB |
-| Response Avg | 1193.80 ms | 483.43 ms | -710.37 ms |
-| Response P95 | 6440.57 ms | 3777.97 ms | -2662.60 ms |
-| RPS (Artillery) | 109.00 | 275.33 | +166.33  |
-| RPS (Autocannon) | 65.30 | 161.67 | +96.37  |
-| Latency avg (AC) | 151.64 ms | 62.04 ms | -89.60 ms |
+| Max Memory | 340.81 MB | 308.70 MB | -32.11 MB |
+| Avg Memory | 212.04 MB | 197.16 MB | -14.88 MB |
+| Response Avg | 392.10 ms | 85.30 ms | -306.80 ms |
+| Response P95 | 620.30 ms | 528.60 ms | -91.70 ms |
+| RPS (Artillery) | 82.00 | 257.00 | +175.00  |
+| Error rate | 0.00% | 0.00% | 0.00 % |
 
 
 ## Comparison: i18n v10 vs i18n-micro
 
 | Metric | i18n v10 | i18n-micro | Difference |
 |--------|----------|----------|------------|
-| Max Memory | 462.53 MB | 302.30 MB | -160.23 MB |
-| Avg Memory | 335.30 MB | 229.25 MB | -106.05 MB |
-| Response Avg | 955.83 ms | 483.43 ms | -472.40 ms |
-| Response P95 | 7709.80 ms | 3777.97 ms | -3931.83 ms |
-| RPS (Artillery) | 142.67 | 275.33 | +132.67  |
-| RPS (Autocannon) | 71.60 | 161.67 | +90.07  |
-| Latency avg (AC) | 138.80 ms | 62.04 ms | -76.76 ms |
+| Max Memory | 529.20 MB | 308.70 MB | -220.50 MB |
+| Avg Memory | 324.30 MB | 197.16 MB | -127.14 MB |
+| Response Avg | 214.30 ms | 85.30 ms | -129.00 ms |
+| Response P95 | 1525.70 ms | 528.60 ms | -997.10 ms |
+| RPS (Artillery) | 113.00 | 257.00 | +144.00  |
+| Error rate | 0.00% | 0.00% | 0.00 % |
 
 
 ## Notes
 
 - Shared profile: 4 locales × 2 pages × ~16.8k index leaves.
-- Artillery: 6s warm-up @6 VU/s + 60s main @60 VU/s. Autocannon: 10 connections × 10s.
-- Re-run: `pnpm test:performance` or `pnpm -C scripts cli performance --locales N --keys K --only all|micro|i18n|plain --runs N`.
+- Load: Autocannon (10c×5s) + programmatic Artillery (paths from runtime profile; see `scripts/src/perf/load.ts`).
+- Re-run: `pnpm test:performance` or `pnpm -C scripts cli performance --locales N --keys K --only all|micro|i18n|plain --runs N --skip-load`.

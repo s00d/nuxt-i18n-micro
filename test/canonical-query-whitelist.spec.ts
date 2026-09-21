@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'canonical-whitelist' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('canonicalQueryWhitelist override', () => {
+  test.override({ harness: 'canonical-whitelist' })
   test('replaces defaults instead of merging arrays', async ({ page, goto }) => {
     await goto('/en/contact?sort=latest&search=boots&page=2&q=hello&query=test&tag=sale', { waitUntil: 'domcontentloaded' })
 

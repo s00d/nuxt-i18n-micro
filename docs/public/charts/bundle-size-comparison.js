@@ -4,7 +4,7 @@ export default function() {
   "type": "bar",
   "data": {
     "labels": [
-      "plain-nuxt",
+      "plain-nuxt (baseline)",
       "i18n-v10",
       "i18n-micro"
     ],
@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Code Bundle (MB)",
         "data": [
-          1.5,
-          2.2,
-          1.7
+          1.2,
+          1.9,
+          1.4
         ],
         "backgroundColor": "rgba(75, 192, 192, 0.8)",
         "borderColor": "rgb(75, 192, 192)",

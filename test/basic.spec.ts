@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'basic' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('basic', () => {
+  test.override({ harness: 'basic' })
   test('renders only on client', async ({ page, baseURL }) => {
     // 1) Fetch the raw server response for the client page
     const res = await fetch(`${baseURL}client`)

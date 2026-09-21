@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'custom-regex' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('custom-regex', () => {
+  test.override({ harness: 'custom-regex' })
   test('test 404 on unknown locale', async ({ goto }) => {
     const response = await goto('/un-kn', { waitUntil: 'networkidle' })
     expect(response?.status()).toBe(404)

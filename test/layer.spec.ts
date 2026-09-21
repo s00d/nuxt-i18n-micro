@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'layer' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('layer', () => {
+  test.override({ harness: 'layer' })
   test('test layer', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
     await expect(page.locator('#replace')).toHaveText('replaced text in en')

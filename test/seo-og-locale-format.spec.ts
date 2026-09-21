@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'seo-og-locale-format' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('locale.og', () => {
+  test.override({ harness: 'seo-og-locale-format' })
   test('og:locale uses locale.og; html lang and hreflang stay BCP 47 from iso', async ({ page, goto }) => {
     await goto('/en', { waitUntil: 'domcontentloaded' })
 

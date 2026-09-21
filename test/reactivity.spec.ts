@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'basic' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('Critical i18n scenarios', () => {
+  test.override({ harness: 'basic' })
   // Each test gets a fresh browser context (own page), so cookies start clean
   // without an explicit beforeEach clearCookies (Playwright shared-worker relic).
 

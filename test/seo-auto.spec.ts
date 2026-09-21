@@ -1,83 +1,45 @@
-import type { Page } from '@playwright/test'
-
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'seo-auto' })
-
-/**
- * Proxy all requests from `emulatedOrigin` to the real test server.
- * The browser sees `emulatedOrigin` in its address bar and in `window.location.origin`.
- * The server receives `X-Forwarded-Host` so SSR also resolves the correct domain.
- */
-async function emulateDomain(page: Page, emulatedOrigin: string, realBaseURL: string) {
-  const realBase = realBaseURL.replace(/\/$/, '')
-  const { hostname: fwdHost } = new URL(emulatedOrigin)
-
-  await page.route(`${emulatedOrigin}/**`, async (route) => {
-    const url = new URL(route.request().url())
-    try {
-      const response = await route.fetch({
-        url: `${realBase}${url.pathname}${url.search}`,
-        headers: {
-          ...route.request().headers(),
-          'x-forwarded-host': fwdHost,
-          'x-forwarded-proto': url.protocol.replace(':', ''),
-        },
-      })
-      await route.fulfill({ response })
-    } catch {
-      await route.abort()
-    }
-  })
-}
+import { emulateDomain, forwardedHostHeaders, parseSeoHead } from 'untestutils/utils'
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('SEO with dynamic metaBaseUrl (undefined)', () => {
+  test.override({ harness: 'seo-auto' })
+
   // ── SSR: raw HTTP responses (no browser) ──
 
   test('SSR: canonical and og:url use domain from X-Forwarded-Host', async ({ request }) => {
     const res = await request.get('/en', {
-      headers: {
-        'X-Forwarded-Host': 'example.com',
-        'X-Forwarded-Proto': 'https',
-      },
+      headers: forwardedHostHeaders('example.com', 'https'),
     })
     expect(res.status()).toBe(200)
-    const html = await res.text()
+    const head = parseSeoHead(await res.text())
 
-    expect(html).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/example\.com\/en"/)
-    expect(html).toMatch(/<meta[^>]*property="og:url"[^>]*content="https:\/\/example\.com\/en"/)
-    expect(html).not.toMatch(/href="auto/)
-    expect(html).not.toMatch(/content="auto/)
+    expect(head.canonical).toBe('https://example.com/en')
+    expect(head.ogUrl).toBe('https://example.com/en')
+    expect(head.canonical).not.toMatch(/auto/)
+    expect(head.ogUrl).not.toMatch(/auto/)
   })
 
   test('SSR: two different domains produce different canonical for the same path', async ({ request }) => {
     const res1 = await request.get('/en/about', {
-      headers: { 'X-Forwarded-Host': 'site-a.example.com', 'X-Forwarded-Proto': 'https' },
+      headers: forwardedHostHeaders('site-a.example.com', 'https'),
     })
-    const html1 = await res1.text()
-    expect(html1).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/site-a\.example\.com\/en\/about"/)
-    expect(html1).toMatch(/<meta[^>]*property="og:url"[^>]*content="https:\/\/site-a\.example\.com\/en\/about"/)
+    const head1 = parseSeoHead(await res1.text())
+    expect(head1.canonical).toBe('https://site-a.example.com/en/about')
+    expect(head1.ogUrl).toBe('https://site-a.example.com/en/about')
 
     const res2 = await request.get('/en/about', {
-      headers: { 'X-Forwarded-Host': 'site-b.example.com', 'X-Forwarded-Proto': 'https' },
+      headers: forwardedHostHeaders('site-b.example.com', 'https'),
     })
-    const html2 = await res2.text()
-    expect(html2).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/site-b\.example\.com\/en\/about"/)
-    expect(html2).toMatch(/<meta[^>]*property="og:url"[^>]*content="https:\/\/site-b\.example\.com\/en\/about"/)
+    const head2 = parseSeoHead(await res2.text())
+    expect(head2.canonical).toBe('https://site-b.example.com/en/about')
+    expect(head2.ogUrl).toBe('https://site-b.example.com/en/about')
   })
 
   test('SSR: alternate hreflang links use the forwarded domain', async ({ request }) => {
     const res = await request.get('/en/about', {
-      headers: { 'X-Forwarded-Host': 'multi.example.org', 'X-Forwarded-Proto': 'https' },
+      headers: forwardedHostHeaders('multi.example.org', 'https'),
     })
-    const html = await res.text()
-
-    const alternateRegex = /<link[^>]*rel="alternate"[^>]*href="([^"]+)"[^>]*>/g
-    const hrefs: string[] = []
-    let m: RegExpExecArray | null
-    while ((m = alternateRegex.exec(html)) !== null) {
-      if (m[1]) hrefs.push(m[1])
-    }
+    const hrefs = parseSeoHead(await res.text()).hreflangs.map((l) => l.href)
     expect(hrefs.length).toBeGreaterThan(0)
     for (const href of hrefs) {
       expect(href).toContain('https://multi.example.org/')
@@ -87,7 +49,7 @@ describe('SEO with dynamic metaBaseUrl (undefined)', () => {
 
   test('SSR: x-default hreflang link points to default locale URL', async ({ request }) => {
     const res = await request.get('/en/about', {
-      headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
+      headers: forwardedHostHeaders('example.com', 'https'),
     })
     const html = await res.text()
 
@@ -97,7 +59,7 @@ describe('SEO with dynamic metaBaseUrl (undefined)', () => {
 
   test('SSR: x-default hreflang uses forwarded domain', async ({ request }) => {
     const res = await request.get('/de', {
-      headers: { 'X-Forwarded-Host': 'multi.example.org', 'X-Forwarded-Proto': 'https' },
+      headers: forwardedHostHeaders('multi.example.org', 'https'),
     })
     const html = await res.text()
 
@@ -107,12 +69,13 @@ describe('SEO with dynamic metaBaseUrl (undefined)', () => {
 
   test('SSR: og:locale and html lang are correct for a non-default locale', async ({ request }) => {
     const res = await request.get('/de', {
-      headers: { 'X-Forwarded-Host': 'example.com', 'X-Forwarded-Proto': 'https' },
+      headers: forwardedHostHeaders('example.com', 'https'),
     })
     const html = await res.text()
+    const head = parseSeoHead(html)
 
     expect(html).toMatch(/<html[^>]*lang="de_DE"/)
-    expect(html).toMatch(/<meta[^>]*property="og:locale"[^>]*content="de_DE"/)
+    expect(head.ogLocale).toBe('de_DE')
   })
 
   test('SSR: without X-Forwarded-Host falls back to actual server host', async ({ request }) => {

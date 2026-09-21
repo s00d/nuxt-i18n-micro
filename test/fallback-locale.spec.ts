@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'fallback-locale' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('fallback-locale', () => {
+  test.override({ harness: 'fallback-locale' })
   test('verify fallbackLocale functionality and content update when switching', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })

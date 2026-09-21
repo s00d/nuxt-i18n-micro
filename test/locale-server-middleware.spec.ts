@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'basic' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('locale server middleware', () => {
+  test.override({ harness: 'basic' })
   test('should return locale information for English locale', async ({ request }) => {
     const response = await request.get('/api/locale-info?locale=en')
     expect(response.status()).toBe(200)

@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, setupE2E, test } from './setup/vitest-e2e'
+import { afterAll, describe, expect, test } from 'untestutils/vitest'
 import {
   createTranslationWatcherFiles,
   refreshTranslationWatcherPage,
@@ -7,16 +7,12 @@ import {
   waitForTranslationPayloadValue,
 } from './helpers/translation-watcher-hmr'
 
-await setupE2E({
-  rootDir: translationWatcherFixtureRoot,
-  dev: true,
-  setupTimeout: 180_000,
-})
-
 // Each spec mutates ITS OWN fixture's locale files (they run in parallel).
 const files = createTranslationWatcherFiles(translationWatcherFixtureRoot)
 
 describe('translation watcher dev HMR (premerged)', () => {
+  test.override({ harness: 'translation-watcher' })
+
   afterAll(() => {
     files.restoreAll()
   })

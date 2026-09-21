@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'layout-switch' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('Layout Switch and Cookie Redirect', () => {
+  test.override({ harness: 'layout-switch' })
   describe('$switchLocale - layout translations', () => {
     test('layout text should update when switching locale via $switchLocale', async ({ page, goto }) => {
       await goto('/', { waitUntil: 'hydration' })

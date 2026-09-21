@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'define-i18n-route' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('$defineI18nRoute behavior', () => {
+  test.override({ harness: 'define-i18n-route' })
   test('should generate alternates only for specified locales in $defineI18nRoute', async ({ page, goto }) => {
     // Navigate to test page that uses $defineI18nRoute with locales: ['en']
     await goto('/test', { waitUntil: 'domcontentloaded' })

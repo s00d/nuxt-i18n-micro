@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'transition-merge' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('Cumulative merge: translations survive page transition', () => {
+  test.override({ harness: 'transition-merge' })
   test('page A translations remain visible during leave animation when navigating to page B', async ({ page, goto }) => {
     // 1. Open page A — verify translations work
     await goto('/en/page-a', { waitUntil: 'hydration' })

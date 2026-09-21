@@ -1,10 +1,9 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'locale-state-prefix' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 // Test: prefix strategy
 
 describe('useState locale override - prefix', () => {
+  test.override({ harness: 'locale-state-prefix' })
   test('redirect from / to /ja/ when useState sets locale', async ({ page, goto }) => {
     // With prefix strategy, visiting / should redirect to /<currentLocale>/
     await goto('/', { waitUntil: 'hydration' })

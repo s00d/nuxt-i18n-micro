@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'undefault' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('undefault', () => {
+  test.override({ harness: 'undefault' })
   test('test redirection and link clicks in English', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
     // Navigate to /page2, should redirect to /en/custom-page2-en

@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto'
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { repoRoot } from '../utils/workspace'
 import { fixtureAbsDir, localesForNuxtConfig, type PerfFixtureDef } from './fixtures'
@@ -7,6 +8,11 @@ import type { PerfRuntimeProfile } from './types'
 
 export const PERF_SHARED_DIR = join(repoRoot, 'test/fixtures/perf-shared')
 export const RUNTIME_JSON = join(PERF_SHARED_DIR, 'runtime.json')
+export const LOCALE_FINGERPRINT = join(PERF_SHARED_DIR, '.locale-fingerprint')
+
+export function profileFingerprint(profile: PerfRuntimeProfile): string {
+  return createHash('sha1').update(JSON.stringify(profile)).digest('hex')
+}
 
 /** Write runtime profile consumed by fixture `generate.mjs` scripts. */
 export function writeRuntimeProfile(profile: PerfRuntimeProfile): void {
@@ -36,4 +42,25 @@ export function regenerateLocales(fixtures: PerfFixtureDef[]): void {
     console.log(`Generating locales for ${fixture.id}...`)
     execSync('pnpm run generate:locales', { cwd, stdio: 'inherit' })
   }
+}
+
+/**
+ * Skip `generate:locales` when the runtime profile fingerprint is unchanged
+ * (avoids rewriting ~100MB+ plain-nuxt dictionaries every run).
+ */
+export function ensurePerfLocales(profile: PerfRuntimeProfile, fixtures: PerfFixtureDef[]): void {
+  const fp = profileFingerprint(profile)
+  if (existsSync(LOCALE_FINGERPRINT)) {
+    try {
+      const prev = readFileSync(LOCALE_FINGERPRINT, 'utf8').trim()
+      if (prev === fp) {
+        console.log('Locales unchanged (profile fingerprint match) — skip generate:locales')
+        return
+      }
+    } catch {
+      /* regenerate */
+    }
+  }
+  regenerateLocales(fixtures)
+  writeFileSync(LOCALE_FINGERPRINT, `${fp}\n`, 'utf8')
 }

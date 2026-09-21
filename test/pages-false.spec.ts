@@ -1,11 +1,12 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
+import { describe, expect, test } from 'untestutils/vitest'
 
 // Test: pages: false with i18n (prefix_except_default strategy)
 // Note: With pages: false, redirect functionality is limited because
 // the router doesn't have page-based routes to redirect to.
-await setupE2E({ shared: 'pages-false' })
 
 describe('pages: false with i18n (prefix_except_default)', () => {
+  test.override({ harness: 'pages-false' })
+
   // Fresh browser context per test — cookies start clean.
 
   test('prefix_except_default: renders default locale content on root path', async ({ page, goto }) => {

@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'use-locale-head' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('useLocaleHead manual usage', () => {
+  test.override({ harness: 'use-locale-head' })
   test('populates metaObject without explicit updateMeta()', async ({ page, goto, baseURL }) => {
     await goto('/en', { waitUntil: 'domcontentloaded' })
 

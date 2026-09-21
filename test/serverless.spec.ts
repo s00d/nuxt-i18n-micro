@@ -1,13 +1,12 @@
 import { runSequential } from './helpers/sequential'
 
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'serverless' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 // Test: Serverless environment with caching
 // This simulates behavior similar to Cloudflare Workers with KV cache
 
 describe('serverless with caching', () => {
+  test.override({ harness: 'serverless' })
   test('translations load correctly on first request (cold start)', async ({ page, goto }) => {
     await goto('/', { waitUntil: 'hydration' })
 

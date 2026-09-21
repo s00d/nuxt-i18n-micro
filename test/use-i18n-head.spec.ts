@@ -1,9 +1,7 @@
 import type { Page } from '@playwright/test'
 import { assertI18nHeadScenario, i18nHeadScenarios, i18nHeadStaticPages } from './helpers/i18n-head-seo'
 
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'use-i18n-head' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 async function emulateDomain(page: Page, emulatedOrigin: string, realBaseURL: string) {
   const realBase = realBaseURL.replace(/\/$/, '')
@@ -41,6 +39,7 @@ function expectAlternate(html: string, hreflang: string, href: string) {
 }
 
 describe('useI18nHead — article with per-locale slugs', () => {
+  test.override({ harness: 'use-i18n-head' })
   test('SSR: custom hreflang from API locales', async ({ request }) => {
     const html = await (await request.get('/post/hello-en')).text()
     expectAlternate(html, 'en', 'https://example.com/hello-en')

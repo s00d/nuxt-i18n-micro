@@ -4,9 +4,7 @@ import type { Page } from '@playwright/test'
 import availableLanguages from './fixtures/n3/app/locales/availableLanguages'
 import { pollUntil, runSequential } from './helpers/sequential'
 
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'n3' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 export function loadJsonFile<T>(relativePath: string): T {
   const fullPath = join(process.cwd(), relativePath)
@@ -110,6 +108,7 @@ function buildNestedRouteCases(): Array<{ path: string }> {
 }
 
 describe('n3', () => {
+  test.override({ harness: 'n3' })
   // 27 languages × many routes — the heaviest suite; grant a generous timeout.
   describe('Page tests', { timeout: process.env.CI ? 300_000 : 180_000 }, async () => {
     // 27 languages * 5 routes = 135 page navigations — needs generous timeout

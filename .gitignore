@@ -22,6 +22,8 @@ dist
 .output
 .output-shared
 test/.fixture-builds
+test/.untestutils
+.untestutils
 test/setup/.nuxt-hosts.json
 .nuxt-test
 **/.astro

@@ -1,10 +1,9 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'auto-detect-no-prefix' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 // Test: autoDetectLanguage with no_prefix strategy
 
 describe('autoDetectLanguage with no_prefix strategy', () => {
+  test.override({ harness: 'auto-detect-no-prefix' })
   // Fresh browser context per test — cookies start clean.
 
   test('detects German from Accept-Language header and sets locale', async ({ request }) => {

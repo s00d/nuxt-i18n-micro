@@ -1,8 +1,8 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'cookie-auto-detect-root' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('autoDetectPath: `/` (#242)', () => {
+  test.override({ harness: 'cookie-auto-detect-root' })
+
   test('cookie still redirects `/` to preferred locale', async ({ page, goto, baseURL }) => {
     await page.context().clearCookies()
     await page.context().addCookies([{ name: 'user-locale', value: 'de', url: baseURL! }])

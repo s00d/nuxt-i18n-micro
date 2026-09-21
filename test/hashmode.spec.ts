@@ -1,11 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'hashmode' })
-// Import necessary modules
-
-// Use Nuxt fixture for testing
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('hashmode', () => {
+  test.override({ harness: 'hashmode' })
   test('test language detection and locale handling in hash mode', async ({ page, goto }) => {
     // Set the 'user-locale' cookie to 'vi' before navigation
     await page.context().addCookies([

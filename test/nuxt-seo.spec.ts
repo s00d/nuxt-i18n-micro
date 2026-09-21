@@ -1,31 +1,9 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'nuxt-seo' })
-
-function extractSitemapLocs(xml: string): string[] {
-  return [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]!)
-}
-
-function extractHreflangLinks(html: string): Array<{ hreflang: string; href: string }> {
-  const links: Array<{ hreflang: string; href: string }> = []
-  const regex = /<link[^>]*rel="alternate"[^>]*>/g
-  for (const match of html.matchAll(regex)) {
-    const tag = match[0]!
-    const hreflang = tag.match(/hreflang="([^"]+)"/)?.[1]
-    const href = tag.match(/href="([^"]+)"/)?.[1]
-    if (hreflang && href) {
-      links.push({ hreflang, href })
-    }
-  }
-  return links
-}
-
-function extractJsonLd(html: string): unknown[] {
-  const scripts = [...html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)]
-  return scripts.map((match) => JSON.parse(match[1]!))
-}
+import { extractJsonLd, extractSitemapLocs, parseSeoHead } from 'untestutils/utils'
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('@nuxtjs/seo integration (#133)', () => {
+  test.override({ harness: 'nuxt-seo' })
+
   test('builds and serves localized pages without plugin dependency error', async ({ page, goto }) => {
     await goto('/en', { waitUntil: 'hydration' })
     await expect(page).toHaveURL('/en')
@@ -84,7 +62,7 @@ describe('@nuxtjs/seo integration (#133)', () => {
   test('SSR: micro hreflang and html lang on localized pages', async ({ request }) => {
     const enHtml = await (await request.get('/en/about')).text()
     expect(enHtml).toMatch(/<html[^>]*lang="en-US"/)
-    const enAlternates = extractHreflangLinks(enHtml)
+    const enAlternates = parseSeoHead(enHtml).hreflangs
     expect(enAlternates.some((link) => link.hreflang === 'en-US')).toBe(true)
     expect(enAlternates.some((link) => link.hreflang === 'de-DE')).toBe(true)
     expect(enAlternates.some((link) => link.hreflang === 'x-default')).toBe(true)
@@ -109,7 +87,7 @@ describe('@nuxtjs/seo integration (#133)', () => {
     expect(html).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/example\.com\/en\/about"/)
     expect(html).toMatch(/<meta[^>]*property="og:url"[^>]*content="https:\/\/example\.com\/en\/about"/)
 
-    const alternates = extractHreflangLinks(html)
+    const alternates = parseSeoHead(html).hreflangs
     expect(alternates.some((link) => link.hreflang === 'en-US' && link.href.startsWith('https://example.com/'))).toBe(true)
     expect(alternates.some((link) => link.hreflang === 'de-DE' && link.href.startsWith('https://example.com/'))).toBe(true)
   })

@@ -1,10 +1,9 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'locale-state-prefix-except-default' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 // Test: prefix_except_default strategy
 
 describe('useState locale override - prefix_except_default', () => {
+  test.override({ harness: 'locale-state-prefix-except-default' })
   test('redirect from / to /ja when useState sets non-default locale', async ({ page, goto }) => {
     // With prefix_except_default, visiting / with locale=ja should redirect to /ja
     await goto('/', { waitUntil: 'hydration' })

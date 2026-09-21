@@ -1,10 +1,9 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'locale-state-prefix-and-default' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 // Test: prefix_and_default strategy
 
 describe('useState locale override - prefix_and_default', () => {
+  test.override({ harness: 'locale-state-prefix-and-default' })
   test('useState sets locale without redirect (prefix_and_default allows / for default)', async ({ page, goto }) => {
     // With prefix_and_default, / is valid for default locale - no redirect needed
     // But useState can still affect the locale used for translations

@@ -1,18 +1,9 @@
-import { fileURLToPath } from 'node:url'
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({
-  rootDir: fileURLToPath(new URL('./fixtures/seo', import.meta.url)),
-  nuxtConfig: {
-    i18n: {
-      trailingSlash: 'append',
-    },
-  },
-})
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('SEO trailing slash (i18n.trailingSlash: append)', () => {
+  test.override({ harness: 'seo-trailing-slash' })
+
   test('canonical, og:url and hreflang keep NuxtLink trailing slashes', async ({ page, goto }) => {
-    // Route table is slashless; helpers still emit append-style URLs for SEO/links.
     await goto('/en/about', { waitUntil: 'domcontentloaded' })
 
     const canonicalHref = await page.locator('link[rel="canonical"]').getAttribute('href')

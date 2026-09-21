@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'redirect-security' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('redirect with render:response hook', () => {
+  test.override({ harness: 'redirect-security' })
   test('GET / redirects to /en without server header mutation error', async ({ page, goto }) => {
     const responses: { url: string; status: number }[] = []
     page.on('response', (response) => {

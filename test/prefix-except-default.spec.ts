@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'strategy-prefix-except-default' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('prefix_except_default', () => {
+  test.override({ harness: 'strategy-prefix-except-default' })
   test('navigate to test-page, check URL and text, switch language and verify text and URL changes', async ({ page, goto }) => {
     // Go to the main page
     await goto('/', { waitUntil: 'hydration' })

@@ -1,8 +1,8 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'baseurl-prefix' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('baseURL + prefix strategy redirect (#234)', () => {
+  test.override({ harness: 'baseurl-prefix' })
+
   test('GET /examples redirects once to /examples/ja without loop', async ({ page, goto }) => {
     const responses: { url: string; status: number }[] = []
     page.on('response', (response) => {

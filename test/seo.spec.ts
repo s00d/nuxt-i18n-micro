@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'seo' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('SEO with strategy: prefix', () => {
+  test.override({ harness: 'seo' })
   test('should include only whitelisted query params in canonical and og:url', async ({ page, goto }) => {
     await goto('/en/contact?q=hello&page=2&foo=ignore', { waitUntil: 'domcontentloaded' })
 

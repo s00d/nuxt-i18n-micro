@@ -6,19 +6,10 @@ export const performanceCommand = defineCommand({
   meta: {
     name: 'performance',
     description: [
-      'Build and stress-test plain-nuxt / @nuxtjs/i18n / i18n-micro fixtures.',
-      '',
-      'Defaults are modest (4 locales, ~10k index leaves, index+page) so a single run is usable',
-      'locally. Raise --locales / --keys for regression-radar loads.',
-      '',
-      'With --only all (default), writes docs/guide/performance-results.md and charts.',
-      'With --only plain|i18n|micro, prints a detailed console report only.',
-      '',
-      'Each fixture runs --runs times consecutively (not interleaved) before the next fixture.',
+      'Build + load benchmarks for plain-nuxt / @nuxtjs/i18n / i18n-micro (untestutils/perf).',
       '',
       'Examples:',
-      '  pnpm -C scripts cli performance',
-      '  pnpm -C scripts cli performance --only micro --skip-stress',
+      '  pnpm -C scripts cli performance --only micro --skip-load',
       '  pnpm -C scripts cli performance --locales 12 --keys 100000 --runs 3',
       '  pnpm test:performance',
     ].join('\n'),
@@ -27,27 +18,27 @@ export const performanceCommand = defineCommand({
     locales: {
       type: 'string',
       default: String(DEFAULT_LOCALES),
-      description: `Number of locales from the shared pool (1–12, default ${DEFAULT_LOCALES})`,
+      description: `Locales from shared pool (1–12, default ${DEFAULT_LOCALES})`,
     },
     keys: {
       type: 'string',
       default: String(DEFAULT_KEYS),
-      description: `Target leaf keys on the index tree (default ${DEFAULT_KEYS})`,
+      description: `Target leaf keys on index tree (default ${DEFAULT_KEYS})`,
     },
     only: {
       type: 'string',
       default: 'all',
-      description: 'Which fixture(s): plain | i18n | micro | all',
+      description: 'plain | i18n | micro | all',
     },
     runs: {
       type: 'string',
       default: '1',
-      description: 'Full build+stress repetitions; report means',
+      description: 'Consecutive build+load repetitions; report means',
     },
-    skipStress: {
+    skipLoad: {
       type: 'boolean',
       default: false,
-      description: 'Only measure builds (skip Artillery/Autocannon)',
+      description: 'Build-only (skip Artillery load)',
     },
   },
   async setup({ args }) {
@@ -58,7 +49,7 @@ export const performanceCommand = defineCommand({
         keys: args.keys,
         only: args.only,
         runs: args.runs,
-        skipStress: args.skipStress,
+        skipLoad: args.skipLoad,
       })
     } catch (error) {
       console.error(error instanceof Error ? error.message : error)
@@ -66,7 +57,7 @@ export const performanceCommand = defineCommand({
     }
 
     console.log(
-      `Performance: locales=${resolved.profile.locales.length} keys≈${resolved.keys} branch=${resolved.profile.branch} only=${resolved.only} runs=${resolved.runs} skipStress=${resolved.skipStress}`,
+      `Performance: locales=${resolved.profile.locales.length} keys≈${resolved.keys} branch=${resolved.profile.branch} only=${resolved.only} runs=${resolved.runs} skipLoad=${resolved.skipLoad}`,
     )
 
     await runPerformance(resolved)

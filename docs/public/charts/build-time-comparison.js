@@ -4,7 +4,7 @@ export default function() {
   "type": "bar",
   "data": {
     "labels": [
-      "plain-nuxt",
+      "plain-nuxt (baseline)",
       "i18n-v10",
       "i18n-micro"
     ],
@@ -12,9 +12,9 @@ export default function() {
       {
         "label": "Build Time (seconds)",
         "data": [
-          5.3,
-          8.3,
-          5.3
+          0,
+          0,
+          6.1
         ],
         "backgroundColor": [
           "rgb(75, 192, 192)",

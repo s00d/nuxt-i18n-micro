@@ -5,26 +5,14 @@ export default function() {
   "data": {
     "labels": [
       "0s",
-      "10s",
-      "20s",
-      "30s",
-      "40s",
-      "50s",
-      "60s",
-      "70s"
+      "10s"
     ],
     "datasets": [
       {
         "label": "P95 Latency (ms)",
         "data": [
-          460,
-          4231,
-          3753,
-          3678,
-          3906,
-          3753,
-          3829,
-          3534
+          354,
+          686
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.2)",

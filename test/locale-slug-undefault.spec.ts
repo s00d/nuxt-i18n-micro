@@ -1,8 +1,7 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'undefault' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 describe('locale-slug-undefault', () => {
+  test.override({ harness: 'undefault' })
   test('Test Locale Path', async ({ page, goto }) => {
     // Test main activity page
     await goto('/activity', { waitUntil: 'hydration' })

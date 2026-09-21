@@ -1,6 +1,4 @@
-import { describe, expect, setupE2E, test } from './setup/vitest-e2e'
-
-await setupE2E({ shared: 'content' })
+import { describe, expect, test } from 'untestutils/vitest'
 
 async function switchLocale(page: import('@playwright/test').Page, localeClass: string) {
   const switcher = page.locator('#locale-switcher button')
@@ -15,6 +13,7 @@ async function switchLocale(page: import('@playwright/test').Page, localeClass: 
 }
 
 describe('content', () => {
+  test.override({ harness: 'content' })
   test('Test About Page', async ({ page, goto }) => {
     await goto('/about', { waitUntil: 'hydration' })
 

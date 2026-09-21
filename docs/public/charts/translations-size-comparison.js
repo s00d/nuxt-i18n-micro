@@ -4,7 +4,7 @@ export default function() {
   "type": "bar",
   "data": {
     "labels": [
-      "plain-nuxt",
+      "plain-nuxt (baseline)",
       "i18n-v10",
       "i18n-micro"
     ],

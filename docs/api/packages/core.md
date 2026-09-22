@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 34 members |
+| `BaseI18n` | class | 35 members |
 | `BaseI18nOptions` | interface | 7 members |
 | `collectTranslationPaths` | function | `(obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
@@ -46,11 +46,12 @@ import { /* … */ } from '@i18n-micro/core'
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 34 members</summary>
+<summary><code>BaseI18n</code> — 35 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `clearCache` | `() => void` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
 | `getFallbackLocale` | `() => string` |

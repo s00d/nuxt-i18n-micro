@@ -29,6 +29,7 @@ member I18n.clear: () => void
 member I18n.clearCache: () => void
 member I18n.currentRoute: string
 member I18n.disablePageLocales: private boolean
+member I18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../node/src").I18n & M>) => import("../../node/src").I18n & M
 member I18n.fallbackLocale: string
 member I18n.formatter: FormatService
 member I18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -36,9 +37,13 @@ member I18n.getFallbackLocale: () => string
 member I18n.getLocale: () => string
 member I18n.getMissingContext: protected (routeContext?: unknown) => { locale: string; routeName: string; }
 member I18n.getRoute: () => string
+member I18n.getSnapshot: () => string
 member I18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member I18n.hasTranslation: (key: TranslationKey) => boolean
 member I18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member I18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
+member I18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
+member I18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
 member I18n.loadRouteTranslationsCore: (locale: string, routeName: string, translations: Translations, merge: boolean) => void
 member I18n.loadTranslations: (dir?: string) => Promise<void>
 member I18n.loadTranslationsCore: (locale: string, translations: Translations, merge: boolean, routeName?: string) => void
@@ -57,6 +62,9 @@ member I18n.resolveTranslations: (routeContext?: unknown) => Translations
 member I18n.resolveTranslationTree: protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations
 member I18n.setRoute: (routeName: string) => void
 member I18n.setTranslation: (key: TranslationKey, value: unknown) => void
+member I18n.storage: TranslationStorage
+member I18n.store: private any
+member I18n.subscribe: (listener: () => void) => () => void
 member I18n.t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown) => CleanTranslation
 member I18n.tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string
 member I18n.td: { (value: Date | number | string, options?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }
@@ -73,14 +81,16 @@ interface I18nOptions
 member I18nOptions.disablePageLocales?: boolean | undefined
 member I18nOptions.fallbackLocale?: string | undefined
 member I18nOptions.locale: string
+member I18nOptions.messages?: Record<string, Translations> | undefined
 member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nOptions.missingWarn?: boolean | undefined
 member I18nOptions.plural?: PluralFunc | undefined
+member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nOptions.translationDir?: string | undefined
 function interpolate: (template: string, params: Params) => string
 interface LoadedTranslations
-member LoadedTranslations.root: Record<string, import("packages/types/dist/index").Translations>
-member LoadedTranslations.routes: Record<string, Record<string, import("packages/types/dist/index").Translations>>
+member LoadedTranslations.root: Record<string, import("@i18n-micro/types").Translations>
+member LoadedTranslations.routes: Record<string, Record<string, import("@i18n-micro/types").Translations>>
 function loadRootTranslations: (dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>
 function loadTranslations: (dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>
 interface Locale

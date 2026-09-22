@@ -1,6 +1,7 @@
 # . (src/index.ts)
 class BaseI18n
 member BaseI18n.clearCache: () => void
+member BaseI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M
 member BaseI18n.formatter: FormatService
 member BaseI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
 member BaseI18n.getFallbackLocale: () => string

@@ -32,16 +32,16 @@ import { /* … */ } from '@i18n-micro/types'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 47 members |
-| `ModuleOptionsExtend` | interface | 50 members |
-| `ModulePrivateOptionsExtend` | interface | 50 members |
+| `ModuleOptions` | interface | 48 members |
+| `ModuleOptionsExtend` | interface | 51 members |
+| `ModulePrivateOptionsExtend` | interface | 51 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
 | `ScopedKey` | type | ``<Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>`` |
 | `Strategies` | type | `'no_prefix' \| 'prefix_except_default' \| 'prefix' \| 'prefix_and_default'` |
 | `Translation` | type | `CleanTranslation \| unknown` |
-| `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |
+| `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `TranslationPayloadOptions` | interface | 8 members |
 | `Translations` | interface | 1 members |
 
@@ -113,7 +113,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModuleOptions</code> — 47 members</summary>
+<summary><code>ModuleOptions</code> — 48 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -160,6 +160,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
 | `serverTranslationPreload?` | `boolean \| undefined` |
 | `strategy?` | `Strategies \| undefined` |
+| `trailingSlash?` | `"append" \| "remove" \| undefined` |
 | `translationDir?` | `string \| undefined` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
 | `types?` | `boolean \| undefined` |
@@ -167,7 +168,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModuleOptionsExtend</code> — 50 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 51 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -216,6 +217,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
 | `serverTranslationPreload?` | `boolean \| undefined` |
 | `strategy?` | `Strategies \| undefined` |
+| `trailingSlash?` | `"append" \| "remove" \| undefined` |
 | `translationDir?` | `string \| undefined` |
 | `translationPayloadMode?` | `"premerged" \| "source" \| undefined` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
@@ -224,7 +226,7 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 50 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 51 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -274,6 +276,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
 | `serverTranslationPreload?` | `boolean \| undefined` |
 | `strategy?` | `Strategies \| undefined` |
+| `trailingSlash?` | `"append" \| "remove" \| undefined` |
 | `translationDir` | `string` |
 | `translationPayloads?` | `TranslationPayloadOptions \| undefined` |
 | `types?` | `boolean \| undefined` |

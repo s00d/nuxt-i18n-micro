@@ -1,6 +1,8 @@
 # @i18n-micro/node
 
-Node.js runtime for nuxt-i18n-micro - use i18n translations in any Node.js application, CLI tool, or backend service.
+Node.js runtime for nuxt-i18n-micro — filesystem translation loading on top of [`@i18n-micro/runtime`](../runtime). Use this in Node.js applications, CLI tools, or backend services.
+
+For browser / vanilla JS without `fs`, use `@i18n-micro/runtime` directly.
 
 ## Installation
 

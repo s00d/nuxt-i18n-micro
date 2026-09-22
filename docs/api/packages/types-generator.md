@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/types-generator`
 
-7 exports across 2 entry points.
+9 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -19,10 +19,12 @@ import { /* … */ } from '@i18n-micro/types-generator'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `flattenKeys` | function | `(obj: Record<string, unknown>, prefix?: string) => string[]` |
+| `formatKeyProperty` | function | `(key: string) => string` |
 | `generateTypes` | function | `(options: GeneratorOptions) => Promise<string>` |
 | `GeneratorOptions` | interface | 3 members |
 | `getTypesString` | function | `(options: GeneratorOptions) => Promise<string>` |
-| `I18nTypesPlugin` | const | `import("unplugin/dist/index").UnpluginInstance<GeneratorOptions, boolean>` |
+| `I18nTypesPlugin` | const | `import("unplugin").UnpluginInstance<GeneratorOptions, boolean>` |
+| `isPlainTranslationObject` | function | `(value: unknown) => value is Record<string, unknown>` |
 
 <details>
 <summary><code>GeneratorOptions</code> — 3 members</summary>
@@ -42,15 +44,14 @@ import { /* … */ } from '@i18n-micro/types-generator/nuxt'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `default` | value | `import("@nuxt/schema/dist/index").NuxtModule<I18nTypesGeneratorOptions, I18nTypesGeneratorOptions, false>` |
-| `I18nTypesGeneratorOptions` | interface | 2 members |
+| `default` | value | `import("@nuxt/schema").NuxtModule<I18nTypesGeneratorOptions, I18nTypesGeneratorOptions, false>` |
+| `I18nTypesGeneratorOptions` | interface | 1 members |
 
 <details>
-<summary><code>I18nTypesGeneratorOptions</code> — 2 members</summary>
+<summary><code>I18nTypesGeneratorOptions</code> — 1 members</summary>
 
 | Member | Type |
 | --- | --- |
-| `outputFile?` | `string \| undefined` |
 | `translationDir?` | `string \| undefined` |
 
 </details>

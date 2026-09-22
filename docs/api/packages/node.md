@@ -22,8 +22,8 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 46 members |
-| `I18nOptions` | interface | 7 members |
+| `I18n` | class | 54 members |
+| `I18nOptions` | interface | 9 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
@@ -36,7 +36,7 @@ import { /* … */ } from '@i18n-micro/node'
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
 <details>
-<summary><code>I18n</code> — 46 members</summary>
+<summary><code>I18n</code> — 54 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -46,6 +46,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
 | `disablePageLocales` | `private boolean` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../node/src").I18n & M>) => import("../../node/src").I18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -53,9 +54,13 @@ import { /* … */ } from '@i18n-micro/node'
 | `getLocale` | `() => string` |
 | `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
 | `getRoute` | `() => string` |
+| `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
+| `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
+| `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslations` | `(dir?: string) => Promise<void>` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
@@ -75,6 +80,9 @@ import { /* … */ } from '@i18n-micro/node'
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
+| `storage` | `TranslationStorage` |
+| `store` | `private any` |
+| `subscribe` | `(listener: () => void) => () => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
 | `td` | `{ (value: Date \| number \| string, options?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, overrides?: Intl.DateTimeFormatOptions): string; (value: Date \| number \| string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string; }` |
@@ -89,16 +97,18 @@ import { /* … */ } from '@i18n-micro/node'
 
 </details>
 <details>
-<summary><code>I18nOptions</code> — 7 members</summary>
+<summary><code>I18nOptions</code> — 9 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `disablePageLocales?` | `boolean \| undefined` |
 | `fallbackLocale?` | `string \| undefined` |
 | `locale` | `string` |
+| `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 | `translationDir?` | `string \| undefined` |
 
 </details>

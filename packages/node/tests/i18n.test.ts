@@ -211,6 +211,19 @@ describe('I18n (Simple API)', () => {
       // Reload should clear and attempt to reload (even if directory doesn't exist)
       await expect(i18n.reload()).resolves.not.toThrow()
     })
+
+    test('does not wipe in-memory messages when translationDir is missing', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const i18n = createI18n({
+        locale: 'en',
+        messages: { en: { welcome: 'Welcome' } },
+      })
+      expect(i18n.t('welcome')).toBe('Welcome')
+      await i18n.reload()
+      expect(i18n.t('welcome')).toBe('Welcome')
+      expect(warnSpy).toHaveBeenCalled()
+      warnSpy.mockRestore()
+    })
   })
 
   describe('resolveTranslations / setTranslation', () => {

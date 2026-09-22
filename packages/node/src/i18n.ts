@@ -1,58 +1,22 @@
-import { BaseI18n, type TranslationStorage } from '@i18n-micro/core'
-import type { PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
+import { I18n as RuntimeI18n, type I18nOptions as RuntimeI18nOptions } from '@i18n-micro/runtime'
 import { mergeRouteTranslationsWithRoot } from '@i18n-micro/utils/parse-path'
 import { loadTranslations } from './loader'
 
-export interface I18nOptions {
-  locale: string
-  fallbackLocale?: string
+export interface I18nOptions extends RuntimeI18nOptions {
   translationDir?: string
-  plural?: PluralFunc
-  missingWarn?: boolean
-  missingHandler?: (locale: string, key: string, routeName: string) => void
   disablePageLocales?: boolean
 }
 
-export class I18n extends BaseI18n {
-  public locale: string
-  public fallbackLocale: string
+export class I18n extends RuntimeI18n {
   public translationDir?: string
   private disablePageLocales: boolean
 
-  public currentRoute: string = 'index'
-
   constructor(options: I18nOptions) {
-    const storage: TranslationStorage = {
-      translations: new Map<string, Translations>(),
-    }
+    const { translationDir, disablePageLocales, ...runtimeOptions } = options
+    super(runtimeOptions)
 
-    super({
-      storage,
-      plural: options.plural,
-      missingWarn: options.missingWarn,
-      missingHandler: options.missingHandler,
-    })
-
-    this.locale = options.locale
-    this.fallbackLocale = options.fallbackLocale || options.locale
-    this.translationDir = options.translationDir
-    this.disablePageLocales = options.disablePageLocales ?? false
-  }
-
-  public setRoute(routeName: string) {
-    this.currentRoute = routeName
-  }
-
-  public getLocale(): string {
-    return this.locale
-  }
-
-  public getFallbackLocale(): string {
-    return this.fallbackLocale
-  }
-
-  public getRoute(): string {
-    return this.currentRoute
+    this.translationDir = translationDir
+    this.disablePageLocales = disablePageLocales ?? false
   }
 
   public async loadTranslations(dir?: string): Promise<void> {
@@ -76,28 +40,20 @@ export class I18n extends BaseI18n {
         this.helper.loadPageTranslations(locale, routeName, mergeRouteTranslationsWithRoot(base, translations))
       }
     }
+
+    this.onTranslationsChanged()
   }
 
   public async reload(): Promise<void> {
-    this.helper.clearCache()
-    await this.loadTranslations()
+    const targetDir = this.translationDir
+    if (!targetDir) {
+      console.warn('[i18n-node] No translation directory specified')
+      return
+    }
+
+    this.clearCache()
+    await this.loadTranslations(targetDir)
     console.log('[i18n-node] Cache cleared and translations reloaded.')
-  }
-
-  public addTranslations(locale: string, translations: Translations, merge = true): void {
-    super.loadTranslationsCore(locale, translations, merge)
-  }
-
-  public addRouteTranslations(locale: string, routeName: string, translations: Translations, merge = true): void {
-    super.loadRouteTranslationsCore(locale, routeName, translations, merge)
-  }
-
-  public hasTranslation(key: TranslationKey): boolean {
-    return this.helper.hasTranslation(this.locale, key)
-  }
-
-  public clear(): void {
-    super.clearCache()
   }
 }
 

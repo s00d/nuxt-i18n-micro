@@ -25,16 +25,16 @@ import { /* … */ } from '@i18n-micro/preact'
 | `defaultPlural` | const | `PluralFunc` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18nContext` | const | `import("preact/src/index").Context<PreactI18n \| null>` |
-| `I18nDefaultLocaleContext` | const | `import("preact/src/index").Context<string \| null>` |
+| `I18nContext` | const | `import("preact").Context<PreactI18n \| null>` |
+| `I18nDefaultLocaleContext` | const | `import("preact").Context<string \| null>` |
 | `I18nGroup` | const | `(props: I18nGroupProps) => JSX.Element` |
 | `I18nGroupProps` | interface | 301 members |
 | `I18nLink` | const | `(props: I18nLinkProps) => JSX.Element` |
 | `I18nLinkProps` | interface | 314 members |
-| `I18nLocalesContext` | const | `import("preact/src/index").Context<Locale[] \| null>` |
-| `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) => import("preact/src/index").VNode<import("preact/src/index").Attributes & { value: PreactI18n \| null; children?: ComponentChildren; }>` |
+| `I18nLocalesContext` | const | `import("preact").Context<Locale[] \| null>` |
+| `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) => import("preact").VNode<import("preact").Attributes & { value: PreactI18n \| null; children?: ComponentChildren; }>` |
 | `I18nProviderProps` | interface | 5 members |
-| `I18nRouterContext` | const | `import("preact/src/index").Context<I18nRoutingStrategy \| null>` |
+| `I18nRouterContext` | const | `import("preact").Context<I18nRoutingStrategy \| null>` |
 | `I18nRoutingStrategy` | interface | 6 members |
 | `I18nSwitcher` | const | `(props: I18nSwitcherProps) => JSX.Element` |
 | `I18nSwitcherProps` | interface | 314 members |
@@ -43,12 +43,12 @@ import { /* … */ } from '@i18n-micro/preact'
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 47 members |
+| `ModuleOptions` | interface | 48 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 44 members |
-| `PreactI18nOptions` | interface | 6 members |
-| `TranslationKey` | type | `keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage \| string` |
+| `PreactI18n` | class | 50 members |
+| `PreactI18nOptions` | interface | 7 members |
+| `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
 | `useI18n` | const | `(options?: UseI18nOptions) => UseI18nReturn` |
 | `useI18nContext` | const | `() => PreactI18n` |
@@ -1370,16 +1370,18 @@ import { /* … */ } from '@i18n-micro/preact'
 | `seo?` | `boolean \| undefined` |
 
 </details>
-<code>ModuleOptions</code> — 47 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 48 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
-<summary><code>PreactI18n</code> — 44 members</summary>
+<summary><code>PreactI18n</code> — 50 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
+| `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
+| `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -1389,13 +1391,17 @@ import { /* … */ } from '@i18n-micro/preact'
 | `getRoute` | `() => string` |
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
+| `hasTranslation` | `(key: TranslationKey) => boolean` |
 | `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
+| `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
+| `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
-| `new` | `(options: PreactI18nOptions): PreactI18n` |
+| `new` | `(options: I18nOptions): PreactI18n` |
 | `onTranslationsChanged` | `protected () => void` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private any` |
@@ -1408,7 +1414,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `setRoute` | `(routeName: string) => void` |
 | `setTranslation` | `(key: TranslationKey, value: unknown) => void` |
 | `storage` | `TranslationStorage` |
-| `store` | `private ReactiveI18nStore` |
+| `store` | `private any` |
 | `subscribe` | `(listener: () => void) => () => void` |
 | `t` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null, routeContext?: unknown) => CleanTranslation` |
 | `tc` | `(key: TranslationKey, count: number \| Params, defaultValue?: string) => string` |
@@ -1423,7 +1429,7 @@ import { /* … */ } from '@i18n-micro/preact'
 
 </details>
 <details>
-<summary><code>PreactI18nOptions</code> — 6 members</summary>
+<summary><code>PreactI18nOptions</code> — 7 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1433,6 +1439,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 
 </details>
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).

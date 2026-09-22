@@ -23,7 +23,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `CreateBridgeOptions` | interface | 4 members |
 | `createRpcClient` | function | `() => I18nDevToolsBridge` |
 | `I18nDevToolsBridge` | interface | 4 members |
-| `I18nDevToolsElement` | const | `import("vue/dist/vue").VueElementConstructor<any>` |
+| `I18nDevToolsElement` | const | `import("vue").VueElementConstructor<any>` |
 | `JsonRpcEvent` | interface | 3 members |
 | `JsonRpcRequest` | interface | 4 members |
 | `JsonRpcResponse` | interface | 4 members |

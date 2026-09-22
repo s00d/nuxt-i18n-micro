@@ -8,7 +8,7 @@ member AstroI18n.addTranslations: (locale: string, translations: Translations, m
 member AstroI18n.clearCache: () => void
 member AstroI18n.clone: (newLocale?: string) => AstroI18n
 member AstroI18n.cloneStorage: private (source: TranslationStorage) => TranslationStorage
-member AstroI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("packages/astro/src/composer").AstroI18n & M>) => import("packages/astro/src/composer").AstroI18n & M
+member AstroI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../astro/src").AstroI18n & M>) => import("../../astro/src").AstroI18n & M
 member AstroI18n.fallbackLocale: string
 member AstroI18n.formatter: FormatService
 member AstroI18n.getCustomMissingHandler?: (() => MissingHandler | null) | undefined
@@ -149,6 +149,7 @@ member I18nIntegrationOptions.routesLocaleLinks?: { [key: string]: string; } | u
 member I18nIntegrationOptions.routingStrategy?: I18nRoutingStrategy | undefined
 member I18nIntegrationOptions.serverTranslationPreload?: boolean | undefined
 member I18nIntegrationOptions.strategy?: Strategies | undefined
+member I18nIntegrationOptions.trailingSlash?: "append" | "remove" | undefined
 member I18nIntegrationOptions.translationDir?: string | undefined
 member I18nIntegrationOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member I18nIntegrationOptions.types?: boolean | undefined
@@ -174,8 +175,8 @@ member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, loca
 member I18nRoutingStrategy.switchLocalePath?: ((path: string, newLocale: string, locales: string[], defaultLocale?: string) => string) | undefined
 function interpolate: (template: string, params: Params) => string
 interface LoadedTranslations
-member LoadedTranslations.root: Record<string, import("packages/types/dist/index").Translations>
-member LoadedTranslations.routes: Record<string, Record<string, import("packages/types/dist/index").Translations>>
+member LoadedTranslations.root: Record<string, import("@i18n-micro/types").Translations>
+member LoadedTranslations.routes: Record<string, Record<string, import("@i18n-micro/types").Translations>>
 function loadTranslationsFromDir: (options: LoadTranslationsOptions) => LoadedTranslations
 function loadTranslationsIntoI18n: (i18n: { addTranslations: (locale: string, translations: Translations, merge?: boolean) => void; addRouteTranslations: (locale: string, routeName: string, translations: Translations, merge?: boolean) => void; }, options: LoadTranslationsOptions) => void
 interface LoadTranslationsOptions
@@ -218,7 +219,7 @@ function useLocaleHead: (astro: AstroGlobal, options?: LocaleHeadOptions) => Loc
 function createI18nStore: (props: I18nClientProps) => Writable<I18nState>
 function hasTranslation: (state: I18nState, key: string, routeName?: string) => boolean
 function I18nProvider: ({ children, value }: { children: React.ReactNode; value: I18nClientProps; }) => React.ReactElement
-const I18nProviderPreact: ({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact/src/index").VNode<{ value: I18nState | null; children?: ComponentChildren; }>
+const I18nProviderPreact: ({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact").VNode<{ value: I18nState | null; children?: ComponentChildren; }>
 interface I18nState
 member I18nState.currentRoute: string
 member I18nState.fallbackLocale: string
@@ -229,10 +230,10 @@ function translate: (state: I18nState, key: string, params?: Params, defaultValu
 function useAstroI18nPreact: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }
 function useAstroI18nReact: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }
 function useAstroI18nSvelte: (store: Writable<I18nState>) => { store: Writable<I18nState>; t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; readonly locale: string; readonly fallbackLocale: string; readonly currentRoute: string; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }
-function useAstroI18nVue: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue/dist/vue").WritableComputedRef<string, string>; fallbackLocale: import("vue/dist/vue").ComputedRef<string>; currentRoute: import("vue/dist/vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }
+function useAstroI18nVue: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue").WritableComputedRef<string, string>; fallbackLocale: import("vue").ComputedRef<string>; currentRoute: import("vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }
 
 # ./client/preact (src/client/preact.tsx)
-const I18nProvider: ({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact/src/index").VNode<{ value: I18nState | null; children?: ComponentChildren; }>
+const I18nProvider: ({ children, value }: { children: ComponentChildren; value: I18nClientProps; }) => import("preact").VNode<{ value: I18nState | null; children?: ComponentChildren; }>
 function useAstroI18n: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: string; fallbackLocale: string; currentRoute: string; getRoute: () => string; }
 
 # ./client/react (src/client/react.tsx)
@@ -245,4 +246,4 @@ function useAstroI18n: (store: Writable<I18nState>) => { store: Writable<I18nSta
 
 # ./client/vue (src/client/vue.ts)
 function provideI18n: (props: I18nClientProps) => Ref<I18nState>
-function useAstroI18n: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue/dist/vue").WritableComputedRef<string, string>; fallbackLocale: import("vue/dist/vue").ComputedRef<string>; currentRoute: import("vue/dist/vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }
+function useAstroI18n: () => { t: (key: TranslationKey, params?: Params, defaultValue?: string | null, routeName?: string) => CleanTranslation; ts: (key: TranslationKey, params?: Params, defaultValue?: string, routeName?: string) => string; tc: (key: TranslationKey, count: number | Params, defaultValue?: string) => string; tn: (value: number, options?: Intl.NumberFormatOptions) => string; td: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => string; tdr: (value: Date | number | string, options?: Intl.RelativeTimeFormatOptions) => string; has: (key: TranslationKey, routeName?: string) => boolean; locale: import("vue").WritableComputedRef<string, string>; fallbackLocale: import("vue").ComputedRef<string>; currentRoute: import("vue").WritableComputedRef<string, string>; setLocale: (locale: string) => void; setRoute: (routeName: string) => void; getRoute: () => string; }

@@ -18,10 +18,7 @@ const SERVER_ENTRY = '.output/server/index.mjs'
 
 /** True when `dist/module.mjs` is a jiti stub that re-imports `src/module.ts`. */
 export function isJitiModuleStub(content: string): boolean {
-  return (
-    /createJiti\s*\(/.test(content) &&
-    (/src\/module\.ts/.test(content) || /jiti\.import\(/.test(content))
-  )
+  return /createJiti\s*\(/.test(content) && (/src\/module\.ts/.test(content) || /jiti\.import\(/.test(content))
 }
 
 export function readModuleDist(): string | null {
@@ -32,10 +29,8 @@ export function readModuleDist(): string | null {
 /** Fail if root module entry is missing or still a prepare stub. */
 export function assertRealModuleDist(): void {
   const content = readModuleDist()
-  if (content == null) {
-    throw new Error(
-      `[perf] missing ${MODULE_DIST}. Run packages build + \`nuxt-module-build build\` (not --stub) before measuring.`,
-    )
+  if (content === null) {
+    throw new Error(`[perf] missing ${MODULE_DIST}. Run packages build + \`nuxt-module-build build\` (not --stub) before measuring.`)
   }
   if (isJitiModuleStub(content)) {
     throw new Error(
@@ -75,7 +70,7 @@ function runOrThrow(command: string, args: string[], label: string): void {
  */
 export function ensureConsumerModuleDist(): void {
   const content = readModuleDist()
-  const needsModuleBuild = content == null || isJitiModuleStub(content)
+  const needsModuleBuild = content === null || isJitiModuleStub(content)
   const needsPackages =
     !existsSync(join(repoRoot, 'packages/core/dist')) ||
     !existsSync(join(repoRoot, 'packages/utils/dist')) ||

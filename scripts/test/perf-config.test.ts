@@ -163,10 +163,12 @@ describe('perf average', () => {
     label: 'i18n-micro',
     build: {
       buildTimeSec,
-      maxCpuPercent: 0,
-      avgCpuPercent: 0,
+      maxCpuPct: 0,
+      avgCpuPct: 0,
+      minCpuPct: 0,
       maxMemoryMb: 0,
       avgMemoryMb: 0,
+      minMemoryMb: 0,
     },
     load: {
       durationSec: 10,
@@ -175,10 +177,12 @@ describe('perf average', () => {
       responseTimeP95: 2,
       responseTimeP99: 3,
       errorRate: 0,
-      maxCpuPercent: 0,
-      avgCpuPercent: 0,
+      maxCpuPct: 0,
+      avgCpuPct: 0,
+      minCpuPct: 0,
       maxMemoryMb: 0,
       avgMemoryMb: 0,
+      minMemoryMb: 0,
     },
   })
 

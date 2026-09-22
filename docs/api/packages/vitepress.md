@@ -125,7 +125,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `vite?` | `{ [key: string]: unknown; plugins?: Plugin[] \| Plugin[][]; ssr?: { noExternal?: string \| true \| Array<string \| RegExp>; [key: string]: unknown; }; } \| undefined` |
 
 </details>
-<code>VueI18nOptions</code> — 6 members, identical to [`PreactI18nOptions`](/api/packages/preact).
+<code>VueI18nOptions</code> — 6 members, identical to [`SolidI18nOptions`](/api/packages/solid).
 <details>
 <summary><code>WithI18nOptions</code> — 20 members</summary>
 
@@ -235,8 +235,8 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `buildVitePressLocales` | function | `(locales: Locale[], defaultLocale: string, options?: BuildVitePressLocalesOptions) => Record<string, VitePressLocaleEntry>` |
 | `BuildVitePressLocalesOptions` | interface | 1 members |
 | `createI18n` | function | `(options: CreateI18nOptions) => NodeI18n` |
-| `CreateI18nOptions` | interface | 11 members |
-| `I18nOptions` | interface | 7 members |
+| `CreateI18nOptions` | interface | 13 members |
+| `I18nOptions` | interface | 9 members |
 | `LoadedTranslations` | interface | 2 members |
 | `loadRootTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>` |
 | `loadTranslations` | function | `(dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>` |
@@ -245,7 +245,7 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 
 <code>BuildVitePressLocalesOptions</code> — 1 members, identical to `BuildVitePressLocalesOptions` above.
 <details>
-<summary><code>CreateI18nOptions</code> — 11 members</summary>
+<summary><code>CreateI18nOptions</code> — 13 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -256,13 +256,15 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `locale` | `string` |
 | `localeKeyToCode?` | `Record<string, string> \| undefined` |
 | `locales?` | `Locale[] \| string[] \| undefined` |
+| `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn?` | `boolean \| undefined` |
 | `plural?` | `PluralFunc \| undefined` |
+| `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 | `translationDir?` | `string \| undefined` |
 
 </details>
-<code>I18nOptions</code> — 7 members, identical to [`I18nOptions`](/api/packages/node).
+<code>I18nOptions</code> — 9 members, identical to [`I18nOptions`](/api/packages/node).
 <code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
 <code>VitePressLocaleEntry</code> — 3 members, identical to `VitePressLocaleEntry` above.
 ## `@i18n-micro/vitepress/theme`
@@ -282,7 +284,7 @@ import { /* … */ } from '@i18n-micro/vitepress/theme'
 | Member | Type |
 | --- | --- |
 | `config?` | `VirtualI18nConfig \| undefined` |
-| `enhanceApp?` | `((ctx: import("vitepress/types/index").EnhanceAppContext) => import("vitepress/types/shared").Awaitable<void>) \| undefined` |
+| `enhanceApp?` | `((ctx: import("vitepress").EnhanceAppContext) => import("vitepress").Awaitable<void>) \| undefined` |
 | `localeKeyToCode?` | `Record<string, string> \| undefined` |
 | `messages?` | `Record<string, Translations> \| undefined` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |

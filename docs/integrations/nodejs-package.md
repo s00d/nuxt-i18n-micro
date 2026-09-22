@@ -6,7 +6,7 @@ outline: 'deep'
 
 # 🌐 Node.js Runtime
 
-Use `@i18n-micro/node` to add i18n translations to any Node.js application, CLI tool, or backend service. This package provides the same translation logic as the Nuxt module, but for pure Node.js environments.
+Use `@i18n-micro/node` to add i18n translations to any Node.js application, CLI tool, or backend service. It builds on [`@i18n-micro/runtime`](./runtime-package) and adds filesystem loading (`loadTranslations(dir)`). For browser / vanilla JS without `fs`, use the runtime package directly.
 
 ::: tip Playground
 CLI script that loads a locales folder and exercises `t` / `tc` / routes / reload:

@@ -209,21 +209,25 @@ member CreateI18nOptions.fallbackLocale?: string | undefined
 member CreateI18nOptions.locale: string
 member CreateI18nOptions.localeKeyToCode?: Record<string, string> | undefined
 member CreateI18nOptions.locales?: Locale[] | string[] | undefined
+member CreateI18nOptions.messages?: Record<string, Translations> | undefined
 member CreateI18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member CreateI18nOptions.missingWarn?: boolean | undefined
 member CreateI18nOptions.plural?: PluralFunc | undefined
+member CreateI18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member CreateI18nOptions.translationDir?: string | undefined
 interface I18nOptions
 member I18nOptions.disablePageLocales?: boolean | undefined
 member I18nOptions.fallbackLocale?: string | undefined
 member I18nOptions.locale: string
+member I18nOptions.messages?: Record<string, Translations> | undefined
 member I18nOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member I18nOptions.missingWarn?: boolean | undefined
 member I18nOptions.plural?: PluralFunc | undefined
+member I18nOptions.routeMessages?: Record<string, Record<string, Translations>> | undefined
 member I18nOptions.translationDir?: string | undefined
 interface LoadedTranslations
-member LoadedTranslations.root: Record<string, import("packages/types/dist/index").Translations>
-member LoadedTranslations.routes: Record<string, Record<string, import("packages/types/dist/index").Translations>>
+member LoadedTranslations.root: Record<string, import("@i18n-micro/types").Translations>
+member LoadedTranslations.routes: Record<string, Record<string, import("@i18n-micro/types").Translations>>
 function loadRootTranslations: (dir: string, disablePageLocales?: boolean) => Promise<Record<string, Translations>>
 function loadTranslations: (dir: string, disablePageLocales?: boolean) => Promise<LoadedTranslations>
 type NodeI18n: I18n & PathMethods
@@ -236,7 +240,7 @@ member VitePressLocaleEntry.link?: string | undefined
 function defineI18nTheme: <T extends Theme>(base: T, options?: DefineI18nThemeOptions) => T
 interface DefineI18nThemeOptions
 member DefineI18nThemeOptions.config?: VirtualI18nConfig | undefined
-member DefineI18nThemeOptions.enhanceApp?: ((ctx: import("vitepress/types/index").EnhanceAppContext) => import("vitepress/types/shared").Awaitable<void>) | undefined
+member DefineI18nThemeOptions.enhanceApp?: ((ctx: import("vitepress").EnhanceAppContext) => import("vitepress").Awaitable<void>) | undefined
 member DefineI18nThemeOptions.localeKeyToCode?: Record<string, string> | undefined
 member DefineI18nThemeOptions.messages?: Record<string, Translations> | undefined
 member DefineI18nThemeOptions.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined

@@ -82,6 +82,7 @@ member ModuleOptions.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptions.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModuleOptions.serverTranslationPreload?: boolean | undefined
 member ModuleOptions.strategy?: Strategies | undefined
+member ModuleOptions.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptions.translationDir?: string | undefined
 member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.types?: boolean | undefined
@@ -132,6 +133,7 @@ member ModuleOptionsExtend.routeLocales?: Record<string, string[]> | undefined
 member ModuleOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModuleOptionsExtend.serverTranslationPreload?: boolean | undefined
 member ModuleOptionsExtend.strategy?: Strategies | undefined
+member ModuleOptionsExtend.trailingSlash?: "append" | "remove" | undefined
 member ModuleOptionsExtend.translationDir?: string | undefined
 member ModuleOptionsExtend.translationPayloadMode?: "premerged" | "source" | undefined
 member ModuleOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
@@ -184,6 +186,7 @@ member ModulePrivateOptionsExtend.routeLocales?: Record<string, string[]> | unde
 member ModulePrivateOptionsExtend.routesLocaleLinks?: { [key: string]: string; } | undefined
 member ModulePrivateOptionsExtend.serverTranslationPreload?: boolean | undefined
 member ModulePrivateOptionsExtend.strategy?: Strategies | undefined
+member ModulePrivateOptionsExtend.trailingSlash?: "append" | "remove" | undefined
 member ModulePrivateOptionsExtend.translationDir: string
 member ModulePrivateOptionsExtend.translationPayloads?: TranslationPayloadOptions | undefined
 member ModulePrivateOptionsExtend.types?: boolean | undefined
@@ -196,7 +199,7 @@ member PluralTranslations.singular: string
 type ScopedKey: <Scope extends string> = Extract<TranslationKey, `${Scope}.${string}`>
 type Strategies: 'no_prefix' | 'prefix_except_default' | 'prefix' | 'prefix_and_default'
 type Translation: CleanTranslation | unknown
-type TranslationKey: keyof DefineLocaleMessage extends never ? string : keyof DefineLocaleMessage | string
+type TranslationKey: Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> | (string & {})
 interface TranslationPayloadOptions
 member TranslationPayloadOptions.mode?: "premerged" | "source" | undefined
 member TranslationPayloadOptions.prerenderRoutes?: boolean | undefined

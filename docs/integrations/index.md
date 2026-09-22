@@ -1,6 +1,6 @@
 ---
 title: 'Integrations'
-description: 'Vue, React, Preact, Solid, Astro, and Node packages.'
+description: 'Vue, React, Preact, Solid, Astro, Runtime, and Node packages.'
 outline: 'deep'
 ---
 
@@ -37,7 +37,8 @@ Unlike the full Nuxt module, these packages:
 
 ### Utility Packages
 
-- **[Node.js Package](./nodejs-package.md)** (`@i18n-micro/node`) - For Node.js server-side applications
+- **[Runtime Package](./runtime-package.md)** (`@i18n-micro/runtime`) - Vanilla TypeScript/JavaScript (browser + any fetch-capable runtime)
+- **[Node.js Package](./nodejs-package.md)** (`@i18n-micro/node`) - Node.js filesystem loader on top of runtime
 - **[Types Generator](./types-generator.md)** (`@i18n-micro/types-generator`) - For generating TypeScript types from translation files
 - **[DevTools UI Package](./devtools-ui-package.md)** (`@i18n-micro/devtools-ui`) - Development tools for managing translations
 
@@ -45,15 +46,16 @@ Unlike the full Nuxt module, these packages:
 
 Each integration ships a small app under `packages/<name>/playground` so you can see wiring end-to-end (createI18n / provider, router adapter, components, locale switch) without building a project from scratch. Clone the monorepo, `pnpm install`, then run the package’s `dev` script.
 
-| Package | Playground | Run from monorepo root |
-| ------- | ---------- | ---------------------- |
-| Vue | [`packages/vue/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue/playground) | `pnpm -C packages/vue dev` |
-| React | [`packages/react/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/react/playground) | `pnpm -C packages/react dev` |
-| Preact | [`packages/preact/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact/playground) | `pnpm -C packages/preact dev` |
-| Solid | [`packages/solid/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid/playground) | `pnpm -C packages/solid dev` |
-| Astro | [`packages/astro/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/astro/playground) | `pnpm -C packages/astro dev` |
+| Package   | Playground                                                                                                         | Run from monorepo root                      |
+| --------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| Vue       | [`packages/vue/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vue/playground)             | `pnpm -C packages/vue dev`                  |
+| React     | [`packages/react/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/react/playground)         | `pnpm -C packages/react dev`                |
+| Preact    | [`packages/preact/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/preact/playground)       | `pnpm -C packages/preact dev`               |
+| Solid     | [`packages/solid/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/solid/playground)         | `pnpm -C packages/solid dev`                |
+| Astro     | [`packages/astro/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/astro/playground)         | `pnpm -C packages/astro dev`                |
 | VitePress | [`packages/vitepress/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/vitepress/playground) | `pnpm -C packages/vitepress/playground dev` |
-| Node.js | [`packages/node/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node/playground) | `pnpm -C packages/node dev` |
+| Runtime   | [`packages/runtime/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/runtime/playground)     | `pnpm -C packages/runtime dev`              |
+| Node.js   | [`packages/node/playground`](https://github.com/s00d/nuxt-i18n-micro/tree/main/packages/node/playground)           | `pnpm -C packages/node dev`                 |
 
 ## Core Components
 
@@ -220,7 +222,8 @@ are identical:
 | ---------------- | ---------------------------------------------------------- | -------- | ---------------- | ---------------------------------------------- |
 | `locale`         | `string`                                                   | ✅       | -                | Current locale code (e.g., `'en'`)             |
 | `fallbackLocale` | `string`                                                   | ❌       | Same as `locale` | Fallback locale when translation is missing    |
-| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial translation messages                   |
+| `messages`       | `Record<string, Translations>`                             | ❌       | `{}`             | Initial root translation messages by locale    |
+| `routeMessages`  | `Record<string, Record<string, Translations>>`             | ❌       | -                | Route-scoped messages (`route → locale → msgs`), via `@i18n-micro/runtime` |
 | `plural`         | `PluralFunc`                                               | ❌       | `defaultPlural`  | Custom pluralization function                  |
 | `missingWarn`    | `boolean`                                                  | ❌       | `true`           | Show console warnings for missing translations |
 | `missingHandler` | `(locale: string, key: string, routeName: string) => void` | ❌       | -                | Custom handler for missing translations        |
@@ -308,17 +311,17 @@ For detailed setup instructions, see the documentation for your specific package
 
 ## Comparison with Nuxt Module
 
-| Feature                | Nuxt Module    | Integration Packages |
-| ---------------------- | -------------- | -------------------- |
-| Translation methods    | ✅             | ✅                   |
-| Components             | ✅             | ✅ (subset)          |
-| Router integration     | ✅ (automatic) | ✅ (via adapter)     |
-| SSR support            | ✅             | ✅ (Astro / VitePress prerender) |
-| DevTools               | ✅             | ✅                   |
-| Auto locale detection  | ✅             | ✅ (Astro primarily) |
-| SEO meta tags          | ✅             | ✅ (Astro primarily) |
+| Feature                | Nuxt Module    | Integration Packages                  |
+| ---------------------- | -------------- | ------------------------------------- |
+| Translation methods    | ✅             | ✅                                    |
+| Components             | ✅             | ✅ (subset)                           |
+| Router integration     | ✅ (automatic) | ✅ (via adapter)                      |
+| SSR support            | ✅             | ✅ (Astro / VitePress prerender)      |
+| DevTools               | ✅             | ✅                                    |
+| Auto locale detection  | ✅             | ✅ (Astro primarily)                  |
+| SEO meta tags          | ✅             | ✅ (Astro primarily)                  |
 | File-based routing     | ✅             | ❌ (VitePress uses its own `locales`) |
-| Nuxt-specific features | ✅             | ❌                   |
+| Nuxt-specific features | ✅             | ❌                                    |
 
 ## License
 

@@ -83,10 +83,7 @@ export function parseLoadProfile(raw: string): LoadProfileId {
 /**
  * Knobs for `@untestutils/perf` ≥0.6.9 (`'maxVusers' in knobs` → uncapped when undefined).
  */
-export function artilleryKnobsFromProfile(
-  profile: PerfRuntimeProfile,
-  loadId: LoadProfileId = 'short',
-): ArtilleryLoadKnobs {
+export function artilleryKnobsFromProfile(profile: PerfRuntimeProfile, loadId: LoadProfileId = 'short'): ArtilleryLoadKnobs {
   const phases = LOAD_PROFILES[loadId]
   return {
     name: 'i18n-load',

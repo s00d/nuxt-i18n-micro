@@ -145,7 +145,8 @@ Starting from v2.14+/v3.0.0, the i18n-micro ecosystem includes standalone packag
 | [`@i18n-micro/solid`](https://www.npmjs.com/package/@i18n-micro/solid)                     | SolidJS integration                                   |
 | [`@i18n-micro/preact`](https://www.npmjs.com/package/@i18n-micro/preact)                   | Preact integration                                    |
 | [`@i18n-micro/astro`](https://www.npmjs.com/package/@i18n-micro/astro)                     | Astro integration                                     |
-| [`@i18n-micro/node`](https://www.npmjs.com/package/@i18n-micro/node)                       | Node.js server-side loader                            |
+| [`@i18n-micro/runtime`](https://www.npmjs.com/package/@i18n-micro/runtime)                 | Vanilla TS/JS runtime (messages + fetch)              |
+| [`@i18n-micro/node`](https://www.npmjs.com/package/@i18n-micro/node)                       | Node.js filesystem loader (extends runtime)           |
 | [`@i18n-micro/core`](https://www.npmjs.com/package/@i18n-micro/core)                       | Core utilities (shared by all packages)               |
 | [`@i18n-micro/types`](https://www.npmjs.com/package/@i18n-micro/types)                     | TypeScript type definitions                           |
 | [`@i18n-micro/types-generator`](https://www.npmjs.com/package/@i18n-micro/types-generator) | Auto-generate TypeScript types from translation files |

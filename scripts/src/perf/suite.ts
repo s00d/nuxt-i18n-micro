@@ -3,12 +3,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isTranslationFile } from '../../../test/helpers/is-translation-file'
 import { repoRoot } from '../utils/workspace'
-import {
-  assertServerEntry,
-  buildHashInputs,
-  ensureConsumerModuleDist,
-  NITRO_SERVER_ENTRY,
-} from './artifact'
+import { assertServerEntry, buildHashInputs, ensureConsumerModuleDist, NITRO_SERVER_ENTRY } from './artifact'
 import { resolveFixtureSelection, type PerfFixtureDef } from './fixtures'
 import { ensurePerfLocales, writePerfLocales, writeRuntimeProfile } from './generate'
 import { artilleryKnobsFromProfile, describeLoadProfile, loadPathsFromProfile } from './load'
@@ -18,12 +13,7 @@ import type { LoadProfileId, PerfRuntimeProfile, ResolvedPerfArgs } from './type
 const LOAD_PORT = 10_000
 const NUXI_BUILD_ASSERT = fileURLToPath(new URL('./nuxi-build-assert.mjs', import.meta.url))
 
-function fixtureTarget(
-  fixture: PerfFixtureDef,
-  port: number,
-  profile: PerfRuntimeProfile,
-  load: LoadProfileId,
-): PerfTarget {
+function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRuntimeProfile, load: LoadProfileId): PerfTarget {
   const root = join(repoRoot, fixture.dir)
   const paths = loadPathsFromProfile(profile)
   return {

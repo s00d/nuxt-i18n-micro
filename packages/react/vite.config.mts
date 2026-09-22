@@ -48,6 +48,7 @@ export default defineConfig({
         'react/jsx-runtime',
         'react-router-dom',
         '@i18n-micro/core',
+        '@i18n-micro/runtime',
         '@i18n-micro/types',
         'use-sync-external-store',
         'use-sync-external-store/shim',

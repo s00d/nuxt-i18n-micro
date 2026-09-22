@@ -55,6 +55,7 @@ export default defineConfig({
         // ВАЖНО: Добавляем jsx-runtime, чтобы он не попал в бандл
         'preact/jsx-runtime',
         '@i18n-micro/core',
+        '@i18n-micro/runtime',
         '@i18n-micro/types',
       ],
       output: {

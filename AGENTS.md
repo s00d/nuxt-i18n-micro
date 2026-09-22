@@ -11,6 +11,7 @@ Deeper agent rules: [`.cursorrules`](./.cursorrules) · [`.cursor/rules/package-
 
 - Published root package: `nuxt-i18n-micro` (Nuxt module from `src/`)
 - Shared domain logic: `packages/core`, `packages/types`, `packages/utils`
+- Framework-agnostic runtime: `packages/runtime` (`createI18n`, messages/fetch; no `fs`)
 - Routing: `packages/route-strategy` (build) + `packages/path-strategy` (runtime)
 - Framework bindings: `vue`, `react`, `preact`, `solid`, `astro`, `node`, `vitepress`
 - Tooling: `hmr`, `devtools-ui`, `types-generator`, `test-utils`
@@ -63,6 +64,7 @@ StackBlitz / cloud agents can also mirror `package.json` → `stackblitz.startCo
 | Nuxt runtime (plugins, composables, middleware, server) | `src/runtime/` |
 | Shared types | `packages/types/src/` (export from `index.ts`) |
 | Framework-agnostic helpers | `packages/utils/src/` (subpath exports) |
+| Vanilla / fetch runtime | `packages/runtime/` (`createI18n`, no `fs`) |
 | Translation / plural / format domain | `packages/core/src/` |
 | Locale route generation | `packages/route-strategy/` |
 | Runtime path strategies | `packages/path-strategy/` |

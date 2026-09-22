@@ -18,7 +18,7 @@ member I18nDevToolsBridge.getConfigs: () => Promise<ModuleOptions>
 member I18nDevToolsBridge.getLocalesAndTranslations: () => Promise<LocaleData>
 member I18nDevToolsBridge.onLocalesUpdate: (callback: (data: LocaleData) => void) => () => void
 member I18nDevToolsBridge.saveTranslation: (filePath: string, content: TranslationContent) => Promise<void>
-const I18nDevToolsElement: import("vue/dist/vue").VueElementConstructor<any>
+const I18nDevToolsElement: import("vue").VueElementConstructor<any>
 interface JsonRpcEvent
 member JsonRpcEvent.jsonrpc: "2.0"
 member JsonRpcEvent.method: string

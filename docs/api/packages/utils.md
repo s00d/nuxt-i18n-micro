@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-104 exports across 24 entry points.
+105 exports across 24 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -42,6 +42,7 @@ import { /* … */ } from '@i18n-micro/utils/app-path'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
+| `isInternalPath` | function | `(path: string, excludePatterns?: (string \| RegExp \| object)[]) => boolean` |
 | `isStaticAssetPathname` | function | `(pathname: string) => boolean` |
 | `resolveContainedRelPath` | function | `(relPath: string) => string \| null` |
 | `withoutAppBaseURL` | function | `(pathname: string, baseURL?: string \| null) => string` |

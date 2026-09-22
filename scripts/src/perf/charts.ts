@@ -217,9 +217,7 @@ export function generateChartMarkdown(name: string, artillery: ArtilleryResult):
   const completedPercent = summary.vusersCreated > 0 ? ((summary.completed / summary.vusersCreated) * 100).toFixed(2) : '0'
   const failedPercent = summary.vusersCreated > 0 ? ((summary.failed / summary.vusersCreated) * 100).toFixed(2) : '0'
   const skippedPercent =
-    summary.vusersCreated + summary.skipped > 0
-      ? ((summary.skipped / (summary.vusersCreated + summary.skipped)) * 100).toFixed(2)
-      : '0'
+    summary.vusersCreated + summary.skipped > 0 ? ((summary.skipped / (summary.vusersCreated + summary.skipped)) * 100).toFixed(2) : '0'
   const safeName = name.replace(/[^a-z0-9-]/gi, '-')
 
   return `

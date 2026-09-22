@@ -1,12 +1,5 @@
 import { defineCommand } from 'citty'
-import {
-  DEFAULT_COOL,
-  DEFAULT_KEYS,
-  DEFAULT_LOAD,
-  DEFAULT_LOCALES,
-  DEFAULT_RUNS,
-  resolvePerfArgs,
-} from '../perf/config'
+import { DEFAULT_COOL, DEFAULT_KEYS, DEFAULT_LOAD, DEFAULT_LOCALES, DEFAULT_RUNS, resolvePerfArgs } from '../perf/config'
 import { describeLoadProfile } from '../perf/load'
 import { runPerformance } from '../perf/run'
 

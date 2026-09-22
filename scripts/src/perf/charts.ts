@@ -209,20 +209,25 @@ export function generateChartMarkdown(name: string, artillery: ArtilleryResult):
     vusersCreated: artillery.aggregate.counters['vusers.created'] || 0,
     completed: artillery.aggregate.counters['vusers.completed'] || 0,
     failed: artillery.aggregate.counters['vusers.failed'] || 0,
+    skipped: artillery.aggregate.counters['vusers.skipped'] || 0,
     avgReqPerSec: artillery.aggregate.rates['http.request_rate'] || 0,
     peakReqPerSec: Math.max(...data.map((d) => d.requestRate), 0),
   }
 
   const completedPercent = summary.vusersCreated > 0 ? ((summary.completed / summary.vusersCreated) * 100).toFixed(2) : '0'
   const failedPercent = summary.vusersCreated > 0 ? ((summary.failed / summary.vusersCreated) * 100).toFixed(2) : '0'
+  const skippedPercent =
+    summary.vusersCreated + summary.skipped > 0
+      ? ((summary.skipped / (summary.vusersCreated + summary.skipped)) * 100).toFixed(2)
+      : '0'
   const safeName = name.replace(/[^a-z0-9-]/gi, '-')
 
   return `
 #### Load Summary - ${name}
 
-| **${summary.vusersCreated.toLocaleString()}** | **${summary.completed.toLocaleString()}** completed | **${summary.avgReqPerSec.toFixed(0)}** | **${summary.peakReqPerSec.toFixed(0)}** |
-|:---:|:---:|:---:|:---:|
-| vusers created | ${completedPercent}% / ${failedPercent}% failed | average req/s | peak req/s |
+| **${summary.vusersCreated.toLocaleString()}** | **${summary.completed.toLocaleString()}** completed | **${summary.skipped.toLocaleString()}** skipped | **${summary.avgReqPerSec.toFixed(0)}** | **${summary.peakReqPerSec.toFixed(0)}** |
+|:---:|:---:|:---:|:---:|:---:|
+| vusers created | ${completedPercent}% / ${failedPercent}% failed | ${skippedPercent}% of attempts | average req/s | peak req/s |
 
 \`\`\`chart
 url: /charts/${safeName}-traffic.js
@@ -249,6 +254,7 @@ export async function generateAndSaveChart(name: string, artillery: ArtilleryRes
     vusersCreated: artillery.aggregate.counters['vusers.created'] || 0,
     completed: artillery.aggregate.counters['vusers.completed'] || 0,
     failed: artillery.aggregate.counters['vusers.failed'] || 0,
+    skipped: artillery.aggregate.counters['vusers.skipped'] || 0,
     avgReqPerSec: artillery.aggregate.rates['http.request_rate'] || 0,
     peakReqPerSec: Math.max(...data.map((d) => d.requestRate), 0),
   }

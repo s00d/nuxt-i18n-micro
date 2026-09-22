@@ -1,5 +1,5 @@
 import { defineCommand } from 'citty'
-import { DEFAULT_KEYS, DEFAULT_LOCALES, resolvePerfArgs } from '../perf/config'
+import { DEFAULT_KEYS, DEFAULT_LOCALES, DEFAULT_RUNS, resolvePerfArgs } from '../perf/config'
 import { runPerformance } from '../perf/run'
 
 export const performanceCommand = defineCommand({
@@ -10,7 +10,8 @@ export const performanceCommand = defineCommand({
       '',
       'Examples:',
       '  pnpm -C scripts cli performance --only micro --skip-load',
-      '  pnpm -C scripts cli performance --locales 12 --keys 100000 --runs 3',
+      '  pnpm -C scripts cli performance --locales 12 --keys 100000',
+      '  pnpm -C scripts cli performance --runs 1   # quick single pass',
       '  pnpm test:performance',
     ].join('\n'),
   },
@@ -32,8 +33,8 @@ export const performanceCommand = defineCommand({
     },
     runs: {
       type: 'string',
-      default: '1',
-      description: 'Consecutive build+load repetitions; report means',
+      default: String(DEFAULT_RUNS),
+      description: `Consecutive build+load repetitions; report means (default ${DEFAULT_RUNS})`,
     },
     skipLoad: {
       type: 'boolean',

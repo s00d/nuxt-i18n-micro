@@ -18,13 +18,14 @@ In large-scale projects and high-traffic environments, performance bottlenecks c
 
 We conducted a series of tests on identical fixtures via `pnpm test:performance` (`pnpm -C scripts cli performance`) against **`@nuxtjs/i18n@10.6.0`**. Full methodology and charts: [Performance Test Results](/guide/performance-results).
 
-Default CLI profile: **4 locales** × **2 pages** (`index`, `page`) × ~10k index leaf keys. Raise `--locales` / `--keys` for a heavier regression-radar load. The report splits **code**, **translations** (including `@nuxtjs/i18n` `chunks/raw/*`), and **total** deployable output.
-
 ```bash
 pnpm test:performance
-pnpm -C scripts cli performance --only micro --skip-stress
-pnpm -C scripts cli performance --locales 12 --keys 100000 --runs 3
+pnpm -C scripts cli performance --only micro --skip-load
+pnpm -C scripts cli performance --locales 12 --keys 100000
+# quick single pass: --runs 1
 ```
+
+Default CLI profile: **4 locales** × **2 pages** × ~10k index leaves, **`--runs 3`** (mean of three consecutive build+load passes per fixture). Raise `--locales` / `--keys` for a heavier load. The report splits **code**, **translations**, and **total** deployable output.
 
 ### ⏱️ Build Time and Resource Consumption
 
@@ -52,7 +53,7 @@ See the [full benchmark report](/guide/performance-results) for charts, load res
 
 ### 🌐 Server Performance Under Load
 
-Programmatic Artillery knobs from `scripts/src/perf/load.ts` (warm 2s + main 10s @ arrival 40 / maxVU 40, paths from runtime profile; no YAML). Regenerate docs with `pnpm test:performance`.
+Programmatic Artillery matching the historical YAML: warm **6s @ 6/s** + main **60s @ 60/s**, uncapped VU; paths from the runtime profile (`scripts/src/perf/load.ts`). Default **`--runs 3`** with forced rebuilds and cool-downs 2s / 3s / 5s.
 
 ::: details **@nuxtjs/i18n v10.6**
 
@@ -127,7 +128,7 @@ options:
 
 ### 🔍 Interpretation of Results
 
-Against current `@nuxtjs/i18n` **v10.6** (default CLI profile, mean of 3):
+Against current `@nuxtjs/i18n` **v10.6** (default CLI profile, **mean of 3** consecutive runs):
 
 - 🗜️ **Smaller code graph**: ~1.74 MB vs ~2.16 MB once message chunks are not mis-labeled as “code”.
 - 🧠 **Lower build RSS**: ~1.1 GB peak vs ~1.8 GB.

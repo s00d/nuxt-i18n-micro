@@ -92,6 +92,7 @@ Dictionaries come from `test/fixtures/perf-shared/runtime.json` (written by the 
 
 ## Build Performance Summary (mean of 1 run)
 
+> Committed snapshot below was generated with `--runs 1`. Default CLI is now **`--runs 3`** — re-run `pnpm test:performance` to refresh means of three.
 | Project | Build Time | Code Bundle | Translations | Total |
 |---------|------------|-------------|--------------|-------|
 | **plain-nuxt (baseline)** | 0.00s | 1.23 MB | 6.8 MB | 8.03 MB |
@@ -260,5 +261,6 @@ height: 350px
 ## Notes
 
 - Shared profile: 4 locales × 2 pages × ~16.8k index leaves.
-- Load: Autocannon (10c×5s) + programmatic Artillery (paths from runtime profile; see `scripts/src/perf/load.ts`).
+- Load: programmatic Artillery only — warm **6s@6** + main **60s@60**, uncapped VU (historical YAML). Paths from runtime profile — see `scripts/src/perf/load.ts`.
+- Cool-downs: 2s post-build, 3s between runs, 5s between fixtures. Builds forced each run.
 - Re-run: `pnpm test:performance` or `pnpm -C scripts cli performance --locales N --keys K --only all|micro|i18n|plain --runs N --skip-load`.

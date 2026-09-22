@@ -80,13 +80,13 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 ::: details **plain-nuxt** (baseline)
 
-- **Requests per Second**: 109 RPS (Artillery) / 65 RPS (Autocannon)
+- **Requests per Second**: 109 RPS (Artillery)
 - **Average Response Time**: 1,194 ms (Artillery)
   :::
 
 ::: details **@nuxtjs/i18n v10.6**
 
-- **Requests per Second**: 143 RPS (Artillery) / 72 RPS (Autocannon)
+- **Requests per Second**: 143 RPS (Artillery)
 - **Average Response Time**: 956 ms (Artillery)
   :::
 
@@ -94,10 +94,9 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 - **Requests per Second**: 275 RPS (Artillery) — **~93% more than `@nuxtjs/i18n` v10.6**
 - **Average Response Time**: 483 ms — **~49% faster than `@nuxtjs/i18n` v10.6**
-- **Autocannon**: 162 RPS / 62 ms avg latency
   :::
 
-Numbers are from the latest fixture run against `@nuxtjs/i18n@10.6.0` (fair code/translations split). Micro stays ahead on build time, build RSS, and especially Artillery/Autocannon throughput; see the [full report](/guide/performance-results) for methodology.
+Numbers are from the latest fixture run against `@nuxtjs/i18n@10.6.0` (fair code/translations split). Micro stays ahead on build time, build RSS, and especially Artillery throughput; see the [full report](/guide/performance-results) for methodology.
 
 ## 🔑 Key Features
 

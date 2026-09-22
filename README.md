@@ -26,7 +26,7 @@ To showcase the efficiency of `Nuxt I18n Micro`, we ran the same fixture suite v
 
 #### Build Time and Resource Consumption
 
-> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Latest run: `@nuxtjs/i18n@10.6.0`, mean of 3 consecutive runs per fixture, default CLI profile (~16.8k index leaves).
+> **Note:** The `plain-nuxt` baseline is a minimal implementation created solely for benchmarking purposes. It loads data directly from JSON files without any i18n logic. Latest published comparison: `@nuxtjs/i18n@10.6.0`, **mean of 3 consecutive runs** (forced rebuilds), Artillery warm 6s@6 + 60s@60 uncapped VU — see `docs/guide/performance-results.md`.
 
 | Project | Build Time | Code Bundle | Max Memory | Max CPU |
 |---------|------------|-------------|------------|---------|

@@ -15,8 +15,6 @@ describe('SEO with dynamic metaBaseUrl (undefined)', () => {
 
     expect(head.canonical).toBe('https://example.com/en')
     expect(head.ogUrl).toBe('https://example.com/en')
-    expect(head.canonical).not.toMatch(/auto/)
-    expect(head.ogUrl).not.toMatch(/auto/)
   })
 
   test('SSR: two different domains produce different canonical for the same path', async ({ request }) => {
@@ -43,7 +41,8 @@ describe('SEO with dynamic metaBaseUrl (undefined)', () => {
     expect(hrefs.length).toBeGreaterThan(0)
     for (const href of hrefs) {
       expect(href).toContain('https://multi.example.org/')
-      expect(href).not.toContain('auto')
+      // Catch literal broken host/path tokens leaking into alternates (full HTML used to scan for "auto")
+      expect(href).not.toMatch(/(^|\/)auto(\/|$)/)
     }
   })
 

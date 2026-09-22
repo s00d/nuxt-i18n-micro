@@ -4,9 +4,18 @@ import { defineRecipes } from 'untestutils'
 import { nuxt } from 'untestutils/nuxt'
 
 const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url))
+/** Workspace-root module src (fixtures import ../../../src/module). Belt for older untestutils without root-src hash. */
+const moduleSrc = fileURLToPath(new URL('../src', import.meta.url))
 
 function app(id: string, dir = id, env?: Record<string, string>) {
-  return nuxt({ id, root: resolve(fixtures, dir), run: 'server', env })
+  const root = resolve(fixtures, dir)
+  return nuxt({
+    id,
+    root,
+    run: 'server',
+    env,
+    hashInputs: [root, moduleSrc],
+  })
 }
 
 export const recipes = defineRecipes(
@@ -44,6 +53,7 @@ export const recipes = defineRecipes(
       id: 'seo-trailing-slash',
       root: resolve(fixtures, 'seo'),
       run: 'server',
+      hashInputs: [resolve(fixtures, 'seo'), moduleSrc],
       nuxtConfig: { i18n: { trailingSlash: 'append' } },
     }),
 
@@ -76,15 +86,18 @@ export const recipes = defineRecipes(
     }),
     'cookie-auto-detect-root': app('cookie-auto-detect-root', 'cookie', { AUTO_DETECT_PATH: '/' }),
 
+    // HMR-only: asserts live locale file reload. Not the default e2e path — see untestutils Drivers docs.
     'translation-watcher': nuxt({
       id: 'translation-watcher',
       root: resolve(fixtures, 'translation-watcher'),
       run: 'dev',
+      hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
     }),
     'translation-watcher-source': nuxt({
       id: 'translation-watcher-source',
       root: resolve(fixtures, 'translation-watcher-source'),
       run: 'dev',
+      hashInputs: [resolve(fixtures, 'translation-watcher-source'), moduleSrc],
     }),
   },
   import.meta.url,

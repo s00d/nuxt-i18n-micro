@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto'
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { repoRoot } from '../utils/workspace'
-import { fixtureAbsDir, localesForNuxtConfig, type PerfFixtureDef } from './fixtures'
+import { fixtureAbsDir, fixtureSourceAbsDir, localesForNuxtConfig, type PerfFixtureDef } from './fixtures'
 import type { PerfRuntimeProfile } from './types'
 
 export const PERF_SHARED_DIR = join(repoRoot, 'test/fixtures/perf-shared')
@@ -44,13 +44,26 @@ export function regenerateLocales(fixtures: PerfFixtureDef[]): void {
   }
 }
 
+/** True when `dir` exists and contains at least one `.json` file (non-recursive). */
+export function dirHasLocaleJson(dir: string): boolean {
+  if (!existsSync(dir)) return false
+  const names = readdirSync(dir, { withFileTypes: true })
+  return names.some((e) => e.isFile() && e.name.endsWith('.json'))
+}
+
+/** True when each fixture has at least one dictionary JSON on disk (fresh clone check). */
+export function localesArtifactsPresent(fixtures: PerfFixtureDef[]): boolean {
+  return fixtures.every((fixture) => dirHasLocaleJson(fixtureSourceAbsDir(fixture)))
+}
+
 /**
  * Skip `generate:locales` when the runtime profile fingerprint is unchanged
- * (avoids rewriting ~100MB+ plain-nuxt dictionaries every run).
+ * **and** locale artifacts are present (avoids rewriting ~100MB+ dictionaries every run,
+ * but still regenerates after a fresh clone where dictionaries are gitignored).
  */
 export function ensurePerfLocales(profile: PerfRuntimeProfile, fixtures: PerfFixtureDef[]): void {
   const fp = profileFingerprint(profile)
-  if (existsSync(LOCALE_FINGERPRINT)) {
+  if (existsSync(LOCALE_FINGERPRINT) && localesArtifactsPresent(fixtures)) {
     try {
       const prev = readFileSync(LOCALE_FINGERPRINT, 'utf8').trim()
       if (prev === fp) {
@@ -62,5 +75,6 @@ export function ensurePerfLocales(profile: PerfRuntimeProfile, fixtures: PerfFix
     }
   }
   regenerateLocales(fixtures)
+  if (!existsSync(PERF_SHARED_DIR)) mkdirSync(PERF_SHARED_DIR, { recursive: true })
   writeFileSync(LOCALE_FINGERPRINT, `${fp}\n`, 'utf8')
 }

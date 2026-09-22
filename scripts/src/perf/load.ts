@@ -22,15 +22,48 @@ export function loadPathsFromProfile(profile: PerfRuntimeProfile): string[] {
   return [...new Set(paths)]
 }
 
-/** Programmatic Artillery knobs (no YAML). Duration/arrival from sweep — see untestutils perf-duration-sweep. */
+/** Published load window: warm 6s@6 + main 60s@60, no maxVusers (historical YAML). */
+export const I18N_LOAD_PHASES = {
+  warmUpSec: 6,
+  warmUpArrivalRate: 6,
+  durationSec: 60,
+  arrivalRate: 60,
+} as const
+
+/**
+ * Knobs for untestutils ≥0.6.9 (`'maxVusers' in knobs` → uncapped).
+ * Prefer {@link artilleryScriptFromProfile} so published 0.6.8 cannot re-apply maxVU 40 via `??`.
+ */
 export function artilleryKnobsFromProfile(profile: PerfRuntimeProfile) {
   return {
     name: 'i18n-load',
     paths: loadPathsFromProfile(profile),
-    warmUpSec: 2,
-    warmUpArrivalRate: 10,
-    durationSec: 10,
-    arrivalRate: 40,
-    maxVusers: 40,
+    ...I18N_LOAD_PHASES,
+    maxVusers: undefined as number | undefined,
+  }
+}
+
+/**
+ * Inline Artillery script matching pre-migration `benchmark/artillery-config.yml`:
+ * warm **6s @ 6/s** + main **60s @ 60/s**, **uncapped** virtual users.
+ */
+export function artilleryScriptFromProfile(profile: PerfRuntimeProfile) {
+  const paths = loadPathsFromProfile(profile)
+  const { warmUpSec, warmUpArrivalRate, durationSec, arrivalRate } = I18N_LOAD_PHASES
+  return {
+    config: {
+      phases: [
+        { name: 'warm-up', duration: warmUpSec, arrivalRate: warmUpArrivalRate },
+        { name: 'main', duration: durationSec, arrivalRate },
+      ],
+      http: { timeout: 30 },
+    },
+    scenarios: [
+      {
+        name: 'i18n-load',
+        flow: paths.map((url) => ({ get: { url } })),
+        ...(paths.length > 1 ? { 'parallel-requests': Math.min(paths.length, 8) } : {}),
+      },
+    ],
   }
 }

@@ -1,4 +1,4 @@
-import { appendFileSync, existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { formatBytes, type LoadMetrics, type PerfReporter, type PerfTargetResult } from 'untestutils/perf'
@@ -61,16 +61,25 @@ function mb(bytes: number): number {
   return Math.round((bytes / 1024 / 1024) * 10) / 10
 }
 
-export function createMarkdownWriter(enabled: boolean): {
+export function createMarkdownWriter(
+  enabled: boolean,
+  filePath: string = resultsFilePath,
+): {
   init: (profile: PerfRuntimeProfile, runs: number) => void
   write: (content: string) => void
+  /** Persist buffer to `filePath` (call only from successful `onEnd`). */
+  commit: () => void
+  /** In-memory buffer for tests. */
+  getBuffer: () => string
 } {
+  let buffer = ''
+  const append = (content: string) => {
+    buffer += content
+  }
   return {
     init(profile, runs) {
       if (!enabled) return
-      writeFileSync(
-        resultsFilePath,
-        `---
+      buffer = `---
 title: "Performance Test Results"
 description: "Benchmarks vs nuxt-i18n on real fixtures."
 outline: "deep"
@@ -96,15 +105,16 @@ Focus: build time, peak RSS, deployable **code vs translations (asset) vs total*
 - Metrics are **means of ${runs} consecutive runs per fixture** (not interleaved).
 - **Translations** = \`bundle.asset\` (locale JSON, \`chunks/raw/\`, matching locale chunks via \`isTranslationFile\`).
 - **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
-
+- Load schedule: programmatic Artillery warm **6s@6** + main **60s@60**, **uncapped** VU (same as historical \`benchmark/artillery-config.yml\`). Not the short sweep profile (2s+10s / maxVU 40).
+- Cool-downs: **2s** after build before load, **3s** between consecutive runs, **5s** between fixtures.
+- Each of the \`runs\` builds is **forced** (no warm-cache zeroing of build time).
 ### Runs
 
 All metrics below are **means across ${runs} runs**.
 
 ---
-`,
-      )
-      appendFileSync(resultsFilePath, `\n${fixtureProfileMarkdown(profile)}\n`)
+`
+      append(`\n${fixtureProfileMarkdown(profile)}\n`)
 
       const i18nFixtureDir = join(repoRoot, 'test/fixtures/i18n')
       const rootPackagePath = join(repoRoot, 'package.json')
@@ -116,9 +126,7 @@ All metrics below are **means across ${runs} runs**.
         '@nuxtjs/i18n': getInstalledVersion('@nuxtjs/i18n', i18nFixtureDir),
       }
 
-      appendFileSync(
-        resultsFilePath,
-        `
+      append(`
 ## Dependency Versions
 
 | Dependency | Version |
@@ -126,12 +134,18 @@ All metrics below are **means across ${runs} runs**.
 ${Object.entries(dependencies)
   .map(([dep, version]) => `| ${dep} | ${version} |`)
   .join('\n')}
-`,
-      )
+`)
     },
     write(content) {
       if (!enabled) return
-      appendFileSync(resultsFilePath, content)
+      append(content)
+    },
+    commit() {
+      if (!enabled) return
+      writeFileSync(filePath, buffer)
+    },
+    getBuffer() {
+      return buffer
     },
   }
 }
@@ -148,6 +162,7 @@ export function createDocsReporter(args: ResolvedPerfArgs): PerfReporter {
     },
     async onEnd({ results }) {
       await writeDocsReport(md.write, results, args.runs, args.profile)
+      md.commit()
       console.log('Wrote docs report: docs/guide/performance-results.md')
     },
   }
@@ -350,7 +365,8 @@ function writeAnalysisFooter(write: (c: string) => void, profile: PerfRuntimePro
 ## Notes
 
 - Shared profile: ${profile.locales.length} locales × ${profile.pages.length} pages × ~${(indexLeaves / 1000).toFixed(1)}k index leaves.
-- Load: Autocannon (10c×5s) + programmatic Artillery (paths from runtime profile; see \`scripts/src/perf/load.ts\`).
+- Load: programmatic Artillery only — warm **6s@6** + main **60s@60**, uncapped VU (historical YAML methodology). Paths from runtime profile — see \`scripts/src/perf/load.ts\`.
+- Cool-downs: 2s post-build, 3s between runs, 5s between fixtures. Builds are forced each run so means are not diluted by cache hits.
 - Re-run: \`pnpm test:performance\` or \`pnpm -C scripts cli performance --locales N --keys K --only all|micro|i18n|plain --runs N --skip-load\`.
 `)
 }

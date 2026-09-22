@@ -25,6 +25,8 @@ export const DEFAULT_PAGES: PageDef[] = [
 
 export const DEFAULT_LOCALES = 4
 export const DEFAULT_KEYS = 10_000
+/** Consecutive build+load repetitions for published means (CLI default). */
+export const DEFAULT_RUNS = 3
 export const TREE_DEPTH = 5
 
 export { parseOnly }

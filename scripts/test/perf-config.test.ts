@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { averageTargetResults, type PerfTargetResult } from 'untestutils/perf'
-import { DEFAULT_KEYS, DEFAULT_LOCALES, buildProfile, keysToBranch, leafKeysFor, parseOnly, resolvePerfArgs } from '../src/perf/config'
+import { DEFAULT_KEYS, DEFAULT_LOCALES, DEFAULT_RUNS, buildProfile, keysToBranch, leafKeysFor, parseOnly, resolvePerfArgs } from '../src/perf/config'
 import { PERF_FIXTURES, resolveFixtureSelection } from '../src/perf/fixtures'
+import { I18N_LOAD_PHASES, artilleryKnobsFromProfile, artilleryScriptFromProfile, loadPathsFromProfile } from '../src/perf/load'
 
 describe('perf config', () => {
   it('maps keys to a clamped branch at depth 5', () => {
@@ -27,15 +28,17 @@ describe('perf config', () => {
     expect(resolveFixtureSelection('all').map((f) => f.id)).toEqual(['plain-nuxt', 'i18n', 'i18n-micro'])
     expect(parseOnly('micro')).toBe('micro')
     expect(() => parseOnly('nope')).toThrow(/--only/)
+    expect(DEFAULT_RUNS).toBe(3)
 
     const all = resolvePerfArgs({
       locales: '4',
       keys: '10000',
       only: 'all',
-      runs: '2',
+      runs: String(DEFAULT_RUNS),
       skipLoad: false,
     })
     expect(all.fixtures).toEqual(['plain-nuxt', 'i18n', 'i18n-micro'])
+    expect(all.runs).toBe(3)
     expect(all.writeDocs).toBe(true)
 
     const micro = resolvePerfArgs({
@@ -48,6 +51,27 @@ describe('perf config', () => {
     expect(micro.fixtures).toEqual(['i18n-micro'])
     expect(micro.skipLoad).toBe(true)
     expect(micro.writeDocs).toBe(false)
+  })
+})
+
+describe('perf load methodology', () => {
+  it('builds uncapped 6@6 + 60@60 script (no maxVusers)', () => {
+    const profile = buildProfile(DEFAULT_LOCALES, DEFAULT_KEYS)
+    const paths = loadPathsFromProfile(profile)
+    expect(paths).toEqual(['/', '/de', '/ru', '/fr', '/page', '/de/page', '/ru/page', '/fr/page'])
+
+    const script = artilleryScriptFromProfile(profile)
+    expect(script.config.phases).toEqual([
+      { name: 'warm-up', duration: I18N_LOAD_PHASES.warmUpSec, arrivalRate: I18N_LOAD_PHASES.warmUpArrivalRate },
+      { name: 'main', duration: I18N_LOAD_PHASES.durationSec, arrivalRate: I18N_LOAD_PHASES.arrivalRate },
+    ])
+    expect(JSON.stringify(script)).not.toContain('maxVusers')
+    expect(script.scenarios[0].flow).toHaveLength(paths.length)
+
+    const knobs = artilleryKnobsFromProfile(profile)
+    expect(knobs).toMatchObject({ ...I18N_LOAD_PHASES, paths })
+    expect('maxVusers' in knobs).toBe(true)
+    expect(knobs.maxVusers).toBeUndefined()
   })
 })
 

@@ -1,5 +1,6 @@
-import type { LocaleDef, PageDef, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
+import type { CoolDownConfig, CoolPresetId, LocaleDef, LoadProfileId, PageDef, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 import { parseOnly, resolveFixtureSelection } from './fixtures'
+import { parseLoadProfile } from './load'
 
 /** Full locale pool — CLI takes the first N. */
 export const LOCALE_POOL: LocaleDef[] = [
@@ -27,7 +28,30 @@ export const DEFAULT_LOCALES = 4
 export const DEFAULT_KEYS = 10_000
 /** Consecutive build+load repetitions for published means (CLI default). */
 export const DEFAULT_RUNS = 3
+/**
+ * Default load profile after A/B (see docs/guide/performance-methodology.md).
+ * `short` wins when ranking matches `full`; use `--load full` for docs regen.
+ */
+export const DEFAULT_LOAD: LoadProfileId = 'short'
+export const DEFAULT_COOL: CoolPresetId = 'fast'
 export const TREE_DEPTH = 5
+
+export const COOL_PRESETS: Record<CoolPresetId, CoolDownConfig> = {
+  /** Tuned after A/B — enough settle without multi-second idle. */
+  fast: {
+    postBuildDelayMs: 200,
+    coolDownBetweenRunsMs: 500,
+    coolDownBetweenTargetsMs: 500,
+    coolDownMs: 500,
+  },
+  /** Pre-migration pauses (legacy). */
+  strict: {
+    postBuildDelayMs: 2000,
+    coolDownBetweenRunsMs: 3000,
+    coolDownBetweenTargetsMs: 5000,
+    coolDownMs: 5000,
+  },
+}
 
 export { parseOnly }
 
@@ -60,7 +84,21 @@ export function buildProfile(locales: number, keys: number): PerfRuntimeProfile 
   }
 }
 
-export function resolvePerfArgs(input: { locales: string; keys: string; only: string; runs: string; skipLoad: boolean }): ResolvedPerfArgs {
+export function parseCoolPreset(raw: string): CoolPresetId {
+  const id = raw.trim().toLowerCase()
+  if (id === 'fast' || id === 'strict') return id
+  throw new Error(`--cool must be fast | strict, got "${raw}"`)
+}
+
+export function resolvePerfArgs(input: {
+  locales: string
+  keys: string
+  only: string
+  runs: string
+  skipLoad: boolean
+  load?: string
+  cool?: string
+}): ResolvedPerfArgs {
   const locales = Number(input.locales)
   const keys = Number(input.keys)
   const runs = Number(input.runs)
@@ -76,6 +114,8 @@ export function resolvePerfArgs(input: { locales: string; keys: string; only: st
 
   const only = parseOnly(input.only)
   const selected = resolveFixtureSelection(only)
+  const load = parseLoadProfile(input.load ?? DEFAULT_LOAD)
+  const cool = parseCoolPreset(input.cool ?? DEFAULT_COOL)
 
   return {
     locales,
@@ -83,9 +123,13 @@ export function resolvePerfArgs(input: { locales: string; keys: string; only: st
     only,
     runs,
     skipLoad: Boolean(input.skipLoad),
+    load,
+    cool,
+    coolDowns: COOL_PRESETS[cool],
     profile: buildProfile(locales, keys),
     fixtures: selected.map((f) => f.id),
-    writeDocs: only === 'all',
+    // Published docs only from the historical full window (see performance-methodology.md).
+    writeDocs: only === 'all' && load === 'full',
   }
 }
 

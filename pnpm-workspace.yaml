@@ -75,8 +75,8 @@ catalog:
   '@testing-library/react': ^14.3.1
   '@testing-library/vue': ^8.1.0
   happy-dom: ^15.11.7
-  # TypeScript & types
-  typescript: ^6.0.3
+  # TypeScript & types — pin 6.x (TS7 breaks unplugin-dts / vue-tsc / module-builder)
+  typescript: 6.0.3
   '@types/node': ^20.19.26
   tsx: ^4.23.13
   # Docs & lint

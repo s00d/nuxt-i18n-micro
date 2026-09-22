@@ -145,6 +145,7 @@ new MutationObserver(() => {
               { text: 'Using', link: '/guide/using' },
               { text: 'Firebase Deployment', link: '/guide/firebase' },
               { text: 'Performance', link: '/guide/performance' },
+              { text: 'Performance methodology', link: '/guide/performance-methodology' },
               { text: 'Performance Test Results', link: '/guide/performance-results' },
               { text: 'Folder Structure', link: '/guide/folder-structure' },
               { text: 'Layers', link: '/guide/layers' },

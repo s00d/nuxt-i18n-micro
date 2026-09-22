@@ -1,4 +1,5 @@
-import type { PerfRuntimeProfile } from './types'
+import type { ArtilleryLoadKnobs } from 'untestutils/perf'
+import type { LoadProfileId, PerfRuntimeProfile } from './types'
 
 /**
  * URL paths for Artillery from the shared runtime profile.
@@ -22,48 +23,82 @@ export function loadPathsFromProfile(profile: PerfRuntimeProfile): string[] {
   return [...new Set(paths)]
 }
 
-/** Published load window: warm 6s@6 + main 60s@60, no maxVusers (historical YAML). */
-export const I18N_LOAD_PHASES = {
-  warmUpSec: 6,
-  warmUpArrivalRate: 6,
-  durationSec: 60,
-  arrivalRate: 60,
-} as const
-
-/**
- * Knobs for untestutils ≥0.6.9 (`'maxVusers' in knobs` → uncapped).
- * Prefer {@link artilleryScriptFromProfile} so published 0.6.8 cannot re-apply maxVU 40 via `??`.
- */
-export function artilleryKnobsFromProfile(profile: PerfRuntimeProfile) {
-  return {
-    name: 'i18n-load',
-    paths: loadPathsFromProfile(profile),
-    ...I18N_LOAD_PHASES,
-    maxVusers: undefined as number | undefined,
-  }
+export type LoadPhaseSpec = {
+  warmUpSec: number
+  warmUpArrivalRate: number
+  durationSec: number
+  arrivalRate: number
+  /** Explicit key: `undefined` = uncapped (`'maxVusers' in knobs`). */
+  maxVusers: number | undefined
+  label: string
 }
 
 /**
- * Inline Artillery script matching pre-migration `benchmark/artillery-config.yml`:
- * warm **6s @ 6/s** + main **60s @ 60/s**, **uncapped** virtual users.
+ * Load profiles for A/B and published docs.
+ * - `full` — historical YAML window (docs / marketing)
+ * - `mid` — half main window
+ * - `short` — library sweep defaults (fast CI)
  */
-export function artilleryScriptFromProfile(profile: PerfRuntimeProfile) {
-  const paths = loadPathsFromProfile(profile)
-  const { warmUpSec, warmUpArrivalRate, durationSec, arrivalRate } = I18N_LOAD_PHASES
+export const LOAD_PROFILES: Record<LoadProfileId, LoadPhaseSpec> = {
+  full: {
+    warmUpSec: 6,
+    warmUpArrivalRate: 6,
+    durationSec: 60,
+    arrivalRate: 60,
+    maxVusers: undefined,
+    label: 'warm 6s@6 + main 60s@60 uncapped (historical)',
+  },
+  mid: {
+    warmUpSec: 6,
+    warmUpArrivalRate: 6,
+    durationSec: 30,
+    arrivalRate: 60,
+    maxVusers: undefined,
+    label: 'warm 6s@6 + main 30s@60 uncapped',
+  },
+  short: {
+    warmUpSec: 2,
+    warmUpArrivalRate: 10,
+    durationSec: 10,
+    arrivalRate: 40,
+    maxVusers: 40,
+    label: 'warm 2s@10 + main 10s@40 / maxVU 40 (sweep)',
+  },
+}
+
+/** @deprecated use LOAD_PROFILES.full — kept for older test imports */
+export const I18N_LOAD_PHASES = {
+  warmUpSec: LOAD_PROFILES.full.warmUpSec,
+  warmUpArrivalRate: LOAD_PROFILES.full.warmUpArrivalRate,
+  durationSec: LOAD_PROFILES.full.durationSec,
+  arrivalRate: LOAD_PROFILES.full.arrivalRate,
+} as const
+
+export function parseLoadProfile(raw: string): LoadProfileId {
+  const id = raw.trim().toLowerCase()
+  if (id === 'full' || id === 'mid' || id === 'short') return id
+  throw new Error(`--load must be full | mid | short, got "${raw}"`)
+}
+
+/**
+ * Knobs for `@untestutils/perf` ≥0.6.9 (`'maxVusers' in knobs` → uncapped when undefined).
+ */
+export function artilleryKnobsFromProfile(
+  profile: PerfRuntimeProfile,
+  loadId: LoadProfileId = 'short',
+): ArtilleryLoadKnobs {
+  const phases = LOAD_PROFILES[loadId]
   return {
-    config: {
-      phases: [
-        { name: 'warm-up', duration: warmUpSec, arrivalRate: warmUpArrivalRate },
-        { name: 'main', duration: durationSec, arrivalRate },
-      ],
-      http: { timeout: 30 },
-    },
-    scenarios: [
-      {
-        name: 'i18n-load',
-        flow: paths.map((url) => ({ get: { url } })),
-        ...(paths.length > 1 ? { 'parallel-requests': Math.min(paths.length, 8) } : {}),
-      },
-    ],
+    name: 'i18n-load',
+    paths: loadPathsFromProfile(profile),
+    warmUpSec: phases.warmUpSec,
+    warmUpArrivalRate: phases.warmUpArrivalRate,
+    durationSec: phases.durationSec,
+    arrivalRate: phases.arrivalRate,
+    maxVusers: phases.maxVusers,
   }
+}
+
+export function describeLoadProfile(loadId: LoadProfileId): string {
+  return LOAD_PROFILES[loadId].label
 }

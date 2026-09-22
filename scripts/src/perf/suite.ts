@@ -1,16 +1,29 @@
 import { consoleReporter, definePerfSuite, type PerfReporter, type PerfSuite, type PerfTarget } from 'untestutils/perf'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { isTranslationFile } from '../../../test/helpers/is-translation-file'
 import { repoRoot } from '../utils/workspace'
+import {
+  assertServerEntry,
+  buildHashInputs,
+  ensureConsumerModuleDist,
+  NITRO_SERVER_ENTRY,
+} from './artifact'
 import { resolveFixtureSelection, type PerfFixtureDef } from './fixtures'
 import { ensurePerfLocales, writePerfLocales, writeRuntimeProfile } from './generate'
-import { artilleryScriptFromProfile, loadPathsFromProfile } from './load'
+import { artilleryKnobsFromProfile, describeLoadProfile, loadPathsFromProfile } from './load'
 import { createDocsReporter } from './report'
-import type { PerfRuntimeProfile, ResolvedPerfArgs } from './types'
+import type { LoadProfileId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const LOAD_PORT = 10_000
+const NUXI_BUILD_ASSERT = fileURLToPath(new URL('./nuxi-build-assert.mjs', import.meta.url))
 
-function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRuntimeProfile): PerfTarget {
+function fixtureTarget(
+  fixture: PerfFixtureDef,
+  port: number,
+  profile: PerfRuntimeProfile,
+  load: LoadProfileId,
+): PerfTarget {
   const root = join(repoRoot, fixture.dir)
   const paths = loadPathsFromProfile(profile)
   return {
@@ -18,22 +31,21 @@ function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRunti
     label: fixture.label,
     root,
     build: {
-      command: 'nuxi',
-      args: ['build'],
+      command: process.execPath,
+      args: [NUXI_BUILD_ASSERT],
       env: { NODE_OPTIONS: '--max-old-space-size=16000' },
-      // Invalidate when the workspace module changes (not only the fixture tree).
-      hashInputs: [root, join(repoRoot, 'src')],
+      hashInputs: buildHashInputs(root),
     },
     start: {
       command: 'node',
-      args: ['.output/server/index.mjs'],
+      args: [NITRO_SERVER_ENTRY],
       port,
       env: { NITRO_PRESET: 'node-server' },
     },
     load: {
       paths,
-      // Inline script: uncapped phases. Knobs+undefined maxVU is broken on untestutils 0.6.8 (`??` → 40).
-      artillery: { script: artilleryScriptFromProfile(profile) },
+      // Knobs API (@untestutils/perf ≥0.6.9): uncapped via explicit maxVusers: undefined.
+      artillery: artilleryKnobsFromProfile(profile, load),
     },
     bundle: {
       dirs: ['.output/public', '.output/server'],
@@ -47,28 +59,30 @@ export function createI18nPerfSuite(args: ResolvedPerfArgs): PerfSuite {
   const fixtures = resolveFixtureSelection(args.only)
   const reporters: PerfReporter[] = [consoleReporter()]
   if (args.writeDocs) reporters.push(createDocsReporter(args))
+  const { coolDowns } = args
 
   return definePerfSuite({
     runs: args.runs,
     skipLoad: args.skipLoad,
-    // Every consecutive run must rebuild — warm cache would zero buildTime and skew the mean.
     forceBuild: true,
-    // Match pre-migration cool-downs (scripts/src/perf/run.ts before untestutils).
-    postBuildDelayMs: 2000,
-    coolDownBetweenRunsMs: 3000,
-    coolDownBetweenTargetsMs: 5000,
-    // 0.6.8 only reads coolDownMs (same pause for runs + targets). Split fields need ≥0.6.9.
-    coolDownMs: 5000,
+    postBuildDelayMs: coolDowns.postBuildDelayMs,
+    coolDownBetweenRunsMs: coolDowns.coolDownBetweenRunsMs,
+    coolDownBetweenTargetsMs: coolDowns.coolDownBetweenTargetsMs,
+    coolDownMs: coolDowns.coolDownMs,
     artifactsDir: join(repoRoot, 'test/.untestutils/perf'),
-    targets: fixtures.map((f) => fixtureTarget(f, LOAD_PORT, args.profile)),
+    targets: fixtures.map((f) => fixtureTarget(f, LOAD_PORT, args.profile, args.load)),
     reporters,
     async beforeAll() {
+      ensureConsumerModuleDist()
       writeRuntimeProfile(args.profile)
       writePerfLocales(args.profile, fixtures)
       ensurePerfLocales(args.profile, fixtures)
       console.log(
-        `profile: ${args.profile.locales.length} locales, branch ${args.profile.branch}, pages ${args.profile.pages.map((p) => p.name).join('+')} · artillery paths: ${loadPathsFromProfile(args.profile).join(', ')}`,
+        `profile: ${args.profile.locales.length} locales, branch ${args.profile.branch}, pages ${args.profile.pages.map((p) => p.name).join('+')} · load=${args.load} (${describeLoadProfile(args.load)}) · cool=${args.cool} · artillery paths: ${loadPathsFromProfile(args.profile).join(', ')}`,
       )
+    },
+    async afterTarget(target) {
+      assertServerEntry(target.root)
     },
   })
 }

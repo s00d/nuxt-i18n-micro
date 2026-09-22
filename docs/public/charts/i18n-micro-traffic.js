@@ -5,14 +5,28 @@ export default function() {
   "data": {
     "labels": [
       "0s",
-      "10s"
+      "10s",
+      "20s",
+      "30s",
+      "40s",
+      "50s",
+      "60s",
+      "70s",
+      "80s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
-          250,
-          263
+          67,
+          257,
+          206,
+          200,
+          274,
+          284,
+          283,
+          77,
+          170
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -25,8 +39,15 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          354,
-          686
+          107,
+          3464,
+          4317,
+          8521,
+          4584,
+          4231,
+          3985,
+          539,
+          4147
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -39,8 +60,15 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          308,
-          110
+          74,
+          600,
+          597,
+          602,
+          601,
+          600,
+          562,
+          0,
+          0
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -53,7 +81,14 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          32,
+          31,
+          321,
+          144,
+          0,
+          0,
+          4,
+          0,
+          0,
           0
         ],
         "borderColor": "rgb(46, 204, 113)",
@@ -68,7 +103,14 @@ export default function() {
         "label": "vusers.failed",
         "data": [
           0,
-          0
+          0,
+          248,
+          441,
+          369,
+          281,
+          281,
+          0,
+          85
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

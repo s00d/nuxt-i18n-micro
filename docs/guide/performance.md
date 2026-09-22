@@ -16,35 +16,37 @@ In large-scale projects and high-traffic environments, performance bottlenecks c
 
 ## 📊 Performance Comparison
 
-We conducted a series of tests on identical fixtures via `pnpm test:performance` (`pnpm -C scripts cli performance`) against **`@nuxtjs/i18n@10.6.0`**. Full methodology and charts: [Performance Test Results](/guide/performance-results).
+We conducted a series of tests on identical fixtures via `pnpm test:performance` against **`@nuxtjs/i18n@10.6.0`**. Published numbers use `--load full` (historical Artillery window). Day-to-day default is `--load short` — same ranking, less wall time. See [methodology](/guide/performance-methodology) and [full results](/guide/performance-results).
 
 ```bash
 pnpm test:performance
+# docs regen:
+pnpm -C scripts cli performance --load full --only all
 pnpm -C scripts cli performance --only micro --skip-load
 pnpm -C scripts cli performance --locales 12 --keys 100000
 # quick single pass: --runs 1
 ```
 
-Default CLI profile: **4 locales** × **2 pages** × ~10k index leaves, **`--runs 3`** (mean of three consecutive build+load passes per fixture). Raise `--locales` / `--keys` for a heavier load. The report splits **code**, **translations**, and **total** deployable output.
+Default CLI profile: **4 locales** × **2 pages** × ~10k index leaves, **`--runs 3`**, forced rebuilds, **built module dist** (not jiti stub), Nitro `.output/server/index.mjs`.
 
 ### ⏱️ Build Time and Resource Consumption
 
 ::: details **@nuxtjs/i18n v10.6**
 
-- **Code Bundle**: 2.16 MB
+- **Code Bundle**: 1.9 MB
 - **Translations**: 7.21 MB (message chunks + locale payloads)
-- **Total deployable**: 9.37 MB
-- **Max Memory Usage**: 1,821 MB
-- **Elapsed Time**: 8.34s (mean of 3)
+- **Total deployable**: 9.1 MB
+- **Max Memory Usage**: 1,292 MB
+- **Elapsed Time**: 8.23s (mean of 3)
   :::
 
 ::: tip **Nuxt I18n Micro**
 
-- **Code Bundle**: 1.74 MB — **~19% smaller code than `@nuxtjs/i18n` v10.6**
+- **Code Bundle**: 1.44 MB — **~24% smaller code than `@nuxtjs/i18n` v10.6**
 - **Translations**: 6.8 MB (lazy-loaded JSON)
-- **Total deployable**: 8.54 MB
-- **Max Memory Usage**: 1,065 MB — **~41% less memory than `@nuxtjs/i18n` v10.6**
-- **Elapsed Time**: 5.34s — **~36% faster than `@nuxtjs/i18n` v10.6** (≈ plain-nuxt baseline)
+- **Total deployable**: 8.23 MB
+- **Max Memory Usage**: 997 MB — **~23% less memory than `@nuxtjs/i18n` v10.6**
+- **Elapsed Time**: 5.01s — **~39% faster than `@nuxtjs/i18n` v10.6** (≈ plain-nuxt baseline 5.07s)
   :::
 
 > Older docs that showed `@nuxtjs/i18n` “code ≈ 15 MB / translations 0 B” counted `chunks/raw` message files as app code. The current classifier separates them; the gap on **code** is smaller, and micro still leads on build time, peak RSS, and load tests.
@@ -53,18 +55,18 @@ See the [full benchmark report](/guide/performance-results) for charts, load res
 
 ### 🌐 Server Performance Under Load
 
-Programmatic Artillery matching the historical YAML: warm **6s @ 6/s** + main **60s @ 60/s**, uncapped VU; paths from the runtime profile (`scripts/src/perf/load.ts`). Default **`--runs 3`** with forced rebuilds and cool-downs 2s / 3s / 5s.
+Published Artillery window (`--load full`): warm **6s @ 6/s** + main **60s @ 60/s**, uncapped VU. Default day-to-day is `--load short` (2s+10s / maxVU 40) — ranking identical in A/B.
 
 ::: details **@nuxtjs/i18n v10.6**
 
-- **Requests per Second (Artillery)**: 143 [#/sec]
-- **Average Response Time**: 956 ms
+- **Requests per Second (Artillery)**: 126 [#/sec]
+- **Average Response Time**: 1268 ms
   :::
 
 ::: tip **Nuxt I18n Micro**
 
-- **Requests per Second (Artillery)**: 275 [#/sec] — **~93% more than `@nuxtjs/i18n` v10.6**
-- **Average Response Time**: 483 ms — **~49% faster than `@nuxtjs/i18n` v10.6**
+- **Requests per Second (Artillery)**: 230 [#/sec] — **~82% more than `@nuxtjs/i18n` v10.6**
+- **Average Response Time**: 583 ms — **~54% faster than `@nuxtjs/i18n` v10.6**
   :::
 
 ### 📈 Visual Comparison
@@ -72,9 +74,9 @@ Programmatic Artillery matching the historical YAML: warm **6s @ 6/s** + main **
 ```chart
 type: doughnut
 data:
-  labels: ["@nuxtjs/i18n v10.6 (1,821 MB)", "i18n-micro (1,065 MB)"]
+  labels: ["@nuxtjs/i18n v10.6 (1,292 MB)", "i18n-micro (997 MB)"]
   datasets:
-    - data: [1821, 1065]
+    - data: [1292, 997]
       backgroundColor: ["rgba(255, 99, 132, 0.8)", "rgba(46, 204, 113, 0.8)"]
       borderColor: ["rgb(255, 99, 132)", "rgb(46, 204, 113)"]
       borderWidth: 2
@@ -95,12 +97,12 @@ data:
   labels: ["Build Time (s)", "Peak RSS (GB)", "Code Bundle (MB)", "Artillery RPS"]
   datasets:
     - label: "@nuxtjs/i18n v10.6"
-      data: [8.3, 1.8, 2.2, 143]
+      data: [8.2, 1.3, 1.9, 126]
       backgroundColor: "rgba(255, 99, 132, 0.8)"
       borderColor: "rgb(255, 99, 132)"
       borderWidth: 2
     - label: i18n-micro
-      data: [5.3, 1.1, 1.7, 275]
+      data: [5.0, 1.0, 1.4, 230]
       backgroundColor: "rgba(46, 204, 113, 0.8)"
       borderColor: "rgb(46, 204, 113)"
       borderWidth: 2
@@ -120,22 +122,22 @@ options:
 
 | Metric          | @nuxtjs/i18n v10.6 | i18n-micro | Improvement        |
 | --------------- | ------------------ | ---------- | ------------------ |
-| Build Time      | 8.34s              | 5.34s      | **~36% faster**    |
-| Memory (build)  | 1,821 MB           | 1,065 MB   | **~41% less**      |
-| Code Bundle     | 2.16 MB            | 1.74 MB    | **~19% smaller**   |
-| Response Time   | 956 ms             | 483 ms     | **~49% faster**    |
-| RPS (Artillery) | 143                | 275        | **~93% more**      |
+| Build Time      | 8.23s              | 5.01s      | **~39% faster**    |
+| Memory (build)  | 1,292 MB           | 997 MB     | **~23% less**      |
+| Code Bundle     | 1.9 MB             | 1.44 MB    | **~24% smaller**   |
+| Response Time   | 1268 ms            | 583 ms     | **~54% faster**    |
+| RPS (Artillery) | 126                | 230        | **~82% more**      |
 
 ### 🔍 Interpretation of Results
 
-Against current `@nuxtjs/i18n` **v10.6** (default CLI profile, **mean of 3** consecutive runs):
+Against current `@nuxtjs/i18n` **v10.6** (`--load full`, **mean of 3** consecutive runs, real module dist):
 
-- 🗜️ **Smaller code graph**: ~1.74 MB vs ~2.16 MB once message chunks are not mis-labeled as “code”.
-- 🧠 **Lower build RSS**: ~1.1 GB peak vs ~1.8 GB.
-- 🕒 **Faster builds**: ~5.3s vs ~8.3s (micro matches the plain-Nuxt baseline on this profile).
-- ⚡ **Much better under load**: ~275 vs ~143 Artillery RPS, lower average latency.
+- 🗜️ **Smaller code graph**: ~1.44 MB vs ~1.9 MB once message chunks are not mis-labeled as “code”.
+- 🧠 **Lower build RSS**: ~1.0 GB peak vs ~1.3 GB.
+- 🕒 **Faster builds**: ~5.0s vs ~8.2s (micro matches the plain-Nuxt baseline on this profile).
+- ⚡ **Much better under load**: ~230 vs ~126 Artillery RPS, lower average latency.
 
-Absolute numbers differ from older published tables (smaller dictionaries, older Nuxt, and an unfair “0 B translations” split for `@nuxtjs/i18n`). Directionally the same: micro stays ahead on build cost and request throughput.
+Absolute numbers move with hardware load; ranking is stable across short/mid/full profiles ([methodology](/guide/performance-methodology)).
 
 ## ⚙️ Key Optimizations
 

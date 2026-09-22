@@ -13,6 +13,7 @@ import {
 } from './charts'
 import { fixtureProfileMarkdown, leafKeysFor } from './config'
 import { fixtureById, fixtureSourceAbsDir, resolveFixtureSelection, type PerfFixtureDef } from './fixtures'
+import { describeLoadProfile } from './load'
 import type { FixtureId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const require = createRequire(import.meta.url)
@@ -65,7 +66,7 @@ export function createMarkdownWriter(
   enabled: boolean,
   filePath: string = resultsFilePath,
 ): {
-  init: (profile: PerfRuntimeProfile, runs: number) => void
+  init: (profile: PerfRuntimeProfile, runs: number, meta?: { load: string; cool: string; loadLabel: string }) => void
   write: (content: string) => void
   /** Persist buffer to `filePath` (call only from successful `onEnd`). */
   commit: () => void
@@ -77,8 +78,11 @@ export function createMarkdownWriter(
     buffer += content
   }
   return {
-    init(profile, runs) {
+    init(profile, runs, meta) {
       if (!enabled) return
+      const load = meta?.load ?? 'full'
+      const cool = meta?.cool ?? 'strict'
+      const loadLabel = meta?.loadLabel ?? 'warm 6s@6 + main 60s@60 uncapped'
       buffer = `---
 title: "Performance Test Results"
 description: "Benchmarks vs nuxt-i18n on real fixtures."
@@ -103,10 +107,11 @@ Focus: build time, peak RSS, deployable **code vs translations (asset) vs total*
 ### Methodology notes
 
 - Metrics are **means of ${runs} consecutive runs per fixture** (not interleaved).
+- **Artifact**: Nitro node-server \`.output/server/index.mjs\` after forced \`nuxi build\`; \`nuxt-i18n-micro\` is the **built module dist** (not \`dev:prepare\` jiti stub). See [performance-methodology.md](./performance-methodology.md).
 - **Translations** = \`bundle.asset\` (locale JSON, \`chunks/raw/\`, matching locale chunks via \`isTranslationFile\`).
 - **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
-- Load schedule: programmatic Artillery warm **6s@6** + main **60s@60**, **uncapped** VU (same as historical \`benchmark/artillery-config.yml\`). Not the short sweep profile (2s+10s / maxVU 40).
-- Cool-downs: **2s** after build before load, **3s** between consecutive runs, **5s** between fixtures.
+- Load profile \`--load ${load}\`: ${loadLabel}.
+- Cool-downs \`--cool ${cool}\` (see methodology doc).
 - Each of the \`runs\` builds is **forced** (no warm-cache zeroing of build time).
 ### Runs
 
@@ -157,7 +162,11 @@ export function createDocsReporter(args: ResolvedPerfArgs): PerfReporter {
     name: 'i18n-docs',
     onStart() {
       const fixtures = resolveFixtureSelection(args.only)
-      md.init(args.profile, args.runs)
+      md.init(args.profile, args.runs, {
+        load: args.load,
+        cool: args.cool,
+        loadLabel: describeLoadProfile(args.load),
+      })
       writeSourceDictionaries(md.write, measureSourceDictionaries(fixtures), args.profile)
     },
     async onEnd({ results }) {
@@ -367,6 +376,8 @@ function writeAnalysisFooter(write: (c: string) => void, profile: PerfRuntimePro
 - Shared profile: ${profile.locales.length} locales × ${profile.pages.length} pages × ~${(indexLeaves / 1000).toFixed(1)}k index leaves.
 - Load: programmatic Artillery only — warm **6s@6** + main **60s@60**, uncapped VU (historical YAML methodology). Paths from runtime profile — see \`scripts/src/perf/load.ts\`.
 - Cool-downs: 2s post-build, 3s between runs, 5s between fixtures. Builds are forced each run so means are not diluted by cache hits.
-- Re-run: \`pnpm test:performance\` or \`pnpm -C scripts cli performance --locales N --keys K --only all|micro|i18n|plain --runs N --skip-load\`.
+- Re-run day-to-day: \`pnpm test:performance\` (\`--load short --cool fast\`).
+- Regenerate this page: \`pnpm -C scripts cli performance --load full --only all --runs 3\`.
+- Flags: \`--locales N --keys K --only all|micro|i18n|plain --runs N --skip-load --cool fast|strict\`.
 `)
 }

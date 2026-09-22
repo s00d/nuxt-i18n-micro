@@ -4,6 +4,12 @@ export type FixtureAlias = 'plain' | 'i18n' | 'micro'
 export type FixtureOnly = FixtureAlias | 'all'
 export type FixtureId = 'plain-nuxt' | 'i18n' | 'i18n-micro'
 
+/** Artillery load window: short (CI default) | mid | full (docs). */
+export type LoadProfileId = 'short' | 'mid' | 'full'
+
+/** Cool-down preset after A/B: fast wins when ranking stable. */
+export type CoolPresetId = 'fast' | 'strict'
+
 export interface LocaleDef {
   code: string
   iso: string
@@ -25,12 +31,22 @@ export interface PerfRuntimeProfile {
   pages: PageDef[]
 }
 
+export interface CoolDownConfig {
+  postBuildDelayMs: number
+  coolDownBetweenRunsMs: number
+  coolDownBetweenTargetsMs: number
+  coolDownMs: number
+}
+
 export interface ResolvedPerfArgs {
   locales: number
   keys: number
   only: FixtureOnly
   runs: number
   skipLoad: boolean
+  load: LoadProfileId
+  cool: CoolPresetId
+  coolDowns: CoolDownConfig
   profile: PerfRuntimeProfile
   fixtures: FixtureId[]
   writeDocs: boolean

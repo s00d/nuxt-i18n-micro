@@ -6,15 +6,27 @@ export default function() {
     "labels": [
       "0s",
       "10s",
-      "20s"
+      "20s",
+      "30s",
+      "40s",
+      "50s",
+      "60s",
+      "70s",
+      "80s"
     ],
     "datasets": [
       {
         "label": "http.request_rate",
         "data": [
           48,
-          148,
-          144
+          114,
+          164,
+          144,
+          166,
+          171,
+          169,
+          105,
+          95
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -27,9 +39,15 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          56,
-          1526,
-          1526
+          67,
+          2322,
+          8693,
+          11051,
+          8868,
+          9999,
+          8187,
+          8521,
+          12712
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -42,9 +60,15 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          6,
-          25,
-          209
+          17,
+          420,
+          585,
+          618,
+          600,
+          604,
+          600,
+          192,
+          0
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -57,9 +81,15 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
+          1,
+          326,
+          164,
+          25,
           0,
           0,
-          40
+          0,
+          0,
+          0
         ],
         "borderColor": "rgb(46, 204, 113)",
         "backgroundColor": "rgba(46, 204, 113, 0.1)",
@@ -74,7 +104,13 @@ export default function() {
         "data": [
           0,
           0,
-          0
+          275,
+          478,
+          457,
+          469,
+          447,
+          403,
+          31
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

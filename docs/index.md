@@ -57,46 +57,46 @@ To showcase the efficiency of `Nuxt I18n Micro`, we conducted tests under identi
 
 ::: details **plain-nuxt** (baseline)
 
-- **Build Time**: 5.32 seconds
-- **Max Memory Usage**: 810 MB
-- **Code Bundle**: 1.53 MB
+- **Build Time**: 5.07 seconds
+- **Max Memory Usage**: 859 MB
+- **Code Bundle**: 1.22 MB
   :::
 
 ::: details **@nuxtjs/i18n v10.6**
 
-- **Build Time**: 8.34 seconds
-- **Max Memory Usage**: 1,821 MB
-- **Code Bundle**: 2.16 MB
+- **Build Time**: 8.23 seconds
+- **Max Memory Usage**: 1,292 MB
+- **Code Bundle**: 1.9 MB
   :::
 
 ::: tip **Nuxt I18n Micro**
 
-- **Build Time**: 5.34 seconds — **~36% faster than `@nuxtjs/i18n` v10.6**
-- **Max Memory Usage**: 1,065 MB — **~41% less memory than `@nuxtjs/i18n` v10.6**
-- **Code Bundle**: 1.74 MB
+- **Build Time**: 5.01 seconds — **~39% faster than `@nuxtjs/i18n` v10.6**
+- **Max Memory Usage**: 997 MB — **~23% less memory than `@nuxtjs/i18n` v10.6**
+- **Code Bundle**: 1.44 MB
   :::
 
 #### 🌐 Server Performance (Stress Test)
 
 ::: details **plain-nuxt** (baseline)
 
-- **Requests per Second**: 109 RPS (Artillery)
-- **Average Response Time**: 1,194 ms (Artillery)
+- **Requests per Second**: 102 RPS (Artillery)
+- **Average Response Time**: 2,087 ms (Artillery)
   :::
 
 ::: details **@nuxtjs/i18n v10.6**
 
-- **Requests per Second**: 143 RPS (Artillery)
-- **Average Response Time**: 956 ms (Artillery)
+- **Requests per Second**: 126 RPS (Artillery)
+- **Average Response Time**: 1,268 ms (Artillery)
   :::
 
 ::: tip **Nuxt I18n Micro**
 
-- **Requests per Second**: 275 RPS (Artillery) — **~93% more than `@nuxtjs/i18n` v10.6**
-- **Average Response Time**: 483 ms — **~49% faster than `@nuxtjs/i18n` v10.6**
+- **Requests per Second**: 230 RPS (Artillery) — **~82% more than `@nuxtjs/i18n` v10.6**
+- **Average Response Time**: 583 ms — **~54% faster than `@nuxtjs/i18n` v10.6**
   :::
 
-Numbers are from the latest fixture run against `@nuxtjs/i18n@10.6.0` (fair code/translations split). Micro stays ahead on build time, build RSS, and especially Artillery throughput; see the [full report](/guide/performance-results) for methodology.
+Numbers are from the latest `--load full` fixture run against `@nuxtjs/i18n@10.6.0` (fair code/translations split, real module dist). Micro stays ahead on build time, build RSS, and especially Artillery throughput; see the [methodology](/guide/performance-methodology) and [full report](/guide/performance-results).
 
 ## 🔑 Key Features
 

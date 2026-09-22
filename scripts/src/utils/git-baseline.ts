@@ -104,7 +104,7 @@ export function listWorkspacePackages(filter: string | null = null): WorkspacePa
 
   for (const entry of readdirSync(packagesRoot, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue
-    if (filter && entry.name !== filter && !entry.name.includes(filter)) continue
+    if (filter && entry.name !== filter) continue
 
     const dir = join(packagesRoot, entry.name)
     const manifest = join(dir, 'package.json')

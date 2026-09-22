@@ -15,12 +15,19 @@ import { repoRoot } from '../src/utils/workspace'
 import { join } from 'node:path'
 
 const CORE = join(repoRoot, 'packages/core')
+const REACT = join(repoRoot, 'packages/react')
 
 describe('sourceForTarget', () => {
   it('maps a published target back to its source', () => {
     expect(sourceForTarget(CORE, './dist/index.mjs')).toBe('src/index.ts')
     expect(sourceForTarget(CORE, './dist/index.d.ts')).toBe('src/index.ts')
     expect(sourceForTarget(CORE, './dist/index.cjs')).toBe('src/index.ts')
+  })
+
+  it('maps nested dist outDir (dist/<name>/index) to src/index', () => {
+    // @i18n-micro/react publishes from dist/react/, not dist/
+    expect(sourceForTarget(REACT, './dist/react/index.mjs')).toBe('src/index.ts')
+    expect(sourceForTarget(REACT, './dist/react/index.d.ts')).toBe('src/index.ts')
   })
 
   it('returns null for targets with no source behind them', () => {

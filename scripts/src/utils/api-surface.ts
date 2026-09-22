@@ -220,7 +220,16 @@ export function sourceForTarget(pkgDir: string, target: string): string | null {
   const stem = relative.replace(/^(?:dist|src)\//, '').replace(/\.(?:d\.[cm]?ts|[cm]?js|[cm]?ts|tsx)$/, '')
   // `src/` first, then the package root: the devtools Vite plugin is built from
   // `vite/plugin.ts`, and looking only under `src/` dropped that entry point.
-  for (const candidate of [`src/${stem}.ts`, `src/${stem}/index.ts`, `src/${stem}.tsx`, `${stem}.ts`, `${stem}/index.ts`]) {
+  //
+  // Nested outDir (`dist/react/index.mjs` from `@i18n-micro/react`) must still resolve to
+  // `src/index.ts` — without stripping the extra segment the React package reported an
+  // empty surface and never got an api-surface snapshot.
+  const candidates = [`src/${stem}.ts`, `src/${stem}/index.ts`, `src/${stem}.tsx`, `${stem}.ts`, `${stem}/index.ts`]
+  if (stem.includes('/')) {
+    const rest = stem.slice(stem.indexOf('/') + 1)
+    candidates.push(`src/${rest}.ts`, `src/${rest}.tsx`, `src/${rest}/index.ts`, `${rest}.ts`, `${rest}/index.ts`)
+  }
+  for (const candidate of candidates) {
     if (existsSync(join(pkgDir, candidate))) return candidate
   }
   return null

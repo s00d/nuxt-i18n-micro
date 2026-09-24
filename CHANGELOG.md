@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v3.29.6
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.5...v3.29.6)
+
+### 🚀 Enhancements
+
+- **runtime:** Add @i18n-micro/runtime and share it with node/react/preact ([8d24d4ec](https://github.com/s00d/nuxt-i18n-micro/commit/8d24d4ec))
+- **i18n:** Add additionalTranslationDirs merge ([af8e56e0](https://github.com/s00d/nuxt-i18n-micro/commit/af8e56e0))
+
+### 🩹 Fixes
+
+- **perf:** Measure real dist; default short load from A/B ([cbc9c75b](https://github.com/s00d/nuxt-i18n-micro/commit/cbc9c75b))
+- **scripts:** Include @i18n-micro/react in api-surface snapshots ([2a8078d9](https://github.com/s00d/nuxt-i18n-micro/commit/2a8078d9))
+
+### 💅 Refactors
+
+- **test:** Migrate e2e and perf to untestutils ([2be23ef0](https://github.com/s00d/nuxt-i18n-micro/commit/2be23ef0))
+
+### 🏡 Chore
+
+- Bump untestutils to 0.6.10 and restore perf methodology ([070de252](https://github.com/s00d/nuxt-i18n-micro/commit/070de252))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.29.5
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.4...v3.29.5)

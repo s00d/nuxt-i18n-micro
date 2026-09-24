@@ -3,7 +3,9 @@ const SERVER_CC_KEY: typeof SERVER_CC_KEY
 const STORAGE_CC_KEY: typeof STORAGE_CC_KEY
 
 # ./generate-plugin (src/generate-plugin.ts)
-function generateHmrPlugin: (files: string[]) => string
+function generateHmrPlugin: (files: string[], options?: GenerateHmrPluginOptions) => string
+interface GenerateHmrPluginOptions
+member GenerateHmrPluginOptions.additionalRootFiles?: string[] | undefined
 
 # ./watcher (src/watcher.ts)
 function handleTranslationWatchChange: (input: HandleTranslationWatchChangeInput) => Promise<"page" | "root" | "ignored">

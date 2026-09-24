@@ -36,6 +36,25 @@ locales/
 └── ar.json
 ```
 
+To split shared vs app dictionaries without pre-merging on disk, keep `pages/` under the primary `translationDir` and put shared root files in sibling dirs listed in [`additionalTranslationDirs`](/guide/configuration#additionaltranslationdirs):
+
+```tree
+common/
+  en.json
+frontend/
+  en.json
+  pages/
+    home/
+      en.json
+```
+
+```ts
+i18n: {
+  translationDir: 'frontend',
+  additionalTranslationDirs: ['common'],
+}
+```
+
 ### 📄 Explanation of Structure
 
 #### 1. 🌍 Root-Level Translation Files

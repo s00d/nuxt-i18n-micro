@@ -43,7 +43,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 48 members |
+| `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PreactI18n` | class | 50 members |
@@ -1370,7 +1370,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `seo?` | `boolean \| undefined` |
 
 </details>
-<code>ModuleOptions</code> — 48 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
 <summary><code>PreactI18n</code> — 50 members</summary>
 

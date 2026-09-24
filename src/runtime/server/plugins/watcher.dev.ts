@@ -11,6 +11,7 @@ import {
 } from '@i18n-micro/hmr/watcher'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
+import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
@@ -76,13 +77,44 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
   const routesLocaleLinks = i18nConfig.routesLocaleLinks || {}
   const translationsRoot = path.resolve(i18nConfig.rootDir, i18nConfig.translationDir)
-  log(`Watching for translation changes in: ${translationsRoot}`)
+  const additionalRoots = (i18nConfig.additionalTranslationDirs ?? []).map((dir) => path.resolve(i18nConfig.rootDir, dir))
+  log(`Watching for translation changes in: ${translationsRoot}`, additionalRoots.length ? `(+${additionalRoots.length} additional)` : '')
 
   // A write event says nothing about the content having changed.
   const contentTracker = new TranslationContentTracker()
 
+  const readMergedLocaleFile = (relativeFilePath: string): Record<string, unknown> => {
+    // Root `{locale}.json`: additional dirs first, then primary translationDir (wins).
+    // Use recursive merge so nested keys match build-time `preMergeLocales` / `buildTranslationSourceLayers`.
+    if (!relativeFilePath.includes('/') && relativeFilePath.endsWith('.json')) {
+      const locale = relativeFilePath.slice(0, -'.json'.length)
+      let content: Record<string, unknown> = {}
+      for (const extraRoot of additionalRoots) {
+        content = deepMergeTranslationsRecursive(content, readTranslationFile(path.join(extraRoot, `${locale}.json`)))
+      }
+      return deepMergeTranslationsRecursive(content, readTranslationFile(path.join(translationsRoot, relativeFilePath)))
+    }
+    return readTranslationFile(path.join(translationsRoot, relativeFilePath))
+  }
+
+  const toWatchRelativePath = (filePath: string): string | null => {
+    const fromPrimary = path.relative(translationsRoot, filePath)
+    if (!fromPrimary.startsWith('..') && !path.isAbsolute(fromPrimary)) {
+      return fromPrimary.replace(/\\/g, '/')
+    }
+    // Additional dir: only top-level `{locale}.json` participates in the global merge.
+    for (const extraRoot of additionalRoots) {
+      const fromExtra = path.relative(extraRoot, filePath)
+      if (fromExtra.startsWith('..') || path.isAbsolute(fromExtra)) continue
+      const normalized = fromExtra.replace(/\\/g, '/')
+      if (!normalized.includes('/') && normalized.endsWith('.json')) return normalized
+    }
+    return null
+  }
+
   const invalidateAndRefresh = async (filePath: string, event: 'add' | 'change' | 'unlink') => {
-    const relativePath = path.relative(translationsRoot, filePath).replace(/\\/g, '/')
+    const relativePath = toWatchRelativePath(filePath)
+    if (!relativePath) return
 
     if (event === 'unlink') {
       contentTracker.forget(filePath)
@@ -114,7 +146,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
           locales: runtimeConfig.locales,
           fallbackLocale: runtimeConfig.fallbackLocale,
           disablePageLocales: runtimeConfig.disablePageLocales,
-          readLocaleFile: (relativeFilePath) => readTranslationFile(path.join(translationsRoot, relativeFilePath)),
+          readLocaleFile: readMergedLocaleFile,
         },
       })
 
@@ -144,7 +176,8 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   // reading a half-written locale file is how a chunk loses keys. Waiting for the size to
   // settle costs a few milliseconds of HMR latency and removes the race for both the
   // content hash and the merge.
-  const watcher = watch(translationsRoot, {
+  const watchRoots = [translationsRoot, ...additionalRoots.filter((dir) => existsSync(dir))]
+  const watcher = watch(watchRoots, {
     persistent: true,
     ignoreInitial: true,
     depth: 5,

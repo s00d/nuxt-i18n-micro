@@ -18,11 +18,13 @@ function withoutAppBaseURL: (pathname: string, baseURL?: string | null) => strin
 function shouldAttemptLocaleRedirect: (path: string, options?: { autoDetectPath?: string; hasLocalePrefix?: boolean; }) => boolean
 
 # ./build (src/build.ts)
-function buildTranslationSourceLayers: (rootDirs: string[], translationDirName: string, outputDir: string) => Promise<void>
+function buildTranslationSourceLayers: (rootDirs: string[], translationDirName: string, outputDir: string, additionalTranslationDirs?: string[]) => Promise<void>
+function listAdditionalRootLocales: (rootDirs: string[], additionalDirNames: string[]) => string[]
+function mergeAdditionalRootLocaleFiles: (rootDirs: string[], additionalDirNames: string[], locale: string, primaryContent?: Record<string, unknown>) => Record<string, unknown>
 interface PreMergeLocaleInfo
 member PreMergeLocaleInfo.code: string
 member PreMergeLocaleInfo.fallbackLocale?: string | undefined
-function preMergeLocales: (rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean) => Promise<void>
+function preMergeLocales: (rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean, additionalTranslationDirs?: string[]) => Promise<void>
 
 # ./cache-control (src/cache-control.ts)
 class CacheControl: <T>
@@ -148,7 +150,7 @@ member TranslationPayloadHostConfig.dateBuild?: string | number | undefined
 
 # ./payload-stats (src/payload-stats.ts)
 function compressTranslationPayloads: (dir: string, compression: PublicAssetCompression) => number
-function hashTranslationSources: (rootDirs: string[], translationDirName: string) => string | null
+function hashTranslationSources: (rootDirs: string[], translationDirName: string, additionalTranslationDirs?: string[]) => string | null
 type PublicAssetCompression: boolean | { gzip?: boolean; brotli?: boolean } | undefined
 function scanTranslationPayloadDirectory: (dir: string) => TranslationPayloadStats
 

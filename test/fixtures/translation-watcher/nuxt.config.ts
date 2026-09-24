@@ -7,12 +7,16 @@ export default defineNuxtConfig({
 
   i18n: {
     debug: true,
-    locales: [{ code: 'en' }, { code: 'de', fallbackLocale: 'en' }],
+    locales: [{ code: 'en' }, { code: 'de', fallbackLocale: 'en' }, { code: 'fr' }],
     defaultLocale: 'en',
     fallbackLocale: 'en',
     strategy: 'prefix',
     translationDir: 'locales',
+    additionalTranslationDirs: ['common'],
     autoDetectLanguage: false,
+    // Avoid ensureTranslationFilesExist creating empty locales/{fr}.json for
+    // locales that intentionally live only under additionalTranslationDirs.
+    disableWatcher: true,
     hmr: true,
     meta: false,
     routesLocaleLinks: {

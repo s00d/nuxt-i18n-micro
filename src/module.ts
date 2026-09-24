@@ -211,6 +211,7 @@ function buildPrivateConfig(
     locales: locales ?? [],
     fallbackLocale: options.fallbackLocale ?? undefined,
     translationDir: options.translationDir ?? 'locales',
+    additionalTranslationDirs: options.additionalTranslationDirs ?? [],
     customRegexMatcher: options.customRegexMatcher instanceof RegExp ? options.customRegexMatcher.source : options.customRegexMatcher,
     routesLocaleLinks: options.routesLocaleLinks ?? {},
     apiBaseUrl: apiConfig.apiBaseUrl,
@@ -318,6 +319,7 @@ export default defineNuxtModule<ModuleOptions>({
     defaultLocale: 'en',
     strategy: 'prefix_except_default',
     translationDir: 'locales',
+    additionalTranslationDirs: [],
     autoDetectPath: '/',
     autoDetectLanguage: true,
     disablePageLocales: false,
@@ -383,7 +385,7 @@ export default defineNuxtModule<ModuleOptions>({
     const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
     const sourceLocalesDir = resolve(nuxt.options.buildDir, 'i18n-source')
     const translationDirName = options.translationDir || 'locales'
-    const translationsHash = hashTranslationSources(rootDirs, translationDirName)
+    const translationsHash = hashTranslationSources(rootDirs, translationDirName, options.additionalTranslationDirs)
     const translationPayloads = resolveTranslationPayloadOptions(options)
     // Public / Edge embed use the same tree: premerged matrix or compact source (`mode`).
     const publicAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
@@ -429,11 +431,19 @@ export default defineNuxtModule<ModuleOptions>({
 
     nuxt.hook('build:before', async () => {
       // Compact source: needed for mode=source public, and for Edge serverAssets embed.
-      await buildTranslationSourceLayers(rootDirs, translationDirName, sourceLocalesDir)
+      await buildTranslationSourceLayers(rootDirs, translationDirName, sourceLocalesDir, options.additionalTranslationDirs)
       logger.info(`Built compact translation source from ${rootDirs.length} layer(s) into ${sourceLocalesDir}`)
 
       if (translationPayloads.mode !== 'source') {
-        await preMergeLocales(rootDirs, translationDirName, mergedLocalesDir, localeInfos, options.fallbackLocale, options.disablePageLocales)
+        await preMergeLocales(
+          rootDirs,
+          translationDirName,
+          mergedLocalesDir,
+          localeInfos,
+          options.fallbackLocale,
+          options.disablePageLocales,
+          options.additionalTranslationDirs,
+        )
         logger.info(`Pre-merged translations from ${rootDirs.length} layer(s) into ${mergedLocalesDir}`)
       }
 
@@ -622,10 +632,26 @@ export default defineNuxtModule<ModuleOptions>({
     if (nuxt.options.dev && (options.hmr ?? true)) {
       const translationsDir = join(nuxt.options.rootDir, options.translationDir || 'locales')
       const files = await globby(['**/*.json'], { cwd: translationsDir, absolute: true })
+      const additionalRootFiles: string[] = (
+        await Promise.all(
+          (options.additionalTranslationDirs ?? []).flatMap((extra) =>
+            rootDirs.map(async (layerRoot) => {
+              const extraDir = join(layerRoot, extra)
+              if (!existsSync(extraDir)) return [] as string[]
+              const extras = await globby(['*.json'], { cwd: extraDir, absolute: true, onlyFiles: true, deep: 0 })
+              return extras.map((f) => f.replace(/\\/g, '/'))
+            }),
+          ),
+        )
+      ).flat()
       const tpl = addTemplate({
         filename: 'i18n.hmr.mjs',
         write: true,
-        getContents: () => generateHmrPlugin(files.map((f) => f.replace(/\\/g, '/'))),
+        getContents: () =>
+          generateHmrPlugin(
+            files.map((f) => f.replace(/\\/g, '/')),
+            { additionalRootFiles },
+          ),
       })
       addPlugin({
         src: tpl.dst,

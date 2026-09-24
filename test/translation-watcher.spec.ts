@@ -104,4 +104,127 @@ describe('translation watcher dev HMR (premerged)', () => {
     await refreshTranslationWatcherPage(goto, '/de/about')
     await expect(page.locator('#about-title')).toHaveText('About DE HMR')
   })
+
+  test('merges additionalTranslationDirs roots and hot-reloads them', async ({ page, goto, baseURL }) => {
+    // Earlier tests in this file mutate locales/en.json; reset roots so asserts stay deterministic.
+    files.patchFixtureFile('common/en.json', () => ({
+      fromCommon: 'From Common EN',
+      deep: { a: { x: 1, y: 2 } },
+    }))
+    files.patchFile('en.json', () => ({
+      hello: 'Hello EN',
+      sharedRoot: 'Shared EN',
+      deep: { a: { y: 99, z: 3 } },
+    }))
+
+    await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'fromCommon', 'From Common EN')
+    await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'sharedRoot', 'Shared EN')
+
+    await goto('/en', { waitUntil: 'hydration' })
+    await expect(page.locator('#from-common')).toHaveText('From Common EN')
+    await expect(page.locator('#deep-x')).toHaveText('1')
+    await expect(page.locator('#deep-y')).toHaveText('99')
+    await expect(page.locator('#deep-z')).toHaveText('3')
+
+    files.patchFixtureFile('common/en.json', (current) => ({
+      ...current,
+      fromCommon: 'From Common EN HMR',
+    }))
+
+    await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'fromCommon', 'From Common EN HMR')
+    await waitForTranslationPayloadValue(baseURL!, 'about', 'en', 'fromCommon', 'From Common EN HMR')
+
+    await refreshTranslationWatcherPage(goto, '/en')
+    await expect(page.locator('#from-common')).toHaveText('From Common EN HMR')
+    // Primary keys must survive additional-dir HMR.
+    await expect(page.locator('#shared-root')).toHaveText('Shared EN')
+  })
+
+  test('primary root HMR keeps additional keys and deep-merges nested objects', async ({ page, goto, baseURL }) => {
+    files.patchFixtureFile('common/en.json', () => ({
+      fromCommon: 'From Common EN',
+      deep: { a: { x: 1, y: 2 } },
+    }))
+    files.patchFile('en.json', () => ({
+      hello: 'Hello EN',
+      sharedRoot: 'Shared EN',
+      deep: { a: { y: 99, z: 3 } },
+    }))
+
+    await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'fromCommon', 'From Common EN')
+    await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'sharedRoot', 'Shared EN')
+
+    files.patchFile('en.json', (current) => {
+      const deep = (current.deep as Record<string, unknown>) ?? {}
+      const a = (deep.a as Record<string, unknown>) ?? {}
+      return {
+        ...current,
+        sharedRoot: 'Shared EN Nested HMR',
+        deep: { a: { ...a, y: 77, z: 8 } },
+      }
+    })
+
+    await waitForTranslationPayloadValue(baseURL!, 'index', 'en', 'sharedRoot', 'Shared EN Nested HMR')
+
+    const response = await fetch(new URL('_locales/index/en/data.json', baseURL!.endsWith('/') ? baseURL! : `${baseURL}/`))
+    expect(response.ok).toBe(true)
+    const payload = (await response.json()) as Record<string, unknown>
+    const deep = payload.deep as Record<string, unknown> | undefined
+    expect(payload.fromCommon).toBe('From Common EN')
+    expect(deep?.a).toEqual({ x: 1, y: 77, z: 8 })
+
+    await refreshTranslationWatcherPage(goto, '/en')
+    await expect(page.locator('#from-common')).toHaveText('From Common EN')
+    await expect(page.locator('#shared-root')).toHaveText('Shared EN Nested HMR')
+    await expect(page.locator('#deep-x')).toHaveText('1')
+    await expect(page.locator('#deep-y')).toHaveText('77')
+    await expect(page.locator('#deep-z')).toHaveText('8')
+  })
+})
+
+describe('additionalTranslationDirs (prod server)', () => {
+  // Same fixture root as the HMR suite above; keep this describe after it so mutations are restored first.
+  test.override({ harness: 'translation-watcher-prod' })
+
+  test('merges common into UI, primary wins, ignores additional pages/', async ({ page, goto, baseURL }) => {
+    const normalizedBase = baseURL!.endsWith('/') ? baseURL! : `${baseURL}/`
+    const indexRes = await fetch(new URL('_locales/index/en/data.json', normalizedBase))
+    expect(indexRes.ok).toBe(true)
+    const index = (await indexRes.json()) as Record<string, unknown>
+    expect(index).toMatchObject({
+      fromCommon: 'From Common EN',
+      sharedRoot: 'Shared EN',
+      hello: 'Hello EN',
+      deep: { a: { x: 1, y: 99, z: 3 } },
+    })
+    expect(index.leak).toBeUndefined()
+
+    await goto('/en', { waitUntil: 'hydration' })
+    await expect(page.locator('#from-common')).toHaveText('From Common EN')
+    await expect(page.locator('#shared-root')).toHaveText('Shared EN')
+    await expect(page.locator('#deep-x')).toHaveText('1')
+    await expect(page.locator('#deep-y')).toHaveText('99')
+    await expect(page.locator('#deep-z')).toHaveText('3')
+    await expect(page.locator('#leak')).toHaveText('missing')
+  })
+
+  test('supports locale that exists only in additional dirs', async ({ page, goto, baseURL }) => {
+    const normalizedBase = baseURL!.endsWith('/') ? baseURL! : `${baseURL}/`
+    const indexRes = await fetch(new URL('_locales/index/fr/data.json', normalizedBase))
+    expect(indexRes.ok).toBe(true)
+    const index = (await indexRes.json()) as Record<string, unknown>
+    // fr has no locales/fr.json — only common/fr.json (+ global fallbackLocale en).
+    expect(index).toMatchObject({
+      fromCommon: 'From Common FR',
+      onlyCommon: 'C-fr',
+      deep: { a: { x: 10, y: 20 } },
+      // from fallbackLocale en:
+      sharedRoot: 'Shared EN',
+      hello: 'Hello EN',
+    })
+
+    await goto('/fr', { waitUntil: 'hydration' })
+    await expect(page.locator('#from-common')).toHaveText('From Common FR')
+    await expect(page.locator('#only-common')).toHaveText('C-fr')
+  })
 })

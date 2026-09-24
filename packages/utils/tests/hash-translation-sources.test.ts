@@ -76,4 +76,25 @@ describe('hashTranslationSources', () => {
     expect(hashTranslationSources([join(root, 'nope')], 'locales')).toBeNull()
     expect(hashTranslationSources([], 'locales')).toBeNull()
   })
+
+  it('changes when an additionalTranslationDirs file changes', () => {
+    const common = join(root, 'common')
+    mkdirSync(common, { recursive: true })
+    writeFileSync(join(common, 'en.json'), JSON.stringify({ shared: 'a' }))
+
+    const before = hashTranslationSources([root], 'locales', ['common'])
+    writeFileSync(join(common, 'en.json'), JSON.stringify({ shared: 'b' }))
+    expect(hashTranslationSources([root], 'locales', ['common'])).not.toBe(before)
+  })
+
+  it('ignores pages/ under additionalTranslationDirs for the fingerprint', () => {
+    const common = join(root, 'common')
+    mkdirSync(common, { recursive: true })
+    writeFileSync(join(common, 'en.json'), JSON.stringify({ shared: 'a' }))
+
+    const before = hashTranslationSources([root], 'locales', ['common'])
+    mkdirSync(join(common, 'pages', 'x'), { recursive: true })
+    writeFileSync(join(common, 'pages', 'x', 'en.json'), JSON.stringify({ leak: true }))
+    expect(hashTranslationSources([root], 'locales', ['common'])).toBe(before)
+  })
 })

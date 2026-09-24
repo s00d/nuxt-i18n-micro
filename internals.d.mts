@@ -7,6 +7,7 @@ interface I18nPrivateConfig {
   rootDir: string
   debug: boolean
   translationDir: string
+  additionalTranslationDirs?: string[]
   fallbackLocale?: string
   apiBaseUrl: string
   apiBaseClientHost?: string

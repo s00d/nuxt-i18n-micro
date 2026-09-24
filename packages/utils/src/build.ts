@@ -1,4 +1,4 @@
-import fs, { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import fs, { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { globby } from 'globby'
 import { deepMergeTranslations, deepMergeTranslationsRecursive } from './deep-merge'
@@ -6,6 +6,64 @@ import { deepMergeTranslations, deepMergeTranslationsRecursive } from './deep-me
 export interface PreMergeLocaleInfo {
   code: string
   fallbackLocale?: string
+}
+
+/**
+ * Deep-merge top-level `{locale}.json` from `additionalDirNames` (array order × layer order),
+ * then overlay `primaryContent` from `translationDir` (primary wins on conflicts).
+ */
+export function mergeAdditionalRootLocaleFiles(
+  rootDirs: string[],
+  additionalDirNames: string[],
+  locale: string,
+  primaryContent: Record<string, unknown> = {},
+): Record<string, unknown> {
+  if (!additionalDirNames.length) return primaryContent
+
+  let content: Record<string, unknown> = {}
+  for (const dirName of additionalDirNames) {
+    for (const rootDir of rootDirs) {
+      const filePath = join(rootDir, dirName, `${locale}.json`)
+      if (!existsSync(filePath)) continue
+      try {
+        content = deepMergeTranslationsRecursive(content, JSON.parse(readFileSync(filePath, 'utf-8')))
+      } catch {
+        /* skip broken JSON */
+      }
+    }
+  }
+
+  return deepMergeTranslationsRecursive(content, primaryContent)
+}
+
+/** Discover locale codes that only exist under additional root dirs (`{locale}.json`). */
+export function listAdditionalRootLocales(rootDirs: string[], additionalDirNames: string[]): string[] {
+  const locales = new Set<string>()
+  for (const dirName of additionalDirNames) {
+    for (const rootDir of rootDirs) {
+      const dir = join(rootDir, dirName)
+      if (!existsSync(dir)) continue
+      for (const name of readdirSync(dir)) {
+        if (!name.endsWith('.json')) continue
+        // Only top-level files (readdir is non-recursive here)
+        locales.add(name.slice(0, -'.json'.length))
+      }
+    }
+  }
+  return [...locales]
+}
+
+function applyAdditionalRootsToMap(
+  rootDirs: string[],
+  additionalDirNames: string[] | undefined,
+  rootMap: Map<string, Record<string, unknown>>,
+): void {
+  if (!additionalDirNames?.length) return
+
+  const locales = new Set<string>([...rootMap.keys(), ...listAdditionalRootLocales(rootDirs, additionalDirNames)])
+  for (const locale of locales) {
+    rootMap.set(locale, mergeAdditionalRootLocaleFiles(rootDirs, additionalDirNames, locale, rootMap.get(locale) ?? {}))
+  }
 }
 
 /**
@@ -20,6 +78,7 @@ export async function preMergeLocales(
   locales: PreMergeLocaleInfo[],
   globalFallbackLocale?: string,
   disablePageLocales?: boolean,
+  additionalTranslationDirs?: string[],
 ): Promise<void> {
   if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
   mkdirSync(outputDir, { recursive: true })
@@ -62,6 +121,8 @@ export async function preMergeLocales(
       pageMap.get(dir)!.set(locale, content)
     }
   }
+
+  applyAdditionalRootsToMap(rootDirs, additionalTranslationDirs, rootMap)
 
   const knownCodes = new Set(locales.map((l) => l.code))
 
@@ -116,7 +177,12 @@ export async function preMergeLocales(
 /**
  * Merge translation layers at build time but keep the source directory shape.
  */
-export async function buildTranslationSourceLayers(rootDirs: string[], translationDirName: string, outputDir: string): Promise<void> {
+export async function buildTranslationSourceLayers(
+  rootDirs: string[],
+  translationDirName: string,
+  outputDir: string,
+  additionalTranslationDirs?: string[],
+): Promise<void> {
   if (existsSync(outputDir)) fs.rmSync(outputDir, { recursive: true, force: true })
   mkdirSync(outputDir, { recursive: true })
 
@@ -130,6 +196,11 @@ export async function buildTranslationSourceLayers(rootDirs: string[], translati
     files.forEach((file) => allFiles.add(file))
   }
 
+  // Root locale files that exist only under additional dirs still need an output entry.
+  for (const locale of listAdditionalRootLocales(rootDirs, additionalTranslationDirs ?? [])) {
+    allFiles.add(`${locale}.json`)
+  }
+
   for (const file of allFiles) {
     let content: Record<string, unknown> = {}
     for (const layerPath of layerPaths) {
@@ -141,6 +212,11 @@ export async function buildTranslationSourceLayers(rootDirs: string[], translati
           /* skip */
         }
       }
+    }
+
+    if (dirname(file) === '.') {
+      const locale = file.slice(0, -'.json'.length)
+      content = mergeAdditionalRootLocaleFiles(rootDirs, additionalTranslationDirs ?? [], locale, content)
     }
 
     const targetPath = join(outputDir, file)

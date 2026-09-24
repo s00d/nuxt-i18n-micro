@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-105 exports across 24 entry points.
+107 exports across 24 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -65,9 +65,11 @@ import { /* … */ } from '@i18n-micro/utils/build'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `buildTranslationSourceLayers` | function | `(rootDirs: string[], translationDirName: string, outputDir: string) => Promise<void>` |
+| `buildTranslationSourceLayers` | function | `(rootDirs: string[], translationDirName: string, outputDir: string, additionalTranslationDirs?: string[]) => Promise<void>` |
+| `listAdditionalRootLocales` | function | `(rootDirs: string[], additionalDirNames: string[]) => string[]` |
+| `mergeAdditionalRootLocaleFiles` | function | `(rootDirs: string[], additionalDirNames: string[], locale: string, primaryContent?: Record<string, unknown>) => Record<string, unknown>` |
 | `PreMergeLocaleInfo` | interface | 2 members |
-| `preMergeLocales` | function | `(rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean) => Promise<void>` |
+| `preMergeLocales` | function | `(rootDirs: string[], translationDirName: string, outputDir: string, locales: PreMergeLocaleInfo[], globalFallbackLocale?: string, disablePageLocales?: boolean, additionalTranslationDirs?: string[]) => Promise<void>` |
 
 <details>
 <summary><code>PreMergeLocaleInfo</code> — 2 members</summary>
@@ -348,7 +350,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-stats'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `compressTranslationPayloads` | function | `(dir: string, compression: PublicAssetCompression) => number` |
-| `hashTranslationSources` | function | `(rootDirs: string[], translationDirName: string) => string \| null` |
+| `hashTranslationSources` | function | `(rootDirs: string[], translationDirName: string, additionalTranslationDirs?: string[]) => string \| null` |
 | `PublicAssetCompression` | type | `boolean \| { gzip?: boolean; brotli?: boolean } \| undefined` |
 | `scanTranslationPayloadDirectory` | function | `(dir: string) => TranslationPayloadStats` |
 

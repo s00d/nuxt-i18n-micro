@@ -100,6 +100,7 @@ member I18nClientProps.locale: string
 member I18nClientProps.translations: Record<string, Translations>
 function i18nIntegration: (options: I18nIntegrationOptions) => AstroIntegration
 interface I18nIntegrationOptions
+member I18nIntegrationOptions.additionalTranslationDirs?: string[] | undefined
 member I18nIntegrationOptions.apiBaseClientHost?: string | undefined
 member I18nIntegrationOptions.apiBaseServerHost?: string | undefined
 member I18nIntegrationOptions.apiBaseUrl?: string | undefined

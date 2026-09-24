@@ -1,0 +1,9 @@
+{
+  "fromCommon": "From Common DE",
+  "deep": {
+    "a": {
+      "x": 10,
+      "y": 20
+    }
+  }
+}

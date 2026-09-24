@@ -1,4 +1,10 @@
 {
   "hello": "Hello EN",
-  "sharedRoot": "Shared EN"
+  "sharedRoot": "Shared EN",
+  "deep": {
+    "a": {
+      "y": 99,
+      "z": 3
+    }
+  }
 }

@@ -37,7 +37,7 @@ import { /* … */ } from '@i18n-micro/astro'
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nClientProps` | interface | 4 members |
 | `i18nIntegration` | function | `(options: I18nIntegrationOptions) => AstroIntegration` |
-| `I18nIntegrationOptions` | interface | 54 members |
+| `I18nIntegrationOptions` | interface | 55 members |
 | `I18nMiddlewareOptions` | interface | 7 members |
 | `I18nRoutingStrategy` | interface | 10 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
@@ -168,10 +168,11 @@ import { /* … */ } from '@i18n-micro/astro'
 
 </details>
 <details>
-<summary><code>I18nIntegrationOptions</code> — 54 members</summary>
+<summary><code>I18nIntegrationOptions</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `additionalTranslationDirs?` | `string[] \| undefined` |
 | `apiBaseClientHost?` | `string \| undefined` |
 | `apiBaseServerHost?` | `string \| undefined` |
 | `apiBaseUrl?` | `string \| undefined` |

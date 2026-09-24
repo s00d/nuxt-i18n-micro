@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/node",
-  "version": "1.2.17",
+  "version": "1.2.18",
   "description": "Node.js utilities for loading translations and locale data in Nuxt I18n Micro.",
   "keywords": [
     "i18n",

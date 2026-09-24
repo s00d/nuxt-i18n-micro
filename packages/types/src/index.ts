@@ -292,6 +292,18 @@ export interface ModuleOptions {
   translationDir?: string
 
   /**
+   * Extra directories (relative to the project root / each Nuxt layer root) whose top-level
+   * `{locale}.json` files are deep-merged into the global dictionary before `translationDir`.
+   *
+   * Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts).
+   * Only root `{locale}.json` files are read — `pages/` under these dirs is ignored.
+   *
+   * Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`.
+   * @default []
+   */
+  additionalTranslationDirs?: string[]
+
+  /**
    * Controls how translation payloads are emitted (Node: `public/<apiBaseUrl>`; Edge: Nitro `serverAssets`).
    *
    * - **Node**: `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).

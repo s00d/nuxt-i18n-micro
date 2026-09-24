@@ -93,6 +93,13 @@ export const recipes = defineRecipes(
       run: 'dev',
       hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
     }),
+    // Same fixture, production server build — read-only checks for additionalTranslationDirs.
+    'translation-watcher-prod': nuxt({
+      id: 'translation-watcher-prod',
+      root: resolve(fixtures, 'translation-watcher'),
+      run: 'server',
+      hashInputs: [resolve(fixtures, 'translation-watcher'), moduleSrc],
+    }),
     'translation-watcher-source': nuxt({
       id: 'translation-watcher-source',
       root: resolve(fixtures, 'translation-watcher-source'),

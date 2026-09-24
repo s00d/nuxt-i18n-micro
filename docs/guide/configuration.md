@@ -36,6 +36,7 @@ The sections below explain how they work together; the
 | [`apiBaseClientHost`](/api/module-options) | `string` | `undefined` | Override the host used for client-side translation fetch requests. |
 | [`apiBaseServerHost`](/api/module-options) | `string` | `undefined` | Override the host used for server-side translation fetch requests. |
 | [`translationDir`](/api/module-options) | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root. |
+| [`additionalTranslationDirs`](/api/module-options) | `string[]` | `[]` | Extra directories (relative to the project root / each Nuxt layer root) whose top-level `{locale}.json` files are deep-merged into the global dictionary before `translationDir`. |
 | [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how translation payloads are emitted (Node: `public/<apiBaseUrl>`; Edge: Nitro `serverAssets`). - **Node**: `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`). - **Edge**: `serverAssets` registers Nitro `serverAssets` (`assets:i18n`); it does not force a public copy. |
 | [`translationPayloads.mode`](/api/module-options) | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy. - `premerged`: build-time `{page}/{locale}/data.json` matrix (default) - `source`: compact source files merged at runtime (prefer on Edge / large catalogs) |
 | [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Local SSR payloads: Node reads `public/<apiBaseUrl>` (forces public copy); Edge embeds via Nitro `serverAssets`. - **Node**: no Nitro `serverAssets` (avoids Rollup `raw:`). |
@@ -178,6 +179,7 @@ Module augmentation works because `Locale` is an `interface` (not a `type`), so 
 
 Under **pnpm** (`shamefully-hoist=false`), `nuxt-i18n-micro` registers `@i18n-micro/types` in Nuxt `typescript.hoist` so `declare module '@i18n-micro/types'` resolves to the same package the runtime types use — you do **not** need a separate `pnpm add @i18n-micro/types` just for augmentation.
 :::
+
 #### `defaultLocale`
 
 <!-- generated:option:defaultLocale — do not edit; run `pnpm run docs:generate` -->
@@ -192,6 +194,7 @@ Also used as the fallback locale for missing translations when `fallbackLocale` 
 ```typescript
 defaultLocale: 'en'
 ```
+
 #### `strategy`
 
 <!-- generated:option:strategy — do not edit; run `pnpm run docs:generate` -->
@@ -234,6 +237,7 @@ strategy: 'prefix_and_default'
 :::
 
 ### 📂 Translation Management
+
 #### `translationDir`
 
 <!-- generated:option:translationDir — do not edit; run `pnpm run docs:generate` -->
@@ -251,6 +255,40 @@ translationDir: 'i18n' // Custom directory
 ```
 
 Paths are resolved from the Nuxt **project root** (`rootDir`), not from `app/`. With Nuxt 4, the usual setup is `app/pages/` for routes and `locales/` (or `app/locales` if you set `translationDir`) for JSON files.
+
+#### `additionalTranslationDirs`
+
+<!-- generated:option:additionalTranslationDirs — do not edit; run `pnpm run docs:generate` -->
+
+**Type** `string[]` · **Default** `[]`
+
+Extra directories (relative to the project root / each Nuxt layer root) whose top-level
+`{locale}.json` files are deep-merged into the global dictionary before `translationDir`.
+
+Merge order: each entry in array order (across layers), then `translationDir` (wins on conflicts).
+Only root `{locale}.json` files are read — `pages/` under these dirs is ignored.
+
+Example: `translationDir: 'frontend'`, `additionalTranslationDirs: ['common']` → `common/en.json` then `frontend/en.json`.
+
+<!-- /generated:option:additionalTranslationDirs -->
+
+```typescript
+i18n: {
+  translationDir: 'frontend',
+  additionalTranslationDirs: ['common'],
+}
+```
+
+```tree
+common/
+  en.json          # shared keys (merged first)
+frontend/
+  en.json          # app keys (win on conflicts)
+  pages/
+    home/
+      en.json
+```
+
 #### `disablePageLocales`
 
 <!-- generated:option:disablePageLocales — do not edit; run `pnpm run docs:generate` -->
@@ -271,6 +309,7 @@ locales/
 ├── fr.json
 └── ar.json
 ```
+
 #### `fallbackLocale`
 
 <!-- generated:option:fallbackLocale — do not edit; run `pnpm run docs:generate` -->
@@ -286,6 +325,7 @@ in this locale before returning the key itself.
 ```typescript
 fallbackLocale: 'en' // Global fallback
 ```
+
 #### `types`
 
 <!-- generated:option:types — do not edit; run `pnpm run docs:generate` -->
@@ -304,6 +344,7 @@ This built-in generator is separate from the optional [`@i18n-micro/types-genera
 ```typescript
 types: false // Disable built-in key typing
 ```
+
 #### `routeLocales`
 
 <!-- generated:option:routeLocales — do not edit; run `pnpm run docs:generate` -->
@@ -319,6 +360,7 @@ Routes not listed have no restrictions (all locales allowed).
 Maps a route path (e.g. `'/about'`) to allowed locale codes. Routes not listed allow all configured locales.
 
 You normally configure this via [`defineI18nRoute`](/guide/custom-locale-routes) in pages rather than in `nuxt.config`. The module merges page-level declarations into this map at build time.
+
 #### `routeDisableMeta`
 
 <!-- generated:option:routeDisableMeta — do not edit; run `pnpm run docs:generate` -->
@@ -335,6 +377,7 @@ for which meta should be disabled.
 - `string[]` — disable meta only for listed locale codes
 
 Like `routeLocales`, this is typically set in page components, not manually in config.
+
 #### `experimental`
 
 <!-- generated:option:experimental — do not edit; run `pnpm run docs:generate` -->
@@ -349,6 +392,7 @@ Contents may change or be removed without notice between minor versions.
 Most former `experimental.*` flags were promoted to top-level options in v3 (for example `hmr`). Prefer documented top-level options. Use `experimental` only when following a release note or migration guide that references a specific key.
 
 ### 🔍 SEO & Meta Tags
+
 #### `meta`
 
 <!-- generated:option:meta — do not edit; run `pnpm run docs:generate` -->
@@ -362,6 +406,7 @@ Generate SEO meta tags (`hreflang`, `canonical`, `og:url`, `og:locale`) automati
 ```typescript
 meta: true // Generate alternate links, canonical URLs, etc.
 ```
+
 #### `metaBaseUrl`
 
 <!-- generated:option:metaBaseUrl — do not edit; run `pnpm run docs:generate` -->
@@ -386,11 +431,14 @@ and for **multi-domain** deployments when `site.url` is omitted.
 
 ```typescript
 // Prefer sharing the SEO stack origin — omit metaBaseUrl when site.url is set
-site: { url: 'https://example.com' }
+site: {
+  url: 'https://example.com'
+}
 
 // Or pin an explicit override
 metaBaseUrl: 'https://example.com'
 ```
+
 #### `canonicalQueryWhitelist`
 
 <!-- generated:option:canonicalQueryWhitelist — do not edit; run `pnpm run docs:generate` -->
@@ -407,6 +455,7 @@ canonicalQueryWhitelist: ['page', 'sort', 'category']
 ```
 
 ### 🔄 Advanced Features
+
 #### `globalLocaleRoutes`
 
 <!-- generated:option:globalLocaleRoutes — do not edit; run `pnpm run docs:generate` -->
@@ -455,6 +504,7 @@ routesLocaleLinks: {
   'about-us': 'about'
 }
 ```
+
 #### `customRegexMatcher`
 
 <!-- generated:option:customRegexMatcher — do not edit; run `pnpm run docs:generate` -->
@@ -487,6 +537,7 @@ customRegexMatcher: '[a-z]{2}-[a-z]{2}'
 ```
 
 ### 🛠️ Development Options
+
 #### `debug`
 
 <!-- generated:option:debug — do not edit; run `pnpm run docs:generate` -->
@@ -500,6 +551,7 @@ Enable verbose debug logging for locale detection, route generation, and transla
 ```typescript
 debug: true
 ```
+
 #### `disableWatcher`
 
 <!-- generated:option:disableWatcher — do not edit; run `pnpm run docs:generate` -->
@@ -513,6 +565,7 @@ Disable the file watcher that auto-creates missing translation files in developm
 ```typescript
 disableWatcher: true
 ```
+
 #### `missingWarn`
 
 <!-- generated:option:missingWarn — do not edit; run `pnpm run docs:generate` -->
@@ -534,6 +587,7 @@ You can set a custom handler for missing translations using `setMissingHandler` 
 :::
 
 ### 🔧 Plugin Control
+
 #### `define`
 
 <!-- generated:option:define — do not edit; run `pnpm run docs:generate` -->
@@ -547,6 +601,7 @@ Register the `defineI18nRoute()` macro plugin, enabling per-page `defineI18nRout
 ```typescript
 define: false // Disables $defineI18nRoute
 ```
+
 #### `redirects`
 
 <!-- generated:option:redirects — do not edit; run `pnpm run docs:generate` -->
@@ -564,10 +619,10 @@ When `false`, redirect logic is disabled on both environments:
 - **Server**: `06.redirect.ts` (server-only) remains registered for 404 checks and cookie synchronization, but does not issue locale redirects
 - **Client**: the `i18n-redirect` global route middleware is not registered — no SPA auto-redirects
 
-
 ```typescript
 redirects: false // Disable automatic locale redirection (server 404/cookie sync remain; no client middleware)
 ```
+
 #### `plugin`
 
 <!-- generated:option:plugin — do not edit; run `pnpm run docs:generate` -->
@@ -582,6 +637,7 @@ Register the core i18n plugin that provides `$t()`, `$tc()`, `$getLocale()`,
 ```typescript
 plugin: false
 ```
+
 #### `hooks`
 
 <!-- generated:option:hooks — do not edit; run `pnpm run docs:generate` -->
@@ -598,6 +654,7 @@ hooks: false // Disable automatic i18n:register calls
 ```
 
 See [Events — `i18n:register`](/api/events#-i18n-register) for hook timing and plugin examples.
+
 #### `components`
 
 <!-- generated:option:components — do not edit; run `pnpm run docs:generate` -->
@@ -615,6 +672,7 @@ components: false // Disable built-in i18n components
 ```
 
 ### 🌐 Language Detection
+
 #### `autoDetectLanguage`
 
 <!-- generated:option:autoDetectLanguage — do not edit; run `pnpm run docs:generate` -->
@@ -629,6 +687,7 @@ Used in combination with `autoDetectPath` to decide when detection occurs.
 ```typescript
 autoDetectLanguage: false
 ```
+
 #### `autoDetectPath`
 
 <!-- generated:option:autoDetectPath — do not edit; run `pnpm run docs:generate` -->
@@ -654,6 +713,7 @@ autoDetectPath: '*' // On all routes (use with caution)
 ```
 
 ### 🔢 Customization
+
 #### `plural`
 
 <!-- generated:option:plural — do not edit; run `pnpm run docs:generate` -->
@@ -811,6 +871,7 @@ serializes the function with `.toString()` into a virtual file; external imports
 helpers from another module are stripped and will be `undefined` at runtime. Keep the
 function fully inlined in `nuxt.config.ts` (see the danger note above).
 :::
+
 #### `localeCookie`
 
 <!-- generated:option:localeCookie — do not edit; run `pnpm run docs:generate` -->
@@ -853,6 +914,7 @@ localeCookie: null
 - Remembers locale when user returns to your site
 - Required for `no_prefix` strategy to work correctly
 - **Required** for redirect behavior in prefix strategies (when `redirects: true`)
+
 #### `apiBaseUrl`
 
 <!-- generated:option:apiBaseUrl — do not edit; run `pnpm run docs:generate` -->
@@ -871,6 +933,7 @@ apiBaseUrl: 'api/_locales'
 ```
 
 The translations will be fetched from `/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `/api/_locales/index/en/data.json`).
+
 #### `apiBaseClientHost`
 
 <!-- generated:option:apiBaseClientHost — do not edit; run `pnpm run docs:generate` -->
@@ -890,6 +953,7 @@ apiBaseClientHost: 'https://cdn.example.com'
 ```
 
 When `apiBaseClientHost` is set, client-side translations will be fetched from `{apiBaseClientHost}/{apiBaseUrl}/{routeName}/{locale}/data.json` (e.g., `https://cdn.example.com/_locales/index/en/data.json`).
+
 #### `apiBaseServerHost`
 
 <!-- generated:option:apiBaseServerHost — do not edit; run `pnpm run docs:generate` -->
@@ -913,6 +977,7 @@ When `apiBaseServerHost` is set, server-side translations will be fetched from `
 ::: tip
 Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/external domain hosting, and `apiBaseServerHost` for server-side CDN/external domain hosting. This allows you to use different CDNs for client and server requests.
 :::
+
 #### `translationPayloads`
 
 <!-- generated:option:translationPayloads — do not edit; run `pnpm run docs:generate` -->
@@ -1016,6 +1081,7 @@ If you disable all local payload outputs, you must configure both `apiBaseServer
 `warnFileCount` and `warnSizeBytes` control build-time warnings when pre-merged payload output grows large (defaults: 500 files and 10 MB).
 
 ### 🔒 Proxy & Security
+
 #### `metaTrustForwardedHost`
 
 <!-- generated:option:metaTrustForwardedHost — do not edit; run `pnpm run docs:generate` -->
@@ -1033,6 +1099,7 @@ Only applies when `metaBaseUrl` and `site.url` are both unset. Default `true` is
 ```typescript
 metaTrustForwardedHost: false // Ignore X-Forwarded-Host header
 ```
+
 #### `metaTrustForwardedProto`
 
 <!-- generated:option:metaTrustForwardedProto — do not edit; run `pnpm run docs:generate` -->
@@ -1068,6 +1135,7 @@ hreflangBaseLanguage: true
 ```
 
 ### 🔄 Additional Features
+
 #### `noPrefixRedirect`
 
 <!-- generated:option:noPrefixRedirect — do not edit; run `pnpm run docs:generate` -->
@@ -1082,6 +1150,7 @@ For `no_prefix` strategy: enable redirect from a locale-prefixed URL
 ```typescript
 noPrefixRedirect: true // Enable stripping locale prefix in no_prefix strategy
 ```
+
 #### `excludePatterns`
 
 <!-- generated:option:excludePatterns — do not edit; run `pnpm run docs:generate` -->
@@ -1097,6 +1166,7 @@ Internal Nuxt paths (`/__nuxt_error`, etc.) are always excluded automatically.
 ```typescript
 excludePatterns: ['/api', '/admin', /^\/internal\/.*/]
 ```
+
 #### `localizedRouteNamePrefix`
 
 <!-- generated:option:localizedRouteNamePrefix — do not edit; run `pnpm run docs:generate` -->
@@ -1111,6 +1181,7 @@ Used internally to distinguish original routes from generated locale variants.
 ```typescript
 localizedRouteNamePrefix: 'i18n-' // Custom prefix for localized route names
 ```
+
 #### `dateBuild`
 
 <!-- generated:option:dateBuild — do not edit; run `pnpm run docs:generate` -->
@@ -1143,6 +1214,7 @@ export default defineNuxtConfig({
   },
 })
 ```
+
 #### `httpCacheDuration`
 
 <!-- generated:option:httpCacheDuration — do not edit; run `pnpm run docs:generate` -->
@@ -1214,6 +1286,7 @@ $tn(10000, 'currency', { notation: 'compact' })
 ```
 
 Keys should match locale `code` values. If an exact locale key is missing, the language subtag is tried (`en-US` → `en`).
+
 #### `datetimeFormats`
 
 <!-- generated:option:datetimeFormats — do not edit; run `pnpm run docs:generate` -->
@@ -1247,6 +1320,7 @@ $td(new Date(), 'long', 'en')
 ```
 
 `Intl.NumberFormat` / `DateTimeFormat` / `RelativeTimeFormat` instances are cached inside `FormatService` by locale + options key.
+
 #### `hmr`
 
 <!-- generated:option:hmr — do not edit; run `pnpm run docs:generate` -->
@@ -1267,6 +1341,7 @@ export default defineNuxtConfig({
   },
 })
 ```
+
 #### `cacheMaxSize`
 
 <!-- generated:option:cacheMaxSize — do not edit; run `pnpm run docs:generate` -->
@@ -1277,6 +1352,7 @@ Maximum number of entries in the in-memory translation cache.
 `0` means no limit.
 
 <!-- /generated:option:cacheMaxSize -->
+
 #### `cacheTtl`
 
 <!-- generated:option:cacheTtl — do not edit; run `pnpm run docs:generate` -->

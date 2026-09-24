@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/hmr`
 
-8 exports across 3 entry points.
+9 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -29,8 +29,17 @@ import { /* … */ } from '@i18n-micro/hmr/generate-plugin'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `generateHmrPlugin` | function | `(files: string[]) => string` |
+| `generateHmrPlugin` | function | `(files: string[], options?: GenerateHmrPluginOptions) => string` |
+| `GenerateHmrPluginOptions` | interface | 1 members |
 
+<details>
+<summary><code>GenerateHmrPluginOptions</code> — 1 members</summary>
+
+| Member | Type |
+| --- | --- |
+| `additionalRootFiles?` | `string[] \| undefined` |
+
+</details>
 ## `@i18n-micro/hmr/watcher`
 
 ```ts

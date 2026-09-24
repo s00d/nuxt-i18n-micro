@@ -1306,6 +1306,7 @@ member Locale.seo?: boolean | undefined
 member Locale.[string]: unknown
 type LocaleCode: string
 interface ModuleOptions
+member ModuleOptions.additionalTranslationDirs?: string[] | undefined
 member ModuleOptions.apiBaseClientHost?: string | undefined
 member ModuleOptions.apiBaseServerHost?: string | undefined
 member ModuleOptions.apiBaseUrl?: string | undefined

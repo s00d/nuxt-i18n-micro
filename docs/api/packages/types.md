@@ -32,9 +32,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
-| `ModuleOptions` | interface | 48 members |
-| `ModuleOptionsExtend` | interface | 51 members |
-| `ModulePrivateOptionsExtend` | interface | 51 members |
+| `ModuleOptions` | interface | 49 members |
+| `ModuleOptionsExtend` | interface | 52 members |
+| `ModulePrivateOptionsExtend` | interface | 52 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -113,10 +113,11 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModuleOptions</code> — 48 members</summary>
+<summary><code>ModuleOptions</code> — 49 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `additionalTranslationDirs?` | `string[] \| undefined` |
 | `apiBaseClientHost?` | `string \| undefined` |
 | `apiBaseServerHost?` | `string \| undefined` |
 | `apiBaseUrl?` | `string \| undefined` |
@@ -168,10 +169,11 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModuleOptionsExtend</code> — 51 members</summary>
+<summary><code>ModuleOptionsExtend</code> — 52 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `additionalTranslationDirs?` | `string[] \| undefined` |
 | `apiBaseClientHost?` | `string \| undefined` |
 | `apiBaseServerHost?` | `string \| undefined` |
 | `apiBaseUrl` | `string` |
@@ -226,10 +228,11 @@ import { /* … */ } from '@i18n-micro/types'
 
 </details>
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 51 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 52 members</summary>
 
 | Member | Type |
 | --- | --- |
+| `additionalTranslationDirs?` | `string[] \| undefined` |
 | `apiBaseClientHost?` | `string \| undefined` |
 | `apiBaseServerHost?` | `string \| undefined` |
 | `apiBaseUrl` | `string` |

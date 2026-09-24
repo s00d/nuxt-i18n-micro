@@ -135,7 +135,7 @@ See also the generated [API reference](/api/packages/runtime).
 
 | Package                                                             | Use when                     |
 | ------------------------------------------------------------------- | ---------------------------- |
-| [`@i18n-micro/runtime`](.)                                          | Vanilla browser / TS / JS    |
+| [`@i18n-micro/runtime`](/api/packages/runtime)                      | Vanilla browser / TS / JS    |
 | [`@i18n-micro/node`](./nodejs-package)                              | Node with filesystem locales |
 | [`@i18n-micro/vue`](./vue-package) / [`react`](./react-package) / … | Framework UI bindings        |
 | [`@i18n-micro/core`](/api/packages/core)                            | Low-level `BaseI18n` only    |

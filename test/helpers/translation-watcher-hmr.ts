@@ -16,26 +16,40 @@ export const translationWatcherSourceFixtureRoot = fileURLToPath(new URL('../fix
  * the source fixture's `locales` was a symlink to it — which only stayed green
  * while the suite ran serially.)
  */
-export function createTranslationWatcherFiles(fixtureRoot: string) {
-  const localesRoot = join(fixtureRoot, 'locales')
+export function createTranslationWatcherFiles(fixtureRoot: string, localesDirName = 'locales') {
+  const localesRoot = join(fixtureRoot, localesDirName)
   const backups = new Map<string, string>()
 
   const resolveLocaleFile = (relativePath: string): string => join(localesRoot, relativePath)
+  const resolveFixtureFile = (relativePath: string): string => join(fixtureRoot, relativePath)
 
-  const backupLocaleFile = (relativePath: string): void => {
-    const filePath = resolveLocaleFile(relativePath)
+  const backupFile = (filePath: string): void => {
     if (!backups.has(filePath)) {
       backups.set(filePath, readFileSync(filePath, 'utf-8'))
     }
   }
 
   return {
-    /** Read → patch → write one locale file, keeping a backup for restore. */
+    /** Read → patch → write one locale file under the primary translationDir, keeping a backup for restore. */
     patchFile(relativePath: string, patch: (current: Record<string, unknown>) => Record<string, unknown>): Record<string, unknown> {
-      const current = JSON.parse(readFileSync(resolveLocaleFile(relativePath), 'utf-8')) as Record<string, unknown>
+      const filePath = resolveLocaleFile(relativePath)
+      const current = JSON.parse(readFileSync(filePath, 'utf-8')) as Record<string, unknown>
       const next = patch(current)
-      backupLocaleFile(relativePath)
-      writeFileSync(resolveLocaleFile(relativePath), `${JSON.stringify(next, null, 2)}\n`)
+      backupFile(filePath)
+      writeFileSync(filePath, `${JSON.stringify(next, null, 2)}\n`)
+      return next
+    },
+
+    /**
+     * Patch any JSON file relative to the fixture root (e.g. `common/en.json` for
+     * `additionalTranslationDirs`).
+     */
+    patchFixtureFile(relativePath: string, patch: (current: Record<string, unknown>) => Record<string, unknown>): Record<string, unknown> {
+      const filePath = resolveFixtureFile(relativePath)
+      const current = JSON.parse(readFileSync(filePath, 'utf-8')) as Record<string, unknown>
+      const next = patch(current)
+      backupFile(filePath)
+      writeFileSync(filePath, `${JSON.stringify(next, null, 2)}\n`)
       return next
     },
 

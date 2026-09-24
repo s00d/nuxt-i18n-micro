@@ -38,7 +38,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
-| `ModuleOptions` | interface | 48 members |
+| `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `SolidI18n` | class | 54 members |
@@ -79,7 +79,7 @@ import { /* … */ } from '@i18n-micro/solid'
 
 </details>
 <code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
-<code>ModuleOptions</code> — 48 members, identical to [`ModuleOptions`](/api/packages/types).
+<code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
 <details>
 <summary><code>SolidI18n</code> — 54 members</summary>
 

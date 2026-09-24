@@ -130,12 +130,25 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
       async saveTranslationContent(file, content) {
         let filePath: string | null = null
 
-        for (const rootDir of dirs) {
-          const localesDir = path.join(rootDir, options.translationDir || 'locales')
-          const candidatePath = path.join(localesDir, file)
-          if (fs.existsSync(candidatePath)) {
-            filePath = candidatePath
-            break
+        const additionalMatch = /^additional:([^/]+)\/(.+)$/.exec(file)
+        if (additionalMatch?.[1] && additionalMatch[2]) {
+          const extraDir = additionalMatch[1]
+          const relFile = additionalMatch[2]
+          for (const rootDir of dirs) {
+            const candidatePath = path.join(rootDir, extraDir, relFile)
+            if (fs.existsSync(candidatePath)) {
+              filePath = candidatePath
+              break
+            }
+          }
+        } else {
+          for (const rootDir of dirs) {
+            const localesDir = path.join(rootDir, options.translationDir || 'locales')
+            const candidatePath = path.join(localesDir, file)
+            if (fs.existsSync(candidatePath)) {
+              filePath = candidatePath
+              break
+            }
           }
         }
 
@@ -156,37 +169,49 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
       async getLocalesAndTranslations() {
         const filesList: Record<string, string> = {}
 
+        const processDirectory = (dir: string, baseDir: string) => {
+          if (!fs.existsSync(dir)) return
+
+          fs.readdirSync(dir).forEach((file) => {
+            const filePath = path.join(dir, file)
+            const stat = fs.lstatSync(filePath)
+
+            if (stat.isDirectory()) {
+              processDirectory(filePath, baseDir)
+            } else if (file.endsWith('.json')) {
+              try {
+                const relativePath = path.relative(baseDir, filePath).replace(/\\/g, '/')
+                filesList[relativePath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+              } catch (e) {
+                console.error(`Error parsing locale file ${filePath}:`, e)
+              }
+            }
+          })
+        }
+
         for (const rootDir of dirs) {
           const localesDir = path.join(rootDir, options.translationDir || 'locales')
           const pagesDir = path.join(localesDir, 'pages')
 
-          // Recursive function for processing nested directories
-          const processDirectory = (dir: string, baseDir: string = localesDir) => {
-            if (!fs.existsSync(dir)) return
-
-            fs.readdirSync(dir).forEach((file) => {
-              const filePath = path.join(dir, file)
-              const stat = fs.lstatSync(filePath)
-
-              if (stat.isDirectory()) {
-                processDirectory(filePath, baseDir) // Recursive traversal of subdirectories
-              } else if (file.endsWith('.json')) {
-                try {
-                  // Use relative path from localesDir for proper tree display
-                  const relativePath = path.relative(baseDir, filePath)
-                  // Normalize path separators to forward slashes for consistency
-                  const normalizedPath = relativePath.replace(/\\/g, '/')
-                  filesList[normalizedPath] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-                } catch (e) {
-                  console.error(`Error parsing locale file ${filePath}:`, e)
-                }
-              }
-            })
-          }
-
           // Process main directory and pages (both relative to localesDir)
           processDirectory(localesDir, localesDir)
           processDirectory(pagesDir, localesDir)
+
+          // Surface additional root `{locale}.json` under `additional:<dir>/…` (pages/ ignored).
+          for (const extra of options.additionalTranslationDirs ?? []) {
+            const extraDir = path.join(rootDir, extra)
+            if (!fs.existsSync(extraDir)) continue
+            for (const name of fs.readdirSync(extraDir)) {
+              if (!name.endsWith('.json')) continue
+              const filePath = path.join(extraDir, name)
+              if (!fs.statSync(filePath).isFile()) continue
+              try {
+                filesList[`additional:${extra}/${name}`] = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+              } catch (e) {
+                console.error(`Error parsing locale file ${filePath}:`, e)
+              }
+            }
+          }
         }
 
         return filesList

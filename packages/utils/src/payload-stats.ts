@@ -45,23 +45,41 @@ export function scanTranslationPayloadDirectory(dir: string): TranslationPayload
  *
  * Returns `null` when there is nothing to hash, leaving the caller to fall back.
  */
-export function hashTranslationSources(rootDirs: string[], translationDirName: string): string | null {
+export function hashTranslationSources(rootDirs: string[], translationDirName: string, additionalTranslationDirs: string[] = []): string | null {
   const hash = createHash('sha256')
   let seen = 0
 
-  for (const rootDir of rootDirs) {
-    const dir = join(rootDir, translationDirName)
-    if (!existsSync(dir)) continue
-
-    const files: string[] = []
-    collectJsonFiles(dir, files)
+  const hashFiles = (baseDir: string, files: string[]) => {
     files.sort()
-
     for (const file of files) {
-      hash.update(relative(dir, file))
+      hash.update(relative(baseDir, file))
       hash.update('\0')
       hash.update(readFileSync(file))
       seen += 1
+    }
+  }
+
+  const hashDir = (dir: string) => {
+    if (!existsSync(dir)) return
+    const files: string[] = []
+    collectJsonFiles(dir, files)
+    hashFiles(dir, files)
+  }
+
+  /** Only top-level `{locale}.json` — `pages/` under additional dirs is ignored by merge. */
+  const hashAdditionalRootLocales = (dir: string) => {
+    if (!existsSync(dir)) return
+    const files: string[] = []
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (entry.isFile() && entry.name.endsWith('.json')) files.push(join(dir, entry.name))
+    }
+    hashFiles(dir, files)
+  }
+
+  for (const rootDir of rootDirs) {
+    hashDir(join(rootDir, translationDirName))
+    for (const extra of additionalTranslationDirs) {
+      hashAdditionalRootLocales(join(rootDir, extra))
     }
   }
 

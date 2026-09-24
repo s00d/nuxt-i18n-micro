@@ -39,6 +39,7 @@ member Locale.[string]: unknown
 type LocaleCode: string
 type MissingHandler: (locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void
 interface ModuleOptions
+member ModuleOptions.additionalTranslationDirs?: string[] | undefined
 member ModuleOptions.apiBaseClientHost?: string | undefined
 member ModuleOptions.apiBaseServerHost?: string | undefined
 member ModuleOptions.apiBaseUrl?: string | undefined
@@ -88,6 +89,7 @@ member ModuleOptions.translationPayloads?: TranslationPayloadOptions | undefined
 member ModuleOptions.types?: boolean | undefined
 member ModuleOptions.vueDevtools?: boolean | undefined
 interface ModuleOptionsExtend
+member ModuleOptionsExtend.additionalTranslationDirs?: string[] | undefined
 member ModuleOptionsExtend.apiBaseClientHost?: string | undefined
 member ModuleOptionsExtend.apiBaseServerHost?: string | undefined
 member ModuleOptionsExtend.apiBaseUrl: string
@@ -140,6 +142,7 @@ member ModuleOptionsExtend.translationPayloads?: TranslationPayloadOptions | und
 member ModuleOptionsExtend.types?: boolean | undefined
 member ModuleOptionsExtend.vueDevtools?: boolean | undefined
 interface ModulePrivateOptionsExtend
+member ModulePrivateOptionsExtend.additionalTranslationDirs?: string[] | undefined
 member ModulePrivateOptionsExtend.apiBaseClientHost?: string | undefined
 member ModulePrivateOptionsExtend.apiBaseServerHost?: string | undefined
 member ModulePrivateOptionsExtend.apiBaseUrl: string

@@ -1,0 +1,10 @@
+{
+  "fromCommon": "From Common FR",
+  "onlyCommon": "C-fr",
+  "deep": {
+    "a": {
+      "x": 10,
+      "y": 20
+    }
+  }
+}

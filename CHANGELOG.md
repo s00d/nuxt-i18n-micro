@@ -1,6 +1,33 @@
 # Changelog
 
 
+## v3.29.7
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.6...v3.29.7)
+
+### 🩹 Fixes
+
+- **module:** Read SSR payloads from server assets on function presets ([#261](https://github.com/s00d/nuxt-i18n-micro/pull/261))
+- **payloads:** Align public copy with SSR public-dir heuristic ([f95a5c95](https://github.com/s00d/nuxt-i18n-micro/commit/f95a5c95))
+
+### 🏡 Chore
+
+- Cascade workspace package bumps for types/utils ([4bd42e98](https://github.com/s00d/nuxt-i18n-micro/commit/4bd42e98))
+
+### ✅ Tests
+
+- Add local Nitro-style preset smoke for vercel/cf/netlify ([cdb6e62b](https://github.com/s00d/nuxt-i18n-micro/commit/cdb6e62b))
+
+### 🎨 Styles
+
+- **utils:** Format payload-config signatures after oxfmt ([126cd59a](https://github.com/s00d/nuxt-i18n-micro/commit/126cd59a))
+- **scripts:** Silence intentional no-await-in-loop in preset-smoke ([a3b2c487](https://github.com/s00d/nuxt-i18n-micro/commit/a3b2c487))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+- Felix Gabler <felix.gabler98@gmail.com>
+
 ## v3.29.6
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.5...v3.29.6)

@@ -304,11 +304,11 @@ export interface ModuleOptions {
   additionalTranslationDirs?: string[]
 
   /**
-   * Controls how translation payloads are emitted (Node server: `public/<apiBaseUrl>`; Edge and function presets: Nitro `serverAssets`).
+   * Controls how translation payloads are emitted (Node server: `public/<apiBaseUrl>`; Edge / function / inline: Nitro `serverAssets`).
    *
-   * - **Node server** (`node-server`, `node-cluster`): `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).
-   * - **Edge and function presets** (`vercel`, `netlify`, `aws-lambda`): `serverAssets` registers Nitro `serverAssets` (`assets:i18n`),
-   *   because `public/` is not deployed with the server. On Edge it does not force a public copy.
+   * - **Node server** (`node-server`, `node-cluster`, disk `serveStatic`): `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).
+   * - **Edge, function presets, and `serveStatic: "inline"`** (`vercel`, `netlify`, `aws-lambda`, winterjs, …): `serverAssets` registers Nitro `serverAssets` (`assets:i18n`),
+   *   because `public/` is not available to SSR on disk. Does not force a public copy — set `publicAssets: true` for CDN/static.
    *
    * Keep the defaults for the usual all-in-one setup. For large Edge catalogs prefer `mode: 'source'`.
    * For CDN-backed deployments, disable local outputs and set `apiBaseClientHost` / `apiBaseServerHost`.
@@ -575,14 +575,15 @@ export interface TranslationPayloadOptions {
   mode?: 'premerged' | 'source'
 
   /**
-   * Local SSR payloads: a Node server reads `public/<apiBaseUrl>` (forces public copy); Edge and function presets embed via Nitro `serverAssets`.
+   * Local SSR payloads: a Node server that serves `public/` from disk reads that tree (forces public copy);
+   * Edge, function presets, and `serveStatic: "inline"` embed via Nitro `serverAssets`.
    *
    * - **Node server** (preset serves `public/` itself, e.g. `node-server`): no Nitro `serverAssets` (avoids Rollup `raw:`). SSR reads
    *   `public/<apiBaseUrl|publicDir>` as `{page}/{locale}/data.json`; when this is `true`,
    *   a public copy is forced even if `publicAssets` is false.
-   * - **Edge and function presets** (`nitro.node === false`, or no `serveStatic`: `vercel`, `netlify`, `aws-lambda`):
-   *   Nitro `serverAssets` (`assets:i18n`) with the same layout as `mode`. On Edge this does **not** force a public copy —
-   *   set `publicAssets: true` for CDN.
+   * - **Edge, function presets, and inline** (`nitro.node === false`, no disk `serveStatic` such as `vercel` /
+   *   `netlify` / `aws-lambda`, or `serveStatic: "inline"` e.g. winterjs): Nitro `serverAssets` (`assets:i18n`)
+   *   with the same layout as `mode`. Does **not** force a public copy — set `publicAssets: true` for CDN/static.
    * @default true
    */
   serverAssets?: boolean
@@ -597,7 +598,8 @@ export interface TranslationPayloadOptions {
   /**
    * Copy payloads into Nitro public output. Premerged → `{page}/{locale}/data.json` under `apiBaseUrl`; source → compact tree.
    *
-   * On Node this tree is also the SSR source when `serverAssets` forces a public copy.
+   * When SSR reads `public/` (`node-server` and similar), `serverAssets: true` also forces this copy.
+   * On Edge / function / `serveStatic: "inline"` presets, copy only when this is `true` (SSR uses the Nitro embed).
    * @default true in premerged mode, false in source mode
    */
   publicAssets?: boolean

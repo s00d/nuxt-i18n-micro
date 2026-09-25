@@ -57,7 +57,7 @@ describe('translationPayloads build options', () => {
     )
   })
 
-  it('copies to public on Node when serverAssets forces SSR, but not on Edge', () => {
+  it('copies to public when SSR reads public/, but not on embed presets', () => {
     const serverOnly = resolveTranslationPayloadOptions({
       translationPayloads: { serverAssets: true, publicAssets: false },
     })
@@ -65,6 +65,11 @@ describe('translationPayloads build options', () => {
     expect(shouldCopyTranslationPayloadsToPublic(serverOnly, false)).toBe(false)
     expect(shouldRegisterNitroServerAssets(serverOnly, true)).toBe(false)
     expect(shouldRegisterNitroServerAssets(serverOnly, false)).toBe(true)
+
+    const withPublic = resolveTranslationPayloadOptions({
+      translationPayloads: { serverAssets: true, publicAssets: true },
+    })
+    expect(shouldCopyTranslationPayloadsToPublic(withPublic, false)).toBe(true)
   })
 
   it('keeps source-mode publicAssets off even if nested module defaults leaked true', () => {

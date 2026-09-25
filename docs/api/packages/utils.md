@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-108 exports across 24 entry points.
+109 exports across 24 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -263,15 +263,16 @@ import { /* … */ } from '@i18n-micro/utils/payload-config'
 | `getTranslationPayloadMisconfigurationWarnings` | function | `(input: TranslationPayloadMisconfigurationInput) => string[]` |
 | `getTranslationPayloadSizeWarning` | function | `(stats: TranslationPayloadStats, thresholds?: TranslationPayloadSizeThresholds) => string \| null` |
 | `hasLocalTranslationPayloadOutput` | function | `(translationPayloads: ResolvedTranslationPayloadOptions) => boolean` |
+| `NitroServeStatic` | type | `boolean \| 'node' \| 'deno' \| 'inline'` |
 | `ResolvedTranslationPayloadOptions` | interface | 8 members |
 | `resolveTranslationPayloadMode` | function | `(options: ModuleOptions) => TranslationPayloadMode` |
 | `resolveTranslationPayloadOptions` | function | `(options: ModuleOptions) => ResolvedTranslationPayloadOptions` |
 | `resolveTranslationPayloadPublicDir` | function | `(outputPublicDir: string \| undefined, options: ModuleOptions, apiBaseUrl?: string) => string` |
 | `resolveTranslationPayloadPublicRel` | function | `(options: ModuleOptions, apiBaseUrl?: string) => string` |
 | `resolveTranslationPayloadWarningThresholds` | function | `(options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>` |
-| `shouldCopyTranslationPayloadsToPublic` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean` |
-| `shouldReadPayloadsFromPublicDir` | function | `(nitroOptions: { node: boolean; serveStatic: boolean \| string; }) => boolean` |
-| `shouldRegisterNitroServerAssets` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean` |
+| `shouldCopyTranslationPayloadsToPublic` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean) => boolean` |
+| `shouldReadPayloadsFromPublicDir` | function | `(nitroOptions: { node: boolean; serveStatic: NitroServeStatic; }) => boolean` |
+| `shouldRegisterNitroServerAssets` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean) => boolean` |
 | `TranslationPayloadMisconfigurationInput` | interface | 3 members |
 | `TranslationPayloadMode` | type | `'premerged' \| 'source'` |
 | `TranslationPayloadSizeThresholds` | interface | 2 members |

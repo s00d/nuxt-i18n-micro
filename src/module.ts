@@ -850,10 +850,10 @@ declare module '#i18n-internal/payload-source' {
 
     nuxt.hook('nitro:build:public-assets', (nitro) => {
       const isProd = nuxt.options.dev === false
-      const isNode = nitro.options.node !== false
-      // publicAssets always; on Node, serverAssets also forces copy (SSR via fs).
-      // Edge serverAssets is Nitro embed only — do not force a public tree.
-      const copyPublicPayloads = shouldCopyTranslationPayloadsToPublic(translationPayloads, isNode)
+      // publicAssets always; when SSR reads public/, serverAssets also forces copy (fs reader).
+      // Function / Edge / serveStatic:"inline" embed only — do not force a public tree.
+      const readsPublicDir = shouldReadPayloadsFromPublicDir(nitro.options)
+      const copyPublicPayloads = shouldCopyTranslationPayloadsToPublic(translationPayloads, readsPublicDir)
 
       if (isProd && copyPublicPayloads) {
         const publicDir = resolveTranslationPayloadPublicDir(nitro.options.output.publicDir, options, apiBaseUrl)

@@ -112,6 +112,7 @@ function formatBytes: (bytes: number) => string
 function getTranslationPayloadMisconfigurationWarnings: (input: TranslationPayloadMisconfigurationInput) => string[]
 function getTranslationPayloadSizeWarning: (stats: TranslationPayloadStats, thresholds?: TranslationPayloadSizeThresholds) => string | null
 function hasLocalTranslationPayloadOutput: (translationPayloads: ResolvedTranslationPayloadOptions) => boolean
+type NitroServeStatic: boolean | 'node' | 'deno' | 'inline'
 interface ResolvedTranslationPayloadOptions
 member ResolvedTranslationPayloadOptions.mode: TranslationPayloadMode
 member ResolvedTranslationPayloadOptions.prerenderRoutes: boolean
@@ -126,9 +127,9 @@ function resolveTranslationPayloadOptions: (options: ModuleOptions) => ResolvedT
 function resolveTranslationPayloadPublicDir: (outputPublicDir: string | undefined, options: ModuleOptions, apiBaseUrl?: string) => string
 function resolveTranslationPayloadPublicRel: (options: ModuleOptions, apiBaseUrl?: string) => string
 function resolveTranslationPayloadWarningThresholds: (options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>
-function shouldCopyTranslationPayloadsToPublic: (translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean
-function shouldReadPayloadsFromPublicDir: (nitroOptions: { node: boolean; serveStatic: boolean | string; }) => boolean
-function shouldRegisterNitroServerAssets: (translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean
+function shouldCopyTranslationPayloadsToPublic: (translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean) => boolean
+function shouldReadPayloadsFromPublicDir: (nitroOptions: { node: boolean; serveStatic: NitroServeStatic; }) => boolean
+function shouldRegisterNitroServerAssets: (translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean) => boolean
 interface TranslationPayloadMisconfigurationInput
 member TranslationPayloadMisconfigurationInput.apiBaseClientHost?: string | undefined
 member TranslationPayloadMisconfigurationInput.apiBaseServerHost?: string | undefined

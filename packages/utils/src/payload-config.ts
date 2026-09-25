@@ -77,29 +77,45 @@ export function resolveTranslationPayloadPublicDir(outputPublicDir: string | und
 }
 
 /**
+ * Nitro `serveStatic` values (see nitropack `NitroOptions.serveStatic`).
+ * Disk-serving: `true` | `"node"` | `"deno"`. Embed/bundle: `false` | `"inline"`.
+ */
+export type NitroServeStatic = boolean | 'node' | 'deno' | 'inline'
+
+/**
  * Whether production builds should copy the payload tree into Nitro public output.
  * - `publicAssets: true` always copies (CDN / static clients).
- * - On Node, `serverAssets: true` also forces a copy — SSR reads `public/` via fs (no Rollup `raw:`).
- * - On Edge, `serverAssets` means Nitro `serverAssets` embed only — do not force a public tree.
+ * - When SSR reads `public/` (`readsPublicDir`), `serverAssets: true` also forces a copy (fs reader, no Rollup `raw:`).
+ * - Function / Edge / `serveStatic: "inline"`: `serverAssets` embeds via Nitro only — do not force a public tree;
+ *   set `publicAssets: true` when the client/CDN needs a static copy.
  */
-export function shouldCopyTranslationPayloadsToPublic(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean): boolean {
+export function shouldCopyTranslationPayloadsToPublic(
+  translationPayloads: ResolvedTranslationPayloadOptions,
+  readsPublicDir: boolean,
+): boolean {
   if (translationPayloads.publicAssets) return true
-  return isNode && translationPayloads.serverAssets
+  return readsPublicDir && translationPayloads.serverAssets
 }
 
 /**
  * Whether SSR can `readFile` payloads from `public/` next to the server bundle, given the resolved Nitro options.
  * Only presets whose server serves `public/` from disk ship it there (`node-server`, `node-cluster`, dev, prerender).
  * Function platforms (`vercel`, `netlify`, `aws-lambda`) deploy `public/` to a CDN, Edge has no fs, and
- * `serveStatic: 'inline'` bundles it into the server.
+ * `serveStatic: "inline"` (e.g. winterjs) bundles it into the server.
  */
-export function shouldReadPayloadsFromPublicDir(nitroOptions: { node: boolean; serveStatic: boolean | string }): boolean {
+export function shouldReadPayloadsFromPublicDir(nitroOptions: { node: boolean; serveStatic: NitroServeStatic }): boolean {
   return nitroOptions.node && !!nitroOptions.serveStatic && nitroOptions.serveStatic !== 'inline'
 }
 
-/** Register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled and SSR cannot read `public/`. */
-export function shouldRegisterNitroServerAssets(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean): boolean {
-  return !isNode && translationPayloads.serverAssets
+/**
+ * Register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled and SSR cannot read `public/`.
+ * Pass the result of `shouldReadPayloadsFromPublicDir` as `readsPublicDir`.
+ */
+export function shouldRegisterNitroServerAssets(
+  translationPayloads: ResolvedTranslationPayloadOptions,
+  readsPublicDir: boolean,
+): boolean {
+  return !readsPublicDir && translationPayloads.serverAssets
 }
 
 export function resolveTranslationPayloadWarningThresholds(options?: TranslationPayloadOptions): Required<TranslationPayloadSizeThresholds> {

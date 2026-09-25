@@ -256,8 +256,8 @@ SSR and the client both need the same `/{apiBaseUrl}/{page}/{locale}/data.json` 
 
 **Explanation:**
 
-- **Node server (`node-server`, `node-cluster`):** the module does **not** embed translations as Nitro `serverAssets` / Rollup `raw:` (that blew up build RAM on large catalogs). Instead it copies the premerged tree to `public/<apiBaseUrl>/` (default `_locales`) and SSR reads those files with `readFile`. The client `$fetch`es the same URLs — either as static files or via the Nitro handler.
-- **Edge and function presets** (`nitro.node === false`, or a preset without `serveStatic` such as `vercel`, `netlify`, `aws-lambda`): `public/` is not available to SSR on disk, so payloads are embedded via Nitro `serverAssets` (`assets:i18n`). Prefer `translationPayloads.mode: 'source'` so the embed stays compact. Set `publicAssets: true` only if you also need a CDN/static copy.
+- **Node server (`node-server`, `node-cluster`, and other presets with disk `serveStatic`):** the module does **not** embed translations as Nitro `serverAssets` / Rollup `raw:` (that blew up build RAM on large catalogs). Instead it copies the premerged tree to `public/<apiBaseUrl>/` (default `_locales`) and SSR reads those files with `readFile`. The client `$fetch`es the same URLs — either as static files or via the Nitro handler.
+- **Edge, function presets, and `serveStatic: "inline"`** (`nitro.node === false`, no disk `serveStatic` such as `vercel` / `netlify` / `aws-lambda`, or winterjs-style `inline`): `public/` is not available to SSR on disk, so payloads are embedded via Nitro `serverAssets` (`assets:i18n`). Prefer `translationPayloads.mode: 'source'` so the embed stays compact. A public/CDN copy is written only when `publicAssets: true` (defaults on in premerged mode); SSR still uses the embed.
 - **`prerenderRoutes`:** optional. In premerged mode `publicAssets` already writes `{page}/{locale}/data.json`, so prerendering those routes is usually redundant.
 
 ### ❓ Why do I get a build error referring to `@unhead/vue` or an undefined object, especially on Cloudflare Pages?

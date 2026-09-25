@@ -3,6 +3,7 @@ import {
   getTranslationPayloadSizeWarning,
   hasLocalTranslationPayloadOutput,
   resolveTranslationPayloadOptions,
+  shouldCopyTranslationPayloadsToPublic,
   shouldReadPayloadsFromPublicDir,
   shouldRegisterNitroServerAssets,
 } from '../src/payload-config'
@@ -39,6 +40,8 @@ describe('hasLocalTranslationPayloadOutput', () => {
 describe('shouldReadPayloadsFromPublicDir', () => {
   it('reads public/ from disk when the server serves it (node-server, dev, prerender)', () => {
     expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: true })).toBe(true)
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: 'node' })).toBe(true)
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: 'deno' })).toBe(true)
   })
 
   it('embeds on Node function platforms that deploy public/ to a CDN (vercel, netlify, aws-lambda)', () => {
@@ -49,6 +52,22 @@ describe('shouldReadPayloadsFromPublicDir', () => {
   it('embeds on Edge and when public/ is inlined into the server', () => {
     expect(shouldReadPayloadsFromPublicDir({ node: false, serveStatic: false })).toBe(false)
     expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: 'inline' })).toBe(false)
+  })
+})
+
+describe('shouldCopyTranslationPayloadsToPublic vs readsPublicDir', () => {
+  it('does not force a public copy on embed presets when publicAssets is false', () => {
+    const serverOnly = resolveTranslationPayloadOptions({
+      translationPayloads: { serverAssets: true, publicAssets: false },
+    })
+    expect(shouldCopyTranslationPayloadsToPublic(serverOnly, false)).toBe(false)
+  })
+
+  it('still copies when publicAssets is true on embed presets', () => {
+    const withPublic = resolveTranslationPayloadOptions({
+      translationPayloads: { serverAssets: true, publicAssets: true },
+    })
+    expect(shouldCopyTranslationPayloadsToPublic(withPublic, false)).toBe(true)
   })
 })
 

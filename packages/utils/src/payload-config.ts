@@ -89,10 +89,7 @@ export type NitroServeStatic = boolean | 'node' | 'deno' | 'inline'
  * - Function / Edge / `serveStatic: "inline"`: `serverAssets` embeds via Nitro only — do not force a public tree;
  *   set `publicAssets: true` when the client/CDN needs a static copy.
  */
-export function shouldCopyTranslationPayloadsToPublic(
-  translationPayloads: ResolvedTranslationPayloadOptions,
-  readsPublicDir: boolean,
-): boolean {
+export function shouldCopyTranslationPayloadsToPublic(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean): boolean {
   if (translationPayloads.publicAssets) return true
   return readsPublicDir && translationPayloads.serverAssets
 }
@@ -111,10 +108,7 @@ export function shouldReadPayloadsFromPublicDir(nitroOptions: { node: boolean; s
  * Register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled and SSR cannot read `public/`.
  * Pass the result of `shouldReadPayloadsFromPublicDir` as `readsPublicDir`.
  */
-export function shouldRegisterNitroServerAssets(
-  translationPayloads: ResolvedTranslationPayloadOptions,
-  readsPublicDir: boolean,
-): boolean {
+export function shouldRegisterNitroServerAssets(translationPayloads: ResolvedTranslationPayloadOptions, readsPublicDir: boolean): boolean {
   return !readsPublicDir && translationPayloads.serverAssets
 }
 

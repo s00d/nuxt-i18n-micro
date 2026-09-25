@@ -127,6 +127,7 @@ function resolveTranslationPayloadPublicDir: (outputPublicDir: string | undefine
 function resolveTranslationPayloadPublicRel: (options: ModuleOptions, apiBaseUrl?: string) => string
 function resolveTranslationPayloadWarningThresholds: (options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>
 function shouldCopyTranslationPayloadsToPublic: (translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean
+function shouldReadPayloadsFromPublicDir: (nitroOptions: { node: boolean; serveStatic: boolean | string; }) => boolean
 function shouldRegisterNitroServerAssets: (translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean
 interface TranslationPayloadMisconfigurationInput
 member TranslationPayloadMisconfigurationInput.apiBaseClientHost?: string | undefined

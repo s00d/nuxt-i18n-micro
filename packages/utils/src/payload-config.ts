@@ -87,7 +87,17 @@ export function shouldCopyTranslationPayloadsToPublic(translationPayloads: Resol
   return isNode && translationPayloads.serverAssets
 }
 
-/** Edge-only: register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled. */
+/**
+ * Whether SSR can `readFile` payloads from `public/` next to the server bundle, given the resolved Nitro options.
+ * Only presets whose server serves `public/` from disk ship it there (`node-server`, `node-cluster`, dev, prerender).
+ * Function platforms (`vercel`, `netlify`, `aws-lambda`) deploy `public/` to a CDN, Edge has no fs, and
+ * `serveStatic: 'inline'` bundles it into the server.
+ */
+export function shouldReadPayloadsFromPublicDir(nitroOptions: { node: boolean; serveStatic: boolean | string }): boolean {
+  return nitroOptions.node && !!nitroOptions.serveStatic && nitroOptions.serveStatic !== 'inline'
+}
+
+/** Register Nitro `serverAssets` (`assets:i18n`) when local SSR payloads are enabled and SSR cannot read `public/`. */
 export function shouldRegisterNitroServerAssets(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean): boolean {
   return !isNode && translationPayloads.serverAssets
 }

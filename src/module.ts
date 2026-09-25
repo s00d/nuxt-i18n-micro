@@ -24,6 +24,7 @@ import {
   resolveTranslationPayloadPublicRel,
   resolveTranslationPayloadWarningThresholds,
   shouldCopyTranslationPayloadsToPublic,
+  shouldReadPayloadsFromPublicDir,
   shouldRegisterNitroServerAssets,
   type TranslationPayloadMode,
 } from '@i18n-micro/utils/payload-config'
@@ -760,30 +761,9 @@ declare module '#i18n-internal/payload-source' {
       nitroConfig.alias['#i18n-internal/strategy'] = strategyTemplate.dst
       nitroConfig.alias['#i18n-internal/config'] = configTemplate.dst
 
-      // Node: read public/ via fs (no Rollup raw:). Edge: Nitro serverAssets embed.
-      const isNode = nitroConfig.node !== false
-      nitroConfig.alias['#i18n-internal/payload-source'] = isNode
-        ? resolver.resolve('./runtime/server/payload-source.fs')
-        : resolver.resolve('./runtime/server/payload-source.assets')
-
-      if (shouldRegisterNitroServerAssets(translationPayloads, isNode)) {
-        nitroConfig.serverAssets = nitroConfig.serverAssets || []
-        nitroConfig.serverAssets.push({
-          baseName: 'i18n',
-          // Same layout as public (`mode`): premerged matrix or compact source.
-          dir: publicAssetsDir,
-        })
-        if (translationPayloads.mode === 'premerged') {
-          logger.warn(
-            'Edge target with translationPayloads.mode:"premerged" embeds the full page/locale matrix via Nitro serverAssets (Rollup raw:). ' +
-              "Prefer mode:'source' for large catalogs.",
-          )
-        }
-      }
-
-      if (isNode && translationPayloads.serverAssets && !translationPayloads.publicAssets) {
-        logger.info('translationPayloads.serverAssets: on Node, payloads are served from public/ (publicAssets copy enabled for SSR).')
-      }
+      // Read public/ via fs (no Rollup raw:). Also what dev and the prerenderer use: it is rebuilt
+      // from this config. `nitro:init` switches the deployed server once the preset is resolved.
+      nitroConfig.alias['#i18n-internal/payload-source'] = resolver.resolve('./runtime/server/payload-source.fs')
 
       nitroConfig.plugins = nitroConfig.plugins || []
       if (nuxt.options.dev && (options.hmr ?? true)) {
@@ -838,6 +818,34 @@ declare module '#i18n-internal/payload-source' {
         middleware: true,
         handler: resolver.resolve('./runtime/server/middleware/i18n.global'),
       })
+    })
+
+    // The preset (and so `node` / `serveStatic`) is only resolved here, not in `nitro:config`.
+    nuxt.hook('nitro:init', (nitro) => {
+      // Static output has no server bundle; its prerenderer keeps the fs reader.
+      if (nitro.options.static) return
+      const readsPublicDir = shouldReadPayloadsFromPublicDir(nitro.options)
+      if (!readsPublicDir) {
+        nitro.options.alias['#i18n-internal/payload-source'] = resolver.resolve('./runtime/server/payload-source.assets')
+      }
+
+      if (shouldRegisterNitroServerAssets(translationPayloads, readsPublicDir)) {
+        nitro.options.serverAssets.push({
+          baseName: 'i18n',
+          // Same layout as public (`mode`): premerged matrix or compact source.
+          dir: publicAssetsDir,
+        })
+        if (translationPayloads.mode === 'premerged') {
+          logger.warn(
+            `Preset "${nitro.options.preset}" does not ship public/ with the server, so translationPayloads.mode:"premerged" embeds the full page/locale matrix via Nitro serverAssets (Rollup raw:). ` +
+              "Prefer mode:'source' for large catalogs.",
+          )
+        }
+      }
+
+      if (readsPublicDir && translationPayloads.serverAssets && !translationPayloads.publicAssets) {
+        logger.info('translationPayloads.serverAssets: on Node, payloads are served from public/ (publicAssets copy enabled for SSR).')
+      }
     })
 
     nuxt.hook('nitro:build:public-assets', (nitro) => {

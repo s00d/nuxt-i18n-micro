@@ -37,9 +37,9 @@ The sections below explain how they work together; the
 | [`apiBaseServerHost`](/api/module-options) | `string` | `undefined` | Override the host used for server-side translation fetch requests. |
 | [`translationDir`](/api/module-options) | `string` | `'locales'` | Path to the directory containing translation JSON files, relative to the project root. |
 | [`additionalTranslationDirs`](/api/module-options) | `string[]` | `[]` | Extra directories (relative to the project root / each Nuxt layer root) whose top-level `{locale}.json` files are deep-merged into the global dictionary before `translationDir`. |
-| [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how translation payloads are emitted (Node: `public/<apiBaseUrl>`; Edge: Nitro `serverAssets`). - **Node**: `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`). - **Edge**: `serverAssets` registers Nitro `serverAssets` (`assets:i18n`); it does not force a public copy. |
+| [`translationPayloads`](/api/module-options) | `TranslationPayloadOptions` | — | Controls how translation payloads are emitted (Node server: `public/<apiBaseUrl>`; Edge and function presets: Nitro `serverAssets`). - **Node server** (`node-server`, `node-cluster`): `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`). - **Edge and function presets** (`vercel`, `netlify`, `aws-lambda`): `serverAssets` registers Nitro `serverAssets` (`assets:i18n`),   because `public/` is not deployed with the server. |
 | [`translationPayloads.mode`](/api/module-options) | `'premerged' \| 'source'` | `'premerged'` | Translation payload strategy. - `premerged`: build-time `{page}/{locale}/data.json` matrix (default) - `source`: compact source files merged at runtime (prefer on Edge / large catalogs) |
-| [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Local SSR payloads: Node reads `public/<apiBaseUrl>` (forces public copy); Edge embeds via Nitro `serverAssets`. - **Node**: no Nitro `serverAssets` (avoids Rollup `raw:`). |
+| [`translationPayloads.serverAssets`](/api/module-options) | `boolean` | `true` | Local SSR payloads: a Node server reads `public/<apiBaseUrl>` (forces public copy); Edge and function presets embed via Nitro `serverAssets`. - **Node server** (preset serves `public/` itself, e.g. `node-server`): no Nitro `serverAssets` (avoids Rollup `raw:`). |
 | [`translationPayloads.serverHandler`](/api/module-options) | `boolean` | `true` | Register the built-in server route at `/{apiBaseUrl}/:page/:locale/data.json`. |
 | [`translationPayloads.publicAssets`](/api/module-options) | `boolean` | `true in premerged mode, false in source mode` | Copy payloads into Nitro public output. |
 | [`translationPayloads.prerenderRoutes`](/api/module-options) | `boolean` | `false` | Opt in to Nitro-prerender `/{apiBaseUrl}/.../data.json`. |
@@ -984,10 +984,11 @@ Use `apiBaseUrl` for path prefixes, `apiBaseClientHost` for client-side CDN/exte
 
 **Type** `TranslationPayloadOptions` · **Default** —
 
-Controls how translation payloads are emitted (Node: `public/<apiBaseUrl>`; Edge: Nitro `serverAssets`).
+Controls how translation payloads are emitted (Node server: `public/<apiBaseUrl>`; Edge and function presets: Nitro `serverAssets`).
 
-- **Node**: `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).
-- **Edge**: `serverAssets` registers Nitro `serverAssets` (`assets:i18n`); it does not force a public copy.
+- **Node server** (`node-server`, `node-cluster`): `serverAssets` means local SSR via `readFile` under `public/` (no Rollup `raw:`).
+- **Edge and function presets** (`vercel`, `netlify`, `aws-lambda`): `serverAssets` registers Nitro `serverAssets` (`assets:i18n`),
+  because `public/` is not deployed with the server. On Edge it does not force a public copy.
 
 Keep the defaults for the usual all-in-one setup. For large Edge catalogs prefer `mode: 'source'`.
 For CDN-backed deployments, disable local outputs and set `apiBaseClientHost` / `apiBaseServerHost`.

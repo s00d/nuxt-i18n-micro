@@ -19,12 +19,14 @@ export async function waitForUrl(url: string, timeoutMs = 90_000): Promise<void>
   let lastError = ''
   while (Date.now() < deadline) {
     try {
+      // oxlint-disable-next-line no-await-in-loop -- poll until ready or timeout
       const res = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(5_000) })
       if (res.status < 500 || res.status === 404) return
       lastError = `HTTP ${res.status}`
     } catch (error) {
       lastError = String((error as Error)?.message ?? error)
     }
+    // oxlint-disable-next-line no-await-in-loop -- backoff between polls
     await new Promise((r) => setTimeout(r, 500))
   }
   throw new Error(`Timed out waiting for ${url}: ${lastError}`)

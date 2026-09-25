@@ -97,17 +97,21 @@ export const presetSmokeCommand = defineCommand({
       installSmokeApp(appDir)
     }
 
+    // One preset at a time: shared appDir output dirs and fixed wrangler port.
     for (const preset of presets) {
       console.log(`\n==> preset ${preset}\n`)
       if (!args['skip-build']) {
         buildSmokeApp(appDir, preset, buildEnv)
       }
 
+      // oxlint-disable-next-line no-await-in-loop -- sequential presets (shared dirs/ports)
       const server = await startPresetRuntime(appDir, preset)
       try {
         console.log(`\n==> smoke-verify ${server.url} (${preset})\n`)
+        // oxlint-disable-next-line no-await-in-loop
         await runSmokeVerify(server.url, { browser: args.browser })
       } finally {
+        // oxlint-disable-next-line no-await-in-loop
         await server.close()
       }
     }

@@ -12,6 +12,7 @@ import { payloadBudgetCommand } from './payload-budget'
 import { performanceCommand } from './performance'
 import { preflightCommand } from './preflight'
 import { releaseCommand } from './release'
+import { presetSmokeCommand } from './preset-smoke'
 import { smokeBrowserCommand } from './smoke-browser'
 import { smokePackCommand } from './smoke-pack'
 import { smokeVerifyCommand } from './smoke-verify'
@@ -30,6 +31,7 @@ export const commands = {
   'fixtures-audit': fixturesAuditCommand,
   'payload-budget': payloadBudgetCommand,
   performance: performanceCommand,
+  'preset-smoke': presetSmokeCommand,
   preflight: preflightCommand,
   release: releaseCommand,
   'smoke-pack': smokePackCommand,

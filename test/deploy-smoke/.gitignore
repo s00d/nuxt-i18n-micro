@@ -1,2 +1,5 @@
 .vercel
+.wrangler
+.netlify
+dist
 .env*

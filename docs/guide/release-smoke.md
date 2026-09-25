@@ -179,3 +179,6 @@ first token has to come from the dashboard.
 CI waits for the new deployment to answer, then runs the same HTTP and browser checks
 against the live URL. A green deploy job means the published package works on that
 platform's runtime — not just in a local Node server.
+
+For **local** function/edge preset checks without deploying (Nitro-style vercel handler,
+wrangler, netlify serve), see [Preset local testing](/guide/preset-local-testing).

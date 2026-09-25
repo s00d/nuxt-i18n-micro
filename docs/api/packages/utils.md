@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/utils`
 
-107 exports across 24 entry points.
+108 exports across 24 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -270,6 +270,7 @@ import { /* … */ } from '@i18n-micro/utils/payload-config'
 | `resolveTranslationPayloadPublicRel` | function | `(options: ModuleOptions, apiBaseUrl?: string) => string` |
 | `resolveTranslationPayloadWarningThresholds` | function | `(options?: TranslationPayloadOptions) => Required<TranslationPayloadSizeThresholds>` |
 | `shouldCopyTranslationPayloadsToPublic` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean` |
+| `shouldReadPayloadsFromPublicDir` | function | `(nitroOptions: { node: boolean; serveStatic: boolean \| string; }) => boolean` |
 | `shouldRegisterNitroServerAssets` | function | `(translationPayloads: ResolvedTranslationPayloadOptions, isNode: boolean) => boolean` |
 | `TranslationPayloadMisconfigurationInput` | interface | 3 members |
 | `TranslationPayloadMode` | type | `'premerged' \| 'source'` |

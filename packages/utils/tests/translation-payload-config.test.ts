@@ -3,6 +3,8 @@ import {
   getTranslationPayloadSizeWarning,
   hasLocalTranslationPayloadOutput,
   resolveTranslationPayloadOptions,
+  shouldReadPayloadsFromPublicDir,
+  shouldRegisterNitroServerAssets,
 } from '../src/payload-config'
 import { describe, expect, it } from 'vitest'
 
@@ -31,6 +33,22 @@ describe('hasLocalTranslationPayloadOutput', () => {
         }),
       ),
     ).toBe(false)
+  })
+})
+
+describe('shouldReadPayloadsFromPublicDir', () => {
+  it('reads public/ from disk when the server serves it (node-server, dev, prerender)', () => {
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: true })).toBe(true)
+  })
+
+  it('embeds on Node function platforms that deploy public/ to a CDN (vercel, netlify, aws-lambda)', () => {
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: false })).toBe(false)
+    expect(shouldRegisterNitroServerAssets(resolveTranslationPayloadOptions({}), false)).toBe(true)
+  })
+
+  it('embeds on Edge and when public/ is inlined into the server', () => {
+    expect(shouldReadPayloadsFromPublicDir({ node: false, serveStatic: false })).toBe(false)
+    expect(shouldReadPayloadsFromPublicDir({ node: true, serveStatic: 'inline' })).toBe(false)
   })
 })
 

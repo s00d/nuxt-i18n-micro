@@ -189,10 +189,10 @@ const { data, pending } = await useAsyncData('page-data', () => {
 
 ### ❓ Why are translation keys not resolving during SSR on Vercel?
 
-**`$fetch` limitations on SSR**
-On serverless platforms like Vercel, `$fetch` can only fetch static files from the CDN and not from the internal Nitro server. This means static translation files may not be directly accessible unless the correct base URL is set.
+**Function platforms do not ship `public/` with the server**
+On Vercel, Netlify or AWS Lambda, `public/` is deployed to the CDN and the server function cannot read it from disk. The module detects this from the resolved Nitro preset (`node` without `serveStatic`) and embeds the payloads as Nitro `serverAssets`, so the default configuration renders translations during SSR. Prefer `translationPayloads.mode: 'source'` for large catalogs.
 
-**Fix by setting `apiBaseClientHost` and `apiBaseServerHost`**
+**Hosting payloads externally with `apiBaseClientHost` and `apiBaseServerHost`**
 If translations are hosted externally on a CDN or different domain, use `apiBaseClientHost` for client-side requests and `apiBaseServerHost` for server-side requests. The `apiBaseUrl` should only contain the path prefix (e.g., `_locales`).
 
 ```typescript
@@ -256,8 +256,8 @@ SSR and the client both need the same `/{apiBaseUrl}/{page}/{locale}/data.json` 
 
 **Explanation:**
 
-- **Node (default):** the module does **not** embed translations as Nitro `serverAssets` / Rollup `raw:` (that blew up build RAM on large catalogs). Instead it copies the premerged tree to `public/<apiBaseUrl>/` (default `_locales`) and SSR reads those files with `readFile`. The client `$fetch`es the same URLs — either as static files or via the Nitro handler.
-- **Edge** (`nitro.node === false`): there is no durable public FS for SSR, so payloads are embedded via Nitro `serverAssets` (`assets:i18n`). Prefer `translationPayloads.mode: 'source'` so the embed stays compact. Set `publicAssets: true` only if you also need a CDN/static copy.
+- **Node server (`node-server`, `node-cluster`):** the module does **not** embed translations as Nitro `serverAssets` / Rollup `raw:` (that blew up build RAM on large catalogs). Instead it copies the premerged tree to `public/<apiBaseUrl>/` (default `_locales`) and SSR reads those files with `readFile`. The client `$fetch`es the same URLs — either as static files or via the Nitro handler.
+- **Edge and function presets** (`nitro.node === false`, or a preset without `serveStatic` such as `vercel`, `netlify`, `aws-lambda`): `public/` is not available to SSR on disk, so payloads are embedded via Nitro `serverAssets` (`assets:i18n`). Prefer `translationPayloads.mode: 'source'` so the embed stays compact. Set `publicAssets: true` only if you also need a CDN/static copy.
 - **`prerenderRoutes`:** optional. In premerged mode `publicAssets` already writes `{page}/{locale}/data.json`, so prerendering those routes is usually redundant.
 
 ### ❓ Why do I get a build error referring to `@unhead/vue` or an undefined object, especially on Cloudflare Pages?

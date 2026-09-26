@@ -20,6 +20,7 @@
     "tsx": "catalog:",
     "typedoc": "catalog:",
     "typescript": "catalog:",
+    "untestutils": "catalog:",
     "vitest": "catalog:",
     "vue-docgen-api": "catalog:",
     "yaml": "catalog:"

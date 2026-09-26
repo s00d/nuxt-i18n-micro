@@ -26,7 +26,6 @@ export default defineConfig({
     },
   },
   resolve: {
-    dedupe: ['preact'],
     // Prefer package "module"/"main"; never "source" (preact points source at src/).
     mainFields: ['module', 'main'],
     alias: [

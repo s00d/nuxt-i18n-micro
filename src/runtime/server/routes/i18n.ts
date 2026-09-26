@@ -50,5 +50,6 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  return send(event, json)
+  // Await without return: typed `$fetch` must not Serialize `send()`'s ReturnType (TS2321).
+  await send(event, json)
 })

@@ -1,7 +1,11 @@
 import { translationCacheKey } from '@i18n-micro/core/helpers'
 import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
+import type { TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
+
+// Untyped: Nitro MatchedRoutes on `/_locales/:page/:locale/...` + string paths → TS2321.
+const fetchPayload = globalThis.$fetch as TranslationPayloadFetcher
 
 export interface LoadOptions {
   apiBaseUrl: string
@@ -79,10 +83,10 @@ class TranslationStorage {
       routesLocaleLinks: options.routesLocaleLinks,
     })
 
-    return (await $fetch(request.path, {
+    return await fetchPayload(request.path, {
       baseURL: request.baseURL,
       params: request.params,
-    })) as Record<string, unknown>
+    })
   }
 
   // ==========================================================================

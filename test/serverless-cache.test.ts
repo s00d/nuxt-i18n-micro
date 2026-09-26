@@ -3,8 +3,11 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 // Используем @nuxt/test-utils вместо e2e для тестирования модулей
-import { $fetch, setup } from '@nuxt/test-utils'
+import { $fetch as nuxtFetch, setup } from '@nuxt/test-utils'
 import { afterAll, describe, expect, it } from 'vitest'
+
+// Untyped: Nitro MatchedRoutes on `/_locales/:page/:locale/...` → TS2321.
+const $fetch = nuxtFetch as (url: string, opts?: object) => Promise<unknown>
 
 // Путь, куда будем писать кэш в тесте
 const cacheDir = fileURLToPath(new URL('../.data/test-cache', import.meta.url))

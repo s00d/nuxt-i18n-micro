@@ -1,6 +1,9 @@
 import { fileURLToPath } from 'node:url'
-import { $fetch, setup } from '@nuxt/test-utils'
+import { $fetch as nuxtFetch, setup } from '@nuxt/test-utils'
 import { describe, expect, it } from 'vitest'
+
+// Untyped: Nitro MatchedRoutes on `/_locales/:page/:locale/...` → TS2321.
+const $fetch = nuxtFetch as (url: string, opts?: object) => Promise<unknown>
 
 describe('translationPayloads mode: source (serverless fixture)', async () => {
   await setup({

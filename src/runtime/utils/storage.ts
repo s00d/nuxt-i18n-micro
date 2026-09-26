@@ -1,6 +1,7 @@
 import { translationCacheKey } from '@i18n-micro/core/helpers'
 import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
+import type { TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'
 
 export interface LoadOptions {
@@ -79,10 +80,11 @@ class TranslationStorage {
       routesLocaleLinks: options.routesLocaleLinks,
     })
 
-    return (await $fetch(request.path, {
+    // Call-site cast keeps Nuxt `$fetch` (local Nitro calls); avoids MatchedRoutes TS2321.
+    return await ($fetch as TranslationPayloadFetcher)(request.path, {
       baseURL: request.baseURL,
       params: request.params,
-    })) as Record<string, unknown>
+    })
   }
 
   // ==========================================================================

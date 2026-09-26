@@ -10,7 +10,7 @@ import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { isEnabledLocale } from '@i18n-micro/utils/active-locales'
 import { CacheControl } from '@i18n-micro/utils/cache-control'
 import { normalizeConfiguredLocales, toPremergedStorageKey } from '@i18n-micro/utils/merge-source'
-import { fetchTranslationPayloadFromHost } from '@i18n-micro/utils/payload-fetch'
+import { fetchTranslationPayloadFromHost, type TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { resolveTranslationPayloadPage } from '@i18n-micro/utils/payload-url'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import { loadSourceTranslationsFromStorage } from '@i18n-micro/utils/source-loader'
@@ -52,11 +52,12 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   const resolvedPage = resolveTranslationPayloadPage(routeName, routesLocaleLinks)
 
   if (privateConfig.apiBaseServerHost) {
+    // Untyped: Nitro MatchedRoutes on `/_locales/:page/:locale/...` → TS2321.
     const data = await fetchTranslationPayloadFromHost(
       { apiBaseUrl: config.apiBaseUrl, apiBaseServerHost: privateConfig.apiBaseServerHost, dateBuild: config.dateBuild },
       locale,
       resolvedPage,
-      $fetch,
+      $fetch as TranslationPayloadFetcher,
     )
     const json = JSON.stringify(data).replace(/</g, '\\u003c')
     const entry = { data, json }

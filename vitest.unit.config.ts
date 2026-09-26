@@ -23,6 +23,8 @@ export default defineConfig({
     typecheck: {
       enabled: true,
       include: ['test/**/*.test.ts'],
+      // Match `test.exclude`: without this, typecheck still pulls integration suites.
+      exclude: [...INTEGRATION_TESTS],
       tsconfig: './tsconfig.nuxt.json',
     },
     testTimeout: 30_000,

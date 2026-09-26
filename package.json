@@ -165,15 +165,14 @@
     "@nuxt/test-utils": "catalog:",
     "@playwright/test": "catalog:",
     "@types/node": "catalog:",
-    "@untestutils/nuxt": "^0.7.1",
-    "@untestutils/perf": "^0.7.1",
+    "@untestutils/nuxt": "catalog:",
+    "@untestutils/perf": "catalog:",
     "@vue/devtools-api": "catalog:",
-    "artillery": "2.0.34",
     "changelogen": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "typescript": "catalog:",
-    "untestutils": "^0.7.1",
+    "untestutils": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
   },
@@ -194,12 +193,17 @@
   "pnpm": {
     "overrides": {
       "@nuxtjs/sitemap": "catalog:",
-      "@nuxt/kit": "4.5.2",
-      "@nuxt/schema": "4.5.2",
-      "vite": "8.2.2",
-      "typescript": "6.0.3",
-      "@unhead/vue": "3.4.0",
-      "unhead": "3.4.0"
+      "@nuxt/kit": "catalog:pin",
+      "@nuxt/schema": "catalog:pin",
+      "vite": "catalog:pin",
+      "vue-router": "catalog:pin",
+      "react": "catalog:pin",
+      "react-dom": "catalog:pin",
+      "react-router-dom": "catalog:pin",
+      "@solidjs/router": "catalog:pin",
+      "typescript": "catalog:",
+      "@unhead/vue": "catalog:",
+      "unhead": "catalog:"
     },
     "peerDependencyRules": {
       "allowedVersions": {

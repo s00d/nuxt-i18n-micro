@@ -14,11 +14,13 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
+    "@untestutils/perf": "catalog:",
     "citty": "catalog:",
     "globby": "catalog:",
     "tsx": "catalog:",
     "typedoc": "catalog:",
     "typescript": "catalog:",
+    "untestutils": "catalog:",
     "vitest": "catalog:",
     "vue-docgen-api": "catalog:",
     "yaml": "catalog:"

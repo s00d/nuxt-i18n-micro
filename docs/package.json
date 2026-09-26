@@ -12,6 +12,7 @@
     "preview": "vitepress preview ."
   },
   "devDependencies": {
+    "axios": "catalog:",
     "chart.js": "catalog:",
     "mermaid": "catalog:",
     "vitepress": "catalog:",

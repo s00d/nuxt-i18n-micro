@@ -23,7 +23,7 @@ No Docker, database, or external service is required. Integration/e2e tests spaw
 
 ## Prerequisites
 
-- Node.js ≥ 18 (Cursor Cloud VMs typically have Node 22)
+- Node.js ≥ 20 for published packages; ≥ 22.12 to run Vitest 5 / local `pnpm run test*` (CI uses 22)
 - **pnpm@9.14.2** (see `packageManager` in root `package.json`) — do not use npm/yarn for workspace work
 
 ## First-time setup (build order matters)

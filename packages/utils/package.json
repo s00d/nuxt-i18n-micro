@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/utils",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "Framework-agnostic utilities for Nuxt I18n Micro (granular subpath imports).",
   "keywords": [
     "i18n",
@@ -416,6 +416,6 @@
     "vitest": "catalog:"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

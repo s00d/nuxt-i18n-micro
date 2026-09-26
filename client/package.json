@@ -10,6 +10,7 @@
     "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
-    "json-editor-vue": "catalog:"
+    "json-editor-vue": "catalog:",
+    "svelte": "catalog:"
   }
 }

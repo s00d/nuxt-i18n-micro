@@ -13,14 +13,14 @@ catalog:
   h3: ^1.15.11
   publint: ^0.3.24
   typedoc: ^0.28.20
-  vite: ^8.2.2
+  vite: ^8.3.1
   vue-docgen-api: ^4.79.2
-  yaml: ^2.8.2
-  vite-plugin-dts: ^5.1.0
+  yaml: ^2.9.1
+  vite-plugin-dts: ^5.1.1
   vite-plugin-solid: ^2.11.14
   vite-plugin-vue-devtools: ^8.2.1
-  '@vitejs/plugin-react': ^5.2.0
-  '@vitejs/plugin-vue': ^6.0.8
+  '@vitejs/plugin-react': ^6.1.1
+  '@vitejs/plugin-vue': ^6.0.9
   '@tailwindcss/vite': ^4.3.3
   # Nuxt
   nuxt: ^4.5.2
@@ -31,90 +31,110 @@ catalog:
   '@nuxt/devtools-ui-kit': ^3.4.2
   '@nuxt/module-builder': ^1.0.3
   '@nuxt/test-utils': ^4.3.2
-  '@nuxt/content': 3.6.3
-  '@nuxtjs/sitemap': ^8.5.0
-  '@nuxtjs/seo': ^5.3.14
+  '@nuxt/content': 3.16.1
+  '@nuxtjs/sitemap': ^8.5.1
+  '@nuxtjs/seo': ^5.3.16
   '@nuxtjs/i18n': ^10.6.0
   '@nuxthub/core': ^0.10.8
   # Vue
-  vue: ^3.5.42
-  '@vue/compiler-sfc': ^3.5.42
+  vue: ^3.5.43
+  '@vue/compiler-sfc': ^3.5.43
   vue-router: ^4.6.3 || ^5.0.0
   vue-tsc: ^3.3.11
-  '@vue/test-utils': ^2.4.6
+  '@vue/test-utils': ^2.5.1
   '@vue/devtools-api': ^8.1.5
-  '@vue/server-renderer': ^3.5.42
-  # React (один диапазон для deps и peer)
+  '@vue/server-renderer': ^3.5.43
+  # React (широкий peer; monorepo pin → catalogs.pin)
   react: "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
-  react-dom: ^18.3.1
-  '@types/react': ^18.3.27
-  '@types/react-dom': ^18.3.0
-  react-router-dom: ^6.20.0
-  use-sync-external-store: ^1.6.0
+  react-dom: "^18.3.1 || ^19.0.0"
+  '@types/react': ^19.3.0
+  '@types/react-dom': ^19.3.0
+  react-router-dom: "^6.30.6 || ^7.0.0"
+  use-sync-external-store: ^1.7.0
   # Preact
-  preact: ^10.0.0
-  '@testing-library/preact': ^2.0.0
-  wouter-preact: ^3.0.0
+  preact: ^10.29.8
+  '@testing-library/preact': ^3.2.4
+  wouter-preact: ^3.11.1
   '@preact/preset-vite': ^2.10.6
   # Solid
-  solid-js: ^1.9.10
-  '@solidjs/router': ^0.15.4
+  solid-js: ^1.9.15
+  '@solidjs/router': "^0.15.4 || ^1.0.0"
   # Astro & Svelte
-  astro: "^5.0.0 || ^6.0.0 || ^7.0.0"
+  astro: ^7.2.8
   '@astrojs/check': ^0.9.6
-  '@astrojs/node': ^11.0.2
-  '@astrojs/vue': ^7.0.1
-  '@astrojs/react': ^6.0.1
+  '@astrojs/node': ^11.1.6
+  '@astrojs/vue': ^7.0.3
+  '@astrojs/react': ^7.0.0
   '@astrojs/svelte': ^9.0.1
-  svelte: "^4.0.0 || ^5.0.0"
+  svelte: ^5.55.7
   # Testing
-  vitest: ^4.1.11
-  jsdom: ^29.1.1
+  vitest: ^5.0.2
+  jsdom: ^30.1.1
   '@playwright/test': ^1.63.0
-  '@testing-library/jest-dom': ^6.9.1
-  '@testing-library/react': ^14.3.1
+  '@testing-library/dom': ^10.4.1
+  '@testing-library/jest-dom': ^7.0.1
+  '@testing-library/react': ^16.3.3
   '@testing-library/vue': ^8.1.0
   happy-dom: ^15.11.7
+  untestutils: ^0.7.1
+  '@untestutils/nuxt': ^0.7.1
+  '@untestutils/perf': ^0.7.1
   # TypeScript & types — pin 6.x (TS7 breaks unplugin-dts / vue-tsc / module-builder)
   typescript: 6.0.3
-  '@types/node': ^20.19.26
-  tsx: ^4.23.13
+  '@types/node': ^22.19.0
+  tsx: ^4.23.15
   # Docs & lint
   vitepress: ^2.0.0-alpha.20
-  vitepress-plugin-llms: ^1.13.3
+  vitepress-plugin-llms: ^1.14.0
   vitepress-plugin-mermaid: ^2.0.17
   vitepress-plugin-folder-tree: ^1.2.1
   vitepress-plugin-chartjs: ^1.2.1
-  mermaid: ^11.12.2
+  mermaid: ^11.16.1
   chart.js: ^4.5.1
-  oxfmt: ^0.67.0
-  oxlint: ^1.82.0
+  oxfmt: ^0.70.0
+  oxlint: ^1.85.0
   changelogen: ^0.6.2
   # Utils
-  chokidar: ^4.0.3
+  chokidar: ^5.0.0
   citty: ^0.2.2
-  globby: ^14.1.0
-  glob: ^11.0.1
+  globby: ^16.2.4
+  glob: ^13.0.6
   ufo: ^1.6.4
-  unplugin: ^1.16.1 || ^2.0.0 || ^3.3.0
-  serve: ^14.2.0
-  wrangler: ^3.109.1
+  unplugin: ^1.16.1 || ^2.0.0 || ^3.4.0
+  serve: ^14.2.6
+  wrangler: ^4.0.0
   vue-final-modal: ^4.5.5
   nitropack: 2.9.6
-  '@intlify/message-compiler': ^11.1.12
+  '@intlify/message-compiler': ^11.4.12
+  # Pinned for pnpm.overrides (exact)
+  '@unhead/vue': 3.4.0
+  unhead: 3.4.0
   # Tailwind & CSS
   tailwindcss: ^4.3.3
-  autoprefixer: ^10.4.22
-  postcss: ^8.5.6
+  autoprefixer: ^10.6.1
+  postcss: ^8.5.23
+  # Docs: declare patched axios so vitepress/@vueuse/integrations peer resolves safely
+  axios: ^1.16.0
   # Optional / misc
-  '@rollup/rollup-linux-x64-gnu': ^4.28.1
-  '@rollup/rollup-win32-x64-msvc': ^4.28.1
+  '@rollup/rollup-linux-x64-gnu': ^4.63.5
+  '@rollup/rollup-win32-x64-msvc': ^4.63.5
   json-editor-vue: ^0.19.2
-  compression: ^1.7.4
+  compression: ^1.8.2
   express: ^5.2.1
-  sirv: ^2.0.3
+  sirv: ^3.0.2
 
-# Именованные каталоги: альтернативные версии (где была 3 — остаётся 3)
+# Именованные каталоги: exact pins для pnpm.overrides (широкий peer остаётся в default catalog)
+catalogs:
+  pin:
+    '@nuxt/kit': 4.5.2
+    '@nuxt/schema': 4.5.2
+    vite: 8.3.1
+    vue-router: 5.3.1
+    react: 19.3.0
+    react-dom: 19.3.0
+    react-router-dom: 7.18.4
+    '@solidjs/router': 1.0.0
+
 onlyBuiltDependencies:
   - better-sqlite3
   - esbuild

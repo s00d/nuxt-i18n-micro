@@ -58,6 +58,7 @@
     "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
+    "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/preact": "catalog:",
     "jsdom": "catalog:",

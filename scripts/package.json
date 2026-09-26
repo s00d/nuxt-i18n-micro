@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
+    "@untestutils/perf": "catalog:",
     "citty": "catalog:",
     "globby": "catalog:",
     "tsx": "catalog:",

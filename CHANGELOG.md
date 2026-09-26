@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.29.8
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.7...v3.29.8)
+
+### 🩹 Fixes
+
+- **types:** Avoid Excessive stack depth on typed /_locales $fetch ([#262](https://github.com/s00d/nuxt-i18n-micro/pull/262))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.29.7
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.6...v3.29.7)

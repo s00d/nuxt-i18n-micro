@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/runtime",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Framework-agnostic i18n runtime for vanilla TypeScript/JavaScript (browser and Node).",
   "keywords": [
     "browser",

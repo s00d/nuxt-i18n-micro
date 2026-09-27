@@ -394,9 +394,6 @@ importers:
       json-editor-vue:
         specifier: 'catalog:'
         version: 0.19.2(@typescript-eslint/types@8.41.0)(vue@3.5.43(typescript@6.0.3))
-      svelte:
-        specifier: 'catalog:'
-        version: 5.57.1(@typescript-eslint/types@8.41.0)
 
   docs:
     devDependencies:

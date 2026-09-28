@@ -8,7 +8,6 @@ describe('perf host workarounds', () => {
   }
   let timerProto: { unref: (this: NodeJS.Timeout) => NodeJS.Timeout }
   let nativeUnref: (this: NodeJS.Timeout) => NodeJS.Timeout
-  let prepareStackTrace: typeof Error.prepareStackTrace | undefined
 
   function captureTimerProto() {
     const probe = setTimeout(() => {}, 0)
@@ -21,7 +20,6 @@ describe('perf host workarounds', () => {
     process.exit = originals.exit
     process.kill = originals.kill
     if (timerProto && nativeUnref) timerProto.unref = nativeUnref
-    if (prepareStackTrace !== undefined) Error.prepareStackTrace = prepareStackTrace
     process.exitCode = undefined
   })
 

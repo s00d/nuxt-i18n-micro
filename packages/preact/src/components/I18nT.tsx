@@ -1,9 +1,9 @@
 import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import type { JSX } from 'preact'
+import type { HTMLAttributes, JSX } from 'preact'
 import { Fragment, h } from 'preact'
 import { useI18n } from '../context'
 
-export interface I18nTProps extends Omit<JSX.HTMLAttributes<HTMLElement>, 'children'> {
+export interface I18nTProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   keypath: TranslationKey
   params?: Record<string, string | number | boolean>
   tag?: keyof JSX.IntrinsicElements
@@ -38,12 +38,8 @@ export const I18nT = (props: I18nTProps): JSX.Element | null => {
   const route = getRoute()
 
   // Helper function to create element with proper typing
-  const createElement = (elementTag: keyof JSX.IntrinsicElements, elementProps: JSX.HTMLAttributes<HTMLElement>, children?: string): JSX.Element => {
-    return h(
-      elementTag as unknown as keyof JSX.IntrinsicElements,
-      elementProps as unknown as JSX.HTMLAttributes<HTMLElement>,
-      children,
-    ) as JSX.Element
+  const createElement = (elementTag: keyof JSX.IntrinsicElements, elementProps: HTMLAttributes<HTMLElement>, children?: string): JSX.Element => {
+    return h(elementTag as unknown as keyof JSX.IntrinsicElements, elementProps as unknown as HTMLAttributes<HTMLElement>, children) as JSX.Element
   }
 
   // Handle number formatting

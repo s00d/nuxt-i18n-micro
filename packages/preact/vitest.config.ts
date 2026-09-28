@@ -5,13 +5,13 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 /**
- * Dual-package hazard: `@testing-library/preact` v3 is ESM and resolves `preact` via
- * package exports, while our sources also import `preact`/`preact/hooks`. If those
- * resolve to different files (CJS vs ESM, or `"source"` vs dist), hooks get a
- * different options object → `Cannot read properties of undefined (reading 'context')`.
+ * Dual-package hazard: `@testing-library/preact` resolves `preact` via package
+ * exports, while our sources also import `preact`/`preact/hooks`. If those
+ * resolve to different files (CJS vs ESM, or `"source"` vs dist), hooks break.
  *
- * Fix: pin every preact entry to the same ESM dist build AND inline TL so its
- * imports go through the same aliases.
+ * Pin every preact entry to the same ESM dist build and inline TL so imports
+ * share one module cache. (Preact 11 ESM-only / require()-based aliases are a
+ * follow-up once CI actually installs preact 11; monorepo stays on 10.x.)
  */
 const require = createRequire(import.meta.url)
 const preactDir = realpathSync(dirname(require.resolve('preact/package.json')))

@@ -1,9 +1,9 @@
 import type { TranslationKey } from '@i18n-micro/types'
-import type { ComponentChildren, JSX } from 'preact'
+import type { ComponentChildren, HTMLAttributes, JSX } from 'preact'
 import { h } from 'preact'
 import { useI18n } from '../context'
 
-export interface I18nGroupProps extends Omit<JSX.HTMLAttributes<HTMLDivElement>, 'children'> {
+export interface I18nGroupProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   prefix: string
   groupClass?: string
   children?: (props: { prefix: string; t: (key: string, params?: Record<string, string | number | boolean>) => string }) => ComponentChildren

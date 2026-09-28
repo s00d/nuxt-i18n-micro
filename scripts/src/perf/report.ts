@@ -169,8 +169,8 @@ export function createDocsReporter(args: ResolvedPerfArgs): PerfReporter {
       })
       writeSourceDictionaries(md.write, measureSourceDictionaries(fixtures), args.profile)
     },
-    async onEnd({ results }) {
-      await writeDocsReport(md.write, results, args.runs, args.profile)
+    onEnd({ results }) {
+      writeDocsReport(md.write, results, args.runs, args.profile)
       md.commit()
       console.log('Wrote docs report: docs/guide/performance-results.md')
     },
@@ -232,12 +232,7 @@ function displayLabel(id: string, label: string): string {
 }
 
 /** Write charts + full markdown from averaged \`PerfTargetResult\`s. */
-export async function writeDocsReport(
-  write: (c: string) => void,
-  results: PerfTargetResult[],
-  runs: number,
-  profile: PerfRuntimeProfile,
-): Promise<void> {
+export function writeDocsReport(write: (c: string) => void, results: PerfTargetResult[], runs: number, profile: PerfRuntimeProfile): void {
   const note = meanNote(runs)
   const byId = Object.fromEntries(results.map((r) => [r.id, r])) as Record<string, PerfTargetResult>
 
@@ -300,9 +295,8 @@ height: 350px
 
   for (const r of withLoad) {
     const l = r.load!
-    // oxlint-disable-next-line no-await-in-loop -- sequential chart writes share filenames
     if (l.artillery) {
-      await generateAndSaveChart(r.label, l.artillery)
+      generateAndSaveChart(r.label, l.artillery)
       chartCount += 2
     }
     const safeName = r.label.replace(/[^a-z0-9-]/gi, '-')

@@ -247,7 +247,7 @@ height: 300px
 `
 }
 
-export async function generateAndSaveChart(name: string, artillery: ArtilleryResult): Promise<string> {
+export function generateAndSaveChart(name: string, artillery: ArtilleryResult): string {
   const ordered: ArtilleryResult = {
     ...artillery,
     intermediate: sortIntermediateByPeriod(artillery.intermediate || []),

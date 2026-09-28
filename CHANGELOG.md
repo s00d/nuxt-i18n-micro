@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v3.30.0
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.8...v3.30.0)
+
+### 🚀 Enhancements
+
+- **preact:** Support Preact v11 ([#264](https://github.com/s00d/nuxt-i18n-micro/pull/264))
+
+### 🩹 Fixes
+
+- **perf:** Make chart report writers sync to clear no-await-in-loop ([520b57ac](https://github.com/s00d/nuxt-i18n-micro/commit/520b57ac))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+- Jovi De Croock <decroockjovi@gmail.com>
+
 ## v3.29.8
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.7...v3.29.8)

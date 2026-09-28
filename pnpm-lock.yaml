@@ -168,9 +168,6 @@ catalogs:
     postcss:
       specifier: ^8.5.23
       version: 8.5.28
-    preact:
-      specifier: ^10.29.8
-      version: 10.29.8
     publint:
       specifier: ^0.3.24
       version: 0.3.24
@@ -262,6 +259,7 @@ overrides:
   react: 19.3.0
   react-dom: 19.3.0
   react-router-dom: 7.18.4
+  preact: 10.29.8
   '@solidjs/router': 1.0.0
   typescript: 6.0.3
   '@unhead/vue': 3.4.0
@@ -441,7 +439,7 @@ importers:
         specifier: 'catalog:'
         version: 7.3.5(@azure/identity@4.13.3)(@azure/storage-blob@12.34.0)(@netlify/blobs@9.1.2)(@types/node@26.6.3)(@upstash/redis@1.39.0)(db0@0.4.1)(ioredis@5.11.1)(jiti@2.7.0)(sass@1.94.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
       preact:
-        specifier: 'catalog:'
+        specifier: 10.29.8
         version: 10.29.8
       publint:
         specifier: 'catalog:'
@@ -704,7 +702,7 @@ importers:
         specifier: 'catalog:'
         version: 30.1.1
       preact:
-        specifier: 'catalog:'
+        specifier: 10.29.8
         version: 10.29.8
       publint:
         specifier: 'catalog:'
@@ -734,7 +732,7 @@ importers:
         specifier: workspace:^
         version: link:../../types
       preact:
-        specifier: 'catalog:'
+        specifier: 10.29.8
         version: 10.29.8
       wouter-preact:
         specifier: 'catalog:'
@@ -4921,7 +4919,7 @@ packages:
   '@prefresh/core@1.5.9':
     resolution: {integrity: sha512-IKBKCPaz34OFVC+adiQ2qaTF5qdztO2/4ZPf4KsRTgjKosWqxVXmEbxCiUydYZRY8GVie+DQlKzQr9gt6HQ+EQ==}
     peerDependencies:
-      preact: ^10.0.0 || ^11.0.0-0
+      preact: 10.29.8
 
   '@prefresh/utils@1.2.1':
     resolution: {integrity: sha512-vq/sIuN5nYfYzvyayXI4C2QkprfNaHUQ9ZX+3xLD8nL3rWyzpxOm1+K7RtMbhd+66QcaISViK7amjnheQ/4WZw==}
@@ -4929,7 +4927,7 @@ packages:
   '@prefresh/vite@2.4.11':
     resolution: {integrity: sha512-/XjURQqdRiCG3NpMmWqE9kJwrg9IchIOWHzulCfqg2sRe/8oQ1g5De7xrk9lbqPIQLn7ntBkKdqWXIj4E9YXyg==}
     peerDependencies:
-      preact: ^10.4.0 || ^11.0.0-0
+      preact: 10.29.8
       vite: 8.3.1
 
   '@protobufjs/aspromise@1.1.2':
@@ -5756,7 +5754,7 @@ packages:
     resolution: {integrity: sha512-F+kJ243LP6VmEK1M809unzTE/ijg+bsMNuiRN0JEDIJBELKKDNhdgC/WrUSZ7klwJvtlO3wQZ9ix+jhObG07Fg==}
     engines: {node: '>= 12'}
     peerDependencies:
-      preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
+      preact: 10.29.8
 
   '@testing-library/react@16.3.3':
     resolution: {integrity: sha512-Uo193NgQbPMz6lrrhtRQQFcMC6Re/ELLFbbuVL30WDlZxlpZf9/lMHTAVxPRLw1q1iu9OJmR1c2BLiENRstdBg==}
@@ -13332,7 +13330,7 @@ packages:
   wouter-preact@3.11.1:
     resolution: {integrity: sha512-44+fVR6YegxQsMi89zbfE0vH294zqLwBlNPS2E3TOByYuE1od+CtdaNALP/d62YZjJAEwvPn2w7N/CkypiQTJw==}
     peerDependencies:
-      preact: ^10.0.0
+      preact: 10.29.8
 
   wrap-ansi@6.2.0:
     resolution: {integrity: sha512-r6lPcBGxZXlIcymEu7InxDMhdW0KDxpLgoFLcguasxCaJ/SOIZwINatK9KY/tf+ZrlywOKU0UDj3ATXUBfxJXA==}

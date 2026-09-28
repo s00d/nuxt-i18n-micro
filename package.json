@@ -200,6 +200,7 @@
       "react": "catalog:pin",
       "react-dom": "catalog:pin",
       "react-router-dom": "catalog:pin",
+      "preact": "catalog:pin",
       "@solidjs/router": "catalog:pin",
       "typescript": "catalog:",
       "@unhead/vue": "catalog:",

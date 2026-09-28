@@ -1,6 +1,6 @@
 {
   "name": "@i18n-micro/preact",
-  "version": "1.2.15",
+  "version": "1.2.16",
   "description": "Preact bindings for i18n-micro — hooks, context, and UI components.",
   "keywords": [
     "i18n",
@@ -69,7 +69,7 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "preact": "^10.27.2 || ^11.0.0-0"
+    "preact": "catalog:"
   },
   "engines": {
     "node": ">=18"

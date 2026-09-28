@@ -1,4 +1,5 @@
 import { consoleReporter, definePerfSuite, type PerfReporter, type PerfSuite, type PerfTarget } from 'untestutils/perf'
+import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isTranslationFile } from '../../../test/helpers/is-translation-file'
@@ -11,7 +12,10 @@ import { createDocsReporter } from './report'
 import type { LoadProfileId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const LOAD_PORT = 10_000
-const NUXI_BUILD_ASSERT = fileURLToPath(new URL('./nuxi-build-assert.mjs', import.meta.url))
+const requireFromHere = createRequire(import.meta.url)
+/** Absolute tsx loader so `--import` still resolves when cwd is a fixture. */
+const TSX_LOADER = requireFromHere.resolve('tsx')
+const NUXI_BUILD_ASSERT = fileURLToPath(new URL('./nuxi-build-assert.ts', import.meta.url))
 
 function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRuntimeProfile, load: LoadProfileId): PerfTarget {
   const root = join(repoRoot, fixture.dir)
@@ -22,7 +26,7 @@ function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRunti
     root,
     build: {
       command: process.execPath,
-      args: [NUXI_BUILD_ASSERT],
+      args: ['--import', TSX_LOADER, NUXI_BUILD_ASSERT],
       env: { NODE_OPTIONS: '--max-old-space-size=16000' },
       hashInputs: buildHashInputs(root),
     },

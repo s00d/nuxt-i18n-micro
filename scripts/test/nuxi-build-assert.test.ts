@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync, symlinkSync, existsSync, rmSync 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { repairNosticsFormatters } from '../src/perf/nuxi-build-assert.mjs'
+import { repairNosticsFormatters } from '../src/perf/repair-nostics-formatters'
 
 const temporary: string[] = []
 afterEach(() => {

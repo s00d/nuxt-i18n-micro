@@ -1,43 +1,15 @@
-#!/usr/bin/env node
-/**
- * Fixture build wrapper: `nuxi build` then assert Nitro server entry exists.
- * Invoked as the perf target build command (cwd = fixture root).
- */
 import { cpSync, existsSync, lstatSync, mkdirSync, readlinkSync, readdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { spawnSync } from 'node:child_process'
 import { dirname, join, resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
-
-const cwd = process.cwd()
-const entry = join(cwd, '.output/server/index.mjs')
-
-const isDirectRun = process.argv[1] !== undefined && process.argv[1] !== null && import.meta.url === pathToFileURL(resolve(process.argv[1])).href
-
-if (isDirectRun) {
-  const result = spawnSync('nuxi', ['build'], {
-    cwd,
-    stdio: 'inherit',
-    env: process.env,
-    shell: process.platform === 'win32',
-  })
-  if (result.status !== 0) process.exit(result.status ?? 1)
-  if (!existsSync(entry)) {
-    console.error(`[perf] missing Nitro server entry after build: ${entry}`)
-    process.exit(1)
-  }
-  repairNosticsFormatters()
-}
 
 /**
  * Nitro sometimes traces `nostics` with only `dist/index.mjs`, while Nuxt entry imports
  * `nostics/formatters/ansi` → SSR 500 on every page. Copy missing formatter files from
  * the resolved package (pnpm store / fixture node_modules).
  *
- * @param {string} [fixtureCwd]
- * @returns {boolean} true when formatters were copied
+ * @returns true when formatters were copied
  */
-export function repairNosticsFormatters(fixtureCwd = cwd) {
+export function repairNosticsFormatters(fixtureCwd: string): boolean {
   const serverNm = join(fixtureCwd, '.output/server/node_modules')
   const link = join(serverNm, 'nostics')
   if (!existsSync(link)) return false
@@ -56,7 +28,7 @@ export function repairNosticsFormatters(fixtureCwd = cwd) {
   if (existsSync(ansiOut)) return false
 
   const requireFromFixture = createRequire(join(fixtureCwd, 'package.json'))
-  let srcRoot
+  let srcRoot: string
   try {
     // nostics is nested under nuxt — resolve via nuxt's dependency tree.
     const nuxtPkg = requireFromFixture.resolve('nuxt/package.json')

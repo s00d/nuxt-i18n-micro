@@ -8,7 +8,7 @@ describe('perf host workarounds', () => {
   }
   let timerProto: { unref: (this: NodeJS.Timeout) => NodeJS.Timeout }
   let nativeUnref: (this: NodeJS.Timeout) => NodeJS.Timeout
-  let prepareStackTrace: typeof Error.prepareStackTrace
+  let prepareStackTrace: typeof Error.prepareStackTrace | undefined
 
   function captureTimerProto() {
     const probe = setTimeout(() => {}, 0)
@@ -26,13 +26,12 @@ describe('perf host workarounds', () => {
   })
 
   function withFakeStack(stack: string, fn: () => void) {
-    prepareStackTrace = Error.prepareStackTrace
+    const previous = Error.prepareStackTrace
     Error.prepareStackTrace = () => stack
     try {
       fn()
     } finally {
-      Error.prepareStackTrace = prepareStackTrace
-      prepareStackTrace = undefined
+      Error.prepareStackTrace = previous
     }
   }
 

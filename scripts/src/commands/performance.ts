@@ -1,5 +1,6 @@
 import { defineCommand } from 'citty'
 import { DEFAULT_COOL, DEFAULT_KEYS, DEFAULT_LOAD, DEFAULT_LOCALES, DEFAULT_RUNS, resolvePerfArgs } from '../perf/config'
+import { withPerfHostWorkarounds } from '../perf/host-workarounds'
 import { describeLoadProfile } from '../perf/load'
 import { runPerformance } from '../perf/run'
 
@@ -78,52 +79,6 @@ export const performanceCommand = defineCommand({
       `Performance: locales=${resolved.profile.locales.length} keys≈${resolved.keys} branch=${resolved.profile.branch} only=${resolved.only} runs=${resolved.runs} load=${resolved.load} (${describeLoadProfile(resolved.load)}) cool=${resolved.cool} skipLoad=${resolved.skipLoad}`,
     )
 
-    // Host workarounds so Artillery docs regen can finish:
-    // 1) Artillery in-process runner calls process.exit() — swallow that.
-    // 2) untestutils stop() waits on an unref'd interval → empty loop / exit 13.
-    // 3) untestutils host teardown uses process.kill(-pid); on this suite that can
-    //    take down the parent — kill leader only for those stacks.
-    const nativeExit = process.exit.bind(process)
-    process.exit = ((code?: number) => {
-      const stack = new Error().stack ?? ''
-      if (stack.includes('artillery') || stack.includes('suggestedExitCode')) {
-        if (typeof code === 'number' && code !== 0) process.exitCode = code
-        return undefined as never
-      }
-      return nativeExit(code)
-    }) as typeof process.exit
-
-    const probe = setTimeout(() => {}, 0)
-    const timerProto = Object.getPrototypeOf(probe) as {
-      unref: (this: NodeJS.Timeout) => NodeJS.Timeout
-    }
-    clearTimeout(probe)
-    const nativeUnref = timerProto.unref
-    timerProto.unref = function patchedUnref(this: NodeJS.Timeout) {
-      const stack = new Error().stack ?? ''
-      if (stack.includes('untestutils') || stack.includes('@untestutils')) {
-        return this
-      }
-      return nativeUnref.call(this)
-    }
-
-    const nativeKill = process.kill.bind(process)
-    process.kill = ((pid: number, signal?: NodeJS.Signals | number) => {
-      if (typeof pid === 'number' && pid < 0) {
-        const stack = new Error().stack ?? ''
-        if (stack.includes('untestutils') || stack.includes('@untestutils')) {
-          return nativeKill(-pid, signal)
-        }
-      }
-      return nativeKill(pid, signal)
-    }) as typeof process.kill
-
-    try {
-      await runPerformance(resolved)
-    } finally {
-      timerProto.unref = nativeUnref
-      process.kill = nativeKill
-      process.exit = nativeExit
-    }
+    await withPerfHostWorkarounds(() => runPerformance(resolved))
   },
 })

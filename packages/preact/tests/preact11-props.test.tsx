@@ -53,13 +53,7 @@ describe('Preact 11-compatible component props', () => {
         clicks.push(e)
       },
     }
-    render(
-      h(
-        I18nProvider,
-        { i18n },
-        h(I18nLink, { to: '/en', ...attrs }, 'Home'),
-      ),
-    )
+    render(h(I18nProvider, { i18n }, h(I18nLink, { to: '/en', ...attrs }, 'Home')))
     const link = screen.getByRole('link', { name: 'Home' })
     expect(link.getAttribute('title')).toBe('go')
     link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))

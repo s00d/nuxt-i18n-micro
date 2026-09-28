@@ -81,7 +81,8 @@ export const performanceCommand = defineCommand({
     // Host workarounds so Artillery docs regen can finish:
     // 1) Artillery in-process runner calls process.exit() — swallow that.
     // 2) untestutils stop() waits on an unref'd interval → empty loop / exit 13.
-    // 3) process.kill(-pid) process-group kill can take down the suite — kill leader only.
+    // 3) untestutils host teardown uses process.kill(-pid); on this suite that can
+    //    take down the parent — kill leader only for those stacks.
     const nativeExit = process.exit.bind(process)
     process.exit = ((code?: number) => {
       const stack = new Error().stack ?? ''
@@ -99,13 +100,20 @@ export const performanceCommand = defineCommand({
     clearTimeout(probe)
     const nativeUnref = timerProto.unref
     timerProto.unref = function patchedUnref(this: NodeJS.Timeout) {
-      return this
+      const stack = new Error().stack ?? ''
+      if (stack.includes('untestutils') || stack.includes('@untestutils')) {
+        return this
+      }
+      return nativeUnref.call(this)
     }
 
     const nativeKill = process.kill.bind(process)
     process.kill = ((pid: number, signal?: NodeJS.Signals | number) => {
       if (typeof pid === 'number' && pid < 0) {
-        return nativeKill(-pid, signal)
+        const stack = new Error().stack ?? ''
+        if (stack.includes('untestutils') || stack.includes('@untestutils')) {
+          return nativeKill(-pid, signal)
+        }
       }
       return nativeKill(pid, signal)
     }) as typeof process.kill

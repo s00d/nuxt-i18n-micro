@@ -36,8 +36,16 @@ export function logChartsSaved(count: number): void {
   console.log(`Chart configs saved: ${count} → ${chartsDir}`)
 }
 
+function sortIntermediateByPeriod<T extends { period?: string | number }>(intermediate: T[]): T[] {
+  return [...intermediate].sort((a, b) => {
+    const ap = Number(a.period ?? 0)
+    const bp = Number(b.period ?? 0)
+    return ap - bp
+  })
+}
+
 function extractChartData(artillery: ArtilleryResult) {
-  const intermediate = artillery.intermediate || []
+  const intermediate = sortIntermediateByPeriod(artillery.intermediate || [])
   return intermediate.map((entry, index) => ({
     timestamp: index * 10,
     requestRate: entry.rates['http.request_rate'] || 0,
@@ -48,7 +56,7 @@ function extractChartData(artillery: ArtilleryResult) {
 }
 
 function generateChartJsConfig(name: string, artillery: ArtilleryResult): { trafficConfig: object; latencyConfig: object } {
-  const intermediate = artillery.intermediate || []
+  const intermediate = sortIntermediateByPeriod(artillery.intermediate || [])
   const timeSeriesData = intermediate.map((entry, index) => ({
     time: `${index * 10}s`,
     requestRate: entry.rates['http.request_rate'] || 0,
@@ -240,8 +248,12 @@ height: 300px
 }
 
 export async function generateAndSaveChart(name: string, artillery: ArtilleryResult): Promise<string> {
-  const data = extractChartData(artillery)
-  const { trafficConfig, latencyConfig } = generateChartJsConfig(name, artillery)
+  const ordered: ArtilleryResult = {
+    ...artillery,
+    intermediate: sortIntermediateByPeriod(artillery.intermediate || []),
+  }
+  const data = extractChartData(ordered)
+  const { trafficConfig, latencyConfig } = generateChartJsConfig(name, ordered)
   const safeName = name.replace(/[^a-z0-9-]/gi, '-')
 
   saveChartJsConfig(`${safeName}-traffic.js`, trafficConfig)
@@ -249,16 +261,16 @@ export async function generateAndSaveChart(name: string, artillery: ArtilleryRes
 
   const jsonPath = join(chartsDir, `${safeName}-data.json`)
   const summary = {
-    vusersCreated: artillery.aggregate.counters['vusers.created'] || 0,
-    completed: artillery.aggregate.counters['vusers.completed'] || 0,
-    failed: artillery.aggregate.counters['vusers.failed'] || 0,
-    skipped: artillery.aggregate.counters['vusers.skipped'] || 0,
-    avgReqPerSec: artillery.aggregate.rates['http.request_rate'] || 0,
+    vusersCreated: ordered.aggregate.counters['vusers.created'] || 0,
+    completed: ordered.aggregate.counters['vusers.completed'] || 0,
+    failed: ordered.aggregate.counters['vusers.failed'] || 0,
+    skipped: ordered.aggregate.counters['vusers.skipped'] || 0,
+    avgReqPerSec: ordered.aggregate.rates['http.request_rate'] || 0,
     peakReqPerSec: Math.max(...data.map((d) => d.requestRate), 0),
   }
-  writeFileSync(jsonPath, JSON.stringify({ data, summary, intermediate: artillery.intermediate }, null, 2))
+  writeFileSync(jsonPath, JSON.stringify({ data, summary, intermediate: ordered.intermediate }, null, 2))
 
-  return generateChartMarkdown(name, artillery)
+  return generateChartMarkdown(name, ordered)
 }
 
 export function generateComparisonCharts(results: { name: string; load?: LoadMetrics }[]): {

@@ -27,8 +27,8 @@ export default function() {
           140,
           140,
           82,
-          15,
-          81
+          81,
+          15
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -49,8 +49,8 @@ export default function() {
           12213,
           12213,
           12213,
-          180,
-          11971
+          11971,
+          180
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",

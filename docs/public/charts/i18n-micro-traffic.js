@@ -25,8 +25,8 @@ export default function() {
           323,
           318,
           318,
-          61,
-          256
+          256,
+          61
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -46,8 +46,8 @@ export default function() {
           3534,
           3534,
           3606,
-          111,
-          3678
+          3678,
+          111
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -67,8 +67,8 @@ export default function() {
           601,
           601,
           600,
-          0,
-          150
+          150,
+          0
         ],
         "borderColor": "rgb(153, 102, 255)",
         "backgroundColor": "rgba(153, 102, 255, 0.1)",
@@ -109,8 +109,8 @@ export default function() {
           214,
           233,
           237,
-          0,
-          139
+          139,
+          0
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

@@ -27,6 +27,7 @@ Focus: build time, peak RSS, deployable **code vs translations (asset) vs total*
 - **plain-nuxt** serves the same leaf volume as static JSON — I/O-heavy under load, not “i18n overhead”.
 - Load profile `--load full`: warm 6s@6 + main 60s@60 uncapped (historical).
 - Cool-downs `--cool fast` (see methodology doc).
+- Artillery **Error rate** in tables is HTTP-status errors from the load metrics. Charts also plot `vusers.failed` (client timeouts under saturation); those can be high while HTTP error rate stays 0%.
 - Each of the `runs` builds is **forced** (no warm-cache zeroing of build time).
 ### Runs
 
@@ -264,7 +265,8 @@ height: 350px
 
 - Shared profile: 4 locales × 2 pages × ~16.8k index leaves.
 - Load: programmatic Artillery only — warm **6s@6** + main **60s@60**, uncapped VU (historical YAML methodology). Paths from runtime profile — see `scripts/src/perf/load.ts`.
-- Cool-downs: 2s post-build, 3s between runs, 5s between fixtures. Builds are forced each run so means are not diluted by cache hits.
+- Cool-downs (`--cool fast`): 0.2s post-build, 0.5s between runs, 0.5s between fixtures. Builds are forced each run so means are not diluted by cache hits.
+- Artillery tables use HTTP **Error rate**; traffic charts also show `vusers.failed` (ETIMEDOUT under uncapped VU saturation) — not the same metric.
 - Re-run day-to-day: `pnpm test:performance` (`--load short --cool fast`).
 - Regenerate this page: `pnpm -C scripts cli performance --load full --only all --runs 3`.
 - Flags: `--locales N --keys K --only all|micro|i18n|plain --runs N --skip-load --cool fast|strict`.

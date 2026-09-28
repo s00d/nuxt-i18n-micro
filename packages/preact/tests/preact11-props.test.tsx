@@ -38,9 +38,7 @@ describe('Preact 11-compatible component props', () => {
       locale: 'en',
       messages: { en: { blank: '' } },
     })
-    const { container } = render(
-      h(I18nProvider, { i18n: emptyI18n }, h(I18nT, { keypath: 'blank', hideIfEmpty: true })),
-    )
+    const { container } = render(h(I18nProvider, { i18n: emptyI18n }, h(I18nT, { keypath: 'blank', hideIfEmpty: true })))
     expect(container.textContent).toBe('')
   })
 

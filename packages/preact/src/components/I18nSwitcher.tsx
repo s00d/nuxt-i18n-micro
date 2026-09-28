@@ -1,5 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
-import type { HTMLAttributes, JSX } from 'preact'
+import type { HTMLAttributes, VNode } from 'preact'
 import { h } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { useI18n } from '../context'
@@ -34,7 +34,7 @@ export interface I18nSwitcherProps extends HTMLAttributes<HTMLDivElement> {
   customIconStyle?: Record<string, string | number>
 }
 
-export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
+export const I18nSwitcher = (props: I18nSwitcherProps): VNode => {
   const {
     locales: localesProp,
     currentLocale: currentLocaleProp,
@@ -286,5 +286,5 @@ export const I18nSwitcher = (props: I18nSwitcherProps): JSX.Element => {
           ...dropdownItems,
         )
       : null,
-  ) as JSX.Element
+  ) as VNode
 }

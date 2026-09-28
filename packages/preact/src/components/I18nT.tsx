@@ -1,5 +1,5 @@
 import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import type { HTMLAttributes, JSX } from 'preact'
+import type { HTMLAttributes, JSX, VNode } from 'preact'
 import { Fragment, h } from 'preact'
 import { useI18n } from '../context'
 
@@ -18,7 +18,7 @@ export interface I18nTProps extends Omit<HTMLAttributes<HTMLElement>, 'children'
   children?: never // I18nT doesn't support children - translation is rendered as content
 }
 
-export const I18nT = (props: I18nTProps): JSX.Element | null => {
+export const I18nT = (props: I18nTProps): VNode | null => {
   const { t, tc, tn, td, tdr, locale, getRoute } = useI18n()
   const {
     keypath,
@@ -38,8 +38,8 @@ export const I18nT = (props: I18nTProps): JSX.Element | null => {
   const route = getRoute()
 
   // Helper function to create element with proper typing
-  const createElement = (elementTag: keyof JSX.IntrinsicElements, elementProps: HTMLAttributes<HTMLElement>, children?: string): JSX.Element => {
-    return h(elementTag as unknown as keyof JSX.IntrinsicElements, elementProps as unknown as HTMLAttributes<HTMLElement>, children) as JSX.Element
+  const createElement = (elementTag: keyof JSX.IntrinsicElements, elementProps: HTMLAttributes<HTMLElement>, children?: string): VNode => {
+    return h(elementTag as unknown as keyof JSX.IntrinsicElements, elementProps as unknown as HTMLAttributes<HTMLElement>, children) as VNode
   }
 
   // Handle number formatting
@@ -106,7 +106,7 @@ export const I18nT = (props: I18nTProps): JSX.Element | null => {
   const content = typeof translation === 'string' ? translation : String(translation)
 
   if (hideIfEmpty && !content.trim()) {
-    return defaultValue ? (h(Fragment, null, defaultValue) as JSX.Element) : null
+    return defaultValue ? (h(Fragment, null, defaultValue) as VNode) : null
   }
 
   if (html) {

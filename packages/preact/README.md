@@ -2,7 +2,7 @@
 
 Pure Preact plugin for internationalization using the same core logic as Nuxt I18n Micro. Provides reactive translations, route-specific support, and full TypeScript support. Works with any router (wouter, preact-router) or without a router.
 
-**Peer:** `preact@^10.0.0 || ^11.0.0-0`. Component types import top-level `HTMLAttributes` / `TargetedMouseEvent` (available since Preact 10.27.2; Preact 11 removed the old `JSX.*` forms). Monorepo installs pin Preact 10.x; Preact 11 is ESM-only — prefer the ESM build of this package (or a bundler) over bare `require()` on older Node.
+**Peer:** `preact@^10.27.2 || ^11.0.0-0`. Components use top-level `HTMLAttributes` / `TargetedMouseEvent` (shipped in Preact ≥10.27.2; Preact 11 removed those from the `JSX` namespace). `JSX.IntrinsicElements` remains. Monorepo installs pin Preact 10.x for tests; Preact 11 is ESM-only — prefer the ESM build of this package (or a bundler) over bare `require()` on older Node.
 
 ## Installation
 

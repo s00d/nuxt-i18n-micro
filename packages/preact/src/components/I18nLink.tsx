@@ -1,9 +1,9 @@
-import type { JSX } from 'preact'
+import type { AnchorHTMLAttributes, JSX, TargetedMouseEvent } from 'preact'
 import { h } from 'preact'
 import { useI18n } from '../context'
 import { useI18nRouter } from '../injection'
 
-export interface I18nLinkProps extends JSX.AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface I18nLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string | { path?: string }
   activeStyle?: Record<string, string | number>
   localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string }
@@ -85,7 +85,7 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
   const computedStyle: Record<string, string | number> = isActive() ? activeStyle || {} : {}
   const toValue = targetPath()
 
-  const handleClick = (e: JSX.TargetedMouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: TargetedMouseEvent<HTMLAnchorElement>) => {
     if (props.onClick) {
       props.onClick(e)
     }

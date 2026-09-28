@@ -1,5 +1,5 @@
 import type { Locale } from '@i18n-micro/types'
-import type { JSX } from 'preact'
+import type { HTMLAttributes, JSX } from 'preact'
 import { h } from 'preact'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { useI18n } from '../context'
@@ -11,7 +11,7 @@ function resolveCurrentLocale(prop: string | (() => string) | undefined, fallbac
   return fallback
 }
 
-export interface I18nSwitcherProps extends JSX.HTMLAttributes<HTMLDivElement> {
+export interface I18nSwitcherProps extends HTMLAttributes<HTMLDivElement> {
   locales?: Locale[]
   currentLocale?: string | (() => string)
   getLocaleName?: () => string | null

@@ -35,6 +35,7 @@ function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRunti
     load: {
       paths,
       // Knobs API (@untestutils/perf ≥0.6.9): uncapped via explicit maxVusers: undefined.
+      // process.exit / unref'd stop are neutralized in `performance` CLI setup (docs regen).
       artillery: artilleryKnobsFromProfile(profile, load),
     },
     bundle: {

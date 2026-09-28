@@ -235,7 +235,15 @@ function registerI18nTemplates(
   const pluralTemplate = addTemplate({
     filename: 'i18n.plural.mjs',
     write: true,
-    getContents: () => `export const plural = ${options.plural!.toString()};`,
+    getContents: () => {
+      // defaultPlural closes over `interpolate` — `.toString()` into a virtual file drops that
+      // binding and the bundler leaves a free `u(...)` → SSR 500 "u is not defined".
+      if (options.plural === defaultPlural) {
+        return `export { defaultPlural as plural } from '@i18n-micro/core/helpers'\n`
+      }
+      // Custom rules that call interpolate (same pattern as default) need the import in scope.
+      return `import { interpolate } from '@i18n-micro/core/helpers'\nexport const plural = ${options.plural!.toString()}\n`
+    },
   })
 
   const strategyTemplate = addTemplate({

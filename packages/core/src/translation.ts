@@ -14,15 +14,33 @@ export interface TranslationStorage {
 
 const LEAF_MISS = Symbol('i18n-leaf-miss')
 
+interface SharedHelperState {
+  leafByChunk: Map<string, Map<string, unknown>>
+  generation: number
+}
+
+/**
+ * Leaf cache + write generation keyed by the shared translations Map so two helpers
+ * that share `TranslationStorage` invalidate each other's pins on write.
+ */
+const sharedStateByMap = new WeakMap<Map<string, Translations>, SharedHelperState>()
+
+function getSharedState(translations: Map<string, Translations>): SharedHelperState {
+  let state = sharedStateByMap.get(translations)
+  if (!state) {
+    state = { leafByChunk: new Map(), generation: 0 }
+    sharedStateByMap.set(translations, state)
+  }
+  return state
+}
+
 export function useTranslationHelper(storage?: TranslationStorage) {
   const translations = storage?.translations ?? new Map<string, Translations>()
-  /** chunkKey → sparse key → resolved value (or LEAF_MISS) */
-  const leafByChunk = new Map<string, Map<string, unknown>>()
-  /** Bumped on every write so BaseI18n can invalidate its pinned tree without Map.get. */
-  let generation = 0
+  const state = getSharedState(translations)
+  const { leafByChunk } = state
 
   function bumpGeneration(): void {
-    generation++
+    state.generation++
   }
 
   function invalidateLeaf(chunkKey: string): void {
@@ -96,7 +114,7 @@ export function useTranslationHelper(storage?: TranslationStorage) {
     },
     /** Storage write generation — for pinned-chunk freshness checks. */
     getGeneration(): number {
-      return generation
+      return state.generation
     },
     hasTranslation(locale: string, key: string): boolean {
       const prefix = `${locale}:`

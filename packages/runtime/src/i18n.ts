@@ -138,7 +138,8 @@ export class I18n extends BaseI18n {
   }
 
   public hasTranslation(key: TranslationKey): boolean {
-    return this.has(key)
+    // Route-independent: scan every chunk for the active locale (unlike `has()`, which is route-scoped).
+    return this.helper.hasTranslation(this.getLocale(), key)
   }
 
   public clear(): void {

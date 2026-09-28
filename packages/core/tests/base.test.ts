@@ -260,6 +260,56 @@ describe('BaseI18n', () => {
       expect(i18n.tc('items', { count: 1, name: 'Ada' })).toBe('Hi Ada')
       expect(i18n.tc('items', { count: 5, name: 'Ada' })).toBe('Hey Ada (5)')
     })
+
+    test('custom plural getter interpolates when params are passed', () => {
+      const customPlural: PluralFunc = (key, _count, params, _locale, getter) => {
+        const raw = getter(key, params)
+        return typeof raw === 'string' ? raw : null
+      }
+      const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural, missingWarn: false })
+      i18n['helper'].loadTranslations('en', {
+        items: 'Hello {name}|Hi {name}',
+      })
+
+      // Custom rule asked for interpolated getter — receives pipe string with params applied.
+      expect(i18n.tc('items', { count: 0, name: 'Ada' })).toBe('Hello Ada|Hi Ada')
+    })
+
+    test('custom plural getter falls back to key when caller asks for it', () => {
+      const seen: unknown[] = []
+      const customPlural: PluralFunc = (key, _count, _params, _locale, getter) => {
+        const value = getter(key) ?? key
+        seen.push(value)
+        return typeof value === 'string' ? value : null
+      }
+      const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural, missingWarn: false })
+      expect(i18n.tc('missing.key', 1)).toBe('missing.key')
+      expect(seen[0]).toBe('missing.key')
+    })
+
+    test('custom plural getter receives defaultValue or key when third arg is passed', () => {
+      const customPlural: PluralFunc = (key, _count, _params, _locale, getter) => {
+        return String(getter(key, undefined, 'fallback'))
+      }
+      const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural, missingWarn: false })
+      expect(i18n.tc('missing.key', 1)).toBe('fallback')
+    })
+  })
+
+  describe('shared storage pin generation', () => {
+    test('write through one helper invalidates pin of another sharing the same Map', () => {
+      const translations = new Map()
+      const storage = { translations }
+      const writer = new TestI18n('en', 'en', 'index', { missingWarn: false, storage })
+      const reader = new TestI18n('en', 'en', 'index', { missingWarn: false, storage })
+
+      writer.loadTranslationsCore('en', { greeting: 'Hello' }, false)
+      expect(reader.t('greeting')).toBe('Hello')
+
+      // Write via the other helper only (no invalidatePin on reader) — shared generation must bump.
+      writer.helper.mergeTranslation('en', 'index', { greeting: 'Hi' })
+      expect(reader.t('greeting')).toBe('Hi')
+    })
   })
 
   describe('pin + leaf cache', () => {

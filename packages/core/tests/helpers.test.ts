@@ -7,6 +7,7 @@ import {
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
   mergeTranslationChunk,
+  mergeTranslationChunkInPlace,
   mergeTranslationLayers,
   resolveTranslation,
   setTranslationAtKey,
@@ -251,6 +252,41 @@ describe('Helpers', () => {
       const inherited = Object.create({ leaked: 'no' }) as Record<string, unknown>
       inherited.own = 'yes'
       expect(mergeTranslationChunk({ a: '1' }, inherited)).toEqual({ a: '1', own: 'yes' })
+    })
+  })
+
+  describe('mergeTranslationChunkInPlace', () => {
+    test('mutates target with incoming winning by default', () => {
+      const target: Record<string, unknown> = { a: 1, b: 1 }
+      mergeTranslationChunkInPlace(target, { b: 2, c: 3 })
+      expect(target).toEqual({ a: 1, b: 2, c: 3 })
+    })
+
+    test('preserves existing keys when preserveExisting is true', () => {
+      const target: Record<string, unknown> = { a: 1, b: 1 }
+      mergeTranslationChunkInPlace(target, { b: 2, c: 3 }, { preserveExisting: true })
+      expect(target).toEqual({ a: 1, b: 1, c: 3 })
+    })
+
+    test('deep-merges nested objects in place without cloning the root', () => {
+      const nav = { about: 'About', home: 'Home' }
+      const target: Record<string, unknown> = { nav }
+      mergeTranslationChunkInPlace(target, { nav: { extra: 'E' } })
+      expect(target.nav).toBe(nav)
+      expect(target).toEqual({ nav: { about: 'About', home: 'Home', extra: 'E' } })
+    })
+
+    test('replaces arrays and type changes rather than merging them', () => {
+      const target: Record<string, unknown> = { items: ['a', 'b'], a: { b: '1' } }
+      mergeTranslationChunkInPlace(target, { items: ['c'], a: 'flat' })
+      expect(target).toEqual({ items: ['c'], a: 'flat' })
+    })
+
+    test('ignores a key that would reach the prototype chain', () => {
+      const target: Record<string, unknown> = { a: '1' }
+      mergeTranslationChunkInPlace(target, JSON.parse('{"__proto__":{"polluted":true},"b":"2"}') as Record<string, unknown>)
+      expect(target).toEqual({ a: '1', b: '2' })
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined()
     })
   })
 

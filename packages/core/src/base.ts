@@ -287,11 +287,15 @@ export abstract class BaseI18n {
       return defaultValue ?? key
     }
 
-    // Raw lookup for plural — do not interpolate the full `a|b|c` string before split.
-    const getter: Getter = (k: TranslationKey, _p?: Params, dv?: string) => {
+    // No params → raw pipe string (defaultPlural splits then interpolates the selected form).
+    // With params → interpolate for custom plural rules that call getter(key, params).
+    // Missing key: undefined unless defaultValue is passed (then `dv || key`) so defaultPlural
+    // still sees a miss when called as getter(key) with no third argument.
+    const getter: Getter = (k: TranslationKey, p?: Params, dv?: string) => {
       const raw = this.resolveLookup(k)
-      if (raw === null || raw === undefined) return dv
-      return raw
+      if (raw === null || raw === undefined) return dv !== undefined ? dv || k : undefined
+      if (typeof raw !== 'string' || !p) return raw
+      return interpolate(raw, p)
     }
 
     const result = this.pluralFunc(key, Number.parseInt(countValue.toString(), 10), params, this.getLocale(), getter)

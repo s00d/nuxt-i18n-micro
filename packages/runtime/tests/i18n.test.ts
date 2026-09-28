@@ -174,6 +174,14 @@ describe('@i18n-micro/runtime', () => {
     await expect(fetchJsonTranslations('/missing.json')).rejects.toThrow(/404/)
   })
 
+  test('hasTranslation scans all routes for the active locale', () => {
+    const i18n = createI18n({ locale: 'en', messages: { en: { welcome: 'Welcome' } } })
+    i18n.addRouteTranslations('en', 'home', { onlyHome: 'Home only' })
+    expect(i18n.hasTranslation('welcome')).toBe(true)
+    expect(i18n.hasTranslation('onlyHome')).toBe(true)
+    expect(i18n.has('onlyHome')).toBe(false)
+  })
+
   test('hasTranslation and clear', () => {
     const i18n = createI18n({ locale: 'en', messages })
     expect(i18n.hasTranslation('welcome')).toBe(true)

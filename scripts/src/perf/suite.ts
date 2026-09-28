@@ -1,5 +1,6 @@
 import { consoleReporter, definePerfSuite, type PerfReporter, type PerfSuite, type PerfTarget } from 'untestutils/perf'
-import { join } from 'node:path'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isTranslationFile } from '../../../test/helpers/is-translation-file'
 import { repoRoot } from '../utils/workspace'
@@ -11,8 +12,13 @@ import { createDocsReporter } from './report'
 import type { LoadProfileId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const LOAD_PORT = 10_000
-/** ESM resolve so `--import` gets the same entry as bare `node --import tsx` (not the CJS register path). */
-const TSX_LOADER = fileURLToPath(import.meta.resolve('tsx'))
+const requireFromHere = createRequire(import.meta.url)
+/**
+ * Absolute path to tsx's ESM `--import` entry (`exports["."] → dist/loader.mjs`).
+ * Do not use `createRequire(...).resolve('tsx/cjs')` / the CJS register path, and avoid
+ * `import.meta.resolve` here — tsx may load this file without a working resolve helper.
+ */
+const TSX_LOADER = join(dirname(requireFromHere.resolve('tsx/package.json')), 'dist/loader.mjs')
 const NUXI_BUILD_ASSERT = fileURLToPath(new URL('./nuxi-build-assert.ts', import.meta.url))
 
 function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRuntimeProfile, load: LoadProfileId): PerfTarget {

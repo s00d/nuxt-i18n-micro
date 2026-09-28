@@ -10,7 +10,13 @@ import { repairNosticsFormatters } from './repair-nostics-formatters'
 
 const cwd = process.cwd()
 const entry = join(cwd, '.output/server/index.mjs')
-const result = spawnSync('nuxi', ['build'], {
+const nuxiBin = join(cwd, 'node_modules', '.bin', process.platform === 'win32' ? 'nuxi.cmd' : 'nuxi')
+if (!existsSync(nuxiBin)) {
+  console.error(`[perf] missing fixture-local nuxi at ${nuxiBin} (cwd alone does not put .bin on PATH)`)
+  process.exit(1)
+}
+
+const result = spawnSync(nuxiBin, ['build'], {
   cwd,
   stdio: 'inherit',
   env: process.env,

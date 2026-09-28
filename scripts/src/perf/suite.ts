@@ -1,5 +1,4 @@
 import { consoleReporter, definePerfSuite, type PerfReporter, type PerfSuite, type PerfTarget } from 'untestutils/perf'
-import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isTranslationFile } from '../../../test/helpers/is-translation-file'
@@ -12,9 +11,8 @@ import { createDocsReporter } from './report'
 import type { LoadProfileId, PerfRuntimeProfile, ResolvedPerfArgs } from './types'
 
 const LOAD_PORT = 10_000
-const requireFromHere = createRequire(import.meta.url)
-/** Absolute tsx loader so `--import` still resolves when cwd is a fixture. */
-const TSX_LOADER = requireFromHere.resolve('tsx')
+/** ESM resolve so `--import` gets the same entry as bare `node --import tsx` (not the CJS register path). */
+const TSX_LOADER = fileURLToPath(import.meta.resolve('tsx'))
 const NUXI_BUILD_ASSERT = fileURLToPath(new URL('./nuxi-build-assert.ts', import.meta.url))
 
 function fixtureTarget(fixture: PerfFixtureDef, port: number, profile: PerfRuntimeProfile, load: LoadProfileId): PerfTarget {

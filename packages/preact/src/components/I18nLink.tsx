@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, JSX, TargetedMouseEvent } from 'preact'
+import type { AnchorHTMLAttributes, TargetedMouseEvent, VNode } from 'preact'
 import { h } from 'preact'
 import { useI18n } from '../context'
 import { useI18nRouter } from '../injection'
@@ -9,7 +9,7 @@ export interface I18nLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   localeRoute?: (to: string | { path?: string }, locale?: string) => string | { path?: string }
 }
 
-export const I18nLink = (props: I18nLinkProps): JSX.Element => {
+export const I18nLink = (props: I18nLinkProps): VNode => {
   const i18n = useI18n()
   const router = useI18nRouter()
   const { to, activeStyle, localeRoute: localeRouteProp, children, ...restProps } = props
@@ -108,7 +108,7 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
         rel: 'noopener noreferrer',
       },
       children,
-    ) as JSX.Element
+    ) as VNode
   }
 
   // Use router linkComponent if available
@@ -123,17 +123,17 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
           style: computedStyle,
         },
         children,
-      ) as JSX.Element
+      ) as VNode
     }
     // Type assertion needed because React.ComponentType from I18nRoutingStrategy
     // is compatible with Preact components at runtime
     const Component = LinkComponent as unknown as (props: {
       href: string
-      children?: JSX.Element | JSX.Element[]
+      children?: VNode | VNode[]
       style?: Record<string, string | number>
       className?: string
       [key: string]: unknown
-    }) => JSX.Element
+    }) => VNode
     // Extract only the props that are compatible with the component type
     const componentProps = {
       ...restProps,
@@ -141,12 +141,12 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
       style: computedStyle,
     } as {
       href: string
-      children?: JSX.Element | JSX.Element[]
+      children?: VNode | VNode[]
       style?: Record<string, string | number>
       className?: string
       [key: string]: unknown
     }
-    return h(Component, componentProps, children) as JSX.Element
+    return h(Component, componentProps, children) as VNode
   }
 
   // Fallback to anchor with onClick handler
@@ -159,5 +159,5 @@ export const I18nLink = (props: I18nLinkProps): JSX.Element => {
       onClick: handleClick,
     },
     children,
-  ) as JSX.Element
+  ) as VNode
 }

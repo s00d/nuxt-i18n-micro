@@ -18,15 +18,15 @@ export default function() {
       {
         "label": "http.request_rate",
         "data": [
-          67,
-          257,
-          206,
-          200,
-          274,
-          284,
-          283,
-          77,
-          170
+          49,
+          224,
+          316,
+          325,
+          323,
+          318,
+          318,
+          256,
+          61
         ],
         "borderColor": "rgb(255, 159, 64)",
         "backgroundColor": "rgba(255, 159, 64, 0.1)",
@@ -39,15 +39,15 @@ export default function() {
       {
         "label": "http.response_time.p95",
         "data": [
-          107,
-          3464,
-          4317,
-          8521,
-          4584,
-          4231,
-          3985,
-          539,
-          4147
+          14,
+          1979,
+          3678,
+          3534,
+          3534,
+          3534,
+          3606,
+          3678,
+          111
         ],
         "borderColor": "rgb(75, 192, 192)",
         "backgroundColor": "rgba(75, 192, 192, 0.1)",
@@ -60,14 +60,14 @@ export default function() {
       {
         "label": "vusers.created",
         "data": [
-          74,
-          600,
-          597,
-          602,
+          21,
+          461,
+          601,
+          601,
+          601,
           601,
           600,
-          562,
-          0,
+          150,
           0
         ],
         "borderColor": "rgb(153, 102, 255)",
@@ -81,12 +81,12 @@ export default function() {
       {
         "label": "vusers.active",
         "data": [
-          31,
-          321,
-          144,
+          1,
+          217,
+          139,
           0,
-          0,
-          4,
+          16,
+          9,
           0,
           0,
           0
@@ -104,13 +104,13 @@ export default function() {
         "data": [
           0,
           0,
-          248,
-          441,
-          369,
-          281,
-          281,
-          0,
-          85
+          107,
+          239,
+          214,
+          233,
+          237,
+          139,
+          0
         ],
         "borderColor": "rgb(255, 99, 132)",
         "backgroundColor": "rgba(255, 99, 132, 0.1)",

@@ -2,10 +2,12 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  // Vite 8 (via Vitest 4) no longer infers the JSX transform for .tsx here.
-  esbuild: {
-    jsx: 'automatic',
-    jsxImportSource: 'react',
+  // Vite 8 / Vitest 5 transform via oxc (esbuild jsx options are ignored with a warning).
+  oxc: {
+    jsx: {
+      runtime: 'automatic',
+      importSource: 'react',
+    },
   },
   resolve: {
     alias: [

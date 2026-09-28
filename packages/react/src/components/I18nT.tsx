@@ -1,5 +1,5 @@
 import type { PluralFunc, TranslationKey } from '@i18n-micro/types'
-import React from 'react'
+import React, { type JSX } from 'react'
 import { useI18n } from '../context'
 
 export interface I18nTProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {
@@ -35,6 +35,7 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
     ...restProps
   } = props
 
+  const Tag = tag as keyof JSX.IntrinsicElements
   const route = getRoute()
 
   // Handle number formatting
@@ -44,9 +45,9 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
     const translation = t(keypath, { number: formattedNumber, ...(params || {}) }, undefined, route)
     const content = typeof translation === 'string' ? translation : String(translation)
     if (html) {
-      return React.createElement(tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
+      return React.createElement(Tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
     }
-    return React.createElement(tag, restProps, content) as React.ReactElement
+    return React.createElement(Tag, restProps, content) as React.ReactElement
   }
 
   // Handle date formatting
@@ -55,9 +56,9 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
     const translation = t(keypath, { date: formattedDate, ...(params || {}) }, undefined, route)
     const content = typeof translation === 'string' ? translation : String(translation)
     if (html) {
-      return React.createElement(tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
+      return React.createElement(Tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
     }
-    return React.createElement(tag, restProps, content) as React.ReactElement
+    return React.createElement(Tag, restProps, content) as React.ReactElement
   }
 
   // Handle relative date formatting
@@ -66,9 +67,9 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
     const translation = t(keypath, { relativeDate: formattedRelativeDate, ...(params || {}) }, undefined, route)
     const content = typeof translation === 'string' ? translation : String(translation)
     if (html) {
-      return React.createElement(tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
+      return React.createElement(Tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
     }
-    return React.createElement(tag, restProps, content) as React.ReactElement
+    return React.createElement(Tag, restProps, content) as React.ReactElement
   }
 
   // Handle pluralization
@@ -91,9 +92,9 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
       translation = tc(keypath, { count, ...(params || {}) }, defaultValue)
     }
     if (html) {
-      return React.createElement(tag, { ...restProps, dangerouslySetInnerHTML: { __html: translation } }) as React.ReactElement
+      return React.createElement(Tag, { ...restProps, dangerouslySetInnerHTML: { __html: translation } }) as React.ReactElement
     }
-    return React.createElement(tag, restProps, translation) as React.ReactElement
+    return React.createElement(Tag, restProps, translation) as React.ReactElement
   }
 
   // Regular translation
@@ -105,8 +106,8 @@ export const I18nT = (props: I18nTProps): React.ReactElement | null => {
   }
 
   if (html) {
-    return React.createElement(tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
+    return React.createElement(Tag, { ...restProps, dangerouslySetInnerHTML: { __html: content } }) as React.ReactElement
   }
 
-  return React.createElement(tag, restProps, content) as React.ReactElement
+  return React.createElement(Tag, restProps, content) as React.ReactElement
 }

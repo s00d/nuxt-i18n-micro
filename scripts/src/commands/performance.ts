@@ -1,5 +1,6 @@
 import { defineCommand } from 'citty'
 import { DEFAULT_COOL, DEFAULT_KEYS, DEFAULT_LOAD, DEFAULT_LOCALES, DEFAULT_RUNS, resolvePerfArgs } from '../perf/config'
+import { withPerfHostWorkarounds } from '../perf/host-workarounds'
 import { describeLoadProfile } from '../perf/load'
 import { runPerformance } from '../perf/run'
 
@@ -78,6 +79,6 @@ export const performanceCommand = defineCommand({
       `Performance: locales=${resolved.profile.locales.length} keys≈${resolved.keys} branch=${resolved.profile.branch} only=${resolved.only} runs=${resolved.runs} load=${resolved.load} (${describeLoadProfile(resolved.load)}) cool=${resolved.cool} skipLoad=${resolved.skipLoad}`,
     )
 
-    await runPerformance(resolved)
+    await withPerfHostWorkarounds(() => runPerformance(resolved))
   },
 })

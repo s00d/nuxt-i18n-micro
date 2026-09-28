@@ -95,6 +95,18 @@ describe('i18nUtils', () => {
     expect(i18nUtils.has('missing.key')).toBe(false)
   })
 
+  test('has is scoped to the active route', async () => {
+    // Shared context defaults to routeName `test` (not `index`).
+    i18nUtils.setRouteName('home')
+    await i18nUtils.setTranslationsFromJson('en', { homeOnly: 'Home' })
+    expect(i18nUtils.has('homeOnly')).toBe(true)
+    expect(i18nUtils.has('greeting')).toBe(false)
+
+    i18nUtils.setRouteName('test')
+    expect(i18nUtils.has('homeOnly')).toBe(false)
+    expect(i18nUtils.has('greeting')).toBe(true)
+  })
+
   test('switchLocale updates the locale', () => {
     i18nUtils.switchLocale('fr')
     expect(i18nUtils.getLocale()).toBe('fr')

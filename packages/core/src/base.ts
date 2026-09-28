@@ -1,6 +1,6 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
 import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
-import { defaultPlural, interpolate, mergeTranslationLayers, setTranslationAtKey } from './helpers'
+import { defaultPlural, interpolate, mergeTranslationLayers, setTranslationAtKey, translationCacheKey } from './helpers'
 import { type TranslationStorage, useTranslationHelper } from './translation'
 
 export interface BaseI18nOptions {
@@ -30,11 +30,12 @@ export abstract class BaseI18n {
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   public getCustomMissingHandler?: () => MissingHandler | null
 
-  /**
-   * Set on the server when the SSR payload should carry only the keys the render
-   * actually used. `null` on the client and in `chunk` mode, so the lookup path
-   * stays a plain property read.
-   */
+  /** Active `locale:route` chunk key for the pinned tree. */
+  private pinnedCacheKey = ''
+  /** Nested translation tree for the active locale+route (not a flattened map). */
+  private pinnedTree: Record<string, unknown> | null = null
+  /** `helper.getGeneration()` when `pinnedTree` was last refreshed. */
+  private pinnedGeneration = -1
 
   constructor(options: BaseI18nOptions = {}) {
     this.helper = useTranslationHelper(options.storage)
@@ -89,30 +90,66 @@ export abstract class BaseI18n {
   }
 
   /**
+   * Refresh the pinned active chunk when locale/route or storage generation changes.
+   */
+  protected ensurePinnedChunk(locale: string, routeName: string): void {
+    const chunkKey = translationCacheKey(locale, routeName)
+    const generation = this.helper.getGeneration()
+    if (this.pinnedCacheKey === chunkKey && this.pinnedGeneration === generation) return
+    this.pinnedCacheKey = chunkKey
+    this.pinnedGeneration = generation
+    this.pinnedTree = (this.helper.getCache(locale, routeName) as Record<string, unknown> | undefined) ?? null
+  }
+
+  /** Drop the pin so the next lookup re-reads from storage (after merge/set/clear). */
+  protected invalidatePin(): void {
+    this.pinnedCacheKey = ''
+    this.pinnedTree = null
+    this.pinnedGeneration = -1
+  }
+
+  /**
    * Lookup translation value. Returns null when missing.
+   * Active locale+route uses a pinned tree + sparse leaf cache (no chunk `Map.get` per call).
    */
   protected resolveLookup(key: TranslationKey, routeContext?: unknown): unknown | null {
     const locale = this.getLocale()
     const routeName = this.resolveRouteName(routeContext)
+    const keyStr = typeof key === 'string' ? key : String(key)
+    const usePin = routeContext === undefined || routeName === this.getRoute()
 
-    const value = this.helper.getTranslation(locale, routeName, String(key))
+    let value: unknown | null
+    if (usePin) {
+      this.ensurePinnedChunk(locale, routeName)
+      value = this.helper.lookupIn(this.pinnedCacheKey, this.pinnedTree, keyStr)
+    } else {
+      value = this.helper.getTranslation(locale, routeName, keyStr)
+    }
     if (value !== null) return value
 
     const fallbackLocale = this.getFallbackLocale()
     if (locale !== fallbackLocale) {
-      return this.helper.getTranslation(fallbackLocale, routeName, String(key))
+      return this.helper.getTranslation(fallbackLocale, routeName, keyStr)
     }
 
     return null
   }
 
   /**
-   * Check if translation exists in lookup source.
+   * Check if translation exists in the active locale chunk (not the fallback locale).
+   * `t()` may still resolve via fallback; `has()` answers "is it defined here?".
    */
   protected resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
     const locale = this.getLocale()
     const routeName = this.resolveRouteName(routeContext)
-    return this.helper.getTranslation(locale, routeName, String(key)) !== null
+    const keyStr = typeof key === 'string' ? key : String(key)
+    const usePin = routeContext === undefined || routeName === this.getRoute()
+
+    if (usePin) {
+      this.ensurePinnedChunk(locale, routeName)
+      return this.helper.lookupIn(this.pinnedCacheKey, this.pinnedTree, keyStr) !== null
+    }
+    return this.helper.getTranslation(locale, routeName, keyStr) !== null
   }
 
   /**
@@ -206,6 +243,16 @@ export abstract class BaseI18n {
 
     this.touch()
 
+    // Fast path: string key, no params / default / route override — skip interpolate branches.
+    if (params === undefined && defaultValue === undefined && routeContext === undefined && typeof key === 'string') {
+      const fast = this.resolveLookup(key)
+      if (fast === null || fast === undefined) {
+        this.warnMissing(key)
+        return key as CleanTranslation
+      }
+      return fast as CleanTranslation
+    }
+
     const resolved = this.resolveLookup(key, routeContext)
 
     if (resolved === null || resolved === undefined) {
@@ -240,9 +287,15 @@ export abstract class BaseI18n {
       return defaultValue ?? key
     }
 
-    // Getter passed to plural function
+    // No params → raw pipe string (defaultPlural splits then interpolates the selected form).
+    // With params → interpolate for custom plural rules that call getter(key, params).
+    // Missing key: undefined unless defaultValue is passed (then `dv || key`) so defaultPlural
+    // still sees a miss when called as getter(key) with no third argument.
     const getter: Getter = (k: TranslationKey, p?: Params, dv?: string) => {
-      return this.t(k, p, dv)
+      const raw = this.resolveLookup(k)
+      if (raw === null || raw === undefined) return dv !== undefined ? dv || k : undefined
+      if (typeof raw !== 'string' || !p) return raw
+      return interpolate(raw, p)
     }
 
     const result = this.pluralFunc(key, Number.parseInt(countValue.toString(), 10), params, this.getLocale(), getter)
@@ -318,6 +371,7 @@ export abstract class BaseI18n {
     const current = (this.helper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
 
     this.helper.setTranslations(locale, setTranslationAtKey(current, String(key), value), routeName)
+    this.invalidatePin()
     this.onTranslationsChanged()
   }
 
@@ -327,6 +381,7 @@ export abstract class BaseI18n {
   public clearCache(): void {
     this.helper.clearCache()
     this.formatter.clearCache()
+    this.invalidatePin()
   }
 
   private resolveNumberFormatArgs(
@@ -397,6 +452,7 @@ export abstract class BaseI18n {
     } else {
       this.helper.setTranslations(locale, translations, routeName)
     }
+    this.invalidatePin()
   }
 
   /**
@@ -409,6 +465,7 @@ export abstract class BaseI18n {
     } else {
       this.helper.loadPageTranslations(locale, routeName, translations)
     }
+    this.invalidatePin()
   }
 
   /**

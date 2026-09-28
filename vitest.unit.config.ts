@@ -24,7 +24,8 @@ export default defineConfig({
       enabled: true,
       include: ['test/**/*.test.ts'],
       // Match `test.exclude`: without this, typecheck still pulls integration suites.
-      exclude: [...INTEGRATION_TESTS],
+      // Vitest 5 also walks nested fixture `node_modules` unless excluded here.
+      exclude: [...INTEGRATION_TESTS, 'test/fixtures/**', '**/node_modules/**'],
       tsconfig: './tsconfig.nuxt.json',
     },
     testTimeout: 30_000,

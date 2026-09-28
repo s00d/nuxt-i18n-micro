@@ -14,7 +14,6 @@
     "nuxt": "catalog:"
   },
   "devDependencies": {
-    "@nuxthub/core": "catalog:",
-    "wrangler": "catalog:"
+    "@nuxthub/core": "catalog:"
   }
 }

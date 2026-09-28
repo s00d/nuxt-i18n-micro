@@ -2,9 +2,12 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  esbuild: {
-    jsx: 'automatic',
-    jsxImportSource: 'solid-js',
+  // Vite 8 / Vitest 5 transform via oxc (esbuild jsx options are ignored with a warning).
+  oxc: {
+    jsx: {
+      runtime: 'automatic',
+      importSource: 'solid-js',
+    },
   },
   resolve: {
     alias: [

@@ -95,8 +95,8 @@ console.log(localizedRoute) // Localized route object
   Checks if translations for a specific route and locale are cached.
 - **`getCache(locale: string, routeName: string): Map<string, Translations | unknown> | undefined`**:
   Retrieves the cache for a specific route and locale.
-- **`setCache(locale: string, routeName: string, cache: Map<string, Translations | unknown>): void`**:
-  Sets the cache for a specific route and locale.
+- **`setCache(locale: string, routeName: string, cache: Map<string, unknown>): void`**:
+  Installs a sparse leaf lookup map for a chunk (does not flatten or replace the nested tree).
 - **`mergeTranslation(locale: string, routeName: string, newTranslations: Translations, force = false): void`**:
   Merges new translations into the cache for a specific route and locale.
 - **`hasPageTranslation(locale: string, routeName: string): boolean`**:

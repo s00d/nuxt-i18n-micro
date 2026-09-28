@@ -333,7 +333,7 @@ export class I18nTestContext {
     return ''
   }
 
-  has = (key: TranslationKey): boolean => this.helper.hasTranslation(this.locale, key)
+  has = (key: TranslationKey): boolean => this.helper.getTranslation(this.locale, this.routeName, String(key)) !== null
 
   mergeTranslations = (newTranslations: Translations): void => {
     this.helper.mergeTranslation(this.locale, this.routeName, newTranslations, true)

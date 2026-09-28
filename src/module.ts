@@ -30,6 +30,7 @@ import {
 } from '@i18n-micro/utils/payload-config'
 import { compressTranslationPayloads, hashTranslationSources, scanTranslationPayloadDirectory } from '@i18n-micro/utils/payload-stats'
 import { buildTranslationPayloadCacheControl } from '@i18n-micro/utils/payload-url'
+import { buildI18nPluralTemplate } from './plural-template'
 import {
   addComponentsDir,
   addImportsDir,
@@ -82,6 +83,17 @@ async function resolveStrategyPath(strategy: Strategies): Promise<string> {
     absoluteStrategyPath = await resolvePath(specifier)
   }
   return process.platform === 'win32' ? pathToFileURL(absoluteStrategyPath).href : absoluteStrategyPath.replace(/\\/g, '/')
+}
+
+async function resolveHelpersPath(): Promise<string> {
+  const specifier = '@i18n-micro/core/helpers'
+  let absoluteHelpersPath: string
+  try {
+    absoluteHelpersPath = fileURLToPath(import.meta.resolve(specifier))
+  } catch {
+    absoluteHelpersPath = await resolvePath(specifier)
+  }
+  return process.platform === 'win32' ? pathToFileURL(absoluteHelpersPath).href : absoluteHelpersPath.replace(/\\/g, '/')
 }
 
 function generateI18nTypes(): string {
@@ -227,6 +239,7 @@ function buildPrivateConfig(
 function registerI18nTemplates(
   options: ModuleOptions,
   resolvedStrategyPath: string,
+  resolvedHelpersPath: string,
   fullConfig: ReturnType<typeof buildFullConfig>,
   privateConfig: ReturnType<typeof buildPrivateConfig>,
 ) {
@@ -235,7 +248,7 @@ function registerI18nTemplates(
   const pluralTemplate = addTemplate({
     filename: 'i18n.plural.mjs',
     write: true,
-    getContents: () => `export const plural = ${options.plural!.toString()};`,
+    getContents: () => buildI18nPluralTemplate(options.plural, resolvedHelpersPath),
   })
 
   const strategyTemplate = addTemplate({
@@ -494,6 +507,7 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     const resolvedStrategyPath = await resolveStrategyPath(options.strategy!)
+    const resolvedHelpersPath = await resolveHelpersPath()
 
     let apiBaseClientHost = process.env.NUXT_I18N_APP_BASE_CLIENT_HOST ?? options.apiBaseClientHost ?? undefined
     if (apiBaseClientHost?.endsWith('/')) {
@@ -540,7 +554,7 @@ export default defineNuxtModule<ModuleOptions>({
     })
 
     const privateConfig = buildPrivateConfig(options, nuxt, apiConfig, routeGenerator.locales ?? [], publicAssetsDir, payloadPublicRel)
-    const templates = registerI18nTemplates(options, resolvedStrategyPath, fullConfig, privateConfig)
+    const templates = registerI18nTemplates(options, resolvedStrategyPath, resolvedHelpersPath, fullConfig, privateConfig)
 
     if (typeof options.customRegexMatcher !== 'undefined') {
       const localeCodes = routeGenerator.locales.map((l) => l.code)

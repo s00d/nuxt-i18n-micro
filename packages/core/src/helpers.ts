@@ -30,6 +30,13 @@ export interface MergeTranslationChunkOptions {
  * and loses `about` and `home`. Nothing throws — the keys simply resolve to themselves
  * later, which is the raw-key render the loader exists to prevent.
  *
+ * Algorithm notes (inspired by `@fastify/deepmerge` / TehShrike `deepmerge`, no dependency):
+ * - iterate only `Object.keys(source)` (patch side), indexed `for` — not `for…in`
+ * - plain JSON objects merge recursively; arrays / primitives / null replace (i18n leaves)
+ * - skip `__proto__` only — `constructor` is a valid translation key
+ * - immutable path copies the target once, then overlays source keys
+ * - in-place path mutates target (live storage / HMR) — no full-chunk clone
+ *
  * Written here rather than reusing `@i18n-micro/utils/deep-merge`: that package carries
  * build-time dependencies, and `core` is installed by every consumer at runtime.
  */
@@ -42,26 +49,93 @@ export function mergeTranslationChunk(
   return options?.preserveExisting ? mergeTranslationTrees(incoming, existing) : mergeTranslationTrees(existing, incoming)
 }
 
-const isPlainTranslationObject = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === 'object' && !Array.isArray(value)
+/**
+ * Deep-merge `incoming` into `target` in place (same nested-object rules as {@link mergeTranslationChunk}).
+ * Single pass over patch keys: leaf assigns are O(patch), nested only where both sides are objects.
+ */
+export function mergeTranslationChunkInPlace(
+  target: Record<string, unknown>,
+  incoming: Record<string, unknown>,
+  options?: MergeTranslationChunkOptions,
+): void {
+  if (options?.preserveExisting) {
+    mergeTranslationTreesInPlacePreserve(target, incoming)
+    return
+  }
+  mergeTranslationTreesInPlace(target, incoming)
+}
 
-/** `source` wins, at every depth. Arrays and primitives replace rather than merge. */
+/** Plain JSON object (not array / null). Dates/RegExp never appear in locale JSON. */
+function isPlainTranslationObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+/**
+ * Immutable merge: `source` wins. One shallow copy of `target`, then overlay `source` keys
+ * (same shape as fastify's mergeObject, without cloning every untouched nested tree).
+ */
 function mergeTranslationTrees(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = { ...target }
-
-  // Own keys only: `for…in` also walks the prototype chain, so a chunk deserialised into a
-  // non-plain object would contribute inherited members as if they were translations.
-  for (const key of Object.keys(source)) {
-    // The only key that must be skipped: assigning it invokes the prototype setter. A
-    // `constructor` key is an ordinary own property here, and a locale file may well have one.
+  const keys = Object.keys(source)
+  for (let i = 0, il = keys.length; i < il; i++) {
+    const key = keys[i]!
+    // `__proto__` only — assigning it invokes the prototype setter. `constructor` is a normal key.
     if (key === '__proto__') continue
 
     const incoming = source[key]
     const existing = result[key]
-    result[key] = isPlainTranslationObject(incoming) && isPlainTranslationObject(existing) ? mergeTranslationTrees(existing, incoming) : incoming
+    if (isPlainTranslationObject(incoming) && isPlainTranslationObject(existing)) {
+      result[key] = mergeTranslationTrees(existing, incoming)
+    } else {
+      result[key] = incoming
+    }
   }
-
   return result
+}
+
+/**
+ * In-place merge: `source` wins. Only walks patch keys (fastify-style).
+ * Leaf patches ≈ `Object.assign`; nested object keys recurse without cloning siblings.
+ */
+function mergeTranslationTreesInPlace(target: Record<string, unknown>, source: Record<string, unknown>): void {
+  const keys = Object.keys(source)
+  for (let i = 0, il = keys.length; i < il; i++) {
+    const key = keys[i]!
+    if (key === '__proto__') continue
+
+    const incoming = source[key]
+    // Hot leaf path: primitives / arrays / null — assign, no recursion.
+    if (incoming === null || typeof incoming !== 'object' || Array.isArray(incoming)) {
+      target[key] = incoming
+      continue
+    }
+
+    const existing = target[key]
+    if (existing !== null && typeof existing === 'object' && !Array.isArray(existing)) {
+      mergeTranslationTreesInPlace(existing as Record<string, unknown>, incoming as Record<string, unknown>)
+    } else {
+      target[key] = incoming
+    }
+  }
+}
+
+/** In-place merge where `target` (existing) wins on conflict. */
+function mergeTranslationTreesInPlacePreserve(target: Record<string, unknown>, source: Record<string, unknown>): void {
+  const keys = Object.keys(source)
+  for (let i = 0, il = keys.length; i < il; i++) {
+    const key = keys[i]!
+    if (key === '__proto__') continue
+
+    const incoming = source[key]
+    if (!Object.prototype.hasOwnProperty.call(target, key)) {
+      target[key] = incoming
+      continue
+    }
+    const existing = target[key]
+    if (isPlainTranslationObject(incoming) && isPlainTranslationObject(existing)) {
+      mergeTranslationTreesInPlacePreserve(existing, incoming)
+    }
+  }
 }
 
 export function interpolate(template: string, params: Params): string {
@@ -77,12 +151,14 @@ export function interpolate(template: string, params: Params): string {
 export function getByPath(obj: Record<string, unknown> | null | undefined, path: string): unknown {
   if (obj === null || obj === undefined || typeof path !== 'string' || path.length === 0) return undefined
 
+  // Flat key wins over nested walk (dictionaries may store `'a.b': 'literal'`).
   if (Object.prototype.hasOwnProperty.call(obj, path)) {
     return obj[path]
   }
 
   if (!path.includes('.')) return undefined
 
+  // `split` beats manual indexOf/slice on V8 for short dotted paths (measured ~2×).
   const parts = path.split('.')
   let current: unknown = obj
   for (const part of parts) {
@@ -232,17 +308,13 @@ export function isPrefixAndDefaultStrategy(strategy: Strategies) {
 }
 
 /**
- * Default pluralization function
- * Splits translation by '|' and selects form based on count
- * @param key - Translation key
- * @param count - Count for pluralization
- * @param params - Parameters for translation
- * @param _locale - Current locale (unused in default implementation)
- * @param getTranslation - Function to get translation value
- * @returns Selected plural form or null if not found
+ * Default pluralization function.
+ * Fetches the raw `a|b|c` string (no full-string interpolate), selects a form by count,
+ * then interpolates only the selected form with `params` + `{count}`.
  */
 export const defaultPlural: PluralFunc = (key: TranslationKey, count: number, params: Params, _locale: string, getTranslation: Getter) => {
-  const translation = getTranslation(key, params)
+  // Raw pipe string — pass no params so adapters that forward to `t()` do not interpolate first.
+  const translation = getTranslation(key)
   if (!translation) {
     return null
   }
@@ -250,5 +322,5 @@ export const defaultPlural: PluralFunc = (key: TranslationKey, count: number, pa
   if (forms.length === 0) return null
   const selectedForm = count < forms.length ? forms[count] : forms[forms.length - 1]
   if (!selectedForm) return null
-  return selectedForm.trim().replace('{count}', count.toString())
+  return interpolate(selectedForm.trim(), { ...params, count })
 }

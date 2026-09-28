@@ -213,13 +213,9 @@ describe('BaseI18n', () => {
     })
 
     test('should return defaultValue when plural function returns null', () => {
-      const i18n = new TestI18n('en', 'en', 'index')
-      // When translation is missing, t() returns key, which is passed to pluralFunc
-      // pluralFunc tries to process 'missing.key' as translation, but since it doesn't contain '|',
-      // it returns the key itself. So tc returns the key, not defaultValue.
-      // To test defaultValue, we need a case where pluralFunc actually returns null.
-      // This happens when translation exists but is empty or invalid.
-      expect(i18n.tc('missing.key', 1, 'Default')).toBe('missing.key')
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+      // Raw plural getter returns undefined for missing keys → defaultPlural → null → defaultValue.
+      expect(i18n.tc('missing.key', 1, 'Default')).toBe('Default')
     })
 
     test('#241: custom plural null should fall back to defaultPlural', () => {
@@ -250,6 +246,50 @@ describe('BaseI18n', () => {
       const i18n = new TestI18n('en', 'en', 'index', { plural: customPlural })
       i18n['helper'].loadTranslations('en', { items: 'none|one|many' })
       expect(i18n.tc('items', 1)).toBe('forced')
+    })
+
+    test('tc selects plural form before interpolating params in the pipe string', () => {
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+      // If the whole string were interpolated first, `|` would still work — but a param
+      // containing `|` would corrupt forms. Raw split + per-form interpolate is required.
+      i18n['helper'].loadTranslations('en', {
+        items: 'Hello {name}|Hi {name}|Hey {name} ({count})',
+      })
+
+      expect(i18n.tc('items', { count: 0, name: 'Ada' })).toBe('Hello Ada')
+      expect(i18n.tc('items', { count: 1, name: 'Ada' })).toBe('Hi Ada')
+      expect(i18n.tc('items', { count: 5, name: 'Ada' })).toBe('Hey Ada (5)')
+    })
+  })
+
+  describe('pin + leaf cache', () => {
+    test('t returns object values and keeps nested getCache tree', () => {
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+      const nav = { about: 'About' }
+      i18n.loadTranslationsCore('en', { nav }, false)
+
+      const first = i18n.t('nav')
+      const second = i18n.t('nav')
+      expect(first).toBe(nav)
+      expect(second).toBe(first)
+      expect(i18n.resolveTranslations()).toEqual({ nav })
+    })
+
+    test('has checks active chunk only (not other routes of the same locale)', () => {
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+      i18n.loadRouteTranslationsCore('en', 'other', { onlyThere: 'yes' }, false)
+
+      expect(i18n.has('onlyThere')).toBe(false)
+      expect(i18n.has('onlyThere', 'other')).toBe(true)
+    })
+
+    test('setTranslation invalidates leaf/pin so new value is visible', () => {
+      const i18n = new TestI18n('en', 'en', 'index', { missingWarn: false })
+      i18n.loadTranslationsCore('en', { greeting: 'Hello' }, false)
+      expect(i18n.t('greeting')).toBe('Hello')
+
+      i18n.setTranslation('greeting', 'Hi')
+      expect(i18n.t('greeting')).toBe('Hi')
     })
   })
 

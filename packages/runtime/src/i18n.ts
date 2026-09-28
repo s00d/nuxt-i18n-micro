@@ -138,7 +138,7 @@ export class I18n extends BaseI18n {
   }
 
   public hasTranslation(key: TranslationKey): boolean {
-    return this.helper.hasTranslation(this.getLocale(), key)
+    return this.has(key)
   }
 
   public clear(): void {

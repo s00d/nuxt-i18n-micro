@@ -1,9 +1,11 @@
 /**
  * Performance benchmark tests for @i18n-micro/core.
  *
- * - Results saved to tests/__perf__/baseline.json after each run.
- * - Subsequent runs compare against baseline; regressions fail the test.
- * - Reset baseline: delete the file or run with PERF_UPDATE_BASELINE=1
+ * - Baseline: tests/__perf__/baseline.json (gitignored).
+ * - Saved only when missing or PERF_UPDATE_BASELINE=1 (never overwrite a green compare —
+ *   that poisoned later runs with a hot spike).
+ * - Relative drop past threshold fails the test (same as before).
+ * - Reset: delete the file or PERF_UPDATE_BASELINE=1
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -59,7 +61,7 @@ interface BenchResult {
   totalMs: number
 }
 
-function bench(name: string, fn: () => void, iterations = ITERATIONS_FAST): BenchResult {
+function benchOnce(name: string, fn: () => void, iterations: number): BenchResult {
   const warmup = Math.min(WARMUP, iterations)
   for (let i = 0; i < warmup; i++) fn()
 
@@ -70,12 +72,18 @@ function bench(name: string, fn: () => void, iterations = ITERATIONS_FAST): Benc
     samples.push(performance.now() - start)
   }
 
+  // Median of rounds — less optimistic than best-half mean, less poisoned by one hot spike.
   samples.sort((a, b) => a - b)
-  const half = Math.max(1, Math.floor(samples.length / 2))
-  let sum = 0
-  for (let i = 0; i < half; i++) sum += samples[i]!
-  const bestHalfMean = sum / half
-  return { name, opsPerMs: iterations / bestHalfMean, totalMs: bestHalfMean }
+  const mid = Math.floor(samples.length / 2)
+  const medianMs = samples.length % 2 === 0 ? (samples[mid - 1]! + samples[mid]!) / 2 : samples[mid]!
+  return { name, opsPerMs: iterations / medianMs, totalMs: medianMs }
+}
+
+/** Two medians, keep the slower — stops a single V8 hot spike from poisoning baseline.json. */
+function bench(name: string, fn: () => void, iterations = ITERATIONS_FAST): BenchResult {
+  const a = benchOnce(name, fn, iterations)
+  const b = benchOnce(name, fn, iterations)
+  return a.opsPerMs <= b.opsPerMs ? a : b
 }
 
 const allResults: Baseline = {}
@@ -213,6 +221,10 @@ class BenchI18n extends BaseI18n {
   getRoute(): string {
     return this._route
   }
+
+  setRoute(route: string): void {
+    this._route = route
+  }
 }
 
 const flat500 = buildFlatTranslations(500)
@@ -285,6 +297,14 @@ describe('Performance: translation helper', () => {
   const cases: [string, () => void, number?, number?][] = [
     ['getTranslation flat hit', () => helper.getTranslation('en', 'index', 'key_42')],
     ['getTranslation nested hit', () => helper.getTranslation('en', 'about', 'common.nested.deep')],
+    // Warm leaf: first call populates sparse cache; bench measures subsequent hits.
+    [
+      'getTranslation nested warm leaf',
+      (() => {
+        helper.getTranslation('en', 'about', 'common.nested.deep')
+        return () => helper.getTranslation('en', 'about', 'common.nested.deep')
+      })(),
+    ],
     ['getTranslation miss', () => helper.getTranslation('en', 'index', 'missing.key')],
     ['hasPageTranslation hit', () => helper.hasPageTranslation('en', 'index')],
     ['hasPageTranslation miss', () => helper.hasPageTranslation('fr', 'index')],
@@ -312,6 +332,15 @@ describe('Performance: BaseI18n', () => {
   const cases: [string, () => void, number?, number?][] = [
     ['t flat hit', () => i18n.t('key_42')],
     ['t nested hit', () => i18n.t('common.nested.deep', undefined, undefined, 'about')],
+    [
+      't nested warm pin+leaf',
+      (() => {
+        // Switch active route so pin covers nested chunk, then warm leaf.
+        i18n.setRoute('about')
+        i18n.t('common.nested.deep')
+        return () => i18n.t('common.nested.deep')
+      })(),
+    ],
     ['t with params', () => i18n.t('param_1', { name: 'Ada' })],
     ['t miss', () => i18n.t('missing.key')],
     ['t fallback locale', () => i18n.t('key_42')],
@@ -368,13 +397,18 @@ describe('Performance: FormatService', () => {
 })
 
 afterAll(() => {
-  saveBaseline(allResults)
+  const shouldSave = UPDATE_BASELINE || !baseline
+  if (shouldSave && regressions.length === 0) {
+    saveBaseline(allResults)
+  }
 
   const summary: string[] = ['']
-  if (baseline) {
+  if (baseline && !UPDATE_BASELINE) {
     summary.push(`  Baseline: ${Object.keys(baseline).length} entries | Threshold: -${REGRESSION_THRESHOLD * 100}%`)
+  } else if (shouldSave && regressions.length === 0) {
+    summary.push('  Saved current results as baseline.')
   } else {
-    summary.push('  No previous baseline — saved current results as new baseline.')
+    summary.push('  Baseline not updated (regressions present or compare-only run).')
   }
 
   if (regressions.length > 0) {
@@ -384,7 +418,7 @@ afterAll(() => {
     summary.push('  No regressions.')
   }
 
-  summary.push(`  Saved to: ${BASELINE_PATH}`)
+  summary.push(`  Path: ${BASELINE_PATH}`)
   summary.push('')
   console.log(summary.join('\n'))
 })

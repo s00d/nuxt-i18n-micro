@@ -1,7 +1,7 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, expectTypeOf, test } from 'vitest'
 import { render, screen } from '@testing-library/preact'
 import { h } from 'preact'
-import type { AnchorHTMLAttributes, HTMLAttributes, TargetedMouseEvent } from 'preact'
+import type { AnchorHTMLAttributes, HTMLAttributes, TargetedMouseEvent, VNode } from 'preact'
 import { createI18n, I18nProvider } from '../src'
 import { I18nGroup } from '../src/components/I18nGroup'
 import { I18nLink } from '../src/components/I18nLink'
@@ -12,6 +12,7 @@ import { I18nLocalesContext } from '../src/injection'
 /**
  * Smoke coverage for Preact 11-compatible prop bases (HTMLAttributes /
  * AnchorHTMLAttributes / TargetedMouseEvent imported from `preact`, not JSX.*).
+ * Component return signatures use `VNode` (not `JSX.Element`).
  */
 describe('Preact 11-compatible component props', () => {
   const i18n = createI18n({
@@ -24,12 +25,23 @@ describe('Preact 11-compatible component props', () => {
     },
   })
 
-  test('I18nT accepts HTMLAttributes-style props and renders keypath', () => {
+  test('I18nT accepts HTMLAttributes-style props and returns VNode | null', () => {
+    expectTypeOf(I18nT).returns.toEqualTypeOf<VNode | null>()
+
     const attrs: HTMLAttributes<HTMLElement> = { class: 't-class', id: 't-id' }
     render(h(I18nProvider, { i18n }, h(I18nT, { keypath: 'greeting', ...attrs })))
     const el = document.getElementById('t-id')
     expect(el?.textContent).toBe('Hello')
     expect(el?.className).toContain('t-class')
+
+    const emptyI18n = createI18n({
+      locale: 'en',
+      messages: { en: { blank: '' } },
+    })
+    const { container } = render(
+      h(I18nProvider, { i18n: emptyI18n }, h(I18nT, { keypath: 'blank', hideIfEmpty: true })),
+    )
+    expect(container.textContent).toBe('')
   })
 
   test('I18nGroup accepts HTMLAttributes and wraps children', () => {

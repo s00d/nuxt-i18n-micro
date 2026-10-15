@@ -2,15 +2,7 @@ import { builtinModules } from 'node:module'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineCommand } from 'citty'
-import {
-  aliasTarget,
-  catalogRef,
-  EXACT_CATALOG_PINS,
-  isExactVersion,
-  isNonRegistrySpec,
-  isWorkspaceProtocol,
-  readCatalog,
-} from '../utils/catalog'
+import { aliasTarget, catalogRef, EXACT_CATALOG_PINS, isExactVersion, isNonRegistrySpec, isWorkspaceProtocol, readCatalog } from '../utils/catalog'
 import { walkFiles } from '../utils/fs-walk'
 import { SOURCE_EXTENSIONS, fileImports } from '../utils/imports'
 import { listWorkspacePackages } from '../utils/git-baseline'
@@ -134,12 +126,7 @@ export const depsAuditCommand = defineCommand({
       }
       const override = rootOverrides[name]
       if (!override || override !== pin) {
-        add(
-          'errors',
-          'root',
-          'exact-pin-override',
-          `pnpm.overrides.${name} must be the literal "${pin}" (got ${override ?? 'missing'})`,
-        )
+        add('errors', 'root', 'exact-pin-override', `pnpm.overrides.${name} must be the literal "${pin}" (got ${override ?? 'missing'})`)
       }
     }
 

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CommandResult, WorkspacePackage } from '../src/utils/git-baseline'
 import type { CheckVersionsReport, VersionEntry } from '../src/commands/check-versions'
-import { versionSatisfiesRange } from '../src/utils/semver'
+import { satisfies as versionSatisfiesRange } from 'semver'
 import { runCli } from './helpers'
 
 const listWorkspacePackages = vi.hoisted(() => vi.fn<() => WorkspacePackage[]>())

@@ -11,7 +11,7 @@ import {
   type WorkspacePackage,
 } from '../utils/git-baseline'
 import { INSTALLED_DEPENDENCY_FIELDS } from '../utils/manifest'
-import { compareVersions, versionSatisfiesRange } from '../utils/semver'
+import { compare as compareVersions, satisfies as versionSatisfiesRange } from 'semver'
 
 /** One package's line in the report. Exported: it is the `--json` contract. */
 export interface VersionEntry {

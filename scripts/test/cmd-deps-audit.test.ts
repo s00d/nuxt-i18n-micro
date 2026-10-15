@@ -47,6 +47,8 @@ describe('exact catalog pins', () => {
     expect(EXACT_CATALOG_PINS).toContain('typescript')
     expect(isExactVersion('6.0.3')).toBe(true)
     expect(isExactVersion('6.0.3-rc.1')).toBe(true)
+    expect(isExactVersion('6.0.3-')).toBe(false)
+    expect(isExactVersion('6.0.3-_')).toBe(false)
     expect(isExactVersion('^6.0.3')).toBe(false)
     expect(isExactVersion('~6.0.3')).toBe(false)
     expect(isExactVersion('*')).toBe(false)

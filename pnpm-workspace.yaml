@@ -98,6 +98,8 @@ catalog:
   # Utils
   chokidar: ^5.0.0
   citty: ^0.2.2
+  semver: ^7.7.3
+  '@types/semver': ^7.7.1
   globby: ^16.2.4
   glob: ^13.0.6
   ufo: ^1.6.4

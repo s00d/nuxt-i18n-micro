@@ -80,11 +80,17 @@ class TranslationStorage {
       routesLocaleLinks: options.routesLocaleLinks,
     })
 
-    // Call-site cast keeps Nuxt `$fetch` (local Nitro calls); avoids MatchedRoutes TS2321.
+    // Call-site cast keeps Nuxt `$fetch` (Nitro localFetch when relative); avoids MatchedRoutes TS2321.
     return await ($fetch as TranslationPayloadFetcher)(request.path, {
       baseURL: request.baseURL,
       params: request.params,
     })
+  }
+
+  /** Seed cache without fetching (e.g. `serverTranslationPreload` for index). */
+  seed(locale: string, routeName: string | undefined, data: Record<string, unknown>): void {
+    const cacheKey = this.getCacheKey(locale, routeName)
+    this.cc.set(cacheKey, this.freezeChunk(data))
   }
 
   // ==========================================================================

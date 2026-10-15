@@ -58,3 +58,11 @@ export function aliasTarget(spec: string): string | null {
   const at = rest.lastIndexOf('@')
   return at > 0 ? rest.slice(0, at) : rest
 }
+
+/** Exact `1.2.3` / `1.2.3-beta.1` — not `^`/`~`/`*`. */
+export function isExactVersion(spec: string): boolean {
+  return /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(spec.trim())
+}
+
+/** Catalog + `pnpm.overrides` must stay exact literals (see deps-audit). */
+export const EXACT_CATALOG_PINS = ['typescript'] as const

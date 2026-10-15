@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { packageOfSpecifier } from '../src/commands/deps-audit'
-import { aliasTarget, catalogRef, isNonRegistrySpec, isWorkspaceProtocol } from '../src/utils/catalog'
+import { aliasTarget, catalogRef, EXACT_CATALOG_PINS, isExactVersion, isNonRegistrySpec, isWorkspaceProtocol } from '../src/utils/catalog'
 
 describe('packageOfSpecifier', () => {
   it('reduces a subpath to its package', () => {
@@ -39,6 +39,17 @@ describe('aliasTarget', () => {
   it('returns null for anything that is not an alias', () => {
     expect(aliasTarget('^1.0.0')).toBeNull()
     expect(aliasTarget('catalog:')).toBeNull()
+  })
+})
+
+describe('exact catalog pins', () => {
+  it('requires typescript to stay on an exact version', () => {
+    expect(EXACT_CATALOG_PINS).toContain('typescript')
+    expect(isExactVersion('6.0.3')).toBe(true)
+    expect(isExactVersion('6.0.3-rc.1')).toBe(true)
+    expect(isExactVersion('^6.0.3')).toBe(false)
+    expect(isExactVersion('~6.0.3')).toBe(false)
+    expect(isExactVersion('*')).toBe(false)
   })
 })
 

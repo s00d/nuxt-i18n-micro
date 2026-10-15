@@ -2,21 +2,20 @@
 
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
-import { SERVER_CC_KEY, STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
+import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import {
+  createTranslationDirReader,
   handleTranslationWatchChange,
   parseTranslationWatchRelativePath,
-  readTranslationFile,
   TranslationContentTracker,
 } from '@i18n-micro/hmr/watcher'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import { CacheControl } from '@i18n-micro/utils/cache-control'
-import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
 import { getI18nPrivateConfig } from '#i18n-internal/config'
 import { getI18nConfig } from '#i18n-internal/strategy'
+import { getOrCreateServerTranslationCache } from '../utils/server-translation-cache'
 
 type GlobalWithCC = typeof globalThis & { [key: symbol]: unknown }
 
@@ -34,21 +33,6 @@ function getCacheByKey(key: symbol): CacheLike | null {
     return cc as CacheLike
   }
   return null
-}
-
-function getServerCache(): CacheLike | null {
-  return getCacheByKey(SERVER_CC_KEY)
-}
-
-function getOrCreateServerCache(): CacheLike {
-  const existing = getServerCache()
-  if (existing) {
-    return existing
-  }
-  const g = globalThis as GlobalWithCC
-  const created = new CacheControl<{ data: Record<string, unknown>; json: string }>()
-  g[SERVER_CC_KEY] = created
-  return created
 }
 
 function getStorageCache(): CacheLike | null {
@@ -82,20 +66,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
 
   // A write event says nothing about the content having changed.
   const contentTracker = new TranslationContentTracker()
-
-  const readMergedLocaleFile = (relativeFilePath: string): Record<string, unknown> => {
-    // Root `{locale}.json`: additional dirs first, then primary translationDir (wins).
-    // Use recursive merge so nested keys match build-time `preMergeLocales` / `buildTranslationSourceLayers`.
-    if (!relativeFilePath.includes('/') && relativeFilePath.endsWith('.json')) {
-      const locale = relativeFilePath.slice(0, -'.json'.length)
-      let content: Record<string, unknown> = {}
-      for (const extraRoot of additionalRoots) {
-        content = deepMergeTranslationsRecursive(content, readTranslationFile(path.join(extraRoot, `${locale}.json`)))
-      }
-      return deepMergeTranslationsRecursive(content, readTranslationFile(path.join(translationsRoot, relativeFilePath)))
-    }
-    return readTranslationFile(path.join(translationsRoot, relativeFilePath))
-  }
+  const readMergedLocaleFile = createTranslationDirReader(translationsRoot, additionalRoots)
 
   const toWatchRelativePath = (filePath: string): string | null => {
     const fromPrimary = path.relative(translationsRoot, filePath)
@@ -138,11 +109,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
             .filter((entry) => entry.isDirectory())
             .map((entry) => entry.name)
         },
-        serverCache: getOrCreateServerCache(),
+        serverCache: getOrCreateServerTranslationCache(),
         storageCache: getStorageCache(),
         routesLocaleLinks,
         mergeInput: {
-          translationPayloadMode: runtimeConfig.translationPayloadMode,
           locales: runtimeConfig.locales,
           fallbackLocale: runtimeConfig.fallbackLocale,
           disablePageLocales: runtimeConfig.disablePageLocales,

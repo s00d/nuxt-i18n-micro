@@ -220,6 +220,8 @@ function buildPrivateConfig(
 ) {
   return {
     rootDir: nuxt.options.rootDir,
+    // Same order as build translation merge: extends first, project last (wins).
+    rootDirs: nuxt.options._layers.map((layer) => layer.config.rootDir).reverse(),
     debug: options.debug ?? false,
     locales: locales ?? [],
     fallbackLocale: options.fallbackLocale ?? undefined,

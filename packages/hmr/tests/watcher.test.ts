@@ -1,33 +1,9 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import {
-  createTranslationDirReader,
-  handleTranslationWatchChange,
-  mergeDevTranslations,
-  parseTranslationWatchRelativePath,
-  readTranslationFile,
-} from '../src/watcher'
+import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
+import { createTranslationDirReader, handleTranslationWatchChange, mergeDevTranslations, readTranslationFile } from '../src/watcher'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-
-describe('parseTranslationWatchRelativePath', () => {
-  it('parses page locale files', () => {
-    expect(parseTranslationWatchRelativePath('pages/contact/en.json')).toEqual({
-      type: 'page',
-      pageName: 'contact',
-      locale: 'en',
-    })
-  })
-
-  it('parses root locale files', () => {
-    expect(parseTranslationWatchRelativePath('de.json')).toEqual({ type: 'root', locale: 'de' })
-  })
-
-  it('ignores invalid paths', () => {
-    expect(parseTranslationWatchRelativePath('pages/contact.json')).toEqual({ type: 'ignore' })
-    expect(parseTranslationWatchRelativePath('readme.txt')).toEqual({ type: 'ignore' })
-  })
-})
 
 describe('handleTranslationWatchChange', () => {
   it('updates cache for page file changes', async () => {
@@ -163,5 +139,30 @@ describe('mergeDevTranslations vs stale buildDir snapshot', () => {
       sharedRoot: 'Shared EN',
     })
     rmSync(additional, { recursive: true, force: true })
+  })
+
+  it('merges Nuxt layer translation roots (last wins)', async () => {
+    const layerRoot = mkdtempSync(join(tmpdir(), 'i18n-layer-'))
+    writeFileSync(join(layerRoot, 'en.json'), JSON.stringify({ shared: 'LAYER', onlyLayer: 'yes' }))
+    writeFileSync(join(liveRoot, 'en.json'), JSON.stringify({ shared: 'APP' }))
+
+    const readLocaleFile = createTranslationDirReader([layerRoot, liveRoot])
+    const live = await mergeDevTranslations({
+      locale: 'en',
+      pageName: 'about',
+      readLocaleFile,
+    })
+    expect(live).toMatchObject({
+      shared: 'APP',
+      onlyLayer: 'yes',
+      title: 'About LIVE',
+    })
+    // Path parsing stays in utils — no HMR re-export wrapper.
+    expect(parseTranslationRelativePath('pages/about/en.json')).toEqual({
+      type: 'page',
+      pageName: 'about',
+      locale: 'en',
+    })
+    rmSync(layerRoot, { recursive: true, force: true })
   })
 })

@@ -21,11 +21,8 @@ import { loadLiveDevTranslations } from './dev-live-translations'
 import { getOrCreateServerTranslationCache } from './server-translation-cache'
 
 export async function loadTranslationsFromServer(locale: string, routeName: string): Promise<{ data: Translations; json: string }> {
-  const config = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
-  const cc = getOrCreateServerTranslationCache({
-    maxSize: config.cacheMaxSize ?? 0,
-    ttl: config.cacheTtl ?? 0,
-  })
+  // Limits applied once at create; do not resolve/clone config on every cache hit.
+  const cc = getOrCreateServerTranslationCache()
   const cacheKey = `${locale}:${routeName}`
 
   const cached = cc.get(cacheKey)
@@ -33,6 +30,7 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
     return cached
   }
 
+  const config = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend)
   const privateConfig = getI18nPrivateConfig()
   if (!isEnabledLocale(config.locales, locale)) {
     const empty = { data: {}, json: '{}' }

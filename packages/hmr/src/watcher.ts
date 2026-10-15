@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import type { Locale } from '@i18n-micro/types'
 import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
@@ -15,8 +15,6 @@ interface TranslationWatchCacheEntry {
   data: Record<string, unknown>
   json: string
 }
-
-type ParsedTranslationWatchPath = { type: 'page'; pageName: string; locale: string } | { type: 'root'; locale: string } | { type: 'ignore' }
 
 export interface DevTranslationMergeInput {
   locale: string
@@ -68,28 +66,46 @@ export function readTranslationFile(filePath: string): Record<string, unknown> {
 }
 
 /**
- * Reader for live translation dirs (primary + optional additional roots).
- * Matches Nitro watcher merge for top-level `{locale}.json` (additional first, primary wins).
+ * Absolute translation + additional roots for live/HMR reads.
+ * `rootDirs` order matches build: extends first, project last (last wins).
+ */
+export function resolveLiveTranslationDirs(input: { rootDirs: string[]; translationDir: string; additionalTranslationDirs?: string[] }): {
+  translationRoots: string[]
+  additionalRoots: string[]
+} {
+  const roots = input.rootDirs.length > 0 ? input.rootDirs : ['.']
+  const translationRoots = roots.map((root) => resolve(root, input.translationDir))
+  const additionalRoots: string[] = []
+  for (const root of roots) {
+    for (const dir of input.additionalTranslationDirs ?? []) {
+      additionalRoots.push(resolve(root, dir))
+    }
+  }
+  return { translationRoots, additionalRoots }
+}
+
+/**
+ * Reader for live translation dirs (Nuxt layers + optional additional roots).
+ * Matches build merge: additional first (all layers), then `translationDir` layers (last wins).
  */
 export function createTranslationDirReader(
-  translationsRoot: string,
+  translationsRoot: string | string[],
   additionalRoots: string[] = [],
 ): (relativeFilePath: string) => Record<string, unknown> {
+  const translationRoots = Array.isArray(translationsRoot) ? translationsRoot : [translationsRoot]
   return (relativeFilePath: string): Record<string, unknown> => {
+    let content: Record<string, unknown> = {}
     if (!relativeFilePath.includes('/') && relativeFilePath.endsWith('.json')) {
       const locale = relativeFilePath.slice(0, -'.json'.length)
-      let content: Record<string, unknown> = {}
       for (const extraRoot of additionalRoots) {
         content = deepMergeTranslationsRecursive(content, readTranslationFile(join(extraRoot, `${locale}.json`)))
       }
-      return deepMergeTranslationsRecursive(content, readTranslationFile(join(translationsRoot, relativeFilePath)))
     }
-    return readTranslationFile(join(translationsRoot, relativeFilePath))
+    for (const root of translationRoots) {
+      content = deepMergeTranslationsRecursive(content, readTranslationFile(join(root, relativeFilePath)))
+    }
+    return content
   }
-}
-
-export function parseTranslationWatchRelativePath(relativePath: string): ParsedTranslationWatchPath {
-  return parseTranslationRelativePath(relativePath)
 }
 
 /**
@@ -125,7 +141,7 @@ function applyTranslationWatchCacheUpdate(input: ApplyTranslationWatchCacheUpdat
 }
 
 export async function handleTranslationWatchChange(input: HandleTranslationWatchChangeInput): Promise<'page' | 'root' | 'ignored'> {
-  const parsed = parseTranslationWatchRelativePath(input.relativePath)
+  const parsed = parseTranslationRelativePath(input.relativePath)
   if (parsed.type === 'ignore') {
     return 'ignored'
   }

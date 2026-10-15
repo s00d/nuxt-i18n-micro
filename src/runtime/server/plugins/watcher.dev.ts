@@ -6,10 +6,11 @@ import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
 import {
   createTranslationDirReader,
   handleTranslationWatchChange,
-  parseTranslationWatchRelativePath,
+  resolveLiveTranslationDirs,
   TranslationContentTracker,
 } from '@i18n-micro/hmr/watcher'
 import type { ModuleOptionsExtend } from '@i18n-micro/types'
+import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
 import { type FSWatcher, watch } from 'chokidar'
 import type { NitroApp } from 'nitropack'
 import { defineNitroPlugin } from 'nitropack/runtime'
@@ -60,18 +61,23 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   )
 
   const routesLocaleLinks = i18nConfig.routesLocaleLinks || {}
-  const translationsRoot = path.resolve(i18nConfig.rootDir, i18nConfig.translationDir)
-  const additionalRoots = (i18nConfig.additionalTranslationDirs ?? []).map((dir) => path.resolve(i18nConfig.rootDir, dir))
-  log(`Watching for translation changes in: ${translationsRoot}`, additionalRoots.length ? `(+${additionalRoots.length} additional)` : '')
+  const { translationRoots, additionalRoots } = resolveLiveTranslationDirs({
+    rootDirs: i18nConfig.rootDirs?.length ? i18nConfig.rootDirs : [i18nConfig.rootDir],
+    translationDir: i18nConfig.translationDir,
+    additionalTranslationDirs: i18nConfig.additionalTranslationDirs,
+  })
+  log(`Watching for translation changes in: ${translationRoots.join(', ')}`, additionalRoots.length ? `(+${additionalRoots.length} additional)` : '')
 
   // A write event says nothing about the content having changed.
   const contentTracker = new TranslationContentTracker()
-  const readMergedLocaleFile = createTranslationDirReader(translationsRoot, additionalRoots)
+  const readMergedLocaleFile = createTranslationDirReader(translationRoots, additionalRoots)
 
   const toWatchRelativePath = (filePath: string): string | null => {
-    const fromPrimary = path.relative(translationsRoot, filePath)
-    if (!fromPrimary.startsWith('..') && !path.isAbsolute(fromPrimary)) {
-      return fromPrimary.replace(/\\/g, '/')
+    for (const translationsRoot of translationRoots) {
+      const fromPrimary = path.relative(translationsRoot, filePath)
+      if (!fromPrimary.startsWith('..') && !path.isAbsolute(fromPrimary)) {
+        return fromPrimary.replace(/\\/g, '/')
+      }
     }
     // Additional dir: only top-level `{locale}.json` participates in the global merge.
     for (const extraRoot of additionalRoots) {
@@ -100,14 +106,15 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         relativePath,
         configuredLocales,
         listPageNames: () => {
-          const pagesDir = path.join(translationsRoot, 'pages')
-          if (!existsSync(pagesDir)) {
-            return []
+          const names = new Set<string>()
+          for (const translationsRoot of translationRoots) {
+            const pagesDir = path.join(translationsRoot, 'pages')
+            if (!existsSync(pagesDir)) continue
+            for (const entry of readdirSync(pagesDir, { withFileTypes: true })) {
+              if (entry.isDirectory()) names.add(entry.name)
+            }
           }
-
-          return readdirSync(pagesDir, { withFileTypes: true })
-            .filter((entry) => entry.isDirectory())
-            .map((entry) => entry.name)
+          return [...names]
         },
         serverCache: getOrCreateServerTranslationCache(),
         storageCache: getStorageCache(),
@@ -121,14 +128,14 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       })
 
       if (result === 'root') {
-        const parsed = parseTranslationWatchRelativePath(relativePath)
+        const parsed = parseTranslationRelativePath(relativePath)
         if (parsed.type === 'root') {
           log(`Re-merged ALL pages for locale '${parsed.locale}'`)
         }
       } else if (result === 'page') {
         log(`Re-merged page cache for '${relativePath}'`)
       } else if (result === 'ignored') {
-        const parsed = parseTranslationWatchRelativePath(relativePath)
+        const parsed = parseTranslationRelativePath(relativePath)
         if (parsed.type === 'root' && !configuredLocales.has(parsed.locale)) {
           warn(`Detected ${event} for '${relativePath}', but locale '${parsed.locale}' is not in i18n.locales. Update config and restart dev server.`)
         }
@@ -146,7 +153,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   // reading a half-written locale file is how a chunk loses keys. Waiting for the size to
   // settle costs a few milliseconds of HMR latency and removes the race for both the
   // content hash and the merge.
-  const watchRoots = [translationsRoot, ...additionalRoots.filter((dir) => existsSync(dir))]
+  const watchRoots = [...translationRoots, ...additionalRoots].filter((dir) => existsSync(dir))
   const watcher = watch(watchRoots, {
     persistent: true,
     ignoreInitial: true,

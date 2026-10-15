@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v3.30.1
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.0...v3.30.1)
+
+### 🩹 Fixes
+
+- HMR live miss, SERVER_CC factory, build skips, preload seed ([#265](https://github.com/s00d/nuxt-i18n-micro/pull/265))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+
 ## v3.30.0
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.29.8...v3.30.0)

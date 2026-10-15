@@ -86,12 +86,16 @@ jobs:
               --jq ".[] | select(.body | contains(\"$MARKER\")) | .body" \
               | head -n 1
           )"
-          AUDIT_ID="$(printf '%s' "$existing_body" | pnpm -C scripts cli pr-diff-audit extract-id || true)"
+          # `pnpm run cli` prints lifecycle banners to stdout — never capture that into
+          # sticky comment bodies / --id. Call tsx directly.
+          scripts_cli() { pnpm -C scripts exec tsx ./src/run.ts "$@"; }
+
+          AUDIT_ID="$(printf '%s' "$existing_body" | scripts_cli pr-diff-audit extract-id || true)"
           if [ -z "${AUDIT_ID}" ]; then
-            AUDIT_ID="$(pnpm -C scripts cli pr-diff-audit new-id)"
+            AUDIT_ID="$(scripts_cli pr-diff-audit new-id)"
           fi
 
-          pnpm -C scripts cli pr-diff-audit body \
+          scripts_cli pr-diff-audit body \
             --files "$RUNNER_TEMP/changed-files.txt" \
             --numstat "$RUNNER_TEMP/changed-numstat.txt" \
             --nameStatus "$RUNNER_TEMP/changed-name-status.txt" \
@@ -237,7 +241,8 @@ jobs:
         run: |
           set +e
           out="$(mktemp)"
-          pnpm -C scripts cli ci-pr-report summary >"$out"
+          # tsx direct: avoid pnpm run banners in Job Summary markdown
+          pnpm -C scripts exec tsx ./src/run.ts ci-pr-report summary >"$out"
           code=$?
           set -e
           cat "$out"
@@ -264,7 +269,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: pnpm -C scripts cli ci-pr-report comment
+        run: pnpm -C scripts exec tsx ./src/run.ts ci-pr-report comment
 
   # Same workflow file: drop sticky comments when the PR is closed/merged.
   cleanup-sticky:

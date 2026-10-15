@@ -1,7 +1,13 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { handleTranslationWatchChange, parseTranslationWatchRelativePath, readTranslationFile } from '../src/watcher'
+import {
+  createTranslationDirReader,
+  handleTranslationWatchChange,
+  mergeDevTranslations,
+  parseTranslationWatchRelativePath,
+  readTranslationFile,
+} from '../src/watcher'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 describe('parseTranslationWatchRelativePath', () => {
@@ -102,5 +108,60 @@ describe('readTranslationFile', () => {
     const file = join(dir, 'partial.json')
     writeFileSync(file, '{ "hello": "Hel')
     expect(() => readTranslationFile(file)).toThrow()
+  })
+})
+
+describe('mergeDevTranslations vs stale buildDir snapshot', () => {
+  let liveRoot: string
+  let staleBuildDir: string
+
+  beforeEach(() => {
+    liveRoot = mkdtempSync(join(tmpdir(), 'i18n-live-'))
+    staleBuildDir = mkdtempSync(join(tmpdir(), 'i18n-stale-'))
+    mkdirSync(join(liveRoot, 'pages', 'about'), { recursive: true })
+    mkdirSync(join(staleBuildDir, 'about', 'en'), { recursive: true })
+    writeFileSync(join(liveRoot, 'en.json'), JSON.stringify({ shared: 'LIVE' }))
+    writeFileSync(join(liveRoot, 'pages', 'about', 'en.json'), JSON.stringify({ title: 'About LIVE' }))
+    // Stale premerged snapshot left by build:before — HMR never rewrites this.
+    writeFileSync(join(staleBuildDir, 'about', 'en', 'data.json'), JSON.stringify({ shared: 'STALE', title: 'About STALE' }))
+  })
+
+  afterEach(() => {
+    rmSync(liveRoot, { recursive: true, force: true })
+    rmSync(staleBuildDir, { recursive: true, force: true })
+  })
+
+  it('live merge returns edited values while disk snapshot stays stale', async () => {
+    const staleDisk = JSON.parse(readFileSync(join(staleBuildDir, 'about', 'en', 'data.json'), 'utf-8')) as Record<string, unknown>
+    expect(staleDisk).toEqual({ shared: 'STALE', title: 'About STALE' })
+
+    const readLocaleFile = createTranslationDirReader(liveRoot)
+    const live = await mergeDevTranslations({
+      locale: 'en',
+      pageName: 'about',
+      readLocaleFile,
+    })
+    expect(live).toEqual({ shared: 'LIVE', title: 'About LIVE' })
+  })
+
+  it('applies fallbackLocale for locales that only exist under additional dirs', async () => {
+    const additional = mkdtempSync(join(tmpdir(), 'i18n-add-'))
+    writeFileSync(join(additional, 'fr.json'), JSON.stringify({ fromCommon: 'FR' }))
+    writeFileSync(join(liveRoot, 'en.json'), JSON.stringify({ hello: 'Hello EN', sharedRoot: 'Shared EN' }))
+
+    const readLocaleFile = createTranslationDirReader(liveRoot, [additional])
+    const live = await mergeDevTranslations({
+      locale: 'fr',
+      pageName: 'index',
+      locales: [{ code: 'en' }, { code: 'fr' }],
+      fallbackLocale: 'en',
+      readLocaleFile,
+    })
+    expect(live).toMatchObject({
+      fromCommon: 'FR',
+      hello: 'Hello EN',
+      sharedRoot: 'Shared EN',
+    })
+    rmSync(additional, { recursive: true, force: true })
   })
 })

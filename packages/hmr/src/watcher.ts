@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import type { Locale } from '@i18n-micro/types'
-import { deepMergeTranslations } from '@i18n-micro/utils/deep-merge'
+import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
 import { mergeSourceTranslations, normalizeConfiguredLocales } from '@i18n-micro/utils/merge-source'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
-import type { TranslationPayloadMode } from '@i18n-micro/utils/payload-config'
 
 interface TranslationWatchCache {
   set(key: string, value: TranslationWatchCacheEntry): void
@@ -18,8 +18,7 @@ interface TranslationWatchCacheEntry {
 
 type ParsedTranslationWatchPath = { type: 'page'; pageName: string; locale: string } | { type: 'root'; locale: string } | { type: 'ignore' }
 
-interface DevTranslationMergeInput {
-  translationPayloadMode?: TranslationPayloadMode
+export interface DevTranslationMergeInput {
   locale: string
   pageName: string
   locales?: Array<string | Locale>
@@ -68,25 +67,46 @@ export function readTranslationFile(filePath: string): Record<string, unknown> {
   return JSON.parse(contents) as Record<string, unknown>
 }
 
+/**
+ * Reader for live translation dirs (primary + optional additional roots).
+ * Matches Nitro watcher merge for top-level `{locale}.json` (additional first, primary wins).
+ */
+export function createTranslationDirReader(
+  translationsRoot: string,
+  additionalRoots: string[] = [],
+): (relativeFilePath: string) => Record<string, unknown> {
+  return (relativeFilePath: string): Record<string, unknown> => {
+    if (!relativeFilePath.includes('/') && relativeFilePath.endsWith('.json')) {
+      const locale = relativeFilePath.slice(0, -'.json'.length)
+      let content: Record<string, unknown> = {}
+      for (const extraRoot of additionalRoots) {
+        content = deepMergeTranslationsRecursive(content, readTranslationFile(join(extraRoot, `${locale}.json`)))
+      }
+      return deepMergeTranslationsRecursive(content, readTranslationFile(join(translationsRoot, relativeFilePath)))
+    }
+    return readTranslationFile(join(translationsRoot, relativeFilePath))
+  }
+}
+
 export function parseTranslationWatchRelativePath(relativePath: string): ParsedTranslationWatchPath {
   return parseTranslationRelativePath(relativePath)
 }
 
-async function mergeDevTranslations(input: DevTranslationMergeInput): Promise<Record<string, unknown>> {
-  if (input.translationPayloadMode === 'source') {
-    return mergeSourceTranslations({
-      locale: input.locale,
-      pageName: input.pageName,
-      locales: normalizeConfiguredLocales(input.locales),
-      globalFallbackLocale: input.fallbackLocale,
-      disablePageLocales: input.disablePageLocales,
-      readLocaleFile: input.readLocaleFile,
-    })
-  }
-
-  const root = await input.readLocaleFile(`${input.locale}.json`)
-  const page = await input.readLocaleFile(`pages/${input.pageName}/${input.locale}.json`)
-  return deepMergeTranslations(root, page)
+/**
+ * Merge live locale files for HMR + `import.meta.dev` cache misses.
+ * Always source-style fallback (buildDir snapshots bake fallback; live files do not).
+ */
+export async function mergeDevTranslations(input: DevTranslationMergeInput): Promise<Record<string, unknown>> {
+  const locales = normalizeConfiguredLocales(input.locales)
+  const effectiveLocales = locales.length > 0 ? locales : [{ code: input.locale }]
+  return mergeSourceTranslations({
+    locale: input.locale,
+    pageName: input.pageName,
+    locales: effectiveLocales,
+    globalFallbackLocale: input.fallbackLocale,
+    disablePageLocales: input.disablePageLocales,
+    readLocaleFile: input.readLocaleFile,
+  })
 }
 
 function applyTranslationWatchCacheUpdate(input: ApplyTranslationWatchCacheUpdateInput): void {

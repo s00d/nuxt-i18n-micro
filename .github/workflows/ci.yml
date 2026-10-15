@@ -68,8 +68,10 @@ jobs:
           mkdir -p "${RUNNER_TEMP}/ci-logs"
 
       # Sticky PR comment: diff audit only (no deploy / test-run commands).
+      # Same-repo only: fork PRs get a read-only token and must not hard-fail before checks.
       - name: PR diff comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -81,9 +83,10 @@ jobs:
           git diff --name-status "$BASE_SHA...$HEAD_SHA" > "$RUNNER_TEMP/changed-name-status.txt"
 
           MARKER='pr-diff-audit:v1'
+          BOT='github-actions[bot]'
           existing_body="$(
             gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              --jq ".[] | select(.body | contains(\"$MARKER\")) | .body" \
+              --jq ".[] | select(.user.login == \"$BOT\" and (.body | contains(\"$MARKER\"))) | .body" \
               | head -n 1
           )"
           # `pnpm run cli` prints lifecycle banners to stdout — never capture that into
@@ -106,7 +109,7 @@ jobs:
 
           existing_id="$(
             gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-              --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" \
+              --jq ".[] | select(.user.login == \"$BOT\" and (.body | contains(\"$MARKER\"))) | .id" \
               | head -n 1
           )"
           if [ -n "${existing_id}" ]; then
@@ -254,7 +257,8 @@ jobs:
           exit "$code"
 
       - name: CI PR comment
-        if: always() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
         env:
           VERSIONS_OUTCOME: ${{ steps.versions.outcome }}
           LINT_OUTCOME: ${{ steps.lint.outcome }}
@@ -273,19 +277,23 @@ jobs:
 
   # Same workflow file: drop sticky comments when the PR is closed/merged.
   cleanup-sticky:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    if: >
+      github.event_name == 'pull_request' && github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - name: Delete sticky PR comments
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
+          BOT='github-actions[bot]'
           for MARKER in 'pr-diff-audit:v1' 'pr-checks-ci'; do
             ids="$(
               gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-                --jq ".[] | select(.body | contains(\"$MARKER\")) | .id"
+                --jq ".[] | select(.user.login == \"$BOT\" and (.body | contains(\"$MARKER\"))) | .id"
             )"
             if [ -z "${ids}" ]; then
               echo "No comment for marker ${MARKER}"

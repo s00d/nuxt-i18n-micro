@@ -26,6 +26,13 @@ describe('pr-diff-audit', () => {
     expect(isTestFile('test/a.test.ts')).toBe(true)
   })
 
+  it('keeps directory prefix for brace-form renames in numstat', () => {
+    const numstat = parseNumstat('10\t2\tdir/{old.txt => new.txt}\n3\t1\to/a.ts => o/b.ts\n')
+    expect(numstat.get('dir/new.txt')).toEqual({ added: 10, deleted: 2 })
+    expect(numstat.get('o/b.ts')).toEqual({ added: 3, deleted: 1 })
+    expect(numstat.has('new.txt')).toBe(false)
+  })
+
   it('builds audit markdown and sticky marker', () => {
     const audit = buildDiffAudit({
       files: ['src/a.ts', 'test/a.test.ts'],
@@ -41,5 +48,16 @@ describe('pr-diff-audit', () => {
     expect(body).toContain(PR_DIFF_COMMENT_MARKER)
     expect(body).toContain('PR:** #42')
     expect(extractDiffAuditId(body)).toBe('abc123')
+  })
+
+  it('escapes backticks in paths rendered into the sticky comment', () => {
+    const audit = buildDiffAudit({
+      files: ['evil`x.png'] ,
+      numstatText: '1\t0\tevil`x.png\n',
+      nameStatusText: 'A\tevil`x.png\n',
+    })
+    const md = formatAuditMarkdown(audit)
+    expect(md).toContain('``evil`x.png``')
+    expect(md).not.toMatch(/(^|\n)- `evil`x\.png`(\n|$)/)
   })
 })

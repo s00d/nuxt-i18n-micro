@@ -651,8 +651,16 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     if (nuxt.options.dev && (options.hmr ?? true)) {
-      const translationsDir = join(nuxt.options.rootDir, options.translationDir || 'locales')
-      const files = await globby(['**/*.json'], { cwd: translationsDir, absolute: true })
+      // Primary translationDir across every Nuxt layer (same roots as build / live load).
+      const files = (
+        await Promise.all(
+          rootDirs.map(async (layerRoot) => {
+            const translationsDir = join(layerRoot, options.translationDir || 'locales')
+            if (!existsSync(translationsDir)) return [] as string[]
+            return globby(['**/*.json'], { cwd: translationsDir, absolute: true })
+          }),
+        )
+      ).flat()
       const additionalRootFiles: string[] = (
         await Promise.all(
           (options.additionalTranslationDirs ?? []).flatMap((extra) =>

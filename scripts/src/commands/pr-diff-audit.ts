@@ -87,9 +87,13 @@ export function parseNumstat(text: string): Map<string, { added: number; deleted
     const deletedRaw = parts[1]!
     let path = parts.slice(2).join('\t')
     if (path.includes(' => ')) {
-      path = path.slice(path.lastIndexOf(' => ') + 4).replace(/^\{|\}$/g, '')
-      const brace = path.match(/^(.*)\{([^}]+)\}$/)
-      if (brace) path = `${brace[1]}${brace[2]}`
+      // Prefer brace form `dir/{old => new}` so the directory prefix is kept.
+      const brace = path.match(/^(.*)\{[^{}]* => ([^{}]*)\}(.*)$/)
+      if (brace) {
+        path = `${brace[1]}${brace[2]}${brace[3]}`
+      } else {
+        path = path.slice(path.lastIndexOf(' => ') + 4).replace(/^\{|\}$/g, '')
+      }
     }
     path = path.trim()
     if (!path) continue
@@ -198,6 +202,15 @@ export function buildDiffAudit(input: { files: string[]; numstatText?: string; n
   }
 }
 
+/** Escape for a single Markdown inline code span (paths come from the PR tree). */
+export function mdCodeSpan(value: string): string {
+  const text = String(value).replace(/\r?\n/g, ' ')
+  const longest = Math.max(0, ...[...text.matchAll(/`+/g)].map((m) => m[0]!.length))
+  const fence = '`'.repeat(longest + 1)
+  const pad = text.startsWith('`') || text.endsWith('`') ? ' ' : ''
+  return `${fence}${pad}${text}${pad}${fence}`
+}
+
 export function formatAuditMarkdown(audit: DiffAudit): string {
   const renamedPart = audit.renamed ? ` · ⇄${audit.renamed}` : ''
   const newTestsPart = audit.testFilesAdded ? ` · **+${audit.testFilesAdded} new**` : ''
@@ -215,21 +228,21 @@ export function formatAuditMarkdown(audit: DiffAudit): string {
   if (audit.areas.length > 0) {
     lines.push('| Area | Files | Lines |', '| --- | ---: | ---: |')
     for (const area of audit.areas.slice(0, 10)) {
-      lines.push(`| \`${area.name}\` | ${area.files} | +${area.linesAdded}/−${area.linesDeleted} |`)
+      lines.push(`| ${mdCodeSpan(area.name)} | ${area.files} | +${area.linesAdded}/−${area.linesDeleted} |`)
     }
     lines.push('')
   }
 
   if (audit.newTests.length > 0) {
     lines.push('**New tests**', '')
-    for (const p of audit.newTests.slice(0, 12)) lines.push(`- \`${p}\``)
+    for (const p of audit.newTests.slice(0, 12)) lines.push(`- ${mdCodeSpan(p)}`)
     if (audit.newTests.length > 12) lines.push(`- _…+${audit.newTests.length - 12} more_`)
     lines.push('')
   }
 
   if (audit.topPaths.length > 0 && audit.linesAdded + audit.linesDeleted > 0) {
     lines.push('<details>', '<summary>Largest diffs</summary>', '')
-    for (const p of audit.topPaths) lines.push(`- \`${p}\``)
+    for (const p of audit.topPaths) lines.push(`- ${mdCodeSpan(p)}`)
     lines.push('', '</details>', '')
   }
 

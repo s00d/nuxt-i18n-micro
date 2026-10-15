@@ -2,8 +2,25 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { parseTranslationRelativePath } from '@i18n-micro/utils/parse-path'
-import { createTranslationDirReader, handleTranslationWatchChange, mergeDevTranslations, readTranslationFile } from '../src/watcher'
+import {
+  createTranslationDirReader,
+  handleTranslationWatchChange,
+  mergeDevTranslations,
+  readTranslationFile,
+  resolveLiveTranslationDirs,
+} from '../src/watcher'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+describe('resolveLiveTranslationDirs', () => {
+  it('orders additional roots by configured dir first (matches build)', () => {
+    const { additionalRoots } = resolveLiveTranslationDirs({
+      rootDirs: ['/layer-a', '/app'],
+      translationDir: 'locales',
+      additionalTranslationDirs: ['common', 'shared'],
+    })
+    expect(additionalRoots).toEqual(['/layer-a/common', '/app/common', '/layer-a/shared', '/app/shared'])
+  })
+})
 
 describe('handleTranslationWatchChange', () => {
   it('updates cache for page file changes', async () => {

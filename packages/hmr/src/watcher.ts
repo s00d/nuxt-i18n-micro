@@ -75,9 +75,10 @@ export function resolveLiveTranslationDirs(input: { rootDirs: string[]; translat
 } {
   const roots = input.rootDirs.length > 0 ? input.rootDirs : ['.']
   const translationRoots = roots.map((root) => resolve(root, input.translationDir))
+  // Same nest order as `mergeAdditionalRootLocaleFiles`: dir outer, layer root inner.
   const additionalRoots: string[] = []
-  for (const root of roots) {
-    for (const dir of input.additionalTranslationDirs ?? []) {
+  for (const dir of input.additionalTranslationDirs ?? []) {
+    for (const root of roots) {
       additionalRoots.push(resolve(root, dir))
     }
   }

@@ -153,7 +153,9 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   // reading a half-written locale file is how a chunk loses keys. Waiting for the size to
   // settle costs a few milliseconds of HMR latency and removes the race for both the
   // content hash and the merge.
-  const watchRoots = [...translationRoots, ...additionalRoots].filter((dir) => existsSync(dir))
+  // Keep primary/layer translation roots even if missing so Chokidar can pick up a
+  // directory created after startup. Optional additional dirs stay filtered.
+  const watchRoots = [...translationRoots, ...additionalRoots.filter((dir) => existsSync(dir))]
   const watcher = watch(watchRoots, {
     persistent: true,
     ignoreInitial: true,

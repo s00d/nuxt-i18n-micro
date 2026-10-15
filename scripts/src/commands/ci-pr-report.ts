@@ -190,16 +190,17 @@ async function upsertStickyComment(options: {
   }
   const base = `https://api.github.com/repos/${options.repo}`
 
-  const list: { id: number; body?: string }[] = []
+  const list: { id: number; body?: string; user?: { login?: string } }[] = []
   for (let page = 1; page <= 20; page += 1) {
     const res = await fetch(`${base}/issues/${options.prNumber}/comments?per_page=100&page=${page}`, { headers })
     if (!res.ok) throw new Error(`list comments: ${res.status}`)
-    const batch = (await res.json()) as { id: number; body?: string }[]
+    const batch = (await res.json()) as { id: number; body?: string; user?: { login?: string } }[]
     list.push(...batch)
     if (batch.length < 100) break
   }
 
-  const ours = list.filter((c) => c.body?.includes(options.marker))
+  // Only our bot comments — a human pasting the marker must not become the sticky target.
+  const ours = list.filter((c) => c.user?.login === 'github-actions[bot]' && c.body?.includes(options.marker))
   const [keep, ...dupes] = ours
   await Promise.all(
     dupes.map((c) =>

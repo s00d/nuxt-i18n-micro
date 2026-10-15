@@ -79,7 +79,8 @@ catalog:
   untestutils: ^0.7.1
   '@untestutils/nuxt': ^0.7.1
   '@untestutils/perf': ^0.7.1
-  # TypeScript & types — pin 6.x (TS7 breaks unplugin-dts / vue-tsc / module-builder)
+  # Exact only (no ^/~). Vue peer is `typescript: "*"`; caret/`npm i` pollution → TS7, then `pnpm i` "restores" 6.
+  # Root `pnpm.overrides.typescript` must be the same literal — see deps-audit EXACT_CATALOG_PINS.
   typescript: 6.0.3
   '@types/node': ^22.19.0
   tsx: ^4.23.15
@@ -97,6 +98,8 @@ catalog:
   # Utils
   chokidar: ^5.0.0
   citty: ^0.2.2
+  semver: ^7.7.3
+  '@types/semver': ^7.7.1
   globby: ^16.2.4
   glob: ^13.0.6
   ufo: ^1.6.4

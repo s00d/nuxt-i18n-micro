@@ -1,6 +1,7 @@
 /** The pnpm catalog, and the protocols a workspace dependency is allowed to use. */
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { valid as semverValid } from 'semver'
 import { parse } from 'yaml'
 import { repoRoot } from './workspace'
 
@@ -58,3 +59,12 @@ export function aliasTarget(spec: string): string | null {
   const at = rest.lastIndexOf('@')
   return at > 0 ? rest.slice(0, at) : rest
 }
+
+/** Exact published version literal (`1.2.3` / `1.2.3-beta.1`) — not `^`/`~`/`*`/`v1.2.3`. */
+export function isExactVersion(spec: string): boolean {
+  const trimmed = spec.trim()
+  return semverValid(trimmed) === trimmed
+}
+
+/** Catalog + `pnpm.overrides` must stay exact literals (see deps-audit). */
+export const EXACT_CATALOG_PINS = ['typescript'] as const

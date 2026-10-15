@@ -73,6 +73,7 @@
     "./internals": "./internals.d.mts"
   },
   "scripts": {
+    "preinstall": "node -e \"const{existsSync}=require('fs');if(!existsSync('pnpm-workspace.yaml'))process.exit(0);const ua=process.env.npm_config_user_agent||'';if(!ua.includes('pnpm')){console.error('This repo requires pnpm (npm/yarn corrupt the TypeScript hoist). Use: pnpm install');process.exit(1)}\"",
     "prepack": "pnpm run build:packages && nuxt-module-build build --stub && nuxt-module-build prepare && nuxt-module-build build && pnpm run client:build",
     "dev": "nuxi dev playground",
     "dev:build": "nuxi build playground",
@@ -202,7 +203,7 @@
       "react-router-dom": "catalog:pin",
       "preact": "catalog:pin",
       "@solidjs/router": "catalog:pin",
-      "typescript": "catalog:",
+      "typescript": "6.0.3",
       "@unhead/vue": "catalog:",
       "unhead": "catalog:"
     },

@@ -108,6 +108,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   })
   const initialRouteName = getPluginRouteName(router.currentRoute.value as unknown as ResolvedRouteLike, initialLocale)
 
+  // `serverTranslationPreload` loads index in Nitro middleware — reuse it when the
+  // first page is index so we do not load the same chunk twice on SSR.
+  if (import.meta.server && initialRouteName === 'index') {
+    const preloaded = nuxtApp.ssrContext?.event?.context?.i18n?.translations
+    if (preloaded && typeof preloaded === 'object' && Object.keys(preloaded).length > 0) {
+      translationStorage.seed(initialLocale, 'index', preloaded as Record<string, unknown>)
+    }
+  }
+
   try {
     await loader.switchContext(initialLocale, initialRouteName)
   } catch (e) {

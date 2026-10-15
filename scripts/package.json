@@ -14,9 +14,11 @@
   },
   "devDependencies": {
     "@playwright/test": "catalog:",
+    "@types/semver": "catalog:",
     "@untestutils/perf": "catalog:",
     "citty": "catalog:",
     "globby": "catalog:",
+    "semver": "catalog:",
     "tsx": "catalog:",
     "typedoc": "catalog:",
     "typescript": "catalog:",

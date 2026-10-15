@@ -658,6 +658,11 @@ export interface ModuleOptionsExtend extends ModuleOptions {
 export interface ModulePrivateOptionsExtend extends ModuleOptions {
   /** Absolute path to the Nuxt project root directory. */
   rootDir: string
+  /**
+   * Absolute Nuxt layer roots in merge order (extends first, project last).
+   * Used by live/HMR translation reads so layers match build-time merge.
+   */
+  rootDirs: string[]
   /** Resolved debug flag. */
   debug: boolean
   /** Resolved path to the translations directory. */

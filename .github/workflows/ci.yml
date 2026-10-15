@@ -7,17 +7,36 @@ on:
   pull_request:
     branches:
       - main
+    types: [opened, synchronize, reopened, ready_for_review, closed]
 
-# One job: install/build/prepare once, then run everything sequentially.
-# Avoids paying for duplicated setup across parallel jobs.
+# Single workflow: soft checks continue after failure, Job Summary + sticky
+# PR comments (diff audit + CI report). Cleanup sticky comments on PR close.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  CI: true
+  # Build shared fixtures in parallel. The runner has 4 vCPU / 15 GiB with
+  # ~14 GiB free (the earlier ERR_IPC_CHANNEL_CLOSED crashes were caused by
+  # tests killing processes by port, not by memory pressure).
+  FIXTURE_BUILD_CONCURRENCY: 4
+  CI_SUMMARY_MAX_LINES: '40'
+  CI_SUMMARY_MAX_CHARS: '8000'
+  CI_SUMMARY_MAX_TOTAL_CHARS: '28000'
+
 jobs:
   ci:
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
     runs-on: ubuntu-latest
-    env:
-      # Build shared fixtures in parallel. The runner has 4 vCPU / 15 GiB with
-      # ~14 GiB free (the earlier ERR_IPC_CHANNEL_CLOSED crashes were caused by
-      # tests killing processes by port, not by memory pressure).
-      FIXTURE_BUILD_CONCURRENCY: 4
+    # `cmd | tee log` must fail the step when cmd fails (bash default uses tee's 0).
+    defaults:
+      run:
+        shell: bash --noprofile --norc -euo pipefail {0}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,38 +61,246 @@ jobs:
             e2e-shared-${{ runner.os }}-
 
       - run: pnpm install
+
+      - name: Prepare CI log dir
+        run: |
+          echo "CI_LOG_DIR=${RUNNER_TEMP}/ci-logs" >> "$GITHUB_ENV"
+          mkdir -p "${RUNNER_TEMP}/ci-logs"
+
+      # Sticky PR comment: diff audit only (no deploy / test-run commands).
+      # Same-repo only: fork PRs get a read-only token and must not hard-fail before checks.
+      - name: PR diff comment
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --name-only "$BASE_SHA...$HEAD_SHA" > "$RUNNER_TEMP/changed-files.txt"
+          git diff --numstat "$BASE_SHA...$HEAD_SHA" > "$RUNNER_TEMP/changed-numstat.txt"
+          git diff --name-status "$BASE_SHA...$HEAD_SHA" > "$RUNNER_TEMP/changed-name-status.txt"
+
+          MARKER='pr-diff-audit:v1'
+          BOT='github-actions[bot]'
+          existing_body="$(
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --jq ".[] | select(.user.login == \"$BOT\" and (.body | contains(\"$MARKER\"))) | .body" \
+              | head -n 1
+          )"
+          # `pnpm run cli` prints lifecycle banners to stdout — never capture that into
+          # sticky comment bodies / --id. Call tsx directly.
+          scripts_cli() { pnpm -C scripts exec tsx ./src/run.ts "$@"; }
+
+          AUDIT_ID="$(printf '%s' "$existing_body" | scripts_cli pr-diff-audit extract-id || true)"
+          if [ -z "${AUDIT_ID}" ]; then
+            AUDIT_ID="$(scripts_cli pr-diff-audit new-id)"
+          fi
+
+          scripts_cli pr-diff-audit body \
+            --files "$RUNNER_TEMP/changed-files.txt" \
+            --numstat "$RUNNER_TEMP/changed-numstat.txt" \
+            --nameStatus "$RUNNER_TEMP/changed-name-status.txt" \
+            --id="$AUDIT_ID" \
+            --pr="$PR_NUMBER" \
+            --headSha="$HEAD_SHA" \
+            > "$RUNNER_TEMP/pr-diff-comment.md"
+
+          existing_id="$(
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --jq ".[] | select(.user.login == \"$BOT\" and (.body | contains(\"$MARKER\"))) | .id" \
+              | head -n 1
+          )"
+          if [ -n "${existing_id}" ]; then
+            gh api --method PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${existing_id}" \
+              -F body=@"$RUNNER_TEMP/pr-diff-comment.md" >/dev/null
+            echo "Updated PR diff comment ${existing_id}"
+          else
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              -F body=@"$RUNNER_TEMP/pr-diff-comment.md" >/dev/null
+            echo "Created PR diff comment"
+          fi
+
       # Packages in packages/* are versioned by hand and `pnpm publish -r` silently
       # skips a version that already exists on npm — so a forgotten bump ships a
       # stale package. Fail here instead. Cheap (git only), so it runs early.
-      - run: pnpm run check:versions
+      - name: Check versions
+        id: versions
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run check:versions 2>&1 | tee "$CI_LOG_DIR/versions.log"
+          exit "${PIPESTATUS[0]}"
+
       # Memory headroom on the runner, for the record: ubuntu-latest gives
       # 4 vCPU / 15 GiB with ~14 GiB free and ~4 GiB of swap already configured.
       # The previous ERR_IPC_CHANNEL_CLOSED crashes were tests killing processes
       # by port (lsof + SIGKILL), not memory — so no extra swap is provisioned.
       # If a step ever does run out of memory, print `free -h` here first to
       # confirm it before adding any.
-      - run: pnpm run lint
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run lint 2>&1 | tee "$CI_LOG_DIR/lint.log"
+          exit "${PIPESTATUS[0]}"
+
       # Monorepo (pinia / nuxt-devtools style): packages build before root
       # `dev:prepare` because prepare loads @i18n-micro/* from package dist.
       # Root `tsconfig.json` extends `.nuxt/tsconfig.json` (after prepare) with monorepo
       # excludes. `typecheck:root` uses `tsconfig.nuxt.json` (thin alias of root).
       # Vue package tsconfigs must include `*.vue` explicitly so Vite/oxc does not
       # walk to the root config before `.nuxt` exists (see packages/devtools-ui).
+      # Hard fail: later soft checks need dist + .nuxt.
       - run: pnpm --filter "./packages/**" --filter "!./packages/*/playground" run build
       - run: pnpm run dev:prepare
       - run: pnpm --filter "./packages/*/playground" run build
-      - run: pnpm run typecheck
+
+      - name: Typecheck
+        id: typecheck
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run typecheck 2>&1 | tee "$CI_LOG_DIR/typecheck.log"
+          exit "${PIPESTATUS[0]}"
+
       # integration + e2e both drive a real browser (chromium.launch / createPage)
       - run: pnpm exec playwright install chromium
 
-      - run: pnpm run test:packages
-      - run: pnpm run test:unit
-      - run: pnpm run test:integration
-      - run: pnpm run test:e2e
+      - name: Test packages
+        id: test-packages
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:packages 2>&1 | tee "$CI_LOG_DIR/test-packages.log"
+          exit "${PIPESTATUS[0]}"
 
-      - run: pnpm verify:packages && pnpm verify:packages:publint
-      - run: pnpm run test:dist:packages
+      - name: Test unit
+        id: test-unit
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:unit 2>&1 | tee "$CI_LOG_DIR/test-unit.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Test integration
+        id: test-integration
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:integration 2>&1 | tee "$CI_LOG_DIR/test-integration.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Test e2e
+        id: test-e2e
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:e2e 2>&1 | tee "$CI_LOG_DIR/test-e2e.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Verify packages
+        id: verify-packages
+        continue-on-error: true
+        run: |
+          set +e
+          { pnpm verify:packages && pnpm verify:packages:publint; } 2>&1 | tee "$CI_LOG_DIR/verify-packages.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: Test dist packages
+        id: test-dist
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run test:dist:packages 2>&1 | tee "$CI_LOG_DIR/test-dist.log"
+          exit "${PIPESTATUS[0]}"
+
       # --local-only keeps both packaging gates (hashed chunks, astro client CJS),
       # which are computed from the local pack, and skips the npm reference
       # download that only feeds informational diffs. Full comparison runs on release.
-      - run: pnpm run compare:published -- --local-only --changed-only
+      - name: Compare published
+        id: compare-published
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm run compare:published -- --local-only --changed-only 2>&1 | tee "$CI_LOG_DIR/compare-published.log"
+          exit "${PIPESTATUS[0]}"
+
+      - name: CI summary
+        if: always()
+        env:
+          VERSIONS_OUTCOME: ${{ steps.versions.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          TEST_PACKAGES_OUTCOME: ${{ steps.test-packages.outcome }}
+          TEST_UNIT_OUTCOME: ${{ steps.test-unit.outcome }}
+          TEST_INTEGRATION_OUTCOME: ${{ steps.test-integration.outcome }}
+          TEST_E2E_OUTCOME: ${{ steps.test-e2e.outcome }}
+          VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
+          TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
+          COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
+        run: |
+          set +e
+          out="$(mktemp)"
+          # tsx direct: avoid pnpm run banners in Job Summary markdown
+          pnpm -C scripts exec tsx ./src/run.ts ci-pr-report summary >"$out"
+          code=$?
+          set -e
+          cat "$out"
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            cat "$out" >>"$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::GITHUB_STEP_SUMMARY is unset; Job Summary tab will be empty"
+          fi
+          exit "$code"
+
+      - name: CI PR comment
+        if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        env:
+          VERSIONS_OUTCOME: ${{ steps.versions.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          TEST_PACKAGES_OUTCOME: ${{ steps.test-packages.outcome }}
+          TEST_UNIT_OUTCOME: ${{ steps.test-unit.outcome }}
+          TEST_INTEGRATION_OUTCOME: ${{ steps.test-integration.outcome }}
+          TEST_E2E_OUTCOME: ${{ steps.test-e2e.outcome }}
+          VERIFY_PACKAGES_OUTCOME: ${{ steps.verify-packages.outcome }}
+          TEST_DIST_OUTCOME: ${{ steps.test-dist.outcome }}
+          COMPARE_PUBLISHED_OUTCOME: ${{ steps.compare-published.outcome }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm -C scripts exec tsx ./src/run.ts ci-pr-report comment
+
+  # Same workflow file: drop sticky comments when the PR is closed/merged.
+  cleanup-sticky:
+    if: >
+      github.event_name == 'pull_request' && github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete sticky PR comments
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          BOT='github-actions[bot]'
+          for MARKER in 'pr-diff-audit:v1' 'pr-checks-ci'; do
+            ids="$(
+              gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+                --jq ".[] | select(.user.login == \"$BOT\" and (.body | contains(\"$MARKER\"))) | .id"
+            )"
+            if [ -z "${ids}" ]; then
+              echo "No comment for marker ${MARKER}"
+              continue
+            fi
+            for id in $ids; do
+              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/issues/comments/${id}"
+              echo "Deleted comment ${id} (${MARKER})"
+            done
+          done

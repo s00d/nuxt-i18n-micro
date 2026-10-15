@@ -2,7 +2,7 @@ import { builtinModules } from 'node:module'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { defineCommand } from 'citty'
-import { aliasTarget, catalogRef, isNonRegistrySpec, isWorkspaceProtocol, readCatalog } from '../utils/catalog'
+import { aliasTarget, catalogRef, EXACT_CATALOG_PINS, isExactVersion, isNonRegistrySpec, isWorkspaceProtocol, readCatalog } from '../utils/catalog'
 import { walkFiles } from '../utils/fs-walk'
 import { SOURCE_EXTENSIONS, fileImports } from '../utils/imports'
 import { listWorkspacePackages } from '../utils/git-baseline'
@@ -103,6 +103,32 @@ export const depsAuditCommand = defineCommand({
 
     const packages = listWorkspacePackages()
     const workspaceNames = new Set(packages.map((p) => p.name))
+
+    // Exact pins (typescript): catalog + root override must be the same exact version.
+    // Caret in catalog was how TS7 entered; `catalog:` override would follow that slip.
+    let rootOverrides: Record<string, string> = {}
+    try {
+      const rootManifest = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')) as {
+        pnpm?: { overrides?: Record<string, string> }
+      }
+      rootOverrides = rootManifest.pnpm?.overrides ?? {}
+    } catch {
+      add('errors', 'root', 'manifest-unreadable', 'could not read root package.json')
+    }
+    for (const name of EXACT_CATALOG_PINS) {
+      const pin = catalog.entries.get(name)
+      if (!pin) {
+        add('errors', 'catalog', 'exact-pin-missing', `exact pin "${name}" is not in the default catalog`)
+        continue
+      }
+      if (!isExactVersion(pin)) {
+        add('errors', 'catalog', 'exact-pin-range', `catalog.${name} is "${pin}" — must be exact (no ^/~)`)
+      }
+      const override = rootOverrides[name]
+      if (!override || override !== pin) {
+        add('errors', 'root', 'exact-pin-override', `pnpm.overrides.${name} must be the literal "${pin}" (got ${override ?? 'missing'})`)
+      }
+    }
 
     // Catalog usage is counted across the whole workspace, not just the publishable
     // packages: the root manifest, the playground and the tooling packages consume most

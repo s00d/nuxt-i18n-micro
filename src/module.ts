@@ -399,7 +399,10 @@ export default defineNuxtModule<ModuleOptions>({
     const mergedLocalesDir = resolve(nuxt.options.buildDir, 'i18n-merged')
     const sourceLocalesDir = resolve(nuxt.options.buildDir, 'i18n-source')
     const translationDirName = options.translationDir || 'locales'
-    const translationsHash = hashTranslationSources(rootDirs, translationDirName, options.additionalTranslationDirs)
+    // Fingerprint only when `dateBuild` is unset. Explicit `0`/`''` opts out of busting and
+    // must not pay for a full JSON walk (`??` keeps those values).
+    const translationsHash =
+      options.dateBuild === undefined ? hashTranslationSources(rootDirs, translationDirName, options.additionalTranslationDirs) : null
     const translationPayloads = resolveTranslationPayloadOptions(options)
     // Public / Edge embed use the same tree: premerged matrix or compact source (`mode`).
     const publicAssetsDir = translationPayloads.mode === 'source' ? sourceLocalesDir : mergedLocalesDir
@@ -444,11 +447,12 @@ export default defineNuxtModule<ModuleOptions>({
       .map(({ code, fallbackLocale }) => ({ code, fallbackLocale }))
 
     nuxt.hook('build:before', async () => {
-      // Compact source: needed for mode=source public, and for Edge serverAssets embed.
-      await buildTranslationSourceLayers(rootDirs, translationDirName, sourceLocalesDir, options.additionalTranslationDirs)
-      logger.info(`Built compact translation source from ${rootDirs.length} layer(s) into ${sourceLocalesDir}`)
-
-      if (translationPayloads.mode !== 'source') {
+      // `publicAssetsDir` / Nitro `serverAssets` point at source OR merged — never both.
+      // Building i18n-source in premerged mode was unused disk/CPU (Edge embeds publicAssetsDir).
+      if (translationPayloads.mode === 'source') {
+        await buildTranslationSourceLayers(rootDirs, translationDirName, sourceLocalesDir, options.additionalTranslationDirs)
+        logger.info(`Built compact translation source from ${rootDirs.length} layer(s) into ${sourceLocalesDir}`)
+      } else {
         await preMergeLocales(
           rootDirs,
           translationDirName,

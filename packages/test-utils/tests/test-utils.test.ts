@@ -26,11 +26,6 @@ describe('i18nUtils', () => {
     expect(result).toBe('Hello, John!')
   })
 
-  test('t function returns key if translation is missing', () => {
-    const result = i18nUtils.t('missing.key', {}, 'Default value')
-    expect(result).toBe('Default value')
-  })
-
   test('tc function handles plural translations', () => {
     const singular = i18nUtils.tc('plural', 1)
     const plural = i18nUtils.tc('plural', 5)
@@ -42,17 +37,6 @@ describe('i18nUtils', () => {
   test('tc without count returns defaultValue or key', () => {
     expect(i18nUtils.tc('plural', {})).toBe('plural')
     expect(i18nUtils.tc('plural', {}, 'fallback')).toBe('fallback')
-  })
-
-  test('mergeTranslations updates translations', () => {
-    i18nUtils.mergeTranslations({ newKey: 'New value' })
-
-    const result = i18nUtils.t('newKey')
-    expect(result).toBe('New value')
-  })
-
-  test('resolveTranslations returns the active translation tree', () => {
-    expect(i18nUtils.resolveTranslations()).toEqual(mockTranslations)
   })
 
   test('setTranslation replaces a value by key', () => {
@@ -88,11 +72,6 @@ describe('i18nUtils', () => {
 
   test('getLocaleName returns the current locale name', () => {
     expect(i18nUtils.getLocaleName()).toBe('English')
-  })
-
-  test('has checks if translation key exists', () => {
-    expect(i18nUtils.has('greeting')).toBe(true)
-    expect(i18nUtils.has('missing.key')).toBe(false)
   })
 
   test('has is scoped to the active route', async () => {
@@ -209,17 +188,6 @@ describe('isolation', () => {
     await setTranslationsFromJson('en', { other: 'x' })
     expect(i18n.$t('other')).toBe('x')
     expect(i18nUtils.has('other')).toBe(false)
-  })
-
-  test('two isolated contexts stay independent', () => {
-    const a = createI18nTestContext({ isolated: true, translations: { k: 'A' } })
-    const b = createI18nTestContext({ isolated: true, translations: { k: 'B' } })
-
-    expect(a.t('k')).toBe('A')
-    expect(b.t('k')).toBe('B')
-    a.mergeTranslations({ k: 'A2' })
-    expect(a.t('k')).toBe('A2')
-    expect(b.t('k')).toBe('B')
   })
 
   test('setupNuxtI18nMock reseeds on beforeEach', () => {

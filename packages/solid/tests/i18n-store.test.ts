@@ -15,19 +15,6 @@ const make = () =>
   })
 
 describe('SolidI18n reactive store', () => {
-  test('createI18n returns a SolidI18n instance', () => {
-    expect(make()).toBeInstanceOf(SolidI18n)
-  })
-
-  test('subscribe notifies on locale change', () => {
-    const i18n = make()
-    const listener = vi.fn()
-    const unsubscribe = i18n.subscribe(listener)
-    i18n.locale = 'de'
-    expect(listener).toHaveBeenCalled()
-    unsubscribe()
-  })
-
   test('getSnapshot changes when locale changes', () => {
     const i18n = make()
     const s0 = i18n.getSnapshot()

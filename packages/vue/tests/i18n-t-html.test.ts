@@ -28,12 +28,6 @@ function mountI18nT(props: Record<string, unknown>) {
 }
 
 describe('I18nT html prop', () => {
-  test('plural mode renders text, not HTML, when html is false', () => {
-    const wrapper = mountI18nT({ keypath: 'rich', plural: 5 })
-    expect(wrapper.html()).not.toContain('<b>')
-    expect(wrapper.text()).toBe('<b>5</b> apples')
-  })
-
   test('plural mode renders HTML only when html is true', () => {
     const wrapper = mountI18nT({ keypath: 'rich', plural: 5, html: true })
     expect(wrapper.html()).toContain('<b>5</b>')

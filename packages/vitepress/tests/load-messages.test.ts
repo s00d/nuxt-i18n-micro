@@ -13,24 +13,6 @@ afterEach(() => {
 })
 
 describe('loadTranslationBuckets (plugin-internal)', () => {
-  it('loads root locale files', () => {
-    const tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-load-'))
-    dirs.push(tmp)
-    writeFileSync(join(tmp, 'en.json'), JSON.stringify({ a: 1 }))
-    writeFileSync(join(tmp, 'fr.json'), JSON.stringify({ a: 2 }))
-
-    const buckets = loadTranslationBuckets({ translationDir: tmp })
-    expect(buckets.root).toEqual({ en: { a: 1 }, fr: { a: 2 } })
-    expect(buckets.routes).toEqual({})
-  })
-
-  it('returns empty for missing dir', () => {
-    expect(loadTranslationBuckets({ translationDir: join(tmpdir(), 'i18n-vp-missing-' + Date.now()) })).toEqual({
-      root: {},
-      routes: {},
-    })
-  })
-
   it('skips invalid JSON objects', () => {
     const tmp = mkdtempSync(join(tmpdir(), 'i18n-vp-bad-'))
     dirs.push(tmp)

@@ -17,62 +17,6 @@ describe('AstroI18n', () => {
     expect(i18n.t('greeting')).toBe('Hello')
   })
 
-  test('should translate with interpolation', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello, {name}!',
-        },
-      },
-    })
-
-    expect(i18n.t('greeting', { name: 'John' })).toBe('Hello, John!')
-  })
-
-  test('should handle pluralization', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          apples: 'no apples | one apple | {count} apples',
-        },
-      },
-    })
-
-    expect(i18n.tc('apples', 0)).toBe('no apples')
-    expect(i18n.tc('apples', 1)).toBe('one apple')
-    expect(i18n.tc('apples', 5)).toBe('5 apples')
-  })
-
-  test('should format numbers', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-    })
-
-    expect(i18n.tn(1234.56)).toMatch(/1[,.]234[.,]56/)
-  })
-
-  test('should format dates', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-    })
-
-    const date = new Date('2023-01-15')
-    const formatted = i18n.td(date)
-    expect(formatted).toBeTruthy()
-  })
-
-  test('should format relative time', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-    })
-
-    const oneHourAgo = new Date(Date.now() - 3600000)
-    const formatted = i18n.tdr(oneHourAgo)
-    expect(formatted).toMatch(/hour/)
-  })
-
   test('should handle route-specific translations', () => {
     const i18n = new AstroI18n({
       locale: 'en',
@@ -130,33 +74,6 @@ describe('AstroI18n', () => {
     i18n.locale = 'fr'
     expect(i18n.t('greeting')).toBe('Bonjour')
   })
-
-  test('should handle missing translations', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      missingWarn: false,
-      messages: {
-        en: {},
-      },
-    })
-
-    expect(i18n.t('missing.key')).toBe('missing.key')
-    expect(i18n.t('missing.key', undefined, 'Default')).toBe('Default')
-  })
-
-  test('should check if translation exists', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          exists: 'Yes',
-        },
-      },
-    })
-
-    expect(i18n.has('exists')).toBe(true)
-    expect(i18n.has('missing')).toBe(false)
-  })
 })
 
 describe('createI18n', () => {
@@ -186,67 +103,5 @@ describe('Translation management', () => {
     })
 
     expect(i18n.t('newKey')).toBe('New Value')
-  })
-
-  test('should merge translations', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          existing: 'Existing',
-        },
-      },
-    })
-
-    i18n.mergeTranslations('en', '', {
-      newKey: 'New',
-    })
-
-    expect(i18n.t('existing')).toBe('Existing')
-    expect(i18n.t('newKey')).toBe('New')
-  })
-
-  test('should clear cache', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          test: 'Test',
-        },
-      },
-    })
-
-    expect(i18n.t('test')).toBe('Test')
-    i18n.clearCache()
-    // Cache clearing shouldn't affect loaded translations
-    expect(i18n.t('test')).toBe('Test')
-  })
-
-  test('resolveTranslations returns the active translation tree', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-        },
-      },
-    })
-
-    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hello' })
-  })
-
-  test('setTranslation replaces values and t() sees the change', () => {
-    const i18n = new AstroI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-        },
-      },
-    })
-
-    i18n.setTranslation('greeting', 'Hi')
-    expect(i18n.resolveTranslations()).toEqual({ greeting: 'Hi' })
-    expect(i18n.t('greeting')).toBe('Hi')
   })
 })

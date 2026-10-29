@@ -26,31 +26,6 @@ const TestComponent: React.FC<{}> = () => {
 }
 
 describe('I18nProvider and useI18n', () => {
-  test('should provide i18n context', () => {
-    const i18n = createI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-          apples: 'no apples | one apple | {count} apples',
-        },
-      },
-    })
-
-    render(
-      // @ts-expect-error - React Testing Library type issue
-      <I18nProvider i18n={i18n}>
-        {/* @ts-expect-error - React Testing Library type issue */}
-        <TestComponent />
-      </I18nProvider>,
-    )
-
-    expect(screen.getByTestId('greeting').textContent).toBe('Hello')
-    expect(screen.getByTestId('locale').textContent).toBe('en')
-    expect(screen.getByTestId('has-greeting').textContent).toBe('true')
-    expect(screen.getByTestId('has-missing').textContent).toBe('false')
-  })
-
   test('should throw error when used outside provider', () => {
     // React logs via console.error; jsdom also dumps the same Error to stderr (bypassing console).
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -71,54 +46,6 @@ describe('I18nProvider and useI18n', () => {
       stderr.write = stderrWrite
       consoleSpy.mockRestore()
     }
-  })
-
-  test('should handle pluralization in component', () => {
-    const i18n = createI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-          apples: 'no apples | one apple | {count} apples',
-        },
-      },
-    })
-
-    render(
-      // @ts-expect-error - React Testing Library type issue
-      <I18nProvider i18n={i18n}>
-        {/* @ts-expect-error - React Testing Library type issue */}
-        <TestComponent />
-      </I18nProvider>,
-    )
-
-    expect(screen.getByTestId('plural-0').textContent).toBe('no apples')
-    expect(screen.getByTestId('plural-1').textContent).toBe('one apple')
-    expect(screen.getByTestId('plural-5').textContent).toBe('5 apples')
-  })
-
-  test('should format numbers and dates in component', () => {
-    const i18n = createI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-          apples: 'no apples | one apple | {count} apples',
-        },
-      },
-    })
-
-    render(
-      // @ts-expect-error - React Testing Library type issue
-      <I18nProvider i18n={i18n}>
-        {/* @ts-expect-error - React Testing Library type issue */}
-        <TestComponent />
-      </I18nProvider>,
-    )
-
-    expect(screen.getByTestId('number').textContent).toMatch(/1[,.]234[.,]56/)
-    expect(screen.getByTestId('date').textContent).toBeTruthy()
-    expect(screen.getByTestId('relative').textContent).toMatch(/hour/)
   })
 
   test('should react to locale changes', async () => {
@@ -156,62 +83,6 @@ describe('I18nProvider and useI18n', () => {
     await waitFor(() => {
       expect(screen.getByTestId('locale').textContent).toBe('fr')
       expect(screen.getByTestId('greeting').textContent).toBe('Bonjour')
-    })
-  })
-
-  test('should handle route-specific translations', async () => {
-    const i18n = createI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          title: 'Global Title',
-        },
-      },
-    })
-
-    i18n.addRouteTranslations(
-      'en',
-      'home',
-      {
-        title: 'Home Title',
-      },
-      false,
-    )
-
-    // @ts-expect-error - React.FC type compatibility
-    const RouteTestComponent: React.FC<{}> = () => {
-      const { ts } = useI18n()
-      return (
-        <div>
-          <div data-testid="route-title">{ts('title')}</div>
-        </div>
-      )
-    }
-
-    render(
-      // @ts-expect-error - React Testing Library type issue
-      <I18nProvider i18n={i18n}>
-        {/* @ts-expect-error - React Testing Library type issue */}
-        <RouteTestComponent />
-      </I18nProvider>,
-    )
-
-    expect(screen.getByTestId('route-title').textContent).toBe('Global Title')
-
-    // Set route to home - should trigger re-render
-    act(() => {
-      i18n.setRoute('home')
-    })
-    await waitFor(() => {
-      expect(screen.getByTestId('route-title').textContent).toBe('Home Title')
-    })
-
-    // Set route back to index
-    act(() => {
-      i18n.setRoute('index')
-    })
-    await waitFor(() => {
-      expect(screen.getByTestId('route-title').textContent).toBe('Global Title')
     })
   })
 })

@@ -13,7 +13,7 @@ export default {
   testRunner: 'vitest',
   plugins: ['@stryker-mutator/vitest-runner'],
   vitest: { configFile: `packages/${pkg}/vitest.config.ts`, dir: `packages/${pkg}` },
-  mutate: [`packages/${pkg}/src/**/*.ts`, `!packages/${pkg}/src/**/*.d.ts`, `!packages/${pkg}/src/**/index.ts`, `!packages/${pkg}/src/**/types.ts`],
+  mutate: [`packages/${pkg}/src/**/*.{ts,tsx}`, `!packages/${pkg}/src/**/*.d.ts`, `!packages/${pkg}/src/**/index.ts`, `!packages/${pkg}/src/**/types.ts`],
   reporters: ['clear-text', 'progress', 'json'],
   jsonReporter: { fileName: `test-results/mutation/${pkg}.json` },
   tempDirName: 'test-results/.stryker-tmp',

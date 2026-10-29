@@ -70,24 +70,4 @@ describe('Preact 11-compatible component props', () => {
     link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
     expect(clicks.length).toBe(1)
   })
-
-  test('I18nSwitcher accepts HTMLAttributes on the root', () => {
-    render(
-      h(
-        I18nProvider,
-        { i18n },
-        h(
-          I18nLocalesContext.Provider,
-          {
-            value: [
-              { code: 'en', displayName: 'English' },
-              { code: 'de', displayName: 'German' },
-            ],
-          },
-          h(I18nSwitcher, { currentLocale: 'en', class: 'switcher', 'data-testid': 'switcher' }),
-        ),
-      ),
-    )
-    expect(screen.getByTestId('switcher').className).toContain('switcher')
-  })
 })

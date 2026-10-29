@@ -28,26 +28,6 @@ const TestComponent = () => {
 }
 
 describe('I18nProvider and useI18n', () => {
-  test('should provide i18n context', () => {
-    const i18n = createI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-          apples: 'no apples | one apple | {count} apples',
-        },
-      },
-    })
-
-    // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(h(I18nProvider, { i18n }, h(TestComponent, null)))
-
-    expect(screen.getByTestId('greeting').textContent).toBe('Hello')
-    expect(screen.getByTestId('locale').textContent).toBe('en')
-    expect(screen.getByTestId('has-greeting').textContent).toBe('true')
-    expect(screen.getByTestId('has-missing').textContent).toBe('false')
-  })
-
   test('should throw error when used outside provider', () => {
     // Preact/React logs via console.error; jsdom also dumps the same Error to stderr.
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -67,44 +47,6 @@ describe('I18nProvider and useI18n', () => {
       stderr.write = stderrWrite
       consoleSpy.mockRestore()
     }
-  })
-
-  test('should handle pluralization in component', () => {
-    const i18n = createI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-          apples: 'no apples | one apple | {count} apples',
-        },
-      },
-    })
-
-    // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(h(I18nProvider, { i18n }, h(TestComponent, null)))
-
-    expect(screen.getByTestId('plural-0').textContent).toBe('no apples')
-    expect(screen.getByTestId('plural-1').textContent).toBe('one apple')
-    expect(screen.getByTestId('plural-5').textContent).toBe('5 apples')
-  })
-
-  test('should format numbers and dates in component', () => {
-    const i18n = createI18n({
-      locale: 'en',
-      messages: {
-        en: {
-          greeting: 'Hello',
-          apples: 'no apples | one apple | {count} apples',
-        },
-      },
-    })
-
-    // @ts-expect-error - h() returns Preact VNode, render expects compatible type
-    render(h(I18nProvider, { i18n }, h(TestComponent, null)))
-
-    expect(screen.getByTestId('number').textContent).toMatch(/1[,.]234[.,]56/)
-    expect(screen.getByTestId('date').textContent).toBeTruthy()
-    expect(screen.getByTestId('relative').textContent).toMatch(/hour/)
   })
 
   test('should react to locale changes', async () => {

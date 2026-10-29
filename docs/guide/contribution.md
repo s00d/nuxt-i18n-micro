@@ -58,9 +58,8 @@ The repository is a pnpm workspace with framework packages and Nuxt module glue:
 - `packages/types/` — shared TypeScript types
 - `packages/core/` — core translation/routing domain logic
 - `packages/utils/` — framework-agnostic utilities (`@i18n-micro/utils/*` subpath imports)
-- `packages/hmr/` — dev-mode translation hot-reload (`@i18n-micro/hmr/*`)
 - `packages/*` — framework integrations (vue, react, astro, node, …)
-- `src/` — Nuxt module and runtime glue (imports from `@i18n-micro/utils` and `@i18n-micro/hmr`)
+- `src/` — Nuxt module and runtime glue (imports from `@i18n-micro/utils`); build-time translation code in `src/build/`, dev HMR in `src/hmr-plugin.ts` and `src/runtime/server/utils/translation-watcher.ts`
 
 When adding reusable logic without Vue/Nuxt dependencies, prefer `@i18n-micro/utils` with granular subpath exports rather than `src/runtime/utils/`.
 

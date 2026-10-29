@@ -1,6 +1,6 @@
 import { joinURL, withQuery } from 'ufo'
 import { translationCacheKey } from '@i18n-micro/core/helpers'
-import { STORAGE_CC_KEY } from '@i18n-micro/hmr/cache-keys'
+import { STORAGE_CC_KEY } from './cache-keys'
 import { CacheControl, type CacheControlOptions } from '@i18n-micro/utils/cache-control'
 import type { TranslationPayloadFetcher } from '@i18n-micro/utils/payload-fetch'
 import { buildTranslationPayloadFetchRequest } from '@i18n-micro/utils/payload-url'

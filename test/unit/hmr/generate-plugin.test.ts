@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from '../src/generate-plugin'
-import { translationRelativePath } from '../src/watcher'
+import { generateHmrPlugin, TRANSLATIONS_HMR_EVENT } from '../../../src/hmr-plugin'
+import { translationRelativePath } from '../../../src/runtime/server/utils/translation-watcher'
 
 describe('generateHmrPlugin', () => {
   test('listens for the custom event and reloads through the plugin nuxtApp', () => {

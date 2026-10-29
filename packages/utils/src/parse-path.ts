@@ -88,10 +88,3 @@ export function storeLoadedTranslationFile<T extends Record<string, unknown>>(
 
 const mergeInto = <T extends Record<string, unknown>>(existing: T | undefined, incoming: T): T =>
   existing ? (deepMergeTranslations(existing, incoming) as T) : incoming
-
-/**
- * Merge route-specific translations on top of root translations.
- */
-export function mergeRouteTranslationsWithRoot<T extends Record<string, unknown>>(rootTranslations: T | undefined, routeTranslations: T): T {
-  return deepMergeTranslations((rootTranslations ?? {}) as Record<string, unknown>, routeTranslations as Record<string, unknown>) as T
-}

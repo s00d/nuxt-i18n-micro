@@ -99,7 +99,7 @@ export default defineNuxtConfig({
 
 **File**: `src/runtime/server/utils/server-loader.ts`
 
-Loads translations for a locale/page and caches the merged result in a process-global `CacheControl` map keyed by `@i18n-micro/hmr/cache-keys` (`SERVER_CC_KEY`).
+Loads translations for a locale/page and caches the merged result in a process-global `CacheControl` map keyed by `SERVER_CC_KEY` (`src/runtime/utils/cache-keys.ts`).
 
 Behavior: SSR loads from `#i18n-internal/payload-source` — **Node** `readFile` under `public/<apiBaseUrl>` (`{page}/{locale}/data.json` in premerged mode), **Edge** `assets:i18n`. `premerged` reads one file; `source` merges root/page/fallback via `@i18n-micro/utils/source-loader`.
 

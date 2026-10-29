@@ -14,7 +14,7 @@ Deeper agent rules: [`.cursorrules`](./.cursorrules) · [`.cursor/rules/package-
 - Framework-agnostic runtime: `packages/runtime` (`createI18n`, messages/fetch; no `fs`)
 - Routing: `packages/route-strategy` (build) + `packages/path-strategy` (runtime)
 - Framework bindings: `vue`, `react`, `preact`, `solid`, `astro`, `node`, `vitepress`
-- Tooling: `hmr`, `devtools-ui`, `types-generator`, `test-utils`
+- Tooling: `devtools-ui`, `types-generator`, `test-utils` (dev HMR lives in the root module)
 - Local apps: `playground/` (Nuxt), `client/` (devtools UI), `docs/` (VitePress)
 
 Priorities: small bundles, fast builds, low runtime cost. Prefer reusing `@i18n-micro/utils/*` and core over duplicating logic in framework packages.

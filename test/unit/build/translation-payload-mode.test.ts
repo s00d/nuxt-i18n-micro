@@ -1,4 +1,4 @@
-import { resolveTranslationPayloadMode, resolveTranslationPayloadOptions } from '../src/payload-config'
+import { resolveTranslationPayloadMode, resolveTranslationPayloadOptions } from '../../../src/build/payload-config'
 import { describe, expect, it } from 'vitest'
 
 describe('translationPayloads mode', () => {

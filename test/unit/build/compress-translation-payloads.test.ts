@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { brotliDecompressSync, gunzipSync } from 'node:zlib'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { compressTranslationPayloads } from '../src/payload-stats'
+import { compressTranslationPayloads } from '../../../src/build/payload-stats'
 
 /**
  * Nitro compresses public assets before the hook that copies translation payloads

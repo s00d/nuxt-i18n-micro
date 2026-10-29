@@ -27,20 +27,6 @@ export function buildFallbackLocaleChain(locale: string, locales: SourceLocaleIn
   return chain
 }
 
-export function mergeTranslationsFromFallbackChain(
-  chain: string[],
-  readLocaleFile: (relativePath: string) => Record<string, unknown>,
-  relativePathForLocale: (localeCode: string) => string,
-): Record<string, unknown> {
-  let result: Record<string, unknown> = {}
-
-  for (const localeCode of chain) {
-    result = deepMergeTranslations(result, readLocaleFile(relativePathForLocale(localeCode)))
-  }
-
-  return result
-}
-
 export async function mergeTranslationsFromFallbackChainAsync(
   chain: string[],
   readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>,

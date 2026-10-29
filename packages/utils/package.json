@@ -75,21 +75,6 @@
       },
       "default": "./dist/source-loader.mjs"
     },
-    "./payload-config": {
-      "production": {
-        "types": "./dist/payload-config.d.ts",
-        "default": "./dist/payload-config.mjs"
-      },
-      "import": {
-        "types": "./dist/payload-config.d.ts",
-        "default": "./dist/payload-config.mjs"
-      },
-      "require": {
-        "types": "./dist/payload-config.d.cts",
-        "default": "./dist/payload-config.cjs"
-      },
-      "default": "./dist/payload-config.mjs"
-    },
     "./payload-url": {
       "production": {
         "types": "./dist/payload-url.d.ts",
@@ -119,21 +104,6 @@
         "default": "./dist/payload-fetch.cjs"
       },
       "default": "./dist/payload-fetch.mjs"
-    },
-    "./payload-stats": {
-      "production": {
-        "types": "./dist/payload-stats.d.ts",
-        "default": "./dist/payload-stats.mjs"
-      },
-      "import": {
-        "types": "./dist/payload-stats.d.ts",
-        "default": "./dist/payload-stats.mjs"
-      },
-      "require": {
-        "types": "./dist/payload-stats.d.cts",
-        "default": "./dist/payload-stats.cjs"
-      },
-      "default": "./dist/payload-stats.mjs"
     },
     "./accept-language": {
       "production": {
@@ -300,36 +270,6 @@
       },
       "default": "./dist/parse-path.mjs"
     },
-    "./route-pattern": {
-      "production": {
-        "types": "./dist/route-pattern.d.ts",
-        "default": "./dist/route-pattern.mjs"
-      },
-      "import": {
-        "types": "./dist/route-pattern.d.ts",
-        "default": "./dist/route-pattern.mjs"
-      },
-      "require": {
-        "types": "./dist/route-pattern.d.cts",
-        "default": "./dist/route-pattern.cjs"
-      },
-      "default": "./dist/route-pattern.mjs"
-    },
-    "./route": {
-      "production": {
-        "types": "./dist/route.d.ts",
-        "default": "./dist/route.mjs"
-      },
-      "import": {
-        "types": "./dist/route.d.ts",
-        "default": "./dist/route.mjs"
-      },
-      "require": {
-        "types": "./dist/route.d.cts",
-        "default": "./dist/route.cjs"
-      },
-      "default": "./dist/route.mjs"
-    },
     "./runtime-config": {
       "production": {
         "types": "./dist/runtime-config.d.ts",
@@ -359,21 +299,6 @@
         "default": "./dist/normalize.cjs"
       },
       "default": "./dist/normalize.mjs"
-    },
-    "./build": {
-      "production": {
-        "types": "./dist/build.d.ts",
-        "default": "./dist/build.mjs"
-      },
-      "import": {
-        "types": "./dist/build.d.ts",
-        "default": "./dist/build.mjs"
-      },
-      "require": {
-        "types": "./dist/build.d.cts",
-        "default": "./dist/build.cjs"
-      },
-      "default": "./dist/build.mjs"
     },
     "./app-path": {
       "production": {
@@ -405,8 +330,7 @@
     "prepublishOnly": "pnpm run build && pnpm run test:dist && pnpm run check:package"
   },
   "dependencies": {
-    "@i18n-micro/types": "workspace:^",
-    "globby": "catalog:"
+    "@i18n-micro/types": "workspace:^"
   },
   "devDependencies": {
     "@i18n-micro/test-utils": "workspace:^",

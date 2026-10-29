@@ -1,8 +1,8 @@
 import fs, { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { globby } from 'globby'
-import { deepMergeTranslationsRecursive } from './deep-merge'
-import { mergeSourceTranslations, PREMERGED_ROOT_PAGE } from './merge-source'
+import { deepMergeTranslationsRecursive } from '@i18n-micro/utils/deep-merge'
+import { mergeSourceTranslations, PREMERGED_ROOT_PAGE } from '@i18n-micro/utils/merge-source'
 
 export interface PreMergeLocaleInfo {
   code: string

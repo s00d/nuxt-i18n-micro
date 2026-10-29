@@ -55,6 +55,8 @@ export interface PathStrategyContext {
   _hasGR?: boolean
   /** Pre-computed: routeLocales has at least one entry. Set automatically at construction. */
   _hasRL?: boolean
+  /** Lazily cached: normalized values of nested (slash-keyed) globalLocaleRoutes rules. */
+  _nestedRulePaths?: Set<string>
 }
 
 export interface SwitchLocaleOptions {

@@ -79,7 +79,8 @@ export interface MergeTranslationChunkOptions {
  * everything else (arrays, scalars, null) replaces. Only nodes on the patch's paths are copied.
  */
 export function mergeTranslationChunk(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions): Tree {
-  if (Object.keys(existing).length === 0) return incoming
+  // a copy: the result is a stored tree from now on, and the caller still owns `incoming`
+  if (Object.keys(existing).length === 0) return { ...incoming }
   const owned = new WeakSet<object>()
   const root = own(existing, owned)
   mergeInto(root, incoming, owned, options?.preserveExisting === true)
@@ -118,44 +119,60 @@ function mergeValue(target: Tree, key: string, incoming: unknown, owned: WeakSet
  */
 export function mergeTranslationLayers(lower: Tree, upper: Tree): Tree {
   const shadowed: Tree = {}
-  const merged = layer(lower, upper, '', shadowed)
+  const merged = layer(lower, upper, '', shadowed, new Set())
   return Object.keys(shadowed).length === 0 ? merged : { ...merged, ...shadowed }
 }
 
-function layer(lower: Tree, upper: Tree, prefix: string, shadowed: Tree): Tree {
+/**
+ * The walkers below carry their ancestors: a tree from JSON has no cycles, but an object passed in
+ * by code can, and a cycle is cut there instead of overflowing the stack. Ancestors, not a visited
+ * set: the same subtree under two keys is two paths.
+ */
+function layer(lower: Tree, upper: Tree, prefix: string, shadowed: Tree, ancestors: Set<object>): Tree {
   const result: Tree = { ...lower }
+  if (ancestors.has(upper) || ancestors.has(lower)) return result
+  ancestors.add(upper).add(lower)
   for (const key of Object.keys(upper)) {
     const above = upper[key]
-    if (key !== '__proto__' && above !== null && above !== undefined) result[key] = layerValue(lower[key], above, join(prefix, key), shadowed)
+    if (key !== '__proto__' && above !== null && above !== undefined)
+      result[key] = layerValue(lower[key], above, join(prefix, key), shadowed, ancestors)
   }
+  ancestors.delete(upper)
+  ancestors.delete(lower)
   return result
 }
 
-function layerValue(below: unknown, above: unknown, path: string, shadowed: Tree): unknown {
+function layerValue(below: unknown, above: unknown, path: string, shadowed: Tree, ancestors: Set<object>): unknown {
   if (!isTree(below)) return above
-  if (isTree(above)) return layer(below, above, path, shadowed)
-  flatten(below, path, shadowed)
+  if (isTree(above)) return layer(below, above, path, shadowed, ancestors)
+  flatten(below, path, shadowed, ancestors)
   return above
 }
 
-function flatten(node: Tree, prefix: string, out: Tree): void {
+function flatten(node: Tree, prefix: string, out: Tree, ancestors: Set<object>): void {
+  if (ancestors.has(node)) return
+  ancestors.add(node)
   for (const key of Object.keys(node)) {
     const value = node[key]
     const path = `${prefix}.${key}`
     if (key === '__proto__') continue
-    if (isTree(value)) flatten(value, path, out)
+    if (isTree(value)) flatten(value, path, out, ancestors)
     else out[path] = value
   }
+  ancestors.delete(node)
 }
 
 const join = (prefix: string, key: string): string => (prefix ? `${prefix}.${key}` : key)
 
-/** Adds every path of `obj` (objects and leaves, dotted) to `paths`. Arrays are leaves. */
-export function collectTranslationPaths(obj: Tree, paths: Set<string>, prefix = ''): void {
+/** Adds every path of `obj` (objects and leaves, dotted) to `paths`. Arrays are leaves; a cycle is cut. */
+export function collectTranslationPaths(obj: Tree, paths: Set<string>, prefix = '', ancestors: Set<object> = new Set()): void {
+  if (ancestors.has(obj)) return
+  ancestors.add(obj)
   for (const key of Object.keys(obj)) {
     if (key === '__proto__') continue
     const path = join(prefix, key)
     paths.add(path)
-    if (isTree(obj[key])) collectTranslationPaths(obj[key] as Tree, paths, path)
+    if (isTree(obj[key])) collectTranslationPaths(obj[key] as Tree, paths, path, ancestors)
   }
+  ancestors.delete(obj)
 }

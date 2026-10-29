@@ -48,7 +48,7 @@ member BaseI18nOptions.missingWarn?: boolean | undefined
 member BaseI18nOptions.numberFormats?: NumberFormatsConfig | undefined
 member BaseI18nOptions.plural?: PluralFunc | undefined
 member BaseI18nOptions.storage?: TranslationStorage | undefined
-function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string) => void
+function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
 function createReactiveI18nStore: (options: ReactiveI18nStoreOptions) => ReactiveI18nStore
 type DateTimeFormatsConfig: Record<string, Record<string, Intl.DateTimeFormatOptions>>
 const defaultPlural: PluralFunc
@@ -78,10 +78,10 @@ member FormatServiceOptions.numberFormats?: NumberFormatsConfig | undefined
 function getByPath: (obj: Tree | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
 function interpolate: (template: string, params: Params) => string
-const isNoPrefixStrategy: (strategy: Strategies) => boolean
-const isPrefixAndDefaultStrategy: (strategy: Strategies) => boolean
-const isPrefixExceptDefaultStrategy: (strategy: Strategies) => boolean
-const isPrefixStrategy: (strategy: Strategies) => boolean
+const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
+const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
+const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
+const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
 function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
@@ -125,7 +125,7 @@ member TranslationHelper.new: (storage?: TranslationStorage | undefined): Transl
 interface TranslationStorage
 member TranslationStorage.translations: Map<string, Translations>
 function useTranslationHelper: (storage?: TranslationStorage) => TranslationHelper
-const withPrefixStrategy: (strategy: Strategies) => boolean
+const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"
 
 # ./devtools (src/devtools.ts)
 function buildInspectorState: (snapshot: I18nDevtoolsStateSnapshot) => Record<string, Array<{ key: string; value: unknown; editable?: boolean; }>>
@@ -158,15 +158,15 @@ member I18nDevtoolsStateSnapshot.strategy?: string | undefined
 function parseInspectorNodeId: (nodeId: string) => { kind: "root" | "active" | "locale" | "chunk" | "key"; locale?: string; routeName?: string; path?: string; segments?: string[]; }
 
 # ./helpers (src/helpers.ts)
-function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string) => void
+function collectTranslationPaths: (obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void
 const defaultPlural: PluralFunc
 function getByPath: (obj: Tree | null | undefined, path: string) => unknown
 function hasTranslationValue: (obj: Tree | null | undefined, key: string) => boolean
 function interpolate: (template: string, params: Params) => string
-const isNoPrefixStrategy: (strategy: Strategies) => boolean
-const isPrefixAndDefaultStrategy: (strategy: Strategies) => boolean
-const isPrefixExceptDefaultStrategy: (strategy: Strategies) => boolean
-const isPrefixStrategy: (strategy: Strategies) => boolean
+const isNoPrefixStrategy: (strategy: Strategies) => strategy is "no_prefix"
+const isPrefixAndDefaultStrategy: (strategy: Strategies) => strategy is "prefix_and_default"
+const isPrefixExceptDefaultStrategy: (strategy: Strategies) => strategy is "prefix_except_default"
+const isPrefixStrategy: (strategy: Strategies) => strategy is "prefix"
 function mergeTranslationChunk: (existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree
 interface MergeTranslationChunkOptions
 member MergeTranslationChunkOptions.preserveExisting?: boolean | undefined
@@ -174,4 +174,4 @@ function mergeTranslationLayers: (lower: Tree, upper: Tree) => Tree
 function resolveTranslation: (obj: Tree | null | undefined, key: string) => unknown | null
 function setTranslationAtKey: (tree: Tree, key: string, value: unknown) => Tree
 function translationCacheKey: (locale: string, routeName?: string) => string
-const withPrefixStrategy: (strategy: Strategies) => boolean
+const withPrefixStrategy: (strategy: Strategies) => strategy is "prefix" | "prefix_and_default"

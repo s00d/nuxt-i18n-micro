@@ -232,8 +232,13 @@ export class NuxtI18n extends BaseI18n {
   }
 
   private notifyContextChange(reason: I18nContextChangeReason): void {
-    for (const listener of this.contextListeners) {
-      listener(reason)
+    // over a copy, each guarded: a throwing listener (devtools) must not abort a context switch
+    for (const listener of [...this.contextListeners]) {
+      try {
+        listener(reason)
+      } catch (error) {
+        console.error('[i18n] context listener failed:', error)
+      }
     }
   }
 

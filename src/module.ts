@@ -94,15 +94,6 @@ function generateI18nTypes(): string {
   return `
 import type { PluginsInjections } from "nuxt-i18n-micro";
 
-declare module 'vue/types/vue' {
-  interface Vue extends PluginsInjections { }
-}
-
-declare module '@nuxt/types' {
-  interface NuxtAppOptions extends PluginsInjections { }
-  interface Context extends PluginsInjections { }
-}
-
 declare module '#app' {
   interface NuxtApp extends PluginsInjections { }
 }

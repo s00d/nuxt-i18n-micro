@@ -19,13 +19,11 @@ const DEBUG = process.env.NUXT_I18N_DEBUG_REDIRECT === '1'
 export default defineNuxtPlugin({
   name: 'i18n-redirect',
   dependsOn: ['i18n-plugin-loader'],
-  setup(nuxtApp) {
-    const i18nStrategy = (nuxtApp as { $i18nStrategy?: PathStrategy }).$i18nStrategy
-    const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
-    if (!i18nStrategy || typeof getRuntimeConfig !== 'function') {
-      throw new Error('[nuxt-i18n-micro] i18n redirect plugin requires the main i18n plugin ($i18nStrategy, $getI18nConfig).')
-    }
+  // annotated: the plugin types are inferred from every plugin's setup, this one included
+  setup(nuxtApp): Promise<void> | void {
     if (!import.meta.server) return
+    const i18nStrategy: PathStrategy = nuxtApp.$i18nStrategy
+    const getRuntimeConfig: () => ModuleOptionsExtend = nuxtApp.$getI18nConfig
     const event = useRequestEvent()
     if (!event) return
 
@@ -68,7 +66,7 @@ export default defineNuxtPlugin({
       // a state differing from what the URL resolved to was set by the app (a plugin): a choice
       stateLocale: anyPath ? null : chosenState(useState<string | null>('i18n-locale', () => null).value, event.context.i18n?.locale),
     })
-    const target = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
+    const target: string | null = i18nStrategy.getClientRedirect(path, preferred, { switchPrefixed: anyPath })
     if (!target) return
     if (anyPath && urlLocale) writeCookie(preferred)
     if (DEBUG) console.error('[i18n-redirect] REDIRECT', { path, target, preferred })

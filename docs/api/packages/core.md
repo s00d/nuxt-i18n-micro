@@ -20,7 +20,7 @@ import { /* … */ } from '@i18n-micro/core'
 | --- | --- | --- |
 | `BaseI18n` | class | 40 members |
 | `BaseI18nOptions` | interface | 7 members |
-| `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string) => void` |
+| `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
 | `DateTimeFormatsConfig` | type | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` |
 | `defaultPlural` | const | `PluralFunc` |
@@ -29,10 +29,10 @@ import { /* … */ } from '@i18n-micro/core'
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `isNoPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
-| `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => boolean` |
-| `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => boolean` |
-| `isPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
+| `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
+| `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
+| `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
+| `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
@@ -46,7 +46,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `TranslationHelper` | class | 16 members |
 | `TranslationStorage` | interface | 1 members |
 | `useTranslationHelper` | function | `(storage?: TranslationStorage) => TranslationHelper` |
-| `withPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
+| `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
 <summary><code>BaseI18n</code> — 40 members</summary>
@@ -285,22 +285,22 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string) => void` |
+| `collectTranslationPaths` | function | `(obj: Tree, paths: Set<string>, prefix?: string, ancestors?: Set<object>) => void` |
 | `defaultPlural` | const | `PluralFunc` |
 | `getByPath` | function | `(obj: Tree \| null \| undefined, path: string) => unknown` |
 | `hasTranslationValue` | function | `(obj: Tree \| null \| undefined, key: string) => boolean` |
 | `interpolate` | function | `(template: string, params: Params) => string` |
-| `isNoPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
-| `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => boolean` |
-| `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => boolean` |
-| `isPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
+| `isNoPrefixStrategy` | const | `(strategy: Strategies) => strategy is "no_prefix"` |
+| `isPrefixAndDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_and_default"` |
+| `isPrefixExceptDefaultStrategy` | const | `(strategy: Strategies) => strategy is "prefix_except_default"` |
+| `isPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix"` |
 | `mergeTranslationChunk` | function | `(existing: Tree, incoming: Tree, options?: MergeTranslationChunkOptions) => Tree` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Tree, upper: Tree) => Tree` |
 | `resolveTranslation` | function | `(obj: Tree \| null \| undefined, key: string) => unknown \| null` |
 | `setTranslationAtKey` | function | `(tree: Tree, key: string, value: unknown) => Tree` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
-| `withPrefixStrategy` | const | `(strategy: Strategies) => boolean` |
+| `withPrefixStrategy` | const | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <code>MergeTranslationChunkOptions</code> — 1 members, identical to `MergeTranslationChunkOptions` above.
 

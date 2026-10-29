@@ -118,7 +118,7 @@ member SolidI18n._localeSignal: private Accessor<string>
 member SolidI18n._revision: private Accessor<number>
 member SolidI18n._routeSignal: private Accessor<string>
 member SolidI18n._setLocaleSignal: private (v: string) => void
-member SolidI18n._setRevision: private (v: number) => void
+member SolidI18n._setRevision: private (next: (n: number) => number) => void
 member SolidI18n._setRouteSignal: private (v: string) => void
 member SolidI18n.activeKey: private any
 member SolidI18n.activeRootKey: private any

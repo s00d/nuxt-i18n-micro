@@ -1,5 +1,5 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
-import type { PathStrategy, RouteLike } from '@i18n-micro/path-strategy'
+import type { RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
 import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
@@ -113,7 +113,7 @@ export const useLocaleHead = ({
     const { canonicalQueryWhitelist } = i18nConfig
     const strategy = i18nConfig.strategy
     const { $getLocales, $getLocale, $switchLocalePath } = nuxtApp
-    const i18nStrategy = (nuxtApp as unknown as { $i18nStrategy: PathStrategy }).$i18nStrategy
+    const i18nStrategy = nuxtApp.$i18nStrategy
     const allLocales = ($getLocales ? unref($getLocales()) : i18nConfig.locales) ?? []
     const locale = unref($getLocale()) || i18nConfig.defaultLocale || 'en'
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)

@@ -303,8 +303,8 @@ describe('async-components', () => {
     await expect(page.locator('.delayed-async-component .loading-indicator')).toBeVisible()
     await expect(page.locator('.delayed-async-component .loading-indicator')).toHaveText('Loading...')
 
-    // Ждем завершения загрузки (1 секунда)
-    await expect(page.locator('.delayed-async-component .loaded-content')).toBeVisible({ timeout: 2000 })
+    // Ждем завершения загрузки (3 секунды)
+    await expect(page.locator('.delayed-async-component .loaded-content')).toBeVisible({ timeout: 6000 })
     await expect(page.locator('.delayed-async-component .loaded-content')).toHaveText('Component loaded successfully!')
   })
 

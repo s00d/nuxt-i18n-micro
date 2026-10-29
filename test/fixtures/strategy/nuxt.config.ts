@@ -46,7 +46,7 @@ export default defineNuxtConfig({
     meta: true,
     defaultLocale: 'en',
     translationDir: 'locales',
-    autoDetectLanguage: false,
+    autoDetectLanguage: process.env.AUTO_DETECT_LANGUAGE === '1',
     strategy: resolveStrategy(),
     ...(process.env.LOCALE_COOKIE ? { localeCookie: process.env.LOCALE_COOKIE } : {}),
   },

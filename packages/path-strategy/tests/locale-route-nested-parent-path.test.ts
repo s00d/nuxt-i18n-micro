@@ -380,4 +380,85 @@ describe('localeRoute: nested route includes parent path', () => {
           : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe(expected)
   })
+
+  test.each([
+    ['en', '/about-team'],
+    ['de', '/de/about-team'],
+  ])('sibling without own localeRoutes: %s must stay top-level (%s)', (locale, expected) => {
+    const router = makeRouterAdapter(['about', 'about-team'])
+    router.resolve = () => ({
+      name: 'about-team',
+      path: '/about-team',
+      fullPath: '/about-team',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {
+      about: { en: '/about', de: '/ueber-uns' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute(locale, { name: 'about-team' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe(expected)
+  })
+
+  test.each([
+    ['about-team', 'en', '/about-team'],
+    ['about-team', 'de', '/de/team-seite'],
+    ['/about-team', 'en', '/about-team'],
+    ['/about-team', 'de', '/de/team-seite'],
+  ])('sibling with relative localeRoutes under %s: %s path must not join parent', (ruleKey, locale, expected) => {
+    const router = makeRouterAdapter(['about', 'about-team'])
+    router.resolve = () => ({
+      name: 'about-team',
+      path: '/about-team',
+      fullPath: '/about-team',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {
+      about: { en: '/about', de: '/ueber-uns' },
+      [ruleKey]: { en: 'about-team', de: 'team-seite' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute(locale, { name: 'about-team' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe(expected)
+  })
+
+  test('true nested without child rules still joins parent (path is nested)', () => {
+    const router = makeRouterAdapter(['about', 'about-team'])
+    router.resolve = () => ({
+      name: 'about-team',
+      path: '/about/team',
+      fullPath: '/about/team',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {
+      about: { en: '/about', de: '/ueber-uns' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute('de', { name: 'about-team' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe('/de/ueber-uns/team')
+  })
 })

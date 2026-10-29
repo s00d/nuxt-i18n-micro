@@ -214,7 +214,11 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       }
       const customBySynthetic = resolveCustomPath(this.ctx, syntheticResolved, targetLocale)
       if (customBySynthetic !== null) {
-        return this.buildNestedCustomResult(customBySynthetic, inputName, targetLocale, needsPrefix, sourceRoute, currentRoute)
+        // Prefer the real router path over the synthetic slash form so top-level
+        // dashed pages (pages/about-team.vue → /about-team) are not treated as
+        // children of a shorter sibling (about).
+        const pathForNesting = resolved?.path && resolved.path !== '/' ? analyzeRoute(this.ctx, resolved).pathWithoutLocale : null
+        return this.buildNestedCustomResult(customBySynthetic, inputName, targetLocale, needsPrefix, sourceRoute, currentRoute, pathForNesting)
       }
     }
 
@@ -255,12 +259,20 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       const customSegment = resolveCustomPath(this.ctx, resolved, targetLocale, analysis)
       if (customSegment !== null) {
         const routeName = resolved.name?.toString() ?? inputName ?? ''
-        return this.buildNestedCustomResult(customSegment, routeName, targetLocale, needsPrefix, sourceRoute, currentRoute)
+        return this.buildNestedCustomResult(
+          customSegment,
+          routeName,
+          targetLocale,
+          needsPrefix,
+          sourceRoute,
+          currentRoute,
+          analysis.pathWithoutLocale,
+        )
       }
 
       if (resolved.path && resolved.path !== '/' && resolved.name) {
         const { pathWithoutLocale, baseRouteName } = analysis
-        const nestedInfo = baseRouteName ? this.getNestedRouteInfo(baseRouteName) : null
+        const nestedInfo = baseRouteName ? this.getNestedRouteInfo(baseRouteName, pathWithoutLocale) : null
         let pathToUse: string | null
         if (nestedInfo && pathWithoutLocale && pathWithoutLocale !== '/') {
           const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)
@@ -398,16 +410,30 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     return typeof v === 'object' && v !== null && !Array.isArray(v)
   }
 
-  private getNestedRouteInfo(baseRouteName: string): { parentKey: string; keyWithSlash: string } | null {
+  /**
+   * Nuxt names both `pages/about-team.vue` and `pages/about/team.vue` as `about-team`.
+   * The real route path distinguishes them: `/about-team` (top-level) vs `/about/team` (nested).
+   */
+  private isTopLevelDashedPage(routeName: string, pathWithoutLocale: string | null | undefined): boolean {
+    if (!routeName || !pathWithoutLocale || !routeName.includes('-')) return false
+    return normalizePath(pathWithoutLocale) === normalizePath(`/${routeName}`)
+  }
+
+  private getNestedRouteInfo(baseRouteName: string, pathWithoutLocale?: string | null): { parentKey: string; keyWithSlash: string } | null {
     const gr = this.ctx.globalLocaleRoutes
     if (!gr) return null
     const keyLast = nameKeyLastSlash(baseRouteName)
     const keyFirst = nameKeyFirstSlash(baseRouteName)
+    // Explicit file-path keys (about/team) always mean nested.
     if (keyLast.includes('/') && this.isLocaleRules(keyLast)) {
       return { parentKey: parentKeyFromSlashKey(keyLast), keyWithSlash: keyLast }
     }
     if (keyFirst.includes('/') && this.isLocaleRules(keyFirst)) {
       return { parentKey: parentKeyFromSlashKey(keyFirst), keyWithSlash: keyFirst }
+    }
+    // Parent-only inference: do not treat a top-level dashed sibling as a child.
+    if (this.isTopLevelDashedPage(baseRouteName, pathWithoutLocale)) {
+      return null
     }
     const parentLast = parentKeyFromSlashKey(keyLast)
     if (keyLast.includes('/') && parentLast && this.isLocaleRules(parentLast)) {
@@ -427,11 +453,13 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     needsPrefix: boolean,
     sourceRoute: RouteLike,
     currentRoute?: ResolvedRouteLike,
+    pathWithoutLocale?: string | null,
   ): RouteLike | string {
-    // Absolute paths keyed by route name are complete paths; relative rules
-    // still need the parent, even when the name contains a dash.
+    // Absolute paths keyed by route name are complete paths (no parent join).
+    // Relative rules still need the parent for real nested pages — but not when
+    // the resolved path is a top-level dashed sibling (pages/about-team.vue).
     const hasAbsoluteNameRule = customPath.startsWith('/') && (this.isLocaleRules(routeName) || this.isLocaleRules(`/${routeName}`))
-    const nestedInfo = hasAbsoluteNameRule ? null : this.getNestedRouteInfo(routeName)
+    const nestedInfo = hasAbsoluteNameRule ? null : this.getNestedRouteInfo(routeName, pathWithoutLocale)
     let pathNorm: string
     if (nestedInfo) {
       const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)

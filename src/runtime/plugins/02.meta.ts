@@ -1,8 +1,7 @@
 import type { RouteLike } from '@i18n-micro/path-strategy'
-import type { I18nRouteParams, Locale, ModuleOptionsExtend } from '@i18n-micro/types'
+import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { mergeI18nHead } from '@i18n-micro/utils/merge-i18n-head'
-import { computed, watch } from 'vue'
-import { defineNuxtPlugin, useHead, useRequestURL, useRoute, useState } from '#imports'
+import { defineNuxtPlugin, useHead, useRequestURL, useRoute } from '#imports'
 import { useI18nHead } from '../composables/useI18nHead'
 import { useLocaleHead } from '../composables/useLocaleHead'
 
@@ -37,8 +36,6 @@ function resolveSeoBaseUrl(i18nConfig: ModuleOptionsExtend, siteUrl: string | un
 
 export default defineNuxtPlugin((nuxtApp) => {
   const route = useRoute()
-  const i18nRouteParams = useState<I18nRouteParams>('i18n-route-params', () => ({}))
-  const localeState = useState<string | null>('i18n-locale', () => null)
   const { pageHead } = useI18nHead()
   const i18nConfig = nuxtApp.$getI18nConfig()
 
@@ -49,7 +46,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const siteUrl = readSiteConfigUrl(nuxtApp as { $nuxtSiteConfig?: { get?: (opts?: object) => { url?: unknown } } })
   const baseUrl = resolveSeoBaseUrl(i18nConfig, siteUrl)
 
-  const { metaObject, updateMeta } = useLocaleHead({
+  const { build } = useLocaleHead({
     addDirAttribute: true,
     identifierAttribute: 'id',
     addSeoAttributes: true,
@@ -57,42 +54,20 @@ export default defineNuxtPlugin((nuxtApp) => {
     autoUpdate: false,
   })
 
-  const mergedHead = computed(() => {
+  // A getter: unhead resolves it when the head renders (SSR: after the app rendered, so tags a
+  // page set while rendering are in; client: again whenever what it read changes — the route,
+  // the locale, i18nRouteParams through $switchLocalePath, pageHead). No watchers to keep in sync.
+  useHead(() => {
     const { $getLocales, $getLocale } = nuxtApp
     const allLocales = $getLocales?.() ?? i18nConfig.locales ?? []
     const locale = $getLocale?.() || i18nConfig.defaultLocale || 'en'
-
-    // Keep page-defined i18n head out when the route disables meta — matching the
-    // previous plugin short-circuit that suppressed all head output for that route.
-    const i18nStrategy = nuxtApp.$i18nStrategy
-    if (i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) {
-      return { htmlAttrs: {}, link: [], meta: [] }
-    }
-
-    return mergeI18nHead(metaObject.value, pageHead.value, {
+    // a route that disables meta drops the page-defined i18n head too
+    if (nuxtApp.$i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) return { htmlAttrs: {}, link: [], meta: [] }
+    // unhead's UseHeadInput does not model the merged i18n head shape; the runtime takes it
+    return mergeI18nHead(build(), pageHead.value, {
       identifierAttribute: 'id',
       locales: allLocales as Locale[],
       currentLocale: locale,
-    })
+    }) as unknown as ReturnType<Extract<Parameters<typeof useHead>[0], () => unknown>>
   })
-
-  // unhead's UseHeadInput does not model our merged i18n head shape; the runtime
-  // accepts a ComputedRef of it just fine.
-  useHead(mergedHead as unknown as Parameters<typeof useHead>[0])
-
-  const refreshMeta = () => updateMeta()
-
-  // Client navigations are covered by the route / locale / pageHead watchers below: a
-  // `page:finish` hook as well ran every update twice.
-  if (import.meta.server) nuxtApp.hook('app:rendered', refreshMeta)
-  else refreshMeta()
-
-  watch(() => i18nRouteParams.value, refreshMeta, { deep: true, flush: 'post' })
-
-  // Locale is included: no_prefix / hashMode / setLocale can change locale without a route change.
-  watch(() => [route.fullPath, route.name, route.matched.length, localeState.value] as const, refreshMeta, {
-    flush: 'post',
-  })
-
-  watch(pageHead, refreshMeta, { deep: true, flush: 'post' })
 })

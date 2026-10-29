@@ -112,7 +112,9 @@ export default defineNuxtPlugin({
       isDev,
     })
 
-    const serverLocale = import.meta.server ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
+    // the URL carries the locale in every other strategy: a server-detected one (e.g. `?locale=`) must not override it
+    const urlless = isNoPrefixStrategy(i18nConfig.strategy!) || i18nConfig.hashMode
+    const serverLocale = import.meta.server && urlless ? nuxtApp.ssrContext?.event?.context?.i18n?.locale : undefined
     const initialLocale = resolveInitialLocale({
       route: router.currentRoute.value,
       serverLocale,

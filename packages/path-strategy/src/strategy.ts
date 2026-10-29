@@ -99,6 +99,9 @@ export class I18nPathStrategy {
   setRouter(router: RouterAdapter): void {
     this.ctx.router = router
     this.shared_ = undefined
+    // routes added with addRoute leave options.routes as it was: drop its tables so they are rebuilt
+    const routes = (router as { options?: { routes?: unknown } }).options?.routes
+    if (routes && typeof routes === 'object') TABLES.delete(routes as object)
   }
 
   getDefaultLocale(): string {
@@ -125,14 +128,22 @@ export class I18nPathStrategy {
     const config = `${strategy}\0${defaultLocale}\0${[...this.codes].join(',')}\0${customRegexMatcher}\0${this.prefix}`
     // vue-router keeps the route array it was created with: every SSR request's router has the
     // same one, so it keys the table without walking the records (a router without it: a signature)
+    // (the record count guards a router that later called addRoute on the same array). A fresh
+    // array per request (router.options `routes()`) misses and falls back to a record signature.
+    const all = this.ctx.router.getRoutes()
     const routes = (this.ctx.router as { options?: { routes?: unknown } }).options?.routes
-    const byConfig = routes && typeof routes === 'object' ? tablesOf(routes as object) : SIGNED
-    const key = byConfig === SIGNED ? `${config}\0${signatureOf(this.ctx.router.getRoutes())}` : config
-    let shared = byConfig.get(key)
+    const tables = routes && typeof routes === 'object' ? tablesOf(routes as object) : null
+    const tableKey = `${config}\0${all.length}`
+    let shared = tables?.get(tableKey)
     if (!shared) {
-      const records = this.ctx.router.getRoutes().filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
-      shared = { index: buildIndex(records), pages: new Map(), notFound: new Map(), targets: new Map() }
-      remember(byConfig, key, shared, SHARED_SIZE)
+      const signature = `${config}\0${signatureOf(all)}`
+      shared = SIGNED.get(signature)
+      if (!shared) {
+        const records = all.filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
+        shared = { index: buildIndex(records, [...this.codes]), pages: new Map(), notFound: new Map(), targets: new Map() }
+        remember(SIGNED, signature, shared, SHARED_SIZE)
+      }
+      if (tables) remember(tables, tableKey, shared, SHARED_SIZE)
     }
     return (this.shared_ = shared)
   }
@@ -249,7 +260,7 @@ export class I18nPathStrategy {
       if (complete) remember(cache, cacheKey, target)
     }
     // the cache is process-wide (shared by SSR requests): callers get their own params / query
-    return target && { ...target, params: { ...target.params }, query: target.query && { ...target.query } }
+    return target && { ...target, params: copyValues(target.params), query: target.query && copyValues(target.query) }
   }
 
   /** A route in `locale` on that locale's own domain (`baseUrl`), as an absolute URL. */
@@ -429,10 +440,18 @@ export class I18nPathStrategy {
   }
 }
 
-function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>): Index {
+/** One level of params / query with array values copied (repeatable params, repeated query keys). */
+function copyValues(values: Record<string, unknown> | undefined): Record<string, unknown> {
+  const copy: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(values ?? {})) copy[key] = Array.isArray(value) ? [...value] : value
+  return copy
+}
+
+function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>, codes: string[]): Index {
   const index: Index = { probeCodes: [], records: new Map(), pages: new Map(), noMeta: new Map(), unlocalized: new Set() }
-  const probe = new Set<string>()
-  const sharedSets = new Set<string>()
+  /** code -> names of the `/:locale(...)` records it is in; codes with the same list answer alike */
+  const memberships = new Map<string, string[]>(codes.map((code) => [code, []]))
+  const ownRecords = new Set<string>()
   for (const record of records) {
     const name = String(record.name)
     const i18n = record.meta?.i18n as RouteI18nMeta | undefined
@@ -442,19 +461,25 @@ function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>): Index {
     }
     const keys = Array.from(record.path.matchAll(/:(\w+)/g), (m) => m[1]!)
     index.records.set(name, { base: i18n.name, locales: i18n.locales, keys, catchAll: record.path.includes('(.*)') })
-    const set = i18n.locales.join('|')
-    if (keys.includes('locale') && !sharedSets.has(set) && i18n.locales[0]) {
-      sharedSets.add(set)
-      probe.add(i18n.locales[0])
-    }
-    for (const code of i18n.locales) if (record.path === `/${code}` || record.path.startsWith(`/${code}/`)) probe.add(code)
+    if (keys.includes('locale')) for (const code of i18n.locales) memberships.get(code)?.push(name)
+    for (const code of i18n.locales) if (record.path === `/${code}` || record.path.startsWith(`/${code}/`)) ownRecords.add(code)
     if (i18n.noMeta !== undefined) index.noMeta.set(i18n.name, i18n.noMeta)
     let byLocale = index.pages.get(i18n.name)
     if (!byLocale) index.pages.set(i18n.name, (byLocale = new Map()))
     // prefix_and_default serves the default locale twice: links use the prefixed record
     for (const locale of i18n.locales) if (!byLocale.has(locale) || keys.includes('locale')) byLocale.set(locale, name)
   }
-  index.probeCodes = [...probe]
+  // one code per group of codes in exactly the same shared records (any of them matches the same
+  // records in the same order), every code with records of its own; in configured order
+  const groups = new Set<string>()
+  index.probeCodes = codes.filter((code) => {
+    const group = memberships.get(code)!.join('\0')
+    if (ownRecords.has(code) || !groups.has(group)) {
+      groups.add(group)
+      return true
+    }
+    return false
+  })
   return index
 }
 

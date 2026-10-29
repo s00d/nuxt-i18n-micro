@@ -352,6 +352,29 @@ describe('stability', () => {
     expect(second.query).toEqual({ ref: 'a' })
   })
 
+  test('array params / query values are copied too', () => {
+    const { i18n } = setup('prefix_except_default')
+    const first = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { tag: ['a', 'b'] } })
+    ;(first.query as Record<string, string[]>).tag!.push('LEAKED')
+    const second = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { tag: ['a', 'b'] } })
+    expect(second.query).toEqual({ tag: ['a', 'b'] })
+  })
+
+  test('a route added later with addRoute is seen by the next strategy over the same routes', () => {
+    const { router } = setup('prefix_except_default')
+    const adapter = {
+      hasRoute: (n: string) => router.hasRoute(n),
+      resolve: (to: unknown) => router.resolve(to as never),
+      getRoutes: () => router.getRoutes(),
+      options: router.options,
+    }
+    const before = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
+    expect(before.getRouteBaseName({ path: '/added' })).not.toBe('added')
+    router.addRoute({ path: '/added', name: 'added', component: {}, meta: { i18n: { name: 'added', locales: ['en'] } } })
+    const after = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
+    expect(after.getRouteBaseName({ path: '/added' })).toBe('added')
+  })
+
   test('a route with neither name nor path is returned as it is', () => {
     const { i18n } = setup('prefix')
     const route = { name: null, path: '', fullPath: '', query: { a: '1' } }

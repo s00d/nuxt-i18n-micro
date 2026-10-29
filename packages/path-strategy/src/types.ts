@@ -42,10 +42,9 @@ export interface RouteI18nMeta {
 }
 
 export interface RouterAdapter {
-  hasRoute: (name: string) => boolean
-  // biome-ignore lint: vue-router's `resolve` takes its own location type
-  resolve: (to: any) => ResolvedRouteLike
-  getRoutes: () => RouteRecordLike[]
+  hasRoute(name: string): boolean
+  resolve(to: RouteLike | string): ResolvedRouteLike
+  getRoutes(): RouteRecordLike[]
 }
 
 export interface PathStrategyContext {

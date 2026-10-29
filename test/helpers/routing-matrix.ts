@@ -167,5 +167,7 @@ export function routeNameFor(strategy: Strategy, locale: string, router: Router,
 export function routerUrl(strategy: Strategy, locale: string, router: Router, base = 'about-team'): string | undefined {
   const name = routeNameFor(strategy, locale, router, base)
   if (!name) return undefined
-  return router.resolve({ name, params: strategy === 'no_prefix' ? {} : { locale } }).path
+  // only records with a `:locale` param take it (a custom-path record is `/de/...` literally)
+  const takesLocale = router.getRoutes().some((record) => record.name === name && record.path.includes(':locale'))
+  return router.resolve({ name, params: takesLocale ? { locale } : {} }).path
 }

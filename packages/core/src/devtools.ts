@@ -123,7 +123,10 @@ export function flattenTranslationNode(obj: Record<string, unknown>, parentSegme
 /** Key nodes of `source` under `segments`, with ids scoped to their chunk. */
 function keyNodes(locale: string, routeName: string, source: Record<string, unknown>, segments: string[] = []): I18nDevtoolsInspectorNode[] {
   const scope = `${PREFIX_KEY}${locale}|${routeName}|`
-  return flattenTranslationNode(source, segments).map((node) => ({ ...node, id: scope + node.id.slice(PREFIX_KEY.length) }))
+  // the nodes are fresh objects: rescoping them in place costs no copies
+  const nodes = flattenTranslationNode(source, segments)
+  for (const node of nodes) node.id = scope + node.id.slice(PREFIX_KEY.length)
+  return nodes
 }
 
 function chunkTag(locale: string, routeName: string, options: BuildInspectorTreeOptions, activeRoute: string) {

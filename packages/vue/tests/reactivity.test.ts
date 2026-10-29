@@ -4,7 +4,7 @@ import { VueI18n } from '../src/composer'
 
 describe('VueI18n reactivity', () => {
   test('computed t() re-runs after addTranslations and setTranslation', () => {
-    const i18n = new VueI18n({ locale: 'en', messages: { en: {} } })
+    const i18n = new VueI18n({ locale: 'en', messages: { en: {} }, missingWarn: false })
     const late = computed(() => i18n.t('late'))
     expect(late.value).toBe('late')
     i18n.addTranslations('en', { late: 'Loaded' })

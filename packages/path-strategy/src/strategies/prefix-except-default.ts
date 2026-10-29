@@ -401,9 +401,6 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
   private getNestedRouteInfo(baseRouteName: string): { parentKey: string; keyWithSlash: string } | null {
     const gr = this.ctx.globalLocaleRoutes
     if (!gr) return null
-    // Rules keyed by the dashed name belong to a top-level page (pages/foo-bar.vue),
-    // so the name is not a parent-child pair even when "foo" has rules of its own.
-    if (this.isLocaleRules(baseRouteName)) return null
     const keyLast = nameKeyLastSlash(baseRouteName)
     const keyFirst = nameKeyFirstSlash(baseRouteName)
     if (keyLast.includes('/') && this.isLocaleRules(keyLast)) {
@@ -431,7 +428,10 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     sourceRoute: RouteLike,
     currentRoute?: ResolvedRouteLike,
   ): RouteLike | string {
-    const nestedInfo = this.getNestedRouteInfo(routeName)
+    // Absolute paths keyed by route name are complete paths; relative rules
+    // still need the parent, even when the name contains a dash.
+    const hasAbsoluteNameRule = customPath.startsWith('/') && (this.isLocaleRules(routeName) || this.isLocaleRules(`/${routeName}`))
+    const nestedInfo = hasAbsoluteNameRule ? null : this.getNestedRouteInfo(routeName)
     let pathNorm: string
     if (nestedInfo) {
       const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)

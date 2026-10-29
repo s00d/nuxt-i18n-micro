@@ -176,7 +176,7 @@ export function buildDiffAudit(input: { files: string[]; numstatText?: string; n
   }
 
   const areas = [...areaMap.entries()]
-    .map(([name, v]) => ({ name, ...v }))
+    .map(([name, v]) => Object.assign({ name }, v))
     .sort((a, b) => b.files - a.files || b.linesAdded + b.linesDeleted - (a.linesAdded + a.linesDeleted))
 
   const topPaths = [...rows]

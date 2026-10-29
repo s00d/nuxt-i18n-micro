@@ -141,6 +141,13 @@ export abstract class BaseStrategy implements RouteStrategy {
     ]
   }
 
+  /** The page's declared aliases as a list: vue-router accepts a single string as well. */
+  protected declaredAliases(page: NuxtPage): string[] {
+    const declared = (page as NuxtPage & { alias?: unknown }).alias ?? page.meta?.alias
+    if (typeof declared === 'string') return [declared]
+    return Array.isArray(declared) ? declared.filter((alias): alias is string => typeof alias === 'string') : []
+  }
+
   /**
    * vue-router record aliases of a generated route: the page's own aliases (`alias` /
    * `definePageMeta({ alias })`) localized like the route path — under the route's `:locale(...)`
@@ -149,18 +156,14 @@ export abstract class BaseStrategy implements RouteStrategy {
    * shares the record's name, so alias URLs follow the localized child tree and names stay
    * unique (separate alias routes duplicated both).
    */
-  /** The page's declared aliases as a list: vue-router accepts a single string as well. */
-  protected declaredAliases(page: NuxtPage): string[] {
-    const declared = (page as NuxtPage & { alias?: unknown }).alias ?? page.meta?.alias
-    if (typeof declared === 'string') return [declared]
-    return Array.isArray(declared) ? declared.filter((alias): alias is string => typeof alias === 'string') : []
-  }
-
   protected routeAliases(page: NuxtPage, routePath: string, localeCodes: string[] | null, context: GeneratorContext): string[] {
-    const own = this.declaredAliases(page).map((alias) =>
-      localeCodes ? buildFullPath(localeCodes, alias, context.customRegex) : normalizePath(alias),
-    )
-    return [...new Set([...buildEncodedPathAliases(routePath), ...own.flatMap((alias) => [alias, ...buildEncodedPathAliases(alias)])])]
+    const aliases = new Set(buildEncodedPathAliases(routePath))
+    for (const declared of this.declaredAliases(page)) {
+      const alias = localeCodes ? buildFullPath(localeCodes, declared, context.customRegex) : normalizePath(declared)
+      aliases.add(alias)
+      for (const encoded of buildEncodedPathAliases(alias)) aliases.add(encoded)
+    }
+    return [...aliases]
   }
 
   /**

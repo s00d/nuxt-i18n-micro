@@ -1,0 +1,429 @@
+## interpolate
+
+- `interpolate("Hello, {name}!", undefined)` → "Hello, {name}!"
+- `interpolate("Hello, {name}!", {})` → "Hello, {name}!"
+- `interpolate("Hello, {name}!", {"name":"Ann"})` → "Hello, Ann!"
+- `interpolate("Hello, {name}!", {"name":0})` → "Hello, 0!"
+- `interpolate("Hello, {name}!", {"name":null})` → "Hello, null!"
+- `interpolate("Hello, {name}!", {"name":false})` → "Hello, false!"
+- `interpolate("Hello, {name}!", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "Hello, {name}!"
+- `interpolate("Hello, {name}!", {"name":{"nested":true}})` → "Hello, [object Object]!"
+- `interpolate("Hello, {name}!", {"name":["x","y"]})` → "Hello, x,y!"
+- `interpolate("{a}-{b}-{a}", undefined)` → "{a}-{b}-{a}"
+- `interpolate("{a}-{b}-{a}", {})` → "{a}-{b}-{a}"
+- `interpolate("{a}-{b}-{a}", {"name":"Ann"})` → "{a}-{b}-{a}"
+- `interpolate("{a}-{b}-{a}", {"name":0})` → "{a}-{b}-{a}"
+- `interpolate("{a}-{b}-{a}", {"name":null})` → "{a}-{b}-{a}"
+- `interpolate("{a}-{b}-{a}", {"name":false})` → "{a}-{b}-{a}"
+- `interpolate("{a}-{b}-{a}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "A-B-A"
+- `interpolate("{a}-{b}-{a}", {"name":{"nested":true}})` → "{a}-{b}-{a}"
+- `interpolate("{a}-{b}-{a}", {"name":["x","y"]})` → "{a}-{b}-{a}"
+- `interpolate("no tokens", undefined)` → "no tokens"
+- `interpolate("no tokens", {})` → "no tokens"
+- `interpolate("no tokens", {"name":"Ann"})` → "no tokens"
+- `interpolate("no tokens", {"name":0})` → "no tokens"
+- `interpolate("no tokens", {"name":null})` → "no tokens"
+- `interpolate("no tokens", {"name":false})` → "no tokens"
+- `interpolate("no tokens", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "no tokens"
+- `interpolate("no tokens", {"name":{"nested":true}})` → "no tokens"
+- `interpolate("no tokens", {"name":["x","y"]})` → "no tokens"
+- `interpolate("", undefined)` → ""
+- `interpolate("", {})` → ""
+- `interpolate("", {"name":"Ann"})` → ""
+- `interpolate("", {"name":0})` → ""
+- `interpolate("", {"name":null})` → ""
+- `interpolate("", {"name":false})` → ""
+- `interpolate("", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → ""
+- `interpolate("", {"name":{"nested":true}})` → ""
+- `interpolate("", {"name":["x","y"]})` → ""
+- `interpolate("{ name }", undefined)` → "{ name }"
+- `interpolate("{ name }", {})` → "{ name }"
+- `interpolate("{ name }", {"name":"Ann"})` → "{ name }"
+- `interpolate("{ name }", {"name":0})` → "{ name }"
+- `interpolate("{ name }", {"name":null})` → "{ name }"
+- `interpolate("{ name }", {"name":false})` → "{ name }"
+- `interpolate("{ name }", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "{ name }"
+- `interpolate("{ name }", {"name":{"nested":true}})` → "{ name }"
+- `interpolate("{ name }", {"name":["x","y"]})` → "{ name }"
+- `interpolate("{name", undefined)` → "{name"
+- `interpolate("{name", {})` → "{name"
+- `interpolate("{name", {"name":"Ann"})` → "{name"
+- `interpolate("{name", {"name":0})` → "{name"
+- `interpolate("{name", {"name":null})` → "{name"
+- `interpolate("{name", {"name":false})` → "{name"
+- `interpolate("{name", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "{name"
+- `interpolate("{name", {"name":{"nested":true}})` → "{name"
+- `interpolate("{name", {"name":["x","y"]})` → "{name"
+- `interpolate("name}", undefined)` → "name}"
+- `interpolate("name}", {})` → "name}"
+- `interpolate("name}", {"name":"Ann"})` → "name}"
+- `interpolate("name}", {"name":0})` → "name}"
+- `interpolate("name}", {"name":null})` → "name}"
+- `interpolate("name}", {"name":false})` → "name}"
+- `interpolate("name}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "name}"
+- `interpolate("name}", {"name":{"nested":true}})` → "name}"
+- `interpolate("name}", {"name":["x","y"]})` → "name}"
+- `interpolate("{}", undefined)` → "{}"
+- `interpolate("{}", {})` → "{}"
+- `interpolate("{}", {"name":"Ann"})` → "{}"
+- `interpolate("{}", {"name":0})` → "{}"
+- `interpolate("{}", {"name":null})` → "{}"
+- `interpolate("{}", {"name":false})` → "{}"
+- `interpolate("{}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "{}"
+- `interpolate("{}", {"name":{"nested":true}})` → "{}"
+- `interpolate("{}", {"name":["x","y"]})` → "{}"
+- `interpolate("{na-me}", undefined)` → "{na-me}"
+- `interpolate("{na-me}", {})` → "{na-me}"
+- `interpolate("{na-me}", {"name":"Ann"})` → "{na-me}"
+- `interpolate("{na-me}", {"name":0})` → "{na-me}"
+- `interpolate("{na-me}", {"name":null})` → "{na-me}"
+- `interpolate("{na-me}", {"name":false})` → "{na-me}"
+- `interpolate("{na-me}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "{na-me}"
+- `interpolate("{na-me}", {"name":{"nested":true}})` → "{na-me}"
+- `interpolate("{na-me}", {"name":["x","y"]})` → "{na-me}"
+- `interpolate("{0} {1}", undefined)` → "{0} {1}"
+- `interpolate("{0} {1}", {})` → "{0} {1}"
+- `interpolate("{0} {1}", {"name":"Ann"})` → "{0} {1}"
+- `interpolate("{0} {1}", {"name":0})` → "{0} {1}"
+- `interpolate("{0} {1}", {"name":null})` → "{0} {1}"
+- `interpolate("{0} {1}", {"name":false})` → "{0} {1}"
+- `interpolate("{0} {1}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "zero one"
+- `interpolate("{0} {1}", {"name":{"nested":true}})` → "{0} {1}"
+- `interpolate("{0} {1}", {"name":["x","y"]})` → "{0} {1}"
+- `interpolate("{count} of {total}", undefined)` → "{count} of {total}"
+- `interpolate("{count} of {total}", {})` → "{count} of {total}"
+- `interpolate("{count} of {total}", {"name":"Ann"})` → "{count} of {total}"
+- `interpolate("{count} of {total}", {"name":0})` → "{count} of {total}"
+- `interpolate("{count} of {total}", {"name":null})` → "{count} of {total}"
+- `interpolate("{count} of {total}", {"name":false})` → "{count} of {total}"
+- `interpolate("{count} of {total}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "3 of 9"
+- `interpolate("{count} of {total}", {"name":{"nested":true}})` → "{count} of {total}"
+- `interpolate("{count} of {total}", {"name":["x","y"]})` → "{count} of {total}"
+- `interpolate("{name}{name}", undefined)` → "{name}{name}"
+- `interpolate("{name}{name}", {})` → "{name}{name}"
+- `interpolate("{name}{name}", {"name":"Ann"})` → "AnnAnn"
+- `interpolate("{name}{name}", {"name":0})` → "00"
+- `interpolate("{name}{name}", {"name":null})` → "nullnull"
+- `interpolate("{name}{name}", {"name":false})` → "falsefalse"
+- `interpolate("{name}{name}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "{name}{name}"
+- `interpolate("{name}{name}", {"name":{"nested":true}})` → "[object Object][object Object]"
+- `interpolate("{name}{name}", {"name":["x","y"]})` → "x,yx,y"
+- `interpolate("x {constructor} {toString} {__proto__}", undefined)` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":"Ann"})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":0})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":null})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":false})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":{"nested":true}})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":["x","y"]})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+
+## getByPath / resolveTranslation / hasTranslationValue
+
+- `getByPath(en, "greeting")` → "Hello, {name}!"
+- `resolveTranslation(en, "greeting")` → "Hello, {name}!"
+- `hasTranslationValue(en, "greeting")` → true
+- `getByPath(en, "farewell")` → "Bye"
+- `resolveTranslation(en, "farewell")` → "Bye"
+- `hasTranslationValue(en, "farewell")` → true
+- `getByPath(en, "empty")` → ""
+- `resolveTranslation(en, "empty")` → ""
+- `hasTranslationValue(en, "empty")` → true
+- `getByPath(en, "zero")` → 0
+- `resolveTranslation(en, "zero")` → 0
+- `hasTranslationValue(en, "zero")` → true
+- `getByPath(en, "yes")` → true
+- `resolveTranslation(en, "yes")` → true
+- `hasTranslationValue(en, "yes")` → true
+- `getByPath(en, "nothing")` → null
+- `resolveTranslation(en, "nothing")` → null
+- `hasTranslationValue(en, "nothing")` → false
+- `getByPath(en, "list")` → ["a","b"]
+- `resolveTranslation(en, "list")` → ["a","b"]
+- `hasTranslationValue(en, "list")` → true
+- `getByPath(en, "flat.dotted")` → "flat value"
+- `resolveTranslation(en, "flat.dotted")` → "flat value"
+- `hasTranslationValue(en, "flat.dotted")` → true
+- `getByPath(en, "flat.other")` → "nested other"
+- `resolveTranslation(en, "flat.other")` → "nested other"
+- `hasTranslationValue(en, "flat.other")` → true
+- `getByPath(en, "flat")` → {"dotted":"nested value","other":"nested other"}
+- `resolveTranslation(en, "flat")` → {"dotted":"nested value","other":"nested other"}
+- `hasTranslationValue(en, "flat")` → true
+- `getByPath(en, "nav")` → {"home":"Home","about":"About us","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}}
+- `resolveTranslation(en, "nav")` → {"home":"Home","about":"About us","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}}
+- `hasTranslationValue(en, "nav")` → true
+- `getByPath(en, "nav.home")` → "Home"
+- `resolveTranslation(en, "nav.home")` → "Home"
+- `hasTranslationValue(en, "nav.home")` → true
+- `getByPath(en, "nav.about")` → "About us"
+- `resolveTranslation(en, "nav.about")` → "About us"
+- `hasTranslationValue(en, "nav.about")` → true
+- `getByPath(en, "nav.deep.leaf")` → "Deep leaf"
+- `resolveTranslation(en, "nav.deep.leaf")` → "Deep leaf"
+- `hasTranslationValue(en, "nav.deep.leaf")` → true
+- `getByPath(en, "nav.deep.tpl")` → "{a}-{b}-{a}"
+- `resolveTranslation(en, "nav.deep.tpl")` → "{a}-{b}-{a}"
+- `hasTranslationValue(en, "nav.deep.tpl")` → true
+- `getByPath(en, "nav.home.x")` → undefined
+- `resolveTranslation(en, "nav.home.x")` → null
+- `hasTranslationValue(en, "nav.home.x")` → false
+- `getByPath(en, "nav.")` → undefined
+- `resolveTranslation(en, "nav.")` → null
+- `hasTranslationValue(en, "nav.")` → false
+- `getByPath(en, ".nav")` → undefined
+- `resolveTranslation(en, ".nav")` → null
+- `hasTranslationValue(en, ".nav")` → false
+- `getByPath(en, "nav..home")` → undefined
+- `resolveTranslation(en, "nav..home")` → null
+- `hasTranslationValue(en, "nav..home")` → false
+- `getByPath(en, "apples")` → "no apples | one apple | {count} apples"
+- `resolveTranslation(en, "apples")` → "no apples | one apple | {count} apples"
+- `hasTranslationValue(en, "apples")` → true
+- `getByPath(en, "items")` → "{count} item | {count} items for {name}"
+- `resolveTranslation(en, "items")` → "{count} item | {count} items for {name}"
+- `hasTranslationValue(en, "items")` → true
+- `getByPath(en, "constructor")` → "ctor text"
+- `resolveTranslation(en, "constructor")` → "ctor text"
+- `hasTranslationValue(en, "constructor")` → true
+- `getByPath(en, "toString")` → undefined
+- `resolveTranslation(en, "toString")` → null
+- `hasTranslationValue(en, "toString")` → false
+- `getByPath(en, "__proto__")` → undefined
+- `resolveTranslation(en, "__proto__")` → null
+- `hasTranslationValue(en, "__proto__")` → false
+- `getByPath(en, "hasOwnProperty")` → undefined
+- `resolveTranslation(en, "hasOwnProperty")` → null
+- `hasTranslationValue(en, "hasOwnProperty")` → false
+- `getByPath(en, "unicode.ключ")` → "значение"
+- `resolveTranslation(en, "unicode.ключ")` → "значение"
+- `hasTranslationValue(en, "unicode.ключ")` → true
+- `getByPath(en, "unicode.😀")` → "smile"
+- `resolveTranslation(en, "unicode.😀")` → "smile"
+- `hasTranslationValue(en, "unicode.😀")` → true
+- `getByPath(en, "shadow")` → "scalar in en"
+- `resolveTranslation(en, "shadow")` → "scalar in en"
+- `hasTranslationValue(en, "shadow")` → true
+- `getByPath(en, "shadow.child")` → undefined
+- `resolveTranslation(en, "shadow.child")` → null
+- `hasTranslationValue(en, "shadow.child")` → false
+- `getByPath(en, "onlyEn")` → "english only"
+- `resolveTranslation(en, "onlyEn")` → "english only"
+- `hasTranslationValue(en, "onlyEn")` → true
+- `getByPath(en, "onlyDe")` → undefined
+- `resolveTranslation(en, "onlyDe")` → null
+- `hasTranslationValue(en, "onlyDe")` → false
+- `getByPath(en, "title")` → undefined
+- `resolveTranslation(en, "title")` → null
+- `hasTranslationValue(en, "title")` → false
+- `getByPath(en, "missing")` → undefined
+- `resolveTranslation(en, "missing")` → null
+- `hasTranslationValue(en, "missing")` → false
+- `getByPath(en, "missing.deep")` → undefined
+- `resolveTranslation(en, "missing.deep")` → null
+- `hasTranslationValue(en, "missing.deep")` → false
+- `getByPath(null, "a")` → undefined
+- `getByPath(undefined, "a")` → undefined
+- `getByPath({}, "")` → undefined
+- `getByPath({a:"x"}, 1 as any)` → undefined
+- `getByPath({a:{b:"s"}}, "a.b.length")` → undefined
+- `getByPath({a:["x","y"]}, "a.1")` → "y"
+- `getByPath(Object.create({inh:"x"}), "inh")` → undefined
+- `resolveTranslation(null, "a")` → null
+
+## setTranslationAtKey
+
+- `setTranslationAtKey(en, "greeting", "Yo") → changed paths` → {"same":false,"value":"Yo","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "nav", {"only":"x"}) → changed paths` → {"same":false,"value":{"only":"x"},"navSame":false}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "nav.home", "H") → changed paths` → {"same":false,"value":"H","navSame":false}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "nav.deep.leaf", 1) → changed paths` → {"same":false,"value":1,"navSame":false}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "nav.new.path", "n") → changed paths` → {"same":false,"value":"n","navSame":false}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "greeting.sub", "turns string into object") → changed paths` → {"same":false,"value":"turns string into object","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "flat.dotted", "updates flat key") → changed paths` → {"same":false,"value":"updates flat key","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "list.0", "z") → changed paths` → {"same":false,"value":"z","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "", "ignored") → changed paths` → {"same":true,"value":"«undefined»","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "__proto__", "bad") → changed paths` → {"same":true,"value":"«undefined»","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "a.__proto__.b", "bad") → changed paths` → {"same":true,"value":"«undefined»","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "constructor", "ok") → changed paths` → {"same":false,"value":"ok","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "nav..home", "empty segment") → changed paths` → {"same":false,"value":"empty segment","navSame":false}
+- `  input untouched` → true
+- `setTranslationAtKey(en, ".lead", "lead") → changed paths` → {"same":false,"value":"lead","navSame":true}
+- `  input untouched` → true
+- `setTranslationAtKey(en, "trail.", "trail") → changed paths` → {"same":false,"value":"trail","navSame":true}
+- `  input untouched` → true
+
+## mergeTranslationChunk
+
+- `merge en ← de preserve=false` → {"out":{"greeting":"Hallo, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":"de has it","list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Startseite","about":"About us","deep":{"leaf":"Tiefes Blatt","tpl":"{a}-{b}-{a}"}},"apples":"keine Äpfel | ein Apfel | {count} Äpfel","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":{"child":"object in de"},"onlyEn":"english only","onlyDe":"nur deutsch"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge en ← de preserve=true` → {"out":{"greeting":"Hello, {name}!","nav":{"home":"Home","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"},"about":"About us"},"apples":"no apples | one apple | {count} apples","nothing":null,"shadow":"scalar in en","onlyDe":"nur deutsch","farewell":"Bye","empty":"","zero":0,"yes":true,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"onlyEn":"english only"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge de ← en preserve=false` → {"out":{"greeting":"Hello, {name}!","nav":{"home":"Home","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"},"about":"About us"},"apples":"no apples | one apple | {count} apples","nothing":null,"shadow":"scalar in en","onlyDe":"nur deutsch","farewell":"Bye","empty":"","zero":0,"yes":true,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"onlyEn":"english only"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge de ← en preserve=true` → {"out":{"greeting":"Hallo, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":"de has it","list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Startseite","about":"About us","deep":{"leaf":"Tiefes Blatt","tpl":"{a}-{b}-{a}"}},"apples":"keine Äpfel | ein Apfel | {count} Äpfel","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":{"child":"object in de"},"onlyEn":"english only","onlyDe":"nur deutsch"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge {} ← en preserve=false` → {"out":{"greeting":"Hello, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":null,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Home","about":"About us","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}},"apples":"no apples | one apple | {count} apples","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":"scalar in en","onlyEn":"english only"},"returnsIncoming":true,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge {} ← en preserve=true` → {"out":{"greeting":"Hello, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":null,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Home","about":"About us","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}},"apples":"no apples | one apple | {count} apples","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":"scalar in en","onlyEn":"english only"},"returnsIncoming":true,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge en ← {} preserve=false` → {"out":{"greeting":"Hello, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":null,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Home","about":"About us","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}},"apples":"no apples | one apple | {count} apples","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":"scalar in en","onlyEn":"english only"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge en ← {} preserve=true` → {"out":{"greeting":"Hello, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":null,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Home","about":"About us","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}},"apples":"no apples | one apple | {count} apples","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":"scalar in en","onlyEn":"english only"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge arrays replace preserve=false` → {"out":{"list":["c"],"n":"flat"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge arrays replace preserve=true` → {"out":{"list":["a","b"],"n":{"x":1}},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge type change preserve=false` → {"out":{"a":{"b":"obj"}},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge type change preserve=true` → {"out":{"a":"str"},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge null leaf preserve=false` → {"out":{"a":null,"b":null},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge null leaf preserve=true` → {"out":{"a":"x","b":{"c":1}},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge __proto__ json preserve=false` → {"out":{"a":1,"b":2},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge __proto__ json preserve=true` → {"out":{"__proto__":{"polluted":true},"b":2,"a":1},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge constructor key preserve=false` → {"out":{"constructor":{"a":1,"b":2}},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+- `merge constructor key preserve=true` → {"out":{"constructor":{"b":2,"a":1}},"returnsIncoming":false,"returnsExisting":false}
+- `  existing untouched` → true
+- `  incoming untouched` → true
+- `  prototype clean` → true
+
+## mergeTranslationLayers
+
+- `layers(en, de)` → {"greeting":"Hallo, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":"de has it","list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Startseite","about":"About us","deep":{"leaf":"Tiefes Blatt","tpl":"{a}-{b}-{a}"}},"apples":"keine Äpfel | ein Apfel | {count} Äpfel","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":{"child":"object in de"},"onlyEn":"english only","onlyDe":"nur deutsch"}
+- `layers(de, en)` → {"greeting":"Hello, {name}!","nav":{"home":"Home","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"},"about":"About us"},"apples":"no apples | one apple | {count} apples","nothing":"de has it","shadow":"scalar in en","onlyDe":"nur deutsch","farewell":"Bye","empty":"","zero":0,"yes":true,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"onlyEn":"english only","shadow.child":"object in de"}
+- `layers(en, enAbout)` → {"greeting":"Hi from about, {name}","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":null,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Home","about":"About (page)","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}},"apples":"no apples | one apple | {count} apples","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":"scalar in en","onlyEn":"english only","title":"About page"}
+- `layers({}, {})` → {}
+- `layers scalar hides deep object` → {"a":"scalar","a.b.c":1,"a.b.d":[1]}
+- `layers null/undefined above fall through` → {"a":"low","b":{"c":1}}
+- `layers __proto__` → {"__proto__":{"x":1},"a":1,"b":2}
+
+## collectTranslationPaths
+
+- `paths(en)` → ["greeting","farewell","empty","zero","yes","nothing","list","flat.dotted","flat","flat.other","nav","nav.home","nav.about","nav.deep","nav.deep.leaf","nav.deep.tpl","apples","cars","items","single","spaced","braces","constructor","unicode","unicode.ключ","unicode.😀","shadow","onlyEn"]
+- `paths(de)` → ["greeting","nav","nav.home","nav.deep","nav.deep.leaf","apples","nothing","shadow","shadow.child","onlyDe"]
+- `paths(proto)` → ["a","a.b"]
+
+## strategy predicates / translationCacheKey
+
+- `prefix` → {"with":true,"no":false,"prefix":true,"except":false,"and":false}
+- `prefix_except_default` → {"with":false,"no":false,"prefix":false,"except":true,"and":false}
+- `prefix_and_default` → {"with":true,"no":false,"prefix":false,"except":false,"and":true}
+- `no_prefix` → {"with":false,"no":true,"prefix":false,"except":false,"and":false}
+- `translationCacheKey("en", undefined)` → "en:index"
+- `translationCacheKey("en", "")` → "en:index"
+- `translationCacheKey("en", "about")` → "en:about"
+- `translationCacheKey("de-AT", "a:b")` → "de-AT:a:b"
+
+## defaultPlural
+
+- `defaultPlural("no apples | one apple | {count} apples", 0, {name:"Z"})` → "no apples"
+- `defaultPlural("no apples | one apple | {count} apples", 1, {name:"Z"})` → "one apple"
+- `defaultPlural("no apples | one apple | {count} apples", 2, {name:"Z"})` → "2 apples"
+- `defaultPlural("no apples | one apple | {count} apples", 3, {name:"Z"})` → "3 apples"
+- `defaultPlural("no apples | one apple | {count} apples", 10, {name:"Z"})` → "10 apples"
+- `defaultPlural("no apples | one apple | {count} apples", -1, {name:"Z"})` → null
+- `defaultPlural("no apples | one apple | {count} apples", 1.5, {name:"Z"})` → null
+- `defaultPlural("no apples | one apple | {count} apples", NaN, {name:"Z"})` → "NaN apples"
+- `defaultPlural("car|cars", 0, {name:"Z"})` → "car"
+- `defaultPlural("car|cars", 1, {name:"Z"})` → "cars"
+- `defaultPlural("car|cars", 2, {name:"Z"})` → "cars"
+- `defaultPlural("car|cars", 3, {name:"Z"})` → "cars"
+- `defaultPlural("car|cars", 10, {name:"Z"})` → "cars"
+- `defaultPlural("car|cars", -1, {name:"Z"})` → null
+- `defaultPlural("car|cars", 1.5, {name:"Z"})` → null
+- `defaultPlural("car|cars", NaN, {name:"Z"})` → "cars"
+- `defaultPlural("only", 0, {name:"Z"})` → "only"
+- `defaultPlural("only", 1, {name:"Z"})` → "only"
+- `defaultPlural("only", 2, {name:"Z"})` → "only"
+- `defaultPlural("only", 3, {name:"Z"})` → "only"
+- `defaultPlural("only", 10, {name:"Z"})` → "only"
+- `defaultPlural("only", -1, {name:"Z"})` → null
+- `defaultPlural("only", 1.5, {name:"Z"})` → "only"
+- `defaultPlural("only", NaN, {name:"Z"})` → "only"
+- `defaultPlural("", 0, {name:"Z"})` → null
+- `defaultPlural("", 1, {name:"Z"})` → null
+- `defaultPlural("", 2, {name:"Z"})` → null
+- `defaultPlural("", 3, {name:"Z"})` → null
+- `defaultPlural("", 10, {name:"Z"})` → null
+- `defaultPlural("", -1, {name:"Z"})` → null
+- `defaultPlural("", 1.5, {name:"Z"})` → null
+- `defaultPlural("", NaN, {name:"Z"})` → null
+- `defaultPlural("|", 0, {name:"Z"})` → null
+- `defaultPlural("|", 1, {name:"Z"})` → null
+- `defaultPlural("|", 2, {name:"Z"})` → null
+- `defaultPlural("|", 3, {name:"Z"})` → null
+- `defaultPlural("|", 10, {name:"Z"})` → null
+- `defaultPlural("|", -1, {name:"Z"})` → null
+- `defaultPlural("|", 1.5, {name:"Z"})` → null
+- `defaultPlural("|", NaN, {name:"Z"})` → null
+- `defaultPlural(" a | | c ", 0, {name:"Z"})` → "a"
+- `defaultPlural(" a | | c ", 1, {name:"Z"})` → ""
+- `defaultPlural(" a | | c ", 2, {name:"Z"})` → "c"
+- `defaultPlural(" a | | c ", 3, {name:"Z"})` → "c"
+- `defaultPlural(" a | | c ", 10, {name:"Z"})` → "c"
+- `defaultPlural(" a | | c ", -1, {name:"Z"})` → null
+- `defaultPlural(" a | | c ", 1.5, {name:"Z"})` → null
+- `defaultPlural(" a | | c ", NaN, {name:"Z"})` → "c"
+- `defaultPlural("{count} item | {count} items for {name}", 0, {name:"Z"})` → "0 item"
+- `defaultPlural("{count} item | {count} items for {name}", 1, {name:"Z"})` → "1 items for Z"
+- `defaultPlural("{count} item | {count} items for {name}", 2, {name:"Z"})` → "2 items for Z"
+- `defaultPlural("{count} item | {count} items for {name}", 3, {name:"Z"})` → "3 items for Z"
+- `defaultPlural("{count} item | {count} items for {name}", 10, {name:"Z"})` → "10 items for Z"
+- `defaultPlural("{count} item | {count} items for {name}", -1, {name:"Z"})` → null
+- `defaultPlural("{count} item | {count} items for {name}", 1.5, {name:"Z"})` → null
+- `defaultPlural("{count} item | {count} items for {name}", NaN, {name:"Z"})` → "NaN items for Z"
+- `defaultPlural(missing)` → null
+- `defaultPlural(number value)` → "12"
+- `defaultPlural(object value)` → "[object Object]"

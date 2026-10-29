@@ -20,6 +20,7 @@ import {
   normalizePath,
   normalizePathForCompare,
   parentKeyFromSlashKey,
+  isTopLevelDashedPagePath,
   joinNestedCustomPath,
   transformNameKeyToPath,
 } from '../path'
@@ -205,20 +206,33 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
       const unlocalizedByName = getPathForUnlocalizedRouteByName(this.ctx, inputName)
       if (unlocalizedByName !== null) return preserveQueryAndHash(unlocalizedByName, sourceRoute)
 
-      const keyLastSlash = nameKeyLastSlash(inputName)
-      const syntheticResolved: ResolvedRouteLike = {
-        name: inputName,
-        path: `/${keyLastSlash}`,
-        fullPath: `/${keyLastSlash}`,
-        params: sourceRoute.params ?? {},
-      }
-      const customBySynthetic = resolveCustomPath(this.ctx, syntheticResolved, targetLocale)
-      if (customBySynthetic !== null) {
-        // Prefer the real router path over the synthetic slash form so top-level
-        // dashed pages (pages/about-team.vue → /about-team) are not treated as
-        // children of a shorter sibling (about).
-        const pathForNesting = resolved?.path && resolved.path !== '/' ? analyzeRoute(this.ctx, resolved).pathWithoutLocale : null
-        return this.buildNestedCustomResult(customBySynthetic, inputName, targetLocale, needsPrefix, sourceRoute, currentRoute, pathForNesting)
+      const pathForNesting = resolved?.path && resolved.path !== '/' ? analyzeRoute(this.ctx, resolved).pathWithoutLocale : null
+
+      // Prefer the real router path for top-level dashed pages so we never look up
+      // nested file-path keys (about/team) via a synthetic /about/team path.
+      if (isTopLevelDashedPagePath(inputName, pathForNesting)) {
+        const topLevelResolved: ResolvedRouteLike = {
+          name: inputName,
+          path: pathForNesting!,
+          fullPath: pathForNesting!,
+          params: sourceRoute.params ?? {},
+        }
+        const customTopLevel = resolveCustomPath(this.ctx, topLevelResolved, targetLocale)
+        if (customTopLevel !== null) {
+          return this.buildNestedCustomResult(customTopLevel, inputName, targetLocale, needsPrefix, sourceRoute, currentRoute, pathForNesting)
+        }
+      } else {
+        const keyLastSlash = nameKeyLastSlash(inputName)
+        const syntheticResolved: ResolvedRouteLike = {
+          name: inputName,
+          path: `/${keyLastSlash}`,
+          fullPath: `/${keyLastSlash}`,
+          params: sourceRoute.params ?? {},
+        }
+        const customBySynthetic = resolveCustomPath(this.ctx, syntheticResolved, targetLocale)
+        if (customBySynthetic !== null) {
+          return this.buildNestedCustomResult(customBySynthetic, inputName, targetLocale, needsPrefix, sourceRoute, currentRoute, pathForNesting)
+        }
       }
     }
 
@@ -410,30 +424,22 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     return typeof v === 'object' && v !== null && !Array.isArray(v)
   }
 
-  /**
-   * Nuxt names both `pages/about-team.vue` and `pages/about/team.vue` as `about-team`.
-   * The real route path distinguishes them: `/about-team` (top-level) vs `/about/team` (nested).
-   */
-  private isTopLevelDashedPage(routeName: string, pathWithoutLocale: string | null | undefined): boolean {
-    if (!routeName || !pathWithoutLocale || !routeName.includes('-')) return false
-    return normalizePath(pathWithoutLocale) === normalizePath(`/${routeName}`)
-  }
-
   private getNestedRouteInfo(baseRouteName: string, pathWithoutLocale?: string | null): { parentKey: string; keyWithSlash: string } | null {
     const gr = this.ctx.globalLocaleRoutes
     if (!gr) return null
+    // Resolved path wins over slash-key inference: /about-team is never a child of about,
+    // even when globalLocaleRoutes also has an about/team rule for a nested page.
+    if (isTopLevelDashedPagePath(baseRouteName, pathWithoutLocale)) {
+      return null
+    }
     const keyLast = nameKeyLastSlash(baseRouteName)
     const keyFirst = nameKeyFirstSlash(baseRouteName)
-    // Explicit file-path keys (about/team) always mean nested.
+    // Explicit file-path keys (about/team) mean nested when the path is not top-level.
     if (keyLast.includes('/') && this.isLocaleRules(keyLast)) {
       return { parentKey: parentKeyFromSlashKey(keyLast), keyWithSlash: keyLast }
     }
     if (keyFirst.includes('/') && this.isLocaleRules(keyFirst)) {
       return { parentKey: parentKeyFromSlashKey(keyFirst), keyWithSlash: keyFirst }
-    }
-    // Parent-only inference: do not treat a top-level dashed sibling as a child.
-    if (this.isTopLevelDashedPage(baseRouteName, pathWithoutLocale)) {
-      return null
     }
     const parentLast = parentKeyFromSlashKey(keyLast)
     if (keyLast.includes('/') && parentLast && this.isLocaleRules(parentLast)) {

@@ -337,6 +337,15 @@ export function nameKeyLastSlash(nameKey: string): string {
   return idx === -1 ? nameKey : `${nameKey.slice(0, idx)}/${nameKey.slice(idx + 1)}`
 }
 
+/**
+ * Nuxt names both `pages/about-team.vue` and `pages/about/team.vue` as `about-team`.
+ * The real route path distinguishes them: `/about-team` (top-level) vs `/about/team` (nested).
+ */
+export function isTopLevelDashedPagePath(routeName: string, pathWithoutLocale: string | null | undefined): boolean {
+  if (!routeName || !pathWithoutLocale || !routeName.includes('-')) return false
+  return normalizePath(pathWithoutLocale) === normalizePath(`/${routeName}`)
+}
+
 export function parentKeyFromSlashKey(keyWithSlash: string): string {
   const segments = getPathSegments(keyWithSlash)
   return segments.length > 1 ? segments.slice(0, -1).join('-') : ''

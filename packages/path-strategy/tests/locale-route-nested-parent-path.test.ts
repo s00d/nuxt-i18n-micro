@@ -461,4 +461,60 @@ describe('localeRoute: nested route includes parent path', () => {
           : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/ueber-uns/team')
   })
+
+  test.each([
+    ['en', '/about-team'],
+    ['de', '/de/about-team'],
+  ])('top-level /about-team ignores nested about/team rules: %s → %s', (locale, expected) => {
+    const router = makeRouterAdapter(['about', 'about-team'])
+    router.resolve = () => ({
+      name: 'about-team',
+      path: '/about-team',
+      fullPath: '/about-team',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {
+      about: { en: '/about', de: '/ueber-uns' },
+      'about/team': { en: 'team', de: 'team-seite' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute(locale, { name: 'about-team' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe(expected)
+  })
+
+  test.each([
+    ['en', '/about/team'],
+    ['de', '/de/ueber-uns/team-seite'],
+  ])('nested /about/team still uses about/team rules: %s → %s', (locale, expected) => {
+    const router = makeRouterAdapter(['about', 'about-team'])
+    router.resolve = () => ({
+      name: 'about-team',
+      path: '/about/team',
+      fullPath: '/about/team',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {
+      about: { en: '/about', de: '/ueber-uns' },
+      'about/team': { en: 'team', de: 'team-seite' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute(locale, { name: 'about-team' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe(expected)
+  })
 })

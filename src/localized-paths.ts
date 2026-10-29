@@ -31,17 +31,22 @@ const toRecord = (page: NuxtPage): RouteRecordRaw =>
 export async function createLocalizedPathResolver(pages: NuxtPage[], ctx: Omit<PathStrategyContext, 'router'>): Promise<LocalizedPathResolver> {
   const { createMemoryHistory, createRouter } = await import('vue-router')
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })
-  // vue-router names may be symbols; the strategy reads them as strings
-  const strategy = createPathStrategy({ ...ctx, router: router as unknown as PathStrategyContext['router'] })
+  const strategy = createPathStrategy({ ...ctx, router })
+  // asked per path and per locale (prerender): one resolve per path. Build time, so unbounded.
+  const seen = new Map<string, ReturnType<typeof router.resolve>['matched']>()
   const matched = (path: string) => {
+    let records = seen.get(path)
+    if (records) return records
     // prerender lists paths no page has (API routes, files): no vue-router "No match" warning for them
     const warn = console.warn
     console.warn = () => {}
     try {
-      return router.resolve(path).matched
+      records = router.resolve(path).matched
     } finally {
       console.warn = warn
     }
+    seen.set(path, records)
+    return records
   }
   // a page in any locale's form counts (under `prefix` nothing is served unprefixed)
   const isPage = (path: string) => matched(path).length > 0 || strategy.pageLocales({ path }) !== null

@@ -275,6 +275,8 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'nuxt-i18n-micro',
     configKey: 'i18n',
+    // Vite environment hotUpdate (HMR) and NuxtPage's ~transitionPromise
+    compatibility: { nuxt: '>=3.18.0' },
   },
   defaults: {
     locales: [],

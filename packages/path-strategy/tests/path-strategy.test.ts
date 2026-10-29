@@ -340,3 +340,82 @@ describe('shared route table', () => {
     expect(resolve).not.toHaveBeenCalled()
   })
 })
+
+describe('stability', () => {
+  test('a cached result never shares params / query with another caller (the cache is process-wide)', () => {
+    const { i18n } = setup('prefix_except_default')
+    const first = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { ref: 'a' } })
+    ;(first.params as Record<string, unknown>).slug = 'LEAKED'
+    ;(first.query as Record<string, unknown>).ref = 'LEAKED'
+    const second = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { ref: 'a' } })
+    expect(second.params).toEqual({ locale: 'de', slug: 'x' })
+    expect(second.query).toEqual({ ref: 'a' })
+  })
+
+  test('array params / query values are copied too', () => {
+    const { i18n } = setup('prefix_except_default')
+    const first = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { tag: ['a', 'b'] } })
+    ;(first.query as Record<string, string[]>).tag!.push('LEAKED')
+    const second = i18n.localeRoute('de', { name: 'blog-slug', params: { slug: 'x' }, query: { tag: ['a', 'b'] } })
+    expect(second.query).toEqual({ tag: ['a', 'b'] })
+  })
+
+  test('a route added later with addRoute is seen by the next strategy over the same routes', () => {
+    const { router } = setup('prefix_except_default')
+    const adapter = {
+      hasRoute: (n: string) => router.hasRoute(n),
+      resolve: (to: unknown) => router.resolve(to as never),
+      getRoutes: () => router.getRoutes(),
+      options: router.options,
+    }
+    const before = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
+    expect(before.getRouteBaseName({ path: '/added' })).not.toBe('added')
+    router.addRoute({ path: '/added', name: 'added', component: {}, meta: { i18n: { name: 'added', locales: ['en'] } } })
+    const after = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
+    expect(after.getRouteBaseName({ path: '/added' })).toBe('added')
+  })
+
+  test("a symbol-named route is the app's own route: resolved by its symbol, no base name, never localized", () => {
+    const { router } = setup('prefix')
+    const app = Symbol('app')
+    router.addRoute({ path: '/app-only', name: app, component: {} })
+    const i18n = createPathStrategy({ strategy: 'prefix', defaultLocale: 'en', locales: LOCALES, router })
+    const result = i18n.localeRoute('de', { name: app })
+    expect(result.name).toBe(app)
+    expect(result.fullPath).toBe('/app-only')
+    const route = router.resolve('/app-only')
+    expect(i18n.getRouteBaseName(route)).toBeNull()
+    expect(i18n.getPluginRouteName(route, 'de')).toBe('')
+    expect(i18n.switchLocaleRoute('en', 'de', route)).toBe(route)
+  })
+
+  test('routers over one route array with different strict options keep their own answers', () => {
+    const { router } = setup('prefix_except_default')
+    const routes = router.options.routes as RouteRecordRaw[]
+    const loose = createRouter({ history: createMemoryHistory(), routes })
+    const strict = createRouter({ history: createMemoryHistory(), routes, strict: true })
+    const of = (r: Router) => createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: r })
+    expect(of(loose).getRouteBaseName({ path: '/about-us/' })).toBe('about')
+    expect(of(strict).getRouteBaseName({ path: '/about-us/' })).not.toBe('about')
+  })
+
+  test('a route with neither name nor path is returned as it is', () => {
+    const { i18n } = setup('prefix')
+    const route = { name: null, path: '', fullPath: '', query: { a: '1' } }
+    expect(i18n.switchLocaleRoute('en', 'de', route)).toBe(route)
+  })
+
+  test('one route table under two configs keeps two sets of answers', () => {
+    const { router } = setup('prefix_except_default')
+    const adapter = {
+      hasRoute: (name: string) => router.hasRoute(name),
+      resolve: (to: unknown) => router.resolve(to as never),
+      getRoutes: () => router.getRoutes(),
+      options: router.options,
+    }
+    const en = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'en', locales: LOCALES, router: adapter })
+    const de = createPathStrategy({ strategy: 'prefix_except_default', defaultLocale: 'de', locales: LOCALES, router: adapter })
+    expect(en.shouldReturn404('/en/about-us')).toBe('Default locale should not have prefix')
+    expect(de.shouldReturn404('/en/about-us')).not.toBe('Default locale should not have prefix')
+  })
+})

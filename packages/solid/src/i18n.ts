@@ -30,7 +30,7 @@ export class SolidI18n extends BaseI18n {
   private readonly _setRouteSignal: (v: string) => void
   private readonly _fallbackSignal: Accessor<string>
   private readonly _revision: Accessor<number>
-  private readonly _setRevision: (v: number) => void
+  private readonly _setRevision: (next: (n: number) => number) => void
 
   public readonly storage: TranslationStorage
 
@@ -139,7 +139,8 @@ export class SolidI18n extends BaseI18n {
   }
 
   protected override onTranslationsChanged(): void {
-    this._setRevision(this._revision() + 1)
+    // functional setter: reading the signal here would subscribe the calling effect to it
+    this._setRevision((n) => n + 1)
     this.store.notify()
     this.notifyListeners()
   }

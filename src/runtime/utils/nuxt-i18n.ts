@@ -37,7 +37,7 @@ import { applyTrailingSlash } from './trailing-slash'
 export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, params?: Params, defaultValue?: string | null) => T
 
 interface LocaleRouteResult {
-  name?: string | null
+  name?: string | symbol | null
   params?: Record<string, unknown>
   path?: string
   fullPath?: string
@@ -232,8 +232,13 @@ export class NuxtI18n extends BaseI18n {
   }
 
   private notifyContextChange(reason: I18nContextChangeReason): void {
-    for (const listener of this.contextListeners) {
-      listener(reason)
+    // over a copy, each guarded: a throwing listener (devtools) must not abort a context switch
+    for (const listener of [...this.contextListeners]) {
+      try {
+        listener(reason)
+      } catch (error) {
+        console.error('[i18n] context listener failed:', error)
+      }
     }
   }
 
@@ -260,9 +265,17 @@ export class NuxtI18n extends BaseI18n {
     this.notifyContextChange('load')
   }
 
-  /** The outgoing page has unmounted, so its keys must stop resolving. */
-  finishTransition(): void {
-    if (this.outgoingTranslations === null) return
+  /** The leaving page's chunk while it may still render, or null. */
+  get outgoing(): Record<string, unknown> | null {
+    return this.outgoingTranslations
+  }
+
+  /**
+   * The outgoing page has unmounted, so its keys must stop resolving. `outgoing` names which
+   * page left: a transition that ends after the next navigation must not drop that one's chunk.
+   */
+  finishTransition(outgoing: Record<string, unknown> | null = this.outgoingTranslations): void {
+    if (outgoing === null || outgoing !== this.outgoingTranslations) return
     this.outgoingTranslations = null
     triggerRef(this.contextSignal)
     this.notifyContextChange('refresh')

@@ -95,7 +95,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `_revision` | `private Accessor<number>` |
 | `_routeSignal` | `private Accessor<string>` |
 | `_setLocaleSignal` | `private (v: string) => void` |
-| `_setRevision` | `private (v: number) => void` |
+| `_setRevision` | `private (next: (n: number) => number) => void` |
 | `_setRouteSignal` | `private (v: string) => void` |
 | `activeKey` | `private any` |
 | `activeRootKey` | `private any` |

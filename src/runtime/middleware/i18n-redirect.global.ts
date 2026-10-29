@@ -4,8 +4,7 @@
  * plugin keeps, without creating cookie refs per navigation.
  */
 
-import type { ModuleOptionsExtend } from '@i18n-micro/types'
-import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
+import type { ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import { getEnabledLocaleCodes } from '@i18n-micro/utils/active-locales'
 import { isInternalPath } from '@i18n-micro/utils/app-path'
 import { shouldAttemptLocaleRedirect } from '@i18n-micro/utils/auto-detect-path'
@@ -23,9 +22,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (import.meta.server) return
 
   const nuxtApp = useNuxtApp()
-  const getRuntimeConfig = (nuxtApp as unknown as { $getI18nConfig?: () => ModuleOptionsExtend }).$getI18nConfig
-  const i18nStrategy = (nuxtApp as unknown as { $i18nStrategy?: PathStrategy }).$i18nStrategy
-  if (typeof getRuntimeConfig !== 'function' || !i18nStrategy) return
+  const { $getI18nConfig: getRuntimeConfig, $i18nStrategy: i18nStrategy } = nuxtApp
 
   const i18nConfig = getRuntimeConfig()
   if (i18nConfig.redirects === false || to.path === from.path || isInternalPath(to.path, i18nConfig.excludePatterns)) return

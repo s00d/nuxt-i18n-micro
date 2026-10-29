@@ -7,6 +7,7 @@ import {
   getPathWithoutLocale,
   hasKeys,
   joinUrl,
+  isTopLevelDashedPagePath,
   nameKeyFirstSlash,
   nameKeyLastSlash,
   normalizePath,
@@ -140,6 +141,12 @@ function getLookupKeys(pathWithoutLocale: string, baseRouteName: string | null):
   if (baseRouteName) {
     keys.push(`/${baseRouteName}`)
     keys.push(baseRouteName)
+
+    // Top-level dashed pages must not consume nested file-path keys (about/team)
+    // that share the same Nuxt route name (about-team).
+    if (isTopLevelDashedPagePath(baseRouteName, pathWithoutLocale)) {
+      return keys
+    }
 
     const asPath = transformNameKeyToPath(baseRouteName)
     if (asPath && asPath !== baseRouteName) keys.push(asPath)

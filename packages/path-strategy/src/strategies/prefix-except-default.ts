@@ -428,7 +428,10 @@ export class PrefixExceptDefaultPathStrategy extends BasePathStrategy {
     sourceRoute: RouteLike,
     currentRoute?: ResolvedRouteLike,
   ): RouteLike | string {
-    const nestedInfo = this.getNestedRouteInfo(routeName)
+    // Absolute paths keyed by route name are complete paths; relative rules
+    // still need the parent, even when the name contains a dash.
+    const hasAbsoluteNameRule = customPath.startsWith('/') && (this.isLocaleRules(routeName) || this.isLocaleRules(`/${routeName}`))
+    const nestedInfo = hasAbsoluteNameRule ? null : this.getNestedRouteInfo(routeName)
     let pathNorm: string
     if (nestedInfo) {
       const parentPath = this.getParentPathForTarget(nestedInfo.parentKey, nestedInfo.keyWithSlash, targetLocale, currentRoute)

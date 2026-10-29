@@ -318,4 +318,66 @@ describe('localeRoute: nested route includes parent path', () => {
           : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/hiking')
   })
+
+  test.each([
+    ['about-team', 'en', '/about-team'],
+    ['about-team', 'de', '/de/team-seite'],
+    ['/about-team', 'en', '/about-team'],
+    ['/about-team', 'de', '/de/team-seite'],
+  ])('sibling page with rules under %s: %s path must not include the other page', (ruleKey, locale, expected) => {
+    const router = makeRouterAdapter(['about', 'about-team'])
+    router.resolve = () => ({
+      name: 'about-team',
+      path: '/about-team',
+      fullPath: '/about-team',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    // pages/about.vue and pages/about-team.vue: both top-level, keyed by file path.
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {
+      about: { en: '/about', de: '/ueber-uns' },
+      [ruleKey]: { en: '/about-team', de: '/team-seite' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute(locale, { name: 'about-team' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe(expected)
+  })
+
+  test.each([
+    ['docs-intro', 'en', '/docs/intro'],
+    ['docs-intro', 'de', '/de/dokumente/einfuehrung'],
+    ['/docs-intro', 'en', '/docs/intro'],
+    ['/docs-intro', 'de', '/de/dokumente/einfuehrung'],
+  ])('nested page with rules under %s: %s resolves absolute and relative paths', (ruleKey, locale, expected) => {
+    const router = makeRouterAdapter(['docs', 'docs-intro'])
+    router.resolve = () => ({
+      name: 'docs-intro',
+      path: '/docs/intro',
+      fullPath: '/docs/intro',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    const globalLocaleRoutes = {
+      docs: { en: '/docs', de: '/dokumente' },
+      // Absolute in one locale, relative in the other: decide per target locale.
+      [ruleKey]: { en: '/docs/intro', de: 'einfuehrung' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute(locale, { name: 'docs-intro' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe(expected)
+  })
 })

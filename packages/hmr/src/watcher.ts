@@ -33,13 +33,21 @@ export interface HandleTranslationWatchChangeInput {
  */
 export function readTranslationFile(filePath: string): Record<string, unknown> {
   if (!existsSync(filePath)) return {}
+  let parsed: unknown
   try {
-    return JSON.parse(readFileSync(filePath, 'utf-8')) as Record<string, unknown>
+    parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
   } catch (error) {
-    if (!WARNED.has(filePath)) console.warn(`[nuxt-i18n-micro] Skipping invalid JSON in ${filePath}: ${(error as Error).message}`)
-    WARNED.add(filePath)
-    return {}
+    return skip(filePath, (error as Error).message)
   }
+  // `null`, arrays and scalars are valid JSON but no dictionary
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return skip(filePath, 'not a JSON object')
+  return parsed as Record<string, unknown>
+}
+
+function skip(filePath: string, reason: string): Record<string, unknown> {
+  if (!WARNED.has(filePath)) console.warn(`[nuxt-i18n-micro] Skipping invalid JSON in ${filePath}: ${reason}`)
+  WARNED.add(filePath)
+  return {}
 }
 
 /** Broken files already reported: once per path, not once per read. */

@@ -34,30 +34,35 @@ export async function loadTranslationsFromServer(locale: string, routeName: stri
   const config = resolveI18nConfigWithRuntimeOverrides(getI18nConfig() as ModuleOptionsExtend, useRuntimeConfig().public as Record<string, unknown>)
   if (!isEnabledLocale(config.locales, locale)) return EMPTY
   const page = resolveTranslationPayloadPage(routeName, config.routesLocaleLinks || {})
-  if (import.meta.dev) return toEntry(await loadLiveDevTranslations(locale, page, config))
+  // dev reads live files, unless the payloads come from an external host
+  if (import.meta.dev && !getI18nPrivateConfig().apiBaseServerHost) return toEntry(await loadLiveDevTranslations(locale, page, config))
   return cached(`${locale}:${page}`, () => load(locale, page, config))
 }
 
-/** One cache entry per key, one in-flight load per key. A load may answer with the key of an entry to share. */
-function cached(key: string, read: () => Promise<ServerTranslationCacheEntry | string>): Promise<ServerTranslationCacheEntry> {
+/** A loaded chunk, or one shared with another key (then not stored under this one). */
+interface Loaded {
+  entry: ServerTranslationCacheEntry
+  shared?: true
+}
+
+/** One cache entry per key, one in-flight load per key. */
+function cached(key: string, read: () => Promise<Loaded>): Promise<ServerTranslationCacheEntry> {
   const cache = getOrCreateServerTranslationCache()
   const hit = cache.get(key)
   if (hit) return Promise.resolve(hit)
   const inFlight = pending.get(key)
   if (inFlight) return inFlight
   const promise = read()
-    .then((result) => (typeof result === 'string' ? cached(result, () => Promise.resolve(EMPTY)) : store(key, result)))
+    .then(({ entry, shared }) => {
+      if (!shared) cache.set(key, entry)
+      return entry
+    })
     .finally(() => pending.delete(key))
   pending.set(key, promise)
   return promise
 }
 
-function store(key: string, entry: ServerTranslationCacheEntry): ServerTranslationCacheEntry {
-  getOrCreateServerTranslationCache().set(key, entry)
-  return entry
-}
-
-async function load(locale: string, page: string, config: ModuleOptionsExtend): Promise<ServerTranslationCacheEntry | string> {
+async function load(locale: string, page: string, config: ModuleOptionsExtend): Promise<Loaded> {
   const { apiBaseServerHost } = getI18nPrivateConfig()
   if (apiBaseServerHost) {
     const data = await fetchTranslationPayloadFromHost(
@@ -66,7 +71,7 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
       page,
       $fetch as TranslationPayloadFetcher,
     )
-    return toEntry(data)
+    return { entry: toEntry(data) }
   }
   if (config.translationPayloadMode === 'source') {
     const data = await loadSourceTranslationsFromStorage(
@@ -79,12 +84,14 @@ async function load(locale: string, page: string, config: ModuleOptionsExtend): 
         disablePageLocales: config.disablePageLocales,
       },
     )
-    return toEntry(data)
+    return { entry: toEntry(data) }
   }
-  // a page payload always carries the root keys: an empty one means the page has no folder
+  // a page payload always carries the root keys: an empty one means the page has no folder,
+  // and it shares the root entry (made-up page names cannot add entries)
   const own = toTranslations(await readPayload(toPremergedStorageKey(page, locale)))
-  if (Object.keys(own).length || page === PREMERGED_ROOT_PAGE) return toEntry(own)
-  const rootKey = `${locale}:${PREMERGED_ROOT_PAGE}`
-  await cached(rootKey, async () => toEntry(toTranslations(await readPayload(toPremergedStorageKey(PREMERGED_ROOT_PAGE, locale)))))
-  return rootKey
+  if (Object.keys(own).length || page === PREMERGED_ROOT_PAGE) return { entry: toEntry(own) }
+  const root = await cached(`${locale}:${PREMERGED_ROOT_PAGE}`, async () => ({
+    entry: toEntry(toTranslations(await readPayload(toPremergedStorageKey(PREMERGED_ROOT_PAGE, locale)))),
+  }))
+  return { entry: root, shared: true }
 }

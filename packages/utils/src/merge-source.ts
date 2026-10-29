@@ -90,6 +90,8 @@ export async function mergeSourceTranslations(input: MergeSourceTranslationsInpu
   const chain = buildFallbackLocaleChain(input.locale, input.locales, input.globalFallbackLocale)
 
   const root = await mergeTranslationsFromFallbackChainAsync(chain, input.readLocaleFile, buildSourceRootPath)
+  // disablePageLocales: root translations only, no `pages/` file at all (not even `pages/index`)
+  if (input.disablePageLocales) return root
   const page = await mergeTranslationsFromFallbackChainAsync(chain, input.readLocaleFile, (localeCode) => buildSourcePagePath(pageName, localeCode))
 
   return deepMergeTranslations(root, page)

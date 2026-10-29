@@ -462,6 +462,22 @@ export class NuxtTranslationLoader {
   }
 
   /**
+   * Reload the current context's dictionary (after a cache clear, an HMR edit). Unlike
+   * {@link switchContext} it does not supersede an in-flight navigation: the fresh chunk is
+   * applied only if the context is still the one it was loaded for.
+   */
+  async refresh(): Promise<void> {
+    const { i18n } = this.options
+    const locale = i18n.getCurrentLocale()
+    const routeName = i18n.getCurrentRouteName() || undefined
+    const data = await this.loadAsync(locale, routeName)
+    if (i18n.getCurrentLocale() !== locale || (i18n.getCurrentRouteName() || undefined) !== routeName) return
+    i18n.applySwitchContext(locale, routeName, data)
+    // same page, no navigation: nothing else would drop the layer applySwitchContext kept
+    i18n.finishTransition()
+  }
+
+  /**
    * Load and apply translations for a locale/route. Returns `false` when a newer
    * navigation superseded this switch — callers must skip post-await side effects
    * (e.g. `setLocale`) for the abandoned navigation.
@@ -580,7 +596,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       translationStorage.clear()
       i18n.clearCache()
       // reload the page's dictionary: an emptied one renders raw keys until the next navigation
-      void loader.switchContext(i18n.getCurrentLocale(), i18n.getCurrentRouteName() || undefined)
+      void loader.refresh()
     },
     switchLocalePath: (toLocale: string) => {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike

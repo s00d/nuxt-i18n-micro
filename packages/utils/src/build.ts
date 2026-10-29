@@ -88,20 +88,22 @@ export async function preMergeLocales(
   // the same read source mode and dev do (fallback chain, root under page): one model, three modes
   const pages = new Set([...merged.keys()].filter((f) => f.startsWith('pages/')).map((f) => dirname(f).slice('pages/'.length)))
   const targets = disablePageLocales || pages.size === 0 ? ['index'] : [...pages, ...(pages.has('index') ? [] : ['index'])]
-  for (const page of [...targets, PREMERGED_ROOT_PAGE])
-    for (const locale of locales) {
+  const outputs = [...targets, PREMERGED_ROOT_PAGE].flatMap((page) => locales.map((locale) => ({ page, locale: locale.code })))
+  await Promise.all(
+    outputs.map(async ({ page, locale }) => {
       const data = await mergeSourceTranslations({
-        locale: locale.code,
+        locale,
         pageName: page,
         locales,
         globalFallbackLocale,
         disablePageLocales,
         readLocaleFile: (relativePath) => merged.get(relativePath) ?? {},
       })
-      const targetPath = join(outputDir, page, locale.code, 'data.json')
+      const targetPath = join(outputDir, page, locale, 'data.json')
       mkdirSync(dirname(targetPath), { recursive: true })
       writeFileSync(targetPath, JSON.stringify(data))
-    }
+    }),
+  )
 }
 
 /**
@@ -110,13 +112,21 @@ export async function preMergeLocales(
  */
 export function readTranslationJsonFile(filePath: string): Record<string, unknown> {
   if (!existsSync(filePath)) return {}
+  let parsed: unknown
   try {
-    return JSON.parse(readFileSync(filePath, 'utf-8')) as Record<string, unknown>
+    parsed = JSON.parse(readFileSync(filePath, 'utf-8'))
   } catch (error) {
-    if (!WARNED.has(filePath)) console.warn(`[nuxt-i18n-micro] Skipping invalid JSON in ${filePath}: ${(error as Error).message}`)
-    WARNED.add(filePath)
-    return {}
+    return skip(filePath, (error as Error).message)
   }
+  // `null`, arrays and scalars are valid JSON but no dictionary
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return skip(filePath, 'not a JSON object')
+  return parsed as Record<string, unknown>
+}
+
+function skip(filePath: string, reason: string): Record<string, unknown> {
+  if (!WARNED.has(filePath)) console.warn(`[nuxt-i18n-micro] Skipping invalid JSON in ${filePath}: ${reason}`)
+  WARNED.add(filePath)
+  return {}
 }
 
 /** Broken files already reported: once per path, not once per read. */

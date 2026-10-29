@@ -68,8 +68,8 @@ The sections below explain how they work together; the
 | [`routeDisableMeta`](/api/module-options) | `Record<string, boolean \| string[]>` | — | Per-route meta tag disabling, extracted from `defineI18nRoute()` calls. |
 | [`missingWarn`](/api/module-options) | `boolean` | `true` | Show console warnings when a translation key is missing. |
 | [`hmr`](/api/module-options) | `boolean` | `true` | Enable Hot Module Replacement for translation files in development. |
-| [`cacheMaxSize`](/api/module-options) | `number` | `0` | Maximum number of entries in the in-memory translation caches (least recently used go first). |
-| [`cacheTtl`](/api/module-options) | `number` | `0` | Time-to-live (in seconds) for cached translation entries, counted from when an entry was stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at least that often. |
+| [`cacheMaxSize`](/api/module-options) | `number` | `0` | Maximum number of entries in the in-memory translation caches. |
+| [`cacheTtl`](/api/module-options) | `number` | `0` | Time-to-live (in seconds) of the fetch and server translation caches, counted from when an entry was stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at least that often. |
 | [`numberFormats`](/api/module-options) | `Record<string, Record<string, Intl.NumberFormatOptions>>` | — | Named number formats per locale (Vue I18n-compatible). |
 | [`datetimeFormats`](/api/module-options) | `Record<string, Record<string, Intl.DateTimeFormatOptions>>` | — | Named datetime formats per locale (Vue I18n-compatible `datetimeFormats`). |
 | [`httpCacheDuration`](/api/module-options) | `number` | `31536000` | HTTP `Cache-Control` max-age (seconds) for `/{apiBaseUrl}/:page/:locale/data.json`. |
@@ -1349,9 +1349,10 @@ export default defineNuxtConfig({
 
 **Type** `number` · **Default** `0`
 
-Maximum number of entries in the in-memory translation caches (least recently used go first).
-`0` means no limit in the browser; the server keeps at most 1000 entries then, so request
-URLs naming made-up pages cannot grow its memory.
+Maximum number of entries in the in-memory translation caches. The fetch and server caches
+drop the least recently used entry; the browser's dictionary map drops the oldest one (FIFO).
+`0` means no limit in the browser; server caches keep at most 1000 entries then, so request
+URLs naming made-up pages cannot grow server memory.
 
 <!-- /generated:option:cacheMaxSize -->
 
@@ -1361,16 +1362,17 @@ URLs naming made-up pages cannot grow its memory.
 
 **Type** `number` · **Default** `0`
 
-Time-to-live (in seconds) for cached translation entries, counted from when an entry was
-stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at least that
-often. `0` means entries never expire.
+Time-to-live (in seconds) of the fetch and server translation caches, counted from when an
+entry was stored (reads do not extend it), so data from `apiBaseServerHost` is refreshed at
+least that often. The browser's active dictionaries are not expired by it. `0` means entries
+never expire.
 
 <!-- /generated:option:cacheTtl -->
 
 ```typescript
 export default defineNuxtConfig({
   i18n: {
-    // Limit cache to 1000 entries, each lives 10 minutes (refreshed on access)
+    // At most 1000 cached chunks; fetch / server entries expire 10 minutes after they were stored
     cacheMaxSize: 1000,
     cacheTtl: 600,
   },

@@ -79,7 +79,10 @@ export function storeLoadedTranslationFile<T extends Record<string, unknown>>(
   }
 
   if (parsed.type === 'root') {
-    buckets.root[parsed.locale] = mergeInto(buckets.root[parsed.locale], translations)
+    // a page file (folded into root by disablePageLocales) wins over the root file in either read order
+    const isPageFile = relativePath.startsWith('pages/')
+    const existing = buckets.root[parsed.locale]
+    buckets.root[parsed.locale] = isPageFile || !existing ? mergeInto(existing, translations) : mergeInto(translations, existing)
   }
 }
 

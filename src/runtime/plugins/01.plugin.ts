@@ -44,7 +44,8 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   )
 
   translationStorage.configure({
-    maxSize: i18nConfig.cacheMaxSize ?? 0,
+    // the SSR copy is process-wide, so it is bounded like the payload cache (DEFAULT_SERVER_CACHE_SIZE)
+    maxSize: i18nConfig.cacheMaxSize || (import.meta.server ? 1000 : 0),
     ttl: i18nConfig.cacheTtl ?? 0,
   })
 

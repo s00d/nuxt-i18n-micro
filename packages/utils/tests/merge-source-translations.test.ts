@@ -52,14 +52,14 @@ describe('mergeSourceTranslations', () => {
     })
   })
 
-  it('uses index page when disablePageLocales is true', async () => {
+  it('reads the root only when disablePageLocales is true (no pages/ file, not even pages/index)', async () => {
     const readLocaleFile = vi.fn((relativePath: string) => {
       if (relativePath === 'en.json') return { greeting: 'Hello' }
       if (relativePath === 'pages/index/en.json') return { page: 'Index' }
       return {}
     })
 
-    await mergeSourceTranslations({
+    const data = await mergeSourceTranslations({
       locale: 'en',
       pageName: 'contact',
       locales: [{ code: 'en' }],
@@ -67,7 +67,8 @@ describe('mergeSourceTranslations', () => {
       readLocaleFile,
     })
 
-    expect(readLocaleFile).toHaveBeenCalledWith('pages/index/en.json')
+    expect(data).toEqual({ greeting: 'Hello' })
+    expect(readLocaleFile).not.toHaveBeenCalledWith('pages/index/en.json')
     expect(readLocaleFile).not.toHaveBeenCalledWith('pages/contact/en.json')
   })
 })

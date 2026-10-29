@@ -81,6 +81,17 @@ export interface ClientFunctions {
  * in both branches *and* did it through Vite, so the tab was broken for everyone —
  * installed users pointed at a dev server that was never running.
  */
+/**
+ * The real path of an existing `.json` file `relative` to `base`, or null when it is missing or
+ * leaves `base` — by `../`, an absolute path or a symlink (both sides are resolved to real paths).
+ */
+export function resolveTranslationFile(base: string, relative: string): string | null {
+  const candidate = path.resolve(base, relative)
+  if (!candidate.endsWith('.json') || !fs.existsSync(base) || !fs.existsSync(candidate)) return null
+  const real = fs.realpathSync(candidate)
+  return isInside(fs.realpathSync(base), real) ? real : null
+}
+
 /** Whether `target` lies inside `base` (not `base` itself, not above it). */
 export function isInside(base: string, target: string): boolean {
   const relative = path.relative(base, target)
@@ -137,20 +148,18 @@ export function setupDevToolsUI(options: ModuleOptions, rootDirs: string[]) {
       // client, so `../` and absolute paths must not reach the filesystem. The project layer (listed
       // last, shown in the tab) wins over extended layers.
       async saveTranslationContent(file, content) {
-        const additional = /^additional:([^/]+)\/(.+)$/.exec(file)
-        const allowedExtra = new Set(options.additionalTranslationDirs ?? [])
-        const candidates =
-          additional?.[1] && additional[2]
-            ? allowedExtra.has(additional[1])
-              ? dirs.map((rootDir) => [path.join(rootDir, additional[1]!), additional[2]!] as const)
-              : []
-            : dirs.map((rootDir) => [path.join(rootDir, options.translationDir || 'locales'), file] as const)
-        const target = [...candidates]
+        // `additional:<configured dir, maybe nested>/<file>`, or a path inside translationDir
+        const extraDir = file.startsWith('additional:')
+          ? (options.additionalTranslationDirs ?? []).find((dir) => file.startsWith(`additional:${dir}/`))
+          : undefined
+        if (file.startsWith('additional:') && !extraDir) throw new Error(`Not a configured additional translation directory: ${file}`)
+        const relativeFile = extraDir ? file.slice(`additional:${extraDir}/`.length) : file
+        const target = [...dirs]
           .reverse()
-          .map(([base, rel]) => ({ base, path: path.resolve(base, rel) }))
-          .find((candidate) => candidate.path.endsWith('.json') && isInside(candidate.base, candidate.path) && fs.existsSync(candidate.path))
+          .map((rootDir) => resolveTranslationFile(path.join(rootDir, extraDir ?? (options.translationDir || 'locales')), relativeFile))
+          .find((candidate) => candidate !== null)
         if (!target) throw new Error(`File not found in the translation directories: ${file}`)
-        fs.writeFileSync(target.path, JSON.stringify(content, null, 2), 'utf-8')
+        fs.writeFileSync(target, JSON.stringify(content, null, 2), 'utf-8')
       },
       async getConfigs() {
         return Promise.resolve(options)

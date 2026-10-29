@@ -11,8 +11,7 @@ export function deepMergeTranslations(target: Record<string, unknown>, source: R
 
 /** Recursive deep merge for build-time layer merging. */
 export function deepMergeTranslationsRecursive(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
-  if (!target || Object.keys(target).length === 0) return { ...source }
-  const output = { ...target }
+  const output: Record<string, unknown> = { ...target }
   for (const key of Object.keys(source)) {
     if (key === '__proto__') continue
     const src = source[key]

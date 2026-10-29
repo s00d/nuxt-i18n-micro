@@ -128,6 +128,8 @@ describe('custom paths', () => {
   test('a value that starts with its locale code warns: the prefix is added', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     generate('prefix', [about], { globalLocaleRoutes: { about: { fr: '/fr/a-propos' } } })
+    generate('prefix', [about], { globalLocaleRoutes: { about: { de: 'de/ueber-uns' } } })
+    expect(warn).toHaveBeenCalledTimes(2)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('starts with the locale code'))
     warn.mockRestore()
   })
@@ -188,6 +190,9 @@ describe('nested pages', () => {
 describe('restrictions and unlocalized pages', () => {
   test('routeLocales / $defineI18nRoute locales', () => {
     expect(generate('prefix_except_default', [about], { routeLocales: { about: ['de'] } })).toEqual(['localized-about /:locale(de)/about'])
+    // `about` beats `/about` whatever the order, as for globalLocaleRoutes
+    expect(generate('prefix', [about], { routeLocales: { about: ['de'], '/about': ['fr'] } })).toEqual(['localized-about /:locale(de)/about'])
+    expect(generate('prefix', [about], { routeLocales: { '/about': ['fr'], about: ['de'] } })).toEqual(['localized-about /:locale(de)/about'])
     expect(generate('prefix', [about], { routeLocales: { '/about': ['en', 'fr'] } })).toEqual(['localized-about /:locale(en|fr)/about'])
   })
 
@@ -241,6 +246,12 @@ describe('aliases and options', () => {
     expect(generate('no_prefix', [about], { noPrefixRedirect: true, globalLocaleRoutes: { about: { en: '/about-us' } } })).toEqual([
       'about /about -> /about-us',
       'localized-about-en /about-us',
+    ])
+    // a string redirect cannot carry `:id`
+    const item: NuxtPage = { path: '/item/:id()', name: 'item-id', file: 'pages/item/[id].vue' }
+    expect(generate('no_prefix', [item], { noPrefixRedirect: true, globalLocaleRoutes: { 'item/[id]': { en: '/thing/[id]' } } })).toEqual([
+      'item-id /item/:id()',
+      'localized-item-id-en /thing/:id',
     ])
   })
 })

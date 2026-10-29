@@ -182,7 +182,9 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
       const { plain, records } = localeRecords(page, allowed, false, variants)
       const base = emit(localize(page, null, '', '', true, true)!, plain, '', false, false, true)
       const defaultRecord = records.find((r) => (r.meta?.i18n as RouteI18nMeta | undefined)?.locales[0] === defaultLocale)
-      if (options.noPrefixRedirect && defaultRecord && defaultRecord.path !== base.path) base.redirect = defaultRecord.path
+      // a string redirect cannot carry params: dynamic pages are left to the router
+      if (options.noPrefixRedirect && defaultRecord && defaultRecord.path !== base.path && !defaultRecord.path.includes(':'))
+        base.redirect = defaultRecord.path
       unprefixed.push(base)
       localized.push(...records)
       continue

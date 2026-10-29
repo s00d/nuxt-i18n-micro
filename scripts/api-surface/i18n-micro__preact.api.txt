@@ -27,7 +27,7 @@ member FormatService.new: (options?: FormatServiceOptions | undefined): FormatSe
 type Getter: (key: TranslationKey, params?: Record<string, string | number | boolean>, defaultValue?: string) => unknown
 const I18nContext: import("preact").Context<PreactI18n | null>
 const I18nDefaultLocaleContext: import("preact").Context<string | null>
-const I18nGroup: (props: I18nGroupProps) => JSX.Element
+const I18nGroup: (props: I18nGroupProps) => VNode
 interface I18nGroupProps
 member I18nGroupProps.about?: Signalish<string | undefined>
 member I18nGroupProps.accesskey?: Signalish<string | undefined>
@@ -96,7 +96,7 @@ member I18nGroupProps.class?: Signalish<string | undefined>
 member I18nGroupProps.className?: Signalish<string | undefined>
 member I18nGroupProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
 member I18nGroupProps.contentEditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
-member I18nGroupProps.dangerouslySetInnerHTML?: { __html: string; } | undefined
+member I18nGroupProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
 member I18nGroupProps.datatype?: Signalish<string | undefined>
 member I18nGroupProps.dir?: Signalish<"auto" | "rtl" | "ltr" | undefined>
 member I18nGroupProps.disablePictureInPicture?: Signalish<boolean | undefined>
@@ -139,6 +139,7 @@ member I18nGroupProps.onAuxClick?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onAuxClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onBeforeInput?: InputEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onBeforeInputCapture?: InputEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onBeforeToggle?: ToggleEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onBlur?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onBlurCapture?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCancel?: GenericEventHandler<HTMLDivElement> | undefined
@@ -151,6 +152,7 @@ member I18nGroupProps.onChangeCapture?: GenericEventHandler<HTMLDivElement> | un
 member I18nGroupProps.onClick?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onClose?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onCommand?: CommandEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCompositionEnd?: CompositionEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCompositionEndCapture?: CompositionEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onCompositionStart?: CompositionEventHandler<HTMLDivElement> | undefined
@@ -271,9 +273,14 @@ member I18nGroupProps.onReset?: GenericEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onResetCapture?: GenericEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onResize?: PictureInPictureEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onResizeCapture?: PictureInPictureEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onScroll?: UIEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onScrollCapture?: UIEventHandler<HTMLDivElement> | undefined
-member I18nGroupProps.onScrollEnd?: UIEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScroll?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollCapture?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollEnd?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollEndCapture?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollSnapChange?: SnapEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollSnapChangeCapture?: SnapEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollSnapChanging?: SnapEventHandler<HTMLDivElement> | undefined
+member I18nGroupProps.onScrollSnapChangingCapture?: SnapEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSearch?: GenericEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSearchCapture?: GenericEventHandler<HTMLDivElement> | undefined
 member I18nGroupProps.onSeeked?: GenericEventHandler<HTMLDivElement> | undefined
@@ -330,7 +337,7 @@ member I18nGroupProps.title?: Signalish<string | undefined>
 member I18nGroupProps.translate?: Signalish<boolean | undefined>
 member I18nGroupProps.typeof?: Signalish<string | undefined>
 member I18nGroupProps.vocab?: Signalish<string | undefined>
-const I18nLink: (props: I18nLinkProps) => JSX.Element
+const I18nLink: (props: I18nLinkProps) => VNode
 interface I18nLinkProps
 member I18nLinkProps.about?: Signalish<string | undefined>
 member I18nLinkProps.accesskey?: Signalish<string | undefined>
@@ -400,7 +407,7 @@ member I18nLinkProps.class?: Signalish<string | undefined>
 member I18nLinkProps.className?: Signalish<string | undefined>
 member I18nLinkProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
 member I18nLinkProps.contentEditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
-member I18nLinkProps.dangerouslySetInnerHTML?: { __html: string; } | undefined
+member I18nLinkProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
 member I18nLinkProps.datatype?: Signalish<string | undefined>
 member I18nLinkProps.dir?: Signalish<"auto" | "rtl" | "ltr" | undefined>
 member I18nLinkProps.disablePictureInPicture?: Signalish<boolean | undefined>
@@ -448,6 +455,7 @@ member I18nLinkProps.onAuxClick?: MouseEventHandler<HTMLAnchorElement> | undefin
 member I18nLinkProps.onAuxClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onBeforeInput?: InputEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onBeforeInputCapture?: InputEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onBeforeToggle?: ToggleEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onBlur?: FocusEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onBlurCapture?: FocusEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCancel?: GenericEventHandler<HTMLAnchorElement> | undefined
@@ -460,6 +468,7 @@ member I18nLinkProps.onChangeCapture?: GenericEventHandler<HTMLAnchorElement> | 
 member I18nLinkProps.onClick?: MouseEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onClickCapture?: MouseEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onClose?: GenericEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onCommand?: CommandEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCompositionEnd?: CompositionEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCompositionEndCapture?: CompositionEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onCompositionStart?: CompositionEventHandler<HTMLAnchorElement> | undefined
@@ -580,9 +589,14 @@ member I18nLinkProps.onReset?: GenericEventHandler<HTMLAnchorElement> | undefine
 member I18nLinkProps.onResetCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onResize?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onResizeCapture?: PictureInPictureEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScroll?: UIEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollCapture?: UIEventHandler<HTMLAnchorElement> | undefined
-member I18nLinkProps.onScrollEnd?: UIEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScroll?: GenericEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollEnd?: GenericEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollEndCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollSnapChange?: SnapEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollSnapChangeCapture?: SnapEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollSnapChanging?: SnapEventHandler<HTMLAnchorElement> | undefined
+member I18nLinkProps.onScrollSnapChangingCapture?: SnapEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSearch?: GenericEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSearchCapture?: GenericEventHandler<HTMLAnchorElement> | undefined
 member I18nLinkProps.onSeeked?: GenericEventHandler<HTMLAnchorElement> | undefined
@@ -662,7 +676,7 @@ member I18nRoutingStrategy.linkComponent?: string | React.ComponentType<{ [key: 
 member I18nRoutingStrategy.push: (target: { path: string; }) => void
 member I18nRoutingStrategy.replace: (target: { path: string; }) => void
 member I18nRoutingStrategy.resolvePath?: ((to: string | { path?: string; }, locale: string) => string | { path?: string; }) | undefined
-const I18nSwitcher: (props: I18nSwitcherProps) => JSX.Element
+const I18nSwitcher: (props: I18nSwitcherProps) => VNode
 interface I18nSwitcherProps
 member I18nSwitcherProps.about?: Signalish<string | undefined>
 member I18nSwitcherProps.accesskey?: Signalish<string | undefined>
@@ -741,7 +755,7 @@ member I18nSwitcherProps.customItemStyle?: Record<string, string | number> | und
 member I18nSwitcherProps.customLabels?: Record<string, string> | undefined
 member I18nSwitcherProps.customLinkStyle?: Record<string, string | number> | undefined
 member I18nSwitcherProps.customWrapperStyle?: Record<string, string | number> | undefined
-member I18nSwitcherProps.dangerouslySetInnerHTML?: { __html: string; } | undefined
+member I18nSwitcherProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
 member I18nSwitcherProps.datatype?: Signalish<string | undefined>
 member I18nSwitcherProps.dir?: Signalish<"auto" | "rtl" | "ltr" | undefined>
 member I18nSwitcherProps.disablePictureInPicture?: Signalish<boolean | undefined>
@@ -786,6 +800,7 @@ member I18nSwitcherProps.onAuxClick?: MouseEventHandler<HTMLDivElement> | undefi
 member I18nSwitcherProps.onAuxClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onBeforeInput?: InputEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onBeforeInputCapture?: InputEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onBeforeToggle?: ToggleEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onBlur?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onBlurCapture?: FocusEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCancel?: GenericEventHandler<HTMLDivElement> | undefined
@@ -798,6 +813,7 @@ member I18nSwitcherProps.onChangeCapture?: GenericEventHandler<HTMLDivElement> |
 member I18nSwitcherProps.onClick?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onClickCapture?: MouseEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onClose?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onCommand?: CommandEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCompositionEnd?: CompositionEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCompositionEndCapture?: CompositionEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onCompositionStart?: CompositionEventHandler<HTMLDivElement> | undefined
@@ -918,9 +934,14 @@ member I18nSwitcherProps.onReset?: GenericEventHandler<HTMLDivElement> | undefin
 member I18nSwitcherProps.onResetCapture?: GenericEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onResize?: PictureInPictureEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onResizeCapture?: PictureInPictureEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onScroll?: UIEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onScrollCapture?: UIEventHandler<HTMLDivElement> | undefined
-member I18nSwitcherProps.onScrollEnd?: UIEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScroll?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollCapture?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollEnd?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollEndCapture?: GenericEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollSnapChange?: SnapEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollSnapChangeCapture?: SnapEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollSnapChanging?: SnapEventHandler<HTMLDivElement> | undefined
+member I18nSwitcherProps.onScrollSnapChangingCapture?: SnapEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSearch?: GenericEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSearchCapture?: GenericEventHandler<HTMLDivElement> | undefined
 member I18nSwitcherProps.onSeeked?: GenericEventHandler<HTMLDivElement> | undefined
@@ -978,7 +999,7 @@ member I18nSwitcherProps.title?: Signalish<string | undefined>
 member I18nSwitcherProps.translate?: Signalish<boolean | undefined>
 member I18nSwitcherProps.typeof?: Signalish<string | undefined>
 member I18nSwitcherProps.vocab?: Signalish<string | undefined>
-const I18nT: (props: I18nTProps) => JSX.Element | null
+const I18nT: (props: I18nTProps) => VNode | null
 interface I18nTProps
 member I18nTProps.about?: Signalish<string | undefined>
 member I18nTProps.accesskey?: Signalish<string | undefined>
@@ -1048,7 +1069,7 @@ member I18nTProps.className?: Signalish<string | undefined>
 member I18nTProps.contenteditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
 member I18nTProps.contentEditable?: Signalish<"" | Booleanish | "plaintext-only" | "inherit" | undefined>
 member I18nTProps.customPluralRule?: PluralFunc | undefined
-member I18nTProps.dangerouslySetInnerHTML?: { __html: string; } | undefined
+member I18nTProps.dangerouslySetInnerHTML?: { __html: Parameters<DOMParser["parseFromString"]>[0]; } | undefined
 member I18nTProps.datatype?: Signalish<string | undefined>
 member I18nTProps.date?: string | number | Date | undefined
 member I18nTProps.defaultValue?: string | undefined
@@ -1096,6 +1117,7 @@ member I18nTProps.onAuxClick?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onAuxClickCapture?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onBeforeInput?: InputEventHandler<HTMLElement> | undefined
 member I18nTProps.onBeforeInputCapture?: InputEventHandler<HTMLElement> | undefined
+member I18nTProps.onBeforeToggle?: ToggleEventHandler<HTMLElement> | undefined
 member I18nTProps.onBlur?: FocusEventHandler<HTMLElement> | undefined
 member I18nTProps.onBlurCapture?: FocusEventHandler<HTMLElement> | undefined
 member I18nTProps.onCancel?: GenericEventHandler<HTMLElement> | undefined
@@ -1108,6 +1130,7 @@ member I18nTProps.onChangeCapture?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onClick?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onClickCapture?: MouseEventHandler<HTMLElement> | undefined
 member I18nTProps.onClose?: GenericEventHandler<HTMLElement> | undefined
+member I18nTProps.onCommand?: CommandEventHandler<HTMLElement> | undefined
 member I18nTProps.onCompositionEnd?: CompositionEventHandler<HTMLElement> | undefined
 member I18nTProps.onCompositionEndCapture?: CompositionEventHandler<HTMLElement> | undefined
 member I18nTProps.onCompositionStart?: CompositionEventHandler<HTMLElement> | undefined
@@ -1228,9 +1251,14 @@ member I18nTProps.onReset?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onResetCapture?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onResize?: PictureInPictureEventHandler<HTMLElement> | undefined
 member I18nTProps.onResizeCapture?: PictureInPictureEventHandler<HTMLElement> | undefined
-member I18nTProps.onScroll?: UIEventHandler<HTMLElement> | undefined
-member I18nTProps.onScrollCapture?: UIEventHandler<HTMLElement> | undefined
-member I18nTProps.onScrollEnd?: UIEventHandler<HTMLElement> | undefined
+member I18nTProps.onScroll?: GenericEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollCapture?: GenericEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollEnd?: GenericEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollEndCapture?: GenericEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollSnapChange?: SnapEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollSnapChangeCapture?: SnapEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollSnapChanging?: SnapEventHandler<HTMLElement> | undefined
+member I18nTProps.onScrollSnapChangingCapture?: SnapEventHandler<HTMLElement> | undefined
 member I18nTProps.onSearch?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onSearchCapture?: GenericEventHandler<HTMLElement> | undefined
 member I18nTProps.onSeeked?: GenericEventHandler<HTMLElement> | undefined
@@ -1363,6 +1391,7 @@ member PreactI18n.addTranslations: (locale: string, translations: Translations, 
 member PreactI18n.clear: () => void
 member PreactI18n.clearCache: () => void
 member PreactI18n.currentRoute: string
+member PreactI18n.ensurePinnedChunk: protected (locale: string, routeName: string) => void
 member PreactI18n.extend: <M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M
 member PreactI18n.fallbackLocale: string
 member PreactI18n.formatter: FormatService
@@ -1374,7 +1403,8 @@ member PreactI18n.getRoute: () => string
 member PreactI18n.getSnapshot: () => string
 member PreactI18n.has: (key: TranslationKey, routeContext?: unknown) => boolean
 member PreactI18n.hasTranslation: (key: TranslationKey) => boolean
-member PreactI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member PreactI18n.helper: { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations | undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T | null; lookupIn: (chunkKey: string, tree: Record<string, unknown> | null | undefined, key: string) => unknown | null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }
+member PreactI18n.invalidatePin: protected () => void
 member PreactI18n.loadFromUrl: (url: string, options?: LoadFromUrlOptions) => Promise<void>
 member PreactI18n.loadFromUrls: (entries: LoadFromUrlEntry[]) => Promise<void>
 member PreactI18n.loadMessages: (messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void
@@ -1384,6 +1414,9 @@ member PreactI18n.locale: string
 member PreactI18n.missingHandler?: ((locale: string, key: string, routeName: string) => void) | undefined
 member PreactI18n.missingWarn: boolean
 member PreactI18n.onTranslationsChanged: protected () => void
+member PreactI18n.pinnedCacheKey: private any
+member PreactI18n.pinnedGeneration: private any
+member PreactI18n.pinnedTree: private any
 member PreactI18n.pluralFunc: PluralFunc
 member PreactI18n.resolveDateTimeFormatArgs: private any
 member PreactI18n.resolveHas: protected (key: TranslationKey, routeContext?: unknown) => boolean

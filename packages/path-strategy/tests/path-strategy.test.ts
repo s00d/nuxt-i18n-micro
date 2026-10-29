@@ -59,14 +59,19 @@ interface Setup {
   url: (result: RouteLike | string) => string
 }
 
-function setup(strategy: Strategies, ctx: Partial<PathStrategyContext> = {}, locales: Locale[] = LOCALES): Setup {
-  const pages = structuredClone(PAGES)
+function setup(
+  strategy: Strategies,
+  ctx: Partial<PathStrategyContext> = {},
+  locales: Locale[] = LOCALES,
+  { pages: source = PAGES, routeLocales = {} }: { pages?: NuxtPage[]; routeLocales?: Record<string, string[]> } = {},
+): Setup {
+  const pages = structuredClone(source)
   new RouteGenerator({
     locales,
     defaultLocaleCode: 'en',
     strategy,
     globalLocaleRoutes: RULES,
-    routeLocales: { 'de-only': ['de'] },
+    routeLocales: { 'de-only': ['de'], ...routeLocales },
     noPrefixRedirect: false,
   }).extendPages(pages)
   const router = createRouter({ history: createMemoryHistory(), routes: pages.map(toRecord) })
@@ -113,6 +118,8 @@ describe('localeRoute', () => {
     expect(i18n.localeRoute('en', '/de/artikel/hi').fullPath).toBe('/blog/hi')
     expect(i18n.localeRoute('fr', '/no/such/page').fullPath).toBe('/fr/no/such/page')
     expect(i18n.localeRoute('de', '/admin').fullPath).toBe('/admin')
+    expect(i18n.localeRoute('de', '/en/about-us').fullPath).toBe('/de/ueber-uns')
+    expect(i18n.localeRoute('fr', '/blog/x?tag=a&tag=b').query).toEqual({ tag: ['a', 'b'] })
   })
 
   test('vue-router never warns about discarded params', () => {
@@ -143,6 +150,21 @@ describe('switchLocaleRoute', () => {
   test('a page not served in the target locale falls back to the default locale, then to any', () => {
     const { i18n, at, url } = setup('prefix_except_default')
     expect(url(i18n.switchLocaleRoute('de', 'fr', at('/de/de-only')))).toBe('/de/de-only')
+    // served in de and en only: fr gets the record shared by de and en, with the default locale
+    const prefix = setup('prefix', {}, LOCALES, { routeLocales: { 'blog/[slug]': ['de', 'en'] } })
+    expect(prefix.url(prefix.i18n.localeRoute('fr', { name: 'blog-slug', params: { slug: 'x' } }))).toBe('/en/blog/x')
+  })
+
+  test('an unmatched URL (a 404 page) switches to the same URL in the target locale', () => {
+    const pages = PAGES.filter((p) => p.name !== 'slug')
+    const pad = setup('prefix_and_default', {}, LOCALES, { pages })
+    expect(pad.i18n.switchLocaleRoute('de', 'fr', pad.at('/de/x/y?q=1')).fullPath).toBe('/fr/x/y?q=1')
+    const pxd = setup('prefix_except_default', {}, LOCALES, { pages })
+    expect(pxd.i18n.switchLocaleRoute('en', 'en', pxd.at('/en')).fullPath).toBe('/')
+    expect(pxd.i18n.switchLocaleRoute('en', 'de', pxd.at('/en/about-us')).fullPath).toBe('/de/ueber-uns')
+    // no record serves it, but the server plugin still moves it to the preferred locale (pages: false relies on it)
+    expect(pxd.i18n.getClientRedirect('/no/page', 'de')).toBe('/de/no/page')
+    expect(pxd.i18n.getClientRedirect('/no/page', 'en')).toBeNull()
   })
 
   test('baseUrl locales give absolute URLs; baseDefault drops the prefix', () => {
@@ -228,6 +250,7 @@ describe('server redirects and 404', () => {
     expect(prefix.getClientRedirect('/page2', 'en')).toBe('/en/custom-page2-en')
     expect(prefix.getClientRedirect('/page2', 'de')).toBe('/de/custom-page2-de')
     expect(setup('prefix_and_default').i18n.getClientRedirect('/', 'de')).toBeNull()
+    expect(setup('prefix', {}, LOCALES).i18n.getClientRedirect('/no/page', 'de')).toBe('/de/no/page')
     expect(setup('no_prefix').i18n.getClientRedirect('/about', 'de')).toBeNull()
   })
 })

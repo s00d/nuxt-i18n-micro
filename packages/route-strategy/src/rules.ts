@@ -1,5 +1,5 @@
 import type { GlobalLocaleRoutes, Locale } from '@i18n-micro/types'
-import { normalizePath, normalizeRouteKey, routeKey } from './paths'
+import { absolute, normalizePath, normalizeRouteKey, routeKey } from './paths'
 
 /** Custom paths of one page per locale, or `false` for a page that is not localized. */
 export type Rule = Record<string, string> | false
@@ -19,16 +19,8 @@ export class Rules {
 
   constructor(globalLocaleRoutes: GlobalLocaleRoutes = {}, routeLocales: Record<string, string[]> = {}, locales: Locale[] = []) {
     const codes = new Set(locales.map((l) => l.code))
-    // `about-team` and `/about-team` name the same key: the form without the slash wins
-    const slashed = new Set<string>()
-    const set = (key: string, rule: Rule) => {
-      if (!key.startsWith('/')) this.byName.set(key, rule)
-      const k = routeKey(key)
-      if (this.rules.has(k) && !slashed.has(k) && key.startsWith('/')) return
-      this.rules.set(k, rule)
-      if (key.startsWith('/')) slashed.add(k)
-      else slashed.delete(k)
-    }
+    const set = keyed(this.rules, this.byName)
+    const restrict = keyed(this.restrictions, this.restrictionsByName)
     for (const [key, value] of Object.entries(globalLocaleRoutes ?? {})) {
       if (value === false) {
         set(key, false)
@@ -39,7 +31,8 @@ export class Rules {
       for (const [locale, customPath] of Object.entries(value)) {
         if (!customPath) continue
         const normalized = normalizePath(normalizeRouteKey(customPath))
-        if (normalized === `/${locale}` || normalized.startsWith(`/${locale}/`)) {
+        const asPath = absolute(normalized)
+        if (asPath === `/${locale}` || asPath.startsWith(`/${locale}/`)) {
           console.warn(
             `[i18n] globalLocaleRoutes["${key}"].${locale} = "${customPath}" starts with the locale code; the locale prefix is added automatically.`,
           )
@@ -50,9 +43,7 @@ export class Rules {
     }
     for (const [key, allowed] of Object.entries(routeLocales)) {
       const known = allowed.filter((code) => codes.has(code))
-      if (!known.length) continue
-      this.restrictions.set(routeKey(key), known)
-      if (!key.startsWith('/')) this.restrictionsByName.set(key, known)
+      if (known.length) restrict(key, known)
     }
   }
 
@@ -73,6 +64,23 @@ export class Rules {
 }
 
 /**
+ * A setter storing values by routeKey, and by name for keys written without a leading slash.
+ * `about-team` and `/about-team` are one key there: the form without the slash wins, in any order.
+ */
+function keyed<T>(byKey: Map<string, T>, byName: Map<string, T>): (key: string, value: T) => void {
+  const slashed = new Set<string>()
+  return (key, value) => {
+    const withSlash = key.startsWith('/')
+    if (!withSlash) byName.set(key, value)
+    const k = routeKey(key)
+    if (withSlash && byKey.has(k) && !slashed.has(k)) return
+    byKey.set(k, value)
+    if (withSlash) slashed.add(k)
+    else slashed.delete(k)
+  }
+}
+
+/**
  * Whether `localeCode` may serve this path given `$defineI18nRoute` locales / routeLocales.
  * Unrestricted paths (and restrictions naming no known locale) allow every locale.
  */
@@ -82,10 +90,6 @@ export function isLocaleAllowedForUnlocalizedRoute(
   routePath: string,
   localeCode: string,
 ): boolean {
-  let rules = restrictionCache.get(routeLocales)
-  if (!rules) restrictionCache.set(routeLocales, (rules = new Rules({}, routeLocales, locales)))
-  const allowed = rules.allowedLocales(routePath, undefined)
+  const allowed = new Rules({}, routeLocales, locales).allowedLocales(routePath, undefined)
   return !allowed || allowed.includes(localeCode)
 }
-// ponytail: keyed by the routeLocales object only; a different `locales` list for the same object reuses the first
-const restrictionCache = new WeakMap<Record<string, string[]>, Rules>()

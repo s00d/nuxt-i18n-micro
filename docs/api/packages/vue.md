@@ -42,31 +42,19 @@ import { /* … */ } from '@i18n-micro/vue'
 | `UseI18nOptions` | interface | 2 members |
 | `useLocaleHead` | function | `(options?: UseLocaleHeadOptions) => { metaObject: import("vue").Ref<{ htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }, MetaObject \| { htmlAttrs: { lang?: string \| undefined; dir?: "ltr" \| "rtl" \| "auto" \| undefined; }; link: { [x: string]: string \| undefined; rel: string; href: string; hreflang?: string \| undefined; }[]; meta: { [x: string]: string; property: string; content: string; }[]; }>; updateMeta: (canonicalQueryWhitelist?: string[]) => void; }` |
 | `UseLocaleHeadOptions` | interface | 5 members |
-| `VueI18n` | class | 52 members |
+| `VueI18n` | class | 57 members |
 | `VueI18nOptions` | interface | 6 members |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+
 <code>I18nRoutingStrategy</code> — 6 members, identical to [`I18nRoutingStrategy`](/api/packages/vitepress).
-<details>
-<summary><code>Locale</code> — 11 members</summary>
 
-| Member | Type |
-| --- | --- |
-| `[string]` | `unknown` |
-| `baseDefault?` | `boolean \| undefined` |
-| `baseUrl?` | `string \| undefined` |
-| `code` | `string` |
-| `dir?` | `"auto" \| "ltr" \| "rtl" \| undefined` |
-| `disabled?` | `boolean \| undefined` |
-| `displayName?` | `string \| undefined` |
-| `fallbackLocale?` | `string \| undefined` |
-| `iso?` | `string \| undefined` |
-| `og?` | `string \| undefined` |
-| `seo?` | `boolean \| undefined` |
+<code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/react).
 
-</details>
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+
 <code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
+
 <details>
 <summary><code>UseLocaleHeadOptions</code> — 5 members</summary>
 
@@ -79,8 +67,9 @@ import { /* … */ } from '@i18n-micro/vue'
 | `identifierAttribute?` | `string \| undefined` |
 
 </details>
+
 <details>
-<summary><code>VueI18n</code> — 52 members</summary>
+<summary><code>VueI18n</code> — 57 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -92,6 +81,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `Ref<string, string>` |
+| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../vue/src").VueI18n & M>) => import("../../vue/src").VueI18n & M` |
 | `fallbackLocale` | `Ref<string, string>` |
 | `formatter` | `FormatService` |
@@ -103,7 +93,8 @@ import { /* … */ } from '@i18n-micro/vue'
 | `getRouteCache` | `() => Record<string, Translations>` |
 | `getStorage` | `() => TranslationStorage` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `invalidatePin` | `protected () => void` |
 | `listeners` | `private Set<() => void>` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
@@ -114,6 +105,9 @@ import { /* … */ } from '@i18n-micro/vue'
 | `new` | `(options: VueI18nOptions): VueI18n` |
 | `notifyListeners` | `private () => void` |
 | `onTranslationsChanged` | `protected () => void` |
+| `pinnedCacheKey` | `private any` |
+| `pinnedGeneration` | `private any` |
+| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
@@ -138,6 +132,7 @@ import { /* … */ } from '@i18n-micro/vue'
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
+
 <code>VueI18nOptions</code> — 6 members, identical to [`SolidI18nOptions`](/api/packages/solid).
 ## `@i18n-micro/vue/router`
 

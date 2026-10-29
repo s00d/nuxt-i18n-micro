@@ -44,6 +44,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `strategy` | `Strategies` |
 
 </details>
+
 <details>
 <summary><code>RouteGenerator</code> — 12 members</summary>
 
@@ -63,6 +64,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `strategy` | `Strategies` |
 
 </details>
+
 <details>
 <summary><code>RouteGeneratorOptions</code> — 9 members</summary>
 
@@ -79,7 +81,9 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `strategy` | `Strategies` |
 
 </details>
+
 <code>RouteI18nMeta</code> — 2 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
+
 <details>
 <summary><code>Rules</code> — 8 members</summary>
 

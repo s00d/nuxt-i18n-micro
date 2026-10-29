@@ -31,11 +31,11 @@ Every URL is resolved with `?q=1#top`.
 | /fr | localized-index | fr | index | index | null | fr | fr | null |
 | /fr/a-propos | localized-about-fr | fr | about | about | null | fr | fr | null |
 | /fr/blog/hello-world | localized-blog-slug | fr | blog-slug | blog-slug | null | fr | fr | null |
-| /en | null | en |  | null | null | en | en | Default locale should not have prefix |
-| /en/ | null | en |  | null | null | en | en | Default locale should not have prefix |
+| /en | null | en |  | index | null | en | en | Default locale should not have prefix |
+| /en/ | null | en |  | index | null | en | en | Default locale should not have prefix |
 | /de/ | localized-index | de | index | index | null | de | de | null |
 | /about/ | about | en | about | about | null | null | en | null |
-| /de/about/ | null | de |  | null | null | de | de | null |
+| /de/about/ | null | de |  | about | null | de | de | null |
 | /missing | null | en |  | null | null | null | en | null |
 | /de/missing | null | de |  | null | null | de | de | null |
 | /xx/about | null | en |  | null | null | null | en | null |
@@ -54,15 +54,15 @@ Every URL is resolved with `?q=1#top`.
 | /fr | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /fr | null |
 | /fr/a-propos | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /fr/a-propos | null |
 | /fr/blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /fr/blog/hello-world | null |
-| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
 | /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /about/?q=1#top [about] | /about/?q=1#top [about] | /de/about/ | null |
+| /de/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /de/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
 
 ## To de
 
@@ -77,15 +77,15 @@ Every URL is resolved with `?q=1#top`.
 | /fr | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /fr | null |
 | /fr/a-propos | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /fr/a-propos | null |
 | /fr/blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world-de?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | /fr/blog/hello-world | null |
-| /en | /en?q=1#top [—] |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /en/ | null |
+| /en | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /en | null |
+| /en/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /en/ | null |
 | /de/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /de/ | null |
 | /about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /about/ | /de/ueber-uns |
-| /de/about/ | /de/about/?q=1#top [—] |  | https://example.de/about/?q=1#top [—] | https://example.de/about/?q=1#top [—] | /de/about/ | null |
-| /missing | /missing?q=1#top [—] |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /missing | /de/missing |
-| /de/missing | /de/missing?q=1#top [—] |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | /xx/about | /de/xx/about |
-| /de/de/about | /de/de/about?q=1#top [—] |  | https://example.de/de/about?q=1#top [—] | https://example.de/de/about?q=1#top [—] | /de/de/about | null |
+| /de/about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /de/about/ | null |
+| /missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /missing | /de/missing |
+| /de/missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /de/missing | null |
+| /xx/about | external https://example.de/xx/about?q=1#top |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | /xx/about | /de/xx/about |
+| /de/de/about | external https://example.de/de/about?q=1#top |  | https://example.de/de/about?q=1#top [—] | https://example.de/de/about?q=1#top [—] | /de/de/about | null |
 
 ## To fr
 
@@ -100,15 +100,15 @@ Every URL is resolved with `?q=1#top`.
 | /fr | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | /fr | null |
 | /fr/a-propos | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | /fr/a-propos | null |
 | /fr/blog/hello-world | external https://example.fr/fr/blog/hello-world?q=1#top | external https://example.fr/fr/blog/hello-world-fr?q=1#top | https://example.fr/fr/blog/hello-world?q=1#top [—] | https://example.fr/fr/blog/hello-world?q=1#top [—] | /fr/blog/hello-world | null |
-| /en | /en?q=1#top [—] |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | /en/ | null |
+| /en | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | /en | null |
+| /en/ | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | /en/ | null |
 | /de/ | external https://example.fr/fr?q=1#top |  | https://example.fr/fr?q=1#top [—] | https://example.fr/fr?q=1#top [—] | /de/ | null |
 | /about/ | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | /about/ | /fr/a-propos |
-| /de/about/ | /de/about/?q=1#top [—] |  | https://example.fr/fr/about/?q=1#top [—] | https://example.fr/fr/about/?q=1#top [—] | /de/about/ | null |
-| /missing | /missing?q=1#top [—] |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | /missing | /fr/missing |
-| /de/missing | /de/missing?q=1#top [—] |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | https://example.fr/fr/xx/about?q=1#top [—] | https://example.fr/fr/xx/about?q=1#top [—] | /xx/about | /fr/xx/about |
-| /de/de/about | /de/de/about?q=1#top [—] |  | https://example.fr/fr/de/about?q=1#top [—] | https://example.fr/fr/de/about?q=1#top [—] | /de/de/about | null |
+| /de/about/ | external https://example.fr/fr/a-propos?q=1#top |  | https://example.fr/fr/a-propos?q=1#top [—] | https://example.fr/fr/a-propos?q=1#top [—] | /de/about/ | null |
+| /missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | /missing | /fr/missing |
+| /de/missing | external https://example.fr/fr/missing?q=1#top |  | https://example.fr/fr/missing?q=1#top [—] | https://example.fr/fr/missing?q=1#top [—] | /de/missing | null |
+| /xx/about | external https://example.fr/fr/xx/about?q=1#top |  | https://example.fr/fr/xx/about?q=1#top [—] | https://example.fr/fr/xx/about?q=1#top [—] | /xx/about | /fr/xx/about |
+| /de/de/about | external https://example.fr/fr/de/about?q=1#top |  | https://example.fr/fr/de/about?q=1#top [—] | https://example.fr/fr/de/about?q=1#top [—] | /de/de/about | null |
 
 ## localeRoute({ name, params }) from each home page
 

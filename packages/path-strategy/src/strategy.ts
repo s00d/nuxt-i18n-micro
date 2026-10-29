@@ -42,7 +42,11 @@ function splitUrl(url: string): { path: string; query?: Record<string, unknown>;
   const queryAt = rest.indexOf('?')
   if (queryAt === -1) return { path: rest, hash }
   const query: Record<string, unknown> = {}
-  for (const [key, value] of new URLSearchParams(rest.slice(queryAt + 1))) query[key] = value
+  for (const [key, value] of new URLSearchParams(rest.slice(queryAt + 1))) {
+    const seen = query[key]
+    // `?tag=a&tag=b` -> { tag: ['a', 'b'] }, as vue-router parses it
+    query[key] = seen === undefined ? value : Array.isArray(seen) ? [...seen, value] : [seen, value]
+  }
   return { path: rest.slice(0, queryAt), query, hash }
 }
 
@@ -147,8 +151,9 @@ export class I18nPathStrategy {
   private matchPage(path: string): Page | typeof UNLOCALIZED | null {
     const { records, unlocalized } = this.index
     const forms = [path]
-    if (this.ctx.strategy !== 'no_prefix' && !this.getLocaleFromPath(path))
-      for (const code of this.codes) forms.push(`/${code}${path === '/' ? '' : path}`)
+    const locale = this.getLocaleFromPath(path)
+    if (locale) forms.push(path.slice(locale.length + 1) || '/') // a prefix this URL should not have (`/en/...`, no_prefix)
+    else if (this.ctx.strategy !== 'no_prefix') for (const code of this.codes) forms.push(`/${code}${path === '/' ? '' : path}`)
     let catchAll: Page | null = null
     for (const form of forms) {
       const route = this.probe(form)
@@ -179,7 +184,7 @@ export class I18nPathStrategy {
     const entry = this.index.records.get(name)!
     const own: Record<string, unknown> = {}
     for (const key of entry.keys) {
-      if (key === 'locale') own.locale = entry.locales.includes(locale) ? locale : entry.locales[0]
+      if (key === 'locale') own.locale = [locale, this.ctx.defaultLocale].find((code) => entry.locales.includes(code)) ?? entry.locales[0]
       else if (params[key] !== undefined) own[key] = params[key]
     }
     // the current route's params fill missing ones inside router.resolve, so a cached miss of a
@@ -221,8 +226,14 @@ export class I18nPathStrategy {
   }
 
   switchLocaleRoute(_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options: SwitchLocaleOptions = {}): RouteLike | string {
-    const base = route.name ? this.baseOf(String(route.name)) : null
-    if (!base) return route
+    const name = route.name ? String(route.name) : null
+    const base = name ? this.baseOf(name) : null
+    if (!base) {
+      // an unlocalized page stays; an unmatched URL (a 404 page) becomes that URL in `toLocale`'s form
+      if (name) return route
+      const target = this.localeRoute(toLocale, route.fullPath || route.path)
+      return target.path && /^https?:\/\//.test(target.path) ? target.path : target
+    }
     const params = { ...route.params, ...options.i18nRouteParams?.[toLocale] }
     const target = this.routeTo(toLocale, base, params, route.query, route.hash)
     if (!target) return route
@@ -336,6 +347,8 @@ export class I18nPathStrategy {
     if (this.getLocaleFromPath(path)) return null
     const page = this.findPage(path)
     if (page === UNLOCALIZED) return null
+    // a URL no record serves still moves to the preferred locale's form: `prefix` serves nothing
+    // unprefixed, and `pages: false` / apps without an index page rely on `/` -> `/de`
     const target = withoutTrailingSlash((page && this.routeTo(preferredLocale, page.base, page.params)?.path) || this.prefixed(preferredLocale, path))
     return safeDecode(target) === safeDecode(withoutTrailingSlash(path)) ? null : target
   }

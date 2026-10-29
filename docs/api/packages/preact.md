@@ -27,26 +27,26 @@ import { /* … */ } from '@i18n-micro/preact'
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
 | `I18nContext` | const | `import("preact").Context<PreactI18n \| null>` |
 | `I18nDefaultLocaleContext` | const | `import("preact").Context<string \| null>` |
-| `I18nGroup` | const | `(props: I18nGroupProps) => JSX.Element` |
-| `I18nGroupProps` | interface | 301 members |
-| `I18nLink` | const | `(props: I18nLinkProps) => JSX.Element` |
-| `I18nLinkProps` | interface | 314 members |
+| `I18nGroup` | const | `(props: I18nGroupProps) => VNode` |
+| `I18nGroupProps` | interface | 308 members |
+| `I18nLink` | const | `(props: I18nLinkProps) => VNode` |
+| `I18nLinkProps` | interface | 321 members |
 | `I18nLocalesContext` | const | `import("preact").Context<Locale[] \| null>` |
 | `I18nProvider` | function | `({ i18n, locales, defaultLocale, routingStrategy, children }: I18nProviderProps) => import("preact").VNode<import("preact").Attributes & { value: PreactI18n \| null; children?: ComponentChildren; }>` |
 | `I18nProviderProps` | interface | 5 members |
 | `I18nRouterContext` | const | `import("preact").Context<I18nRoutingStrategy \| null>` |
 | `I18nRoutingStrategy` | interface | 6 members |
-| `I18nSwitcher` | const | `(props: I18nSwitcherProps) => JSX.Element` |
-| `I18nSwitcherProps` | interface | 314 members |
-| `I18nT` | const | `(props: I18nTProps) => JSX.Element \| null` |
-| `I18nTProps` | interface | 311 members |
+| `I18nSwitcher` | const | `(props: I18nSwitcherProps) => VNode` |
+| `I18nSwitcherProps` | interface | 321 members |
+| `I18nT` | const | `(props: I18nTProps) => VNode \| null` |
+| `I18nTProps` | interface | 318 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `Locale` | interface | 11 members |
 | `LocaleCode` | type | `string` |
 | `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `PreactI18n` | class | 50 members |
+| `PreactI18n` | class | 55 members |
 | `PreactI18nOptions` | interface | 7 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -59,8 +59,9 @@ import { /* … */ } from '@i18n-micro/preact'
 | `useI18nRouter` | const | `() => I18nRoutingStrategy \| null` |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+
 <details>
-<summary><code>I18nGroupProps</code> — 301 members</summary>
+<summary><code>I18nGroupProps</code> — 308 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -131,7 +132,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `className?` | `Signalish<string \| undefined>` |
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
-| `dangerouslySetInnerHTML?` | `{ __html: string; } \| undefined` |
+| `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
 | `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
 | `disablePictureInPicture?` | `Signalish<boolean \| undefined>` |
@@ -174,6 +175,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLDivElement> \| undefined` |
 | `onBeforeInputCapture?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLDivElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onCancel?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
@@ -186,6 +188,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onClick?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onClose?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onCommand?` | `CommandEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionEndCapture?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionStart?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
@@ -306,9 +309,14 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onResetCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
 | `onResize?` | `PictureInPictureEventHandler<HTMLDivElement> \| undefined` |
 | `onResizeCapture?` | `PictureInPictureEventHandler<HTMLDivElement> \| undefined` |
-| `onScroll?` | `UIEventHandler<HTMLDivElement> \| undefined` |
-| `onScrollCapture?` | `UIEventHandler<HTMLDivElement> \| undefined` |
-| `onScrollEnd?` | `UIEventHandler<HTMLDivElement> \| undefined` |
+| `onScroll?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEnd?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEndCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChange?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChangeCapture?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChanging?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChangingCapture?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
 | `onSearch?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
 | `onSearchCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
 | `onSeeked?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
@@ -367,8 +375,9 @@ import { /* … */ } from '@i18n-micro/preact'
 | `vocab?` | `Signalish<string \| undefined>` |
 
 </details>
+
 <details>
-<summary><code>I18nLinkProps</code> — 314 members</summary>
+<summary><code>I18nLinkProps</code> — 321 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -440,7 +449,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `className?` | `Signalish<string \| undefined>` |
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
-| `dangerouslySetInnerHTML?` | `{ __html: string; } \| undefined` |
+| `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
 | `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
 | `disablePictureInPicture?` | `Signalish<boolean \| undefined>` |
@@ -488,6 +497,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
 | `onBeforeInputCapture?` | `InputEventHandler<HTMLAnchorElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLAnchorElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCancel?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
@@ -500,6 +510,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onClick?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLAnchorElement> \| undefined` |
 | `onClose?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
+| `onCommand?` | `CommandEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCompositionEndCapture?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
 | `onCompositionStart?` | `CompositionEventHandler<HTMLAnchorElement> \| undefined` |
@@ -620,9 +631,14 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onResetCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
 | `onResize?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
 | `onResizeCapture?` | `PictureInPictureEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScroll?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollCapture?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
-| `onScrollEnd?` | `UIEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScroll?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollEnd?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollEndCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollSnapChange?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollSnapChangeCapture?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollSnapChanging?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
+| `onScrollSnapChangingCapture?` | `SnapEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSearch?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSearchCapture?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
 | `onSeeked?` | `GenericEventHandler<HTMLAnchorElement> \| undefined` |
@@ -688,6 +704,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `vocab?` | `Signalish<string \| undefined>` |
 
 </details>
+
 <details>
 <summary><code>I18nProviderProps</code> — 5 members</summary>
 
@@ -700,6 +717,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `routingStrategy?` | `I18nRoutingStrategy \| undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nRoutingStrategy</code> — 6 members</summary>
 
@@ -713,8 +731,9 @@ import { /* … */ } from '@i18n-micro/preact'
 | `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
 
 </details>
+
 <details>
-<summary><code>I18nSwitcherProps</code> — 314 members</summary>
+<summary><code>I18nSwitcherProps</code> — 321 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -795,7 +814,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `customLabels?` | `Record<string, string> \| undefined` |
 | `customLinkStyle?` | `Record<string, string \| number> \| undefined` |
 | `customWrapperStyle?` | `Record<string, string \| number> \| undefined` |
-| `dangerouslySetInnerHTML?` | `{ __html: string; } \| undefined` |
+| `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
 | `dir?` | `Signalish<"auto" \| "rtl" \| "ltr" \| undefined>` |
 | `disablePictureInPicture?` | `Signalish<boolean \| undefined>` |
@@ -840,6 +859,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLDivElement> \| undefined` |
 | `onBeforeInputCapture?` | `InputEventHandler<HTMLDivElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLDivElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLDivElement> \| undefined` |
 | `onCancel?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
@@ -852,6 +872,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onClick?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLDivElement> \| undefined` |
 | `onClose?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onCommand?` | `CommandEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionEndCapture?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
 | `onCompositionStart?` | `CompositionEventHandler<HTMLDivElement> \| undefined` |
@@ -972,9 +993,14 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onResetCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
 | `onResize?` | `PictureInPictureEventHandler<HTMLDivElement> \| undefined` |
 | `onResizeCapture?` | `PictureInPictureEventHandler<HTMLDivElement> \| undefined` |
-| `onScroll?` | `UIEventHandler<HTMLDivElement> \| undefined` |
-| `onScrollCapture?` | `UIEventHandler<HTMLDivElement> \| undefined` |
-| `onScrollEnd?` | `UIEventHandler<HTMLDivElement> \| undefined` |
+| `onScroll?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEnd?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollEndCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChange?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChangeCapture?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChanging?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
+| `onScrollSnapChangingCapture?` | `SnapEventHandler<HTMLDivElement> \| undefined` |
 | `onSearch?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
 | `onSearchCapture?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
 | `onSeeked?` | `GenericEventHandler<HTMLDivElement> \| undefined` |
@@ -1034,8 +1060,9 @@ import { /* … */ } from '@i18n-micro/preact'
 | `vocab?` | `Signalish<string \| undefined>` |
 
 </details>
+
 <details>
-<summary><code>I18nTProps</code> — 311 members</summary>
+<summary><code>I18nTProps</code> — 318 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1107,7 +1134,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `contenteditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `contentEditable?` | `Signalish<"" \| Booleanish \| "plaintext-only" \| "inherit" \| undefined>` |
 | `customPluralRule?` | `PluralFunc \| undefined` |
-| `dangerouslySetInnerHTML?` | `{ __html: string; } \| undefined` |
+| `dangerouslySetInnerHTML?` | `{ __html: Parameters<DOMParser["parseFromString"]>[0]; } \| undefined` |
 | `datatype?` | `Signalish<string \| undefined>` |
 | `date?` | `string \| number \| Date \| undefined` |
 | `defaultValue?` | `string \| undefined` |
@@ -1155,6 +1182,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onAuxClickCapture?` | `MouseEventHandler<HTMLElement> \| undefined` |
 | `onBeforeInput?` | `InputEventHandler<HTMLElement> \| undefined` |
 | `onBeforeInputCapture?` | `InputEventHandler<HTMLElement> \| undefined` |
+| `onBeforeToggle?` | `ToggleEventHandler<HTMLElement> \| undefined` |
 | `onBlur?` | `FocusEventHandler<HTMLElement> \| undefined` |
 | `onBlurCapture?` | `FocusEventHandler<HTMLElement> \| undefined` |
 | `onCancel?` | `GenericEventHandler<HTMLElement> \| undefined` |
@@ -1167,6 +1195,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onClick?` | `MouseEventHandler<HTMLElement> \| undefined` |
 | `onClickCapture?` | `MouseEventHandler<HTMLElement> \| undefined` |
 | `onClose?` | `GenericEventHandler<HTMLElement> \| undefined` |
+| `onCommand?` | `CommandEventHandler<HTMLElement> \| undefined` |
 | `onCompositionEnd?` | `CompositionEventHandler<HTMLElement> \| undefined` |
 | `onCompositionEndCapture?` | `CompositionEventHandler<HTMLElement> \| undefined` |
 | `onCompositionStart?` | `CompositionEventHandler<HTMLElement> \| undefined` |
@@ -1287,9 +1316,14 @@ import { /* … */ } from '@i18n-micro/preact'
 | `onResetCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onResize?` | `PictureInPictureEventHandler<HTMLElement> \| undefined` |
 | `onResizeCapture?` | `PictureInPictureEventHandler<HTMLElement> \| undefined` |
-| `onScroll?` | `UIEventHandler<HTMLElement> \| undefined` |
-| `onScrollCapture?` | `UIEventHandler<HTMLElement> \| undefined` |
-| `onScrollEnd?` | `UIEventHandler<HTMLElement> \| undefined` |
+| `onScroll?` | `GenericEventHandler<HTMLElement> \| undefined` |
+| `onScrollCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
+| `onScrollEnd?` | `GenericEventHandler<HTMLElement> \| undefined` |
+| `onScrollEndCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
+| `onScrollSnapChange?` | `SnapEventHandler<HTMLElement> \| undefined` |
+| `onScrollSnapChangeCapture?` | `SnapEventHandler<HTMLElement> \| undefined` |
+| `onScrollSnapChanging?` | `SnapEventHandler<HTMLElement> \| undefined` |
+| `onScrollSnapChangingCapture?` | `SnapEventHandler<HTMLElement> \| undefined` |
 | `onSearch?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onSearchCapture?` | `GenericEventHandler<HTMLElement> \| undefined` |
 | `onSeeked?` | `GenericEventHandler<HTMLElement> \| undefined` |
@@ -1352,6 +1386,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `vocab?` | `Signalish<string \| undefined>` |
 
 </details>
+
 <details>
 <summary><code>Locale</code> — 11 members</summary>
 
@@ -1370,9 +1405,11 @@ import { /* … */ } from '@i18n-micro/preact'
 | `seo?` | `boolean \| undefined` |
 
 </details>
+
 <code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
+
 <details>
-<summary><code>PreactI18n</code> — 50 members</summary>
+<summary><code>PreactI18n</code> — 55 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -1381,6 +1418,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `clear` | `() => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
+| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../preact/src").PreactI18n & M>) => import("../../preact/src").PreactI18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
@@ -1392,7 +1430,8 @@ import { /* … */ } from '@i18n-micro/preact'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `invalidatePin` | `protected () => void` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
@@ -1403,6 +1442,9 @@ import { /* … */ } from '@i18n-micro/preact'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): PreactI18n` |
 | `onTranslationsChanged` | `protected () => void` |
+| `pinnedCacheKey` | `private any` |
+| `pinnedGeneration` | `private any` |
+| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
@@ -1428,6 +1470,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
+
 <details>
 <summary><code>PreactI18nOptions</code> — 7 members</summary>
 
@@ -1442,7 +1485,9 @@ import { /* … */ } from '@i18n-micro/preact'
 | `routeMessages?` | `Record<string, Record<string, Translations>> \| undefined` |
 
 </details>
+
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+
 <details>
 <summary><code>UseI18nOptions</code> — 2 members</summary>
 
@@ -1452,6 +1497,7 @@ import { /* … */ } from '@i18n-micro/preact'
 | `locales?` | `Locale[] \| undefined` |
 
 </details>
+
 <details>
 <summary><code>UseI18nReturn</code> — 22 members</summary>
 

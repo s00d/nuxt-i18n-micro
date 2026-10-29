@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/core`
 
-53 exports across 3 entry points.
+54 exports across 3 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -18,7 +18,7 @@ import { /* … */ } from '@i18n-micro/core'
 
 | Export | Kind | Signature |
 | --- | --- | --- |
-| `BaseI18n` | class | 35 members |
+| `BaseI18n` | class | 40 members |
 | `BaseI18nOptions` | interface | 7 members |
 | `collectTranslationPaths` | function | `(obj: Record<string, unknown>, paths: Set<string>, prefix?: string) => void` |
 | `createReactiveI18nStore` | function | `(options: ReactiveI18nStoreOptions) => ReactiveI18nStore` |
@@ -42,15 +42,16 @@ import { /* … */ } from '@i18n-micro/core'
 | `setTranslationAtKey` | function | `(tree: Record<string, unknown>, key: string, value: unknown) => Record<string, unknown>` |
 | `translationCacheKey` | function | `(locale: string, routeName?: string) => string` |
 | `TranslationStorage` | interface | 1 members |
-| `useTranslationHelper` | function | `(storage?: TranslationStorage) => { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `useTranslationHelper` | function | `(storage?: TranslationStorage) => { hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
 | `withPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix" \| "prefix_and_default"` |
 
 <details>
-<summary><code>BaseI18n</code> — 35 members</summary>
+<summary><code>BaseI18n</code> — 40 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `clearCache` | `() => void` |
+| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<BaseI18n & M>) => BaseI18n & M` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
@@ -59,13 +60,17 @@ import { /* … */ } from '@i18n-micro/core'
 | `getMissingContext` | `protected (routeContext?: unknown) => { locale: string; routeName: string; }` |
 | `getRoute` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `invalidatePin` | `protected () => void` |
 | `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `missingHandler?` | `((locale: string, key: string, routeName: string) => void) \| undefined` |
 | `missingWarn` | `boolean` |
 | `new` | `abstract (options?: BaseI18nOptions): BaseI18n` |
 | `onTranslationsChanged` | `protected () => void` |
+| `pinnedCacheKey` | `private string` |
+| `pinnedGeneration` | `private number` |
+| `pinnedTree` | `private Record<string, unknown> \| null` |
 | `pluralFunc` | `PluralFunc` |
 | `resolveDateTimeFormatArgs` | `private (keyOrOptions?: string \| Intl.DateTimeFormatOptions, localeOrOverrides?: string \| Intl.DateTimeFormatOptions, overrides?: Intl.DateTimeFormatOptions) => { locale: string; options: Intl.DateTimeFormatOptions \| undefined; }` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
@@ -87,6 +92,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
+
 <details>
 <summary><code>BaseI18nOptions</code> — 7 members</summary>
 
@@ -101,6 +107,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `storage?` | `TranslationStorage \| undefined` |
 
 </details>
+
 <details>
 <summary><code>FormatService</code> — 19 members</summary>
 
@@ -127,6 +134,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `setNumberFormats` | `(formats: NumberFormatsConfig) => void` |
 
 </details>
+
 <details>
 <summary><code>FormatServiceOptions</code> — 2 members</summary>
 
@@ -136,6 +144,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `numberFormats?` | `NumberFormatsConfig \| undefined` |
 
 </details>
+
 <details>
 <summary><code>MergeTranslationChunkOptions</code> — 1 members</summary>
 
@@ -144,6 +153,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `preserveExisting?` | `boolean \| undefined` |
 
 </details>
+
 <details>
 <summary><code>ReactiveI18nStore</code> — 9 members</summary>
 
@@ -160,6 +170,7 @@ import { /* … */ } from '@i18n-micro/core'
 | `subscribe` | `(listener: () => void) => () => void` |
 
 </details>
+
 <details>
 <summary><code>TranslationStorage</code> — 1 members</summary>
 
@@ -201,6 +212,7 @@ import { /* … */ } from '@i18n-micro/core/devtools'
 | `storage` | `TranslationStorage` |
 
 </details>
+
 <details>
 <summary><code>I18nDevtoolsInspectorNode</code> — 4 members</summary>
 
@@ -212,6 +224,7 @@ import { /* … */ } from '@i18n-micro/core/devtools'
 | `tags?` | `{ label: string; textColor: number; backgroundColor: number; tooltip?: string; }[] \| undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nDevtoolsStateSnapshot</code> — 7 members</summary>
 
@@ -244,6 +257,7 @@ import { /* … */ } from '@i18n-micro/core/helpers'
 | `isPrefixExceptDefaultStrategy` | function | `(strategy: Strategies) => strategy is "prefix_except_default"` |
 | `isPrefixStrategy` | function | `(strategy: Strategies) => strategy is "prefix"` |
 | `mergeTranslationChunk` | function | `(existing: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => Record<string, unknown>` |
+| `mergeTranslationChunkInPlace` | function | `(target: Record<string, unknown>, incoming: Record<string, unknown>, options?: MergeTranslationChunkOptions) => void` |
 | `MergeTranslationChunkOptions` | interface | 1 members |
 | `mergeTranslationLayers` | function | `(lower: Record<string, unknown>, upper: Record<string, unknown>) => Record<string, unknown>` |
 | `resolveTranslation` | function | `(obj: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null` |

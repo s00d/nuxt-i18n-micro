@@ -45,12 +45,12 @@ Every URL is resolved with `?q=1#top`.
 | /team-seite | localized-about-team-de | en | about-team | about-team | English | null | null | null |
 | /team/members | team-members | en | team-members | team-members | English | null | null | null |
 | /ueber-uns | localized-about-de | en | about | about | English | null | null | null |
-| /en | null | en |  | null | English | en | null | null |
-| /en/ | null | en |  | null | English | en | null | null |
-| /de | null | en |  | null | English | de | null | null |
-| /de/ | null | en |  | null | English | de | null | null |
+| /en | null | en |  | index | English | en | null | null |
+| /en/ | null | en |  | index | English | en | null | null |
+| /de | null | en |  | index | English | de | null | null |
+| /de/ | null | en |  | index | English | de | null | null |
 | /about/ | about | en | about | about | English | null | null | null |
-| /de/about/ | null | en |  | null | English | de | null | null |
+| /de/about/ | null | en |  | about | English | de | null | null |
 | /missing | null | en |  | null | English | null | null | null |
 | /de/missing | null | en |  | null | English | de | null | null |
 | /xx/about | null | en |  | null | English | null | null | null |
@@ -75,16 +75,16 @@ Every URL is resolved with `?q=1#top`.
 | /team-seite | /about-team?q=1#top [about-team] |  | /about-team?q=1#top [about-team] | /about-team?q=1#top [about-team] | /team-seite | null |
 | /team/members | /team/members?q=1#top [team-members] |  | /team/members?q=1#top [team-members] | /team/members?q=1#top [team-members] | /team/members | null |
 | /ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /ueber-uns | null |
-| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /about/?q=1#top [about] | /about/?q=1#top [about] | /de/about/ | null |
+| /de/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /de/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
 
 ## To de
 
@@ -105,16 +105,16 @@ Every URL is resolved with `?q=1#top`.
 | /team-seite | /team-seite?q=1#top [localized-about-team-de] |  | /team-seite?q=1#top [localized-about-team-de] | /team-seite?q=1#top [localized-about-team-de] | /team-seite | null |
 | /team/members | /mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /mannschaft/mitglieder?q=1#top [localized-team-members-de] | /mannschaft/mitglieder?q=1#top [localized-team-members-de] | /team/members | null |
 | /ueber-uns | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns | null |
-| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
 | /about/ | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /about/?q=1#top [about] | /about/?q=1#top [about] | /de/about/ | null |
+| /de/about/ | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /de/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
 
 ## To fr
 
@@ -135,16 +135,16 @@ Every URL is resolved with `?q=1#top`.
 | /team-seite | /equipe?q=1#top [localized-about-team-fr] |  | /equipe?q=1#top [localized-about-team-fr] | /equipe?q=1#top [localized-about-team-fr] | /team-seite | null |
 | /team/members | /team/members?q=1#top [team-members] |  | /team/members?q=1#top [team-members] | /team/members?q=1#top [team-members] | /team/members | null |
 | /ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /ueber-uns | null |
-| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /about/?q=1#top [about] | /about/?q=1#top [about] | /de/about/ | null |
+| /de/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /de/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
 
 ## localeRoute({ name, params }) from each home page
 

@@ -692,13 +692,20 @@ export {}
         return `import type { ModuleOptionsExtend, ModulePrivateOptionsExtend, Params, Getter, PluralFunc } from '@i18n-micro/types'
 import type { PathStrategy } from '@i18n-micro/path-strategy'
 
+/** What createI18nStrategy reads from the app's vue-router. */
+interface I18nStrategyRouter {
+  hasRoute: (name: string) => boolean
+  resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string }
+  getRoutes: () => { name?: string | symbol | null, path: string, meta?: Record<string, unknown> }[]
+}
+
 declare module '#build/i18n.plural.mjs' {
   export function plural(key: string, count: number, params: Params, locale: string, getter: Getter): string | null
 }
 
 declare module '#build/i18n.strategy.mjs' {
   export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string }, getRoutes: () => { name?: string | symbol | null, path: string, meta?: Record<string, unknown> }[] }): PathStrategy
+  export function createI18nStrategy(router: I18nStrategyRouter): PathStrategy
 }
 
 declare module '#i18n-internal/config' {
@@ -707,7 +714,7 @@ declare module '#i18n-internal/config' {
 
 declare module '#i18n-internal/strategy' {
   export function getI18nConfig(): ModuleOptionsExtend
-  export function createI18nStrategy(router: { hasRoute: (name: string) => boolean, resolve: (to: unknown) => { name: string | null, path: string, fullPath: string, params?: Record<string, unknown>, query?: Record<string, unknown>, hash?: string }, getRoutes: () => { name?: string | symbol | null, path: string, meta?: Record<string, unknown> }[] }): PathStrategy
+  export function createI18nStrategy(router: I18nStrategyRouter): PathStrategy
 }
 
 declare module '#i18n-internal/plural' {

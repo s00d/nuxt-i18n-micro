@@ -18,12 +18,12 @@ Generation has two steps:
 
 Every localized record carries `meta.i18n = { name, locales }`: the page's base name and the locales it serves. `@i18n-micro/path-strategy` reads that at runtime instead of re-deriving the rules, so the build is the single source of truth.
 
-| Strategy                | `/about`, `de: '/ueber-uns'`                                                                          |
-| ----------------------- | ----------------------------------------------------------------------------------------------------- |
-| `prefix_except_default` | `about /about`, `localized-about /:locale(fr)/about`, `localized-about-de /:locale(de)/ueber-uns`     |
-| `prefix`                | `localized-about /:locale(en\|fr)/about`, `localized-about-de /:locale(de)/ueber-uns`                 |
-| `prefix_and_default`    | `about /about`, `localized-about /:locale(en\|fr)/about`, `localized-about-de /:locale(de)/ueber-uns` |
-| `no_prefix`             | `about /about`, `localized-about-de /ueber-uns`                                                       |
+| Strategy (locales `en` default, `de`, `fr`) | `/about`, `de: '/ueber-uns'`                                                                          |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `prefix_except_default`                     | `about /about`, `localized-about /:locale(fr)/about`, `localized-about-de /:locale(de)/ueber-uns`     |
+| `prefix`                                    | `localized-about /:locale(en\|fr)/about`, `localized-about-de /:locale(de)/ueber-uns`                 |
+| `prefix_and_default`                        | `about /about`, `localized-about /:locale(en\|fr)/about`, `localized-about-de /:locale(de)/ueber-uns` |
+| `no_prefix`                                 | `about /about`, `localized-about-de /ueber-uns`                                                       |
 
 ---
 
@@ -61,10 +61,14 @@ When both `about-team` and `/about-team` exist for a top-level page, the form wi
 ## API
 
 ```ts
+import type { NuxtPage } from '@nuxt/schema'
 import { RouteGenerator } from '@i18n-micro/route-strategy'
 
+// what Nuxt's `pages:resolved` hook passes
+const pages: NuxtPage[] = [{ path: '/about', name: 'about', file: 'pages/about.vue' }]
+
 const generator = new RouteGenerator({
-  locales: [{ code: 'en' }, { code: 'de' }],
+  locales: [{ code: 'en' }, { code: 'de' }, { code: 'fr' }],
   defaultLocaleCode: 'en',
   strategy: 'prefix_except_default',
   globalLocaleRoutes: { about: { de: '/ueber-uns' } }, // $defineI18nRoute localeRoutes merged in, config wins

@@ -62,10 +62,10 @@ Every URL is resolved with `?q=1#top`.
 | /store | localized-shop-en | en | shop | shop | English | null | null | null |
 | /store/shoes | localized-shop-category-en | en | shop-category | shop-category | English | null | null | null |
 | /store/shoes/red-boot | localized-shop-category-item-en | en | shop-category-item | shop-category-item | English | null | null | null |
-| /en | null | en |  | null | English | en | null | null |
-| /en/ | null | en |  | null | English | en | null | null |
-| /de | null | en |  | null | English | de | null | null |
-| /de/ | null | en |  | null | English | de | null | null |
+| /en | null | en |  | index | English | en | null | null |
+| /en/ | null | en |  | index | English | en | null | null |
+| /de | null | en |  | index | English | de | null | null |
+| /de/ | null | en |  | index | English | de | null | null |
 | /about/ | null | en |  | null | English | null | null | null |
 | /de/about/ | null | en |  | null | English | de | null | null |
 | /missing | null | en |  | null | English | null | null | null |
@@ -99,16 +99,16 @@ Every URL is resolved with `?q=1#top`.
 | /store | /store?q=1#top [localized-shop-en] |  | /store?q=1#top [localized-shop-en] | /store?q=1#top [localized-shop-en] | /store | null |
 | /store/shoes | /store/shoes?q=1#top [localized-shop-category-en] | /store/shoes-en?q=1#top [localized-shop-category-en] | /store/shoes?q=1#top [localized-shop-category-en] | /store/shoes?q=1#top [localized-shop-category-en] | /store/shoes | null |
 | /store/shoes/red-boot | /store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /store/shoes-en/red-boot-en?q=1#top [localized-shop-category-item-en] | /store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /store/shoes/red-boot?q=1#top [localized-shop-category-item-en] | /store/shoes/red-boot | null |
-| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
 | /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
+| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
 
 ## To de
 
@@ -136,16 +136,16 @@ Every URL is resolved with `?q=1#top`.
 | /store | /laden?q=1#top [localized-shop-de] |  | /laden?q=1#top [localized-shop-de] | /laden?q=1#top [localized-shop-de] | /store | null |
 | /store/shoes | /laden/shoes?q=1#top [localized-shop-category-de] | /laden/shoes-de?q=1#top [localized-shop-category-de] | /laden/shoes?q=1#top [localized-shop-category-de] | /laden/shoes?q=1#top [localized-shop-category-de] | /store/shoes | null |
 | /store/shoes/red-boot | /laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /laden/shoes-de/artikel/red-boot-de?q=1#top [localized-shop-category-item-de] | /laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /laden/shoes/artikel/red-boot?q=1#top [localized-shop-category-item-de] | /store/shoes/red-boot | null |
-| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
 | /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
+| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
 
 ## To fr
 
@@ -173,16 +173,16 @@ Every URL is resolved with `?q=1#top`.
 | /store | /shop?q=1#top [shop] |  | /shop?q=1#top [shop] | /shop?q=1#top [shop] | /store | null |
 | /store/shoes | /shop/shoes?q=1#top [shop-category] | /shop/shoes-fr?q=1#top [shop-category] | /shop/shoes?q=1#top [shop-category] | /shop/shoes?q=1#top [shop-category] | /store/shoes | null |
 | /store/shoes/red-boot | /shop/shoes/red-boot?q=1#top [shop-category-item] | /shop/shoes-fr/red-boot-fr?q=1#top [shop-category-item] | /shop/shoes/red-boot?q=1#top [shop-category-item] | /shop/shoes/red-boot?q=1#top [shop-category-item] | /store/shoes/red-boot | null |
-| /en | /en?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [—] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
 | /about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
+| /de/about/ | /about/?q=1#top [—] |  | /about/?q=1#top [null] | /about/?q=1#top [null] | /de/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
 
 ## localeRoute({ name, params }) from each home page
 

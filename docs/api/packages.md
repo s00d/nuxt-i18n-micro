@@ -19,11 +19,11 @@ or CI failing.
 | Package | Entry points | Exports |
 | --- | --- | --- |
 | [`@i18n-micro/astro`](/api/packages/astro) | `@i18n-micro/astro`, `@i18n-micro/astro/client`, `@i18n-micro/astro/client/preact`, `@i18n-micro/astro/client/react`, `@i18n-micro/astro/client/svelte`, `@i18n-micro/astro/client/vue` | 58 |
-| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers` | 53 |
+| [`@i18n-micro/core`](/api/packages/core) | `@i18n-micro/core`, `@i18n-micro/core/devtools`, `@i18n-micro/core/helpers` | 54 |
 | [`@i18n-micro/devtools-ui`](/api/packages/devtools-ui) | `@i18n-micro/devtools-ui`, `@i18n-micro/devtools-ui/bridge`, `@i18n-micro/devtools-ui/bridge/create`, `@i18n-micro/devtools-ui/vite` | 25 |
-| [`@i18n-micro/hmr`](/api/packages/hmr) | `@i18n-micro/hmr/cache-keys`, `@i18n-micro/hmr/generate-plugin`, `@i18n-micro/hmr/watcher` | 9 |
+| [`@i18n-micro/hmr`](/api/packages/hmr) | `@i18n-micro/hmr/cache-keys`, `@i18n-micro/hmr/generate-plugin`, `@i18n-micro/hmr/watcher` | 12 |
 | [`@i18n-micro/node`](/api/packages/node) | `@i18n-micro/node` | 15 |
-| [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 17 |
+| [`@i18n-micro/path-strategy`](/api/packages/path-strategy) | `@i18n-micro/path-strategy`, `@i18n-micro/path-strategy/types` | 18 |
 | [`@i18n-micro/preact`](/api/packages/preact) | `@i18n-micro/preact` | 39 |
 | [`@i18n-micro/react`](/api/packages/react) | `@i18n-micro/react` | 38 |
 | [`@i18n-micro/route-strategy`](/api/packages/route-strategy) | `@i18n-micro/route-strategy` | 10 |

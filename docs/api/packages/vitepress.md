@@ -69,7 +69,9 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `syncWithVitePress?` | `boolean \| undefined` |
 
 </details>
+
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+
 <details>
 <summary><code>I18nRoutingStrategy</code> — 6 members</summary>
 
@@ -83,9 +85,13 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `resolvePath?` | `((to: string \| { path?: string; }, locale: string) => string \| { path?: string; }) \| undefined` |
 
 </details>
+
 <code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
+
 <code>UseI18nOptions</code> — 2 members, identical to [`UseI18nOptions`](/api/packages/preact).
+
 <details>
 <summary><code>VirtualI18nConfig</code> — 10 members</summary>
 
@@ -103,6 +109,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `translationDir` | `string` |
 
 </details>
+
 <details>
 <summary><code>VitePressSiteDataLike</code> — 1 members</summary>
 
@@ -111,6 +118,7 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `locales?` | `Record<string, { lang?: string; link?: string; label?: string; }> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>VitePressUserConfigLike</code> — 7 members</summary>
 
@@ -125,7 +133,9 @@ import { /* … */ } from '@i18n-micro/vitepress'
 | `vite?` | `{ [key: string]: unknown; plugins?: Plugin[] \| Plugin[][]; ssr?: { noExternal?: string \| true \| Array<string \| RegExp>; [key: string]: unknown; }; } \| undefined` |
 
 </details>
+
 <code>VueI18nOptions</code> — 6 members, identical to [`SolidI18nOptions`](/api/packages/solid).
+
 <details>
 <summary><code>WithI18nOptions</code> — 20 members</summary>
 
@@ -194,6 +204,7 @@ import { /* … */ } from '@i18n-micro/vitepress/config'
 | `path` | `string` |
 
 </details>
+
 <details>
 <summary><code>BuildVitePressLocalesOptions</code> — 1 members</summary>
 
@@ -202,7 +213,9 @@ import { /* … */ } from '@i18n-micro/vitepress/config'
 | `localeKeyToCode?` | `Record<string, string> \| undefined` |
 
 </details>
+
 <code>VirtualI18nConfig</code> — 10 members, identical to `VirtualI18nConfig` above.
+
 <details>
 <summary><code>VitePressLocaleEntry</code> — 3 members</summary>
 
@@ -213,6 +226,7 @@ import { /* … */ } from '@i18n-micro/vitepress/config'
 | `link?` | `string \| undefined` |
 
 </details>
+
 <details>
 <summary><code>VitePressLocaleHeadObject</code> — 2 members</summary>
 
@@ -222,7 +236,9 @@ import { /* … */ } from '@i18n-micro/vitepress/config'
 | `htmlAttrs` | `{ lang?: string; dir?: "ltr" \| "rtl" \| "auto"; }` |
 
 </details>
+
 <code>VitePressUserConfigLike</code> — 7 members, identical to `VitePressUserConfigLike` above.
+
 <code>WithI18nOptions</code> — 20 members, identical to `WithI18nOptions` above.
 ## `@i18n-micro/vitepress/node`
 
@@ -244,6 +260,7 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `VitePressLocaleEntry` | interface | 3 members |
 
 <code>BuildVitePressLocalesOptions</code> — 1 members, identical to `BuildVitePressLocalesOptions` above.
+
 <details>
 <summary><code>CreateI18nOptions</code> — 13 members</summary>
 
@@ -264,8 +281,11 @@ import { /* … */ } from '@i18n-micro/vitepress/node'
 | `translationDir?` | `string \| undefined` |
 
 </details>
+
 <code>I18nOptions</code> — 9 members, identical to [`I18nOptions`](/api/packages/node).
+
 <code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
+
 <code>VitePressLocaleEntry</code> — 3 members, identical to `VitePressLocaleEntry` above.
 ## `@i18n-micro/vitepress/theme`
 

@@ -89,6 +89,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `translations?` | `Record<string, unknown> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>CreateI18nTestContextOptions</code> — 9 members</summary>
 
@@ -105,6 +106,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `translations?` | `Record<string, unknown> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nTestContext</code> — 50 members</summary>
 
@@ -162,6 +164,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `ts` | `(key: TranslationKey, params?: Params, defaultValue?: string \| null) => string` |
 
 </details>
+
 <details>
 <summary><code>IsolatedFakeI18n</code> — 4 members</summary>
 
@@ -173,6 +176,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `setTranslationsFromJson` | `(loc: string, translations: Record<string, unknown>) => Promise<void>` |
 
 </details>
+
 <details>
 <summary><code>Locale</code> — 7 members</summary>
 
@@ -187,6 +191,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `iso?` | `string \| undefined` |
 
 </details>
+
 <details>
 <summary><code>NuxtI18nMockHarness</code> — 5 members</summary>
 
@@ -199,6 +204,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `useI18n` | `() => ReturnType<I18nTestContext["createFake"]>` |
 
 </details>
+
 <details>
 <summary><code>ResetI18nOptions</code> — 8 members</summary>
 
@@ -214,6 +220,7 @@ import { /* … */ } from '@i18n-micro/test-utils'
 | `translations?` | `Record<string, unknown> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>SetupNuxtI18nMockOptions</code> — 12 members</summary>
 

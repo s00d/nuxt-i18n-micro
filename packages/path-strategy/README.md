@@ -2,7 +2,7 @@
 
 Runtime locale routing for **Nuxt I18n Micro**: which locale a URL is in, the URL of a page in another locale, and the server's redirect / 404 decisions.
 
-It runs in the browser, so it is one small class (~2.6 KB gzip) with no dependencies.
+It runs in the browser, so it is one small class (~2.6 KB gzip) with no runtime dependencies (`@i18n-micro/types` is types only).
 
 ---
 
@@ -36,6 +36,9 @@ Routes must come from `@i18n-micro/route-strategy` (the Nuxt module wires both).
 
 ```ts
 import { createPathStrategy } from '@i18n-micro/path-strategy'
+import { useRouter } from 'vue-router'
+
+const router = useRouter() // the app's router, serving the routes route-strategy generated
 
 const i18n = createPathStrategy({
   strategy: 'prefix_except_default',

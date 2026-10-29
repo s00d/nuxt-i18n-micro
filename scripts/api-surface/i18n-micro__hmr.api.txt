@@ -8,6 +8,14 @@ interface GenerateHmrPluginOptions
 member GenerateHmrPluginOptions.additionalRootFiles?: string[] | undefined
 
 # ./watcher (src/watcher.ts)
+function createTranslationDirReader: (translationsRoot: string | string[], additionalRoots?: string[]) => (relativeFilePath: string) => Record<string, unknown>
+interface DevTranslationMergeInput
+member DevTranslationMergeInput.disablePageLocales?: boolean | undefined
+member DevTranslationMergeInput.fallbackLocale?: string | undefined
+member DevTranslationMergeInput.locale: string
+member DevTranslationMergeInput.locales?: (string | Locale)[] | undefined
+member DevTranslationMergeInput.pageName: string
+member DevTranslationMergeInput.readLocaleFile: (relativePath: string) => Record<string, unknown> | Promise<Record<string, unknown>>
 function handleTranslationWatchChange: (input: HandleTranslationWatchChangeInput) => Promise<"page" | "root" | "ignored">
 interface HandleTranslationWatchChangeInput
 member HandleTranslationWatchChangeInput.configuredLocales: Set<string>
@@ -17,8 +25,9 @@ member HandleTranslationWatchChangeInput.relativePath: string
 member HandleTranslationWatchChangeInput.routesLocaleLinks?: Record<string, string> | undefined
 member HandleTranslationWatchChangeInput.serverCache: TranslationWatchCache
 member HandleTranslationWatchChangeInput.storageCache?: TranslationWatchCache | null | undefined
-function parseTranslationWatchRelativePath: (relativePath: string) => ParsedTranslationWatchPath
+function mergeDevTranslations: (input: DevTranslationMergeInput) => Promise<Record<string, unknown>>
 function readTranslationFile: (filePath: string) => Record<string, unknown>
+function resolveLiveTranslationDirs: (input: { rootDirs: string[]; translationDir: string; additionalTranslationDirs?: string[]; }) => { translationRoots: string[]; additionalRoots: string[]; }
 class TranslationContentTracker
 member TranslationContentTracker.forget: (filePath: string) => void
 member TranslationContentTracker.hashes: private Map<string, string>

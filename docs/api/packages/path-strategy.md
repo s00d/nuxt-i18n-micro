@@ -6,7 +6,7 @@ outline: 'deep'
 
 # `@i18n-micro/path-strategy`
 
-17 exports across 2 entry points.
+18 exports across 2 entry points.
 Generated from the API snapshot that [`pnpm run api:surface`](/guide/maintenance-commands#api-surface)
 checks against the TypeScript sources.
 
@@ -19,7 +19,8 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | Export | Kind | Signature |
 | --- | --- | --- |
 | `createPathStrategy` | function | `(ctx: PathStrategyContext) => PathStrategy` |
-| `PathStrategy` | class | 35 members |
+| `I18nPathStrategy` | class | 35 members |
+| `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K] }` |
 | `PathStrategyContext` | interface | 7 members |
 | `ResolvedRouteLike` | interface | 6 members |
 | `RouteI18nMeta` | interface | 2 members |
@@ -30,7 +31,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `SwitchLocaleOptions` | interface | 1 members |
 
 <details>
-<summary><code>PathStrategy</code> — 35 members</summary>
+<summary><code>I18nPathStrategy</code> — 35 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -55,7 +56,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `index_` | `private Index \| undefined` |
 | `localeRoute` | `(targetLocale: string, routeOrPath: RouteLike \| string, _currentRoute?: ResolvedRouteLike) => RouteLike` |
 | `matchPage` | `private (path: string) => Page \| typeof UNLOCALIZED \| null` |
-| `new` | `(ctx: PathStrategyContext): PathStrategy` |
+| `new` | `(ctx: PathStrategyContext): I18nPathStrategy` |
 | `notFoundCache` | `private Map<string, string \| null>` |
 | `notFoundReason` | `private (path: string) => string \| null` |
 | `pageCache` | `private Map<string, Page \| "unlocalized" \| null>` |
@@ -71,6 +72,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `targetCache` | `private Map<string, Target \| null>` |
 
 </details>
+
 <details>
 <summary><code>PathStrategyContext</code> — 7 members</summary>
 
@@ -85,6 +87,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `strategy` | `Strategies` |
 
 </details>
+
 <details>
 <summary><code>ResolvedRouteLike</code> — 6 members</summary>
 
@@ -98,6 +101,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `query?` | `Record<string, unknown> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>RouteI18nMeta</code> — 2 members</summary>
 
@@ -107,6 +111,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `name` | `string` |
 
 </details>
+
 <details>
 <summary><code>RouteLike</code> — 6 members</summary>
 
@@ -120,6 +125,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `query?` | `Record<string, unknown> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>RouterAdapter</code> — 3 members</summary>
 
@@ -130,6 +136,7 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `resolve` | `(to: RouteLike \| string) => ResolvedRouteLike` |
 
 </details>
+
 <details>
 <summary><code>RouteRecordLike</code> — 5 members</summary>
 
@@ -142,7 +149,9 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `redirect?` | `unknown` |
 
 </details>
-<code>Strategy</code> — 35 members, identical to `PathStrategy` above.
+
+<code>Strategy</code> — 35 members, identical to `I18nPathStrategy` above.
+
 <details>
 <summary><code>SwitchLocaleOptions</code> — 1 members</summary>
 
@@ -168,11 +177,17 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | `SwitchLocaleOptions` | interface | 1 members |
 
 <code>PathStrategyContext</code> — 7 members, identical to `PathStrategyContext` above.
+
 <code>ResolvedRouteLike</code> — 6 members, identical to `ResolvedRouteLike` above.
+
 <code>RouteI18nMeta</code> — 2 members, identical to `RouteI18nMeta` above.
+
 <code>RouteLike</code> — 6 members, identical to `RouteLike` above.
+
 <code>RouterAdapter</code> — 3 members, identical to `RouterAdapter` above.
+
 <code>RouteRecordLike</code> — 5 members, identical to `RouteRecordLike` above.
+
 <code>SwitchLocaleOptions</code> — 1 members, identical to `SwitchLocaleOptions` above.
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

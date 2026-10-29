@@ -47,6 +47,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `subscribe` | `(callback: () => void) => () => void` |
 
 </details>
+
 <details>
 <summary><code>CreateBridgeOptions</code> — 4 members</summary>
 
@@ -58,6 +59,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `translationDir?` | `string \| undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nDevToolsBridge</code> — 4 members</summary>
 
@@ -69,6 +71,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `saveTranslation` | `(filePath: string, content: TranslationContent) => Promise<void>` |
 
 </details>
+
 <details>
 <summary><code>JsonRpcEvent</code> — 3 members</summary>
 
@@ -79,6 +82,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `params?` | `unknown` |
 
 </details>
+
 <details>
 <summary><code>JsonRpcRequest</code> — 4 members</summary>
 
@@ -90,6 +94,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `params?` | `unknown` |
 
 </details>
+
 <details>
 <summary><code>JsonRpcResponse</code> — 4 members</summary>
 
@@ -101,6 +106,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `result?` | `unknown` |
 
 </details>
+
 <details>
 <summary><code>TranslationContent</code> — 1 members</summary>
 
@@ -109,6 +115,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui'
 | `[string]` | `JSONValue` |
 
 </details>
+
 <details>
 <summary><code>TreeNode</code> — 4 members</summary>
 
@@ -135,6 +142,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui/bridge'
 | `TranslationContent` | interface | 1 members |
 
 <code>I18nDevToolsBridge</code> — 4 members, identical to `I18nDevToolsBridge` above.
+
 <code>TranslationContent</code> — 1 members, identical to `TranslationContent` above.
 ## `@i18n-micro/devtools-ui/bridge/create`
 
@@ -149,6 +157,7 @@ import { /* … */ } from '@i18n-micro/devtools-ui/bridge/create'
 | `CreateBridgeOptions` | interface | 4 members |
 
 <code>BridgeAdapter</code> — 6 members, identical to `BridgeAdapter` above.
+
 <code>CreateBridgeOptions</code> — 4 members, identical to `CreateBridgeOptions` above.
 ## `@i18n-micro/devtools-ui/vite`
 

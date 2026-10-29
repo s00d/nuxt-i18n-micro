@@ -1,41 +1,42 @@
 # . (src/index.ts)
 function createPathStrategy: (ctx: PathStrategyContext) => PathStrategy
-class PathStrategy
-member PathStrategy.baseOf: private (name: string) => string | null
-member PathStrategy.codes: private Set<string>
-member PathStrategy.ctx: private PathStrategyContext
-member PathStrategy.external: private (locale: string, route: Target) => string | null
-member PathStrategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
-member PathStrategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
-member PathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
-member PathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
-member PathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
-member PathStrategy.getDefaultLocale: () => string
-member PathStrategy.getLocaleFromPath: (path: string) => string | null
-member PathStrategy.getLocales: () => Locale[]
-member PathStrategy.getLocalizedRouteNamePrefix: () => string
-member PathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
-member PathStrategy.getRouteBaseName: (route: RouteLike, _locale?: string) => string | null
-member PathStrategy.getStrategy: () => Strategies
-member PathStrategy.hasPrefix: private (locale: string) => boolean
-member PathStrategy.index: private Index
-member PathStrategy.index_: private Index | undefined
-member PathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
-member PathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
-member PathStrategy.notFoundCache: private Map<string, string | null>
-member PathStrategy.notFoundReason: private (path: string) => string | null
-member PathStrategy.pageCache: private Map<string, Page | "unlocalized" | null>
-member PathStrategy.prefix: private string
-member PathStrategy.prefixed: private (locale: string, path: string) => string
-member PathStrategy.probe: private (to: RouteLike | string) => ResolvedRouteLike | null
-member PathStrategy.resolve: private (to: RouteLike | string) => ResolvedRouteLike | null
-member PathStrategy.resolveLocaleFromPath: (path: string) => string | null
-member PathStrategy.routeTo: private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target | null
-member PathStrategy.setRouter: (router: RouterAdapter) => void
-member PathStrategy.shouldReturn404: (currentPath: string) => string | null
-member PathStrategy.switchLocaleRoute: (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
-member PathStrategy.targetCache: private Map<string, Target | null>
-member PathStrategy.new: (ctx: PathStrategyContext): PathStrategy
+class I18nPathStrategy
+member I18nPathStrategy.baseOf: private (name: string) => string | null
+member I18nPathStrategy.codes: private Set<string>
+member I18nPathStrategy.ctx: private PathStrategyContext
+member I18nPathStrategy.external: private (locale: string, route: Target) => string | null
+member I18nPathStrategy.findPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member I18nPathStrategy.formatPathForResolve: (path: string, fromLocale: string, _toLocale: string) => string
+member I18nPathStrategy.getClientRedirect: (currentPath: string, preferredLocale: string) => string | null
+member I18nPathStrategy.getCurrentLocale: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string
+member I18nPathStrategy.getCurrentLocaleName: (route: ResolvedRouteLike, defaultLocaleOverride?: string | null) => string | null
+member I18nPathStrategy.getDefaultLocale: () => string
+member I18nPathStrategy.getLocaleFromPath: (path: string) => string | null
+member I18nPathStrategy.getLocales: () => Locale[]
+member I18nPathStrategy.getLocalizedRouteNamePrefix: () => string
+member I18nPathStrategy.getPluginRouteName: (route: ResolvedRouteLike, locale: string) => string
+member I18nPathStrategy.getRouteBaseName: (route: RouteLike, _locale?: string) => string | null
+member I18nPathStrategy.getStrategy: () => Strategies
+member I18nPathStrategy.hasPrefix: private (locale: string) => boolean
+member I18nPathStrategy.index: private Index
+member I18nPathStrategy.index_: private Index | undefined
+member I18nPathStrategy.localeRoute: (targetLocale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike) => RouteLike
+member I18nPathStrategy.matchPage: private (path: string) => Page | typeof UNLOCALIZED | null
+member I18nPathStrategy.notFoundCache: private Map<string, string | null>
+member I18nPathStrategy.notFoundReason: private (path: string) => string | null
+member I18nPathStrategy.pageCache: private Map<string, Page | "unlocalized" | null>
+member I18nPathStrategy.prefix: private string
+member I18nPathStrategy.prefixed: private (locale: string, path: string) => string
+member I18nPathStrategy.probe: private (to: RouteLike | string) => ResolvedRouteLike | null
+member I18nPathStrategy.resolve: private (to: RouteLike | string) => ResolvedRouteLike | null
+member I18nPathStrategy.resolveLocaleFromPath: (path: string) => string | null
+member I18nPathStrategy.routeTo: private (locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string) => Target | null
+member I18nPathStrategy.setRouter: (router: RouterAdapter) => void
+member I18nPathStrategy.shouldReturn404: (currentPath: string) => string | null
+member I18nPathStrategy.switchLocaleRoute: (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
+member I18nPathStrategy.targetCache: private Map<string, Target | null>
+member I18nPathStrategy.new: (ctx: PathStrategyContext): I18nPathStrategy
+type PathStrategy: { [K in keyof I18nPathStrategy]: I18nPathStrategy[K] }
 interface PathStrategyContext
 member PathStrategyContext.defaultLocale: string
 member PathStrategyContext.disablePageLocales?: boolean | undefined
@@ -106,7 +107,7 @@ member Strategy.setRouter: (router: RouterAdapter) => void
 member Strategy.shouldReturn404: (currentPath: string) => string | null
 member Strategy.switchLocaleRoute: (_fromLocale: string, toLocale: string, route: ResolvedRouteLike, options?: SwitchLocaleOptions) => RouteLike | string
 member Strategy.targetCache: private Map<string, Target | null>
-member Strategy.new: (ctx: PathStrategyContext): PathStrategy
+member Strategy.new: (ctx: PathStrategyContext): I18nPathStrategy
 interface SwitchLocaleOptions
 member SwitchLocaleOptions.i18nRouteParams?: I18nRouteParams | undefined
 

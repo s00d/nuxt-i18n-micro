@@ -22,7 +22,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `createI18n` | function | `(options: I18nOptions) => I18n` |
 | `FormatService` | class | 19 members |
 | `Getter` | type | `(key: TranslationKey, params?: Record<string, string \| number \| boolean>, defaultValue?: string) => unknown` |
-| `I18n` | class | 54 members |
+| `I18n` | class | 59 members |
 | `I18nOptions` | interface | 9 members |
 | `interpolate` | function | `(template: string, params: Params) => string` |
 | `LoadedTranslations` | interface | 2 members |
@@ -35,8 +35,9 @@ import { /* … */ } from '@i18n-micro/node'
 | `Translations` | interface | 1 members |
 
 <code>FormatService</code> — 19 members, identical to [`FormatService`](/api/packages/astro).
+
 <details>
-<summary><code>I18n</code> — 54 members</summary>
+<summary><code>I18n</code> — 59 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -46,6 +47,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
 | `disablePageLocales` | `private boolean` |
+| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../node/src").I18n & M>) => import("../../node/src").I18n & M` |
 | `fallbackLocale` | `string` |
 | `formatter` | `FormatService` |
@@ -57,7 +59,8 @@ import { /* … */ } from '@i18n-micro/node'
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
 | `hasTranslation` | `(key: TranslationKey) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(_locale: string, _routeName: string, _cache: Map<string, unknown>): void; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
+| `invalidatePin` | `protected () => void` |
 | `loadFromUrl` | `(url: string, options?: LoadFromUrlOptions) => Promise<void>` |
 | `loadFromUrls` | `(entries: LoadFromUrlEntry[]) => Promise<void>` |
 | `loadMessages` | `(messages?: Record<string, Translations>, routeMessages?: Record<string, Record<string, Translations>>) => void` |
@@ -69,6 +72,9 @@ import { /* … */ } from '@i18n-micro/node'
 | `missingWarn` | `boolean` |
 | `new` | `(options: I18nOptions): I18n` |
 | `onTranslationsChanged` | `protected () => void` |
+| `pinnedCacheKey` | `private any` |
+| `pinnedGeneration` | `private any` |
+| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
 | `reload` | `() => Promise<void>` |
 | `resolveDateTimeFormatArgs` | `private any` |
@@ -96,6 +102,7 @@ import { /* … */ } from '@i18n-micro/node'
 | `warnMissingFormat` | `protected (kind: "number" \| "datetime", key: string, locale: string) => void` |
 
 </details>
+
 <details>
 <summary><code>I18nOptions</code> — 9 members</summary>
 
@@ -112,8 +119,11 @@ import { /* … */ } from '@i18n-micro/node'
 | `translationDir?` | `string \| undefined` |
 
 </details>
+
 <code>LoadedTranslations</code> — 2 members, identical to [`LoadedTranslations`](/api/packages/astro).
+
 <code>Locale</code> — 11 members, identical to [`Locale`](/api/packages/types).
+
 <code>Translations</code> — 1 members, identical to [`Translations`](/api/packages/types).
 
 Back to [all packages](/api/packages) · [Integration guides](/integrations/)

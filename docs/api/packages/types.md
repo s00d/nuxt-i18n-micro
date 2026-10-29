@@ -34,7 +34,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `MissingHandler` | type | `(locale: string, key: TranslationKey, routeName: string, instance?: unknown, type?: string) => void` |
 | `ModuleOptions` | interface | 49 members |
 | `ModuleOptionsExtend` | interface | 52 members |
-| `ModulePrivateOptionsExtend` | interface | 52 members |
+| `ModulePrivateOptionsExtend` | interface | 53 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
 | `PluralTranslations` | interface | 2 members |
@@ -55,6 +55,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `locales?` | `string[] \| Record<string, Translations> \| undefined` |
 
 </details>
+
 <details>
 <summary><code>DefineLocaleMessage</code> — 1 members</summary>
 
@@ -63,6 +64,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `__augmentation?` | `undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nHeadInput</code> — 5 members</summary>
 
@@ -75,6 +77,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `replace?` | `{ canonical?: string \| false; hreflang?: I18nHeadLink[] \| false; xDefault?: I18nHeadLink \| false; ogLocale?: string \| false; ogUrl?: string \| false; ogAlternates?: string[] \| false; } \| undefined` |
 
 </details>
+
 <details>
 <summary><code>I18nHeadLink</code> — 4 members</summary>
 
@@ -86,6 +89,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `rel` | `string` |
 
 </details>
+
 <details>
 <summary><code>I18nHeadMeta</code> — 1 members</summary>
 
@@ -94,6 +98,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `[string]` | `string \| undefined` |
 
 </details>
+
 <details>
 <summary><code>Locale</code> — 11 members</summary>
 
@@ -112,6 +117,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `seo?` | `boolean \| undefined` |
 
 </details>
+
 <details>
 <summary><code>ModuleOptions</code> — 49 members</summary>
 
@@ -168,6 +174,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `vueDevtools?` | `boolean \| undefined` |
 
 </details>
+
 <details>
 <summary><code>ModuleOptionsExtend</code> — 52 members</summary>
 
@@ -227,8 +234,9 @@ import { /* … */ } from '@i18n-micro/types'
 | `vueDevtools?` | `boolean \| undefined` |
 
 </details>
+
 <details>
-<summary><code>ModulePrivateOptionsExtend</code> — 52 members</summary>
+<summary><code>ModulePrivateOptionsExtend</code> — 53 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -274,6 +282,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `plural?` | `PluralFunc \| undefined` |
 | `redirects?` | `boolean \| undefined` |
 | `rootDir` | `string` |
+| `rootDirs` | `string[]` |
 | `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
 | `routesLocaleLinks?` | `{ [key: string]: string; } \| undefined` |
@@ -286,6 +295,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `vueDevtools?` | `boolean \| undefined` |
 
 </details>
+
 <details>
 <summary><code>PluralTranslations</code> — 2 members</summary>
 
@@ -295,6 +305,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `singular` | `string` |
 
 </details>
+
 <details>
 <summary><code>TranslationPayloadOptions</code> — 8 members</summary>
 
@@ -310,6 +321,7 @@ import { /* … */ } from '@i18n-micro/types'
 | `warnSizeBytes?` | `number \| undefined` |
 
 </details>
+
 <details>
 <summary><code>Translations</code> — 1 members</summary>
 

@@ -42,7 +42,7 @@ Every URL is resolved with `?q=1#top`.
 | /en-us/ | i18n-index | en-us | index | index | null | en-us | en-us | Default locale should not have prefix |
 | /pt-br/ | i18n-index | pt-br | index | index | null | pt-br | pt-br | null |
 | /about/ | about | en-us | about | about | null | null | en-us | null |
-| /pt-br/about/ | null | pt-br |  | null | null | pt-br | pt-br | null |
+| /pt-br/about/ | null | pt-br |  | about | null | pt-br | pt-br | null |
 | /missing | null | en-us |  | null | null | null | en-us | null |
 | /pt-br/missing | null | pt-br |  | null | null | pt-br | pt-br | null |
 | /xx/about | null | en-us |  | null | null | null | en-us | null |
@@ -71,11 +71,11 @@ Every URL is resolved with `?q=1#top`.
 | /en-us/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en-us/ | null |
 | /pt-br/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /pt-br/ | null |
 | /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about/ | null |
-| /pt-br/about/ | /pt-br/about/?q=1#top [—] |  | /about/?q=1#top [about] | /about/?q=1#top [about] | /pt-br/about/ | null |
+| /pt-br/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /pt-br/about/ | null |
 | /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /pt-br/missing | /pt-br/missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /pt-br/missing | null |
+| /pt-br/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /pt-br/missing | null |
 | /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /pt-br/pt-br/about | /pt-br/pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
+| /pt-br/pt-br/about | /pt-br/about?q=1#top [—] |  | /pt-br/about?q=1#top [null] | /pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
 
 ## To pt-br
 
@@ -100,10 +100,10 @@ Every URL is resolved with `?q=1#top`.
 | /en-us/ | /pt-br?q=1#top [i18n-index] |  | /pt-br?q=1#top [i18n-index] | /pt-br?q=1#top [i18n-index] | /en-us/ | null |
 | /pt-br/ | /pt-br?q=1#top [i18n-index] |  | /pt-br?q=1#top [i18n-index] | /pt-br?q=1#top [i18n-index] | /pt-br/ | null |
 | /about/ | /pt-br/sobre?q=1#top [i18n-about-pt-br] |  | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /about/ | /pt-br/sobre |
-| /pt-br/about/ | /pt-br/about/?q=1#top [—] |  | /pt-br/about/?q=1#top [null] | /pt-br/about/?q=1#top [null] | /pt-br/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /pt-br/missing?q=1#top [null] | /pt-br/missing?q=1#top [null] | /missing | /pt-br/missing |
+| /pt-br/about/ | /pt-br/sobre?q=1#top [i18n-about-pt-br] |  | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/sobre?q=1#top [i18n-about-pt-br] | /pt-br/about/ | null |
+| /missing | /pt-br/missing?q=1#top [—] |  | /pt-br/missing?q=1#top [null] | /pt-br/missing?q=1#top [null] | /missing | /pt-br/missing |
 | /pt-br/missing | /pt-br/missing?q=1#top [—] |  | /pt-br/missing?q=1#top [null] | /pt-br/missing?q=1#top [null] | /pt-br/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /pt-br/xx/about?q=1#top [null] | /pt-br/xx/about?q=1#top [null] | /xx/about | /pt-br/xx/about |
+| /xx/about | /pt-br/xx/about?q=1#top [—] |  | /pt-br/xx/about?q=1#top [null] | /pt-br/xx/about?q=1#top [null] | /xx/about | /pt-br/xx/about |
 | /pt-br/pt-br/about | /pt-br/pt-br/about?q=1#top [—] |  | /pt-br/pt-br/about?q=1#top [null] | /pt-br/pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
 
 ## To de
@@ -129,11 +129,11 @@ Every URL is resolved with `?q=1#top`.
 | /en-us/ | /de?q=1#top [i18n-index] |  | /de?q=1#top [i18n-index] | /de?q=1#top [i18n-index] | /en-us/ | null |
 | /pt-br/ | /de?q=1#top [i18n-index] |  | /de?q=1#top [i18n-index] | /de?q=1#top [i18n-index] | /pt-br/ | null |
 | /about/ | /de/ueber-uns?q=1#top [i18n-about-de] |  | /de/ueber-uns?q=1#top [i18n-about-de] | /de/ueber-uns?q=1#top [i18n-about-de] | /about/ | /de/ueber-uns |
-| /pt-br/about/ | /pt-br/about/?q=1#top [—] |  | /de/about/?q=1#top [null] | /de/about/?q=1#top [null] | /pt-br/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /missing | /de/missing |
-| /pt-br/missing | /pt-br/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /pt-br/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | /xx/about | /de/xx/about |
-| /pt-br/pt-br/about | /pt-br/pt-br/about?q=1#top [—] |  | /de/pt-br/about?q=1#top [null] | /de/pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
+| /pt-br/about/ | /de/ueber-uns?q=1#top [i18n-about-de] |  | /de/ueber-uns?q=1#top [i18n-about-de] | /de/ueber-uns?q=1#top [i18n-about-de] | /pt-br/about/ | null |
+| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /missing | /de/missing |
+| /pt-br/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /pt-br/missing | null |
+| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | /xx/about | /de/xx/about |
+| /pt-br/pt-br/about | /de/pt-br/about?q=1#top [—] |  | /de/pt-br/about?q=1#top [null] | /de/pt-br/about?q=1#top [null] | /pt-br/pt-br/about | null |
 
 ## localeRoute({ name, params }) from each home page
 

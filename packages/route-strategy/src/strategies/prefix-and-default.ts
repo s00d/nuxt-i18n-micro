@@ -25,7 +25,10 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
         : undefined
       const aliases = this.routeAliases(page, defaultPath, null, context)
       const aliasFields = aliases.length ? { alias: aliases, meta: { alias: aliases } } : {}
-      result.push(defaultCustomPath || children ? createRoute(page, { path: defaultPath, children, ...aliasFields }) : page)
+      // the page as-is already carries its declared aliases; encoded variants need a new record
+      const declared = (page as NuxtPage & { alias?: string[] }).alias ?? (page.meta?.alias as string[] | undefined) ?? []
+      const aliasesChanged = aliases.join('\n') !== declared.join('\n')
+      result.push(defaultCustomPath || children || aliasesChanged ? createRoute(page, { path: defaultPath, children, ...aliasFields }) : page)
     } else {
       result.push(page)
     }

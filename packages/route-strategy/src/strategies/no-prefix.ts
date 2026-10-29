@@ -13,6 +13,14 @@ export class NoPrefixStrategy extends BaseStrategy {
     const originalChildren = cloneArray(page.children ?? [])
     const result: NuxtPage[] = []
 
+    // The base page serves the default URL: give it its aliases plus the encoded variants of a
+    // non-ASCII path (in place: noPrefixRedirect below sets `redirect` on this same object).
+    const baseAliases = this.routeAliases(page, normalizePath(originalPath), null, context)
+    const declared = (page as NuxtPage & { alias?: string[] }).alias ?? (page.meta?.alias as string[] | undefined) ?? []
+    if (baseAliases.length && baseAliases.join('\n') !== declared.join('\n')) {
+      page.alias = baseAliases
+      page.meta = { ...page.meta, alias: baseAliases }
+    }
     result.push(page)
     const localizedLocales = new Set<string>()
 

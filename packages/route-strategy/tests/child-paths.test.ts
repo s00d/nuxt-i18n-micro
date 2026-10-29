@@ -113,4 +113,16 @@ describe('child custom paths', () => {
     const redirects = pages.filter((p) => p.redirect).map((p) => p.name)
     expect(new Set(redirects).size).toBe(redirects.length)
   })
+
+  test.each(['prefix_and_default', 'no_prefix', 'prefix_except_default'] as const)(
+    '%s: the unprefixed default route accepts the percent-encoded URL of a non-ASCII path',
+    (strategy) => {
+      const pages: NuxtPage[] = [{ path: '/тест', name: 'test-ru' }]
+      new RouteGenerator({ locales, defaultLocaleCode, strategy, globalLocaleRoutes: {}, routeLocales: {}, noPrefixRedirect: false }).extendPages(
+        pages,
+      )
+      const base = pages.find((p) => p.name === 'test-ru')!
+      expect(base.alias).toContain(encodeURI('/тест'))
+    },
+  )
 })

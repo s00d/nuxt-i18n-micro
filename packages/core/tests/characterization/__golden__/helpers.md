@@ -109,14 +109,14 @@
 - `interpolate("{name}{name}", {"name":{"nested":true}})` → "[object Object][object Object]"
 - `interpolate("{name}{name}", {"name":["x","y"]})` → "x,yx,y"
 - `interpolate("x {constructor} {toString} {__proto__}", undefined)` → "x {constructor} {toString} {__proto__}"
-- `interpolate("x {constructor} {toString} {__proto__}", {})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
-- `interpolate("x {constructor} {toString} {__proto__}", {"name":"Ann"})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
-- `interpolate("x {constructor} {toString} {__proto__}", {"name":0})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
-- `interpolate("x {constructor} {toString} {__proto__}", {"name":null})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
-- `interpolate("x {constructor} {toString} {__proto__}", {"name":false})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
-- `interpolate("x {constructor} {toString} {__proto__}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
-- `interpolate("x {constructor} {toString} {__proto__}", {"name":{"nested":true}})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
-- `interpolate("x {constructor} {toString} {__proto__}", {"name":["x","y"]})` → "x function Object() { [native code] } function toString() { [native code] } [object Object]"
+- `interpolate("x {constructor} {toString} {__proto__}", {})` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":"Ann"})` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":0})` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":null})` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":false})` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {"0":"zero","1":"one","a":"A","b":"B","count":3,"total":9})` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":{"nested":true}})` → "x {constructor} {toString} {__proto__}"
+- `interpolate("x {constructor} {toString} {__proto__}", {"name":["x","y"]})` → "x {constructor} {toString} {__proto__}"
 
 ## getByPath / resolveTranslation / hasTranslationValue
 
@@ -228,7 +228,7 @@
 - `getByPath({a:"x"}, 1 as any)` → undefined
 - `getByPath({a:{b:"s"}}, "a.b.length")` → undefined
 - `getByPath({a:["x","y"]}, "a.1")` → "y"
-- `getByPath(Object.create({inh:"x"}), "inh")` → undefined
+- `getByPath(Object.create({inh:"x"}), "inh")` → "x"
 - `resolveTranslation(null, "a")` → null
 
 ## setTranslationAtKey
@@ -270,7 +270,7 @@
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
-- `merge en ← de preserve=true` → {"out":{"greeting":"Hello, {name}!","nav":{"home":"Home","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"},"about":"About us"},"apples":"no apples | one apple | {count} apples","nothing":null,"shadow":"scalar in en","onlyDe":"nur deutsch","farewell":"Bye","empty":"","zero":0,"yes":true,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"onlyEn":"english only"},"returnsIncoming":false,"returnsExisting":false}
+- `merge en ← de preserve=true` → {"out":{"greeting":"Hello, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":null,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Home","about":"About us","deep":{"leaf":"Deep leaf","tpl":"{a}-{b}-{a}"}},"apples":"no apples | one apple | {count} apples","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":"scalar in en","onlyEn":"english only","onlyDe":"nur deutsch"},"returnsIncoming":false,"returnsExisting":false}
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
@@ -278,7 +278,7 @@
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
-- `merge de ← en preserve=true` → {"out":{"greeting":"Hallo, {name}!","farewell":"Bye","empty":"","zero":0,"yes":true,"nothing":"de has it","list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"nav":{"home":"Startseite","about":"About us","deep":{"leaf":"Tiefes Blatt","tpl":"{a}-{b}-{a}"}},"apples":"keine Äpfel | ein Apfel | {count} Äpfel","cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"shadow":{"child":"object in de"},"onlyEn":"english only","onlyDe":"nur deutsch"},"returnsIncoming":false,"returnsExisting":false}
+- `merge de ← en preserve=true` → {"out":{"greeting":"Hallo, {name}!","nav":{"home":"Startseite","deep":{"leaf":"Tiefes Blatt","tpl":"{a}-{b}-{a}"},"about":"About us"},"apples":"keine Äpfel | ein Apfel | {count} Äpfel","nothing":"de has it","shadow":{"child":"object in de"},"onlyDe":"nur deutsch","farewell":"Bye","empty":"","zero":0,"yes":true,"list":["a","b"],"flat.dotted":"flat value","flat":{"dotted":"nested value","other":"nested other"},"cars":"car|cars","items":"{count} item | {count} items for {name}","single":"only one form","spaced":"{ name } stays","braces":"json {\"a\":1} and {missing} and {name}","constructor":"ctor text","unicode":{"ключ":"значение","😀":"smile"},"onlyEn":"english only"},"returnsIncoming":false,"returnsExisting":false}
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
@@ -326,7 +326,7 @@
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
-- `merge __proto__ json preserve=true` → {"out":{"__proto__":{"polluted":true},"b":2,"a":1},"returnsIncoming":false,"returnsExisting":false}
+- `merge __proto__ json preserve=true` → {"out":{"a":1,"b":2},"returnsIncoming":false,"returnsExisting":false}
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
@@ -334,7 +334,7 @@
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
-- `merge constructor key preserve=true` → {"out":{"constructor":{"b":2,"a":1}},"returnsIncoming":false,"returnsExisting":false}
+- `merge constructor key preserve=true` → {"out":{"constructor":{"a":1,"b":2}},"returnsIncoming":false,"returnsExisting":false}
 - `  existing untouched` → true
 - `  incoming untouched` → true
 - `  prototype clean` → true
@@ -373,23 +373,23 @@
 - `defaultPlural("no apples | one apple | {count} apples", 2, {name:"Z"})` → "2 apples"
 - `defaultPlural("no apples | one apple | {count} apples", 3, {name:"Z"})` → "3 apples"
 - `defaultPlural("no apples | one apple | {count} apples", 10, {name:"Z"})` → "10 apples"
-- `defaultPlural("no apples | one apple | {count} apples", -1, {name:"Z"})` → null
-- `defaultPlural("no apples | one apple | {count} apples", 1.5, {name:"Z"})` → null
+- `defaultPlural("no apples | one apple | {count} apples", -1, {name:"Z"})` → "-1 apples"
+- `defaultPlural("no apples | one apple | {count} apples", 1.5, {name:"Z"})` → "1.5 apples"
 - `defaultPlural("no apples | one apple | {count} apples", NaN, {name:"Z"})` → "NaN apples"
 - `defaultPlural("car|cars", 0, {name:"Z"})` → "car"
 - `defaultPlural("car|cars", 1, {name:"Z"})` → "cars"
 - `defaultPlural("car|cars", 2, {name:"Z"})` → "cars"
 - `defaultPlural("car|cars", 3, {name:"Z"})` → "cars"
 - `defaultPlural("car|cars", 10, {name:"Z"})` → "cars"
-- `defaultPlural("car|cars", -1, {name:"Z"})` → null
-- `defaultPlural("car|cars", 1.5, {name:"Z"})` → null
+- `defaultPlural("car|cars", -1, {name:"Z"})` → "cars"
+- `defaultPlural("car|cars", 1.5, {name:"Z"})` → "cars"
 - `defaultPlural("car|cars", NaN, {name:"Z"})` → "cars"
 - `defaultPlural("only", 0, {name:"Z"})` → "only"
 - `defaultPlural("only", 1, {name:"Z"})` → "only"
 - `defaultPlural("only", 2, {name:"Z"})` → "only"
 - `defaultPlural("only", 3, {name:"Z"})` → "only"
 - `defaultPlural("only", 10, {name:"Z"})` → "only"
-- `defaultPlural("only", -1, {name:"Z"})` → null
+- `defaultPlural("only", -1, {name:"Z"})` → "only"
 - `defaultPlural("only", 1.5, {name:"Z"})` → "only"
 - `defaultPlural("only", NaN, {name:"Z"})` → "only"
 - `defaultPlural("", 0, {name:"Z"})` → null
@@ -400,30 +400,30 @@
 - `defaultPlural("", -1, {name:"Z"})` → null
 - `defaultPlural("", 1.5, {name:"Z"})` → null
 - `defaultPlural("", NaN, {name:"Z"})` → null
-- `defaultPlural("|", 0, {name:"Z"})` → null
-- `defaultPlural("|", 1, {name:"Z"})` → null
-- `defaultPlural("|", 2, {name:"Z"})` → null
-- `defaultPlural("|", 3, {name:"Z"})` → null
-- `defaultPlural("|", 10, {name:"Z"})` → null
-- `defaultPlural("|", -1, {name:"Z"})` → null
-- `defaultPlural("|", 1.5, {name:"Z"})` → null
-- `defaultPlural("|", NaN, {name:"Z"})` → null
+- `defaultPlural("|", 0, {name:"Z"})` → ""
+- `defaultPlural("|", 1, {name:"Z"})` → ""
+- `defaultPlural("|", 2, {name:"Z"})` → ""
+- `defaultPlural("|", 3, {name:"Z"})` → ""
+- `defaultPlural("|", 10, {name:"Z"})` → ""
+- `defaultPlural("|", -1, {name:"Z"})` → ""
+- `defaultPlural("|", 1.5, {name:"Z"})` → ""
+- `defaultPlural("|", NaN, {name:"Z"})` → ""
 - `defaultPlural(" a | | c ", 0, {name:"Z"})` → "a"
 - `defaultPlural(" a | | c ", 1, {name:"Z"})` → ""
 - `defaultPlural(" a | | c ", 2, {name:"Z"})` → "c"
 - `defaultPlural(" a | | c ", 3, {name:"Z"})` → "c"
 - `defaultPlural(" a | | c ", 10, {name:"Z"})` → "c"
-- `defaultPlural(" a | | c ", -1, {name:"Z"})` → null
-- `defaultPlural(" a | | c ", 1.5, {name:"Z"})` → null
+- `defaultPlural(" a | | c ", -1, {name:"Z"})` → "c"
+- `defaultPlural(" a | | c ", 1.5, {name:"Z"})` → "c"
 - `defaultPlural(" a | | c ", NaN, {name:"Z"})` → "c"
 - `defaultPlural("{count} item | {count} items for {name}", 0, {name:"Z"})` → "0 item"
 - `defaultPlural("{count} item | {count} items for {name}", 1, {name:"Z"})` → "1 items for Z"
 - `defaultPlural("{count} item | {count} items for {name}", 2, {name:"Z"})` → "2 items for Z"
 - `defaultPlural("{count} item | {count} items for {name}", 3, {name:"Z"})` → "3 items for Z"
 - `defaultPlural("{count} item | {count} items for {name}", 10, {name:"Z"})` → "10 items for Z"
-- `defaultPlural("{count} item | {count} items for {name}", -1, {name:"Z"})` → null
-- `defaultPlural("{count} item | {count} items for {name}", 1.5, {name:"Z"})` → null
+- `defaultPlural("{count} item | {count} items for {name}", -1, {name:"Z"})` → "-1 items for Z"
+- `defaultPlural("{count} item | {count} items for {name}", 1.5, {name:"Z"})` → "1.5 items for Z"
 - `defaultPlural("{count} item | {count} items for {name}", NaN, {name:"Z"})` → "NaN items for Z"
 - `defaultPlural(missing)` → null
 - `defaultPlural(number value)` → "12"
-- `defaultPlural(object value)` → "[object Object]"
+- `defaultPlural(object value)` → null

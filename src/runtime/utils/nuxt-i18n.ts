@@ -332,8 +332,8 @@ export class NuxtI18n extends BaseI18n {
     return this.outgoingTranslations === null ? null : resolveTranslation(this.outgoingTranslations, String(key))
   }
 
-  protected override resolveHas(key: TranslationKey): boolean {
-    return this.resolveLookup(key) !== null
+  protected override resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
+    return this.resolveLookup(key, routeContext) !== null
   }
 
   /**

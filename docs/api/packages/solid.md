@@ -41,7 +41,7 @@ import { /* … */ } from '@i18n-micro/solid'
 | `ModuleOptions` | interface | 49 members |
 | `Params` | type | `Record<string, string \| number \| boolean>` |
 | `PluralFunc` | type | `(key: TranslationKey, count: number, params: Params, locale: string, getter: Getter) => string \| null` |
-| `SolidI18n` | class | 59 members |
+| `SolidI18n` | class | 56 members |
 | `SolidI18nOptions` | interface | 6 members |
 | `TranslationKey` | type | `Exclude<keyof DefineLocaleMessage, '__augmentation'> extends never ? string : Exclude<keyof DefineLocaleMessage, '__augmentation'> \| (string & {})` |
 | `Translations` | interface | 1 members |
@@ -86,7 +86,7 @@ import { /* … */ } from '@i18n-micro/solid'
 <code>ModuleOptions</code> — 49 members, identical to [`ModuleOptions`](/api/packages/types).
 
 <details>
-<summary><code>SolidI18n</code> — 59 members</summary>
+<summary><code>SolidI18n</code> — 56 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -95,13 +95,15 @@ import { /* … */ } from '@i18n-micro/solid'
 | `_routeSignal` | `private Accessor<string>` |
 | `_setLocaleSignal` | `private (v: string) => void` |
 | `_setRouteSignal` | `private (v: string) => void` |
+| `activeKey` | `private any` |
 | `addRouteTranslations` | `(locale: string, routeName: string, translations: Translations, merge?: boolean) => void` |
 | `addTranslations` | `(locale: string, translations: Translations, merge?: boolean) => void` |
 | `clearCache` | `() => void` |
 | `currentRoute` | `string` |
-| `ensurePinnedChunk` | `protected (locale: string, routeName: string) => void` |
 | `extend` | `<M extends Record<string, unknown>>(methods: M & ThisType<import("../../solid/src").SolidI18n & M>) => import("../../solid/src").SolidI18n & M` |
+| `fallbackKey` | `private any` |
 | `fallbackLocale` | `string` |
+| `formatArgs` | `private any` |
 | `formatter` | `FormatService` |
 | `getCustomMissingHandler?` | `(() => MissingHandler \| null) \| undefined` |
 | `getFallbackLocale` | `() => string` |
@@ -110,10 +112,10 @@ import { /* … */ } from '@i18n-micro/solid'
 | `getRoute` | `() => string` |
 | `getSnapshot` | `() => string` |
 | `has` | `(key: TranslationKey, routeContext?: unknown) => boolean` |
-| `helper` | `{ hasCache(locale: string, page: string): boolean; getCache(locale: string, routeName: string): Translations \| undefined; setCache(locale: string, routeName: string, cache: Map<string, unknown>): void; getGeneration(): number; hasTranslation(locale: string, key: string): boolean; hasPageTranslation(locale: string, routeName: string): boolean; getTranslation<T = unknown>(locale: string, routeName: string, key: string): T \| null; lookupIn: (chunkKey: string, tree: Record<string, unknown> \| null \| undefined, key: string) => unknown \| null; loadTranslations(locale: string, data: Translations, routeName?: string): void; setTranslations(locale: string, data: Translations, routeName?: string): void; loadPageTranslations(locale: string, routeName: string, data: Translations): void; mergeTranslation(locale: string, routeName: string, newTranslations: Translations, _force?: boolean): void; clearCache(): void; }` |
-| `invalidatePin` | `protected () => void` |
+| `helper` | `TranslationHelper` |
+| `layered` | `private any` |
 | `listeners` | `private Set<() => void>` |
-| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, merge: boolean) => void` |
+| `loadRouteTranslationsCore` | `(locale: string, routeName: string, translations: Translations, _merge: boolean) => void` |
 | `loadTranslationsCore` | `(locale: string, translations: Translations, merge: boolean, routeName?: string) => void` |
 | `locale` | `string` |
 | `localeAccessor` | `Accessor<string>` |
@@ -122,14 +124,9 @@ import { /* … */ } from '@i18n-micro/solid'
 | `new` | `(options: SolidI18nOptions): SolidI18n` |
 | `notifyListeners` | `private () => void` |
 | `onTranslationsChanged` | `protected () => void` |
-| `pinnedCacheKey` | `private any` |
-| `pinnedGeneration` | `private any` |
-| `pinnedTree` | `private any` |
 | `pluralFunc` | `PluralFunc` |
-| `resolveDateTimeFormatArgs` | `private any` |
 | `resolveHas` | `protected (key: TranslationKey, routeContext?: unknown) => boolean` |
 | `resolveLookup` | `protected (key: TranslationKey, routeContext?: unknown) => unknown \| null` |
-| `resolveNumberFormatArgs` | `private any` |
 | `resolveRouteName` | `protected (routeContext?: unknown) => string` |
 | `resolveTranslations` | `(routeContext?: unknown) => Translations` |
 | `resolveTranslationTree` | `protected (lower: Record<string, unknown>, upper: Record<string, unknown>) => Translations` |

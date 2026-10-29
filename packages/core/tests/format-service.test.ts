@@ -200,9 +200,20 @@ describe('FormatService', () => {
       expect(result).toMatch(/2 hr\. ago|2 hours ago/)
     })
 
-    test('should handle invalid date by returning "0 seconds ago"', () => {
-      const result = formatService.formatRelativeTime('invalid-date', 'en-US')
-      expect(result).toBe('in 0 seconds')
+    test('should return "Invalid Date" for an invalid date, like formatDate', () => {
+      expect(formatService.formatRelativeTime('invalid-date', 'en-US')).toBe('Invalid Date')
+    })
+
+    test('formats future dates', () => {
+      expect(formatService.formatRelativeTime(Date.now() + 3 * 86400_000 + 1000, 'en-US')).toBe('in 3 days')
+      expect(formatService.formatRelativeTime(Date.now() + 2 * 3600_000 + 1000, 'en-US')).toBe('in 2 hours')
+    })
+
+    test('named formats fall back through every shorter tag', () => {
+      const service = new FormatService({ numberFormats: { 'zh-Hant': { n: { useGrouping: false } }, zh: { m: { style: 'percent' } } } })
+      expect(service.resolveNumberFormat('zh-Hant-TW', 'n')).toEqual({ useGrouping: false })
+      expect(service.resolveNumberFormat('zh-Hant-TW', 'm')).toEqual({ style: 'percent' })
+      expect(service.resolveNumberFormat('ja', 'n')).toBeUndefined()
     })
 
     test('should reuse cached Intl.RelativeTimeFormat instances', () => {

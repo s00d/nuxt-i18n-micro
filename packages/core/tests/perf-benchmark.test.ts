@@ -21,8 +21,8 @@ import {
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
   withPrefixStrategy,
-} from '../src/helpers'
-import { useTranslationHelper } from '../src/translation'
+} from '../src/helpers-entry'
+import { useTranslationHelper } from '../src/storage'
 import { afterAll, describe, expect, test } from 'vitest'
 
 const ITERATIONS_FAST = 50_000

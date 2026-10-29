@@ -19,7 +19,7 @@ export function enRoot(): Record<string, unknown> {
     spaced: '{ name } stays',
     braces: 'json {"a":1} and {missing} and {name}',
     constructor: 'ctor text',
-    unicode: { 'ключ': 'значение', '😀': 'smile' },
+    unicode: { ключ: 'значение', '😀': 'smile' },
     shadow: 'scalar in en',
     onlyEn: 'english only',
   }
@@ -88,4 +88,22 @@ export const KEYS = [
 
 export const PARAMS = [undefined, { name: 'Ann' }, { name: 'Ann', a: 1, b: 2, count: 7 }, {}]
 
-export const COUNTS: unknown[] = [0, 1, 2, 5, 21, -1, 1.5, 2.9, Number.NaN, Infinity, '3', '0', 'abc', { count: 2 }, { count: 2, name: 'Bob' }, { name: 'no count' }, { count: 0 }]
+export const COUNTS: unknown[] = [
+  0,
+  1,
+  2,
+  5,
+  21,
+  -1,
+  1.5,
+  2.9,
+  Number.NaN,
+  Infinity,
+  '3',
+  '0',
+  'abc',
+  { count: 2 },
+  { count: 2, name: 'Bob' },
+  { name: 'no count' },
+  { count: 0 },
+]

@@ -48,6 +48,7 @@ member PathStrategyContext.strategy: Strategies
 interface ResolvedRouteLike
 member ResolvedRouteLike.fullPath: string
 member ResolvedRouteLike.hash?: string | undefined
+member ResolvedRouteLike.matched?: unknown[] | undefined
 member ResolvedRouteLike.name: string | null
 member ResolvedRouteLike.params?: Record<string, unknown> | undefined
 member ResolvedRouteLike.path: string
@@ -123,6 +124,7 @@ member PathStrategyContext.strategy: Strategies
 interface ResolvedRouteLike
 member ResolvedRouteLike.fullPath: string
 member ResolvedRouteLike.hash?: string | undefined
+member ResolvedRouteLike.matched?: unknown[] | undefined
 member ResolvedRouteLike.name: string | null
 member ResolvedRouteLike.params?: Record<string, unknown> | undefined
 member ResolvedRouteLike.path: string

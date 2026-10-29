@@ -1,5 +1,6 @@
 import type { Locale, Translations } from '@i18n-micro/types'
-import type { TranslationStorage } from './translation'
+import type { TranslationStorage } from './storage'
+import { collectTranslationPaths, isTree, type Tree } from './tree'
 
 export interface I18nDevtoolsInspectorNode {
   id: string
@@ -32,75 +33,56 @@ export interface BuildInspectorTreeOptions {
   activeTranslations?: Record<string, unknown>
 }
 
+type ParsedNode = ReturnType<typeof parseInspectorNodeId>
+
 const ACTIVE_TAG = {
   label: 'Active',
   textColor: 0xffffff,
   backgroundColor: 0x42b883,
   tooltip: 'Current locale and route context',
 }
+const LOCALE_TAG = { ...ACTIVE_TAG, tooltip: 'Active locale' }
 
-const NODE_ROOT = 'root'
-const NODE_ACTIVE = 'active'
 const PREFIX_LOCALE = 'locale|'
 const PREFIX_CHUNK = 'chunk|'
 const PREFIX_KEY = 'key|'
 
-const isPlainObject = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value)
-
 function formatInspectorValue(value: unknown): string {
   if (typeof value === 'string') return JSON.stringify(value)
-  if (value === null) return 'null'
-  if (value === undefined) return 'undefined'
-  if (typeof value === 'object') return Array.isArray(value) ? `[Array(${value.length})]` : '{…}'
+  if (Array.isArray(value)) return `[Array(${value.length})]`
+  if (value !== null && typeof value === 'object') return '{…}'
   return String(value)
 }
 
-function activeChunkTag(locale: string, routeName: string, activeLocale: string, activeRouteName: string) {
-  return locale === activeLocale && routeName === activeRouteName ? [ACTIVE_TAG] : undefined
-}
-
-function collectRouteNamesForLocale(storage: TranslationStorage, locale: string): string[] {
-  const prefix = `${locale}:`
-  const routes = new Set<string>()
-
+/** Route names per locale, sorted, from one pass over the storage keys. */
+function routesByLocale(storage: TranslationStorage): Map<string, string[]> {
+  const routes = new Map<string, Set<string>>()
   for (const key of storage.translations.keys()) {
-    if (!key.startsWith(prefix)) continue
-    routes.add(key.slice(prefix.length) || 'index')
+    const colon = key.indexOf(':')
+    const locale = colon === -1 ? key : key.slice(0, colon)
+    const route = (colon === -1 ? '' : key.slice(colon + 1)) || 'index'
+    if (!routes.has(locale)) routes.set(locale, new Set())
+    routes.get(locale)!.add(route)
   }
-
-  return [...routes].sort()
+  return new Map([...routes].map(([locale, names]) => [locale, [...names].sort()]))
 }
 
-function collectLocaleCodes(storage: TranslationStorage, configuredLocales: Locale[]): string[] {
-  const codes = new Set(configuredLocales.map((locale) => locale.code))
-
-  for (const key of storage.translations.keys()) {
-    const locale = key.split(':')[0]
-    if (locale) codes.add(locale)
-  }
-
-  return [...codes].sort()
-}
-
-/**
- * Encode path segments so a literal key `"a.b"` and nested path `a → b` get distinct node IDs.
- */
+/** Encode path segments so a literal key `"a.b"` and the nested path `a → b` get distinct ids. */
 export function encodeInspectorPath(segments: string[]): string {
-  return segments.map((segment) => encodeURIComponent(segment)).join('/')
+  return segments.map(encodeURIComponent).join('/')
 }
 
 export function decodeInspectorPath(encoded: string): string[] {
-  if (!encoded) return []
-  return encoded.split('/').map((segment) => decodeURIComponent(segment))
+  return encoded ? encoded.split('/').map(decodeURIComponent) : []
 }
 
 export function getByInspectorPath(obj: Record<string, unknown>, segments: string[]): unknown {
-  let current: unknown = obj
+  let node: unknown = obj
   for (const segment of segments) {
-    if (!isPlainObject(current) || !Object.prototype.hasOwnProperty.call(current, segment)) return undefined
-    current = current[segment]
+    if (!isTree(node) || !Object.prototype.hasOwnProperty.call(node, segment)) return undefined
+    node = node[segment]
   }
-  return current
+  return node
 }
 
 export function parseInspectorNodeId(nodeId: string): {
@@ -110,128 +92,93 @@ export function parseInspectorNodeId(nodeId: string): {
   path?: string
   segments?: string[]
 } {
-  if (!nodeId || nodeId === NODE_ROOT) return { kind: 'root' }
-  if (nodeId === NODE_ACTIVE) return { kind: 'active' }
-
-  if (nodeId.startsWith(PREFIX_LOCALE)) {
-    return { kind: 'locale', locale: nodeId.slice(PREFIX_LOCALE.length) }
-  }
-
+  if (nodeId === 'active') return { kind: 'active' }
+  if (nodeId.startsWith(PREFIX_LOCALE)) return { kind: 'locale', locale: nodeId.slice(PREFIX_LOCALE.length) }
   if (nodeId.startsWith(PREFIX_CHUNK)) {
     const [locale = '', routeName = 'index'] = nodeId.slice(PREFIX_CHUNK.length).split('|')
     return { kind: 'chunk', locale, routeName }
   }
-
-  if (nodeId.startsWith(PREFIX_KEY)) {
-    const parts = nodeId.slice(PREFIX_KEY.length).split('|')
-    const locale = parts[0] ?? ''
-    const routeName = parts[1] ?? 'index'
-    const path = parts.slice(2).join('|')
-    return { kind: 'key', locale, routeName, path, segments: decodeInspectorPath(path) }
-  }
-
-  return { kind: 'root' }
-}
-
-function withKeyPrefix(locale: string, routeName: string, node: I18nDevtoolsInspectorNode): I18nDevtoolsInspectorNode {
-  return {
-    ...node,
-    id: `${PREFIX_KEY}${locale}|${routeName}|${node.id.slice(PREFIX_KEY.length)}`,
-  }
+  if (!nodeId.startsWith(PREFIX_KEY)) return { kind: 'root' }
+  const [locale = '', routeName = 'index', ...rest] = nodeId.slice(PREFIX_KEY.length).split('|')
+  const path = rest.join('|')
+  return { kind: 'key', locale, routeName, path, segments: decodeInspectorPath(path) }
 }
 
 export function flattenTranslationNode(obj: Record<string, unknown>, parentSegments: string[] = []): I18nDevtoolsInspectorNode[] {
-  const target = parentSegments.length === 0 ? obj : getByInspectorPath(obj, parentSegments)
-  if (!isPlainObject(target)) return []
-
+  const target = getByInspectorPath(obj, parentSegments)
+  if (!isTree(target)) return []
   return Object.keys(target)
     .filter((key) => key !== '__proto__')
     .map((key) => {
-      const segments = [...parentSegments, key]
-      const value = target[key]
-      const nested = isPlainObject(value)
-
+      const nested = isTree(target[key])
       return {
-        id: `${PREFIX_KEY}${encodeInspectorPath(segments)}`,
-        label: nested ? key : `${key}: ${formatInspectorValue(value)}`,
+        id: `${PREFIX_KEY}${encodeInspectorPath([...parentSegments, key])}`,
+        label: nested ? key : `${key}: ${formatInspectorValue(target[key])}`,
         children: nested ? [] : undefined,
       }
     })
     .sort((a, b) => a.label.localeCompare(b.label))
 }
 
-export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevtoolsInspectorNode[] {
-  const parsed = parseInspectorNodeId(options.nodeId)
-  const activeLocale = options.activeLocale
-  const activeRoute = options.activeRouteName || 'index'
+/** Key nodes of `source` under `segments`, with ids scoped to their chunk. */
+function keyNodes(locale: string, routeName: string, source: Record<string, unknown>, segments: string[] = []): I18nDevtoolsInspectorNode[] {
+  const scope = `${PREFIX_KEY}${locale}|${routeName}|`
+  return flattenTranslationNode(source, segments).map((node) => ({ ...node, id: scope + node.id.slice(PREFIX_KEY.length) }))
+}
 
-  if (parsed.kind === 'root') {
-    const locales = collectLocaleCodes(options.storage, options.configuredLocales)
-    const nodes: I18nDevtoolsInspectorNode[] = [
-      {
-        id: NODE_ACTIVE,
-        label: `Active (${activeLocale}:${activeRoute})`,
-        tags: [ACTIVE_TAG],
-      },
-    ]
+function chunkTag(locale: string, routeName: string, options: BuildInspectorTreeOptions, activeRoute: string) {
+  return locale === options.activeLocale && routeName === activeRoute ? [ACTIVE_TAG] : undefined
+}
 
-    for (const code of locales) {
-      const configured = options.configuredLocales.find((locale) => locale.code === code)
-      const routes = collectRouteNamesForLocale(options.storage, code)
-
-      nodes.push({
-        id: `${PREFIX_LOCALE}${code}`,
-        label: configured?.displayName ? `${code} (${configured.displayName})` : code,
-        tags: code === activeLocale ? [{ ...ACTIVE_TAG, tooltip: 'Active locale' }] : undefined,
-      })
-
-      // Flat chunk nodes (not nested): Vue DevTools selection is unreliable for nested
-      // custom-inspector children, so route chunks sit at the root next to their locale.
-      for (const routeName of routes) {
-        nodes.push({
-          id: `${PREFIX_CHUNK}${code}|${routeName}`,
-          label: `${code}:${routeName}`,
-          tags: activeChunkTag(code, routeName, activeLocale, activeRoute),
-        })
-      }
-    }
-
-    return nodes
+function rootNodes(options: BuildInspectorTreeOptions, activeRoute: string): I18nDevtoolsInspectorNode[] {
+  const routes = routesByLocale(options.storage)
+  const codes = [...new Set([...options.configuredLocales.map((locale) => locale.code), ...routes.keys()])].filter(Boolean).sort()
+  const nodes: I18nDevtoolsInspectorNode[] = [{ id: 'active', label: `Active (${options.activeLocale}:${activeRoute})`, tags: [ACTIVE_TAG] }]
+  for (const code of codes) {
+    const displayName = options.configuredLocales.find((locale) => locale.code === code)?.displayName
+    nodes.push({
+      id: `${PREFIX_LOCALE}${code}`,
+      label: displayName ? `${code} (${displayName})` : code,
+      tags: code === options.activeLocale ? [LOCALE_TAG] : undefined,
+    })
+    // Chunks sit flat at the root beside their locale: Vue DevTools selects nested custom-inspector children unreliably.
+    for (const routeName of routes.get(code) ?? [])
+      nodes.push({ id: `${PREFIX_CHUNK}${code}|${routeName}`, label: `${code}:${routeName}`, tags: chunkTag(code, routeName, options, activeRoute) })
   }
+  return nodes
+}
 
-  if (parsed.kind === 'active') {
-    return flattenTranslationNode(options.activeTranslations ?? {}).map((node) => withKeyPrefix(activeLocale, activeRoute, node))
-  }
+function chunkOf(options: BuildInspectorTreeOptions, locale: string, routeName: string): Tree {
+  return (options.storage.translations.get(`${locale}:${routeName}`) ?? {}) as Tree
+}
 
-  if (parsed.kind === 'locale' && parsed.locale) {
-    const locale = parsed.locale
-    return collectRouteNamesForLocale(options.storage, locale).map((routeName) => ({
+const builders: Record<
+  ParsedNode['kind'],
+  (options: BuildInspectorTreeOptions, node: ParsedNode, activeRoute: string) => I18nDevtoolsInspectorNode[]
+> = {
+  root: (options, _node, activeRoute) => rootNodes(options, activeRoute),
+  active: (options, _node, activeRoute) => keyNodes(options.activeLocale, activeRoute, options.activeTranslations ?? {}),
+  locale: (options, { locale = '' }, activeRoute) =>
+    (routesByLocale(options.storage).get(locale) ?? []).map((routeName) => ({
       id: `${PREFIX_CHUNK}${locale}|${routeName}`,
       label: routeName,
       children: [],
-      tags: activeChunkTag(locale, routeName, activeLocale, activeRoute),
-    }))
-  }
+      tags: chunkTag(locale, routeName, options, activeRoute),
+    })),
+  chunk: (options, { locale = '', routeName = 'index' }) => keyNodes(locale, routeName || 'index', chunkOf(options, locale, routeName || 'index')),
+  key: (options, { locale = '', routeName = 'index', segments = [] }, activeRoute) => {
+    const route = routeName || 'index'
+    const chunk = options.storage.translations.get(`${locale}:${route}`) as Tree | undefined
+    const isActive = locale === options.activeLocale && route === activeRoute
+    return keyNodes(locale, route, (isActive ? options.activeTranslations : undefined) ?? chunk ?? {}, segments)
+  },
+}
 
-  if (parsed.kind === 'chunk' && parsed.locale) {
-    const locale = parsed.locale
-    const routeName = parsed.routeName || 'index'
-    const chunk = options.storage.translations.get(`${locale}:${routeName}`) as Record<string, unknown> | undefined
-    return flattenTranslationNode(chunk ?? {}).map((node) => withKeyPrefix(locale, routeName, node))
-  }
-
-  if (parsed.kind === 'key' && parsed.locale) {
-    const locale = parsed.locale
-    const routeName = parsed.routeName || 'index'
-    const chunk = options.storage.translations.get(`${locale}:${routeName}`) as Record<string, unknown> | undefined
-    const segments = parsed.segments ?? []
-    const isActiveContext = activeLocale === locale && activeRoute === routeName
-    const source = isActiveContext ? (options.activeTranslations ?? chunk ?? {}) : (chunk ?? {})
-
-    return flattenTranslationNode(source, segments).map((node) => withKeyPrefix(locale, routeName, node))
-  }
-
-  return []
+export function buildInspectorTree(options: BuildInspectorTreeOptions): I18nDevtoolsInspectorNode[] {
+  const node = parseInspectorNodeId(options.nodeId)
+  // A locale/chunk/key node without a locale has nothing under it.
+  if (node.kind !== 'root' && node.kind !== 'active' && !node.locale) return []
+  return builders[node.kind](options, node, options.activeRouteName || 'index')
 }
 
 export function buildInspectorState(snapshot: I18nDevtoolsStateSnapshot): Record<string, Array<{ key: string; value: unknown; editable?: boolean }>> {
@@ -244,28 +191,14 @@ export function buildInspectorState(snapshot: I18nDevtoolsStateSnapshot): Record
       { key: 'fallbackLocale', value: snapshot.fallbackLocale ?? '—' },
       { key: 'cachedChunks', value: snapshot.cachedChunks },
     ],
-    Locales: snapshot.locales.map((locale) => ({
-      key: locale.code,
-      value: locale.displayName ?? locale.code,
-      editable: false,
-    })),
+    Locales: snapshot.locales.map((locale) => ({ key: locale.code, value: locale.displayName ?? locale.code, editable: false })),
   }
 }
 
+/** Number of distinct dotted paths (objects and leaves) in a tree. */
 export function countTranslationKeys(translations: Translations | Record<string, unknown> | undefined): number {
-  if (!translations || typeof translations !== 'object') return 0
-
+  if (!isTree(translations)) return 0
   const paths = new Set<string>()
-  const walk = (obj: Record<string, unknown>, prefix = '') => {
-    for (const key of Object.keys(obj)) {
-      if (key === '__proto__') continue
-      const path = prefix ? `${prefix}.${key}` : key
-      paths.add(path)
-      const value = obj[key]
-      if (isPlainObject(value)) walk(value, path)
-    }
-  }
-
-  walk(translations as Record<string, unknown>)
+  collectTranslationPaths(translations, paths)
   return paths.size
 }

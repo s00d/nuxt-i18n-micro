@@ -1,18 +1,19 @@
 export {
-  defaultPlural,
-  getByPath,
-  hasTranslationValue,
-  interpolate,
   isNoPrefixStrategy,
   isPrefixAndDefaultStrategy,
   isPrefixExceptDefaultStrategy,
   isPrefixStrategy,
+  translationCacheKey,
+  withPrefixStrategy,
+} from './strategy'
+export { defaultPlural, interpolate } from './text'
+export {
   collectTranslationPaths,
+  getByPath,
+  hasTranslationValue,
   mergeTranslationChunk,
   mergeTranslationLayers,
   resolveTranslation,
   setTranslationAtKey,
-  translationCacheKey,
-  withPrefixStrategy,
   type MergeTranslationChunkOptions,
-} from './helpers'
+} from './tree'

@@ -1,7 +1,9 @@
 import type { CleanTranslation, Getter, MissingHandler, Params, PluralFunc, TranslationKey, Translations } from '@i18n-micro/types'
-import { FormatService, type DateTimeFormatsConfig, type FormatServiceOptions, type NumberFormatsConfig } from './format-service'
-import { defaultPlural, interpolate, mergeTranslationLayers, setTranslationAtKey, translationCacheKey } from './helpers'
-import { type TranslationStorage, useTranslationHelper } from './translation'
+import { FormatService, type DateTimeFormatsConfig, type NumberFormatsConfig } from './format-service'
+import { type TranslationStorage, TranslationHelper } from './storage'
+import { translationCacheKey } from './strategy'
+import { defaultPlural, interpolate } from './text'
+import { mergeTranslationLayers, setTranslationAtKey, type Tree } from './tree'
 
 export interface BaseI18nOptions {
   storage?: TranslationStorage
@@ -15,464 +17,248 @@ export interface BaseI18nOptions {
   datetimeFormats?: DateTimeFormatsConfig
 }
 
+/** Remembers the `locale:route` string for the last pair, so a hot `t()` neither concatenates nor rehashes. */
+class ChunkKey {
+  private locale = ''
+  private route = ''
+  private key = ''
+
+  of(locale: string, route: string): string {
+    if (locale !== this.locale || route !== this.route || this.key === '') {
+      this.locale = locale
+      this.route = route
+      this.key = translationCacheKey(locale, route)
+    }
+    return this.key
+  }
+}
+
 /**
- * Abstract base class for i18n adapters
- *
- * Contains all common translation logic (t, ts, tc, tn, td, tdr, has).
- * Adapters must implement abstract methods to provide current state (locale, fallbackLocale, route).
+ * `process.env.NODE_ENV` as bundlers inline it; an unbundled browser has no `process` and
+ * counts as development instead of throwing.
+ */
+function isProduction(): boolean {
+  try {
+    return process.env.NODE_ENV === 'production'
+  } catch {
+    return false
+  }
+}
+
+type FormatArgs<O> = [keyOrOptions?: string | O, localeOrOverrides?: string | O, overrides?: O]
+
+/**
+ * Translation logic shared by every adapter (`t`, `ts`, `tc`, `tn`, `td`, `tdr`, `has`).
+ * Adapters supply the current locale, fallback locale and route; lookups always read the
+ * storage as it is now (no pinned trees; the helper's leaf cache is keyed by tree identity).
  */
 export abstract class BaseI18n {
-  // Public fields (made public to allow type export in Nuxt plugins)
-  public helper: ReturnType<typeof useTranslationHelper>
-  public formatter = new FormatService()
+  public helper: TranslationHelper
+  public formatter: FormatService
   public pluralFunc: PluralFunc
   public missingWarn: boolean
   public missingHandler?: (locale: string, key: string, routeName: string) => void
   public getCustomMissingHandler?: () => MissingHandler | null
 
-  /** Active `locale:route` chunk key for the pinned tree. */
-  private pinnedCacheKey = ''
-  /** Nested translation tree for the active locale+route (not a flattened map). */
-  private pinnedTree: Record<string, unknown> | null = null
-  /** `helper.getGeneration()` when `pinnedTree` was last refreshed. */
-  private pinnedGeneration = -1
+  private activeKey = new ChunkKey()
+  private fallbackKey = new ChunkKey()
+  /** Last {@link resolveTranslationTree} result: stored trees are never mutated, so identity is enough. */
+  private layered: [lower: object, upper: object, tree: Translations] | null = null
 
   constructor(options: BaseI18nOptions = {}) {
-    this.helper = useTranslationHelper(options.storage)
-    const formatOptions: FormatServiceOptions = {
-      numberFormats: options.numberFormats,
-      datetimeFormats: options.datetimeFormats,
-    }
-    this.formatter = new FormatService(formatOptions)
-    // Custom plural returning null/undefined chains to defaultPlural (#241).
-    // Skip the wrapper when the caller already passed the built-in (module default).
-    this.pluralFunc =
-      options.plural && options.plural !== defaultPlural
-        ? (key, count, params, locale, getter) => {
-            const custom = options.plural!(key, count, params, locale, getter)
-            return custom ?? defaultPlural(key, count, params, locale, getter)
-          }
-        : defaultPlural
+    this.helper = new TranslationHelper(options.storage)
+    this.formatter = new FormatService(options)
+    const plural = options.plural
+    // A custom rule returning null/undefined falls back to the default one (#241).
+    this.pluralFunc = plural && plural !== defaultPlural ? (...args) => plural(...args) ?? defaultPlural(...args) : defaultPlural
     this.missingWarn = options.missingWarn ?? true
     this.missingHandler = options.missingHandler
     this.getCustomMissingHandler = options.getCustomMissingHandler
   }
 
-  // --- Abstract methods (must be implemented by subclasses) ---
-
-  /**
-   * Get current locale
-   */
   public abstract getLocale(): string
-
-  /**
-   * Get fallback locale
-   */
   public abstract getFallbackLocale(): string
-
-  /**
-   * Get current route name
-   */
   public abstract getRoute(): string
 
-  // --- Protected hooks (subclasses may override) ---
-
-  /**
-   * Called before translation lookup — subclasses use for reactivity tracking.
-   */
+  /** Called before every read; adapters use it for reactivity tracking. */
   protected touch(): void {}
 
-  /**
-   * Resolve route name from optional route context (string route name or adapter-specific object).
-   */
+  /** Route name of a route context (a string, or whatever an adapter understands). */
   protected resolveRouteName(routeContext?: unknown): string {
     return typeof routeContext === 'string' ? routeContext : this.getRoute()
   }
 
-  /**
-   * Refresh the pinned active chunk when locale/route or storage generation changes.
-   */
-  protected ensurePinnedChunk(locale: string, routeName: string): void {
-    const chunkKey = translationCacheKey(locale, routeName)
-    const generation = this.helper.getGeneration()
-    if (this.pinnedCacheKey === chunkKey && this.pinnedGeneration === generation) return
-    this.pinnedCacheKey = chunkKey
-    this.pinnedGeneration = generation
-    this.pinnedTree = (this.helper.getCache(locale, routeName) as Record<string, unknown> | undefined) ?? null
-  }
-
-  /** Drop the pin so the next lookup re-reads from storage (after merge/set/clear). */
-  protected invalidatePin(): void {
-    this.pinnedCacheKey = ''
-    this.pinnedTree = null
-    this.pinnedGeneration = -1
-  }
-
-  /**
-   * Lookup translation value. Returns null when missing.
-   * Active locale+route uses a pinned tree + sparse leaf cache (no chunk `Map.get` per call).
-   */
+  /** Value of `key` in the active locale, then the fallback locale; `null` when neither has it. */
   protected resolveLookup(key: TranslationKey, routeContext?: unknown): unknown | null {
     const locale = this.getLocale()
-    const routeName = this.resolveRouteName(routeContext)
-    const keyStr = typeof key === 'string' ? key : String(key)
-    const usePin = routeContext === undefined || routeName === this.getRoute()
-
-    let value: unknown | null
-    if (usePin) {
-      this.ensurePinnedChunk(locale, routeName)
-      value = this.helper.lookupIn(this.pinnedCacheKey, this.pinnedTree, keyStr)
-    } else {
-      value = this.helper.getTranslation(locale, routeName, keyStr)
-    }
-    if (value !== null) return value
-
-    const fallbackLocale = this.getFallbackLocale()
-    if (locale !== fallbackLocale) {
-      return this.helper.getTranslation(fallbackLocale, routeName, keyStr)
-    }
-
-    return null
+    const route = this.resolveRouteName(routeContext)
+    const name = String(key)
+    const value = this.helper.lookup(this.activeKey.of(locale, route), name)
+    const fallback = value === null ? this.getFallbackLocale() : locale
+    return fallback === locale ? value : this.helper.lookup(this.fallbackKey.of(fallback, route), name)
   }
 
-  /**
-   * Check if translation exists in the active locale chunk (not the fallback locale).
-   * `t()` may still resolve via fallback; `has()` answers "is it defined here?".
-   */
+  /** Whether the active locale itself (not the fallback) defines `key`. */
   protected resolveHas(key: TranslationKey, routeContext?: unknown): boolean {
-    const locale = this.getLocale()
-    const routeName = this.resolveRouteName(routeContext)
-    const keyStr = typeof key === 'string' ? key : String(key)
-    const usePin = routeContext === undefined || routeName === this.getRoute()
-
-    if (usePin) {
-      this.ensurePinnedChunk(locale, routeName)
-      return this.helper.lookupIn(this.pinnedCacheKey, this.pinnedTree, keyStr) !== null
-    }
-    return this.helper.getTranslation(locale, routeName, keyStr) !== null
+    return this.helper.lookup(this.activeKey.of(this.getLocale(), this.resolveRouteName(routeContext)), String(key)) !== null
   }
 
-  /**
-   * Two live layers as one tree, via {@link mergeTranslationLayers}.
-   *
-   * Used when the hot path keeps two objects instead of merging them — the fallback locale,
-   * or the Nuxt page-transition layer — so the dump answers what `t()` answers.
-   */
+  /** Two live layers as one tree, via {@link mergeTranslationLayers}; reused while both layers are the same objects. */
   protected resolveTranslationTree(lower: Record<string, unknown>, upper: Record<string, unknown>): Translations {
-    return mergeTranslationLayers(lower, upper) as Translations
+    const last = this.layered
+    if (last && last[0] === lower && last[1] === upper) return last[2]
+    const tree = mergeTranslationLayers(lower, upper) as Translations
+    this.layered = [lower, upper, tree]
+    return tree
   }
 
   /**
-   * Dump of what `t()` can resolve right now for the active locale and route.
-   *
-   * Live tree, not a clone — read-only; mutate via {@link setTranslation} / merge helpers.
-   * When a second layer is live (fallback locale, Nuxt transition hot-reload), walks both
-   * through {@link resolveTranslationTree} so the dump matches `t()`.
+   * Everything `t()` can resolve right now for the active locale and route: the live chunk
+   * (read-only) or, with a fallback locale loaded, both layers merged.
    */
   public resolveTranslations(routeContext?: unknown): Translations {
     this.touch()
     const locale = this.getLocale()
-    const routeName = this.resolveRouteName(routeContext)
-    const active = (this.helper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
-
+    const route = this.resolveRouteName(routeContext)
+    const active = (this.helper.getCache(locale, route) ?? {}) as Tree
     const fallbackLocale = this.getFallbackLocale()
-    if (fallbackLocale === locale) return active
-
-    const fallback = this.helper.getCache(fallbackLocale, routeName) as Record<string, unknown> | undefined
-    if (!fallback) return active
-
-    return this.resolveTranslationTree(fallback, active)
+    const fallback = fallbackLocale === locale ? undefined : (this.helper.getCache(fallbackLocale, route) as Tree | undefined)
+    return fallback ? this.resolveTranslationTree(fallback, active) : (active as Translations)
   }
 
-  /**
-   * Called after {@link setTranslation} changes the dictionary. Adapters override it to
-   * bump whatever their reactivity is built on.
-   */
+  /** Called after {@link setTranslation}; adapters bump their reactivity here. */
   protected onTranslationsChanged(): void {}
 
-  /**
-   * Context passed to missing-key handlers.
-   */
   protected getMissingContext(routeContext?: unknown): { locale: string; routeName: string } {
     return { locale: this.getLocale(), routeName: this.resolveRouteName(routeContext) }
   }
 
-  /**
-   * Dev-only client `console.warn`, gated by `missingWarn`.
-   * Shared by missing translations and missing named formats.
-   */
+  /** Dev-only browser `console.warn`, gated by `missingWarn`. */
   protected warnDev(message: string): void {
-    if (!this.missingWarn) return
-    if (process.env.NODE_ENV === 'production') return
-    if (typeof window === 'undefined') return
-    console.warn(message)
+    if (this.missingWarn && typeof window !== 'undefined' && !isProduction()) console.warn(message)
   }
 
-  /**
-   * Warn or invoke handler when translation is missing.
-   */
   protected warnMissing(key: TranslationKey, routeContext?: unknown): void {
     const { locale, routeName } = this.getMissingContext(routeContext)
-    const customHandler = this.getCustomMissingHandler?.()
-    if (customHandler) {
-      customHandler(locale, String(key), routeName)
-      return
-    }
-    if (this.missingHandler) {
-      this.missingHandler(locale, String(key), routeName)
-      return
-    }
-    this.warnDev(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
+    const handler = this.getCustomMissingHandler?.() ?? this.missingHandler
+    if (handler) handler(locale, String(key), routeName)
+    else this.warnDev(`Not found '${key}' key in '${locale}' locale messages for route '${routeName}'.`)
   }
 
-  /**
-   * Warn when a named number/datetime format key is missing.
-   * Falls back to default Intl options (visible in dev via {@link warnDev}).
-   */
   protected warnMissingFormat(kind: 'number' | 'datetime', key: string, locale: string): void {
     this.warnDev(`Not found '${key}' ${kind} format in '${locale}' locale. Falling back to default Intl options.`)
   }
 
-  // --- Public methods (implemented in base class) ---
-
-  /**
-   * Get translation for a key
-   */
   public t(key: TranslationKey, params?: Params, defaultValue?: string | null, routeContext?: unknown): CleanTranslation {
     if (!key) return ''
-
     this.touch()
-
-    // Fast path: string key, no params / default / route override — skip interpolate branches.
-    if (params === undefined && defaultValue === undefined && routeContext === undefined && typeof key === 'string') {
-      const fast = this.resolveLookup(key)
-      if (fast === null || fast === undefined) {
-        this.warnMissing(key)
-        return key as CleanTranslation
-      }
-      return fast as CleanTranslation
-    }
-
-    const resolved = this.resolveLookup(key, routeContext)
-
-    if (resolved === null || resolved === undefined) {
+    const value = this.resolveLookup(key, routeContext)
+    if (value === null || value === undefined) {
       this.warnMissing(key, routeContext)
-      const fallback = defaultValue === undefined ? key : defaultValue || key
-      return fallback as CleanTranslation
+      return (defaultValue || key) as CleanTranslation
     }
-
-    if (typeof resolved !== 'string') return resolved as CleanTranslation
-    if (!params) return resolved as CleanTranslation
-
-    return interpolate(resolved, params) as CleanTranslation
+    return (params && typeof value === 'string' ? interpolate(value, params) : value) as CleanTranslation
   }
 
-  /**
-   * Get translation as string
-   */
   public ts(key: TranslationKey, params?: Params, defaultValue?: string, routeContext?: unknown): string {
-    const value = this.t(key, params, defaultValue, routeContext)
-    return value?.toString() ?? defaultValue ?? key
+    return this.t(key, params, defaultValue, routeContext)?.toString() ?? defaultValue ?? key
   }
 
-  /**
-   * Plural translation
-   */
   public tc(key: TranslationKey, count: number | Params, defaultValue?: string): string {
     this.touch()
-
     const { count: countValue, ...params } = typeof count === 'number' ? { count } : count
-
-    if (countValue === undefined) {
-      return defaultValue ?? key
-    }
-
-    // No params → raw pipe string (defaultPlural splits then interpolates the selected form).
-    // With params → interpolate for custom plural rules that call getter(key, params).
-    // Missing key: undefined unless defaultValue is passed (then `dv || key`) so defaultPlural
-    // still sees a miss when called as getter(key) with no third argument.
-    const getter: Getter = (k: TranslationKey, p?: Params, dv?: string) => {
+    if (countValue === undefined || countValue === null) return defaultValue ?? key
+    // Missing key: `undefined` unless a default is passed, so `defaultPlural` (which calls
+    // `getter(key)`) sees the miss. With params the value is interpolated for custom rules.
+    const getter: Getter = (k, p, dv) => {
       const raw = this.resolveLookup(k)
-      if (raw === null || raw === undefined) return dv !== undefined ? dv || k : undefined
-      if (typeof raw !== 'string' || !p) return raw
-      return interpolate(raw, p)
+      if (raw === null || raw === undefined) return dv === undefined ? undefined : dv || k
+      return p && typeof raw === 'string' ? interpolate(raw, p) : raw
     }
-
-    const result = this.pluralFunc(key, Number.parseInt(countValue.toString(), 10), params, this.getLocale(), getter)
-
-    return result ?? defaultValue ?? key
+    const result = this.pluralFunc(key, Number(countValue), params, this.getLocale(), getter)
+    if (result !== null && result !== undefined) return result
+    if (this.resolveLookup(key) === null) this.warnMissing(key)
+    return defaultValue ?? key
   }
 
-  /**
-   * Format number.
-   * Supports Vue I18n-style named formats: `tn(1000, 'currency')`.
-   */
+  /** Format a number; Vue I18n-style named formats: `tn(1000, 'currency')`. */
   public tn(value: number, options?: Intl.NumberFormatOptions): string
   public tn(value: number, key: string, overrides?: Intl.NumberFormatOptions): string
   public tn(value: number, key: string, locale: string, overrides?: Intl.NumberFormatOptions): string
-  public tn(
-    value: number,
-    keyOrOptions?: string | Intl.NumberFormatOptions,
-    localeOrOverrides?: string | Intl.NumberFormatOptions,
-    overrides?: Intl.NumberFormatOptions,
-  ): string {
+  public tn(value: number, ...args: FormatArgs<Intl.NumberFormatOptions>): string {
     this.touch()
-    const resolved = this.resolveNumberFormatArgs(keyOrOptions, localeOrOverrides, overrides)
-    return this.formatter.formatNumber(value, resolved.locale, resolved.options)
+    const [locale, options] = this.formatArgs('number', args)
+    return this.formatter.formatNumber(value, locale, options)
   }
 
-  /**
-   * Format date.
-   * Supports Vue I18n-style named formats: `td(date, 'short')`.
-   */
+  /** Format a date; Vue I18n-style named formats: `td(date, 'short')`. */
   public td(value: Date | number | string, options?: Intl.DateTimeFormatOptions): string
   public td(value: Date | number | string, key: string, overrides?: Intl.DateTimeFormatOptions): string
   public td(value: Date | number | string, key: string, locale: string, overrides?: Intl.DateTimeFormatOptions): string
-  public td(
-    value: Date | number | string,
-    keyOrOptions?: string | Intl.DateTimeFormatOptions,
-    localeOrOverrides?: string | Intl.DateTimeFormatOptions,
-    overrides?: Intl.DateTimeFormatOptions,
-  ): string {
+  public td(value: Date | number | string, ...args: FormatArgs<Intl.DateTimeFormatOptions>): string {
     this.touch()
-    const resolved = this.resolveDateTimeFormatArgs(keyOrOptions, localeOrOverrides, overrides)
-    return this.formatter.formatDate(value, resolved.locale, resolved.options)
+    const [locale, options] = this.formatArgs('datetime', args)
+    return this.formatter.formatDate(value, locale, options)
   }
 
-  /**
-   * Format relative time
-   */
   public tdr(value: Date | number | string, options?: Intl.RelativeTimeFormatOptions): string {
     this.touch()
     return this.formatter.formatRelativeTime(value, this.getLocale(), options)
   }
 
-  /**
-   * Check if translation exists
-   */
   public has(key: TranslationKey, routeContext?: unknown): boolean {
     this.touch()
     return this.resolveHas(key, routeContext)
   }
 
   /**
-   * Replace the value at `key` — a subtree, a string, a number, anything.
-   *
-   * `set` and not `merge`: `setTranslation('aaa', { fff: 'ggg' })` leaves `aaa` holding only
-   * `fff`, and `setTranslation('aaa', 'fff')` leaves a string where the subtree was. Use
-   * `mergeTranslations` when the existing siblings should survive.
-   *
-   * Writes to the active locale and route, so the change is visible to `t()` immediately and
-   * lives exactly as long as the chunk it belongs to.
+   * Replace the value at `key` in the active locale and route (a subtree, a string, anything):
+   * `set`, not `merge`, so siblings under `key` are dropped. Visible to `t()` at once.
    */
   public setTranslation(key: TranslationKey, value: unknown): void {
     const locale = this.getLocale()
-    const routeName = this.getRoute()
-    const current = (this.helper.getCache(locale, routeName) ?? {}) as Record<string, unknown>
-
-    this.helper.setTranslations(locale, setTranslationAtKey(current, String(key), value), routeName)
-    this.invalidatePin()
+    const route = this.getRoute()
+    const current = (this.helper.getCache(locale, route) ?? {}) as Tree
+    this.helper.setTranslations(locale, setTranslationAtKey(current, String(key), value) as Translations, route)
     this.onTranslationsChanged()
   }
 
-  /**
-   * Clear translation + formatter caches
-   */
+  /** Clear translation and formatter caches. */
   public clearCache(): void {
     this.helper.clearCache()
     this.formatter.clearCache()
-    this.invalidatePin()
+    this.layered = null
   }
 
-  private resolveNumberFormatArgs(
-    keyOrOptions?: string | Intl.NumberFormatOptions,
-    localeOrOverrides?: string | Intl.NumberFormatOptions,
-    overrides?: Intl.NumberFormatOptions,
-  ): { locale: string; options: Intl.NumberFormatOptions | undefined } {
-    if (typeof keyOrOptions !== 'string') {
-      return { locale: this.getLocale(), options: keyOrOptions }
-    }
-
-    let locale = this.getLocale()
-    let extra: Intl.NumberFormatOptions | undefined
-    if (typeof localeOrOverrides === 'string') {
-      locale = localeOrOverrides
-      extra = overrides
-    } else {
-      extra = localeOrOverrides
-    }
-
-    const named = this.formatter.resolveNumberFormat(locale, keyOrOptions)
-    if (!named) {
-      this.warnMissingFormat('number', keyOrOptions, locale)
-    }
-    if (!named && !extra) {
-      return { locale, options: undefined }
-    }
-    return { locale, options: named ? { ...named, ...extra } : extra }
-  }
-
-  private resolveDateTimeFormatArgs(
-    keyOrOptions?: string | Intl.DateTimeFormatOptions,
-    localeOrOverrides?: string | Intl.DateTimeFormatOptions,
-    overrides?: Intl.DateTimeFormatOptions,
-  ): { locale: string; options: Intl.DateTimeFormatOptions | undefined } {
-    if (typeof keyOrOptions !== 'string') {
-      return { locale: this.getLocale(), options: keyOrOptions }
-    }
-
-    let locale = this.getLocale()
-    let extra: Intl.DateTimeFormatOptions | undefined
-    if (typeof localeOrOverrides === 'string') {
-      locale = localeOrOverrides
-      extra = overrides
-    } else {
-      extra = localeOrOverrides
-    }
-
-    const named = this.formatter.resolveDateTimeFormat(locale, keyOrOptions)
-    if (!named) {
-      this.warnMissingFormat('datetime', keyOrOptions, locale)
-    }
-    if (!named && !extra) {
-      return { locale, options: undefined }
-    }
-    return { locale, options: named ? { ...named, ...extra } : extra }
-  }
-
-  // --- Public methods (for subclasses to use) ---
-
-  /**
-   * Core translation loading logic (without reactivity)
-   * Subclasses can override addTranslations/addRouteTranslations to add reactivity
-   */
+  /** Load root translations: deep-merge, or replace the chunk when `merge` is false. */
   public loadTranslationsCore(locale: string, translations: Translations, merge: boolean, routeName = 'index'): void {
-    if (merge) {
-      this.helper.mergeTranslation(locale, routeName, translations, true)
-    } else {
-      this.helper.setTranslations(locale, translations, routeName)
-    }
-    this.invalidatePin()
+    if (merge) this.helper.mergeTranslation(locale, routeName, translations)
+    else this.helper.setTranslations(locale, translations, routeName)
   }
 
-  /**
-   * Core route translation loading logic (without reactivity)
-   * Subclasses can override addRouteTranslations to add reactivity
-   */
-  public loadRouteTranslationsCore(locale: string, routeName: string, translations: Translations, merge: boolean): void {
-    if (merge) {
-      this.helper.mergeTranslation(locale, routeName, translations, true)
-    } else {
-      this.helper.loadPageTranslations(locale, routeName, translations)
-    }
-    this.invalidatePin()
+  /** Load route translations (always merged into an existing non-empty chunk). */
+  public loadRouteTranslationsCore(locale: string, routeName: string, translations: Translations, _merge: boolean): void {
+    this.helper.mergeTranslation(locale, routeName, translations)
   }
 
-  /**
-   * Attach framework-specific helpers onto this instance (`localizePath`, …).
-   * Mutates `this` and returns it typed with the extra methods.
-   */
+  /** Attach framework-specific helpers onto this instance (`localizePath`, …). */
   public extend<M extends Record<string, unknown>>(methods: M & ThisType<this & M>): this & M {
     return Object.assign(this, methods) as this & M
+  }
+
+  /** `(key | options, locale | overrides, overrides)` → locale and the options to format with. */
+  private formatArgs<O extends object>(
+    kind: 'number' | 'datetime',
+    [keyOrOptions, localeOrOverrides, overrides]: FormatArgs<O>,
+  ): [string, O | undefined] {
+    const current = this.getLocale()
+    if (typeof keyOrOptions !== 'string') return [current, keyOrOptions]
+    const locale = typeof localeOrOverrides === 'string' ? localeOrOverrides : current
+    const extra = typeof localeOrOverrides === 'string' ? overrides : localeOrOverrides
+    const named = (
+      kind === 'number' ? this.formatter.resolveNumberFormat(locale, keyOrOptions) : this.formatter.resolveDateTimeFormat(locale, keyOrOptions)
+    ) as O | undefined
+    if (!named) this.warnMissingFormat(kind, keyOrOptions, locale)
+    return [locale, named && extra ? { ...named, ...extra } : (named ?? extra)]
   }
 }

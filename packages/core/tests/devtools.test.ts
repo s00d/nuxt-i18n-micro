@@ -8,7 +8,7 @@ import {
   getByInspectorPath,
   parseInspectorNodeId,
 } from '../src/devtools'
-import type { TranslationStorage } from '../src/translation'
+import type { TranslationStorage } from '../src/storage'
 
 function createStorage(entries: Record<string, Record<string, unknown>>): TranslationStorage {
   return {

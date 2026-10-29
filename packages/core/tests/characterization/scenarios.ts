@@ -82,8 +82,32 @@ export function helpersReport(): string {
   const r = new Recorder()
 
   r.section('interpolate')
-  const templates = ['Hello, {name}!', '{a}-{b}-{a}', 'no tokens', '', '{ name }', '{name', 'name}', '{}', '{na-me}', '{0} {1}', '{count} of {total}', '{name}{name}', 'x {constructor} {toString} {__proto__}']
-  const params: unknown[] = [undefined, {}, { name: 'Ann' }, { name: 0 }, { name: null }, { name: false }, { a: 'A', b: 'B', count: 3, total: 9, 0: 'zero', 1: 'one' }, { name: { nested: true } }, { name: ['x', 'y'] }]
+  const templates = [
+    'Hello, {name}!',
+    '{a}-{b}-{a}',
+    'no tokens',
+    '',
+    '{ name }',
+    '{name',
+    'name}',
+    '{}',
+    '{na-me}',
+    '{0} {1}',
+    '{count} of {total}',
+    '{name}{name}',
+    'x {constructor} {toString} {__proto__}',
+  ]
+  const params: unknown[] = [
+    undefined,
+    {},
+    { name: 'Ann' },
+    { name: 0 },
+    { name: null },
+    { name: false },
+    { a: 'A', b: 'B', count: 3, total: 9, 0: 'zero', 1: 'one' },
+    { name: { nested: true } },
+    { name: ['x', 'y'] },
+  ]
   for (const t of templates) for (const p of params) r.run(`interpolate(${show(t)}, ${show(p)})`, () => interpolate(t, p as never))
 
   r.section('getByPath / resolveTranslation / hasTranslationValue')
@@ -189,7 +213,13 @@ export function helpersReport(): string {
       and: isPrefixAndDefaultStrategy(s),
     })
   }
-  for (const [l, route] of [['en', undefined], ['en', ''], ['en', 'about'], ['de-AT', 'a:b']] as const) r.run(`translationCacheKey(${show(l)}, ${show(route)})`, () => translationCacheKey(l, route))
+  for (const [l, route] of [
+    ['en', undefined],
+    ['en', ''],
+    ['en', 'about'],
+    ['de-AT', 'a:b'],
+  ] as const)
+    r.run(`translationCacheKey(${show(l)}, ${show(route)})`, () => translationCacheKey(l, route))
 
   r.section('defaultPlural')
   const forms = ['no apples | one apple | {count} apples', 'car|cars', 'only', '', '|', ' a | | c ', '{count} item | {count} items for {name}']
@@ -296,7 +326,10 @@ export function i18nReport(): string {
 
   r.section('custom plural')
   {
-    const custom: PluralFunc = (key, count, params, locale, getter) => (count === 99 ? null : `custom:${key}:${count}:${locale}:${show(params)}:${show(getter(key))}:${show(getter(key, { count }))}:${show(getter('missing'))}:${show(getter('missing', {}, ''))}:${show(getter('missing', {}, 'dv'))}`)
+    const custom: PluralFunc = (key, count, params, locale, getter) =>
+      count === 99
+        ? null
+        : `custom:${key}:${count}:${locale}:${show(params)}:${show(getter(key))}:${show(getter(key, { count }))}:${show(getter('missing'))}:${show(getter('missing', {}, ''))}:${show(getter('missing', {}, 'dv'))}`
     const i18n = loaded({ plural: custom })
     for (const count of [1, 99, { count: 3, name: 'N' }]) r.run(`tc("apples", ${show(count)})`, () => i18n.tc('apples', count as never))
     const same = loaded({ plural: defaultPlural })
@@ -384,7 +417,8 @@ export function i18nReport(): string {
   {
     const original = loaded()
     const copy: TranslationStorage = { translations: new Map() }
-    for (const locale of ['en', 'de']) copy.translations.set(`${locale}:index`, { ...(original.helper.getCache(locale, 'index') as object) } as Translations)
+    for (const locale of ['en', 'de'])
+      copy.translations.set(`${locale}:index`, { ...(original.helper.getCache(locale, 'index') as object) } as Translations)
     const clone = new TestI18n('en', 'en', { storage: copy, missingWarn: false })
     clone.helper.mergeTranslation('en', 'index', { nav: { home: 'Clone home' } } as Translations, true)
     clone.setTranslation('greeting', 'Clone greeting')
@@ -431,8 +465,15 @@ export function i18nReport(): string {
   {
     const i18n = new TestI18n('en-US', 'en-US', {
       missingWarn: false,
-      numberFormats: { en: { currency: { style: 'currency', currency: 'USD' } }, de: { currency: { style: 'currency', currency: 'EUR' } }, 'en-US': { percent: { style: 'percent' } } },
-      datetimeFormats: { en: { short: { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' } }, de: { short: { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC' } } },
+      numberFormats: {
+        en: { currency: { style: 'currency', currency: 'USD' } },
+        de: { currency: { style: 'currency', currency: 'EUR' } },
+        'en-US': { percent: { style: 'percent' } },
+      },
+      datetimeFormats: {
+        en: { short: { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' } },
+        de: { short: { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC' } },
+      },
     })
     r.run('tn(1234.5)', () => i18n.tn(1234.5))
     r.run('tn(1234.5, {maximumFractionDigits:0})', () => i18n.tn(1234.5, { maximumFractionDigits: 0 }))
@@ -478,14 +519,28 @@ export function formatReport(now: number): string {
 
   r.section('formatNumber')
   for (const locale of ['en-US', 'de-DE', 'fr', 'ar-EG', 'ja'])
-    for (const options of [undefined, {}, { style: 'percent' }, { minimumFractionDigits: 2, maximumFractionDigits: 2 }, { maximumFractionDigits: 2, minimumFractionDigits: 2 }, { notation: 'compact' }] as Intl.NumberFormatOptions[])
+    for (const options of [
+      undefined,
+      {},
+      { style: 'percent' },
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+      { maximumFractionDigits: 2, minimumFractionDigits: 2 },
+      { notation: 'compact' },
+    ] as Intl.NumberFormatOptions[])
       r.run(`formatNumber(1234567.891, ${locale}, ${show(options)})`, () => f.formatNumber(1234567.891, locale, options))
   r.run('formatNumber(1, "xx-invalid-??")', () => f.formatNumber(1, 'xx-invalid-??'))
   r.run('formatNumber(1, "en", {style:"currency"})', () => f.formatNumber(1, 'en', { style: 'currency' }))
 
   r.section('formatter cache')
-  r.value('same options object → same formatter', f.getNumberFormatter('en', { style: 'percent' }) === f.getNumberFormatter('en', { style: 'percent' }))
-  r.value('key order irrelevant', f.getNumberFormatter('en', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) === f.getNumberFormatter('en', { maximumFractionDigits: 2, minimumFractionDigits: 1 }))
+  r.value(
+    'same options object → same formatter',
+    f.getNumberFormatter('en', { style: 'percent' }) === f.getNumberFormatter('en', { style: 'percent' }),
+  )
+  r.value(
+    'key order irrelevant',
+    f.getNumberFormatter('en', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) ===
+      f.getNumberFormatter('en', { maximumFractionDigits: 2, minimumFractionDigits: 1 }),
+  )
   r.value('undefined vs {}', f.getNumberFormatter('en') === f.getNumberFormatter('en', {}))
   r.value('different locale', f.getNumberFormatter('en') === f.getNumberFormatter('de'))
   r.value('date undefined vs {}', f.getDateTimeFormatter('en') === f.getDateTimeFormatter('en', {}))
@@ -513,13 +568,45 @@ export function formatReport(now: number): string {
   r.run('new FormatService() formats', () => [new FormatService().getNumberFormats(), new FormatService().getDateTimeFormats()])
 
   r.section('formatDate')
-  for (const value of [Date.UTC(2024, 1, 29, 23, 59, 59), '2024-02-29', '2024-02-29T10:00:00Z', new Date(Date.UTC(2000, 0, 1)), 0, -1, '', 'not a date', Number.NaN, Infinity] as const)
+  for (const value of [
+    Date.UTC(2024, 1, 29, 23, 59, 59),
+    '2024-02-29',
+    '2024-02-29T10:00:00Z',
+    new Date(Date.UTC(2000, 0, 1)),
+    0,
+    -1,
+    '',
+    'not a date',
+    Number.NaN,
+    Infinity,
+  ] as const)
     for (const locale of ['en-US', 'de-DE'])
       r.run(`formatDate(${show(value)}, ${locale}, UTC)`, () => f.formatDate(value as never, locale, { timeZone: 'UTC' }))
   r.run('formatDate(0, en, {dateStyle:"full", timeZone:"UTC"})', () => f.formatDate(0, 'en', { dateStyle: 'full', timeZone: 'UTC' }))
 
   r.section('formatRelativeTime (now fixed)')
-  const offsets = [0, 0.4, 1, 30, 59, 60, 61, 3599, 3600, 7200, 86399, 86400, 86400 * 6, 86400 * 7, 86400 * 29, 86400 * 30, 86400 * 31, 86400 * 364, 86400 * 365, 86400 * 365 * 3]
+  const offsets = [
+    0,
+    0.4,
+    1,
+    30,
+    59,
+    60,
+    61,
+    3599,
+    3600,
+    7200,
+    86399,
+    86400,
+    86400 * 6,
+    86400 * 7,
+    86400 * 29,
+    86400 * 30,
+    86400 * 31,
+    86400 * 364,
+    86400 * 365,
+    86400 * 365 * 3,
+  ]
   for (const seconds of offsets) {
     r.run(`past ${seconds}s (en)`, () => f.formatRelativeTime(now - seconds * 1000, 'en'))
     r.run(`future ${seconds}s (en)`, () => f.formatRelativeTime(now + seconds * 1000, 'en'))
@@ -560,7 +647,23 @@ export function devtoolsReport(): string {
   }
 
   r.section('node ids')
-  for (const id of ['', 'root', 'active', 'locale|en', 'locale|', 'chunk|en|about', 'chunk|en', 'chunk|', 'key|en|about|nav', 'key|en|about|a%2Eb|x', 'key|en', 'key|', 'unknown|x', 'key|de|index|nav/deep']) r.run(`parseInspectorNodeId(${show(id)})`, () => parseInspectorNodeId(id))
+  for (const id of [
+    '',
+    'root',
+    'active',
+    'locale|en',
+    'locale|',
+    'chunk|en|about',
+    'chunk|en',
+    'chunk|',
+    'key|en|about|nav',
+    'key|en|about|a%2Eb|x',
+    'key|en',
+    'key|',
+    'unknown|x',
+    'key|de|index|nav/deep',
+  ])
+    r.run(`parseInspectorNodeId(${show(id)})`, () => parseInspectorNodeId(id))
   for (const segments of [[], ['a'], ['a.b', 'c'], ['a/b', '%', '|', ' ']]) {
     const encoded = encodeInspectorPath(segments)
     r.value(`encode(${show(segments)})`, encoded)
@@ -569,7 +672,25 @@ export function devtoolsReport(): string {
   r.run('decodeInspectorPath("")', () => decodeInspectorPath(''))
 
   r.section('trees')
-  for (const nodeId of ['root', 'active', 'locale|en', 'locale|de', 'locale|es', 'locale|fr', 'chunk|en|index', 'chunk|de|about', 'chunk|xx|index', 'key|en|index|nav', 'key|en|index|nav/deep', 'key|en|about|nav', 'key|en|index|flat', 'key|en|index|unicode', 'key|en|index|missing', 'key|en|index|greeting', 'bogus'])
+  for (const nodeId of [
+    'root',
+    'active',
+    'locale|en',
+    'locale|de',
+    'locale|es',
+    'locale|fr',
+    'chunk|en|index',
+    'chunk|de|about',
+    'chunk|xx|index',
+    'key|en|index|nav',
+    'key|en|index|nav/deep',
+    'key|en|about|nav',
+    'key|en|index|flat',
+    'key|en|index|unicode',
+    'key|en|index|missing',
+    'key|en|index|greeting',
+    'bogus',
+  ])
     r.run(`buildInspectorTree(${nodeId})`, () => buildInspectorTree({ ...base, nodeId }))
   r.run('buildInspectorTree(root, activeRouteName "")', () => buildInspectorTree({ ...base, nodeId: 'root', activeRouteName: '' }))
   r.run('buildInspectorTree(active, no activeTranslations)', () => buildInspectorTree({ ...base, nodeId: 'active', activeTranslations: undefined }))
@@ -584,7 +705,15 @@ export function devtoolsReport(): string {
 
   r.section('state and counts')
   r.run('buildInspectorState(full)', () =>
-    buildInspectorState({ locale: 'en', routeName: 'about', strategy: 'prefix', defaultLocale: 'en', fallbackLocale: 'de', cachedChunks: 4, locales: [{ code: 'en', displayName: 'English' }, { code: 'de' }] }),
+    buildInspectorState({
+      locale: 'en',
+      routeName: 'about',
+      strategy: 'prefix',
+      defaultLocale: 'en',
+      fallbackLocale: 'de',
+      cachedChunks: 4,
+      locales: [{ code: 'en', displayName: 'English' }, { code: 'de' }],
+    }),
   )
   r.run('buildInspectorState(minimal)', () => buildInspectorState({ locale: 'en', routeName: 'index', cachedChunks: 0, locales: [] }))
   for (const [label, tree] of [

@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v3.30.2
+
+[compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.1...v3.30.2)
+
+### 🩹 Fixes
+
+- **path-strategy:** Top-level page resolved as child of a page with a shorter name ([#266](https://github.com/s00d/nuxt-i18n-micro/pull/266))
+- **path-strategy:** Top-level dashed siblings via resolved path ([#267](https://github.com/s00d/nuxt-i18n-micro/pull/267))
+- **path-strategy:** Resolve dashed route shapes via router path, not key form ([#268](https://github.com/s00d/nuxt-i18n-micro/pull/268))
+
+### 🏡 Chore
+
+- Clear lint warnings (no-map-spread, no-await-in-loop) ([e3643777](https://github.com/s00d/nuxt-i18n-micro/commit/e3643777))
+
+### ❤️ Contributors
+
+- Pavel Kuzmin ([@s00d](https://github.com/s00d))
+- Miguel Ferreira <mferreira.oeiras@gmail.com>
+
 ## v3.30.1
 
 [compare changes](https://github.com/s00d/nuxt-i18n-micro/compare/v3.30.0...v3.30.1)

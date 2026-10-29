@@ -21,7 +21,7 @@ It never re-reads `globalLocaleRoutes`: custom paths, restrictions and aliases a
 
 Matching a URL means walking every record in vue-router. The results of path lookups (`localeRoute('/x')`, `getClientRedirect`, `shouldReturn404`) and of resolved links are kept in bounded caches, so a repeated call is a Map hit. The index and the caches belong to the route table, not to the router: every strategy built over the same routes (one per SSR request) shares them, so a request starts warm.
 
-A page is never answered with another locale's page: a locale that does not serve it gets its home.
+`localeRoute` and `switchLocaleRoute` never answer with another locale's page: a locale that does not serve the page gets its home. (`getClientRedirect` differs under `prefix`, see below.)
 
 ---
 

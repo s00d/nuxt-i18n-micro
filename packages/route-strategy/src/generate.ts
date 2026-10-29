@@ -85,6 +85,12 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
     return found
   }
 
+  /** An unlocalized page as written: it has no meta.i18n, so its disableMeta rides on `meta.i18nNoMeta`. */
+  function unlocalized(page: NuxtPage): NuxtPage {
+    const noMeta = infos.get(page)?.noMeta
+    return noMeta === undefined ? page : { ...page, meta: { ...page.meta, i18nNoMeta: noMeta } }
+  }
+
   function localize(
     page: NuxtPage,
     locale: string | null,
@@ -117,7 +123,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
   const signature = (v: Variant): string => (v.raw ? '!' : `${v.path}(${v.children.map(signature).join(',')})`)
 
   function emit(v: Variant, codes: string[], suffix: string, rename: boolean, prefixed: boolean, top: boolean, declaredAliases = true): NuxtPage {
-    if (v.raw) return v.page
+    if (v.raw) return unlocalized(v.page)
     const { page } = v
     const routePath = top ? (prefixed ? localePath(codes, v.path) : absolute(v.path)) : v.path
     const route: NuxtPage = { ...page, path: routePath }
@@ -181,7 +187,7 @@ export function generateRoutes(pages: NuxtPage[], options: GenerateOptions, loca
   for (const page of pages) {
     const pagePath = page.path ?? ''
     if ((page.redirect && !page.file) || isInternalPath(pagePath, options.excludePatterns) || info(page, '', true).rule === false) {
-      unprefixed.push(page)
+      unprefixed.push(unlocalized(page))
       continue
     }
     const allowed = info(page, '', true).allowed ?? locales

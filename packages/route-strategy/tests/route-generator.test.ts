@@ -296,3 +296,21 @@ describe('nitro helpers', () => {
     expect(normalizeRouteKey('/post-[id]/:year()/:n(\\d+)')).toBe('/post-:id/:year/:n(\\d+)')
   })
 })
+
+describe('disableMeta', () => {
+  test('lands in meta.i18n.noMeta of every record, custom paths and locale lists included', () => {
+    const pages = [structuredClone(about), { path: '/shop', name: 'shop', file: 'pages/shop.vue' }]
+    generator('prefix_except_default', {
+      globalLocaleRoutes: { about: { de: '/ueber-uns' } },
+      routeDisableMeta: { '/about': true, shop: ['de'] },
+    }).extendPages(pages)
+    const noMeta = Object.fromEntries(pages.map((p) => [p.name, (p.meta?.i18n as { noMeta?: unknown } | undefined)?.noMeta]))
+    expect(noMeta).toEqual({ about: true, 'localized-about-de': true, 'localized-about': true, shop: ['de'], 'localized-shop': ['de'] })
+  })
+
+  test('an unlocalized page keeps it as meta.i18nNoMeta (it has no meta.i18n)', () => {
+    const pages = [{ path: '/landing', name: 'landing', file: 'pages/landing.vue' }]
+    generator('prefix', { globalLocaleRoutes: { landing: false }, routeDisableMeta: { landing: true } }).extendPages(pages)
+    expect(pages.map((p) => [p.name, p.meta?.i18n, p.meta?.i18nNoMeta])).toEqual([['landing', undefined, true]])
+  })
+})

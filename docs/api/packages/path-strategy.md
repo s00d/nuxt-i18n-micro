@@ -23,9 +23,9 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 | `I18nPathStrategy` | class | 38 members |
 | `PathStrategy` | type | `{ [K in keyof I18nPathStrategy]: I18nPathStrategy[K] }` |
 | `PathStrategyContext` | interface | 8 members |
-| `ResolvedRouteLike` | interface | 7 members |
+| `ResolvedRouteLike` | interface | 8 members |
 | `RouteI18nMeta` | interface | 3 members |
-| `RouteLike` | interface | 6 members |
+| `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
 | `Strategy` | class | 38 members |
@@ -103,13 +103,14 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>ResolvedRouteLike</code> — 7 members</summary>
+<summary><code>ResolvedRouteLike</code> — 8 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `fullPath` | `string` |
 | `hash?` | `string \| undefined` |
 | `matched?` | `unknown[] \| undefined` |
+| `meta?` | `Record<string, unknown> \| undefined` |
 | `name` | `string \| null` |
 | `params?` | `Record<string, unknown> \| undefined` |
 | `path` | `string` |
@@ -129,12 +130,13 @@ import { /* … */ } from '@i18n-micro/path-strategy'
 </details>
 
 <details>
-<summary><code>RouteLike</code> — 6 members</summary>
+<summary><code>RouteLike</code> — 7 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `fullPath?` | `string \| undefined` |
 | `hash?` | `string \| undefined` |
+| `meta?` | `Record<string, unknown> \| undefined` |
 | `name?` | `string \| null \| undefined` |
 | `params?` | `Record<string, unknown> \| undefined` |
 | `path?` | `string \| undefined` |
@@ -186,9 +188,9 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 | --- | --- | --- |
 | `ClientRedirectOptions` | interface | 1 members |
 | `PathStrategyContext` | interface | 8 members |
-| `ResolvedRouteLike` | interface | 7 members |
+| `ResolvedRouteLike` | interface | 8 members |
 | `RouteI18nMeta` | interface | 3 members |
-| `RouteLike` | interface | 6 members |
+| `RouteLike` | interface | 7 members |
 | `RouterAdapter` | interface | 3 members |
 | `RouteRecordLike` | interface | 5 members |
 | `SwitchLocaleOptions` | interface | 1 members |
@@ -197,11 +199,11 @@ import { /* … */ } from '@i18n-micro/path-strategy/types'
 
 <code>PathStrategyContext</code> — 8 members, identical to `PathStrategyContext` above.
 
-<code>ResolvedRouteLike</code> — 7 members, identical to `ResolvedRouteLike` above.
+<code>ResolvedRouteLike</code> — 8 members, identical to `ResolvedRouteLike` above.
 
 <code>RouteI18nMeta</code> — 3 members, identical to `RouteI18nMeta` above.
 
-<code>RouteLike</code> — 6 members, identical to `RouteLike` above.
+<code>RouteLike</code> — 7 members, identical to `RouteLike` above.
 
 <code>RouterAdapter</code> — 3 members, identical to `RouterAdapter` above.
 

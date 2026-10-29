@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
   const urlLocale =
     firstSegment && validLocales.includes(firstSegment)
       ? firstSegment
-      : config.strategy === 'prefix_except_default' && !config.hashMode && !queryLocale
+      : config.strategy === 'prefix_except_default' && !config.hashMode && !(queryLocale && validLocales.includes(queryLocale))
         ? defaultLocale
         : null
 

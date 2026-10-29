@@ -318,4 +318,33 @@ describe('localeRoute: nested route includes parent path', () => {
           : ((result as { fullPath?: string }).fullPath ?? '')
     expect(pathStr).toBe('/de/change-buchen/hiking')
   })
+
+  test.each([
+    ['en', '/about-team'],
+    ['de', '/de/team-seite'],
+  ])('sibling page whose name extends another page name (about-team next to about): %s path must not include the other page', (locale, expected) => {
+    const router = makeRouterAdapter(['about', 'about-team'])
+    router.resolve = () => ({
+      name: 'about-team',
+      path: '/about-team',
+      fullPath: '/about-team',
+      params: {},
+      query: {},
+      hash: '',
+    })
+    // pages/about.vue and pages/about-team.vue: both top-level, keyed by file path.
+    const globalLocaleRoutes: Record<string, Record<string, string>> = {
+      about: { en: '/about', de: '/ueber-uns' },
+      'about-team': { en: '/about-team', de: '/team-seite' },
+    }
+    const strategy = createPathStrategy(makeCtx({ router, globalLocaleRoutes }))
+    const result = strategy.localeRoute(locale, { name: 'about-team' })
+    const pathStr =
+      typeof result === 'string'
+        ? result
+        : result && typeof result === 'object' && 'path' in result
+          ? (result as { path: string }).path
+          : ((result as { fullPath?: string }).fullPath ?? '')
+    expect(pathStr).toBe(expected)
+  })
 })

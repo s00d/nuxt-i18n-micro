@@ -263,23 +263,20 @@ which is how an accidental change to what the payload carries gets noticed.
 ### 💾 Caching and Pre-rendering
 
 Translations pass through several caches, and knowing which one answered a request is the
-difference between a five-minute and a five-hour debugging session. There are four, in the
+difference between a five-minute and a five-hour debugging session. There are three, in the
 order a request meets them:
 
 | Layer | Where | Lifetime | Cleared by |
 | --- | --- | --- | --- |
 | Browser / CDN | `Cache-Control` on `/{apiBaseUrl}/**` | `httpCacheDuration`, `immutable` | a new `?v=` — i.e. a deploy that changed translations |
-| Nitro route cache | `routeRules['/{apiBaseUrl}/**'].cache` | 60 s, stale-while-revalidate | server restart |
 | Server loader | in-process `CacheControl`, keyed `locale:routeName` | process lifetime, or `cacheTtl` | server restart, HMR in dev |
 | Client store | `translationStorage` + the active chunk in `NuxtI18n` | page lifetime | reload |
 
 Two rules keep them from contradicting each other:
 
-- **The Nitro route cache exists only when `?v=` does.** With a cache-buster each URL is
-  unique to its content, so caching it server-side is free of staleness. Set
-  `dateBuild: 0` and that layer is switched off, because the URL is then stable and the
-  response says `must-revalidate` — a server-side cache would answer from a stale entry
-  for up to a minute and quietly defeat it.
+- **No Nitro route cache on `/{apiBaseUrl}/**`.** Its key is the full URL, query included, so
+  every distinct query would add an unbounded entry holding a copy of chunks the server loader
+  already keeps (bounded). The server loader is the one server-side cache.
 - **`immutable` also requires `?v=`.** Without a buster the header is
   `public, max-age=0, must-revalidate`, whatever `httpCacheDuration` says: a long
   `max-age` on a URL that never changes pins the first response a browser ever saw.

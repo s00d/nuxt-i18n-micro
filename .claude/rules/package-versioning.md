@@ -1,0 +1,35 @@
+
+# Package versioning & rebuild
+
+## When it applies
+
+Any edit under `packages/<name>/` (source, tests that change public API, `package.json` exports).
+
+## Workflow (once per push/PR, not per commit)
+
+1. Finish the logical change set on the branch.
+2. **Before push**, for each affected **workspace** package, bump `version` in `packages/<name>/package.json` **one patch** (`1.2.3` → `1.2.4`).
+3. Rebuild every bumped package that has a build step:
+   ```bash
+   pnpm --filter @i18n-micro/utils build
+   pnpm --filter @i18n-micro/core build
+   # …same for each touched package
+   ```
+4. Include in the commit: source + `package.json` version + updated `dist/` (when published).
+
+## Root module (`nuxt-i18n-micro`)
+
+- **Do not** change root `package.json` `version` or `CHANGELOG.md` by hand.
+- Those files move **only** through `pnpm run release:*` / `pnpm -C scripts cli release` (`ensure-release-source` fails otherwise).
+- Unreleased `src/` work: leave root version at the last release tag. **Do not** edit `docs/news/index.md` unless the user explicitly asks.
+
+## Do not
+
+- Bump version on every small follow-up commit in the same branch.
+- Push package source changes without rebuilding `dist/` when the package ships built artifacts.
+- Manually edit root `version` or `CHANGELOG.md` (even “once before push” after `src/` changes).
+
+## Release vs day-to-day
+
+- **Day-to-day**: patch bump only in affected `packages/*/package.json`, rebuild, push.
+- **Formal release**: root version/changelog via `pnpm run release:*` / changelogen. News in `docs/news/index.md` only when the user asks.

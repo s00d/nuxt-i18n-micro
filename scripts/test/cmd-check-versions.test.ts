@@ -100,6 +100,30 @@ describe('check-versions', () => {
     listWorkspacePackages.mockReturnValue([pkg('core', '1.0.0')])
     changedFiles.mockReturnValue(['packages/core/src/index.ts'])
     baselineVersions({ core: '1.0.0' })
+    npmHas({ core: ['1.0.0'] })
+
+    const { report, exitCode } = await run()
+    expect(entry(report.results, 'core').status).toBe('NEEDS BUMP')
+    expect(exitCode).toBe(1)
+  })
+
+  it('accepts an unchanged version that was bumped earlier but never published', async () => {
+    listWorkspacePackages.mockReturnValue([pkg('core', '1.0.2')])
+    changedFiles.mockReturnValue(['packages/core/src/index.ts'])
+    baselineVersions({ core: '1.0.2' })
+    npmHas({ core: ['1.0.0'] })
+
+    const { report, exitCode } = await run()
+    expect(entry(report.results, 'core').status).toBe('unreleased 1.0.2 (not on npm)')
+    expect(report.errorCount).toBe(0)
+    expect(exitCode).toBeNull()
+  })
+
+  it('still requires a bump when npm cannot be reached', async () => {
+    listWorkspacePackages.mockReturnValue([pkg('core', '1.0.2')])
+    changedFiles.mockReturnValue(['packages/core/src/index.ts'])
+    baselineVersions({ core: '1.0.2' })
+    runCapture.mockReturnValue({ ok: false, stdout: '<html>502</html>', stderr: 'ETIMEDOUT' })
 
     const { report, exitCode } = await run()
     expect(entry(report.results, 'core').status).toBe('NEEDS BUMP')

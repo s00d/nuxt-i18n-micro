@@ -124,6 +124,8 @@ export const checkVersionsCommand = defineCommand({
       '*skips* a package whose version already exists on npm. Forgetting a bump therefore',
       'does not error — it just leaves a stale package published while the rest of the',
       'release moves on. This turns that silent skip into a loud failure.',
+      'A changed package whose version is not on npm yet (bumped earlier, never published)',
+      'passes: the next publish ships it. If npm cannot be reached, a bump is still required.',
       '',
       'Also fails when a dependency was bumped but a dependent was not (so publish would',
       'leave an old pin on npm), and with `--npm` when an already-published version still',
@@ -210,7 +212,12 @@ export const checkVersionsCommand = defineCommand({
       }
 
       const cmp = compareVersions(version, baseVersion)
-      if (cmp === 0) {
+      if (cmp === 0 && publishedVersions(name)?.includes(version) === false) {
+        // Bumped earlier but never published: the next publish ships this version with the
+        // new changes, so another bump would only burn a version number. An unreachable
+        // registry (null) still falls through to NEEDS BUMP.
+        entry.status = `unreleased ${version} (not on npm)`
+      } else if (cmp === 0) {
         entry.status = 'NEEDS BUMP'
         entry.errors.push(
           `changed ${changed.length} file(s) since ${base} but version is still ${version} — bump it, or \`pnpm publish -r\` will silently skip this package`,

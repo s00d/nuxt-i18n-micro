@@ -119,7 +119,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 22. should co
 exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should handle deep nesting with custom paths at different levels 1`] = `
 [
   {
-    "alias": [],
+    "alias": undefined,
     "children": [
       {
         "children": [
@@ -143,7 +143,7 @@ exports[`RouteGenerator - General Functionality (Cross-Strategy) > 23. should ha
     ],
     "file": "/pages/parent.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-parent",
     "path": "/:locale(en|ru)/parent",

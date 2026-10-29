@@ -125,6 +125,30 @@ export abstract class BaseStrategy implements RouteStrategy {
   }
 
   /**
+   * Children of an unprefixed route with `locale`'s custom paths applied, keeping their own
+   * names (the localized names belong to the prefixed variant). Unchanged when no descendant
+   * has a custom path.
+   */
+  protected localizeChildPathsKeepNames(
+    children: NuxtPage[],
+    parentLocalizedPath: string,
+    parentOriginalPath: string,
+    locale: string,
+    context: GeneratorContext,
+  ): NuxtPage[] {
+    return children.map((child) => {
+      const childOriginalPath = resolveChildPath(parentOriginalPath, child.path ?? '')
+      if (isLocalizationDisabledForPage(context.globalLocaleRoutes, childOriginalPath, buildRouteNameFromRoute(child.name, child.path))) return child
+      const customPath = context.getCustomPath(childOriginalPath, locale)
+      const segment = customPath ? childSegment(parentLocalizedPath, customPath) : (child.path ?? '')
+      const grandChildren = child.children?.length
+        ? this.localizeChildPathsKeepNames(child.children, resolveChildPath(parentLocalizedPath, segment), childOriginalPath, locale, context)
+        : child.children
+      return customPath || grandChildren !== child.children ? createRoute(child, { path: segment, children: grandChildren }) : child
+    })
+  }
+
+  /**
    * Shared helper for strategies that build prefix-based paths (:locale(...)):
    * - for custom paths, decides whether a prefix is required,
    * - for regular paths, always uses buildFullPath.

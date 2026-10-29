@@ -17,8 +17,17 @@ export class PrefixAndDefaultStrategy extends BaseStrategy {
 
     // prefix_and_default: isPrefixStrategy returns false — original pages are not removed in postProcess.
     // The default locale is also served without a prefix, at its custom path when it has one.
-    const defaultCustomPath = allowedLocales.includes(defaultLocaleCode) ? customPaths?.[defaultLocaleCode] : undefined
-    result.push(defaultCustomPath ? createRoute(page, { path: normalizePath(defaultCustomPath) }) : page)
+    // Its children follow the default locale's custom paths but keep their own names.
+    if (allowedLocales.includes(defaultLocaleCode)) {
+      const defaultCustomPath = customPaths?.[defaultLocaleCode]
+      const defaultPath = defaultCustomPath ? normalizePath(defaultCustomPath) : originalPath
+      const children = originalChildren.length
+        ? this.localizeChildPathsKeepNames(originalChildren, defaultPath, originalPath, defaultLocaleCode, context)
+        : undefined
+      result.push(defaultCustomPath || children ? createRoute(page, { path: defaultPath, children }) : page)
+    } else {
+      result.push(page)
+    }
 
     const localesToGenerate = context.locales.filter((locale) => allowedLocales.includes(locale.code))
 

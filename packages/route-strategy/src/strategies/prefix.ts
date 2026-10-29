@@ -24,13 +24,15 @@ export class PrefixStrategy extends BaseStrategy {
       // `localized-<name>` stays unique (vue-router drops all but the last duplicate name).
       const plainLocales = allowedLocales.filter((locale) => !customPaths[locale])
       if (plainLocales.length) {
+        const routePath = buildFullPath(plainLocales, originalPath, context.customRegex)
+        const aliases = buildEncodedPathAliases(routePath)
         result.push(
           createRoute(page, {
-            path: buildFullPath(plainLocales, originalPath, context.customRegex),
+            path: routePath,
             name: buildRouteName(pageName, plainLocales[0]!, false, context.localizedRouteNamePrefix),
             children: this.localizeChildrenAllLocales(originalChildren, originalPath, originalPath, plainLocales, context),
-            alias: [],
-            meta: { alias: [] },
+            alias: aliases.length ? aliases : undefined,
+            meta: { alias: aliases.length ? aliases : [] },
           }),
         )
       }

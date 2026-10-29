@@ -147,7 +147,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) > globalLocaleRoutes + filesLo
                 "children": [],
                 "file": "/pages/section/category/item/detail.vue",
                 "name": "localized-section-category-item-detail-de",
-                "path": "bereich/kategorie/artikel/detail",
+                "path": "artikel/detail",
               },
             ],
             "file": "/pages/section/category/item.vue",
@@ -731,7 +731,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) > no_prefix: deep nested witho
 exports[`RouteGenerator - Deep nesting (4 levels) > prefix: deep nested with custom paths, default routes removed 1`] = `
 [
   {
-    "alias": [],
+    "alias": undefined,
     "children": [
       {
         "children": [
@@ -756,7 +756,7 @@ exports[`RouteGenerator - Deep nesting (4 levels) > prefix: deep nested with cus
     ],
     "file": "/pages/section.vue",
     "meta": {
-      "alias": [],
+      "alias": undefined,
     },
     "name": "localized-section",
     "path": "/:locale(ru)/section",
@@ -1473,7 +1473,7 @@ exports[`RouteGenerator - Deep nesting with multiple branches > two deep branche
             ],
             "file": "/pages/shop/category/product.vue",
             "name": "localized-shop-category-product-de",
-            "path": "geschaeft/kategorie/produkt",
+            "path": "kategorie/produkt",
           },
         ],
         "file": "/pages/shop/category.vue",
@@ -1493,7 +1493,7 @@ exports[`RouteGenerator - Deep nesting with multiple branches > two deep branche
             ],
             "file": "/pages/shop/brand/item.vue",
             "name": "localized-shop-brand-item-de",
-            "path": "geschaeft/marke/artikel",
+            "path": "marke/artikel",
           },
         ],
         "file": "/pages/shop/brand.vue",

@@ -59,102 +59,102 @@ Every URL is resolved with `?q=1#top`.
 
 ## To en
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /%C3%BCber-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /%C3%BCber-uns | /about |
-| /about | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /about | null |
-| /archive/2025 | /archive/2025?q=1#top [archive-year] | /archive/2025-en?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /archive/2025 | null |
-| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/%C3%BCber-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /de/%C3%BCber-uns | null |
-| /de/archiv/2025 | /archive/2025?q=1#top [archive-year] | /archive/2025-en?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /de/archiv/2025 | null |
-| /de/docs/2 | /docs/2?q=1#top [docs-page] | /docs/2-en?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /de/docs/2 | null |
-| /de/post-42 | /post-42?q=1#top [post-id] | /post-42-en?q=1#top [post-id] | /post-42?q=1#top [post-id] | /post-42?q=1#top [post-id] | /de/post-42 | null |
-| /de/über-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /de/über-uns | null |
-| /docs/2 | /docs/2?q=1#top [docs-page] | /docs/2-en?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /docs/2 | null |
-| /fr | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /fr | null |
-| /fr/%C3%A0-propos | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /fr/%C3%A0-propos | null |
-| /fr/archive/2025 | /archive/2025?q=1#top [archive-year] | /archive/2025-en?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /fr/archive/2025 | null |
-| /fr/documentation/2 | /docs/2?q=1#top [docs-page] | /docs/2-en?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /fr/documentation/2 | null |
-| /fr/post-42 | /post-42?q=1#top [post-id] | /post-42-en?q=1#top [post-id] | /post-42?q=1#top [post-id] | /post-42?q=1#top [post-id] | /fr/post-42 | null |
-| /fr/à-propos | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /fr/à-propos | null |
-| /post-42 | /post-42?q=1#top [post-id] | /post-42-en?q=1#top [post-id] | /post-42?q=1#top [post-id] | /post-42?q=1#top [post-id] | /post-42 | null |
-| /über-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /über-uns | /about |
-| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
-| /about/ | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /about/ | null |
-| /de/about/ | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /de/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /%C3%BCber-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /about | /about | en,de,fr |
+| /about | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | null | en,de,fr |
+| /archive/2025 | /archive/2025?q=1#top [archive-year] | /archive/2025-en?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | null | null | en,de,fr |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
+| /de/%C3%BCber-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | /about | en,de,fr |
+| /de/archiv/2025 | /archive/2025?q=1#top [archive-year] | /archive/2025-en?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | null | /archive/2025 | en,de,fr |
+| /de/docs/2 | /docs/2?q=1#top [docs-page] | /docs/2-en?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | null | /docs/2 | en,de,fr |
+| /de/post-42 | /post-42?q=1#top [post-id] | /post-42-en?q=1#top [post-id] | /post-42?q=1#top [post-id] | /post-42?q=1#top [post-id] | null | /post-42 | en,de,fr |
+| /de/über-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | /about | en,de,fr |
+| /docs/2 | /docs/2?q=1#top [docs-page] | /docs/2-en?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | null | null | en,de,fr |
+| /fr | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
+| /fr/%C3%A0-propos | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | /about | en,de,fr |
+| /fr/archive/2025 | /archive/2025?q=1#top [archive-year] | /archive/2025-en?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | /archive/2025?q=1#top [archive-year] | null | /archive/2025 | en,de,fr |
+| /fr/documentation/2 | /docs/2?q=1#top [docs-page] | /docs/2-en?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | /docs/2?q=1#top [docs-page] | null | /docs/2 | en,de,fr |
+| /fr/post-42 | /post-42?q=1#top [post-id] | /post-42-en?q=1#top [post-id] | /post-42?q=1#top [post-id] | /post-42?q=1#top [post-id] | null | /post-42 | en,de,fr |
+| /fr/à-propos | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | /about | en,de,fr |
+| /post-42 | /post-42?q=1#top [post-id] | /post-42-en?q=1#top [post-id] | /post-42?q=1#top [post-id] | /post-42?q=1#top [post-id] | null | null | en,de,fr |
+| /über-uns | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | /about | /about | en,de,fr |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | / | en,de,fr |
+| /about/ | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | null | en,de,fr |
+| /de/about/ | /about?q=1#top [über-uns] |  | /about?q=1#top [über-uns] | /about?q=1#top [über-uns] | null | /about | en,de,fr |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | /missing | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | /de/about | null |
 
 ## To de
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | / | /de |
-| /%C3%BCber-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /%C3%BCber-uns | /de/über-uns |
-| /about | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /about | /de/über-uns |
-| /archive/2025 | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025-de?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /archive/2025 | /de/archiv/2025 |
-| /de | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de | null |
-| /de/%C3%BCber-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/%C3%BCber-uns | null |
-| /de/archiv/2025 | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025-de?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025 | null |
-| /de/docs/2 | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2-de?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2 | null |
-| /de/post-42 | /de/post-42?q=1#top [localized-post-id] | /de/post-42-de?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42 | null |
-| /de/über-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns | null |
-| /docs/2 | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2-de?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /docs/2 | /de/docs/2 |
-| /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /fr | null |
-| /fr/%C3%A0-propos | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /fr/%C3%A0-propos | null |
-| /fr/archive/2025 | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025-de?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /fr/archive/2025 | null |
-| /fr/documentation/2 | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2-de?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /fr/documentation/2 | null |
-| /fr/post-42 | /de/post-42?q=1#top [localized-post-id] | /de/post-42-de?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /fr/post-42 | null |
-| /fr/à-propos | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /fr/à-propos | null |
-| /post-42 | /de/post-42?q=1#top [localized-post-id] | /de/post-42-de?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /post-42 | /de/post-42 |
-| /über-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /über-uns | /de/über-uns |
-| /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en | null |
-| /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en/ | null |
-| /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de/ | null |
-| /about/ | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /about/ | /de/über-uns |
-| /de/about/ | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/about/ | null |
-| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /missing | /de/missing |
-| /de/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | /xx/about | /de/xx/about |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/de/about?q=1#top [null] | /de/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de | /de | en,de,fr |
+| /%C3%BCber-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns | /de/über-uns | en,de,fr |
+| /about | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns | /de/über-uns | en,de,fr |
+| /archive/2025 | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025-de?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025 | /de/archiv/2025 | en,de,fr |
+| /de | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /de/%C3%BCber-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | null | null | en,de,fr |
+| /de/archiv/2025 | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025-de?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | null | null | en,de,fr |
+| /de/docs/2 | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2-de?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | null | null | en,de,fr |
+| /de/post-42 | /de/post-42?q=1#top [localized-post-id] | /de/post-42-de?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | null | null | en,de,fr |
+| /de/über-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | null | null | en,de,fr |
+| /docs/2 | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2-de?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2 | /de/docs/2 | en,de,fr |
+| /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /fr/%C3%A0-propos | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | null | /de/über-uns | en,de,fr |
+| /fr/archive/2025 | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025-de?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | /de/archiv/2025?q=1#top [localized-archive-year-de] | null | /de/archiv/2025 | en,de,fr |
+| /fr/documentation/2 | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2-de?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | /de/docs/2?q=1#top [localized-docs-page] | null | /de/docs/2 | en,de,fr |
+| /fr/post-42 | /de/post-42?q=1#top [localized-post-id] | /de/post-42-de?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | null | /de/post-42 | en,de,fr |
+| /fr/à-propos | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | null | /de/über-uns | en,de,fr |
+| /post-42 | /de/post-42?q=1#top [localized-post-id] | /de/post-42-de?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42?q=1#top [localized-post-id] | /de/post-42 | /de/post-42 | en,de,fr |
+| /über-uns | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns | /de/über-uns | en,de,fr |
+| /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /about/ | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns | /de/über-uns | en,de,fr |
+| /de/about/ | /de/über-uns?q=1#top [localized-über-uns] |  | /de/über-uns?q=1#top [localized-über-uns] | /de/über-uns?q=1#top [localized-über-uns] | null | null | en,de,fr |
+| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /de/missing | /de/missing | null |
+| /de/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | null | null |
+| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | /de/xx/about | /de/xx/about | null |
+| /de/de/about | /de/de/about?q=1#top [—] |  | /de/de/about?q=1#top [null] | /de/de/about?q=1#top [null] | null | null | null |
 
 ## To fr
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | / | /fr |
-| /%C3%BCber-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /%C3%BCber-uns | /fr/à-propos |
-| /about | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /about | /fr/à-propos |
-| /archive/2025 | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025-fr?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /archive/2025 | /fr/archive/2025 |
-| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /de | null |
-| /de/%C3%BCber-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /de/%C3%BCber-uns | null |
-| /de/archiv/2025 | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025-fr?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /de/archiv/2025 | null |
-| /de/docs/2 | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2-fr?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /de/docs/2 | null |
-| /de/post-42 | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42-fr?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /de/post-42 | null |
-| /de/über-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /de/über-uns | null |
-| /docs/2 | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2-fr?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /docs/2 | /fr/documentation/2 |
-| /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /fr | null |
-| /fr/%C3%A0-propos | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/%C3%A0-propos | null |
-| /fr/archive/2025 | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025-fr?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025 | null |
-| /fr/documentation/2 | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2-fr?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2 | null |
-| /fr/post-42 | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42-fr?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42 | null |
-| /fr/à-propos | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos | null |
-| /post-42 | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42-fr?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /post-42 | /fr/post-42 |
-| /über-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /über-uns | /fr/à-propos |
-| /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en | null |
-| /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en/ | null |
-| /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /de/ | null |
-| /about/ | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /about/ | /fr/à-propos |
-| /de/about/ | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /de/about/ | null |
-| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /missing | /fr/missing |
-| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | /xx/about | /fr/xx/about |
-| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /fr | /fr | en,de,fr |
+| /%C3%BCber-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos | /fr/à-propos | en,de,fr |
+| /about | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos | /fr/à-propos | en,de,fr |
+| /archive/2025 | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025-fr?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025 | /fr/archive/2025 | en,de,fr |
+| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /de/%C3%BCber-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | null | /fr/à-propos | en,de,fr |
+| /de/archiv/2025 | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025-fr?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | null | /fr/archive/2025 | en,de,fr |
+| /de/docs/2 | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2-fr?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | null | /fr/documentation/2 | en,de,fr |
+| /de/post-42 | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42-fr?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | null | /fr/post-42 | en,de,fr |
+| /de/über-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | null | /fr/à-propos | en,de,fr |
+| /docs/2 | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2-fr?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2 | /fr/documentation/2 | en,de,fr |
+| /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
+| /fr/%C3%A0-propos | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | null | null | en,de,fr |
+| /fr/archive/2025 | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025-fr?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | /fr/archive/2025?q=1#top [localized-archive-year] | null | null | en,de,fr |
+| /fr/documentation/2 | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2-fr?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | /fr/documentation/2?q=1#top [localized-docs-page-fr] | null | null | en,de,fr |
+| /fr/post-42 | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42-fr?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | null | null | en,de,fr |
+| /fr/à-propos | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | null | null | en,de,fr |
+| /post-42 | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42-fr?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42?q=1#top [localized-post-id] | /fr/post-42 | /fr/post-42 | en,de,fr |
+| /über-uns | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos | /fr/à-propos | en,de,fr |
+| /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /about/ | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos | /fr/à-propos | en,de,fr |
+| /de/about/ | /fr/à-propos?q=1#top [localized-über-uns-fr] |  | /fr/à-propos?q=1#top [localized-über-uns-fr] | /fr/à-propos?q=1#top [localized-über-uns-fr] | null | /fr/à-propos | en,de,fr |
+| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /fr/missing | /fr/missing | null |
+| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | /fr/missing | null |
+| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | /fr/xx/about | /fr/xx/about | null |
+| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | null | /fr/de/about | null |
 
 ## localeRoute({ name, params }) from each home page
 

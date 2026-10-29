@@ -25,9 +25,9 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `normalizePath` | function | `(routePath: string) => string` |
 | `normalizeRouteKey` | function | `(key: string) => string` |
 | `RouteGenerator` | class | 12 members |
-| `RouteGeneratorOptions` | interface | 9 members |
-| `RouteI18nMeta` | interface | 2 members |
-| `Rules` | class | 8 members |
+| `RouteGeneratorOptions` | interface | 10 members |
+| `RouteI18nMeta` | interface | 3 members |
+| `Rules` | class | 11 members |
 
 <details>
 <summary><code>GenerateOptions</code> — 8 members</summary>
@@ -66,7 +66,7 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 </details>
 
 <details>
-<summary><code>RouteGeneratorOptions</code> — 9 members</summary>
+<summary><code>RouteGeneratorOptions</code> — 10 members</summary>
 
 | Member | Type |
 | --- | --- |
@@ -77,23 +77,27 @@ import { /* … */ } from '@i18n-micro/route-strategy'
 | `locales` | `Locale[]` |
 | `localizedRouteNamePrefix?` | `string \| undefined` |
 | `noPrefixRedirect` | `boolean` |
+| `routeDisableMeta?` | `Record<string, boolean \| string[]> \| undefined` |
 | `routeLocales?` | `Record<string, string[]> \| undefined` |
 | `strategy` | `Strategies` |
 
 </details>
 
-<code>RouteI18nMeta</code> — 2 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
+<code>RouteI18nMeta</code> — 3 members, identical to [`RouteI18nMeta`](/api/packages/path-strategy).
 
 <details>
-<summary><code>Rules</code> — 8 members</summary>
+<summary><code>Rules</code> — 11 members</summary>
 
 | Member | Type |
 | --- | --- |
 | `allowedLocales` | `(fullPath: string, name: string \| undefined) => string[] \| undefined` |
 | `byName` | `private Map<string, Rule>` |
 | `customPath` | `(fullPath: string, locale: string) => string \| undefined` |
+| `disableMeta` | `(fullPath: string, name: string \| undefined) => NoMeta \| undefined` |
 | `get` | `(fullPath: string, name: string \| undefined) => Rule \| undefined` |
-| `new` | `(globalLocaleRoutes?: GlobalLocaleRoutes, routeLocales?: Record<string, string[]>, locales?: Locale[]): Rules` |
+| `new` | `(globalLocaleRoutes?: GlobalLocaleRoutes, routeLocales?: Record<string, string[]>, locales?: Locale[], routeDisableMeta?: Record<string, NoMeta>): Rules` |
+| `noMeta` | `private Map<string, NoMeta>` |
+| `noMetaByName` | `private Map<string, NoMeta>` |
 | `restrictions` | `private Map<string, string[]>` |
 | `restrictionsByName` | `private Map<string, string[]>` |
 | `rules` | `private Map<string, Rule>` |

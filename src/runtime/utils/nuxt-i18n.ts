@@ -38,36 +38,31 @@ export type TranslationFn<T extends CleanTranslation> = (key: TranslationKey, pa
 
 interface LocaleRouteResult {
   name?: string | null
+  params?: Record<string, unknown>
   path?: string
   fullPath?: string
   query?: Record<string, unknown>
   hash?: string
 }
 
+/**
+ * The strategy's result as a resolved location. `name` and `params` are kept: NuxtLink and
+ * router.push resolve a named location with a Map lookup instead of matching the path.
+ */
 function toRouteLocationResolved(result: LocaleRouteResult): RouteLocationResolved {
   const fullPath = result.fullPath ?? result.path ?? ''
-  const path = result.path ?? fullPath.split('?')[0]?.split('#')[0] ?? fullPath
-  const out: { path: string; fullPath: string; href: string; query?: Record<string, string>; hash?: string } = {
-    path,
-    fullPath,
-    href: fullPath,
-  }
-  if (result.query && Object.keys(result.query).length) out.query = result.query as Record<string, string>
+  const path = result.path ?? fullPath.split(/[?#]/)[0] ?? fullPath
+  const out: LocaleRouteResult & { path: string; fullPath: string; href: string } = { path, fullPath, href: fullPath }
+  if (result.name) out.name = result.name
+  if (result.params && Object.keys(result.params).length) out.params = result.params
+  if (result.query && Object.keys(result.query).length) out.query = result.query
   if (result.hash) out.hash = result.hash
-  return out as RouteLocationResolved
+  return out as unknown as RouteLocationResolved
 }
 
-function extractSwitchLocalePath(
-  localeRoute: RouteLocationRaw | string | null | undefined,
-  resolveRouter: Pick<Router, 'hasRoute' | 'resolve'>,
-): string {
-  if (!localeRoute || typeof localeRoute !== 'object') return String(localeRoute ?? '')
-  if ('fullPath' in localeRoute && localeRoute.fullPath) return localeRoute.fullPath as string
-  if ('path' in localeRoute && localeRoute.path) return localeRoute.path as string
-  if ('name' in localeRoute && localeRoute.name && resolveRouter.hasRoute(String(localeRoute.name))) {
-    return resolveRouter.resolve(localeRoute as RouteLocationRaw).fullPath
-  }
-  return ''
+/** URL of a switch result: the strategy hands out a URL string or a resolved route (fullPath set). */
+function switchedPath(switched: RouteLike | string): string {
+  return typeof switched === 'string' ? switched : (switched.fullPath ?? switched.path ?? '')
 }
 
 export interface RouteTranslationContext {
@@ -527,25 +522,19 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
     const fromLocale = getCurrentLocale()
     const currentRoute = router.currentRoute.value
 
-    let resolvedTarget: RouteLocationResolvedGeneric
-    if (typeof to === 'string') {
-      resolvedTarget = router.resolve(i18nStrategy.formatPathForResolve(to, fromLocale, toLocale))
-    } else {
-      resolvedTarget = (to ?? currentRoute) as RouteLocationResolvedGeneric
-    }
+    // a path: the page it shows, in `toLocale` (any locale's form of it is understood)
+    const switchedRoute =
+      typeof to === 'string'
+        ? i18nStrategy.localeRoute(toLocale, to)
+        : i18nStrategy.switchLocaleRoute(fromLocale, toLocale, (to ?? currentRoute) as unknown as ResolvedRouteLike, { i18nRouteParams: i18nParams })
 
-    const switchedRoute = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, resolvedTarget as unknown as ResolvedRouteLike, {
-      i18nRouteParams: i18nParams,
-    })
-
-    if (typeof switchedRoute === 'string' && (switchedRoute.startsWith('http://') || switchedRoute.startsWith('https://'))) {
-      return navigateTo(switchedRoute, { redirectCode: 200, external: true })
-    }
+    const url = switchedPath(switchedRoute)
+    if (/^https?:\/\//.test(url)) return navigateTo(url, { redirectCode: 200, external: true })
 
     if (isNoPrefix) {
       // URL stays the same under no_prefix — push would append a duplicate history entry (#238).
-      ;(switchedRoute as RouteLocationRaw & { force?: boolean }).force = true
-      return router.replace(switchedRoute as RouteLocationRaw)
+      // A copy: the strategy may hand back the current route object itself.
+      return router.replace({ ...(switchedRoute as RouteLocationRaw & object), force: true } as RouteLocationRaw)
     }
 
     return router.push(switchedRoute as RouteLocationRaw)
@@ -595,7 +584,7 @@ export function createNuxtI18nPluginApi(deps: NuxtI18nPluginApiDeps) {
       const route = router.currentRoute.value as unknown as ResolvedRouteLike
       const fromLocale = getCurrentLocale(route)
       const switched = i18nStrategy.switchLocaleRoute(fromLocale, toLocale, route, { i18nRouteParams: unref(i18nRouteParams.value) })
-      return applyTrailingSlash(extractSwitchLocalePath(switched as RouteLocationRaw, router), i18nConfig.trailingSlash)
+      return applyTrailingSlash(switchedPath(switched), i18nConfig.trailingSlash)
     },
     switchLocale: async (toLocale: string) => {
       if (!isValidLocale(toLocale)) {

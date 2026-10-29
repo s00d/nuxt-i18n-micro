@@ -81,138 +81,138 @@ Every URL is resolved with `?q=1#top`.
 
 ## To en
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /en | null |
-| /about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | /en/about | null |
-| /about-team | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | /en/about-team | null |
-| /de | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /de | null |
-| /de/docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | /de/docs | null |
-| /de/dokumente/einstieg | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /de/dokumente/einstieg | null |
-| /de/foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz | null |
-| /de/mannschaft | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | /de/mannschaft | null |
-| /de/mannschaft/mitglieder | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | /de/mannschaft/mitglieder | null |
-| /de/team-seite | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | /de/team-seite | null |
-| /de/ueber-uns | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | /de/ueber-uns | null |
-| /docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | /en/docs | null |
-| /docs/start | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start | null |
-| /en | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /en | null |
-| /en/about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | /en/about | null |
-| /en/about-team | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | /en/about-team | null |
-| /en/docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | /en/docs | null |
-| /en/docs/start | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start | null |
-| /en/foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz | null |
-| /en/team | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | /en/team | null |
-| /en/team/members | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | /en/team/members | null |
-| /foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz | null |
-| /fr | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /fr | null |
-| /fr/about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | /fr/about | null |
-| /fr/docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | /fr/docs | null |
-| /fr/docs/getting-started | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /fr/docs/getting-started | null |
-| /fr/equipe | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | /fr/equipe | null |
-| /fr/foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz | null |
-| /fr/team | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | /fr/team | null |
-| /fr/team/members | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | /fr/team/members | null |
-| /team | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | /en/team | null |
-| /team/members | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | /en/team/members | null |
-| /en/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /en/ | null |
-| /de/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | /de/ | null |
-| /about/ | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | /en/about/ | null |
-| /de/about/ | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | /de/about/ | null |
-| /missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | /en/missing | null |
-| /de/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /en/xx/about?q=1#top [—] |  | /en/xx/about?q=1#top [null] | /en/xx/about?q=1#top [null] | /en/xx/about | null |
-| /de/de/about | /en/de/about?q=1#top [—] |  | /en/de/about?q=1#top [null] | /en/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,fr |
+| /about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /about-team | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | null | null | en,de,fr |
+| /de | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,fr |
+| /de/docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | null | /en/docs | en,de,fr |
+| /de/dokumente/einstieg | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | null | /en/docs/start | en,fr,de |
+| /de/foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | /en/foo-bar/baz | en,de,fr |
+| /de/mannschaft | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | null | /en/team | en,fr,de |
+| /de/mannschaft/mitglieder | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | null | /en/team/members | en,fr,de |
+| /de/team-seite | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | null | /en/about-team | en,de,fr |
+| /de/ueber-uns | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | /en/about | en,fr,de |
+| /docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | null | null | en,de,fr |
+| /docs/start | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | null | null | en,fr,de |
+| /en | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,fr |
+| /en/about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /en/about-team | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | null | null | en,de,fr |
+| /en/docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | null | null | en,de,fr |
+| /en/docs/start | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | null | null | en,fr,de |
+| /en/foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | null | en,de,fr |
+| /en/team | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | null | null | en,fr,de |
+| /en/team/members | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | null | null | en,fr,de |
+| /foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | null | en,de,fr |
+| /fr | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,fr |
+| /fr/about | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | /en/about | en,fr,de |
+| /fr/docs | /en/docs?q=1#top [localized-docs] |  | /en/docs?q=1#top [localized-docs] | /en/docs?q=1#top [localized-docs] | null | /en/docs | en,de,fr |
+| /fr/docs/getting-started | /en/docs/start?q=1#top [localized-docs-getting-started-en] |  | /en/docs/start?q=1#top [localized-docs-getting-started-en] | /en/docs/start?q=1#top [localized-docs-getting-started-en] | null | /en/docs/start | en,fr,de |
+| /fr/equipe | /en/about-team?q=1#top [localized-about-team] |  | /en/about-team?q=1#top [localized-about-team] | /en/about-team?q=1#top [localized-about-team] | null | /en/about-team | en,de,fr |
+| /fr/foo-bar/baz | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | /en/foo-bar/baz | en,de,fr |
+| /fr/team | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | null | /en/team | en,fr,de |
+| /fr/team/members | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | null | /en/team/members | en,fr,de |
+| /team | /en/team?q=1#top [localized-team] |  | /en/team?q=1#top [localized-team] | /en/team?q=1#top [localized-team] | null | null | en,fr,de |
+| /team/members | /en/team/members?q=1#top [localized-team-members] |  | /en/team/members?q=1#top [localized-team-members] | /en/team/members?q=1#top [localized-team-members] | null | null | en,fr,de |
+| /en/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | null | en,de,fr |
+| /de/ | /en?q=1#top [localized-index] |  | /en?q=1#top [localized-index] | /en?q=1#top [localized-index] | null | /en | en,de,fr |
+| /about/ | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /de/about/ | /en/about?q=1#top [localized-about] |  | /en/about?q=1#top [localized-about] | /en/about?q=1#top [localized-about] | null | /en/about | en,fr,de |
+| /missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | null | null |
+| /de/missing | /en/missing?q=1#top [—] |  | /en/missing?q=1#top [null] | /en/missing?q=1#top [null] | null | /en/missing | null |
+| /xx/about | /en/xx/about?q=1#top [—] |  | /en/xx/about?q=1#top [null] | /en/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /en/de/about?q=1#top [—] |  | /en/de/about?q=1#top [null] | /en/de/about?q=1#top [null] | null | /en/de/about | null |
 
 ## To de
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en | null |
-| /about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /en/about | null |
-| /about-team | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | /en/about-team | null |
-| /de | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de | null |
-| /de/docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | /de/docs | null |
-| /de/dokumente/einstieg | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg | null |
-| /de/foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz | null |
-| /de/mannschaft | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft | null |
-| /de/mannschaft/mitglieder | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder | null |
-| /de/team-seite | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite | null |
-| /de/ueber-uns | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns | null |
-| /docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | /en/docs | null |
-| /docs/start | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /en/docs/start | null |
-| /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en | null |
-| /en/about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /en/about | null |
-| /en/about-team | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | /en/about-team | null |
-| /en/docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | /en/docs | null |
-| /en/docs/start | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /en/docs/start | null |
-| /en/foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz | null |
-| /en/team | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | /en/team | null |
-| /en/team/members | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /en/team/members | null |
-| /foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz | null |
-| /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /fr | null |
-| /fr/about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /fr/about | null |
-| /fr/docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | /fr/docs | null |
-| /fr/docs/getting-started | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /fr/docs/getting-started | null |
-| /fr/equipe | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | /fr/equipe | null |
-| /fr/foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz | null |
-| /fr/team | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | /fr/team | null |
-| /fr/team/members | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /fr/team/members | null |
-| /team | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | /en/team | null |
-| /team/members | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /en/team/members | null |
-| /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /en/ | null |
-| /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | /de/ | null |
-| /about/ | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /en/about/ | null |
-| /de/about/ | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | /de/about/ | null |
-| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /en/missing | null |
-| /de/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | /en/xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [—] |  | /de/de/about?q=1#top [null] | /de/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
+| /about-team | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | null | null | en,de,fr |
+| /de | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /de/docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | null | null | en,de,fr |
+| /de/dokumente/einstieg | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | null | null | en,fr,de |
+| /de/foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | null | en,de,fr |
+| /de/mannschaft | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | null | null | en,fr,de |
+| /de/mannschaft/mitglieder | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | null | null | en,fr,de |
+| /de/team-seite | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | null | null | en,de,fr |
+| /de/ueber-uns | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
+| /docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | null | null | en,de,fr |
+| /docs/start | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | null | null | en,fr,de |
+| /en | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /en/about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | /de/ueber-uns | en,fr,de |
+| /en/about-team | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | null | /de/team-seite | en,de,fr |
+| /en/docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | null | /de/docs | en,de,fr |
+| /en/docs/start | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | null | /de/dokumente/einstieg | en,fr,de |
+| /en/foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | /de/foo-bar/baz | en,de,fr |
+| /en/team | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | null | /de/mannschaft | en,fr,de |
+| /en/team/members | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | null | /de/mannschaft/mitglieder | en,fr,de |
+| /foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | null | en,de,fr |
+| /fr | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /fr/about | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | /de/ueber-uns | en,fr,de |
+| /fr/docs | /de/docs?q=1#top [localized-docs] |  | /de/docs?q=1#top [localized-docs] | /de/docs?q=1#top [localized-docs] | null | /de/docs | en,de,fr |
+| /fr/docs/getting-started | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] |  | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | /de/dokumente/einstieg?q=1#top [localized-docs-getting-started-de] | null | /de/dokumente/einstieg | en,fr,de |
+| /fr/equipe | /de/team-seite?q=1#top [localized-about-team-de] |  | /de/team-seite?q=1#top [localized-about-team-de] | /de/team-seite?q=1#top [localized-about-team-de] | null | /de/team-seite | en,de,fr |
+| /fr/foo-bar/baz | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | /de/foo-bar/baz | en,de,fr |
+| /fr/team | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | null | /de/mannschaft | en,fr,de |
+| /fr/team/members | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | null | /de/mannschaft/mitglieder | en,fr,de |
+| /team | /de/mannschaft?q=1#top [localized-team-de] |  | /de/mannschaft?q=1#top [localized-team-de] | /de/mannschaft?q=1#top [localized-team-de] | null | null | en,fr,de |
+| /team/members | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] |  | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | /de/mannschaft/mitglieder?q=1#top [localized-team-members-de] | null | null | en,fr,de |
+| /en/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | /de | en,de,fr |
+| /de/ | /de?q=1#top [localized-index] |  | /de?q=1#top [localized-index] | /de?q=1#top [localized-index] | null | null | en,de,fr |
+| /about/ | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
+| /de/about/ | /de/ueber-uns?q=1#top [localized-about-de] |  | /de/ueber-uns?q=1#top [localized-about-de] | /de/ueber-uns?q=1#top [localized-about-de] | null | null | en,fr,de |
+| /missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | null | null |
+| /de/missing | /de/missing?q=1#top [—] |  | /de/missing?q=1#top [null] | /de/missing?q=1#top [null] | null | null | null |
+| /xx/about | /de/xx/about?q=1#top [—] |  | /de/xx/about?q=1#top [null] | /de/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /de/de/about?q=1#top [—] |  | /de/de/about?q=1#top [null] | /de/de/about?q=1#top [null] | null | null | null |
 
 ## To fr
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en | null |
-| /about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /en/about | null |
-| /about-team | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | /en/about-team | null |
-| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /de | null |
-| /de/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | /de/docs | null |
-| /de/dokumente/einstieg | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /de/dokumente/einstieg | null |
-| /de/foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /de/foo-bar/baz | null |
-| /de/mannschaft | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | /de/mannschaft | null |
-| /de/mannschaft/mitglieder | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | /de/mannschaft/mitglieder | null |
-| /de/team-seite | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | /de/team-seite | null |
-| /de/ueber-uns | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /de/ueber-uns | null |
-| /docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | /en/docs | null |
-| /docs/start | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /en/docs/start | null |
-| /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en | null |
-| /en/about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /en/about | null |
-| /en/about-team | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | /en/about-team | null |
-| /en/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | /en/docs | null |
-| /en/docs/start | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /en/docs/start | null |
-| /en/foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz | null |
-| /en/team | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | /en/team | null |
-| /en/team/members | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | /en/team/members | null |
-| /foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /en/foo-bar/baz | null |
-| /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /fr | null |
-| /fr/about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /fr/about | null |
-| /fr/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | /fr/docs | null |
-| /fr/docs/getting-started | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started | null |
-| /fr/equipe | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe | null |
-| /fr/foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz | null |
-| /fr/team | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | /fr/team | null |
-| /fr/team/members | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members | null |
-| /team | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | /en/team | null |
-| /team/members | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | /en/team/members | null |
-| /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /en/ | null |
-| /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | /de/ | null |
-| /about/ | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /en/about/ | null |
-| /de/about/ | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | /de/about/ | null |
-| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /en/missing | null |
-| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | /en/xx/about | null |
-| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
+| /about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /about-team | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | null | null | en,de,fr |
+| /de | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /de/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | /fr/docs | en,de,fr |
+| /de/dokumente/einstieg | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | null | /fr/docs/getting-started | en,fr,de |
+| /de/foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | /fr/foo-bar/baz | en,de,fr |
+| /de/mannschaft | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | null | /fr/team | en,fr,de |
+| /de/mannschaft/mitglieder | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | null | /fr/team/members | en,fr,de |
+| /de/team-seite | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | null | /fr/equipe | en,de,fr |
+| /de/ueber-uns | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | /fr/about | en,fr,de |
+| /docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | null | en,de,fr |
+| /docs/start | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | null | null | en,fr,de |
+| /en | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /en/about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | /fr/about | en,fr,de |
+| /en/about-team | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | null | /fr/equipe | en,de,fr |
+| /en/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | /fr/docs | en,de,fr |
+| /en/docs/start | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | null | /fr/docs/getting-started | en,fr,de |
+| /en/foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | /fr/foo-bar/baz | en,de,fr |
+| /en/team | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | null | /fr/team | en,fr,de |
+| /en/team/members | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | null | /fr/team/members | en,fr,de |
+| /foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | null | en,de,fr |
+| /fr | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | null | en,de,fr |
+| /fr/about | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /fr/docs | /fr/docs?q=1#top [localized-docs] |  | /fr/docs?q=1#top [localized-docs] | /fr/docs?q=1#top [localized-docs] | null | null | en,de,fr |
+| /fr/docs/getting-started | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] |  | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | /fr/docs/getting-started?q=1#top [localized-docs-getting-started] | null | null | en,fr,de |
+| /fr/equipe | /fr/equipe?q=1#top [localized-about-team-fr] |  | /fr/equipe?q=1#top [localized-about-team-fr] | /fr/equipe?q=1#top [localized-about-team-fr] | null | null | en,de,fr |
+| /fr/foo-bar/baz | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] |  | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | /fr/foo-bar/baz?q=1#top [localized-foo-bar-baz] | null | null | en,de,fr |
+| /fr/team | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | null | null | en,fr,de |
+| /fr/team/members | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | null | null | en,fr,de |
+| /team | /fr/team?q=1#top [localized-team] |  | /fr/team?q=1#top [localized-team] | /fr/team?q=1#top [localized-team] | null | null | en,fr,de |
+| /team/members | /fr/team/members?q=1#top [localized-team-members] |  | /fr/team/members?q=1#top [localized-team-members] | /fr/team/members?q=1#top [localized-team-members] | null | null | en,fr,de |
+| /en/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /de/ | /fr?q=1#top [localized-index] |  | /fr?q=1#top [localized-index] | /fr?q=1#top [localized-index] | null | /fr | en,de,fr |
+| /about/ | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | null | en,fr,de |
+| /de/about/ | /fr/about?q=1#top [localized-about] |  | /fr/about?q=1#top [localized-about] | /fr/about?q=1#top [localized-about] | null | /fr/about | en,fr,de |
+| /missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | null | null |
+| /de/missing | /fr/missing?q=1#top [—] |  | /fr/missing?q=1#top [null] | /fr/missing?q=1#top [null] | null | /fr/missing | null |
+| /xx/about | /fr/xx/about?q=1#top [—] |  | /fr/xx/about?q=1#top [null] | /fr/xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /fr/de/about?q=1#top [—] |  | /fr/de/about?q=1#top [null] | /fr/de/about?q=1#top [null] | null | /fr/de/about | null |
 
 ## localeRoute({ name, params }) from each home page
 

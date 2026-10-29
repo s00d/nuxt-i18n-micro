@@ -1,7 +1,7 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
+import type { PathStrategy, RouteLike } from '@i18n-micro/path-strategy'
 import type { Locale, ModuleOptionsExtend } from '@i18n-micro/types'
 import { resolveHreflangAlternates } from '@i18n-micro/utils/resolve-hreflang'
-import { findAllowedLocalesForRoute, isMetaDisabledForRoute } from '@i18n-micro/utils/route'
 import { resolveOgLocale, warnUnresolvedOgLocale } from '@i18n-micro/utils/resolve-og-locale'
 import { joinURL, parseURL, withQuery } from 'ufo'
 import { ref, unref, watch } from 'vue'
@@ -103,45 +103,34 @@ export const useLocaleHead = ({
   }
 
   function updateMeta() {
-    // 404 / fallback routes must not emit SEO tags.
-    if (route.matched.length === 0 || route.matched.some((record) => record.name === 'custom-fallback-route')) {
+    // 404 routes must not emit SEO tags.
+    if (route.matched.length === 0) {
       clearMeta()
       return
     }
 
     const i18nConfig = nuxtApp.$getI18nConfig() as ModuleOptionsExtend
-    const { canonicalQueryWhitelist, routeLocales, localizedRouteNamePrefix } = i18nConfig
+    const { canonicalQueryWhitelist } = i18nConfig
     const strategy = i18nConfig.strategy
-    const localizedRouteNamePrefixResolved = localizedRouteNamePrefix || 'localized-'
     const { $getLocales, $getLocale, $switchLocalePath } = nuxtApp
+    const i18nStrategy = (nuxtApp as unknown as { $i18nStrategy: PathStrategy }).$i18nStrategy
     const allLocales = ($getLocales ? unref($getLocales()) : i18nConfig.locales) ?? []
-    const firstSegment = route.path.replace(/^\//, '').split('/').filter(Boolean)[0]
-    const fallbackLocale = allLocales.find((loc: Locale) => loc.code === firstSegment)?.code || i18nConfig.defaultLocale || 'en'
-    const locale = ($getLocale ? unref($getLocale()) : fallbackLocale) || fallbackLocale
+    const locale = unref($getLocale()) || i18nConfig.defaultLocale || 'en'
     const currentLocale = allLocales.find((loc: Locale) => loc.code === locale)
-    if (!currentLocale || isMetaDisabledForRoute(route, i18nConfig.routeDisableMeta, locale, localizedRouteNamePrefixResolved)) {
+    // disableMeta and the page's locales come from its route records (meta.i18n), custom paths included
+    if (!currentLocale || i18nStrategy.isMetaDisabled(route as unknown as RouteLike, locale)) {
       clearMeta()
       return
     }
-    const switchLocalePath = $switchLocalePath || (() => '')
-    const routeName = (route.name ?? '').toString()
-
-    // Find allowed locales for this route using the utility function
-    const currentRouteLocales = findAllowedLocalesForRoute(route, routeLocales, localizedRouteNamePrefixResolved)
-
-    // Filter out disabled locales and apply $defineI18nRoute restrictions
+    const switchLocalePath = $switchLocalePath
+    const pageLocales = i18nStrategy.pageLocales(route as unknown as RouteLike)
     const enabledLocales = allLocales.filter((loc: Locale) => !loc.disabled)
-    const locales = currentRouteLocales ? enabledLocales.filter((loc: Locale) => currentRouteLocales.includes(loc.code)) : enabledLocales
+    const locales = pageLocales ? enabledLocales.filter((loc: Locale) => pageLocales.includes(loc.code)) : enabledLocales
 
     const currentIso = currentLocale.iso || locale
     const currentOg = resolveOgLocale(currentLocale)
     const missingWarn = i18nConfig.missingWarn ?? true
     const currentDir = currentLocale.dir || 'auto'
-
-    let fullPath = unref(route.fullPath)
-    if (!fullPath.startsWith('/')) {
-      fullPath = `/${fullPath}`
-    }
 
     const whitelist = canonicalQueryWhitelist ?? []
     const trailingSlash = i18nConfig.trailingSlash
@@ -164,23 +153,7 @@ export const useLocaleHead = ({
     }
 
     // Canonical / og:url share `$switchLocalePath` with hreflang (incl. NuxtLink trailingSlash).
-    const currentSwitchedPath = switchLocalePath(locale)
-    let ogUrl: string
-    if (currentSwitchedPath) {
-      ogUrl = toSeoHref(currentSwitchedPath)
-    } else {
-      // Fallback when switchLocalePath is unavailable (tests / meta:false manual use).
-      const matchedLocale = [...locales]
-        .sort((a, b) => b.code.length - a.code.length)
-        .find((localeItem) => fullPath.startsWith(`/${localeItem.code}`))
-      let localizedPath = fullPath
-      if (routeName.startsWith(localizedRouteNamePrefixResolved) && matchedLocale) {
-        localizedPath = fullPath.slice(matchedLocale.code.length + 1)
-        ogUrl = applyTrailingSlash(joinURL(unref(baseUrl), locale, filterQuery(localizedPath, whitelist)), trailingSlash)
-      } else {
-        ogUrl = applyTrailingSlash(joinURL(unref(baseUrl), filterQuery(fullPath, whitelist)), trailingSlash)
-      }
-    }
+    const ogUrl = toSeoHref(switchLocalePath(locale) || route.fullPath)
 
     const htmlAttrs = {
       lang: currentIso,
@@ -268,7 +241,8 @@ export const useLocaleHead = ({
     // x-default tells search engines which URL to show when none of the
     // specified languages match the user's browser settings.
     let xDefaultLink: MetaLink | null = null
-    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false) {
+    // x-default only when the page exists in the default locale (else it would point at another page)
+    if (!isNoPrefixStrategy(strategy!) && defaultLocaleObj?.seo !== false && (!pageLocales || pageLocales.includes(defaultLocale))) {
       const defaultSwitchedPath = switchLocalePath(defaultLocale)
       if (defaultSwitchedPath) {
         xDefaultLink = {

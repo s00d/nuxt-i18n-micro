@@ -4,6 +4,9 @@ import { absolute, normalizePath, normalizeRouteKey, routeKey } from './paths'
 /** Custom paths of one page per locale, or `false` for a page that is not localized. */
 export type Rule = Record<string, string> | false
 
+/** `true` (every locale) or the locales whose SEO tags are off. */
+export type NoMeta = boolean | string[]
+
 /**
  * globalLocaleRoutes / $defineI18nRoute rules and routeLocales restrictions, keyed once by
  * routeKey so `about/team` and `/about/team` are looked up the same way everywhere. A page is
@@ -16,11 +19,20 @@ export class Rules {
   private readonly byName = new Map<string, Rule>()
   private readonly restrictions = new Map<string, string[]>()
   private readonly restrictionsByName = new Map<string, string[]>()
+  private readonly noMeta = new Map<string, NoMeta>()
+  private readonly noMetaByName = new Map<string, NoMeta>()
 
-  constructor(globalLocaleRoutes: GlobalLocaleRoutes = {}, routeLocales: Record<string, string[]> = {}, locales: Locale[] = []) {
+  constructor(
+    globalLocaleRoutes: GlobalLocaleRoutes = {},
+    routeLocales: Record<string, string[]> = {},
+    locales: Locale[] = [],
+    routeDisableMeta: Record<string, NoMeta> = {},
+  ) {
     const codes = new Set(locales.map((l) => l.code))
     const set = keyed(this.rules, this.byName)
     const restrict = keyed(this.restrictions, this.restrictionsByName)
+    const disable = keyed(this.noMeta, this.noMetaByName)
+    for (const [key, value] of Object.entries(routeDisableMeta)) disable(key, value)
     for (const [key, value] of Object.entries(globalLocaleRoutes ?? {})) {
       if (value === false) {
         set(key, false)
@@ -54,6 +66,11 @@ export class Rules {
   /** Locales a page may be served in, or undefined when it is not restricted. */
   allowedLocales(fullPath: string, name: string | undefined): string[] | undefined {
     return this.restrictions.get(routeKey(fullPath)) ?? (name ? this.restrictionsByName.get(name) : undefined)
+  }
+
+  /** `$defineI18nRoute({ disableMeta })`: SEO tags off for the page (every locale, or the listed ones). */
+  disableMeta(fullPath: string, name: string | undefined): NoMeta | undefined {
+    return this.noMeta.get(routeKey(fullPath)) ?? (name ? this.noMetaByName.get(name) : undefined)
   }
 
   /** Custom path of a top-level path for a locale (nitro: prerender and routeRules). */

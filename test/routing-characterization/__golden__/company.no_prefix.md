@@ -67,105 +67,105 @@ Every URL is resolved with `?q=1#top`.
 
 ## To en
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /a-propos | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | /a-propos | null |
-| /about | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | /about | null |
-| /about-us | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | /about-us | null |
-| /article/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /article/hello-world | null |
-| /artikel/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /artikel/hello-world | null |
-| /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | /blog | null |
-| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world | null |
-| /careers | /careers?q=1#top [careers] |  | /careers?q=1#top [careers] | /careers?q=1#top [careers] | /careers | null |
-| /contact | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | /contact | null |
-| /contact-fr | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | /contact-fr | null |
-| /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world | null |
-| /kontakt | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | /kontakt | null |
-| /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint | null |
-| /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | /products | null |
-| /products/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42 | null |
-| /produits/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /produits/42 | null |
-| /produkte/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /produkte/42 | null |
-| /ueber-uns | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | /ueber-uns | null |
-| /en | /en?q=1#top [slug] | /en?q=1#top [slug] | /en?q=1#top [slug] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [slug] | /de?q=1#top [slug] | /de?q=1#top [slug] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /?q=1#top [index] | /de/ | null |
-| /about/ | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /about-us?q=1#top [localized-about-en] | /de/about/ | null |
-| /missing | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing | null |
-| /de/missing | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /a-propos | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | null | null | en,de,fr |
+| /about | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | null | null | en,de,fr |
+| /about-us | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | null | null | en,de,fr |
+| /article/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
+| /artikel/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
+| /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | null | en,de,fr |
+| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
+| /careers | /careers?q=1#top [careers] |  | /careers?q=1#top [careers] | /careers?q=1#top [careers] | null | null | en,de |
+| /contact | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | null | en,de,fr |
+| /contact-fr | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | null | en,de,fr |
+| /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | null | null | en,de,fr |
+| /kontakt | /contact?q=1#top [contact] |  | /contact?q=1#top [contact] | /contact?q=1#top [contact] | null | null | en,de,fr |
+| /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
+| /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | null | null | en,de,fr |
+| /products/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | null | null | en,de,fr |
+| /produits/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | null | null | en,de,fr |
+| /produkte/42 | /products/42?q=1#top [localized-products-id-en] | /products/42-en?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | /products/42?q=1#top [localized-products-id-en] | null | null | en,de,fr |
+| /ueber-uns | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | null | null | en,de,fr |
+| /en | /en?q=1#top [slug] | /en?q=1#top [slug] | /en?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /de | /de?q=1#top [slug] | /de?q=1#top [slug] | /de?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /about/ | /about-us?q=1#top [localized-about-en] |  | /about-us?q=1#top [localized-about-en] | /about-us?q=1#top [localized-about-en] | null | null | en,de,fr |
+| /de/about/ | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /about-us?q=1#top [localized-about-en] | null | null | en,de,fr |
+| /missing | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | null | null | en,de,fr |
+| /de/missing | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | null | null | en,de,fr |
+| /xx/about | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | null | null | en,de,fr |
+| /de/de/about | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | null | null | en,de,fr |
 
 ## To de
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /a-propos | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /a-propos | null |
-| /about | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /about | null |
-| /about-us | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /about-us | null |
-| /article/hello-world | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world-de?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /article/hello-world | null |
-| /artikel/hello-world | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world-de?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world | null |
-| /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | /blog | null |
-| /blog/hello-world | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world-de?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /blog/hello-world | null |
-| /careers | /careers?q=1#top [careers] |  | /careers?q=1#top [careers] | /careers?q=1#top [careers] | /careers | null |
-| /contact | /kontakt?q=1#top [localized-contact-de] |  | /kontakt?q=1#top [localized-contact-de] | /kontakt?q=1#top [localized-contact-de] | /contact | null |
-| /contact-fr | /kontakt?q=1#top [localized-contact-de] |  | /kontakt?q=1#top [localized-contact-de] | /kontakt?q=1#top [localized-contact-de] | /contact-fr | null |
-| /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world | null |
-| /kontakt | /kontakt?q=1#top [localized-contact-de] |  | /kontakt?q=1#top [localized-contact-de] | /kontakt?q=1#top [localized-contact-de] | /kontakt | null |
-| /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint | null |
-| /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | /products | null |
-| /products/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /products/42 | null |
-| /produits/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produits/42 | null |
-| /produkte/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42 | null |
-| /ueber-uns | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns | null |
-| /en | /en?q=1#top [slug] | /en?q=1#top [slug] | /en?q=1#top [slug] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [slug] | /de?q=1#top [slug] | /de?q=1#top [slug] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /?q=1#top [index] | /de/ | null |
-| /about/ | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /ueber-uns?q=1#top [localized-about-de] | /de/about/ | null |
-| /missing | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing | null |
-| /de/missing | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /a-propos | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | null | null | en,de,fr |
+| /about | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | null | null | en,de,fr |
+| /about-us | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | null | null | en,de,fr |
+| /article/hello-world | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world-de?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | null | null | en,de,fr |
+| /artikel/hello-world | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world-de?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | null | null | en,de,fr |
+| /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | null | en,de,fr |
+| /blog/hello-world | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world-de?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | /artikel/hello-world?q=1#top [localized-blog-slug-de] | null | null | en,de,fr |
+| /careers | /careers?q=1#top [careers] |  | /careers?q=1#top [careers] | /careers?q=1#top [careers] | null | null | en,de |
+| /contact | /kontakt?q=1#top [localized-contact-de] |  | /kontakt?q=1#top [localized-contact-de] | /kontakt?q=1#top [localized-contact-de] | null | null | en,de,fr |
+| /contact-fr | /kontakt?q=1#top [localized-contact-de] |  | /kontakt?q=1#top [localized-contact-de] | /kontakt?q=1#top [localized-contact-de] | null | null | en,de,fr |
+| /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | null | null | en,de,fr |
+| /kontakt | /kontakt?q=1#top [localized-contact-de] |  | /kontakt?q=1#top [localized-contact-de] | /kontakt?q=1#top [localized-contact-de] | null | null | en,de,fr |
+| /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
+| /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | null | null | en,de,fr |
+| /products/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | null | null | en,de,fr |
+| /produits/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | null | null | en,de,fr |
+| /produkte/42 | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42-de?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | /produkte/42?q=1#top [localized-products-id-de] | null | null | en,de,fr |
+| /ueber-uns | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | null | null | en,de,fr |
+| /en | /en?q=1#top [slug] | /en?q=1#top [slug] | /en?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /de | /de?q=1#top [slug] | /de?q=1#top [slug] | /de?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /about/ | /ueber-uns?q=1#top [localized-about-de] |  | /ueber-uns?q=1#top [localized-about-de] | /ueber-uns?q=1#top [localized-about-de] | null | null | en,de,fr |
+| /de/about/ | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /ueber-uns?q=1#top [localized-about-de] | null | null | en,de,fr |
+| /missing | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | null | null | en,de,fr |
+| /de/missing | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | null | null | en,de,fr |
+| /xx/about | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | null | null | en,de,fr |
+| /de/de/about | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | null | null | en,de,fr |
 
 ## To fr
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /a-propos | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | /a-propos | null |
-| /about | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | /about | null |
-| /about-us | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | /about-us | null |
-| /article/hello-world | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world-fr?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world | null |
-| /artikel/hello-world | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world-fr?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /artikel/hello-world | null |
-| /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | /blog | null |
-| /blog/hello-world | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world-fr?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /blog/hello-world | null |
-| /careers | /careers?q=1#top [careers] |  | /careers?q=1#top [careers] | /careers?q=1#top [careers] | /careers | null |
-| /contact | /contact-fr?q=1#top [localized-contact-fr] |  | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr?q=1#top [localized-contact-fr] | /contact | null |
-| /contact-fr | /contact-fr?q=1#top [localized-contact-fr] |  | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr | null |
-| /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world | null |
-| /kontakt | /contact-fr?q=1#top [localized-contact-fr] |  | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr?q=1#top [localized-contact-fr] | /kontakt | null |
-| /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint | null |
-| /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | /products | null |
-| /products/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /products/42 | null |
-| /produits/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42 | null |
-| /produkte/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produkte/42 | null |
-| /ueber-uns | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | /ueber-uns | null |
-| /en | /en?q=1#top [slug] | /en?q=1#top [slug] | /en?q=1#top [slug] | /?q=1#top [index] | /en | null |
-| /en/ | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /?q=1#top [index] | /en/ | null |
-| /de | /de?q=1#top [slug] | /de?q=1#top [slug] | /de?q=1#top [slug] | /?q=1#top [index] | /de | null |
-| /de/ | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /?q=1#top [index] | /de/ | null |
-| /about/ | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | /about/ | null |
-| /de/about/ | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /a-propos?q=1#top [localized-about-fr] | /de/about/ | null |
-| /missing | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing | null |
-| /de/missing | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about | null |
-| /de/de/about | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /a-propos | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | null | null | en,de,fr |
+| /about | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | null | null | en,de,fr |
+| /about-us | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | null | null | en,de,fr |
+| /article/hello-world | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world-fr?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | null | null | en,de,fr |
+| /artikel/hello-world | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world-fr?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | null | null | en,de,fr |
+| /blog | /blog?q=1#top [blog] |  | /blog?q=1#top [blog] | /blog?q=1#top [blog] | null | null | en,de,fr |
+| /blog/hello-world | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world-fr?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | /article/hello-world?q=1#top [localized-blog-slug-fr] | null | null | en,de,fr |
+| /careers | / [index] |  | / [index] | / [index] | null | null | en,de |
+| /contact | /contact-fr?q=1#top [localized-contact-fr] |  | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr?q=1#top [localized-contact-fr] | null | null | en,de,fr |
+| /contact-fr | /contact-fr?q=1#top [localized-contact-fr] |  | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr?q=1#top [localized-contact-fr] | null | null | en,de,fr |
+| /hello-world | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | /hello-world?q=1#top [slug] | null | null | en,de,fr |
+| /kontakt | /contact-fr?q=1#top [localized-contact-fr] |  | /contact-fr?q=1#top [localized-contact-fr] | /contact-fr?q=1#top [localized-contact-fr] | null | null | en,de,fr |
+| /legal/imprint | /legal/imprint?q=1#top [legal-imprint] |  | /legal/imprint?q=1#top [legal-imprint] | /legal/imprint?q=1#top [legal-imprint] | null | null | null |
+| /products | /products?q=1#top [products] |  | /products?q=1#top [products] | /products?q=1#top [products] | null | null | en,de,fr |
+| /products/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | null | null | en,de,fr |
+| /produits/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | null | null | en,de,fr |
+| /produkte/42 | /produits/42?q=1#top [localized-products-id-fr] | /produits/42-fr?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | /produits/42?q=1#top [localized-products-id-fr] | null | null | en,de,fr |
+| /ueber-uns | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | null | null | en,de,fr |
+| /en | /en?q=1#top [slug] | /en?q=1#top [slug] | /en?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /en/?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /de | /de?q=1#top [slug] | /de?q=1#top [slug] | /de?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /de/?q=1#top [slug] | /?q=1#top [index] | null | null | en,de,fr |
+| /about/ | /a-propos?q=1#top [localized-about-fr] |  | /a-propos?q=1#top [localized-about-fr] | /a-propos?q=1#top [localized-about-fr] | null | null | en,de,fr |
+| /de/about/ | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /de/about/?q=1#top [slug] | /a-propos?q=1#top [localized-about-fr] | null | null | en,de,fr |
+| /missing | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | /missing?q=1#top [slug] | null | null | en,de,fr |
+| /de/missing | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | /de/missing?q=1#top [slug] | null | null | en,de,fr |
+| /xx/about | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | /xx/about?q=1#top [slug] | null | null | en,de,fr |
+| /de/de/about | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | /de/de/about?q=1#top [slug] | null | null | en,de,fr |
 
 ## localeRoute({ name, params }) from each home page
 
@@ -176,7 +176,7 @@ params: the PARAMS keys the route's records use.
 | about | /about-us [localized-about-en] | /ueber-uns [localized-about-de] | /a-propos [localized-about-fr] |
 | blog | /blog [blog] | /blog [blog] | /blog [blog] |
 | blog-slug | /blog/hello-world [blog-slug] | /artikel/hello-world [localized-blog-slug-de] | /article/hello-world [localized-blog-slug-fr] |
-| careers | /careers [careers] | /careers [careers] | /careers [careers] |
+| careers | /careers [careers] | /careers [careers] | / [index] |
 | contact | /contact [contact] | /kontakt [localized-contact-de] | /contact-fr [localized-contact-fr] |
 | index | / [index] | / [index] | / [index] |
 | legal-imprint | /legal/imprint [legal-imprint] | /legal/imprint [legal-imprint] | /legal/imprint [legal-imprint] |
@@ -184,6 +184,6 @@ params: the PARAMS keys the route's records use.
 | products-id | /products/42 [localized-products-id-en] | /produkte/42 [localized-products-id-de] | /produits/42 [localized-products-id-fr] |
 | slug | /hello-world [slug] | /hello-world [slug] | /hello-world [slug] |
 
-## Invariant breaks (0)
+## Invariant breaks (1)
 
-none
+- /careers → fr → en: round trip ends on /, not /careers?q=1#top

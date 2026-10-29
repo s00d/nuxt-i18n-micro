@@ -38,63 +38,63 @@ Every URL is resolved with `?q=1#top`.
 
 ## To en
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | / | null |
-| /a-propos | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /a-propos | null |
-| /about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about | null |
-| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world | null |
-| /ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /ueber-uns | null |
-| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en | null |
-| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /en/ | null |
-| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de | null |
-| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | /de/ | null |
-| /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /about/ | null |
-| /de/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | /de/about/ | null |
-| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /missing | null |
-| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | /de/missing | null |
-| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | /xx/about | null |
-| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /a-propos | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
+| /about | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
+| /blog/hello-world | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world-en?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | /blog/hello-world?q=1#top [blog-slug] | null | null | en,de,fr |
+| /ueber-uns | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
+| /en | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /en/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /de/ | /?q=1#top [index] |  | /?q=1#top [index] | /?q=1#top [index] | null | null | en,de,fr |
+| /about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
+| /de/about/ | /about?q=1#top [about] |  | /about?q=1#top [about] | /about?q=1#top [about] | null | null | en,de,fr |
+| /missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /de/missing | /missing?q=1#top [—] |  | /missing?q=1#top [null] | /missing?q=1#top [null] | null | null | null |
+| /xx/about | /xx/about?q=1#top [—] |  | /xx/about?q=1#top [null] | /xx/about?q=1#top [null] | null | null | null |
+| /de/de/about | /de/about?q=1#top [—] |  | /de/about?q=1#top [null] | /de/about?q=1#top [null] | null | null | null |
 
 ## To de
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | / | null |
-| /a-propos | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /a-propos | null |
-| /about | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /about | null |
-| /blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world-de?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | /blog/hello-world | null |
-| /ueber-uns | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /ueber-uns | null |
-| /en | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /en | null |
-| /en/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /en/ | null |
-| /de | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /de | null |
-| /de/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | /de/ | null |
-| /about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /about/ | null |
-| /de/about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | /de/about/ | null |
-| /missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /missing | null |
-| /de/missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | /de/missing | null |
-| /xx/about | external https://example.de/xx/about?q=1#top |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | /xx/about | null |
-| /de/de/about | external https://example.de/de/about?q=1#top |  | https://example.de/de/about?q=1#top [—] | https://example.de/de/about?q=1#top [—] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
+| /a-propos | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,fr |
+| /about | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,fr |
+| /blog/hello-world | external https://example.de/blog/hello-world?q=1#top | external https://example.de/blog/hello-world-de?q=1#top | https://example.de/blog/hello-world?q=1#top [—] | https://example.de/blog/hello-world?q=1#top [—] | null | null | en,de,fr |
+| /ueber-uns | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,fr |
+| /en | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
+| /en/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
+| /de | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
+| /de/ | external https://example.de/?q=1#top |  | https://example.de/?q=1#top [—] | https://example.de/?q=1#top [—] | null | null | en,de,fr |
+| /about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,fr |
+| /de/about/ | external https://example.de/ueber-uns?q=1#top |  | https://example.de/ueber-uns?q=1#top [—] | https://example.de/ueber-uns?q=1#top [—] | null | null | en,de,fr |
+| /missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | null | null | null |
+| /de/missing | external https://example.de/missing?q=1#top |  | https://example.de/missing?q=1#top [—] | https://example.de/missing?q=1#top [—] | null | null | null |
+| /xx/about | external https://example.de/xx/about?q=1#top |  | https://example.de/xx/about?q=1#top [—] | https://example.de/xx/about?q=1#top [—] | null | null | null |
+| /de/de/about | external https://example.de/de/about?q=1#top |  | https://example.de/de/about?q=1#top [—] | https://example.de/de/about?q=1#top [—] | null | null | null |
 
 ## To fr
 
-| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | formatPathForResolve | getClientRedirect |
-|---|---|---|---|---|---|---|
-| / | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | / | null |
-| /a-propos | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | /a-propos | null |
-| /about | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | /about | null |
-| /blog/hello-world | external https://example.fr/blog/hello-world?q=1#top | external https://example.fr/blog/hello-world-fr?q=1#top | https://example.fr/blog/hello-world?q=1#top [—] | https://example.fr/blog/hello-world?q=1#top [—] | /blog/hello-world | null |
-| /ueber-uns | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | /ueber-uns | null |
-| /en | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | /en | null |
-| /en/ | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | /en/ | null |
-| /de | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | /de | null |
-| /de/ | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | /de/ | null |
-| /about/ | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | /about/ | null |
-| /de/about/ | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | /de/about/ | null |
-| /missing | external https://example.fr/missing?q=1#top |  | https://example.fr/missing?q=1#top [—] | https://example.fr/missing?q=1#top [—] | /missing | null |
-| /de/missing | external https://example.fr/missing?q=1#top |  | https://example.fr/missing?q=1#top [—] | https://example.fr/missing?q=1#top [—] | /de/missing | null |
-| /xx/about | external https://example.fr/xx/about?q=1#top |  | https://example.fr/xx/about?q=1#top [—] | https://example.fr/xx/about?q=1#top [—] | /xx/about | null |
-| /de/de/about | external https://example.fr/de/about?q=1#top |  | https://example.fr/de/about?q=1#top [—] | https://example.fr/de/about?q=1#top [—] | /de/de/about | null |
+| url | switchLocaleRoute | switch + i18nRouteParams | localeRoute(route) | localeRoute(url) | getClientRedirect | getClientRedirect('*') | pageLocales |
+|---|---|---|---|---|---|---|---|
+| / | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | null | null | en,de,fr |
+| /a-propos | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | null | null | en,de,fr |
+| /about | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | null | null | en,de,fr |
+| /blog/hello-world | external https://example.fr/blog/hello-world?q=1#top | external https://example.fr/blog/hello-world-fr?q=1#top | https://example.fr/blog/hello-world?q=1#top [—] | https://example.fr/blog/hello-world?q=1#top [—] | null | null | en,de,fr |
+| /ueber-uns | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | null | null | en,de,fr |
+| /en | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | null | null | en,de,fr |
+| /en/ | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | null | null | en,de,fr |
+| /de | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | null | null | en,de,fr |
+| /de/ | external https://example.fr/?q=1#top |  | https://example.fr/?q=1#top [—] | https://example.fr/?q=1#top [—] | null | null | en,de,fr |
+| /about/ | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | null | null | en,de,fr |
+| /de/about/ | external https://example.fr/a-propos?q=1#top |  | https://example.fr/a-propos?q=1#top [—] | https://example.fr/a-propos?q=1#top [—] | null | null | en,de,fr |
+| /missing | external https://example.fr/missing?q=1#top |  | https://example.fr/missing?q=1#top [—] | https://example.fr/missing?q=1#top [—] | null | null | null |
+| /de/missing | external https://example.fr/missing?q=1#top |  | https://example.fr/missing?q=1#top [—] | https://example.fr/missing?q=1#top [—] | null | null | null |
+| /xx/about | external https://example.fr/xx/about?q=1#top |  | https://example.fr/xx/about?q=1#top [—] | https://example.fr/xx/about?q=1#top [—] | null | null | null |
+| /de/de/about | external https://example.fr/de/about?q=1#top |  | https://example.fr/de/about?q=1#top [—] | https://example.fr/de/about?q=1#top [—] | null | null | null |
 
 ## localeRoute({ name, params }) from each home page
 

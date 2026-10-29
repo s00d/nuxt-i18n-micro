@@ -1,4 +1,5 @@
 import { isNoPrefixStrategy } from '@i18n-micro/core'
+import type { PathStrategy, ResolvedRouteLike } from '@i18n-micro/path-strategy'
 import type { ModuleOptionsExtend, Translations } from '@i18n-micro/types'
 import { resolveI18nConfigWithRuntimeOverrides } from '@i18n-micro/utils/runtime-config'
 import type { RouteLocationResolvedGeneric } from 'vue-router'
@@ -16,7 +17,8 @@ export default defineNuxtPlugin({
       (typeof getRuntimeConfig === 'function' ? getRuntimeConfig() : getI18nConfig()) as ModuleOptionsExtend,
     )
     const router = useRouter()
-    const { $getLocale, $getRouteName } = useNuxtApp()
+    const { $getLocale } = useNuxtApp()
+    const i18nStrategy = (nuxtApp as unknown as { $i18nStrategy: PathStrategy }).$i18nStrategy
 
     // @ts-expect-error $i18n is dynamically provided
     const i18nHelper = nuxtApp.$i18n?.helper as
@@ -32,7 +34,8 @@ export default defineNuxtPlugin({
 
     const callRegister = async (route?: RouteLocationResolvedGeneric) => {
       const locale = $getLocale(route)
-      const routeName = $getRouteName(route)
+      // the chunk key the loader uses (`index` under disablePageLocales), not the route's base name
+      const routeName = i18nStrategy.getPluginRouteName((route ?? router.currentRoute.value) as unknown as ResolvedRouteLike, locale)
       const mergeTasks: Promise<void>[] = []
 
       await nuxtApp.callHook(

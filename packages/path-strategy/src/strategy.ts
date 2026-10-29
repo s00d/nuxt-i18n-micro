@@ -5,7 +5,15 @@
  * serves it, and every answer is one Map lookup plus one `router.resolve`.
  */
 import type { Locale, Strategies } from '@i18n-micro/types'
-import type { PathStrategyContext, ResolvedRouteLike, RouteI18nMeta, RouteLike, RouterAdapter, SwitchLocaleOptions } from './types'
+import type {
+  ClientRedirectOptions,
+  PathStrategyContext,
+  ResolvedRouteLike,
+  RouteI18nMeta,
+  RouteLike,
+  RouterAdapter,
+  SwitchLocaleOptions,
+} from './types'
 
 interface Entry {
   /** Base route name of the page. */
@@ -21,8 +29,23 @@ interface Index {
   records: Map<string, Entry>
   /** base -> locale -> record name */
   pages: Map<string, Map<string, string>>
+  /** base -> `disableMeta` of the page */
+  noMeta: Map<string, boolean | string[]>
   /** Named records that are not localized (`false` rules, excluded pages). */
   unlocalized: Set<string>
+}
+
+/**
+ * The index and the URL caches of one route table. Shared by every strategy built on the same
+ * routes (each SSR request gets a new router, never new routes), so a request starts warm.
+ */
+interface Shared {
+  index: Index
+  /** URL -> page and URL -> 404 reason: matching a path walks every record, a cache hit does not. */
+  pages: Map<string, Page | typeof UNLOCALIZED | null>
+  notFound: Map<string, string | null>
+  /** record + params + query + hash -> resolved target: one router.resolve per distinct link */
+  targets: Map<string, Target | null>
 }
 
 type Target = RouteLike & { path: string; fullPath: string }
@@ -57,25 +80,20 @@ export class I18nPathStrategy {
   private readonly ctx: PathStrategyContext
   private readonly codes: Set<string>
   private readonly prefix: string
-  private index_: Index | undefined
-  /** URL -> page and URL -> 404 reason: matching a path walks every record, a cache hit does not. */
-  private readonly pageCache = new Map<string, Page | typeof UNLOCALIZED | null>()
-  private readonly notFoundCache = new Map<string, string | null>()
-  /** record + params + query + hash -> resolved target: one router.resolve per distinct link */
-  private readonly targetCache = new Map<string, Target | null>()
+  private readonly unknownLocale: RegExp | null
+  private shared_: Shared | undefined
 
   constructor(ctx: PathStrategyContext) {
     this.ctx = ctx
     this.codes = new Set(ctx.locales.filter((l) => !l.disabled).map((l) => l.code))
     this.prefix = ctx.localizedRouteNamePrefix ?? 'localized-'
+    // `/re/` and `re` alike, as route-strategy reads it
+    this.unknownLocale = ctx.customRegexMatcher ? new RegExp(`^(?:${ctx.customRegexMatcher.replace(/^\/(.*)\/$/, '$1')})$`) : null
   }
 
   setRouter(router: RouterAdapter): void {
     this.ctx.router = router
-    this.index_ = undefined
-    this.pageCache.clear()
-    this.notFoundCache.clear()
-    this.targetCache.clear()
+    this.shared_ = undefined
   }
 
   getDefaultLocale(): string {
@@ -94,26 +112,22 @@ export class I18nPathStrategy {
     return this.prefix
   }
 
-  // ponytail: built once per router; routes added later with router.addRoute need setRouter() to be seen
-  private get index(): Index {
-    if (this.index_) return this.index_
-    const index: Index = { records: new Map(), pages: new Map(), unlocalized: new Set() }
-    for (const record of this.ctx.router.getRoutes()) {
-      if (record.aliasOf || record.name === null || record.name === undefined) continue
-      const name = String(record.name)
-      const i18n = record.meta?.i18n as RouteI18nMeta | undefined
-      if (!i18n) {
-        if (!record.redirect) index.unlocalized.add(name)
-        continue
-      }
-      const keys = Array.from(record.path.matchAll(/:(\w+)/g), (m) => m[1]!)
-      index.records.set(name, { base: i18n.name, locales: i18n.locales, keys, catchAll: record.path.includes('(.*)') })
-      let byLocale = index.pages.get(i18n.name)
-      if (!byLocale) index.pages.set(i18n.name, (byLocale = new Map()))
-      // prefix_and_default serves the default locale twice: links use the prefixed record
-      for (const locale of i18n.locales) if (!byLocale.has(locale) || keys.includes('locale')) byLocale.set(locale, name)
+  // ponytail: read once per router; routes added later with router.addRoute need setRouter() to be seen
+  private get shared(): Shared {
+    if (this.shared_) return this.shared_
+    const records = this.ctx.router.getRoutes().filter((record) => !record.aliasOf && record.name !== null && record.name !== undefined)
+    // name, path and meta.i18n: a dev reload that only changes a page's locales or disableMeta is another table
+    const signature = `${this.ctx.strategy}\0${records.map((record) => `${String(record.name)}\0${record.path}\0${JSON.stringify(record.meta?.i18n ?? null)}`).join('\0')}`
+    let shared = SHARED.get(signature)
+    if (!shared) {
+      shared = { index: buildIndex(records), pages: new Map(), notFound: new Map(), targets: new Map() }
+      remember(SHARED, signature, shared, SHARED_SIZE)
     }
-    return (this.index_ = index)
+    return (this.shared_ = shared)
+  }
+
+  private get index(): Index {
+    return this.shared.index
   }
 
   /** Whether URLs in `locale` carry the locale segment. */
@@ -144,8 +158,9 @@ export class I18nPathStrategy {
 
   /** The page a URL shows: its own record, else the record it has in another locale's form. */
   private findPage(path: string): Page | typeof UNLOCALIZED | null {
-    let page = this.pageCache.get(path)
-    if (page === undefined) remember(this.pageCache, path, (page = this.matchPage(path)))
+    const cache = this.shared.pages
+    let page = cache.get(path)
+    if (page === undefined) remember(cache, path, (page = this.matchPage(path)))
     return page
   }
 
@@ -178,10 +193,29 @@ export class I18nPathStrategy {
     return this.index.pages.has(name) ? name : null
   }
 
-  /** Page `base` in `locale`, resolved by the router (the current route's params fill missing ones). */
+  /** Base name of the page a route shows, or null (unlocalized, unknown). */
+  private pageBase(route: RouteLike): string | null {
+    if (route.name) return this.baseOf(String(route.name))
+    const page = route.path ? this.findPage(splitUrl(route.path).path) : null
+    return page && page !== UNLOCALIZED ? page.base : null
+  }
+
+  /** Locales the page of `route` is served in (every record of it), or null when it is not localized. */
+  pageLocales(route: RouteLike): string[] | null {
+    const base = this.pageBase(route)
+    return base ? [...this.index.pages.get(base)!.keys()] : null
+  }
+
+  /** Whether `$defineI18nRoute({ disableMeta })` turns the SEO tags of this page off in `locale`. */
+  isMetaDisabled(route: RouteLike, locale: string): boolean {
+    const base = this.pageBase(route)
+    const noMeta = base ? this.index.noMeta.get(base) : undefined
+    return noMeta === true || (Array.isArray(noMeta) && noMeta.includes(locale))
+  }
+
+  /** Page `base` in `locale` (null when the page is not served there), resolved by the router. */
   private routeTo(locale: string, base: string, params: Record<string, unknown>, query?: Record<string, unknown>, hash?: string): Target | null {
-    const byLocale = this.index.pages.get(base)
-    const name = byLocale?.get(locale) ?? byLocale?.get(this.ctx.defaultLocale) ?? byLocale?.values().next().value
+    const name = this.index.pages.get(base)?.get(locale)
     if (!name) return null
     const entry = this.index.records.get(name)!
     const own: Record<string, unknown> = {}
@@ -193,12 +227,13 @@ export class I18nPathStrategy {
     // param-less call could differ per page: only cache when every record param is given
     const complete = entry.keys.every((key) => own[key] !== undefined)
     const cacheKey = complete ? `${name}\0${JSON.stringify(own)}\0${query ? JSON.stringify(query) : ''}\0${hash ?? ''}` : ''
-    let target = complete ? this.targetCache.get(cacheKey) : undefined
+    const cache = this.shared.targets
+    let target = complete ? cache.get(cacheKey) : undefined
     if (target === undefined) {
       const route = this.resolve({ name, params: own, query, hash })
       // name + every param: router.push / NuxtLink resolve it by name (a Map lookup), not by matching the path
       target = route ? { name, params: route.params, path: route.path, fullPath: route.fullPath, query: route.query, hash: route.hash } : null
-      if (complete) remember(this.targetCache, cacheKey, target)
+      if (complete) remember(cache, cacheKey, target)
     }
     // callers may add fields (the plugin sets `force`): never hand out the cached object
     return target && { ...target }
@@ -239,8 +274,15 @@ export class I18nPathStrategy {
     }
     const params = { ...route.params, ...options.i18nRouteParams?.[toLocale] }
     const target = this.routeTo(toLocale, base, params, route.query, route.hash)
-    if (!target) return route
-    return this.external(toLocale, target) ?? target
+    const resolved = target ?? this.home(toLocale)
+    return this.external(toLocale, resolved) ?? resolved
+  }
+
+  /** `locale`'s home: where a page that locale does not serve leads, never another locale's page. */
+  private home(locale: string): Target {
+    const path = this.prefixed(locale, '/')
+    const page = this.findPage(path)
+    return (page && page !== UNLOCALIZED && this.routeTo(locale, page.base, page.params)) || { path, fullPath: path }
   }
 
   localeRoute(targetLocale: string, routeOrPath: RouteLike | string, _currentRoute?: ResolvedRouteLike): RouteLike {
@@ -249,11 +291,12 @@ export class I18nPathStrategy {
     let target: Target | null = null
     if (name) {
       const base = this.baseOf(String(name))
-      if (base) target = this.routeTo(targetLocale, base, input.params ?? {}, input.query, input.hash)
+      if (base) target = this.routeTo(targetLocale, base, input.params ?? {}, input.query, input.hash) ?? this.home(targetLocale)
       else if (this.ctx.router.hasRoute(String(name))) target = this.resolve(routeOrPath)
     } else if (input.path !== undefined) {
       const page = this.findPage(input.path)
-      if (page && page !== UNLOCALIZED) target = this.routeTo(targetLocale, page.base, page.params, input.query, input.hash)
+      if (page && page !== UNLOCALIZED)
+        target = this.routeTo(targetLocale, page.base, page.params, input.query, input.hash) ?? this.home(targetLocale)
       else {
         const path = page === UNLOCALIZED ? input.path : this.prefixed(targetLocale, input.path)
         target = this.probe({ path, query: input.query, hash: input.hash }) ?? { path, fullPath: path }
@@ -313,22 +356,19 @@ export class I18nPathStrategy {
     return this.getLocaleFromPath(path) ?? (this.ctx.strategy === 'prefix_except_default' ? this.ctx.defaultLocale : null)
   }
 
-  /** A path written in `fromLocale`'s form without its prefix, made resolvable by the router. */
-  formatPathForResolve(path: string, fromLocale: string, _toLocale: string): string {
-    if (!this.hasPrefix(fromLocale) || this.getLocaleFromPath(path)) return path
-    return path === '/' ? `/${fromLocale}` : `/${fromLocale}${path}`
-  }
-
-  /** Why a prefixed URL must be a 404, or null. */
+  /** Why a URL must be a 404 (a prefix that is wrong for it, an unknown locale-like segment), or null. */
   shouldReturn404(currentPath: string): string | null {
-    if (this.ctx.strategy === 'no_prefix') return null
     const path = splitUrl(currentPath).path
-    let reason = this.notFoundCache.get(path)
-    if (reason === undefined) remember(this.notFoundCache, path, (reason = this.notFoundReason(path)))
+    const cache = this.shared.notFound
+    let reason = cache.get(path)
+    if (reason === undefined) remember(cache, path, (reason = this.notFoundReason(path)))
     return reason
   }
 
   private notFoundReason(path: string): string | null {
+    const segment = path.split('/')[1] ?? ''
+    if (this.unknownLocale && segment && !this.codes.has(segment) && this.unknownLocale.test(segment)) return 'Unknown locale'
+    if (this.ctx.strategy === 'no_prefix') return null
     const locale = this.getLocaleFromPath(path)
     if (!locale) return null
     if (this.ctx.strategy === 'prefix_except_default' && locale === this.ctx.defaultLocale) return 'Default locale should not have prefix'
@@ -348,23 +388,61 @@ export class I18nPathStrategy {
    * Where an unprefixed URL goes for the preferred locale (server plugin and client middleware),
    * or null to stay. URLs with a locale prefix are never rewritten here.
    */
-  getClientRedirect(currentPath: string, preferredLocale: string): string | null {
-    if (this.ctx.strategy === 'no_prefix' || this.ctx.strategy === 'prefix_and_default') return null
+  getClientRedirect(currentPath: string, preferredLocale: string, options: ClientRedirectOptions = {}): string | null {
+    if (this.ctx.strategy === 'no_prefix') return null
     const path = splitUrl(currentPath).path || '/'
-    if (this.getLocaleFromPath(path)) return null
+    const locale = this.getLocaleFromPath(path)
+    if (locale) return options.switchPrefixed && locale !== preferredLocale ? this.moved(path, preferredLocale) : null
+    if (this.ctx.strategy === 'prefix_and_default') return null
+    return this.moved(path, preferredLocale)
+  }
+
+  /** The URL of the page `path` shows, in `locale`; null to stay (same URL, unlocalized, not served in `locale`). */
+  private moved(path: string, locale: string): string | null {
     const page = this.findPage(path)
     if (page === UNLOCALIZED) return null
+    const served = page ? this.index.pages.get(page.base)! : null
+    if (page && served && !served.has(locale)) {
+      // a page `locale` does not serve: under `prefix` nothing is served unprefixed, so the page in a
+      // locale that has it (the default first); elsewhere the URL already shows it
+      if (this.ctx.strategy !== 'prefix') return null
+      locale = served.has(this.ctx.defaultLocale) ? this.ctx.defaultLocale : served.keys().next().value!
+    }
     // a URL no record serves still moves to the preferred locale's form: `prefix` serves nothing
     // unprefixed, and `pages: false` / apps without an index page rely on `/` -> `/de`
-    const target = withoutTrailingSlash((page && this.routeTo(preferredLocale, page.base, page.params)?.path) || this.prefixed(preferredLocale, path))
+    const target = withoutTrailingSlash((page && this.routeTo(locale, page.base, page.params)?.path) || this.prefixed(locale, path))
     return safeDecode(target) === safeDecode(withoutTrailingSlash(path)) ? null : target
   }
 }
 
+function buildIndex(records: ReturnType<RouterAdapter['getRoutes']>): Index {
+  const index: Index = { records: new Map(), pages: new Map(), noMeta: new Map(), unlocalized: new Set() }
+  for (const record of records) {
+    const name = String(record.name)
+    const i18n = record.meta?.i18n as RouteI18nMeta | undefined
+    if (!i18n) {
+      if (!record.redirect) index.unlocalized.add(name)
+      continue
+    }
+    const keys = Array.from(record.path.matchAll(/:(\w+)/g), (m) => m[1]!)
+    index.records.set(name, { base: i18n.name, locales: i18n.locales, keys, catchAll: record.path.includes('(.*)') })
+    if (i18n.noMeta !== undefined) index.noMeta.set(i18n.name, i18n.noMeta)
+    let byLocale = index.pages.get(i18n.name)
+    if (!byLocale) index.pages.set(i18n.name, (byLocale = new Map()))
+    // prefix_and_default serves the default locale twice: links use the prefixed record
+    for (const locale of i18n.locales) if (!byLocale.has(locale) || keys.includes('locale')) byLocale.set(locale, name)
+  }
+  return index
+}
+
+/** Route tables seen in this process (one per app; dev reloads add more). */
+const SHARED = new Map<string, Shared>()
+const SHARED_SIZE = 4
+
 // ponytail: dropped wholesale when full; an LRU only pays off for apps with more distinct URLs than this
 const CACHE_SIZE = 1000
-function remember<T>(cache: Map<string, T>, key: string, value: T): void {
-  if (cache.size >= CACHE_SIZE) cache.clear()
+function remember<T>(cache: Map<string, T>, key: string, value: T, size = CACHE_SIZE): void {
+  if (cache.size >= size) cache.clear()
   cache.set(key, value)
 }
 

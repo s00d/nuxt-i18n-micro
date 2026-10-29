@@ -319,6 +319,39 @@ describe('localeRoute: nested route includes parent path', () => {
       'de',
       '/de/ueber-uns/team-seite',
     ],
+    // conflicting rules: the one whose own-locale value built the router path wins
+    [
+      'sibling, custom path + stale about/team',
+      '/our-team',
+      { about, 'about-team': { en: '/our-team', de: '/team-seite' }, 'about/team': { en: 'team', de: 'team-x' } },
+      'en',
+      '/our-team',
+    ],
+    [
+      'sibling, custom path + stale about/team',
+      '/our-team',
+      { about, 'about-team': { en: '/our-team', de: '/team-seite' }, 'about/team': { en: 'team', de: 'team-x' } },
+      'de',
+      '/de/team-seite',
+    ],
+    [
+      'flat, custom path under both keys',
+      '/crew',
+      { about, 'about/team': { en: '/crew', de: '/ueber-uns/team-p' }, 'about-team': { en: '/crew2', de: '/team-n' } },
+      'en',
+      '/crew',
+    ],
+    [
+      'flat, custom path under both keys',
+      '/crew',
+      { about, 'about/team': { en: '/crew', de: '/ueber-uns/team-p' }, 'about-team': { en: '/crew2', de: '/team-n' } },
+      'de',
+      '/de/ueber-uns/team-p',
+    ],
+    // rule without the route's own locale: absolute name-keyed value is complete
+    ['flat, name rule without en', '/about/team', { about, 'about-team': { de: '/team-x' } }, 'de', '/de/team-x'],
+    // relative nested value does not claim the top-level URL
+    ['sibling, relative about/team value', '/about-team', { about, 'about/team': { en: 'about-team', de: 'team-seite' } }, 'de', '/de/about-team'],
   ])('about-team: %s (router %s) %j → %s = %s', (_label, routerPath, rules, locale, expected) => {
     const strategy = strategyAt('about-team', routerPath, rules)
     expect(pathOf(strategy.localeRoute(locale, { name: 'about-team' }))).toBe(expected)
